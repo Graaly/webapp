@@ -23,14 +23,17 @@ Vue.use(VueGoogleMaps, {
   }
 })
 
-import Quasar, { QBtn, QIcon, QItemMain, QItemSide, QLayout, QList, QListHeader, QRouteTab, QSearch, QSideLink, QTabs, QToolbar, QToolbarTitle } from 'quasar'
+import Vuelidate from 'vuelidate'
+Vue.use(Vuelidate);
+
+import Quasar, { QBtn, QField, QIcon, QInput, QItemMain, QItemSide, QLayout, QList, QListHeader, QRouteTab, QSearch, QSideLink, QTabs, QToolbar, QToolbarTitle } from 'quasar'
 import router from './router'
 import store from './store'
 // import App from 'src/App.vue'
 
 Vue.config.productionTip = false
 Vue.use(Quasar, {
-  components: { QBtn, QIcon, QItemMain, QItemSide, QLayout, QList, QListHeader, QRouteTab, QSearch, QSideLink, QTabs, QToolbar, QToolbarTitle }
+  components: { QBtn, QField, QIcon, QInput, QItemMain, QItemSide, QLayout, QList, QListHeader, QRouteTab, QSearch, QSideLink, QTabs, QToolbar, QToolbarTitle }
 })
 
 if (__THEME === 'mat') {

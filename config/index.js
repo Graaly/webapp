@@ -6,6 +6,7 @@ module.exports = {
     quasar: path.resolve(__dirname, '../node_modules/quasar-framework/'),
     src: path.resolve(__dirname, '../src'),
     assets: path.resolve(__dirname, '../src/assets'),
+    services: path.resolve(__dirname, '../src/services'),
     '@': path.resolve(__dirname, '../src/components'),
     variables: path.resolve(__dirname, '../src/themes/quasar.variables.styl'),
     vue: 'vue/dist/vue.js'

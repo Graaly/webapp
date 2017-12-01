@@ -42,6 +42,7 @@ module.exports = {
     'semi': 'off',
     'indent': 'off',
     'space-before-function-paren': 'off',
+    'space-infix-ops': 'off',
     'quotes': 'off',
   }
 }

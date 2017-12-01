@@ -6,8 +6,15 @@ Vue.use(Vuex)
 // root state object.
 // each Vuex instance is just a single state tree.
 const state = {
+  isLoggedIn: !!localStorage.getItem('token'),
+  loginPending: false,
   title: null,
-  defaultTitle: 'Graaly'
+  defaultTitle: 'Graaly',
+  graalyLevels: {
+      1: 'Facile',
+      2: 'Moyenne',
+      3: 'Difficile'
+    }
 }
 
 // mutations are operations that actually mutates the state.
@@ -21,6 +28,16 @@ const mutations = {
   },
   resetTitle (state) {
     state.title = state.defaultTitle;
+  },
+  loginStart (state) {
+    state.loginPending = true;
+  },
+  loginSuccess (state) {
+    state.isLoggedIn = true;
+    state.loginPending = false;
+  },
+  logout (state) {
+    state.isLoggedIn = false;
   }
 }
 
@@ -28,7 +45,21 @@ const mutations = {
 // asynchronous operations.
 const actions = {
   setTitle: ({ commit }, newTitle) => commit('setTitle', newTitle),
-  resetTitle: ({ commit }) => commit('resetTitle')
+  resetTitle: ({ commit }) => commit('resetTitle'),
+  login({ commit }, creds) {
+    commit('loginStart'); // show spinner
+    return new Promise(resolve => {
+      setTimeout(() => {
+        localStorage.setItem("token", "JWT")
+        commit('loginSuccess')
+        resolve()
+      }, 1000)
+    });
+  },
+  logout({ commit }) {
+    localStorage.removeItem("token")
+    commit('logout')
+  }
 }
 
 // getters are functions

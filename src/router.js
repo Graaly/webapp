@@ -2,8 +2,13 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 import GraalySearch from '@/graaly/search'
-import GraalyPlay from '@/graaly/play'
+import GraalyPlayHome from '@/graaly/playHome'
+import GraalyPlayStep from '@/graaly/playStep'
 import GraalyCreate from '@/graaly/create'
+
+import UserLogin from '@/user/login'
+import UserCreateAccount from '@/user/createAccount'
+//import UserProfile from '@/user/profile'
 
 import store from './store'
 
@@ -42,16 +47,26 @@ var router = new VueRouter({
     },
     {
       path: '/graaly/play/:id',
-      component: GraalyPlay
+      component: GraalyPlayHome
+    },
+    {
+      path: '/graaly/play/:graalyId/step/:stepId',
+      component: GraalyPlayStep,
+      meta: { requiresAuth: true }
     },
     {
       path: '/graaly/create',
       component: GraalyCreate
+    },
+    {
+      path: '/user/login',
+      component: UserLogin
+    },
+    {
+      path: '/user/createAccount',
+      component: UserCreateAccount
     }
     /*{
-      path: '/graaly/play/:id',
-      component: GraalyPlay
-    },{
       path: '/graaly/create',
       component: GraalyCreate
     },{
@@ -66,6 +81,26 @@ var router = new VueRouter({
 router.beforeEach((to, from, next) => {
   store.dispatch('resetTitle')
   next()
+})
+
+// check if user is authenticated for specific routes
+// see https://forum.vuejs.org/t/how-to-set-up-a-global-middleware-or-a-route-guard-to-vue-router-js-help
+// see https://medium.com/front-end-hacking/persisting-user-authentication-with-vuex-in-vue-b1514d5d3278
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    // this route requires auth, check if logged in
+    // if not, redirect to login page.
+    if (!store.state.isLoggedIn) {
+      next({
+        path: '/user/login',
+        query: { redirect: to.fullPath }
+      })
+    } else {
+      next()
+    }
+  } else {
+    next()
+  }
 })
 
 export default router

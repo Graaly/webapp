@@ -1,5 +1,5 @@
 <template>
   
-  <h1>Create new Graaly</h1>
+  <div><h1>Create new Graaly</h1></div>
   
 </template>
