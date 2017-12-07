@@ -50,7 +50,7 @@ var router = new VueRouter({
       component: GraalyPlayHome
     },
     {
-      path: '/graaly/play/:graalyId/step/:stepId',
+      path: '/graaly/play/:graalyId/step/:stepNumber',
       component: GraalyPlayStep,
       meta: { requiresAuth: true }
     },
@@ -65,6 +65,10 @@ var router = new VueRouter({
     {
       path: '/user/createAccount',
       component: UserCreateAccount
+    },
+    {
+      path: '*',
+      component: { template: '<div><p>Page not found</p></div>' } // TODO: better handling (log an error + show 'page not found' message + redirect to Graaly search ?)
     }
     /*{
       path: '/graaly/create',

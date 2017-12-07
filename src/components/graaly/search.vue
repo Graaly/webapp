@@ -82,7 +82,7 @@ export default {
       });
     }
     
-    this.getGraalies();
+    this.getGraalies()
   },
   methods: {
     onGraalyClick(graaly, idx) {
