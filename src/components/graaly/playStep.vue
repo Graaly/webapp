@@ -1,6 +1,6 @@
 <template>
   
-  <div class="background" ref="background">
+  <div>
   
     <div class="info" v-if="step.type == 'info'">
       <div :class="{ grow: !step.videoStream }">
@@ -77,6 +77,46 @@
     </div>
     
     
+    <div class="image-recognition" v-if="step.type == 'image-recognition'">
+      <div>
+        <p class="text">{{ step.text }}</p>
+      </div>
+      <div class="photo">
+        <img ref="original-photo" :src="step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
+        <video ref="camera-stream-for-recognition" v-show="cameraStreamEnabled"></video>
+        <canvas ref="photo-buffer" class="hidden"></canvas>
+        <img ref="player-photo" v-show="photoTaken" alt="The screen capture will appear in this box." />
+      </div>
+      <div class="actions fixed-bottom">
+        <q-btn @click="togglecameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" color="primary">Prendre la photo</q-btn>
+        <div v-show="cameraStreamEnabled">
+          <q-btn color="primary" @click="togglecameraStream()" icon="clear">Annuler</q-btn>
+          <q-btn color="primary" @click="checkPhoto()" icon="done">Vérifier</q-btn>
+        </div>
+        <q-btn v-show="step.hint && !photoTaken" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">Afficher un indice</q-btn>
+        <div class="text resultMessage" :class="playerResult ? 'right' : 'wrong'" v-show="playerResult !== null">{{ playerResult ? "Bien joué ! (+10 points)" : "Malheureusement, cette photo ne correspond pas." }}</div>
+        <q-btn v-show="photoTaken" color="primary" class="full-width" @click="nextStep()">Suivant</q-btn>
+      </div>
+    </div>
+    
+    
+    <div class="geolocation" v-if="step.type == 'geolocation'">
+      <video ref="camera-stream-for-geolocation" v-show="cameraStreamEnabled"></video>
+      <div>
+        <p class="text">{{ step.text }}</p>
+        <p class="text">Distance: {{ geolocation.distance }} mètres</p>
+        <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
+        <p class="text">Alpha: {{ Math.round(geolocation.alpha) }}°</p>
+        <p class="text">Difference direction: {{ geolocation.direction }}°</p>
+      </div>
+      <div class="direction-helper">
+        <canvas id="direction-canvas"></canvas>
+      </div>
+      <div class="resultMessage" >
+        <div class="text right" v-show="playerResult">Bravo, vous êtes à proximité du lieu ! (+10 points)</div>
+        <q-btn color="primary" class="full-width" @click="nextStep()">{{ playerResult ? 'Suivant' : 'Passer' }}</q-btn>
+      </div>
+    </div>
     
     
   </div>
@@ -84,6 +124,8 @@
 </template>
 
 <script>
+import simi from 'src/includes/simi' // for image similarity
+import utils from 'src/includes/utils'
 import StepService from 'services/StepService'
 import Vue from 'vue'
 export default {
@@ -91,6 +133,7 @@ export default {
     return {
       step: {},
       playerResult: null,
+      cameraStreamEnabled: false,
       
       // for step type 'code'
       playerCode: [],
@@ -99,7 +142,23 @@ export default {
         ["4", "5", "6"],
         ["7", "8", "9"],
         ["*", "0", "#"]
-      ]
+      ],
+      
+      // for step type 'image-recognition'
+      photoComparisonThreshold: 70,
+      photoTaken: false,
+      
+      // for step type 'geoloc'
+      geolocation: {
+        distance: null,
+        direction: null,
+        locationWatcher: null,
+        watchLocationInterval: 2000, // ms
+        currentBearing: null, // current direction compared to north
+        // tmp
+        rawDirection: null,
+        alpha: null
+      }
     }
   },
   mounted () {
@@ -119,6 +178,47 @@ export default {
         if (this.step.type === 'code') {
           // for step type 'code', this.step.answers is a string in DB
           this.playerCode = Array(this.step.answers.length).fill("");
+        }
+        
+        if (this.step.type === 'geolocation') {
+          /*let cameraStream = this.$refs['camera-stream-for-geolocation']
+          // enable rear camera stream
+          // TODO STOP CAMERA STREAM WHEN DESTINATION IS REACHED OR USER WANTS TO SKIP THE STEP
+          navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+            .then((stream) => {
+              cameraStream.srcObject = stream
+              cameraStream.play()
+              this.cameraStreamEnabled = true
+            })
+            .catch((err) => {
+              // TODO friendly behavior/message for user
+              console.warn("No camera stream available")
+              console.log(err)
+            });*/
+            
+          if ('ondeviceorientationabsolute' in window) {
+            // chrome specific, see https://developers.google.com/web/updates/2016/03/device-orientation-changes
+            window.addEventListener('deviceorientationabsolute', this.handleOrientation)
+          } else if ('ondeviceorientation' in window) {
+            window.addEventListener('deviceorientation', this.handleOrientation)
+          } else {
+            // TODO friendly behavior/message for user
+            console.warn("No absolute orientation info is available")
+          }
+          
+          this.geolocation.locationWatcher = navigator.geolocation.watchPosition(this.watchLocationSuccess, this.watchLocationError, {
+              enableHighAccuracy: false,
+              timeout: this.geolocation.watchLocationInterval,
+              maximumAge: 0
+            })
+          
+          // prepare arrow canvas
+          let canvas = document.querySelector('.direction-helper canvas')
+          
+          canvas.width = canvas.clientWidth
+          canvas.height = canvas.clientHeight
+          
+          window.setInterval(this.drawDirectionArrow, 200)
         }
       })
     })
@@ -211,6 +311,165 @@ export default {
       }
       
       Vue.set(this.playerCode, lastTypedCharIndex, '')
+    },
+    
+    /* specific methods for step type 'image-recognition' */
+    
+    togglecameraStream() {
+      // already enabled ? => disable
+      
+      if (this.cameraStreamEnabled) {
+        this.stopVideoTracks()
+        return
+      }
+      
+      // otherwise, enable
+      
+      let cameraStream = this.$refs['camera-stream-for-recognition']
+      let photoBuffer = this.$refs['photo-buffer']
+      let playerPhoto = this.$refs['player-photo']
+      
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+        .then((stream) => {
+          cameraStream.srcObject = stream
+          cameraStream.play()
+        })
+        .catch((err) => {
+          console.log("An error occured! " + err)
+        });
+      
+      cameraStream.addEventListener('canplay', (ev) => {
+        if (!this.cameraStreamEnabled) {
+          // get inner parent element with (without margin/padding/border)
+          // see https://stackoverflow.com/a/29881817/488666
+          let parentElement = ev.target.parentElement
+          let style = getComputedStyle(parentElement)
+          let width = parentElement.clientWidth - (parseFloat(style.paddingLeft) + parseFloat(style.paddingRight))
+          let height = Math.floor(cameraStream.videoHeight / (cameraStream.videoWidth / width))
+          
+          cameraStream.setAttribute('width', width)
+          cameraStream.setAttribute('height', height)
+          
+          photoBuffer.setAttribute('width', width)
+          photoBuffer.setAttribute('height', height)
+          
+          playerPhoto.setAttribute('width', width)
+          playerPhoto.setAttribute('height', height)
+          
+          this.cameraStreamEnabled = true
+        }
+      }, false);
+    },
+    
+    checkPhoto() {
+      // take photo & stop camera flow
+      let photoBuffer = this.$refs['photo-buffer']
+      let context = photoBuffer.getContext('2d')
+      if (this.cameraStreamEnabled) {
+        context.drawImage(this.$refs['camera-stream-for-recognition'], 0, 0, photoBuffer.width, photoBuffer.height)
+        
+        let data = photoBuffer.toDataURL('image/png')
+        this.$refs['player-photo'].setAttribute('src', data)
+        this.stopVideoTracks()
+        
+        let originalPhoto = document.createElement('canvas')
+        originalPhoto.width = this.$refs['original-photo'].naturalWidth
+        originalPhoto.height = this.$refs['original-photo'].naturalHeight
+        originalPhoto.getContext('2d').drawImage(this.$refs['original-photo'], 0, 0, originalPhoto.width, originalPhoto.height)
+        
+        this.playerResult = simi.compare(photoBuffer, originalPhoto) >= this.photoComparisonThreshold
+        
+        this.photoTaken = true
+      }
+    },
+    
+    stopVideoTracks() {
+      this.$refs['camera-stream-for-recognition'].srcObject.getVideoTracks().forEach(function(track) { track.stop() })
+      this.cameraStreamEnabled = false
+    },
+    
+    /* specific methods for step type 'geolocation' */
+    
+    handleOrientation(event) {
+      // Chrome support only
+      // TODO Support Safari/iOS using property webkitCompassHeading, see
+      this.geolocation.alpha = (360 - event.alpha)
+      this.geolocation.direction = Math.round((this.geolocation.rawDirection - this.geolocation.alpha + 360) % 360)
+    },
+    
+    drawDirectionArrow() {
+      if (this.geolocation.alpha === null) {
+        return
+      }
+      
+      // refresh arrow in canvas depending on direction
+      let canvas = document.querySelector('.direction-helper canvas')
+      let ctx = canvas.getContext('2d')
+      
+      let w = canvas.width
+      let h = canvas.height
+      
+      let arrowCenterX = Math.round(w / 2)
+      let arrowCenterY = Math.round(h / 2)
+      
+      ctx.save()
+      
+      ctx.clearRect(0, 0, w, h)
+      
+      ctx.translate(arrowCenterX, arrowCenterY)
+      
+      ctx.lineWidth = 20
+      ctx.strokeStyle = '#ff0000'
+      ctx.fillStyle = '#ff0000'
+      
+      ctx.beginPath()
+      ctx.arc(0, 0, Math.round(h / 2) - 10, 0, 2 * Math.PI)
+      ctx.stroke()
+      
+      ctx.rotate(utils.degreesToRadians(this.geolocation.direction))
+      
+      ctx.beginPath()
+      ctx.moveTo(0, Math.round(h / 2) - 30)
+      ctx.lineTo(0, -Math.round(h / 2) + 45)
+      ctx.stroke()
+      
+      ctx.lineWidth = 1
+      
+      ctx.beginPath()
+      ctx.moveTo(0, -Math.round(h / 2) + 25)
+      ctx.lineTo(-20, -Math.round(h / 2) + 45)
+      ctx.lineTo(20, -Math.round(h / 2) + 45)
+      ctx.fill()
+      ctx.stroke()
+      
+      ctx.restore()
+    },
+    
+    watchLocationError(err) {
+      console.warn('Could not get location from watchPosition()')
+      console.log(err)
+    },
+    
+    watchLocationSuccess(pos) {
+      let current = pos.coords;
+      let target = this.step.answers
+      //test 
+      //let target = { lat: 45.322313, lng: 5.557124 } // 90°
+      //let target = { lat: 45.343431, lng: 5.522534 } // 0°
+      
+      // compute distance between two coordinates
+      this.geolocation.distance = Math.round(utils.distanceInKmBetweenEarthCoordinates(target.lat, target.lng, current.latitude, current.longitude) * 1000, 2) // meters
+      
+      // TODO no hardcoding
+      if (this.geolocation.distance < 20) {
+        console.log('Congratulations, you reached the target')
+        navigator.geolocation.clearWatch(this.geolocation.locationWatcher);
+        this.playerResult = true
+      }
+      
+      this.geolocation.currentBearing = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, target.lat, target.lng)
+      
+      this.geolocation.rawDirection = this.geolocation.currentBearing
     }
   }
 }
@@ -219,8 +478,12 @@ export default {
 <style scoped>
   #main-view { padding: 0rem; height: inherit; min-height: inherit; }
   
-  .info, .choose, .code { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; }
-  .choose, .code { padding-bottom: 8rem; }
+  #main-view > div { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
+  
+  #main-view > div.info,
+  #main-view > div.geolocation {
+    padding-bottom: 0rem;
+  }
   
   .grow { flex-grow: 1; }
   
@@ -253,7 +516,7 @@ export default {
   
   .images-block { display: flex; flex-flow: row wrap; justify-content: center; align-items: center; }
   .images-block > div { border-radius: 1rem; padding: 0.5rem; position: relative; }
-  .images-block img { max-width: 10rem; max-height: 10rem; border-radius: 0.5rem; }
+  .images-block img { max-width: 9rem; max-height: 9rem; border-radius: 0.5rem; }
   
   /* keypad specific (code) */
   
@@ -263,7 +526,19 @@ export default {
   .typedCode td.typed { font-weight: bold; font-size: 1.7rem; }
   
   .keypad { flex-grow: 1; display: flex; flex-flow: column nowrap; justify-content: center; text-align: center; }
-  .keypad .q-btn { margin: 0.5rem; width: 4rem; height: 4rem; font-weight: bold; font-size: 2rem; }
+  .keypad .q-btn { margin: 0.5rem; width: 15%; height: 15%; font-weight: bold; font-size: 1.7rem; }
+  
+  /* image recognition specific */
+  
+  .image-recognition .photo { flex-grow: 1; overflow-y: hidden; margin-top: 1rem; display: flex; flex-flow: column nowrap; justify-content: center; padding: 0.5rem; margin: -0.5rem; } /* negative margin required to have image shadow visible on sides */
+  .image-recognition .photo img, 
+  .image-recognition .photo > video { width: 100%; border-radius: 0.5rem; }
+  
+  /* geolocation specific */
+  
+  .geolocation video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+  .geolocation .direction-helper { flex-grow: 1; display: flex; flex-flow: column nowrap; }
+  .geolocation .direction-helper canvas { width: 10rem; height: 10rem; margin: auto; margin-bottom: 0; }
   
   /* right/wrong styles */
   
