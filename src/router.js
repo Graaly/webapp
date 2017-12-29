@@ -10,6 +10,10 @@ import UserLogin from '@/user/login'
 import UserCreateAccount from '@/user/createAccount'
 //import UserProfile from '@/user/profile'
 
+import TeamMembersList from '@/team/membersList'
+import TeamNewsList from '@/team/newsList'
+import TeamChallengesList from '@/team/challengesList'
+
 import store from './store'
 
 Vue.use(VueRouter)
@@ -65,6 +69,18 @@ var router = new VueRouter({
     {
       path: '/user/createAccount',
       component: UserCreateAccount
+    },
+    {
+      path: '/team/:id/members',
+      component: TeamMembersList
+    },
+    {
+      path: '/team/:id/news',
+      component: TeamNewsList
+    },
+    {
+      path: '/team/:id/challenges',
+      component: TeamChallengesList
     },
     {
       path: '*',

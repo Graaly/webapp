@@ -32,6 +32,9 @@
     </div>
     
     <div class="row-auto">
+      <q-btn icon="group" @click="$router.push('/team/5a450258e97f9665754a437a/members')">Mon agence</q-btn>
+    </div>
+    <div class="row-auto">
       <q-btn icon="create" @click="$router.push('/graaly/create')">Créer un Graaly</q-btn>
     </div>
     
