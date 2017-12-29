@@ -56,7 +56,8 @@ export default {
     return {
       title: 'Mon agence',
       team: { statistics: {}, score: {} },
-      members: []
+      members: [],
+      user: {name: "Eric Mathieu", picture: "eric.png", id: "5a450d86e97f9665754a437b"}
     }
   },
   mounted() {

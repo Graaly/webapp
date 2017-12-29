@@ -41,7 +41,7 @@ import Quasar, {
   QListHeader, 
   QRouteTab, 
   QSearch, 
-  QSideLink, 
+  QSideLink,  
   QTabs, 
   QToolbar, 
   QToolbarTitle 
@@ -55,7 +55,7 @@ Vue.use(Quasar, {
   components: { 
     QBtn, 
     QField, 
-    QIcon, 
+    QIcon,    
     QInput, 
     QItem,
     QItemMain, 
@@ -67,7 +67,7 @@ Vue.use(Quasar, {
     QListHeader, 
     QRouteTab, 
     QSearch, 
-    QSideLink, 
+    QSideLink,  
     QTabs, 
     QToolbar, 
     QToolbarTitle
@@ -88,4 +88,12 @@ new Vue({
   store,
   router: router,
   render: h => h(require('./App').default)
+})
+
+// date format
+import Moment from 'moment'
+Vue.filter('formatDate', function(value) {
+  if (value) {
+    return Moment(String(value)).fromNow()
+  }
 })
