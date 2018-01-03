@@ -19,6 +19,6 @@ $ quasar build
 $ quasar lint
 ```
 
-# Known issues
+## Known issues
 
 If no data from server is shown on webapp on Chrome (desktop or mobile), try to load `https://<server-address>:3000` on a new browser tab, bypass the warning by clicking on "advanced settings", then "continue to site (dangerous)". Then, data from server should be loaded when accessing `https://<server-address>:8081`.
