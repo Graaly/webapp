@@ -3,26 +3,26 @@
   <div class="wrapper">
     <div class="header">
       <div class="badge">
-        <img :src="'/statics/badges/' + team.badge" />
+        <img :src="'/statics/badges/' + team.profile.badge" />
       </div>
       
       <div class="desc">
-        <p><h1>{{ team.name }}</h1></p>
-        <p>{{ team.statistics.nbQuestsSuccessful }} enquêtes résolues</p>
-        <p>{{ team.statistics.nbQuestsCreated }} enquêtes créées</p>
+        <p><h1>{{ team.profile.name }}</h1></p>
+        <p>{{ team.profile.statistics.nbQuestsSuccessful }} enquêtes résolues</p>
+        <p>{{ team.profile.statistics.nbQuestsCreated }} enquêtes créées</p>
       </div>
       
       <div class="score">
-        <p>{{ team.score.total }}</p>
+        <p>{{ team.profile.score.total }}</p>
       </div>
       
     </div>
     
     <q-tabs>
-      <q-route-tab :to="'/team/' + team._id + '/ranking'" slot="title" label="Classement" />
-      <q-route-tab :to="'/team/' + team._id + '/challenges'" slot="title" label="Defis" />
-      <q-route-tab :to="'/team/' + team._id + '/news'" slot="title" label="News" />
-      <q-route-tab :to="'/team/' + team._id + '/members'" slot="title" label="Membres" /> 
+      <q-route-tab :to="'/team/' + team.profile._id + '/ranking'" slot="title" label="Classement" />
+      <q-route-tab :to="'/team/' + team.profile._id + '/challenges'" slot="title" label="Defis" />
+      <q-route-tab :to="'/team/' + team.profile._id + '/news'" slot="title" label="News" />
+      <q-route-tab :to="'/team/' + team.profile._id + '/members'" slot="title" label="Membres" /> 
     </q-tabs>
     
     <div class="tab-content">
@@ -37,7 +37,7 @@
         
       <q-infinite-scroll :handler="getTeamNews">
         <q-list highlight>
-          <q-item v-for="(item, index) in news.items" :key="item._id">
+          <q-item v-for="(item, index) in team.news.items" :key="item._id">
             <q-item-side :avatar="'/statics/profiles/' + item.author.picture" />
             <q-item-main>
               <q-item-tile label>{{ item.author.name }}</q-item-tile>
@@ -75,9 +75,18 @@ export default {
   data () {
     return {
       title: 'Mon agence',
-      team: { statistics: {}, score: {} },
+      team: {
+        profile: {
+          statistics: {}, 
+          score: {}
+        },
+        news: {
+          limit: 20,
+          skip: 0,
+          items: []
+        }
+      },
       comment: "",
-      news: {limit: 20, skip: 0, items: []},
       user: {name: "Eric Mathieu", picture: "eric.png", id: "5a450d86e97f9665754a437b"}
     }
   },
@@ -96,20 +105,20 @@ export default {
     async getTeam(id) {
       // get the team informations
       let response = await TeamService.getById(id)
-      this.team = response.data
+      this.team.profile = response.data
       
       // compute the total score as the members score + team specific sore
-      this.team.score.total = this.team.score.members + this.team.score.challenges
+      this.team.profile.score.total = this.team.profile.score.members + this.team.profile.score.challenges
     },
     getTeamNews(index, done) {
       var self = this
       // get the team news list
-      TeamService.listNewsAsync(this.$route.params.id, this.news.skip, this.news.limit, function(err, response) {
+      TeamService.listNewsAsync(this.$route.params.id, this.team.news.skip, this.team.news.limit, function(err, response) {
         if (err) {
           done(err)
         }
-        self.news.items = self.news.items.concat(response.data)
-        self.news.skip += self.news.limit
+        self.team.news.items = self.team.news.items.concat(response.data)
+        self.team.news.skip += self.team.news.limit
         done()
       })
     },                                                                                  
@@ -127,8 +136,8 @@ export default {
       await TeamService.saveNews({title: this.comment, teamId: this.$route.params.id, type: "standard", author: {picture: this.user.picture, name: this.user.name}, likes: [], creation: {date: new Date(), userId: this.user.id}})
       
       // reset the news list
-      this.news.items.length = 0
-      this.news.skip = 0
+      this.team.news.items.length = 0
+      this.team.news.skip = 0
       this.getTeamNews(this.$route.params.id)
       this.comment = ""
       
@@ -138,18 +147,19 @@ export default {
     async like (index) {
       // save the like action
       this.news.items[index].likes.push({userId: this.user.id, date: new Date()})
-      await TeamService.saveNewsLike(this.news.items[index]._id, { likes: this.news.items[index].likes })
+      await TeamService.saveNewsLike(this.team.news.items[index]._id, { likes: this.team.news.items[index].likes })
     },
     async unlike (index) {
       // save the unlike action
-      for (var i = 0; i < this.news.items[index].likes.length; i++) {
-        if (this.news.items[index].likes[i].userId === this.user.id) {
-          this.news.items[index].likes.splice(i, 1)
+      for (var i = 0; i < this.team.news.items[index].likes.length; i++) {
+        if (this.team.news.items[index].likes[i].userId === this.user.id) {
+          this.team.news.items[index].likes.splice(i, 1)
         }
       }
-      await TeamService.saveNewsLike(this.news.items[index]._id, { likes: this.news.items[index].likes })
+      await TeamService.saveNewsLike(this.team.news.items[index]._id, { likes: this.team.news.items[index].likes })
     },
     isLiked (item) {
+      // return true if the current user has liked the news
       if (item.likes) {
         for (var i = 0; i < item.likes.length; i++) {
           if (item.likes[i].userId === this.user.id) {

@@ -31,5 +31,10 @@ export default {
   // save a like on news
   saveNewsLike(id, likeData) {
     return Api().put('news/' + id, likeData)
+  },
+  
+  // send an invitation in a team
+  sendFriendInvitation(invitationData) {
+    return Api().post('team/invitation', invitationData)
   }
 }

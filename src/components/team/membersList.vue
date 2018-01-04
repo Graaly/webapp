@@ -3,35 +3,35 @@
   <div class="wrapper">
     <div class="header">
       <div class="badge">
-        <img :src="'/statics/badges/' + team.badge" />
+        <img :src="'/statics/badges/' + team.profile.badge" />
       </div>
       
       <div class="desc">
-        <p><h1>{{ team.name }}</h1></p>
-        <p>{{ team.statistics.nbQuestsSuccessful }} enquêtes résolues</p>
-        <p>{{ team.statistics.nbQuestsCreated }} enquêtes créées</p>
+        <p><h1>{{ team.profile.name }}</h1></p>
+        <p>{{ team.profile.statistics.nbQuestsSuccessful }} enquêtes résolues</p>
+        <p>{{ team.profile.statistics.nbQuestsCreated }} enquêtes créées</p>
       </div>
       
       <div class="score">
-        <p>{{ team.score.total }}</p>
+        <p>{{ team.profile.score.total }}</p>
       </div>
       
     </div>
     
     <q-tabs>
-      <q-route-tab :to="'/team/' + team._id + '/ranking'" slot="title" label="Classement" />
-      <q-route-tab :to="'/team/' + team._id + '/challenges'" slot="title" label="Defis" />
-      <q-route-tab :to="'/team/' + team._id + '/news'" alert slot="title" label="News" />
-      <q-route-tab :to="'/team/' + team._id + '/members'" slot="title" label="Membres" /> 
+      <q-route-tab :to="'/team/' + team.profile._id + '/ranking'" slot="title" label="Classement" />
+      <q-route-tab :to="'/team/' + team.profile._id + '/challenges'" slot="title" label="Defis" />
+      <q-route-tab :to="'/team/' + team.profile._id + '/news'" alert slot="title" label="News" />
+      <q-route-tab :to="'/team/' + team.profile._id + '/members'" slot="title" label="Membres" /> 
     </q-tabs>
     
     <div class="tab-content">
-        <p><q-btn @click="$router.push('/team/' + $route.params.id + '/invitefriend')" color="tertiary">Inviter un ami</q-btn></p>
+        <p><q-btn link @click="inviteFriend()" color="tertiary">Inviter un ami</q-btn></p>
     
         <h2>Membres de mon agence</h2>
         
         <q-list highlight>
-          <q-item v-for="member in members" :key="member._id">
+          <q-item v-for="member in team.members" :key="member._id">
             <q-item-side :avatar="'/statics/profiles/' + member.picture" />
             <q-item-main>
               <q-item-tile label>{{ member.name }}</q-item-tile>
@@ -51,12 +51,13 @@
 
 <script>
 import TeamService from 'services/TeamService'
+import { Dialog, Toast } from 'quasar'
+
 export default {
   data () {
     return {
       title: 'Mon agence',
-      team: { statistics: {}, score: {} },
-      members: [],
+      team: { profile: { statistics: {}, score: {} }, members: [] },
       user: {name: "Eric Mathieu", picture: "eric.png", id: "5a450d86e97f9665754a437b"}
     }
   },
@@ -72,15 +73,43 @@ export default {
     async getTeam(id) {
       // get the team informations
       let response = await TeamService.getById(id)
-      this.team = response.data
+      this.team.profile = response.data
       
       // compute the total score as the members score + team specific sore
-      this.team.score.total = this.team.score.members + this.team.score.challenges
+      this.team.profile.score.total = this.team.profile.score.members + this.team.profile.score.challenges
     },
     async getTeamMembers(id) {
       // get the members list
       let response = await TeamService.listMembers(id)
-      this.members = response.data      
+      this.team.members = response.data      
+    },
+    openInviteFriendPopup () {
+      Dialog.create({
+        title: 'Inviter un ami',
+        message: "Veuillez entrer l'adresse email de la personne à inviter",
+        form: {
+          name: {
+            type: 'text',
+            label: 'Email',
+            model: ''
+          }
+        },
+        buttons: [
+          'Cancel',
+          {
+            label: 'Ok',
+            handler (data) {
+              Toast.create('Returned ' + JSON.stringify(data))
+            }
+          }
+        ]
+      })
+    },
+    async inviteFriend () {
+      let response = await TeamService.sendFriendInvitation({email: "eric.mathieu@kimind.com", teamId: this.$route.params.id})
+      
+      console.log(response)      
+      Toast.create['positive']({html: 'Votre invitation est envoyée'})
     }
   }
 }
