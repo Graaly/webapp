@@ -64,16 +64,17 @@ export default {
       
       if (!this.$v.form.$error) {
         this.$store.dispatch("login", {
-          email: this.email,
-          password: this.password
+          email: this.form.email,
+          password: this.form.password
         }).then(() => {
           let destination = '/';
           if (this.$route.query.hasOwnProperty('redirect')) {
             destination = this.$route.query.redirect
           }
           this.$router.push(destination)
+        }).catch((err) => {
+          console.log(err)
         });
-        // TODO HANDLE HERE WRONG LOGIN / PASSWORD & OTHER ERRORS
       }
     },
     alert(msg) {

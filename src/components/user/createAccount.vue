@@ -62,7 +62,7 @@ export default {
         zipCode: '',
         password: ''
       },
-      // TODO: retrieve real country list from server
+      // TODO: retrieve real country list from server or .json file
       countries: [
         { label: 'Belgique', value: 'BEL' },
         { label: 'Espagne', value: 'ESP' },

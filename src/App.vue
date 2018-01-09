@@ -81,9 +81,8 @@ export default {
     }
   },
   methods: {
-    logout() {
-      // TODO: return promise like login & change route when Promise is resolved
-      this.$store.dispatch('logout')
+    async logout() {
+      await this.$store.dispatch('logout')
       this.$router.push("/user/login")
     },
     fixLayout() {
@@ -104,5 +103,14 @@ export default {
 </script>
 
 <style>
+
+=======
+h1 {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-top: 0;
+}
+
+.grow { flex-grow: 1; }
 
 </style>
