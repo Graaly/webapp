@@ -8,7 +8,7 @@ Vue.use(Vuex)
 // root state object.
 // each Vuex instance is just a single state tree.
 const state = {
-  isLoggedIn: !!localStorage.getItem('token'),
+  isLoggedIn: false,
   loginPending: false,
   title: null,
   defaultTitle: 'Graaly',
@@ -51,7 +51,7 @@ const actions = {
   login: async ({ commit }, creds) => {
     commit('loginStart'); // show spinner
     let result = await AuthService.login(creds.email, creds.password)
-    if (result) {
+    if (result.status === 200) {
       commit('loginSuccess')
     }
     return result

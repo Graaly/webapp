@@ -7,6 +7,7 @@ import GraalyPlayStep from '@/graaly/playStep'
 import GraalyCreate from '@/graaly/create'
 
 import UserLogin from '@/user/login'
+import UserLogout from '@/user/logout'
 import UserCreateAccount from '@/user/createAccount'
 //import UserProfile from '@/user/profile'
 
@@ -43,7 +44,8 @@ var router = new VueRouter({
   routes: [
     {
       path: '/',
-      redirect: '/graaly/search'
+      redirect: '/user/login',
+      meta: { requiresAuth: false }
     },
     {
       path: '/graaly/search',
@@ -55,21 +57,30 @@ var router = new VueRouter({
     },
     {
       path: '/graaly/play/:graalyId/step/:stepNumber',
-      component: GraalyPlayStep,
-      meta: { requiresAuth: true }
+      component: GraalyPlayStep
     },
     {
       path: '/graaly/create',
       component: GraalyCreate
     },
     {
-      path: '/user/login',
-      component: UserLogin
+      path: '/user/createAccount',
+      component: UserCreateAccount,
+      meta: { requiresAuth: false }
     },
     {
-      path: '/user/createAccount',
-      component: UserCreateAccount
+      path: '/user/login',
+      component: UserLogin,
+      meta: { requiresAuth: false }
     },
+    {
+      path: '/user/logout',
+      component: UserLogout
+    },
+    /*{
+      path: '/user/profile',
+      component: UserProfile
+    },*/
     {
       path: '/team/:id/members',
       name: 'teamMembersList',
@@ -94,13 +105,6 @@ var router = new VueRouter({
       path: '*',
       component: { template: '<div><p>Page not found</p></div>' } // TODO: better handling (log an error + show 'page not found' message + redirect to Graaly search ?)
     }
-    /*{
-      path: '/graaly/create',
-      component: GraalyCreate
-    },{
-      path: '/user/profile',
-      component: UserProfile
-    },*/
   ]
 })
 
@@ -115,7 +119,7 @@ router.beforeEach((to, from, next) => {
 // see https://forum.vuejs.org/t/how-to-set-up-a-global-middleware-or-a-route-guard-to-vue-router-js-help
 // see https://medium.com/front-end-hacking/persisting-user-authentication-with-vuex-in-vue-b1514d5d3278
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth)) {
+  if (!to.meta.hasOwnProperty('requiresAuth') || to.meta.requiresAuth) {
     // this route requires auth, check if logged in
     // if not, redirect to login page.
     if (!store.state.isLoggedIn) {

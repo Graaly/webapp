@@ -67,13 +67,18 @@ export default {
           email: this.form.email,
           password: this.form.password
         }).then(() => {
-          let destination = '/';
+          let destination = '/graaly/search';
           if (this.$route.query.hasOwnProperty('redirect')) {
             destination = this.$route.query.redirect
           }
           this.$router.push(destination)
         }).catch((err) => {
-          console.log(err)
+          if (err.hasOwnProperty('response') && err.response.status === 401) {
+            Toast.create('Indentifiants incorrects, veuillez réessayer')
+          } else {
+            Toast.create('Une erreur est survenue, veuillez contacter le support')
+            console.log(err)
+          }
         });
       }
     },
