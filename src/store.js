@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
+import AuthService from 'services/AuthService'
+
 Vue.use(Vuex)
 
 // root state object.
@@ -46,19 +48,18 @@ const mutations = {
 const actions = {
   setTitle: ({ commit }, newTitle) => commit('setTitle', newTitle),
   resetTitle: ({ commit }) => commit('resetTitle'),
-  login({ commit }, creds) {
+  login: async ({ commit }, creds) => {
     commit('loginStart'); // show spinner
-    return new Promise(resolve => {
-      setTimeout(() => {
-        localStorage.setItem("token", "JWT")
-        commit('loginSuccess')
-        resolve()
-      }, 1000)
-    });
+    let result = await AuthService.login(creds.email, creds.password)
+    if (result) {
+      commit('loginSuccess')
+    }
+    return result
   },
-  logout({ commit }) {
-    localStorage.removeItem("token")
+  logout: async ({ commit }) => {
+    let result = await AuthService.logout()
     commit('logout')
+    return result
   }
 }
 

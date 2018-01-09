@@ -482,10 +482,8 @@ export default {
   
   #main-view > div.info,
   #main-view > div.geolocation {
-    padding-bottom: 0rem;
+    padding-bottom: 1rem;
   }
-  
-  .grow { flex-grow: 1; }
   
   .text,
   .answers-text .q-btn {
