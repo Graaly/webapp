@@ -72,14 +72,22 @@ var router = new VueRouter({
     },
     {
       path: '/team/:id/members',
+      name: 'teamMembersList',
       component: TeamMembersList
     },
     {
       path: '/team/:id/news',
+      name: 'teamNewsList',
       component: TeamNewsList
     },
     {
       path: '/team/:id/challenges',
+      name: 'teamChallengesList',
+      component: TeamChallengesList
+    },
+    {
+      path: '/team/:id/ranking',
+      name: 'teamRankingList',
       component: TeamChallengesList
     },
     {

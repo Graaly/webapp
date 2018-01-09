@@ -25,3 +25,112 @@ $positive  = #21BA45
 $negative  = #DB2828
 $info      = #31CCEC
 $warning   = #F2C037
+
+// tabs
+$tabs-background = #efefef
+$tabs-color = #ffc90e
+$tabs-font-size = 0.8rem
+$tabs-min-height = 30px
+$tabs-padding = 14px 8px
+$tabs-pane-padding = 6px
+$tabs-big-screen-horiz-padding = 20px
+$tabs-horiz-padding = 10px
+//$tabs-inverted-color
+
+// Graaly specific variables
+$light-grey-background = #efefef
+$dark-grey-text = #757575
+
+
+// Generic CSS
+
+/* required to avoid useless 50px overflow at bottom */
+#q-app { min-height: 0px; }
+
+.layout-page, .layout-page-container {
+  overflow-y: hidden; /* can't easily override calc(100vm - 50px) on .layout-page */
+  height: 100%;
+}
+.wrapper {
+  overflow-y: scroll;
+}
+#main-view {
+  padding: 0;
+}
+
+.header {
+  display: table;
+  border-collapse: collapse;
+  width: 100%;
+  background-color: $light-grey-background;
+}
+.header h1 { 
+  font-size: 1.3rem;
+  line-height: 1.1rem;
+  font-weight: bold;
+  margin: 0;
+}
+.header .subtitle {
+  font-size: 0.9rem;
+  color: $dark-grey-text;
+  line-height: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.score {
+  font-size: 2.3rem;
+  color: $primary;
+  text-align: center;
+  font-weight: bold;
+  background-image: url('../statics/icons/game/medal.png');
+  background-position: center 50px;
+  background-repeat: no-repeat;
+  background-size: 40%;
+  width: 100px;
+  padding-top: 10px;
+}
+.q-list .score {
+  font-size: 1rem;
+  background-position: right 10px;
+  background-size: 16px;
+  width: 50px;
+  padding-right: 16px;
+}
+
+.tab-content {
+  padding: 10px;
+}
+.tab-content h2 {
+  font-size: 1rem;
+}
+.q-tabs-normal .router-link-active .q-tabs-bar {
+  color: $primary;
+}
+.router-link-active .q-tab-label {
+  color: $primary;
+}
+
+.q-list {
+  border: 0px !important;
+}
+
+// Team specific CSS
+
+.header > div {
+  display: table-cell;
+  vertical-align: top;
+}
+.header div.desc {
+  padding-left: 1rem;
+}
+.header .badge {
+  width: 2rem;
+  height: 2rem;
+  padding: 1rem;
+}
+.header .badge img {
+  display: block;
+  width: 5rem;
+  height: 5rem;
+}
+

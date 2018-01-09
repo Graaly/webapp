@@ -104,17 +104,5 @@ export default {
 </script>
 
 <style>
-/* required to avoid useless 50px overflow at bottom */
-#q-app { min-height: 0px; }
-.layout-page, .layout-page-container {
-  overflow-y: hidden; /* can't easily override calc(100vm - 50px) on .layout-page */
-  height: 100%;
-}
-#main-view { padding: 1rem; }
 
-h1 {
-  font-size: 1.3rem;
-  font-weight: bold;
-  margin-top: 0;
-}
 </style>

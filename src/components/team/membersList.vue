@@ -8,25 +8,24 @@
       
       <div class="desc">
         <p><h1>{{ team.profile.name }}</h1></p>
-        <p>{{ team.profile.statistics.nbQuestsSuccessful }} enquêtes résolues</p>
-        <p>{{ team.profile.statistics.nbQuestsCreated }} enquêtes créées</p>
+        <p class="subtitle">{{ team.profile.statistics.nbQuestsSuccessful }} enquêtes résolues</p>
+        <p class="subtitle">{{ team.profile.statistics.nbQuestsCreated }} enquêtes créées</p>
       </div>
       
       <div class="score">
-        <p>{{ team.profile.score.total }}</p>
+        {{ team.profile.score.total }}
       </div>
-      
     </div>
     
     <q-tabs>
-      <q-route-tab :to="'/team/' + team.profile._id + '/ranking'" slot="title" label="Classement" />
-      <q-route-tab :to="'/team/' + team.profile._id + '/challenges'" slot="title" label="Defis" />
-      <q-route-tab :to="'/team/' + team.profile._id + '/news'" alert slot="title" label="News" />
-      <q-route-tab :to="'/team/' + team.profile._id + '/members'" slot="title" label="Membres" /> 
+      <q-route-tab :to="{ name: 'teamRankingList', params: { id: team.profile._id } }" slot="title" label="Classement" exact />
+      <q-route-tab :to="{ name: 'teamChallengesList', params: { id: team.profile._id } }" slot="title" label="Defis" exact />
+      <q-route-tab :to="{ name: 'teamNewsList', params: { id: team.profile._id } }" alert slot="title" label="News" exact />
+      <q-route-tab :to="{ name: 'teamMembersList', params: { id: team.profile._id } }" slot="title" label="Membres" exact /> 
     </q-tabs>
     
     <div class="tab-content">
-        <p><q-btn link @click="inviteFriend()" color="tertiary">Inviter un ami</q-btn></p>
+        <p><q-btn link class="full-width" @click="inviteFriend()" color="primary">Inviter un ami</q-btn></p>
     
         <h2>Membres de mon agence</h2>
         
@@ -37,7 +36,7 @@
               <q-item-tile label>{{ member.name }}</q-item-tile>
               <q-item-tile sublabel>{{ member.statistics.nbQuestsSuccessful }} enquêtes réussies | {{ member.statistics.nbQuestsCreated }} enquêtes créées</q-item-tile>
             </q-item-main>
-            <q-item-side right>
+            <q-item-side right class="score">
               {{ member.score }}
             </q-item-side>
           </q-item>
@@ -116,28 +115,5 @@ export default {
 </script>
 
 <style scoped>
-
-.wrapper { overflow-y: scroll; }
-
-#main-view {
-  padding: 0;
-}
-
-h1 { font-size: 1.3rem; font-weight: bold; margin: 0; margin-bottom: 1rem; }
-
-.header { display: table; border-collapse: collapse; width: 100%; background-color: #efefef; }
-.header > div { display: table-cell; vertical-align: top;}
-.header div.desc { padding-left: 1rem; }
-
-.header .badge {
-  width: 2rem;
-  height: 2rem;
-  padding: 1rem;
-}
-.header .badge img {
-  display: block;
-  width: 5rem;
-  height: 5rem;
-}
 
 </style>
