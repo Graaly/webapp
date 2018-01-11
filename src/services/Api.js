@@ -1,7 +1,5 @@
 import axios from 'axios'
 
-// TODO => move hardcoded value to config file
-
 // Note: HTTPS is mandatory here because HTTPS is required for front (geolocation)
 
 export default() => {
