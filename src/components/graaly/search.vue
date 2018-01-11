@@ -43,6 +43,7 @@
 
 <script>
 import GraalyService from 'services/GraalyService'
+import AuthService from 'services/AuthService'
 export default {
   data () {
     return {
@@ -72,12 +73,15 @@ export default {
         scaledSize: {width: 30, height: 30, f: 'px', b: 'px'},
         origin: {x: 0, y: 0},
         anchor: {x: 15, y: 15}
-      }
+      },
+      user: {name: "--", picture: "", id: ""}
     }
   },
   mounted() {
     // dispatch specific title for other app components
     this.$store.dispatch('setTitle', this.$data.title);
+    
+    this.getAccountInformations();
     
     if (this.$data.geolocationIsSupported) {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -88,6 +92,12 @@ export default {
     this.getGraalies()
   },
   methods: {
+    async getAccountInformations() {
+      let response = await AuthService.getAccount()
+console.log(response)
+      this.user = response.data
+    },
+    
     onGraalyClick(graaly, idx) {
       let infoWindow = this.infoWindow
       this.infoWindow.position = graaly.position

@@ -99,5 +99,4 @@ export default {
 h1 { font-size: 1.3rem; font-weight: bold; margin-top: 0; }
 form { margin-top: 1rem; }
 .q-btn { margin: 0.3rem 0; }
-.link-create-account { width: 100%; padding-top: 0.7rem; text-align: center; }
 </style>

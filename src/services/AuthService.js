@@ -7,5 +7,13 @@ export default {
   
   logout () {
     return Api().post('logout')
+  }, 
+  
+  getAccount () {
+    return Api().get('account')
+  },
+  
+  createAccount(data) {
+    return Api().post('users', data)
   }
 }
