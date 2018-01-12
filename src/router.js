@@ -4,6 +4,7 @@ import VueRouter from 'vue-router'
 import GraalySearch from '@/graaly/search'
 import GraalyPlayHome from '@/graaly/playHome'
 import GraalyPlayStep from '@/graaly/playStep'
+import GraalyEnd from '@/graaly/end'
 import GraalyCreate from '@/graaly/create'
 
 import UserLogin from '@/user/login'
@@ -58,6 +59,10 @@ var router = new VueRouter({
     {
       path: '/graaly/play/:graalyId/step/:stepNumber',
       component: GraalyPlayStep
+    },
+    {
+      path: '/graaly/end',
+      component: GraalyEnd
     },
     {
       path: '/graaly/create',

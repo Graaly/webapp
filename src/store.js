@@ -16,7 +16,13 @@ const state = {
       1: 'Facile',
       2: 'Moyenne',
       3: 'Difficile'
+    },
+  // for graaly steps, keep track of objects given by setInterval() to clear them properly & avoid useless calls
+  graalySteps: {
+    geolocation: {
+      drawDirectionInterval: null
     }
+  }
 }
 
 // mutations are operations that actually mutates the state.
@@ -40,6 +46,9 @@ const mutations = {
   },
   logout (state) {
     state.isLoggedIn = false;
+  },
+  setDrawDirectionInterval (state, intervalObject) {
+    state.graalySteps.geolocation.drawDirectionInterval = intervalObject;
   }
 }
 
@@ -62,7 +71,9 @@ const actions = {
     commit('logout')
     localStorage.setItem('isLoggedIn', false)
     return result
-  }
+  },
+  // for step geolocation
+  setDrawDirectionInterval: ({ commit }, intervalObject) => commit('setDrawDirectionInterval', intervalObject)
 }
 
 // getters are functions
