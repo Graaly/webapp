@@ -47,6 +47,12 @@ $dark-grey-text = #757575
 /* required to avoid useless 50px overflow at bottom */
 #q-app { min-height: 0px; }
 
+#q-app h1 {
+  font-size: 1.3rem;
+  font-weight: normal;
+  margin-top: 0;
+}
+
 .layout-page, .layout-page-container {
   overflow-y: hidden; /* can't easily override calc(100vm - 50px) on .layout-page */
   height: 100%;
@@ -134,9 +140,25 @@ $dark-grey-text = #757575
   height: 5rem;
 }
 
-.link-create-account, .link-login { 
+.link-below-button { 
   width: 100%;
-  padding-top: 0.7rem;
+  padding-top: 1rem;
   text-align: center;
 }
 
+#q-app .bg-facebook {
+  background: #4267B2;
+}
+#q-app .bg-google {
+  background: #fff;
+}
+#q-app .bg-google .q-btn-inner {
+  color: #7D7D7D;
+}
+#q-app .fa-google:before {
+  color: transparent;
+  background-image: url('/statics/icons/social-networks/g-logo.png');
+  background-position: 0px;
+  background-repeat: no-repeat;
+  background-size: 100%;
+}

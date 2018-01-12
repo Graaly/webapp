@@ -10,6 +10,9 @@ require(`./themes/app.${__THEME}.styl`)
 // require(`quasar/dist/quasar.ie`)
 // require(`quasar/dist/quasar.ie.${__THEME}.css`)
 
+// add icons (e.g. social icons)
+import 'quasar-extras/fontawesome'
+
 import Vue from 'vue'
 
 import * as VueGoogleMaps from 'vue2-google-maps'

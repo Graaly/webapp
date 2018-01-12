@@ -2,7 +2,7 @@
   
   <div class="wrapper">
     <div class="page-content">
-      <h1>Inscrivez-vous pour commencer l'aventure !</h1>
+      <h1 class="text-center">Inscrivez-vous<br />pour commencer l'aventure !</h1>
     
       <form @submit.prevent="submit()">
       
@@ -42,7 +42,7 @@
         <q-btn color="primary" class="full-width">Commencer l'aventure</q-btn>
       </form>
     
-      <div class="link-login">
+      <div class="link-below-button">
         <router-link :to="{ path: '/user/login' }">Déjà inscrit ?</router-link>
       </div>
     </div>
