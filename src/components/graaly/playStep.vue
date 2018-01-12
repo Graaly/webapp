@@ -105,9 +105,11 @@
       <div>
         <p class="text">{{ step.text }}</p>
         <p class="text">Distance: {{ geolocation.distance }} mètres</p>
+        <!--
         <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
         <p class="text">Alpha: {{ Math.round(geolocation.alpha) }}°</p>
         <p class="text">Difference direction: {{ geolocation.direction }}°</p>
+        -->
       </div>
       <div class="direction-helper">
         <canvas id="direction-canvas"></canvas>
@@ -115,6 +117,24 @@
       <div class="resultMessage" >
         <div class="text right" v-show="playerResult">Bravo, vous êtes à proximité du lieu ! (+10 points)</div>
         <q-btn color="primary" class="full-width" @click="nextStep()">{{ playerResult ? 'Suivant' : 'Passer' }}</q-btn>
+      </div>
+    </div>
+    
+    
+    <div class="write-text" v-if="step.type == 'write-text'">
+      <div>
+        <p class="text">{{ step.text }}</p>
+      </div>
+      <div class="answer-text">
+        <input v-model="writetext.playerAnswer" placeholder="Votre réponse" :class="{right: playerResult === true, wrong: playerResult === false}" />
+        <q-btn color="primary" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()">Valider la réponse</q-btn>
+      </div>
+      <div class="actions fixed-bottom">
+        <q-btn v-show="step.hint && playerResult === null" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">Afficher un indice</q-btn>
+      </div>
+      <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
+        <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? "Bonne réponse ! (+10 points)" : "Mauvaise réponse !" }}</div>
+        <q-btn color="primary" class="full-width" @click="nextStep()">Suivant</q-btn>
       </div>
     </div>
     
@@ -128,6 +148,7 @@ import simi from 'src/includes/simi' // for image similarity
 import utils from 'src/includes/utils'
 import StepService from 'services/StepService'
 import Vue from 'vue'
+import { Alert } from 'quasar'
 export default {
   data () {
     return {
@@ -152,19 +173,31 @@ export default {
       geolocation: {
         distance: null,
         direction: null,
+        // location
         locationWatcher: null,
         watchLocationInterval: 2000, // ms
+        // direction
         currentBearing: null, // current direction compared to north
-        // tmp
         rawDirection: null,
         alpha: null
+      },
+      
+      // for step type 'write-text'
+      writetext: {
+        playerAnswer: null
       }
     }
   },
   mounted () {
     // TODO: for questions with text/image answers, do not load the 'right answer' info on front app
     this.getStep().then(() => {
-      // wait that DOM is loaded
+      // no more available step => we reached end of Graaly
+      if (typeof this.step === 'undefined') {
+        this.$router.push('/graaly/end');
+        return
+      }
+      
+      // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(() => {
         let background = document.getElementById('main-view')
         
@@ -218,9 +251,23 @@ export default {
           canvas.width = canvas.clientWidth
           canvas.height = canvas.clientHeight
           
-          window.setInterval(this.drawDirectionArrow, 200)
+          // must store object returned by setInterval() in Vue store instead of component properties,
+          // otherwise it is reset when route changes & component is reloaded
+          this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 200))
+        } else {
+          let drawDirectionInterval = this.$store.state.graalySteps.geolocation.drawDirectionInterval
+          if (drawDirectionInterval !== null) {
+            window.clearInterval(drawDirectionInterval)
+          }
+          this.$store.dispatch('setDrawDirectionInterval', null)
         }
       })
+    }).catch((err) => {
+      Alert.create({
+        html: 'Désolé, une erreur est survenue. Veuillez contacter le support.',
+        position: 'bottom-center'
+      })
+      console.log(err)
     })
   },
   methods: {
@@ -268,6 +315,10 @@ export default {
         
         case 'code':
           this.playerResult = (this.playerCode.join('') === this.step.answers)
+          break
+        
+        case 'write-text':
+          this.playerResult = (this.writetext.playerAnswer === this.step.answers)
           break
         
         default:
@@ -537,6 +588,13 @@ export default {
   .geolocation video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
   .geolocation .direction-helper { flex-grow: 1; display: flex; flex-flow: column nowrap; }
   .geolocation .direction-helper canvas { width: 10rem; height: 10rem; margin: auto; margin-bottom: 0; }
+  
+  /* write-text specific */
+  
+  .answer-text { flex-grow: 1; display: flex; flex-flow: column nowrap; justify-content: center; }
+  .answer-text input { opacity: 0.7; font-size: 1.5em; font-weight: bold; height: 1.5em; background-color: #fff; 
+    border-radius: 0.5rem;
+    box-shadow: 0px 0px 0.1rem 0.1rem #fff;}
   
   /* right/wrong styles */
   
