@@ -25,9 +25,13 @@
     </q-tabs>
     
     <div class="tab-content">
-        <p><q-btn link class="full-width" @click="inviteFriend()" color="primary">Inviter un ami</q-btn></p>
+        <p>
+          <q-btn v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id" link class="full-width" @click="inviteFriend()" color="primary">Inviter un ami</q-btn>
+          <q-btn v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)" link class="full-width" @click="joinTeam()" color="primary">Rejoindre cette agence</q-btn>
+        </p>
     
-        <h2>Membres de mon agence</h2>
+        <h2 v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id">Membres de mon agence</h2>
+        <h2 v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)">Membres de l'agence</h2>
         
         <q-list highlight>
           <q-item v-for="member in team.members" :key="member._id">
@@ -50,6 +54,7 @@
 
 <script>
 import TeamService from 'services/TeamService'
+import AuthService from 'services/AuthService'
 import { Dialog, Toast } from 'quasar'
 
 export default {
@@ -57,18 +62,28 @@ export default {
     return {
       title: 'Mon agence',
       team: { profile: { statistics: {}, score: {} }, members: [] },
-      user: {name: "Eric Mathieu", picture: "eric.png", id: "5a450d86e97f9665754a437b"}
+      user: {name: "--", picture: "", id: ""}
     }
   },
   mounted() {
-    // Set the page title = My agency / Competitor
-    this.$store.dispatch('setTitle', 'Mon agence')
+    this.getAccountInformations()
     
     this.getTeam(this.$route.params.id)
     
     this.getTeamMembers(this.$route.params.id)
   },
   methods: {
+    async getAccountInformations() {
+      let response = await AuthService.getAccount()
+      this.user = response.data
+      
+      if (this.user.team && this.user.team.currentId && this.user.team.currentId === this.$route.params.id) {
+        // Set the page title = My agency / Competitor
+        this.$store.dispatch('setTitle', 'Mon agence')
+      } else {
+        this.$store.dispatch('setTitle', 'Agence concurrente')
+      }
+    },
     async getTeam(id) {
       // get the team informations
       let response = await TeamService.getById(id)

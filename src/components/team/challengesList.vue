@@ -50,6 +50,7 @@
 
 <script>
 import TeamService from 'services/TeamService'
+import AuthService from 'services/AuthService'
 import { Dialog, Toast } from 'quasar'
 
 export default {
@@ -57,18 +58,28 @@ export default {
     return {
       title: 'Mon agence',
       team: { profile: { statistics: {}, score: {} }, members: [] },
-      user: {name: "Eric Mathieu", picture: "eric.png", id: "5a450d86e97f9665754a437b"}
+      user: {name: "--", picture: "", id: ""}
     }
   },
   mounted() {
-    // Set the page title = My agency / Competitor
-    this.$store.dispatch('setTitle', 'Mon agence')
+    this.getAccountInformations()
     
     this.getTeam(this.$route.params.id)
     
     this.getTeamMembers(this.$route.params.id)
   },
   methods: {
+    async getAccountInformations() {
+      let response = await AuthService.getAccount()
+      this.user = response.data
+      
+      if (this.user.team && this.user.team.currentId && this.user.team.currentId === this.$route.params.id) {
+        // Set the page title = My agency / Competitor
+        this.$store.dispatch('setTitle', 'Mon agence')
+      } else {
+        this.$store.dispatch('setTitle', 'Agence concurrente')
+      }
+    },
     async getTeam(id) {
       // get the team informations
       let response = await TeamService.getById(id)

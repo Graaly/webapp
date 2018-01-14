@@ -100,9 +100,9 @@ export default {
   },
   mounted() {
     // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', this.$data.title);
+    this.$store.dispatch('setTitle', this.$data.title)
     
-    this.getAccountInformations();    
+    this.getAccountInformations()
     
     if (this.$data.geolocationIsSupported) {
       navigator.geolocation.getCurrentPosition((position) => {

@@ -32,7 +32,8 @@
         </q-item-main>
       </q-item>
     
-      <h2>Actualités de mon agence</h2>
+      <h2 v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id">Actualités de mon agence</h2>
+      <h2 v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)">Actualités de mon agence</h2>
         
       <q-infinite-scroll :handler="getTeamNews">
         <q-list highlight>
@@ -63,6 +64,7 @@
 
 <script>
 import TeamService from 'services/TeamService'
+import AuthService from 'services/AuthService'
 import { required } from 'vuelidate/lib/validators'
 import { Toast, QSpinnerDots, QInfiniteScroll } from 'quasar'
 
@@ -86,12 +88,11 @@ export default {
         }
       },
       comment: "",
-      user: {name: "Eric Mathieu", picture: "eric.png", id: "5a450d86e97f9665754a437b"}
+      user: {name: "--", picture: "", id: ""}
     }
   },
   mounted() {
-    // Set the page title = My agency / Competitor
-    this.$store.dispatch('setTitle', 'Mon agence')
+    this.getAccountInformations()
     
     this.getTeam(this.$route.params.id)
     
@@ -101,6 +102,17 @@ export default {
     comment: { required }
   },
   methods: {
+    async getAccountInformations() {
+      let response = await AuthService.getAccount()
+      this.user = response.data
+      
+      if (this.user.team && this.user.team.currentId && this.user.team.currentId === this.$route.params.id) {
+        // Set the page title = My agency / Competitor
+        this.$store.dispatch('setTitle', 'Mon agence')
+      } else {
+        this.$store.dispatch('setTitle', 'Agence concurrente')
+      }
+    },
     async getTeam(id) {
       // get the team informations
       let response = await TeamService.getById(id)
