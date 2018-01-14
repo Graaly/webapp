@@ -1,7 +1,7 @@
 <template>
   
   <div class="wrapper">
-    <div class="page-content">
+    <div class="page-content top-padding-middle">
       <h1 class="text-center">Inscrivez-vous<br />pour commencer l'aventure !</h1>
     
       <form @submit.prevent="submit()">

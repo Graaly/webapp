@@ -76,7 +76,7 @@ $dark-grey-text = #757575
   font-weight: bold;
   margin: 0;
 }
-.header .subtitle {
+.subtitle {
   font-size: 0.9rem;
   color: $dark-grey-text;
   line-height: 0.9rem;
@@ -84,14 +84,14 @@ $dark-grey-text = #757575
 }
 
 .score {
-  font-size: 2.3rem;
+  font-size: 2.1rem;
   color: $primary;
   text-align: center;
   font-weight: bold;
   background-image: url('/statics/icons/game/medal.png');
   background-position: center 50px;
   background-repeat: no-repeat;
-  background-size: 40%;
+  background-size: 35%;
   width: 100px;
   padding-top: 10px;
 }
@@ -109,6 +109,9 @@ $dark-grey-text = #757575
 .tab-content h2 {
   font-size: 1rem;
 }
+.top-padding-middle {
+  padding-top: 25px;
+}
 .q-tabs-normal .router-link-active .q-tabs-bar {
   color: $primary;
 }
@@ -122,22 +125,33 @@ $dark-grey-text = #757575
 
 // Team specific CSS
 
-.header > div {
+.team-box {
+  display: table;
+  border-collapse: collapse;
+  width: 100%;
+  background-color: $light-grey-background;
+}
+.team-box > div {
   display: table-cell;
   vertical-align: top;
 }
-.header div.desc {
+.team-box h1 {
+  margin: 0;
+  padding: 0;
+  line-height: 0.9rem;
+}
+.team-box div.desc {
   padding-left: 1rem;
 }
-.header .badge {
+.team-box .badge {
   width: 2rem;
   height: 2rem;
   padding: 1rem;
 }
-.header .badge img {
+.team-box .badge img {
   display: block;
-  width: 5rem;
-  height: 5rem;
+  width: 4rem;
+  height: 4rem;
 }
 
 .link-below-button { 

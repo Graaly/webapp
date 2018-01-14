@@ -1,10 +1,6 @@
 <template>
   <div class="column" ref="div-column">
     
-    <div class="row-auto">
-      <q-search v-model="searchText" placeholder="Rechercher un Graaly" />
-    </div>
-    
     <div class="row" ref="map" v-if="geolocationIsSupported">
       
       <gmap-map
@@ -31,11 +27,23 @@
 
     </div>
     
-    <div class="row-auto">
-      <q-btn icon="group" @click="$router.push('/team/5a450258e97f9665754a437a/members')">Mon agence</q-btn>
+    <div class="team-box" @click="$router.push('/team/' + team.profile._id + '/members')">
+      <div class="badge">
+        <img :src="'/statics/badges/' + team.profile.badge" />
+      </div>
+      
+      <div class="desc">
+        <p><h1>{{ team.profile.name }}</h1></p>
+        <p class="subtitle">{{ team.profile.statistics.nbQuestsSuccessful }} enquêtes résolues</p>
+        <p class="subtitle">{{ team.profile.statistics.nbQuestsCreated }} enquêtes créées</p>
+      </div>
+      
+      <div class="score">
+        {{ team.profile.score.total }}
+      </div>
     </div>
     <div class="row-auto">
-      <q-btn icon="create" @click="$router.push('/graaly/create')">Créer un Graaly</q-btn>
+      <q-btn @click="$router.push('/graaly/create')" color="primary" icon="fa-magic">Créer une enquête et gagnez des points</q-btn>
     </div>
     
   </div>
@@ -44,6 +52,8 @@
 <script>
 import GraalyService from 'services/GraalyService'
 import AuthService from 'services/AuthService'
+import TeamService from 'services/TeamService'
+
 export default {
   data () {
     return {
@@ -68,11 +78,22 @@ export default {
       searchText: '',
       graalyList: [],
       graalyMarker: {
-        url: 'statics/icons/game/graaly.png',
-        size: {width: 45, height: 45, f: 'px', b: 'px'},
-        scaledSize: {width: 30, height: 30, f: 'px', b: 'px'},
+        url: 'statics/icons/game/investigation.png',
+        size: {width: 29, height: 34, f: 'px', b: 'px'},
+        scaledSize: {width: 29, height: 34, f: 'px', b: 'px'},
         origin: {x: 0, y: 0},
         anchor: {x: 15, y: 15}
+      },
+      team: {
+        profile: {
+          statistics: {}, 
+          score: {}
+        },
+        news: {
+          limit: 20,
+          skip: 0,
+          items: []
+        }
       },
       user: {name: "--", picture: "", id: ""}
     }
@@ -81,7 +102,7 @@ export default {
     // dispatch specific title for other app components
     this.$store.dispatch('setTitle', this.$data.title);
     
-    this.getAccountInformations();
+    this.getAccountInformations();    
     
     if (this.$data.geolocationIsSupported) {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -94,10 +115,20 @@ export default {
   methods: {
     async getAccountInformations() {
       let response = await AuthService.getAccount()
-console.log(response)
       this.user = response.data
+      
+      if (this.user.team && this.user.team.currentId) {
+        this.getTeam(this.user.team.currentId)
+      }
     },
-    
+    async getTeam(id) {
+      // get the team informations
+      let response = await TeamService.getById(id)
+      this.team.profile = response.data
+      
+      // compute the total score as the members score + team specific sore
+      this.team.profile.score.total = this.team.profile.score.members + this.team.profile.score.challenges
+    },
     onGraalyClick(graaly, idx) {
       let infoWindow = this.infoWindow
       this.infoWindow.position = graaly.position

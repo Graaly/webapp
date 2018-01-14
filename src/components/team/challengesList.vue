@@ -1,7 +1,7 @@
 <template>
   
   <div class="wrapper" >
-    <div class="header">
+    <div class="header team-box"> 
       <div class="badge">
         <img :src="'/statics/badges/' + team.profile.badge" />
       </div>

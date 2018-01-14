@@ -9,6 +9,9 @@
           <q-icon name="menu" />
         </q-btn>
         <q-toolbar-title>{{ title }}</q-toolbar-title>
+        <q-btn flat>
+          <q-icon name="search" @click="displaySearch = !displaySearch" />
+        </q-btn>
       </q-toolbar>
       <!-- Left Side Panel -->
       <div slot="left">
@@ -37,6 +40,9 @@
         </q-list>
           
       </div>
+      <div class="row-auto">
+        <q-search v-show="displaySearch" v-model="searchText" placeholder="Rechercher un Graaly" />
+      </div>
       <!-- sub-routes get injected here: -->
       <!-- see https://laracasts.com/discuss/channels/vue/vue-2-reload-component-when-same-route-is-requested -->
       <router-view id="main-view" :key="$route.fullPath" />
@@ -53,6 +59,11 @@
 import { mapState } from 'vuex'
  
 export default {
+  data () {
+    return {
+      displaySearch: false
+    }
+  },
   computed: mapState(['title', 'isLoggedIn']),
   updated () {
     this.$refs.layout.hideLeft()
