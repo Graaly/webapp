@@ -190,12 +190,14 @@ export default {
   },
   mounted () {
     // TODO: for questions with text/image answers, do not load the 'right answer' info on front app
-    this.getStep().then(() => {
+    this.getStep().then((step) => {
       // no more available step => we reached end of Graaly
-      if (typeof this.step === 'undefined') {
+      if (typeof step === 'undefined') {
         this.$router.push('/graaly/end');
         return
       }
+      
+      this.step = step
       
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(() => {
@@ -275,7 +277,7 @@ export default {
     /* general / multi step methods */
     
     async getStep () {
-      this.step = await StepService.get(this.$route.params.graalyId, this.$route.params.stepNumber)
+      return StepService.get(this.$route.params.graalyId, this.$route.params.stepNumber)
     },
     
     nextStep() {

@@ -1,5 +1,8 @@
 import axios from 'axios'
 
+// otherwise cookies are not sent back to server
+axios.defaults.withCredentials = true
+
 // Note: HTTPS is mandatory here because HTTPS is required for front (geolocation)
 
 export default() => {

@@ -3,13 +3,16 @@ var path = require('path')
 module.exports = {
   // Webpack aliases
   aliases: {
+    // default
     quasar: path.resolve(__dirname, '../node_modules/quasar-framework/'),
     src: path.resolve(__dirname, '../src'),
     assets: path.resolve(__dirname, '../src/assets'),
-    services: path.resolve(__dirname, '../src/services'),
     '@': path.resolve(__dirname, '../src/components'),
     variables: path.resolve(__dirname, '../src/themes/quasar.variables.styl'),
-    vue: 'vue/dist/vue.js'
+    vue: 'vue/dist/vue.js',
+    // custom
+    data: path.resolve(__dirname, '../data'),
+    services: path.resolve(__dirname, '../src/services')
   },
   
   // Progress Bar Webpack plugin format

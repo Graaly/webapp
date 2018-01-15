@@ -1,0 +1,9 @@
+[
+{ "id": 1, "name": "Musée d'art" },
+{ "id": 2, "name": "Musée d'histoire" },
+{ "id": 3, "name": "Ville ou village" },
+{ "id": 4, "name": "Balade nature" },
+{ "id": 5, "name": "Escape game" },
+{ "id": 6, "name": "Jeu de piste" },
+{ "id": 7, "name": "Autre" }
+]

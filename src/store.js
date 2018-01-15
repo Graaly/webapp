@@ -12,11 +12,6 @@ const state = {
   loginPending: false,
   title: null,
   defaultTitle: 'Graaly',
-  graalyLevels: {
-      1: 'Facile',
-      2: 'Moyenne',
-      3: 'Difficile'
-    },
   // for graaly steps, keep track of objects given by setInterval() to clear them properly & avoid useless calls
   graalySteps: {
     geolocation: {

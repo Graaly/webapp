@@ -1,4 +1,7 @@
 var self = module.exports = {
+  
+  // ----------- URL/HTTP related -------------
+  
   /*
    * Encodes query data for URL queries
    * @param   data   Object   key/values to encode in URL
@@ -12,6 +15,42 @@ var self = module.exports = {
     return ret.join('&')
   },
   
+  // ----------- Forms related -------------
+  
+  /*
+   * Retrieves data from specific fields in a JSON array, and builds an array of {value: ..., label: ...} objects
+   * which can be used in property "options" of <q-select> components
+   * @param   data      Array   array of objects (usually from API or JSON file)
+   * @param   fields    Object  field names used for value & label of select options.
+   *                            Example: { valueField: 'id', labelField: 'name' }
+   * @see https://stackoverflow.com/a/111545/488666
+   */ 
+  buildOptionsForSelect: (data, fields) => {
+    let optionsForSelect = []
+    data.forEach((item) => {
+      optionsForSelect.push({ value: item[fields.valueField], label: item[fields.labelField] })
+    })
+    return optionsForSelect
+  },
+  
+  // ----------- Data related -------------
+  
+  /*
+   * Finds object in an array of objects given an Id. Returns null if nothing is found.
+   * @param   collection    Array   Array of Javascript objects having an 'id' property
+   * @param   id            Number  Id of the object to find
+   */
+  getById: (collection, id) => {
+    for (let i = 0; i < collection.length; i++) {
+      if (collection[i].id === id) {
+        return collection[i]
+      }
+    }
+    return null
+  },
+  
+  // ----------- Math related -------------
+  
   degreesToRadians: (degrees) => {
     return degrees * Math.PI / 180
   },
@@ -19,6 +58,8 @@ var self = module.exports = {
   radiansToDegrees: (radians) => {
     return radians * 180 / Math.PI
   },
+  
+  // ----------- Geolocation related -------------
   
   /**
    * Calculates the distance between two positions in kilometers

@@ -23,14 +23,18 @@
     <p>{{ graaly.description }}</p>
     <p>Langue: {{ graaly.language }}</p>
     <p v-if="graaly.startingPlace">Lieu de départ: {{ graaly.startingPlace }}</p>
-    <p>Difficulté: {{ $store.state.graalyLevels[graaly.level] }}</p>
+    <p>Difficulté: {{ getGraalyLevelName(graaly.level) }}</p>
   </div>
   
 </template>
 
 <script>
+
 import GraalyService from 'services/GraalyService'
+import graalyLevels from 'data/graalyLevels.json'
 import { QRating } from 'quasar'
+import utils from 'src/includes/utils'
+
 export default {
   components: {
     QRating
@@ -51,6 +55,13 @@ export default {
     async getGraaly(id) {
       let response = await GraalyService.getById(id)
       this.graaly = response.data
+    },
+    // TODO make this more generic (basic model methods over 'webapp simple JSON files')
+    // e.g. import JSONModels from 'utils/json-models'; graalyLevels = JSONModels('graalyLevels'); graalyLevels.getById(123)
+    // see https://stackoverflow.com/questions/29923879/pass-options-to-es6-module-imports
+    getGraalyLevelName(id) {
+      let level = utils.getById(graalyLevels, id)
+      return level === null ? '' : level.name
     }
   }
 }
