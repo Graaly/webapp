@@ -1,0 +1,236 @@
+<template>
+  <div class="column" ref="div-column">
+    
+    <div class="row" ref="map" v-if="geolocationIsSupported">
+      
+      <gmap-map
+        :center="mapCenter"
+        :zoom="11"
+        map-type-id="roadmap"
+        class="map"
+        ref="map"
+        :options="{disableDefaultUI:true}"
+        @center_changed="updateCenter($event)"
+      >
+        <gmap-marker v-for="(graaly, index) in graalyList" :key="graaly._id" :position="graaly.position" :icon="graalyMarker"
+          @click="onGraalyClick(graaly, index)" />
+        
+        <gmap-info-window :options="infoWindow.options" :position="infoWindow.position" :opened="infoWindow.isOpen" @closeclick="infoWindow.isOpen=false">
+          <div class="infoWindow">
+            <h1>{{ currentGraaly ? currentGraaly.title : '' }}</h1>
+            <p>Difficulté : {{ currentGraaly ? $store.state.graalyLevels[currentGraaly.level] : '' }}</p>
+            <q-btn @click="$router.push('/graaly/play/' + (currentGraaly ? currentGraaly._id : ''))" color="tertiary">Enquêter</q-btn>
+          </div>
+        </gmap-info-window>
+        
+      </gmap-map>
+
+    </div>
+    
+    <div class="team-box" @click="$router.push('/team/' + team.profile._id + '/members')">
+      <div class="badge">
+        <img :src="'/statics/badges/' + team.profile.badge" />
+      </div>
+      
+      <div class="desc">
+        <p><h1>{{ team.profile.name }}</h1></p>
+        <p class="subtitle">{{ team.profile.statistics.nbQuestsSuccessful }} enquêtes résolues</p>
+        <p class="subtitle">{{ team.profile.statistics.nbQuestsCreated }} enquêtes créées</p>
+      </div>
+      
+      <div class="score">
+        {{ team.profile.score.total }}
+      </div>
+    </div>
+    <div class="row-auto">
+      <q-btn @click="$router.push('/graaly/create')" color="primary" icon="fa-magic">Créer une enquête et gagnez des points</q-btn>
+    </div>
+    
+  </div>
+</template>
+
+<script>
+import GraalyService from 'services/GraalyService'
+import AuthService from 'services/AuthService'
+import TeamService from 'services/TeamService'
+
+export default {
+  data () {
+    return {
+      title: 'Carte',
+      mapCenter: { lat: 0, lng: 0 },
+      infoWindow: {
+        content: '',
+        position: { lat: 0, lng: 0 },
+        isOpen: false,
+        options: { pixelOffset: { width: 0, height: -35 } }
+      },
+      currentGraalyIndex: null,
+      currentGraaly: null,
+      // for smooth 'panTo()' transition between marker clicks
+      pan: {
+        path: [],
+        queue: [],
+        steps: 20,
+        duration: 700 // in milliseconds
+      },
+      geolocationIsSupported: navigator.geolocation,
+      searchText: '',
+      graalyList: [],
+      graalyMarker: {
+        url: 'statics/icons/game/investigation.png',
+        size: {width: 29, height: 34, f: 'px', b: 'px'},
+        scaledSize: {width: 29, height: 34, f: 'px', b: 'px'},
+        origin: {x: 0, y: 0},
+        anchor: {x: 15, y: 15}
+      },
+      team: {
+        profile: {
+          statistics: {}, 
+          score: {}
+        },
+        news: {
+          limit: 20,
+          skip: 0,
+          items: []
+        }
+      },
+      user: {name: "--", picture: "", id: ""}
+    }
+  },
+  mounted() {
+    // dispatch specific title for other app components
+    this.$store.dispatch('setTitle', this.$data.title)
+    
+    this.getAccountInformations()
+    
+    if (this.$data.geolocationIsSupported) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.$data.mapCenter = {lat: position.coords.latitude, lng: position.coords.longitude}
+      });
+    }
+    
+    this.getGraalies()
+  },
+  methods: {
+    async getAccountInformations() {
+      let response = await AuthService.getAccount()
+      this.user = response.data
+      
+      if (this.user.team && this.user.team.currentId) {
+        this.getTeam(this.user.team.currentId)
+      }
+    },
+    async getTeam(id) {
+      // get the team informations
+      let response = await TeamService.getById(id)
+      this.team.profile = response.data
+      
+      // compute the total score as the members score + team specific sore
+      this.team.profile.score.total = this.team.profile.score.members + this.team.profile.score.challenges
+    },
+    onGraalyClick(graaly, idx) {
+      let infoWindow = this.infoWindow
+      this.infoWindow.position = graaly.position
+      
+      //check if its the same marker that was selected if yes toggle
+      if (this.currentGraalyIndex === idx) {
+        infoWindow.isOpen = !infoWindow.isOpen
+      }
+      //if different marker, set infowindow to open and reset current marker index
+      else {
+        this.currentGraalyIndex = idx
+        this.currentGraaly = this.graalyList[idx]
+        infoWindow.isOpen = true
+        // center map on last clicked Graaly
+        this.panTo(graaly.position)
+      }
+    },
+    
+    async getGraalies() {
+      let response = await GraalyService.getList()
+      this.graalyList = response.data
+    },
+    
+    // ------------- Map manipulation functions ----------------
+    
+    // from https://stackoverflow.com/a/33339155/488666
+    panTo (position) {
+      let panPath = this.pan.path
+      let panQueue = this.pan.queue
+      let panSteps = this.pan.steps
+      if (panPath.length > 0) {
+        // We are already panning...queue this up for next move
+        panQueue.push(position)
+      } else {
+        // easeIn animation computation: see https://stackoverflow.com/a/11808697/488666
+        panPath.push("LAZY SYNCRONIZED LOCK")  // make length non-zero - 'release' this before calling setTimeout
+        var curLat = this.mapCenter.lat
+        var curLng = this.mapCenter.lng
+        var dLat = (position.lat - curLat)
+        var dLng = (position.lng - curLng)
+        
+        for (var i = 1; i <= panSteps; i++) {
+          let elapsed = this.pan.duration * (i / panSteps);
+          let newLat = this.easeOutQuad(elapsed, curLat, dLat, this.pan.duration);
+          let newLng = this.easeOutQuad(elapsed, curLng, dLng, this.pan.duration);
+          panPath.push({ lat: newLat, lng: newLng })
+        }
+        panPath.push(position)
+        panPath.shift() // LAZY SYNCRONIZED LOCK
+        
+        setTimeout(this.doPan, this.pan.duration / this.pan.steps)
+      }
+    },
+
+    doPan () {
+      var next = this.pan.path.shift();
+        
+      if (next != null) {
+        // Continue our current pan action
+        this.mapCenter = next;
+        setTimeout(this.doPan, this.pan.duration / this.pan.steps);
+      } else {
+        // We are finished with this pan - check if there are any queue'd up locations to pan to 
+        var queued = this.pan.queue.shift();
+        if (queued != null) {
+          this.panTo(queued);
+        }
+      }
+    },
+    
+    updateCenter (ev) {
+      let newLat = ev.lat();
+      let newLng = ev.lng();
+      if (this.mapCenter.lat !== newLat || this.mapCenter.lng !== newLng) {
+        this.mapCenter = { lng: newLng, lat: newLat }
+      }
+    },
+    
+    // https://github.com/danro/jquery-easing/blob/master/jquery.easing.js
+    // t: current time, b: beginning value, c: change in value, d: duration
+    easeOutQuad: function (t, b, c, d) {
+      return -c * (t /= d) * (t - 2) + b;
+    }
+  }
+}
+</script>
+
+<style scoped>
+#main-view { padding: 0rem; }
+
+.infoWindow {
+  text-align: center;
+  padding: 3px;
+}
+
+.column { display: flex; flex-flow: column nowrap; align-items: stretch;}
+
+.column .row { flex: 1; }
+.column .row, .column .row-auto { width: 100%; }
+
+.map {
+  width: 100%; 
+  height: 100%; 
+}
+</style>

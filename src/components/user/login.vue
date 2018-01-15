@@ -71,7 +71,7 @@ export default {
           email: this.form.email,
           password: this.form.password
         }).then(() => {
-          let destination = '/graaly/search';
+          let destination = '/graaly/home';
           if (this.$route.query.hasOwnProperty('redirect')) {
             destination = this.$route.query.redirect
           }

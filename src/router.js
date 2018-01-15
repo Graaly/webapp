@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
+import GraalyHome from '@/graaly/home'
 import GraalySearch from '@/graaly/search'
 import GraalyPlayHome from '@/graaly/playHome'
 import GraalyPlayStep from '@/graaly/playStep'
@@ -51,6 +52,10 @@ var router = new VueRouter({
     {
       path: '/graaly/search',
       component: GraalySearch
+    },
+    {
+      path: '/graaly/home',
+      component: GraalyHome
     },
     {
       path: '/graaly/play/:id',

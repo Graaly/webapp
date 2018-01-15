@@ -18,16 +18,20 @@
         <!-- warning: put only <q-side-link> components with routes here, no button with @click, $router.push() in @click function won't work -->
         <q-list no-border link>
           <q-side-link item to="/graaly/search" v-if="isLoggedIn">
-            <q-item-side icon="search" />
-            <q-item-main label="Rechercher des Graalys" />
+            <q-item-side icon="location on" />
+            <q-item-main label="Carte des enquêtes" />
           </q-side-link>
-          <q-side-link item to="/graaly/create" v-if="isLoggedIn">
-            <q-item-side icon="create" />
-            <q-item-main label="Créer des Graalys" />
+          <q-side-link item :to="'/team/' + user.team.currentId + '/members'" v-if="isLoggedIn">
+            <q-item-side icon="group" />
+            <q-item-main label="Mon agence" />
           </q-side-link>
           <q-side-link item to="/user/profile" v-if="isLoggedIn">
             <q-item-side icon="account circle" />
             <q-item-main label="Mon profil" />
+          </q-side-link>
+          <q-side-link item to="/graaly/create" v-if="isLoggedIn">
+            <q-item-side icon="fa-magic" />
+            <q-item-main label="Créer une enquête" />
           </q-side-link>
           <q-side-link item to="/user/login" v-if="!isLoggedIn">
             <q-item-side icon="vpn key" />
@@ -57,11 +61,13 @@
  */
 
 import { mapState } from 'vuex'
+import AuthService from 'services/AuthService'
  
 export default {
   data () {
     return {
-      displaySearch: false
+      displaySearch: false,
+      user: { name: "--", picture: "", id: "", team: { currentId: 0 } }
     }
   },
   computed: mapState(['title', 'isLoggedIn']),
@@ -72,6 +78,9 @@ export default {
   mounted () {
     this.$refs.layout.hideLeft()
     this.fixLayout();
+    
+    // get connected user informations
+    this.getAccountInformations()
   },
   watch: {
     '$route': function(value) {
@@ -79,6 +88,14 @@ export default {
     }
   },
   methods: {
+    async getAccountInformations() {
+      let response = await AuthService.getAccount()
+      this.user = response.data
+      
+      if (this.user.team && this.user.team.currentId) {
+        this.getTeam(this.user.team.currentId)
+      }
+    },
     fixLayout() {
       // layout page computed min-height is wrong (too high, includes browser title bar), leading to a
       // useless bottom overflow of 50px, at least on Android Chrome, and maybe other mobile browsers,
