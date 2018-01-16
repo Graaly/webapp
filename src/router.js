@@ -50,7 +50,7 @@ var router = new VueRouter({
       meta: { requiresAuth: false }
     },
     {
-      path: '/graaly/search',
+      path: '/graaly/search/:searchText',
       component: GraalySearch
     },
     {

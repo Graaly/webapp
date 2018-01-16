@@ -17,7 +17,7 @@
       <div slot="left">
         <!-- warning: put only <q-side-link> components with routes here, no button with @click, $router.push() in @click function won't work -->
         <q-list no-border link>
-          <q-side-link item to="/graaly/search" v-if="isLoggedIn">
+          <q-side-link item to="/graaly/home" v-if="isLoggedIn">
             <q-item-side icon="location on" />
             <q-item-main label="Carte des enquêtes" />
           </q-side-link>
@@ -45,7 +45,9 @@
           
       </div>
       <div class="row-auto">
-        <q-search v-show="displaySearch" v-model="searchText" placeholder="Rechercher un Graaly" />
+        <form v-on:submit.prevent="$router.push('/graaly/search/' + searchText)">
+          <q-search v-show="displaySearch" v-model="searchText" placeholder="Rechercher un Graaly" />
+        </form>
       </div>
       <!-- sub-routes get injected here: -->
       <!-- see https://laracasts.com/discuss/channels/vue/vue-2-reload-component-when-same-route-is-requested -->
@@ -67,6 +69,7 @@ export default {
   data () {
     return {
       displaySearch: false,
+      searchText: "",
       user: { name: "--", picture: "", id: "", team: { currentId: 0 } }
     }
   },
@@ -95,6 +98,9 @@ export default {
       if (this.user.team && this.user.team.currentId) {
         this.getTeam(this.user.team.currentId)
       }
+    },
+    submitSearch() {
+      console.log(this.searchText)
     },
     fixLayout() {
       // layout page computed min-height is wrong (too high, includes browser title bar), leading to a
