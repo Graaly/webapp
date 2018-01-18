@@ -17,7 +17,9 @@ const state = {
     geolocation: {
       drawDirectionInterval: null
     }
-  }
+  },
+  user: null,
+  currentEditedQuest: null
 }
 
 // mutations are operations that actually mutates the state.
@@ -35,15 +37,19 @@ const mutations = {
   loginStart (state) {
     state.loginPending = true;
   },
-  loginSuccess (state) {
+  loginSuccess (state, user) {
     state.isLoggedIn = true;
     state.loginPending = false;
+    state.user = user;
   },
   logout (state) {
     state.isLoggedIn = false;
   },
   setDrawDirectionInterval (state, intervalObject) {
     state.graalySteps.geolocation.drawDirectionInterval = intervalObject;
+  },
+  newQuestCreated(state, id) {
+    state.currentEditedQuest = { id: id }
   }
 }
 
@@ -56,7 +62,7 @@ const actions = {
     commit('loginStart'); // show spinner
     let result = await AuthService.login(creds.email, creds.password)
     if (result.status === 200) {
-      commit('loginSuccess')
+      commit('loginSuccess', result.data.user)
       localStorage.setItem('isLoggedIn', true)
     }
     return result
@@ -68,7 +74,9 @@ const actions = {
     return result
   },
   // for step geolocation
-  setDrawDirectionInterval: ({ commit }, intervalObject) => commit('setDrawDirectionInterval', intervalObject)
+  setDrawDirectionInterval: ({ commit }, intervalObject) => commit('setDrawDirectionInterval', intervalObject),
+  // for quest creation/edition
+  newQuestCreated: ({ commit }, id) => commit('newQuestCreated', id)
 }
 
 // getters are functions

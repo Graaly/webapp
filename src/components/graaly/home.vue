@@ -12,13 +12,13 @@
         :options="{disableDefaultUI:true}"
         @center_changed="updateCenter($event)"
       >
-        <gmap-marker v-for="(graaly, index) in graalyList" :key="graaly._id" :position="graaly.position" :icon="graalyMarker"
+        <gmap-marker v-for="(graaly, index) in graalyList" :key="graaly._id" :position="graaly.location" :icon="graalyMarker"
           @click="onGraalyClick(graaly, index)" />
         
-        <gmap-info-window :options="infoWindow.options" :position="infoWindow.position" :opened="infoWindow.isOpen" @closeclick="infoWindow.isOpen=false">
+        <gmap-info-window :options="infoWindow.options" :position="infoWindow.location" :opened="infoWindow.isOpen" @closeclick="infoWindow.isOpen=false">
           <div class="infoWindow">
             <h1>{{ currentGraaly ? currentGraaly.title : '' }}</h1>
-            <p>Difficulté : {{ currentGraaly ? $store.state.graalyLevels[currentGraaly.level] : '' }}</p>
+            <p>Difficulté : {{ currentGraaly ? questLevels[currentGraaly.level].name : '' }}</p>
             <q-btn @click="$router.push('/graaly/play/' + (currentGraaly ? currentGraaly._id : ''))" color="tertiary">Enquêter</q-btn>
           </div>
         </gmap-info-window>
@@ -54,6 +54,8 @@ import GraalyService from 'services/GraalyService'
 import AuthService from 'services/AuthService'
 import TeamService from 'services/TeamService'
 
+import questLevels from 'data/graalyLevels.json'
+
 export default {
   data () {
     return {
@@ -61,7 +63,7 @@ export default {
       mapCenter: { lat: 0, lng: 0 },
       infoWindow: {
         content: '',
-        position: { lat: 0, lng: 0 },
+        location: { lat: 0, lng: 0 },
         isOpen: false,
         options: { pixelOffset: { width: 0, height: -35 } }
       },
@@ -95,7 +97,8 @@ export default {
           items: []
         }
       },
-      user: {name: "--", picture: "", id: ""}
+      user: {name: "--", picture: "", id: ""},
+      questLevels: questLevels
     }
   },
   mounted() {
@@ -131,7 +134,7 @@ export default {
     },
     onGraalyClick(graaly, idx) {
       let infoWindow = this.infoWindow
-      this.infoWindow.position = graaly.position
+      this.infoWindow.location = graaly.location
       
       //check if its the same marker that was selected if yes toggle
       if (this.currentGraalyIndex === idx) {
@@ -143,7 +146,7 @@ export default {
         this.currentGraaly = this.graalyList[idx]
         infoWindow.isOpen = true
         // center map on last clicked Graaly
-        this.panTo(graaly.position)
+        this.panTo(graaly.location)
       }
     },
     

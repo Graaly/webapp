@@ -6,7 +6,8 @@ import GraalySearch from '@/graaly/search'
 import GraalyPlayHome from '@/graaly/playHome'
 import GraalyPlayStep from '@/graaly/playStep'
 import GraalyEnd from '@/graaly/end'
-import GraalyCreate from '@/graaly/create'
+import GraalyCreateWelcome from '@/graaly/create/welcome'
+import GraalyCreateSettings from '@/graaly/create/settings'
 
 import UserLogin from '@/user/login'
 import UserLogout from '@/user/logout'
@@ -71,7 +72,15 @@ var router = new VueRouter({
     },
     {
       path: '/graaly/create',
-      component: GraalyCreate
+      redirect: '/graaly/create/welcome'
+    },
+    {
+      path: '/graaly/create/welcome',
+      component: GraalyCreateWelcome
+    },
+    {
+      path: '/graaly/create/settings',
+      component: GraalyCreateSettings
     },
     {
       path: '/user/createAccount',

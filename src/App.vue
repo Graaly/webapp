@@ -70,7 +70,7 @@ export default {
     return {
       displaySearch: false,
       searchText: "",
-      user: { name: "--", picture: "", id: "", team: { currentId: 0 } }
+      user: { name: "--", picture: "", id: "", team: { currentId: 0, profile: { score: { total: 0, members: 0 } } } }
     }
   },
   computed: mapState(['title', 'isLoggedIn']),
@@ -94,10 +94,6 @@ export default {
     async getAccountInformations() {
       let response = await AuthService.getAccount()
       this.user = response.data
-      
-      if (this.user.team && this.user.team.currentId) {
-        this.getTeam(this.user.team.currentId)
-      }
     },
     submitSearch() {
       console.log(this.searchText)
