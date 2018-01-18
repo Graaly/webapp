@@ -16,14 +16,14 @@
           </q-item-main>
         </q-item>
       </q-list>
-      <q-item v-show='quests.length == 0' @click="$router.push('/graaly/create')">
+      <q-item v-show='quests.length == 0' @click="$router.push('/quest/create')">
         <q-item-side>
           <q-icon name="explore" size="2rem" />
         </q-item-side>
         <q-item-main>
           <q-item-tile label>Aucune enquête ne correspond à votre recherche</q-item-tile>
           <q-item-tile sublabel>
-            <a @click="$router.push('/graaly/create')">Pourquoi ne pas créer cette enquête ?</a>
+            <a @click="$router.push('/quest/create')">Pourquoi ne pas créer cette enquête ?</a>
           </q-item-tile>
         </q-item-main>
       </q-item>
@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import GraalyService from 'services/GraalyService'
+import QuestService from 'services/QuestService'
 export default {
   data () {
     return {
@@ -61,7 +61,7 @@ export default {
   methods: {
     async findQuest() {
       var userPosition = this.userPosition
-      let response = await GraalyService.find(this.$route.params.searchText, this.userPosition)
+      let response = await QuestService.find(this.$route.params.searchText, this.userPosition)
       this.quests = response.data
       
       // compute distance

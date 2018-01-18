@@ -2,7 +2,7 @@
   
   <div>
     <div class="wrapper">
-      <h1>Votre Graaly</h1>
+      <h1>Votre enquête</h1>
       
       <div class="grow">
         <p>
@@ -14,11 +14,11 @@
         </p>
         
         <p>
-          Vous pourrez à la fin tester votre Graaly avant de le publier, de manière à l'optimiser pour qu'il  obtienne la meilleure note possible et soit populaire.
+          Vous pourrez à la fin tester votre enquête avant de la publier, de manière à l'optimiser pour qu'elle  obtienne la meilleure note possible et soit populaire.
         </p>
       </div>
       
-      <q-btn color="primary" class="full-width center" @click="$router.push('/graaly/create/settings')">Commencer</q-btn>
+      <q-btn color="primary" class="full-width center" @click="$router.push('/quest/create/settings')">Commencer</q-btn>
     </div>
   </div>
   

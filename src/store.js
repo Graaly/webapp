@@ -12,8 +12,8 @@ const state = {
   loginPending: false,
   title: null,
   defaultTitle: 'Graaly',
-  // for graaly steps, keep track of objects given by setInterval() to clear them properly & avoid useless calls
-  graalySteps: {
+  // for quest steps, keep track of objects given by setInterval() to clear them properly & avoid useless calls
+  questSteps: {
     geolocation: {
       drawDirectionInterval: null
     }
@@ -46,7 +46,7 @@ const mutations = {
     state.isLoggedIn = false;
   },
   setDrawDirectionInterval (state, intervalObject) {
-    state.graalySteps.geolocation.drawDirectionInterval = intervalObject;
+    state.questSteps.geolocation.drawDirectionInterval = intervalObject;
   },
   newQuestCreated(state, id) {
     state.currentEditedQuest = { id: id }

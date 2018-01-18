@@ -76,9 +76,9 @@
 <script>
 import { QUploader, Toast } from 'quasar'
 import { required } from 'vuelidate/lib/validators'
-import GraalyService from 'services/GraalyService'
-import graalyCategories from 'data/graalyCategories.json'
-import graalyLevels from 'data/graalyLevels.json'
+import QuestService from 'services/QuestService'
+import questCategories from 'data/questCategories.json'
+import questLevels from 'data/questLevels.json'
 import languages from 'data/languages.json'
 import utils from 'src/includes/utils'
 export default {
@@ -97,16 +97,16 @@ export default {
         mainLanguage: 'fr',
         level: 2
       },
-      categories: utils.buildOptionsForSelect(graalyCategories, { valueField: 'id', labelField: 'name' }),
+      categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }),
       languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }),
-      levels: utils.buildOptionsForSelect(graalyLevels, { valueField: 'id', labelField: 'name' })
+      levels: utils.buildOptionsForSelect(questLevels, { valueField: 'id', labelField: 'name' })
     }
   },
   methods: {
     async submit() {
       this.$v.form.$touch()
       if (!this.$v.form.$error) {
-        let newGraaly = Object.assign(this.form, {
+        let newQuest = Object.assign(this.form, {
           'rating': 3, // tmp
           'availablePoints': 120, // tmp
           'dateCreated': new Date(),
@@ -115,7 +115,7 @@ export default {
           'languages': [this.form.mainLanguage],
           'dateUpdated': null
         })
-        let res = await GraalyService.save(newGraaly)
+        let res = await QuestService.save(newQuest)
         // retrieve new quest ID and save it to store
         this.$store.dispatch('newQuestCreated', res.data._id)
         Toast.create('Nouvelle enquête créée')

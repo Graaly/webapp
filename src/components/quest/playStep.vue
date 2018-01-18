@@ -191,9 +191,9 @@ export default {
   mounted () {
     // TODO: for questions with text/image answers, do not load the 'right answer' info on front app
     this.getStep().then((step) => {
-      // no more available step => we reached end of Graaly
+      // no more available step => we reached end of quest
       if (typeof step === 'undefined') {
-        this.$router.push('/graaly/end');
+        this.$router.push('/quest/end');
         return
       }
       
@@ -257,7 +257,7 @@ export default {
           // otherwise it is reset when route changes & component is reloaded
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 200))
         } else {
-          let drawDirectionInterval = this.$store.state.graalySteps.geolocation.drawDirectionInterval
+          let drawDirectionInterval = this.$store.state.questSteps.geolocation.drawDirectionInterval
           if (drawDirectionInterval !== null) {
             window.clearInterval(drawDirectionInterval)
           }
@@ -277,11 +277,11 @@ export default {
     /* general / multi step methods */
     
     async getStep () {
-      return StepService.get(this.$route.params.graalyId, this.$route.params.stepNumber)
+      return StepService.get(this.$route.params.questId, this.$route.params.stepNumber)
     },
     
     nextStep() {
-      this.$router.push('/graaly/play/' + this.step.graalyId + '/step/' + (this.step.number + 1));
+      this.$router.push('/quest/play/' + this.step.questId + '/step/' + (this.step.number + 1));
     },
     
     askForHint() {
@@ -328,7 +328,7 @@ export default {
       }
       
       if (this.playerResult) {
-        // TODO: add points to Graaly player & creator
+        // TODO: add points to quest player & creator
       }
     },
     

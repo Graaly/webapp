@@ -17,7 +17,7 @@
       <div slot="left">
         <!-- warning: put only <q-side-link> components with routes here, no button with @click, $router.push() in @click function won't work -->
         <q-list no-border link>
-          <q-side-link item to="/graaly/home" v-if="isLoggedIn">
+          <q-side-link item to="/home" v-if="isLoggedIn">
             <q-item-side icon="location on" />
             <q-item-main label="Carte des enquêtes" />
           </q-side-link>
@@ -29,7 +29,7 @@
             <q-item-side icon="account circle" />
             <q-item-main label="Mon profil" />
           </q-side-link>
-          <q-side-link item to="/graaly/create" v-if="isLoggedIn">
+          <q-side-link item to="/quest/create" v-if="isLoggedIn">
             <q-item-side icon="fa-magic" />
             <q-item-main label="Créer une enquête" />
           </q-side-link>
@@ -45,8 +45,8 @@
           
       </div>
       <div class="row-auto">
-        <form v-on:submit.prevent="$router.push('/graaly/search/' + searchText)">
-          <q-search v-show="displaySearch" v-model="searchText" placeholder="Rechercher un Graaly" />
+        <form v-on:submit.prevent="$router.push('/quest/search/text/' + searchText)">
+          <q-search v-show="displaySearch" v-model="searchText" placeholder="Chercher des enquêtes" />
         </form>
       </div>
       <!-- sub-routes get injected here: -->

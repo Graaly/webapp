@@ -12,14 +12,14 @@
         :options="{disableDefaultUI:true}"
         @center_changed="updateCenter($event)"
       >
-        <gmap-marker v-for="(graaly, index) in graalyList" :key="graaly._id" :position="graaly.location" :icon="graalyMarker"
-          @click="onGraalyClick(graaly, index)" />
+        <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="quest.location" :icon="questMarker"
+          @click="onQuestClick(quest, index)" />
         
         <gmap-info-window :options="infoWindow.options" :position="infoWindow.location" :opened="infoWindow.isOpen" @closeclick="infoWindow.isOpen=false">
           <div class="infoWindow">
-            <h1>{{ currentGraaly ? currentGraaly.title : '' }}</h1>
-            <p>Difficulté : {{ currentGraaly ? questLevels[currentGraaly.level].name : '' }}</p>
-            <q-btn @click="$router.push('/graaly/play/' + (currentGraaly ? currentGraaly._id : ''))" color="tertiary">Enquêter</q-btn>
+            <h1>{{ currentQuest ? currentQuest.title : '' }}</h1>
+            <p>Difficulté : {{ currentQuest ? questLevels[currentQuest.level].name : '' }}</p>
+            <q-btn @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="tertiary">Enquêter</q-btn>
           </div>
         </gmap-info-window>
         
@@ -43,18 +43,18 @@
       </div>
     </div>
     <div class="row-auto">
-      <q-btn @click="$router.push('/graaly/create')" color="primary" icon="fa-magic">Créer une enquête et gagnez des points</q-btn>
+      <q-btn @click="$router.push('/quest/create')" color="primary" icon="fa-magic">Créer une enquête et gagnez des points</q-btn>
     </div>
     
   </div>
 </template>
 
 <script>
-import GraalyService from 'services/GraalyService'
+import QuestService from 'services/QuestService'
 import AuthService from 'services/AuthService'
 import TeamService from 'services/TeamService'
 
-import questLevels from 'data/graalyLevels.json'
+import questLevels from 'data/questLevels.json'
 
 export default {
   data () {
@@ -67,8 +67,8 @@ export default {
         isOpen: false,
         options: { pixelOffset: { width: 0, height: -35 } }
       },
-      currentGraalyIndex: null,
-      currentGraaly: null,
+      currentQuestIndex: null,
+      currentQuest: null,
       // for smooth 'panTo()' transition between marker clicks
       pan: {
         path: [],
@@ -78,8 +78,8 @@ export default {
       },
       geolocationIsSupported: navigator.geolocation,
       searchText: '',
-      graalyList: [],
-      graalyMarker: {
+      questList: [],
+      questMarker: {
         url: 'statics/icons/game/investigation.png',
         size: {width: 29, height: 34, f: 'px', b: 'px'},
         scaledSize: {width: 29, height: 34, f: 'px', b: 'px'},
@@ -113,7 +113,7 @@ export default {
       });
     }
     
-    this.getGraalies()
+    this.getQuests()
   },
   methods: {
     async getAccountInformations() {
@@ -132,27 +132,27 @@ export default {
       // compute the total score as the members score + team specific sore
       this.team.profile.score.total = this.team.profile.score.members + this.team.profile.score.challenges
     },
-    onGraalyClick(graaly, idx) {
+    onQuestClick(quest, idx) {
       let infoWindow = this.infoWindow
-      this.infoWindow.location = graaly.location
+      this.infoWindow.location = quest.location
       
       //check if its the same marker that was selected if yes toggle
-      if (this.currentGraalyIndex === idx) {
+      if (this.currentQuestIndex === idx) {
         infoWindow.isOpen = !infoWindow.isOpen
       }
       //if different marker, set infowindow to open and reset current marker index
       else {
-        this.currentGraalyIndex = idx
-        this.currentGraaly = this.graalyList[idx]
+        this.currentQuestIndex = idx
+        this.currentQuest = this.questList[idx]
         infoWindow.isOpen = true
-        // center map on last clicked Graaly
-        this.panTo(graaly.location)
+        // center map on last clicked quest
+        this.panTo(quest.location)
       }
     },
     
-    async getGraalies() {
-      let response = await GraalyService.getList()
-      this.graalyList = response.data
+    async getQuests() {
+      let response = await QuestService.getList()
+      this.questList = response.data
     },
     
     // ------------- Map manipulation functions ----------------

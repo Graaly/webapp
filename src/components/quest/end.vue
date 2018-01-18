@@ -27,7 +27,7 @@
       </div>
       
       <div class="back">
-        <router-link to="/graaly/search">Retour à la carte</router-link>
+        <router-link to="/quest/search/map">Retour à la carte</router-link>
       </div>
     </div>
     

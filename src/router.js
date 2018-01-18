@@ -1,13 +1,13 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import GraalyHome from '@/graaly/home'
-import GraalySearch from '@/graaly/search'
-import GraalyPlayHome from '@/graaly/playHome'
-import GraalyPlayStep from '@/graaly/playStep'
-import GraalyEnd from '@/graaly/end'
-import GraalyCreateWelcome from '@/graaly/create/welcome'
-import GraalyCreateSettings from '@/graaly/create/settings'
+import QuestSearchMap from '@/quest/searchMap'
+import QuestSearchText from '@/quest/searchText'
+import QuestPlayHome from '@/quest/playHome'
+import QuestPlayStep from '@/quest/playStep'
+import QuestEnd from '@/quest/end'
+import QuestCreateWelcome from '@/quest/create/welcome'
+import QuestCreateSettings from '@/quest/create/settings'
 
 import UserLogin from '@/user/login'
 import UserLogout from '@/user/logout'
@@ -51,36 +51,40 @@ var router = new VueRouter({
       meta: { requiresAuth: false }
     },
     {
-      path: '/graaly/search/:searchText',
-      component: GraalySearch
+      path: '/home',
+      redirect: '/quest/search/map'
     },
     {
-      path: '/graaly/home',
-      component: GraalyHome
+      path: '/quest/search/text/:searchText',
+      component: QuestSearchText
     },
     {
-      path: '/graaly/play/:id',
-      component: GraalyPlayHome
+      path: '/quest/search/map',
+      component: QuestSearchMap
     },
     {
-      path: '/graaly/play/:graalyId/step/:stepNumber',
-      component: GraalyPlayStep
+      path: '/quest/play/:id',
+      component: QuestPlayHome
     },
     {
-      path: '/graaly/end',
-      component: GraalyEnd
+      path: '/quest/play/:questId/step/:stepNumber',
+      component: QuestPlayStep
     },
     {
-      path: '/graaly/create',
-      redirect: '/graaly/create/welcome'
+      path: '/quest/end',
+      component: QuestEnd
     },
     {
-      path: '/graaly/create/welcome',
-      component: GraalyCreateWelcome
+      path: '/quest/create',
+      redirect: '/quest/create/welcome'
     },
     {
-      path: '/graaly/create/settings',
-      component: GraalyCreateSettings
+      path: '/quest/create/welcome',
+      component: QuestCreateWelcome
+    },
+    {
+      path: '/quest/create/settings',
+      component: QuestCreateSettings
     },
     {
       path: '/user/createAccount',
@@ -122,12 +126,12 @@ var router = new VueRouter({
     },
     {
       path: '*',
-      component: { template: '<div><p>Page not found</p></div>' } // TODO: better handling (log an error + show 'page not found' message + redirect to Graaly search ?)
+      component: { template: '<div><p>Page not found</p></div>' } // TODO: better handling (log an error + show 'page not found' message + redirect to quest search ?)
     }
   ]
 })
 
-// required to always have header title rendered ("Carte", "Graaly"...) after route change
+// required to always have header title rendered ("Carte", "Enquête"...) after route change
 // resetTitle() action is defined in store
 router.beforeEach((to, from, next) => {
   store.dispatch('resetTitle')
