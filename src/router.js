@@ -8,6 +8,7 @@ import QuestPlayStep from '@/quest/playStep'
 import QuestEnd from '@/quest/end'
 import QuestCreateWelcome from '@/quest/create/welcome'
 import QuestCreateSettings from '@/quest/create/settings'
+import QuestCreateStepType from '@/quest/create/stepType'
 
 import UserLogin from '@/user/login'
 import UserLogout from '@/user/logout'
@@ -85,6 +86,10 @@ var router = new VueRouter({
     {
       path: '/quest/create/settings',
       component: QuestCreateSettings
+    },
+    {
+      path: '/quest/create/step/type',
+      component: QuestCreateStepType
     },
     {
       path: '/user/createAccount',

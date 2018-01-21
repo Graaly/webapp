@@ -115,10 +115,12 @@ export default {
           'languages': [this.form.mainLanguage],
           'dateUpdated': null
         })
+        // save to DB
         let res = await QuestService.save(newQuest)
-        // retrieve new quest ID and save it to store
+        // retrieve new quest ID and save it into store
         this.$store.dispatch('newQuestCreated', res.data._id)
         Toast.create('Nouvelle enquête créée')
+        this.$router.push('/quest/create/step/type')
       }
     }
   },

@@ -83,7 +83,9 @@ export default {
     this.fixLayout();
     
     // get connected user informations
-    this.getAccountInformations()
+    if (this.isLoggedIn) {
+      this.getAccountInformations()
+    }
   },
   watch: {
     '$route': function(value) {
