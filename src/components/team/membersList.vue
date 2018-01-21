@@ -26,7 +26,7 @@
     
     <div class="tab-content">
         <p>
-          <q-btn v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id" link class="full-width" @click="inviteFriend()" color="primary">Inviter un ami</q-btn>
+          <q-btn v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id" link class="full-width" @click="openInviteFriendPopup()" color="primary">Inviter un ami</q-btn>
           <q-btn v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)" link class="full-width" @click="joinTeam()" color="primary">Rejoindre cette agence</q-btn>
         </p>
     
@@ -98,11 +98,12 @@ export default {
       this.team.members = response.data      
     },
     openInviteFriendPopup () {
+      var self = this
       Dialog.create({
         title: 'Inviter un ami',
         message: "Veuillez entrer l'adresse email de la personne à inviter",
         form: {
-          name: {
+          email: {
             type: 'text',
             label: 'Email',
             model: ''
@@ -113,17 +114,20 @@ export default {
           {
             label: 'Ok',
             handler (data) {
-              Toast.create('Returned ' + JSON.stringify(data))
+              self.inviteFriend(data.email)
             }
           }
         ]
       })
     },
-    async inviteFriend () {
-      let response = await TeamService.sendFriendInvitation({email: "eric.mathieu@kimind.com", teamId: this.$route.params.id})
+    async inviteFriend (email) {
+      let response = await TeamService.sendFriendInvitation({email: email, teamId: this.$route.params.id})
       
-      console.log(response)      
-      Toast.create['positive']({html: 'Votre invitation est envoyée'})
+      if (response) {
+        Toast.create['positive']({html: 'Votre invitation est envoyée'})
+      } else {
+        Toast.create['alert']({html: 'Problème technique, veuillez nous excuser et ré-essayer plus tard'})
+      }
     }
   }
 }

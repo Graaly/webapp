@@ -8,7 +8,7 @@
             <q-icon name="location on" size="2rem" /><br />
             <small>{{ item.distance }} km</small>
           </q-item-side>
-          <q-item-main>
+          <q-item-main @click="$router.push('/quest/play/' + item._id)">
             <q-item-tile label>{{ item.title }}</q-item-tile>
             <q-item-tile sublabel>
               {{item.author}} 
@@ -47,7 +47,7 @@ export default {
   },
   mounted() {
     // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', this.$data.title)
+    this.$store.dispatch('setTitle', "Recherche")
     
     if (this.$data.geolocationIsSupported) {
       navigator.geolocation.getCurrentPosition((position) => {
