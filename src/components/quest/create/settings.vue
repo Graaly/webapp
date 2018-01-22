@@ -111,7 +111,7 @@ export default {
           'availablePoints': 120, // tmp
           'dateCreated': new Date(),
           'authorUserId': this.$store.state.user._id,
-          'status': 'published',
+          'status': 'unpublished',
           'languages': [this.form.mainLanguage],
           'dateUpdated': null
         })
@@ -119,7 +119,7 @@ export default {
         let res = await QuestService.save(newQuest)
         // retrieve new quest ID and save it into store
         this.$store.dispatch('newQuestCreated', res.data._id)
-        Toast.create('Nouvelle enquête créée')
+        Toast.create.positive('Nouvelle enquête créée')
         this.$router.push('/quest/create/step/type')
       }
     }

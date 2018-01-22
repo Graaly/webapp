@@ -19,7 +19,8 @@ const state = {
     }
   },
   user: null,
-  currentEditedQuest: null
+  currentEditedQuest: null,
+  currentEditedStep: null
 }
 
 // mutations are operations that actually mutates the state.
@@ -50,6 +51,9 @@ const mutations = {
   },
   newQuestCreated(state, id) {
     state.currentEditedQuest = { id: id }
+  },
+  saveQuestStepType(state, stepType) {
+    state.currentEditedStep = { type: stepType }
   }
 }
 
@@ -76,7 +80,8 @@ const actions = {
   // for step geolocation
   setDrawDirectionInterval: ({ commit }, intervalObject) => commit('setDrawDirectionInterval', intervalObject),
   // for quest creation/edition
-  newQuestCreated: ({ commit }, id) => commit('newQuestCreated', id)
+  newQuestCreated: ({ commit }, id) => commit('newQuestCreated', id),
+  saveQuestStepType: ({ commit }, stepType) => commit('saveQuestStepType', stepType)
 }
 
 // getters are functions

@@ -34,7 +34,8 @@ export default {
       return stepTypes.filter(stepType => stepType.category === categoryCode)
     },
     selectStepType(stepType) {
-      console.log(stepType)
+      this.$store.dispatch('saveQuestStepType', stepType)
+      this.$router.push('/quest/create/step/settings')
     }
   }
 }
