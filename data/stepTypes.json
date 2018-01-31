@@ -30,7 +30,7 @@
   },
   {
     "category": "enigma",
-    "code": "quiz",
+    "code": "choose",
     "icon": "list",
     "title": "Question à choix multiples",
     "description": "Cocher la bonne réponse (texte ou image)"
@@ -44,10 +44,17 @@
   },
   {
     "category": "enigma",
-    "code": "code",
+    "code": "code-keypad",
     "icon": "calculator",
-    "title": "Trouver un code",
+    "title": "Trouver un code numérique",
     "description": "Trouver et taper le code"
+  },
+  {
+    "category": "enigma",
+    "code": "code-color",
+    "icon": "paint-brush",
+    "title": "Trouver un code couleur",
+    "description": "Trouver une combinaison de couleurs"
   },
   {
     "category": "enigma",

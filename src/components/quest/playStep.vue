@@ -2,7 +2,7 @@
   
   <div>
   
-    <div class="info" v-if="step.type == 'info'">
+    <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
       <div :class="{ grow: !step.videoStream }">
         <p class="text">{{ step.text }}</p>
       </div>
@@ -277,7 +277,10 @@ export default {
     /* general / multi step methods */
     
     async getStep () {
-      return StepService.get(this.$route.params.questId, this.$route.params.stepNumber)
+      return StepService.getOne({
+        questId: this.$route.params.questId,
+        number: this.$route.params.stepNumber
+      })
     },
     
     nextStep() {
