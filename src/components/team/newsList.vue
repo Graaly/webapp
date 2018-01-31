@@ -25,37 +25,45 @@
     </q-tabs>
     
     <div class="tab-content">
-      <q-item>
-        <q-item-side :avatar="'/statics/profiles/' + user.picture" />
+      <q-item v-if="team.mine">
+        <q-item-side v-if="user.picture" :avatar="'/statics/profiles/' + user.picture" />
+        <q-item-side v-if="!user.picture" :avatar="'/statics/profiles/noprofile.png'" />
         <q-item-main>
           <q-item-tile label><q-input v-model="comment" placeholder="Votre commentaire" @keyup.enter="submit" /></q-item-tile>
         </q-item-main>
       </q-item>
     
-      <h2 v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id">Actualités de mon agence</h2>
-      <h2 v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)">Actualités de mon agence</h2>
+      <div v-if="team.news.items && team.news.items.length > 0">
+        <h2 v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id">Actualités de mon agence</h2>
+        <h2 v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)">Actualités de mon agence</h2>
         
-      <q-infinite-scroll :handler="getTeamNews">
-        <q-list highlight>
-          <q-item v-for="(item, index) in team.news.items" :key="item._id">
-            <q-item-side :avatar="'/statics/profiles/' + item.author.picture" />
-            <q-item-main>
-              <q-item-tile label>{{ item.author.name }}</q-item-tile>
-              <q-item-tile label>{{ item.title }}</q-item-tile>
-              <q-item-tile sublabel>
-                {{item.creation.date | formatDate}} 
-                - 
-                <a style="color: #000" v-if="!isLiked(item)" v-on:click="like(index)">J'aime</a>
-                <a v-if="isLiked(item)" v-on:click="unlike(index)">J'aime</a>
-                <span v-if="item.likes.length > 0">({{ item.likes.length }})</span>
-              </q-item-tile>
-            </q-item-main>
-          </q-item>
-        </q-list>
-        <div slot="message" class="row justify-center" style="margin-bottom: 50px;">
-          <q-spinner-dots :size="5" />
-        </div>
-      </q-infinite-scroll>
+        <q-infinite-scroll :handler="getTeamNews">
+          <q-list highlight>
+            <q-item v-for="(item, index) in team.news.items" :key="item._id">
+              <q-item-side v-if="item.author.picture" :avatar="'/statics/profiles/' + item.author.picture" />
+              <q-item-side v-if="!item.author.picture" :avatar="'/statics/profiles/noprofile.png'" />
+              <q-item-side :avatar="'/statics/profiles/' + item.author.picture" />
+              <q-item-main>
+                <q-item-tile label>{{ item.author.name }}</q-item-tile>
+                <q-item-tile label>{{ item.title }}</q-item-tile>
+                <q-item-tile sublabel>
+                  {{item.creation.date | formatDate}} 
+                  - 
+                  <a style="color: #000" v-if="!isLiked(item)" v-on:click="like(index)">J'aime</a>
+                  <a v-if="isLiked(item)" v-on:click="unlike(index)">J'aime</a>
+                  <span v-if="item.likes.length > 0">({{ item.likes.length }})</span>
+                </q-item-tile>
+              </q-item-main>
+            </q-item>
+          </q-list>
+          <div slot="message" class="row justify-center" style="margin-bottom: 50px;">
+            <q-spinner-dots :size="5" />
+          </div>
+        </q-infinite-scroll>
+      </div>
+      <div v-if="!team.news.items || team.news.items.length === 0">
+        Aucune actualité pour cette agence
+      </div>
     </div>
     
   </div>
@@ -85,7 +93,8 @@ export default {
           limit: 20,
           skip: 0,
           items: []
-        }
+        },
+        mine: false
       },
       comment: "",
       user: {name: "--", picture: "", id: ""}
@@ -109,10 +118,13 @@ export default {
       if (this.user.team && this.user.team.currentId && this.user.team.currentId === this.$route.params.id) {
         // Set the page title = My agency / Competitor
         this.$store.dispatch('setTitle', 'Mon agence')
+        this.team.mine = true
       } else {
         this.$store.dispatch('setTitle', 'Agence concurrente')
+        this.team.mine = false
       }
     },
+    // get team informations
     async getTeam(id) {
       // get the team informations
       let response = await TeamService.getById(id)
@@ -121,6 +133,7 @@ export default {
       // compute the total score as the members score + team specific sore
       this.team.profile.score.total = this.team.profile.score.members + this.team.profile.score.challenges
     },
+    // get team
     getTeamNews(index, done) {
       var self = this
       // get the team news list
@@ -132,9 +145,9 @@ export default {
         self.team.news.skip += self.team.news.limit
         done()
       })
-    },                                                                                  
+    },               
+    // submit the comment    
     async submit () {
-      // submit the comment
       this.$v.$touch()
       
       // form validator : comment must be set
@@ -155,13 +168,13 @@ export default {
       // notification
       Toast.create['positive']({html: 'Votre commentaire est ajouté'})
     },
+    // save the like action
     async like (index) {
-      // save the like action
       this.news.items[index].likes.push({userId: this.user.id, date: new Date()})
       await TeamService.saveNewsLike(this.team.news.items[index]._id, { likes: this.team.news.items[index].likes })
     },
+    // save the unlike action
     async unlike (index) {
-      // save the unlike action
       for (var i = 0; i < this.team.news.items[index].likes.length; i++) {
         if (this.team.news.items[index].likes[i].userId === this.user.id) {
           this.team.news.items[index].likes.splice(i, 1)
@@ -169,8 +182,8 @@ export default {
       }
       await TeamService.saveNewsLike(this.team.news.items[index]._id, { likes: this.team.news.items[index].likes })
     },
+    // return true if the current user has liked the news
     isLiked (item) {
-      // return true if the current user has liked the news
       if (item.likes) {
         for (var i = 0; i < item.likes.length; i++) {
           if (item.likes[i].userId === this.user.id) {

@@ -9,6 +9,9 @@ export default() => {
   return axios.create({
     // currently for proto, API will be always available from same host as webapp
     // => localhost, 78.247.66.31, etc.
-    baseURL: 'https://' + window.location.hostname + ':3000'
+    baseURL: 'https://' + window.location.hostname + ':3000',
+    validateStatus: function (status) {
+      return status < 500 //let app treat 3xx and 4xx errors
+    }
   })
 }

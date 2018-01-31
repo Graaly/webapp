@@ -16,7 +16,7 @@
       <!-- Left Side Panel -->
       <div slot="left">
         <!-- warning: put only <q-side-link> components with routes here, no button with @click, $router.push() in @click function won't work -->
-        <q-list no-border link>
+        <q-list no-border link v-if="">
           <q-side-link item to="/home" v-if="isLoggedIn">
             <q-item-side icon="location on" />
             <q-item-main label="Carte des enquêtes" />
@@ -36,6 +36,10 @@
           <q-side-link item to="/user/login" v-if="!isLoggedIn">
             <q-item-side icon="vpn key" />
             <q-item-main label="Connexion" />
+          </q-side-link>
+          <q-side-link item to="/user/createAccount" v-if="!isLoggedIn">
+            <q-item-side icon="vpn key" />
+            <q-item-main label="Créer un compte" />
           </q-side-link>
           <q-side-link item to="/user/logout" v-if="isLoggedIn">
             <q-item-side icon="power settings new" />
@@ -95,7 +99,9 @@ export default {
   methods: {
     async getAccountInformations() {
       let response = await AuthService.getAccount()
-      this.user = response.data
+      if (response.data && response.data.name) {
+        this.user = response.data
+      }
     },
     submitSearch() {
       console.log(this.searchText)

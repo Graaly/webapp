@@ -43,8 +43,10 @@
 </template>
 
 <script>
+import AuthService from 'services/AuthService'
 import { Toast } from 'quasar'
 import { required, email } from 'vuelidate/lib/validators'
+
 export default {
   components: {
     Toast
@@ -61,6 +63,15 @@ export default {
   mounted () {
     // dispatch specific title for other app components
     this.$store.dispatch('setTitle', this.$data.title);
+    
+    // check if user is redirected to this page to validate his account
+    if (this.$route.query.email && this.$route.query.code) {
+      this.validateAccount(this.$route.query.email, this.$route.query.code)
+    }
+    // check if user is redirected to this page to confirm team invitation
+    if (this.$route.query.email && this.$route.query.invitation) {
+      this.validateTeamInvitation(this.$route.query.email, this.$route.query.invitation)
+    }
   },
   methods: {
     login() {
@@ -84,6 +95,24 @@ export default {
             console.log(err)
           }
         });
+      }
+    },
+    async validateAccount(email, code) {
+      let validateAccountStatus = await AuthService.validateAccount(email, code)
+      
+      if (validateAccountStatus.status >= 300 && validateAccountStatus.data && validateAccountStatus.data.message) {
+        Toast.create(validateAccountStatus.data.message)
+      } else {
+        Toast.create['positive']({html: 'Votre compte est maintenant validé'})
+      }
+    },
+    async validateTeamInvitation(email, code) {
+      let validateTeamInvitationStatus = await AuthService.validateTeamInvitation(email, code)
+      
+      if (validateTeamInvitationStatus.status >= 300 && validateTeamInvitationStatus.data && validateTeamInvitationStatus.data.message) {
+        Toast.create(validateTeamInvitationStatus.data.message)
+      } else {
+        Toast.create['positive']({html: 'Vous avez maintenant rejoint la nouvelle équipe'})
       }
     },
     alert(msg) {

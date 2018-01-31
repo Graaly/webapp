@@ -28,8 +28,11 @@
           </div>
         </q-field>
       
-        <q-field>
+        <q-field :error="$v.form.zipCode.$error">
           <q-input float-label="Votre code postal" v-model="form.zipCode" />
+          <div class="q-field-bottom" v-if="$v.form.zipCode.$error">
+            <div class="q-field-error" v-if="!$v.form.zipCode.required">Veuillez entrer un code postal.</div>
+          </div>
         </q-field>
       
         <q-field :error="$v.form.password.$error">
@@ -52,11 +55,12 @@
 
 <script>
 import AuthService from 'services/AuthService'
-import { QSelect } from 'quasar'
+import { QSelect, Toast } from 'quasar'
 import { required, email } from 'vuelidate/lib/validators'
 export default {
   components: {
-    QSelect
+    QSelect,
+    Toast
   },
   data () {
     return ({
@@ -70,9 +74,9 @@ export default {
       },
       // TODO: retrieve real country list from server or .json file
       countries: [
-        { label: 'Belgique', value: 'BEL' },
-        { label: 'Espagne', value: 'ESP' },
-        { label: 'France', value: 'FRA' }
+        { label: 'Belgique', value: 'belgium' },
+        { label: 'Espagne', value: 'spain' },
+        { label: 'France', value: 'france' }
       ]
     })
   },
@@ -85,34 +89,21 @@ export default {
       this.$v.form.$touch()
       
       if (!this.$v.form.$error) {
-        alert('form validated, try to create account');
         // TODO keep the original route which required authentification
         // & redirect user to it when he clicks on the 'verify' link in email
         let newAccount = {
-          name: this.$v.form.name,
-          email: this.$v.form.email,
-          password: this.$v.form.password,
-          picture: "",
-          team: {},
-          location: {
-            postalCode: this.$v.form.zipCode,
-            longitude: 0,
-            latitude: 0,
-            country: this.$v.form.country
-          },
-          languageCode: "fr",
-          lastConnectionDate: new Date(),
-          dateCreated: new Date(),
-          score: 0,
-          statistics: {
-            nbQuestsSuccessful: 0,
-            nbQuestsCreated: 0
-          },
-          //invitedByUserId: Schema.Types.ObjectId,
-          status: 'active'
-          //validated: false
+          name: this.form.name,
+          email: this.form.email,
+          password: this.form.password,
+          zipcode: this.form.zipCode,
+          country: this.form.country,
+          language: "fr"
         }
-        await AuthService.createAccount(newAccount)
+        let creationStatus = await AuthService.createAccount(newAccount)
+        
+        if (creationStatus.status >= 300 && creationStatus.data && creationStatus.data.message) {
+          Toast.create(creationStatus.data.message)
+        }
       }
     }
   },
@@ -121,6 +112,7 @@ export default {
       email: { required, email },
       name: { required },
       country: { required },
+      zipCode: { required },
       password: { required }
     }
   }

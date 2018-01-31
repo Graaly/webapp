@@ -11,6 +11,11 @@ export default {
     return Api().get('teams/' + id)
   },
   
+  // create a new team
+  create (data) {
+    return Api().post('team/create', data)
+  },
+  
   // list a team members based on team ID
   listMembers (id) {
     return Api().get('users/?team.currentId=' + id)

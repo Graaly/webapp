@@ -1,29 +1,27 @@
 <template>
   
   <div class="wrapper">
-    
-    <h1>{{ quest.title }}</h1>
-    
-    <div class="header">
-      <div>
-        <div class="img shadow-5">&nbsp;</div>
+    <div class="row bottom-separator">
+      <div class="col-3 padding-medium">
+        <img :src="'/statics/quests/' + quest.picture" class="full-width" />
       </div>
       
-      <div class="desc">
-        <p>[[Auteur]]</p>
+      <div class="col desc padding-medium">
+        <h1>{{ quest.title }}</h1>
+        <p class="text-tertiary">[[Auteur]]</p>
         <p v-if="quest.rating">
           <q-rating readonly :value="Math.round(quest.rating)" :max="5" size="1.7rem" />
         </p>
         <p>{{ quest.availablePoints }} points à gagner</p>
-        <p><q-btn @click="$router.push('/quest/play/' + $route.params.id + '/step/1')" color="tertiary">Résoudre l'énigme</q-btn></p>
+        <p><q-btn @click="$router.push('/quest/play/' + $route.params.id + '/step/1')" color="primary">Résoudre l'énigme</q-btn></p>
       </div>
     </div>
-    <hr />
-    
-    <p>{{ quest.description }}</p>
-    <p>Langue: {{ quest.language }}</p>
-    <p v-if="quest.startingPlace">Lieu de départ: {{ quest.startingPlace }}</p>
-    <p>Difficulté: {{ getQuestLevelName(quest.level) }}</p>
+    <div class="padding-medium">
+      <p>{{ quest.description }}</p>
+      <p>Langue: {{ quest.language }}</p>
+      <p v-if="quest.startingPlace">Lieu de départ: {{ quest.startingPlace }}</p>
+      <p>Difficulté: {{ getQuestLevelName(quest.level) }}</p>
+    </div>
   </div>
   
 </template>
@@ -69,22 +67,4 @@ export default {
 
 <style scoped>
 
-.wrapper { padding: 1rem; overflow-y: scroll; }
-
-h1 { font-size: 1.3rem; font-weight: bold; margin: 0; margin-bottom: 1rem; }
-
-.header { display: table; border-collapse: collapse; }
-.header > div { display: table-cell; }
-.header div.desc { padding-left: 1rem; }
-
-.header div.img {
-  display: block;
-  width: 9rem;
-  height: 9rem;
-  border-radius: 1rem;
-  background: url('../../statics/quests/sample-icon-quest.png');
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: 10rem 10rem;
-}
 </style>

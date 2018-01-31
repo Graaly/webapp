@@ -14,6 +14,19 @@ export default {
   },
   
   createAccount(data) {
-    return Api().post('users', data)
+    return Api().post('user/create', data)
+  },
+  
+  validateAccount(email, code) {
+    return Api().post('account/validate', {email: email, code: code})
+  }, 
+  
+  validateTeamInvitation(email, code) {
+    return Api().post('team/invitation/confirm', {email: email, code: code})
+  }, 
+  
+  newToActive() {
+    return Api().post('account/newtoactive')
   }
+  
 }

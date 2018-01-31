@@ -38,11 +38,14 @@
         <p class="subtitle">{{ team.profile.statistics.nbQuestsCreated }} enquêtes créées</p>
       </div>
       
-      <div class="score">
-        {{ team.profile.score.total }}
+      
+      <div class="score-box">
+        <div class="score">
+          {{ team.profile.score.total }}
+        </div>
       </div>
     </div>
-    <div class="row-auto">
+    <div class="row-auto" style="height: 36px; overflow: hidden;">
       <q-btn @click="$router.push('/quest/create')" color="primary" icon="fa-magic">Créer une enquête et gagnez des points</q-btn>
     </div>
     
@@ -121,7 +124,13 @@ export default {
       this.user = response.data
       
       if (this.user.team && this.user.team.currentId) {
-        this.getTeam(this.user.team.currentId)
+        if (this.user.status === "new") {
+          this.$router.push('/intro')
+        } else {
+          this.getTeam(this.user.team.currentId)
+        }
+      } else {
+        this.$router.push('/intro')
       }
     },
     async getTeam(id) {

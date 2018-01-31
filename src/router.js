@@ -13,6 +13,9 @@ import QuestCreateStepType from '@/quest/create/stepType'
 import UserLogin from '@/user/login'
 import UserLogout from '@/user/logout'
 import UserCreateAccount from '@/user/createAccount'
+import UserIntro from '@/user/intro'
+import UserHelp from '@/user/help'
+
 //import UserProfile from '@/user/profile'
 
 import TeamMembersList from '@/team/membersList'
@@ -104,6 +107,14 @@ var router = new VueRouter({
     {
       path: '/user/logout',
       component: UserLogout
+    },
+    {
+      path: '/intro',
+      component: UserIntro
+    },
+    {
+      path: '/help',
+      component: UserHelp
     },
     /*{
       path: '/user/profile',

@@ -30,12 +30,13 @@
           <q-btn v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)" link class="full-width" @click="joinTeam()" color="primary">Rejoindre cette agence</q-btn>
         </p>
     
-        <h2 v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id">Membres de mon agence</h2>
-        <h2 v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)">Membres de l'agence</h2>
+        <h2 v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id">Membre(s) de mon agence</h2>
+        <h2 v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)">Membre(s) de l'agence</h2>
         
         <q-list highlight>
           <q-item v-for="member in team.members" :key="member._id">
-            <q-item-side :avatar="'/statics/profiles/' + member.picture" />
+            <q-item-side v-if="member.picture" :avatar="'/statics/profiles/' + member.picture" />
+            <q-item-side v-if="!member.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>
               <q-item-tile label>{{ member.name }}</q-item-tile>
               <q-item-tile sublabel>{{ member.statistics.nbQuestsSuccessful }} enquêtes réussies | {{ member.statistics.nbQuestsCreated }} enquêtes créées</q-item-tile>
