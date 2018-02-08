@@ -454,7 +454,12 @@ export default {
     },
     
     drawDirectionArrow() {
-      if (this.geolocation.alpha === null) {
+      if (this.geolocation.alpha === null || document.querySelector('.direction-helper canvas')) {
+        let drawDirectionInterval = this.$store.state.questSteps.geolocation.drawDirectionInterval
+        if (drawDirectionInterval !== null) {
+          window.clearInterval(drawDirectionInterval)
+        }
+        this.$store.dispatch('setDrawDirectionInterval', null)
         return
       }
       
