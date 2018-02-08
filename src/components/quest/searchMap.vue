@@ -118,6 +118,9 @@ export default {
     }
     
     this.getQuests()
+    
+    // without this, on desktop, google maps shows only a 'blue background'
+    this.$forceUpdate()
   },
   methods: {
     async getAccountInformations() {
