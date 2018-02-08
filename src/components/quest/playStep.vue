@@ -45,7 +45,7 @@
     </div>
     
     
-    <div class="code" v-if="step.type == 'code'">
+    <div class="code" v-if="step.type == 'code-keypad'">
       <div>
         <p class="text">{{ step.text }}</p>
       </div>
@@ -156,7 +156,7 @@ export default {
       playerResult: null,
       cameraStreamEnabled: false,
       
-      // for step type 'code'
+      // for step type 'code-keypad'
       playerCode: [],
       keypad: [
         ["1", "2", "3"],
@@ -210,8 +210,8 @@ export default {
           background.style.backgroundColor = '#fff'
         }
         
-        if (this.step.type === 'code') {
-          // for step type 'code', this.step.answers is a string in DB
+        if (this.step.type === 'code-keypad') {
+          // for step type 'code-keypad', this.step.answers is a string in DB
           this.playerCode = Array(this.step.answers.length).fill("");
         }
         
@@ -318,7 +318,7 @@ export default {
           }
           break
         
-        case 'code':
+        case 'code-keypad':
           this.playerResult = (this.playerCode.join('') === this.step.answers)
           break
         
@@ -344,7 +344,7 @@ export default {
       throw new Error('No right answer found')
     },
     
-    /* specific methods for step type 'code' */
+    /* specific methods for step type 'code-keypad' */
     
     addCodeChar(char) {
       // find next empty char in typed code
@@ -454,7 +454,12 @@ export default {
     },
     
     drawDirectionArrow() {
-      if (this.geolocation.alpha === null) {
+      if (this.geolocation.alpha === null || document.querySelector('.direction-helper canvas')) {
+        let drawDirectionInterval = this.$store.state.questSteps.geolocation.drawDirectionInterval
+        if (drawDirectionInterval !== null) {
+          window.clearInterval(drawDirectionInterval)
+        }
+        this.$store.dispatch('setDrawDirectionInterval', null)
         return
       }
       

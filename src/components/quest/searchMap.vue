@@ -18,7 +18,7 @@
         <gmap-info-window :options="infoWindow.options" :position="infoWindow.location" :opened="infoWindow.isOpen" @closeclick="infoWindow.isOpen=false">
           <div class="infoWindow">
             <h1>{{ currentQuest ? currentQuest.title : '' }}</h1>
-            <p>Difficulté : {{ currentQuest ? questLevels[currentQuest.level].name : '' }}</p>
+            <p>Difficulté : {{ currentQuest ? getQuestLevelName(currentQuest.level) : '' }}</p>
             <q-btn @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="tertiary">Enquêter</q-btn>
           </div>
         </gmap-info-window>
@@ -58,6 +58,8 @@ import AuthService from 'services/AuthService'
 import TeamService from 'services/TeamService'
 
 import questLevels from 'data/questLevels.json'
+
+import utils from 'src/includes/utils'
 
 export default {
   data () {
@@ -100,8 +102,7 @@ export default {
           items: []
         }
       },
-      user: {name: "--", picture: "", id: ""},
-      questLevels: questLevels
+      user: {name: "--", picture: "", id: ""}
     }
   },
   mounted() {
@@ -117,6 +118,9 @@ export default {
     }
     
     this.getQuests()
+    
+    // without this, on desktop, google maps shows only a 'blue background'
+    this.$forceUpdate()
   },
   methods: {
     async getAccountInformations() {
@@ -162,6 +166,11 @@ export default {
     async getQuests() {
       let response = await QuestService.getList()
       this.questList = response.data
+    },
+    
+    getQuestLevelName(id) {
+      let level = utils.getById(questLevels, id)
+      return level === null ? '' : level.name
     },
     
     // ------------- Map manipulation functions ----------------

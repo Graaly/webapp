@@ -4,7 +4,7 @@
     <div class="header">
       <div class="row">
         <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 bg-black"><img src="/statics/icons/game/welcome-man.png" class="full-width" style="max-width: 100px" /></div>
-        <div class="col bg-black padding-medium text-white" v-if="team.profile.status == 'new'">Bravo, vous venez ce créer votre agence de détectives privés !</div>
+        <div class="col bg-black padding-medium text-white" v-if="team.profile.status == 'new'">Bravo, vous venez de créer votre agence de détectives privés !</div>
         <div class="col bg-black padding-medium text-white" v-if="team.profile.status != 'new'">Bravo, vous venez de rejoindre une agence de détectives privés !</div>
       </div>
       
