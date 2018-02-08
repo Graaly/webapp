@@ -25,7 +25,7 @@
             <q-item-side icon="group" />
             <q-item-main label="Mon agence" />
           </q-side-link>
-          <q-side-link item to="/user/profile" v-if="isLoggedIn">
+          <q-side-link item to="/user/profile/me" v-if="isLoggedIn">
             <q-item-side icon="account circle" />
             <q-item-main label="Mon profil" />
           </q-side-link>

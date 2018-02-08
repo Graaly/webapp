@@ -21,6 +21,11 @@ export default {
     return Api().get('users/?team.currentId=' + id)
   },
   
+  // list nearest teams
+  listNearestTeams () {
+    return Api().get('teams/nearest')
+  },
+  
   // list a team news
   listNewsAsync (id, skip, limit, done) {
     return Api().get('news/?teamId=' + id + '&sort=-creation.date&skip=' + skip + '&limit=' + limit).then(function (response) {

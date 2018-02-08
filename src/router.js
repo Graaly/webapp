@@ -17,6 +17,8 @@ import UserLogout from '@/user/logout'
 import UserCreateAccount from '@/user/createAccount'
 import UserIntro from '@/user/intro'
 import UserHelp from '@/user/help'
+import UserProfile from '@/user/profile'
+import UserProfileModify from '@/user/updateProfile'
 
 //import UserProfile from '@/user/profile'
 
@@ -126,10 +128,16 @@ var router = new VueRouter({
       path: '/help',
       component: UserHelp
     },
-    /*{
-      path: '/user/profile',
+    {
+      path: '/user/profile/:id',
+      name: 'profile',
       component: UserProfile
-    },*/
+    },
+    {
+      path: '/user/profile/:id/modify',
+      name: 'profileModification',
+      component: UserProfileModify
+    },
     {
       path: '/team/:id/members',
       name: 'teamMembersList',

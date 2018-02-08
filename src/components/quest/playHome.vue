@@ -10,7 +10,7 @@
         <h1>{{ quest.title }}</h1>
         <p class="text-tertiary">[[Auteur]]</p>
         <p v-if="quest.rating">
-          <q-rating readonly :value="Math.round(quest.rating)" :max="5" size="1.7rem" />
+          <q-rating readonly :value="Math.round(quest.rating)" color="primary" :max="5" size="1.7rem" />
         </p>
         <p>{{ quest.availablePoints }} points à gagner</p>
         <p><q-btn @click="$router.push('/quest/play/' + $route.params.id + '/step/1')" color="primary">Résoudre l'énigme</q-btn></p>

@@ -34,7 +34,7 @@
         <h2 v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)">Membre(s) de l'agence</h2>
         
         <q-list highlight>
-          <q-item v-for="member in team.members" :key="member._id">
+          <q-item v-for="member in team.members" :key="member._id" @click="$router.push('/user/profile/' + member._id)">
             <q-item-side v-if="member.picture" :avatar="'/statics/profiles/' + member.picture" />
             <q-item-side v-if="!member.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>

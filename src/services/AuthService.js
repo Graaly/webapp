@@ -9,8 +9,12 @@ export default {
     return Api().post('logout')
   }, 
   
-  getAccount () {
-    return Api().get('account')
+  getAccount (id) {
+    if (id && id !== "me") {
+      return Api().get('user/' + id)
+    } else {
+      return Api().get('account')
+    }
   },
   
   createAccount(data) {

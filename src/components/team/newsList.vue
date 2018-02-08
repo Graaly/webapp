@@ -42,7 +42,6 @@
             <q-item v-for="(item, index) in team.news.items" :key="item._id">
               <q-item-side v-if="item.author.picture" :avatar="'/statics/profiles/' + item.author.picture" />
               <q-item-side v-if="!item.author.picture" :avatar="'/statics/profiles/noprofile.png'" />
-              <q-item-side :avatar="'/statics/profiles/' + item.author.picture" />
               <q-item-main>
                 <q-item-tile label>{{ item.author.name }}</q-item-tile>
                 <q-item-tile label>{{ item.title }}</q-item-tile>

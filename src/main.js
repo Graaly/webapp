@@ -47,7 +47,9 @@ import Quasar, {
   QSearch,
   QSelect,
   QSideLink,  
-  QTabs, 
+  QTabs,
+  QTab,
+  QTabPane,
   QToolbar, 
   QToolbarTitle 
 } from 'quasar'
@@ -75,7 +77,9 @@ Vue.use(Quasar, {
     QSearch,
     QSelect,
     QSideLink,  
-    QTabs, 
+    QTabs,
+    QTab,
+    QTabPane,
     QToolbar, 
     QToolbarTitle
   }
