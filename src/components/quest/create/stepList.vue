@@ -58,7 +58,7 @@ export default {
     this.$store.dispatch('setTitle', this.title)
     let res = await QuestService.getById(this.$store.state.currentEditedQuest.id)
     this.quest = res.data
-    this.stepList = await StepService.get({ questId: this.quest._id })
+    this.stepList = await StepService.get({ questId: this.quest._id, sort: 'number' })
   },
   methods: {
     async onStepListUpdate(event) {
