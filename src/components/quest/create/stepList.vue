@@ -23,12 +23,11 @@
     <hr />
     
     <q-btn big class="full-width" icon="play circle filled" color="primary" @click="$router.push('/quest/play/'+quest._id+'?test=1')">Essayer votre enquête</q-btn>
-    <q-btn big class="full-width" icon="check circle" color="primary" @click="publish()">Publier votre enquête</q-btn>
     
-    
+    <q-btn big class="full-width" icon="check circle" color="primary" @click="publish()" v-show="quest.status !== 'published'">Publier votre enquête</q-btn>
+    <q-btn big class="full-width" icon="cancel" color="primary" @click="unpublish()" v-show="quest.status === 'published'">Dépublier votre enquête</q-btn>
     
   </div>
-  
   
 </template>
 
@@ -64,10 +63,17 @@ export default {
   methods: {
     onStepListUpdate(event) {
       this.stepList.splice(event.newIndex, 0, this.stepList.splice(event.oldIndex, 1)[0])
+      // TODO SAVE NEW STEPS ORDER
     },
-    publish() {
-      Toast.create('TODO: publish quest')
-      console.log(this.stepList)
+    async publish() {
+      this.quest.status = 'published';
+      await QuestService.save({ _id: this.quest._id, status: this.quest.status })
+      Toast.create.positive("L'enquête est publiée.")
+    },
+    async unpublish() {
+      this.quest.status = 'unpublished';
+      await QuestService.save({ _id: this.quest._id, status: this.quest.status })
+      Toast.create.positive("L'enquête est dépubliée.")
     }
   }
 }
