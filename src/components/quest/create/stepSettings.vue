@@ -32,8 +32,8 @@
       <!-- TODO: select location on GoogleMap -->
       <p>Coordonnées GPS</p>
       <p class="location-gps-inputs">
-        <q-input type="text" stack-label="Latitude" v-model="form.answers.lat" />
-        <q-input type="text" stack-label="Longitude" v-model="form.answers.lng" />
+        <q-input type="text" stack-label="Latitude" v-model="form.answerCoordinates.lat" />
+        <q-input type="text" stack-label="Longitude" v-model="form.answerCoordinates.lng" />
       </p>
       <q-checkbox v-model="form.showDistanceToTarget" label="Afficher la distance avec le lieu" />
       <q-checkbox v-model="form.showDirectionToTarget" label="Afficher la flèche de direction" />
@@ -49,7 +49,7 @@
           Supprimer
         </q-btn>
       </div>
-      <q-btn @click="addAnswer">
+      <q-btn @click="addAnswer()">
         Ajouter une réponse
       </q-btn>
     </div>
@@ -168,6 +168,8 @@ export default {
         title: '',
         text: null,
         answers: null,
+        // geolog step specific
+        answerCoordinates: { lat: 0, lng: 0 },
         trigger: {
           type: 'none'
         },
@@ -229,6 +231,9 @@ export default {
   methods: {
     
     async submit() {
+      if (this.stepType.code === 'geolocation') {
+        this.form.answers = this.form.answerCoordinates
+      }
       await StepService.save(Object.assign(this.form, {
         questId: this.questId,
         type: this.stepType.code === 'choose' ? 'choose-text' : this.stepType.code,

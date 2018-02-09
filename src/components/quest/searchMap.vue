@@ -112,15 +112,18 @@ export default {
     this.getAccountInformations()
     
     if (this.$data.geolocationIsSupported) {
+      // getCurrentPosition() is not always reliable (timeouts/fails frequently)
+      // see https://stackoverflow.com/q/3397585/488666
       navigator.geolocation.getCurrentPosition((position) => {
         this.$data.mapCenter = {lat: position.coords.latitude, lng: position.coords.longitude}
-      });
+        // TODO maybe here save current position in 'state' for later use in case of failure
+      }, () => {
+        console.error('geolocation failed')
+        // TODO maybe here recall position stored in 'state'
+      }, { timeout: 2000, maximumAge: 10000 });
     }
     
     this.getQuests()
-    
-    // without this, on desktop, google maps shows only a 'blue background'
-    this.$forceUpdate()
   },
   methods: {
     async getAccountInformations() {

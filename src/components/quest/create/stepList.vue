@@ -27,6 +27,8 @@
     <q-btn big class="full-width" icon="check circle" color="primary" @click="publish()" v-show="quest.status !== 'published'">Publier votre enquête</q-btn>
     <q-btn big class="full-width" icon="cancel" color="primary" @click="unpublish()" v-show="quest.status === 'published'">Dépublier votre enquête</q-btn>
     
+    <router-link to="/user/profile/me">Voir toutes mes enquêtes</router-link>
+    
   </div>
   
 </template>
@@ -95,4 +97,5 @@ export default {
 .list-group-item .handle { font-size: 2rem; padding-right: 0.3rem; }
 
 #main-view > .q-btn { margin: 0.2rem; }
+#main-view > a { display: block; width: 100%; margin: 0.2rem auto; text-decoration: underline; text-align: center; }
 </style>

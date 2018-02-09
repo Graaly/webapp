@@ -272,6 +272,11 @@ export default {
       console.log(err)
     })
   },
+  beforeDestroy() {
+    if (this.$data.step.type === 'geolocation') {
+      navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
+    }
+  },
   methods: {
     
     /* general / multi step methods */
