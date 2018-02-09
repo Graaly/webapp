@@ -12,7 +12,7 @@
         :options="{disableDefaultUI:true}"
         @center_changed="updateCenter($event)"
       >
-        <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="quest.location" :icon="questMarker"
+        <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="questMarker"
           @click="onQuestClick(quest, index)" />
         
         <gmap-info-window :options="infoWindow.options" :position="infoWindow.location" :opened="infoWindow.isOpen" @closeclick="infoWindow.isOpen=false">
@@ -147,7 +147,8 @@ export default {
     },
     onQuestClick(quest, idx) {
       let infoWindow = this.infoWindow
-      this.infoWindow.location = quest.location
+      let questCoordinates = { lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }
+      this.infoWindow.location = questCoordinates
       
       //check if its the same marker that was selected if yes toggle
       if (this.currentQuestIndex === idx) {
@@ -159,7 +160,7 @@ export default {
         this.currentQuest = this.questList[idx]
         infoWindow.isOpen = true
         // center map on last clicked quest
-        this.panTo(quest.location)
+        this.panTo(questCoordinates)
       }
     },
     

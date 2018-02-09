@@ -113,7 +113,8 @@ export default {
           'authorUserId': this.$store.state.user._id,
           'status': 'unpublished',
           'languages': [this.form.mainLanguage],
-          'dateUpdated': null
+          'dateUpdated': null,
+          'location': { type: 'Point', coordinates: [this.form.location.lng, this.form.location.lat] }
         })
         // save to DB
         let res = await QuestService.save(newQuest)
