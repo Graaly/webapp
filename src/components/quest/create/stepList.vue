@@ -10,7 +10,7 @@
     <hr />
     
     <!-- using https://github.com/timruffles/ios-html5-drag-drop-shim to allow drag & drop on mobile -->
-    <ul class="list-group" v-sortable="{ handle: '.handle' }">
+    <ul class="list-group" v-sortable="{ onUpdate: onStepListUpdate, handle: '.handle' }">
       <li class="list-group-item" v-for="step in stepList" :key="step._id">
         <q-icon class="handle" name="reorder" />
         <p>{{ step.title }}</p>
@@ -61,9 +61,13 @@ export default {
     this.stepList = await StepService.get({ questId: this.quest._id })
   },
   methods: {
-    onStepListUpdate(event) {
+    async onStepListUpdate(event) {
       this.stepList.splice(event.newIndex, 0, this.stepList.splice(event.oldIndex, 1)[0])
-      // TODO SAVE NEW STEPS ORDER
+      
+      for (let i = 0; i < this.stepList.length; i++) {
+        let step = this.stepList[i]
+        await StepService.save({ _id: step._id, number: i + 1 })
+      }
     },
     async publish() {
       this.quest.status = 'published';
