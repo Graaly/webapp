@@ -12,7 +12,7 @@
         :options="{disableDefaultUI:true}"
         @center_changed="updateCenter($event)"
       >
-        <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="quest.location" :icon="questMarker"
+        <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="questMarker"
           @click="onQuestClick(quest, index)" />
         
         <gmap-info-window :options="infoWindow.options" :position="infoWindow.location" :opened="infoWindow.isOpen" @closeclick="infoWindow.isOpen=false">
@@ -112,15 +112,18 @@ export default {
     this.getAccountInformations()
     
     if (this.$data.geolocationIsSupported) {
+      // getCurrentPosition() is not always reliable (timeouts/fails frequently)
+      // see https://stackoverflow.com/q/3397585/488666
       navigator.geolocation.getCurrentPosition((position) => {
         this.$data.mapCenter = {lat: position.coords.latitude, lng: position.coords.longitude}
-      });
+        // TODO maybe here save current position in 'state' for later use in case of failure
+      }, () => {
+        console.error('geolocation failed')
+        // TODO maybe here recall position stored in 'state'
+      }, { timeout: 2000, maximumAge: 10000 });
     }
     
     this.getQuests()
-    
-    // without this, on desktop, google maps shows only a 'blue background'
-    this.$forceUpdate()
   },
   methods: {
     async getAccountInformations() {
@@ -147,7 +150,8 @@ export default {
     },
     onQuestClick(quest, idx) {
       let infoWindow = this.infoWindow
-      this.infoWindow.location = quest.location
+      let questCoordinates = { lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }
+      this.infoWindow.location = questCoordinates
       
       //check if its the same marker that was selected if yes toggle
       if (this.currentQuestIndex === idx) {
@@ -159,7 +163,7 @@ export default {
         this.currentQuest = this.questList[idx]
         infoWindow.isOpen = true
         // center map on last clicked quest
-        this.panTo(quest.location)
+        this.panTo(questCoordinates)
       }
     },
     
