@@ -63,7 +63,7 @@ export default {
   },
   data () {
     return {
-      team: { profile: { name: "", status: "new", statistics: {}, score: {} }, members: [] },
+      team: { profile: { badge: "", name: "", status: "new", statistics: {}, score: {} }, members: [] },
       user: {name: "--", picture: "", id: ""}
     }
   },

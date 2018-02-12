@@ -4,7 +4,7 @@
     <div class="header">
       <div class="centered">
         <a v-show="profile._id == user._id" class="big-avatar" @click="$router.push('/user/profile/' + profile._id + '/modify')">
-          <div v-if="profile.picture" :style="'background-image: url(/statics/profiles/' + profile.picture + ');'"></div>
+          <div v-if="profile.picture" :style="'background-image: url(https://localhost:3000/upload/profile/' + profile.picture + ');'"></div>
           <div v-if="!profile.picture" :style="'background-image: url(/statics/profiles/noprofile.png);'"></div>
           <span>Modifier</span>
         </a>
