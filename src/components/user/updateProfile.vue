@@ -6,9 +6,9 @@
         <a class="big-avatar">
           <div v-if="form.picture" :style="'background-image: url(https://localhost:3000/upload/profile/' + form.picture + ');'"></div>
           <div v-if="!form.picture" :style="'background-image: url(/statics/profiles/noprofile.png);'"></div>
-          <span>Modifier</span>
+          <label for="picturefile">Modifier</label>
+          <input @change="uploadImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;">
         </a>
-        <input @change="uploadImage" type="file" name="photo" accept="image/*">
       </div>
       <form @submit.prevent="submit()">
         <q-field icon="account circle" label="Modifier tes informations" class="padding-medium">
