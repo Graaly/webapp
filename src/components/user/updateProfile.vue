@@ -192,10 +192,12 @@ export default {
       }
       var data = new FormData()
       data.append('image', files[0])
-      var reader = new FileReader()
+      // MP 2018-02-12 should not be necessary because picture info is now updated in user session data
+      // remove the commented lines below after a while if no problem occurs with user picture "refreshing" when a new picture is uploaded
+      /*var reader = new FileReader()
       reader.onload = (e) => {
         this.form.picture = e.target.result;
-      };
+      };*/
       let uploadPicture = await AuthService.uploadAccountPicture(data)
       if (uploadPicture) {
         this.getAccountInformations()
