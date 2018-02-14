@@ -5,7 +5,7 @@
       <h1 class="text-center">Connectez-vous<br/>pour commencer l'aventure !</h1>
     
       <div>
-        <q-btn @click="alert('TODO: Connect with Facebook')" class="full-width" color="facebook" icon="fa-facebook-official">Facebook</q-btn>
+        <q-btn @click="" :href="serverUrl + '/auth/facebook'" class="full-width" color="facebook" icon="fa-facebook-official">Facebook</q-btn>
         <q-btn @click="alert('TODO: Connect with Google')" class="full-width" color="google" icon="fa-google">Google</q-btn>
       </div>
     
@@ -57,7 +57,8 @@ export default {
       form: {
         email: '',
         password: ''
-      }
+      },
+      serverUrl: process.env.SERVER_URL
     }
   },
   mounted () {

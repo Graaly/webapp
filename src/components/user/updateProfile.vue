@@ -4,7 +4,7 @@
     <div class="header">
       <div class="centered">
         <a class="big-avatar">
-          <div v-if="form.picture" :style="'background-image: url(https://localhost:3000/upload/profile/' + form.picture + ');'"></div>
+          <div v-if="form.picture" :style="'background-image: url(' + serverUrl + '/upload/profile/' + form.picture + ');'"></div>
           <div v-if="!form.picture" :style="'background-image: url(/statics/profiles/noprofile.png);'"></div>
           <label for="picturefile">Modifier</label>
           <input @change="uploadImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;">
@@ -112,7 +112,8 @@ export default {
         { label: 'Belgique', value: 'belgium' },
         { label: 'Espagne', value: 'spain' },
         { label: 'France', value: 'france' }
-      ]
+      ],
+      serverUrl: process.env.SERVER_URL
     }
   },
   mounted() {

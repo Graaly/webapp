@@ -3,13 +3,8 @@
   <div class="wrapper">
     <div class="header">
       <div class="centered">
-        <a v-show="profile._id == user._id" class="big-avatar" @click="$router.push('/user/profile/' + profile._id + '/modify')">
-          <div v-if="profile.picture" :style="'background-image: url(https://localhost:3000/upload/profile/' + profile.picture + ');'"></div>
-          <div v-if="!profile.picture" :style="'background-image: url(/statics/profiles/noprofile.png);'"></div>
-          <span>Modifier</span>
-        </a>
-        <div v-show="profile._id != user._id" class="big-avatar">
-          <div v-if="profile.picture" :style="'background-image: url(/statics/profiles/' + profile.picture + ');'"></div>
+        <div class="big-avatar">
+          <div v-if="profile.picture" :style="'background-image: url(' + serverUrl + '/upload/profile/' + profile.picture + ');'"></div>
           <div v-if="!profile.picture" :style="'background-image: url(/statics/profiles/noprofile.png);'"></div>
         </div>
         <h1>{{profile.name}}</h1>
@@ -68,7 +63,8 @@ export default {
     return {
       user: {name: "--", picture: "", id: ""},
       profile: {name: "--", picture: "", id: "", team: {}},
-      quests: []
+      quests: [],
+      serverUrl: process.env.SERVER_URL
     }
   },
   mounted() {

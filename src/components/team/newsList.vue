@@ -26,7 +26,7 @@
     
     <div class="tab-content">
       <q-item v-if="team.mine">
-        <q-item-side v-if="user.picture" :avatar="'/statics/profiles/' + user.picture" />
+        <q-item-side v-if="user.picture" :avatar="serverUrl + '/upload/profile/' + user.picture" />
         <q-item-side v-if="!user.picture" :avatar="'/statics/profiles/noprofile.png'" />
         <q-item-main>
           <q-item-tile label><q-input v-model="comment" placeholder="Votre commentaire" @keyup.enter="submit" /></q-item-tile>
@@ -40,7 +40,7 @@
         <q-infinite-scroll :handler="getTeamNews">
           <q-list highlight>
             <q-item v-for="(item, index) in team.news.items" :key="item._id">
-              <q-item-side v-if="item.author.picture" :avatar="'/statics/profiles/' + item.author.picture" />
+              <q-item-side v-if="item.author.picture" :avatar="serverUrl + '/upload/profile/' + item.author.picture" />
               <q-item-side v-if="!item.author.picture" :avatar="'/statics/profiles/noprofile.png'" />
               <q-item-main>
                 <q-item-tile label>{{ item.author.name }}</q-item-tile>
@@ -96,7 +96,8 @@ export default {
         mine: false
       },
       comment: "",
-      user: {name: "--", picture: "", id: ""}
+      user: {name: "--", picture: "", id: ""},
+      serverUrl: process.env.SERVER_URL
     }
   },
   mounted() {
