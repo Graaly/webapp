@@ -11,6 +11,7 @@
         ref="map"
         :options="{disableDefaultUI:true}"
         @center_changed="updateCenter($event)"
+        @dragend="dragEnd($event)"
       >
         <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="questMarker"
           @click="onQuestClick(quest, index)" />
@@ -66,6 +67,7 @@ export default {
     return {
       title: 'Carte',
       mapCenter: { lat: 0, lng: 0 },
+      mapCenterTmp: { lat: 0, lng: 0 },
       infoWindow: {
         content: '',
         location: { lat: 0, lng: 0 },
@@ -228,8 +230,15 @@ export default {
       let newLat = ev.lat();
       let newLng = ev.lng();
       if (this.mapCenter.lat !== newLat || this.mapCenter.lng !== newLng) {
-        this.mapCenter = { lng: newLng, lat: newLat }
+        this.mapCenterTmp = { lng: newLng, lat: newLat }
       }
+    },
+    
+    dragEnd(ev) {
+      // mapCenter is not automatically updated by <gmap-map>
+      // new center coordinates are not available in event data
+      // => use mapCenterTmp values saved by 'update_center' event
+      this.mapCenter = this.mapCenterTmp
     },
     
     // https://github.com/danro/jquery-easing/blob/master/jquery.easing.js
