@@ -5,8 +5,8 @@
       <h1 class="text-center">Connectez-vous<br/>pour commencer l'aventure !</h1>
     
       <div>
-        <q-btn @click="" :href="serverUrl + '/auth/facebook'" class="full-width" color="facebook" icon="fa-facebook-official">Facebook</q-btn>
-        <q-btn @click="alert('TODO: Connect with Google')" class="full-width" color="google" icon="fa-google">Google</q-btn>
+        <q-btn @click="facebookLogin" class="full-width" color="facebook" icon="fa-facebook-official">Facebook</q-btn>
+        <q-btn @click="googleLogin" class="full-width" color="google" icon="fa-google">Google</q-btn>
       </div>
     
       <form @submit.prevent="login()">
@@ -118,6 +118,12 @@ export default {
     },
     alert(msg) {
       Toast.create(msg)
+    },
+    googleLogin() {
+      window.location = this.serverUrl + '/auth/google'
+    },
+    facebookLogin() {
+      window.location = this.serverUrl + '/auth/facebook'
     }
   },
   validations: {
