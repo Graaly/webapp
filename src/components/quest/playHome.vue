@@ -3,7 +3,7 @@
   <div class="wrapper">
     <div class="row bottom-separator">
       <div class="col-3 padding-medium">
-        <img :src="'/statics/quests/' + quest.picture" class="full-width" />
+        <img :src="serverUrl + '/upload/quest/' + quest.picture" class="full-width" />
       </div>
       
       <div class="col desc padding-medium">
@@ -40,7 +40,8 @@ export default {
   data () {
     return {
       title: 'Résoudre une enquête',
-      quest: {}
+      quest: {},
+      serverUrl: process.env.SERVER_URL
     }
   },
   mounted() {
