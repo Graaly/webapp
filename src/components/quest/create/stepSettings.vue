@@ -20,6 +20,18 @@
       />
     </div>
     
+    <div class="background-upload">
+       <q-btn class="full-width" type="button">
+        <label for="picturefile">Télécharger une image de fond</label>
+        <input @change="uploadBackgroundImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+      </q-btn>
+      <p>Attention : l'image est retaillée au format 4:3, orientation portrait.</p>
+      <div v-if="form.backgroundImage !== null">
+        <p>Image téléchargée :</p>
+        <img :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage" />
+      </div>
+    </div>
+    
     <div v-if="stepType.code == 'info-video'">
       <!-- TODO: upload -->
     </div>
@@ -148,6 +160,10 @@
     />
     -->
     
+    <div v-if="stepType.category == 'enigma'">
+      <q-input v-model="form.hint" float-label="Indice" />
+    </div>
+    
     <q-btn class="full-width" color="primary" @click="submit">Enregistrer l'étape</q-btn>
     
   </div>
@@ -170,6 +186,7 @@ export default {
         title: '',
         text: null,
         answers: null,
+        backgroundImage: null,
         // geolog step specific
         answerCoordinates: { lat: 0, lng: 0 },
         showDistanceToTarget: false,
@@ -179,7 +196,8 @@ export default {
         },
         wrongAnwserAnimation: {
           type: 'none'
-        }
+        },
+        hint: ''
       },
       stepType: {
         code: null
@@ -201,7 +219,8 @@ export default {
       defaultNbAnswers: 4,
       minNbAnswers: 2,
       maxNbAnswers: 6,
-      rightAnswerIndex: 0
+      rightAnswerIndex: 0,
+      serverUrl: process.env.SERVER_URL
     }
   },
   computed: {
@@ -245,8 +264,6 @@ export default {
         type: this.stepType.code === 'choose' ? 'choose-text' : this.stepType.code,
         number: this.stepNumber,
         textPosition: 'top', // tmp
-        hint: null, // TODO: add a field for hints
-        backgroundImage: null, // tmp
         videoStream: null, // tmp
         audioStream: null // tmp
       }))
@@ -270,6 +287,19 @@ export default {
         Toast.create.negative("Veuillez définir au moins " + this.minNbAnswers + " réponses.")
       } else {
         this.form.answers.splice(key, 1);
+      }
+    },
+    async uploadBackgroundImage(e) {
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      console.log('file', files[0])
+      data.append('image', files[0])
+      let uploadResult = await StepService.uploadBackgroundImage(this.questId, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        this.form.backgroundImage = uploadResult.data.file
       }
     }
   },
@@ -296,5 +326,7 @@ p { margin-bottom: 0.5rem; }
 .answer .q-radio { padding: 0.5rem; }
 .answer .q-btn { padding: 0.3rem; margin: 0.2rem; }
 .add-answer { margin: 0.5rem auto; }
+
+.background-upload img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }
 
 </style>

@@ -148,13 +148,14 @@ import simi from 'src/includes/simi' // for image similarity
 import utils from 'src/includes/utils'
 import StepService from 'services/StepService'
 import Vue from 'vue'
-import { Alert } from 'quasar'
+import { Alert, Toast } from 'quasar'
 export default {
   data () {
     return {
       step: {},
       playerResult: null,
       cameraStreamEnabled: false,
+      questId: this.$route.params.questId,
       
       // for step type 'code-keypad'
       playerCode: [],
@@ -204,7 +205,7 @@ export default {
         let background = document.getElementById('main-view')
         
         if (this.step.backgroundImage) {
-          background.style.background = '#fff url("' + this.step.backgroundImage + '")  center/cover no-repeat'
+          background.style.background = '#fff url("' + process.env.SERVER_URL + '/upload/quest/' + this.questId + '/step/background/' + this.step.backgroundImage + '")  center/cover no-repeat'
         } else {
           background.style.background = 'none'
           background.style.backgroundColor = '#fff'
@@ -293,7 +294,8 @@ export default {
     },
     
     askForHint() {
-      console.log('TODO: askForHint')
+      // TODO reduce points won for current step
+      Toast.create('Indice : ' + this.step.hint)
     },
     
     checkAnswer(selectedAnswerKey) {
