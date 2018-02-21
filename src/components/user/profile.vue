@@ -28,7 +28,7 @@
         
         <q-list highlight>
           <q-item v-for="quest in quests" :key="quest._id">
-            <q-item-side v-if="quest.picture" :avatar="'/statics/quests/' + quest.picture" />
+            <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
             <q-item-side v-if="!quest.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>
               <q-item-tile label>{{ quest.title }}</q-item-tile>

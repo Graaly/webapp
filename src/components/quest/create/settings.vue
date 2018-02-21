@@ -48,17 +48,14 @@
         <q-select float-label="Langue principale" v-model="form.mainLanguage" :options="languages" />
       </q-field>
       
-      <q-field>
-        [Upload d'image: TODO]
-      <!--
-        <q-uploader
-          url="https://localhost:3000/upload"
-          extensions=".gif,.jpg,.jpeg,.png"
-          name="mainPicture"
-          stack-label="Image"
-        />
-      -->
-      </q-field>
+      <q-btn class="full-width" type="button">
+        <label for="picturefile">Télécharger une image sur le serveur</label>
+        <input @change="uploadImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+      </q-btn>
+      <div v-if="form.picture !== null">
+        <p>Image téléchargée :</p>
+        <img :src="serverUrl + '/upload/quest/' + form.picture" />
+      </div>
       
       <q-field>
         <q-select float-label="Difficulté" v-model="form.level" :options="levels" />
@@ -74,7 +71,7 @@
 
 
 <script>
-import { QUploader, Toast } from 'quasar'
+import { Toast } from 'quasar'
 import { required } from 'vuelidate/lib/validators'
 import QuestService from 'services/QuestService'
 import questCategories from 'data/questCategories.json'
@@ -82,9 +79,6 @@ import questLevels from 'data/questLevels.json'
 import languages from 'data/languages.json'
 import utils from 'src/includes/utils'
 export default {
-  components: {
-    QUploader
-  },
   data() {
     return {
       form: {
@@ -95,8 +89,11 @@ export default {
         startingPlace: '',
         languages: [],
         mainLanguage: 'fr',
-        level: 2
+        level: 2,
+        picture: null
       },
+      serverUrl: process.env.SERVER_URL,
+      pictureUploadURL: this.serverUrl + '/quest/picture/upload',
       categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }),
       languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }),
       levels: utils.buildOptionsForSelect(questLevels, { valueField: 'id', labelField: 'name' })
@@ -122,6 +119,18 @@ export default {
         this.$store.dispatch('newQuestCreated', res.data._id)
         Toast.create.positive('Nouvelle enquête créée')
         this.$router.push('/quest/create/step/type')
+      }
+    },
+    async uploadImage(e) {
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadPictureResult = await QuestService.uploadPicture(data)
+      if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
+        this.form.picture = uploadPictureResult.data.file
       }
     }
   },

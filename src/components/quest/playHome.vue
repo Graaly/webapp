@@ -2,13 +2,13 @@
   
   <div class="wrapper">
     <div class="row bottom-separator">
-      <div class="col-3 padding-medium">
-        <img :src="'/statics/quests/' + quest.picture" class="full-width" />
+      <div class="col-3 padding-medium" v-if="typeof quest.picture !== 'undefined'">
+        <img :src="serverUrl + '/upload/quest/' + quest.picture" class="full-width" />
       </div>
       
       <div class="col desc padding-medium">
         <h1>{{ quest.title }}</h1>
-        <p class="text-tertiary">[[Auteur]]</p>
+        <p class="text-tertiary" v-if="typeof quest.author !== 'undefined'">{{ quest.author.name }}</p>
         <p v-if="quest.rating">
           <q-rating readonly :value="Math.round(quest.rating)" color="primary" :max="5" size="1.7rem" />
         </p>
@@ -40,7 +40,8 @@ export default {
   data () {
     return {
       title: 'Résoudre une enquête',
-      quest: {}
+      quest: {},
+      serverUrl: process.env.SERVER_URL
     }
   },
   mounted() {

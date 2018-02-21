@@ -179,7 +179,7 @@ router.beforeEach((to, from, next) => {
   if (!to.meta.hasOwnProperty('requiresAuth') || to.meta.requiresAuth) {
     // this route requires auth, check if logged in
     // if not, redirect to login page.
-    if (!store.state.isLoggedIn) {
+    if (!store.state.isLoggedIn || store.state.user === null || !store.state.user.hasOwnProperty('_id')) {
       next({
         path: '/user/login',
         query: { redirect: to.fullPath }

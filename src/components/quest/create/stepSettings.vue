@@ -40,16 +40,17 @@
     </div>
     
     <div v-if="stepType.code == 'choose'">
-      <p>Réponses possibles</p>
+      <p>Réponses possibles :</p>
+      <p>Sélectionnez la bonne réponse à l'aide des boutons radio.</p>
       <!-- TODO allow to choose between text / image answers -->
-      <div v-for="(answer, key) in form.answers" :key="key">
-        <q-checkbox v-model="answer.isRightAnswer" />
+      <div class="answer" v-for="(answer, key) in form.answers" :key="key">
+        <q-radio v-model="rightAnswerIndex" :val="key" />
         <q-input v-model="answer.text" />
         <q-btn @click="deleteAnswer(key)">
-          Supprimer
+          <q-icon name="clear" />
         </q-btn>
       </div>
-      <q-btn @click="addAnswer()">
+      <q-btn @click="addAnswer()" class="full-width add-answer">
         Ajouter une réponse
       </q-btn>
     </div>
@@ -97,6 +98,7 @@
     </div>
     
     <!-- TODO. those options do nothing for the moment -->
+    <!--
     <h2>Autres options</h2>
     
     <p>Déclencheur</p>
@@ -119,7 +121,7 @@
     
     <p v-if="form.trigger.type === 'datetime'">
       <q-input type="text" stack-label="Date" v-model="form.trigger.date" />
-      <q-input type="text" stack-label="Heure" v-model="form.trigger.time" /> <!-- TODO required -->
+      <q-input type="text" stack-label="Heure" v-model="form.trigger.time" />
     </p>
     
     <p>Animation de réponse incorrecte</p>
@@ -144,7 +146,7 @@
       :min-rows="4"
       class="full-width"
     />
-    
+    -->
     
     <q-btn class="full-width" color="primary" @click="submit">Enregistrer l'étape</q-btn>
     
@@ -152,14 +154,14 @@
 </template>
 
 <script>
-import { QUploader, Toast } from 'quasar'
+import { QCheckbox, QUploader, Toast } from 'quasar'
 import { required } from 'vuelidate/lib/validators'
 import stepTypes from 'data/stepTypes.json'
 import StepService from 'services/StepService'
 //import QuestService from 'services/QuestService'
 export default {
   components: {
-    QUploader
+    QCheckbox, QUploader
   },
   data() {
     return {
@@ -170,6 +172,8 @@ export default {
         answers: null,
         // geolog step specific
         answerCoordinates: { lat: 0, lng: 0 },
+        showDistanceToTarget: false,
+        showDirectionToTarget: false,
         trigger: {
           type: 'none'
         },
@@ -192,15 +196,12 @@ export default {
         { type: 'none', label: "Aucune (passer à l'étape suivante)" },
         { type: 'text', label: 'Texte' }
       ],
-      
-      // for 'geolocation' steps
-      showDistanceToTarget: false,
-      showDirectionToTarget: false,
-      
+            
       // for 'choose' steps ('choose-text' and 'choose-image' steps in database)
       defaultNbAnswers: 4,
       minNbAnswers: 2,
-      maxNbAnswers: 6
+      maxNbAnswers: 6,
+      rightAnswerIndex: 0
     }
   },
   computed: {
@@ -223,14 +224,19 @@ export default {
     
     // TODO: adapt when image type answers will be allowed
     if (this.stepType.code === 'choose') {
+      this.form.answers = []
       for (let i = 0; i < this.defaultNbAnswers; i++) {
-        this.form.answers.push({ text: '', isRightAnswer: false })
+        this.form.answers.push({ text: 'réponse ' + (i + 1), isRightAnswer: false })
       }
     }
   },
   methods: {
     
     async submit() {
+      if (this.stepType.code === 'choose') {
+        // only choose-text for the moment
+        this.form.answers[this.rightAnswerIndex].isRightAnswer = true
+      }
       if (this.stepType.code === 'geolocation') {
         this.form.answers = this.form.answerCoordinates
       }
@@ -254,17 +260,17 @@ export default {
     addAnswer: function () {
       if (this.form.answers.length >= this.maxNbAnswers) {
         Toast.create.negative("Veuillez définir un maximum de " + this.maxNbAnswers + " réponses.")
+      } else {
+        // TODO adapt to support 'choose image'
+        this.form.answers.push({ text: 'réponse ' + (this.form.answers.length + 1), isRightAnswer: false });
       }
-      // TODO adapt to support 'choose image'
-      this.form.answers.push({ text: '', isRightAnswer: false });
     },
     deleteAnswer: function (key) {
-      console.log(key);
-      console.log(this.form.answers);
       if (this.form.answers.length <= this.minNbAnswers) {
         Toast.create.negative("Veuillez définir au moins " + this.minNbAnswers + " réponses.")
+      } else {
+        this.form.answers.splice(key, 1);
       }
-      this.form.answers.splice(key, 1);
     }
   },
   validations: {
@@ -276,9 +282,19 @@ export default {
 </script>
 
 <style scoped>
+
 #main-view { padding: 1rem; overflow-y: scroll; }
+
 h2 { font-size: 1.2rem; color: grey; }
+p { margin-bottom: 0.5rem; }
+
 .q-item { padding-top: 0; padding-bottom: 0; min-height: 2rem; }
 .q-list { padding-top: 0; }
-p { margin-bottom: 0.5rem; }
+
+.answer { display: flex; flex-flow: row nowrap; }
+.answer .q-input { flex-grow: 1 }
+.answer .q-radio { padding: 0.5rem; }
+.answer .q-btn { padding: 0.3rem; margin: 0.2rem; }
+.add-answer { margin: 0.5rem auto; }
+
 </style>
