@@ -8,6 +8,17 @@
         <div class="col bg-black padding-medium text-white" v-if="team.profile.status != 'new'">Bravo, vous venez de rejoindre une agence de détectives privés !</div>
       </div>
       
+      <div class="row bottom-separator" v-if="userNeedToUpdateLocation">
+        <q-field label="Complétez votre profil" class="padding-medium">
+          <q-field>
+            <q-select float-label="Votre pays" v-model="user.location.country" :options="countries" />
+          </q-field>
+          <q-field>
+            <q-input float-label="Votre code postal" v-model="user.location.postalCode" />
+          </q-field>
+        </q-field>
+      </div>
+      
       <div class="row bottom-separator">
         <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 padding-medium"><img :src="'/statics/badges/' + team.profile.badge" class="full-width" /></div>
         <div class="col padding-medium" v-if="team.profile.status == 'new'">
@@ -64,7 +75,14 @@ export default {
   data () {
     return {
       team: { profile: { badge: "", name: "", status: "new", statistics: {}, score: {} }, members: [] },
-      user: {name: "--", picture: "", id: ""}
+      user: {name: "--", picture: "", id: "", location: {}},
+      userNeedToUpdateLocation: false,
+      // TODO: retrieve real country list from server or .json file
+      countries: [
+        { label: 'Belgique', value: 'belgium' },
+        { label: 'Espagne', value: 'spain' },
+        { label: 'France', value: 'france' }
+      ]
     }
   },
   mounted() {
@@ -85,6 +103,10 @@ export default {
         let nbBadges = 17219
         let badgeId = Math.floor((Math.random() * nbBadges) + 1)
         this.team.profile.badge = "badge" + badgeId + ".png"
+      }
+      
+      if (!this.user.location || !this.user.location.country) {
+        this.userNeedToUpdateLocation = true
       }
     },
     // get team information
@@ -108,6 +130,14 @@ export default {
           Toast.create('Problème technique, veuillez réessayer ultérieurement')
           return
         }
+      }
+      
+      if (this.userNeedToUpdateLocation) {
+        let modifications = {
+          zipCode: this.user.location.postalCode,
+          country: this.user.location.country
+        }
+        await AuthService.modifyAccount(modifications)
       }
       
       // change the status of the user

@@ -35,7 +35,8 @@
         
         <q-list highlight>
           <q-item v-for="member in team.members" :key="member._id" @click="$router.push('/user/profile/' + member._id)">
-            <q-item-side v-if="member.picture" :avatar="serverUrl + '/upload/profile/' + member.picture" />
+            <q-item-side v-if="member.picture && member.picture.indexOf('http') !== -1" :avatar="member.picture" />
+            <q-item-side v-if="member.picture && member.picture.indexOf('http') === -1" :avatar="serverUrl + '/upload/profile/' + member.picture" />
             <q-item-side v-if="!member.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>
               <q-item-tile label>{{ member.name }}</q-item-tile>

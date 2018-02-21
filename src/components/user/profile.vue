@@ -4,7 +4,8 @@
     <div class="header">
       <div class="centered">
         <div class="big-avatar">
-          <div v-if="profile.picture" :style="'background-image: url(' + serverUrl + '/upload/profile/' + profile.picture + ');'"></div>
+          <div v-if="profile.picture && profile.picture.indexOf('http') !== -1" :style="'background-image: url(' + profile.picture + ');'"></div>
+          <div v-if="profile.picture && profile.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + profile.picture + ');'"></div>
           <div v-if="!profile.picture" :style="'background-image: url(/statics/profiles/noprofile.png);'"></div>
         </div>
         <h1>{{profile.name}}</h1>

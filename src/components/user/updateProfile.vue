@@ -4,7 +4,8 @@
     <div class="header">
       <div class="centered">
         <a class="big-avatar">
-          <div v-if="form.picture" :style="'background-image: url(' + serverUrl + '/upload/profile/' + form.picture + ');'"></div>
+          <div v-if="form.picture && form.picture.indexOf('http') !== -1" :style="'background-image: url(' + form.picture + ');'"></div>
+          <div v-if="form.picture && form.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + form.picture + ');'"></div>
           <div v-if="!form.picture" :style="'background-image: url(/statics/profiles/noprofile.png);'"></div>
           <label for="picturefile">Modifier</label>
           <input @change="uploadImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;">
@@ -18,7 +19,7 @@
               <div class="q-field-error" v-if="!$v.form.name.required">Veuillez saisir votre nom.</div>
             </div>
           </q-field>
-          <q-field :error="$v.form.email.$error">
+          <q-field :error="$v.form.email.$error" v-if="userCanChangeEmail">
             <q-input v-model="form.email" stack-label="Ton email" placeholder="your.name@mailbox.com" @blur="$v.form.email.$touch" />
             <div class="q-field-bottom" v-if="$v.form.email.$error">
               <div class="q-field-error" v-if="!$v.form.email.required">Veuillez saisir votre adresse email.</div>
@@ -39,7 +40,7 @@
           </q-field>
           <q-btn color="primary" class="full-width" @click="submit()">Enregister</q-btn>
         </q-field>
-        <q-field icon="lock" label="Modifier ton mot de passe" class="padding-medium">
+        <q-field icon="lock" label="Modifier ton mot de passe" class="padding-medium" v-if="userCanChangePassword">
           <q-field>
             <q-input type="password" v-model="form.oldPassword" stack-label="Mot de passe actuel" />
           </q-field>
@@ -113,7 +114,9 @@ export default {
         { label: 'Espagne', value: 'spain' },
         { label: 'France', value: 'france' }
       ],
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      userCanChangeEmail: true,
+      userCanChangePassword: true
     }
   },
   mounted() {
@@ -134,6 +137,12 @@ export default {
         zipCode: this.user.location.postalCode,
         country: this.user.location.country,
         team: this.user.team.currentName ? this.user.team.currentName : ""
+      }
+      
+      // check if user can change his email
+      if (this.user.provider && this.user.provider.name !== 'graaly') {
+        this.userCanChangeEmail = false
+        this.userCanChangePassword = false
       }
     },
     async getBadgeForNewTeam() {

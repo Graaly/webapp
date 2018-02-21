@@ -121,9 +121,11 @@ export default {
     },
     googleLogin() {
       window.location = this.serverUrl + '/auth/google'
+      localStorage.setItem('isLoggedIn', true)
     },
     facebookLogin() {
       window.location = this.serverUrl + '/auth/facebook'
+      localStorage.setItem('isLoggedIn', true)
     }
   },
   validations: {
