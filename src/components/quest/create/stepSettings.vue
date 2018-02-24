@@ -21,7 +21,7 @@
     </div>
     
     <div class="background-upload">
-       <q-btn class="full-width" type="button">
+      <q-btn class="full-width" type="button">
         <label for="picturefile">Télécharger une image de fond</label>
         <input @change="uploadBackgroundImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       </q-btn>
@@ -33,19 +33,30 @@
     </div>
     
     <div v-if="stepType.code == 'info-video'">
-      <!-- TODO: upload -->
+      <q-btn class="full-width" type="button">
+        <label for="videofile">Télécharger une vidéo</label>
+        <input @change="uploadVideo" name="videofile" id="videofile" type="file" accept="video/mp4,video/x-m4v,video/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+      </q-btn>
+      <div>
+        <!-- TODO show video file infos (size on disk, width x height, etc.) -->
+        <p v-show="form.videoStream === null">Aucune vidéo téléchargée.</p>
+        <video v-if="form.videoStream !== null" class="full-width" controls controlsList="nodownload">
+          <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + form.videoStream" type="video/mp4" />
+        </video>
+      </div>
     </div>
     
     <div v-if="stepType.code == 'new-item'">
       <!-- TODO: choose retrieved item -->
     </div>
     
-    <div v-if="stepType.code == 'geolocation'">
+    <div v-if="stepType.code == 'geolocation'" class="location-gps">
       <!-- TODO: select location on GoogleMap -->
       <p>Coordonnées GPS</p>
       <p class="location-gps-inputs">
-        <q-input type="text" stack-label="Latitude" v-model="form.answerCoordinates.lat" />
-        <q-input type="text" stack-label="Longitude" v-model="form.answerCoordinates.lng" />
+        <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML input -->
+        <input type="number" stack-label="Latitude" v-model.number="form.answerCoordinates.lat" placeholder="par ex. 5,65487" step="any" />
+        <input type="number" stack-label="Longitude" v-model.number="form.answerCoordinates.lng" placeholder="par ex. 45,49812" step="any" />
       </p>
       <q-checkbox v-model="form.showDistanceToTarget" label="Afficher la distance avec le lieu" />
       <q-checkbox v-model="form.showDirectionToTarget" label="Afficher la flèche de direction" />
@@ -187,7 +198,9 @@ export default {
         text: null,
         answers: null,
         backgroundImage: null,
-        // geolog step specific
+        // info-video step specific
+        videoStream: null,
+        // geoloc step specific
         answerCoordinates: { lat: 0, lng: 0 },
         showDistanceToTarget: false,
         showDirectionToTarget: false,
@@ -237,7 +250,7 @@ export default {
     
     this.stepNumber = (await StepService.count({ questId: this.questId })) + 1
     
-    if (this.stepType.code === 'info-text') {
+    if (this.form.title === '') {
       this.form.title = 'Niveau ' + this.stepNumber
     }
     
@@ -264,7 +277,6 @@ export default {
         type: this.stepType.code === 'choose' ? 'choose-text' : this.stepType.code,
         number: this.stepNumber,
         textPosition: 'top', // tmp
-        videoStream: null, // tmp
         audioStream: null // tmp
       }))
       
@@ -300,6 +312,19 @@ export default {
       let uploadResult = await StepService.uploadBackgroundImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.form.backgroundImage = uploadResult.data.file
+      }
+    },
+    async uploadVideo(e) {
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      console.log('file', files[0])
+      data.append('video', files[0])
+      let uploadResult = await StepService.uploadVideo(this.questId, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        this.form.videoStream = uploadResult.data.file
       }
     }
   },

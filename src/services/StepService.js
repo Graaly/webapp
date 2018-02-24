@@ -26,5 +26,11 @@ export default {
   uploadBackgroundImage(questId, data) {
     console.log('uploadBackgroundImage', data)
     return Api().post('/quest/' + questId + '/step/background/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+  },
+  
+  // upload a video for 'info-video' step
+  uploadVideo(questId, data) {
+    console.log('uploadVideo', data)
+    return Api().post('/quest/' + questId + '/step/video/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
   }
 }

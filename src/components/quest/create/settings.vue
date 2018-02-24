@@ -34,8 +34,9 @@
       <div class="location-gps">
         <p>Coordonnées GPS</p>
         <p class="location-gps-inputs">
-          <q-input type="text" stack-label="Latitude" v-model="form.location.lat" />
-          <q-input type="text" stack-label="Longitude" v-model="form.location.lng" />
+          <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML input -->
+          <input type="number" stack-label="Latitude" v-model.number="form.location.lat" placeholder="par ex. 5,65487" step="any" />
+          <input type="number" stack-label="Longitude" v-model.number="form.location.lng" placeholder="par ex. 45,49812" step="any" />
         </p>
       </div>
       
@@ -85,7 +86,7 @@ export default {
         title: '',
         category: '',
         description: '',
-        location: { lat: 0, lng: 0 },
+        location: { lat: '', lng: '' },
         startingPlace: '',
         languages: [],
         mainLanguage: 'fr',
@@ -154,9 +155,5 @@ export default {
 .location-address { display: flex; flex-flow: row nowrap; justify-content: center; align-items: center; }
 .location-address .q-input { flex-grow: 1 }
 .location-address img { width: 2.5rem; height: 2.5rem; }
-
-.location-gps p { color: rgba(0,0,0,0.46); }
-.location-gps-inputs { display: flex; flex-flow: row nowrap; }
-.location-gps-inputs .q-input { margin: 0 0.5rem; }
 
 </style>

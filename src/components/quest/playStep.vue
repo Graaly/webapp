@@ -8,7 +8,7 @@
       </div>
       <div class="video" v-if="step.videoStream">
         <video class="full-width" controls controlsList="nodownload" autoplay>
-          <source :src="step.videoStream" type="video/mp4" />
+          <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + step.videoStream" type="video/mp4" />
         </video>
       </div>
       <audio controls controlsList="nodownload" autoplay v-if="step.audioStream" class="full-width">
@@ -156,6 +156,7 @@ export default {
       playerResult: null,
       cameraStreamEnabled: false,
       questId: this.$route.params.questId,
+      serverUrl: process.env.SERVER_URL,
       
       // for step type 'code-keypad'
       playerCode: [],
