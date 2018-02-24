@@ -320,7 +320,6 @@ export default {
         return
       }
       var data = new FormData()
-      console.log('file', files[0])
       data.append('video', files[0])
       let uploadResult = await StepService.uploadVideo(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {

@@ -22,6 +22,10 @@ export default {
     return data._id ? Api().put('steps/' + data._id, data): Api().post('steps', data)
   },
   
+  remove(id) {
+    return Api().delete('steps/' + id)
+  },
+  
   // upload a background image for step
   uploadBackgroundImage(questId, data) {
     console.log('uploadBackgroundImage', data)

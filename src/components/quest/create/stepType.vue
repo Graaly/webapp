@@ -4,11 +4,11 @@
     
     <h2>Transition</h2>
     
-    <stepTypeItem v-for="stepType in filteredStepTypes('transition')" key="stepType.code" :stepType="stepType" @click.native="selectStepType(stepType)"></stepTypeItem>
+    <stepTypeItem v-for="stepType in filteredStepTypes('transition')" :key="stepType.code" :stepType="stepType" @click.native="selectStepType(stepType)"></stepTypeItem>
     
     <h2>Enigme</h2>
     
-    <stepTypeItem v-for="stepType in filteredStepTypes('enigma')" key="stepType.code" :stepType="stepType" @click.native="selectStepType(stepType)"></stepTypeItem>
+    <stepTypeItem v-for="stepType in filteredStepTypes('enigma')" :key="stepType.code" :stepType="stepType" @click.native="selectStepType(stepType)"></stepTypeItem>
     
   </div>
 </template>
