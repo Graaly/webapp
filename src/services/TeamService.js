@@ -21,6 +21,12 @@ export default {
     return Api().get('users/?team.currentId=' + id)
   },
   
+  // list a team join requests based on team ID
+  // TODO : display join requests only to users members of the team
+  listJoinRequests (id) {
+    return Api().get('users/?team.wishedId=' + id)
+  },
+  
   // list nearest teams
   listNearestTeams () {
     return Api().get('teams/nearest')
@@ -46,5 +52,20 @@ export default {
   // send an invitation in a team
   sendFriendInvitation(invitationData) {
     return Api().post('team/invitation', invitationData)
+  },
+  
+  // send a join team request
+  joinTeam(teamId) {
+    return Api().get('team/' + teamId + '/join')
+  },
+  
+  // accept team join request
+  acceptJoinRequest(userId, teamId) {
+    return Api().get('team/' + teamId + '/join/accept/' + userId)
+  },
+  // reject team join request
+  rejectJoinRequest(userId, teamId) {
+    return Api().get('team/' + teamId + '/join/reject/' + userId)
   }
+  
 }

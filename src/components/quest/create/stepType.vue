@@ -10,6 +10,9 @@
     
     <stepTypeItem v-for="stepType in filteredStepTypes('enigma')" key="stepType.code" :stepType="stepType" @click.native="selectStepType(stepType)"></stepTypeItem>
     
+    <div class="link-below-button" v-if="questId != 0">
+      <router-link :to="{ path: '/quest/create/step/list/' + questId }">Retour à la liste des étapes</router-link>
+    </div>
   </div>
 </template>
 
@@ -26,8 +29,12 @@ export default {
       stepTypeCategories: {
         transition: 'Transition',
         enigma: 'Enigme'
-      }
+      },
+      questId: 0
     }
+  },
+  mounted() {
+    this.questId = this.$route.params.questId
   },
   methods: {
     filteredStepTypes(categoryCode) {

@@ -27,8 +27,35 @@
     <div class="tab-content">
         <p>
           <q-btn v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id" link class="full-width" @click="openInviteFriendPopup()" color="primary">Inviter un ami</q-btn>
-          <q-btn v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)" link class="full-width" @click="joinTeam()" color="primary">Rejoindre cette agence</q-btn>
+          <q-btn v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id) && user.team.wishedId !== this.$route.params.id" link class="full-width" @click="joinTeam()" color="primary">Rejoindre cette agence</q-btn>
+          <q-btn v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id) && user.team.wishedId === this.$route.params.id" link class="full-width" disabled color="primary">Demande envoyée</q-btn>
         </p>
+        
+        <q-list highlight v-if="team.joinRequests.length > 0 && memberOfTeam">
+          <q-item v-for="request in team.joinRequests" :key="request._id">
+            <q-item-side v-if="request.picture && request.picture.indexOf('http') !== -1" :avatar="request.picture" />
+            <q-item-side v-if="request.picture && request.picture.indexOf('http') === -1" :avatar="serverUrl + '/upload/profile/' + request.picture" />
+            <q-item-side v-if="!request.picture" :avatar="'/statics/profiles/noprofile.png'" />
+            <q-item-main>
+              <q-item-tile label>{{ request.name }} souhaite rejoindre votre agence</q-item-tile>
+              <q-item-tile sublabel>{{ request.statistics.nbQuestsSuccessful }} enquêtes réussies | {{ request.statistics.nbQuestsCreated }} enquêtes créées</q-item-tile>
+            </q-item-main>
+            <q-item-side right>
+              <q-btn flat round dense icon="more_vert" text-color="primary">
+                <q-popover>
+                  <q-list link>
+                    <q-item v-close-overlay>
+                      <q-item-main label="Accepter" @click="acceptJoinRequest(request._id)" />
+                    </q-item>
+                    <q-item v-close-overlay>
+                      <q-item-main label="Rejecter" @click="rejectJoinRequest(request._id)" />
+                    </q-item>
+                  </q-list>
+                </q-popover>
+              </q-btn>
+            </q-item-side>
+          </q-item>
+        </q-list>
     
         <h2 v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id">Membre(s) de mon agence</h2>
         <h2 v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)">Membre(s) de l'agence</h2>
@@ -57,15 +84,19 @@
 <script>
 import TeamService from 'services/TeamService'
 import AuthService from 'services/AuthService'
-import { Dialog, Toast } from 'quasar'
+import { Dialog, Toast, QPopover } from 'quasar'
 
 export default {
+  components: {
+    QPopover
+  },
   data () {
     return {
       title: 'Mon agence',
-      team: { profile: { statistics: {}, score: {} }, members: [] },
-      user: {name: "--", picture: "", id: ""},
-      serverUrl: process.env.SERVER_URL
+      team: { profile: { statistics: {}, score: {} }, members: [], joinRequests: [] },
+      user: {name: "--", picture: "", id: "", team: { wishedId: 0 }},
+      serverUrl: process.env.SERVER_URL,
+      memberOfTeam: false
     }
   },
   mounted() {
@@ -81,9 +112,12 @@ export default {
       this.user = response.data
       
       if (this.user.team && this.user.team.currentId && this.user.team.currentId === this.$route.params.id) {
+        this.memberOfTeam = true
         // Set the page title = My agency / Competitor
         this.$store.dispatch('setTitle', 'Mon agence')
+        this.getJoinRequest(this.$route.params.id)
       } else {
+        this.memberOfTeam = false
         this.$store.dispatch('setTitle', 'Agence concurrente')
       }
     },
@@ -99,6 +133,11 @@ export default {
       // get the members list
       let response = await TeamService.listMembers(id)
       this.team.members = response.data      
+    },
+    async getJoinRequest(id) {
+      // get the requests to join the team
+      let response = await TeamService.listJoinRequests(id)
+      this.team.joinRequests = response.data      
     },
     openInviteFriendPopup () {
       var self = this
@@ -130,6 +169,28 @@ export default {
         Toast.create['positive']({html: 'Votre invitation est envoyée'})
       } else {
         Toast.create['alert']({html: 'Problème technique, veuillez nous excuser et ré-essayer plus tard'})
+      }
+    },
+    async joinTeam () {
+      let response = await TeamService.joinTeam(this.$route.params.id)
+      if (response) {
+        this.user.team.wishedId = this.$route.params.id
+      }
+    },
+    async acceptJoinRequest (userId) {
+      let response = await TeamService.acceptJoinRequest(userId, this.$route.params.id)
+      if (response) {
+        this.getAccountInformations()
+    
+        this.getTeam(this.$route.params.id)
+    
+        this.getTeamMembers(this.$route.params.id)
+      }
+    },
+    async rejectJoinRequest (userId) {
+      let response = await TeamService.rejectJoinRequest(userId, this.$route.params.id)
+      if (response) {
+        this.getJoinRequest(this.$route.params.id)
       }
     }
   }

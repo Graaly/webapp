@@ -99,11 +99,19 @@ var router = new VueRouter({
       component: QuestCreateStepType
     },
     {
+      path: '/quest/create/step/type/:questId',
+      component: QuestCreateStepType
+    },
+    {
       path: '/quest/create/step/settings',
       component: QuestCreateStepSettings
     },
     {
       path: '/quest/create/step/list',
+      component: QuestCreateStepList
+    },
+    {
+      path: '/quest/create/step/list/:questId',
       component: QuestCreateStepList
     },
     {

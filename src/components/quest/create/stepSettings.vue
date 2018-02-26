@@ -149,6 +149,9 @@
     -->
     
     <q-btn class="full-width" color="primary" @click="submit">Enregistrer l'étape</q-btn>
+    <div class="link-below-button" v-if="questId">
+      <router-link :to="{ path: '/quest/create/step/type/' + questId }">Retour au choix d'étape</router-link>
+    </div>
     
   </div>
 </template>
