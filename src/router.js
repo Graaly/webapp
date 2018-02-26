@@ -6,11 +6,11 @@ import QuestSearchText from '@/quest/searchText'
 import QuestPlayHome from '@/quest/playHome'
 import QuestPlayStep from '@/quest/playStep'
 import QuestEnd from '@/quest/end'
-import QuestCreateWelcome from '@/quest/create/welcome'
-import QuestCreateSettings from '@/quest/create/settings'
-import QuestCreateStepType from '@/quest/create/stepType'
-import QuestCreateStepSettings from '@/quest/create/stepSettings'
-import QuestCreateStepList from '@/quest/create/stepList'
+import QuestManageWelcome from '@/quest/manage/welcome'
+import QuestManageSettings from '@/quest/manage/settings'
+import QuestManageStepType from '@/quest/manage/stepType'
+import QuestManageStepSettings from '@/quest/manage/stepSettings'
+import QuestManageStepList from '@/quest/manage/stepList'
 
 import UserLogin from '@/user/login'
 import UserLogout from '@/user/logout'
@@ -71,11 +71,11 @@ var router = new VueRouter({
       component: QuestSearchMap
     },
     {
-      path: '/quest/play/:id',
+      path: '/quest/play/:id(\\w{24})',
       component: QuestPlayHome
     },
     {
-      path: '/quest/play/:questId/step/:stepNumber',
+      path: '/quest/play/:questId(\\w{24})/step/:stepNumber',
       component: QuestPlayStep
     },
     {
@@ -88,15 +88,15 @@ var router = new VueRouter({
     },
     {
       path: '/quest/create/welcome',
-      component: QuestCreateWelcome
+      component: QuestManageWelcome
     },
     {
       path: '/quest/create/settings',
-      component: QuestCreateSettings
+      component: QuestManageSettings
     },
     {
       path: '/quest/create/step/type',
-      component: QuestCreateStepType
+      component: QuestManageStepType
     },
     {
       path: '/quest/create/step/type/:questId',
@@ -104,11 +104,19 @@ var router = new VueRouter({
     },
     {
       path: '/quest/create/step/settings',
-      component: QuestCreateStepSettings
+      component: QuestManageStepSettings
     },
     {
-      path: '/quest/create/step/list',
-      component: QuestCreateStepList
+      path: '/quest/edit/step/:stepId(\\w{24})',
+      component: QuestManageStepSettings
+    },
+    {
+      path: '/quest/edit/step/list',
+      component: QuestManageStepList
+    },
+    {
+      path: '/quest/edit/:questId(\\w{24})',
+      component: QuestManageStepList
     },
     {
       path: '/quest/create/step/list/:questId',
@@ -137,32 +145,32 @@ var router = new VueRouter({
       component: UserHelp
     },
     {
-      path: '/user/profile/:id',
+      path: '/user/profile/:id(\\w{24}|me)',
       name: 'profile',
       component: UserProfile
     },
     {
-      path: '/user/profile/:id/modify',
+      path: '/user/profile/:id(\\w{24}|me)/modify',
       name: 'profileModification',
       component: UserProfileModify
     },
     {
-      path: '/team/:id/members',
+      path: '/team/:id(\\w{24})/members',
       name: 'teamMembersList',
       component: TeamMembersList
     },
     {
-      path: '/team/:id/news',
+      path: '/team/:id(\\w{24})/news',
       name: 'teamNewsList',
       component: TeamNewsList
     },
     {
-      path: '/team/:id/challenges',
+      path: '/team/:id(\\w{24})/challenges',
       name: 'teamChallengesList',
       component: TeamChallengesList
     },
     {
-      path: '/team/:id/ranking',
+      path: '/team/:id(\\w{24})/ranking',
       name: 'teamRankingList',
       component: TeamChallengesList
     },

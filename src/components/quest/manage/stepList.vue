@@ -15,6 +15,7 @@
         <q-icon class="handle" name="reorder" />
         <p>{{ step.title }}</p>
         <q-btn @click="$router.push('/quest/edit/step/'+step._id)"><q-icon name="mode edit" /></q-btn>
+        <q-btn @click="removeStep(step._id)"><q-icon name="clear" /></q-btn>
       </li>
     </ul>
     
@@ -34,7 +35,7 @@
 </template>
 
 <script>
-import { Toast } from 'quasar'
+import { Toast, Dialog } from 'quasar'
 
 import QuestService from 'services/QuestService'
 import StepService from 'services/StepService'
@@ -57,7 +58,12 @@ export default {
     }
   },
   async mounted() {
+    if (this.$route.params.hasOwnProperty('questId')) {
+      this.$store.dispatch('setCurrentEditedQuest', { _id: this.$route.params.questId })
+    }
+    
     this.$store.dispatch('setTitle', this.title)
+
     var questId
     if (this.$route.params.questId) {
       questId = this.$route.params.questId
@@ -66,17 +72,14 @@ export default {
       questId = this.$store.state.currentEditedQuest.id
     }
     let res = await QuestService.getById(questId)
+
     this.quest = res.data
     this.stepList = await StepService.get({ questId: this.quest._id, sort: 'number' })
   },
   methods: {
     async onStepListUpdate(event) {
       this.stepList.splice(event.newIndex, 0, this.stepList.splice(event.oldIndex, 1)[0])
-      
-      for (let i = 0; i < this.stepList.length; i++) {
-        let step = this.stepList[i]
-        await StepService.save({ _id: step._id, number: i + 1 })
-      }
+      await this.reindexSteps()
     },
     async publish() {
       this.quest.status = 'published';
@@ -87,6 +90,37 @@ export default {
       this.quest.status = 'unpublished';
       await QuestService.save({ _id: this.quest._id, status: this.quest.status })
       Toast.create.positive("L'enquête est dépubliée.")
+    },
+    async removeStep(stepId) {
+      var _this = this; // workaround for closure scope quirks
+      
+      await Dialog.create({
+        title: 'Souhaitez vous vraiment supprimer cette étape ?',
+        // 'cancel: true' property did not work (cancel button not shown) => used 'buttons' property
+        buttons: [
+          {
+            label: 'OK',
+            preventClose: true,
+            async handler (data, closeThis) {
+              await StepService.remove(stepId)
+              let removedStepIndex = _this.stepList.map(function(e) { return e._id; }).indexOf(stepId)
+              _this.stepList.splice(removedStepIndex, 1)
+              await this.reindexSteps()
+              closeThis()
+            }
+          },
+          {
+            label: 'Annuler'
+          }
+        ]
+      })
+    },
+    // do not break step numbers sequence 1, 2, 3... when some steps are reordered or removed
+    async reindexSteps() {
+      for (let i = 0; i < this.stepList.length; i++) {
+        let step = this.stepList[i]
+        await StepService.save({ _id: step._id, number: i + 1 })
+      }
     }
   }
 }
@@ -102,6 +136,7 @@ export default {
 .list-group-item { display: flex; flex-flow: row nowrap; align-items: center; padding: 0rem 0.2rem 0.4rem 0; }
 .list-group-item p { flex-grow: 1; padding: 0; margin: 0; overflow-x: hidden; }
 .list-group-item .handle { font-size: 2rem; padding-right: 0.3rem; }
+.list-group-item .q-btn { width: 3rem }
 
 #main-view > .q-btn { margin: 0.2rem; }
 #main-view > a { display: block; width: 100%; margin: 0.2rem auto; text-decoration: underline; text-align: center; }

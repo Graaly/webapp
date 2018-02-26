@@ -122,7 +122,7 @@ export default {
       }, () => {
         console.error('geolocation failed')
         // TODO maybe here recall position stored in 'state'
-      }, { timeout: 2000, maximumAge: 10000 });
+      }, { timeout: 10000, maximumAge: 10000 });
     }
     
     this.getQuests()
@@ -170,7 +170,7 @@ export default {
     },
     
     async getQuests() {
-      let response = await QuestService.getList()
+      let response = await QuestService.getList({ status: 'published' })
       this.questList = response.data
     },
     

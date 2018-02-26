@@ -8,7 +8,7 @@
       </div>
       <div class="video" v-if="step.videoStream">
         <video class="full-width" controls controlsList="nodownload" autoplay>
-          <source :src="step.videoStream" type="video/mp4" />
+          <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + step.videoStream" type="video/mp4" />
         </video>
       </div>
       <audio controls controlsList="nodownload" autoplay v-if="step.audioStream" class="full-width">
@@ -148,13 +148,15 @@ import simi from 'src/includes/simi' // for image similarity
 import utils from 'src/includes/utils'
 import StepService from 'services/StepService'
 import Vue from 'vue'
-import { Alert } from 'quasar'
+import { Alert, Toast } from 'quasar'
 export default {
   data () {
     return {
       step: {},
       playerResult: null,
       cameraStreamEnabled: false,
+      questId: this.$route.params.questId,
+      serverUrl: process.env.SERVER_URL,
       
       // for step type 'code-keypad'
       playerCode: [],
@@ -204,7 +206,7 @@ export default {
         let background = document.getElementById('main-view')
         
         if (this.step.backgroundImage) {
-          background.style.background = '#fff url("' + this.step.backgroundImage + '")  center/cover no-repeat'
+          background.style.background = '#fff url("' + process.env.SERVER_URL + '/upload/quest/' + this.questId + '/step/background/' + this.step.backgroundImage + '")  center/cover no-repeat'
         } else {
           background.style.background = 'none'
           background.style.backgroundColor = '#fff'
@@ -293,7 +295,8 @@ export default {
     },
     
     askForHint() {
-      console.log('TODO: askForHint')
+      // TODO reduce points won for current step
+      Toast.create('Indice : ' + this.step.hint)
     },
     
     checkAnswer(selectedAnswerKey) {
@@ -560,6 +563,7 @@ export default {
     margin: 0;
     box-shadow: 0px 0px 0.1rem 0.1rem #fff;
   }
+  .text { white-space: pre-wrap; }
     
   .q-btn, audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
   

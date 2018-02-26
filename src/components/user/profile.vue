@@ -27,7 +27,7 @@
         </p>
         
         <q-list highlight>
-          <q-item v-for="quest in quests" :key="quest._id" @click="$router.push('/quest/create/step/list/' + quest._id)">
+          <q-item v-for="quest in quests" :key="quest._id" @click="$router.push('/quest/edit/'+quest._id)">
             <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
             <q-item-side v-if="!quest.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>

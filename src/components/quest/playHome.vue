@@ -2,7 +2,7 @@
   
   <div class="wrapper">
     <div class="row bottom-separator">
-      <div class="col-3 padding-medium" v-if="typeof quest.picture !== 'undefined'">
+      <div class="col-3 padding-medium" v-if="typeof quest.picture !== 'undefined' && quest.picture !== null">
         <img :src="serverUrl + '/upload/quest/' + quest.picture" class="full-width" />
       </div>
       
@@ -28,6 +28,7 @@
 
 <script>
 
+import AuthService from 'services/AuthService'
 import QuestService from 'services/QuestService'
 import questLevels from 'data/questLevels.json'
 import { QRating } from 'quasar'
@@ -54,6 +55,10 @@ export default {
     async getQuest(id) {
       let response = await QuestService.getById(id)
       this.quest = response.data
+      if (typeof this.quest.authorUserId !== 'undefined') {
+        response = await AuthService.getAccount(this.quest.authorUserId)
+        this.$set(this.quest, 'author', response.data)
+      }
     },
     // TODO make this more generic (basic model methods over 'webapp simple JSON files')
     // e.g. import JSONModels from 'utils/json-models'; questLevels = JSONModels('questLevels'); questLevels.getById(123)

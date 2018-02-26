@@ -20,21 +20,50 @@
       />
     </div>
     
+    <div class="background-upload">
+      <q-btn class="full-width" type="button">
+        <label for="picturefile">Télécharger une image de fond</label>
+        <input @change="uploadBackgroundImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+      </q-btn>
+      <p>Attention : l'image est retaillée au format 4:3, orientation portrait.</p>
+      <div v-if="form.backgroundImage !== null">
+        <p>Image téléchargée :</p>
+        <img :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage" />
+      </div>
+    </div>
+    
     <div v-if="stepType.code == 'info-video'">
-      <!-- TODO: upload -->
+      <q-btn class="full-width" type="button">
+        <label for="videofile">Télécharger une vidéo</label>
+        <input @change="uploadVideo" name="videofile" id="videofile" type="file" accept="video/mp4,video/x-m4v,video/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+      </q-btn>
+      <div>
+        <!-- TODO show video file infos (size on disk, width x height, etc.) -->
+        <p v-show="form.videoStream === null">Aucune vidéo téléchargée.</p>
+        <video v-if="form.videoStream !== null" class="full-width" controls controlsList="nodownload">
+          <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + form.videoStream" type="video/mp4" />
+        </video>
+      </div>
     </div>
     
     <div v-if="stepType.code == 'new-item'">
       <!-- TODO: choose retrieved item -->
     </div>
     
-    <div v-if="stepType.code == 'geolocation'">
+    <div v-if="stepType.code == 'geolocation'" class="location-gps">
       <!-- TODO: select location on GoogleMap -->
       <p>Coordonnées GPS</p>
-      <p class="location-gps-inputs">
-        <q-input type="text" stack-label="Latitude" v-model="form.answerCoordinates.lat" />
-        <q-input type="text" stack-label="Longitude" v-model="form.answerCoordinates.lng" />
-      </p>
+      <div class="location-gps-inputs">
+        <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
+        <div>
+          <label for="anwser-latitude">Latitude</label>
+          <input type="number" id="anwser-latitude" v-model.number="form.answerCoordinates.lat" placeholder="par ex. 5,65487" step="any" />
+        </div>
+        <div>
+          <label for="anwser-longitude">Longitude</label>
+          <input type="number" id="anwser-longitude" v-model.number="form.answerCoordinates.lng" placeholder="par ex. 45,49812" step="any" />
+        </div>
+      </div>
       <q-checkbox v-model="form.showDistanceToTarget" label="Afficher la distance avec le lieu" />
       <q-checkbox v-model="form.showDirectionToTarget" label="Afficher la flèche de direction" />
     </div>
@@ -148,6 +177,10 @@
     />
     -->
     
+    <div v-if="stepType.category == 'enigma'">
+      <q-input v-model="form.hint" float-label="Indice" />
+    </div>
+    
     <q-btn class="full-width" color="primary" @click="submit">Enregistrer l'étape</q-btn>
     <div class="link-below-button" v-if="questId">
       <router-link :to="{ path: '/quest/create/step/type/' + questId }">Retour au choix d'étape</router-link>
@@ -161,6 +194,7 @@ import { QCheckbox, QUploader, Toast } from 'quasar'
 import { required } from 'vuelidate/lib/validators'
 import stepTypes from 'data/stepTypes.json'
 import StepService from 'services/StepService'
+import QuestService from 'services/QuestService'
 //import QuestService from 'services/QuestService'
 export default {
   components: {
@@ -169,11 +203,16 @@ export default {
   data() {
     return {
       questId: null,
+      stepId: null,
+      isEdition: this.$route.params.hasOwnProperty('stepId'),
       form: {
         title: '',
         text: null,
         answers: null,
-        // geolog step specific
+        backgroundImage: null,
+        // info-video step specific
+        videoStream: null,
+        // geoloc step specific
         answerCoordinates: { lat: 0, lng: 0 },
         showDistanceToTarget: false,
         showDirectionToTarget: false,
@@ -182,7 +221,9 @@ export default {
         },
         wrongAnwserAnimation: {
           type: 'none'
-        }
+        },
+        hint: '',
+        number: null
       },
       stepType: {
         code: null
@@ -204,7 +245,8 @@ export default {
       defaultNbAnswers: 4,
       minNbAnswers: 2,
       maxNbAnswers: 6,
-      rightAnswerIndex: 0
+      rightAnswerIndex: 0,
+      serverUrl: process.env.SERVER_URL
     }
   },
   computed: {
@@ -213,16 +255,35 @@ export default {
     }
   },
   async mounted() {
+    if (this.isEdition) {
+      this.stepId = this.$route.params.stepId
+      this.form = await StepService.getById(this.stepId)
+      
+      // apply specific field changes from DB to form
+      if (this.form.type === 'geolocation') {
+        this.form.answerCoordinates = this.form.answers
+      } else if (this.form.type === 'choose') {
+        this.rightAnswerIndex = this.form.answers.map(answer => answer.isRightAnswer).indexOf(true)
+      }
+      
+      this.questId = this.form.questId
+      this.$store.dispatch('setCurrentEditedStep', { type: stepTypes.find(type => type.code === this.form.type) })
+      let res = await QuestService.getById(this.questId)
+      this.$store.dispatch('setCurrentEditedQuest', res.data)
+    }
+    
     this.stepType = this.$store.state.currentEditedStep.type
-    this.questId = this.$store.state.currentEditedQuest.id
+    this.questId = this.$store.state.currentEditedQuest._id
     
     // dispatch specific title for other app components
     this.$store.dispatch('setTitle', this.stepType.title)
     
-    this.stepNumber = (await StepService.count({ questId: this.questId })) + 1
+    if (this.form.number === null) {
+      this.form.number = (await StepService.count({ questId: this.questId })) + 1
+    }
     
-    if (this.stepType.code === 'info-text') {
-      this.form.title = 'Niveau ' + this.stepNumber
+    if (this.form.title === '') {
+      this.form.title = 'Niveau ' + this.form.number
     }
     
     // TODO: adapt when image type answers will be allowed
@@ -246,17 +307,13 @@ export default {
       await StepService.save(Object.assign(this.form, {
         questId: this.questId,
         type: this.stepType.code === 'choose' ? 'choose-text' : this.stepType.code,
-        number: this.stepNumber,
         textPosition: 'top', // tmp
-        hint: null, // TODO: add a field for hints
-        backgroundImage: null, // tmp
-        videoStream: null, // tmp
         audioStream: null // tmp
       }))
       
       Toast.create.positive('Etape enregistrée.')
-      this.$router.push('/quest/create/step/list')
-      this.$store.dispatch('saveQuestStepType', null)
+      this.$router.push('/quest/edit/step/list')
+      this.$store.dispatch('setCurrentEditedStep', null)
     },
     
     // for 'choose' step type
@@ -273,6 +330,30 @@ export default {
         Toast.create.negative("Veuillez définir au moins " + this.minNbAnswers + " réponses.")
       } else {
         this.form.answers.splice(key, 1);
+      }
+    },
+    async uploadBackgroundImage(e) {
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadResult = await StepService.uploadBackgroundImage(this.questId, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        this.form.backgroundImage = uploadResult.data.file
+      }
+    },
+    async uploadVideo(e) {
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('video', files[0])
+      let uploadResult = await StepService.uploadVideo(this.questId, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        this.form.videoStream = uploadResult.data.file
       }
     }
   },
@@ -299,5 +380,7 @@ p { margin-bottom: 0.5rem; }
 .answer .q-radio { padding: 0.5rem; }
 .answer .q-btn { padding: 0.3rem; margin: 0.2rem; }
 .add-answer { margin: 0.5rem auto; }
+
+.background-upload img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }
 
 </style>

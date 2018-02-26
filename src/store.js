@@ -49,11 +49,11 @@ const mutations = {
   setDrawDirectionInterval (state, intervalObject) {
     state.questSteps.geolocation.drawDirectionInterval = intervalObject;
   },
-  newQuestCreated(state, id) {
-    state.currentEditedQuest = { id: id }
+  setCurrentEditedQuest(state, quest) {
+    state.currentEditedQuest = quest
   },
-  saveQuestStepType(state, stepType) {
-    state.currentEditedStep = { type: stepType }
+  setCurrentEditedStep(state, step) {
+    state.currentEditedStep = step
   }
 }
 
@@ -80,8 +80,8 @@ const actions = {
   // for step geolocation
   setDrawDirectionInterval: ({ commit }, intervalObject) => commit('setDrawDirectionInterval', intervalObject),
   // for quest creation/edition
-  newQuestCreated: ({ commit }, id) => commit('newQuestCreated', id),
-  saveQuestStepType: ({ commit }, stepType) => commit('saveQuestStepType', stepType)
+  setCurrentEditedQuest: ({ commit }, quest) => commit('setCurrentEditedQuest', quest),
+  setCurrentEditedStep: ({ commit }, step) => commit('setCurrentEditedStep', step)
 }
 
 // getters are functions
