@@ -91,16 +91,12 @@ var router = new VueRouter({
       component: QuestManageWelcome
     },
     {
-      path: '/quest/create/settings',
+      path: '/quest/(create|edit)/settings',
       component: QuestManageSettings
     },
     {
       path: '/quest/create/step/type',
       component: QuestManageStepType
-    },
-    {
-      path: '/quest/create/step/type/:questId',
-      component: QuestCreateStepType
     },
     {
       path: '/quest/create/step/settings',
@@ -111,16 +107,12 @@ var router = new VueRouter({
       component: QuestManageStepSettings
     },
     {
-      path: '/quest/edit/step/list',
+      path: '/quest/(create|edit)/step/list',
       component: QuestManageStepList
     },
     {
       path: '/quest/edit/:questId(\\w{24})',
       component: QuestManageStepList
-    },
-    {
-      path: '/quest/create/step/list/:questId',
-      component: QuestCreateStepList
     },
     {
       path: '/user/createAccount',

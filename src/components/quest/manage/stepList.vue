@@ -19,7 +19,7 @@
       </li>
     </ul>
     
-    <q-btn color="primary" icon="fa-plus-circle" @click="$router.push('/quest/create/step/type/' + quest._id)">Ajouter une étape</q-btn>
+    <q-btn color="primary" icon="fa-plus-circle" @click="$router.push('/quest/create/step/type')">Ajouter une étape</q-btn>
     
     <hr />
     
@@ -63,16 +63,7 @@ export default {
     }
     
     this.$store.dispatch('setTitle', this.title)
-
-    var questId
-    if (this.$route.params.questId) {
-      questId = this.$route.params.questId
-      this.$store.dispatch('newQuestCreated', questId)
-    } else {
-      questId = this.$store.state.currentEditedQuest.id
-    }
-    let res = await QuestService.getById(questId)
-
+    let res = await QuestService.getById(this.$store.state.currentEditedQuest._id)
     this.quest = res.data
     this.stepList = await StepService.get({ questId: this.quest._id, sort: 'number' })
   },

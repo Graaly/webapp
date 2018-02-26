@@ -33,11 +33,17 @@
       
       <div class="location-gps">
         <p>Coordonnées GPS</p>
-        <p class="location-gps-inputs">
-          <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML input -->
-          <input type="number" stack-label="Latitude" v-model.number="form.location.lat" placeholder="par ex. 5,65487" step="any" />
-          <input type="number" stack-label="Longitude" v-model.number="form.location.lng" placeholder="par ex. 45,49812" step="any" />
-        </p>
+        <div class="location-gps-inputs">
+          <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
+          <div>
+            <label for="latitude">Latitude</label>
+            <input type="number" id="latitude" v-model.number="form.location.lat" placeholder="par ex. 5,65487" step="any" />
+          </div>
+          <div>
+            <label for="longitude">Longitude</label>
+            <input type="number" id="longitude" v-model.number="form.location.lng" placeholder="par ex. 45,49812" step="any" />
+          </div>
+        </div>
       </div>
       
       <div class="location-address">
