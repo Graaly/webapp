@@ -15,7 +15,7 @@
 
 <script>
 import stepTypes from 'data/stepTypes.json'
-import stepTypeItem from '@/quest/create/stepTypeItem'
+import stepTypeItem from '@/quest/manage/stepTypeItem'
 export default {
   components: {
     stepTypeItem
@@ -34,7 +34,7 @@ export default {
       return stepTypes.filter(stepType => stepType.category === categoryCode)
     },
     selectStepType(stepType) {
-      this.$store.dispatch('saveQuestStepType', stepType)
+      this.$store.dispatch('setCurrentEditedStep', { type: stepType })
       this.$router.push('/quest/create/step/settings')
     }
   }

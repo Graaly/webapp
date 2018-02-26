@@ -58,19 +58,19 @@ export default {
     }
   },
   async mounted() {
+    if (this.$route.params.hasOwnProperty('questId')) {
+      this.$store.dispatch('setCurrentEditedQuest', { _id: this.$route.params.questId })
+    }
+    
     this.$store.dispatch('setTitle', this.title)
-    let res = await QuestService.getById(this.$store.state.currentEditedQuest.id)
+    let res = await QuestService.getById(this.$store.state.currentEditedQuest._id)
     this.quest = res.data
     this.stepList = await StepService.get({ questId: this.quest._id, sort: 'number' })
   },
   methods: {
     async onStepListUpdate(event) {
       this.stepList.splice(event.newIndex, 0, this.stepList.splice(event.oldIndex, 1)[0])
-      
-      for (let i = 0; i < this.stepList.length; i++) {
-        let step = this.stepList[i]
-        await StepService.save({ _id: step._id, number: i + 1 })
-      }
+      await this.reindexSteps()
     },
     async publish() {
       this.quest.status = 'published';
@@ -84,8 +84,10 @@ export default {
     },
     async removeStep(stepId) {
       var _this = this; // workaround for closure scope quirks
+      
       await Dialog.create({
         title: 'Souhaitez vous vraiment supprimer cette étape ?',
+        // 'cancel: true' property did not work (cancel button not shown) => used 'buttons' property
         buttons: [
           {
             label: 'OK',
@@ -94,6 +96,7 @@ export default {
               await StepService.remove(stepId)
               let removedStepIndex = _this.stepList.map(function(e) { return e._id; }).indexOf(stepId)
               _this.stepList.splice(removedStepIndex, 1)
+              await this.reindexSteps()
               closeThis()
             }
           },
@@ -102,6 +105,13 @@ export default {
           }
         ]
       })
+    },
+    // do not break step numbers sequence 1, 2, 3... when some steps are reordered or removed
+    async reindexSteps() {
+      for (let i = 0; i < this.stepList.length; i++) {
+        let step = this.stepList[i]
+        await StepService.save({ _id: step._id, number: i + 1 })
+      }
     }
   }
 }

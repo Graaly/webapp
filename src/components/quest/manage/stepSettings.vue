@@ -53,11 +53,17 @@
     <div v-if="stepType.code == 'geolocation'" class="location-gps">
       <!-- TODO: select location on GoogleMap -->
       <p>Coordonnées GPS</p>
-      <p class="location-gps-inputs">
-        <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML input -->
-        <input type="number" stack-label="Latitude" v-model.number="form.answerCoordinates.lat" placeholder="par ex. 5,65487" step="any" />
-        <input type="number" stack-label="Longitude" v-model.number="form.answerCoordinates.lng" placeholder="par ex. 45,49812" step="any" />
-      </p>
+      <div class="location-gps-inputs">
+        <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
+        <div>
+          <label for="anwser-latitude">Latitude</label>
+          <input type="number" id="anwser-latitude" v-model.number="form.answerCoordinates.lat" placeholder="par ex. 5,65487" step="any" />
+        </div>
+        <div>
+          <label for="anwser-longitude">Longitude</label>
+          <input type="number" id="anwser-longitude" v-model.number="form.answerCoordinates.lng" placeholder="par ex. 45,49812" step="any" />
+        </div>
+      </div>
       <q-checkbox v-model="form.showDistanceToTarget" label="Afficher la distance avec le lieu" />
       <q-checkbox v-model="form.showDirectionToTarget" label="Afficher la flèche de direction" />
     </div>
@@ -185,6 +191,7 @@ import { QCheckbox, QUploader, Toast } from 'quasar'
 import { required } from 'vuelidate/lib/validators'
 import stepTypes from 'data/stepTypes.json'
 import StepService from 'services/StepService'
+import QuestService from 'services/QuestService'
 //import QuestService from 'services/QuestService'
 export default {
   components: {
@@ -193,6 +200,8 @@ export default {
   data() {
     return {
       questId: null,
+      stepId: null,
+      isEdition: this.$route.params.hasOwnProperty('stepId'),
       form: {
         title: '',
         text: null,
@@ -210,7 +219,8 @@ export default {
         wrongAnwserAnimation: {
           type: 'none'
         },
-        hint: ''
+        hint: '',
+        number: null
       },
       stepType: {
         code: null
@@ -242,16 +252,35 @@ export default {
     }
   },
   async mounted() {
+    if (this.isEdition) {
+      this.stepId = this.$route.params.stepId
+      this.form = await StepService.getById(this.stepId)
+      
+      // apply specific field changes from DB to form
+      if (this.form.type === 'geolocation') {
+        this.form.answerCoordinates = this.form.answers
+      } else if (this.form.type === 'choose') {
+        this.rightAnswerIndex = this.form.answers.map(answer => answer.isRightAnswer).indexOf(true)
+      }
+      
+      this.questId = this.form.questId
+      this.$store.dispatch('setCurrentEditedStep', { type: stepTypes.find(type => type.code === this.form.type) })
+      let res = await QuestService.getById(this.questId)
+      this.$store.dispatch('setCurrentEditedQuest', res.data)
+    }
+    
     this.stepType = this.$store.state.currentEditedStep.type
-    this.questId = this.$store.state.currentEditedQuest.id
+    this.questId = this.$store.state.currentEditedQuest._id
     
     // dispatch specific title for other app components
     this.$store.dispatch('setTitle', this.stepType.title)
     
-    this.stepNumber = (await StepService.count({ questId: this.questId })) + 1
+    if (this.form.number === null) {
+      this.form.number = (await StepService.count({ questId: this.questId })) + 1
+    }
     
     if (this.form.title === '') {
-      this.form.title = 'Niveau ' + this.stepNumber
+      this.form.title = 'Niveau ' + this.form.number
     }
     
     // TODO: adapt when image type answers will be allowed
@@ -275,14 +304,13 @@ export default {
       await StepService.save(Object.assign(this.form, {
         questId: this.questId,
         type: this.stepType.code === 'choose' ? 'choose-text' : this.stepType.code,
-        number: this.stepNumber,
         textPosition: 'top', // tmp
         audioStream: null // tmp
       }))
       
       Toast.create.positive('Etape enregistrée.')
-      this.$router.push('/quest/create/step/list')
-      this.$store.dispatch('saveQuestStepType', null)
+      this.$router.push('/quest/edit/step/list')
+      this.$store.dispatch('setCurrentEditedStep', null)
     },
     
     // for 'choose' step type
@@ -307,7 +335,6 @@ export default {
         return
       }
       var data = new FormData()
-      console.log('file', files[0])
       data.append('image', files[0])
       let uploadResult = await StepService.uploadBackgroundImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {

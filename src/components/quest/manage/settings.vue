@@ -117,7 +117,7 @@ export default {
         // save to DB
         let res = await QuestService.save(newQuest)
         // retrieve new quest ID and save it into store
-        this.$store.dispatch('newQuestCreated', res.data._id)
+        this.$store.dispatch('setCurrentEditedQuest', res.data)
         Toast.create.positive('Nouvelle enquête créée')
         this.$router.push('/quest/create/step/type')
       }

@@ -1,5 +1,4 @@
 import Api from 'services/Api'
-import utils from 'src/includes/utils'
 
 export default {
   async getOne (params) {
@@ -8,12 +7,17 @@ export default {
   },
   
   async get (params) {
-    let res = await Api().get('steps?' + utils.encodeQueryData(params))
+    let res = await Api().get('steps', { params: params })
+    return res.data
+  },
+  
+  async getById (id) {
+    let res = await Api().get('steps/' + id)
     return res.data
   },
   
   async count(params) {
-    let res = await Api().get('steps/count?' + utils.encodeQueryData(params))
+    let res = await Api().get('steps/count', { params: params })
     return res.data.count
   },
   
@@ -28,13 +32,11 @@ export default {
   
   // upload a background image for step
   uploadBackgroundImage(questId, data) {
-    console.log('uploadBackgroundImage', data)
     return Api().post('/quest/' + questId + '/step/background/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
   },
   
   // upload a video for 'info-video' step
   uploadVideo(questId, data) {
-    console.log('uploadVideo', data)
     return Api().post('/quest/' + questId + '/step/video/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
   }
 }

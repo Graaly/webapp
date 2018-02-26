@@ -1,8 +1,8 @@
 import Api from 'services/Api'
 
 export default {
-  getList () {
-    return Api().get('quests')
+  getList (params) {
+    return Api().get('quests', { params: params })
   },
   
   getById (id) {

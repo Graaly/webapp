@@ -563,6 +563,7 @@ export default {
     margin: 0;
     box-shadow: 0px 0px 0.1rem 0.1rem #fff;
   }
+  .text { white-space: pre-wrap; }
     
   .q-btn, audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
   
