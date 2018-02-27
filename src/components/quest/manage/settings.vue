@@ -109,6 +109,9 @@ export default {
     }
   },
   async mounted() {
+    // force clean current modified step in store
+    this.$store.dispatch('setCurrentEditedStep', null)
+    
     if (this.isEdition) {
       if (!this.$store.state.currentEditedQuest || !this.$store.state.currentEditedQuest._id) {
         return utils.handleError('current edited quest not found')
