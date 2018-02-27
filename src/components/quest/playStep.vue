@@ -590,7 +590,7 @@ export default {
   /* keypad specific (code) */
   
   .typedCode { text-align: center; margin: 1rem auto; }
-  .typedCode table { border-collapse: collapse; }
+  .typedCode table { border-collapse: collapse; background-color: rgba(255, 255, 255, 0.6); }
   .typedCode td { width: 2rem; height: 3rem; border: 1px solid black; vertical-align: middle; text-align: center; line-height: 3rem; }
   .typedCode td.typed { font-weight: bold; font-size: 1.7rem; }
   
@@ -608,6 +608,7 @@ export default {
   .geolocation video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
   .geolocation .direction-helper { flex-grow: 1; display: flex; flex-flow: column nowrap; }
   .geolocation .direction-helper canvas { width: 10rem; height: 10rem; margin: auto; margin-bottom: 0; }
+  .geolocation .text { margin-bottom: 0.5rem; }
   
   /* write-text specific */
   
