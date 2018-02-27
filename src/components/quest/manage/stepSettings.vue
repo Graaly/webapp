@@ -209,7 +209,7 @@ export default {
     return {
       questId: null,
       stepId: null,
-      isEdition: this.$route.params.hasOwnProperty('stepId'),
+      isEdition: false,
       form: {
         title: '',
         text: null,
@@ -246,7 +246,7 @@ export default {
         { type: 'text', label: 'Texte' }
       ],
             
-      // for 'choose' steps ('choose-text' and 'choose-image' steps in database)
+      // for 'choose' steps
       defaultNbAnswers: 4,
       minNbAnswers: 2,
       maxNbAnswers: 6,
@@ -260,19 +260,30 @@ export default {
     }
   },
   async mounted() {
-    if (this.isEdition) {
+    // step ID in route or in store ===> edition mode
+    if (this.$route.params.hasOwnProperty('stepId')) {
       this.stepId = this.$route.params.stepId
+      this.isEdition = true
+    } else if (this.$store.state.currentEditedStep && this.$store.state.currentEditedStep._id) {
+      this.stepId = this.$store.state.currentEditedStep._id
+      this.isEdition = true
+    }
+    
+    if (this.isEdition) {
       this.form = await StepService.getById(this.stepId)
       
       // apply specific field changes from DB to form
       if (this.form.type === 'geolocation') {
         this.form.answerCoordinates = this.form.answers
-      } else if (this.form.type === 'choose') {
+      } else if (this.form.type === 'choose' && Array.isArray(this.form.answers)) {
         this.rightAnswerIndex = this.form.answers.map(answer => answer.isRightAnswer).indexOf(true)
       }
       
       this.questId = this.form.questId
-      this.$store.dispatch('setCurrentEditedStep', { type: stepTypes.find(type => type.code === this.form.type) })
+      this.$store.dispatch('setCurrentEditedStep', {
+        _id: this.stepId,
+        type: stepTypes.find(type => type.code === this.form.type)
+      })
       let res = await QuestService.getById(this.questId)
       this.$store.dispatch('setCurrentEditedQuest', res.data)
     }
@@ -292,7 +303,7 @@ export default {
     }
     
     // TODO: adapt when image type answers will be allowed
-    if (this.stepType.code === 'choose') {
+    if (this.stepType.code === 'choose' && !Array.isArray(this.form.answers)) {
       this.form.answers = []
       for (let i = 0; i < this.defaultNbAnswers; i++) {
         this.form.answers.push({ text: 'réponse ' + (i + 1), isRightAnswer: false })
@@ -303,7 +314,6 @@ export default {
     
     async submit() {
       if (this.stepType.code === 'choose') {
-        // only choose-text for the moment
         this.form.answers[this.rightAnswerIndex].isRightAnswer = true
       }
       if (this.stepType.code === 'geolocation') {
@@ -311,7 +321,7 @@ export default {
       }
       await StepService.save(Object.assign(this.form, {
         questId: this.questId,
-        type: this.stepType.code === 'choose' ? 'choose-text' : this.stepType.code,
+        type: this.stepType.code,
         textPosition: 'top', // tmp
         audioStream: null // tmp
       }))

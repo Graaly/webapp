@@ -18,15 +18,16 @@
     </div>
     
     
-    <div class="choose" v-if="step.type == 'choose-text' || step.type == 'choose-image'">
+    <div class="choose" v-if="step.type == 'choose'">
       <div>
         <p class="text">{{ step.text }}</p>
       </div>
-      <div class="answers-text" v-if="step.type == 'choose-text'">
+      <div class="answers-text">
         <q-btn v-for="(answer, key) in step.answers" :key="key" class="full-width" :class="answer.class" :icon="answer.icon" @click="checkAnswer(key)" :disabled="playerResult !== null">
           {{ answer.text }}
         </q-btn>
       </div>
+      <!--
       <div class="answers-images" v-if="step.type == 'choose-image'">
         <div class="images-block">
           <div v-for="(answer, key) in step.answers" :key="key" :class="answer.class" @click="checkAnswer(key)">
@@ -35,6 +36,7 @@
           </div>
         </div>
       </div>
+      -->
       <div class="actions fixed-bottom">
         <q-btn v-show="step.hint && playerResult === null" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">Afficher un indice</q-btn>
       </div>
@@ -305,8 +307,7 @@ export default {
       }
       
       switch (this.step.type) {
-        case 'choose-text':
-        case 'choose-image':
+        case 'choose':
           // always highlight right answer
           let rightAnswerKey = this.getRightAnswerKey()
           let rightAnswer = this.step.answers[rightAnswerKey]

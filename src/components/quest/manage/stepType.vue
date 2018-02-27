@@ -17,6 +17,7 @@
 </template>
 
 <script>
+import StepService from 'services/StepService'
 import stepTypes from 'data/stepTypes.json'
 import stepTypeItem from '@/quest/manage/stepTypeItem'
 export default {
@@ -36,8 +37,12 @@ export default {
     filteredStepTypes(categoryCode) {
       return stepTypes.filter(stepType => stepType.category === categoryCode)
     },
-    selectStepType(stepType) {
-      this.$store.dispatch('setCurrentEditedStep', { type: stepType })
+    async selectStepType(stepType) {
+      // existing step ? save type change
+      if (this.$store.state.currentEditedStep && this.$store.state.currentEditedStep._id) {
+        await StepService.save({ _id: this.$store.state.currentEditedStep._id, type: stepType.code, answers: null })
+      }
+      this.$store.dispatch('setCurrentEditedStep', Object.assign({}, this.$store.state.currentEditedStep, { type: stepType }))
       this.$router.push('/quest/create/step/settings')
     }
   }

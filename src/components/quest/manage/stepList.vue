@@ -58,6 +58,9 @@ export default {
     }
   },
   async mounted() {
+    // force clean current modified step in store
+    this.$store.dispatch('setCurrentEditedStep', null)
+    
     if (this.$route.params.hasOwnProperty('questId')) {
       this.$store.dispatch('setCurrentEditedQuest', { _id: this.$route.params.questId })
     }
