@@ -20,7 +20,8 @@ const state = {
   },
   user: null,
   currentEditedQuest: null,
-  currentEditedStep: null
+  currentEditedStep: null,
+  errorMessage: null
 }
 
 // mutations are operations that actually mutates the state.
@@ -54,6 +55,9 @@ const mutations = {
   },
   setCurrentEditedStep(state, step) {
     state.currentEditedStep = step
+  },
+  setErrorMessage(state, message) {
+    state.errorMessage = message
   }
 }
 
@@ -81,7 +85,8 @@ const actions = {
   setDrawDirectionInterval: ({ commit }, intervalObject) => commit('setDrawDirectionInterval', intervalObject),
   // for quest creation/edition
   setCurrentEditedQuest: ({ commit }, quest) => commit('setCurrentEditedQuest', quest),
-  setCurrentEditedStep: ({ commit }, step) => commit('setCurrentEditedStep', step)
+  setCurrentEditedStep: ({ commit }, step) => commit('setCurrentEditedStep', step),
+  setErrorMessage: ({ commit }, message) => commit('setErrorMessage', message)
 }
 
 // getters are functions

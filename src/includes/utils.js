@@ -1,5 +1,15 @@
-var self = module.exports = {
-    
+import store from '../store'
+import router from '../router'
+
+var self = {
+  
+  // ----------- Error handling -------------
+  
+  handleError: (message) => {
+    store.dispatch('setErrorMessage', message)
+    router.push('/error')
+  },
+  
   // ----------- Forms related -------------
   
   /*
@@ -92,3 +102,5 @@ var self = module.exports = {
       return (brng + 360) % 360
   }
 }
+
+export default self

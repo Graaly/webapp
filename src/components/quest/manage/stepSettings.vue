@@ -182,8 +182,13 @@
     </div>
     
     <q-btn class="full-width" color="primary" @click="submit">Enregistrer l'étape</q-btn>
-    <div class="link-below-button" v-if="questId">
-      <router-link :to="{ path: '/quest/create/step/type' }">Retour au choix d'étape</router-link>
+    
+    <div class="link-below-button">
+      <router-link :to="{ path: '/quest/' + (isEdition ? 'edit' : 'create') + '/step/type' }">{{ isEdition ? "Changer de type d'étape" : "Retour au choix d'étape" }}</router-link>
+    </div>
+    
+    <div class="link-below-button" v-if="isEdition">
+      <router-link :to="{ path: '/quest/edit/step/list'}">Retour à la liste d'étapes</router-link>
     </div>
     
   </div>

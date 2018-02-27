@@ -26,6 +26,8 @@ import TeamMembersList from '@/team/membersList'
 import TeamNewsList from '@/team/newsList'
 import TeamChallengesList from '@/team/challengesList'
 
+import ErrorMessage from '@/errorMessage'
+
 import store from './store'
 
 Vue.use(VueRouter)
@@ -91,11 +93,11 @@ var router = new VueRouter({
       component: QuestManageWelcome
     },
     {
-      path: '/quest/(create|edit)/settings',
+      path: '/quest/:action(create|edit)/settings',
       component: QuestManageSettings
     },
     {
-      path: '/quest/create/step/type',
+      path: '/quest/:action(create|edit)/step/type',
       component: QuestManageStepType
     },
     {
@@ -107,7 +109,7 @@ var router = new VueRouter({
       component: QuestManageStepSettings
     },
     {
-      path: '/quest/(create|edit)/step/list',
+      path: '/quest/:action(create|edit)/step/list',
       component: QuestManageStepList
     },
     {
@@ -165,6 +167,10 @@ var router = new VueRouter({
       path: '/team/:id(\\w{24})/ranking',
       name: 'teamRankingList',
       component: TeamChallengesList
+    },
+    {
+      path: '/error',
+      component: ErrorMessage
     },
     {
       path: '*',

@@ -88,6 +88,8 @@ import utils from 'src/includes/utils'
 export default {
   data() {
     return {
+      questId: null,
+      isEdition: this.$route.params.action === 'edit',
       form: {
         title: '',
         category: '',
@@ -106,26 +108,56 @@ export default {
       levels: utils.buildOptionsForSelect(questLevels, { valueField: 'id', labelField: 'name' })
     }
   },
+  async mounted() {
+    if (this.isEdition) {
+      if (!this.$store.state.currentEditedQuest || !this.$store.state.currentEditedQuest._id) {
+        return utils.handleError('current edited quest not found')
+      }
+      this.questId = this.$store.state.currentEditedQuest._id
+      let res = await QuestService.getById(this.questId)
+      this.form = res.data
+      
+      // adapt data from DB to match form data structure
+      if (this.form.location.hasOwnProperty('coordinates') && this.form.location.coordinates.length === 2) {
+        let coordinates = this.form.location.coordinates
+        this.form.location = { lng: coordinates[0], lat: coordinates[1] }
+      }
+    }
+  },
   methods: {
     async submit() {
       this.$v.form.$touch()
       if (!this.$v.form.$error) {
-        let newQuest = Object.assign(this.form, {
+        let commonProperties = {
           'rating': 3, // tmp
           'availablePoints': 120, // tmp
-          'dateCreated': new Date(),
-          'authorUserId': this.$store.state.user._id,
-          'status': 'unpublished',
-          'languages': [this.form.mainLanguage],
+          'dateCreated': null,
           'dateUpdated': null,
+          'languages': [this.form.mainLanguage],
           'location': { type: 'Point', coordinates: [this.form.location.lng, this.form.location.lat] }
-        })
-        // save to DB
-        let res = await QuestService.save(newQuest)
+        }
+        
+        let specificProperties;
+        if (this.isEdition) {
+          specificProperties =  {
+            'dateUpdated': new Date()
+          }
+        } else {
+          specificProperties = {
+            'dateCreated': new Date(),
+            'authorUserId': this.$store.state.user._id,
+            'status': 'unpublished'
+          }
+        }
+        
+        let quest = Object.assign({}, this.form, commonProperties, specificProperties)
+        // save to DB (or update, if property '_id' is defined)
+        let res = await QuestService.save(quest)
         // retrieve new quest ID and save it into store
         this.$store.dispatch('setCurrentEditedQuest', res.data)
-        Toast.create.positive('Nouvelle enquête créée')
-        this.$router.push('/quest/create/step/type')
+        
+        Toast.create.positive(this.isEdition ? 'Enquête enregistrée' : 'Nouvelle enquête créée')
+        this.$router.push('/quest/'+(this.isEdition ? 'edit' : 'create')+'/step/type')
       }
     },
     async uploadImage(e) {

@@ -10,8 +10,8 @@
     
     <stepTypeItem v-for="stepType in filteredStepTypes('enigma')" :key="stepType.code" :stepType="stepType" @click.native="selectStepType(stepType)"></stepTypeItem>
     
-    <div class="link-below-button" v-if="questId != 0">
-      <router-link :to="{ path: '/quest/create/step/list'}">Retour à la liste des étapes</router-link>
+    <div class="link-below-button" v-if="$route.params.action === 'edit'">
+      <router-link :to="{ path: '/quest/edit/step/list'}">Retour à la liste d'étapes</router-link>
     </div>
   </div>
 </template>

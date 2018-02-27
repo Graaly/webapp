@@ -19,7 +19,7 @@
       </li>
     </ul>
     
-    <q-btn color="primary" icon="fa-plus-circle" @click="$router.push('/quest/create/step/type')">Ajouter une étape</q-btn>
+    <q-btn color="primary" icon="fa-plus-circle" @click="$router.push('/quest/edit/step/type')">Ajouter une étape</q-btn>
     
     <hr />
     
