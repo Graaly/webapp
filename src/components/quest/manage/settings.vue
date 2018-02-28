@@ -160,7 +160,7 @@ export default {
         this.$store.dispatch('setCurrentEditedQuest', res.data)
         
         Toast.create.positive(this.isEdition ? 'Enquête enregistrée' : 'Nouvelle enquête créée')
-        this.$router.push('/quest/'+(this.isEdition ? 'edit' : 'create')+'/step/type')
+        this.$router.push(this.isEdition ? '/quest/edit/step/list' : '/quest/create/step/type')
       }
     },
     async uploadImage(e) {

@@ -56,12 +56,12 @@
       <div class="location-gps-inputs">
         <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
         <div>
-          <label for="anwser-latitude">Latitude</label>
-          <input type="number" id="anwser-latitude" v-model.number="form.answerCoordinates.lat" placeholder="par ex. 5,65487" step="any" />
+          <label for="answer-latitude">Latitude</label>
+          <input type="number" id="answer-latitude" v-model.number="form.answerCoordinates.lat" placeholder="par ex. 5,65487" step="any" />
         </div>
         <div>
-          <label for="anwser-longitude">Longitude</label>
-          <input type="number" id="anwser-longitude" v-model.number="form.answerCoordinates.lng" placeholder="par ex. 45,49812" step="any" />
+          <label for="answer-longitude">Longitude</label>
+          <input type="number" id="answer-longitude" v-model.number="form.answerCoordinates.lng" placeholder="par ex. 45,49812" step="any" />
         </div>
       </div>
       <q-checkbox v-model="form.showDistanceToTarget" label="Afficher la distance avec le lieu" />
@@ -106,9 +106,15 @@
     </div>
     
     
-    <div v-if="stepType.code == 'image-recognition'">
-      Image à photographier
-      <!-- TODO -->
+    <div v-if="stepType.code == 'image-recognition'" class="image-recognition">
+      <q-btn class="full-width" type="button">
+        <label for="image-to-recognize">Télécharger l'image de l'objet à retrouver</label>
+        <input @change="uploadImageToRecognize" name="image-to-recognize" id="image-to-recognize" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+      </q-btn>
+      <div v-if="form.answers !== null">
+        <p>Image téléchargée :</p>
+        <img :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + form.answers" />
+      </div>
     </div>
     
     
@@ -156,9 +162,9 @@
     <p>Animation de réponse incorrecte</p>
     
     <q-list link>
-      <q-item tag="label" v-for="option in wrongAnwserAnimationList" :key="option.type">
+      <q-item tag="label" v-for="option in wrongAnswerAnimationList" :key="option.type">
         <q-item-side>
-          <q-radio v-model="form.wrongAnwserAnimation.type" :val="option.type" />
+          <q-radio v-model="form.wrongAnswerAnimation.type" :val="option.type" />
         </q-item-side>
         <q-item-main>
           <q-item-tile label>{{ option.label }}</q-item-tile>
@@ -167,8 +173,8 @@
     </q-list>
     
     <q-input
-      v-if="form.wrongAnwserAnimation.type === 'text'"
-      v-model="form.wrongAnwserAnimation.text"
+      v-if="form.wrongAnswerAnimation.type === 'text'"
+      v-model="form.wrongAnswerAnimation.text"
       type="textarea"
       float-label="Message en cas de mauvaise réponse"
       :max-height="100"
@@ -224,7 +230,7 @@ export default {
         trigger: {
           type: 'none'
         },
-        wrongAnwserAnimation: {
+        wrongAnswerAnimation: {
           type: 'none'
         },
         hint: '',
@@ -241,7 +247,7 @@ export default {
         { type: 'datetime', label: 'Date / heure' }
       ],
       
-      wrongAnwserAnimationList: [
+      wrongAnswerAnimationList: [
         { type: 'none', label: "Aucune (passer à l'étape suivante)" },
         { type: 'text', label: 'Texte' }
       ],
@@ -270,7 +276,7 @@ export default {
     }
     
     if (this.isEdition) {
-      this.form = await StepService.getById(this.stepId)
+      Object.assign(this.form, await StepService.getById(this.stepId))
       
       // apply specific field changes from DB to form
       if (this.form.type === 'geolocation') {
@@ -370,6 +376,18 @@ export default {
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.form.videoStream = uploadResult.data.file
       }
+    },
+    async uploadImageToRecognize(e) {
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadResult = await StepService.uploadImageToRecognize(this.questId, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        this.form.answers = uploadResult.data.file
+      }
     }
   },
   validations: {
@@ -396,6 +414,6 @@ p { margin-bottom: 0.5rem; }
 .answer .q-btn { padding: 0.3rem; margin: 0.2rem; }
 .add-answer { margin: 0.5rem auto; }
 
-.background-upload img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }
+.background-upload img, .image-recognition img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }
 
 </style>

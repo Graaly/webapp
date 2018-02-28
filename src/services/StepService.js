@@ -35,6 +35,11 @@ export default {
     return Api().post('/quest/' + questId + '/step/background/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
   },
   
+  // upload an image to recognize (for steps 'image-recognition')
+  uploadImageToRecognize(questId, data) {
+    return Api().post('/quest/' + questId + '/step/image-recognition/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+  },
+  
   // upload a video for 'info-video' step
   uploadVideo(questId, data) {
     return Api().post('/quest/' + questId + '/step/video/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
