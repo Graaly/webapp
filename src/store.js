@@ -31,21 +31,22 @@ const state = {
 // for debugging purposes.
 const mutations = {
   setTitle (state, newTitle) {
-    state.title = newTitle;
+    state.title = newTitle
   },
   resetTitle (state) {
-    state.title = state.defaultTitle;
+    state.title = state.defaultTitle
   },
   loginStart (state) {
-    state.loginPending = true;
+    state.loginPending = true
   },
   loginSuccess (state, user) {
-    state.isLoggedIn = true;
-    state.loginPending = false;
-    state.user = user;
+    state.isLoggedIn = true
+    state.loginPending = false
+    state.user = user
   },
   logout (state) {
-    state.isLoggedIn = false;
+    state.isLoggedIn = false
+    state.user = null
   },
   setDrawDirectionInterval (state, intervalObject) {
     state.questSteps.geolocation.drawDirectionInterval = intervalObject;

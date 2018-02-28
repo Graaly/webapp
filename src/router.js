@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
+import AuthService from './services/AuthService'
+
 import QuestSearchMap from '@/quest/searchMap'
 import QuestSearchText from '@/quest/searchText'
 import QuestPlayHome from '@/quest/playHome'
@@ -189,9 +191,9 @@ router.beforeEach((to, from, next) => {
 // check if user is authenticated for specific routes
 // see https://forum.vuejs.org/t/how-to-set-up-a-global-middleware-or-a-route-guard-to-vue-router-js-help
 // see https://medium.com/front-end-hacking/persisting-user-authentication-with-vuex-in-vue-b1514d5d3278
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   if (!to.meta.hasOwnProperty('requiresAuth') || to.meta.requiresAuth) {
-    // this route requires auth, check if logged in
+    // this route requires auth, check if user is logged in.
     // if not, redirect to login page.
     if (!store.state.isLoggedIn || store.state.user === null || !store.state.user.hasOwnProperty('_id')) {
       next({
@@ -199,9 +201,22 @@ router.beforeEach((to, from, next) => {
         query: { redirect: to.fullPath }
       })
     } else {
-      next()
+      // call '/account'. if it returns a 404 error, user is not authenticated
+      // => redirect to '/user/login' & clear store data
+      let authRes = await AuthService.getAccount()
+      if (authRes.status === 404) {
+        // data in Vue store tells user is logged in, but '/account' call tells user is not authenticated => session has expired
+        store.dispatch('logout')
+        next({
+          path: '/user/login',
+          query: { redirect: to.fullPath }
+        })
+      } else {
+        next()
+      }
     }
   } else {
+    // authentication not required for this route
     next()
   }
 })
