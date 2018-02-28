@@ -84,7 +84,7 @@
         <p class="text">{{ step.text }}</p>
       </div>
       <div class="photo">
-        <img ref="original-photo" :src="step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
+        <img ref="original-photo" :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
         <video ref="camera-stream-for-recognition" v-show="cameraStreamEnabled"></video>
         <canvas ref="photo-buffer" class="hidden"></canvas>
         <img ref="player-photo" v-show="photoTaken" alt="The screen capture will appear in this box." />
@@ -437,14 +437,24 @@ export default {
         this.$refs['player-photo'].setAttribute('src', data)
         this.stopVideoTracks()
         
-        let originalPhoto = document.createElement('canvas')
-        originalPhoto.width = this.$refs['original-photo'].naturalWidth
-        originalPhoto.height = this.$refs['original-photo'].naturalHeight
-        originalPhoto.getContext('2d').drawImage(this.$refs['original-photo'], 0, 0, originalPhoto.width, originalPhoto.height)
+        let canvasOriginalPhoto = document.createElement('canvas')
         
-        this.playerResult = simi.compare(photoBuffer, originalPhoto) >= this.photoComparisonThreshold
+        // reload original photo with attribute 'crossorigin' to 'anonymous' to avoid cross-origin
+        // security error with 'tainted canvas' ; see https://stackoverflow.com/a/18475559/488666
         
-        this.photoTaken = true
+        let imgOriginalPhoto = new Image()
+        imgOriginalPhoto.crossOrigin = "anonymous";
+        imgOriginalPhoto.src = this.serverUrl + '/upload/quest/' + this.questId + '/step/image-recognition/' + this.step.answers
+        
+        imgOriginalPhoto.onload = () => {
+          canvasOriginalPhoto.width = imgOriginalPhoto.naturalWidth
+          canvasOriginalPhoto.height = imgOriginalPhoto.naturalHeight
+          canvasOriginalPhoto.getContext('2d').drawImage(imgOriginalPhoto, 0, 0, canvasOriginalPhoto.width, canvasOriginalPhoto.height)
+          
+          this.playerResult = simi.compare(photoBuffer, canvasOriginalPhoto) >= this.photoComparisonThreshold
+          
+          this.photoTaken = true
+        }
       }
     },
     
