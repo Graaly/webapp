@@ -22,21 +22,19 @@
       <div>
         <p class="text">{{ step.text }}</p>
       </div>
-      <div class="answers-text">
+      <div class="answers-text" v-if="answerType === 'text'">
         <q-btn v-for="(answer, key) in step.answers" :key="key" class="full-width" :class="answer.class" :icon="answer.icon" @click="checkAnswer(key)" :disabled="playerResult !== null">
           {{ answer.text }}
         </q-btn>
       </div>
-      <!--
-      <div class="answers-images" v-if="step.type == 'choose-image'">
+      <div class="answers-images" v-if="answerType === 'image'">
         <div class="images-block">
           <div v-for="(answer, key) in step.answers" :key="key" :class="answer.class" @click="checkAnswer(key)">
-            <img :src="answer.imagePath" :class="answer.class" />
+            <img :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + answer.imagePath" :class="answer.class" />
             <q-btn v-if="answer.class !== null" round :class="answer.class" :icon="answer.icon" disable />
           </div>
         </div>
       </div>
-      -->
       <div class="actions fixed-bottom">
         <q-btn v-show="step.hint && playerResult === null" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">Afficher un indice</q-btn>
       </div>
@@ -160,6 +158,9 @@ export default {
       questId: this.$route.params.questId,
       serverUrl: process.env.SERVER_URL,
       
+      // for step 'choose'
+      answerType: 'text', // 'text' or 'image'
+      
       // for step type 'code-keypad'
       playerCode: [],
       keypad: [
@@ -212,6 +213,10 @@ export default {
         } else {
           background.style.background = 'none'
           background.style.backgroundColor = '#fff'
+        }
+        
+        if (this.step.type === 'choose') {
+          this.answerType = Array.isArray(this.step.answers) && this.step.answers[0].hasOwnProperty('imagePath') && this.step.answers[0].imagePath !== null ? 'image' : 'text'
         }
         
         if (this.step.type === 'code-keypad') {

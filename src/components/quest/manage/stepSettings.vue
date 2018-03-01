@@ -69,12 +69,23 @@
     </div>
     
     <div v-if="stepType.code == 'choose'">
-      <p>Réponses possibles :</p>
+      
+      <h2>Types de réponse</h2>
+      <q-radio v-model="answerType" val="text" label="Textes" />
+      <q-radio v-model="answerType" val="image" label="Images" />
+        
+      <h2>Réponses possibles</h2>
       <p>Sélectionnez la bonne réponse à l'aide des boutons radio.</p>
       <!-- TODO allow to choose between text / image answers -->
       <div class="answer" v-for="(answer, key) in form.answers" :key="key">
         <q-radio v-model="rightAnswerIndex" :val="key" />
-        <q-input v-model="answer.text" />
+        <q-input v-show="answerType === 'text'" v-model="answer.text" />
+        <p v-show="answerType === 'image' && answer.imagePath === null">Aucune image téléchargée</p>
+        <p><img v-show="answerType === 'image' && answer.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + answer.imagePath" /></p>
+        <q-btn v-show="answerType === 'image'">
+          <label :for="'answerImage' + key"><q-icon name="file upload" /></label>
+          <input @change="uploadAnswerImage(key, $event)" :name="'answerImage' + key" :id="'answerImage' + key" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+        </q-btn>
         <q-btn @click="deleteAnswer(key)">
           <q-icon name="clear" />
         </q-btn>
@@ -253,6 +264,7 @@ export default {
       ],
             
       // for 'choose' steps
+      answerType: 'text',
       defaultNbAnswers: 4,
       minNbAnswers: 2,
       maxNbAnswers: 6,
@@ -308,11 +320,16 @@ export default {
       this.form.title = 'Niveau ' + this.form.number
     }
     
-    // TODO: adapt when image type answers will be allowed
-    if (this.stepType.code === 'choose' && !Array.isArray(this.form.answers)) {
-      this.form.answers = []
-      for (let i = 0; i < this.defaultNbAnswers; i++) {
-        this.form.answers.push({ text: 'réponse ' + (i + 1), isRightAnswer: false })
+    if (this.stepType.code === 'choose') {
+      if (!Array.isArray(this.form.answers)) {
+        this.answerType = 'text'
+        this.form.answers = []
+        for (let i = 0; i < this.defaultNbAnswers; i++) {
+          this.form.answers.push({ text: 'réponse ' + (i + 1), imagePath: null, isRightAnswer: false })
+        }
+      } else {
+        this.answerType = this.form.answers[0].hasOwnProperty('imagePath') && this.form.answers[0].imagePath !== null ? 'image' : 'text'
+        console.log(this.answerType)
       }
     }
   },
@@ -320,7 +337,12 @@ export default {
     
     async submit() {
       if (this.stepType.code === 'choose') {
+        this.form.answers = this.form.answers.map((answer) => { answer.isRightAnswer = false; return answer })
         this.form.answers[this.rightAnswerIndex].isRightAnswer = true
+        if (this.answerType === 'text') {
+          // clear all images => playStep.vue will consider that player should choose between text options
+          this.form.answers = this.form.answers.map((answer) => { answer.imagePath = null; return answer })
+        }
       }
       if (this.stepType.code === 'geolocation') {
         this.form.answers = this.form.answerCoordinates
@@ -388,6 +410,18 @@ export default {
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.form.answers = uploadResult.data.file
       }
+    },
+    async uploadAnswerImage(key, e) {
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadResult = await StepService.uploadAnswerImage(this.questId, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        this.form.answers[key].imagePath = uploadResult.data.file
+      }
     }
   },
   validations: {
@@ -408,8 +442,9 @@ p { margin-bottom: 0.5rem; }
 .q-item { padding-top: 0; padding-bottom: 0; min-height: 2rem; }
 .q-list { padding-top: 0; }
 
-.answer { display: flex; flex-flow: row nowrap; }
+.answer { display: flex; flex-flow: row nowrap; align-items: center; }
 .answer .q-input { flex-grow: 1 }
+.answer p { flex-grow: 1; margin: auto; }
 .answer .q-radio { padding: 0.5rem; }
 .answer .q-btn { padding: 0.3rem; margin: 0.2rem; }
 .add-answer { margin: 0.5rem auto; }
