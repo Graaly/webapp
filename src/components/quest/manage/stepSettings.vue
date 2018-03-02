@@ -354,6 +354,13 @@ export default {
         audioStream: null // tmp
       }))
       
+      if (!this.isEdition && (!this.form.hasOwnProperty('_id') || this.form._id === null) && this.stepType.category === 'enigma') {
+        // creation of step of category 'enigma' => add +10 points to quest.availablePoints
+        let res = await QuestService.getById(this.questId)
+        let quest = res.data
+        await QuestService.save({ _id: this.questId, availablePoints: quest.availablePoints + 10 })
+      }
+      
       Toast.create.positive('Etape enregistrée.')
       this.$router.push('/quest/edit/step/list')
       this.$store.dispatch('setCurrentEditedStep', null)

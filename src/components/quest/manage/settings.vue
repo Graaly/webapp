@@ -133,7 +133,6 @@ export default {
       if (!this.$v.form.$error) {
         let commonProperties = {
           'rating': 3, // tmp
-          'availablePoints': 120, // tmp
           'dateCreated': null,
           'dateUpdated': null,
           'languages': [this.form.mainLanguage],
@@ -147,6 +146,7 @@ export default {
           }
         } else {
           specificProperties = {
+            'availablePoints': 0,
             'dateCreated': new Date(),
             'authorUserId': this.$store.state.user._id,
             'status': 'unpublished'

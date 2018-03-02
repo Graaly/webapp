@@ -29,6 +29,12 @@ export default {
   modifyAccount(data) {
     return Api().post('user/modify', data)  
   },
+  
+  // add points to a user when quest is finished
+  addPoints(nbPoints) {
+    return Api().post('user/addPoints', { nbPoints: nbPoints })  
+  },
+  
   //upload a user picture
   uploadAccountPicture(data) {
     return Api().post('/user/picture/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  

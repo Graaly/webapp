@@ -3,13 +3,19 @@
     <div class="end-header">Bravo ! Cette affaire est maintenant classée.</div>
     
     <div class="end-body">
-      <div class="result">
+      <div class="result" v-if="!isRunFinished">
         <p>Vous gagnez</p>
         <div class="result-score">
-          <div>{{ totalScore }}</div>
+          <div>{{ run.score }}</div>
           <div><img src="/statics/icons/game/medal.png" /></div>
         </div>
         <router-link to="/help/points">Que faire avec ces points ?</router-link>
+      </div>
+      <div v-if="isRunFinished">
+        <p>
+          Cette enquête ne vous rapporte plus de points.<br />
+          Pour en gagner, <router-link to="/quest/search/map">cherchez-en</router-link> ou <router-link to="/quest/create">crééz-en</router-link> d'autres !
+        </p>
       </div>
       
       <div class="rating">
@@ -17,7 +23,7 @@
         <q-rating v-model="rating" :max="5" size="2rem" />
       </div>
       
-      <div class="share">
+      <div class="share" v-if="!isRunFinished">
         <p>Partagez votre réussite !</p>
         <ul>
           <li><img src="/statics/icons/social-networks/facebook.png"></li>
@@ -36,6 +42,8 @@
 
 <script>
 import { QRating } from 'quasar'
+import AuthService from 'services/AuthService'
+import RunService from 'services/RunService'
 export default {
   components: {
     QRating
@@ -43,13 +51,29 @@ export default {
   data() {
     return {
       title: 'Enquête réussie',
-      totalScore: 770,
-      rating: 0
+      rating: 0,
+      run: {
+        score: 0
+      },
+      isRunFinished: true
     }
   },
-  mounted () {
+  async mounted () {
     // dispatch specific title for other app components
     this.$store.dispatch('setTitle', this.$data.title);
+    
+    if (this.$store.state.currentRun !== null) {
+      let res = await RunService.getById(this.$store.state.currentRun._id)
+      this.run = res.data
+      this.isRunFinished = this.run.status === 'finished'
+      
+      await RunService.save({ _id: this.run._id, status: 'finished' })
+      
+      // TODO to avoid cheating, points assignments to a player must be done on server side
+      await AuthService.addPoints(this.run.score)
+      
+      this.$store.dispatch('setCurrentRun', null)
+    }
   }
 }
 </script>
