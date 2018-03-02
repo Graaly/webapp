@@ -81,7 +81,7 @@
         <q-radio v-model="rightAnswerIndex" :val="key" />
         <q-input v-show="answerType === 'text'" v-model="answer.text" />
         <p v-show="answerType === 'image' && answer.imagePath === null">Aucune image téléchargée</p>
-        <p><img v-show="answerType === 'image' && answer.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + answer.imagePath" /></p>
+        <p><img v-if="answerType === 'image' && answer.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + answer.imagePath" /></p>
         <q-btn v-show="answerType === 'image'">
           <label :for="'answerImage' + key"><q-icon name="file upload" /></label>
           <input @change="uploadAnswerImage(key, $event)" :name="'answerImage' + key" :id="'answerImage' + key" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
@@ -291,7 +291,7 @@ export default {
       Object.assign(this.form, await StepService.getById(this.stepId))
       
       // apply specific field changes from DB to form
-      if (this.form.type === 'geolocation') {
+      if (this.form.type === 'geolocation' && this.form.answers !== null && this.form.answers.hasOwnProperty('lat') && this.form.answers.hasOwnProperty('lng')) {
         this.form.answerCoordinates = this.form.answers
       } else if (this.form.type === 'choose' && Array.isArray(this.form.answers)) {
         this.rightAnswerIndex = this.form.answers.map(answer => answer.isRightAnswer).indexOf(true)
@@ -329,7 +329,6 @@ export default {
         }
       } else {
         this.answerType = this.form.answers[0].hasOwnProperty('imagePath') && this.form.answers[0].imagePath !== null ? 'image' : 'text'
-        console.log(this.answerType)
       }
     }
   },
