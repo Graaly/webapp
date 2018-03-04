@@ -19,38 +19,38 @@
         <q-list no-border link v-if="">
           <q-side-link item to="/home" v-if="isLoggedIn">
             <q-item-side icon="location on" />
-            <q-item-main label="Carte des enquêtes" />
+            <q-item-main :label="$t('message.QuestsMap')" />
           </q-side-link>
           <q-side-link item :to="'/team/' + user.team.currentId + '/members'" v-if="isLoggedIn">
             <q-item-side icon="group" />
-            <q-item-main label="Mon agence" />
+            <q-item-main :label="$t('message.MyAgency')" />
           </q-side-link>
           <q-side-link item to="/user/profile/me" v-if="isLoggedIn">
             <q-item-side icon="account circle" />
-            <q-item-main label="Mon profil" />
+            <q-item-main :label="$t('message.MyProfile')" />
           </q-side-link>
           <q-side-link item to="/quest/create" v-if="isLoggedIn">
             <q-item-side icon="fa-magic" />
-            <q-item-main label="Créer une enquête" />
+            <q-item-main :label="$t('message.CreateAQuest')" />
           </q-side-link>
           <q-side-link item to="/user/login" v-if="!isLoggedIn">
             <q-item-side icon="vpn key" />
-            <q-item-main label="Connexion" />
+            <q-item-main :label="$t('message.Connection')" />
           </q-side-link>
           <q-side-link item to="/user/createAccount" v-if="!isLoggedIn">
             <q-item-side icon="vpn key" />
-            <q-item-main label="Créer un compte" />
+            <q-item-main :label="$t('message.SignUp')" />
           </q-side-link>
           <q-side-link item to="/user/logout" v-if="isLoggedIn">
             <q-item-side icon="power settings new" />
-            <q-item-main label="Déconnexion" />
+            <q-item-main :label="$t('message.SignOut')" />
           </q-side-link>
         </q-list>
           
       </div>
       <div class="row-auto">
         <form v-on:submit.prevent="$router.push('/quest/search/text/' + searchText)">
-          <q-search v-show="displaySearch" v-model="searchText" placeholder="Chercher des enquêtes" />
+          <q-search v-show="displaySearch" v-model="searchText" :placeholder="$t('message.SearchForAQuest')" />
         </form>
       </div>
       <!-- sub-routes get injected here: -->
@@ -101,6 +101,9 @@ export default {
       let response = await AuthService.getAccount()
       if (response.data && response.data.name) {
         this.user = response.data
+        
+        // set the user language
+        this.$i18n.locale = this.user.language 
       }
     },
     submitSearch() {

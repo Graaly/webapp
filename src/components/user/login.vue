@@ -2,7 +2,8 @@
   
   <div class="wrapper">
     <div class="page-content top-padding-middle">
-      <h1 class="text-center">Connectez-vous<br/>pour commencer l'aventure !</h1>
+      
+      <h1 class="text-center">{{ $t('message.SignIn') }}<br/>{{ $t('message.toStartTheAdventure') }}</h1>
     
       <div>
         <q-btn @click="facebookLogin" class="full-width" color="facebook" icon="fa-facebook-official">Facebook</q-btn>
@@ -11,31 +12,31 @@
     
       <form @submit.prevent="login()">
       
-        <p>Ou connectez-vous avec votre compte Graaly :</p>
+        <p>{{ $t('message.orSignInWithYourGraalyAccount') }} :</p>
       
         <q-field :error="$v.form.email.$error">
-          <q-input type="email" float-label="Votre email" v-model="form.email" @blur="$v.form.email.$touch" />
+          <q-input type="email" :float-label="$t('message.YourEmail')" v-model="form.email" @blur="$v.form.email.$touch" />
           <div class="q-field-bottom" v-if="$v.form.email.$error">
-            <div class="q-field-error" v-if="!$v.form.email.required">Veuillez saisir votre adresse email.</div>
-            <div class="q-field-error" v-if="!$v.form.email.email">Veuillez saisir une adresse email valide.</div>
+            <div class="q-field-error" v-if="!$v.form.email.required">{{ $t('message.PleaseEnterYourEmailAddress') }}</div>
+            <div class="q-field-error" v-if="!$v.form.email.email">{{ $t('message.PleaseEnterAValidEmailAddress') }}</div>
           </div>
         </q-field>
       
         <q-field :error="$v.form.password.$error">
-          <q-input type="password" v-model="form.password" float-label="Votre mot de passe"  @blur="$v.form.password.$touch" />
+          <q-input type="password" v-model="form.password" :float-label="$t('message.YourPassword')"  @blur="$v.form.password.$touch" />
           <div class="q-field-bottom" v-if="$v.form.password.$error">
-            <div class="q-field-error" v-if="!$v.form.password.required">Veuillez saisir votre mot de passe.</div>
+            <div class="q-field-error" v-if="!$v.form.password.required">{{ $t('message.PleaseEnterYourPassword') }}</div>
           </div>
         </q-field>
       
-        <q-btn color="primary" class="full-width">Commencer l'aventure</q-btn>
+        <q-btn color="primary" class="full-width">{{ $t('message.StartTheAventure') }}</q-btn>
       </form>
     
       <div class="link-below-button">
-        <router-link :to="{ path: '/user/createAccount' }">Créer un compte</router-link>
+        <router-link :to="{ path: '/user/createAccount' }">{{ $t('message.CreateAnAccount') }}</router-link>
       </div>
       <div class="link-below-button">
-        <router-link :to="{ path: '/user/forgottenPassword' }">Mot de passe oublié ?</router-link>
+        <router-link :to="{ path: '/user/forgottenPassword' }">{{ $t('message.ForgottenPassword') }}</router-link>
       </div>
     </div>
   </div>
@@ -53,7 +54,6 @@ export default {
   },
   data() {
     return {
-      title: 'Connexion',
       form: {
         email: '',
         password: ''
@@ -63,8 +63,8 @@ export default {
   },
   mounted () {
     // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', this.$data.title);
-    
+    this.$store.dispatch('setTitle', this.$t('message.Connection'));
+     
     // check if user is redirected to this page to validate his account
     if (this.$route.query.email && this.$route.query.code) {
       this.validateAccount(this.$route.query.email, this.$route.query.code)
@@ -90,9 +90,9 @@ export default {
           this.$router.push(destination)
         }).catch((err) => {
           if (err.hasOwnProperty('response') && err.response.status === 401) {
-            Toast.create('Indentifiants incorrects, veuillez réessayer')
+            Toast.create(this.$t('message.IncorrectLoginPleaseRetry'))
           } else {
-            Toast.create('Une erreur est survenue, veuillez contacter le support')
+            Toast.create(this.$t('message.ErrorStandardMessage'))
             console.log(err)
           }
         });
@@ -104,7 +104,7 @@ export default {
       if (validateAccountStatus.status >= 300 && validateAccountStatus.data && validateAccountStatus.data.message) {
         Toast.create(validateAccountStatus.data.message)
       } else {
-        Toast.create['positive']({html: 'Votre compte est maintenant validé'})
+        Toast.create['positive']({html: this.$t('message.YourAccountIsNowValidated')})
       }
     },
     async validateTeamInvitation(email, code) {
@@ -113,7 +113,7 @@ export default {
       if (validateTeamInvitationStatus.status >= 300 && validateTeamInvitationStatus.data && validateTeamInvitationStatus.data.message) {
         Toast.create(validateTeamInvitationStatus.data.message)
       } else {
-        Toast.create['positive']({html: 'Vous avez maintenant rejoint la nouvelle équipe'})
+        Toast.create['positive']({html: this.$t('message.YourHaveJoinedTheNewTeam')})
       }
     },
     alert(msg) {

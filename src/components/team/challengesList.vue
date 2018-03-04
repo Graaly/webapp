@@ -25,19 +25,30 @@
     </q-tabs>
     
     <div class="tab-content">
-        <p><q-btn link class="full-width" @click="inviteFriend()" color="primary">Inviter un ami</q-btn></p>
     
-        <h2>Membres de mon agence</h2>
+        <h2>Défis à relever par mon équipe</h2>
         
-        <q-list highlight>
-          <q-item v-for="member in team.members" :key="member._id">
-            <q-item-side :avatar="'/statics/profiles/' + member.picture" />
+        <q-list highlight separator class="challenges">
+          <q-item v-for="challenge in team.challenges" :key="challenge._id">
             <q-item-main>
-              <q-item-tile label>{{ member.name }}</q-item-tile>
-              <q-item-tile sublabel>{{ member.statistics.nbQuestsSuccessful }} enquêtes réussies | {{ member.statistics.nbQuestsCreated }} enquêtes créées</q-item-tile>
+              <q-item-tile label>{{ challenge.title }}</q-item-tile>
             </q-item-main>
-            <q-item-side right class="score">
-              {{ member.score }}
+            <q-item-side right v-if="challenge.status === 'won'">
+              <q-item-tile stamp>Réussi !</q-item-tile>
+              <q-item-tile v-if="memberOfTeam">
+                <q-btn color="primary" size="sm">Partager</q-btn>
+              </q-item-tile>
+            </q-item-side>
+            <q-item-side right v-if="challenge.status !== 'won'">
+              <q-item-tile stamp class="score">{{ challenge.points }}</q-item-tile>
+              <q-item-tile v-if="challenge.score < challenge.scoreToReach">
+                <div class="challenge-progression" :style="'background-size: ' + challenge.progress + '% 100%;'">
+                  {{ challenge.score }} / {{ challenge.scoreToReach }}
+                </div>
+              </q-item-tile>
+              <q-item-tile v-if="memberOfTeam && challenge.score >= challenge.scoreToReach">
+                <q-btn color="primary" size="sm" @click="validChallenge(challenge.refChallengeId)">Gagné !</q-btn>
+              </q-item-tile>
             </q-item-side>
           </q-item>
         </q-list>
@@ -51,13 +62,13 @@
 <script>
 import TeamService from 'services/TeamService'
 import AuthService from 'services/AuthService'
-import { Dialog, Toast } from 'quasar'
+//import { Toast } from 'quasar'
 
 export default {
   data () {
     return {
       title: 'Mon agence',
-      team: { profile: { statistics: {}, score: {} }, members: [] },
+      team: { profile: { statistics: {}, score: {} }, challenges: [], memberOfTeam: false },
       user: {name: "--", picture: "", id: ""}
     }
   },
@@ -66,7 +77,7 @@ export default {
     
     this.getTeam(this.$route.params.id)
     
-    this.getTeamMembers(this.$route.params.id)
+    this.getChallenges(this.$route.params.id)
   },
   methods: {
     async getAccountInformations() {
@@ -76,8 +87,10 @@ export default {
       if (this.user.team && this.user.team.currentId && this.user.team.currentId === this.$route.params.id) {
         // Set the page title = My agency / Competitor
         this.$store.dispatch('setTitle', 'Mon agence')
+        this.memberOfTeam = true
       } else {
         this.$store.dispatch('setTitle', 'Agence concurrente')
+        this.memberOfTeam = false
       }
     },
     async getTeam(id) {
@@ -88,38 +101,24 @@ export default {
       // compute the total score as the members score + team specific sore
       this.team.profile.score.total = this.team.profile.score.members + this.team.profile.score.challenges
     },
-    async getTeamMembers(id) {
-      // get the members list
-      let response = await TeamService.listMembers(id)
-      this.team.members = response.data      
-    },
-    openInviteFriendPopup () {
-      Dialog.create({
-        title: 'Inviter un ami',
-        message: "Veuillez entrer l'adresse email de la personne à inviter",
-        form: {
-          name: {
-            type: 'text',
-            label: 'Email',
-            model: ''
-          }
-        },
-        buttons: [
-          'Cancel',
-          {
-            label: 'Ok',
-            handler (data) {
-              Toast.create('Returned ' + JSON.stringify(data))
-            }
-          }
-        ]
-      })
-    },
-    async inviteFriend () {
-      let response = await TeamService.sendFriendInvitation({email: "eric.mathieu@kimind.com", teamId: this.$route.params.id})
+    async getChallenges(id) {
+      // get the challenges list
+      let response = await TeamService.listChallenges(id)
+      this.team.challenges = response.data   
       
-      console.log(response)      
-      Toast.create['positive']({html: 'Votre invitation est envoyée'})
+      for (var i = 0; i < this.team.challenges.length; i++) {
+        if (this.team.challenges[i].status !== 'won') {
+          this.team.challenges[i].progress = this.team.challenges[i].score === 0 ? 0 : Math.max(3, Math.floor(this.team.challenges[i].score * 100 / this.team.challenges[i].scoreToReach))
+        }
+      }
+    },
+    async validChallenge(challengeId) {
+      let response = await TeamService.validChallenge(this.$route.params.id, challengeId)
+      
+      if (response) {
+        this.getTeam(this.$route.params.id)
+        this.getChallenges(this.$route.params.id)
+      }
     }
   }
 }

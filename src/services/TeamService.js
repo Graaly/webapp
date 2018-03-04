@@ -21,6 +21,11 @@ export default {
     return Api().get('users/?team.currentId=' + id)
   },
   
+  // list a team challenges
+  listChallenges (id) {
+    return Api().get('team/' + id + '/challenges/list')
+  },
+  
   // list a team join requests based on team ID
   // TODO : display join requests only to users members of the team
   listJoinRequests (id) {
@@ -66,6 +71,10 @@ export default {
   // reject team join request
   rejectJoinRequest(userId, teamId) {
     return Api().get('team/' + teamId + '/join/reject/' + userId)
+  },
+  
+  validChallenge(teamId, challengeId) {
+    return Api().post('team/' + teamId + '/challenge/' + challengeId + '/validate')  
   }
   
 }

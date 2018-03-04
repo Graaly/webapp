@@ -29,6 +29,15 @@ Vue.use(VueGoogleMaps, {
 import Vuelidate from 'vuelidate'
 Vue.use(Vuelidate);
 
+import VueI18n from 'vue-i18n'
+import locales from './i18n/main.js'
+Vue.use(VueI18n)
+
+var i18n = new VueI18n({
+  locale: 'fr',
+  messages: locales
+});
+
 import Quasar, { 
   QBtn, 
   QField, 
@@ -96,6 +105,7 @@ import 'quasar-extras/material-icons'
 /* eslint-disable no-new */
 new Vue({
   el: '#q-app',
+  i18n: i18n,
   store,
   router: router,
   render: h => h(require('./App').default)

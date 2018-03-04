@@ -2,51 +2,51 @@
   
   <div class="wrapper">
     <div class="page-content top-padding-middle">
-      <h1 class="text-center">Inscrivez-vous<br />pour commencer l'aventure !</h1>
+      <h1 class="text-center">{{ $t('message.Subscribe') }}<br />{{ $t('message.toStartTheAdventure') }}</h1>
     
       <form @submit.prevent="submit()">
       
         <q-field :error="$v.form.email.$error">
-          <q-input type="email" float-label="Votre email" v-model="form.email" @blur="$v.form.email.$touch" />
+          <q-input type="email" :float-label="$t('message.YourEmail')" v-model="form.email" @blur="$v.form.email.$touch" />
           <div class="q-field-bottom" v-if="$v.form.email.$error">
-            <div class="q-field-error" v-if="!$v.form.email.required">Veuillez saisir votre adresse email.</div>
-            <div class="q-field-error" v-if="!$v.form.email.email">Veuillez saisir une adresse email valide.</div>
+            <div class="q-field-error" v-if="!$v.form.email.required">{{ $t('message.PleaseEnterYourEmailAddress') }}</div>
+            <div class="q-field-error" v-if="!$v.form.email.email">{{ $t('message.PleaseEnterAValidEmailAddress') }}</div>
           </div>
         </q-field>
       
         <q-field :error="$v.form.name.$error">
-          <q-input float-label="Votre nom" v-model="form.name" @blur="$v.form.name.$touch" />
+          <q-input :float-label="$t('message.YourName')" v-model="form.name" @blur="$v.form.name.$touch" />
           <div class="q-field-bottom" v-if="$v.form.name.$error">
-            <div class="q-field-error" v-if="!$v.form.name.required">Veuillez saisir votre nom.</div>
+            <div class="q-field-error" v-if="!$v.form.name.required">{{ $t('message.PleaseEnterYourName') }}</div>
           </div>
         </q-field>
       
         <q-field :error="$v.form.country.$error">
-          <q-select float-label="Votre pays" v-model="form.country" :options="countries" @blur="$v.form.country.$touch" />
+          <q-select :float-label="$t('message.YourCountry')" v-model="form.country" :options="countries" @blur="$v.form.country.$touch" />
           <div class="q-field-bottom" v-if="$v.form.country.$error">
-            <div class="q-field-error" v-if="!$v.form.country.required">Veuillez sélectionner votre pays.</div>
+            <div class="q-field-error" v-if="!$v.form.country.required">{{ $t('message.PleaseSelectYourCountry') }}</div>
           </div>
         </q-field>
       
         <q-field :error="$v.form.zipCode.$error">
-          <q-input float-label="Votre code postal" v-model="form.zipCode" />
+          <q-input :float-label="$t('message.YourZipCode')" v-model="form.zipCode" />
           <div class="q-field-bottom" v-if="$v.form.zipCode.$error">
-            <div class="q-field-error" v-if="!$v.form.zipCode.required">Veuillez entrer un code postal.</div>
+            <div class="q-field-error" v-if="!$v.form.zipCode.required">{{ $t('message.PleaseEnterYourZipCode') }}</div>
           </div>
         </q-field>
       
         <q-field :error="$v.form.password.$error">
-          <q-input type="password" v-model="form.password" float-label="Votre mot de passe"  @blur="$v.form.password.$touch" />
+          <q-input type="password" v-model="form.password" :float-label="$t('message.YourPassword')"  @blur="$v.form.password.$touch" />
           <div class="q-field-bottom" v-if="$v.form.password.$error">
-            <div class="q-field-error" v-if="!$v.form.password.required">Veuillez saisir votre mot de passe.</div>
+            <div class="q-field-error" v-if="!$v.form.password.required">{{ $t('message.PleaseEnterYourPassword') }}</div>
           </div>
         </q-field>
       
-        <q-btn color="primary" class="full-width">Commencer l'aventure</q-btn>
+        <q-btn color="primary" class="full-width">{{ $t('message.StartTheAventure') }}</q-btn>
       </form>
     
       <div class="link-below-button">
-        <router-link :to="{ path: '/user/login' }">Déjà inscrit ?</router-link>
+        <router-link :to="{ path: '/user/login' }">{{ $t('message.YouHaveAnAccount') }}</router-link>
       </div>
     </div>
   </div>
@@ -64,7 +64,6 @@ export default {
   },
   data () {
     return ({
-      title: 'Inscription',
       form: {
         email: '',
         name: '',
@@ -74,15 +73,15 @@ export default {
       },
       // TODO: retrieve real country list from server or .json file
       countries: [
-        { label: 'Belgique', value: 'belgium' },
-        { label: 'Espagne', value: 'spain' },
-        { label: 'France', value: 'france' }
+        { label: this.$t('Belgium'), value: 'belgium' },
+        { label: this.$t('Spain'), value: 'spain' },
+        { label: this.$t('France'), value: 'france' }
       ]
     })
   },
   mounted () {
     // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', this.$data.title);
+    this.$store.dispatch('setTitle', this.$t('SignIn'));
   },
   methods: {
     async submit() {
