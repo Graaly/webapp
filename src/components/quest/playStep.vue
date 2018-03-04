@@ -22,26 +22,24 @@
       <div>
         <p class="text">{{ step.text }}</p>
       </div>
-      <div class="answers-text">
+      <div class="answers-text" v-if="answerType === 'text'">
         <q-btn v-for="(answer, key) in step.answers" :key="key" class="full-width" :class="answer.class" :icon="answer.icon" @click="checkAnswer(key)" :disabled="playerResult !== null">
           {{ answer.text }}
         </q-btn>
       </div>
-      <!--
-      <div class="answers-images" v-if="step.type == 'choose-image'">
+      <div class="answers-images" v-if="answerType === 'image'">
         <div class="images-block">
           <div v-for="(answer, key) in step.answers" :key="key" :class="answer.class" @click="checkAnswer(key)">
-            <img :src="answer.imagePath" :class="answer.class" />
+            <img :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + answer.imagePath" :class="answer.class" />
             <q-btn v-if="answer.class !== null" round :class="answer.class" :icon="answer.icon" disable />
           </div>
         </div>
       </div>
-      -->
       <div class="actions fixed-bottom">
         <q-btn v-show="step.hint && playerResult === null" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">Afficher un indice</q-btn>
       </div>
       <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
-        <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? "Bonne réponse ! (+10 points)" : "Mauvaise réponse !" }}</div>
+        <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? "Bonne réponse !" : "Mauvaise réponse !" }}<span v-if="playerResult && !isRunFinished"> +10 points</span></div>
         <q-btn color="primary" class="full-width" @click="nextStep()">Suivant</q-btn>
       </div>
     </div>
@@ -73,7 +71,7 @@
         <q-btn v-show="step.hint" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">Afficher un indice</q-btn>
       </div>
       <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
-        <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? "Bonne réponse ! (+10 points)" : "Raté ! Le bon code était : " + step.answers }}</div>
+         <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? "Bonne réponse !" : "Raté ! Le bon code était : " + step.answers }}<span v-if="playerResult && !isRunFinished"> +10 points</span></div>
         <q-btn color="primary" class="full-width" @click="nextStep()">Suivant</q-btn>
       </div>
     </div>
@@ -96,7 +94,7 @@
           <q-btn color="primary" @click="checkPhoto()" icon="done">Vérifier</q-btn>
         </div>
         <q-btn v-show="step.hint && !photoTaken" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">Afficher un indice</q-btn>
-        <div class="text resultMessage" :class="playerResult ? 'right' : 'wrong'" v-show="playerResult !== null">{{ playerResult ? "Bien joué ! (+10 points)" : "Malheureusement, cette photo ne correspond pas." }}</div>
+        <div class="text resultMessage" :class="playerResult ? 'right' : 'wrong'" v-show="playerResult !== null">{{ playerResult ? "Bien joué !" : "Raté ! Le bon code était : " + step.answers }}<span v-if="playerResult && !isRunFinished"> +10 points</span></div>
         <q-btn v-show="photoTaken" color="primary" class="full-width" @click="nextStep()">Suivant</q-btn>
       </div>
     </div>
@@ -135,7 +133,7 @@
         <q-btn v-show="step.hint && playerResult === null" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">Afficher un indice</q-btn>
       </div>
       <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
-        <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? "Bonne réponse ! (+10 points)" : "Mauvaise réponse !" }}</div>
+        <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? "Bonne réponse !" : "Mauvaise réponse !" }}<span v-if="playerResult && !isRunFinished"> +10 points</span></div>
         <q-btn color="primary" class="full-width" @click="nextStep()">Suivant</q-btn>
       </div>
     </div>
@@ -148,6 +146,7 @@
 <script>
 import simi from 'src/includes/simi' // for image similarity
 import utils from 'src/includes/utils'
+import RunService from 'services/RunService'
 import StepService from 'services/StepService'
 import Vue from 'vue'
 import { Alert, Toast } from 'quasar'
@@ -155,10 +154,15 @@ export default {
   data () {
     return {
       step: {},
+      run: {},
+      isRunFinished: false,
       playerResult: null,
       cameraStreamEnabled: false,
       questId: this.$route.params.questId,
       serverUrl: process.env.SERVER_URL,
+      
+      // for step 'choose'
+      answerType: 'text', // 'text' or 'image'
       
       // for step type 'code-keypad'
       playerCode: [],
@@ -193,15 +197,29 @@ export default {
     }
   },
   mounted () {
-    // TODO: for questions with text/image answers, do not load the 'right answer' info on front app
-    this.getStep().then((step) => {
+    // TODO: to avoid cheating for questions with text/image answers, do not load the 'right answer' info on front app, instead make a server call to check it, when player has already selected his answer and clicked on "check answer"
+    this.getStep().then(async (step) => {
       // no more available step => we reached end of quest
       if (typeof step === 'undefined') {
-        this.$router.push('/quest/end');
-        return
+        return this.$router.push('/quest/end')
       }
       
+      // load run for current quest & current user Id
+      let run = await RunService.getOne({ userId: this.$store.state.user._id, questId: this.questId })
+      
+      if (typeof run === 'undefined') {
+        // no run found => go to /quest/<questId>/play/home for current quest
+        Toast.create.negative("Cette étape n'est pas accessible pour le moment. Vous êtes redirigé vers la page d'accueil de l'enquête.")
+        return this.$router.push('/quest/play/' + this.questId)
+      } else if (run.currentStep !== step.number && run.status === 'in-progress') {
+        // route step is not consistent with run's step => redirect to the correct step
+        return this.$router.push('/quest/play/' + this.questId + '/step/' + run.currentStep)
+      }
+      
+      this.isRunFinished = (run.status === 'finished')
+      
       this.step = step
+      this.run = run
       
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(() => {
@@ -212,6 +230,10 @@ export default {
         } else {
           background.style.background = 'none'
           background.style.backgroundColor = '#fff'
+        }
+        
+        if (this.step.type === 'choose') {
+          this.answerType = Array.isArray(this.step.answers) && this.step.answers[0].hasOwnProperty('imagePath') && this.step.answers[0].imagePath !== null ? 'image' : 'text'
         }
         
         if (this.step.type === 'code-keypad') {
@@ -292,7 +314,13 @@ export default {
       })
     },
     
-    nextStep() {
+    async nextStep() {
+      // update run
+      if (!this.isRunFinished) {
+        this.run.currentStep++
+        await RunService.save(this.run)
+      }
+      
       this.$router.push('/quest/play/' + this.step.questId + '/step/' + (this.step.number + 1));
     },
     
@@ -301,7 +329,7 @@ export default {
       Toast.create('Indice : ' + this.step.hint)
     },
     
-    checkAnswer(selectedAnswerKey) {
+    async checkAnswer(selectedAnswerKey) {
       if (this.playerResult !== null) {
         return
       }
@@ -340,7 +368,7 @@ export default {
       }
       
       if (this.playerResult) {
-        // TODO: add points to quest player & creator
+        await this.awardPoints()
       }
     },
     
@@ -446,7 +474,7 @@ export default {
         imgOriginalPhoto.crossOrigin = "anonymous";
         imgOriginalPhoto.src = this.serverUrl + '/upload/quest/' + this.questId + '/step/image-recognition/' + this.step.answers
         
-        imgOriginalPhoto.onload = () => {
+        imgOriginalPhoto.onload = async () => {
           canvasOriginalPhoto.width = imgOriginalPhoto.naturalWidth
           canvasOriginalPhoto.height = imgOriginalPhoto.naturalHeight
           canvasOriginalPhoto.getContext('2d').drawImage(imgOriginalPhoto, 0, 0, canvasOriginalPhoto.width, canvasOriginalPhoto.height)
@@ -454,6 +482,8 @@ export default {
           this.playerResult = simi.compare(photoBuffer, canvasOriginalPhoto) >= this.photoComparisonThreshold
           
           this.photoTaken = true
+          
+          await this.awardPoints()
         }
       }
     },
@@ -530,7 +560,7 @@ export default {
       console.log(err)
     },
     
-    watchLocationSuccess(pos) {
+    async watchLocationSuccess(pos) {
       let current = pos.coords;
       let target = this.step.answers
       //test 
@@ -545,11 +575,20 @@ export default {
         console.log('Congratulations, you reached the target')
         navigator.geolocation.clearWatch(this.geolocation.locationWatcher);
         this.playerResult = true
+        await this.awardPoints()
       }
       
       this.geolocation.currentBearing = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, target.lat, target.lng)
       
       this.geolocation.rawDirection = this.geolocation.currentBearing
+    },
+    
+    async awardPoints() {
+      // TODO to avoid cheating, all answer checks + points awarding must be moved to server side
+      if (this.playerResult === true && this.run.status === 'in-progress') {
+        this.run.score += 10
+        await RunService.save(this.run)
+      }
     }
   }
 }

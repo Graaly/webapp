@@ -21,7 +21,8 @@ const state = {
   user: null,
   currentEditedQuest: null,
   currentEditedStep: null,
-  errorMessage: null
+  errorMessage: null,
+  currentRun: null
 }
 
 // mutations are operations that actually mutates the state.
@@ -59,6 +60,9 @@ const mutations = {
   },
   setErrorMessage(state, message) {
     state.errorMessage = message
+  },
+  setCurrentRun(state, run) {
+    state.currentRun = run
   }
 }
 
@@ -87,7 +91,9 @@ const actions = {
   // for quest creation/edition
   setCurrentEditedQuest: ({ commit }, quest) => commit('setCurrentEditedQuest', quest),
   setCurrentEditedStep: ({ commit }, step) => commit('setCurrentEditedStep', step),
-  setErrorMessage: ({ commit }, message) => commit('setErrorMessage', message)
+  setErrorMessage: ({ commit }, message) => commit('setErrorMessage', message),
+  // for quest playing
+  setCurrentRun: ({ commit }, run) => commit('setCurrentRun', run)
 }
 
 // getters are functions

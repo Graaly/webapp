@@ -37,6 +37,8 @@
 <script>
 import { Toast, Dialog } from 'quasar'
 
+import stepTypes from 'data/stepTypes.json'
+
 import QuestService from 'services/QuestService'
 import StepService from 'services/StepService'
 
@@ -90,16 +92,25 @@ export default {
       
       await Dialog.create({
         title: 'Souhaitez vous vraiment supprimer cette étape ?',
-        // 'cancel: true' property did not work (cancel button not shown) => used 'buttons' property
+        // using 'ok: true' & 'cancel: true' properties did not work (cancel button not shown) => used 'buttons' property
         buttons: [
           {
             label: 'OK',
             preventClose: true,
             async handler (data, closeThis) {
               await StepService.remove(stepId)
+              
+              // reassign a number (1, 2, 3, ...) to remaining steps
               let removedStepIndex = _this.stepList.map(function(e) { return e._id; }).indexOf(stepId)
+              let removedStepTypeCode = _this.stepList[removedStepIndex].type
+              let removedStepTypeObj = stepTypes.find(type => type.code === removedStepTypeCode)
               _this.stepList.splice(removedStepIndex, 1)
-              await this.reindexSteps()
+              await _this.reindexSteps()
+              
+              // decrease quest.availablePoints if removed step's category was 'enigma'
+              if (removedStepTypeObj.category === 'enigma') {
+                await QuestService.save({ _id: _this.quest._id, availablePoints: Math.max(0, _this.quest.availablePoints - 10) })
+              }
               closeThis()
             }
           },
