@@ -8,8 +8,8 @@
       
       <div class="desc">
         <p><h1>{{ team.profile.name }}</h1></p>
-        <p class="subtitle">{{ team.profile.statistics.nbQuestsSuccessful }} enquêtes résolues</p>
-        <p class="subtitle">{{ team.profile.statistics.nbQuestsCreated }} enquêtes créées</p>
+        <p class="subtitle">{{ $t('message.successfulQuests', { nb: team.profile.statistics.nbQuestsSuccessful }) }}</p>
+        <p class="subtitle">{{ $t('message.createdQuests', { nb: team.profile.statistics.nbQuestsCreated }) }}</p>
       </div>
       
       <div class="score">
@@ -18,17 +18,17 @@
     </div>
     
     <q-tabs>
-      <q-route-tab :to="{ name: 'teamRankingList', params: { id: team.profile._id } }" slot="title" label="Classement" exact />
-      <q-route-tab :to="{ name: 'teamChallengesList', params: { id: team.profile._id } }" slot="title" label="Defis" exact />
-      <q-route-tab :to="{ name: 'teamNewsList', params: { id: team.profile._id } }" alert slot="title" label="News" exact />
-      <q-route-tab :to="{ name: 'teamMembersList', params: { id: team.profile._id } }" slot="title" label="Membres" exact /> 
+      <q-route-tab :to="{ name: 'teamRankingList', params: { id: team.profile._id } }" slot="title" :label="$t('message.Ranking')" exact />
+      <q-route-tab :to="{ name: 'teamChallengesList', params: { id: team.profile._id } }" slot="title" :label="$t('message.Challenges')" exact />
+      <q-route-tab :to="{ name: 'teamNewsList', params: { id: team.profile._id } }" alert slot="title" :label="$t('message.News')" exact />
+      <q-route-tab :to="{ name: 'teamMembersList', params: { id: team.profile._id } }" slot="title" :label="$t('message.Members')" exact /> 
     </q-tabs>
     
     <div class="tab-content">
         <p>
-          <q-btn v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id" link class="full-width" @click="openInviteFriendPopup()" color="primary">Inviter un ami</q-btn>
-          <q-btn v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id) && user.team.wishedId !== this.$route.params.id" link class="full-width" @click="joinTeam()" color="primary">Rejoindre cette agence</q-btn>
-          <q-btn v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id) && user.team.wishedId === this.$route.params.id" link class="full-width" disabled color="primary">Demande envoyée</q-btn>
+          <q-btn v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id" link class="full-width" @click="openInviteFriendPopup()" color="primary">{{ $t('message.InviteAFriend') }}</q-btn>
+          <q-btn v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id) && user.team.wishedId !== this.$route.params.id" link class="full-width" @click="joinTeam()" color="primary">{{ $t('message.JoinThisAgency') }}</q-btn>
+          <q-btn v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id) && user.team.wishedId === this.$route.params.id" link class="full-width" disabled color="primary">{{ $t('message.RequestSent') }}</q-btn>
         </p>
         
         <q-list highlight v-if="team.joinRequests.length > 0 && memberOfTeam">
@@ -37,18 +37,18 @@
             <q-item-side v-if="request.picture && request.picture.indexOf('http') === -1" :avatar="serverUrl + '/upload/profile/' + request.picture" />
             <q-item-side v-if="!request.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>
-              <q-item-tile label>{{ request.name }} souhaite rejoindre votre agence</q-item-tile>
-              <q-item-tile sublabel>{{ request.statistics.nbQuestsSuccessful }} enquêtes réussies | {{ request.statistics.nbQuestsCreated }} enquêtes créées</q-item-tile>
+              <q-item-tile label>{{ $t('message.NameWantToJoinYourAgency', { name: request.name }) }}</q-item-tile>
+              <q-item-tile sublabel>{{ $t('message.successfulQuests', { nb: request.statistics.nbQuestsSuccessful }) }} | {{ $t('message.createdQuests', { nb: request.statistics.nbQuestsCreated }) }}</q-item-tile>
             </q-item-main>
             <q-item-side right>
               <q-btn flat round dense icon="more_vert" text-color="primary">
                 <q-popover>
                   <q-list link>
                     <q-item v-close-overlay>
-                      <q-item-main label="Accepter" @click="acceptJoinRequest(request._id)" />
+                      <q-item-main :label="$t('message.Accept')" @click="acceptJoinRequest(request._id)" />
                     </q-item>
                     <q-item v-close-overlay>
-                      <q-item-main label="Rejecter" @click="rejectJoinRequest(request._id)" />
+                      <q-item-main :label="$t('message.Reject')" @click="rejectJoinRequest(request._id)" />
                     </q-item>
                   </q-list>
                 </q-popover>
@@ -57,8 +57,8 @@
           </q-item>
         </q-list>
     
-        <h2 v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id">Membre(s) de mon agence</h2>
-        <h2 v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)">Membre(s) de l'agence</h2>
+        <h2 v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id">{{ $t('message.MembersOfMyAgency') }}</h2>
+        <h2 v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)">{{ $t('message.MembersOfTheAgency') }}</h2>
         
         <q-list highlight>
           <q-item v-for="member in team.members" :key="member._id" @click="$router.push('/user/profile/' + member._id)">
@@ -67,7 +67,7 @@
             <q-item-side v-if="!member.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>
               <q-item-tile label>{{ member.name }}</q-item-tile>
-              <q-item-tile sublabel>{{ member.statistics.nbQuestsSuccessful }} enquêtes réussies | {{ member.statistics.nbQuestsCreated }} enquêtes créées</q-item-tile>
+              <q-item-tile sublabel>{{ $t('message.successfulQuests', { nb: member.statistics.nbQuestsSuccessful }) }} | {{ $t('message.createdQuests', { nb: member.statistics.nbQuestsCreated }) }}</q-item-tile>
             </q-item-main>
             <q-item-side right class="score">
               {{ member.score }}
@@ -114,11 +114,11 @@ export default {
       if (this.user.team && this.user.team.currentId && this.user.team.currentId === this.$route.params.id) {
         this.memberOfTeam = true
         // Set the page title = My agency / Competitor
-        this.$store.dispatch('setTitle', 'Mon agence')
+        this.$store.dispatch('setTitle', this.$t('message.MyAgency'))
         this.getJoinRequest(this.$route.params.id)
       } else {
         this.memberOfTeam = false
-        this.$store.dispatch('setTitle', 'Agence concurrente')
+        this.$store.dispatch('setTitle', this.$t('message.Competitor'))
       }
     },
     async getTeam(id) {
@@ -126,7 +126,7 @@ export default {
       let response = await TeamService.getById(id)
       this.team.profile = response.data
       
-      // compute the total score as the members score + team specific sore
+      // compute the total score as the members score + team specific score
       this.team.profile.score.total = this.team.profile.score.members + this.team.profile.score.challenges
     },
     async getTeamMembers(id) {
@@ -142,12 +142,12 @@ export default {
     openInviteFriendPopup () {
       var self = this
       Dialog.create({
-        title: 'Inviter un ami',
-        message: "Veuillez entrer l'adresse email de la personne à inviter",
+        title: this.$t('message.InviteAFriend'),
+        message: this.$t('message.PleaseEnterTheEmailAddressOfThePersonYouWantToInvite'),
         form: {
           email: {
             type: 'text',
-            label: 'Email',
+            label: this.$t('message.Email'),
             model: ''
           }
         },
@@ -166,9 +166,9 @@ export default {
       let response = await TeamService.sendFriendInvitation({email: email, teamId: this.$route.params.id})
       
       if (response) {
-        Toast.create['positive']({html: 'Votre invitation est envoyée'})
+        Toast.create['positive']({html: this.$t('message.YourInvitationHasBeenSent')})
       } else {
-        Toast.create['alert']({html: 'Problème technique, veuillez nous excuser et ré-essayer plus tard'})
+        Toast.create['alert']({html: this.$t('message.TechnicalIssue')})
       }
     },
     async joinTeam () {

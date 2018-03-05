@@ -2,8 +2,8 @@
   
   <div class="wrapper">
     <div class="warning" v-if="this.isRunFinished">
-      <strong>Vous avez déjà terminé cette enquête.</strong><br />
-      Vous pouvez tenter de la résoudre à nouveau, mais cela ne vous apportera aucun point supplémentaire.
+      <strong>{{ $t('message.YouAlreadyDidThisQuest') }}.</strong><br />
+      {{ $t('message.YouCanResolveItAgain') }}.
     </div>
     
     <div class="row bottom-separator">
@@ -13,19 +13,19 @@
       
       <div class="col desc padding-medium">
         <h1>{{ quest.title }}</h1>
-        <p class="text-tertiary" v-if="typeof quest.author !== 'undefined'">Auteur : {{ quest.author.name }}</p>
+        <p class="text-tertiary" v-if="typeof quest.author !== 'undefined'">{{ $t('message.Author') }} : {{ quest.author.name }}</p>
         <p v-if="quest.rating">
           <q-rating readonly :value="Math.round(quest.rating)" color="primary" :max="5" size="1.7rem" />
         </p>
-        <p>{{ quest.availablePoints }} points à gagner</p>
-        <p><q-btn @click="$router.push('/quest/play/' + $route.params.id + '/step/1')" color="primary">Résoudre l'enquête</q-btn></p>
+        <p>{{ $t('message.nbPointsToWin', { nb: quest.availablePoints }) }}</p>
+        <p><q-btn @click="$router.push('/quest/play/' + $route.params.id + '/step/1')" color="primary">{{ $t('message.SolveThisQuest') }}</q-btn></p>
       </div>
     </div>
     <div class="padding-medium">
       <p>{{ quest.description }}</p>
-      <p>Langue: {{ quest.mainLanguage }}</p>
-      <p v-if="quest.startingPlace">Lieu de départ: {{ quest.startingPlace }}</p>
-      <p>Difficulté: {{ getQuestLevelName(quest.level) }}</p>
+      <p>{{ $t('message.Language') }}: {{ quest.mainLanguage }}</p>
+      <p v-if="quest.startingPlace">{{ $t('message.StartingPoint') }}: {{ quest.startingPlace }}</p>
+      <p>{{ $t('message.Difficulty') }}: {{ getQuestLevelName(quest.level) }}</p>
     </div>
   </div>
   
@@ -46,7 +46,6 @@ export default {
   },
   data () {
     return {
-      title: 'Résoudre une enquête',
       quest: {},
       serverUrl: process.env.SERVER_URL,
       isRunFinished: false
@@ -54,7 +53,7 @@ export default {
   },
   async mounted() {
     // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', this.$data.title)
+    this.$store.dispatch('setTitle', this.$t('SolveAQuest'))
     
     await this.getQuest(this.$route.params.id)
     

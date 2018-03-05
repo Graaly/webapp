@@ -6,25 +6,25 @@
     <form @submit.prevent="submit()">
     
       <q-field :error="$v.form.title.$error">
-        <q-input type="text" float-label="Titre" v-model="form.title" @blur="$v.form.title.$touch" />
+        <q-input type="text" :float-label="$t('message.Title')" v-model="form.title" @blur="$v.form.title.$touch" />
         <div class="q-field-bottom" v-if="$v.form.title.$error">
-          <div class="q-field-error" v-if="!$v.form.title.required">Veuillez saisir un titre.</div>
+          <div class="q-field-error" v-if="!$v.form.title.required">{{ $t('message.PleaseEnterATitle') }}</div>
         </div>
       </q-field>
       
       <q-field :error="$v.form.category.$error">
-        <q-select float-label="Catégorie" v-model="form.category" @blur="$v.form.category.$touch" :options="categories" />
+        <q-select :float-label="$t('message.Category')" v-model="form.category" @blur="$v.form.category.$touch" :options="categories" />
         <div class="q-field-bottom" v-if="$v.form.category.$error">
-          <div class="q-field-error" v-if="!$v.form.category.required">Veuillez sélectionner une catégorie.</div>
+          <div class="q-field-error" v-if="!$v.form.category.required">{{ $t('message.PleaseSelectACategory') }}</div>
         </div>
       </q-field>
       
       <div class="description">
-        <a href="#" @click="console.log('TODO: exemples')">Exemples</a>
+        <a href="#" @click="console.log('TODO: exemples')">{{ $t('message.Examples') }}</a>
         <q-input
           v-model="form.description"
           type="textarea"
-          float-label="Description"
+          :float-label="$t('message.Description')"
           :max-height="100"
           :min-rows="4"
           class="full-width"
@@ -47,28 +47,28 @@
       </div>
       
       <div class="location-address">
-        <q-input type="text" float-label="Adresse de départ de l'enquête" v-model="form.startingPlace" />
+        <q-input type="text" :float-label="$t('message.StartingPointOfTheQuest')" v-model="form.startingPlace" />
         <img src="/statics/icons/game/location.png" />
       </div>
       
       <q-field>
-        <q-select float-label="Langue principale" v-model="form.mainLanguage" :options="languages" />
+        <q-select :float-label="$t('message.MainLanguage')" v-model="form.mainLanguage" :options="languages" />
       </q-field>
       
       <q-btn class="full-width" type="button">
-        <label for="picturefile">Télécharger une image sur le serveur</label>
+        <label for="picturefile">{{ $t('message.UploadAPicture') }}</label>
         <input @change="uploadImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       </q-btn>
       <div v-if="form.picture !== null">
-        <p>Image téléchargée :</p>
+        <p>{{ $t('message.YourPicture') }} :</p>
         <img :src="serverUrl + '/upload/quest/' + form.picture" />
       </div>
       
       <q-field>
-        <q-select float-label="Difficulté" v-model="form.level" :options="levels" />
+        <q-select :float-label="$t('message.Difficulty')" v-model="form.level" :options="levels" />
       </q-field>
       
-      <q-btn color="primary" class="full-width">Enregistrer</q-btn>
+      <q-btn color="primary" class="full-width">{{ $t('message.Save') }}</q-btn>
         
     </form>
     
@@ -132,7 +132,7 @@ export default {
       this.$v.form.$touch()
       if (!this.$v.form.$error) {
         let commonProperties = {
-          'rating': 3, // tmp
+          //'rating': 3, // initiate with no rating
           'dateCreated': null,
           'dateUpdated': null,
           'languages': [this.form.mainLanguage],

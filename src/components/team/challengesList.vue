@@ -8,8 +8,8 @@
       
       <div class="desc">
         <p><h1>{{ team.profile.name }}</h1></p>
-        <p class="subtitle">{{ team.profile.statistics.nbQuestsSuccessful }} enquêtes résolues</p>
-        <p class="subtitle">{{ team.profile.statistics.nbQuestsCreated }} enquêtes créées</p>
+        <p class="subtitle">{{ $t('message.successfulQuests', { nb: team.profile.statistics.nbQuestsSuccessful }) }}</p>
+        <p class="subtitle">{{ $t('message.createdQuests', { nb: team.profile.statistics.nbQuestsCreated }) }}</p>
       </div>
       
       <div class="score">
@@ -18,25 +18,25 @@
     </div>
     
     <q-tabs>
-      <q-route-tab :to="{ name: 'teamRankingList', params: { id: team.profile._id } }" slot="title" label="Classement" />
-      <q-route-tab :to="{ name: 'teamChallengesList', params: { id: team.profile._id } }" slot="title" label="Defis" />
-      <q-route-tab :to="{ name: 'teamNewsList', params: { id: team.profile._id } }" alert slot="title" label="News" />
-      <q-route-tab :to="{ name: 'teamMembersList', params: { id: team.profile._id } }" slot="title" label="Membres" />
+      <q-route-tab :to="{ name: 'teamRankingList', params: { id: team.profile._id } }" slot="title" :label="$t('message.Ranking')" />
+      <q-route-tab :to="{ name: 'teamChallengesList', params: { id: team.profile._id } }" slot="title" :label="$t('message.Challenges')" />
+      <q-route-tab :to="{ name: 'teamNewsList', params: { id: team.profile._id } }" alert slot="title" :label="$t('message.News')" />
+      <q-route-tab :to="{ name: 'teamMembersList', params: { id: team.profile._id } }" slot="title" :label="$t('message.Members')" />
     </q-tabs>
     
     <div class="tab-content">
     
-        <h2>Défis à relever par mon équipe</h2>
+        <h2>{{ $t('message.ChallengesForMyTeam') }}</h2>
         
         <q-list highlight separator class="challenges">
           <q-item v-for="challenge in team.challenges" :key="challenge._id">
             <q-item-main>
-              <q-item-tile label>{{ challenge.title }}</q-item-tile>
+              <q-item-tile label>{{ $t('challenge.' + challenge.title) }}</q-item-tile>
             </q-item-main>
             <q-item-side right v-if="challenge.status === 'won'">
-              <q-item-tile stamp>Réussi !</q-item-tile>
+              <q-item-tile stamp>{{ $t('message.Succeeded') }}</q-item-tile>
               <q-item-tile v-if="memberOfTeam">
-                <q-btn color="primary" size="sm">Partager</q-btn>
+                <q-btn color="primary" size="sm">{{ $t('message.Share') }}</q-btn>
               </q-item-tile>
             </q-item-side>
             <q-item-side right v-if="challenge.status !== 'won'">
@@ -47,7 +47,7 @@
                 </div>
               </q-item-tile>
               <q-item-tile v-if="memberOfTeam && challenge.score >= challenge.scoreToReach">
-                <q-btn color="primary" size="sm" @click="validChallenge(challenge.refChallengeId)">Gagné !</q-btn>
+                <q-btn color="primary" size="sm" @click="validChallenge(challenge.refChallengeId)">{{ $t('message.Won') }}</q-btn>
               </q-item-tile>
             </q-item-side>
           </q-item>
@@ -86,10 +86,10 @@ export default {
       
       if (this.user.team && this.user.team.currentId && this.user.team.currentId === this.$route.params.id) {
         // Set the page title = My agency / Competitor
-        this.$store.dispatch('setTitle', 'Mon agence')
+        this.$store.dispatch('setTitle', this.$t('message.MyAgency'))
         this.memberOfTeam = true
       } else {
-        this.$store.dispatch('setTitle', 'Agence concurrente')
+        this.$store.dispatch('setTitle', this.$t('message.Competitor'))
         this.memberOfTeam = false
       }
     },
@@ -98,7 +98,7 @@ export default {
       let response = await TeamService.getById(id)
       this.team.profile = response.data
       
-      // compute the total score as the members score + team specific sore
+      // compute the total score as the members score + team specific score
       this.team.profile.score.total = this.team.profile.score.members + this.team.profile.score.challenges
     },
     async getChallenges(id) {

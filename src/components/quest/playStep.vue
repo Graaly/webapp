@@ -14,7 +14,7 @@
       <audio controls controlsList="nodownload" autoplay v-if="step.audioStream" class="full-width">
         <source :src="step.audioStream" type="audio/mpeg" />
       </audio>
-      <q-btn color="primary" class="full-width" @click="nextStep()">Suivant</q-btn>
+      <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
     </div>
     
     
@@ -36,11 +36,11 @@
         </div>
       </div>
       <div class="actions fixed-bottom">
-        <q-btn v-show="step.hint && playerResult === null" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">Afficher un indice</q-btn>
+        <q-btn v-show="step.hint && playerResult === null" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
       </div>
       <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
-        <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? "Bonne réponse !" : "Mauvaise réponse !" }}<span v-if="playerResult && !isRunFinished"> +10 points</span></div>
-        <q-btn color="primary" class="full-width" @click="nextStep()">Suivant</q-btn>
+        <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongAnswer') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
+        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
       </div>
     </div>
     
@@ -65,14 +65,14 @@
       </div>
       <div class="actions fixed-bottom" v-show="playerResult === null">
         <div>
-          <q-btn color="primary" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">Effacer</q-btn>
-          <q-btn color="primary" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()">Valider</q-btn>
+          <q-btn color="primary" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('message.Clear') }}</q-btn>
+          <q-btn color="primary" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()">{{ $t('message.Confirm') }}</q-btn>
         </div>
-        <q-btn v-show="step.hint" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">Afficher un indice</q-btn>
+        <q-btn v-show="step.hint" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
       </div>
       <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
-         <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? "Bonne réponse !" : "Raté ! Le bon code était : " + step.answers }}<span v-if="playerResult && !isRunFinished"> +10 points</span></div>
-        <q-btn color="primary" class="full-width" @click="nextStep()">Suivant</q-btn>
+         <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongGoodCodeWas') + " " + step.answers }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
+        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
       </div>
     </div>
     
@@ -85,17 +85,17 @@
         <img ref="original-photo" :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
         <video ref="camera-stream-for-recognition" v-show="cameraStreamEnabled"></video>
         <canvas ref="photo-buffer" class="hidden"></canvas>
-        <img ref="player-photo" v-show="photoTaken" alt="The screen capture will appear in this box." />
+        <img ref="player-photo" v-show="photoTaken" :alt="$t('message.TheScreenCaptureWillAppearInThisBox')" />
       </div>
       <div class="actions fixed-bottom">
-        <q-btn @click="togglecameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" color="primary">Prendre la photo</q-btn>
+        <q-btn @click="togglecameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" color="primary">{{ $t('message.TakeThePicture') }}</q-btn>
         <div v-show="cameraStreamEnabled">
-          <q-btn color="primary" @click="togglecameraStream()" icon="clear">Annuler</q-btn>
-          <q-btn color="primary" @click="checkPhoto()" icon="done">Vérifier</q-btn>
+          <q-btn color="primary" @click="togglecameraStream()" icon="clear">{{ $t('message.Cancel') }}</q-btn>
+          <q-btn color="primary" @click="checkPhoto()" icon="done">{{ $t('message.Check') }}</q-btn>
         </div>
-        <q-btn v-show="step.hint && !photoTaken" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">Afficher un indice</q-btn>
-        <div class="text resultMessage" :class="playerResult ? 'right' : 'wrong'" v-show="playerResult !== null">{{ playerResult ? "Bien joué !" : "Raté ! Le bon code était : " + step.answers }}<span v-if="playerResult && !isRunFinished"> +10 points</span></div>
-        <q-btn v-show="photoTaken" color="primary" class="full-width" @click="nextStep()">Suivant</q-btn>
+        <q-btn v-show="step.hint && !photoTaken" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
+        <div class="text resultMessage" :class="playerResult ? 'right' : 'wrong'" v-show="playerResult !== null">{{ playerResult ? $t('message.WellDone') : $t('message.WrongGoodCodeWas') + " " + step.answers }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
+        <q-btn v-show="photoTaken" color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
       </div>
     </div>
     
@@ -104,7 +104,7 @@
       <video ref="camera-stream-for-geolocation" v-show="cameraStreamEnabled"></video>
       <div>
         <p class="text">{{ step.text }}</p>
-        <p class="text">Distance: {{ geolocation.distance }} mètres</p>
+        <p class="text">{{ $t('message.DistanceInMeters', { distance: geolocation.distance }) }}</p>
         <!--
         <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
         <p class="text">Alpha: {{ Math.round(geolocation.alpha) }}°</p>
@@ -115,8 +115,8 @@
         <canvas id="direction-canvas"></canvas>
       </div>
       <div class="resultMessage" >
-        <div class="text right" v-show="playerResult">Bravo, vous êtes à proximité du lieu ! (+10 points)</div>
-        <q-btn color="primary" class="full-width" @click="nextStep()">{{ playerResult ? 'Suivant' : 'Passer' }}</q-btn>
+        <div class="text right" v-show="playerResult">{{ $t('message.YouHaveFoundThePlace') }} (+10 {{ $t('message.points') }})</div>
+        <q-btn color="primary" class="full-width" @click="nextStep()">{{ playerResult ? $t('message.Next') : $t('message.Pass') }}</q-btn>
       </div>
     </div>
     
@@ -126,15 +126,15 @@
         <p class="text">{{ step.text }}</p>
       </div>
       <div class="answer-text">
-        <input v-model="writetext.playerAnswer" placeholder="Votre réponse" :class="{right: playerResult === true, wrong: playerResult === false}" />
-        <q-btn color="primary" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()">Valider la réponse</q-btn>
+        <input v-model="writetext.playerAnswer" :placeholder="$t('message.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" />
+        <q-btn color="primary" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()">{{ $t('message.ConfirmTheAnswer') }}</q-btn>
       </div>
       <div class="actions fixed-bottom">
-        <q-btn v-show="step.hint && playerResult === null" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">Afficher un indice</q-btn>
+        <q-btn v-show="step.hint && playerResult === null" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
       </div>
       <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
-        <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? "Bonne réponse !" : "Mauvaise réponse !" }}<span v-if="playerResult && !isRunFinished"> +10 points</span></div>
-        <q-btn color="primary" class="full-width" @click="nextStep()">Suivant</q-btn>
+        <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongAnswer') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
+        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
       </div>
     </div>
     
@@ -292,7 +292,7 @@ export default {
       })
     }).catch((err) => {
       Alert.create({
-        html: 'Désolé, une erreur est survenue. Veuillez contacter le support.',
+        html: this.$t('message.ErrorStandardMessage'),
         position: 'bottom-center'
       })
       console.log(err)

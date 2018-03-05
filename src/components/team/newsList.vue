@@ -8,8 +8,8 @@
       
       <div class="desc">
         <p><h1>{{ team.profile.name }}</h1></p>
-        <p class="subtitle">{{ team.profile.statistics.nbQuestsSuccessful }} enquêtes résolues</p>
-        <p class="subtitle">{{ team.profile.statistics.nbQuestsCreated }} enquêtes créées</p>
+        <p class="subtitle">{{ $t('message.successfulQuests', { nb: team.profile.statistics.nbQuestsSuccessful }) }}</p>
+        <p class="subtitle">{{ $t('message.createdQuests', { nb: team.profile.statistics.nbQuestsCreated }) }}</p>
       </div>
       
       <div class="score">
@@ -18,10 +18,10 @@
     </div>
     
     <q-tabs>
-      <q-route-tab :to="{ name: 'teamRankingList', params: { id: team.profile._id } }" slot="title" label="Classement" />
-      <q-route-tab :to="{ name: 'teamChallengesList', params: { id: team.profile._id } }" slot="title" label="Defis" />
-      <q-route-tab :to="{ name: 'teamNewsList', params: { id: team.profile._id } }" slot="title" label="News" />
-      <q-route-tab :to="{ name: 'teamMembersList', params: { id: team.profile._id } }" slot="title" label="Membres" /> 
+      <q-route-tab :to="{ name: 'teamRankingList', params: { id: team.profile._id } }" slot="title" :label="$t('message.Ranking')" />
+      <q-route-tab :to="{ name: 'teamChallengesList', params: { id: team.profile._id } }" slot="title" :label="$t('message.Challenges')" />
+      <q-route-tab :to="{ name: 'teamNewsList', params: { id: team.profile._id } }" slot="title" :label="$t('message.News')" />
+      <q-route-tab :to="{ name: 'teamMembersList', params: { id: team.profile._id } }" slot="title" :label="$t('message.Members')" /> 
     </q-tabs>
     
     <div class="tab-content">
@@ -30,13 +30,13 @@
         <q-item-side v-if="user.picture && user.picture.indexOf('http') === -1" :avatar="serverUrl + '/upload/profile/' + user.picture" />
         <q-item-side v-if="!user.picture" :avatar="'/statics/profiles/noprofile.png'" />
         <q-item-main>
-          <q-item-tile label><q-input v-model="comment" placeholder="Votre commentaire" @keyup.enter="submit" /></q-item-tile>
+          <q-item-tile label><q-input v-model="comment" :placeholder="$t('message.YourComment')" @keyup.enter="submit" /></q-item-tile>
         </q-item-main>
       </q-item>
     
       <div v-if="team.news.items && team.news.items.length > 0">
-        <h2 v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id">Actualités de mon agence</h2>
-        <h2 v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)">Actualités de mon agence</h2>
+        <h2 v-show="user.team && user.team.currentId && user.team.currentId === this.$route.params.id">{{ $t('message.NewsOfYourAgency') }}</h2>
+        <h2 v-show="!(user.team && user.team.currentId && user.team.currentId === this.$route.params.id)">{{ $t('message.NewsOfTheAgency') }}</h2>
         
         <q-infinite-scroll :handler="getTeamNews">
           <q-list highlight>
@@ -50,8 +50,8 @@
                 <q-item-tile sublabel>
                   {{item.creation.date | formatDate}} 
                   - 
-                  <a style="color: #000" v-if="!isLiked(item)" v-on:click="like(index)">J'aime</a>
-                  <a v-if="isLiked(item)" v-on:click="unlike(index)">J'aime</a>
+                  <a style="color: #000" v-if="!isLiked(item)" v-on:click="like(index)">{{ $t('message.Like') }}</a>
+                  <a v-if="isLiked(item)" v-on:click="unlike(index)">{{ $t('message.Like') }}</a>
                   <span v-if="item.likes.length > 0">({{ item.likes.length }})</span>
                 </q-item-tile>
               </q-item-main>
@@ -63,7 +63,7 @@
         </q-infinite-scroll>
       </div>
       <div v-if="!team.news.items || team.news.items.length === 0">
-        Aucune actualité pour cette agence
+        {{ $t('message.NoNewsForThisTeam') }}
       </div>
     </div>
     
@@ -84,7 +84,6 @@ export default {
   },
   data () {
     return {
-      title: 'Mon agence',
       team: {
         profile: {
           statistics: {}, 
@@ -119,10 +118,10 @@ export default {
       
       if (this.user.team && this.user.team.currentId && this.user.team.currentId === this.$route.params.id) {
         // Set the page title = My agency / Competitor
-        this.$store.dispatch('setTitle', 'Mon agence')
+        this.$store.dispatch('setTitle', this.$t('message.MyAgency'))
         this.team.mine = true
       } else {
-        this.$store.dispatch('setTitle', 'Agence concurrente')
+        this.$store.dispatch('setTitle', this.$t('message.Competitor'))
         this.team.mine = false
       }
     },
@@ -154,7 +153,7 @@ export default {
       
       // form validator : comment must be set
       if (this.$v.$error) {
-        Toast.create('Veuillez entrer un commentaire')
+        Toast.create(this.$t('message.PleaseEnterAComment'))
         return
       }
       
@@ -168,7 +167,7 @@ export default {
       this.comment = ""
       
       // notification
-      Toast.create['positive']({html: 'Votre commentaire est ajouté'})
+      Toast.create['positive']({html: this.$t('message.YourCommentIsAdded')})
     },
     // save the like action
     async like (index) {

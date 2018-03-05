@@ -1,15 +1,15 @@
 <template>
   <div>
-    <div class="end-header">Bravo ! Cette affaire est maintenant classée.</div>
+    <div class="end-header">{{ $t('message.CongratulationThisCaseIsClassified') }}.</div>
     
     <div class="end-body">
       <div class="result" v-if="!isRunFinished">
-        <p>Vous gagnez</p>
+        <p>{{ $t('message.YouWin') }}</p>
         <div class="result-score">
           <div>{{ run.score }}</div>
           <div><img src="/statics/icons/game/medal.png" /></div>
         </div>
-        <router-link to="/help/points">Que faire avec ces points ?</router-link>
+        <router-link to="/help/points">{{ $t('message.WhatCanYouDoWithThesePoints') }}</router-link>
       </div>
       <div v-if="isRunFinished">
         <p>
@@ -19,12 +19,12 @@
       </div>
       
       <div class="rating">
-        <p>Notez cette enquête</p>
+        <p>{{ $t('message.RateThisQuest') }}</p>
         <q-rating v-model="rating" :max="5" size="2rem" />
       </div>
       
       <div class="share" v-if="!isRunFinished">
-        <p>Partagez votre réussite !</p>
+        <p>{{ $t('message.ShareYourSuccess') }}</p>
         <ul>
           <li><img src="/statics/icons/social-networks/facebook.png"></li>
           <li><img src="/statics/icons/social-networks/twitter.png"></li>
@@ -33,7 +33,7 @@
       </div>
       
       <div class="back">
-        <router-link to="/quest/search/map">Retour à la carte</router-link>
+        <router-link to="/quest/search/map">{{ $t('message.BackToTheMap') }}Retour à la carte</router-link>
       </div>
     </div>
     

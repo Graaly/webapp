@@ -4,17 +4,17 @@
     <div class="header">
       <div class="row">
         <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 bg-black"><img src="/statics/icons/game/welcome-man.png" class="full-width" style="max-width: 100px" /></div>
-        <div class="col bg-black padding-medium text-white" v-if="team.profile.status == 'new'">Bravo, vous venez de créer votre agence de détectives privés !</div>
-        <div class="col bg-black padding-medium text-white" v-if="team.profile.status != 'new'">Bravo, vous venez de rejoindre une agence de détectives privés !</div>
+        <div class="col bg-black padding-medium text-white" v-if="team.profile.status == 'new'">{{ $t('message.introNewAgency') }}</div>
+        <div class="col bg-black padding-medium text-white" v-if="team.profile.status != 'new'">{{ $t('message.introJoinAgency') }}</div>
       </div>
       
       <div class="row bottom-separator" v-if="userNeedToUpdateLocation">
-        <q-field label="Complétez votre profil" class="padding-medium">
+        <q-field :label="$t('message.CompleteYourProfile')" class="padding-medium">
           <q-field>
-            <q-select float-label="Votre pays" v-model="user.location.country" :options="countries" />
+            <q-select :float-label="$t('message.YourCountry')" v-model="user.location.country" :options="countries" />
           </q-field>
           <q-field>
-            <q-input float-label="Votre code postal" v-model="user.location.postalCode" />
+            <q-input :float-label="$t('message.YourZipCode')" v-model="user.location.postalCode" />
           </q-field>
         </q-field>
       </div>
@@ -22,39 +22,39 @@
       <div class="row bottom-separator">
         <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 padding-medium"><img :src="'/statics/badges/' + team.profile.badge" class="full-width" /></div>
         <div class="col padding-medium" v-if="team.profile.status == 'new'">
-          <q-field helper="Vous pourrez rejoindre une autre agence ultérieurement">
-            <q-input v-model="team.profile.name" placeholder="Tapez un nom de votre agence" @keyup.enter="submit" />
+          <q-field :helper="$t('message.YouCanJoinAnotherAgencyLater')">
+            <q-input v-model="team.profile.name" :placeholder="$t('message.EnterANameForYourAgency')" @keyup.enter="submit" />
           </q-field>
         </div>
         <div class="col padding-medium" v-if="team.profile.status != 'new'">
           <p><h1>{{ team.profile.name }}</h1></p>
-          <p class="subtitle">{{ team.profile.statistics.nbQuestsSuccessful }} enquêtes résolues</p>
-          <p class="subtitle">{{ team.profile.statistics.nbQuestsCreated }} enquêtes créées</p>
+          <p class="subtitle">{{ $t('message.successfulQuests', { nb: team.profile.statistics.nbQuestsSuccessful }) }}</p>
+          <p class="subtitle">{{ $t('message.createdQuests', { nb: team.profile.statistics.nbQuestsCreated }) }}</p>
         </div>
       </div>
     </div>
     <div>  
       <div class="row">
         <div class="col-auto padding-medium"><img src="/statics/icons/game/medal.png" class="small-icon" /></div>
-        <div class="col padding-medium">Votre objectif est de gagner le plus de <strong>points de réputation</strong> possible</div>
+        <div class="col padding-medium" v-html="$t('message.introBlock1')"></div>
       </div>
       <div class="row">
         <div class="col-auto padding-medium"><img src="/statics/icons/game/investigation.png" class="small-icon" /></div>
-        <div class="col padding-medium">Pour gagner des points, il faut <strong>réussir des enquêtes</strong> présentes sur la carte</div>
+        <div class="col padding-medium" v-html="$t('message.introBlock2')"></div>
       </div>
       <div class="row">
         <div class="col-auto padding-medium"><img src="/statics/icons/game/magic.png" class="small-icon" /></div>
-        <div class="col padding-medium">Vous pouvez aussi <strong>créer vos propre enquêtes</strong>, vous gagnerez des points à chaque fois qu'un joueur la réussi</div>
+        <div class="col padding-medium" v-html="$t('message.introBlock3')"></div>
       </div>
       <div class="row">
         <div class="col-auto padding-medium"><img src="/statics/icons/game/cup.png" class="small-icon" /></div>
-        <div class="col padding-medium">Plus vous ferez gagner des points à votre agence, plus elle aura de chances de <strong>conquérir des territoires</strong></div>
+        <div class="col padding-medium" v-html="$t('message.introBlock4')"></div>
       </div>
       <p class="link-below-button">
-        <router-link :to="{ path: '/help' }">En savoir +</router-link>
+        <router-link :to="{ path: '/help' }">{{ $t('message.LearnMore') }}</router-link>
       </p>
       <p class="padding-medium">
-        <q-btn link class="full-width" @click="submit()" color="primary">Choisir ma première enquête</q-btn>
+        <q-btn link class="full-width" @click="submit()" color="primary">{{ $t('message.ChooseMyFirstQuest') }}</q-btn>
       </p>
       
     </div>

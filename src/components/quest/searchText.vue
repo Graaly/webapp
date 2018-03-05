@@ -6,7 +6,7 @@
         <q-item v-for="(item, index) in quests" :key="item._id">
           <q-item-side>
             <q-icon name="location on" size="2rem" /><br />
-            <small>{{ item.distance }} km</small>
+            <small>{{ item.distance }} {{ $t('message.km') }}</small>
           </q-item-side>
           <q-item-main @click="$router.push('/quest/play/' + item._id)">
             <q-item-tile label>{{ item.title }}</q-item-tile>
@@ -21,9 +21,9 @@
           <q-icon name="explore" size="2rem" />
         </q-item-side>
         <q-item-main>
-          <q-item-tile label>Aucune enquête ne correspond à votre recherche</q-item-tile>
+          <q-item-tile label>{{ $t('message.NoQuestForThisSearch') }}</q-item-tile>
           <q-item-tile sublabel>
-            <a @click="$router.push('/quest/create')">Pourquoi ne pas créer cette enquête ?</a>
+            <a @click="$router.push('/quest/create')">{{ $t('message.WhyDontYouCreateAQuest') }}</a>
           </q-item-tile>
         </q-item-main>
       </q-item>

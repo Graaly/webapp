@@ -20,7 +20,7 @@
           <div class="infoWindow">
             <h1>{{ currentQuest ? currentQuest.title : '' }}</h1>
             <p>Difficulté : {{ currentQuest ? getQuestLevelName(currentQuest.level) : '' }}</p>
-            <q-btn @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="tertiary">Enquêter</q-btn>
+            <q-btn @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="tertiary">{{ $t('message.Play') }}</q-btn>
           </div>
         </gmap-info-window>
         
@@ -35,8 +35,8 @@
       
       <div class="desc">
         <p><h1>{{ team.profile.name }}</h1></p>
-        <p class="subtitle">{{ team.profile.statistics.nbQuestsSuccessful }} enquêtes résolues</p>
-        <p class="subtitle">{{ team.profile.statistics.nbQuestsCreated }} enquêtes créées</p>
+        <p class="subtitle">{{ $t('message.successfulQuests', { nb: team.profile.statistics.nbQuestsSuccessful }) }}</p>
+        <p class="subtitle">{{ $t('message.createdQuests', { nb: team.profile.statistics.nbQuestsCreated }) }}</p>
       </div>
       
       
@@ -47,7 +47,7 @@
       </div>
     </div>
     <div class="row-auto" style="height: 36px; overflow: hidden;">
-      <q-btn @click="$router.push('/quest/create')" color="primary" icon="fa-magic">Créer une enquête et gagnez des points</q-btn>
+      <q-btn @click="$router.push('/quest/create')" color="primary" icon="fa-magic">{{ $t('message.CreateAQuestAndWinPoints') }}</q-btn>
     </div>
     
   </div>

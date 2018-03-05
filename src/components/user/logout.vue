@@ -1,7 +1,7 @@
 <template>
   
   <div>
-    <p>Déconnexion en cours...</p>
+    <p>{{ $t('message.SignOutInProgress') }}</p>
   </div>
   
 </template>

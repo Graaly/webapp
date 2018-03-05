@@ -2,9 +2,9 @@
   <div>
     
     <q-field :error="$v.form.title.$error">
-      <q-input type="text" float-label="Titre" v-model="form.title" @blur="$v.form.title.$touch" />
+      <q-input type="text" :float-label="$t('message.Title')" v-model="form.title" @blur="$v.form.title.$touch" />
       <div class="q-field-bottom" v-if="$v.form.title.$error">
-        <div class="q-field-error" v-if="!$v.form.title.required">Veuillez saisir un titre.</div>
+        <div class="q-field-error" v-if="!$v.form.title.required">{{ $t('message.PleaseEnterATitle') }}</div>
       </div>
     </q-field>
     
@@ -13,7 +13,7 @@
       <q-input
         v-model="form.text"
         type="textarea"
-        :float-label="mainTextFieldLabel"
+        :float-label="$t('message.' + mainTextFieldLabel)"
         :max-height="100"
         :min-rows="4"
         class="full-width"

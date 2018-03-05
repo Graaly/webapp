@@ -19,16 +19,16 @@
       </li>
     </ul>
     
-    <q-btn color="primary" icon="fa-plus-circle" @click="$router.push('/quest/edit/step/type')">Ajouter une étape</q-btn>
+    <q-btn color="primary" icon="fa-plus-circle" @click="$router.push('/quest/edit/step/type')">{{ $t('message.AddAStep') }}</q-btn>
     
     <hr />
     
-    <q-btn big class="full-width" icon="play circle filled" color="primary" @click="$router.push('/quest/play/'+quest._id+'?test=1')">Essayer votre enquête</q-btn>
+    <q-btn big class="full-width" icon="play circle filled" color="primary" @click="$router.push('/quest/play/'+quest._id+'?test=1')">{{ $t('message.TestYourQuest') }}</q-btn>
     
-    <q-btn big class="full-width" icon="check circle" color="primary" @click="publish()" v-show="quest.status !== 'published'">Publier votre enquête</q-btn>
-    <q-btn big class="full-width" icon="cancel" color="primary" @click="unpublish()" v-show="quest.status === 'published'">Dépublier votre enquête</q-btn>
+    <q-btn big class="full-width" icon="check circle" color="primary" @click="publish()" v-show="quest.status !== 'published'">{{ $t('message.PublishYourQuest') }}</q-btn>
+    <q-btn big class="full-width" icon="cancel" color="primary" @click="unpublish()" v-show="quest.status === 'published'">{{ $t('message.UnpublishYourQuest') }}</q-btn>
     
-    <router-link to="/user/profile/me">Voir toutes mes enquêtes</router-link>
+    <router-link to="/user/profile/me">{{ $t('message.BackToTheListOfAllMyQuest') }}</router-link>
     
   </div>
   
@@ -54,7 +54,6 @@ Vue.directive('sortable', {
 export default {
   data() {
     return {
-      title: 'Votre enquête',
       stepList: [],
       quest: { title: '' }
     }
@@ -67,7 +66,7 @@ export default {
       this.$store.dispatch('setCurrentEditedQuest', { _id: this.$route.params.questId })
     }
     
-    this.$store.dispatch('setTitle', this.title)
+    this.$store.dispatch('setTitle', this.$t('message.YourQuest'))
     let res = await QuestService.getById(this.$store.state.currentEditedQuest._id)
     this.quest = res.data
     this.stepList = await StepService.get({ questId: this.quest._id, sort: 'number' })
@@ -80,12 +79,12 @@ export default {
     async publish() {
       this.quest.status = 'published';
       await QuestService.save({ _id: this.quest._id, status: this.quest.status })
-      Toast.create.positive("L'enquête est publiée.")
+      Toast.create.positive( this.$t('message.YourQuestIsPublished') )
     },
     async unpublish() {
       this.quest.status = 'unpublished';
       await QuestService.save({ _id: this.quest._id, status: this.quest.status })
-      Toast.create.positive("L'enquête est dépubliée.")
+      Toast.create.positive( this.$t('message.YourQuestIsUnpublished') )
     },
     async removeStep(stepId) {
       var _this = this; // workaround for closure scope quirks

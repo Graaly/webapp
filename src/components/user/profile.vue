@@ -17,13 +17,13 @@
     </q-btn>
     
     <q-tabs>
-      <q-route-tab :to="{ name: 'teamRankingList', params: { id: $route.params.id } }" slot="title" label="Enquêtes réussies" exact />
-      <q-route-tab :to="{ name: 'profile', params: { id: $route.params.id } }" slot="title" label="Enquêtes créées" exact />
+      <q-route-tab :to="{ name: 'teamRankingList', params: { id: $route.params.id } }" slot="title" :label="$t('message.QuestsSuccessful')" exact />
+      <q-route-tab :to="{ name: 'profile', params: { id: $route.params.id } }" slot="title" :label="$t('message.QuestsCreated')" exact />
     </q-tabs>
     
     <div class="tab-content">
        <p v-show="profile._id == user._id">
-          <q-btn link class="full-width" @click="$router.push('/quest/create/welcome')" color="primary">Créer une nouvelle enquête</q-btn>
+          <q-btn link class="full-width" @click="$router.push('/quest/create/welcome')" color="primary">{{ $t('message.CreateANewQuest') }}</q-btn>
         </p>
         
         <q-list highlight>
@@ -34,12 +34,12 @@
               <q-item-tile label>{{ quest.title }}</q-item-tile>
               <q-item-tile sublabel v-if="quest.status == 'published'">
                 <q-rating readonly :value="Math.round(quest.rating)" color="primary" :max="5" size="1rem" /> - 
-                Publié depuis {{quest.dateCreated | formatDate}}
+                {{ $t('message.PublishedSince') }} {{quest.dateCreated | formatDate}}
                 <br />
                 [[Score semaine]] [[Score total]]
               </q-item-tile>
               <q-item-tile sublabel v-if="quest.status == 'unpublished'">
-                Non publié
+                {{ $t('message.Unpublished') }}
               </q-item-tile>
             </q-item-main>
           </q-item>
@@ -77,7 +77,7 @@ export default {
       this.user = response.data
       
       if (!this.$route.params.id || this.$route.params.id === 'me' || this.$route.params.id === this.user._id) {
-        this.$store.dispatch('setTitle', 'Mon profil')
+        this.$store.dispatch('setTitle', this.$t('message.MyProfil'))
         this.profile = this.user
         this.listCreatedQuests(this.user._id)
       } else {
