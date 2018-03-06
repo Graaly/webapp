@@ -110,9 +110,9 @@ export default {
       newTeam: {name: "", badge: "1"},
       proposedTeams: [],
       countries: [
-        { label: this.$t('Belgium'), value: 'belgium' },
-        { label: this.$t('Spain'), value: 'spain' },
-        { label: this.$t('France'), value: 'france' }
+        { label: this.$t('message.Belgium'), value: 'belgium' },
+        { label: this.$t('message.Spain'), value: 'spain' },
+        { label: this.$t('message.France'), value: 'france' }
       ],
       serverUrl: process.env.SERVER_URL,
       userCanChangeEmail: true,

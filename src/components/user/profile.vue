@@ -77,7 +77,7 @@ export default {
       this.user = response.data
       
       if (!this.$route.params.id || this.$route.params.id === 'me' || this.$route.params.id === this.user._id) {
-        this.$store.dispatch('setTitle', this.$t('message.MyProfil'))
+        this.$store.dispatch('setTitle', this.$t('message.MyProfile'))
         this.profile = this.user
         this.listCreatedQuests(this.user._id)
       } else {

@@ -53,7 +53,7 @@ export default {
   },
   async mounted() {
     // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', this.$t('SolveAQuest'))
+    this.$store.dispatch('setTitle', this.$t('message.SolveAQuest'))
     
     await this.getQuest(this.$route.params.id)
     

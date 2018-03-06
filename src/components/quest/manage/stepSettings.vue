@@ -76,7 +76,6 @@
         
       <h2>Réponses possibles</h2>
       <p>{{ $t('message.SelectTheGoodAnswer') }}</p>
-      <!-- TODO allow to choose between text / image answers -->
       <div class="answer" v-for="(answer, key) in form.answers" :key="key">
         <q-radio v-model="rightAnswerIndex" :val="key" />
         <q-input v-show="answerType === 'text'" v-model="answer.text" />
@@ -274,7 +273,7 @@ export default {
   },
   computed: {
     mainTextFieldLabel() {
-      return this.stepType.category === 'enigma' ? 'Question' : 'Texte'
+      return this.stepType.category === 'enigma' ? 'Question' : 'Text'
     }
   },
   async mounted() {
