@@ -1,17 +1,17 @@
 <template>
   <div>
-    <h1>Choisissez le type d'étape</h1>
+    <h1>{{ $t('message.ChooseTheStepType') }}</h1>
     
-    <h2>Transition</h2>
+    <h2>{{ $t('message.Transition') }}</h2>
     
     <stepTypeItem v-for="stepType in filteredStepTypes('transition')" :key="stepType.code" :stepType="stepType" @click.native="selectStepType(stepType)"></stepTypeItem>
     
-    <h2>Enigme</h2>
+    <h2>{{ $t('message.Quest') }}</h2>
     
     <stepTypeItem v-for="stepType in filteredStepTypes('enigma')" :key="stepType.code" :stepType="stepType" @click.native="selectStepType(stepType)"></stepTypeItem>
     
     <div class="link-below-button" v-if="$route.params.action === 'edit'">
-      <router-link :to="{ path: '/quest/edit/step/list'}">Retour à la liste d'étapes</router-link>
+      <router-link :to="{ path: '/quest/edit/step/list'}">{{ $t('message.BackToTheStepsList') }}</router-link>
     </div>
   </div>
 </template>

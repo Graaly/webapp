@@ -23,7 +23,7 @@
     
     <div class="tab-content">
        <p v-show="profile._id == user._id">
-          <q-btn link class="full-width" @click="$router.push('/quest/create/welcome')" color="primary">{{ $t('message.CreateANewQuest') }}</q-btn>
+          {{ $t('message.YouWonNbPoints', {nb: user.score}) }}
         </p>
         
         <q-list highlight>
@@ -33,10 +33,7 @@
             <q-item-main>
               <q-item-tile label>{{ quest.title }}</q-item-tile>
               <q-item-tile sublabel v-if="quest.status == 'published'">
-                <q-rating readonly :value="Math.round(quest.rating)" color="primary" :max="5" size="1rem" /> - 
-                {{ $t('message.PublishedSince') }} {{quest.dateCreated | formatDate}}
-                <br />
-                [[Score semaine]] [[Score total]]
+
               </q-item-tile>
               <q-item-tile sublabel v-if="quest.status == 'unpublished'">
                 {{ $t('message.Unpublished') }}
@@ -79,14 +76,14 @@ export default {
       if (!this.$route.params.id || this.$route.params.id === 'me' || this.$route.params.id === this.user._id) {
         this.$store.dispatch('setTitle', this.$t('message.MyProfil'))
         this.profile = this.user
-        this.listCreatedQuests(this.user._id)
+        this.listPlayedQuests(this.user._id)
       } else {
         this.getProfileInformations(this.$route.params.id)
-        this.listCreatedQuests(this.$route.params.id)
+        this.listPlayedQuests(this.$route.params.id)
       }
     },
-    async listCreatedQuests(id) {
-      let response = await QuestService.ListCreatedByAUser(id)
+    async listPlayedQuests(id) {
+      let response = await QuestService.ListPlayedByAUser(id)
       this.quests = response.data
     },
     async getProfileInformations(id) {

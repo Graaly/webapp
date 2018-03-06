@@ -24,6 +24,11 @@ export default {
     return Api().get('user/' + id + '/quests/created')
   },
   
+  // list the quests played by a user
+  ListPlayedByAUser (id) {
+    return Api().get('user/' + id + '/quests/played')
+  },
+  
   // upload a quest picture
   uploadPicture(data) {
     return Api().post('/quest/picture/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  

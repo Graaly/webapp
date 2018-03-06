@@ -34,7 +34,7 @@ import locales from './i18n/main.js'
 Vue.use(VueI18n)
 
 var i18n = new VueI18n({
-  locale: 'fr',
+  locale: 'en',
   messages: locales
 });
 

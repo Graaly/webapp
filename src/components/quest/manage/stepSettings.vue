@@ -22,24 +22,24 @@
     
     <div class="background-upload">
       <q-btn class="full-width" type="button">
-        <label for="picturefile">Télécharger une image de fond</label>
+        <label for="picturefile">{{ $t('message.UploadABackgroundImage') }}</label>
         <input @change="uploadBackgroundImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       </q-btn>
-      <p>Attention : l'image est retaillée au format 4:3, orientation portrait.</p>
+      <p>{{ $t('message.WarningImageResize') }}</p>
       <div v-if="form.backgroundImage !== null">
-        <p>Image téléchargée :</p>
+        <p>{{ $t('message.YourPicture') }} :</p>
         <img :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage" />
       </div>
     </div>
     
     <div v-if="stepType.code == 'info-video'">
       <q-btn class="full-width" type="button">
-        <label for="videofile">Télécharger une vidéo</label>
+        <label for="videofile">{{ $t('message.UploadAVideo') }}</label>
         <input @change="uploadVideo" name="videofile" id="videofile" type="file" accept="video/mp4,video/x-m4v,video/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       </q-btn>
       <div>
         <!-- TODO show video file infos (size on disk, width x height, etc.) -->
-        <p v-show="form.videoStream === null">Aucune vidéo téléchargée.</p>
+        <p v-show="form.videoStream === null">{{ $t('message.NoVideoUploaded') }}</p>
         <video v-if="form.videoStream !== null" class="full-width" controls controlsList="nodownload">
           <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + form.videoStream" type="video/mp4" />
         </video>
@@ -64,23 +64,23 @@
           <input type="number" id="answer-longitude" v-model.number="form.answerCoordinates.lng" placeholder="par ex. 45,49812" step="any" />
         </div>
       </div>
-      <q-checkbox v-model="form.showDistanceToTarget" label="Afficher la distance avec le lieu" />
-      <q-checkbox v-model="form.showDirectionToTarget" label="Afficher la flèche de direction" />
+      <q-checkbox v-model="form.showDistanceToTarget" :label="$t('message.DisplayDistanceBetweenUserAndLocation')" />
+      <q-checkbox v-model="form.showDirectionToTarget" :label="$t('message.DisplayDirectionArrow')" />
     </div>
     
     <div v-if="stepType.code == 'choose'">
       
       <h2>Types de réponse</h2>
-      <q-radio v-model="answerType" val="text" label="Textes" />
-      <q-radio v-model="answerType" val="image" label="Images" />
+      <q-radio v-model="answerType" val="text" :label="$t('message.Texts')" />
+      <q-radio v-model="answerType" val="image" :label="$t('message.Pictures')" />
         
       <h2>Réponses possibles</h2>
-      <p>Sélectionnez la bonne réponse à l'aide des boutons radio.</p>
+      <p>{{ $t('message.SelectTheGoodAnswer') }}</p>
       <!-- TODO allow to choose between text / image answers -->
       <div class="answer" v-for="(answer, key) in form.answers" :key="key">
         <q-radio v-model="rightAnswerIndex" :val="key" />
         <q-input v-show="answerType === 'text'" v-model="answer.text" />
-        <p v-show="answerType === 'image' && answer.imagePath === null">Aucune image téléchargée</p>
+        <p v-show="answerType === 'image' && answer.imagePath === null">{{ $t('message.NoPictureUploaded') }}</p>
         <p><img v-if="answerType === 'image' && answer.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + answer.imagePath" /></p>
         <q-btn v-show="answerType === 'image'">
           <label :for="'answerImage' + key"><q-icon name="file upload" /></label>
@@ -91,14 +91,14 @@
         </q-btn>
       </div>
       <q-btn @click="addAnswer()" class="full-width add-answer">
-        Ajouter une réponse
+        {{ $t('message.AddAnAnswer') }}
       </q-btn>
     </div>
     
     <div v-if="stepType.code == 'write-text'">
       <q-input
         v-model="form.answers"
-        float-label="Réponse attendue"
+        :float-label="$t('message.ExpectedAnswer')"
       />
     </div>
     
@@ -106,7 +106,7 @@
       <!-- TODO validation: numbers only -->
       <q-input
         v-model="form.answers"
-        float-label="Code"
+        :float-label="$t('message.Code')"
         max-length="4"
       />
     </div>
@@ -119,11 +119,11 @@
     
     <div v-if="stepType.code == 'image-recognition'" class="image-recognition">
       <q-btn class="full-width" type="button">
-        <label for="image-to-recognize">Télécharger l'image de l'objet à retrouver</label>
+        <label for="image-to-recognize">{{ $t('message.UploadThePictureOfTheObjectToFind') }}</label>
         <input @change="uploadImageToRecognize" name="image-to-recognize" id="image-to-recognize" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       </q-btn>
       <div v-if="form.answers !== null">
-        <p>Image téléchargée :</p>
+        <p>{{ $t('message.UploadedPicture') }} :</p>
         <img :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + form.answers" />
       </div>
     </div>
@@ -198,14 +198,14 @@
       <q-input v-model="form.hint" float-label="Indice" />
     </div>
     
-    <q-btn class="full-width" color="primary" @click="submit">Enregistrer l'étape</q-btn>
+    <q-btn class="full-width" color="primary" @click="submit">{{ $t('message.SaveThisStep') }}</q-btn>
     
     <div class="link-below-button">
-      <router-link :to="{ path: '/quest/' + (isEdition ? 'edit' : 'create') + '/step/type' }">{{ isEdition ? "Changer de type d'étape" : "Retour au choix d'étape" }}</router-link>
+      <router-link :to="{ path: '/quest/' + (isEdition ? 'edit' : 'create') + '/step/type' }">{{ isEdition ? $t('message.ChangeStepType') : $t('message.BackToStepChoice') }}</router-link>
     </div>
     
     <div class="link-below-button" v-if="isEdition">
-      <router-link :to="{ path: '/quest/edit/step/list'}">Retour à la liste d'étapes</router-link>
+      <router-link :to="{ path: '/quest/edit/step/list'}">{{ $t('message.BackToThisQuestStepslist') }}</router-link>
     </div>
     
   </div>
@@ -317,7 +317,7 @@ export default {
     }
     
     if (this.form.title === '') {
-      this.form.title = 'Niveau ' + this.form.number
+      this.form.title = this.$t('message.Level') + ' ' + this.form.number
     }
     
     if (this.stepType.code === 'choose') {
@@ -368,15 +368,15 @@ export default {
     // for 'choose' step type
     addAnswer: function () {
       if (this.form.answers.length >= this.maxNbAnswers) {
-        Toast.create.negative("Veuillez définir un maximum de " + this.maxNbAnswers + " réponses.")
+        Toast.create.negative(this.$t('message.YouCantAddMoreThanNbAnswers', { nb: this.maxNbAnswers }))
       } else {
         // TODO adapt to support 'choose image'
-        this.form.answers.push({ text: 'réponse ' + (this.form.answers.length + 1), isRightAnswer: false });
+        this.form.answers.push({ text: this.$t('message.AnswerNb', { nb: (this.form.answers.length + 1) }), isRightAnswer: false });
       }
     },
     deleteAnswer: function (key) {
       if (this.form.answers.length <= this.minNbAnswers) {
-        Toast.create.negative("Veuillez définir au moins " + this.minNbAnswers + " réponses.")
+        Toast.create.negative(this.$t('message.YouMustDefineAtLeastNbAnswers', { nb: this.minNbAnswers }))
       } else {
         this.form.answers.splice(key, 1);
       }

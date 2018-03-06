@@ -13,8 +13,10 @@
       </div>
       <div v-if="isRunFinished">
         <p>
-          Cette enquête ne vous rapporte plus de points.<br />
-          Pour en gagner, <router-link to="/quest/search/map">cherchez-en</router-link> ou <router-link to="/quest/create">crééz-en</router-link> d'autres !
+          {{ $t('message.YouAlreadyPlayThisQuestSoYouWinNoPoints') }}
+        </p>
+        <p>
+          {{ $t('message.ResolveOtherQuestsToWinPoints') }}
         </p>
       </div>
       
@@ -33,7 +35,7 @@
       </div>
       
       <div class="back">
-        <router-link to="/quest/search/map">{{ $t('message.BackToTheMap') }}Retour à la carte</router-link>
+        <router-link to="/quest/search/map">{{ $t('message.BackToTheMap') }}</router-link>
       </div>
     </div>
     

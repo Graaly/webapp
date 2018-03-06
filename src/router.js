@@ -20,6 +20,7 @@ import UserCreateAccount from '@/user/createAccount'
 import UserIntro from '@/user/intro'
 import UserHelp from '@/user/help'
 import UserProfile from '@/user/profile'
+import UserPlayedQuests from '@/user/played'
 import UserProfileModify from '@/user/updateProfile'
 
 //import UserProfile from '@/user/profile'
@@ -144,6 +145,11 @@ var router = new VueRouter({
       path: '/user/profile/:id(\\w{24}|me)',
       name: 'profile',
       component: UserProfile
+    },
+    {
+      path: '/user/quests/:id(\\w{24}|me)',
+      name: 'playedQuests',
+      component: UserPlayedQuests
     },
     {
       path: '/user/profile/:id(\\w{24}|me)/modify',
