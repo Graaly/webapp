@@ -79,12 +79,12 @@ export default {
     async publish() {
       this.quest.status = 'published';
       await QuestService.save({ _id: this.quest._id, status: this.quest.status })
-      Toast.create.positive( this.$t('message.YourQuestIsPublished') )
+      Toast.create.positive(this.$t('message.YourQuestIsPublished'))
     },
     async unpublish() {
       this.quest.status = 'unpublished';
       await QuestService.save({ _id: this.quest._id, status: this.quest.status })
-      Toast.create.positive( this.$t('message.YourQuestIsUnpublished') )
+      Toast.create.positive(this.$t('message.YourQuestIsUnpublished'))
     },
     async removeStep(stepId) {
       var _this = this; // workaround for closure scope quirks

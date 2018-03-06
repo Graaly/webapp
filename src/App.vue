@@ -118,9 +118,12 @@ export default {
       document.getElementById('q-app').style.maxHeight = window.innerHeight + "px"
       // there are better although more complex ways to avoid hardcoding header height here
       let computedHeight = (window.innerHeight - 50) + "px";
-      document.getElementById('main-view').style.height = computedHeight;
-      document.getElementById('main-view').style.minHeight = computedHeight;
-      document.getElementById('main-view').style.maxHeight = computedHeight;
+      let mainview = document.getElementById('main-view')
+      if (typeof mainview !== 'undefined') { 
+        document.getElementById('main-view').style.height = computedHeight;
+        document.getElementById('main-view').style.minHeight = computedHeight;
+        document.getElementById('main-view').style.maxHeight = computedHeight;
+      }
     }
   }
 }

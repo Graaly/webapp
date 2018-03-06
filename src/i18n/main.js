@@ -164,7 +164,9 @@ module.exports = {
       BackToTheListOfAllMyQuest: "Back to all my quests list",
       YourQuest: "Your quest",
       YourQuestIsPublished: "Your quest is published",
-      YourQuestIsUnpublished: "Your quest is unpublished"
+      YourQuestIsUnpublished: "Your quest is unpublished",
+      Question: "Question",
+      Text: "Text"
     }
   },
   fr: {
@@ -333,7 +335,10 @@ module.exports = {
       BackToTheListOfAllMyQuest: "Retour à la liste de toutes mes enquêtes",
       YourQuest: "Votre enquête",
       YourQuestIsPublished: "Votre enquête est publiée",
-      YourQuestIsUnpublished: "Votre enquête est repassé en brouillon"
+      YourQuestIsUnpublished: "Votre enquête est repassé en brouillon",
+      Question: "Question",
+      Text: "Texte",
+      test: "test"
     }
   }
 }
