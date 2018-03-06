@@ -81,7 +81,11 @@ export default {
           currentStep: 1,
           score: 0,
           dateCreated: new Date(),
-          dateUpdated: null
+          dateUpdated: null,
+          questData: {
+            picture: this.quest.picture,
+            title: this.quest.title
+          }
         })
         
         if (res.status === 201) {

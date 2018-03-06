@@ -165,7 +165,6 @@ module.exports = {
       YourQuest: "Your quest",
       YourQuestIsPublished: "Your quest is published",
       YourQuestIsUnpublished: "Your quest is unpublished",
-<<<<<<< HEAD
       UploadABackgroundImage: "Upload a background image",
       WarningImageResize: "The image will be resized with a mobile size (portrait orientation)",
       UploadAVideo: "Upload a video",
@@ -197,11 +196,12 @@ module.exports = {
       BuilderWelcomeMessage: "<p>Graaly helps you create your own challenges on your mobile phone.</p><p>You will be guided to create each steps of your quest. You can save at any step, to continue later, or modify your quest.</p><p>You will proposed to test your quest before publishing it, to optimize it and help it to win the best rating from other users.</p>",
       YouAlreadyPlayThisQuestSoYouWinNoPoints: "You already win points of this quest in the past",
       ResolveOtherQuestsToWinPoints: "Play new quests to win points",
-      YouWonNbPoints: "You won {nb}"
-=======
+      YouWonNbPoints: "You won {nb}",
       Question: "Question",
-      Text: "Text"
->>>>>>> a9c5b717262721e253dd3cc966c793e97fb55d8b
+      Text: "Text",
+      Map: "Map",
+      ContinueThisQuest: "You have not finished it. Continue?",
+      PlayedOn: "Played on"
     }
   },
   fr: {
@@ -371,7 +371,6 @@ module.exports = {
       YourQuest: "Votre enquête",
       YourQuestIsPublished: "Votre enquête est publiée",
       YourQuestIsUnpublished: "Votre enquête est repassé en brouillon",
-<<<<<<< HEAD
       UploadABackgroundImage: "Télécharger une image de fond",
       WarningImageResize: "L'image sera redimensionnée au format d'un téléphone (format portrait)",
       UploadAVideo: "Télécharger une vidéo",
@@ -402,12 +401,13 @@ module.exports = {
       BuilderWelcomeMessage: "<p>Graaly vous permet de créer très simplement des visites ludiques sur téléphone mobile ou tablette.</p><p>Vous allez être guidé au travers de plusieurs étapes pour définir les différentes étapes de votre visite ou votre jeu. Vous pouvez à chaque étape sauvegarder pour continuer plus tard, ou modifier une étape déjà créée.</p><p>Vous pourrez à la fin tester votre enquête avant de la publier, de manière à l'optimiser pour qu'elle  obtienne la meilleure note possible et soit populaire.</p>",
       YouAlreadyPlayThisQuestSoYouWinNoPoints: "Vous avez déjà gagné précedemment les points de cette enquête",
       ResolveOtherQuestsToWinPoints: "Résolvez de nouvelles enquêtes pour gagner des points",
-      YouWonNbPoints: "Vous avez gagné {nb}"
-=======
+      YouWonNbPoints: "Vous avez gagné {nb}",
       Question: "Question",
       Text: "Texte",
-      test: "test"
->>>>>>> a9c5b717262721e253dd3cc966c793e97fb55d8b
+      test: "test",
+      Map: "Carte",
+      ContinueThisQuest: "Vous n'êtes pas allé au bout. Continuer ?",
+      PlayedOn: "Resolue le "
     }
   }
 }

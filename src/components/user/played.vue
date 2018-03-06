@@ -22,23 +22,30 @@
     </q-tabs>
     
     <div class="tab-content">
-       <p v-show="profile._id == user._id">
+       <p class="score-bar" v-show="profile._id == user._id">
           {{ $t('message.YouWonNbPoints', {nb: user.score}) }}
+          <img src="/statics/icons/game/medal.png" />
         </p>
         
         <q-list highlight>
-          <q-item v-for="quest in quests" :key="quest._id" @click="$router.push('/quest/edit/'+quest._id)">
-            <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
-            <q-item-side v-if="!quest.picture" :avatar="'/statics/profiles/noprofile.png'" />
+          <q-item v-for="quest in quests" :key="quest.questId" @click="$router.push('/quest/play/'+quest.questId)">
+            <q-item-side v-if="quest.questData && quest.questData.picture" :avatar="serverUrl + '/upload/quest/' + quest.questData.picture" />
+            <q-item-side v-if="!quest.questData || !quest.questData.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>
-              <q-item-tile label>{{ quest.title }}</q-item-tile>
-              <q-item-tile sublabel v-if="quest.status == 'published'">
-
+              <q-item-tile label>{{ quest.questData.title }}</q-item-tile>
+              <q-item-tile sublabel v-if="quest.status == 'finished' && quest.score">
+                {{ $t('message.PlayedOn') }} {{quest.dateCreated | formatDate}}
               </q-item-tile>
-              <q-item-tile sublabel v-if="quest.status == 'unpublished'">
-                {{ $t('message.Unpublished') }}
+              <q-item-tile sublabel v-if="quest.status == 'finished' && !quest.score">
+                {{ $t('message.Succeeded') }}
+              </q-item-tile>
+              <q-item-tile sublabel v-if="quest.status == 'in-progress'">
+                {{ $t('message.ContinueThisQuest') }}
               </q-item-tile>
             </q-item-main>
+            <q-item-side right class="score">
+              {{ quest.score }}
+            </q-item-side>
           </q-item>
         </q-list>
     

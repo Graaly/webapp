@@ -65,7 +65,6 @@ import utils from 'src/includes/utils'
 export default {
   data () {
     return {
-      title: 'Carte',
       mapCenter: { lat: 0, lng: 0 },
       mapCenterTmp: { lat: 0, lng: 0 },
       infoWindow: {
@@ -109,7 +108,7 @@ export default {
   },
   mounted() {
     // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', this.$data.title)
+    this.$store.dispatch('setTitle', this.$t('message.Map'))
     
     this.getAccountInformations()
     
