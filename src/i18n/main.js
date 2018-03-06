@@ -201,7 +201,15 @@ module.exports = {
       Text: "Text",
       Map: "Map",
       ContinueThisQuest: "You have not finished it. Continue?",
-      PlayedOn: "Played on"
+      PlayedOn: "Played on",
+      ExpectedColorCodeAnswer: "Expected color code:"
+    },
+    color: {
+      red: "Red",
+      green: "Green",
+      blue: "Blue",
+      black: "Black",
+      white: "White"
     }
   },
   fr: {
@@ -407,7 +415,15 @@ module.exports = {
       test: "test",
       Map: "Carte",
       ContinueThisQuest: "Vous n'êtes pas allé au bout. Continuer ?",
-      PlayedOn: "Resolue le "
+      PlayedOn: "Resolue le ",
+      ExpectedColorCodeAnswer: "Combinaison de couleurs attendue :"
+    },
+    color: {
+      red: "Rouge",
+      green: "Vert",
+      blue: "Bleu",
+      black: "Noir",
+      white: "Blanc"
     }
   }
 }
