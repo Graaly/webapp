@@ -84,7 +84,9 @@ export default {
           dateUpdated: null,
           questData: {
             picture: this.quest.picture,
-            title: this.quest.title
+            title: this.quest.title, 
+            zipCode: "",
+            town: ""
           }
         })
         

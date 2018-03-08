@@ -18,10 +18,10 @@
     </div>
     
     <q-tabs>
-      <q-route-tab :to="{ name: 'teamRankingList', params: { id: team.profile._id } }" slot="title" :label="$t('message.Ranking')" exact />
-      <q-route-tab :to="{ name: 'teamChallengesList', params: { id: team.profile._id } }" slot="title" :label="$t('message.Challenges')" exact />
-      <q-route-tab :to="{ name: 'teamNewsList', params: { id: team.profile._id } }" alert slot="title" :label="$t('message.News')" exact />
-      <q-route-tab :to="{ name: 'teamMembersList', params: { id: team.profile._id } }" slot="title" :label="$t('message.Members')" exact /> 
+      <q-route-tab :to="{ name: 'teamRankingList', params: { id: $route.params.id } }" slot="title" :label="$t('message.Ranking')" exact />
+      <q-route-tab :to="{ name: 'teamChallengesList', params: { id: $route.params.id } }" slot="title" :label="$t('message.Challenges')" exact />
+      <q-route-tab :to="{ name: 'teamNewsList', params: { id: $route.params.id } }" alert slot="title" :label="$t('message.News')" exact />
+      <q-route-tab :to="{ name: 'teamMembersList', params: { id: $route.params.id } }" slot="title" :label="$t('message.Members')" exact /> 
     </q-tabs>
     
     <div class="tab-content">

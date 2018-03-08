@@ -39,6 +39,7 @@ module.exports = {
     'no-multi-spaces': 'off',
     'no-trailing-spaces': 'off',
     'no-trailing-spaces': 'off',
+    'no-undef': 'off',
     'semi': 'off',
     'indent': 'off',
     'space-before-function-paren': 'off',

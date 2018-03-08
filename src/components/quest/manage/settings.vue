@@ -31,7 +31,7 @@
         />
       </div>
       
-      <div class="location-gps">
+      <div class="location-gps" style="display: none">
         <p>Coordonnées GPS</p>
         <div class="location-gps-inputs">
           <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
@@ -47,8 +47,10 @@
       </div>
       
       <div class="location-address">
-        <q-input type="text" :float-label="$t('message.StartingPointOfTheQuest')" v-model="form.startingPlace" />
-        <img src="/statics/icons/game/location.png" />
+        <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
+          <gmap-autocomplete :placeholder="$t('message.StartingPointOfTheQuest')" v-model="form.startingPlace" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
+        </div>
+        <a @click="getCurrentLocation()"><img src="/statics/icons/game/location.png" /></a>
       </div>
       
       <q-field>
@@ -159,7 +161,7 @@ export default {
         // retrieve new quest ID and save it into store
         this.$store.dispatch('setCurrentEditedQuest', res.data)
         
-        Toast.create.positive(this.isEdition ? 'Enquête enregistrée' : 'Nouvelle enquête créée')
+        Toast.create.positive(this.isEdition ? this.$t('message.QuestSaved') : this.$t('message.NewQuestCreated'))
         this.$router.push(this.isEdition ? '/quest/edit/step/list' : '/quest/create/step/type')
       }
     },
@@ -174,6 +176,23 @@ export default {
       if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
         this.form.picture = uploadPictureResult.data.file
       }
+    },
+    async getCurrentLocation() {
+      // get the current coords
+      navigator.geolocation.getCurrentPosition(this.fillLocation)
+    },
+    async fillLocation(pos) {
+      this.form.location = {lat: pos.coords.latitude, lng: pos.coords.longitude}
+      // get the address
+      var geocoder = new google.maps.Geocoder();
+      geocoder.geocode({'location': {lat: pos.coords.latitude, lng: pos.coords.longitude}}, (results, status) => {
+        if (status === 'OK' && results[0].formatted_address) {
+          this.form.startingPlace = results[0].formatted_address
+        }
+      });
+    },
+    async setLocation(place) {
+      this.form.location = {lat: place.geometry.location.lat(), lng: place.geometry.location.lng()}
     }
   },
   validations: {

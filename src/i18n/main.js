@@ -201,7 +201,9 @@ module.exports = {
       Text: "Text",
       Map: "Map",
       ContinueThisQuest: "You have not finished it. Continue?",
-      PlayedOn: "Played on"
+      PlayedOn: "Played on",
+      QuestSaved: "Quest saved",
+      NewQuestCreated: "New quest created"
     }
   },
   fr: {
@@ -407,7 +409,9 @@ module.exports = {
       test: "test",
       Map: "Carte",
       ContinueThisQuest: "Vous n'êtes pas allé au bout. Continuer ?",
-      PlayedOn: "Resolue le "
+      PlayedOn: "Resolue le ",
+      QuestSaved: "Enquête enregistrée",
+      NewQuestCreated: "Nouvelle enquête créée"
     }
   }
 }

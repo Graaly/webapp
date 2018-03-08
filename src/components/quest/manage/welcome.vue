@@ -4,7 +4,7 @@
     <div class="wrapper">
       <h1>{{ $t('message.YourQuest') }}</h1>
       
-      <div class="grow" :v-html="$t('message.BuilderWelcomeMessage')"></div>
+      <div class="grow" v-html="$t('message.BuilderWelcomeMessage')"></div>
       
       <q-btn color="primary" class="full-width center" @click="$router.push('/quest/create/settings')">{{ $t('message.Start') }}</q-btn>
     </div>

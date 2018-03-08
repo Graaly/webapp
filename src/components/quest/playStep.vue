@@ -268,10 +268,10 @@ export default {
           }
           
           this.geolocation.locationWatcher = navigator.geolocation.watchPosition(this.watchLocationSuccess, this.watchLocationError, {
-              enableHighAccuracy: false,
-              timeout: this.geolocation.watchLocationInterval,
-              maximumAge: 0
-            })
+            enableHighAccuracy: false,
+            timeout: this.geolocation.watchLocationInterval,
+            maximumAge: 0
+          })
           
           // prepare arrow canvas
           let canvas = document.querySelector('.direction-helper canvas')
