@@ -203,7 +203,15 @@ module.exports = {
       ContinueThisQuest: "You have not finished it. Continue?",
       PlayedOn: "Played on",
       QuestSaved: "Quest saved",
-      NewQuestCreated: "New quest created"
+      NewQuestCreated: "New quest created",
+      ExpectedColorCodeAnswer: "Expected color code:"
+    },
+    color: {
+      red: "Red",
+      green: "Green",
+      blue: "Blue",
+      black: "Black",
+      white: "White"
     }
   },
   fr: {
@@ -412,6 +420,14 @@ module.exports = {
       PlayedOn: "Resolue le ",
       QuestSaved: "Enquête enregistrée",
       NewQuestCreated: "Nouvelle enquête créée"
+      ExpectedColorCodeAnswer: "Combinaison de couleurs attendue :",
+    },
+    color: {
+      red: "Rouge",
+      green: "Vert",
+      blue: "Bleu",
+      black: "Noir",
+      white: "Blanc"
     }
   }
 }

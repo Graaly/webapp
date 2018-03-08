@@ -110,9 +110,20 @@
       />
     </div>
     
-    <div v-if="stepType.code == 'code-color'">
-      Combinaison de couleurs attendue:
-      <!-- TODO -->
+    <div v-if="stepType.code == 'code-color'" class="code-color">
+      <h2>{{ $t('message.ExpectedColorCodeAnswer') }}</h2>
+      <table>
+      <tr>
+        <td v-for="(color, index) in form.answers" :key="index">
+          <q-select :ref="'colorSelect' + index" v-model="form.answers[index]" :options="colorsForCode"  />
+        </td>
+      </tr>
+      <tr>
+        <td v-for="(color, index) in form.answers" :key="index">
+          <div @click="triggerClickOnColorSelect(index)" class="color-bubble" :style="'background-color: ' + form.answers[index]">&nbsp;</div>
+        </td>
+      </tr>
+      </table>
     </div>
     
     
@@ -214,6 +225,7 @@
 import { QCheckbox, QUploader, Toast } from 'quasar'
 import { required } from 'vuelidate/lib/validators'
 import stepTypes from 'data/stepTypes.json'
+import colorsForCode from 'data/colorsForCode.json'
 import StepService from 'services/StepService'
 import QuestService from 'services/QuestService'
 //import QuestService from 'services/QuestService'
@@ -268,7 +280,10 @@ export default {
       minNbAnswers: 2,
       maxNbAnswers: 6,
       rightAnswerIndex: 0,
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      
+      // for 'code-color' steps
+      colorsForCode: this.getColorsForCodeOptions()
     }
   },
   computed: {
@@ -329,6 +344,10 @@ export default {
       } else {
         this.answerType = this.form.answers[0].hasOwnProperty('imagePath') && this.form.answers[0].imagePath !== null ? 'image' : 'text'
       }
+    } else if (this.stepType.code === 'code-color') {
+      if (!Array.isArray(this.form.answers)) {
+        this.form.answers = Array(4).fill('red')
+      }
     }
   },
   methods: {
@@ -369,7 +388,6 @@ export default {
       if (this.form.answers.length >= this.maxNbAnswers) {
         Toast.create.negative(this.$t('message.YouCantAddMoreThanNbAnswers', { nb: this.maxNbAnswers }))
       } else {
-        // TODO adapt to support 'choose image'
         this.form.answers.push({ text: this.$t('message.AnswerNb', { nb: (this.form.answers.length + 1) }), isRightAnswer: false });
       }
     },
@@ -427,6 +445,22 @@ export default {
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.form.answers[key].imagePath = uploadResult.data.file
       }
+    },
+    
+    // for 'code-color' step type
+    getColorsForCodeOptions() {
+      let options = []
+      colorsForCode.forEach((code) => {
+        options.push({
+          value: code,
+          label: this.$t('color.' + code)
+        })
+      })
+      return options
+    },
+    triggerClickOnColorSelect(index) {
+      // [0] is required because of v-for, see https://forum-archive.vuejs.org/topic/5190/this-refs-ref_name-on-dynamic-component-is-array-instead-of-vuecomponent/2
+      this.$refs['colorSelect' + index][0].$el.click()
     }
   },
   validations: {
@@ -455,5 +489,10 @@ p { margin-bottom: 0.5rem; }
 .add-answer { margin: 0.5rem auto; }
 
 .background-upload img, .image-recognition img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }
+
+.code-color h2 { margin-bottom: 0; }
+.code-color table { margin: auto; }
+.code-color table td { padding: 0rem; width: 6rem; }
+.code-color .color-bubble { display: block; width: 4rem; height: 4rem; border: 4px solid black; border-radius: 2rem; transition: background-color 0.3s; }
 
 </style>

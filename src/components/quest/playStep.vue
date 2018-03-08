@@ -49,7 +49,7 @@
       <div>
         <p class="text">{{ step.text }}</p>
       </div>
-      <div class="typedCode">
+      <div class="typed-code">
         <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
         <tr>
           <td v-for="(sign, key) in playerCode" :class="{ typed: sign !== ''}">{{ sign == '' ? '?' : sign }}</td>
@@ -72,6 +72,29 @@
       </div>
       <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
          <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongGoodCodeWas') + " " + step.answers }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
+        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+      </div>
+    </div>
+    
+    
+    
+    <div class="code code-color" v-if="step.type == 'code-color'">
+      <div>
+        <p class="text">{{ step.text }}</p>
+      </div>
+      
+      <div class="color-bubbles">
+        <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">&nbsp;</div>
+      </div>
+      
+      <div class="actions fixed-bottom" v-show="playerResult === null">
+        <div>
+          <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('message.Confirm') }}</q-btn>
+        </div>
+        <q-btn v-show="step.hint" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
+      </div>
+      <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
+         <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongAnswer') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
         <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
       </div>
     </div>
@@ -146,10 +169,15 @@
 <script>
 import simi from 'src/includes/simi' // for image similarity
 import utils from 'src/includes/utils'
+
 import RunService from 'services/RunService'
 import StepService from 'services/StepService'
+
+import colorsForCode from 'data/colorsForCode.json'
+
 import Vue from 'vue'
 import { Alert, Toast } from 'quasar'
+
 export default {
   data () {
     return {
@@ -164,7 +192,7 @@ export default {
       // for step 'choose'
       answerType: 'text', // 'text' or 'image'
       
-      // for step type 'code-keypad'
+      // for steps type 'code-keypad' & 'code-color'
       playerCode: [],
       keypad: [
         ["1", "2", "3"],
@@ -239,6 +267,10 @@ export default {
         if (this.step.type === 'code-keypad') {
           // for step type 'code-keypad', this.step.answers is a string in DB
           this.playerCode = Array(this.step.answers.length).fill("");
+        }
+        
+        if (this.step.type === 'code-color') {
+          this.playerCode = Array(4).fill('red');
         }
         
         if (this.step.type === 'geolocation') {
@@ -359,6 +391,17 @@ export default {
           this.playerResult = (this.playerCode.join('') === this.step.answers)
           break
         
+        case 'code-color':
+          let result = true
+          for (let i = 0; i < this.playerCode.length; i++) {
+            if (this.playerCode[i] !== this.step.answers[i]) {
+              result = false
+              break
+            }
+          }
+          this.playerResult = result
+          break
+        
         case 'write-text':
           this.playerResult = (this.writetext.playerAnswer === this.step.answers)
           break
@@ -404,6 +447,17 @@ export default {
       }
       
       Vue.set(this.playerCode, lastTypedCharIndex, '')
+    },
+    
+    /* specific methods for step type 'code-color' */
+    
+    changeColorForCode(index) {
+      if (this.playerResult !== null) {
+        return
+      }
+      let currentColorIndex = colorsForCode.indexOf(this.playerCode[index])
+      let nextColorIndex = (currentColorIndex + 1) % colorsForCode.length
+      this.$set(this.playerCode, index, colorsForCode[nextColorIndex])
     },
     
     /* specific methods for step type 'image-recognition' */
@@ -572,7 +626,6 @@ export default {
       
       // TODO no hardcoding
       if (this.geolocation.distance < 20) {
-        console.log('Congratulations, you reached the target')
         navigator.geolocation.clearWatch(this.geolocation.locationWatcher);
         this.playerResult = true
         await this.awardPoints()
@@ -638,13 +691,18 @@ export default {
   
   /* keypad specific (code) */
   
-  .typedCode { text-align: center; margin: 1rem auto; }
-  .typedCode table { border-collapse: collapse; background-color: rgba(255, 255, 255, 0.6); }
-  .typedCode td { width: 2rem; height: 3rem; border: 1px solid black; vertical-align: middle; text-align: center; line-height: 3rem; }
-  .typedCode td.typed { font-weight: bold; font-size: 1.7rem; }
+  .typed-code { text-align: center; margin: 1rem auto; }
+  .typed-code table { border-collapse: collapse; background-color: rgba(255, 255, 255, 0.6); }
+  .typed-code td { width: 2rem; height: 3rem; border: 1px solid black; vertical-align: middle; text-align: center; line-height: 3rem; }
+  .typed-code td.typed { font-weight: bold; font-size: 1.7rem; }
   
   .keypad { flex-grow: 1; display: flex; flex-flow: column nowrap; justify-content: center; text-align: center; }
   .keypad .q-btn { margin: 0.5rem; width: 15%; height: 15%; font-weight: bold; font-size: 1.7rem; }
+  
+  /* color code specific */
+  
+  .code-color .color-bubbles { margin-top: 5rem; flex-grow: 1; display: flex; flex-flow: row nowrap; justify-content: center; }
+  .code-color .color-bubbles div { display: block; width: 4rem; height: 4rem; border: 4px solid black; border-radius: 2rem; margin: 0.3rem; transition: background-color 0.3s; }
   
   /* image recognition specific */
   
