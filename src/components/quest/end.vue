@@ -3,7 +3,7 @@
     <div class="end-header">{{ $t('message.CongratulationThisCaseIsClassified') }}.</div>
     
     <div class="end-body">
-      <div class="result" v-if="!isRunFinished">
+      <div class="result" v-if="awardPoints">
         <p>{{ $t('message.YouWin') }}</p>
         <div class="result-score">
           <div>{{ run.score }}</div>
@@ -11,7 +11,7 @@
         </div>
         <router-link to="/help/points">{{ $t('message.WhatCanYouDoWithThesePoints') }}</router-link>
       </div>
-      <div v-if="isRunFinished">
+      <div v-if="!awardPoints">
         <p>
           {{ $t('message.YouAlreadyPlayThisQuestSoYouWinNoPoints') }}
         </p>
@@ -25,7 +25,7 @@
         <q-rating v-model="rating" :max="5" size="2rem" />
       </div>
       
-      <div class="share" v-if="!isRunFinished">
+      <div class="share" v-if="awardPoints">
         <p>{{ $t('message.ShareYourSuccess') }}</p>
         <ul>
           <li><img src="/statics/icons/social-networks/facebook.png"></li>
@@ -57,24 +57,30 @@ export default {
       run: {
         score: 0
       },
-      isRunFinished: true
+      awardPoints: false
     }
   },
   async mounted () {
     // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', this.$data.title);
+    this.$store.dispatch('setTitle', this.$data.title)
     
     if (this.$store.state.currentRun !== null) {
       let res = await RunService.getById(this.$store.state.currentRun._id)
       this.run = res.data
-      this.isRunFinished = this.run.status === 'finished'
       
-      await RunService.save({ _id: this.run._id, status: 'finished' })
+      // no run for this quest & user finished yet ? => award points
+      res = await RunService.getOne({ questId: this.run.questId, userId: this.run.userId, status: 'finished' })
+      this.awardPoints = (typeof res === 'undefined')
       
       // TODO to avoid cheating, points assignments to a player must be done on server side
-      await AuthService.addPoints(this.run.score)
+      if (this.awardPoints) {
+        await AuthService.addPoints(this.run.score)
+      }
       
+      await RunService.save({ _id: this.run._id, status: 'finished' })
       this.$store.dispatch('setCurrentRun', null)
+    } else {
+      this.$router.push('/home')
     }
   }
 }

@@ -60,7 +60,7 @@
     "category": "enigma",
     "code": "image-recognition",
     "icon": "camera",
-    "title": "Trouver un objet",
+    "title": "Photographier un objet",
     "description": "Retrouver et photographier un objet"
   },
   {
@@ -69,6 +69,13 @@
     "icon": "puzzle-piece",
     "title": "Puzzle",
     "description": "Remettre en place les pièces"
+  },
+  {
+    "category": "enigma",
+    "code": "find-item",
+    "icon": "search",
+    "title": "Trouver objet dans une image",
+    "description": "L'objet trouvé est ajouté dans l'inventaire"
   },
   {
     "category": "enigma",

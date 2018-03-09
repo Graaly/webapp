@@ -138,6 +138,8 @@ module.exports = {
       Cancel: "Cancel",
       Check: "Check",
       WellDone: "Well done!",
+      PhotosDoesntMatch: "Unfortunately, the photos do not match.",
+      DistanceInMeters: "Distance: {distance} meters",
       YouHaveFoundThePlace: "Well done! You have found the place",
       Pass: "Pass",
       YourAnswer: "Your answer",
@@ -212,6 +214,25 @@ module.exports = {
       blue: "Blue",
       black: "Black",
       white: "White"
+    },
+    questItem: {
+      bomb: "Bomb",
+      book: "Book",
+      bullhorn: "Bullhorn",
+      cogwheel: "Cogwheel",
+      compass: "Compass",
+      "fire-extinguisher": "Fire extinguisher",
+      flask: "Flask",
+      gem: "Gem",
+      key: "Key",
+      lightbulb: "Lightbulb",
+      medkit: "Medkit",
+      "money-bill": "Money bill",
+      microchip: "Microchip",
+      pencil: "Pencil",
+      scissors: "Scissors",
+      umbrella: "Umbrella",
+      wrench: "Wrench"
     }
   },
   fr: {
@@ -353,6 +374,7 @@ module.exports = {
       Cancel: "Annuler",
       Check: "Vérifier",
       WellDone: "Bien joué !",
+      PhotosDoesntMatch: "Malheureusement, cette photo ne correspond pas.",
       DistanceInMeters: "Distance: {distance} mètres",
       YouHaveFoundThePlace: "Bravo ! Vous avez trouvé le lieu",
       Pass: "Passer",
@@ -419,8 +441,8 @@ module.exports = {
       ContinueThisQuest: "Vous n'êtes pas allé au bout. Continuer ?",
       PlayedOn: "Resolue le ",
       QuestSaved: "Enquête enregistrée",
-      NewQuestCreated: "Nouvelle enquête créée"
-      ExpectedColorCodeAnswer: "Combinaison de couleurs attendue :",
+      NewQuestCreated: "Nouvelle enquête créée",
+      ExpectedColorCodeAnswer: "Combinaison de couleurs attendue :"
     },
     color: {
       red: "Rouge",
@@ -428,6 +450,25 @@ module.exports = {
       blue: "Bleu",
       black: "Noir",
       white: "Blanc"
+    },
+    questItem: {
+      bomb: "Bombe",
+      book: "Livre",
+      bullhorn: "Porte voix",
+      cogwheel: "Roue dentée",
+      compass: "Boussole",
+      "fire-extinguisher": "Extincteur",
+      flask: "Fiole",
+      gem: "Gemme",
+      key: "Clé",
+      lightbulb: "Ampoule",
+      medkit: "Trousse de secours",
+      "money-bill": "Billet de banque",
+      microchip: "Puce électronique",
+      pencil: "Crayon",
+      scissors: "Ciseaux",
+      umbrella: "Parapluie",
+      wrench: "Clé plate"
     }
   }
 }

@@ -46,10 +46,6 @@
       </div>
     </div>
     
-    <div v-if="stepType.code == 'new-item'">
-      <!-- TODO: choose retrieved item -->
-    </div>
-    
     <div v-if="stepType.code == 'geolocation'" class="location-gps">
       <!-- TODO: select location on GoogleMap -->
       <p>Coordonnées GPS</p>
@@ -148,9 +144,14 @@
       </ul>
     </div>
     
-    <div v-if="stepType.code == 'use-item'">
-      Objet à utiliser:
-      <!-- TODO -->
+    <!-- inventory steps -->
+    
+    <div class="inventory" v-if="stepType.code == 'new-item' || stepType.code == 'use-item'">
+      <q-select :float-label="stepType.code === 'new-item' ? 'Objet à rajouter dans l\'inventaire :' : 'Objet de l\'inventaire à utiliser'" :options="questItemsAsOptions" v-model="form.answers" />
+      <div v-show="form.answers !== null">
+        Objet sélectionné :
+        <q-icon :name="getItemIcon(form.answers)" />
+      </div>
     </div>
     
     <!-- TODO. those options do nothing for the moment -->
@@ -224,11 +225,14 @@
 <script>
 import { QCheckbox, QUploader, Toast } from 'quasar'
 import { required } from 'vuelidate/lib/validators'
-import stepTypes from 'data/stepTypes.json'
+
 import colorsForCode from 'data/colorsForCode.json'
+import questItems from 'data/questItems.json'
+import stepTypes from 'data/stepTypes.json'
+
 import StepService from 'services/StepService'
 import QuestService from 'services/QuestService'
-//import QuestService from 'services/QuestService'
+
 export default {
   components: {
     QCheckbox, QUploader
@@ -283,7 +287,10 @@ export default {
       serverUrl: process.env.SERVER_URL,
       
       // for 'code-color' steps
-      colorsForCode: this.getColorsForCodeOptions()
+      colorsForCode: this.getColorsForCodeOptions(),
+      
+      // for 'new-item' & 'use-item' steps
+      questItemsAsOptions: this.getQuestItemsAsOptions()
     }
   },
   computed: {
@@ -318,6 +325,11 @@ export default {
       })
       let res = await QuestService.getById(this.questId)
       this.$store.dispatch('setCurrentEditedQuest', res.data)
+    }
+    
+    if (this.$store.state.currentEditedStep === null || this.$store.state.currentEditedQuest === null) {
+      this.$router.push('/home')
+      return
     }
     
     this.stepType = this.$store.state.currentEditedStep.type
@@ -461,6 +473,22 @@ export default {
     triggerClickOnColorSelect(index) {
       // [0] is required because of v-for, see https://forum-archive.vuejs.org/topic/5190/this-refs-ref_name-on-dynamic-component-is-array-instead-of-vuecomponent/2
       this.$refs['colorSelect' + index][0].$el.click()
+    },
+    
+    // for 'new-item' & 'use-item' steps
+    getQuestItemsAsOptions() {
+      let options = []
+      questItems.forEach((item) => {
+        options.push({
+          value: item.code,
+          label: this.$t('questItem.' + item.code)
+        })
+      })
+      return options.sort((a, b) => { return a.label > b.label ? 1 : -1 })
+    },
+    getItemIcon(code) {
+      let item = questItems.find(item => item.code === code)
+      return typeof item !== 'undefined' ? item.icon : 'clear'
     }
   },
   validations: {
@@ -494,5 +522,8 @@ p { margin-bottom: 0.5rem; }
 .code-color table { margin: auto; }
 .code-color table td { padding: 0rem; width: 6rem; }
 .code-color .color-bubble { display: block; width: 4rem; height: 4rem; border: 4px solid black; border-radius: 2rem; transition: background-color 0.3s; }
+
+.inventory div { margin: 0.5rem auto; }
+.inventory .q-icon { width: 3rem; height: 3rem; font-size: 3rem; }
 
 </style>

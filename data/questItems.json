@@ -1,0 +1,70 @@
+[
+  {
+    "code": "bomb",
+    "icon": "fa-bomb"
+  },
+  {
+    "code": "book",
+    "icon": "fa-book"
+  },
+  {
+    "code": "bullhorn",
+    "icon": "fa-bullhorn"
+  },
+  {
+    "code": "cogwheel",
+    "icon": "fa-cog"
+  },
+  {
+    "code": "compass",
+    "icon": "fa-compass"
+  },
+  {
+    "code": "fire-extinguisher",
+    "icon": "fa-fire-extinguisher"
+  },
+  {
+    "code": "flask",
+    "icon": "fa-flask"
+  },
+  {
+    "code": "gem",
+    "icon": "fa-diamond"
+  },
+  {
+    "code": "key",
+    "icon": "fa-key"
+  },
+  {
+    "code": "lightbulb",
+    "icon": "fa-lightbulb-o"
+  },
+  {
+    "code": "medkit",
+    "icon": "fa-medkit"
+  },
+  {
+    "code": "microchip",
+    "icon": "fa-microchip"
+  },
+  {
+    "code": "money-bill",
+    "icon": "fa-money"
+  },
+  {
+    "code": "pencil",
+    "icon": "fa-pencil"
+  },
+  {
+    "code": "scissors",
+    "icon": "fa-cut"
+  },
+  {
+    "code": "umbrella",
+    "icon": "fa-umbrella"
+  },
+  {
+    "code": "wrench",
+    "icon": "fa-wrench"
+  }
+]

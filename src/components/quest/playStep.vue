@@ -117,7 +117,7 @@
           <q-btn color="primary" @click="checkPhoto()" icon="done">{{ $t('message.Check') }}</q-btn>
         </div>
         <q-btn v-show="step.hint && !photoTaken" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
-        <div class="text resultMessage" :class="playerResult ? 'right' : 'wrong'" v-show="playerResult !== null">{{ playerResult ? $t('message.WellDone') : $t('message.WrongGoodCodeWas') + " " + step.answers }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
+        <div class="text resultMessage" :class="playerResult ? 'right' : 'wrong'" v-show="playerResult !== null">{{ playerResult ? $t('message.WellDone') : $t('message.PhotosDoesntMatch') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
         <q-btn v-show="photoTaken" color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
       </div>
     </div>
@@ -162,6 +162,16 @@
     </div>
     
     
+    <div class="new-item" v-if="step.type == 'new-item'">
+      <div>
+        <p class="text">{{ step.text }}</p>
+      </div>
+      <div class="item">
+        <q-icon :name="getItemIcon(step.answers)" />
+      </div>
+      <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+    </div>
+    
   </div>
   
 </template>
@@ -174,6 +184,7 @@ import RunService from 'services/RunService'
 import StepService from 'services/StepService'
 
 import colorsForCode from 'data/colorsForCode.json'
+import questItems from 'data/questItems.json'
 
 import Vue from 'vue'
 import { Alert, Toast } from 'quasar'
@@ -232,8 +243,8 @@ export default {
         return this.$router.push('/quest/end')
       }
       
-      // load run for current quest & current user Id
-      let run = await RunService.getOne({ userId: this.$store.state.user._id, questId: this.questId })
+      // load 'in-progress' run for current quest & current user Id
+      let run = await RunService.getOne({ userId: this.$store.state.user._id, questId: this.questId, status: 'in-progress' })
       
       if (typeof run === 'undefined') {
         // no run found => go to /quest/<questId>/play/home for current quest
@@ -244,7 +255,10 @@ export default {
         return this.$router.push('/quest/play/' + this.questId + '/step/' + run.currentStep)
       }
       
-      this.isRunFinished = (run.status === 'finished')
+      // check if a 'finished' run already exists for current quest & current user
+      let finishedRun = await RunService.getOne({ userId: this.$store.state.user._id, questId: this.questId, status: 'finished' })
+      
+      this.isRunFinished = (typeof finishedRun !== 'undefined')
       
       this.step = step
       this.run = run
@@ -348,10 +362,8 @@ export default {
     
     async nextStep() {
       // update run
-      if (!this.isRunFinished) {
-        this.run.currentStep++
-        await RunService.save(this.run)
-      }
+      this.run.currentStep++
+      await RunService.save(this.run)
       
       this.$router.push('/quest/play/' + this.step.questId + '/step/' + (this.step.number + 1));
     },
@@ -422,6 +434,14 @@ export default {
         }
       }
       throw new Error('No right answer found')
+    },
+    
+    async awardPoints() {
+      // TODO to avoid cheating, all answer checks + points awarding must be moved to server side
+      if (this.playerResult === true && this.run.status === 'in-progress') {
+        this.run.score += 10
+        await RunService.save(this.run)
+      }
     },
     
     /* specific methods for step type 'code-keypad' */
@@ -636,12 +656,11 @@ export default {
       this.geolocation.rawDirection = this.geolocation.currentBearing
     },
     
-    async awardPoints() {
-      // TODO to avoid cheating, all answer checks + points awarding must be moved to server side
-      if (this.playerResult === true && this.run.status === 'in-progress') {
-        this.run.score += 10
-        await RunService.save(this.run)
-      }
+    /* specific for steps 'new-item' */
+    
+    getItemIcon(code) {
+      let item = questItems.find(item => item.code === code)
+      return typeof item !== 'undefined' ? item.icon : 'clear'
     }
   }
 }
@@ -653,6 +672,7 @@ export default {
   #main-view > div { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
   
   #main-view > div.info,
+  #main-view > div.new-item,
   #main-view > div.geolocation {
     padding-bottom: 1rem;
   }
@@ -723,6 +743,11 @@ export default {
   .answer-text input { opacity: 0.7; font-size: 1.5em; font-weight: bold; height: 1.5em; background-color: #fff; 
     border-radius: 0.5rem;
     box-shadow: 0px 0px 0.1rem 0.1rem #fff;}
+    
+  /* new-item specific */
+  
+  .new-item .item { flex-grow: 1; text-align: center; font-size: 10rem; display: flex; justify-content: center; align-items: center; }
+  .new-item .item .q-icon { }
   
   /* right/wrong styles */
   
