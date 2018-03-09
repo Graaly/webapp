@@ -264,7 +264,7 @@ export default {
       this.run = run
       
       // wait that DOM is loaded (required by steps involving camera)
-      this.$nextTick(() => {
+      this.$nextTick(async () => {
         let background = document.getElementById('main-view')
         
         if (this.step.backgroundImage) {
@@ -285,6 +285,10 @@ export default {
         
         if (this.step.type === 'code-color') {
           this.playerCode = Array(4).fill('red');
+        }
+        
+        if (this.step.type === 'new-item') {
+          await this.addItemToInventory(this.step.answers)
         }
         
         if (this.step.type === 'geolocation') {
@@ -438,7 +442,7 @@ export default {
     
     async awardPoints() {
       // TODO to avoid cheating, all answer checks + points awarding must be moved to server side
-      if (this.playerResult === true && this.run.status === 'in-progress') {
+      if (this.playerResult === true && !this.isRunFinished) {
         this.run.score += 10
         await RunService.save(this.run)
       }
@@ -661,6 +665,13 @@ export default {
     getItemIcon(code) {
       let item = questItems.find(item => item.code === code)
       return typeof item !== 'undefined' ? item.icon : 'clear'
+    },
+    
+    async addItemToInventory(itemCode) {
+      if (this.run.inventory.indexOf(itemCode) === -1) {
+        this.run.inventory.push(itemCode)
+        await RunService.save(this.run)
+      }
     }
   }
 }

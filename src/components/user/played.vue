@@ -28,7 +28,7 @@
         </p>
         
         <q-list highlight>
-          <q-item v-for="quest in quests" :key="quest.questId" @click="$router.push('/quest/play/'+quest.questId)">
+          <q-item v-for="quest in quests" :key="quest.questId + quest.dateCreated.toString()" @click="$router.push('/quest/play/'+quest.questId)">
             <q-item-side v-if="quest.questData && quest.questData.picture" :avatar="serverUrl + '/upload/quest/' + quest.questData.picture" />
             <q-item-side v-if="!quest.questData || !quest.questData.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>
@@ -81,7 +81,7 @@ export default {
       this.user = response.data
       
       if (!this.$route.params.id || this.$route.params.id === 'me' || this.$route.params.id === this.user._id) {
-        this.$store.dispatch('setTitle', this.$t('message.MyProfil'))
+        this.$store.dispatch('setTitle', this.$t('message.MyProfile'))
         this.profile = this.user
         this.listPlayedQuests(this.user._id)
       } else {

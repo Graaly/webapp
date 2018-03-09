@@ -203,7 +203,7 @@ module.exports = {
       Text: "Text",
       Map: "Map",
       ContinueThisQuest: "You have not finished it. Continue?",
-      PlayedOn: "Played on",
+      PlayedOn: "Played",
       QuestSaved: "Quest saved",
       NewQuestCreated: "New quest created",
       ExpectedColorCodeAnswer: "Expected color code:"
@@ -439,7 +439,7 @@ module.exports = {
       test: "test",
       Map: "Carte",
       ContinueThisQuest: "Vous n'êtes pas allé au bout. Continuer ?",
-      PlayedOn: "Resolue le ",
+      PlayedOn: "Résolue",
       QuestSaved: "Enquête enregistrée",
       NewQuestCreated: "Nouvelle enquête créée",
       ExpectedColorCodeAnswer: "Combinaison de couleurs attendue :"
