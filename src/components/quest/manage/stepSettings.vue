@@ -490,6 +490,16 @@ export default {
       let item = questItems.find(item => item.code === code)
       return typeof item !== 'undefined' ? item.icon : 'clear'
     }
+    
+    /*
+    for future method to get item coordinates for step 'find-item'
+                  and to get location coordinates for step 'use-item'
+    // get dimensions of #main-view div (same size as div .use-item)
+    let targetBounds = ev.target.getBoundingClientRect()
+    console.log('proportional coords')
+    console.log('width', ev.offsetX / targetBounds.width * 100)
+    console.log('height', ev.offsetY / targetBounds.height * 100)
+    */
   },
   validations: {
     form: {

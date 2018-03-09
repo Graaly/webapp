@@ -206,7 +206,10 @@ module.exports = {
       PlayedOn: "Played",
       QuestSaved: "Quest saved",
       NewQuestCreated: "New quest created",
-      ExpectedColorCodeAnswer: "Expected color code:"
+      ExpectedColorCodeAnswer: "Expected color code:",
+      NothingHappens: "Nothing happens, please try another location or use another object.",
+      Inventory: "Inventory",
+      InventoryUsage: "Click on an object to select it, then click on the image to use it."
     },
     color: {
       red: "Red",
@@ -442,7 +445,10 @@ module.exports = {
       PlayedOn: "Résolue",
       QuestSaved: "Enquête enregistrée",
       NewQuestCreated: "Nouvelle enquête créée",
-      ExpectedColorCodeAnswer: "Combinaison de couleurs attendue :"
+      ExpectedColorCodeAnswer: "Combinaison de couleurs attendue :",
+      NothingHappens: "Rien ne se produit. Essayez un autre endroit, ou utilisez un autre objet.",
+      Inventory: "Inventaire",
+      InventoryUsage: "Cliquez sur un objet pour le sélectionner, puis cliquez sur l'image pour l'utiliser."
     },
     color: {
       red: "Rouge",

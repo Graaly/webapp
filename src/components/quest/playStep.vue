@@ -161,6 +161,7 @@
       </div>
     </div>
     
+    <!-- inventory steps -->
     
     <div class="new-item" v-if="step.type == 'new-item'">
       <div>
@@ -171,6 +172,33 @@
       </div>
       <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
     </div>
+    
+    
+    <div class="use-item" v-if="step.type == 'use-item'" @click="useItem($event)">
+      <div>
+        <p class="text">{{ step.text }}</p>
+      </div>
+      
+      <div class="resultMessage fixed-bottom" v-show="playerResult === true">
+        <div class="text right">{{ $t('message.WellDone') }}<span v-if="!isRunFinished && successAtFirstAttempt"> +10 {{ $t('message.points') }}</span></div>
+        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+      </div>
+    </div>
+    
+    <!-- inventory button -->
+    <q-btn v-if="step.type == 'use-item'" round class="inventory-btn" :icon="this.selectedItem ? getItemIcon(this.selectedItem) : 'fa-briefcase'" color="primary" v-show="playerResult !== true && run.inventory.length > 0" @click="openInventory" />
+    
+    <transition name="slideInBottom">
+      <div class="inventory" v-show="isInventoryOpen">
+        <h1>{{ $t('message.Inventory') }}</h1>
+        <p>{{ $t('message.InventoryUsage') }}</p>
+        <div class="inventory-items">
+          <q-btn v-for="(item, key) in run.inventory" :key="key" @click="selectItem(item)">
+            <q-icon class="item-icon" :name="getItemIcon(item)" />
+          </q-btn>
+        </div>
+      </div>
+    </transition>
     
   </div>
   
@@ -232,7 +260,16 @@ export default {
       // for step type 'write-text'
       writetext: {
         playerAnswer: null
-      }
+      },
+      
+      // for step type 'use-item'
+      selectedItem: null,
+      successAtFirstAttempt: true,
+      
+      // for step type 'find-item'
+      itemAdded: null,
+      
+      isInventoryOpen: false
     }
   },
   mounted () {
@@ -262,6 +299,9 @@ export default {
       
       this.step = step
       this.run = run
+      
+      // refresh current run Id in store (step "end" uses it)
+      this.$store.dispatch('setCurrentRun', this.run)
       
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
@@ -641,9 +681,6 @@ export default {
     async watchLocationSuccess(pos) {
       let current = pos.coords;
       let target = this.step.answers
-      //test 
-      //let target = { lat: 45.322313, lng: 5.557124 } // 90°
-      //let target = { lat: 45.343431, lng: 5.522534 } // 0°
       
       // compute distance between two coordinates
       this.geolocation.distance = Math.round(utils.distanceInKmBetweenEarthCoordinates(target.lat, target.lng, current.latitude, current.longitude) * 1000, 2) // meters
@@ -672,7 +709,60 @@ export default {
         this.run.inventory.push(itemCode)
         await RunService.save(this.run)
       }
+    },
+    
+    /* specific for steps 'use-item' */
+    
+    async useItem(ev) {
+      if (this.playerResult === true) {
+        return
+      }
+      
+      // get dimensions of #main-view div (same size as div .use-item)
+      let targetBounds = ev.target.getBoundingClientRect()
+      
+      // convert answer's "proportional coordinates" (numbers between 0 to 100) to "pixel coordinates",
+      // depending on "#main-view" div size on player device's screen
+      let anwserPixelCoordinates = {
+        left: this.step.answers.coordinates.left / 100 * targetBounds.width,
+        top: this.step.answers.coordinates.top / 100 * targetBounds.height
+      }
+      
+      // solution area radius = max (#main-view width, #main-view height) / 10,
+      // to get something as consistent as possible across devices & screen orientations
+      let solutionAreaRadius = Math.max(targetBounds.width, targetBounds.height) / 10
+      
+      let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - ev.offsetX, 2) + Math.pow(anwserPixelCoordinates.top - ev.offsetY, 2))
+      
+      if (distanceToSolution <= solutionAreaRadius && this.step.answers.item === this.selectedItem) {
+        this.playerResult = true
+        if (this.successAtFirstAttempt) {
+          await this.awardPoints()
+        }
+      } else {
+        this.successAtFirstAttempt = false
+        this.playerResult = false
+        // this.$t() did not work here, see https://github.com/kazupon/vue-i18n/issues/108
+        Toast.create.negative(this.$i18n.t('message.NothingHappens'))
+      }
+    },
+    
+    openInventory() {
+      this.isInventoryOpen = !this.isInventoryOpen
+    },
+    
+    selectItem(item) {
+      this.selectedItem = item
+      this.isInventoryOpen = false
     }
+    
+    /*
+    async findItem(ev) {
+      
+      ...
+        this.itemAdded = this.step.answers.item
+        await addItemToInventory(this.itemAdded)
+    }*/
   }
 }
 </script>
@@ -791,5 +881,23 @@ export default {
   
   .resultMessage, .fixed-bottom.actions { padding: 1rem; }
   .resultMessage .text { text-align: center; font-weight: bold; }
+  
+  .inventory-btn { position: fixed; bottom: 0.7rem; left: 0.7rem; z-index: 1; }
+  
+  .inventory { background: white; position: fixed; bottom: 0; left: 0; width: 100%; height: 100%; }
+  .inventory h1 { padding-top: 1rem; margin-bottom: 1rem; }
+  
+  .inventory-items .q-btn { height: 5rem; width: 5rem; margin: 0.5rem; text-align: center; }
+  .inventory-items .q-icon { font-size: 3rem; margin: 0; }
+  
+  /* transitions / animations */
+  
+  .slideInBottom-enter-active, .slideInBottom-leave-active {
+    transition: all .3s ease;
+  }
+  .slideInBottom-enter, .slideInBottom-leave-to {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
   
 </style>
