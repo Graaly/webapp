@@ -28,6 +28,7 @@ import UserProfileModify from '@/user/updateProfile'
 import TeamMembersList from '@/team/membersList'
 import TeamNewsList from '@/team/newsList'
 import TeamChallengesList from '@/team/challengesList'
+import TeamRankingList from '@/team/ranking'
 
 import ErrorMessage from '@/errorMessage'
 
@@ -174,7 +175,7 @@ var router = new VueRouter({
     {
       path: '/team/:id(\\w{24})/ranking',
       name: 'teamRankingList',
-      component: TeamChallengesList
+      component: TeamRankingList
     },
     {
       path: '/error',

@@ -32,18 +32,10 @@
       </div>
       
       <div class="location-gps" style="display: none">
-        <p>Coordonnées GPS</p>
-        <div class="location-gps-inputs">
-          <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
-          <div>
-            <label for="latitude">Latitude</label>
-            <input type="number" id="latitude" v-model.number="form.location.lat" placeholder="par ex. 5,65487" step="any" />
-          </div>
-          <div>
-            <label for="longitude">Longitude</label>
-            <input type="number" id="longitude" v-model.number="form.location.lng" placeholder="par ex. 45,49812" step="any" />
-          </div>
-        </div>
+        <input type="number" id="latitude" v-model.number="form.location.lat" step="any" />
+        <input type="number" id="longitude" v-model.number="form.location.lng" step="any" />
+        <input type="text" v-model="form.zipcode" />
+        <input type="text" v-model="form.town" />
       </div>
       
       <div class="location-address">
@@ -101,7 +93,9 @@ export default {
         languages: [],
         mainLanguage: 'fr',
         level: 2,
-        picture: null
+        picture: null,
+        town: "",
+        zipcode: ""
       },
       serverUrl: process.env.SERVER_URL,
       pictureUploadURL: this.serverUrl + '/quest/picture/upload',
@@ -138,10 +132,15 @@ export default {
           'dateCreated': null,
           'dateUpdated': null,
           'languages': [this.form.mainLanguage],
-          'location': { type: 'Point', coordinates: [this.form.location.lng, this.form.location.lat] }
+          'location': { 
+            type: 'Point', 
+            coordinates: [this.form.location.lng, this.form.location.lat],
+            town: this.form.town,
+            zipcode: this.form.zipcode
+          }
         }
         
-        let specificProperties;
+        let specificProperties
         if (this.isEdition) {
           specificProperties =  {
             'dateUpdated': new Date()
@@ -187,12 +186,44 @@ export default {
       var geocoder = new google.maps.Geocoder();
       geocoder.geocode({'location': {lat: pos.coords.latitude, lng: pos.coords.longitude}}, (results, status) => {
         if (status === 'OK' && results[0].formatted_address) {
+          this.form.town = this.getCity(results[0])
+          this.form.zipcode = this.getZipcode(results[0])
           this.form.startingPlace = results[0].formatted_address
         }
       });
     },
     async setLocation(place) {
       this.form.location = {lat: place.geometry.location.lat(), lng: place.geometry.location.lng()}
+      this.form.town = this.getCity(place)
+      this.form.zipcode = this.getZipcode(place)
+    },
+    getZipcode(address) {
+      if (address && address.address_components && address.address_components.length > 0) {
+        for (var i = 0; i < address.address_components.length; i++) {
+          if (address.address_components[i].types) {
+            for (var j = 0; j < address.address_components[i].types.length; j++) {
+              if (address.address_components[i].types[j] === 'postal_code') {
+                return address.address_components[i].long_name
+              }
+            }
+          }
+        }
+      }
+      return ""
+    },
+    getCity(address) {
+      if (address && address.address_components && address.address_components.length > 0) {
+        for (var i = 0; i < address.address_components.length; i++) {
+          if (address.address_components[i].types) {
+            for (var j = 0; j < address.address_components[i].types.length; j++) {
+              if (address.address_components[i].types[j] === 'locality') {
+                return address.address_components[i].long_name
+              }
+            }
+          }
+        }
+      }
+      return ""
     }
   },
   validations: {

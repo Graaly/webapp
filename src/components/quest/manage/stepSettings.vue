@@ -70,11 +70,11 @@
     
     <div v-if="stepType.code == 'choose'">
       
-      <h2>Types de réponse</h2>
+      <h2>{{ $t('message.ResponseTypes') }}</h2>
       <q-radio v-model="answerType" val="text" :label="$t('message.Texts')" />
       <q-radio v-model="answerType" val="image" :label="$t('message.Pictures')" />
         
-      <h2>Réponses possibles</h2>
+      <h2>{{ $t('message.PossibleAnswers') }}</h2>
       <p>{{ $t('message.SelectTheGoodAnswer') }}</p>
       <div class="answer" v-for="(answer, key) in form.answers" :key="key">
         <q-radio v-model="rightAnswerIndex" :val="key" />
@@ -339,7 +339,7 @@ export default {
         this.answerType = 'text'
         this.form.answers = []
         for (let i = 0; i < this.defaultNbAnswers; i++) {
-          this.form.answers.push({ text: 'réponse ' + (i + 1), imagePath: null, isRightAnswer: false })
+          this.form.answers.push({ text: this.$t('message.AnswerNb', { nb: (i + 1) }), imagePath: null, isRightAnswer: false })
         }
       } else {
         this.answerType = this.form.answers[0].hasOwnProperty('imagePath') && this.form.answers[0].imagePath !== null ? 'image' : 'text'
