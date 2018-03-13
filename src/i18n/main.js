@@ -13,6 +13,32 @@ module.exports = {
       challengeHave10members: "Invite 10 members in your agency",
       challengeHave20members: "Invite 20 members in your agency"
     },
+    color: {
+      red: "Red",
+      green: "Green",
+      blue: "Blue",
+      black: "Black",
+      white: "White"
+    },
+    questItem: {
+      bomb: "Bomb",
+      book: "Book",
+      bullhorn: "Bullhorn",
+      cogwheel: "Cogwheel",
+      compass: "Compass",
+      "fire-extinguisher": "Fire extinguisher",
+      flask: "Flask",
+      gem: "Gem",
+      key: "Key",
+      lightbulb: "Lightbulb",
+      medkit: "Medkit",
+      "money-bill": "Money bill",
+      microchip: "Microchip",
+      pencil: "Pencil",
+      scissors: "Scissors",
+      umbrella: "Umbrella",
+      wrench: "Wrench"
+    },
     message: {
       SignIn: "Sign-in",
       toStartTheAdventure: "to start the adventure!",
@@ -138,6 +164,8 @@ module.exports = {
       Cancel: "Cancel",
       Check: "Check",
       WellDone: "Well done!",
+      PhotosDoesntMatch: "Unfortunately, the photos do not match.",
+      DistanceInMeters: "Distance: {distance} meters",
       YouHaveFoundThePlace: "Well done! You have found the place",
       Pass: "Pass",
       YourAnswer: "Your answer",
@@ -193,7 +221,7 @@ module.exports = {
       Quest: "Quest",
       BackToTheStepsList: "Back to the steps list",
       Start: "Start",
-      BuilderWelcomeMessage: "<p>Graaly helps you create your own challenges on your mobile phone.</p><p>You will be guided to create each steps of your quest. You can save at any step, to continue later, or modify your quest.</p><p>You will proposed to test your quest before publishing it, to optimize it and help it to win the best rating from other users.</p>",
+      BuilderWelcomeMessage: "<p>Graaly helps you create funny quest to challenge players and win points!</p><p>By clicking on Start button, you accept those rules, described in the XXXXX:<ul>If you are not the owner of the place of the quest, do not ask players to touch, move, or degrade things.</p><p>The story of your quest must not undermine living or dead people</li></ul></p>",
       YouAlreadyPlayThisQuestSoYouWinNoPoints: "You already win points of this quest in the past",
       ResolveOtherQuestsToWinPoints: "Play new quests to win points",
       YouWonNbPoints: "You won {nb}",
@@ -201,19 +229,19 @@ module.exports = {
       Text: "Text",
       Map: "Map",
       ContinueThisQuest: "You have not finished it. Continue?",
-      PlayedOn: "Played on",
+      PlayedOn: "Played",
       QuestSaved: "Quest saved",
       NewQuestCreated: "New quest created",
       ExpectedColorCodeAnswer: "Expected color code:",
       ResponseTypes: "Response types",
-      PossibleAnswers: "Available answers"
-    },
-    color: {
-      red: "Red",
-      green: "Green",
-      blue: "Blue",
-      black: "Black",
-      white: "White"
+      PossibleAnswers: "Available answers",
+      NothingHappens: "Nothing happens, please try another location or use another object.",
+      Inventory: "Inventory",
+      InventoryUsage: "Click on an object to select it, then click on the image to use it.",
+      CreateYourQuest: "Create your quest",
+      ClickOnTheItemThatIsToFind: "Click on the part of the picture the item is located",
+      ObjectToFind: "Object to find",
+      ClickOnTheLocationTheItemMustBeUsed: "Click where the item must be used"
     }
   },
   fr: {
@@ -229,6 +257,32 @@ module.exports = {
       challengeHave2members: "Inviter 2 membres dans votre agence",
       challengeHave10members: "Inviter 10 membres dans votre agence",
       challengeHave20members: "Inviter 20 membres dans votre agence"
+    },
+    color: {
+      red: "Rouge",
+      green: "Vert",
+      blue: "Bleu",
+      black: "Noir",
+      white: "Blanc"
+    },
+    questItem: {
+      bomb: "Bombe",
+      book: "Livre",
+      bullhorn: "Porte voix",
+      cogwheel: "Roue dentée",
+      compass: "Boussole",
+      "fire-extinguisher": "Extincteur",
+      flask: "Fiole",
+      gem: "Gemme",
+      key: "Clé",
+      lightbulb: "Ampoule",
+      medkit: "Trousse de secours",
+      "money-bill": "Billet de banque",
+      microchip: "Puce électronique",
+      pencil: "Crayon",
+      scissors: "Ciseaux",
+      umbrella: "Parapluie",
+      wrench: "Clé plate"
     },
     message: {
       SignIn: "Connectez-vous",
@@ -355,6 +409,7 @@ module.exports = {
       Cancel: "Annuler",
       Check: "Vérifier",
       WellDone: "Bien joué !",
+      PhotosDoesntMatch: "Malheureusement, cette photo ne correspond pas.",
       DistanceInMeters: "Distance: {distance} mètres",
       YouHaveFoundThePlace: "Bravo ! Vous avez trouvé le lieu",
       Pass: "Passer",
@@ -410,7 +465,7 @@ module.exports = {
       Quest: "Enigme",
       BackToTheStepsList: "Retour à la liste des étapes",
       Start: "Commencer",
-      BuilderWelcomeMessage: "<p>Graaly vous permet de créer très simplement des visites ludiques sur téléphone mobile ou tablette.</p><p>Vous allez être guidé au travers de plusieurs étapes pour définir les différentes étapes de votre visite ou votre jeu. Vous pouvez à chaque étape sauvegarder pour continuer plus tard, ou modifier une étape déjà créée.</p><p>Vous pourrez à la fin tester votre enquête avant de la publier, de manière à l'optimiser pour qu'elle  obtienne la meilleure note possible et soit populaire.</p>",
+      BuilderWelcomeMessage: "<p>Graaly vous permet de créer très simplement, et pas à pas, des enquêtes ludiques pour les autres joueurs, et de gagner des points.</p><p>En cliquant sur le bouton Démarrer, vous acceptez les règles suivantes décrites dans les XXX :<ul><li>Si le lieu ne vous appartient pas, ne demandez pas aux joueurs de toucher, déplacer, dégrader les lieux visités</li><li>L'histoire de votre enquête ne doit pas porter atteinte à des personnes vivantes ou ayant existé</li></ul></p>",
       YouAlreadyPlayThisQuestSoYouWinNoPoints: "Vous avez déjà gagné précedemment les points de cette enquête",
       ResolveOtherQuestsToWinPoints: "Résolvez de nouvelles enquêtes pour gagner des points",
       YouWonNbPoints: "Vous avez gagné {nb}",
@@ -419,19 +474,19 @@ module.exports = {
       test: "test",
       Map: "Carte",
       ContinueThisQuest: "Vous n'êtes pas allé au bout. Continuer ?",
-      PlayedOn: "Resolue le ",
+      PlayedOn: "Résolue",
       QuestSaved: "Enquête enregistrée",
       NewQuestCreated: "Nouvelle enquête créée",
       ExpectedColorCodeAnswer: "Combinaison de couleurs attendue :",
       ResponseTypes: "Types de réponse",
-      PossibleAnswers: "Réponses possibles"
-    },
-    color: {
-      red: "Rouge",
-      green: "Vert",
-      blue: "Bleu",
-      black: "Noir",
-      white: "Blanc"
+      PossibleAnswers: "Réponses possibles",
+      NothingHappens: "Rien ne se produit. Essayez un autre endroit, ou utilisez un autre objet.",
+      Inventory: "Inventaire",
+      InventoryUsage: "Cliquez sur un objet pour le sélectionner, puis cliquez sur l'image pour l'utiliser.",
+      CreateYourQuest: "Créer votre enquête",
+      ClickOnTheItemThatIsToFind: "Cliquer sur l'endroit dans l'image où est l'objet",
+      ObjectToFind: "Objet à trouver",
+      ClickOnTheLocationTheItemMustBeUsed: "Cliquez où l'objet doit être utilisé"
     }
   }
 }

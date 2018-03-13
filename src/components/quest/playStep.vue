@@ -117,7 +117,7 @@
           <q-btn color="primary" @click="checkPhoto()" icon="done">{{ $t('message.Check') }}</q-btn>
         </div>
         <q-btn v-show="step.hint && !photoTaken" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
-        <div class="text resultMessage" :class="playerResult ? 'right' : 'wrong'" v-show="playerResult !== null">{{ playerResult ? $t('message.WellDone') : $t('message.WrongGoodCodeWas') + " " + step.answers }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
+        <div class="text resultMessage" :class="playerResult ? 'right' : 'wrong'" v-show="playerResult !== null">{{ playerResult ? $t('message.WellDone') : $t('message.PhotosDoesntMatch') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
         <q-btn v-show="photoTaken" color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
       </div>
     </div>
@@ -161,6 +161,55 @@
       </div>
     </div>
     
+    <!-- inventory steps -->
+    
+    <div class="new-item" v-if="step.type == 'new-item'">
+      <div>
+        <p class="text">{{ step.text }}</p>
+      </div>
+      <div class="item">
+        <q-icon :name="getItemIcon(step.answers)" />
+      </div>
+      <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+    </div>
+    
+    
+    <div class="use-item" v-if="step.type == 'use-item'" @click="useItem($event)">
+      <div>
+        <p class="text">{{ step.text }}</p>
+      </div>
+      
+      <div class="resultMessage fixed-bottom" v-show="playerResult === true">
+        <div class="text right">{{ $t('message.WellDone') }}<span v-if="!isRunFinished && successAtFirstAttempt"> +10 {{ $t('message.points') }}</span></div>
+        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+      </div>
+    </div>
+    
+    <div class="find-item" v-if="step.type == 'find-item'" @click="findItem($event)">
+      <div>
+        <p class="text">{{ step.text }}</p>
+      </div>
+      
+      <div class="resultMessage fixed-bottom" v-show="playerResult === true">
+        <div class="text right">{{ $t('message.WellDone') }}<span v-if="!isRunFinished && successAtFirstAttempt"> +10 {{ $t('message.points') }}</span></div>
+        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+      </div>
+    </div>
+    
+    <!-- inventory button -->
+    <q-btn v-if="step.type == 'use-item'" round class="inventory-btn" :icon="this.selectedItem ? getItemIcon(this.selectedItem) : 'fa-briefcase'" color="primary" v-show="playerResult !== true && run.inventory.length > 0" @click="openInventory" />
+    
+    <transition name="slideInBottom">
+      <div class="inventory" v-show="isInventoryOpen">
+        <h1>{{ $t('message.Inventory') }}</h1>
+        <p>{{ $t('message.InventoryUsage') }}</p>
+        <div class="inventory-items">
+          <q-btn v-for="(item, key) in run.inventory" :key="key" @click="selectItem(item)">
+            <q-icon class="item-icon" :name="getItemIcon(item)" />
+          </q-btn>
+        </div>
+      </div>
+    </transition>
     
   </div>
   
@@ -174,6 +223,7 @@ import RunService from 'services/RunService'
 import StepService from 'services/StepService'
 
 import colorsForCode from 'data/colorsForCode.json'
+import questItems from 'data/questItems.json'
 
 import Vue from 'vue'
 import { Alert, Toast } from 'quasar'
@@ -221,7 +271,16 @@ export default {
       // for step type 'write-text'
       writetext: {
         playerAnswer: null
-      }
+      },
+      
+      // for step type 'use-item'
+      selectedItem: null,
+      successAtFirstAttempt: true,
+      
+      // for step type 'find-item'
+      itemAdded: null,
+      
+      isInventoryOpen: false
     }
   },
   mounted () {
@@ -232,8 +291,11 @@ export default {
         return this.$router.push('/quest/end')
       }
       
-      // load run for current quest & current user Id
-      let run = await RunService.getOne({ userId: this.$store.state.user._id, questId: this.questId })
+      // set title
+      this.$store.dispatch('setTitle', step.title.substr(0, 20))
+      
+      // load 'in-progress' run for current quest & current user Id
+      let run = await RunService.getOne({ userId: this.$store.state.user._id, questId: this.questId, status: 'in-progress' })
       
       if (typeof run === 'undefined') {
         // no run found => go to /quest/<questId>/play/home for current quest
@@ -244,13 +306,19 @@ export default {
         return this.$router.push('/quest/play/' + this.questId + '/step/' + run.currentStep)
       }
       
-      this.isRunFinished = (run.status === 'finished')
+      // check if a 'finished' run already exists for current quest & current user
+      let finishedRun = await RunService.getOne({ userId: this.$store.state.user._id, questId: this.questId, status: 'finished' })
+      
+      this.isRunFinished = (typeof finishedRun !== 'undefined')
       
       this.step = step
       this.run = run
       
+      // refresh current run Id in store (step "end" uses it)
+      this.$store.dispatch('setCurrentRun', this.run)
+      
       // wait that DOM is loaded (required by steps involving camera)
-      this.$nextTick(() => {
+      this.$nextTick(async () => {
         let background = document.getElementById('main-view')
         
         if (this.step.backgroundImage) {
@@ -271,6 +339,10 @@ export default {
         
         if (this.step.type === 'code-color') {
           this.playerCode = Array(4).fill('red');
+        }
+        
+        if (this.step.type === 'new-item') {
+          await this.addItemToInventory(this.step.answers)
         }
         
         if (this.step.type === 'geolocation') {
@@ -348,10 +420,8 @@ export default {
     
     async nextStep() {
       // update run
-      if (!this.isRunFinished) {
-        this.run.currentStep++
-        await RunService.save(this.run)
-      }
+      this.run.currentStep++
+      await RunService.save(this.run)
       
       this.$router.push('/quest/play/' + this.step.questId + '/step/' + (this.step.number + 1));
     },
@@ -422,6 +492,14 @@ export default {
         }
       }
       throw new Error('No right answer found')
+    },
+    
+    async awardPoints() {
+      // TODO to avoid cheating, all answer checks + points awarding must be moved to server side
+      if (this.playerResult === true && !this.isRunFinished) {
+        this.run.score += 10
+        await RunService.save(this.run)
+      }
     },
     
     /* specific methods for step type 'code-keypad' */
@@ -617,9 +695,6 @@ export default {
     async watchLocationSuccess(pos) {
       let current = pos.coords;
       let target = this.step.answers
-      //test 
-      //let target = { lat: 45.322313, lng: 5.557124 } // 90°
-      //let target = { lat: 45.343431, lng: 5.522534 } // 0°
       
       // compute distance between two coordinates
       this.geolocation.distance = Math.round(utils.distanceInKmBetweenEarthCoordinates(target.lat, target.lng, current.latitude, current.longitude) * 1000, 2) // meters
@@ -636,13 +711,106 @@ export default {
       this.geolocation.rawDirection = this.geolocation.currentBearing
     },
     
-    async awardPoints() {
-      // TODO to avoid cheating, all answer checks + points awarding must be moved to server side
-      if (this.playerResult === true && this.run.status === 'in-progress') {
-        this.run.score += 10
+    /* specific for steps 'new-item' */
+    
+    getItemIcon(code) {
+      let item = questItems.find(item => item.code === code)
+      return typeof item !== 'undefined' ? item.icon : 'clear'
+    },
+    
+    async addItemToInventory(itemCode) {
+      if (this.run.inventory.indexOf(itemCode) === -1) {
+        this.run.inventory.push(itemCode)
         await RunService.save(this.run)
       }
+    },
+    
+    /* specific for steps 'use-item' */
+    
+    async useItem(ev) {
+      if (this.playerResult === true) {
+        return
+      }
+      
+      // get dimensions of #main-view div (same size as div .use-item)
+      let targetBounds = ev.target.getBoundingClientRect()
+      
+      // convert answer's "proportional coordinates" (numbers between 0 to 100) to "pixel coordinates",
+      // depending on "#main-view" div size on player device's screen
+      let anwserPixelCoordinates = {
+        left: this.step.answers.coordinates.left / 100 * targetBounds.width,
+        top: this.step.answers.coordinates.top / 100 * targetBounds.height
+      }
+      
+      // solution area radius = max (#main-view width, #main-view height) / 10,
+      // to get something as consistent as possible across devices & screen orientations
+      let solutionAreaRadius = Math.max(targetBounds.width, targetBounds.height) / 10
+      
+      let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - ev.offsetX, 2) + Math.pow(anwserPixelCoordinates.top - ev.offsetY, 2))
+      
+      if (distanceToSolution <= solutionAreaRadius && this.step.answers.item === this.selectedItem) {
+        this.playerResult = true
+        if (this.successAtFirstAttempt) {
+          await this.awardPoints()
+        }
+      } else {
+        this.successAtFirstAttempt = false
+        this.playerResult = false
+        // this.$t() did not work here, see https://github.com/kazupon/vue-i18n/issues/108
+        Toast.create.negative(this.$i18n.t('message.NothingHappens'))
+      }
+    },
+    openInventory() {
+      this.isInventoryOpen = !this.isInventoryOpen
+    },
+    selectItem(item) {
+      this.selectedItem = item
+      this.isInventoryOpen = false
+    },
+    
+    /* specific for steps 'find-item' */
+    
+    async findItem(ev) {
+      if (this.playerResult === true) {
+        return
+      }
+      
+      // get dimensions of #main-view div (same size as div .find-item)
+      let targetBounds = ev.target.getBoundingClientRect()
+      
+      // convert answer's "proportional coordinates" (numbers between 0 to 100) to "pixel coordinates",
+      // depending on "#main-view" div size on player device's screen
+      let anwserPixelCoordinates = {
+        left: this.step.answers.left / 100 * targetBounds.width,
+        top: this.step.answers.top / 100 * targetBounds.height
+      }
+      
+      // solution area radius = max (#main-view width, #main-view height) / 10,
+      // to get something as consistent as possible across devices & screen orientations
+      let solutionAreaRadius = Math.max(targetBounds.width, targetBounds.height) / 10
+      
+      let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - ev.offsetX, 2) + Math.pow(anwserPixelCoordinates.top - ev.offsetY, 2))
+      
+      if (distanceToSolution <= solutionAreaRadius) {
+        this.playerResult = true
+        if (this.successAtFirstAttempt) {
+          await this.awardPoints()
+        }
+      } else {
+        this.successAtFirstAttempt = false
+        this.playerResult = false
+        // this.$t() did not work here, see https://github.com/kazupon/vue-i18n/issues/108
+        Toast.create.negative(this.$i18n.t('message.NothingHappens'))
+      }
     }
+    
+    /*
+    async findItem(ev) {
+      
+      ...
+        this.itemAdded = this.step.answers.item
+        await addItemToInventory(this.itemAdded)
+    }*/
   }
 }
 </script>
@@ -653,6 +821,7 @@ export default {
   #main-view > div { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
   
   #main-view > div.info,
+  #main-view > div.new-item,
   #main-view > div.geolocation {
     padding-bottom: 1rem;
   }
@@ -723,6 +892,11 @@ export default {
   .answer-text input { opacity: 0.7; font-size: 1.5em; font-weight: bold; height: 1.5em; background-color: #fff; 
     border-radius: 0.5rem;
     box-shadow: 0px 0px 0.1rem 0.1rem #fff;}
+    
+  /* new-item specific */
+  
+  .new-item .item { flex-grow: 1; text-align: center; font-size: 10rem; display: flex; justify-content: center; align-items: center; }
+  .new-item .item .q-icon { }
   
   /* right/wrong styles */
   
@@ -755,5 +929,23 @@ export default {
   
   .resultMessage, .fixed-bottom.actions { padding: 1rem; }
   .resultMessage .text { text-align: center; font-weight: bold; }
+  
+  .inventory-btn { position: fixed; bottom: 0.7rem; left: 0.7rem; z-index: 1; }
+  
+  .inventory { background: white; position: fixed; bottom: 0; left: 0; width: 100%; height: 100%; }
+  .inventory h1 { padding-top: 1rem; margin-bottom: 1rem; }
+  
+  .inventory-items .q-btn { height: 5rem; width: 5rem; margin: 0.5rem; text-align: center; }
+  .inventory-items .q-icon { font-size: 3rem; margin: 0; }
+  
+  /* transitions / animations */
+  
+  .slideInBottom-enter-active, .slideInBottom-leave-active {
+    transition: all .3s ease;
+  }
+  .slideInBottom-enter, .slideInBottom-leave-to {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
   
 </style>

@@ -64,7 +64,7 @@
         <div class="row bottom-separator">
           <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 padding-medium">
             <a class="editable" @click="getBadgeForNewTeam()">
-              <div :style="'background-image: url(/statics/badges/' + newTeam.badge + ');'"></div>
+              <div :style="'background-image: url(' + serverUrl + '/statics/badges/' + newTeam.badge + ');'"></div>
               <span>{{ $t('message.Edit') }}</span>
              </a>
           </div>
@@ -77,7 +77,7 @@
       <q-tab-pane name="join">
         <q-list highlight>
           <q-item v-for="team in proposedTeams" :key="team._id" @click="$router.push('/team/' + team._id + '/members')">
-            <q-item-side v-if="team.badge" :avatar="'/statics/badges/' + team.badge" />
+            <q-item-side v-if="team.badge" :avatar="serverUrl + '/statics/badges/' + team.badge" />
             <q-item-side v-if="!team.badge" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>
               <q-item-tile label>{{ team.name }}</q-item-tile>

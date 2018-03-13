@@ -2,7 +2,7 @@
   
   <div>
     <div class="wrapper">
-      <h1>{{ $t('message.YourQuest') }}</h1>
+      <h1>{{ $t('message.CreateYourQuest') }}</h1>
       
       <div class="grow" v-html="$t('message.BuilderWelcomeMessage')"></div>
       

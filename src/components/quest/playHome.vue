@@ -69,11 +69,11 @@ export default {
       }
     },
     async getRun() {
-      // load run for current quest & current user Id
-      let run = await RunService.getOne({ userId: this.$store.state.user._id, questId: this.quest._id })
+      // try to load 'in-progress' run for current quest & current user Id
+      let run = await RunService.getOne({ userId: this.$store.state.user._id, questId: this.quest._id, status: 'in-progress' })
       
       if (typeof run === 'undefined') {
-        // first run for current player & current quest
+        // no 'in-progress' run => create run for current player & current quest
         let res = await RunService.save({
           userId: this.$store.state.user._id,
           questId: this.quest._id,
@@ -93,17 +93,19 @@ export default {
         if (res.status === 201) {
           this.$store.dispatch('setCurrentRun', res.data)
         }
-      } else if (run.status === 'in-progress') {
+      } else {
         // an 'in-progress' run already exists for current player & current quest => jump to current run's step
         // TODO : add run.currentStepAnswerChecked (boolean) to check if step anwser has been already checked
         // otherwise a malicious player can use this feature to cumulate points on same step by quitting/rejoining a quest
         this.$store.dispatch('setCurrentRun', run)
         Toast.create("Vous avez déjà commencé cette enquête. Vous êtes redirigé là où vous en étiez.")
         return this.$router.push('/quest/play/' + this.quest._id + '/step/' + run.currentStep)
-      } else {
-        // run is already finished
-        this.isRunFinished = true
       }
+      
+      // check if a run has been already finished for this quest
+      run = await RunService.getOne({ userId: this.$store.state.user._id, questId: this.quest._id, status: 'finished' })
+      
+      this.isRunFinished = (typeof run !== 'undefined')
     },
     // TODO make this more generic (basic model methods over 'webapp simple JSON files')
     // e.g. import JSONModels from 'utils/json-models'; questLevels = JSONModels('questLevels'); questLevels.getById(123)

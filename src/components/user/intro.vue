@@ -20,7 +20,7 @@
       </div>
       
       <div class="row bottom-separator">
-        <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 padding-medium"><img :src="'/statics/badges/' + team.profile.badge" class="full-width" /></div>
+        <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 padding-medium"><img :src="serverUrl + '/statics/badges/' + team.profile.badge" class="full-width" /></div>
         <div class="col padding-medium" v-if="team.profile.status == 'new'">
           <q-field :helper="$t('message.YouCanJoinAnotherAgencyLater')">
             <q-input v-model="team.profile.name" :placeholder="$t('message.EnterANameForYourAgency')" @keyup.enter="submit" />

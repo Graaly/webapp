@@ -30,7 +30,7 @@
     
     <div class="team-box" @click="$router.push('/team/' + team.profile._id + '/members')">
       <div class="badge">
-        <img :src="'/statics/badges/' + team.profile.badge" />
+        <img :src="serverUrl + '/statics/badges/' + team.profile.badge" />
       </div>
       
       <div class="desc">

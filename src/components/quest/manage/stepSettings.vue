@@ -1,6 +1,5 @@
 <template>
   <div>
-    
     <q-field :error="$v.form.title.$error">
       <q-input type="text" :float-label="$t('message.Title')" v-model="form.title" @blur="$v.form.title.$touch" />
       <div class="q-field-bottom" v-if="$v.form.title.$error">
@@ -19,7 +18,7 @@
         class="full-width"
       />
     </div>
-    
+
     <div class="background-upload">
       <q-btn class="full-width" type="button">
         <label for="picturefile">{{ $t('message.UploadABackgroundImage') }}</label>
@@ -44,10 +43,6 @@
           <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + form.videoStream" type="video/mp4" />
         </video>
       </div>
-    </div>
-    
-    <div v-if="stepType.code == 'new-item'">
-      <!-- TODO: choose retrieved item -->
     </div>
     
     <div v-if="stepType.code == 'geolocation'" class="location-gps">
@@ -148,9 +143,30 @@
       </ul>
     </div>
     
-    <div v-if="stepType.code == 'use-item'">
-      Objet à utiliser:
-      <!-- TODO -->
+    <!-- inventory steps -->
+    
+    <div class="find-item" v-if="stepType.code == 'use-item'">
+      <p>{{ $t('message.ClickOnTheLocationTheItemMustBeUsed') }} :</p>
+      <div @click="getClickCoordinates($event)" id="findItemPicture" :style="'overflow: hidden;width: 400px; height: 533px; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage + ');background-size: 100% 100%;'">
+        <img id="cross" :style="'position: relative; z-index: 10000;top: ' + ((form.answerPointerCoordinates.top * 5.33) - 30) + 'px; left: ' + ((form.answerPointerCoordinates.left * 4) - 23) + 'px;'" src="/statics/icons/game/find-item-locator.png" />
+      </div>
+    </div>
+    
+    <div class="inventory" v-if="stepType.code == 'new-item' || stepType.code == 'use-item'">
+      <q-select :float-label="stepType.code === 'new-item' ? 'Objet à rajouter dans l\'inventaire :' : 'Objet de l\'inventaire à utiliser'" :options="questItemsAsOptions" v-model="form.answerItem" />
+      <div v-show="form.answerItem !== null">
+        Objet sélectionné :
+        <q-icon :name="getItemIcon(form.answerItem)" />
+      </div>
+    </div>
+    
+    <!-- find-item steps -->
+
+    <div class="find-item" v-if="stepType.code == 'find-item'">
+      <p>{{ $t('message.ClickOnTheItemThatIsToFind') }} :</p>
+      <div @click="getClickCoordinates($event)" id="findItemPicture" :style="'overflow: hidden;width: 400px; height: 533px; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage + ');background-size: 100% 100%;'">
+        <img id="cross" :style="'position: relative; z-index: 10000;top: ' + ((form.answerPointerCoordinates.top * 5.33) - 30) + 'px; left: ' + ((form.answerPointerCoordinates.left * 4) - 23) + 'px;'" src="/statics/icons/game/find-item-locator.png" />
+      </div>
     </div>
     
     <!-- TODO. those options do nothing for the moment -->
@@ -224,11 +240,14 @@
 <script>
 import { QCheckbox, QUploader, Toast } from 'quasar'
 import { required } from 'vuelidate/lib/validators'
-import stepTypes from 'data/stepTypes.json'
+
 import colorsForCode from 'data/colorsForCode.json'
+import questItems from 'data/questItems.json'
+import stepTypes from 'data/stepTypes.json'
+
 import StepService from 'services/StepService'
 import QuestService from 'services/QuestService'
-//import QuestService from 'services/QuestService'
+
 export default {
   components: {
     QCheckbox, QUploader
@@ -247,6 +266,8 @@ export default {
         videoStream: null,
         // geoloc step specific
         answerCoordinates: { lat: 0, lng: 0 },
+        answerPointerCoordinates: {top: 50, left: 50},
+        answerItem: null,
         showDistanceToTarget: false,
         showDirectionToTarget: false,
         trigger: {
@@ -283,7 +304,10 @@ export default {
       serverUrl: process.env.SERVER_URL,
       
       // for 'code-color' steps
-      colorsForCode: this.getColorsForCodeOptions()
+      colorsForCode: this.getColorsForCodeOptions(),
+      
+      // for 'new-item' & 'use-item' steps
+      questItemsAsOptions: this.getQuestItemsAsOptions()
     }
   },
   computed: {
@@ -320,6 +344,11 @@ export default {
       this.$store.dispatch('setCurrentEditedQuest', res.data)
     }
     
+    if (this.$store.state.currentEditedStep === null || this.$store.state.currentEditedQuest === null) {
+      this.$router.push('/home')
+      return
+    }
+    
     this.stepType = this.$store.state.currentEditedStep.type
     this.questId = this.$store.state.currentEditedQuest._id
     
@@ -348,6 +377,21 @@ export default {
       if (!Array.isArray(this.form.answers)) {
         this.form.answers = Array(4).fill('red')
       }
+    } else if (this.stepType.code === 'find-item') {
+      if (this.form.answers) {
+        this.form.answerPointerCoordinates = this.form.answers
+      }
+    } else if (this.stepType.code === 'use-item') {
+      if (this.form.answers && this.form.answers.coordinates) {
+        this.form.answerPointerCoordinates = this.form.answers.coordinates
+      }
+      if (this.form.answers && this.form.answers.item) {
+        this.form.answerItem = this.form.answers.item
+      }
+    } else if (this.stepType.code === 'new-item') {
+      if (this.form.answers) {
+        this.form.answerItem = this.form.answers
+      }
     }
   },
   methods: {
@@ -363,6 +407,15 @@ export default {
       }
       if (this.stepType.code === 'geolocation') {
         this.form.answers = this.form.answerCoordinates
+      }
+      if (this.stepType.code === 'find-item') {
+        this.form.answers = this.form.answerPointerCoordinates
+      }
+      if (this.stepType.code === 'use-item') {
+        this.form.answers = {coordinates: this.form.answerPointerCoordinates, item: this.form.answerItem}
+      }
+      if (this.stepType.code === 'new-item') {
+        this.form.answers = this.form.answerItem
       }
       await StepService.save(Object.assign(this.form, {
         questId: this.questId,
@@ -461,7 +514,44 @@ export default {
     triggerClickOnColorSelect(index) {
       // [0] is required because of v-for, see https://forum-archive.vuejs.org/topic/5190/this-refs-ref_name-on-dynamic-component-is-array-instead-of-vuecomponent/2
       this.$refs['colorSelect' + index][0].$el.click()
+    },
+    
+    // for 'new-item' & 'use-item' steps
+    getQuestItemsAsOptions() {
+      let options = []
+      questItems.forEach((item) => {
+        options.push({
+          value: item.code,
+          label: this.$t('questItem.' + item.code)
+        })
+      })
+      return options.sort((a, b) => { return a.label > b.label ? 1 : -1 })
+    },
+    getItemIcon(code) {
+      let item = questItems.find(item => item.code === code)
+      return typeof item !== 'undefined' ? item.icon : 'clear'
+    },
+    getClickCoordinates(ev) {
+      let posX = Math.min(377, Math.max(23, parseInt(ev.offsetX, 10)))
+      let posY = Math.min(503, Math.max(30, parseInt(ev.offsetY, 10)))
+      this.form.answerPointerCoordinates.left = Math.floor(posX / 4)
+      this.form.answerPointerCoordinates.top = Math.floor(posY / 5.33)
+      this.positionFindItemPointer()
+    },
+    positionFindItemPointer() {
+      document.getElementById("cross").style.left = ((this.form.answerPointerCoordinates.left * 4) - 23) + "px"
+      document.getElementById("cross").style.top = ((this.form.answerPointerCoordinates.top * 5.33) - 30) + "px"
     }
+    
+    /*
+    for future method to get item coordinates for step 'find-item'
+                  and to get location coordinates for step 'use-item'
+    // get dimensions of #main-view div (same size as div .use-item)
+    let targetBounds = ev.target.getBoundingClientRect()
+    console.log('proportional coords')
+    console.log('width', ev.offsetX / targetBounds.width * 100)
+    console.log('height', ev.offsetY / targetBounds.height * 100)
+    */
   },
   validations: {
     form: {
@@ -494,5 +584,8 @@ p { margin-bottom: 0.5rem; }
 .code-color table { margin: auto; }
 .code-color table td { padding: 0rem; width: 6rem; }
 .code-color .color-bubble { display: block; width: 4rem; height: 4rem; border: 4px solid black; border-radius: 2rem; transition: background-color 0.3s; }
+
+.inventory div { margin: 0.5rem auto; }
+.inventory .q-icon { width: 3rem; height: 3rem; font-size: 3rem; }
 
 </style>
