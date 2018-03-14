@@ -6,6 +6,8 @@
   "private": true,
   "dependencies": {
     "express": "latest",
-    "serve-static": "latest"
+    "https": "latest",
+    "fs": "latest",
+    "serve-favicon": "latest"
   }
 }
