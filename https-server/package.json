@@ -1,0 +1,11 @@
+{
+  "name": "graaly-webserver",
+  "version": "0.1.0",
+  "description": "Graaly Web server for production",
+  "author": "Eric Mathieu <eric.mathieu13@gmail.com>, Maxime Pacary <maxime.pacary@gmail.com>",
+  "private": true,
+  "dependencies": {
+    "express": "latest",
+    "serve-static": "latest"
+  }
+}
