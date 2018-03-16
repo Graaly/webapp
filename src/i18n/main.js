@@ -241,7 +241,19 @@ module.exports = {
       CreateYourQuest: "Create your quest",
       ClickOnTheItemThatIsToFind: "Click on the part of the picture the item is located",
       ObjectToFind: "Object to find",
-      ClickOnTheLocationTheItemMustBeUsed: "Click where the item must be used"
+      ClickOnTheLocationTheItemMustBeUsed: "Click where the item must be used",
+      ObjectWon: "Object won",
+      ObjectToUse: "Object to use",
+      NoneImmediate: "None (immediate)",
+      NoneLocationAndDirection: "Location (and direction)",
+      DateTime: "Date / time",
+      NoneNextStep: "None (move to next step)",
+      Easy: "Easy",
+      Medium: "Medium",
+      Hard: "Hard",
+      UploadThePuzzlePicture: "Upload the jigsaw puzzle picture",
+      WarningImageSizeSquare: "Your picture width and height must be the same",
+      YourPuzzlePicture: "Jigsaw picture"
     }
   },
   fr: {
@@ -486,7 +498,19 @@ module.exports = {
       CreateYourQuest: "Créer votre enquête",
       ClickOnTheItemThatIsToFind: "Cliquer sur l'endroit dans l'image où est l'objet",
       ObjectToFind: "Objet à trouver",
-      ClickOnTheLocationTheItemMustBeUsed: "Cliquez où l'objet doit être utilisé"
+      ClickOnTheLocationTheItemMustBeUsed: "Cliquez où l'objet doit être utilisé",
+      ObjectWon: "Objet gagné",
+      ObjectToUse: "Objet à utiliser",
+      NoneImmediate: "Aucun (immédiat)",
+      NoneLocationAndDirection: "Lieu (et direction)",
+      DateTime: "Date / heure",
+      NoneNextStep: "Aucune (passer à l'étape suivante)",
+      Easy: "Simple",
+      Medium: "Moyen",
+      Hard: "Difficile",
+      UploadThePuzzlePicture: "Télécharger l'image du puzzle",
+      WarningImageSizeSquare: "Votre image doit avoir la même largeur que hauteur",
+      YourPuzzlePicture: "Image de votre puzzle"
     }
   }
 }

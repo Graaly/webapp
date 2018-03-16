@@ -121,6 +121,7 @@
       </table>
     </div>
     
+    <!-- image recognition steps -->
     
     <div v-if="stepType.code == 'image-recognition'" class="image-recognition">
       <q-btn class="full-width" type="button">
@@ -133,14 +134,21 @@
       </div>
     </div>
     
+    <!-- jigsaw puzzle steps -->
     
-    <div v-if="stepType.code == 'jigsaw-puzzle'">
-      <!-- TODO -->
-      Image à reconstituer:
-      <ul>
-        <li>Nombre de lignes</li>
-        <li>Nombre de colonnes</li>
-      </ul>
+    <div class="background-upload" v-if="stepType.code == 'jigsaw-puzzle'">
+      <q-btn class="full-width" type="button">
+        <label for="puzzlefile">{{ $t('message.UploadThePuzzlePicture') }}</label>
+        <input @change="uploadPuzzleImage" name="puzzlefile" id="puzzlefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+      </q-btn>
+      <p>{{ $t('message.WarningImageSizeSquare') }}</p>
+      <div v-if="form.answers !== null && form.answers.picture && form.answers.picture !== null">
+        <p>{{ $t('message.YourPuzzlePicture') }} :</p>
+        <img :src="serverUrl + '/upload/quest/' + questId + '/step/jigsaw-puzzle/' + form.answers.picture" />
+      </div>
+    </div>
+    <div v-if="stepType.code == 'jigsaw-puzzle' && form.answers !== null">
+      <q-select :float-label="$t('message.Difficulty')" :options="jigsawLevels" v-model="form.answers.level" />
     </div>
     
     <!-- inventory steps -->
@@ -153,7 +161,7 @@
     </div>
     
     <div class="inventory" v-if="stepType.code == 'new-item' || stepType.code == 'use-item'">
-      <q-select :float-label="stepType.code === 'new-item' ? 'Objet à rajouter dans l\'inventaire :' : 'Objet de l\'inventaire à utiliser'" :options="questItemsAsOptions" v-model="form.answerItem" />
+      <q-select :float-label="stepType.code === 'new-item' ? $t('message.ObjectWon') : $t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
       <div v-show="form.answerItem !== null">
         Objet sélectionné :
         <q-icon :name="getItemIcon(form.answerItem)" />
@@ -220,7 +228,7 @@
     />
     -->
     
-    <div v-if="stepType.category == 'enigma'">
+    <div v-if="stepType.showTrick == 'yes'">
       <q-input v-model="form.hint" float-label="Indice" />
     </div>
     
@@ -283,16 +291,21 @@ export default {
         code: null
       },
       stepTypes,
+      jigsawLevels: [
+        { value: 1, label: this.$t('Easy') },
+        { value: 2, label: this.$t('Medium') },
+        { value: 3, label: this.$t('Hard') }
+      ],
       
       triggerList: [
-        { type: 'none',     label: 'Aucun (immédiat)' },
-        { type: 'location', label: 'Lieu (et direction)' },
-        { type: 'datetime', label: 'Date / heure' }
+        { type: 'none',     label: this.$t('message.NoneImmediate') },
+        { type: 'location', label: this.$t('message.NoneLocationAndDirection') },
+        { type: 'datetime', label: this.$t('message.DateTime') }
       ],
       
       wrongAnswerAnimationList: [
-        { type: 'none', label: "Aucune (passer à l'étape suivante)" },
-        { type: 'text', label: 'Texte' }
+        { type: 'none', label: this.$t('message.NoneNextStep') },
+        { type: 'text', label: this.$t('message.Text') }
       ],
             
       // for 'choose' steps
@@ -391,6 +404,10 @@ export default {
     } else if (this.stepType.code === 'new-item') {
       if (this.form.answers) {
         this.form.answerItem = this.form.answers
+      }
+    } else if (this.stepType.code === 'jigsaw-puzzle') {
+      if (!this.form.answers) {
+        this.form.answers = {level: 2}
       }
     }
   },
@@ -497,6 +514,18 @@ export default {
       let uploadResult = await StepService.uploadAnswerImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.form.answers[key].imagePath = uploadResult.data.file
+      }
+    },
+    async uploadPuzzleImage(e) {
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadResult = await StepService.uploadPuzzleImage(this.questId, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        this.form.answers.picture = uploadResult.data.file
       }
     },
     

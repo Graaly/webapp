@@ -103,7 +103,8 @@ export default {
           items: []
         }
       },
-      user: {name: "--", picture: "", id: ""}
+      user: {name: "--", picture: "", id: ""},
+      serverUrl: process.env.SERVER_URL
     }
   },
   mounted() {

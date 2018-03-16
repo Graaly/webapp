@@ -69,7 +69,8 @@ export default {
     return {
       title: 'Mon agence',
       team: { profile: { statistics: {}, score: {} }, challenges: [], memberOfTeam: false },
-      user: {name: "--", picture: "", id: ""}
+      user: {name: "--", picture: "", id: ""},
+      serverUrl: process.env.SERVER_URL
     }
   },
   mounted() {
