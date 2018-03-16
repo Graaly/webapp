@@ -8,6 +8,7 @@
     "express": "latest",
     "https": "latest",
     "fs": "latest",
-    "serve-favicon": "latest"
+    "serve-favicon": "latest",
+    "serve-static": "latest"
   }
 }
