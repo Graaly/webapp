@@ -4,21 +4,24 @@
     "code": "info-text",
     "icon": "file-image-o",
     "title": "Image et Texte",
-    "description": "Une image de fond et du texte"
+    "description": "Une image de fond et du texte",
+    "showTrick": "no"
   },
   {
     "category": "transition",
     "code": "info-video",
     "icon": "file-video-o",
     "title": "Vidéo",
-    "description": "Vidéo d'explication, de présentation"
+    "description": "Vidéo d'explication, de présentation",
+    "showTrick": "no"
   },
   {
     "category": "transition",
     "code": "new-item",
     "icon": "briefcase",
     "title": "Nouvel objet",
-    "description": "Ajout d'un objet dans l'inventaire"
+    "description": "Ajout d'un objet dans l'inventaire",
+    "showTrick": "no"
   },
   
   {
@@ -26,62 +29,71 @@
     "code": "geolocation",
     "icon": "map-marker",
     "title": "Trouver un lieu",
-    "description": "Diriger vers un emplacement"
+    "description": "Diriger vers un emplacement",
+    "showTrick": "yes"
   },
   {
     "category": "enigma",
     "code": "choose",
     "icon": "list",
     "title": "Question à choix multiples",
-    "description": "Cocher la bonne réponse (texte ou image)"
+    "description": "Cocher la bonne réponse (texte ou image)",
+    "showTrick": "yes"
   },
   {
     "category": "enigma",
     "code": "write-text",
     "icon": "font",
     "title": "Réponse textuelle",
-    "description": "Taper un texte"
+    "description": "Taper un texte",
+    "showTrick": "yes"
   },
   {
     "category": "enigma",
     "code": "code-keypad",
     "icon": "calculator",
     "title": "Trouver un code numérique",
-    "description": "Trouver et taper le code"
+    "description": "Trouver et taper le code",
+    "showTrick": "yes"
   },
   {
     "category": "enigma",
     "code": "code-color",
     "icon": "paint-brush",
     "title": "Trouver un code couleur",
-    "description": "Trouver une combinaison de couleurs"
+    "description": "Trouver une combinaison de couleurs",
+    "showTrick": "yes"
   },
   {
     "category": "enigma",
     "code": "image-recognition",
     "icon": "camera",
     "title": "Photographier un objet",
-    "description": "Retrouver et photographier un objet"
+    "description": "Retrouver et photographier un objet",
+    "showTrick": "yes"
   },
   {
     "category": "enigma",
     "code": "jigsaw-puzzle",
     "icon": "puzzle-piece",
     "title": "Puzzle",
-    "description": "Remettre en place les pièces"
+    "description": "Remettre en place les pièces",
+    "showTrick": "no"
   },
   {
     "category": "enigma",
     "code": "find-item",
     "icon": "search",
     "title": "Trouver objet dans une image",
-    "description": "L'objet trouvé est ajouté dans l'inventaire"
+    "description": "L'objet trouvé est ajouté dans l'inventaire",
+    "showTrick": "yes"
   },
   {
     "category": "enigma",
     "code": "use-item",
     "icon": "wrench",
     "title": "Utiliser objet",
-    "description": "Utiliser un objet de l'inventaire"
+    "description": "Utiliser un objet de l'inventaire",
+    "showTrick": "yes"
   }
 ]

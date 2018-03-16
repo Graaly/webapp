@@ -44,7 +44,6 @@
       </div>
     </div>
     
-    
     <div class="code" v-if="step.type == 'code-keypad'">
       <div>
         <p class="text">{{ step.text }}</p>
@@ -52,7 +51,7 @@
       <div class="typed-code">
         <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
         <tr>
-          <td v-for="(sign, key) in playerCode" :class="{ typed: sign !== ''}">{{ sign == '' ? '?' : sign }}</td>
+          <td v-for="(sign, key) in playerCode" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
         </tr>
         </table>
       </div>
@@ -161,6 +160,23 @@
       </div>
     </div>
     
+    <!-- jigsaw puzzle steps -->
+    
+    <div class="puzzle" v-if="step.type == 'jigsaw-puzzle'">
+      <div>
+        <p class="text">{{ step.text }}</p>
+      </div>
+      <ul id="puzzle-container" v-sortable="{ onUpdate: onPieceMove }">
+        <li v-for="piece in puzzle.pieces" :key="piece.pos" :id="'piece-' + piece.pos"
+          :style="'border: 0px;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/jigsaw-puzzle/' + step.answers.picture + '); background-size: ' + piece.backSize + '% ' + piece.backSize + '%;background-position: -' + piece.backXPos + ' -' + piece.backYPos + ';'"
+        ><img src="/statics/icons/game/spacer.gif" :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'" /></li>
+      </ul>
+      <div class="resultMessage fixed-bottom" v-show="playerResult === true ">
+        <div>{{ $t('message.WellDone') }}<span v-if="playerResult"> +10 {{ $t('message.points') }}</span></div>
+        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+      </div>
+    </div>
+    
     <!-- inventory steps -->
     
     <div class="new-item" v-if="step.type == 'new-item'">
@@ -226,6 +242,12 @@ import colorsForCode from 'data/colorsForCode.json'
 import questItems from 'data/questItems.json'
 
 import Vue from 'vue'
+import Sortable from 'sortablejs'
+Vue.directive('sortable', {
+  inserted: function (el, binding) {
+    return new Sortable(el, binding.value || {})
+  }
+})
 import { Alert, Toast } from 'quasar'
 
 export default {
@@ -271,6 +293,11 @@ export default {
       // for step type 'write-text'
       writetext: {
         playerAnswer: null
+      },
+      
+      // for step type 'jigsaw puzzle'
+      puzzle: {
+        pieces: []
       },
       
       // for step type 'use-item'
@@ -321,7 +348,7 @@ export default {
       this.$nextTick(async () => {
         let background = document.getElementById('main-view')
         
-        if (this.step.backgroundImage) {
+        if (this.step.backgroundImage && this.step.type !== 'jigsaw-puzzle') {
           background.style.background = '#fff url("' + process.env.SERVER_URL + '/upload/quest/' + this.questId + '/step/background/' + this.step.backgroundImage + '")  center/cover no-repeat'
         } else {
           background.style.background = 'none'
@@ -343,6 +370,10 @@ export default {
         
         if (this.step.type === 'new-item') {
           await this.addItemToInventory(this.step.answers)
+        }
+        
+        if (this.step.type === 'jigsaw-puzzle') {
+          await this.initPuzzle(this.step.answers.level)
         }
         
         if (this.step.type === 'geolocation') {
@@ -768,6 +799,47 @@ export default {
       this.isInventoryOpen = false
     },
     
+    /* specific for steps 'jigsaw-puzzle' */
+    
+    async onPieceMove(event) {
+      var childNodes = document.getElementById('puzzle-container').childNodes,
+        i = childNodes.length;
+      while (i--) {
+        if (i !== parseInt(childNodes[i].id.replace('piece-', ''))) {
+          return false // if one piece is not well placed
+        }
+      }
+
+      await this.awardPoints()
+      this.playerResult = true
+    },
+    async initPuzzle(level) {
+      // Puzzle sizes
+      level = parseInt((level || 2), 10) // 1=easy, 2=medium, 3=hard
+      var puzzleSize = level * 2
+      var puzzleWidth = document.getElementById('puzzle-container').clientWidth
+      var puzzleHeight = puzzleWidth
+      document.getElementById('puzzle-container').style.height = puzzleHeight + "px"
+      var pieceHeight = Math.floor(puzzleHeight / puzzleSize)
+      var pieceWidth = Math.floor(puzzleWidth / puzzleSize)
+      
+      // Build pieces
+      for (var i = 0; i < puzzleSize * puzzleSize; i++) {
+        let xPos = (pieceWidth * (i % puzzleSize)) + 'px';
+        let yPos = (pieceHeight * Math.floor(i / puzzleSize)) + 'px';
+        this.puzzle.pieces[i] = { pos: i, backSize: (puzzleSize * 100), backXPos: xPos, backYPos: yPos, width: pieceWidth, height: pieceHeight }
+      }
+      
+      //Shuffle
+      for (i = this.puzzle.pieces.length -1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1))
+        let k = this.puzzle.pieces[i]
+        this.puzzle.pieces[i] = this.puzzle.pieces[j]
+        this.puzzle.pieces[j] = k
+      }
+      console.log(this.puzzle.pieces)
+    },
+   
     /* specific for steps 'find-item' */
     
     async findItem(ev) {
@@ -885,6 +957,11 @@ export default {
   .geolocation .direction-helper { flex-grow: 1; display: flex; flex-flow: column nowrap; }
   .geolocation .direction-helper canvas { width: 10rem; height: 10rem; margin: auto; margin-bottom: 0; }
   .geolocation .text { margin-bottom: 0.5rem; }
+  
+  /* jigsaw puzzle specific */
+  
+  #puzzle-container { padding: 0; margin: 0; width: 100%; background: #777; border: 1px solid #777; display: block; }
+  #puzzle-container li { padding: 0; margin: 0; border: 0px; list-style-type: none; float: left; background-repeat: none; }
   
   /* write-text specific */
   

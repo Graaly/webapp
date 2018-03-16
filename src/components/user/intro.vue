@@ -82,7 +82,8 @@ export default {
         { label: 'Belgique', value: 'belgium' },
         { label: 'Espagne', value: 'spain' },
         { label: 'France', value: 'france' }
-      ]
+      ],
+      serverUrl: process.env.SERVER_URL
     }
   },
   mounted() {

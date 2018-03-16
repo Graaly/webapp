@@ -37,7 +37,7 @@
                 {{ $t('message.PlayedOn') }} {{quest.dateCreated | formatDate}}
               </q-item-tile>
               <q-item-tile sublabel v-if="quest.status == 'finished' && !quest.score">
-                {{ $t('message.Succeeded') }}
+                {{ $t('message.Succeeded') }} {{quest.dateCreated | formatDate}}
               </q-item-tile>
               <q-item-tile sublabel v-if="quest.status == 'in-progress'">
                 {{ $t('message.ContinueThisQuest') }}
