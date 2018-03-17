@@ -7,7 +7,7 @@ axios.defaults.withCredentials = true
 
 export default() => {
   // temp hack
-  var baseUrl = (window.location.hostname.indexOf("graaly.com") == -1 ? 'https://' + window.location.hostname + ':3000' : 'https://api.graaly.com')
+  var baseUrl = (window.location.hostname.indexOf("graaly.com") === -1 ? 'https://' + window.location.hostname + ':3000' : 'https://api.graaly.com')
   return axios.create({
     // currently for proto, API will be always available from same host as webapp
     // => localhost, 78.247.66.31, etc.
