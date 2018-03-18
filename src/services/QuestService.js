@@ -19,6 +19,15 @@ export default {
     return data._id ? Api().put('quests/' + data._id, data): Api().post('quests', data)
   },
   
+  // Publish a quest
+  publish (id) {
+    return Api().put('quest/' + id + '/publish')
+  },
+  // Publish a quest
+  unpublish (id) {
+    return Api().put('quest/' + id + '/unpublish')
+  },
+  
   // list the quests created by a user
   ListCreatedByAUser (id) {
     return Api().get('user/' + id + '/quests/created')

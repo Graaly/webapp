@@ -77,7 +77,7 @@ export default {
         await AuthService.addPoints(this.run.score)
       }
       
-      await RunService.save({ _id: this.run._id, status: 'finished' })
+      await RunService.endRun(this.run._id)
       this.$store.dispatch('setCurrentRun', null)
     } else {
       this.$router.push('/home')

@@ -17,5 +17,9 @@ export default {
   // if _id is not provided in data, create (POST), otherwise, update (PUT)
   save (data) {
     return data._id ? Api().put('runs/' + data._id, data): Api().post('runs', data)
+  },
+  
+  endRun (id) {
+    return Api().put('run/' + id + '/end')
   }
 }

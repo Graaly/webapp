@@ -78,12 +78,12 @@ export default {
     },
     async publish() {
       this.quest.status = 'published';
-      await QuestService.save({ _id: this.quest._id, status: this.quest.status })
+      await QuestService.publish(this.quest._id)
       Toast.create.positive(this.$t('message.YourQuestIsPublished'))
     },
     async unpublish() {
       this.quest.status = 'unpublished';
-      await QuestService.save({ _id: this.quest._id, status: this.quest.status })
+      await QuestService.unpublish(this.quest._id)
       Toast.create.positive(this.$t('message.YourQuestIsUnpublished'))
     },
     async removeStep(stepId) {
