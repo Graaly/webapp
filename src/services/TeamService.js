@@ -18,12 +18,17 @@ export default {
   
   // list a team members based on team ID
   listMembers (id) {
-    return Api().get('users/?team.currentId=' + id)
+    return Api().get('team/' + id + '/members/list')
   },
   
   // list a team challenges
   listChallenges (id) {
     return Api().get('team/' + id + '/challenges/list')
+  },
+  
+  // list monthly rankings for a team
+  listMonthlyRankings (id) {
+    return Api().get('team/' + id + '/rankings/list')
   },
   
   // list a team join requests based on team ID

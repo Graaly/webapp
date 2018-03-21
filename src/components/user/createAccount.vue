@@ -100,7 +100,7 @@ export default {
         }
         let creationStatus = await AuthService.createAccount(newAccount)
         
-        if (creationStatus.status >= 300 && creationStatus.data && creationStatus.data.message) {
+        if (creationStatus.data && creationStatus.data.message) {
           Toast.create(creationStatus.data.message)
         }
       }

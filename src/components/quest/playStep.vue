@@ -161,16 +161,16 @@
     </div>
     
     <!-- jigsaw puzzle steps -->
-    
     <div class="puzzle" v-if="step.type == 'jigsaw-puzzle'">
       <div>
         <p class="text">{{ step.text }}</p>
       </div>
       <ul id="puzzle-container" v-sortable="{ onUpdate: onPieceMove }">
         <li v-for="piece in puzzle.pieces" :key="piece.pos" :id="'piece-' + piece.pos"
-          :style="'border: 0px;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/jigsaw-puzzle/' + step.answers.picture + '); background-size: ' + piece.backSize + '% ' + piece.backSize + '%;background-position: -' + piece.backXPos + ' -' + piece.backYPos + ';'"
+          :style="'background-image: url(' + puzzle.picture + '); background-size: ' + piece.backSize + '% ' + piece.backSize + '%;background-position: -' + piece.backXPos + ' -' + piece.backYPos + ';'"
         ><img src="/statics/icons/game/spacer.gif" :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'" /></li>
       </ul>
+      <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
       <div class="resultMessage fixed-bottom" v-show="playerResult === true ">
         <div>{{ $t('message.WellDone') }}<span v-if="playerResult"> +10 {{ $t('message.points') }}</span></div>
         <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
@@ -297,7 +297,8 @@ export default {
       
       // for step type 'jigsaw puzzle'
       puzzle: {
-        pieces: []
+        pieces: [],
+        picture: '/statics/icons/game/medal.png'
       },
       
       // for step type 'use-item'
@@ -373,7 +374,7 @@ export default {
         }
         
         if (this.step.type === 'jigsaw-puzzle') {
-          await this.initPuzzle(this.step.answers.level)
+          setTimeout(this.initPuzzle, 1000)
         }
         
         if (this.step.type === 'geolocation') {
@@ -813,9 +814,9 @@ export default {
       await this.awardPoints()
       this.playerResult = true
     },
-    async initPuzzle(level) {
+    initPuzzle() {
       // Puzzle sizes
-      level = parseInt((level || 2), 10) // 1=easy, 2=medium, 3=hard
+      var level = parseInt((this.step.answers.level || 2), 10) // 1=easy, 2=medium, 3=hard
       var puzzleSize = level * 2
       var puzzleWidth = document.getElementById('puzzle-container').clientWidth
       var puzzleHeight = puzzleWidth
@@ -837,7 +838,7 @@ export default {
         this.puzzle.pieces[i] = this.puzzle.pieces[j]
         this.puzzle.pieces[j] = k
       }
-      console.log(this.puzzle.pieces)
+      this.puzzle.picture = this.serverUrl + '/upload/quest/' + this.questId + '/step/jigsaw-puzzle/' + this.step.answers.picture
     },
    
     /* specific for steps 'find-item' */

@@ -41,14 +41,20 @@
         <q-infinite-scroll :handler="getTeamNews">
           <q-list highlight>
             <q-item v-for="(item, index) in team.news.items" :key="item._id">
-              <q-item-side v-if="item.author.picture && item.author.picture.indexOf('http') !== -1" :avatar="item.author.picture" />
-              <q-item-side v-if="item.author.picture && item.author.picture.indexOf('http') === -1" :avatar="serverUrl + '/upload/profile/' + item.author.picture" />
-              <q-item-side v-if="!item.author.picture" :avatar="'/statics/profiles/noprofile.png'" />
+              <q-item-side v-if="item.data.picture && item.data.picture.indexOf('http') !== -1" :avatar="item.data.picture" />
+              <q-item-side v-if="item.data.picture && item.data.picture.indexOf('http') === -1" :avatar="serverUrl + '/upload/profile/' + item.data.picture" />
+              <q-item-side v-if="!item.data.picture" :avatar="'/statics/profiles/noprofile.png'" />
               <q-item-main>
-                <q-item-tile label>{{ item.author.name }}</q-item-tile>
-                <q-item-tile label>{{ item.title }}</q-item-tile>
+                <q-item-tile label v-if="item.data && item.data.userId">{{ item.data.name }}</q-item-tile>
+                <q-item-tile label v-if="item.type === 'standard'">
+                  {{ item.title }}
+                </q-item-tile>
+                <q-item-tile label v-if="item.type !== 'standard'">
+                  <dummytag v-html="$t('news.' + item.type, item.data)"></dummytag>
+                  <span v-if="item.type === 'challengeWon'">{{ $t('challenge.' + item.data.name) }}</span>
+                </q-item-tile>
                 <q-item-tile sublabel>
-                  {{item.creation.date | formatDate}} 
+                  {{item.creation.date | formatDate}}
                   - 
                   <a style="color: #000" v-if="!isLiked(item)" v-on:click="like(index)">{{ $t('message.Like') }}</a>
                   <a v-if="isLiked(item)" v-on:click="unlike(index)">{{ $t('message.Like') }}</a>
@@ -139,12 +145,14 @@ export default {
       var self = this
       // get the team news list
       TeamService.listNewsAsync(this.$route.params.id, this.team.news.skip, this.team.news.limit, function(err, response) {
+        self.team.news.skip += self.team.news.limit
         if (err) {
           done(err)
         }
-        self.team.news.items = self.team.news.items.concat(response.data)
-        self.team.news.skip += self.team.news.limit
-        done()
+        if (response && response.data && response.data.length > 0) {
+          self.team.news.items = self.team.news.items.concat(response.data)
+          done()
+        }
       })
     },               
     // submit the comment    
@@ -158,7 +166,7 @@ export default {
       }
       
       // save the comment
-      await TeamService.saveNews({title: this.comment, teamId: this.$route.params.id, type: "standard", author: {picture: this.user.picture, name: this.user.name}, likes: [], creation: {date: new Date(), userId: this.user.id}})
+      await TeamService.saveNews({title: this.comment, teamId: this.$route.params.id, type: "standard", data: {userId: this.user._id, picture: this.user.picture, name: this.user.name}, likes: [], creation: {date: new Date(), userId: this.user.id}})
       
       // reset the news list
       this.team.news.items.length = 0

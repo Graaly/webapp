@@ -39,6 +39,13 @@ module.exports = {
       umbrella: "Umbrella",
       wrench: "Wrench"
     },
+    news: {
+      challengeWon: "Your team whon the challenge: ",
+      newTeam: "This team has just been created",
+      newQuestWon: "Has won the quest <a href='/#/quest/play/{questId}'>{quest}</a>",
+      newQuest: "Has created the quest <a href='/#/quest/play/{questId}'>{quest}</a>",
+      newMember: "Has joined your team"
+    },
     message: {
       SignIn: "Sign-in",
       toStartTheAdventure: "to start the adventure!",
@@ -253,7 +260,8 @@ module.exports = {
       Hard: "Hard",
       UploadThePuzzlePicture: "Upload the jigsaw puzzle picture",
       WarningImageSizeSquare: "Your picture width and height must be the same",
-      YourPuzzlePicture: "Jigsaw picture"
+      YourPuzzlePicture: "Jigsaw picture",
+      nbQuestWonThisMonth: "You won {nb} quest(s) this month"
     }
   },
   fr: {
@@ -295,6 +303,13 @@ module.exports = {
       scissors: "Ciseaux",
       umbrella: "Parapluie",
       wrench: "Clé plate"
+    },
+    news: {
+      challengeWon: "Votre équipe a gagné le challenge",
+      newTeam: "Cette équipe vient d'être créée",
+      newQuestWon: "A réussi l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>",
+      newQuest: "A créé l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>",
+      newMember: "A rejoint votre équipe"
     },
     message: {
       SignIn: "Connectez-vous",
@@ -510,7 +525,8 @@ module.exports = {
       Hard: "Difficile",
       UploadThePuzzlePicture: "Télécharger l'image du puzzle",
       WarningImageSizeSquare: "Votre image doit avoir la même largeur que hauteur",
-      YourPuzzlePicture: "Image de votre puzzle"
+      YourPuzzlePicture: "Image de votre puzzle",
+      nbQuestWonThisMonth: "Vous avez résolu {nb} enquête(s) ce mois"
     }
   }
 }

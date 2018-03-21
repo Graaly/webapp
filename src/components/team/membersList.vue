@@ -92,7 +92,6 @@ export default {
   },
   data () {
     return {
-      title: 'Mon agence',
       team: { profile: { statistics: {}, score: {} }, members: [], joinRequests: [] },
       user: {name: "--", picture: "", id: "", team: { wishedId: 0 }},
       serverUrl: process.env.SERVER_URL,

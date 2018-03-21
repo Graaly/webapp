@@ -76,6 +76,7 @@ export default {
         // no 'in-progress' run => create run for current player & current quest
         let res = await RunService.save({
           userId: this.$store.state.user._id,
+          teamId: this.$store.state.user.team.currentId,
           questId: this.quest._id,
           status: 'in-progress',
           currentStep: 1,
@@ -85,8 +86,8 @@ export default {
           questData: {
             picture: this.quest.picture,
             title: this.quest.title, 
-            zipCode: "",
-            town: ""
+            zipcode: this.quest.location.zipcode,
+            town: this.quest.location.town
           }
         })
         

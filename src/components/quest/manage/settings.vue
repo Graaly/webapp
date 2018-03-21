@@ -136,7 +136,8 @@ export default {
             type: 'Point', 
             coordinates: [this.form.location.lng, this.form.location.lat],
             town: this.form.town,
-            zipcode: this.form.zipcode
+            zipcode: this.form.zipcode,
+            address: this.form.startingPlace
           }
         }
         
@@ -153,8 +154,8 @@ export default {
             'status': 'unpublished'
           }
         }
-        
         let quest = Object.assign({}, this.form, commonProperties, specificProperties)
+
         // save to DB (or update, if property '_id' is defined)
         let res = await QuestService.save(quest)
         // retrieve new quest ID and save it into store
@@ -196,6 +197,7 @@ export default {
       this.form.location = {lat: place.geometry.location.lat(), lng: place.geometry.location.lng()}
       this.form.town = this.getCity(place)
       this.form.zipcode = this.getZipcode(place)
+      this.form.startingPlace = (place.formatted_address || '')
     },
     getZipcode(address) {
       if (address && address.address_components && address.address_components.length > 0) {
