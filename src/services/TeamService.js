@@ -1,14 +1,10 @@
 import Api from 'services/Api'
 
 export default {
-  // get teams list
-  getList () {
-    return Api().get('teams')
-  },
   
   // get a team based on its ID
   getById (id) {
-    return Api().get('teams/' + id)
+    return Api().get('team/' + id)
   },
   
   // create a new team
@@ -34,7 +30,7 @@ export default {
   // list a team join requests based on team ID
   // TODO : display join requests only to users members of the team
   listJoinRequests (id) {
-    return Api().get('users/?team.wishedId=' + id)
+    return Api().get('team/' + id + '/members/requests')
   },
   
   // list nearest teams

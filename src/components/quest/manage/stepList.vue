@@ -37,8 +37,6 @@
 <script>
 import { Toast, Dialog } from 'quasar'
 
-import stepTypes from 'data/stepTypes.json'
-
 import QuestService from 'services/QuestService'
 import StepService from 'services/StepService'
 
@@ -69,7 +67,7 @@ export default {
     this.$store.dispatch('setTitle', this.$t('message.YourQuest'))
     let res = await QuestService.getById(this.$store.state.currentEditedQuest._id)
     this.quest = res.data
-    this.stepList = await StepService.get({ questId: this.quest._id, sort: 'number' })
+    this.stepList = await StepService.listForAQuest(this.quest._id)
   },
   methods: {
     async onStepListUpdate(event) {
@@ -97,19 +95,13 @@ export default {
             label: 'OK',
             preventClose: true,
             async handler (data, closeThis) {
-              await StepService.remove(stepId)
+              await StepService.remove(_this.quest._id, stepId)
               
               // reassign a number (1, 2, 3, ...) to remaining steps
               let removedStepIndex = _this.stepList.map(function(e) { return e._id; }).indexOf(stepId)
-              let removedStepTypeCode = _this.stepList[removedStepIndex].type
-              let removedStepTypeObj = stepTypes.find(type => type.code === removedStepTypeCode)
               _this.stepList.splice(removedStepIndex, 1)
               await _this.reindexSteps()
               
-              // decrease quest.availablePoints if removed step's category was 'enigma'
-              if (removedStepTypeObj.category === 'enigma') {
-                await QuestService.save({ _id: _this.quest._id, availablePoints: Math.max(0, _this.quest.availablePoints - 10) })
-              }
               closeThis()
             }
           },
@@ -123,7 +115,7 @@ export default {
     async reindexSteps() {
       for (let i = 0; i < this.stepList.length; i++) {
         let step = this.stepList[i]
-        await StepService.save({ _id: step._id, number: i + 1 })
+        await StepService.save({ _id: step._id, questId: this.quest._id, number: i + 1 })
       }
     }
   }

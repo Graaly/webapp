@@ -22,7 +22,7 @@
     </q-tabs>
     
     <div class="tab-content">
-       <p v-show="profile._id == user._id">
+        <p v-show="profile._id == user._id">
           <q-btn link class="full-width" @click="$router.push('/quest/create/welcome')" color="primary">{{ $t('message.CreateANewQuest') }}</q-btn>
         </p>
         
@@ -32,8 +32,8 @@
             <q-item-side v-if="!quest.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>
               <q-item-tile label>{{ quest.title }}</q-item-tile>
-              <q-item-tile sublabel v-if="quest.status == 'published'">
-                <q-rating readonly :value="Math.round(quest.rating)" color="primary" :max="5" size="1rem" /> - 
+              <q-item-tile sublabel v-if="quest.status === 'published'">
+                <q-rating readonly :value="(quest.rating && quest.rating.rounded) ? quest.rating.rounded : null" color="primary" :max="5" size="1rem" /> -
                 {{ $t('message.PublishedSince') }} {{quest.dateCreated | formatDate}}
                 <br />
                 [[Score semaine]] [[Score total]]

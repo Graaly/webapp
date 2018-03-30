@@ -95,12 +95,27 @@ var self = {
    * @return int - The bearing between 0 and 360
    */
   bearingBetweenEarthCoordinates: function (lat1, lng1, lat2, lng2) {
-      var dLon = (lng2 - lng1)
-      var y = Math.sin(dLon) * Math.cos(lat2)
-      var x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon)
-      var brng = self.radiansToDegrees(Math.atan2(y, x))
-      return (brng + 360) % 360
+    var dLon = (lng2 - lng1)
+    var y = Math.sin(dLon) * Math.cos(lat2)
+    var x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon)
+    var brng = self.radiansToDegrees(Math.atan2(y, x))
+    return (brng + 360) % 360
+  },
+  
+  /**
+   * Replace break lines by html BR tag
+   *
+   * @param string - string to update
+   *
+   * @return string - the HTML formatted string
+   */
+  replaceBreakByBR: function(string) {
+    string = string.replace(/\r\n/ig, "<br />")
+    string = string.replace(/\n/ig, "<br />")
+    string = string.replace(/\r/ig, "<br />")
+    return string
   }
+  
 }
 
 export default self

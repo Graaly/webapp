@@ -18,7 +18,6 @@
 
 <script>
 import StepService from 'services/StepService'
-import QuestService from 'services/QuestService'
 import stepTypes from 'data/stepTypes.json'
 import stepTypeItem from '@/quest/manage/stepTypeItem'
 export default {
@@ -41,26 +40,6 @@ export default {
     async selectStepType(stepType) {
       // existing step ? save type change
       if (this.$store.state.currentEditedStep && this.$store.state.currentEditedStep._id) {
-        // get previous step type category
-        let step = await StepService.getById(this.$store.state.currentEditedStep._id)
-        
-        if (typeof step !== 'undefined') {
-          let scoreDiff = 0
-          let oldStepTypeObj = stepTypes.find(type => type.code === step.type)
-          
-          if (oldStepTypeObj.category === 'enigma' && stepType.category !== 'enigma') {
-            scoreDiff = -10
-          } else if (oldStepTypeObj.category !== 'enigma' && stepType.category === 'enigma') {
-            scoreDiff = 10
-          }
-          
-          if (scoreDiff !== 0 && this.$store.state.currentEditedQuest !== null) {
-            let res = await QuestService.getById(this.$store.state.currentEditedQuest._id)
-            let quest = res.data
-            await QuestService.save({ _id: quest._id, availablePoints: quest.availablePoints + scoreDiff })
-          }
-        }
-        
         await StepService.save({ _id: this.$store.state.currentEditedStep._id, type: stepType.code, answers: null })
       }
       this.$store.dispatch('setCurrentEditedStep', Object.assign({}, this.$store.state.currentEditedStep, { type: stepType }))

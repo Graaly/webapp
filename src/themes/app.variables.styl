@@ -45,7 +45,22 @@ $dark-grey-text = #757575
 // Generic CSS
 
 /* required to avoid useless 50px overflow at bottom */
-#q-app { min-height: 0px; }
+#q-app { 
+  min-height: 0px; 
+  /*max-width: 840px;  if larger some quest type does not work */
+}
+
+/* Run graaly only on screens smaller than 840px */
+@media (min-width: 841px) {
+  #main-view {
+    display: none
+  }
+} 
+@media (max-width: 840px) {
+  #screen-too-large {
+    display: none
+  }
+}
 
 #q-app h1 {
   font-size: 1.3rem;
@@ -78,6 +93,9 @@ $dark-grey-text = #757575
 }
 .centered {
   text-align: center;
+}
+.image-and-text-aligned {
+  vertical-align: top;
 }
 .subtitle {
   font-size: 0.9rem;

@@ -24,10 +24,11 @@
         <label for="picturefile">{{ $t('message.UploadABackgroundImage') }}</label>
         <input @change="uploadBackgroundImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       </q-btn>
-      <p>{{ $t('message.WarningImageResize') }}</p>
+      <p v-if="form.backgroundImage === null">{{ $t('message.WarningImageResize') }}</p>
       <div v-if="form.backgroundImage !== null">
         <p>{{ $t('message.YourPicture') }} :</p>
         <img :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage" />
+        <a @click="form.backgroundImage = null">{{ $t('message.remove') }}</a>
       </div>
     </div>
     
@@ -160,11 +161,30 @@
       </div>
     </div>
     
-    <div class="inventory" v-if="stepType.code == 'new-item' || stepType.code == 'use-item'">
-      <q-select :float-label="stepType.code === 'new-item' ? $t('message.ObjectWon') : $t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
+    <div class="inventory" v-if="stepType.code == 'new-item'">
+      <q-btn class="full-width" type="button">
+        <label for="itemfile">{{ $t('message.UploadTheItemPicture') }}</label>
+        <input @change="uploadItemImage" name="itemfile" id="itemfile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+      </q-btn>
+      <p>{{ $t('message.WarningImageSizeSquare') }}</p>
+      <div v-if="form.answers !== null && form.answers.picture && form.answers.picture !== null">
+        <p>{{ $t('message.YourItemPicture') }} :</p>
+        <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + form.answers.picture" />
+      </div>
+      <!--<p>{{ $t('message.Or') }}</p>
+      <q-select :float-label="$t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
       <div v-show="form.answerItem !== null">
-        Objet sélectionné :
+        {{ $t('message.SelectedObject') }} :
         <q-icon :name="getItemIcon(form.answerItem)" />
+      </div>-->
+      <q-input v-model="form.answers.title" :float-label="$t('message.ObjectName')" />
+    </div>
+    
+    <div class="inventory" v-if="stepType.code == 'use-item'">
+      <q-select :float-label="$t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
+      <div v-show="form.answerItem !== null">
+        {{ $t('message.SelectedObject') }} :
+        <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + form.answerItem" />
       </div>
     </div>
     
@@ -229,7 +249,7 @@
     -->
     
     <div v-if="stepType.showTrick == 'yes'">
-      <q-input v-model="form.hint" float-label="Indice" />
+      <q-input v-model="form.hint" :float-label="$t('message.Hint')" />
     </div>
     
     <q-btn class="full-width" color="primary" @click="submit">{{ $t('message.SaveThisStep') }}</q-btn>
@@ -246,11 +266,10 @@
 </template>
 
 <script>
-import { QCheckbox, QUploader, Toast } from 'quasar'
+import { QCheckbox, QUploader, Toast, Loading } from 'quasar'
 import { required } from 'vuelidate/lib/validators'
 
 import colorsForCode from 'data/colorsForCode.json'
-import questItems from 'data/questItems.json'
 import stepTypes from 'data/stepTypes.json'
 
 import StepService from 'services/StepService'
@@ -320,7 +339,8 @@ export default {
       colorsForCode: this.getColorsForCodeOptions(),
       
       // for 'new-item' & 'use-item' steps
-      questItemsAsOptions: this.getQuestItemsAsOptions()
+      questItemsAsOptions: [],
+      questItems: []
     }
   },
   computed: {
@@ -369,7 +389,7 @@ export default {
     this.$store.dispatch('setTitle', this.stepType.title)
     
     if (this.form.number === null) {
-      this.form.number = (await StepService.count({ questId: this.questId })) + 1
+      this.form.number = (await StepService.countForAQuest(this.questId)) + 1
     }
     
     if (this.form.title === '') {
@@ -401,9 +421,10 @@ export default {
       if (this.form.answers && this.form.answers.item) {
         this.form.answerItem = this.form.answers.item
       }
+      this.getQuestItemsAsOptions()
     } else if (this.stepType.code === 'new-item') {
-      if (this.form.answers) {
-        this.form.answerItem = this.form.answers
+      if (!this.form.answers) {
+        this.form.answers = { title: "", picture: null }
       }
     } else if (this.stepType.code === 'jigsaw-puzzle') {
       if (!this.form.answers) {
@@ -432,7 +453,7 @@ export default {
         this.form.answers = {coordinates: this.form.answerPointerCoordinates, item: this.form.answerItem}
       }
       if (this.stepType.code === 'new-item') {
-        this.form.answers = this.form.answerItem
+        //this.form.answers = this.form.answerItem
       }
       await StepService.save(Object.assign(this.form, {
         questId: this.questId,
@@ -441,14 +462,7 @@ export default {
         audioStream: null // tmp
       }))
       
-      if (!this.isEdition && (!this.form.hasOwnProperty('_id') || this.form._id === null) && this.stepType.category === 'enigma') {
-        // creation of step of category 'enigma' => add +10 points to quest.availablePoints
-        let res = await QuestService.getById(this.questId)
-        let quest = res.data
-        await QuestService.save({ _id: this.questId, availablePoints: quest.availablePoints + 10 })
-      }
-      
-      Toast.create.positive('Etape enregistrée.')
+      Toast.create.positive(this.$t('message.StepSaved'))
       this.$router.push('/quest/edit/step/list')
       this.$store.dispatch('setCurrentEditedStep', null)
     },
@@ -469,6 +483,7 @@ export default {
       }
     },
     async uploadBackgroundImage(e) {
+      Loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
@@ -478,9 +493,11 @@ export default {
       let uploadResult = await StepService.uploadBackgroundImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.form.backgroundImage = uploadResult.data.file
+        Loading.hide()
       }
     },
     async uploadVideo(e) {
+      Loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
@@ -490,9 +507,11 @@ export default {
       let uploadResult = await StepService.uploadVideo(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.form.videoStream = uploadResult.data.file
+        Loading.hide()
       }
     },
     async uploadImageToRecognize(e) {
+      Loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
@@ -502,9 +521,11 @@ export default {
       let uploadResult = await StepService.uploadImageToRecognize(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.form.answers = uploadResult.data.file
+        Loading.hide()
       }
     },
     async uploadAnswerImage(key, e) {
+      Loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
@@ -514,9 +535,11 @@ export default {
       let uploadResult = await StepService.uploadAnswerImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.form.answers[key].imagePath = uploadResult.data.file
+        Loading.hide()
       }
     },
     async uploadPuzzleImage(e) {
+      Loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
@@ -526,6 +549,21 @@ export default {
       let uploadResult = await StepService.uploadPuzzleImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.form.answers.picture = uploadResult.data.file
+        Loading.hide()
+      }
+    },
+    async uploadItemImage(e) {
+      Loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadResult = await StepService.uploadItemImage(this.questId, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        this.form.answers.picture = uploadResult.data.file
+        Loading.hide()
       }
     },
     
@@ -546,18 +584,21 @@ export default {
     },
     
     // for 'new-item' & 'use-item' steps
-    getQuestItemsAsOptions() {
+    async getQuestItemsAsOptions() {
+      // load items won on previous steps
+      this.questItems = await StepService.listWonObjects(this.questId, this.stepId)
       let options = []
-      questItems.forEach((item) => {
+      this.questItems.forEach((item) => {
         options.push({
-          value: item.code,
-          label: this.$t('questItem.' + item.code)
+          value: item.picture,
+          label: this.$t('questItem.' + item.title)
         })
       })
-      return options.sort((a, b) => { return a.label > b.label ? 1 : -1 })
+      options.sort((a, b) => { return a.label > b.label ? 1 : -1 })
+      this.questItemsAsOptions = options
     },
     getItemIcon(code) {
-      let item = questItems.find(item => item.code === code)
+      let item = this.questItems.find(item => item.code === code)
       return typeof item !== 'undefined' ? item.icon : 'clear'
     },
     getClickCoordinates(ev) {

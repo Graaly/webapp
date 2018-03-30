@@ -1,12 +1,13 @@
 <template>
   <div class="column" ref="div-column">
-    
     <div class="row">
       <q-list highlight>
         <q-item v-for="(item, index) in quests" :key="item._id">
           <q-item-side>
             <q-icon name="location on" size="2rem" /><br />
-            <small>{{ item.distance }} {{ $t('message.km') }}</small>
+            <small v-if="item.distance && item.distance > 0 && item.distance <= 99">{{ item.distance }} {{ $t('message.km') }}</small>
+            <small v-if="item.distance === 0">< 1 {{ $t('message.km') }}</small>
+            <small v-if="item.distance > 99">> 99 {{ $t('message.km') }}</small>
           </q-item-side>
           <q-item-main @click="$router.push('/quest/play/' + item._id)">
             <q-item-tile label>{{ item.title }}</q-item-tile>
@@ -42,36 +43,49 @@ export default {
         longitude: 0,
         latitude: 0
       },
+      geolocationIsSupported: navigator.geolocation,
       quests: []
     }
   },
   mounted() {
     // dispatch specific title for other app components
     this.$store.dispatch('setTitle', "Recherche")
-    
     if (this.$data.geolocationIsSupported) {
       navigator.geolocation.getCurrentPosition((position) => {
         this.userPosition.latitude = position.coords.latitude
         this.userPosition.longitude = position.coords.longitude
-      });
+        this.findQuest()
+      }, () => {
+        console.error('geolocation failed')
+        this.geolocationIsSupported = false
+        this.findQuest()
+      }, { timeout: 10000, maximumAge: 10000 });
+    } else {
+      this.findQuest()
     }
-    
-    this.findQuest()
   },
   methods: {
     async findQuest() {
-      var userPosition = this.userPosition
-      let response = await QuestService.find(this.$route.params.searchText, this.userPosition)
+      var userPosition = {lat: this.userPosition.latitude, lng: this.userPosition.longitude}
+
+      let response = await QuestService.find(this.$route.params.searchText, userPosition)
       this.quests = response.data
       
       // compute distance
-      this.quests = this.quests.map(function(quest) {
-        let distLong = quest.position.lng - userPosition.longitude
-        let distLat = quest.position.lat - userPosition.latitude
+      if (this.$data.geolocationIsSupported) {
+        this.quests = this.quests.map(function(quest) {
+          const R = 6378.137
+          let dLat = quest.location.coordinates[1] * Math.PI / 180 - userPosition.lat * Math.PI / 180;
+          let dLon = quest.location.coordinates[0] * Math.PI / 180 - userPosition.lng * Math.PI / 180;
+          let a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(userPosition.lat * Math.PI / 180) * Math.cos(quest.location.coordinates[1] * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+          let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+          quest.distance = Math.floor(R * c);
 
-        quest.distance = Math.floor(Math.sqrt(distLong*distLong + distLat*distLat))
-        return quest;
-      });
+          return quest;
+        });
+      }
     }
   }
 }

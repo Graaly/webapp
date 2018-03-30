@@ -1,22 +1,25 @@
 import Api from 'services/Api'
 
 export default {
-  getList (params) {
-    return Api().get('quests', { params: params })
+  // list quest near the user
+  listNearest (location) {
+    return Api().get('quests/nearest/' + location.lng + '-' + location.lat)
   },
-  
+  // get a quest based on its ID
   getById (id) {
-    return Api().get('quests/' + id)
+    return Api().get('quest/' + id)
   },
   
-  find(keyword, position) {
+  find(keyword, location) {
     // to update : better filter with position and keyword
-    return Api().get('quests?title__regex=/' + keyword + '/i')  
+    return Api().get('quests/find/' + keyword + '/nearest/' + location.lng + '-' + location.lat)  
   },
   
   // if _id is not provided in data, create (POST), otherwise, update (PUT)
   save (data) {
-    return data._id ? Api().put('quests/' + data._id, data): Api().post('quests', data)
+    return data._id 
+      ? Api().put('quest/' + data._id + '/update', data)
+      : Api().post('quest/create', data)
   },
   
   // Publish a quest

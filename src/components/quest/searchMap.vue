@@ -28,6 +28,13 @@
 
     </div>
     
+    <div class="row" ref="map" v-if="!geolocationIsSupported">
+      <div class="col-12 text-center">
+        <h5>{{ $t('message.PleaseActivateGeolocation') }}</h5>
+        <p><a @click="">{{ $t('message.KnowHowToActivateGeolocation') }}</a></p>
+      </div>
+    </div>
+    
     <div class="team-box" @click="$router.push('/team/' + team.profile._id + '/members')">
       <div class="badge">
         <img :src="serverUrl + '/statics/badges/' + team.profile.badge" />
@@ -119,13 +126,13 @@ export default {
       navigator.geolocation.getCurrentPosition((position) => {
         this.$data.mapCenter = {lat: position.coords.latitude, lng: position.coords.longitude}
         // TODO maybe here save current position in 'state' for later use in case of failure
+        this.getQuests()
       }, () => {
         console.error('geolocation failed')
+        this.geolocationIsSupported = false
         // TODO maybe here recall position stored in 'state'
       }, { timeout: 10000, maximumAge: 10000 });
     }
-    
-    this.getQuests()
   },
   methods: {
     async getAccountInformations() {
@@ -170,7 +177,7 @@ export default {
     },
     
     async getQuests() {
-      let response = await QuestService.getList({ status: 'published' })
+      let response = await QuestService.listNearest(this.mapCenter)
       this.questList = response.data
     },
     

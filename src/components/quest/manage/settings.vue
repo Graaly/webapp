@@ -1,7 +1,7 @@
 <template>
   
   <div>
-    <h1>Paramètres de votre enquête</h1>
+    <h1>{{ $t('message.QuestParameters') }}</h1>
     
     <form @submit.prevent="submit()">
     
@@ -62,7 +62,15 @@
         <q-select :float-label="$t('message.Difficulty')" v-model="form.level" :options="levels" />
       </q-field>
       
+      <q-field>
+        <q-select :float-label="$t('message.Duration')" v-model="form.duration" :options="durations" />
+      </q-field>
+      
       <q-btn color="primary" class="full-width">{{ $t('message.Save') }}</q-btn>
+      
+      <div class="link-below-button" v-if="isEdition">
+        <router-link :to="{ path: '/quest/edit/step/list'}">{{ $t('message.BackToThisQuestStepslist') }}</router-link>
+      </div>
         
     </form>
     
@@ -93,6 +101,7 @@ export default {
         languages: [],
         mainLanguage: 'fr',
         level: 2,
+        duration: 30,
         picture: null,
         town: "",
         zipcode: ""
@@ -101,7 +110,15 @@ export default {
       pictureUploadURL: this.serverUrl + '/quest/picture/upload',
       categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }),
       languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }),
-      levels: utils.buildOptionsForSelect(questLevels, { valueField: 'id', labelField: 'name' })
+      levels: utils.buildOptionsForSelect(questLevels, { valueField: 'id', labelField: 'name' }),
+      durations: [
+        { label: '15 ' + this.$t('minutes'), value: 15 },
+        { label: '30 ' + this.$t('minutes'), value: 30 },
+        { label: '45 ' + this.$t('minutes'), value: 45 },
+        { label: '60 ' + this.$t('minutes'), value: 60 },
+        { label: '90 ' + this.$t('minutes'), value: 90 },
+        { label: '120 ' + this.$t('minutes'), value: 120 }
+      ]
     }
   },
   async mounted() {
@@ -116,6 +133,8 @@ export default {
       let res = await QuestService.getById(this.questId)
       this.form = res.data
       
+      this.form.startingPlace = this.form.location.address || ""
+      
       // adapt data from DB to match form data structure
       if (this.form.location.hasOwnProperty('coordinates') && this.form.location.coordinates.length === 2) {
         let coordinates = this.form.location.coordinates
@@ -128,9 +147,6 @@ export default {
       this.$v.form.$touch()
       if (!this.$v.form.$error) {
         let commonProperties = {
-          //'rating': 3, // initiate with no rating
-          'dateCreated': null,
-          'dateUpdated': null,
           'languages': [this.form.mainLanguage],
           'location': { 
             type: 'Point', 
@@ -141,20 +157,7 @@ export default {
           }
         }
         
-        let specificProperties
-        if (this.isEdition) {
-          specificProperties =  {
-            'dateUpdated': new Date()
-          }
-        } else {
-          specificProperties = {
-            'availablePoints': 0,
-            'dateCreated': new Date(),
-            'authorUserId': this.$store.state.user._id,
-            'status': 'unpublished'
-          }
-        }
-        let quest = Object.assign({}, this.form, commonProperties, specificProperties)
+        let quest = Object.assign({}, this.form, commonProperties)
 
         // save to DB (or update, if property '_id' is defined)
         let res = await QuestService.save(quest)

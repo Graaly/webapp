@@ -18,8 +18,12 @@ export default {
   save (data) {
     return data._id ? Api().put('runs/' + data._id, data): Api().post('runs', data)
   },
-  
+  // set a run as finished
   endRun (id) {
     return Api().put('run/' + id + '/end')
+  },
+  // rate a run & a quest
+  rate (id, rating) {
+    return Api().put('run/' + id + '/rate/' + rating)
   }
 }

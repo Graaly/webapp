@@ -6,26 +6,35 @@
       {{ $t('message.YouCanResolveItAgain') }}.
     </div>
     
-    <div class="row bottom-separator">
-      <div class="col-3 padding-medium" v-if="typeof quest.picture !== 'undefined' && quest.picture !== null">
-        <img :src="serverUrl + '/upload/quest/' + quest.picture" class="full-width" />
-      </div>
+    <div v-if="geolocationIsSupported">
+      <div class="row bottom-separator">
+        <div class="col-3 padding-medium" v-if="typeof quest.picture !== 'undefined' && quest.picture !== null">
+          <img :src="serverUrl + '/upload/quest/' + quest.picture" class="full-width" />
+        </div>
       
-      <div class="col desc padding-medium">
-        <h1>{{ quest.title }}</h1>
-        <p class="text-tertiary" v-if="typeof quest.author !== 'undefined'">{{ $t('message.Author') }} : {{ quest.author.name }}</p>
-        <p v-if="quest.rating">
-          <q-rating readonly :value="Math.round(quest.rating)" color="primary" :max="5" size="1.7rem" />
-        </p>
-        <p>{{ $t('message.nbPointsToWin', { nb: quest.availablePoints }) }}</p>
-        <p><q-btn @click="$router.push('/quest/play/' + $route.params.id + '/step/1')" color="primary">{{ $t('message.SolveThisQuest') }}</q-btn></p>
+        <div class="col desc padding-medium">
+          <h1>{{ quest.title }}</h1>
+          <p class="text-tertiary" v-if="typeof quest.author !== 'undefined'">{{ $t('message.Author') }} : {{ quest.author.name }}</p>
+          <p v-if="quest.rating">
+            <q-rating readonly :value="quest.rating.rounded" color="primary" :max="5" size="1.7rem" />
+          </p>
+          <p>{{ $t('message.nbPointsToWin', { nb: quest.availablePoints }) }}</p>
+          <p v-if="quest.mainLanguage">{{ $t('message.Language') }}: <img class="image-and-text-aligned" :src="'/statics/icons/game/flag-' + quest.mainLanguage + '.png'" /></p>
+          <p v-if="quest.level">{{ $t('message.Difficulty') }}: <img class="image-and-text-aligned" src="/statics/icons/game/magnifying-red.png" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 1 ? 'grey' : 'red') + '.png'" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 3 ? 'red' : 'grey') + '.png'" /></p>
+          <p v-if="quest.duration">{{ $t('message.Duration') }}: {{ quest.duration }} {{ $t('message.minutes') }}</p>
+          <p><q-btn @click="$router.push('/quest/play/' + $route.params.id + '/step/1')" color="primary">{{ $t('message.SolveThisQuest') }}</q-btn></p>
+        </div>
+      </div>
+      <div class="padding-medium">
+        <p v-html="quest.description"></p>
+        <p v-if="quest.startingPlace">{{ $t('message.StartingPoint') }}: {{ quest.startingPlace }}</p>
       </div>
     </div>
-    <div class="padding-medium">
-      <p>{{ quest.description }}</p>
-      <p>{{ $t('message.Language') }}: {{ quest.mainLanguage }}</p>
-      <p v-if="quest.startingPlace">{{ $t('message.StartingPoint') }}: {{ quest.startingPlace }}</p>
-      <p>{{ $t('message.Difficulty') }}: {{ getQuestLevelName(quest.level) }}</p>
+    <div class="row" v-if="!geolocationIsSupported">
+      <div class="col-12 text-center">
+        <h5>{{ $t('message.PleaseActivateGeolocation') }}</h5>
+        <p><a @click="">{{ $t('message.KnowHowToActivateGeolocation') }}</a></p>
+      </div>
     </div>
   </div>
   
@@ -48,7 +57,8 @@ export default {
     return {
       quest: {},
       serverUrl: process.env.SERVER_URL,
-      isRunFinished: false
+      isRunFinished: false,
+      geolocationIsSupported: navigator.geolocation
     }
   },
   async mounted() {
@@ -58,6 +68,16 @@ export default {
     await this.getQuest(this.$route.params.id)
     
     await this.getRun()
+    
+    //check if location tracking is turned on
+    if (this.$data.geolocationIsSupported) {
+      navigator.geolocation.getCurrentPosition((position) => {
+
+      }, () => {
+        console.error('geolocation failed')
+        this.geolocationIsSupported = false
+      }, { timeout: 10000, maximumAge: 10000 });
+    }
   },
   methods: {
     async getQuest(id) {
@@ -66,6 +86,7 @@ export default {
       if (typeof this.quest.authorUserId !== 'undefined') {
         response = await AuthService.getAccount(this.quest.authorUserId)
         this.$set(this.quest, 'author', response.data)
+        this.quest.description = utils.replaceBreakByBR(this.quest.description)
       }
     },
     async getRun() {
@@ -73,27 +94,7 @@ export default {
       let run = await RunService.getOne({ userId: this.$store.state.user._id, questId: this.quest._id, status: 'in-progress' })
       
       if (typeof run === 'undefined') {
-        // no 'in-progress' run => create run for current player & current quest
-        let res = await RunService.save({
-          userId: this.$store.state.user._id,
-          teamId: this.$store.state.user.team.currentId,
-          questId: this.quest._id,
-          status: 'in-progress',
-          currentStep: 1,
-          score: 0,
-          dateCreated: new Date(),
-          dateUpdated: null,
-          questData: {
-            picture: this.quest.picture,
-            title: this.quest.title, 
-            zipcode: this.quest.location.zipcode,
-            town: this.quest.location.town
-          }
-        })
-        
-        if (res.status === 201) {
-          this.$store.dispatch('setCurrentRun', res.data)
-        }
+       
       } else {
         // an 'in-progress' run already exists for current player & current quest => jump to current run's step
         // TODO : add run.currentStepAnswerChecked (boolean) to check if step anwser has been already checked

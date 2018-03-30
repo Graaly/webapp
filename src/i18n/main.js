@@ -159,7 +159,7 @@ module.exports = {
       Difficulty: "Difficulty",
       SolveAQuest: "Play a quest",
       Next: "Next",
-      DisplayAHint: "Display a hint",
+      DisplayAHint: "Hint (-5 points)",
       GoodAnswer: "Good answer!",
       WrongAnswer: "Wrong answer!",
       points: "points",
@@ -261,7 +261,21 @@ module.exports = {
       UploadThePuzzlePicture: "Upload the jigsaw puzzle picture",
       WarningImageSizeSquare: "Your picture width and height must be the same",
       YourPuzzlePicture: "Jigsaw picture",
-      nbQuestWonThisMonth: "You won {nb} quest(s) this month"
+      nbQuestWonThisMonth: "You won {nb} quest(s) this month",
+      minutes: "minute(s)",
+      QuestParameters: "Describe your quest",
+      Duration: "Duration",
+      BackToPreviousStep: "Back to previous quest",
+      Remove: "Remove",
+      SelectedObject: "Selected item",
+      PleaseActivateGeolocation: "Please turn on location on your mobile device",
+      KnowHowToActivateGeolocation: "Click here to know how to enable location",
+      GraalyIsOptimizedForSmallerScreens: "The application is optimized for mobile device. Please use your mobile vertically, or resize your screen",
+      YourRatingHasNotBeenSaved: "Your rating has not been saved. Maybe you have already rated this quest?",
+      YourRatingHasBeenSaved: "Your rating has been saved",
+      StepSaved: "Step saved",
+      ObjectName: "Item's name",
+      UploadTheItemPicture: "Upload your item picture"
     }
   },
   fr: {
@@ -424,7 +438,7 @@ module.exports = {
       Difficulty: "Difficulté",
       SolveAQuest: "Résoudre une enquête",
       Next: "Suivant",
-      DisplayAHint: "Afficher un indice",
+      DisplayAHint: "Indice (-5 points)",
       GoodAnswer: "Bonne réponse !",
       WrongAnswer: "Mauvaise réponse !",
       points: "points",
@@ -526,7 +540,21 @@ module.exports = {
       UploadThePuzzlePicture: "Télécharger l'image du puzzle",
       WarningImageSizeSquare: "Votre image doit avoir la même largeur que hauteur",
       YourPuzzlePicture: "Image de votre puzzle",
-      nbQuestWonThisMonth: "Vous avez résolu {nb} enquête(s) ce mois"
+      nbQuestWonThisMonth: "Vous avez résolu {nb} enquête(s) ce mois",
+      minutes: "minute(s)",
+      QuestParameters: "Décrivez votre enquête",
+      Duration: "Durée",
+      BackToPreviousStep: "Revenir à l'étape précédente",
+      Remove: "Supprimer",
+      SelectedObject: "Objet sélectionné",
+      PleaseActivateGeolocation: "Veuillez activer la localisation sur votre appareil mobile",
+      KnowHowToActivateGeolocation: "Cliquez ici pour savoir comment activer la localisation",
+      GraalyIsOptimizedForSmallerScreens: "L'application est optimisée pour des appareils mobiles. Veuillez tenir votre mobile verticalement ou redimensionner votre page",
+      YourRatingHasNotBeenSaved: "Votre vote n'a pu être pris en compte. Peut-être avez vous déjà noté cette enquête",
+      YourRatingHasBeenSaved: "Votre vote a été pris en compte",
+      StepSaved: "Etape enregistrée",
+      ObjectName: "Nom de l'objet",
+      UploadTheItemPicture: "Télécharger l'image de votre objet"
     }
   }
 }

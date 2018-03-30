@@ -1,7 +1,6 @@
 <template>
   <!-- Don't drop "q-app" class -->
   <!--div id="q-app"-->
-  
     <q-layout id="q-app" ref="layout" view="lHh lpr lfr" :right-breakpoint="1100">
       <!-- Header -->
       <q-toolbar slot="header">
@@ -46,19 +45,18 @@
             <q-item-main :label="$t('message.SignOut')" />
           </q-side-link>
         </q-list>
-          
       </div>
       <div class="row-auto">
-        <form v-on:submit.prevent="$router.push('/quest/search/text/' + searchText)">
+        <form v-on:submit="$router.push('/quest/search/text/' + searchText)">
           <q-search v-show="displaySearch" v-model="searchText" :placeholder="$t('message.SearchForAQuest')" />
         </form>
       </div>
       <!-- sub-routes get injected here: -->
       <!-- see https://laracasts.com/discuss/channels/vue/vue-2-reload-component-when-same-route-is-requested -->
       <router-view id="main-view" :key="$route.fullPath" />
+      <div id="screen-too-large"><h5 class="text-center">{{ $t('message.GraalyIsOptimizedForSmallerScreens') }}</h5></div>
     </q-layout>
     
-  
 </template>
 
 <script>
@@ -94,6 +92,7 @@ export default {
   watch: {
     '$route': function(value) {
       this.fixLayout();
+      this.getAccountInformations()
     }
   },
   methods: {

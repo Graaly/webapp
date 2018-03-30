@@ -22,7 +22,7 @@
       
       <div class="rating">
         <p>{{ $t('message.RateThisQuest') }}</p>
-        <q-rating v-model="rating" :max="5" size="2rem" />
+        <q-rating v-model="rating" :max="5" size="2rem" @change="rate" />
       </div>
       
       <div class="share" v-if="awardPoints">
@@ -43,12 +43,13 @@
 </template>
 
 <script>
-import { QRating } from 'quasar'
+import { QRating, Toast } from 'quasar'
 import AuthService from 'services/AuthService'
 import RunService from 'services/RunService'
 export default {
   components: {
-    QRating
+    QRating,
+    Toast
   },
   data() {
     return {
@@ -81,6 +82,16 @@ export default {
       this.$store.dispatch('setCurrentRun', null)
     } else {
       this.$router.push('/home')
+    }
+  },
+  methods: {
+    async rate() {
+      let rate = await RunService.rate(this.run._id, this.rating)
+      if (rate.status !== 200) {
+        Toast.create['warning']({html: this.$t('message.YourRatingHasNotBeenSaved')})
+      } else {
+        Toast.create['positive']({html: this.$t('message.YourRatingHasBeenSaved')})
+      }
     }
   }
 }
