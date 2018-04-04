@@ -896,32 +896,38 @@ export default {
       
       let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - ev.offsetX, 2) + Math.pow(anwserPixelCoordinates.top - ev.offsetY, 2))
    
+      var showSolution = false
       if (distanceToSolution <= solutionAreaRadius && this.step.answers.item === this.selectedItem.picture) {
         this.playerResult = true
         await this.awardPoints()
+        showSolution = true
       } else {
         this.nbTry++
         this.playerResult = false
         // this.$t() did not work here, see https://github.com/kazupon/vue-i18n/issues/108
         if (this.nbTry === 3) {
-          // display the right solution
-          var cross = document.getElementById('cross')
-          cross.style.top = (anwserPixelCoordinates.top - solutionAreaRadius / 2) + "px"
-          cross.style.left = (anwserPixelCoordinates.left - solutionAreaRadius / 2) + "px"
-          cross.style.width = solutionAreaRadius + "px"
-          cross.style.display = "block"
-          var crossPicture = cross.src
-          var self = this
-          setInterval(function() {
-            if (cross.src === crossPicture) {
-              cross.src = self.serverUrl + '/upload/quest/' + self.questId + '/step/new-item/' + self.step.answers.item
-            } else {
-              cross.src = crossPicture
-            }
-          }, 1000);
+          showSolution = true
         } else {
           Toast.create.negative(this.$i18n.t('message.NothingHappens'))
         }
+      }
+      
+      if (showSolution) {
+        // display the right solution
+        var cross = document.getElementById('cross')
+        cross.style.top = (anwserPixelCoordinates.top - solutionAreaRadius / 2) + "px"
+        cross.style.left = (anwserPixelCoordinates.left - solutionAreaRadius / 2) + "px"
+        cross.style.width = solutionAreaRadius + "px"
+        cross.style.display = "block"
+        var crossPicture = cross.src
+        var self = this
+        setInterval(function() {
+          if (cross.src === crossPicture) {
+            cross.src = self.serverUrl + '/upload/quest/' + self.questId + '/step/new-item/' + self.step.answers.item
+          } else {
+            cross.src = crossPicture
+          }
+        }, 1000);
       }
     },
     openInventory() {
@@ -996,22 +1002,29 @@ export default {
       
       let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - ev.offsetX, 2) + Math.pow(anwserPixelCoordinates.top - ev.offsetY, 2))
       
+      var showSolution = false
       if (distanceToSolution <= solutionAreaRadius) {
         this.playerResult = true
         await this.awardPoints()
+        showSolution = true
       } else {
         this.nbTry++
         this.playerResult = false
         // this.$t() did not work here, see https://github.com/kazupon/vue-i18n/issues/108
          if (this.nbTry === 3) {
-          var cross = document.getElementById('cross')
-          cross.style.top = (anwserPixelCoordinates.top - solutionAreaRadius / 2) + "px"
-          cross.style.left = (anwserPixelCoordinates.left - solutionAreaRadius / 2) + "px"
-          cross.style.width = solutionAreaRadius + "px"
-          cross.style.display = "block"
+          showSolution = true
         } else {
           Toast.create.negative(this.$i18n.t('message.NothingHappens'))
         }
+      }
+      
+      // show the right solution
+      if (showSolution) {
+        var cross = document.getElementById('cross')
+        cross.style.top = (anwserPixelCoordinates.top - solutionAreaRadius / 2) + "px"
+        cross.style.left = (anwserPixelCoordinates.left - solutionAreaRadius / 2) + "px"
+        cross.style.width = solutionAreaRadius + "px"
+        cross.style.display = "block"
       }
     }
     

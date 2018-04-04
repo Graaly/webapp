@@ -205,7 +205,7 @@ module.exports = {
       YourAnswer: "Your answer",
       ConfirmTheAnswer: "Confirm the answer",
       Play: "Play",
-      CreateAQuestAndWinPoints: "Create a quest and win points",
+      CreateAQuestAndWinPoints: "Create a quest",
       km: "km",
       NoQuestForThisSearch: "No quest for this search",
       WhyDontYouCreateAQuest: "Why don't you create a quest?",
@@ -312,7 +312,10 @@ module.exports = {
       Countryside: "Country side",
       Other: "Other",
       French: "French",
-      English: "English"
+      English: "English",
+      NoQuestCreated: "No quest created",
+      NoQuestPlayed: "No quet played",
+      NoTeamsNearFromYou: "No team nearby"
     }
   },
   fr: {
@@ -521,7 +524,7 @@ module.exports = {
       YourAnswer: "Votre réponse",
       ConfirmTheAnswer: "Valider la réponse",
       Play: "Enquêter",
-      CreateAQuestAndWinPoints: "Créer une enquête et gagnez des points",
+      CreateAQuestAndWinPoints: "Créer une enquête",
       km: "km",
       NoQuestForThisSearch: "Aucune enquête ne correspond à votre recherche",
       WhyDontYouCreateAQuest: "Pourquoi ne pas créer cette enquête ?",
@@ -628,7 +631,10 @@ module.exports = {
       Countryside: "Sortie nature",
       Other: "Autre",
       French: "Français",
-      English: "Anglais"
+      English: "Anglais",
+      NoQuestCreated: "Aucune enquête créée",
+      NoQuestPlayed: "Aucune enquête résolue",
+      NoTeamsNearFromYou: "Aucune équipe à proximité"
     }
   }
 }

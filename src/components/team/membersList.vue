@@ -38,16 +38,16 @@
             <q-item-side v-if="!request.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>
               <q-item-tile label>{{ $t('message.NameWantToJoinYourAgency', { name: request.name }) }}</q-item-tile>
-              <q-item-tile sublabel>{{ $t('message.successfulQuests', { nb: request.statistics.nbQuestsSuccessful }) }} | {{ $t('message.createdQuests', { nb: request.statistics.nbQuestsCreated }) }}</q-item-tile>
+              <q-item-tile sublabel>{{ $t('message.successfulQuests', { nb: request.statistics.nbQuestsSuccessful }) }}<br />{{ $t('message.createdQuests', { nb: request.statistics.nbQuestsCreated }) }}</q-item-tile>
             </q-item-main>
             <q-item-side right>
               <q-btn flat round dense icon="more_vert" text-color="primary">
                 <q-popover>
                   <q-list link>
-                    <q-item v-close-overlay>
+                    <q-item>
                       <q-item-main :label="$t('message.Accept')" @click="acceptJoinRequest(request._id)" />
                     </q-item>
-                    <q-item v-close-overlay>
+                    <q-item>
                       <q-item-main :label="$t('message.Reject')" @click="rejectJoinRequest(request._id)" />
                     </q-item>
                   </q-list>
@@ -67,7 +67,7 @@
             <q-item-side v-if="!member.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>
               <q-item-tile label>{{ member.name }}</q-item-tile>
-              <q-item-tile sublabel>{{ $t('message.successfulQuests', { nb: member.statistics.nbQuestsSuccessful }) }} | {{ $t('message.createdQuests', { nb: member.statistics.nbQuestsCreated }) }}</q-item-tile>
+              <q-item-tile sublabel>{{ $t('message.successfulQuests', { nb: member.statistics.nbQuestsSuccessful }) }}<br />{{ $t('message.createdQuests', { nb: member.statistics.nbQuestsCreated }) }}</q-item-tile>
             </q-item-main>
             <q-item-side right class="score">
               {{ member.score }}

@@ -35,7 +35,7 @@
             </q-item-main>
             <q-item-side right v-if="challenge.status === 'won'">
               <q-item-tile stamp>{{ $t('message.Succeeded') }}</q-item-tile>
-              <q-item-tile v-if="memberOfTeam">
+              <q-item-tile v-if="team.memberOfTeam">
                 <q-btn color="primary" size="sm">{{ $t('message.Share') }}</q-btn>
               </q-item-tile>
             </q-item-side>
@@ -46,8 +46,13 @@
                   {{ challenge.score }} / {{ challenge.scoreToReach }}
                 </div>
               </q-item-tile>
-              <q-item-tile v-if="memberOfTeam && challenge.score >= challenge.scoreToReach">
+              <q-item-tile v-if="team.memberOfTeam && challenge.score >= challenge.scoreToReach">
                 <q-btn color="primary" size="sm" @click="validChallenge(challenge.refChallengeId)">{{ $t('message.Won') }}</q-btn>
+              </q-item-tile>
+              <q-item-tile v-if="!team.memberOfTeam && challenge.score >= challenge.scoreToReach">
+                <div class="challenge-progression" :style="'background-size: 100% 100%;'">
+                  {{ challenge.scoreToReach }} / {{ challenge.scoreToReach }}
+                </div>
               </q-item-tile>
             </q-item-side>
           </q-item>
@@ -87,10 +92,10 @@ export default {
       if (this.user.team && this.user.team.currentId && this.user.team.currentId === this.$route.params.id) {
         // Set the page title = My agency / Competitor
         this.$store.dispatch('setTitle', this.$t('message.MyAgency'))
-        this.memberOfTeam = true
+        this.team.memberOfTeam = true
       } else {
         this.$store.dispatch('setTitle', this.$t('message.Competitor'))
-        this.memberOfTeam = false
+        this.team.memberOfTeam = false
       }
     },
     async getTeam(id) {

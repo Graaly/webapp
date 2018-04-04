@@ -28,16 +28,19 @@
         </p>
         
         <q-list highlight>
-          <q-item v-for="quest in quests" :key="quest.questId + quest.dateCreated.toString()" @click="$router.push('/quest/play/'+quest.questId)">
+          <q-item v-if="quests && quests.length > 0" v-for="quest in quests" :key="quest._id" @click="$router.push('/quest/play/'+quest.questId)">
             <q-item-side v-if="quest.questData && quest.questData.picture" :avatar="serverUrl + '/upload/quest/' + quest.questData.picture" />
             <q-item-side v-if="!quest.questData || !quest.questData.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>
               <q-item-tile label>{{ quest.questData.title }}</q-item-tile>
-              <q-item-tile sublabel v-if="quest.status == 'finished' && quest.score">
+              <q-item-tile sublabel v-if="quest.dateCreated && quest.status == 'finished' && !quest.score">
                 {{ $t('message.PlayedOn') }} {{quest.dateCreated | formatDate}}
               </q-item-tile>
-              <q-item-tile sublabel v-if="quest.status == 'finished' && !quest.score">
+              <q-item-tile sublabel v-if="quest.dateCreated && quest.status == 'finished' && quest.score">
                 {{ $t('message.Succeeded') }} {{quest.dateCreated | formatDate}}
+              </q-item-tile>
+              <q-item-tile sublabel v-if="!quest.dateCreated">
+                {{ $t('message.Succeeded') }}
               </q-item-tile>
               <q-item-tile sublabel v-if="quest.status == 'in-progress'">
                 {{ $t('message.ContinueThisQuest') }}
@@ -46,6 +49,11 @@
             <q-item-side right class="score">
               {{ quest.score }}
             </q-item-side>
+          </q-item>
+          <q-item v-if="quests.length === 0">
+            <q-item-main>
+              <q-item-tile label>{{ $t('message.NoQuestPlayed') }}</q-item-tile>
+            </q-item-main>
           </q-item>
         </q-list>
     

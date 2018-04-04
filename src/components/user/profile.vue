@@ -12,7 +12,7 @@
         {{profile.team.currentName}}
       </div>
     </div>
-    <q-btn v-show="profile._id == user._id" round flat color="primary" @click="$router.push('/user/profile/' + profile._id + '/modify')" class="fixed" style="right: 18px; top: 58px">
+    <q-btn v-show="profile.me" round flat color="primary" @click="$router.push('/user/profile/' + profile._id + '/modify')" class="fixed" style="right: 18px; top: 58px">
       <q-icon name="edit" />
     </q-btn>
     
@@ -27,7 +27,7 @@
         </p>
         
         <q-list highlight>
-          <q-item v-for="quest in quests" :key="quest._id" @click="$router.push('/quest/edit/'+quest._id)">
+          <q-item v-for="quest in quests" :key="quest._id" @click="$router.push((profile.me ? '/quest/edit/' + quest._id : '/quest/play/' + quest._id))">
             <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
             <q-item-side v-if="!quest.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>
@@ -39,6 +39,11 @@
               <q-item-tile sublabel v-if="quest.status == 'unpublished'">
                 {{ $t('message.Unpublished') }}
               </q-item-tile>
+            </q-item-main>
+          </q-item>
+          <q-item v-if="quests.length === 0">
+            <q-item-main>
+              <q-item-tile label>{{ $t('message.NoQuestCreated') }}</q-item-tile>
             </q-item-main>
           </q-item>
         </q-list>
@@ -61,7 +66,7 @@ export default {
   data () {
     return {
       user: {name: "--", picture: "", id: ""},
-      profile: {name: "--", picture: "", id: "", team: {}},
+      profile: {name: "--", picture: "", id: "", team: {}, me: false},
       quests: [],
       serverUrl: process.env.SERVER_URL
     }
@@ -77,9 +82,11 @@ export default {
       if (!this.$route.params.id || this.$route.params.id === 'me' || this.$route.params.id === this.user._id) {
         this.$store.dispatch('setTitle', this.$t('message.MyProfile'))
         this.profile = this.user
+        this.profile.me = true
         this.listCreatedQuests(this.user._id)
       } else {
         this.getProfileInformations(this.$route.params.id)
+        this.profile.me = false
         this.listCreatedQuests(this.$route.params.id)
       }
     },

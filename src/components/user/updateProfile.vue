@@ -84,6 +84,11 @@
               <q-item-tile sublabel>{{ $t('message.MembersNearby') }}: {{ team.member.name }}</q-item-tile>
             </q-item-main>
           </q-item>
+          <q-item v-if="proposedTeams.length === 0">
+            <q-item-main>
+              <q-item-tile label>{{ $t('message.NoTeamsNearFromYou') }}</q-item-tile>
+            </q-item-main>
+          </q-item>
         </q-list>
       </q-tab-pane>
     </q-tabs>

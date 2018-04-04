@@ -82,19 +82,18 @@ export default {
         this.$store.dispatch("login", {
           email: this.form.email,
           password: this.form.password
-        }).then(() => {
-          let destination = '/home';
-          if (this.$route.query.hasOwnProperty('redirect')) {
-            destination = this.$route.query.redirect
-          }
-          this.$router.push(destination)
-        }).catch((err) => {
-          if (err.hasOwnProperty('response') && err.response.status === 401) {
+        }).then((result) => {
+          if (result.status === 401) {
             Toast.create(this.$t('message.IncorrectLoginPleaseRetry'))
           } else {
-            Toast.create(this.$t('message.ErrorStandardMessage'))
-            console.log(err)
+            let destination = '/home';
+            if (this.$route.query.hasOwnProperty('redirect')) {
+              destination = this.$route.query.redirect
+            }
+            this.$router.push(destination)
           }
+        }).catch((err) => {
+          Toast.create(this.$t('message.ErrorStandardMessage') + err)
         });
       }
     },
