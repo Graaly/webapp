@@ -20,10 +20,10 @@ var self = {
    *                            Example: { valueField: 'id', labelField: 'name' }
    * @see https://stackoverflow.com/a/111545/488666
    */ 
-  buildOptionsForSelect: (data, fields) => {
+  buildOptionsForSelect: (data, fields, translateFct) => {
     let optionsForSelect = []
     data.forEach((item) => {
-      optionsForSelect.push({ value: item[fields.valueField], label: item[fields.labelField] })
+      optionsForSelect.push({ value: item[fields.valueField], label: translateFct('message.' + item[fields.labelField]) })
     })
     return optionsForSelect
   },

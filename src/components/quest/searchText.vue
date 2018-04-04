@@ -12,7 +12,7 @@
           <q-item-main @click="$router.push('/quest/play/' + item._id)">
             <q-item-tile label>{{ item.title }}</q-item-tile>
             <q-item-tile sublabel>
-              {{item.author}} 
+              {{item.author}}
             </q-item-tile>
           </q-item-main>
         </q-item>
@@ -49,7 +49,7 @@ export default {
   },
   mounted() {
     // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', "Recherche")
+    this.$store.dispatch('setTitle', this.$t('message.Search'))
     if (this.$data.geolocationIsSupported) {
       navigator.geolocation.getCurrentPosition((position) => {
         this.userPosition.latitude = position.coords.latitude

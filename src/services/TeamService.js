@@ -39,20 +39,24 @@ export default {
   },
   
   // list a team news
-  listNewsAsync (id, skip, limit, done) {
-    return Api().get('news/?teamId=' + id + '&sort=-creation.date&skip=' + skip + '&limit=' + limit).then(function (response) {
+  listNews (id, skip, limit, done) {
+    return Api().get('team/' + id + '/news/' + skip + '/' + limit).then(function (response) {
       done(false, response)
     })
   },
   
   // save a news
-  saveNews(commentData) {
-    return Api().post('news', commentData)
+  saveNews(teamId, commentData) {
+    return Api().post('/team/' + teamId + '/news/create', commentData)
   },
   
   // save a like on news
-  saveNewsLike(id, likeData) {
-    return Api().put('news/' + id, likeData)
+  likeNews(teamId, newsId) {
+    return Api().put('/team/' + teamId + '/news/' + newsId + '/like')
+  },
+  // save a unlike on news
+  unlikeNews(teamId, newsId) {
+    return Api().put('/team/' + teamId + '/news/' + newsId + '/unlike')
   },
   
   // send an invitation in a team

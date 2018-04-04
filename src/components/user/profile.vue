@@ -35,8 +35,6 @@
               <q-item-tile sublabel v-if="quest.status === 'published'">
                 <q-rating readonly :value="(quest.rating && quest.rating.rounded) ? quest.rating.rounded : null" color="primary" :max="5" size="1rem" /> -
                 {{ $t('message.PublishedSince') }} {{quest.dateCreated | formatDate}}
-                <br />
-                [[Score semaine]] [[Score total]]
               </q-item-tile>
               <q-item-tile sublabel v-if="quest.status == 'unpublished'">
                 {{ $t('message.Unpublished') }}

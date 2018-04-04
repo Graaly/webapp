@@ -47,7 +47,7 @@
         </q-list>
       </div>
       <div class="row-auto">
-        <form v-on:submit="$router.push('/quest/search/text/' + searchText)">
+        <form v-on:submit="submitSearchTxt">
           <q-search v-show="displaySearch" v-model="searchText" :placeholder="$t('message.SearchForAQuest')" />
         </form>
       </div>
@@ -105,8 +105,8 @@ export default {
         this.$i18n.locale = this.user.language 
       }
     },
-    submitSearch() {
-      console.log(this.searchText)
+    submitSearchTxt() {
+      this.$router.push('/quest/search/text/' + this.searchText)
     },
     fixLayout() {
       // layout page computed min-height is wrong (too high, includes browser title bar), leading to a

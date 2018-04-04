@@ -35,6 +35,11 @@
             {{ ranking.score }}
           </q-item-side>
         </q-item>
+        <q-item v-show='rankings.length == 0'>
+        <q-item-main>
+          <q-item-tile label>{{ $t('message.NoQuestPlayedThisMonth') }}</q-item-tile>
+        </q-item-main>
+      </q-item>
       </q-list>
     </div>
     
@@ -72,11 +77,11 @@ export default {
         this.memberOfTeam = true
         // Set the page title = My agency / Competitor
         this.$store.dispatch('setTitle', this.$t('message.MyAgency'))
-        this.getJoinRequest(this.$route.params.id)
       } else {
         this.memberOfTeam = false
         this.$store.dispatch('setTitle', this.$t('message.Competitor'))
       }
+      this.getTeamRanking(this.$route.params.id)
     },
     async getTeam(id) {
       // get the team informations

@@ -65,6 +65,7 @@
         </div>
       </div>
       <div class="actions fixed-bottom" v-show="playerResult === null">
+        <div v-if="nbTry === 1" class="text wrong">{{ $t('message.SecondTry') }}</div>
         <div>
           <q-btn color="primary" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('message.Clear') }}</q-btn>
           <q-btn color="primary" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()">{{ $t('message.Confirm') }}</q-btn>
@@ -90,6 +91,7 @@
       </div>
       
       <div class="actions fixed-bottom" v-show="playerResult === null">
+        <div v-if="nbTry === 1" class="text wrong">{{ $t('message.SecondTry') }}</div>
         <div>
           <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('message.Confirm') }}</q-btn>
         </div>
@@ -207,9 +209,16 @@
       <div>
         <p class="text">{{ step.text }}</p>
       </div>
-      
+      <img id="cross" style="position: absolute; z-index: 10000; display: none;" src="/statics/icons/game/find-item-locator.png" />
+      <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 3">
+        <div class="text wrong">{{ $t('message.SecondTry') }}</div>
+      </div>
+      <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry === 3">
+        <div class="text wrong">{{ $t('message.WrongAnswer') }}</div>
+        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+      </div>
       <div class="resultMessage fixed-bottom" v-show="playerResult === true">
-        <div class="text right">{{ $t('message.WellDone') }}<span v-if="!isRunFinished && successAtFirstAttempt"> +10 {{ $t('message.points') }}</span></div>
+        <div class="text right">{{ $t('message.WellDone') }}<span v-if="!isRunFinished && nbTry === 0"> +10 {{ $t('message.points') }}</span><span v-if="!isRunFinished && nbTry === 1"> +5 {{ $t('message.points') }}</span></div>
         <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
       </div>
     </div>
@@ -218,16 +227,23 @@
       <div>
         <p class="text">{{ step.text }}</p>
       </div>
-      
+      <img id="cross" style="position: absolute; z-index: 10000; display: none;" src="/statics/icons/game/find-item-locator.png" />
+      <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 3">
+        <div class="text wrong">{{ $t('message.SecondTry') }}</div>
+      </div>
+      <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry === 3">
+        <div class="text right">{{ $t('message.WrongAnswer') }}</div>
+        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+      </div>
       <div class="resultMessage fixed-bottom" v-show="playerResult === true">
-        <div class="text right">{{ $t('message.WellDone') }}<span v-if="!isRunFinished && successAtFirstAttempt"> +10 {{ $t('message.points') }}</span></div>
+        <div class="text right">{{ $t('message.WellDone') }}<span v-if="!isRunFinished && nbTry === 0"> +10 {{ $t('message.points') }}</span><span v-if="!isRunFinished && nbTry === 1"> +5 {{ $t('message.points') }}</span></div>
         <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
       </div>
     </div>
     
     <!-- inventory button -->
-    <q-btn v-if="step.type == 'use-item' && !this.selectedItem" round class="inventory-btn" icon="fa-briefcase" color="primary" v-show="playerResult !== true && run.inventory.length > 0" @click="openInventory" />
-    <p v-if="step.type == 'use-item' && this.selectedItem" class="inventory-btn" color="primary" v-show="playerResult !== true && run.inventory.length > 0" @click="openInventory">
+    <q-btn v-if="step.type == 'use-item' && !this.selectedItem && nbTry < 3" round class="inventory-btn" icon="fa-briefcase" color="primary" v-show="playerResult !== true && run.inventory.length > 0" @click="openInventory" />
+    <p v-if="step.type == 'use-item' && this.selectedItem && nbTry < 3" class="inventory-btn" color="primary" v-show="playerResult !== true && run.inventory.length > 0" @click="openInventory">
       <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + this.selectedItem.picture" />
     </p>
     
@@ -279,6 +295,7 @@ export default {
       cameraStreamEnabled: false,
       questId: this.$route.params.questId,
       serverUrl: process.env.SERVER_URL,
+      nbTry: 0,
       
       // for step 'choose'
       answerType: 'text', // 'text' or 'image'
@@ -322,7 +339,6 @@ export default {
       
       // for step type 'use-item'
       selectedItem: null,
-      successAtFirstAttempt: true,
       
       // for step type 'find-item'
       itemAdded: null,
@@ -419,11 +435,11 @@ export default {
         
         if (this.step.type === 'code-keypad') {
           // for step type 'code-keypad', this.step.answers is a string in DB
-          this.playerCode = Array(this.step.answers.length).fill("");
+          this.resetKeypadCode()
         }
         
         if (this.step.type === 'code-color') {
-          this.playerCode = Array(4).fill('red');
+          this.resetColorCode()
         }
         
         if (this.step.type === 'new-item') {
@@ -523,8 +539,8 @@ export default {
     },
     
     askForHint() {
-      // TODO reduce points won for current step
-      Toast.create('Indice : ' + this.step.hint)
+      this.nbTry++ // hint 
+      Toast.create(this.$t('message.Hint') + ' : ' + this.step.hint)
     },
     
     async checkAnswer(selectedAnswerKey) {
@@ -554,7 +570,17 @@ export default {
           break
         
         case 'code-keypad':
-          this.playerResult = (this.playerCode.join('') === this.step.answers)
+          if (this.playerCode.join('') === this.step.answers) {
+            this.playerResult = true
+          } else {
+            this.nbTry++
+            if (this.nbTry < 2) {
+              // reset code
+              this.resetKeypadCode()
+            } else {
+              this.playerResult = false
+            }
+          }
           break
         
         case 'code-color':
@@ -565,7 +591,17 @@ export default {
               break
             }
           }
-          this.playerResult = result
+          if (result) {
+            this.playerResult = true
+          } else {
+            this.nbTry++
+            if (this.nbTry < 2) {
+              // reset code
+              this.resetColorCode()
+            } else {
+              this.playerResult = false
+            }
+          }
           break
         
         case 'write-text':
@@ -590,10 +626,22 @@ export default {
       throw new Error('No right answer found')
     },
     
+    resetKeypadCode() {
+      this.playerCode = Array(this.step.answers.length).fill("")
+    },
+    resetColorCode() {
+      this.playerCode = Array(4).fill('red')
+    },
+    
     async awardPoints() {
       // TODO to avoid cheating, all answer checks + points awarding must be moved to server side
       if (this.playerResult === true && !this.isRunFinished) {
-        this.run.score += 10
+        if (this.nbTry === 0) {
+          this.run.score += 10
+        } else if (this.nbTry === 1) {
+          this.run.score += 5
+        }
+        
         await RunService.save(this.run)
       }
     },
@@ -828,7 +876,7 @@ export default {
     /* specific for steps 'use-item' */
     
     async useItem(ev) {
-      if (this.playerResult === true) {
+      if (this.playerResult === true || this.nbTry >= 3) {
         return
       }
       
@@ -850,14 +898,30 @@ export default {
    
       if (distanceToSolution <= solutionAreaRadius && this.step.answers.item === this.selectedItem.picture) {
         this.playerResult = true
-        if (this.successAtFirstAttempt) {
-          await this.awardPoints()
-        }
+        await this.awardPoints()
       } else {
-        this.successAtFirstAttempt = false
+        this.nbTry++
         this.playerResult = false
         // this.$t() did not work here, see https://github.com/kazupon/vue-i18n/issues/108
-        Toast.create.negative(this.$i18n.t('message.NothingHappens'))
+        if (this.nbTry === 3) {
+          // display the right solution
+          var cross = document.getElementById('cross')
+          cross.style.top = (anwserPixelCoordinates.top - solutionAreaRadius / 2) + "px"
+          cross.style.left = (anwserPixelCoordinates.left - solutionAreaRadius / 2) + "px"
+          cross.style.width = solutionAreaRadius + "px"
+          cross.style.display = "block"
+          var crossPicture = cross.src
+          var self = this
+          setInterval(function() {
+            if (cross.src === crossPicture) {
+              cross.src = self.serverUrl + '/upload/quest/' + self.questId + '/step/new-item/' + self.step.answers.item
+            } else {
+              cross.src = crossPicture
+            }
+          }, 1000);
+        } else {
+          Toast.create.negative(this.$i18n.t('message.NothingHappens'))
+        }
       }
     },
     openInventory() {
@@ -934,14 +998,20 @@ export default {
       
       if (distanceToSolution <= solutionAreaRadius) {
         this.playerResult = true
-        if (this.successAtFirstAttempt) {
-          await this.awardPoints()
-        }
+        await this.awardPoints()
       } else {
-        this.successAtFirstAttempt = false
+        this.nbTry++
         this.playerResult = false
         // this.$t() did not work here, see https://github.com/kazupon/vue-i18n/issues/108
-        Toast.create.negative(this.$i18n.t('message.NothingHappens'))
+         if (this.nbTry === 3) {
+          var cross = document.getElementById('cross')
+          cross.style.top = (anwserPixelCoordinates.top - solutionAreaRadius / 2) + "px"
+          cross.style.left = (anwserPixelCoordinates.left - solutionAreaRadius / 2) + "px"
+          cross.style.width = solutionAreaRadius + "px"
+          cross.style.display = "block"
+        } else {
+          Toast.create.negative(this.$i18n.t('message.NothingHappens'))
+        }
       }
     }
     

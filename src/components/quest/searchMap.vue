@@ -19,7 +19,7 @@
         <gmap-info-window :options="infoWindow.options" :position="infoWindow.location" :opened="infoWindow.isOpen" @closeclick="infoWindow.isOpen=false">
           <div class="infoWindow">
             <h1>{{ currentQuest ? currentQuest.title : '' }}</h1>
-            <p>Difficulté : {{ currentQuest ? getQuestLevelName(currentQuest.level) : '' }}</p>
+            <p>{{ $t('message.Difficulty') }} : {{ $t('message.' + (currentQuest ? getQuestLevelName(currentQuest.level) : getQuestLevelName(2))) }}</p>
             <q-btn @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="tertiary">{{ $t('message.Play') }}</q-btn>
           </div>
         </gmap-info-window>
@@ -61,6 +61,7 @@
 </template>
 
 <script>
+import { Loading } from 'quasar'
 import QuestService from 'services/QuestService'
 import AuthService from 'services/AuthService'
 import TeamService from 'services/TeamService'
@@ -123,13 +124,16 @@ export default {
     if (this.$data.geolocationIsSupported) {
       // getCurrentPosition() is not always reliable (timeouts/fails frequently)
       // see https://stackoverflow.com/q/3397585/488666
+      Loading.show()
       navigator.geolocation.getCurrentPosition((position) => {
         this.$data.mapCenter = {lat: position.coords.latitude, lng: position.coords.longitude}
         // TODO maybe here save current position in 'state' for later use in case of failure
         this.getQuests()
+        Loading.hide()
       }, () => {
         console.error('geolocation failed')
         this.geolocationIsSupported = false
+        Loading.hide()
         // TODO maybe here recall position stored in 'state'
       }, { timeout: 10000, maximumAge: 10000 });
     }

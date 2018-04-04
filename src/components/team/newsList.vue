@@ -144,7 +144,7 @@ export default {
     getTeamNews(index, done) {
       var self = this
       // get the team news list
-      TeamService.listNewsAsync(this.$route.params.id, this.team.news.skip, this.team.news.limit, function(err, response) {
+      TeamService.listNews(this.$route.params.id, this.team.news.skip, this.team.news.limit, function(err, response) {
         self.team.news.skip += self.team.news.limit
         if (err) {
           done(err)
@@ -166,7 +166,7 @@ export default {
       }
       
       // save the comment
-      await TeamService.saveNews({title: this.comment, teamId: this.$route.params.id, type: "standard", data: {userId: this.user._id, picture: this.user.picture, name: this.user.name}, likes: [], creation: {date: new Date(), userId: this.user.id}})
+      await TeamService.saveNews(this.$route.params.id, {title: this.comment, type: "standard", data: {userId: this.user._id, picture: this.user.picture, name: this.user.name}})
       
       // reset the news list
       this.team.news.items.length = 0
@@ -179,23 +179,23 @@ export default {
     },
     // save the like action
     async like (index) {
-      this.news.items[index].likes.push({userId: this.user.id, date: new Date()})
-      await TeamService.saveNewsLike(this.team.news.items[index]._id, { likes: this.team.news.items[index].likes })
+      this.team.news.items[index].likes.push({userId: this.user._id, date: new Date()})
+      await TeamService.likeNews(this.$route.params.id, this.team.news.items[index]._id)
     },
     // save the unlike action
     async unlike (index) {
       for (var i = 0; i < this.team.news.items[index].likes.length; i++) {
-        if (this.team.news.items[index].likes[i].userId === this.user.id) {
+        if (this.team.news.items[index].likes[i].userId === this.user._id) {
           this.team.news.items[index].likes.splice(i, 1)
         }
       }
-      await TeamService.saveNewsLike(this.team.news.items[index]._id, { likes: this.team.news.items[index].likes })
+      await TeamService.unlikeNews(this.$route.params.id, this.team.news.items[index]._id)
     },
     // return true if the current user has liked the news
     isLiked (item) {
       if (item.likes) {
         for (var i = 0; i < item.likes.length; i++) {
-          if (item.likes[i].userId === this.user.id) {
+          if (item.likes[i].userId === this.user._id) {
             return true;
           }
         }

@@ -591,7 +591,7 @@ export default {
       this.questItems.forEach((item) => {
         options.push({
           value: item.picture,
-          label: this.$t('questItem.' + item.title)
+          label: item.title
         })
       })
       options.sort((a, b) => { return a.label > b.label ? 1 : -1 })

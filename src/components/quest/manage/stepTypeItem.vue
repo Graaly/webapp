@@ -2,8 +2,8 @@
   <div class="step-type-item">
     <i class="fa" :class="'fa-' + stepType.icon"></i>
     <div>
-      <h1>{{ stepType.title }}</h1>
-      <p>{{ stepType.description }}</p>
+      <h1>{{ $t('stepType.' + stepType.title) }}</h1>
+      <p>{{ $t('stepType.' + stepType.description) }}</p>
     </div>
   </div>
 </template>

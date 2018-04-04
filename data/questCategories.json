@@ -1,6 +1,6 @@
 [
 { "id": 1, "name": "Museum" },
-{ "id": 2, "name": "City or district" },
+{ "id": 2, "name": "CityOrDistrict" },
 { "id": 3, "name": "Countryside" },
 { "id": 4, "name": "Other" }
 ]

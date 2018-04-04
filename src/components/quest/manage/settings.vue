@@ -108,9 +108,9 @@ export default {
       },
       serverUrl: process.env.SERVER_URL,
       pictureUploadURL: this.serverUrl + '/quest/picture/upload',
-      categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }),
-      languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }),
-      levels: utils.buildOptionsForSelect(questLevels, { valueField: 'id', labelField: 'name' }),
+      categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }, this.$t),
+      languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
+      levels: utils.buildOptionsForSelect(questLevels, { valueField: 'id', labelField: 'name' }, this.$t),
       durations: [
         { label: '15 ' + this.$t('minutes'), value: 15 },
         { label: '30 ' + this.$t('minutes'), value: 30 },
