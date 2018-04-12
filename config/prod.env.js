@@ -1,4 +1,5 @@
 module.exports = {
   NODE_ENV: '"production"',
-  SERVER_URL: '"https://api.graaly.com"'
+  SERVER_URL: '"https://api.graaly.com"',
+  PERSIST_STATE_COOKIE_DURATION: '30' // days
 }
