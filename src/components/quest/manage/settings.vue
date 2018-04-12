@@ -252,4 +252,6 @@ export default {
 .location-address .q-input { flex-grow: 1 }
 .location-address img { width: 2.5rem; height: 2.5rem; }
 
+img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }
+
 </style>

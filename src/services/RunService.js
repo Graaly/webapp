@@ -1,22 +1,22 @@
 import Api from 'services/Api'
 
 export default {
-  getList (params) {
-    return Api().get('runs', { params: params })
-  },
-  
+  // get run based on its ID (only for connected user)
   getById (id) {
-    return Api().get('runs/' + id)
+    return Api().get('run/' + id)
+  },
+  // list runs for a quest and a user
+  listForAQuest (questId) {
+    return Api().get('run/quest/' + questId)
   },
   
-  async getOne (params) {
-    let res = await this.getList(params)
-    return res.data.shift()
+  // Save results of a step
+  saveResult (runId, stepId, success) {
+    return Api().put('run/' + runId + '/step/' + stepId + '/save/' + success)
   },
-  
-  // if _id is not provided in data, create (POST), otherwise, update (PUT)
-  save (data) {
-    return data._id ? Api().put('runs/' + data._id, data): Api().post('runs', data)
+  // init a new run for current user for a quest
+  init(questId) {
+    return Api().post('run/quest/' + questId + '/init/')
   },
   // set a run as finished
   endRun (id) {

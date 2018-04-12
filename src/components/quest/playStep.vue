@@ -2,264 +2,269 @@
   
   <div>
   
-    <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
-      <div id="info-clickable" :class="{ grow: !step.videoStream }">
-        <p class="text">{{ step.text }}</p>
-      </div>
-      <div class="video" v-if="step.videoStream">
-        <video class="full-width" controls controlsList="nodownload" autoplay>
-          <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + step.videoStream" type="video/mp4" />
-        </video>
-      </div>
-      <audio controls controlsList="nodownload" autoplay v-if="step.audioStream" class="full-width">
-        <source :src="step.audioStream" type="audio/mpeg" />
-      </audio>
-      <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
-      <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
-    </div>
-    
-    
-    <div class="choose" v-if="step.type == 'choose'">
-      <div>
-        <p class="text">{{ step.text }}</p>
-      </div>
-      <div class="answers-text" v-if="answerType === 'text'">
-        <q-btn v-for="(answer, key) in step.answers" :key="key" class="full-width" :class="answer.class" :icon="answer.icon" @click="checkAnswer(key)" :disabled="playerResult !== null">
-          {{ answer.text }}
-        </q-btn>
-      </div>
-      <div class="answers-images" v-if="answerType === 'image'">
-        <div class="images-block">
-          <div v-for="(answer, key) in step.answers" :key="key" :class="answer.class" @click="checkAnswer(key)">
-            <img :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + answer.imagePath" :class="answer.class" />
-            <q-btn v-if="answer.class !== null" round :class="answer.class" :icon="answer.icon" disable />
-          </div>
+    <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
+      
+      <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
+        <div id="info-clickable" :class="{ grow: !step.videoStream }">
+          <p class="text">{{ step.text }}</p>
         </div>
-      </div>
-      <div class="actions fixed-bottom row" v-show="playerResult === null">
-        <q-btn v-show="step.hint" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
+        <div class="video" v-if="step.videoStream">
+          <video class="full-width" controls controlsList="nodownload" autoplay>
+            <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + step.videoStream" type="video/mp4" />
+          </video>
+        </div>
+        <audio controls controlsList="nodownload" autoplay v-if="step.audioStream" class="full-width">
+          <source :src="step.audioStream" type="audio/mpeg" />
+        </audio>
+        <q-btn color="primary" class="full-width" @click="saveAndNextStep()">{{ $t('message.Next') }}</q-btn>
         <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
       </div>
-      <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
-        <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongAnswer') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
-        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
-      </div>
-    </div>
-    
-    <div class="code" v-if="step.type == 'code-keypad'">
-      <div>
-        <p class="text">{{ step.text }}</p>
-      </div>
-      <div class="typed-code">
-        <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
-        <tr>
-          <td v-for="(sign, key) in playerCode" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
-        </tr>
-        </table>
-      </div>
-      <div class="keypad">
-        <div class="keypadLine">
-          <div v-for="(keypadLine, rowKey) in keypad" :key="rowKey">
-            <q-btn v-for="(keypadButton, btnKey) in keypadLine" :key="btnKey" color="grey" glossy @click="addCodeChar(keypadButton)" :disable="playerResult !== null">{{ keypadButton }}</q-btn>
-          </div>
-        </div>
-      </div>
-      <div class="actions fixed-bottom" v-show="playerResult === null">
-        <div v-if="nbTry === 1" class="text wrong">{{ $t('message.SecondTry') }}</div>
+        
+        
+      <div class="choose" v-if="step.type == 'choose'">
         <div>
-          <q-btn color="primary" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('message.Clear') }}</q-btn>
-          <q-btn color="primary" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()">{{ $t('message.Confirm') }}</q-btn>
+           <p class="text">{{ step.text }}</p>
         </div>
-        <q-btn v-show="step.hint" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
-        <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
+        <div class="answers-text" v-if="answerType === 'text'">
+          <q-btn v-for="(answer, key) in step.answers" :key="key" class="full-width" :class="answer.class" :icon="answer.icon" @click="checkAnswer(key)" :disabled="playerResult !== null">
+            {{ answer.text }}
+          </q-btn>
+        </div>
+        <div class="answers-images" v-if="answerType === 'image'">
+          <div class="images-block">
+            <div v-for="(answer, key) in step.answers" :key="key" :class="answer.class" @click="checkAnswer(key)">
+              <img :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + answer.imagePath" :class="answer.class" />
+              <q-btn v-if="answer.class !== null" round :class="answer.class" :icon="answer.icon" disable />
+            </div>
+          </div>
+        </div>
+        <div class="actions fixed-bottom row" v-show="playerResult === null">
+          <q-btn v-show="step.hint" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
+          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
+        </div>
+        <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
+          <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongAnswer') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
+          <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+        </div>
       </div>
-      <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
-         <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongGoodCodeWas') + " " + step.answers }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
-        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
-      </div>
-    </div>
-    
-    
-    
-    <div class="code code-color" v-if="step.type == 'code-color'">
-      <div>
-        <p class="text">{{ step.text }}</p>
+        
+      <div class="code" v-if="step.type == 'code-keypad'">
+        <div>
+          <p class="text">{{ step.text }}</p>
+        </div>
+        <div class="typed-code">
+          <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
+          <tr>
+            <td v-for="(sign, key) in playerCode" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
+          </tr>
+          </table>
+        </div>
+        <div class="keypad">
+          <div class="keypadLine">
+            <div v-for="(keypadLine, rowKey) in keypad" :key="rowKey">
+              <q-btn v-for="(keypadButton, btnKey) in keypadLine" :key="btnKey" color="grey" glossy @click="addCodeChar(keypadButton)" :disable="playerResult !== null">{{ keypadButton }}</q-btn>
+            </div>
+          </div>
+        </div>
+        <div class="actions fixed-bottom" v-show="playerResult === null">
+          <div v-if="nbTry === 1" class="text wrong">{{ $t('message.SecondTry') }}</div>
+          <div>
+            <q-btn color="primary" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('message.Clear') }}</q-btn>
+            <q-btn color="primary" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()">{{ $t('message.Confirm') }}</q-btn>
+          </div>
+          <q-btn v-show="step.hint" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
+          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
+        </div>
+        <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
+           <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongGoodCodeWas') + " " + step.answers }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
+          <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+        </div>
       </div>
       
-      <div class="color-bubbles">
-        <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">&nbsp;</div>
+      
+      
+      <div class="code code-color" v-if="step.type == 'code-color'">
+        <div>
+          <p class="text">{{ step.text }}</p>
+        </div>
+        
+        <div class="color-bubbles">
+          <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">&nbsp;</div>
+        </div>
+        
+        <div class="actions fixed-bottom" v-show="playerResult === null">
+          <div v-if="nbTry === 1" class="text wrong">{{ $t('message.SecondTry') }}</div>
+          <div>
+            <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('message.Confirm') }}</q-btn>
+          </div>
+          <q-btn v-show="step.hint" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
+          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
+        </div>
+        <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
+           <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongAnswer') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
+          <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+        </div>
       </div>
       
-      <div class="actions fixed-bottom" v-show="playerResult === null">
-        <div v-if="nbTry === 1" class="text wrong">{{ $t('message.SecondTry') }}</div>
+      
+      <div class="image-recognition" v-if="step.type == 'image-recognition'">
         <div>
-          <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('message.Confirm') }}</q-btn>
+          <p class="text">{{ step.text }}</p>
         </div>
-        <q-btn v-show="step.hint" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
-        <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
-      </div>
-      <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
-         <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongAnswer') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
-        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
-      </div>
-    </div>
-    
-    
-    <div class="image-recognition" v-if="step.type == 'image-recognition'">
-      <div>
-        <p class="text">{{ step.text }}</p>
-      </div>
-      <div class="photo">
-        <img ref="original-photo" :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
-        <video ref="camera-stream-for-recognition" v-show="cameraStreamEnabled"></video>
-        <canvas ref="photo-buffer" class="hidden"></canvas>
-        <img ref="player-photo" v-show="photoTaken" :alt="$t('message.TheScreenCaptureWillAppearInThisBox')" />
-      </div>
-      <div class="actions fixed-bottom">
-        <q-btn @click="togglecameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" color="primary">{{ $t('message.TakeThePicture') }}</q-btn>
-        <div v-show="cameraStreamEnabled">
-          <q-btn color="primary" @click="togglecameraStream()" icon="clear">{{ $t('message.Cancel') }}</q-btn>
-          <q-btn color="primary" @click="checkPhoto()" icon="done">{{ $t('message.Check') }}</q-btn>
+        <div class="photo">
+          <img ref="original-photo" :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
+          <video ref="camera-stream-for-recognition" v-show="cameraStreamEnabled"></video>
+          <canvas ref="photo-buffer" class="hidden"></canvas>
+          <img ref="player-photo" v-show="photoTaken" :alt="$t('message.TheScreenCaptureWillAppearInThisBox')" />
         </div>
-        <q-btn v-show="step.hint && !photoTaken" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
-        <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep && !photoTaken">{{ $t('message.BackToPreviousStep') }}</q-btn>
-        <div class="text resultMessage" :class="playerResult ? 'right' : 'wrong'" v-show="playerResult !== null">{{ playerResult ? $t('message.WellDone') : $t('message.PhotosDoesntMatch') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
-        <q-btn v-show="photoTaken" color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+        <div class="actions fixed-bottom">
+          <q-btn @click="togglecameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" color="primary">{{ $t('message.TakeThePicture') }}</q-btn>
+          <div v-show="cameraStreamEnabled">
+            <q-btn color="primary" @click="togglecameraStream()" icon="clear">{{ $t('message.Cancel') }}</q-btn>
+            <q-btn color="primary" @click="checkPhoto()" icon="done">{{ $t('message.Check') }}</q-btn>
+          </div>
+          <q-btn v-show="step.hint && !photoTaken" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
+          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep && !photoTaken">{{ $t('message.BackToPreviousStep') }}</q-btn>
+          <div class="text resultMessage" :class="playerResult ? 'right' : 'wrong'" v-show="playerResult !== null">{{ playerResult ? $t('message.WellDone') : $t('message.PhotosDoesntMatch') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
+          <q-btn v-show="photoTaken" color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+        </div>
       </div>
-    </div>
-    
-    
-    <div class="geolocation" v-if="step.type == 'geolocation'">
-      <video ref="camera-stream-for-geolocation" v-show="cameraStreamEnabled"></video>
-      <div>
-        <p class="text">{{ step.text }}</p>
-        <p class="text">{{ $t('message.DistanceInMeters', { distance: geolocation.distance }) }}</p>
-        <!--
-        <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
-        <p class="text">Alpha: {{ Math.round(geolocation.alpha) }}°</p>
-        <p class="text">Difference direction: {{ geolocation.direction }}°</p>
-        -->
+        
+        
+      <div class="geolocation" v-if="step.type == 'geolocation'">
+        <video ref="camera-stream-for-geolocation" v-show="cameraStreamEnabled"></video>
+        <div>
+          <p class="text">{{ step.text }}</p>
+          <p class="text">{{ $t('message.DistanceInMeters', { distance: geolocation.distance }) }}</p>
+          <!--
+          <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
+          <p class="text">Alpha: {{ Math.round(geolocation.alpha) }}°</p>
+          <p class="text">Difference direction: {{ geolocation.direction }}°</p>
+          -->
+        </div>
+        <div class="direction-helper">
+          <canvas id="direction-canvas"></canvas>
+        </div>
+        <div class="resultMessage" >
+          <div class="text right" v-show="playerResult">{{ $t('message.YouHaveFoundThePlace') }} (+10 {{ $t('message.points') }})</div>
+          <q-btn v-if="playerResult" color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+          <q-btn v-if="!playerResult" color="primary" class="full-width" @click="passStep()">{{ $t('message.Pass') }}</q-btn>
+          <q-btn v-show="step.hint && !playerResult" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
+          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
+        </div>
       </div>
-      <div class="direction-helper">
-        <canvas id="direction-canvas"></canvas>
+      
+      
+      <div class="write-text" v-if="step.type == 'write-text'">
+        <div>
+          <p class="text">{{ step.text }}</p>
+        </div>
+        <div class="answer-text">
+          <input v-model="writetext.playerAnswer" :placeholder="$t('message.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" />
+          <q-btn color="primary" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()">{{ $t('message.ConfirmTheAnswer') }}</q-btn>
+        </div>
+        <div class="actions fixed-bottom" v-show="playerResult === null">
+          <q-btn v-show="step.hint && playerResult === null" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
+          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
+        </div>
+        <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
+          <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongAnswer') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
+          <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+        </div>
       </div>
-      <div class="resultMessage" >
-        <div class="text right" v-show="playerResult">{{ $t('message.YouHaveFoundThePlace') }} (+10 {{ $t('message.points') }})</div>
-        <q-btn color="primary" class="full-width" @click="nextStep()">{{ playerResult ? $t('message.Next') : $t('message.Pass') }}</q-btn>
+      
+      <!-- jigsaw puzzle steps -->
+      <div class="puzzle" v-if="step.type == 'jigsaw-puzzle'">
+        <div>
+          <p class="text">{{ step.text }}</p>
+        </div>
+        <ul id="puzzle-container" v-sortable="{ onUpdate: onPieceMove }">
+          <li v-for="piece in puzzle.pieces" :key="piece.pos" :id="'piece-' + piece.pos"
+            :style="'background-image: url(' + puzzle.picture + '); background-size: ' + piece.backSize + '% ' + piece.backSize + '%;background-position: -' + piece.backXPos + ' -' + piece.backYPos + ';'"
+          ><img src="/statics/icons/game/spacer.gif" :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'" /></li>
+        </ul>
+        <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
+        <div class="resultMessage fixed-bottom" v-show="playerResult === true ">
+          <div class="text right">{{ $t('message.WellDone') }}<span v-if="playerResult"> +10 {{ $t('message.points') }}</span></div>
+          <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+        </div>
+        <div class="actions fixed-bottom" v-show="playerResult !== true">
+          <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Pass') }}</q-btn>
+          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
+        </div>
+      </div>
+      
+      <!-- inventory steps -->
+      
+      <div class="new-item" v-if="step.type == 'new-item'">
+        <div>
+          <p class="text">{{ step.text }}</p>
+        </div>
+        <div class="item">
+          <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + step.answers.picture" />
+          <p>{{ step.answers.title }}</p>
+        </div>
+        <q-btn color="primary" class="full-width" @click="saveAndNextStep()">{{ $t('message.Next') }}</q-btn>
         <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
       </div>
-    </div>
-    
-    
-    <div class="write-text" v-if="step.type == 'write-text'">
-      <div>
-        <p class="text">{{ step.text }}</p>
+      
+      
+      <div class="use-item" v-if="step.type == 'use-item'" @click="useItem($event)">
+        <div>
+          <p class="text">{{ step.text }}</p>
+        </div>
+        <img id="cross" style="position: absolute; z-index: 10000; display: none;" src="/statics/icons/game/find-item-locator.png" />
+        <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 3">
+          <div class="text wrong">{{ $t('message.SecondTry') }}</div>
+        </div>
+        <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry === 3">
+          <div class="text wrong">{{ $t('message.WrongAnswer') }}</div>
+          <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+        </div>
+        <div class="resultMessage fixed-bottom" v-show="playerResult === true">
+          <div class="text right">{{ $t('message.WellDone') }}<span v-if="!isRunFinished && nbTry === 0"> +10 {{ $t('message.points') }}</span><span v-if="!isRunFinished && nbTry === 1"> +5 {{ $t('message.points') }}</span></div>
+          <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+        </div>
       </div>
-      <div class="answer-text">
-        <input v-model="writetext.playerAnswer" :placeholder="$t('message.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" />
-        <q-btn color="primary" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()">{{ $t('message.ConfirmTheAnswer') }}</q-btn>
+      
+      <div class="find-item" v-if="step.type == 'find-item'" @click="findItem($event)">
+        <div>
+          <p class="text">{{ step.text }}</p>
+        </div>
+        <img id="cross" style="position: absolute; z-index: 10000; display: none;" src="/statics/icons/game/find-item-locator.png" />
+        <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 3">
+          <div class="text wrong">{{ $t('message.SecondTry') }}</div>
+        </div>
+        <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry === 3">
+          <div class="text right">{{ $t('message.WrongAnswer') }}</div>
+          <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+        </div>
+        <div class="resultMessage fixed-bottom" v-show="playerResult === true">
+          <div class="text right">{{ $t('message.WellDone') }}<span v-if="!isRunFinished && nbTry === 0"> +10 {{ $t('message.points') }}</span><span v-if="!isRunFinished && nbTry === 1"> +5 {{ $t('message.points') }}</span></div>
+          <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+        </div>
       </div>
-      <div class="actions fixed-bottom" v-show="playerResult === null">
-        <q-btn v-show="step.hint && playerResult === null" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
-        <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
-      </div>
-      <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
-        <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongAnswer') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
-        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
-      </div>
-    </div>
-    
-    <!-- jigsaw puzzle steps -->
-    <div class="puzzle" v-if="step.type == 'jigsaw-puzzle'">
-      <div>
-        <p class="text">{{ step.text }}</p>
-      </div>
-      <ul id="puzzle-container" v-sortable="{ onUpdate: onPieceMove }">
-        <li v-for="piece in puzzle.pieces" :key="piece.pos" :id="'piece-' + piece.pos"
-          :style="'background-image: url(' + puzzle.picture + '); background-size: ' + piece.backSize + '% ' + piece.backSize + '%;background-position: -' + piece.backXPos + ' -' + piece.backYPos + ';'"
-        ><img src="/statics/icons/game/spacer.gif" :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'" /></li>
-      </ul>
-      <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
-      <div class="resultMessage fixed-bottom" v-show="playerResult === true ">
-        <div>{{ $t('message.WellDone') }}<span v-if="playerResult"> +10 {{ $t('message.points') }}</span></div>
-        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
-      </div>
-      <div class="actions fixed-bottom" v-show="playerResult !== true">
-        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Pass') }}</q-btn>
-        <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
-      </div>
-    </div>
-    
-    <!-- inventory steps -->
-    
-    <div class="new-item" v-if="step.type == 'new-item'">
-      <div>
-        <p class="text">{{ step.text }}</p>
-      </div>
-      <div class="item">
-        <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + step.answers.picture" />
-        <p>{{ step.answers.title }}</p>
-      </div>
-      <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
-      <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
-    </div>
-    
-    
-    <div class="use-item" v-if="step.type == 'use-item'" @click="useItem($event)">
-      <div>
-        <p class="text">{{ step.text }}</p>
-      </div>
-      <img id="cross" style="position: absolute; z-index: 10000; display: none;" src="/statics/icons/game/find-item-locator.png" />
-      <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 3">
-        <div class="text wrong">{{ $t('message.SecondTry') }}</div>
-      </div>
-      <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry === 3">
-        <div class="text wrong">{{ $t('message.WrongAnswer') }}</div>
-        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
-      </div>
-      <div class="resultMessage fixed-bottom" v-show="playerResult === true">
-        <div class="text right">{{ $t('message.WellDone') }}<span v-if="!isRunFinished && nbTry === 0"> +10 {{ $t('message.points') }}</span><span v-if="!isRunFinished && nbTry === 1"> +5 {{ $t('message.points') }}</span></div>
-        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
-      </div>
-    </div>
-    
-    <div class="find-item" v-if="step.type == 'find-item'" @click="findItem($event)">
-      <div>
-        <p class="text">{{ step.text }}</p>
-      </div>
-      <img id="cross" style="position: absolute; z-index: 10000; display: none;" src="/statics/icons/game/find-item-locator.png" />
-      <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 3">
-        <div class="text wrong">{{ $t('message.SecondTry') }}</div>
-      </div>
-      <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry === 3">
-        <div class="text right">{{ $t('message.WrongAnswer') }}</div>
-        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
-      </div>
-      <div class="resultMessage fixed-bottom" v-show="playerResult === true">
-        <div class="text right">{{ $t('message.WellDone') }}<span v-if="!isRunFinished && nbTry === 0"> +10 {{ $t('message.points') }}</span><span v-if="!isRunFinished && nbTry === 1"> +5 {{ $t('message.points') }}</span></div>
-        <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
-      </div>
-    </div>
-    
-    <!-- inventory button -->
-    <q-btn v-if="step.type == 'use-item' && !this.selectedItem && nbTry < 3" round class="inventory-btn" icon="fa-briefcase" color="primary" v-show="playerResult !== true && run.inventory.length > 0" @click="openInventory" />
-    <p v-if="step.type == 'use-item' && this.selectedItem && nbTry < 3" class="inventory-btn" color="primary" v-show="playerResult !== true && run.inventory.length > 0" @click="openInventory">
-      <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + this.selectedItem.picture" />
-    </p>
-    
-    <transition name="slideInBottom">
-      <div class="inventory" v-show="isInventoryOpen">
-        <h1>{{ $t('message.Inventory') }}</h1>
-        <p>{{ $t('message.InventoryUsage') }}</p>
-        <div class="inventory-items">
-          <div v-for="(item, key) in inventory" :key="key" @click="selectItem(item)">
-            <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture" />
-            <p>{{ item.title}}</p>
+      
+      <!-- inventory button -->
+      <q-btn v-if="step.type == 'use-item' && !this.selectedItem && nbTry < 3 && run.inventory.length > 0" round class="inventory-btn" icon="fa-briefcase" color="primary" @click="openInventory" />
+      <p v-if="step.type == 'use-item' && this.selectedItem && nbTry < 3" class="inventory-btn" color="primary" v-show="playerResult !== true && run.inventory.length > 0" @click="openInventory">
+        <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + this.selectedItem.picture" />
+      </p>
+      
+      <transition name="slideInBottom">
+        <div class="inventory" v-show="isInventoryOpen">
+          <h1>{{ $t('message.Inventory') }}</h1>
+          <p>{{ $t('message.InventoryUsage') }}</p>
+          <div class="inventory-items">
+            <div v-for="(item, key) in inventory" :key="key" @click="selectItem(item)">
+              <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture" />
+              <p>{{ item.title}}</p>
+            </div>
           </div>
         </div>
-      </div>
-    </transition>
-    
+      </transition>
+        
+    </div>
   </div>
   
 </template>
@@ -270,7 +275,6 @@ import utils from 'src/includes/utils'
 
 import RunService from 'services/RunService'
 import StepService from 'services/StepService'
-import QuestService from 'services/QuestService'
 
 import colorsForCode from 'data/colorsForCode.json'
 import questItems from 'data/questItems.json'
@@ -289,13 +293,13 @@ export default {
     return {
       step: {},
       run: {},
-      quest: {},
       isRunFinished: false,
       playerResult: null,
       cameraStreamEnabled: false,
       questId: this.$route.params.questId,
       serverUrl: process.env.SERVER_URL,
       nbTry: 0,
+      controlsAreDisplayed: false,
       
       // for step 'choose'
       answerType: 'text', // 'text' or 'image'
@@ -354,56 +358,38 @@ export default {
     this.getStep().then(async (step) => {
       // no more available step => we reached end of quest
       if (typeof step === 'undefined' || step === 'OK') {
-        return this.$router.push('/quest/end')
+        return this.$router.push('/quest/' + this.questId + '/end')
       }
       
       // set title
       this.$store.dispatch('setTitle', step.title.substr(0, 20))
       
-      // load 'in-progress' run for current quest & current user Id
-      var run = await RunService.getOne({ userId: this.$store.state.user._id, questId: this.questId, status: 'in-progress' })
-
-      if (typeof run === 'undefined') {
-        // no 'in-progress' run => create run for current player & current quest
-        let questData = await QuestService.getById(this.questId)
-        this.quest = questData.data
-        
-        run = {
-          userId: this.$store.state.user._id,
-          teamId: this.$store.state.user.team.currentId,
-          questId: this.questId,
-          status: 'in-progress',
-          currentStep: 1,
-          score: 0,
-          dateCreated: new Date(),
-          dateUpdated: null,
-          questData: {
-            picture: this.quest.picture,
-            title: this.quest.title, 
-            zipcode: this.quest.location.zipcode,
-            town: this.quest.location.town
+      // List all run for this quest for current user
+      var runs = await RunService.listForAQuest(this.questId)
+      var maxStepComplete = 0
+      
+      if (runs && runs.data && runs.data.length > 0) {
+        for (var i = 0; i < runs.data.length; i++) {
+          if (runs.data[i].status === 'finished') {
+            this.isRunFinished = true
+          }
+          if (runs.data[i].status === 'in-progress' && runs.data[i].currentStep > maxStepComplete) {
+            this.$store.dispatch('setCurrentRun', runs.data[i])
+            this.run = runs.data[i]
+            maxStepComplete = runs.data[i].currentStep
           }
         }
-        let res = await RunService.save(run)
-        if (res.status === 201) {
-          this.$store.dispatch('setCurrentRun', res.data)
-        }
-        // no run found => go to /quest/<questId>/play/home for current quest
-        //Toast.create.negative("Cette étape n'est pas accessible pour le moment. Vous êtes redirigé vers la page d'accueil de l'enquête.")
-        //return this.$router.push('/quest/play/' + this.questId)
-      } else if (run.currentStep !== step.number && run.status === 'in-progress') {
-        // route step is not consistent with run's step => redirect to the correct step
-        // Removed by EMA => User needs to be able to go back on steps, but no points needs to be applied
-        //return this.$router.push('/quest/play/' + this.questId + '/step/' + run.currentStep)
       }
-      
-      // check if a 'finished' run already exists for current quest & current user
-      let finishedRun = await RunService.getOne({ userId: this.$store.state.user._id, questId: this.questId, status: 'finished' })
-      
-      this.isRunFinished = (typeof finishedRun !== 'undefined')
-      
+      if (maxStepComplete === 0) {
+        // no 'in-progress' run => create run for current player & current quest
+        let res = await RunService.init(this.questId)
+        if (res.status === 200 && res.data && res.data._id) {
+          this.$store.dispatch('setCurrentRun', res.data)
+          this.run = res.data
+        }
+      }
+            
       this.step = step
-      this.run = run
       
       // refresh current run Id in store (step "end" uses it)
       this.$store.dispatch('setCurrentRun', this.run)
@@ -420,13 +406,18 @@ export default {
         if (this.step.backgroundImage && this.step.type !== 'jigsaw-puzzle') {
           background.style.background = '#fff url("' + process.env.SERVER_URL + '/upload/quest/' + this.questId + '/step/background/' + this.step.backgroundImage + '")  center/cover no-repeat'
           // all background clickable for transitions
-          if (this.step.type === 'info-text') {
-            let clickable = document.getElementById('info-clickable')
-            clickable.addEventListener("click", this.nextStep, false);
-          }
+          //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
+            //let clickable = document.getElementById('info-clickable')
+            //let clickable = document.getElementById('main-view')
+            //clickable.addEventListener("click", this.showControls, false);
+          //}
+          
+          // display controls after some seconds to let user see background
+          setTimeout(this.showControls, 2000)
         } else {
           background.style.background = 'none'
           background.style.backgroundColor = '#fff'
+          this.showControls()
         }
         
         if (this.step.type === 'choose') {
@@ -442,9 +433,9 @@ export default {
           this.resetColorCode()
         }
         
-        if (this.step.type === 'new-item') {
+        /*if (this.step.type === 'new-item') {
           await this.addItemToInventory(this.step.answers)
-        }
+        }*/
         
         if (this.step.type === 'use-item') {
           await this.fillInventory()
@@ -519,28 +510,42 @@ export default {
   methods: {
     
     /* general / multi step methods */
-    
+    showControls () {
+      this.controlsAreDisplayed = !this.controlsAreDisplayed
+    },
     async getStep () {
       return StepService.getByNumber(this.$route.params.questId, this.$route.params.stepNumber)
     },
     
     async nextStep() {
-      // update run
-      this.run.currentStep++
-      await RunService.save(this.run)
-      
-      this.$router.push('/quest/play/' + this.step.questId + '/step/' + (this.step.number + 1));
+      if (this.step.nextNumber === "no next step") {
+        this.$router.push('/quest/' + this.questId + '/end')
+      } else {
+        this.$router.push('/quest/play/' + this.questId + '/step/' + this.step.nextNumber);
+      }
+    },
+    async saveAndNextStep() {
+      await this.saveResult('success')
+      await this.nextStep()
+    },
+    async passStep() {
+      await this.saveResult('pass')
+      await this.nextStep()
     },
     async previousStep() {
-      // update run
-      this.run.currentStep--
-      
-      this.$router.push('/quest/play/' + this.step.questId + '/step/' + (this.step.number - 1));
+      if (this.step.number && this.step.number > 1) {
+        this.$router.push('/quest/play/' + this.step.questId + '/step/' + (this.step.number - 1))
+      }
     },
     
-    askForHint() {
-      this.nbTry++ // hint 
-      Toast.create(this.$t('message.Hint') + ' : ' + this.step.hint)
+    async askForHint() {
+      await this.saveResult('hint')
+      this.nbTry++
+      Toast.create({
+        html: this.$t('message.Hint') + ' : ' + this.step.hint,
+        timeout: 10000,
+        icon: 'lightbulb outline'
+      })
     },
     
     async checkAnswer(selectedAnswerKey) {
@@ -612,9 +617,7 @@ export default {
           console.log('checkAnswer(): Step type ' + this.step.type + ' not supported.')
       }
       
-      if (this.playerResult) {
-        await this.awardPoints()
-      }
+      await this.saveResult((this.playerResult ? 'success' : 'fail'))
     },
     
     getRightAnswerKey() {
@@ -633,16 +636,15 @@ export default {
       this.playerCode = Array(4).fill('red')
     },
     
-    async awardPoints() {
-      // TODO to avoid cheating, all answer checks + points awarding must be moved to server side
-      if (this.playerResult === true && !this.isRunFinished) {
-        if (this.nbTry === 0) {
-          this.run.score += 10
-        } else if (this.nbTry === 1) {
-          this.run.score += 5
-        }
-        
-        await RunService.save(this.run)
+    async saveResult(success) {
+      // TODO to avoid cheating, all answer checks
+      let response = await RunService.saveResult(this.run._id, this.step._id, success)
+
+      if (response.data && response.data.nextId) {
+        this.step.nextId = response.data.nextId
+        this.step.nextNumber = response.data.nextNumber
+      } else {
+        Toast.create.negative(this.$i18n.t('message.TechnicalIssue'))
       }
     },
     
@@ -759,7 +761,7 @@ export default {
           
           this.photoTaken = true
           
-          await this.awardPoints()
+          await this.saveResult((this.playerResult ? 'success' : 'fail'))
         }
       }
     },
@@ -847,8 +849,9 @@ export default {
       if (this.geolocation.distance < 20) {
         navigator.geolocation.clearWatch(this.geolocation.locationWatcher);
         this.playerResult = true
-        await this.awardPoints()
       }
+      
+      await this.saveResult((this.playerResult ? 'success' : 'fail'))
       
       this.geolocation.currentBearing = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, target.lat, target.lng)
       
@@ -862,12 +865,6 @@ export default {
       return typeof item !== 'undefined' ? item.icon : 'clear'
     },
     
-    async addItemToInventory(itemCode) {
-      if (this.run.inventory.indexOf(itemCode) === -1) {
-        this.run.inventory.push(itemCode)
-        await RunService.save(this.run)
-      }
-    },
     async fillInventory() {
       // load items won on previous steps
       this.inventory = await StepService.listWonObjects(this.questId, this.step._id)
@@ -899,7 +896,6 @@ export default {
       var showSolution = false
       if (distanceToSolution <= solutionAreaRadius && this.step.answers.item === this.selectedItem.picture) {
         this.playerResult = true
-        await this.awardPoints()
         showSolution = true
       } else {
         this.nbTry++
@@ -911,6 +907,8 @@ export default {
           Toast.create.negative(this.$i18n.t('message.NothingHappens'))
         }
       }
+      
+      await this.saveResult((this.playerResult ? 'success' : 'fail'))
       
       if (showSolution) {
         // display the right solution
@@ -942,15 +940,17 @@ export default {
     
     async onPieceMove(event) {
       var childNodes = document.getElementById('puzzle-container').childNodes,
-        i = childNodes.length;
+        i = childNodes.length,
+        result = true
+        
       while (i--) {
         if (i !== parseInt(childNodes[i].id.replace('piece-', ''))) {
-          return false // if one piece is not well placed
+          result = false // if one piece is not well placed
         }
       }
 
-      await this.awardPoints()
-      this.playerResult = true
+      this.playerResult = result
+      await this.saveResult((this.playerResult ? 'success' : 'fail'))
     },
     initPuzzle() {
       // Puzzle sizes
@@ -1005,7 +1005,6 @@ export default {
       var showSolution = false
       if (distanceToSolution <= solutionAreaRadius) {
         this.playerResult = true
-        await this.awardPoints()
         showSolution = true
       } else {
         this.nbTry++
@@ -1017,6 +1016,8 @@ export default {
           Toast.create.negative(this.$i18n.t('message.NothingHappens'))
         }
       }
+      
+      await this.saveResult((this.playerResult ? 'success' : 'fail'))
       
       // show the right solution
       if (showSolution) {
@@ -1043,10 +1044,11 @@ export default {
   #main-view { padding: 0rem; height: inherit; min-height: inherit; }
   
   #main-view > div { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
+  #main-view > div > div { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
   
-  #main-view > div.info,
-  #main-view > div.new-item,
-  #main-view > div.geolocation {
+  #main-view div.info,
+  #main-view div.new-item,
+  #main-view div.geolocation {
     padding-bottom: 1rem;
   }
   
@@ -1060,6 +1062,10 @@ export default {
     box-shadow: 0px 0px 0.1rem 0.1rem #fff;
   }
   .text { white-space: pre-wrap; }
+  
+  #controls {
+    display: none
+  }
     
   .q-btn, audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
   
@@ -1177,6 +1183,46 @@ export default {
   .slideInBottom-enter, .slideInBottom-leave-to {
     transform: translateY(100vh);
     opacity: 0;
+  }
+  
+  /* display the controls progressively */
+  .fadeIn {
+    animation: fadein 2s;
+    -moz-animation: fadein 2s; /* Firefox */
+    -webkit-animation: fadein 2s; /* Safari et Chrome */
+    -o-animation: fadein 2s; /* Opera */
+  }
+  @keyframes fadein {
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+  }
+  @-moz-keyframes fadein { /* Firefox */
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+  }
+  @-webkit-keyframes fadein { /* Chrome */
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+  }
+  @-o-keyframes fadein { /* Opera */
+    from {
+        opacity:0;
+    }
+    to {
+        opacity: 1;
+    }
   }
   
 </style>

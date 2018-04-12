@@ -44,7 +44,6 @@
 
 <script>
 import { QRating, Toast } from 'quasar'
-import AuthService from 'services/AuthService'
 import RunService from 'services/RunService'
 export default {
   components: {
@@ -58,31 +57,34 @@ export default {
       run: {
         score: 0
       },
-      awardPoints: false
+      questId: this.$route.params.questId,
+      awardPoints: true
     }
   },
   async mounted () {
     // dispatch specific title for other app components
     this.$store.dispatch('setTitle', this.$data.title)
     
-    if (this.$store.state.currentRun !== null) {
-      let res = await RunService.getById(this.$store.state.currentRun._id)
-      this.run = res.data
-      
-      // no run for this quest & user finished yet ? => award points
-      res = await RunService.getOne({ questId: this.run.questId, userId: this.run.userId, status: 'finished' })
-      this.awardPoints = (typeof res === 'undefined')
-      
-      // TODO to avoid cheating, points assignments to a player must be done on server side
-      if (this.awardPoints) {
-        await AuthService.addPoints(this.run.score)
+    // List all run for this quest for current user
+    var runs = await RunService.listForAQuest(this.questId)
+    
+    if (runs && runs.data && runs.data.length > 0) {
+      for (var i = 0; i < runs.data.length; i++) {
+        if (runs.data[i].status === 'finished') {
+          this.awardPoints = false
+        }
+        if (runs.data[i].status === 'in-progress') {
+          this.run = runs.data[i]
+        }
       }
-      
-      await RunService.endRun(this.run._id)
-      this.$store.dispatch('setCurrentRun', null)
-    } else {
-      this.$router.push('/home')
     }
+  
+    let endStatus = await RunService.endRun(this.run._id)
+    if (endStatus && endStatus.data && endStatus.data.score) {
+      // assign computed score
+      this.run.score = endStatus.data.score
+    }
+    this.$store.dispatch('setCurrentRun', null)
   },
   methods: {
     async rate() {

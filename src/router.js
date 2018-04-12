@@ -85,7 +85,7 @@ var router = new VueRouter({
       component: QuestPlayStep
     },
     {
-      path: '/quest/end',
+      path: '/quest/:questId(\\w{24})/end',
       component: QuestEnd
     },
     {

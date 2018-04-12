@@ -1,33 +1,41 @@
 <template>
   
   <div class="wrapper">
-    <div class="warning" v-if="this.isRunFinished">
-      <strong>{{ $t('message.YouAlreadyDidThisQuest') }}.</strong><br />
-      {{ $t('message.YouCanResolveItAgain') }}.
-    </div>
-    
     <div v-if="geolocationIsSupported">
-      <div class="row bottom-separator">
-        <div class="col-3 padding-medium" v-if="typeof quest.picture !== 'undefined' && quest.picture !== null">
-          <img :src="serverUrl + '/upload/quest/' + quest.picture" class="full-width" />
-        </div>
-      
-        <div class="col desc padding-medium">
-          <h1>{{ quest.title }}</h1>
-          <p class="text-tertiary" v-if="typeof quest.author !== 'undefined'">{{ $t('message.Author') }} : {{ quest.author.name }}</p>
-          <p v-if="quest.rating">
-            <q-rating readonly :value="quest.rating.rounded" color="primary" :max="5" size="1.7rem" />
+      <div class="fixed-bottom full-width text-center">
+        <q-icon class="text-primary big-icon" name="expand_more" />
+      </div>
+      <div class="window-height play-home">
+        <q-parallax :src="serverUrl + '/upload/quest/' + quest.picture" :height="500" v-if="typeof quest.picture !== 'undefined' && quest.picture !== null">
+          <div slot="loading">Loading...</div>
+          <h1 class="text-primary">{{ quest.title }}</h1>
+          <p>
+            <span v-if="typeof quest.author !== 'undefined'">{{ quest.author.name }}</span>
           </p>
-          <p>{{ $t('message.nbPointsToWin', { nb: quest.availablePoints }) }}</p>
-          <p v-if="quest.mainLanguage">{{ $t('message.Language') }}: <img class="image-and-text-aligned" :src="'/statics/icons/game/flag-' + quest.mainLanguage + '.png'" /></p>
-          <p v-if="quest.level">{{ $t('message.Difficulty') }}: <img class="image-and-text-aligned" src="/statics/icons/game/magnifying-red.png" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 1 ? 'grey' : 'red') + '.png'" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 3 ? 'red' : 'grey') + '.png'" /></p>
-          <p v-if="quest.duration">{{ $t('message.Duration') }}: {{ quest.duration }} {{ $t('message.minutes') }}</p>
+          <p>
+            <span v-if="quest.rating">
+              <q-rating readonly :value="quest.rating.rounded" color="primary" :max="5" size="1.7rem" />
+            </span>
+          </p>
+          <div class="warning" v-if="this.isRunFinished">
+            <strong>{{ $t('message.YouAlreadyDidThisQuest') }}.</strong><br />
+            {{ $t('message.YouCanResolveItAgain') }}.
+          </div>
+        </q-parallax>
+        <div class="q-mt-md text-center" style="margin-top: 30px">
+          <p>
+            <span>{{ $t('message.nbPointsToWin', { nb: quest.availablePoints }) }}</span>
+            &nbsp;
+            <span v-if="quest.mainLanguage"><img class="image-and-text-aligned" :src="'/statics/icons/game/flag-' + quest.mainLanguage + '.png'" /></span>
+          </p>
           <p><q-btn @click="$router.push('/quest/play/' + $route.params.id + '/step/1')" color="primary">{{ $t('message.SolveThisQuest') }}</q-btn></p>
         </div>
       </div>
       <div class="padding-medium">
-        <p v-html="quest.description"></p>
+        <p v-if="quest.level">{{ $t('message.Difficulty') }}: <img class="image-and-text-aligned" src="/statics/icons/game/magnifying-red.png" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 1 ? 'grey' : 'red') + '.png'" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 3 ? 'red' : 'grey') + '.png'" /></p>
+        <p v-if="quest.duration">{{ $t('message.Duration') }}: {{ quest.duration }} {{ $t('message.minutes') }}</p>
         <p v-if="quest.startingPlace">{{ $t('message.StartingPoint') }}: {{ quest.startingPlace }}</p>
+        <p style="margin-bottom: 40px" v-html="quest.description"></p>
       </div>
     </div>
     <div class="row" v-if="!geolocationIsSupported">
@@ -46,12 +54,13 @@ import AuthService from 'services/AuthService'
 import QuestService from 'services/QuestService'
 import RunService from 'services/RunService'
 import questLevels from 'data/questLevels.json'
-import { QRating, Toast } from 'quasar'
+import { QRating, QParallax, Dialog } from 'quasar'
 import utils from 'src/includes/utils'
 
 export default {
   components: {
-    QRating
+    QRating,
+    QParallax
   },
   data () {
     return {
@@ -90,25 +99,44 @@ export default {
       }
     },
     async getRun() {
-      // try to load 'in-progress' run for current quest & current user Id
-      let run = await RunService.getOne({ userId: this.$store.state.user._id, questId: this.quest._id, status: 'in-progress' })
+      // List all run for this quest for current user
+      var runs = await RunService.listForAQuest(this.quest._id)
+      var maxStepComplete = 0
       
-      if (typeof run === 'undefined') {
-       
-      } else {
-        // an 'in-progress' run already exists for current player & current quest => jump to current run's step
-        // TODO : add run.currentStepAnswerChecked (boolean) to check if step anwser has been already checked
-        // otherwise a malicious player can use this feature to cumulate points on same step by quitting/rejoining a quest
-        this.$store.dispatch('setCurrentRun', run)
-        Toast.create("Vous avez déjà commencé cette enquête. Vous êtes redirigé là où vous en étiez.")
-        return this.$router.push('/quest/play/' + this.quest._id + '/step/' + run.currentStep)
+      if (runs && runs.data && runs.data.length > 0) {
+        for (var i = 0; i < runs.data.length; i++) {
+          if (runs.data[i].status === 'finished') {
+            this.isRunFinished = true
+          }
+          if (runs.data[i].status === 'in-progress' && runs.data[i].currentStep > maxStepComplete) {
+            this.$store.dispatch('setCurrentRun', runs.data[i])
+            maxStepComplete = runs.data[i].currentStep
+          }
+        }
+        if (maxStepComplete > 0) {
+          var self = this
+          Dialog.create({
+            title: this.$t('message.ContinueThisStep'),
+            message: this.$t('message.YouAlreadyStartThisQuest'),
+            buttons: [
+              {
+                label: this.$t('message.Restart'),
+                handler () {
+                  return self.$router.push('/quest/play/' + self.quest._id + '/step/1')
+                }
+              },
+              {
+                label: this.$t('message.Continue'),
+                handler () {
+                  return self.$router.push('/quest/play/' + self.quest._id + '/step/' + maxStepComplete)
+                }
+              }
+            ]
+          })
+        }
       }
-      
-      // check if a run has been already finished for this quest
-      run = await RunService.getOne({ userId: this.$store.state.user._id, questId: this.quest._id, status: 'finished' })
-      
-      this.isRunFinished = (typeof run !== 'undefined')
     },
+    
     // TODO make this more generic (basic model methods over 'webapp simple JSON files')
     // e.g. import JSONModels from 'utils/json-models'; questLevels = JSONModels('questLevels'); questLevels.getById(123)
     // see https://stackoverflow.com/questions/29923879/pass-options-to-es6-module-imports

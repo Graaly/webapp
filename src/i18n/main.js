@@ -315,7 +315,11 @@ module.exports = {
       English: "English",
       NoQuestCreated: "No quest created",
       NoQuestPlayed: "No quet played",
-      NoTeamsNearFromYou: "No team nearby"
+      NoTeamsNearFromYou: "No team nearby",
+      ContinueThisStep: "Continue this quest",
+      YouAlreadyStartThisQuest: "You have already played this quest, do you want to continue with the step you stopped?",
+      Restart: "Restart",
+      Continue: "Continue"
     }
   },
   fr: {
@@ -634,7 +638,11 @@ module.exports = {
       English: "Anglais",
       NoQuestCreated: "Aucune enquête créée",
       NoQuestPlayed: "Aucune enquête résolue",
-      NoTeamsNearFromYou: "Aucune équipe à proximité"
+      NoTeamsNearFromYou: "Aucune équipe à proximité",
+      ContinueThisStep: "Continuer cette enquête",
+      YouAlreadyStartThisQuest: "Vous avez déjà commencé cette enquête, voulez vous continuer à l'étape où vous vous étiez arrété ?",
+      Restart: "Recommencer",
+      Continue: "Continuer"
     }
   }
 }
