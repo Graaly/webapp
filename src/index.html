@@ -32,6 +32,12 @@
     <noscript>
       This is your fallback content in case JavaScript fails to load.
     </noscript>
+    <script>
+    // force https redirection
+    if ((window.location.hostname === 'graaly.com' || window.location.hostname === 'www.graaly.com') && window.location.protocol !== 'https:') {
+      window.location.href = 'https://graaly.com'
+    }
+    </script>
     <div id="q-app"></div>
     <!-- Todo: only include in production -->
     <%= htmlWebpackPlugin.options.serviceWorkerLoader %>

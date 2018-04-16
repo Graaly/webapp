@@ -114,6 +114,8 @@ new Vue({
 // date format
 import Moment from 'moment'
 Vue.filter('formatDate', function(value) {
+  // todo : have local configurable
+  Moment.locale('fr')
   if (value) {
     return Moment(String(value)).fromNow()
   }
