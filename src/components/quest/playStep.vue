@@ -1169,7 +1169,7 @@ export default {
   p.inventory-btn { background-color: #e82a34; padding: 10px; border-radius: 30px; height: 60px; width: 60px; display: block;}
   p.inventory-btn img { width: 40px; height: 40px; }
   
-  .inventory { background: white; position: fixed; bottom: 0; left: 0; width: 100%; height: 100%; }
+  .inventory { background: white; position: fixed; bottom: 0; left: 0; width: 100%; height: 100%; overflow-y: scroll; }
   .inventory h1 { padding-top: 1rem; margin-bottom: 1rem; }
   
   .inventory-items div { float: left; margin-right: 15px; width: 100px; height: 175px; overflow: hidden; text-align: center;}
