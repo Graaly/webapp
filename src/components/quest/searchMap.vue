@@ -28,10 +28,17 @@
 
     </div>
     
-    <div class="row" ref="map" v-if="!geolocationIsSupported">
-      <div class="col-12 text-center">
+    <div class="row" v-if="!geolocationIsSupported">
+      <div class="col-12">
         <h5>{{ $t('message.PleaseActivateGeolocation') }}</h5>
-        <p><a @click="">{{ $t('message.KnowHowToActivateGeolocation') }}</a></p>
+        <div v-if="isChrome">
+          <p v-html="$t('message.HowToActivateGeolocationOnChrome')"></p>
+          <p>
+            {{ $t('message.OnceGeolocationEnabled') }}
+            <!-- see https://github.com/vuejs/vue-router/issues/296 -->
+            <router-link :to="$route.path + '?_=' + (new Date).getTime()">{{ $t('message.ClickHere') }}</router-link>.
+          </p>
+        </div>
       </div>
     </div>
     
@@ -113,6 +120,32 @@ export default {
       },
       user: {name: "--", picture: "", id: ""},
       serverUrl: process.env.SERVER_URL
+    }
+  },
+  computed: {
+    // from https://stackoverflow.com/a/13348618/488666
+    // adapted because my Android Chrome User Agent contains 'OPR'!
+    // (Mozilla/5.0 (Linux; Android 8.0.0; ASUS_Z012D Build/OPR1.170623.026) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.109 Mobile Safari/537.36)
+    isChrome() {
+      let isChromium = window.chrome,
+        winNav = window.navigator,
+        vendorName = winNav.vendor,
+        //isOpera = winNav.userAgent.indexOf("OPR") > -1,
+        isIEedge = winNav.userAgent.indexOf("Edge") > -1,
+        isIOSChrome = winNav.userAgent.match("CriOS");
+      if (isIOSChrome) {
+        return true;
+      } else if (
+        isChromium !== null &&
+        typeof isChromium !== "undefined" &&
+        vendorName === "Google Inc." &&
+        //isOpera === false &&
+        isIEedge === false
+      ) {
+        return true;
+      } else {
+        return false;
+      }
     }
   },
   mounted() {
