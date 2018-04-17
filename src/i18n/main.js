@@ -20,25 +20,6 @@ module.exports = {
       black: "Black",
       white: "White"
     },
-    questItem: {
-      bomb: "Bomb",
-      book: "Book",
-      bullhorn: "Bullhorn",
-      cogwheel: "Cogwheel",
-      compass: "Compass",
-      "fire-extinguisher": "Fire extinguisher",
-      flask: "Flask",
-      gem: "Gem",
-      key: "Key",
-      lightbulb: "Lightbulb",
-      medkit: "Medkit",
-      "money-bill": "Money bill",
-      microchip: "Microchip",
-      pencil: "Pencil",
-      scissors: "Scissors",
-      umbrella: "Umbrella",
-      wrench: "Wrench"
-    },
     news: {
       challengeWon: "Your team whon the challenge: ",
       newTeam: "This team has just been created",
@@ -319,7 +300,8 @@ module.exports = {
       ContinueThisStep: "Continue this quest",
       YouAlreadyStartThisQuest: "You have already played this quest, do you want to continue with the step you stopped?",
       Restart: "Restart",
-      Continue: "Continue"
+      Continue: "Continue",
+      KeepEnigmaQuestionsShort: "Please keep your text short, and use as few lines as possible, otherwise it will overlay on other interface elements. If you need more space for text, please add a step 'Image & Text' before this one."
     }
   },
   fr: {
@@ -342,25 +324,6 @@ module.exports = {
       blue: "Bleu",
       black: "Noir",
       white: "Blanc"
-    },
-    questItem: {
-      bomb: "Bombe",
-      book: "Livre",
-      bullhorn: "Porte voix",
-      cogwheel: "Roue dentée",
-      compass: "Boussole",
-      "fire-extinguisher": "Extincteur",
-      flask: "Fiole",
-      gem: "Gemme",
-      key: "Clé",
-      lightbulb: "Ampoule",
-      medkit: "Trousse de secours",
-      "money-bill": "Billet de banque",
-      microchip: "Puce électronique",
-      pencil: "Crayon",
-      scissors: "Ciseaux",
-      umbrella: "Parapluie",
-      wrench: "Clé plate"
     },
     news: {
       challengeWon: "Votre équipe a gagné le challenge",
@@ -642,7 +605,8 @@ module.exports = {
       ContinueThisStep: "Continuer cette enquête",
       YouAlreadyStartThisQuest: "Vous avez déjà commencé cette enquête, voulez vous continuer à l'étape où vous vous étiez arrété ?",
       Restart: "Recommencer",
-      Continue: "Continuer"
+      Continue: "Continuer",
+      KeepEnigmaQuestionsShort: "Le texte doit être court, et utiliser le moins de lignes possible, sinon il dépassera sur les autres éléments d'interface. Si vous avez besoin de plus d'espace pour afficher du texte, ajoutez une étape 'Image & Texte' avant celle-ci."
     }
   }
 }

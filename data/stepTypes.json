@@ -30,7 +30,11 @@
     "icon": "map-marker",
     "title": "FindALocation",
     "description": "FindALocationDesc",
-    "showTrick": "yes"
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 180,
+      "maxNbCarriageReturns": 5
+    }
   },
   {
     "category": "enigma",
@@ -38,7 +42,11 @@
     "icon": "list",
     "title": "ChoiceQuestion",
     "description": "ChoiceQuestionDesc",
-    "showTrick": "yes"
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 180,
+      "maxNbCarriageReturns": 5
+    }
   },
   {
     "category": "enigma",
@@ -54,7 +62,11 @@
     "icon": "calculator",
     "title": "FindTheCode",
     "description": "FindTheCodeDesc",
-    "showTrick": "yes"
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 90,
+      "maxNbCarriageReturns": 2
+    }
   },
   {
     "category": "enigma",
@@ -62,7 +74,11 @@
     "icon": "paint-brush",
     "title": "FindTheColorCode",
     "description": "FindTheColorCodeDesc",
-    "showTrick": "yes"
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 150,
+      "maxNbCarriageReturns": 4
+    }
   },
   {
     "category": "enigma",
@@ -78,7 +94,11 @@
     "icon": "puzzle-piece",
     "title": "JigsawPuzzle",
     "description": "JigsawPuzzleDesc",
-    "showTrick": "no"
+    "showTrick": "no",
+    "textRules": {
+      "maxNbChars": 50,
+      "maxNbCarriageReturns": 1
+    }
   },
   {
     "category": "enigma",
@@ -86,7 +106,11 @@
     "icon": "search",
     "title": "FindAnItem",
     "description": "FindAnItemDesc",
-    "showTrick": "yes"
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 50,
+      "maxNbCarriageReturns": 1
+    }
   },
   {
     "category": "enigma",
@@ -94,6 +118,10 @@
     "icon": "wrench",
     "title": "UseAnItem",
     "description": "UseAnItemDesc",
-    "showTrick": "yes"
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 50,
+      "maxNbCarriageReturns": 1
+    }
   }
 ]
