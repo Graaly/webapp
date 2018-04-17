@@ -28,7 +28,7 @@
 
     </div>
     
-    <div class="row" v-if="!geolocationIsSupported">
+    <div class="row enable-geolocation" v-if="!geolocationIsSupported">
       <div class="col-12">
         <h5>{{ $t('message.PleaseActivateGeolocation') }}</h5>
         <div v-if="isChrome">
@@ -311,4 +311,6 @@ export default {
   width: 100%; 
   height: 100%; 
 }
+
+.enable-geolocation { padding: 1rem; }
 </style>
