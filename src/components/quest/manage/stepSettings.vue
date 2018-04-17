@@ -319,9 +319,9 @@ export default {
       },
       stepTypes,
       jigsawLevels: [
-        { value: 1, label: this.$t('Easy') },
-        { value: 2, label: this.$t('Medium') },
-        { value: 3, label: this.$t('Hard') }
+        { value: 1, label: this.$t('message.Easy') },
+        { value: 2, label: this.$t('message.Medium') },
+        { value: 3, label: this.$t('message.Hard') }
       ],
       
       triggerList: [
