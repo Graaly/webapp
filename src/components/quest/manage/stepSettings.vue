@@ -9,14 +9,22 @@
     
     <!-- common for all steps (main text or question) -->
     <div>
-      <q-input
-        v-model="form.text"
-        type="textarea"
-        :float-label="$t('message.' + mainTextFieldLabel)"
-        :max-height="100"
-        :min-rows="4"
-        class="full-width"
-      />
+      <q-field
+        :error="$v.form.text.$error"
+        :error-label="$t('message.KeepEnigmaQuestionsShort')"
+        :count="mainTextMaxLength"
+      >
+        <q-input
+          :float-label="$t('message.' + mainTextFieldLabel)"
+          v-model="form.text"
+          type="textarea"
+          :max-height="100"
+          :min-rows="4"
+          class="full-width"
+          @blur="$v.form.text.$touch"
+          @input="$v.form.text.$touch"
+        />
+      </q-field>
     </div>
 
     <div class="background-upload">
@@ -311,9 +319,9 @@ export default {
       },
       stepTypes,
       jigsawLevels: [
-        { value: 1, label: this.$t('Easy') },
-        { value: 2, label: this.$t('Medium') },
-        { value: 3, label: this.$t('Hard') }
+        { value: 1, label: this.$t('message.Easy') },
+        { value: 2, label: this.$t('message.Medium') },
+        { value: 3, label: this.$t('message.Hard') }
       ],
       
       triggerList: [
@@ -346,6 +354,15 @@ export default {
   computed: {
     mainTextFieldLabel() {
       return this.stepType.category === 'enigma' ? 'Question' : 'Text'
+    },
+    mainTextMaxLength() {
+      let maxNbChars = 400 // default
+      
+      if (this.stepType.textRules && this.stepType.textRules.maxNbChars) {
+        maxNbChars = this.stepType.textRules.maxNbChars
+      }
+      
+      return maxNbChars
     }
   },
   async mounted() {
@@ -611,7 +628,7 @@ export default {
     positionFindItemPointer() {
       document.getElementById("cross").style.left = ((this.form.answerPointerCoordinates.left * 4) - 23) + "px"
       document.getElementById("cross").style.top = ((this.form.answerPointerCoordinates.top * 5.33) - 30) + "px"
-    }
+    },
     
     /*
     for future method to get item coordinates for step 'find-item'
@@ -622,10 +639,25 @@ export default {
     console.log('width', ev.offsetX / targetBounds.width * 100)
     console.log('height', ev.offsetY / targetBounds.height * 100)
     */
+    
+    // validation methods
+    checkMainTextLength(value) {
+      let maxNbCarriageReturns = 11 // default
+      let maxNbChars = this.mainTextMaxLength
+      
+      if (this.stepType.textRules && this.stepType.textRules.maxNbCarriageReturns) {
+        maxNbCarriageReturns = this.stepType.textRules.maxNbCarriageReturns
+      }
+      
+      // (value.match(/\n/g) || []).length counts number of carriage returns in value.
+      // see https://stackoverflow.com/q/881085/488666
+      return value.length <= maxNbChars && (value.match(/\n/g) || []).length <= maxNbCarriageReturns
+    }
   },
   validations: {
     form: {
-      title: { required }
+      title: { required },
+      text: { function(value) { return this.checkMainTextLength(value) } }
     }
   }
 }

@@ -20,25 +20,6 @@ module.exports = {
       black: "Black",
       white: "White"
     },
-    questItem: {
-      bomb: "Bomb",
-      book: "Book",
-      bullhorn: "Bullhorn",
-      cogwheel: "Cogwheel",
-      compass: "Compass",
-      "fire-extinguisher": "Fire extinguisher",
-      flask: "Flask",
-      gem: "Gem",
-      key: "Key",
-      lightbulb: "Lightbulb",
-      medkit: "Medkit",
-      "money-bill": "Money bill",
-      microchip: "Microchip",
-      pencil: "Pencil",
-      scissors: "Scissors",
-      umbrella: "Umbrella",
-      wrench: "Wrench"
-    },
     news: {
       challengeWon: "Your team whon the challenge: ",
       newTeam: "This team has just been created",
@@ -295,7 +276,9 @@ module.exports = {
       remove: "remove",
       SelectedObject: "Selected item",
       PleaseActivateGeolocation: "Please turn on location on your mobile device",
-      KnowHowToActivateGeolocation: "Click here to know how to enable location",
+      HowToActivateGeolocationOnChrome: 'Go to <strong>system settings</strong>, then in <strong>Security and Location</strong>, then <strong>Location</strong>, and activate the option <strong>Enabled</strong>. This may slightly change depending on your Android version.',
+      OnceGeolocationEnabled: 'Once location enabled,',
+      ClickHere: 'click here',
       GraalyIsOptimizedForSmallerScreens: "The application is optimized for mobile device. Please use your mobile vertically, or resize your screen",
       YourRatingHasNotBeenSaved: "Your rating has not been saved. Maybe you have already rated this quest?",
       YourRatingHasBeenSaved: "Your rating has been saved",
@@ -322,7 +305,8 @@ module.exports = {
       Restart: "Restart",
       Continue: "Continue",
       YourItemPicture: "Your item picture",
-      NoLocalizedQuests: "Not localized quests"
+      NoLocalizedQuests: "Not localized quests",
+      KeepEnigmaQuestionsShort: "Please keep your text short, and use as few lines as possible, otherwise it will overlay on other interface elements. If you need more space for text, please add a step 'Image & Text' before this one."
     }
   },
   fr: {
@@ -345,25 +329,6 @@ module.exports = {
       blue: "Bleu",
       black: "Noir",
       white: "Blanc"
-    },
-    questItem: {
-      bomb: "Bombe",
-      book: "Livre",
-      bullhorn: "Porte voix",
-      cogwheel: "Roue dentée",
-      compass: "Boussole",
-      "fire-extinguisher": "Extincteur",
-      flask: "Fiole",
-      gem: "Gemme",
-      key: "Clé",
-      lightbulb: "Ampoule",
-      medkit: "Trousse de secours",
-      "money-bill": "Billet de banque",
-      microchip: "Puce électronique",
-      pencil: "Crayon",
-      scissors: "Ciseaux",
-      umbrella: "Parapluie",
-      wrench: "Clé plate"
     },
     news: {
       challengeWon: "Votre équipe a gagné le challenge",
@@ -621,7 +586,9 @@ module.exports = {
       remove: "supprimer",
       SelectedObject: "Objet sélectionné",
       PleaseActivateGeolocation: "Veuillez activer la localisation sur votre appareil mobile",
-      KnowHowToActivateGeolocation: "Cliquez ici pour savoir comment activer la localisation",
+      HowToActivateGeolocationOnChrome: 'Ouvrez les <strong>Paramètres Système</strong>, allez dans <strong>Sécurité et Position</strong>, puis <strong>Position</strong>, et activez l\'option <strong>Activé</strong>. Ceci peut changer légèrement selon votre version du système Android.',
+      OnceGeolocationEnabled: 'Une fois la localisation activée,',
+      ClickHere: 'cliquez ici',
       GraalyIsOptimizedForSmallerScreens: "L'application est optimisée pour des appareils mobiles. Veuillez tenir votre mobile verticalement ou redimensionner votre page",
       YourRatingHasNotBeenSaved: "Votre vote n'a pu être pris en compte. Peut-être avez vous déjà noté cette enquête",
       YourRatingHasBeenSaved: "Votre vote a été pris en compte",
@@ -648,7 +615,8 @@ module.exports = {
       Restart: "Recommencer",
       Continue: "Continuer",
       YourItemPicture: "Image de votre objet",
-      NoLocalizedQuests: "Enquêtes non localisées"
+      NoLocalizedQuests: "Enquêtes non localisées",
+      KeepEnigmaQuestionsShort: "Le texte doit être court, et utiliser le moins de lignes possible, sinon il dépassera sur les autres éléments d'interface. Si vous avez besoin de plus d'espace pour afficher du texte, ajoutez une étape 'Image & Texte' avant celle-ci."
     }
   }
 }
