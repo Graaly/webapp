@@ -5,7 +5,7 @@
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
       
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
-        <div id="info-clickable" :class="{ grow: !step.videoStream }">
+        <div id="info-clickable" :class="{ grow: !step.videoStream }" @click="showControls">
           <p class="text">{{ step.text }}</p>
         </div>
         <div class="video" v-if="step.videoStream">
@@ -22,7 +22,7 @@
         
         
       <div class="choose" v-if="step.type == 'choose'">
-        <div>
+        <div @click="showControls">
            <p class="text">{{ step.text }}</p>
         </div>
         <div class="answers-text" v-if="answerType === 'text'">
@@ -49,7 +49,7 @@
       </div>
         
       <div class="code" v-if="step.type == 'code-keypad'">
-        <div>
+        <div @click="showControls">
           <p class="text">{{ step.text }}</p>
         </div>
         <div class="typed-code">
@@ -84,7 +84,7 @@
       
       
       <div class="code code-color" v-if="step.type == 'code-color'">
-        <div>
+        <div @click="showControls">
           <p class="text">{{ step.text }}</p>
         </div>
         
@@ -156,7 +156,7 @@
       
       
       <div class="write-text" v-if="step.type == 'write-text'">
-        <div>
+        <div @click="showControls">
           <p class="text">{{ step.text }}</p>
         </div>
         <div class="answer-text">
@@ -356,6 +356,11 @@ export default {
   mounted () {
     // TODO: to avoid cheating for questions with text/image answers, do not load the 'right answer' info on front app, instead make a server call to check it, when player has already selected his answer and clicked on "check answer"
     this.getStep().then(async (step) => {
+      // redirect to latest step run if user can not access this step
+      if (step.redirect) {
+        return this.$router.push('/quest/play/' + this.questId + '/step/' + step.redirect)
+      }
+    
       // no more available step => we reached end of quest
       if (typeof step === 'undefined' || step === 'OK') {
         return this.$router.push('/quest/' + this.questId + '/end')
@@ -512,6 +517,13 @@ export default {
     /* general / multi step methods */
     showControls () {
       this.controlsAreDisplayed = !this.controlsAreDisplayed
+      if (!this.controlsAreDisplayed) {
+        let clickable = document.getElementById('main-view')
+        clickable.addEventListener("mousedown", this.showControls, false);
+      } else {
+        let clickable = document.getElementById('main-view')
+        clickable.removeEventListener("mousedown", this.showControls, false);
+      }
     },
     async getStep () {
       return StepService.getByNumber(this.$route.params.questId, this.$route.params.stepNumber)
@@ -540,7 +552,6 @@ export default {
     
     async askForHint() {
       await this.saveResult('hint')
-      this.nbTry++
       Toast.create({
         html: this.$t('message.Hint') + ' : ' + this.step.hint,
         timeout: 10000,
@@ -1085,8 +1096,8 @@ export default {
   .answers-images { flex-grow: 1; text-align: center; display: flex; flex-flow: column nowrap; justify-content: center; }
   
   .images-block { display: flex; flex-flow: row wrap; justify-content: center; align-items: center; }
-  .images-block > div { border-radius: 1rem; padding: 0.5rem; position: relative; }
-  .images-block img { max-width: 9rem; max-height: 9rem; border-radius: 0.5rem; }
+  .images-block > div { border-radius: 1rem; padding: 0.5rem; position: relative; width: 45%;}
+  .images-block img { width: 100%; border-radius: 0.5rem; }
   
   /* keypad specific (code) */
   

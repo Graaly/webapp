@@ -3,6 +3,16 @@
   "short_name": "Graaly",
   "icons": [
     {
+      "src": "/statics/icons/app-logo/icon-48x48.png",
+      "type": "image/png",
+      "sizes": "48x48"
+    },
+    {
+      "src": "/statics/icons/app-logo/icon-96x96.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
       "src": "/statics/icons/app-logo/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
@@ -16,5 +26,6 @@
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#e82a34"
+  "theme_color": "#e82a34",
+  "orientation": "portrait"
 }

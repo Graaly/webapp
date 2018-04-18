@@ -7,8 +7,13 @@ require(`./themes/app.${__THEME}.styl`)
 // ==============================
 
 // Uncomment the following lines if you need IE11/Edge support
-// require(`quasar/dist/quasar.ie`)
-// require(`quasar/dist/quasar.ie.${__THEME}.css`)
+require(`quasar/dist/quasar.ie`)
+require(`quasar/dist/quasar.ie.${__THEME}.css`)
+
+// Polyfills for IE support
+import es6Promise from 'es6-promise'
+es6Promise.polyfill()
+import 'babel-polyfill'
 
 // add icons (e.g. social icons)
 import 'quasar-extras/fontawesome'

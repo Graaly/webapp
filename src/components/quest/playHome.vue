@@ -1,11 +1,11 @@
 <template>
   
-  <div class="wrapper">
+  <div>
     <div v-if="geolocationIsSupported">
       <div class="fixed-bottom full-width text-center">
         <q-icon class="text-primary big-icon" name="expand_more" />
       </div>
-      <div class="window-height play-home">
+      <div class="play-home">
         <q-parallax :src="serverUrl + '/upload/quest/' + quest.picture" :height="500" v-if="typeof quest.picture !== 'undefined' && quest.picture !== null">
           <div slot="loading">Loading...</div>
           <h1 class="text-primary">{{ quest.title }}</h1>

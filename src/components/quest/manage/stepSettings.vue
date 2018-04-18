@@ -25,9 +25,9 @@
         <input @change="uploadBackgroundImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       </q-btn>
       <p v-if="form.backgroundImage === null">{{ $t('message.WarningImageResize') }}</p>
-      <div v-if="form.backgroundImage !== null">
+      <div v-if="form.backgroundImage !== null && form.backgroundImage !== ''">
         <p>{{ $t('message.YourPicture') }} :</p>
-        <img :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage" />
+        <img :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage" /> <br />
         <a @click="form.backgroundImage = null">{{ $t('message.remove') }}</a>
       </div>
     </div>
@@ -386,7 +386,7 @@ export default {
     this.questId = this.$store.state.currentEditedQuest._id
     
     // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', this.stepType.title)
+    this.$store.dispatch('setTitle', this.$t('stepType.' + this.stepType.title))
     
     if (this.form.number === null) {
       this.form.number = (await StepService.countForAQuest(this.questId)) + 1
@@ -648,6 +648,7 @@ p { margin-bottom: 0.5rem; }
 .answer .q-btn { padding: 0.3rem; margin: 0.2rem; }
 .add-answer { margin: 0.5rem auto; }
 
+.background-upload { padding-bottom: 10px; margin-bottom: 10px; background: #efefef; text-align: center;}
 .background-upload img, .image-recognition img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }
 
 .code-color h2 { margin-bottom: 0; }

@@ -292,6 +292,7 @@ module.exports = {
       Duration: "Duration",
       BackToPreviousStep: "Back to previous quest",
       Remove: "Remove",
+      remove: "remove",
       SelectedObject: "Selected item",
       PleaseActivateGeolocation: "Please turn on location on your mobile device",
       KnowHowToActivateGeolocation: "Click here to know how to enable location",
@@ -319,7 +320,9 @@ module.exports = {
       ContinueThisStep: "Continue this quest",
       YouAlreadyStartThisQuest: "You have already played this quest, do you want to continue with the step you stopped?",
       Restart: "Restart",
-      Continue: "Continue"
+      Continue: "Continue",
+      YourItemPicture: "Your item picture",
+      NoLocalizedQuests: "Not localized quests"
     }
   },
   fr: {
@@ -615,6 +618,7 @@ module.exports = {
       Duration: "Durée",
       BackToPreviousStep: "Revenir à l'étape précédente",
       Remove: "Supprimer",
+      remove: "supprimer",
       SelectedObject: "Objet sélectionné",
       PleaseActivateGeolocation: "Veuillez activer la localisation sur votre appareil mobile",
       KnowHowToActivateGeolocation: "Cliquez ici pour savoir comment activer la localisation",
@@ -642,7 +646,9 @@ module.exports = {
       ContinueThisStep: "Continuer cette enquête",
       YouAlreadyStartThisQuest: "Vous avez déjà commencé cette enquête, voulez vous continuer à l'étape où vous vous étiez arrété ?",
       Restart: "Recommencer",
-      Continue: "Continuer"
+      Continue: "Continuer",
+      YourItemPicture: "Image de votre objet",
+      NoLocalizedQuests: "Enquêtes non localisées"
     }
   }
 }

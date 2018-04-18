@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "axios": "^0.17.1",
+    "babel-polyfill": "latest",
     "babel-runtime": "^6.25.0",
+    "es6-promise": "latest",
     "js-cookie": "^2.2.0",
     "lodash": "^4.17.5",
     "mobile-drag-drop": "^2.3.0-rc.0",
