@@ -61,8 +61,7 @@ var router = new VueRouter({
   routes: [
     {
       path: '/',
-      redirect: '/user/login',
-      meta: { requiresAuth: false }
+      redirect: '/quest/search/map'
     },
     {
       path: '/home',
@@ -205,7 +204,7 @@ router.beforeEach(async (to, from, next) => {
     if (!store.state.isLoggedIn || store.state.user === null || !store.state.user.hasOwnProperty('_id')) {
       next({
         path: '/user/login',
-        query: { redirect: to.fullPath }
+        query: from.path === '/' ? null : { redirect: to.fullPath }
       })
     } else {
       // call '/account'. if it returns a 404 error, user is not authenticated
@@ -216,10 +215,19 @@ router.beforeEach(async (to, from, next) => {
         store.dispatch('logout')
         next({
           path: '/user/login',
-          query: { redirect: to.fullPath }
+          query: from.path === '/' ? null : { redirect: to.fullPath }
         })
       } else {
-        next()
+        // if user loads '/', redirect him to last loaded page (if possible)
+        if (from.path === '/' && store.state.lastLoadedRoute !== null) {
+          let lastLoadedRoute = store.state.lastLoadedRoute
+          store.dispatch('setLastLoadedRoute', null).then(res => {
+            next(lastLoadedRoute)
+          })
+        } else {
+          store.dispatch('setLastLoadedRoute', to.path)
+          next()
+        }
       }
     }
   } else {

@@ -20,6 +20,7 @@ const state = {
       drawDirectionInterval: null
     }
   },
+  lastLoadedRoute: null,
   user: null,
   currentEditedQuest: null,
   currentEditedStep: null,
@@ -50,6 +51,9 @@ const mutations = {
   logout (state) {
     state.isLoggedIn = false
     state.user = null
+  },
+  setLastLoadedRoute(state, route) {
+    state.lastLoadedRoute = route
   },
   setDrawDirectionInterval (state, intervalObject) {
     state.questSteps.geolocation.drawDirectionInterval = intervalObject;
@@ -88,6 +92,7 @@ const actions = {
     localStorage.setItem('isLoggedIn', false)
     return result
   },
+  setLastLoadedRoute: ({ commit }, route) => commit('setLastLoadedRoute', route),
   // for step geolocation
   setDrawDirectionInterval: ({ commit }, intervalObject) => commit('setDrawDirectionInterval', intervalObject),
   // for quest creation/edition

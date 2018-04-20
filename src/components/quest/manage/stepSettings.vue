@@ -106,12 +106,18 @@
     </div>
     
     <div v-if="stepType.code == 'code-keypad'">
-      <!-- TODO validation: numbers only -->
-      <q-input
-        v-model="form.answers"
-        :float-label="$t('message.Code')"
-        max-length="4"
-      />
+      <q-field 
+        :error="$v.form.answers.$error"
+        :error-label="$t('message.CodeKeypadFormatError')">
+        <q-input
+          v-model="form.answers"
+          :float-label="$t('message.Code')"
+          min-length="2"
+          max-length="6"
+          @blur="$v.form.answers.$touch"
+          @input="$v.form.answers.$touch"
+        />
+      </q-field>
     </div>
     
     <div v-if="stepType.code == 'code-color'" class="code-color">
@@ -452,6 +458,13 @@ export default {
   methods: {
     
     async submit() {
+      this.$v.form.$touch()
+      
+      if (this.$v.form.$error) {
+        Toast.create.negative(this.$t('message.StepSettingsFormError'))
+        return
+      }
+      
       if (this.stepType.code === 'choose') {
         this.form.answers = this.form.answers.map((answer) => { answer.isRightAnswer = false; return answer })
         this.form.answers[this.rightAnswerIndex].isRightAnswer = true
@@ -649,16 +662,31 @@ export default {
         maxNbCarriageReturns = this.stepType.textRules.maxNbCarriageReturns
       }
       
+      if (value === null) {
+        value = ''
+      }
+      
       // (value.match(/\n/g) || []).length counts number of carriage returns in value.
       // see https://stackoverflow.com/q/881085/488666
       return value.length <= maxNbChars && (value.match(/\n/g) || []).length <= maxNbCarriageReturns
     }
   },
-  validations: {
-    form: {
+  validations() {
+    let fieldsToValidate = {
       title: { required },
       text: { function(value) { return this.checkMainTextLength(value) } }
     }
+    
+    if (this.stepType.code === 'code-keypad') {
+      fieldsToValidate.answers = { required, 
+        function(value) {
+          let regexp = new RegExp("^([0-9*#]{2,6})$", "g")
+          return regexp.test(value)
+        }
+      }
+    }
+    
+    return { form: fieldsToValidate }
   }
 }
 </script>
