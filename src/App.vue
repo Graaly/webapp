@@ -118,10 +118,10 @@ export default {
       // there are better although more complex ways to avoid hardcoding header height here
       let computedHeight = (window.innerHeight - 50) + "px";
       let mainview = document.getElementById('main-view')
-      if (typeof mainview !== 'undefined') { 
-        document.getElementById('main-view').style.height = computedHeight;
-        document.getElementById('main-view').style.minHeight = computedHeight;
-        document.getElementById('main-view').style.maxHeight = computedHeight;
+      if (typeof mainview !== 'undefined' && mainview !== null) {
+        mainview.style.height = computedHeight;
+        mainview.style.minHeight = computedHeight;
+        mainview.style.maxHeight = computedHeight;
       }
     }
   }
