@@ -14,9 +14,15 @@
 
     <!-- Add to home screen for Safari on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="white">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Graaly">
-    <link rel="apple-touch-icon" href="<%= htmlWebpackPlugin.files.publicPath %>statics/icons/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" href="<%= htmlWebpackPlugin.files.publicPath %>statics/icons/app-logo/touch-icon-iphone.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="<%= htmlWebpackPlugin.files.publicPath %>statics/icons/app-logo/touch-icon-ipad.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="<%= htmlWebpackPlugin.files.publicPath %>statics/icons/app-logo/touch-icon-iphone-retina.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="<%= htmlWebpackPlugin.files.publicPath %>statics/icons/app-logo/touch-icon-ipad-retina.png">
+    <link rel="apple-touch-startup-image" href="<%= htmlWebpackPlugin.files.publicPath %>statics/images/apple-launch.png">
+    <link rel="stylesheet" type="text/css" href="<%= htmlWebpackPlugin.files.publicPath %>statics/css/addtohomescreen.css">
+    <script src="<%= htmlWebpackPlugin.files.publicPath %>statics/scripts/addtohomescreen.js"></script>
     <!-- Add to home screen for Windows -->
     <meta name="msapplication-TileImage" content="<%= htmlWebpackPlugin.files.publicPath %>statics/icons/ms-icon-144x144.png">
     <meta name="msapplication-TileColor" content="#ffffff">
@@ -33,10 +39,12 @@
       This is your fallback content in case JavaScript fails to load.
     </noscript>
     <script>
-    // force https redirection
-    if ((window.location.hostname === 'graaly.com' || window.location.hostname === 'www.graaly.com') && window.location.protocol !== 'https:') {
-      window.location.href = 'https://graaly.com'
-    }
+      // force https redirection
+      if ((window.location.hostname === 'graaly.com' || window.location.hostname === 'www.graaly.com') && window.location.protocol !== 'https:') {
+        window.location.href = 'https://graaly.com'
+      }
+      // add to home screen for safari
+      addToHomescreen();
     </script>
     <div id="q-app"></div>
     <!-- Todo: only include in production -->
