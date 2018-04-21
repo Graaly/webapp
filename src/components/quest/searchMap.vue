@@ -154,6 +154,9 @@ export default {
     
     this.getAccountInformations()
     
+    // display add to home screen for apple device
+    addToHomescreen();
+    
     if (this.$data.geolocationIsSupported) {
       // getCurrentPosition() is not always reliable (timeouts/fails frequently)
       // see https://stackoverflow.com/q/3397585/488666
