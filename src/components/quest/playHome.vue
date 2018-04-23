@@ -4,7 +4,7 @@
     <div class="fit" v-if="geolocationIsSupported">
       <div class="fit" :style="'background: url(' + serverUrl + '/upload/quest/' + quest.picture + ' ) center center / cover no-repeat '">
         <div style="height: 85%">
-          <div class="text-center" style="min-height: 50%;padding: 40px 30px;">
+          <div class="text-center top-area">
             <div class="title-area">
               <h1 class="text-primary">{{ quest.title }}</h1>
               <p>
@@ -16,8 +16,12 @@
                 </span>
               </p>
               <div class="warning" v-if="this.isRunFinished">
-                <strong>{{ $t('message.YouAlreadyDidThisQuest') }}.</strong><br />
-                {{ $t('message.YouCanResolveItAgain') }}.
+                <strong>{{ $t('message.YouAlreadyDidThisQuest') }}</strong><br />
+                {{ $t('message.YouCanResolveItAgain') }}
+              </div>
+              <div class="warning" v-if="this.isUserTooFar">
+                <strong>{{ $t('message.QuestIsFarFromUser') }}</strong><br />
+                {{ $t('message.QuestIsFarFromUserDesc') }}
               </div>
               <p>
                 <span>{{ $t('message.nbPointsToWin', { nb: quest.availablePoints }) }}</span>
@@ -71,7 +75,8 @@ export default {
       quest: {},
       serverUrl: process.env.SERVER_URL,
       isRunFinished: false,
-      geolocationIsSupported: navigator.geolocation
+      geolocationIsSupported: navigator.geolocation,
+      isUserTooFar: false
     }
   },
   async mounted() {
@@ -85,7 +90,12 @@ export default {
     //check if location tracking is turned on
     if (this.$data.geolocationIsSupported) {
       navigator.geolocation.getCurrentPosition((position) => {
-
+        //compare quest starting point with user localisation (1km distance)
+        if (this.quest.location && this.quest.location.coordinates && this.quest.location.coordinates.length > 1 && position.coords && position.coords.latitude) {
+          if ((Math.abs(position.coords.latitude - this.quest.location.coordinates[0]) > 0.009) || (Math.abs(position.coords.longitude - this.quest.location.coordinates[1]) > 0.013)) {
+            this.isUserTooFar = true
+          }
+        }
       }, () => {
         console.error('geolocation failed')
         this.geolocationIsSupported = false
@@ -154,5 +164,6 @@ export default {
 
 <style scoped>
   .warning { padding: 1rem; font-size: 1.1rem; text-align: justify; background: #ec4; border-bottom: 1px solid #990; margin-bottom: 0.6rem; }
-  .title-area { opacity: .7;background-color: #fff;border-radius: .5rem;padding: 20px;margin: 0;box-shadow: 0 0 0.1rem 0.1rem #fff; height: 100%; }
+  .title-area { opacity: .8;background-color: #fff;border-radius: .5rem;padding: 20px;margin: 0;box-shadow: 0 0 0.1rem 0.1rem #fff; height: 100%; }
+  .top-area { min-height: 50%;padding: 40px 30px; }
 </style>

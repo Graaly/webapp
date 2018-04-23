@@ -308,7 +308,9 @@ module.exports = {
       NoLocalizedQuests: "Not localized quests",
       KeepEnigmaQuestionsShort: "Please keep your text short, and use as few lines as possible, otherwise it will overlay on other interface elements. If you need more space for text, please add a step 'Image & Text' before this one.",
       CodeKeypadFormatError: "In this required field, please type between 2 to 6 characters (only digits and characters '*', '#').",
-      StepSettingsFormError: "Please review form and try to submit again."
+      StepSettingsFormError: "Please review form and try to submit again.",
+      QuestIsFarFromUser: "You are far from this quest",
+      QuestIsFarFromUserDesc: "By solving this quest afar, you will miss many clues and so many points"
     }
   },
   fr: {
@@ -620,7 +622,9 @@ module.exports = {
       NoLocalizedQuests: "Enquêtes non localisées",
       KeepEnigmaQuestionsShort: "Le texte doit être court, et utiliser le moins de lignes possible, sinon il dépassera sur les autres éléments d'interface. Si vous avez besoin de plus d'espace pour afficher du texte, ajoutez une étape 'Image & Texte' avant celle-ci.",
       CodeKeypadFormatError: "Pour ce champ (requis), saisissez de 2 à 6 caractères (seulement des chiffres, ou '*', ou '#').",
-      StepSettingsFormError: "Vérifiez SVP le formulaire et essayez à nouveau."
+      StepSettingsFormError: "Vérifiez SVP le formulaire et essayez à nouveau.",
+      QuestIsFarFromUser: "Vous n'êtes pas sur le lieu de l'enquête",
+      QuestIsFarFromUserDesc: "En résolvant cette enquête à distance, vous allez manquer plein d'indices et donc de points"
     }
   }
 }
