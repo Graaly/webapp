@@ -13,7 +13,7 @@
         @center_changed="updateCenter($event)"
         @dragend="dragEnd($event)"
       >
-        <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="questMarker"
+        <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="quest.status === 'played' ? questMarkerPlayed : questMarker"
           @click="onQuestClick(quest, index)" />
         
         <gmap-info-window :options="infoWindow.options" :position="infoWindow.location" :opened="infoWindow.isOpen" @closeclick="infoWindow.isOpen=false">
@@ -101,11 +101,18 @@ export default {
       searchText: '',
       questList: [],
       questMarker: {
-        url: 'statics/icons/game/investigation.png',
-        size: {width: 29, height: 34, f: 'px', b: 'px'},
-        scaledSize: {width: 29, height: 34, f: 'px', b: 'px'},
+        url: 'statics/icons/game/pointer-active.png',
+        size: {width: 40, height: 40, f: 'px', b: 'px'},
+        scaledSize: {width: 30, height: 30, f: 'px', b: 'px'},
         origin: {x: 0, y: 0},
-        anchor: {x: 15, y: 15}
+        anchor: {x: 0, y: 15}
+      },
+      questMarkerPlayed: {
+        url: 'statics/icons/game/pointer-inactive.png',
+        size: {width: 40, height: 40, f: 'px', b: 'px'},
+        scaledSize: {width: 30, height: 30, f: 'px', b: 'px'},
+        origin: {x: 0, y: 0},
+        anchor: {x: 0, y: 15}
       },
       team: {
         profile: {
