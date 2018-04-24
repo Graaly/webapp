@@ -310,7 +310,9 @@ module.exports = {
       CodeKeypadFormatError: "In this required field, please type between 2 to 6 characters (only digits and characters '*', '#').",
       StepSettingsFormError: "Please review form and try to submit again.",
       QuestIsFarFromUser: "You are far from this quest",
-      QuestIsFarFromUserDesc: "By solving this quest afar, you will miss many clues and so many points"
+      QuestIsFarFromUserDesc: "By solving this quest afar, you will miss many clues and so many points",
+      PleaseUploadAFile: "Please upload a file.",
+      RequiredField: "This field is required."
     }
   },
   fr: {
@@ -624,7 +626,9 @@ module.exports = {
       CodeKeypadFormatError: "Pour ce champ (requis), saisissez de 2 à 6 caractères (seulement des chiffres, ou '*', ou '#').",
       StepSettingsFormError: "Vérifiez SVP le formulaire et essayez à nouveau.",
       QuestIsFarFromUser: "Vous n'êtes pas sur le lieu de l'enquête",
-      QuestIsFarFromUserDesc: "En résolvant cette enquête à distance, vous allez manquer plein d'indices et donc de points"
+      QuestIsFarFromUserDesc: "En résolvant cette enquête à distance, vous allez manquer plein d'indices et donc de points",
+      PleaseUploadAFile: "Veuillez télécharger un fichier.",
+      RequiredField: "Ce champ est requis."
     }
   }
 }
