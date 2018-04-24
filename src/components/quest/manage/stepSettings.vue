@@ -32,7 +32,8 @@
         <label for="picturefile">{{ $t('message.UploadABackgroundImage') }}</label>
         <input @change="uploadBackgroundImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       </q-btn>
-      <p v-if="form.backgroundImage === null">{{ $t('message.WarningImageResize') }}</p>
+      <p v-show="$v.form.backgroundImage && $v.form.backgroundImage.$error" class="error-label">{{ $t('message.PleaseUploadAFile') }}</p>
+      <p v-if="!form.backgroundImage">{{ $t('message.WarningImageResize') }}</p>
       <div v-if="form.backgroundImage !== null && form.backgroundImage !== ''">
         <p>{{ $t('message.YourPicture') }} :</p>
         <img :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage" /> <br />
@@ -47,6 +48,7 @@
       </q-btn>
       <div>
         <!-- TODO show video file infos (size on disk, width x height, etc.) -->
+        <p v-show="$v.form.videoStream.$error" class="error-label">{{ $t('message.PleaseUploadAFile') }}</p>
         <p v-show="form.videoStream === null">{{ $t('message.NoVideoUploaded') }}</p>
         <video v-if="form.videoStream !== null" class="full-width" controls controlsList="nodownload">
           <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + form.videoStream" type="video/mp4" />
@@ -62,10 +64,12 @@
         <div>
           <label for="answer-latitude">Latitude</label>
           <input type="number" id="answer-latitude" v-model.number="form.answerCoordinates.lat" placeholder="par ex. 5,65487" step="any" />
+          <p class="error-label" v-show="$v.form.answerCoordinates.lat.$error">{{ $t('message.RequiredField') }}</p>
         </div>
         <div>
           <label for="answer-longitude">Longitude</label>
           <input type="number" id="answer-longitude" v-model.number="form.answerCoordinates.lng" placeholder="par ex. 45,49812" step="any" />
+          <p class="error-label" v-show="$v.form.answerCoordinates.lng.$error">{{ $t('message.RequiredField') }}</p>
         </div>
       </div>
       <q-checkbox v-model="form.showDistanceToTarget" :label="$t('message.DisplayDistanceBetweenUserAndLocation')" />
@@ -99,10 +103,14 @@
     </div>
     
     <div v-if="stepType.code == 'write-text'">
-      <q-input
-        v-model="form.answers"
-        :float-label="$t('message.ExpectedAnswer')"
-      />
+      <q-field 
+        :error="$v.form.answers.$error"
+        :error-label="$t('message.RequiredField')">
+        <q-input
+          v-model="form.answers"
+          :float-label="$t('message.ExpectedAnswer')"
+        />
+      </q-field>
     </div>
     
     <div v-if="stepType.code == 'code-keypad'">
@@ -143,7 +151,8 @@
         <label for="image-to-recognize">{{ $t('message.UploadThePictureOfTheObjectToFind') }}</label>
         <input @change="uploadImageToRecognize" name="image-to-recognize" id="image-to-recognize" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       </q-btn>
-      <div v-if="form.answers !== null">
+      <p v-show="$v.form.answers.$error" class="error-label">{{ $t('message.PleaseUploadAFile') }}</p>
+      <div v-if="form.answers">
         <p>{{ $t('message.UploadedPicture') }} :</p>
         <img :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + form.answers" />
       </div>
@@ -151,24 +160,27 @@
     
     <!-- jigsaw puzzle steps -->
     
-    <div class="background-upload" v-if="stepType.code == 'jigsaw-puzzle'">
-      <q-btn class="full-width" type="button">
-        <label for="puzzlefile">{{ $t('message.UploadThePuzzlePicture') }}</label>
-        <input @change="uploadPuzzleImage" name="puzzlefile" id="puzzlefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
-      </q-btn>
-      <p>{{ $t('message.WarningImageSizeSquare') }}</p>
-      <div v-if="form.answers !== null && form.answers.picture && form.answers.picture !== null">
-        <p>{{ $t('message.YourPuzzlePicture') }} :</p>
-        <img :src="serverUrl + '/upload/quest/' + questId + '/step/jigsaw-puzzle/' + form.answers.picture" />
+    <div v-if="stepType.code == 'jigsaw-puzzle'">
+      <div class="background-upload">
+        <q-btn class="full-width" type="button">
+          <label for="puzzlefile">{{ $t('message.UploadThePuzzlePicture') }}</label>
+          <input @change="uploadPuzzleImage" name="puzzlefile" id="puzzlefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+        </q-btn>
+        <p v-show="$v.form.answers.picture && $v.form.answers.picture.$error" class="error-label">{{ $t('message.PleaseUploadAFile') }}</p>
+        <p v-if="!form.answers.picture">{{ $t('message.WarningImageSizeSquare') }}</p>
+        <div v-if="form.answers.picture">
+          <p>{{ $t('message.YourPuzzlePicture') }} :</p>
+          <img :src="serverUrl + '/upload/quest/' + questId + '/step/jigsaw-puzzle/' + form.answers.picture" />
+        </div>
       </div>
-    </div>
-    <div v-if="stepType.code == 'jigsaw-puzzle' && form.answers !== null">
-      <q-select :float-label="$t('message.Difficulty')" :options="jigsawLevels" v-model="form.answers.level" />
+      <div>
+        <q-select :float-label="$t('message.Difficulty')" :options="jigsawLevels" v-model="form.answers.level" />
+      </div>
     </div>
     
     <!-- inventory steps -->
     
-    <div class="find-item" v-if="stepType.code == 'use-item'">
+    <div class="find-item" v-if="stepType.code == 'use-item' && form.backgroundImage">
       <p>{{ $t('message.ClickOnTheLocationTheItemMustBeUsed') }} :</p>
       <div @click="getClickCoordinates($event)" id="findItemPicture" :style="'overflow: hidden;width: 400px; height: 533px; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage + ');background-size: 100% 100%;'">
         <img id="cross" :style="'position: relative; z-index: 10000;top: ' + ((form.answerPointerCoordinates.top * 5.33) - 30) + 'px; left: ' + ((form.answerPointerCoordinates.left * 4) - 23) + 'px;'" src="/statics/icons/game/find-item-locator.png" />
@@ -180,6 +192,7 @@
         <label for="itemfile">{{ $t('message.UploadTheItemPicture') }}</label>
         <input @change="uploadItemImage" name="itemfile" id="itemfile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       </q-btn>
+      <p v-show="$v.form.answers.picture.$error" class="error-label">{{ $t('message.PleaseUploadAFile') }}</p>
       <p>{{ $t('message.WarningImageSizeSquare') }}</p>
       <div v-if="form.answers !== null && form.answers.picture && form.answers.picture !== null">
         <p>{{ $t('message.YourItemPicture') }} :</p>
@@ -191,12 +204,21 @@
         {{ $t('message.SelectedObject') }} :
         <q-icon :name="getItemIcon(form.answerItem)" />
       </div>-->
-      <q-input v-model="form.answers.title" :float-label="$t('message.ObjectName')" />
+      <q-field
+        :error="$v.form.answers.title.$error"
+        :error-label="$t('message.RequiredField')"
+      >
+        <q-input v-model="form.answers.title" :float-label="$t('message.ObjectName')" />
+      </q-field>
     </div>
     
     <div class="inventory" v-if="stepType.code == 'use-item'">
-      <q-select :float-label="$t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
-      <div v-show="form.answerItem !== null">
+      <q-field
+        :error="$v.form.answerItem && $v.form.answerItem.$error"
+        :error-label="$t('message.RequiredField')">
+        <q-select :float-label="$t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" @change="$v.form.answerItem.$touch" />
+      </q-field>
+      <div v-if="form.answerItem !== null">
         {{ $t('message.SelectedObject') }} :
         <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + form.answerItem" />
       </div>
@@ -204,7 +226,7 @@
     
     <!-- find-item steps -->
 
-    <div class="find-item" v-if="stepType.code == 'find-item'">
+    <div class="find-item" v-if="stepType.code == 'find-item' && form.backgroundImage">
       <p>{{ $t('message.ClickOnTheItemThatIsToFind') }} :</p>
       <div @click="getClickCoordinates($event)" id="findItemPicture" :style="'overflow: hidden;width: 400px; height: 533px; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage + ');background-size: 100% 100%;'">
         <img id="cross" :style="'position: relative; z-index: 10000;top: ' + ((form.answerPointerCoordinates.top * 5.33) - 30) + 'px; left: ' + ((form.answerPointerCoordinates.left * 4) - 23) + 'px;'" src="/statics/icons/game/find-item-locator.png" />
@@ -301,7 +323,7 @@ export default {
       form: {
         title: '',
         text: null,
-        answers: null,
+        answers: {}, // using null triggers lots of "undefined property" errors complex to handle, due to nested objects + using them like v-model="form.answers.level" + template rendering executed before "mounted()"
         backgroundImage: null,
         // info-video step specific
         videoStream: null,
@@ -433,12 +455,24 @@ export default {
       if (!Array.isArray(this.form.answers)) {
         this.form.answers = Array(4).fill('red')
       }
+    } else if (this.stepType.code === 'code-keypad') {
+      if (typeof this.form.answers !== 'string') {
+        this.form.answers = ""
+      }
+    } else if (this.stepType.code === 'write-text') {
+      if (typeof this.form.answers !== 'string') {
+        this.form.answers = ""
+      }
+    } else if (this.stepType.code === 'image-recognition') {
+      if (typeof this.form.answers !== 'string') {
+        this.form.answers = ""
+      }
     } else if (this.stepType.code === 'find-item') {
-      if (this.form.answers) {
+      if (this.form.answers.hasOwnProperty('top')) {
         this.form.answerPointerCoordinates = this.form.answers
       }
     } else if (this.stepType.code === 'use-item') {
-      if (this.form.answers && this.form.answers.coordinates) {
+      if (this.form.answers.hasOwnProperty('coordinates')) {
         this.form.answerPointerCoordinates = this.form.answers.coordinates
       }
       if (this.form.answers && this.form.answers.item) {
@@ -446,12 +480,12 @@ export default {
       }
       this.getQuestItemsAsOptions()
     } else if (this.stepType.code === 'new-item') {
-      if (!this.form.answers) {
-        this.form.answers = { title: "", picture: null }
+      if (!this.form.answers.hasOwnProperty('picture')) {
+        this.form.answers = { picture: null, title: "" }
       }
     } else if (this.stepType.code === 'jigsaw-puzzle') {
-      if (!this.form.answers) {
-        this.form.answers = {level: 2}
+      if (!this.form.answers.hasOwnProperty('picture')) {
+        this.form.answers = { picture: null, level: 2 }
       }
     }
   },
@@ -677,13 +711,41 @@ export default {
       text: { function(value) { return this.checkMainTextLength(value) } }
     }
     
-    if (this.stepType.code === 'code-keypad') {
-      fieldsToValidate.answers = { required, 
-        function(value) {
-          let regexp = new RegExp("^([0-9*#]{2,6})$", "g")
-          return regexp.test(value)
+    // alphabetical order
+    switch (this.stepType.code) {
+      case 'code-keypad':
+        fieldsToValidate.answers = { required, 
+          function(value) {
+            let regexp = new RegExp("^([0-9*#]{2,6})$", "g")
+            return regexp.test(value)
+          }
         }
-      }
+        break
+      case 'find-item':
+        fieldsToValidate.backgroundImage = { required }
+        break
+      case 'geolocation':
+        fieldsToValidate.answerCoordinates = { lat: { required }, lng: { required } }
+        break
+      case 'info-video':
+        fieldsToValidate.videoStream = { required }
+        break
+      case 'image-recognition':
+        fieldsToValidate.answers = { required }
+        break
+      case 'jigsaw-puzzle':
+        fieldsToValidate.answers = { picture: { required } }
+        break
+      case 'new-item':
+        fieldsToValidate.answers = { picture: { required }, title: { required } }
+        break
+      case 'use-item':
+        fieldsToValidate.backgroundImage = { required }
+        fieldsToValidate.answerItem = { required }
+        break
+      case 'write-text':
+        fieldsToValidate.answers = { picture: { required } }
+        break
     }
     
     return { form: fieldsToValidate }
@@ -718,5 +780,7 @@ p { margin-bottom: 0.5rem; }
 
 .inventory div { margin: 0.5rem auto; }
 .inventory .q-icon { width: 3rem; height: 3rem; font-size: 3rem; }
+
+.error-label { color: #db2828; }
 
 </style>
