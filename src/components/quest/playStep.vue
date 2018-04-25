@@ -189,7 +189,7 @@
           <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
         </div>
         <div class="actions fixed-bottom" v-show="playerResult !== true">
-          <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Pass') }}</q-btn>
+          <q-btn color="primary" class="full-width" @click="passStep()">{{ $t('message.Pass') }}</q-btn>
           <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
         </div>
       </div>
