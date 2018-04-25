@@ -134,6 +134,8 @@ export default {
       this.form = res.data
       
       this.form.startingPlace = this.form.location.address || ""
+      this.form.zipcode = (this.form.location && this.form.location.zipcode) ? this.form.location.zipcode : ""
+      this.form.town = (this.form.location && this.form.location.town) ? this.form.location.town : ""
       
       // adapt data from DB to match form data structure
       if (this.form.location.hasOwnProperty('coordinates') && this.form.location.coordinates.length === 2) {

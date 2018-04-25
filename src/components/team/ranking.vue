@@ -29,18 +29,18 @@
         <q-item v-for="ranking in rankings" :key="ranking._id.zipcode">
           <q-item-main>
             <q-item-tile label v-if="ranking._id.town">{{ ranking._id.town }} ({{ ranking._id.zipcode }})</q-item-tile>
-            <q-item-tile label v-if="ranking._id.town">{{ $t('message.NoLocalizedQuests') }}</q-item-tile>
+            <q-item-tile label v-if="!ranking._id.town">{{ $t('message.NoLocalizedQuests') }}</q-item-tile>
             <q-item-tile sublabel>{{ $t('message.nbQuestWonThisMonth', { nb: ranking.count }) }} </q-item-tile>
           </q-item-main>
           <q-item-side right class="score">
             {{ ranking.score }}
           </q-item-side>
         </q-item>
-        <q-item v-show='rankings.length == 0'>
-        <q-item-main>
-          <q-item-tile label>{{ $t('message.NoQuestPlayedThisMonth') }}</q-item-tile>
-        </q-item-main>
-      </q-item>
+        <q-item v-show='rankings.length === 0'>
+          <q-item-main>
+            <q-item-tile label>{{ $t('message.NoQuestPlayedThisMonth') }}</q-item-tile>
+          </q-item-main>
+        </q-item>
       </q-list>
     </div>
     
