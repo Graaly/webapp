@@ -36,7 +36,7 @@
           <p>
             {{ $t('message.OnceGeolocationEnabled') }}
             <!-- see https://github.com/vuejs/vue-router/issues/296 -->
-            <router-link :to="$route.path + '?_=' + (new Date).getTime()">{{ $t('message.ClickHere') }}</router-link>.
+            <router-link :to="$route.path + '?_=' + (new Date).getTime()">{{ $t('message.PressHere') }}</router-link>.
           </p>
         </div>
       </div>

@@ -79,15 +79,19 @@
     <div v-if="stepType.code == 'choose'">
       
       <h2>{{ $t('message.ResponseTypes') }}</h2>
-      <q-radio v-model="answerType" val="text" :label="$t('message.Texts')" />
-      <q-radio v-model="answerType" val="image" :label="$t('message.Pictures')" />
+      <q-radio v-model="answerType" val="text" :label="$t('message.Texts')" @click="$v.form.answers.$touch" />
+      <q-radio v-model="answerType" val="image" :label="$t('message.Pictures')" @click="$v.form.answers.$touch" />
         
       <h2>{{ $t('message.PossibleAnswers') }}</h2>
       <p>{{ $t('message.SelectTheGoodAnswer') }}</p>
+        
       <div class="answer" v-for="(answer, key) in form.answers" :key="key">
         <q-radio v-model="rightAnswerIndex" :val="key" />
-        <q-input v-show="answerType === 'text'" v-model="answer.text" />
-        <p v-show="answerType === 'image' && answer.imagePath === null">{{ $t('message.NoPictureUploaded') }}</p>
+        
+        <q-input v-show="answerType === 'text'" v-model="answer.text" @input="$v.form.answers ? $v.form.answers.$each[key].text.$touch : null" />
+        <p class="error-label" v-if="answerType === 'text' && $v.form.answers && !$v.form.answers.$each[key].text.required">{{ $t('message.RequiredField') }}</p>
+        
+        <p v-show="answerType === 'image' && answer.imagePath === null" :class="{'error-label': $v.form.answers && !$v.form.answers.$each[key].imagePath.required}">{{ $t('message.NoPictureUploaded') }}</p>
         <p><img v-if="answerType === 'image' && answer.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + answer.imagePath" /></p>
         <q-btn v-show="answerType === 'image'">
           <label :for="'answerImage' + key"><q-icon name="file upload" /></label>
@@ -536,7 +540,11 @@ export default {
       if (this.form.answers.length >= this.maxNbAnswers) {
         Toast.create.negative(this.$t('message.YouCantAddMoreThanNbAnswers', { nb: this.maxNbAnswers }))
       } else {
-        this.form.answers.push({ text: this.$t('message.AnswerNb', { nb: (this.form.answers.length + 1) }), isRightAnswer: false });
+        this.form.answers.push({
+          isRightAnswer: false,
+          text: this.$t('message.AnswerNb', { nb: (this.form.answers.length + 1) }), // text default data
+          imagePath: null // image default data
+        })
       }
     },
     deleteAnswer: function (key) {
@@ -713,6 +721,11 @@ export default {
     
     // alphabetical order
     switch (this.stepType.code) {
+      case 'choose':
+        fieldsToValidate.answers = {
+          $each: this.answerType === 'text' ? { text: { required }, imagePath: {} } : { text: {}, imagePath: { required } }
+        }
+        break
       case 'code-keypad':
         fieldsToValidate.answers = { required, 
           function(value) {
@@ -766,6 +779,7 @@ p { margin-bottom: 0.5rem; }
 .answer { display: flex; flex-flow: row nowrap; align-items: center; }
 .answer .q-input { flex-grow: 1 }
 .answer p { flex-grow: 1; margin: auto; }
+.answer img { width: 50vw; }
 .answer .q-radio { padding: 0.5rem; }
 .answer .q-btn { padding: 0.3rem; margin: 0.2rem; }
 .add-answer { margin: 0.5rem auto; }
@@ -782,5 +796,6 @@ p { margin-bottom: 0.5rem; }
 .inventory .q-icon { width: 3rem; height: 3rem; font-size: 3rem; }
 
 .error-label { color: #db2828; }
+.answer .error-label { font-size: 0.8rem; white-space: nowrap; }
 
 </style>
