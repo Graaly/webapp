@@ -12,7 +12,7 @@
               </p>
               <p>
                 <span v-if="quest.rating">
-                  <q-rating readonly :value="quest.rating.rounded" color="primary" :max="5" size="1.7rem" />
+                  <q-rating readonly :value="quest.rating && quest.rating.rounded" color="primary" :max="5" size="1.7rem" />
                 </span>
               </p>
               <div class="warning" v-if="this.isRunFinished">

@@ -250,7 +250,8 @@ module.exports = {
       ExpectedColorCodeAnswer: "Expected color code:",
       ResponseTypes: "Response types",
       PossibleAnswers: "Available answers",
-      NothingHappens: "Nothing happens, please try another location or use another object.",
+      FindItemNothingHappens: "Nothing happens, please try another location.",
+      UseItemNothingHappens: "Nothing happens, please try another location or use another object.",
       Inventory: "Inventory",
       InventoryUsage: "Touch an object to select it, then touch the image to use it.",
       CreateYourQuest: "Create your quest",
@@ -272,7 +273,7 @@ module.exports = {
       minutes: "minute(s)",
       QuestParameters: "Describe your quest",
       Duration: "Duration",
-      BackToPreviousStep: "Back to previous quest",
+      BackToPreviousStep: "Back to previous step",
       Remove: "Remove",
       remove: "remove",
       SelectedObject: "Selected item",
@@ -315,8 +316,8 @@ module.exports = {
       PleaseUploadAFile: "Please upload a file.",
       RequiredField: "This field is required.",
       DetailOfYourRankingThisMonth: "Detail by city",
-      RankingThisMonth: "Ranking of the month"
-      
+      RankingThisMonth: "Ranking of the month",
+      PleaseSelectAnItemFirst: "Please select an item in your inventory (button in the bottom left), then press the image to use it."
     }
   },
   fr: {
@@ -570,7 +571,8 @@ module.exports = {
       ExpectedColorCodeAnswer: "Combinaison de couleurs attendue :",
       ResponseTypes: "Types de réponse",
       PossibleAnswers: "Réponses possibles",
-      NothingHappens: "Rien ne se produit. Essayez un autre endroit, ou utilisez un autre objet.",
+      FindItemNothingHappens: "Rien ne se produit. Essayez un autre endroit.",
+      UseItemNothingHappens: "Rien ne se produit. Essayez un autre endroit, ou utilisez un autre objet.",
       Inventory: "Inventaire",
       InventoryUsage: "Touchez un objet pour le sélectionner, puis touchez l'image pour l'utiliser.",
       CreateYourQuest: "Créer votre enquête",
@@ -635,7 +637,8 @@ module.exports = {
       PleaseUploadAFile: "Veuillez télécharger un fichier.",
       RequiredField: "Ce champ est requis.",
       DetailOfYourRankingThisMonth: "Détail par ville",
-      RankingThisMonth: "Classement du mois"
+      RankingThisMonth: "Classement du mois",
+      PleaseSelectAnItemFirst: "Sélectionnez un item dans votre inventaire d'abord (bouton en bas à gauche), puis cliquez sur l'image pour l'utiliser."
     }
   }
 }

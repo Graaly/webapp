@@ -34,7 +34,7 @@
       </q-btn>
       <p v-show="$v.form.backgroundImage && $v.form.backgroundImage.$error" class="error-label">{{ $t('message.PleaseUploadAFile') }}</p>
       <p v-if="!form.backgroundImage">{{ $t('message.WarningImageResize') }}</p>
-      <div v-if="form.backgroundImage !== null && form.backgroundImage !== ''">
+      <div v-if="form.backgroundImage !== null && form.backgroundImage !== '' && this.stepType.code !== 'find-item' && this.stepType.code !== 'use-item'">
         <p>{{ $t('message.YourPicture') }} :</p>
         <img :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage" /> <br />
         <a @click="form.backgroundImage = null">{{ $t('message.remove') }}</a>
@@ -186,8 +186,8 @@
     
     <div class="find-item" v-if="stepType.code == 'use-item' && form.backgroundImage">
       <p>{{ $t('message.ClickOnTheLocationTheItemMustBeUsed') }} :</p>
-      <div @click="getClickCoordinates($event)" id="findItemPicture" :style="'overflow: hidden;width: 400px; height: 533px; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage + ');background-size: 100% 100%;'">
-        <img id="cross" :style="'position: relative; z-index: 10000;top: ' + ((form.answerPointerCoordinates.top * 5.33) - 30) + 'px; left: ' + ((form.answerPointerCoordinates.left * 4) - 23) + 'px;'" src="/statics/icons/game/find-item-locator.png" />
+      <div @click="getClickCoordinates($event)" id="useItemPicture" ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
+        <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="/statics/icons/game/find-item-locator.png" />
       </div>
     </div>
     
@@ -232,8 +232,8 @@
 
     <div class="find-item" v-if="stepType.code == 'find-item' && form.backgroundImage">
       <p>{{ $t('message.ClickOnTheItemThatIsToFind') }} :</p>
-      <div @click="getClickCoordinates($event)" id="findItemPicture" :style="'overflow: hidden;width: 400px; height: 533px; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage + ');background-size: 100% 100%;'">
-        <img id="cross" :style="'position: relative; z-index: 10000;top: ' + ((form.answerPointerCoordinates.top * 5.33) - 30) + 'px; left: ' + ((form.answerPointerCoordinates.left * 4) - 23) + 'px;'" src="/statics/icons/game/find-item-locator.png" />
+      <div @click="getClickCoordinates($event)" id="findItemPicture" ref="findItemPicture" :style="'overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
+        <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="/statics/icons/game/find-item-locator.png" />
       </div>
     </div>
     
@@ -474,10 +474,18 @@ export default {
     } else if (this.stepType.code === 'find-item') {
       if (this.form.answers.hasOwnProperty('top')) {
         this.form.answerPointerCoordinates = this.form.answers
+        this.$nextTick(function () {
+          // Code that will run only after the entire view has been rendered
+          this.positionFindItemPointer()
+        })
       }
     } else if (this.stepType.code === 'use-item') {
       if (this.form.answers.hasOwnProperty('coordinates')) {
         this.form.answerPointerCoordinates = this.form.answers.coordinates
+        this.$nextTick(function () {
+          // Code that will run only after the entire view has been rendered
+          this.positionFindItemPointer()
+        })
       }
       if (this.form.answers && this.form.answers.item) {
         this.form.answerItem = this.form.answers.item
@@ -674,26 +682,28 @@ export default {
       return typeof item !== 'undefined' ? item.icon : 'clear'
     },
     getClickCoordinates(ev) {
-      let posX = Math.min(377, Math.max(23, parseInt(ev.offsetX, 10)))
-      let posY = Math.min(503, Math.max(30, parseInt(ev.offsetY, 10)))
-      this.form.answerPointerCoordinates.left = Math.floor(posX / 4)
-      this.form.answerPointerCoordinates.top = Math.floor(posY / 5.33)
+      // see https://stackoverflow.com/a/42111623/488666
+      let rect = ev.currentTarget.getBoundingClientRect()
+      let posX = ev.clientX - rect.left
+      let posY = ev.clientY - rect.top
+      
+      let picture = this.stepType.code === 'use-item' ? this.$refs['useItemPicture'] : this.$refs['findItemPicture']
+      console.log(picture.clientWidth, picture.clientHeight)
+      
+      // relative position between 0 to 100
+      this.form.answerPointerCoordinates.left = Math.round(posX / picture.clientWidth * 100)
+      this.form.answerPointerCoordinates.top = Math.round(posY / picture.clientHeight * 100)
       this.positionFindItemPointer()
     },
     positionFindItemPointer() {
-      document.getElementById("cross").style.left = ((this.form.answerPointerCoordinates.left * 4) - 23) + "px"
-      document.getElementById("cross").style.top = ((this.form.answerPointerCoordinates.top * 5.33) - 30) + "px"
+      let vw = window.innerWidth / 100 // in px
+      
+      // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
+      let solutionAreaRadius = Math.round(8 * vw)
+      
+      document.getElementById("cross").style.left = Math.round(this.form.answerPointerCoordinates.left * 90 * vw / 100 - solutionAreaRadius) + "px"
+      document.getElementById("cross").style.top = Math.round(this.form.answerPointerCoordinates.top * 120 * vw / 100 - solutionAreaRadius) + "px"
     },
-    
-    /*
-    for future method to get item coordinates for step 'find-item'
-                  and to get location coordinates for step 'use-item'
-    // get dimensions of #main-view div (same size as div .use-item)
-    let targetBounds = ev.target.getBoundingClientRect()
-    console.log('proportional coords')
-    console.log('width', ev.offsetX / targetBounds.width * 100)
-    console.log('height', ev.offsetY / targetBounds.height * 100)
-    */
     
     // validation methods
     checkMainTextLength(value) {
@@ -757,7 +767,7 @@ export default {
         fieldsToValidate.answerItem = { required }
         break
       case 'write-text':
-        fieldsToValidate.answers = { picture: { required } }
+        fieldsToValidate.answers = { required }
         break
     }
     

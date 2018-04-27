@@ -213,7 +213,9 @@
         <div>
           <p class="text">{{ step.text }}</p>
         </div>
-        <img id="cross" style="position: absolute; z-index: 10000; display: none;" src="/statics/icons/game/find-item-locator.png" />
+        <div ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
+          <img id="cross" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="/statics/icons/game/find-item-locator.png" />
+        </div>
         <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 3">
           <div class="text wrong">{{ $t('message.SecondTry') }}</div>
         </div>
@@ -231,7 +233,9 @@
         <div>
           <p class="text">{{ step.text }}</p>
         </div>
-        <img id="cross" style="position: absolute; z-index: 10000; display: none;" src="/statics/icons/game/find-item-locator.png" />
+        <div ref="findItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
+          <img id="cross" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="/statics/icons/game/find-item-locator.png" />
+        </div>
         <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 3">
           <div class="text wrong">{{ $t('message.SecondTry') }}</div>
         </div>
@@ -246,10 +250,10 @@
       </div>
       
       <!-- inventory button -->
-      <q-btn v-if="step.type == 'use-item' && !this.selectedItem && nbTry < 3 && run.inventory.length > 0" round class="inventory-btn" icon="fa-briefcase" color="primary" @click="openInventory" />
-      <p v-if="step.type == 'use-item' && this.selectedItem && nbTry < 3" class="inventory-btn" color="primary" v-show="playerResult !== true && run.inventory.length > 0" @click="openInventory">
-        <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + this.selectedItem.picture" />
-      </p>
+      <q-btn v-if="step.type == 'use-item' && nbTry < 3 && playerResult === null && run.inventory.length > 0" round class="inventory-btn" color="primary" @click="openInventory">
+        <q-icon v-show="!this.selectedItem" name="fa-briefcase" />
+        <img v-if="this.selectedItem" :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + this.selectedItem.picture" />
+      </q-btn>
       
       <transition name="slideInBottom">
         <div class="inventory" v-show="isInventoryOpen">
@@ -408,17 +412,27 @@ export default {
       this.$nextTick(async () => {
         let background = document.getElementById('main-view')
         
-        if (this.step.backgroundImage && this.step.type !== 'jigsaw-puzzle') {
-          background.style.background = '#fff url("' + process.env.SERVER_URL + '/upload/quest/' + this.questId + '/step/background/' + this.step.backgroundImage + '")  center/cover no-repeat'
-          // all background clickable for transitions
-          //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
-            //let clickable = document.getElementById('info-clickable')
-            //let clickable = document.getElementById('main-view')
-            //clickable.addEventListener("click", this.showControls, false);
-          //}
-          
-          // display controls after some seconds to let user see background
-          setTimeout(this.showControls, 2000)
+        if (this.step.backgroundImage) {
+          if (this.step.type === 'find-item' || this.step.type === 'use-item') {
+            background.style.background = 'none'
+            background.style.backgroundColor = '#000'
+            setTimeout(this.showControls, 2000)
+          } else if (this.step.type === 'jigsaw-puzzle') {
+            background.style.background = 'none'
+            background.style.backgroundColor = '#fff'
+            this.showControls()
+          } else {
+            background.style.background = '#fff url("' + process.env.SERVER_URL + '/upload/quest/' + this.questId + '/step/background/' + this.step.backgroundImage + '") center/cover no-repeat'
+            // all background clickable for transitions
+            //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
+              //let clickable = document.getElementById('info-clickable')
+              //let clickable = document.getElementById('main-view')
+              //clickable.addEventListener("click", this.showControls, false);
+            //}
+            
+            // display controls after some seconds to let user see background
+            setTimeout(this.showControls, 2000)
+          }
         } else {
           background.style.background = 'none'
           background.style.backgroundColor = '#fff'
@@ -888,22 +902,25 @@ export default {
         return
       }
       
-      // get dimensions of #main-view div (same size as div .use-item)
-      let targetBounds = ev.target.getBoundingClientRect()
+      let vw = window.innerWidth / 100 // in px
       
-      // convert answer's "proportional coordinates" (numbers between 0 to 100) to "pixel coordinates",
-      // depending on "#main-view" div size on player device's screen
       let anwserPixelCoordinates = {
-        left: this.step.answers.coordinates.left / 100 * targetBounds.width,
-        top: this.step.answers.coordinates.top / 100 * targetBounds.height
+        left: Math.round(this.step.answers.coordinates.left / 100 * 90 * vw),
+        top: Math.round(this.step.answers.coordinates.top / 100 * 120 * vw)
       }
       
-      // solution area radius = max (#main-view width, #main-view height) / 10,
-      // to get something as consistent as possible across devices & screen orientations
-      let solutionAreaRadius = Math.max(targetBounds.width, targetBounds.height) / 10
+      // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
+      let solutionAreaRadius = Math.round(8 * vw)
       
       let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - ev.offsetX, 2) + Math.pow(anwserPixelCoordinates.top - ev.offsetY, 2))
-   
+      
+      if (this.selectedItem === null) {
+        // this.$t() does not work, see https://github.com/kazupon/vue-i18n/issues/108
+        Toast.create.negative(this.$i18n.t('message.PleaseSelectAnItemFirst'))
+        // TODO: maybe make blink the 'inventory' icon in the left bottom corner
+        return
+      }
+      
       var showSolution = false
       if (distanceToSolution <= solutionAreaRadius && this.step.answers.item === this.selectedItem.picture) {
         this.playerResult = true
@@ -911,11 +928,11 @@ export default {
       } else {
         this.nbTry++
         this.playerResult = false
-        // this.$t() did not work here, see https://github.com/kazupon/vue-i18n/issues/108
         if (this.nbTry === 3) {
           showSolution = true
         } else {
-          Toast.create.negative(this.$i18n.t('message.NothingHappens'))
+          // this.$t() does not work, see https://github.com/kazupon/vue-i18n/issues/108
+          Toast.create.negative(this.$i18n.t('message.UseItemNothingHappens'))
         }
       }
       
@@ -924,17 +941,18 @@ export default {
       if (showSolution) {
         // display the right solution
         var cross = document.getElementById('cross')
-        cross.style.top = (anwserPixelCoordinates.top - solutionAreaRadius / 2) + "px"
-        cross.style.left = (anwserPixelCoordinates.left - solutionAreaRadius / 2) + "px"
-        cross.style.width = solutionAreaRadius + "px"
+        cross.style.top = (anwserPixelCoordinates.top - solutionAreaRadius) + "px"
+        cross.style.left = (anwserPixelCoordinates.left - solutionAreaRadius) + "px"
         cross.style.display = "block"
         var crossPicture = cross.src
         var self = this
         setInterval(function() {
           if (cross.src === crossPicture) {
             cross.src = self.serverUrl + '/upload/quest/' + self.questId + '/step/new-item/' + self.step.answers.item
+            cross.style.borderRadius = '50%'
           } else {
             cross.src = crossPicture
+            cross.style.borderRadius = '0'
           }
         }, 1000);
       }
@@ -993,23 +1011,21 @@ export default {
     /* specific for steps 'find-item' */
     
     async findItem(ev) {
-      if (this.playerResult === true) {
+      if (this.playerResult === true || this.nbTry >= 3) {
         return
       }
       
-      // get dimensions of #main-view div (same size as div .find-item)
-      let targetBounds = ev.target.getBoundingClientRect()
+      let vw = window.innerWidth / 100 // in px
       
-      // convert answer's "proportional coordinates" (numbers between 0 to 100) to "pixel coordinates",
-      // depending on "#main-view" div size on player device's screen
+      console.log('findItem', this.step.answers)
+      
       let anwserPixelCoordinates = {
-        left: this.step.answers.left / 100 * targetBounds.width,
-        top: this.step.answers.top / 100 * targetBounds.height
+        left: Math.round(this.step.answers.left / 100 * 90 * vw),
+        top: Math.round(this.step.answers.top / 100 * 120 * vw)
       }
       
-      // solution area radius = max (#main-view width, #main-view height) / 10,
-      // to get something as consistent as possible across devices & screen orientations
-      let solutionAreaRadius = Math.max(targetBounds.width, targetBounds.height) / 10
+      // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
+      let solutionAreaRadius = Math.round(8 * vw)
       
       let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - ev.offsetX, 2) + Math.pow(anwserPixelCoordinates.top - ev.offsetY, 2))
       
@@ -1020,11 +1036,11 @@ export default {
       } else {
         this.nbTry++
         this.playerResult = false
-        // this.$t() did not work here, see https://github.com/kazupon/vue-i18n/issues/108
-         if (this.nbTry === 3) {
+        if (this.nbTry === 3) {
           showSolution = true
         } else {
-          Toast.create.negative(this.$i18n.t('message.NothingHappens'))
+          // this.$t() does not work, see https://github.com/kazupon/vue-i18n/issues/108
+          Toast.create.negative(this.$i18n.t('message.FindItemNothingHappens'))
         }
       }
       
@@ -1033,20 +1049,11 @@ export default {
       // show the right solution
       if (showSolution) {
         var cross = document.getElementById('cross')
-        cross.style.top = (anwserPixelCoordinates.top - solutionAreaRadius / 2) + "px"
-        cross.style.left = (anwserPixelCoordinates.left - solutionAreaRadius / 2) + "px"
-        cross.style.width = solutionAreaRadius + "px"
+        cross.style.top = (anwserPixelCoordinates.top - solutionAreaRadius) + "px"
+        cross.style.left = (anwserPixelCoordinates.left - solutionAreaRadius) + "px"
         cross.style.display = "block"
       }
     }
-    
-    /*
-    async findItem(ev) {
-      
-      ...
-        this.itemAdded = this.step.answers.item
-        await addItemToInventory(this.itemAdded)
-    }*/
   }
 }
 </script>
@@ -1054,13 +1061,17 @@ export default {
 <style scoped>
   #main-view { padding: 0rem; height: inherit; min-height: inherit; }
   
-  #main-view > div { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
+  #main-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
   #main-view > div > div { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
   
   #main-view div.info,
   #main-view div.new-item,
   #main-view div.geolocation {
     padding-bottom: 1rem;
+  }
+  #main-view div.find-item,
+  #main-view div.use-item {
+    padding-bottom: 3rem;
   }
   
   .text,
@@ -1177,8 +1188,7 @@ export default {
   .resultMessage .text { text-align: center; font-weight: bold; }
   
   .inventory-btn { position: fixed; bottom: 0.7rem; left: 0.7rem; z-index: 1; }
-  p.inventory-btn { background-color: #e82a34; padding: 10px; border-radius: 30px; height: 60px; width: 60px; display: block;}
-  p.inventory-btn img { width: 40px; height: 40px; }
+  .inventory-btn img { width: 100%; height: 100%; border-radius: 50%; }
   
   .inventory { background: white; position: fixed; bottom: 0; left: 0; width: 100%; height: 100%; overflow-y: scroll; }
   .inventory h1 { padding-top: 1rem; margin-bottom: 1rem; }
