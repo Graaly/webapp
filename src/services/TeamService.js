@@ -22,6 +22,10 @@ export default {
     return Api().get('team/' + id + '/challenges/list')
   },
   
+  // list monthly rankings for a team in town
+  listMonthlyRankingsByTown (id) {
+    return Api().get('team/' + id + '/rankings/bytown/list')
+  },
   // list monthly rankings for a team
   listMonthlyRankings (id) {
     return Api().get('team/' + id + '/rankings/list')

@@ -24,9 +24,23 @@
       <q-route-tab :to="{ name: 'teamMembersList', params: { id: $route.params.id } }" slot="title" :label="$t('message.Members')" exact /> 
     </q-tabs>
     
-    <div class="tab-content">       
+    <div class="tab-content">
+      <h2>{{ $t('message.RankingThisMonth') }}</h2>    
       <q-list highlight>
-        <q-item v-for="ranking in rankings" :key="ranking._id.zipcode">
+        <q-item v-for="ranking in rankings" :key="ranking.teamId">
+          <q-item-side left class="rank">
+            {{ ranking.rank }}
+          </q-item-side>
+          <q-item-main @click="$router.push('/team/' + ranking.teamId + '/members')">
+            <q-item-tile label>{{ ranking.teamName }}</q-item-tile>
+            <q-item-tile sublabel>{{ $t('message.ScoreThisMonth', { score: ranking.score }) }} </q-item-tile>
+          </q-item-main>
+        </q-item>
+      </q-list>
+      <!--
+      <h2>{{ $t('message.DetailOfYourRankingThisMonth') }}</h2>
+      <q-list highlight>
+        <q-item v-for="ranking in townRankings" :key="ranking._id.zipcode">
           <q-item-main>
             <q-item-tile label v-if="ranking._id.town">{{ ranking._id.town }} ({{ ranking._id.zipcode }})</q-item-tile>
             <q-item-tile label v-if="!ranking._id.town">{{ $t('message.NoLocalizedQuests') }}</q-item-tile>
@@ -36,12 +50,13 @@
             {{ ranking.score }}
           </q-item-side>
         </q-item>
-        <q-item v-show='rankings.length === 0'>
+        <q-item v-show='townRankings.length === 0'>
           <q-item-main>
             <q-item-tile label>{{ $t('message.NoQuestPlayedThisMonth') }}</q-item-tile>
           </q-item-main>
         </q-item>
       </q-list>
+      -->
     </div>
     
   </div>
@@ -58,6 +73,7 @@ export default {
       team: { profile: { statistics: {}, score: {} } },
       user: {name: "--", picture: "", id: "", team: { wishedId: 0 }},
       rankings: [],
+      townRankings: [],
       serverUrl: process.env.SERVER_URL,
       memberOfTeam: false
     }
@@ -66,8 +82,6 @@ export default {
     this.getAccountInformations()
     
     this.getTeam(this.$route.params.id)
-    
-    this.getTeamRanking(this.$route.params.id)
   },
   methods: {
     async getAccountInformations() {
@@ -82,7 +96,10 @@ export default {
         this.memberOfTeam = false
         this.$store.dispatch('setTitle', this.$t('message.Competitor'))
       }
+      
       this.getTeamRanking(this.$route.params.id)
+      
+      this.getTeamRankingByTown(this.$route.params.id)
     },
     async getTeam(id) {
       // get the team informations
@@ -95,12 +112,19 @@ export default {
     async getTeamRanking(id) {
       // get the team ranking in cities
       let response = await TeamService.listMonthlyRankings(id)
-      this.rankings = response.data      
+      this.rankings = response.data
+    },
+    async getTeamRankingByTown(id) {
+      // get the team ranking in cities
+      let response = await TeamService.listMonthlyRankingsByTown(id)
+      this.townRankings = response.data      
     }
   }
 }
 </script>
 
 <style scoped>
-
+  .rank {
+    font-size: 1.8em
+  }
 </style>

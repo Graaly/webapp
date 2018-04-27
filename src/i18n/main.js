@@ -268,6 +268,7 @@ module.exports = {
       WarningImageSizeSquare: "Your picture width and height must be the same",
       YourPuzzlePicture: "Jigsaw picture",
       nbQuestWonThisMonth: "You won {nb} quest(s) this month",
+      ScoreThisMonth: "Score this month: {score} points",
       minutes: "minute(s)",
       QuestParameters: "Describe your quest",
       Duration: "Duration",
@@ -312,7 +313,10 @@ module.exports = {
       QuestIsFarFromUser: "You are far from this quest",
       QuestIsFarFromUserDesc: "By solving this quest afar, you will miss many clues and so many points",
       PleaseUploadAFile: "Please upload a file.",
-      RequiredField: "This field is required."
+      RequiredField: "This field is required.",
+      DetailOfYourRankingThisMonth: "Detail by city",
+      RankingThisMonth: "Ranking of the month"
+      
     }
   },
   fr: {
@@ -584,6 +588,7 @@ module.exports = {
       WarningImageSizeSquare: "Votre image doit avoir la même largeur que hauteur",
       YourPuzzlePicture: "Image de votre puzzle",
       nbQuestWonThisMonth: "Vous avez résolu {nb} enquête(s) ce mois",
+      ScoreThisMonth: "Score du mois : {score} points",
       minutes: "minute(s)",
       QuestParameters: "Décrivez votre enquête",
       Duration: "Durée",
@@ -628,7 +633,9 @@ module.exports = {
       QuestIsFarFromUser: "Vous n'êtes pas sur le lieu de l'enquête",
       QuestIsFarFromUserDesc: "En résolvant cette enquête à distance, vous allez manquer plein d'indices et donc de points",
       PleaseUploadAFile: "Veuillez télécharger un fichier.",
-      RequiredField: "Ce champ est requis."
+      RequiredField: "Ce champ est requis.",
+      DetailOfYourRankingThisMonth: "Détail par ville",
+      RankingThisMonth: "Classement du mois"
     }
   }
 }
