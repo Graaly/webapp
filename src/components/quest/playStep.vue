@@ -5,7 +5,7 @@
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
       
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
-        <div id="info-clickable" :class="{ grow: !step.videoStream }" @click="showControls">
+        <div id="info-clickable" :class="{ grow: !step.videoStream }" @click="showControlsManually">
           <p class="text">{{ step.text }}</p>
         </div>
         <div class="video" v-if="step.videoStream">
@@ -22,7 +22,7 @@
         
         
       <div class="choose" v-if="step.type == 'choose'">
-        <div @click="showControls">
+        <div @click="showControlsManually">
            <p class="text">{{ step.text }}</p>
         </div>
         <div class="answers-text" v-if="answerType === 'text'">
@@ -49,7 +49,7 @@
       </div>
         
       <div class="code" v-if="step.type == 'code-keypad'">
-        <div @click="showControls">
+        <div @click="showControlsManually">
           <p class="text">{{ step.text }}</p>
         </div>
         <div class="typed-code">
@@ -84,7 +84,7 @@
       
       
       <div class="code code-color" v-if="step.type == 'code-color'">
-        <div @click="showControls">
+        <div @click="showControlsManually">
           <p class="text">{{ step.text }}</p>
         </div>
         
@@ -156,7 +156,7 @@
       
       
       <div class="write-text" v-if="step.type == 'write-text'">
-        <div @click="showControls">
+        <div @click="showControlsManually">
           <p class="text">{{ step.text }}</p>
         </div>
         <div class="answer-text">
@@ -371,7 +371,7 @@ export default {
       }
       
       // set title
-      this.$store.dispatch('setTitle', step.title.substr(0, 20))
+      this.$store.dispatch('setTitle', step.title.substr(0, 25))
       
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.questId)
@@ -531,6 +531,10 @@ export default {
     /* general / multi step methods */
     showControls () {
       this.controlsAreDisplayed = !this.controlsAreDisplayed
+    },
+    showControlsManually () {
+      /*
+      this.controlsAreDisplayed = !this.controlsAreDisplayed
       if (!this.controlsAreDisplayed) {
         let clickable = document.getElementById('main-view')
         clickable.addEventListener("mousedown", this.showControls, false);
@@ -538,6 +542,7 @@ export default {
         let clickable = document.getElementById('main-view')
         clickable.removeEventListener("mousedown", this.showControls, false);
       }
+      */
     },
     async getStep () {
       return StepService.getByNumber(this.$route.params.questId, this.$route.params.stepNumber)

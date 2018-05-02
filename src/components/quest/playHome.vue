@@ -1,7 +1,7 @@
 <template>
   
-  <div class="scroll" style="max-height:100%;">
-    <div class="fit" v-if="geolocationIsSupported">
+  <div class="scroll" id="scroller" style="max-height:100%;">
+    <div class="fit" id="teaser" v-if="geolocationIsSupported">
       <div class="fit" :style="'background: url(' + serverUrl + '/upload/quest/' + quest.picture + ' ) center center / cover no-repeat '">
         <div style="height: 85%">
           <div class="text-center top-area">
@@ -35,10 +35,10 @@
           </div>
         </div>
         <div class="full-width text-center">
-          <q-icon class="text-primary big-icon" name="expand_more" />
+          <q-icon class="text-primary big-icon" name="expand_more" @click="moveDown()" />
         </div>
       </div>
-      <div class="padding-medium">
+      <div class="padding-medium" id="bottom-part">
         <p v-if="quest.level">{{ $t('message.Difficulty') }}: <img class="image-and-text-aligned" src="/statics/icons/game/magnifying-red.png" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 1 ? 'grey' : 'red') + '.png'" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 3 ? 'red' : 'grey') + '.png'" /></p>
         <p v-if="quest.duration">{{ $t('message.Duration') }}: {{ quest.duration }} {{ $t('message.minutes') }}</p>
         <p v-if="quest.startingPlace">{{ $t('message.StartingPoint') }}: {{ quest.startingPlace }}</p>
@@ -46,10 +46,17 @@
         <p class="text-center"><q-btn @click="$router.push('/quest/play/' + $route.params.id + '/step/1')" color="primary">{{ $t('message.SolveThisQuest') }}</q-btn></p>
       </div>
     </div>
-    <div class="row" v-if="!geolocationIsSupported">
-      <div class="col-12 text-center">
+    <div class="row enable-geolocation" v-if="!geolocationIsSupported">
+      <div class="col-12">
         <h5>{{ $t('message.PleaseActivateGeolocation') }}</h5>
-        <p><a @click="">{{ $t('message.KnowHowToActivateGeolocation') }}</a></p>
+        <div v-if="isChrome">
+          <p v-html="$t('message.HowToActivateGeolocationOnChrome')"></p>
+          <p>
+            {{ $t('message.OnceGeolocationEnabled') }}
+            <!-- see https://github.com/vuejs/vue-router/issues/296 -->
+            <router-link :to="$route.path + '?_=' + (new Date).getTime()">{{ $t('message.PressHere') }}</router-link>.
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -77,6 +84,32 @@ export default {
       isRunFinished: false,
       geolocationIsSupported: navigator.geolocation,
       isUserTooFar: false
+    }
+  },
+  computed: {
+    // from https://stackoverflow.com/a/13348618/488666
+    // adapted because my Android Chrome User Agent contains 'OPR'!
+    // (Mozilla/5.0 (Linux; Android 8.0.0; ASUS_Z012D Build/OPR1.170623.026) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.109 Mobile Safari/537.36)
+    isChrome() {
+      let isChromium = window.chrome,
+        winNav = window.navigator,
+        vendorName = winNav.vendor,
+        //isOpera = winNav.userAgent.indexOf("OPR") > -1,
+        isIEedge = winNav.userAgent.indexOf("Edge") > -1,
+        isIOSChrome = winNav.userAgent.match("CriOS");
+      if (isIOSChrome) {
+        return true;
+      } else if (
+        isChromium !== null &&
+        typeof isChromium !== "undefined" &&
+        vendorName === "Google Inc." &&
+        //isOpera === false &&
+        isIEedge === false
+      ) {
+        return true;
+      } else {
+        return false;
+      }
     }
   },
   async mounted() {
@@ -149,6 +182,11 @@ export default {
           })
         }
       }
+    },
+    moveDown() {
+      var mainView = document.getElementById('main-view')
+      var height = parseInt(mainView.style.height, 10)
+      document.getElementById('main-view').scrollTop = height
     },
     
     // TODO make this more generic (basic model methods over 'webapp simple JSON files')

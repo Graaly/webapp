@@ -105,7 +105,7 @@ module.exports = {
       QuestsSuccessful: "Successful quests",
       QuestsCreated: "Created quests",
       CreateANewQuest: "Create a new quest",
-      PublishedSince: "Publish since",
+      PublishedSince: "Publish",
       Unpublished: "Unpublished",
       Edit: "Edit",
       EditYourInformations: "Edit your informations",
@@ -180,7 +180,7 @@ module.exports = {
       Check: "Check",
       WellDone: "Well done!",
       PhotosDoesntMatch: "Unfortunately, the photos do not match.",
-      DistanceInMeters: "Distance: {distance} meters",
+      DistanceInMeters: "Distance with the place to find: {distance} meters",
       YouHaveFoundThePlace: "Well done! You have found the place",
       Pass: "Pass",
       YourAnswer: "Your answer",
@@ -426,7 +426,7 @@ module.exports = {
       QuestsSuccessful: "Enquêtes réussies",
       QuestsCreated: "Enquêtes créées",
       CreateANewQuest: "Créer une nouvelle enquête",
-      PublishedSince: "Publié depuis",
+      PublishedSince: "Publié",
       Unpublished: "Non publié",
       Edit: "Edit",
       EditYourInformations: "Modifier tes informations",
@@ -501,7 +501,7 @@ module.exports = {
       Check: "Vérifier",
       WellDone: "Bien joué !",
       PhotosDoesntMatch: "Malheureusement, cette photo ne correspond pas.",
-      DistanceInMeters: "Distance: {distance} mètres",
+      DistanceInMeters: "Distance du lieu à trouver : {distance} mètres",
       YouHaveFoundThePlace: "Bravo ! Vous avez trouvé le lieu",
       Pass: "Passer",
       YourAnswer: "Votre réponse",
@@ -638,7 +638,7 @@ module.exports = {
       RequiredField: "Ce champ est requis.",
       DetailOfYourRankingThisMonth: "Détail par ville",
       RankingThisMonth: "Classement du mois",
-      PleaseSelectAnItemFirst: "Sélectionnez un item dans votre inventaire d'abord (bouton en bas à gauche), puis cliquez sur l'image pour l'utiliser."
+      PleaseSelectAnItemFirst: "Sélectionnez un objet dans votre inventaire d'abord (bouton en bas à gauche), puis cliquez sur l'image pour l'utiliser."
     }
   }
 }
