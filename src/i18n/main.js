@@ -44,6 +44,8 @@ module.exports = {
       FindTheCodeDesc: "Player have to find a code",
       FindTheColorCode: "Color code",
       FindTheColorCodeDesc: "Player have to find the color code",
+      FindTheImageCode: "Code with images",
+      FindTheImageCodeDesc: "Player have to find the code based on images",
       PhotographAnObject: "Photograph an item",
       PhotographAnObjectDesc: "Compare your picture with a play camera picture",
       JigsawPuzzle: "Jigsaw Puzzle",
@@ -317,7 +319,10 @@ module.exports = {
       RequiredField: "This field is required.",
       DetailOfYourRankingThisMonth: "Detail by city",
       RankingThisMonth: "Ranking of the month",
-      PleaseSelectAnItemFirst: "Please select an item in your inventory (button in the bottom left), then press the image to use it."
+      PleaseSelectAnItemFirst: "Please select an item in your inventory (button in the bottom left), then press the image to use it.",
+      ImagesUsedForCode: "Add the images used for the code",
+      AddAnImage: "Add an image",
+      ExpectedCode: "Expected code"
     }
   },
   fr: {
@@ -365,6 +370,8 @@ module.exports = {
       FindTheCodeDesc: "Trouver et taper le code",
       FindTheColorCode: "Trouver un code couleur",
       FindTheColorCodeDesc: "Trouver une combinaison de couleurs",
+      FindTheImageCode: "Code avec images",
+      FindTheImageCodeDesc: "Trouver le code composé d'images",
       PhotographAnObject: "Photographier un objet",
       PhotographAnObjectDesc: "Retrouver et photographier un objet",
       JigsawPuzzle: "Puzzle",
@@ -638,7 +645,10 @@ module.exports = {
       RequiredField: "Ce champ est requis.",
       DetailOfYourRankingThisMonth: "Détail par ville",
       RankingThisMonth: "Classement du mois",
-      PleaseSelectAnItemFirst: "Sélectionnez un objet dans votre inventaire d'abord (bouton en bas à gauche), puis cliquez sur l'image pour l'utiliser."
+      PleaseSelectAnItemFirst: "Sélectionnez un objet dans votre inventaire d'abord (bouton en bas à gauche), puis cliquez sur l'image pour l'utiliser.",
+      ImagesUsedForCode: "Ajouter les images pour le code",
+      AddAnImage: "Ajouter une image",
+      ExpectedCode: "Code attendu"
     }
   }
 }

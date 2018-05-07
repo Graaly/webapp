@@ -82,6 +82,18 @@
   },
   {
     "category": "enigma",
+    "code": "code-image",
+    "icon": "images",
+    "title": "FindTheImageCode",
+    "description": "FindTheImageCodeDesc",
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 150,
+      "maxNbCarriageReturns": 4
+    }
+  },
+  {
+    "category": "enigma",
     "code": "image-recognition",
     "icon": "camera",
     "title": "PhotographAnObject",

@@ -106,6 +106,43 @@
         </div>
       </div>
       
+      <div class="code code-image" v-if="step.type == 'code-image'">
+        <div @click="showControlsManually">
+          <p class="text">{{ step.text }}</p>
+        </div>
+        
+        <table>
+          <tr>
+            <td v-for="(code, index) in playerCode" :key="index" class="text-center">
+              <q-icon name="keyboard_arrow_up" @click="previousCodeAnswer(index)" />
+            </td>
+          </tr>
+          <tr>
+            <td v-for="(code, index) in playerCode" :key="index">
+              <img :id="'image-code-' + index" :src="serverUrl + '/upload/quest/' + questId + '/step/code-image/' + step.answers.images[code].imagePath" />
+            </td>
+          </tr>
+          <tr>
+            <td v-for="(code, index) in playerCode" :key="index" class="text-center">
+              <q-icon name="keyboard_arrow_down" @click="nextCodeAnswer(index)" />
+            </td>
+          </tr>
+        </table>
+        
+        <div class="actions fixed-bottom" v-show="playerResult === null">
+          <div v-if="nbTry === 1" class="text wrong">{{ $t('message.SecondTry') }}</div>
+          <div>
+            <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('message.Confirm') }}</q-btn>
+          </div>
+          <q-btn v-show="step.hint" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
+          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
+        </div>
+        <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
+           <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongAnswer') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
+          <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
+        </div>
+      </div>
+      
       
       <div class="image-recognition" v-if="step.type == 'image-recognition'">
         <div>
@@ -451,6 +488,9 @@ export default {
         if (this.step.type === 'code-color') {
           this.resetColorCode()
         }
+        if (this.step.type === 'code-image') {
+          this.resetImageCode()
+        }
         
         /*if (this.step.type === 'new-item') {
           await this.addItemToInventory(this.step.answers)
@@ -638,6 +678,27 @@ export default {
             }
           }
           break
+          
+        case 'code-image':
+          result = true
+          for (let i = 0; i < this.playerCode.length; i++) {
+            if (this.playerCode[i] !== this.step.answers.code[i]) {
+              result = false
+              break
+            }
+          }
+          if (result) {
+            this.playerResult = true
+          } else {
+            this.nbTry++
+            if (this.nbTry < 2) {
+              // reset code
+              this.resetImageCode()
+            } else {
+              this.playerResult = false
+            }
+          }
+          break
         
         case 'write-text':
           this.playerResult = (this.writetext.playerAnswer === this.step.answers)
@@ -664,6 +725,36 @@ export default {
     },
     resetColorCode() {
       this.playerCode = Array(4).fill('red')
+    },
+    resetImageCode() {
+      this.playerCode = [0, 0, 0, 0]
+    },
+    nextCodeAnswer: function(key) {
+      this.playerCode[key]++
+      var nbImagesUploaded = this.getNbImageUploadedForCode()
+      if (this.playerCode[key] >= nbImagesUploaded) {
+        this.playerCode[key] = 0
+      }
+      // force src refresh
+      document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.questId + '/step/code-image/' + this.step.answers.images[this.playerCode[key]].imagePath
+    },
+    previousCodeAnswer: function(key) {
+      this.playerCode[key]--
+      var nbImagesUploaded = this.getNbImageUploadedForCode()
+      if (this.playerCode[key] < 0) {
+        this.playerCode[key] = nbImagesUploaded - 1
+      }
+      // force src refresh
+      document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.questId + '/step/code-image/' + this.step.answers.images[this.playerCode[key]].imagePath
+    },
+    getNbImageUploadedForCode() {
+      var nbImagesUploaded = 0
+      for (var i = 0; i < this.step.answers.images.length; i++) {
+        if (this.step.answers.images[i] && this.step.answers.images[i].imagePath) {
+          nbImagesUploaded++
+        }
+      }
+      return nbImagesUploaded
     },
     
     async saveResult(success) {
@@ -706,6 +797,17 @@ export default {
     /* specific methods for step type 'code-color' */
     
     changeColorForCode(index) {
+      if (this.playerResult !== null) {
+        return
+      }
+      let currentColorIndex = colorsForCode.indexOf(this.playerCode[index])
+      let nextColorIndex = (currentColorIndex + 1) % colorsForCode.length
+      this.$set(this.playerCode, index, colorsForCode[nextColorIndex])
+    },
+    
+    /* specific methods for step type 'code-image' */
+    
+    changeImageForCode(index) {
       if (this.playerResult !== null) {
         return
       }
@@ -1130,6 +1232,11 @@ export default {
   .code-color .color-bubbles { margin-top: 5rem; flex-grow: 1; display: flex; flex-flow: row nowrap; justify-content: center; }
   .code-color .color-bubbles div { display: block; width: 4rem; height: 4rem; border: 4px solid black; border-radius: 2rem; margin: 0.3rem; transition: background-color 0.3s; }
   
+  /* image code specific */
+  .code-image td { width: 20% }
+  .code-image td img { width: 100% }
+  .code-image td .q-icon { font-size: 2em }
+
   /* image recognition specific */
   
   .image-recognition .photo { flex-grow: 1; overflow-y: hidden; margin-top: 1rem; display: flex; flex-flow: column nowrap; justify-content: center; padding: 0.5rem; margin: -0.5rem; } /* negative margin required to have image shadow visible on sides */

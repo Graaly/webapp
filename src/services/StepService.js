@@ -54,6 +54,11 @@ export default {
     return Api().post('/quest/' + questId + '/step/choose-image/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
   },
   
+  // upload an "answer image" (for step 'code-image') 
+  uploadCodeAnswerImage(questId, data) {
+    return Api().post('/quest/' + questId + '/step/code-image/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+  },
+  
   // upload a video for 'info-video' step
   uploadVideo(questId, data) {
     return Api().post('/quest/' + questId + '/step/video/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  

@@ -97,7 +97,7 @@ export default {
         steps: 20,
         duration: 700 // in milliseconds
       },
-      geolocationIsSupported: navigator.geolocation,
+      geolocationIsSupported: (navigator && navigator.geolocation),
       searchText: '',
       questList: [],
       questMarker: {
@@ -162,26 +162,36 @@ export default {
     this.getAccountInformations()
     
     // display add to home screen for apple device
-    addToHomescreen();
-    
-    if (this.$data.geolocationIsSupported) {
-      // getCurrentPosition() is not always reliable (timeouts/fails frequently)
-      // see https://stackoverflow.com/q/3397585/488666
-      Loading.show()
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.$data.mapCenter = {lat: position.coords.latitude, lng: position.coords.longitude}
-        // TODO maybe here save current position in 'state' for later use in case of failure
-        this.getQuests()
-        Loading.hide()
-      }, () => {
-        console.error('geolocation failed')
-        this.geolocationIsSupported = false
-        Loading.hide()
-        // TODO maybe here recall position stored in 'state'
-      }, { timeout: 10000, maximumAge: 10000 });
-    }
+    addToHomescreen()
+   
+    this.findLocation()
   },
   methods: {
+    findLocation() {
+      var self = this
+      if (this.$data.geolocationIsSupported) {
+        // getCurrentPosition() is not always reliable (timeouts/fails frequently)
+        // see https://stackoverflow.com/q/3397585/488666
+        Loading.show()
+        navigator.geolocation.getCurrentPosition((position) => {
+          this.$data.mapCenter = {lat: position.coords.latitude, lng: position.coords.longitude}
+          // TODO maybe here save current position in 'state' for later use in case of failure
+          self.getQuests()
+          Loading.hide()
+        }, () => {
+          console.error('geolocation failed')
+          self.geolocationIsSupported = false
+          Loading.hide()
+          // try again in 10s
+          setTimeout(self.findLocation, 10000)
+          // TODO maybe here recall position stored in 'state'
+        }, 
+        { 
+          timeout: 5000, 
+          maximumAge: 10000 
+        });
+      }
+    },
     async getAccountInformations() {
       let response = await AuthService.getAccount()
       this.user = response.data

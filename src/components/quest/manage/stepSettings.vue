@@ -148,6 +148,45 @@
       </table>
     </div>
     
+    <div v-if="stepType.code == 'code-image'" class="code-image">
+      <h2>{{ $t('message.ImagesUsedForCode') }}</h2>
+      <div class="answer" v-for="(image, key) in form.answers.images" :key="key">
+        
+        <p v-show="image.imagePath === null" :class="{'error-label': $v.form.answers && !$v.form.answers.$each[key].imagePath.required}">{{ $t('message.NoPictureUploaded') }}</p>
+        <p><img v-if="image.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/code-image/' + image.imagePath" /></p>
+        <q-btn>
+          <label :for="'answerImage' + key"><q-icon name="file upload" /></label>
+          <input @change="uploadCodeAnswerImage(key, $event)" :name="'answerImage' + key" :id="'answerImage' + key" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+        </q-btn>
+        <q-btn @click="deleteCodeAnswer(key)">
+          <q-icon name="clear" />
+        </q-btn>
+      </div>
+      <q-btn @click="addCodeAnswer()" class="full-width add-answer">
+        {{ $t('message.AddAnImage') }}
+      </q-btn>
+      <div v-if="form.answers.images && form.answers.images.length > 0 && form.answers.images[0].imagePath">
+        <h2>{{ $t('message.ExpectedCode') }}</h2>
+        <table>
+          <tr>
+            <td v-for="(code, index) in form.answers.code" :key="index" class="text-center">
+              <q-icon name="keyboard_arrow_up" @click="previousCodeAnswer(index)" />
+            </td>
+          </tr>
+          <tr>
+            <td v-for="(code, index) in form.answers.code" :key="index">
+              <img :id="'image-code-' + index" :src="serverUrl + '/upload/quest/' + questId + '/step/code-image/' + form.answers.images[code].imagePath" />
+            </td>
+          </tr>
+          <tr>
+            <td v-for="(code, index) in form.answers.code" :key="index" class="text-center">
+              <q-icon name="keyboard_arrow_down" @click="nextCodeAnswer(index)" />
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    
     <!-- image recognition steps -->
     
     <div v-if="stepType.code == 'image-recognition'" class="image-recognition">
@@ -378,6 +417,9 @@ export default {
       // for 'code-color' steps
       colorsForCode: this.getColorsForCodeOptions(),
       
+      // for 'code-image' steps
+      imagesForCode: this.getImagesForCodeOptions(),
+      
       // for 'new-item' & 'use-item' steps
       questItemsAsOptions: [],
       questItems: []
@@ -458,6 +500,13 @@ export default {
     } else if (this.stepType.code === 'code-color') {
       if (!Array.isArray(this.form.answers)) {
         this.form.answers = Array(4).fill('red')
+      }
+    } else if (this.stepType.code === 'code-image') {
+      if (!this.form.answers || !this.form.answers.code) {
+        this.form.answers = {images: [], code: [0, 0, 0, 0]}
+        for (let i = 0; i < this.defaultNbAnswers; i++) {
+          this.form.answers.images.push({ imagePath: null })
+        }
       }
     } else if (this.stepType.code === 'code-keypad') {
       if (typeof this.form.answers !== 'string') {
@@ -555,12 +604,55 @@ export default {
         })
       }
     },
+    addCodeAnswer: function () {
+      if (this.form.answers.images.length >= this.maxNbAnswers) {
+        Toast.create.negative(this.$t('message.YouCantAddMoreThanNbAnswers', { nb: this.maxNbAnswers }))
+      } else {
+        this.form.answers.images.push({
+          imagePath: null // image default data
+        })
+      }
+    },
     deleteAnswer: function (key) {
       if (this.form.answers.length <= this.minNbAnswers) {
         Toast.create.negative(this.$t('message.YouMustDefineAtLeastNbAnswers', { nb: this.minNbAnswers }))
       } else {
         this.form.answers.splice(key, 1);
       }
+    },
+    deleteCodeAnswer: function (key) {
+      if (this.form.answers.images.length <= this.minNbAnswers) {
+        Toast.create.negative(this.$t('message.YouMustDefineAtLeastNbAnswers', { nb: this.minNbAnswers }))
+      } else {
+        this.form.answers.images.splice(key, 1);
+      }
+    },
+    nextCodeAnswer: function(key) {
+      this.form.answers.code[key]++
+      var nbImagesUploaded = this.getNbImageUploadedForCode()
+      if (this.form.answers.code[key] >= nbImagesUploaded) {
+        this.form.answers.code[key] = 0
+      }
+      // force src refresh
+      document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.questId + '/step/code-image/' + this.form.answers.images[this.form.answers.code[key]].imagePath
+    },
+    previousCodeAnswer: function(key) {
+      this.form.answers.code[key]--
+      var nbImagesUploaded = this.getNbImageUploadedForCode()
+      if (this.form.answers.code[key] < 0) {
+        this.form.answers.code[key] = nbImagesUploaded - 1
+      }
+      // force src refresh
+      document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.questId + '/step/code-image/' + this.form.answers.images[this.form.answers.code[key]].imagePath
+    },
+    getNbImageUploadedForCode() {
+      var nbImagesUploaded = 0
+      for (var i = 0; i < this.form.answers.images.length; i++) {
+        if (this.form.answers.images[i] && this.form.answers.images[i].imagePath) {
+          nbImagesUploaded++
+        }
+      }
+      return nbImagesUploaded
     },
     async uploadBackgroundImage(e) {
       Loading.show()
@@ -618,6 +710,20 @@ export default {
         Loading.hide()
       }
     },
+    async uploadCodeAnswerImage(key, e) {
+      Loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadResult = await StepService.uploadCodeAnswerImage(this.questId, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        this.form.answers.images[key].imagePath = uploadResult.data.file
+        Loading.hide()
+      }
+    },
     async uploadPuzzleImage(e) {
       Loading.show()
       var files = e.target.files
@@ -656,6 +762,18 @@ export default {
           label: this.$t('color.' + code)
         })
       })
+      return options
+    },
+    
+    // for 'code-images' step type
+    getImagesForCodeOptions() {
+      let options = []
+      /*imagesForCode.forEach((code) => {
+        options.push({
+          value: code,
+          label: this.$t('color.' + code)
+        })
+      })*/
       return options
     },
     triggerClickOnColorSelect(index) {
@@ -801,6 +919,10 @@ p { margin-bottom: 0.5rem; }
 .code-color table { margin: auto; }
 .code-color table td { padding: 0rem; width: 6rem; }
 .code-color .color-bubble { display: block; width: 4rem; height: 4rem; border: 4px solid black; border-radius: 2rem; transition: background-color 0.3s; }
+
+.code-image td { width: 20% }
+.code-image td img { width: 100% }
+.code-image td .q-icon { font-size: 2em }
 
 .inventory div { margin: 0.5rem auto; }
 .inventory .q-icon { width: 3rem; height: 3rem; font-size: 3rem; }
