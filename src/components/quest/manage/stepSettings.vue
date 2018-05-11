@@ -334,7 +334,7 @@
     <q-btn class="full-width" color="primary" @click="submit">{{ $t('message.SaveThisStep') }}</q-btn>
     
     <div class="link-below-button">
-      <router-link :to="{ path: '/quest/' + (isEdition ? 'edit' : 'create') + '/step/type' }">{{ isEdition ? $t('message.ChangeStepType') : $t('message.BackToStepChoice') }}</router-link>
+      <router-link :to="{ path: '/quest/' + (isEdition ? 'edit' : 'edit') + '/step/type' }">{{ isEdition ? $t('message.ChangeStepType') : $t('message.BackToStepChoice') }}</router-link>
     </div>
     
     <div class="link-below-button" v-if="isEdition">

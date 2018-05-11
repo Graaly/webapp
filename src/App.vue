@@ -46,7 +46,7 @@
           </q-side-link>
         </q-list>
       </div>
-      <div class="row-auto">
+      <div class="row-auto search">
         <form v-on:submit="submitSearchTxt">
           <q-search v-show="displaySearch" v-model="searchText" :placeholder="$t('message.SearchForAQuest')" />
         </form>
@@ -82,7 +82,7 @@ export default {
   },
   mounted () {
     this.$refs.layout.hideLeft()
-    this.fixLayout();
+    this.fixLayout()
     
     // get connected user informations
     if (this.isLoggedIn) {
@@ -91,8 +91,10 @@ export default {
   },
   watch: {
     '$route': function(value) {
-      this.fixLayout();
+      this.fixLayout()
       this.getAccountInformations()
+      // hide search if user change page
+      this.displaySearch = false
     }
   },
   methods: {

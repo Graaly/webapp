@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import { Loading } from 'quasar'
 import QuestService from 'services/QuestService'
 export default {
   data () {
@@ -48,43 +49,53 @@ export default {
     }
   },
   mounted() {
-    // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', this.$t('message.Search'))
-    if (this.$data.geolocationIsSupported) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.userPosition.latitude = position.coords.latitude
-        this.userPosition.longitude = position.coords.longitude
+    Loading.show()
+    try {
+      // dispatch specific title for other app components
+      this.$store.dispatch('setTitle', this.$t('message.Search'))
+      if (this.$data.geolocationIsSupported) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          this.userPosition.latitude = position.coords.latitude
+          this.userPosition.longitude = position.coords.longitude
+          this.findQuest()
+        }, () => {
+          console.error('geolocation failed')
+          this.geolocationIsSupported = false
+          this.findQuest()
+        }, { timeout: 10000, maximumAge: 10000 });
+      } else {
         this.findQuest()
-      }, () => {
-        console.error('geolocation failed')
-        this.geolocationIsSupported = false
-        this.findQuest()
-      }, { timeout: 10000, maximumAge: 10000 });
-    } else {
-      this.findQuest()
+      }
+    } catch (e) {
+      Loading.show()
     }
   },
   methods: {
     async findQuest() {
-      var userPosition = {lat: this.userPosition.latitude, lng: this.userPosition.longitude}
-
-      let response = await QuestService.find(this.$route.params.searchText, userPosition)
-      this.quests = response.data
+      try {
+        var userPosition = {lat: this.userPosition.latitude, lng: this.userPosition.longitude}
       
-      // compute distance
-      if (this.$data.geolocationIsSupported) {
-        this.quests = this.quests.map(function(quest) {
-          const R = 6378.137
-          let dLat = quest.location.coordinates[1] * Math.PI / 180 - userPosition.lat * Math.PI / 180;
-          let dLon = quest.location.coordinates[0] * Math.PI / 180 - userPosition.lng * Math.PI / 180;
-          let a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(userPosition.lat * Math.PI / 180) * Math.cos(quest.location.coordinates[1] * Math.PI / 180) *
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-          let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-          quest.distance = Math.floor(R * c);
-
-          return quest;
-        });
+        let response = await QuestService.find(this.$route.params.searchText, userPosition)
+        this.quests = response.data
+        
+        // compute distance
+        if (this.$data.geolocationIsSupported) {
+          this.quests = this.quests.map(function(quest) {
+            const R = 6378.137
+            let dLat = quest.location.coordinates[1] * Math.PI / 180 - userPosition.lat * Math.PI / 180;
+            let dLon = quest.location.coordinates[0] * Math.PI / 180 - userPosition.lng * Math.PI / 180;
+            let a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(userPosition.lat * Math.PI / 180) * Math.cos(quest.location.coordinates[1] * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+            let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            quest.distance = Math.floor(R * c);
+      
+            return quest;
+          });
+        }
+        Loading.hide()
+      } catch (e) {
+        Loading.hide()
       }
     }
   }

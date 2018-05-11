@@ -215,11 +215,18 @@
         <div>
           <p class="text">{{ step.text }}</p>
         </div>
-        <ul id="puzzle-container" v-sortable="{ onUpdate: onPieceMove }">
-          <li v-for="piece in puzzle.pieces" :key="piece.pos" :id="'piece-' + piece.pos"
-            :style="'background-image: url(' + puzzle.picture + '); background-size: ' + piece.backSize + '% ' + piece.backSize + '%;background-position: -' + piece.backXPos + ' -' + piece.backYPos + ';'"
-          ><img src="/statics/icons/game/spacer.gif" :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'" /></li>
-        </ul>
+        <div id="pieces">
+            <div class="piece" draggable="true"
+              v-for="piece in puzzle.pieces" :key="piece.pos" :id="'piece-' + piece.pos"
+              @dragstart="handleDragStart($event)"
+              @dragenter="handleDragEnter($event)"
+              @dragover="handleDragOver($event)"
+              @dragleave="handleDragLeave($event)"
+              @drop="handleDrop($event)"
+              @dragend="handleDragEnd($event)"
+              :style="'background-image: url(' + puzzle.picture + '); background-size: ' + piece.backSize + '% ' + piece.backSize + '%;background-position: -' + piece.backXPos + ' -' + piece.backYPos + ';'"
+            ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'">{{piece.pos}}</header></div>
+        </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
         <div class="resultMessage fixed-bottom" v-show="playerResult === true ">
           <div class="text right">{{ $t('message.WellDone') }}<span v-if="playerResult"> +10 {{ $t('message.points') }}</span></div>
@@ -379,7 +386,8 @@ export default {
       // for step type 'jigsaw puzzle'
       puzzle: {
         pieces: [],
-        picture: '/statics/icons/game/medal.png'
+        picture: '/statics/icons/game/medal.png',
+        dragSrcEl: null
       },
       
       // for step type 'use-item'
@@ -1074,27 +1082,27 @@ export default {
     
     /* specific for steps 'jigsaw-puzzle' */
     
-    async onPieceMove(event) {
-      var childNodes = document.getElementById('puzzle-container').childNodes,
-        i = childNodes.length,
-        result = true
-        
-      while (i--) {
-        if (i !== parseInt(childNodes[i].id.replace('piece-', ''))) {
-          result = false // if one piece is not well placed
+    async checkPuzzle() {
+      var result = true
+      for (var i = 0; i < this.puzzle.pieces.length; i++) {
+        if (i !== this.puzzle.pieces[i].pos) {
+          result = false
+          continue
         }
       }
-
+   
       this.playerResult = result
-      await this.saveResult((this.playerResult ? 'success' : 'fail'))
+      if (this.playerResult) {
+        await this.saveResult('success')
+      }
     },
     initPuzzle() {
       // Puzzle sizes
       var level = parseInt((this.step.answers.level || 2), 10) // 1=easy, 2=medium, 3=hard
       var puzzleSize = level * 2
-      var puzzleWidth = document.getElementById('puzzle-container').clientWidth
+      var puzzleWidth = document.getElementById('pieces').clientWidth
       var puzzleHeight = puzzleWidth
-      document.getElementById('puzzle-container').style.height = puzzleHeight + "px"
+      //document.getElementById('pieces').style.height = puzzleHeight + "px"
       var pieceHeight = Math.floor(puzzleHeight / puzzleSize)
       var pieceWidth = Math.floor(puzzleWidth / puzzleSize)
       
@@ -1113,6 +1121,77 @@ export default {
         this.puzzle.pieces[j] = k
       }
       this.puzzle.picture = this.serverUrl + '/upload/quest/' + this.questId + '/step/jigsaw-puzzle/' + this.step.answers.picture
+    },
+    handleDragStart(e) {
+      if (e.target.className.indexOf('piece') > -1) {
+        this.dragSrcEl = e.target;
+        this.dragSrcEl.style.opacity = '0.4';
+        var dt = e.dataTransfer;
+        dt.effectAllowed = 'move';
+        dt.setData('text', this.dragSrcEl.innerHTML);
+       
+        // customize drag image for one of the panels
+        if (dt.setDragImage instanceof Function && e.target.innerHTML.indexOf('X') > -1) {
+          var img = new Image();
+          img.src = 'dragimage.jpg';
+          dt.setDragImage(img, img.width / 2, img.height / 2);
+        }
+      }
+    },
+    handleDragOver(e) {
+      if (this.dragSrcEl) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+      }
+    },
+    handleDragEnter(e) {
+      if (this.dragSrcEl) {
+        e.target.classList.add('over');
+      }
+    },
+    handleDragLeave(e) {
+      if (this.dragSrcEl) {
+        e.target.classList.remove('over');
+      }
+    },
+    handleDragEnd(e) {
+      this.dragSrcEl = null;
+      var cols = document.querySelectorAll('#pieces .piece');
+      [].forEach.call(cols, function (col) {
+        col.style.opacity = '';
+        col.classList.remove('over');
+      });
+    },
+    handleDrop(e) {
+      if (this.dragSrcEl) {
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        // move piece
+        if (e.target.parentNode.id && this.dragSrcEl.id) {
+          var destId = parseInt(e.target.parentNode.id.replace('piece-', ''), 10)
+          var sourceId = parseInt(this.dragSrcEl.id.replace('piece-', ''), 10)
+          var destIdPos = 0, sourceIdPos = 0
+          
+          if (destId !== sourceId) {
+            // get the places in the arrays
+            for (var i = 0; i < this.puzzle.pieces.length; i++) {
+              if (this.puzzle.pieces[i].pos === destId) {
+                destIdPos = i
+              }
+              if (this.puzzle.pieces[i].pos === sourceId) {
+                sourceIdPos = i
+              }
+            }
+            // move the places in the arrays
+            let oldPlace = this.puzzle.pieces[destIdPos]
+            Vue.set(this.puzzle.pieces, destIdPos, this.puzzle.pieces[sourceIdPos])
+            Vue.set(this.puzzle.pieces, sourceIdPos, oldPlace)
+            
+            this.checkPuzzle()
+          }
+        }
+      }
     },
    
     /* specific for steps 'find-item' */
@@ -1252,15 +1331,14 @@ export default {
   
   /* jigsaw puzzle specific */
   
-  #puzzle-container { padding: 0; margin: 0; width: 100%; background: #777; border: 1px solid #777; display: block; }
-  #puzzle-container li { padding: 0; margin: 0; border: 0px; list-style-type: none; float: left; background-repeat: none; }
+  #pieces { padding: 0; margin: 0; width: 100%; background: #777; border: 1px solid #777; display: block; }
+  #pieces .piece { display: inline-block; margin: 0; box-shadow: inset 0 0 3px #000; text-align: center; cursor: move; background-repeat: none; }
+  #pieces .piece.over { border: 2px dashed #000; }
   
   /* write-text specific */
   
   .answer-text { flex-grow: 1; display: flex; flex-flow: column nowrap; justify-content: center; }
-  .answer-text input { opacity: 0.7; font-size: 1.5em; font-weight: bold; height: 1.5em; background-color: #fff; 
-    border-radius: 0.5rem;
-    box-shadow: 0px 0px 0.1rem 0.1rem #fff;}
+  .answer-text input { opacity: 0.7; font-size: 1.5em; font-weight: bold; height: 1.5em; background-color: #fff; border-radius: 0.5rem; box-shadow: 0px 0px 0.1rem 0.1rem #fff;}
     
   /* new-item specific */
   
@@ -1356,6 +1434,10 @@ export default {
     to {
         opacity: 1;
     }
+  }
+  
+  [draggable] {
+    user-select: none;
   }
   
 </style>
