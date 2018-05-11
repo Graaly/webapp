@@ -114,7 +114,7 @@ var self = {
     string = string.replace(/\n/ig, "<br />")
     string = string.replace(/\r/ig, "<br />")
     return string
-  }
+  },
   
   /**
    * Remplace accentuated chars by non accentuate and lower case char
@@ -123,12 +123,14 @@ var self = {
    *
    * @return string - the formatted string
    */
-  removeAccents: function(s){
-    var r = s.toLowerCase();
-    non_asciis = {'a': '[àáâãäå]', 'ae': 'æ', 'c': 'ç', 'e': '[èéêë]', 'i': '[ìíîï]', 'n': 'ñ', 'o': '[òóôõö]', 'oe': 'œ', 'u': '[ùúûűü]', 'y': '[ýÿ]'};
-    for (i in non_asciis) { r = r.replace(new RegExp(non_asciis[i], 'g'), i); }
-    return r;
-  };
+  removeAccents: function(s) {
+    var r = s.toLowerCase(), 
+      nonAsciis = {'a': '[àáâãäå]', 'ae': 'æ', 'c': 'ç', 'e': '[èéêë]', 'i': '[ìíîï]', 'n': 'ñ', 'o': '[òóôõö]', 'oe': 'œ', 'u': '[ùúûűü]', 'y': '[ýÿ]'}
+    for (var i in nonAsciis) { 
+      r = r.replace(new RegExp(nonAsciis[i], 'g'), i)
+    }
+    return r
+  }
   
 }
 
