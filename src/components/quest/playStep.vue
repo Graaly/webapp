@@ -81,8 +81,6 @@
         </div>
       </div>
       
-      
-      
       <div class="code code-color" v-if="step.type == 'code-color'">
         <div @click="showControlsManually">
           <p class="text">{{ step.text }}</p>
@@ -225,7 +223,7 @@
               @drop="handleDrop($event)"
               @dragend="handleDragEnd($event)"
               :style="'background-image: url(' + puzzle.picture + '); background-size: ' + piece.backSize + '% ' + piece.backSize + '%;background-position: -' + piece.backXPos + ' -' + piece.backYPos + ';'"
-            ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'">{{piece.pos}}</header></div>
+            ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'"></header></div>
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
         <div class="resultMessage fixed-bottom" v-show="playerResult === true ">
@@ -709,7 +707,7 @@ export default {
           break
         
         case 'write-text':
-          this.playerResult = (this.writetext.playerAnswer === this.step.answers)
+          this.playerResult = (utils.removeAccents(this.writetext.playerAnswer) === utils.removeAccents(this.step.answers))
           break
         
         default:
