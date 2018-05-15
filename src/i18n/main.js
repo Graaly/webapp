@@ -322,7 +322,8 @@ module.exports = {
       PleaseSelectAnItemFirst: "Please select an item in your inventory (button in the bottom left), then press the image to use it.",
       ImagesUsedForCode: "Add the images used for the code",
       AddAnImage: "Add an image",
-      ExpectedCode: "Expected code"
+      ExpectedCode: "Expected code",
+      ChallengeYourFriends: "Challenge your friends!"
     }
   },
   fr: {
@@ -648,7 +649,8 @@ module.exports = {
       PleaseSelectAnItemFirst: "Sélectionnez un objet dans votre inventaire d'abord (bouton en bas à gauche), puis cliquez sur l'image pour l'utiliser.",
       ImagesUsedForCode: "Ajouter les images pour le code",
       AddAnImage: "Ajouter une image",
-      ExpectedCode: "Code attendu"
+      ExpectedCode: "Code attendu",
+      ChallengeYourFriends: "Défie tes amis !"
     }
   }
 }
