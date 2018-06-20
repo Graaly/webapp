@@ -112,7 +112,7 @@ export default {
         size: {width: 40, height: 40, f: 'px', b: 'px'},
         scaledSize: {width: 30, height: 30, f: 'px', b: 'px'},
         origin: {x: 0, y: 0},
-        anchor: {x: 0, y: 15}
+        anchor: {x: 15, y: 30}
       },
       team: {
         profile: {

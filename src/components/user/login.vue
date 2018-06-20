@@ -5,15 +5,19 @@
       
       <h1 class="text-center">{{ $t('message.SignIn') }}<br/>{{ $t('message.toStartTheAdventure') }}</h1>
     
-      <div>
+      <!--
+      div>
         <q-btn @click="facebookLogin" class="full-width" color="facebook" icon="fa-facebook-official">Facebook</q-btn>
         <q-btn @click="googleLogin" class="full-width" color="google" icon="fa-google">Google</q-btn>
       </div>
+      -->
     
       <form @submit.prevent="login()">
-      
+        
+        <!--
         <p>{{ $t('message.orSignInWithYourGraalyAccount') }} :</p>
-      
+        -->
+        
         <q-field :error="$v.form.email.$error">
           <q-input type="email" :float-label="$t('message.YourEmail')" v-model="form.email" @blur="$v.form.email.$touch" />
           <div class="q-field-bottom" v-if="$v.form.email.$error">

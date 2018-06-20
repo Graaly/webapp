@@ -80,7 +80,7 @@
 
 
 <script>
-import { Toast } from 'quasar'
+import { Toast, Loading } from 'quasar'
 import { required } from 'vuelidate/lib/validators'
 import QuestService from 'services/QuestService'
 import questCategories from 'data/questCategories.json'
@@ -171,6 +171,7 @@ export default {
       }
     },
     async uploadImage(e) {
+      Loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
@@ -180,6 +181,7 @@ export default {
       let uploadPictureResult = await QuestService.uploadPicture(data)
       if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
         this.form.picture = uploadPictureResult.data.file
+        Loading.hide()
       }
     },
     async getCurrentLocation() {
