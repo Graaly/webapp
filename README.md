@@ -7,10 +7,10 @@
 $ npm install
 
 # install quasar cli
-$ npm install -g quasar-cli@0.6.5
+$ npm install -g quasar-cli
 
-# serve with hot reload at localhost:8081
-$ quasar dev
+# serve with hot reload at localhost:8081, as progressive web app
+$ quasar dev -m pwa
 
 # build for production with minification
 $ quasar build
