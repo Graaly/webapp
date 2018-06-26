@@ -56,7 +56,6 @@ module.exports = {
     'space-infix-ops': 'off',
     'quotes': 'off',
     'eol-last': 'off',
-    'no-multiple-empty-lines': 'off',
     'vue/no-parsing-error': 'off'
   }
 }

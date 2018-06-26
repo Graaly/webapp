@@ -11,7 +11,7 @@
     </q-layout-header>
 
     <q-layout-drawer side="left" v-model="leftDrawerOpen">
-        <q-list no-border link v-if="">
+        <q-list no-border link>
           <q-item @click.native="$router.push('/home')" v-if="isLoggedIn">
             <q-item-side icon="location on" />
             <q-item-main :label="$t('message.QuestsMap')" />

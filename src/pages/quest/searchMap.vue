@@ -53,7 +53,6 @@
         <p class="subtitle">{{ $t('message.createdQuests', { nb: team.profile.statistics.nbQuestsCreated }) }}</p>
       </div>
       
-      
       <div class="score-box">
         <div class="score">
           {{ team.profile.score.total }}

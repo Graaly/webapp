@@ -78,7 +78,6 @@
   
 </template>
 
-
 <script>
 import { required } from 'vuelidate/lib/validators'
 import QuestService from 'services/QuestService'
@@ -244,7 +243,6 @@ export default {
   }
 }
 </script>
-
 
 <style scoped>
 

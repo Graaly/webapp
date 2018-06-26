@@ -2,7 +2,7 @@
   <div class="column" ref="div-column">
     <div class="row">
       <q-list highlight>
-        <q-item v-for="(item, index) in quests" :key="item._id">
+        <q-item v-for="item in quests" :key="item._id">
           <q-item-side>
             <q-icon name="location on" size="2rem" /><br />
             <small v-if="item.distance && item.distance > 0 && item.distance <= 99">{{ item.distance }} {{ $t('message.km') }}</small>

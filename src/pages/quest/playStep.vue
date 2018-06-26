@@ -20,7 +20,6 @@
         <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
       </div>
         
-        
       <div class="choose" v-if="step.type == 'choose'">
         <div @click="showControlsManually">
            <p class="text">{{ step.text }}</p>
@@ -55,7 +54,7 @@
         <div class="typed-code">
           <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
           <tr>
-            <td v-for="(sign, key) in playerCode" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
+            <td v-for="(sign, key) in playerCode":key="key" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
           </tr>
           </table>
         </div>
@@ -141,7 +140,6 @@
         </div>
       </div>
       
-      
       <div class="image-recognition" v-if="step.type == 'image-recognition'">
         <div>
           <p class="text">{{ step.text }}</p>
@@ -165,7 +163,6 @@
         </div>
       </div>
         
-        
       <div class="geolocation" v-if="step.type == 'geolocation'">
         <video ref="camera-stream-for-geolocation" v-show="cameraStreamEnabled"></video>
         <div>
@@ -188,7 +185,6 @@
           <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
         </div>
       </div>
-      
       
       <div class="write-text" v-if="step.type == 'write-text'">
         <div @click="showControlsManually">
@@ -249,7 +245,6 @@
         <q-btn color="primary" class="full-width" @click="saveAndNextStep()">{{ $t('message.Next') }}</q-btn>
         <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
       </div>
-      
       
       <div class="use-item" v-if="step.type == 'use-item'" @click="useItem($event)">
         <div>
