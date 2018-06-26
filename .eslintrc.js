@@ -42,6 +42,21 @@ module.exports = {
     'import/no-extraneous-dependencies': 0,
 
     // allow debugger during development
-    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
+    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
+    
+    'brace-style': 'off',
+    'spaced-comment': 'off',
+    'no-multi-spaces': 'off',
+    'no-trailing-spaces': 'off',
+    'no-trailing-spaces': 'off',
+    'no-undef': 'off',
+    'semi': 'off',
+    'indent': 'off',
+    'space-before-function-paren': 'off',
+    'space-infix-ops': 'off',
+    'quotes': 'off',
+    'eol-last': 'off',
+    'no-multiple-empty-lines': 'off',
+    'vue/no-parsing-error': 'off'
   }
 }
