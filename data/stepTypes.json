@@ -2,7 +2,7 @@
   {
     "category": "transition",
     "code": "info-text",
-    "icon": "file-image-o",
+    "icon": "file-image",
     "title": "ImageAndText",
     "description": "ImageAndTextDesc",
     "showTrick": "no"
@@ -10,7 +10,7 @@
   {
     "category": "transition",
     "code": "info-video",
-    "icon": "file-video-o",
+    "icon": "file-video",
     "title": "Video",
     "description": "VideoDesc",
     "showTrick": "no"

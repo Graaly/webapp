@@ -1,0 +1,111 @@
+<template>
+  
+  <div class="wrapper">
+    <div class="header">
+      <div class="centered">
+        <div class="big-avatar">
+          <div v-if="profile.picture && profile.picture.indexOf('http') !== -1" :style="'background-image: url(' + profile.picture + ');'"></div>
+          <div v-if="profile.picture && profile.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + profile.picture + ');'"></div>
+          <div v-if="!profile.picture" :style="'background-image: url(/statics/profiles/noprofile.png);'"></div>
+        </div>
+        <h1>{{profile.name}}</h1>
+        {{profile.team.currentName}}
+      </div>
+    </div>
+    <q-btn v-show="profile._id == user._id" round flat color="primary" @click="$router.push('/user/profile/' + profile._id + '/modify')" class="fixed" style="right: 18px; top: 58px">
+      <q-icon name="edit" />
+    </q-btn>
+    
+    <q-tabs>
+      <q-route-tab :to="{ name: 'playedQuests', params: { id: $route.params.id } }" slot="title" :label="$t('message.QuestsSuccessful')" exact />
+      <q-route-tab :to="{ name: 'profile', params: { id: $route.params.id } }" slot="title" :label="$t('message.QuestsCreated')" exact />
+    </q-tabs>
+    
+    <div class="tab-content">
+       <p class="score-bar" v-show="profile._id == user._id">
+          {{ $t('message.YouWonNbPoints', {nb: user.score}) }}
+          <img src="/statics/icons/game/medal.png" />
+        </p>
+        
+        <q-list highlight>
+          <q-item v-if="quests && quests.length > 0" v-for="quest in quests" :key="quest._id" @click.native="$router.push('/quest/play/'+quest.questId)">
+            <q-item-side v-if="quest.questData && quest.questData.picture" :avatar="serverUrl + '/upload/quest/' + quest.questData.picture" />
+            <q-item-side v-if="!quest.questData || !quest.questData.picture" :avatar="'/statics/profiles/noprofile.png'" />
+            <q-item-main>
+              <q-item-tile label>{{ quest.questData.title }}</q-item-tile>
+              <q-item-tile sublabel v-if="quest.dateCreated && quest.status == 'finished' && !quest.score">
+                {{ $t('message.PlayedOn') }} {{quest.dateCreated | formatDate}}
+              </q-item-tile>
+              <q-item-tile sublabel v-if="quest.dateCreated && quest.status == 'finished' && quest.score">
+                {{ $t('message.Succeeded') }} {{quest.dateCreated | formatDate}}
+              </q-item-tile>
+              <q-item-tile sublabel v-if="!quest.dateCreated">
+                {{ $t('message.Succeeded') }}
+              </q-item-tile>
+              <q-item-tile sublabel v-if="quest.status == 'in-progress'">
+                {{ $t('message.ContinueThisQuest') }}
+              </q-item-tile>
+            </q-item-main>
+            <q-item-side right class="score">
+              {{ quest.score }}
+            </q-item-side>
+          </q-item>
+          <q-item v-if="quests.length === 0">
+            <q-item-main>
+              <q-item-tile label>{{ $t('message.NoQuestPlayed') }}</q-item-tile>
+            </q-item-main>
+          </q-item>
+        </q-list>
+    
+    </div>
+    
+  </div>
+  
+</template>
+
+<script>
+import QuestService from 'services/QuestService'
+import AuthService from 'services/AuthService'
+
+export default {
+  data () {
+    return {
+      user: {name: "--", picture: "", id: ""},
+      profile: {name: "--", picture: "", id: "", team: {}},
+      quests: [],
+      serverUrl: process.env.SERVER_URL
+    }
+  },
+  mounted() {
+    this.getAccountInformations()
+  },
+  methods: {
+    async getAccountInformations() {
+      let response = await AuthService.getAccount()
+      this.user = response.data
+      
+      if (!this.$route.params.id || this.$route.params.id === 'me' || this.$route.params.id === this.user._id) {
+        this.$store.dispatch('setTitle', this.$t('message.MyProfile'))
+        this.profile = this.user
+        this.listPlayedQuests(this.user._id)
+      } else {
+        this.getProfileInformations(this.$route.params.id)
+        this.listPlayedQuests(this.$route.params.id)
+      }
+    },
+    async listPlayedQuests(id) {
+      let response = await QuestService.ListPlayedByAUser(id)
+      this.quests = response.data
+    },
+    async getProfileInformations(id) {
+      let response = await AuthService.getAccount(id)
+      this.profile = response.data
+      this.$store.dispatch('setTitle', this.profile.name)
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
