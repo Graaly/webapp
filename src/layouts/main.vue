@@ -50,8 +50,7 @@
     </div>
     
     <q-page-container>
-      <!-- <router-view id="main-view" :key="$route.fullPath" /> -->
-      <router-view id="main-view" />
+      <router-view id="main-view" :key="$route.fullPath" />
     </q-page-container>
     
     <div id="screen-too-large"><h5 class="text-center">{{ $t('message.GraalyIsOptimizedForSmallerScreens') }}</h5></div>

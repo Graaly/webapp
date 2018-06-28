@@ -85,7 +85,7 @@ export default {
     async removeStep(stepId) {
       var _this = this; // workaround for closure scope quirks
       
-      await Dialog.create({
+      await this.$q.dialog.create({
         title: 'Souhaitez vous vraiment supprimer cette étape ?',
         // using 'ok: true' & 'cancel: true' properties did not work (cancel button not shown) => used 'buttons' property
         buttons: [

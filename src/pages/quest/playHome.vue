@@ -158,7 +158,7 @@ export default {
         }
         if (maxStepComplete > 0) {
           var self = this
-          Dialog.create({
+          this.$q.dialog.create({
             title: this.$t('message.ContinueThisStep'),
             message: this.$t('message.YouAlreadyStartThisQuest'),
             buttons: [
