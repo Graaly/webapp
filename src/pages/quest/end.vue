@@ -169,7 +169,7 @@ export default {
       
       //var friends = await UserService.listFriends(this.questId)
 
-      ActionSheet.create({
+      this.$q.actionSheet({
         title: this.$t('message.ChallengeYourFriends'),
         gallery: false,
         actions: actions,

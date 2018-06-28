@@ -85,28 +85,17 @@ export default {
     async removeStep(stepId) {
       var _this = this; // workaround for closure scope quirks
       
-      await this.$q.dialog.create({
-        title: 'Souhaitez vous vraiment supprimer cette étape ?',
-        // using 'ok: true' & 'cancel: true' properties did not work (cancel button not shown) => used 'buttons' property
-        buttons: [
-          {
-            label: 'OK',
-            preventClose: true,
-            async handler (data, closeThis) {
-              await StepService.remove(_this.quest._id, stepId)
+      this.$q.dialog({
+        message: 'Souhaitez vous vraiment supprimer cette étape ?',
+        ok: true,
+        cancel: true
+      }).then(async () => {
+        await StepService.remove(_this.quest._id, stepId)
               
-              // reassign a number (1, 2, 3, ...) to remaining steps
-              let removedStepIndex = _this.stepList.map(function(e) { return e._id; }).indexOf(stepId)
-              _this.stepList.splice(removedStepIndex, 1)
-              await _this.reindexSteps()
-              
-              closeThis()
-            }
-          },
-          {
-            label: 'Annuler'
-          }
-        ]
+        // reassign a number (1, 2, 3, ...) to remaining steps
+        let removedStepIndex = _this.stepList.map(function(e) { return e._id; }).indexOf(stepId)
+        _this.stepList.splice(removedStepIndex, 1)
+        await _this.reindexSteps()
       })
     },
     // do not break step numbers sequence 1, 2, 3... when some steps are reordered or removed
