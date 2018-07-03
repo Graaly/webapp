@@ -1,46 +1,53 @@
 <template>
   
-  <div class="wrapper">
+  <div class="wrapper dark-background">
     <div class="page-content top-padding-middle">
       
-      <h1 class="text-center">{{ $t('message.SignIn') }}<br/>{{ $t('message.toStartTheAdventure') }}</h1>
+      <!------------------ TITLE AREA ------------------------>
+      
+      <h1 class="text-center size-3 q-mt-xl q-mb-lg">{{ $t('label.letsGo') }}</h1>
     
-      <!--    
-      <div>
-        <q-btn @click="facebookLogin" class="full-width" color="facebook" icon="fab fa-facebook">Facebook</q-btn>
-        <q-btn @click="googleLogin" class="full-width" color="google" icon="fab fa-google">Google</q-btn>
-      </div>
-      -->
-    
+      <!------------------ EMAIL AREA ------------------------>
+      
       <form @submit.prevent="login()">
         
-        <!--
-        <p>{{ $t('message.orSignInWithYourGraalyAccount') }} :</p>
-        -->
-        
-        <q-field :error="$v.form.email.$error">
-          <q-input type="email" :float-label="$t('message.YourEmail')" v-model="form.email" @blur="$v.form.email.$touch" />
+        <q-field :error="$v.form.email.$error" v-if="userStatus === 'undefined'" class="q-pa-lg">
+          <q-input type="email" dark color="tertiary" :float-label="$t('label.YourEmail')" v-model="form.email" @blur="$v.form.email.$touch" />
           <div class="q-field-bottom" v-if="$v.form.email.$error">
             <div class="q-field-error" v-if="!$v.form.email.required">{{ $t('message.PleaseEnterYourEmailAddress') }}</div>
             <div class="q-field-error" v-if="!$v.form.email.email">{{ $t('message.PleaseEnterAValidEmailAddress') }}</div>
           </div>
         </q-field>
-      
-        <q-field :error="$v.form.password.$error">
-          <q-input type="password" v-model="form.password" :float-label="$t('message.YourPassword')"  @blur="$v.form.password.$touch" />
+        
+        <q-field :error="$v.form.password.$error" v-if="userStatus === 'registred'">
+          <q-input type="password" dark color="tertiary" v-model="form.password" :float-label="$t('message.YourPassword')"  @blur="$v.form.password.$touch" />
           <div class="q-field-bottom" v-if="$v.form.password.$error">
             <div class="q-field-error" v-if="!$v.form.password.required">{{ $t('message.PleaseEnterYourPassword') }}</div>
           </div>
         </q-field>
-      
-        <q-btn type="submit" color="primary" class="full-width">{{ $t('message.StartTheAventure') }}</q-btn>
+        <div v-if="userStatus === 'registred'">
+          <router-link :to="{ path: '/user/forgottenPassword' }">{{ $t('message.ForgottenPassword') }}</router-link>
+        </div>
+        
+        <p class="text-center margin-size-3 q-mt-lg q-mb-xl">
+          <q-btn round color="tertiary" text-color="primary" icon="arrow_forward_ios" type="submit" />
+        </p>
       </form>
+      
+      <!------------------ SOCIAL LOGIN BUTTONS ------------------------>
+      
+      <p class="text-center margin-size-3 q-mt-xl q-mb-lg">
+        {{ $t('label.orSignInWith') }}
+      </p>
+      
+      <div>
+        <q-btn @click="facebookLogin" class="full-width" color="facebook" icon="fab fa-facebook" label="Facebook" />
+        <q-btn @click="googleLogin" class="full-width" color="google" icon="fab fa-google" label="Google" />
+      </div>
     
+      <!------------------ TO REMOVE ------------------------>
       <div class="link-below-button">
         <router-link :to="{ path: '/user/createAccount' }">{{ $t('message.CreateAnAccount') }}</router-link>
-      </div>
-      <div class="link-below-button">
-        <router-link :to="{ path: '/user/forgottenPassword' }">{{ $t('message.ForgottenPassword') }}</router-link>
       </div>
     </div>
   </div>
@@ -54,6 +61,7 @@ import { required, email } from 'vuelidate/lib/validators'
 export default {
   data() {
     return {
+      userStatus: 'undefined',
       form: {
         email: '',
         password: ''
@@ -62,8 +70,6 @@ export default {
     }
   },
   mounted () {
-    // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', this.$t('message.Connection'));
      
     // check if user is redirected to this page to validate his account
     if (this.$route.query.email && this.$route.query.code) {
@@ -75,10 +81,15 @@ export default {
     }
   },
   methods: {
-    login() {
+    async login() {
       this.$v.form.$touch()
       
       if (!this.$v.form.$error) {
+        if (this.userStatus === 'undefined') {
+          let userExisting = await this.checkUserIsExisting(this.form.email)
+        }
+      
+      
         this.$store.dispatch("login", {
           email: this.form.email,
           password: this.form.password
@@ -96,6 +107,17 @@ export default {
           this.$q.notify(this.$t('message.ErrorStandardMessage') + err)
         });
       }
+    },
+    async checkUserIsExisting(email) {
+      let userStatus = await AuthService.checkEmail(email)
+      
+      console.log(userStatus)
+      /*if (userStatus && userStatus.data) {
+        
+      } else {
+      
+      
+      }*/
     },
     async validateAccount(email, code) {
       let validateAccountStatus = await AuthService.validateAccount(email, code)

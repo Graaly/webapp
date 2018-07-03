@@ -55,16 +55,11 @@ module.exports = {
       UseAnItem: "Use an item",
       UseAnItemDesc: "Player use an item of his inventory on a part of a picture"  
     },
-    message: {
+    messages: {
       SignIn: "Sign-in",
       toStartTheAdventure: "to start the adventure!",
-      orSignInWithYourGraalyAccount: "Or sign-in with your Graaly account",
-      YourEmail: "Your email",
-      PleaseEnterYourEmailAddress: "Please enter your email address",
-      pleaseEnterAValidEmailAddress: "Please enter a valid email address",
       YourPassword: "Your password",
       PleaseEnterYourPassword: "Please enter your password",
-      StartTheAventure: "Start the adventure",
       CreateAnAccount: "Create an account",
       ForgottenPassword: "Forgotten password?",
       IncorrectLoginPleaseRetry: "Incorrect login or password, please try again!",
@@ -324,6 +319,13 @@ module.exports = {
       AddAnImage: "Add an image",
       ExpectedCode: "Expected code",
       ChallengeYourFriends: "Challenge your friends!"
+    },
+    label: {
+      letsGo: "Let's Go!",
+      YourEmail: "Your email",
+      PleaseEnterYourEmailAddress: "Please enter your email address",
+      pleaseEnterAValidEmailAddress: "Please enter a valid email address",
+      orSignInWith: "Or sign-in with"
     }
   },
   fr: {
@@ -382,16 +384,11 @@ module.exports = {
       UseAnItem: "Utiliser objet",
       UseAnItemDesc: "Utiliser un objet de l'inventaire"  
     },
-    message: {
+    messages: {
       SignIn: "Connectez-vous",
       toStartTheAdventure: "pour commencer l'aventure !",
-      orSignInWithYourGraalyAccount: "Ou connectez-vous avec votre compte Graaly",
-      YourEmail: "Votre email",
-      PleaseEnterYourEmailAddress: "Veuillez saisir votre adresse email",
-      PleaseEnterAValidEmailAddress: "Veuillez saisir une adresse email valide",
       YourPassword: "Votre mot de passe",
       pleaseEnterYourPassword: "Veuillez saisir votre mot de passe",
-      StartTheAventure: "Commencer l'aventure",
       CreateAnAccount: "Créer un compte",
       ForgottenPassword: "Mot de passe oublié ?",
       IncorrectLoginPleaseRetry: "Indentifiants incorrects, veuillez réessayer",
@@ -651,6 +648,13 @@ module.exports = {
       AddAnImage: "Ajouter une image",
       ExpectedCode: "Code attendu",
       ChallengeYourFriends: "Défie tes amis !"
+    },
+    label: {
+      letsGo: "C'est parti !",
+      YourEmail: "Votre email",
+      PleaseEnterYourEmailAddress: "Veuillez saisir votre adresse email",
+      PleaseEnterAValidEmailAddress: "Veuillez saisir une adresse email valide",
+      orSignInWith: "Ou connectez-vous avec"
     }
   }
 }

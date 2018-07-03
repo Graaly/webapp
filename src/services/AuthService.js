@@ -1,6 +1,12 @@
 import Api from 'services/Api'
 
 export default {
+  
+  // check email
+  checkEmail(email) {
+    return Api().get('check/email/' + email)
+  },
+  
   // user login
   login (email, password) {
     return Api().post('login', {email: email, password: password})

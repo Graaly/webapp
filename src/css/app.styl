@@ -1,3 +1,28 @@
+/////////////////////////////// app generic CSS /////////////////////////////////////
+
+// Page CSS
+.dark-background {
+  background: #e82a34;
+  color: #fff;
+}
+.grow { flex-grow: 1; }
+
+// Labels CSS
+h1.size-3 {
+  font-size: 2rem;
+  font-weight: normal;
+}
+
+// Forms CSS
+.dark-background .q-if-label {
+  color: #fff;
+}
+.dark-background .q-if:after {
+  background-color: #fff;
+}
+
+
+/////////////////////////////////////////////////////////// OLD CSS ///////////////////////////////////////////////////////////////////// 
 // app global css
 
 /* required to avoid useless 50px overflow at bottom */
@@ -18,11 +43,6 @@
   }
 }
 
-#q-app h1 {
-  font-size: 1.3rem;
-  font-weight: normal;
-  margin-top: 0;
-}
 
 .layout-page, .layout-page-container {
   overflow-y: hidden; /* can't easily override calc(100vm - 50px) on .layout-page */
