@@ -4,8 +4,7 @@
   
     <!------------------ MAIN PAGE AREA ------------------------>
     <q-page-container>
-      <!-- <router-view id="main-view" :key="$route.fullPath" /> -->
-      <router-view id="main-view" />
+      <router-view id="main-view" :key="$route.fullPath" />
     </q-page-container>
     
     <!------------------ IF NOT A MOBILE DEVICE ------------------------>

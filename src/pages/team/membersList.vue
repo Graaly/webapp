@@ -136,7 +136,7 @@ export default {
     },
     openInviteFriendPopup () {
       var self = this
-      Dialog.create({
+      this.$q.dialog({
         title: this.$t('message.InviteAFriend'),
         message: this.$t('message.PleaseEnterTheEmailAddressOfThePersonYouWantToInvite'),
         form: {
