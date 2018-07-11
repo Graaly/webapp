@@ -12,8 +12,6 @@ Vue.use(Vuex)
 const state = {
   isLoggedIn: !!localStorage.getItem('isLoggedIn'),
   loginPending: false,
-  title: null,
-  defaultTitle: 'Graaly',
   // for quest steps, keep track of objects given by setInterval() to clear them properly & avoid useless calls
   questSteps: {
     geolocation: {
@@ -34,12 +32,6 @@ const state = {
 // mutations must be synchronous and can be recorded by plugins
 // for debugging purposes.
 const mutations = {
-  setTitle (state, newTitle) {
-    state.title = newTitle
-  },
-  resetTitle (state) {
-    state.title = state.defaultTitle
-  },
   loginStart (state) {
     state.loginPending = true
   },
@@ -49,7 +41,6 @@ const mutations = {
     state.user = user
   },
   logout (state) {
-    state.isLoggedIn = false
     state.user = null
   },
   setLastLoadedRoute(state, route) {
@@ -75,8 +66,6 @@ const mutations = {
 // actions are functions that cause side effects and can involve
 // asynchronous operations.
 const actions = {
-  setTitle: ({ commit }, newTitle) => commit('setTitle', newTitle),
-  resetTitle: ({ commit }) => commit('resetTitle'),
   login: async ({ commit }, creds) => {
     commit('loginStart'); // show spinner
     let result = await AuthService.login(creds.email, creds.password)
@@ -89,7 +78,6 @@ const actions = {
   logout: async ({ commit }) => {
     let result = await AuthService.logout()
     commit('logout')
-    localStorage.setItem('isLoggedIn', false)
     return result
   },
   setLastLoadedRoute: ({ commit }, route) => commit('setLastLoadedRoute', route),

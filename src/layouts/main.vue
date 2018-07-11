@@ -1,5 +1,4 @@
 <template>
-  
   <q-layout view="lHh lpr lfr" :right-breakpoint="1100">
   
     <!------------------ MAIN PAGE AREA ------------------------>
@@ -13,45 +12,38 @@
   </q-layout>
 </template>
 
-<script>
-import { mapState } from 'vuex'
-import AuthService from 'services/AuthService'
- 
+<script> 
 export default {
   data () {
     return {
       user: { name: "--", picture: "", id: "", team: { currentId: 0, profile: { score: { total: 0, members: 0 } } } }
     }
   },
-  computed: mapState(['title', 'isLoggedIn']),
   updated () {
     this.fixLayout()
   },
   mounted () {
     this.fixLayout()
-    
-    // get connected user informations
-    this.getAccountInformations()
   },
   watch: {
     '$route': function(value) {
       this.fixLayout()
-      this.getAccountInformations()
-      // hide search if user change page
     }
   },
   methods: {
-    async getAccountInformations() {
+    /*async getAccountInformations() {
       let response = await AuthService.getAccount()
       if (response.data && response.data.name) {
+      console.log(response.data)
         this.user = response.data
         
         // set the user language
         this.$i18n.locale = this.user.language 
       } else {
-        this.$router.push('/quest/search/text/' + this.searchText)
+      console.log(response)
+        //this.$router.push('/quest/search/text/' + this.searchText)
       }
-    },
+    },*/
     fixLayout() {
       // layout page computed min-height is wrong (too high, includes browser title bar), leading to a
       // useless bottom overflow of 50px, at least on Android Chrome, and maybe other mobile browsers,
@@ -70,5 +62,4 @@ export default {
     }
   }
 }
-
 </script>

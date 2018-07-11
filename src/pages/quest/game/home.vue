@@ -1,54 +1,55 @@
 <template>
-  
-  <div class="scroll" id="scroller" style="max-height:100%;">
+  <div class="scroll" v-scroll="scrolling">
     <div class="fit" id="teaser" v-if="geolocationIsSupported">
+      
+      <!------------------ MAIN INFORMATION AREA ------------------------>
+      
       <div class="fit" :style="'background: url(' + serverUrl + '/upload/quest/' + quest.picture + ' ) center center / cover no-repeat '">
-        <div style="height: 85%">
-          <div class="text-center top-area">
-            <div class="title-area">
-              <h1 class="text-primary">{{ quest.title }}</h1>
-              <p>
-                <span v-if="typeof quest.author !== 'undefined'">{{ quest.author.name }}</span>
-              </p>
-              <p>
-                <span v-if="quest.rating">
-                  <q-rating readonly :value="quest.rating && quest.rating.rounded" color="primary" :max="5" size="1.7rem" />
-                </span>
-              </p>
-              <div class="warning" v-if="this.isRunFinished">
-                <strong>{{ $t('message.YouAlreadyDidThisQuest') }}</strong><br />
-                {{ $t('message.YouCanResolveItAgain') }}
-              </div>
-              <div class="warning" v-if="this.isUserTooFar">
-                <strong>{{ $t('message.QuestIsFarFromUser') }}</strong><br />
-                {{ $t('message.QuestIsFarFromUserDesc') }}
-              </div>
-              <p>
-                <span>{{ $t('message.nbPointsToWin', { nb: quest.availablePoints }) }}</span>
-                &nbsp;
-                <span v-if="quest.mainLanguage"><img class="image-and-text-aligned" :src="'/statics/icons/game/flag-' + quest.mainLanguage + '.png'" /></span>
-              </p>
+        <div>
+          <div class="text-center bottom-dark-banner">
+            <p class="title">{{ quest.title }}</p>
+            <p>
+              <span v-if="quest.rating">
+                <q-rating readonly :value="quest.rating && quest.rating.rounded" color="primary" :max="5" size="1.7rem" />
+              </span>
+              <span>{{ $t('label.nbPointsToWin', { nb: quest.availablePoints }) }}</span>
+            </p>
+            <div class="text-center">
+              <p><q-btn @click="$router.push('/quest/play/' + $route.params.id + '/step/1')" color="primary">{{ $t('label.SolveThisQuest') }}</q-btn></p>
+            </div>
+            <div class="full-width text-center" v-if="!scrolled">
+              {{ $t('label.ScrollForMoreDetails') }}
+              <q-icon class="text-primary big-icon" name="expand_more" @click="moveDown()" />
             </div>
           </div>
-          <div class="text-center">
-            <p><q-btn @click="$router.push('/quest/play/' + $route.params.id + '/step/1')" color="primary">{{ $t('message.SolveThisQuest') }}</q-btn></p>
-          </div>
-        </div>
-        <div class="full-width text-center">
-          <q-icon class="text-primary big-icon" name="expand_more" @click="moveDown()" />
         </div>
       </div>
-      <div class="padding-medium" id="bottom-part">
-        <p v-if="quest.level">{{ $t('message.Difficulty') }}: <img class="image-and-text-aligned" src="/statics/icons/game/magnifying-red.png" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 1 ? 'grey' : 'red') + '.png'" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 3 ? 'red' : 'grey') + '.png'" /></p>
-        <p v-if="quest.duration">{{ $t('message.Duration') }}: {{ quest.duration }} {{ $t('message.minutes') }}</p>
-        <p v-if="quest.startingPlace">{{ $t('message.StartingPoint') }}: {{ quest.startingPlace }}</p>
-        <p style="margin-bottom: 40px" v-html="quest.description"></p>
-        <p class="text-center"><q-btn @click="$router.push('/quest/play/' + $route.params.id + '/step/1')" color="primary">{{ $t('message.SolveThisQuest') }}</q-btn></p>
+      
+      <!------------------ DETAILS AREA ------------------------>
+      
+      <div class="q-pa-md q-pb-xxxl">
+        <q-alert type="warning" class="q-mb-md" v-if="this.isRunFinished">
+          {{ $t('label.YouAlreadyDidThisQuest') }}<br />
+          {{ $t('label.YouCanResolveItAgain') }}
+        </q-alert>
+        <q-alert type="warning" class="q-mb-md" v-if="this.isUserTooFar">
+          {{ $t('label.QuestIsFarFromUser') }}<br />
+          {{ $t('label.QuestIsFarFromUserDesc') }}
+        </q-alert>
+        <p v-if="quest.mainLanguage"><strong>{{ $t('label.Languages') }}:</strong> <img class="image-and-text-aligned" :src="'/statics/icons/game/flag-' + quest.mainLanguage + '.png'" /></p>
+        <p v-if="typeof quest.author !== 'undefined' && quest.author.name"><strong>{{ $t('label.Author') }}:</strong> {{ quest.author.name }}</span>
+        <p v-if="quest.level"><strong>{{ $t('label.Difficulty') }}:</strong> <img class="image-and-text-aligned" src="/statics/icons/game/magnifying-red.png" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 1 ? 'grey' : 'red') + '.png'" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 3 ? 'red' : 'grey') + '.png'" /></p>
+        <p v-if="quest.duration"><strong>{{ $t('label.Duration') }}:</strong> {{ quest.duration }} {{ $t('label.minutes') }}</p>
+        <p v-if="quest.startingPlace"><strong>{{ $t('label.StartingPoint') }}:</strong> {{ quest.startingPlace }}</p>
+        <p v-html="quest.description"></p>
       </div>
     </div>
+    
+    <!------------------ NO GEOLOCATION AREA ------------------------>
+    
     <div class="row enable-geolocation" v-if="!geolocationIsSupported">
       <div class="col-12">
-        <h5>{{ $t('message.PleaseActivateGeolocation') }}</h5>
+        <h5>{{ $t('label.PleaseActivateGeolocation') }}</h5>
         <div v-if="isChrome">
           <p v-html="$t('message.HowToActivateGeolocationOnChrome')"></p>
           <p>
@@ -59,8 +60,8 @@
         </div>
       </div>
     </div>
+    
   </div>
-  
 </template>
 
 <script>
@@ -68,7 +69,6 @@
 import AuthService from 'services/AuthService'
 import QuestService from 'services/QuestService'
 import RunService from 'services/RunService'
-import questLevels from 'data/questLevels.json'
 
 import utils from 'src/includes/utils'
 
@@ -79,7 +79,8 @@ export default {
       serverUrl: process.env.SERVER_URL,
       isRunFinished: false,
       geolocationIsSupported: navigator.geolocation,
-      isUserTooFar: false
+      isUserTooFar: false,
+      scrolled: false
     }
   },
   computed: {
@@ -132,6 +133,10 @@ export default {
     }
   },
   methods: {
+    /*
+     * Get a quest information
+     * @param   {string}    id             Quest ID
+     */
     async getQuest(id) {
       let response = await QuestService.getById(id)
       this.quest = response.data
@@ -141,6 +146,9 @@ export default {
         this.quest.description = utils.replaceBreakByBR(this.quest.description)
       }
     },
+    /*
+     * Get the connected user information about previous runs for this quest
+     */
     async getRun() {
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.quest._id)
@@ -179,18 +187,16 @@ export default {
         }
       }
     },
-    moveDown() {
-      var mainView = document.getElementById('main-view')
-      var height = parseInt(mainView.style.height, 10)
-      document.getElementById('main-view').scrollTop = height
-    },
-    
-    // TODO make this more generic (basic model methods over 'webapp simple JSON files')
-    // e.g. import JSONModels from 'utils/json-models'; questLevels = JSONModels('questLevels'); questLevels.getById(123)
-    // see https://stackoverflow.com/questions/29923879/pass-options-to-es6-module-imports
-    getQuestLevelName(id) {
-      let level = utils.getById(questLevels, id)
-      return level === null ? '' : level.name
+    /*
+     * Follow scroll position
+     * @param   {Number}    position             scroll position
+     */
+    scrolling (position) {
+      if (position > 40) {
+        this.scrolled = true
+      } else {
+        this.scrolled = false
+      }
     }
   }
 }
@@ -198,6 +204,4 @@ export default {
 
 <style scoped>
   .warning { padding: 1rem; font-size: 1.1rem; text-align: justify; background: #ec4; border-bottom: 1px solid #990; margin-bottom: 0.6rem; }
-  .title-area { opacity: .8;background-color: #fff;border-radius: .5rem;padding: 20px;margin: 0;box-shadow: 0 0 0.1rem 0.1rem #fff; height: 100%; }
-  .top-area { min-height: 50%;padding: 40px 30px; }
 </style>

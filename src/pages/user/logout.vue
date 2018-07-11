@@ -1,9 +1,7 @@
 <template>
-  
   <div>
-    <p>{{ $t('message.SignOutInProgress') }}</p>
+    <p>{{ $t('label.SignOutInProgress') }}</p>
   </div>
-  
 </template>
 
 <script>

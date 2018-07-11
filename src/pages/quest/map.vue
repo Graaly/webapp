@@ -1,6 +1,8 @@
 <template>
   <div class="column" ref="div-column">
     
+    <!------------------ MAP AREA ------------------------>
+    
     <div class="row" ref="map" v-if="geolocationIsSupported">
       
       <gmap-map
@@ -14,25 +16,25 @@
         @dragend="dragEnd($event)"
       >
         <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="quest.status === 'played' ? questMarkerPlayed : questMarker"
-          @click="onQuestClick(quest, index)" />
+          @click="openQuestSummary(quest, index)" />
         
         <gmap-info-window :options="infoWindow.options" :position="infoWindow.location" :opened="infoWindow.isOpen" @closeclick="infoWindow.isOpen=false">
           <div class="infoWindow">
-            <h1>{{ currentQuest ? currentQuest.title : '' }}</h1>
-            <p>{{ $t('message.Difficulty') }} : {{ $t('message.' + (currentQuest ? getQuestLevelName(currentQuest.level) : getQuestLevelName(2))) }}</p>
-            <q-btn @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="tertiary">{{ $t('message.Play') }}</q-btn>
+            <p class="title">{{ currentQuest ? currentQuest.title : '' }}</p>
+            <p>{{ $t('label.Difficulty') }} : {{ $t('label.' + (currentQuest ? getQuestLevelName(currentQuest.level) : getQuestLevelName(2))) }}</p>
+            <q-btn @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Play') }}</q-btn>
           </div>
         </gmap-info-window>
-        
       </gmap-map>
-
     </div>
+    
+    <!------------------ NO GEOLOCATION AREA ------------------------>
     
     <div class="row enable-geolocation" v-if="!geolocationIsSupported">
       <div class="col-12">
-        <h5>{{ $t('message.PleaseActivateGeolocation') }}</h5>
+        <h5>{{ $t('label.PleaseActivateGeolocation') }}</h5>
         <div v-if="isChrome">
-          <p v-html="$t('message.HowToActivateGeolocationOnChrome')"></p>
+          <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
           <p>
             {{ $t('message.OnceGeolocationEnabled') }}
             <!-- see https://github.com/vuejs/vue-router/issues/296 -->
@@ -42,37 +44,36 @@
       </div>
     </div>
     
-    <div class="team-box" @click="$router.push('/team/' + team.profile._id + '/members')">
-      <div class="badge">
-        <img :src="serverUrl + '/statics/badges/' + team.profile.badge" />
+    <!------------------ SCORE AREA ------------------------>
+    
+    <div class="score-box">
+      <div class="q-pa-md">{{ $store.state.user.score }} <img src="statics/icons/game/trophy-small.png" /></div>
+    </div>  
+    
+    <!------------------ MENU AREA ------------------------>
+    
+    <div class="menu-background"></div>
+    <div class="menu row">
+      <div class="col centered" @click="openSuccessPage()">
+        <img src="statics/icons/game/menu-quest.png" />
       </div>
-      
-      <div class="desc">
-        <p><h1>{{ team.profile.name }}</h1></p>
-        <p class="subtitle">{{ $t('message.successfulQuests', { nb: team.profile.statistics.nbQuestsSuccessful }) }}</p>
-        <p class="subtitle">{{ $t('message.createdQuests', { nb: team.profile.statistics.nbQuestsCreated }) }}</p>
+      <div class="col centered" @click="openSearchOptions()">
+        <img src="statics/icons/game/menu-main.png" />
       </div>
-      
-      <div class="score-box">
-        <div class="score">
-          {{ team.profile.score.total }}
+      <div class="col centered" @click="openProfilePage()">
+        <div class="mid-avatar">
+          <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
+          <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
+          <div v-if="!$store.state.user.picture" :style="'background-image: url(/statics/profiles/noprofile.png);'"></div>
         </div>
       </div>
-    </div>
-    <div class="row-auto" style="height: 36px; overflow: hidden;">
-      <q-btn class="full-width" @click="$router.push('/quest/create')" color="primary" icon="fas fa-magic">{{ $t('message.CreateAQuestAndWinPoints') }}</q-btn>
-    </div>
-    
+    </div>   
   </div>
 </template>
 
 <script>
 import QuestService from 'services/QuestService'
-import AuthService from 'services/AuthService'
-import TeamService from 'services/TeamService'
-
 import questLevels from 'data/questLevels.json'
-
 import utils from 'src/includes/utils'
 
 export default {
@@ -101,29 +102,17 @@ export default {
       questMarker: {
         url: 'statics/icons/game/pointer-active.png',
         size: {width: 40, height: 40, f: 'px', b: 'px'},
-        scaledSize: {width: 30, height: 30, f: 'px', b: 'px'},
+        scaledSize: {width: 40, height: 40, f: 'px', b: 'px'},
         origin: {x: 0, y: 0},
-        anchor: {x: 15, y: 30}
+        anchor: {x: 20, y: 40}
       },
       questMarkerPlayed: {
         url: 'statics/icons/game/pointer-inactive.png',
         size: {width: 40, height: 40, f: 'px', b: 'px'},
-        scaledSize: {width: 30, height: 30, f: 'px', b: 'px'},
+        scaledSize: {width: 40, height: 40, f: 'px', b: 'px'},
         origin: {x: 0, y: 0},
-        anchor: {x: 15, y: 30}
+        anchor: {x: 20, y: 40}
       },
-      team: {
-        profile: {
-          statistics: {}, 
-          score: {}
-        },
-        news: {
-          limit: 20,
-          skip: 0,
-          items: []
-        }
-      },
-      user: {name: "--", picture: "", id: ""},
       serverUrl: process.env.SERVER_URL
     }
   },
@@ -154,17 +143,12 @@ export default {
     }
   },
   mounted() {
-    // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', this.$t('message.Map'))
-    
-    this.getAccountInformations()
-    
-    // display add to home screen for apple device
-    addToHomescreen()
-   
     this.findLocation()
   },
   methods: {
+    /*
+     * Get user location
+     */
     findLocation() {
       var self = this
       if (this.$data.geolocationIsSupported) {
@@ -190,29 +174,13 @@ export default {
         });
       }
     },
-    async getAccountInformations() {
-      let response = await AuthService.getAccount()
-      this.user = response.data
-      
-      if (this.user.team && this.user.team.currentId) {
-        if (this.user.status === "new") {
-          this.$router.push('/intro')
-        } else {
-          this.getTeam(this.user.team.currentId)
-        }
-      } else {
-        this.$router.push('/intro')
-      }
-    },
-    async getTeam(id) {
-      // get the team informations
-      let response = await TeamService.getById(id)
-      this.team.profile = response.data
-      
-      // compute the total score as the members score + team specific sore
-      this.team.profile.score.total = this.team.profile.score.members + this.team.profile.score.challenges
-    },
-    onQuestClick(quest, idx) {
+    
+    /*
+     * Open the summary box on quest click on the map
+     * @param   {object}    quest           quest data
+     * @param   {string}    idx             uniq index
+     */
+    openQuestSummary(quest, idx) {
       let infoWindow = this.infoWindow
       let questCoordinates = { lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }
       this.infoWindow.location = questCoordinates
@@ -230,12 +198,17 @@ export default {
         this.panTo(questCoordinates)
       }
     },
-    
+     /*
+     * Get the list of quests near the location of the user
+     */
     async getQuests() {
       let response = await QuestService.listNearest(this.mapCenter)
       this.questList = response.data
     },
     
+    /*
+     * Get the level of each quest in the map
+     */
     getQuestLevelName(id) {
       let level = utils.getById(questLevels, id)
       return level === null ? '' : level.name
@@ -307,28 +280,51 @@ export default {
     // t: current time, b: beginning value, c: change in value, d: duration
     easeOutQuad: function (t, b, c, d) {
       return -c * (t /= d) * (t - 2) + b;
-    }
+    },
+    
+    /*
+     * Open the search menu
+     */
+    openSearchOptions() {
+      this.$q.actionSheet({
+        title: 'Article Actions',
+
+        // specify ONLY IF you want grid mode:
+        grid: true,
+
+        actions: [
+          {
+            label: 'Delete',
+
+            // Optional
+            color: 'negative',
+
+            // Choose one of the following two:
+            icon: 'delete', // specify ONLY IF using icon
+            avatar: 'assets/some-avatar.png', // specify ONLY IF using avatar
+
+            // optional; what to do when user chooses this action;
+            // Can also be handled later by using the returned Promise
+            // and identifying the action from "action" param
+            handler () {
+              console.log('Deleted Article')
+            }
+          }
+        ]
+      })
+    },
+    /*
+     * Open the success page
+     */
+    openSuccessPage() {
+      this.$router.push('/user/me/success')
+    },
+    /*
+     * Open the profile page
+     */
+    openProfilePage() {
+      this.$router.push('/user/profile')
+    } 
   }
 }
 </script>
-
-<style scoped>
-#main-view { padding: 0rem; }
-
-.infoWindow {
-  text-align: center;
-  padding: 3px;
-}
-
-.column { display: flex; flex-flow: column nowrap; align-items: stretch;}
-
-.column .row { flex: 1; }
-.column .row, .column .row-auto { width: 100%; }
-
-.map {
-  width: 100%; 
-  height: 100%; 
-}
-
-.enable-geolocation { padding: 1rem; }
-</style>

@@ -1,113 +1,234 @@
 <template>
-  
-  <div class="wrapper">
+  <div class="wrapper dark-background">
     <div class="page-content top-padding-middle">
-      <h1 class="text-center">{{ $t('message.Subscribe') }}<br />{{ $t('message.toStartTheAdventure') }}</h1>
+      
+      <!------------------ TITLE AREA ------------------------>
+      
+      <h1 v-if="step !== 'firstusage'" class="text-center size-3 q-mt-xl q-mb-lg">{{ $t('label.tellUsAboutYou') }}</h1>
+      <h1 v-if="step === 'firstusage'" class="text-center size-3 q-mt-xl q-mb-lg">{{ $t('label.IfYouUseGraalyForTheFirstTime') }}</h1>
     
-      <form @submit.prevent="submit()">
-      
-        <q-field :error="$v.form.email.$error">
-          <q-input type="email" :float-label="$t('message.YourEmail')" v-model="form.email" @blur="$v.form.email.$touch" />
-          <div class="q-field-bottom" v-if="$v.form.email.$error">
-            <div class="q-field-error" v-if="!$v.form.email.required">{{ $t('message.PleaseEnterYourEmailAddress') }}</div>
-            <div class="q-field-error" v-if="!$v.form.email.email">{{ $t('message.PleaseEnterAValidEmailAddress') }}</div>
-          </div>
-        </q-field>
-      
-        <q-field :error="$v.form.name.$error">
-          <q-input :float-label="$t('message.YourName')" v-model="form.name" @blur="$v.form.name.$touch" />
+      <!------------------ FORM AREA ------------------------>
+    
+      <form @submit.prevent="formSubmit()">
+            
+        <q-field :error="$v.form.name.$error" v-if="step === 'generic'">
+          <q-input dark :float-label="$t('label.YourName')" v-model="form.name" @blur="$v.form.name.$touch" />
           <div class="q-field-bottom" v-if="$v.form.name.$error">
-            <div class="q-field-error" v-if="!$v.form.name.required">{{ $t('message.PleaseEnterYourName') }}</div>
+            <div class="q-field-error" v-if="!$v.form.name.required">{{ $t('label.PleaseEnterYourName') }}</div>
           </div>
         </q-field>
+        
+        <q-field v-if="step === 'generic'">
+          <q-select dark :float-label="$t('label.YourSex')" v-model="form.sex" :options="sexes" />
+        </q-field>
+        
+        <q-field v-if="step === 'generic'">
+          <q-select dark :float-label="$t('label.YourAge')" v-model="form.age" :options="ages" />
+        </q-field>
       
-        <q-field :error="$v.form.country.$error">
-          <q-select :float-label="$t('message.YourCountry')" v-model="form.country" :options="countries" @blur="$v.form.country.$touch" />
+        <q-field :error="$v.form.country.$error" v-if="step === 'location'">
+          <q-select dark :float-label="$t('label.YourCountry')" v-model="form.country" :options="countries" @blur="$v.form.country.$touch" />
           <div class="q-field-bottom" v-if="$v.form.country.$error">
-            <div class="q-field-error" v-if="!$v.form.country.required">{{ $t('message.PleaseSelectYourCountry') }}</div>
+            <div class="q-field-error" v-if="!$v.form.country.required">{{ $t('label.PleaseSelectYourCountry') }}</div>
           </div>
         </q-field>
       
-        <q-field :error="$v.form.zipCode.$error">
-          <q-input :float-label="$t('message.YourZipCode')" v-model="form.zipCode" />
+        <q-field :error="$v.form.zipCode.$error" v-if="step === 'location'">
+          <q-input dark :float-label="$t('label.YourZipCode')" v-model="form.zipCode" @blur="$v.form.zipCode.$touch" />
           <div class="q-field-bottom" v-if="$v.form.zipCode.$error">
-            <div class="q-field-error" v-if="!$v.form.zipCode.required">{{ $t('message.PleaseEnterYourZipCode') }}</div>
+            <div class="q-field-error" v-if="!$v.form.zipCode.required">{{ $t('label.PleaseEnterYourZipCode') }}</div>
           </div>
         </q-field>
       
-        <q-field :error="$v.form.password.$error">
-          <q-input type="password" v-model="form.password" :float-label="$t('message.YourPassword')"  @blur="$v.form.password.$touch" />
+        <q-field :error="$v.form.password.$error" v-if="step === 'password'">
+          <q-input dark type="password" v-model="form.password" :float-label="$t('label.YourPassword')"  @blur="$v.form.password.$touch" />
           <div class="q-field-bottom" v-if="$v.form.password.$error">
-            <div class="q-field-error" v-if="!$v.form.password.required">{{ $t('message.PleaseEnterYourPassword') }}</div>
+            <div class="q-field-error" v-if="!$v.form.password.required">{{ $t('label.PleaseEnterYourPassword') }}</div>
+            <div class="q-field-error" v-if="!$v.form.password.minLength">{{ $t('label.YourPasswordMustBe6digitsLength') }}</div>
+            <div class="q-field-error" v-if="!$v.form.password.checkPasswordComplexity">{{ $t('label.PasswordComplexityRule') }}</div>
           </div>
         </q-field>
+        
+        <q-field v-if="step === 'validation'">
+          {{ $t('label.EnterTheCodeYouReceivedByEmail') }}
+          <q-input dark :float-label="$t('label.Code')" v-model="form.code" />
+        </q-field>
+        
+        <p class="text-right q-mt-md q-mb-md" v-if="step === 'validation'">
+          <a @click="generateANewCode()">{{ $t('label.NewCode') }}</a>
+        </p>
+        
+        <p class="text-center q-mt-md q-mb-md" v-if="step === 'firstusage'">
+          <img src="statics/icons/game/discovery.png" />
+        </p>
       
-        <q-btn color="primary" class="full-width">{{ $t('message.StartTheAventure') }}</q-btn>
+        <p class="text-center multiple-btn margin-size-3 q-mt-lg q-mb-xl">
+          <q-btn v-if="step !== 'firstusage'" round color="tertiary" text-color="primary" icon="arrow_back_ios" :loading="submitting" @click="backAction()" />
+          <q-btn round color="tertiary" text-color="primary" icon="arrow_forward_ios" :loading="submitting" type="submit" />
+        </p>
       </form>
     
-      <div class="link-below-button">
-        <router-link :to="{ path: '/user/login' }">{{ $t('message.YouHaveAnAccount') }}</router-link>
+      <!------------------ PRIVATE DATA AREA ------------------------>
+      
+      <div class="link-below-button" v-if="step === 'generic'">
+        <a @click="showPrivateBox = true">{{ $t('label.HowWeUseYourData') }}</a>
       </div>
+      <div v-if="showPrivateBox && step === 'generic'">
+        TODO
+      </div>
+      
     </div>
   </div>
-  
 </template>
 
 <script>
 import AuthService from 'services/AuthService'
-import { required, email } from 'vuelidate/lib/validators'
+import { required, minLength } from 'vuelidate/lib/validators'
+import Notification from 'plugins/NotifyHelper'
+import checkPasswordComplexity from 'plugins/PasswordComplexity'
+
+import countriesFR from 'data/countries_fr.json'
+import countriesEN from 'data/countries_en.json'
+
 export default {
   data () {
     return ({
       form: {
         email: '',
         name: '',
+        sex: '',
+        age: '',
         country: '',
         zipCode: '',
-        password: ''
+        password: '',
+        code: ''
       },
-      // TODO: retrieve real country list from server or .json file
-      countries: [
-        { label: this.$t('Belgium'), value: 'belgium' },
-        { label: this.$t('Spain'), value: 'spain' },
-        { label: this.$t('France'), value: 'france' }
-      ]
+      showPrivateBox: false,
+      submitting: false,
+      step: this.$route.params.step ? this.$route.params.step: 'generic',
+      countries: this.$i18n.locale === 'fr' ? countriesFR : countriesEN,
+      sexes: [{label: this.$t('label.Male'), value: 'male'}, {label: this.$t('label.Female'), value: 'female'}],
+      ages: [{label: '13 - 25', value: '13-25'}, {label: '26 - 39', value: '26-39'}, {label: '40 - 49', value: '40-49'}, {label: '50 - 64', value: '50-64'}, {label: '65 +', value: '65+'}]
     })
   },
   mounted () {
-    // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', this.$t('SignIn'));
+    // check that the email is provided
+    if (this.$route.params.email) {
+      this.form.email = this.$route.params.email
+    } else {
+      // redirect to login page
+      this.$router.push('/user/login')
+    }
   },
   methods: {
-    async submit() {
-      this.$v.form.$touch()
-      
-      if (!this.$v.form.$error) {
-        // TODO keep the original route which required authentification
-        // & redirect user to it when he clicks on the 'verify' link in email
-        let newAccount = {
-          name: this.form.name,
-          email: this.form.email,
-          password: this.form.password,
-          zipcode: this.form.zipCode,
-          country: this.form.country,
-          language: "fr"
-        }
-        let creationStatus = await AuthService.createAccount(newAccount)
-        
-        if (creationStatus.data && creationStatus.data.message) {
-          this.$q.notify({type: 'info', message: creationStatus.data.message})
-        }
+    /*
+     * Manage account creation
+     */
+    async formSubmit() {
+      switch (this.step) {
+        case 'generic':
+          if (!this.$v.form.name.$error) {
+            this.step = 'location'
+          }
+          break
+        case 'location':
+          if (!this.$v.form.country.$error && !this.$v.form.zipCode.$error) {
+            this.step = 'password'
+          }
+          break
+        case 'password':
+          if (!this.$v.form.password.$error) {
+            // sign in user
+            let newAccount = {
+              name: this.form.name,
+              email: this.form.email,
+              sex: this.form.sex,
+              age: this.form.age,
+              password: this.form.password,
+              zipcode: this.form.zipCode,
+              country: this.form.country,
+              language: this.$i18n.locale
+            }
+            this.submitting = true
+            
+            let creationStatus = await AuthService.createAccount(newAccount)
+
+            if (creationStatus.status && creationStatus.status === 200) {
+              this.step = 'validation'
+            } else {
+              Notification(this.$t('label.IncorrectLoginPleaseRetry'), 'warning')
+            }
+            
+            this.submitting = false
+          }
+          break
+        case 'validation':
+          // check validation code
+          let validationStatus = await AuthService.validateAccount(this.form.email, this.form.code)
+          
+          this.submitting = true
+          
+          if (validationStatus.status && validationStatus.status === 200) {
+            this.step = 'firstusage'
+          } else if (validationStatus.data && validationStatus.data.message === "You have tries too much codes") {
+            Notification(this.$t('label.YourAccountIsBlocked'), 'warning')
+          } else {
+            Notification(this.$t('label.IncorrectCodePleaseRetry'), 'warning')
+          }
+          
+          this.submitting = false
+          
+          break
+        case 'firstusage':         
+          let destination = '/home';
+          if (this.$route.query.hasOwnProperty('redirect')) {
+            destination = this.$route.query.redirect
+          }
+          this.$router.push(destination)
+          
+          break
       }
+    },
+    /*
+     * Manage back button actions
+     */
+    async backAction() {
+      switch (this.step) {
+        case 'generic':
+          this.$router.push('/user/login')
+          break
+        case 'location':
+          this.step = 'generic'
+          break
+        case 'password':
+          this.step = 'location'
+          break
+        case 'validation':
+          this.$router.push('/user/login')
+          break
+      }
+    },
+    /*
+     * send a new validation code
+     */
+    async generateANewCode() {
+      this.submitting = true
+      
+      let codeSent = await AuthService.generateANewValidationCode(this.form.email)
+      
+      if (codeSent.status === 200) {
+        Notification(this.$t('label.ANewCodeHasBeenSent'), 'info')
+      }
+      
+      this.submitting = false
     }
   },
   validations: {
     form: {
-      email: { required, email },
       name: { required },
       country: { required },
       zipCode: { required },
-      password: { required }
+      password: { required, minLength: minLength(6), checkPasswordComplexity }
     }
   }
 }

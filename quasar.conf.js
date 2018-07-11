@@ -61,6 +61,7 @@ module.exports = function (ctx) {
     // framework: 'all' --- includes everything; for dev only!
     framework: {
       components: [
+        'QAlert',
         'QBtn',
         'QCheckbox',
         'QField', 
@@ -81,6 +82,7 @@ module.exports = function (ctx) {
         'QPage',
         'QParallax',
         'QPopover',
+        'QProgress',
         'QRadio',
         'QRating',
         'QRouteTab',
@@ -95,7 +97,8 @@ module.exports = function (ctx) {
         'QUploader',
       ],
       directives: [
-        'Ripple'
+        'Ripple',
+        'Scroll'
       ],
       // Quasar plugins
       plugins: [
@@ -109,6 +112,10 @@ module.exports = function (ctx) {
     },
     // animations: 'all' --- includes all animations
     animations: [
+      'slideInLeft',
+      'slideOutLeft',
+      'slideInRight',
+      'slideOutRight'
     ],
     pwa: {
       // workboxPluginMode: 'InjectManifest',

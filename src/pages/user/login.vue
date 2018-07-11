@@ -1,5 +1,4 @@
 <template>
-  
   <div class="wrapper dark-background">
     <div class="page-content top-padding-middle">
       
@@ -7,31 +6,49 @@
       
       <h1 class="text-center size-3 q-mt-xl q-mb-lg">{{ $t('label.letsGo') }}</h1>
     
-      <!------------------ EMAIL AREA ------------------------>
+      <!------------------ FORM AREA ------------------------>
       
-      <form @submit.prevent="login()">
+      <form @submit.prevent="formSubmit()">
         
-        <q-field :error="$v.form.email.$error" v-if="userStatus === 'undefined'" class="q-pa-lg">
-          <q-input type="email" dark color="tertiary" :float-label="$t('label.YourEmail')" v-model="form.email" @blur="$v.form.email.$touch" />
-          <div class="q-field-bottom" v-if="$v.form.email.$error">
-            <div class="q-field-error" v-if="!$v.form.email.required">{{ $t('message.PleaseEnterYourEmailAddress') }}</div>
-            <div class="q-field-error" v-if="!$v.form.email.email">{{ $t('message.PleaseEnterAValidEmailAddress') }}</div>
-          </div>
-        </q-field>
+        <div class="q-pa-lg">
+          <q-field :error="$v.form.email.$error" v-if="step === 'email'">
+            <q-input type="email" dark color="tertiary" :float-label="$t('label.YourEmail')" v-model="form.email" @blur="$v.form.email.$touch" />
+            <div class="q-field-bottom" v-if="$v.form.email.$error">
+              <div class="q-field-error" v-if="!$v.form.email.required">{{ $t('label.PleaseEnterYourEmailAddress') }}</div>
+              <div class="q-field-error" v-if="!$v.form.email.email">{{ $t('label.PleaseEnterAValidEmailAddress') }}</div>
+            </div>
+          </q-field>
         
-        <q-field :error="$v.form.password.$error" v-if="userStatus === 'registred'">
-          <q-input type="password" dark color="tertiary" v-model="form.password" :float-label="$t('message.YourPassword')"  @blur="$v.form.password.$touch" />
-          <div class="q-field-bottom" v-if="$v.form.password.$error">
-            <div class="q-field-error" v-if="!$v.form.password.required">{{ $t('message.PleaseEnterYourPassword') }}</div>
-          </div>
-        </q-field>
-        <div v-if="userStatus === 'registred'">
-          <router-link :to="{ path: '/user/forgottenPassword' }">{{ $t('message.ForgottenPassword') }}</router-link>
+          <q-field v-if="step === 'password'">
+            <q-input type="password" dark color="tertiary" v-model="form.password" :float-label="$t('label.YourPassword')" />
+          </q-field>
+          
+          <!------------------ FORGOTTEN PASS AREA ------------------------>
+          
+          <p class="text-right q-mt-md q-mb-md" v-if="step === 'password'">
+            <a @click="sendForgottenPasswordCode()">{{ $t('label.ForgottenPassword') }}</a>
+          </p>
+          
+          <q-field v-if="step === 'forgottenpassword'">
+            {{ $t('label.EnterTheCodeYouReceivedByEmail') }}
+            <q-input :float-label="$t('label.Code')" v-model="form.code" />
+          </q-field>
+          
+          <q-field v-if="step === 'forgottenpassword'">
+            <q-input type="password" dark color="tertiary" v-model="form.newPassword" :float-label="$t('label.YourNewPassword')" @blur="$v.form.newPassword.$touch" />
+            <div class="q-field-bottom" v-if="$v.form.newPassword.$error">
+              <div class="q-field-error" v-if="!$v.form.newPassword.required">{{ $t('label.PleaseEnterYourPassword') }}</div>
+              <div class="q-field-error" v-if="!$v.form.newPassword.minLength">{{ $t('label.YourPasswordMustBe6digitsLength') }}</div>
+              <div class="q-field-error" v-if="!$v.form.newPassword.checkPasswordComplexity">{{ $t('label.PasswordComplexityRule') }}</div>
+            </div>
+          </q-field>
         </div>
         
-        <p class="text-center margin-size-3 q-mt-lg q-mb-xl">
-          <q-btn round color="tertiary" text-color="primary" icon="arrow_forward_ios" type="submit" />
+        <p class="text-center multiple-btn margin-size-3 q-mt-lg q-mb-xl">
+          <q-btn v-if="step !== 'email'" round color="tertiary" text-color="primary" icon="arrow_back_ios" :loading="submitting" @click="backAction()" />
+          <q-btn round color="tertiary" text-color="primary" icon="arrow_forward_ios" :loading="submitting" type="submit" />
         </p>
+        
       </form>
       
       <!------------------ SOCIAL LOGIN BUTTONS ------------------------>
@@ -39,38 +56,37 @@
       <p class="text-center margin-size-3 q-mt-xl q-mb-lg">
         {{ $t('label.orSignInWith') }}
       </p>
-      
+        
       <div>
         <q-btn @click="facebookLogin" class="full-width" color="facebook" icon="fab fa-facebook" label="Facebook" />
         <q-btn @click="googleLogin" class="full-width" color="google" icon="fab fa-google" label="Google" />
       </div>
     
-      <!------------------ TO REMOVE ------------------------>
-      <div class="link-below-button">
-        <router-link :to="{ path: '/user/createAccount' }">{{ $t('message.CreateAnAccount') }}</router-link>
-      </div>
     </div>
   </div>
-  
 </template>
 
 <script>
 import AuthService from 'services/AuthService'
-import { required, email } from 'vuelidate/lib/validators'
+import { required, minLength, email } from 'vuelidate/lib/validators'
+import checkPasswordComplexity from 'plugins/PasswordComplexity'
+import Notification from 'plugins/NotifyHelper'
 
 export default {
   data() {
     return {
-      userStatus: 'undefined',
+      step: 'email',
       form: {
         email: '',
-        password: ''
+        password: '',
+        newPassword: '',
+        code: ''
       },
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      submitting: false
     }
   },
   mounted () {
-     
     // check if user is redirected to this page to validate his account
     if (this.$route.query.email && this.$route.query.code) {
       this.validateAccount(this.$route.query.email, this.$route.query.code)
@@ -81,84 +97,177 @@ export default {
     }
   },
   methods: {
-    async login() {
-      this.$v.form.$touch()
-      
-      if (!this.$v.form.$error) {
-        if (this.userStatus === 'undefined') {
-          let userExisting = await this.checkUserIsExisting(this.form.email)
-        }
-      
-      
-        this.$store.dispatch("login", {
-          email: this.form.email,
-          password: this.form.password
-        }).then((result) => {
-          if (result.status === 401) {
-            this.$q.notify(this.$t('message.IncorrectLoginPleaseRetry'))
-          } else {
-            let destination = '/home';
-            if (this.$route.query.hasOwnProperty('redirect')) {
-              destination = this.$route.query.redirect
+    /*
+     * Manage login
+     */
+    async formSubmit() {
+      //if (!this.$v.form.$error) {
+      switch (this.step) {
+        case 'email':
+          if (!this.$v.form.email.$error) {
+            // check if the user email is existing
+            var userExisting = await this.checkUserIsExisting(this.form.email)
+
+            if (userExisting && userExisting.status) {
+              if (userExisting.status === 'active') {
+                // show password field
+                this.step = 'password'
+              } else if (userExisting.status === 'new') {
+                // redirect to user creation page
+                this.$router.push('/user/createAccount/' + this.form.email + '/validation')
+              } else if (userExisting.status === 'blocked') {
+                // the user account is blocked (too much password or validation code tries)
+                Notification(this.$t('label.YourAccountIsBlocked'), 'warning')
+              } else {
+                // redirect to user creation page
+                this.$router.push('/user/createAccount/' + this.form.email + '/generic')
+              }
+            } else {
+              Notification(this.$t('label.ErrorStandardMessage'), 'error')
             }
-            this.$router.push(destination)
           }
-        }).catch((err) => {
-          this.$q.notify(this.$t('message.ErrorStandardMessage') + err)
-        });
+          break
+        case 'password':
+          // sign in user
+          var userSignedIn = await this.signIn(this.form.email, this.form.password)
+          if (userSignedIn.status) {
+            if (userSignedIn.status === 'success') {
+              let destination = '/home';
+              if (this.$route.query.hasOwnProperty('redirect')) {
+                destination = this.$route.query.redirect
+              }
+              this.$router.push(destination)
+            }
+            
+            if (userSignedIn.status === 'failed') {
+              Notification(this.$t('label.IncorrectLoginPleaseRetry'), 'warning')
+            }
+          } else {
+            Notification(this.$t('label.ErrorStandardMessage'), 'error')
+          }
+          break
+        case 'forgottenpassword':
+          if (!this.$v.form.newPassword.$error) {
+            // check validation code
+            let changePasswordStatus = await AuthService.changePassword(this.form.email, this.form.newPassword, this.form.code)
+            
+            this.submitting = true
+            
+            if (changePasswordStatus.status && changePasswordStatus.status === 200) {
+              let destination = '/home';
+              if (this.$route.query.hasOwnProperty('redirect')) {
+                destination = this.$route.query.redirect
+              }
+              this.$router.push(destination)
+            } else if (changePasswordStatus.data && changePasswordStatus.data.message === "You have tries too much codes") {
+              Notification(this.$t('label.YourAccountIsBlocked'), 'warning')
+            } else {
+              Notification(this.$t('label.IncorrectCodePleaseRetry'), 'warning')
+            }
+            
+            this.submitting = false
+          }
+          break
+        //}
       }
     },
+    /*
+     * Manage back button actions
+     */
+    async backAction() {
+      switch (this.step) {
+        case 'password':
+          this.step = 'email'
+          break
+        case 'forgottenpassword':
+          this.step = 'password'
+          break
+      }
+    },
+    
+    /*
+     * check if the user email is already existing
+     * @param   {string}    email            user email
+     */
     async checkUserIsExisting(email) {
       let userStatus = await AuthService.checkEmail(email)
-      
-      console.log(userStatus)
-      /*if (userStatus && userStatus.data) {
-        
+      if (userStatus && userStatus.data && userStatus.data.hasOwnProperty('existing') && userStatus.data.existing === true) {
+        return {status: userStatus.data.status}
+      } else if (userStatus && userStatus.data && userStatus.data.hasOwnProperty('existing') && userStatus.data.existing === false) {
+        return {status: 'missing'}
       } else {
-      
-      
-      }*/
+        return {error: 'technical issue'}
+      }
     },
+    
+    /*
+     * sign in user
+     * @param   {string}    email            user email
+     * @param   {string}    password         user password
+     */
+    async signIn(email, password) {
+      let result = await AuthService.login(email, password)
+      
+      if (result.status === 200) {
+        return {status: 'success'}
+      } else if (result.status === 401) {
+        return {status: 'failed', error: 'incorrect login'}
+      } else {
+        return {error: 'technical issue'}
+      }
+    },
+    
+    /*
+     * validate an account with the link provided in the welcome email
+     * @param   {string}    email            user email
+     * @param   {string}    code             validation code
+     */
     async validateAccount(email, code) {
       let validateAccountStatus = await AuthService.validateAccount(email, code)
       
       if (validateAccountStatus.status >= 300 && validateAccountStatus.data && validateAccountStatus.data.message) {
-        this.$q.notify(validateAccountStatus.data.message)
+        Notification(validateAccountStatus.data.message, 'warning')
       } else {
-        this.$q.notify({type: 'positive', message: this.$t('message.YourAccountIsNowValidated')})
+        Notification(this.$t('label.YourAccountIsNowValidated'), 'positive')
       }
     },
-    async validateTeamInvitation(email, code) {
-      let validateTeamInvitationStatus = await AuthService.validateTeamInvitation(email, code)
-      
-      if (validateTeamInvitationStatus.status >= 300 && validateTeamInvitationStatus.data && validateTeamInvitationStatus.data.message) {
-        this.$q.notify(validateTeamInvitationStatus.data.message)
-      } else {
-        this.$q.notify({type: 'positive', message: this.$t('message.YourHaveJoinedTheNewTeam')})
-      }
-    },
-    alert(msg) {
-      this.$q.notify(msg)
-    },
+    
+    /*
+     * manage google login
+     */
     googleLogin() {
       window.location = this.serverUrl + '/auth/google'
       localStorage.setItem('isLoggedIn', true)
     },
+    
+    /*
+     * manage facebook login
+     */
     facebookLogin() {
       window.location = this.serverUrl + '/auth/facebook'
       localStorage.setItem('isLoggedIn', true)
+    },
+    
+    /*
+     * send the forgotten password code
+     */
+    async sendForgottenPasswordCode() {
+      this.submitting = true
+      
+      let codeSent = await AuthService.sendForgottenPasswordCode(this.form.email)
+      
+      if (codeSent.status === 200) {
+        this.step = 'forgottenpassword'
+      }
+      
+      this.submitting = false
     }
   },
   validations: {
     form: {
       email: { required, email },
-      password: { required }
+      newPassword: { required, minLength: minLength(6), checkPasswordComplexity }
     }
   }
 }
 </script>
-
-<style scoped>
-form { margin-top: 1rem; }
-.q-btn { margin: 0.3rem 0; }
-</style>

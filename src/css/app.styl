@@ -1,26 +1,200 @@
 /////////////////////////////// app generic CSS /////////////////////////////////////
 
-// Page CSS
+/////////////////////////////// page CSS /////////////////////////////////////
+
 .dark-background {
   background: #e82a34;
   color: #fff;
 }
-.grow { flex-grow: 1; }
+.grow {
+  flex-grow: 1;
+}
+.dark-background a {
+  color: #fff;
+}
+#main-view {
+  padding: 0rem;
+}
+.infoWindow {
+  text-align: center;
+  padding: 3px;
+}
+.column {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: stretch;
+}
+.column .row {
+  flex: 1;
+}
+.column .row, .column .row-auto {
+  width: 100%;
+}
+.header {
+  width: 100%;
+  background-color: #ccc;
+  color: #e82a34;
+  min-height: 80px;
+  font-size: 1.3rem;
+  line-height: 1.1rem;
+  background-repeat: no-repeat;
+  padding: 10px;
+}
+.header .title {
+  font-size: 1.5em;
+  line-height: 1.1em;
+}
 
-// Labels CSS
+/////////////////////////////// Labels CSS /////////////////////////////////////
 h1.size-3 {
   font-size: 2rem;
   font-weight: normal;
 }
+.align-right {
+  text-align: right;
+}
+.infoWindow .title {
+  font-size: 1.5em;
+}
 
-// Forms CSS
+/////////////////////////////// Forms CSS /////////////////////////////////////
+
 .dark-background .q-if-label {
   color: #fff;
+}
+.q-field-dark .q-field-label, .q-field-dark .q-field-icon, .q-field-dark .q-field-counter, .q-field-dark .q-field-bottom {
+  color: #ef3;
+}
+.dark-background .q-if-focused .q-if-label {
+  color: #eee !important;
+}
+form {
+  margin-top: 1rem;
+}
+.q-btn {
+  margin: 0.3rem 0; 
 }
 .dark-background .q-if:after {
   background-color: #fff;
 }
+.dark-background .q-input-target, .dark-background .q-input-shadow {
+  color: #fff;
+}
+.dark-background .q-if-label, .dark-background .q-if-addon, .dark-background .q-if-control {
+  color: #fff;
+}
 
+/////////////////////////////// Buttons CSS /////////////////////////////////////
+
+.multiple-btn button {
+  margin-left: 20px
+}
+.multiple-btn button:first-child {
+  margin-left: 0px
+}
+
+/////////////////////////////// Menus CSS /////////////////////////////////////
+
+.menu, .menu-background {
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+  height: 120px;
+}
+.menu {
+  height: 120px;
+}
+.menu>div {
+  padding-top: 20px;
+}
+.menu>div:first-child, .menu>div:last-child {
+  padding-top: 35px;
+}
+.menu-background {
+  background: #000;
+  opacity: 0.2;
+}
+
+/////////////////////////////// Tabs CSS /////////////////////////////////////
+
+.q-tab-pane {
+  padding-bottom: 100px; /* to avoid bottom information to be hidden by menu */
+  border: 0px;
+}
+
+/////////////////////////////// Other CSS /////////////////////////////////////
+
+.score-box {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  font-size: 2em;
+}
+.map {
+  width: 100%; 
+  height: 100%; 
+}
+.enable-geolocation {
+  padding: 1rem;
+}
+.big-avatar, .mid-avatar {
+  border-radius: 50%;
+  border: 5px solid #f00;
+}
+.big-avatar, .mid-avatar {
+  overflow: hidden;
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+}
+.big-avatar div, .mid-avatar div {
+  border-radius: 50%;
+}
+.big-avatar div, .mid-avatar div {
+  vertical-align: top;
+}
+.big-avatar div {
+  background-size: 68px 68px;
+  width: 68px;
+  height: 68px;
+}
+.mid-avatar div {
+  background-size: 34px 34px;
+  width: 34px;
+  height: 34px;
+}
+.big-avatar span, .mid-avatar span, .mid-avatar label, .big-avatar label {
+  background: rgba(0,0,0,.54);
+  bottom: 0;
+  color: #fff;
+  font-size: 9px;
+  font-weight: bold;
+  left: 0;
+  line-height: 9px;
+  position: absolute;
+  padding: 7px 0;
+  text-align: center;
+  width: 80px;
+  display: block;
+  cursor: pointer;
+}
+.bottom-dark-banner {
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+  color: #fff;
+  padding: 10px;
+}
+.bottom-dark-banner .title {
+  font-size: 1.5em;
+}
+.q-pb-xxl {
+  padding-bottom: 120px;
+}
+.q-pb-xxxl {
+  padding-bottom: 200px;
+}
 
 /////////////////////////////////////////////////////////// OLD CSS ///////////////////////////////////////////////////////////////////// 
 // app global css
@@ -55,18 +229,6 @@ h1.size-3 {
   padding: 0;
 }
 
-.header {
-  display: table;
-  border-collapse: collapse;
-  width: 100%;
-  background-color: $light-grey-background;
-}
-.header h1 { 
-  font-size: 1.3rem;
-  line-height: 1.1rem;
-  font-weight: bold;
-  margin: 0;
-}
 .centered {
   text-align: center;
 }
@@ -94,22 +256,6 @@ h1.size-3 {
   width: 100px;
   padding-top: 10px;
 }
-.score-box .score {
-  color: $primary;
-  position: relative;
-  min-height: 90px;
-}
-.score-box {
-  background: url('/statics/icons/game/top-secret.png') no-repeat ;
-  background-size: 100px 120px;
-  height: 120px;
-  width: 100px;
-  z-index: 2900;
-  position: absolute;
-  bottom: 36px;
-  right: 8px;
-  padding-top: 20px;
-}
 .score-bar {
   text-align: center;
   font-size: 1.2em;
@@ -118,40 +264,6 @@ h1.size-3 {
   height: 20px;
 }
 
-.big-avatar {
-  border-radius: 50%;
-}
-.big-avatar, .editable {
-  margin: 10px;
-  overflow: hidden;
-  position: relative;
-  display: inline-block;
-  vertical-align: top;
-}
-.big-avatar div {
-  border-radius: 50%;
-}
-.big-avatar div, .editable div {
-  background-size: 100px 100px;
-  vertical-align: top;
-  width: 100px;
-  height: 100px;
-}
-.big-avatar span, .editable span, .editable label, .big-avatar label {
-  background: rgba(0,0,0,.54);
-  bottom: 0;
-  color: #fff;
-  font-size: 9px;
-  font-weight: bold;
-  left: 0;
-  line-height: 9px;
-  position: absolute;
-  padding: 7px 0;
-  text-align: center;
-  width: 100px;
-  display: block;
-  cursor: pointer;
-}
 .quest-avatar {
   width: 200px;
   border-radius: 50%
@@ -184,18 +296,6 @@ h1.size-3 {
 .bottom-separator {
   border-bottom: 1px solid #ffc90e;
 }
-.q-tabs-normal .router-link-active .q-tabs-bar {
-  color: $primary;
-}
-.router-link-active .q-tab-label {
-  color: $primary;
-}
-.q-tabs-normal .active .q-tab-label {
-  color: $primary;
-}
-.q-tabs-normal .active .q-tabs-bar {
-  color: $primary;
-}
 
 .q-list {
   border: 0px !important;
@@ -215,35 +315,6 @@ h1.size-3 {
 }
 
 // Team specific CSS
-
-.team-box {
-  display: table;
-  border-collapse: collapse;
-  width: 100%;
-  background-color: $light-grey-background;
-}
-.team-box > div {
-  display: table-cell;
-  vertical-align: top;
-}
-.team-box h1 {
-  margin: 0;
-  padding: 0;
-  line-height: 0.9rem;
-}
-.team-box div.desc {
-  padding-left: 1rem;
-}
-.team-box .badge {
-  width: 2rem;
-  height: 2rem;
-  padding: 1rem;
-}
-.team-box .badge img {
-  display: block;
-  width: 4rem;
-  height: 4rem;
-}
 
 .link-below-button { 
   width: 100%;

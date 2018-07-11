@@ -44,16 +44,20 @@ export default {
   // a user validate his account
   validateAccount(email, code) {
     return Api().post('account/validate', {email: email, code: code})
-  }, 
+  },
   
-  // accept a team invitation
-  validateTeamInvitation(email, code) {
-    return Api().post('team/invitation/confirm', {email: email, code: code})
-  }, 
+  // change the password
+  changePassword(email, password, code) {
+    return Api().post('user/forgottenpassword/code/validate', {email: email, password: password, code: code})
+  },
   
-  // set an account as active after choosing a team (after /intro page)
-  newToActive() {
-    return Api().post('account/newtoactive')
+  // send a code for a new password
+  sendForgottenPasswordCode(email) {
+    return Api().post('user/forgottenpassword/code/generate', {email: email})
+  },
+  
+  // send a code for a new password
+  generateANewValidationCode(email) {
+    return Api().post('user/validate/code/new', {email: email})
   }
-  
 }
