@@ -2,8 +2,8 @@ import Api from 'services/Api'
 
 export default {
   // list quest near the user
-  listNearest (location) {
-    return Api().get('quests/nearest/' + location.lng + '-' + location.lat)
+  listNearest (location, type) {
+    return Api().get('quests/nearest/' + location.lng + '-' + location.lat + '/' + type)
   },
   // get a quest based on its ID
   getById (id) {
@@ -12,14 +12,16 @@ export default {
   
   find(keyword, location) {
     // to update : better filter with position and keyword
-    return Api().get('quests/find/' + keyword + '/nearest/' + location.lng + '-' + location.lat)  
+    return Api().get('quests/find/' + keyword + '/nearest/' + location.longitude + '-' + location.latitude)  
   },
   
-  // if _id is not provided in data, create (POST), otherwise, update (PUT)
+  // Create a quest
+  create (data) {
+    return Api().post('quest/create', data)
+  },
+  // Save a quest data
   save (data) {
-    return data._id 
-      ? Api().put('quest/' + data._id + '/update', data)
-      : Api().post('quest/create', data)
+    return Api().put('quest/' + data._id + '/update', data)
   },
   
   // Publish a quest

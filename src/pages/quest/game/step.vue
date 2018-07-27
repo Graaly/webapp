@@ -1,27 +1,27 @@
 <template>
-  
   <div>
-  
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
+    
+      <!------------------ TRANSITION AREA ------------------------>
       
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
-        <div id="info-clickable" :class="{ grow: !step.videoStream }" @click="showControlsManually">
+        <div id="info-clickable" :class="{ grow: !step.videoStream }">
           <p class="text">{{ step.text }}</p>
         </div>
         <div class="video" v-if="step.videoStream">
           <video class="full-width" controls controlsList="nodownload" autoplay>
-            <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + step.videoStream" type="video/mp4" />
+            <source :src="serverUrl + '/upload/quest/' + quest.id + '/step/video/' + step.videoStream" type="video/mp4" />
           </video>
         </div>
         <audio controls controlsList="nodownload" autoplay v-if="step.audioStream" class="full-width">
           <source :src="step.audioStream" type="audio/mpeg" />
         </audio>
-        <q-btn color="primary" class="full-width" @click="saveAndNextStep()">{{ $t('message.Next') }}</q-btn>
-        <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
       </div>
         
+      <!------------------ CHOOSE STEP AREA ------------------------>
+      
       <div class="choose" v-if="step.type == 'choose'">
-        <div @click="showControlsManually">
+        <div>
            <p class="text">{{ step.text }}</p>
         </div>
         <div class="answers-text" v-if="answerType === 'text'">
@@ -32,23 +32,24 @@
         <div class="answers-images" v-if="answerType === 'image'">
           <div class="images-block">
             <div v-for="(answer, key) in step.answers" :key="key" :class="answer.class" @click="checkAnswer(key)">
-              <img :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + answer.imagePath" :class="answer.class" />
+              <img :src="serverUrl + '/upload/quest/' + quest.id + '/step/choose-image/' + answer.imagePath" :class="answer.class" />
               <q-btn v-if="answer.class !== null" round :class="answer.class" :icon="answer.icon" disable />
             </div>
           </div>
         </div>
         <div class="actions fixed-bottom row" v-show="playerResult === null">
           <q-btn v-show="step.hint" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
-          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
         </div>
         <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
           <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongAnswer') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
           <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
         </div>
       </div>
-        
+      
+      <!------------------ KEYPAD STEP AREA ------------------------>
+      
       <div class="code" v-if="step.type == 'code-keypad'">
-        <div @click="showControlsManually">
+        <div>
           <p class="text">{{ step.text }}</p>
         </div>
         <div class="typed-code">
@@ -72,7 +73,6 @@
             <q-btn color="primary" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()">{{ $t('message.Confirm') }}</q-btn>
           </div>
           <q-btn v-show="step.hint" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
-          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
         </div>
         <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
            <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongGoodCodeWas') + " " + step.answers }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
@@ -80,11 +80,12 @@
         </div>
       </div>
       
+      <!------------------ CODE COLOR STEP AREA ------------------------>
+      
       <div class="code code-color" v-if="step.type == 'code-color'">
-        <div @click="showControlsManually">
+        <div>
           <p class="text">{{ step.text }}</p>
         </div>
-        
         <div class="color-bubbles">
           <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">&nbsp;</div>
         </div>
@@ -95,7 +96,6 @@
             <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('message.Confirm') }}</q-btn>
           </div>
           <q-btn v-show="step.hint" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
-          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
         </div>
         <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
            <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongAnswer') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
@@ -103,11 +103,12 @@
         </div>
       </div>
       
+      <!------------------ IMAGE CODE STEP AREA ------------------------>
+      
       <div class="code code-image" v-if="step.type == 'code-image'">
-        <div @click="showControlsManually">
+        <div>
           <p class="text">{{ step.text }}</p>
         </div>
-        
         <table>
           <tr>
             <td v-for="(code, index) in playerCode" :key="index" class="text-center">
@@ -116,7 +117,7 @@
           </tr>
           <tr>
             <td v-for="(code, index) in playerCode" :key="index">
-              <img :id="'image-code-' + index" :src="serverUrl + '/upload/quest/' + questId + '/step/code-image/' + step.answers.images[code].imagePath" />
+              <img :id="'image-code-' + index" :src="serverUrl + '/upload/quest/' + quest.id + '/step/code-image/' + step.answers.images[code].imagePath" />
             </td>
           </tr>
           <tr>
@@ -132,7 +133,6 @@
             <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('message.Confirm') }}</q-btn>
           </div>
           <q-btn v-show="step.hint" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
-          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
         </div>
         <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
            <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongAnswer') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
@@ -140,12 +140,14 @@
         </div>
       </div>
       
+      <!------------------ IMAGE RECOGNITION STEP AREA ------------------------>
+      
       <div class="image-recognition" v-if="step.type == 'image-recognition'">
         <div>
           <p class="text">{{ step.text }}</p>
         </div>
         <div class="photo">
-          <img ref="original-photo" :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
+          <img ref="original-photo" :src="serverUrl + '/upload/quest/' + quest.id + '/step/image-recognition/' + step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
           <video ref="camera-stream-for-recognition" v-show="cameraStreamEnabled"></video>
           <canvas ref="photo-buffer" class="hidden"></canvas>
           <img ref="player-photo" v-show="photoTaken" :alt="$t('message.TheScreenCaptureWillAppearInThisBox')" />
@@ -157,12 +159,13 @@
             <q-btn color="primary" @click="checkPhoto()" icon="done">{{ $t('message.Check') }}</q-btn>
           </div>
           <q-btn v-show="step.hint && !photoTaken" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
-          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep && !photoTaken">{{ $t('message.BackToPreviousStep') }}</q-btn>
           <div class="text resultMessage" :class="playerResult ? 'right' : 'wrong'" v-show="playerResult !== null">{{ playerResult ? $t('message.WellDone') : $t('message.PhotosDoesntMatch') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
           <q-btn v-show="photoTaken" color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
         </div>
       </div>
-        
+      
+      <!------------------ GEOLOCALISATION STEP AREA ------------------------>
+      
       <div class="geolocation" v-if="step.type == 'geolocation'">
         <video ref="camera-stream-for-geolocation" v-show="cameraStreamEnabled"></video>
         <div>
@@ -182,12 +185,13 @@
           <q-btn v-if="playerResult" color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
           <q-btn v-if="!playerResult" color="primary" class="full-width" @click="passStep()">{{ $t('message.Pass') }}</q-btn>
           <q-btn v-show="step.hint && !playerResult" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
-          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
         </div>
       </div>
       
+      <!------------------ SIMPLE TEXT INPUT STEP AREA ------------------------>
+      
       <div class="write-text" v-if="step.type == 'write-text'">
-        <div @click="showControlsManually">
+        <div>
           <p class="text">{{ step.text }}</p>
         </div>
         <div class="answer-text">
@@ -196,7 +200,6 @@
         </div>
         <div class="actions fixed-bottom" v-show="playerResult === null">
           <q-btn v-show="step.hint && playerResult === null" @click="askForHint()" class="full-width" icon="lightbulb outline" color="primary">{{ $t('message.DisplayAHint') }}</q-btn>
-          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
         </div>
         <div class="resultMessage fixed-bottom" v-show="playerResult !== null">
           <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('message.GoodAnswer') : $t('message.WrongAnswer') }}<span v-if="playerResult && !isRunFinished"> +10 {{ $t('message.points') }}</span></div>
@@ -204,7 +207,8 @@
         </div>
       </div>
       
-      <!-- jigsaw puzzle steps -->
+      <!------------------ JIGSAW STEP AREA ------------------------>
+      
       <div class="puzzle" v-if="step.type == 'jigsaw-puzzle'">
         <div>
           <p class="text">{{ step.text }}</p>
@@ -228,29 +232,27 @@
         </div>
         <div class="actions fixed-bottom" v-show="playerResult !== true">
           <q-btn color="primary" class="full-width" @click="passStep()">{{ $t('message.Pass') }}</q-btn>
-          <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
         </div>
       </div>
       
-      <!-- inventory steps -->
+      <!------------------ INVENTORY STEP AREA ------------------------>
       
       <div class="new-item" v-if="step.type == 'new-item'">
         <div>
           <p class="text">{{ step.text }}</p>
         </div>
         <div class="item">
-          <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + step.answers.picture" />
+          <img :src="serverUrl + '/upload/quest/' + quest.id + '/step/new-item/' + step.answers.picture" />
           <p>{{ step.answers.title }}</p>
         </div>
         <q-btn color="primary" class="full-width" @click="saveAndNextStep()">{{ $t('message.Next') }}</q-btn>
-        <q-btn @click="previousStep()" class="full-width" color="tertiary" v-show="canGoToPreviousStep">{{ $t('message.BackToPreviousStep') }}</q-btn>
       </div>
       
       <div class="use-item" v-if="step.type == 'use-item'" @click="useItem($event)">
         <div>
           <p class="text">{{ step.text }}</p>
         </div>
-        <div ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
+        <div ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + quest.id + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
           <img id="cross" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="/statics/icons/game/find-item-locator.png" />
         </div>
         <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 3">
@@ -266,11 +268,13 @@
         </div>
       </div>
       
+      <!------------------ FIND ITEM STEP AREA ------------------------>
+      
       <div class="find-item" v-if="step.type == 'find-item'" @click="findItem($event)">
         <div>
           <p class="text">{{ step.text }}</p>
         </div>
-        <div ref="findItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
+        <div ref="findItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + quest.id + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
           <img id="cross" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="/statics/icons/game/find-item-locator.png" />
         </div>
         <div class="resultMessage fixed-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 3">
@@ -285,27 +289,63 @@
           <q-btn color="primary" class="full-width" @click="nextStep()">{{ $t('message.Next') }}</q-btn>
         </div>
       </div>
-      
-      <!-- inventory button -->
       <q-btn v-if="step.type == 'use-item' && nbTry < 3 && playerResult === null && run.inventory.length > 0" round class="inventory-btn" color="primary" @click="openInventory">
         <q-icon v-show="!this.selectedItem" name="fa-briefcase" />
-        <img v-if="this.selectedItem" :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + this.selectedItem.picture" />
+        <img v-if="this.selectedItem" :src="serverUrl + '/upload/quest/' + quest.id + '/step/new-item/' + this.selectedItem.picture" />
       </q-btn>
       
+      <!------------------ INVENTORY PAGE AREA ------------------------>
+      
       <transition name="slideInBottom">
-        <div class="inventory" v-show="isInventoryOpen">
-          <h1>{{ $t('message.Inventory') }}</h1>
-          <p>{{ $t('message.InventoryUsage') }}</p>
+        <div class="inventory panel-bottom" v-show="inventory.isOpened">
+          <h1>{{ $t('label.Inventory') }}</h1>
+          <p v-if="inventory.items.length > 0">{{ $t('label.InventoryUsage') }}</p>
+          <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
-            <div v-for="(item, key) in inventory" :key="key" @click="selectItem(item)">
-              <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture" />
+            <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
+              <img :src="serverUrl + '/upload/quest/' + quest.id + '/step/new-item/' + item.picture" />
               <p>{{ item.title}}</p>
             </div>
           </div>
         </div>
       </transition>
+      
+      <!------------------ INFO PAGE AREA ------------------------>
+      
+      <transition name="slideInBottom">
+        <div class="panel-bottom no-padding" v-show="info.isOpened" :style="'background: url(' + serverUrl + '/upload/quest/' + info.quest.picture + ' ) center center / cover no-repeat '">
+          <div class="text-center bottom-dark-banner">
+            <p class="title">{{ info.quest.title }}</p>
+            <q-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-progress>
+            <p class="q-pa-md score-text">{{ run.score }} <q-icon color="white" name="fa-trophy" /><img src="statics/icons/game/cup-small-white.png" /></p>
+            <q-btn class="q-mb-xl" color="primary">{{ $t('label.LeaveQuest') }}</q-btn>
+          </div>
+        </div>
+      </transition>
+      
+      <!------------------ HINT PAGE AREA ------------------------>
+      
+      <transition name="slideInBottom">
+        <div class="hint panel-bottom" v-show="hint.isOpened">
+          <h1>{{ $t('label.Hint') }}</h1>
+          <p v-if="hint.label === ''">{{ $t('label.NoHintForThisStep') }}</p>
+          <p v-if="hint.label !== ''">{{ hint.label }}</p>
+        </div>
+      </transition>
         
     </div>
+    
+    <!------------------ FOOTER AREA ------------------------>
+    
+    <q-layout-footer v-model="footer.show">
+      <q-tabs>
+        <q-tab slot="title" name="inventory" icon="work" @click="openInventory()" />
+        <q-tab slot="title" name="next" icon="arrow_back" @click="previousStep()" />
+        <q-tab slot="title" name="info" icon="info" @click="openInfo()" />
+        <q-tab slot="title" name="previous" icon="arrow_forward" disable @click="saveAndNextStep()" />
+        <q-tab slot="title" name="hint" icon="lightbulb outline" :disable="!step || !step.hint || step.hint === ''" @click="askForHint()"/>
+      </q-tabs>
+    </q-layout-footer>
   </div>
   
 </template>
@@ -313,10 +353,9 @@
 <script>
 import simi from 'src/includes/simi' // for image similarity
 import utils from 'src/includes/utils'
-
 import RunService from 'services/RunService'
 import StepService from 'services/StepService'
-
+import QuestService from 'services/QuestService'
 import colorsForCode from 'data/colorsForCode.json'
 import questItems from 'data/questItems.json'
 
@@ -331,12 +370,31 @@ Vue.directive('sortable', {
 export default {
   data () {
     return {
-      step: {},
+      footer: {
+        show: true
+      },
+      inventory: {
+        isOpened: false,
+        items: []
+      },
+      hint: {
+        isOpened: false,
+        label: ""
+      },
+      info: {
+        isOpened: false,
+        quest: {}
+      },
+      quest: {
+        id: this.$route.params.questId
+      },
+      step: {
+        nextNumber: 2
+      },
       run: {},
       isRunFinished: false,
       playerResult: null,
       cameraStreamEnabled: false,
-      questId: this.$route.params.questId,
       serverUrl: process.env.SERVER_URL,
       nbTry: 0,
       controlsAreDisplayed: false,
@@ -386,12 +444,7 @@ export default {
       selectedItem: null,
       
       // for step type 'find-item'
-      itemAdded: null,
-      
-      inventory: [],
-      isInventoryOpen: false,
-      
-      canGoToPreviousStep: false
+      itemAdded: null
     }
   },
   mounted () {
@@ -399,19 +452,16 @@ export default {
     this.getStep().then(async (step) => {
       // redirect to latest step run if user can not access this step
       if (step.redirect) {
-        return this.$router.push('/quest/play/' + this.questId + '/step/' + step.redirect)
+        return this.$router.push('/quest/play/' + this.quest.id + '/step/' + step.redirect)
       }
     
       // no more available step => we reached end of quest
       if (typeof step === 'undefined' || step === 'OK') {
-        return this.$router.push('/quest/' + this.questId + '/end')
+        return this.$router.push('/quest/' + this.quest.id + '/end')
       }
       
-      // set title
-      this.$store.dispatch('setTitle', step.title.substr(0, 25))
-      
       // List all run for this quest for current user
-      var runs = await RunService.listForAQuest(this.questId)
+      var runs = await RunService.listForAQuest(this.quest.id)
       var maxStepComplete = 0
       
       if (runs && runs.data && runs.data.length > 0) {
@@ -428,7 +478,7 @@ export default {
       }
       if (maxStepComplete === 0) {
         // no 'in-progress' run => create run for current player & current quest
-        let res = await RunService.init(this.questId)
+        let res = await RunService.init(this.quest.id)
         if (res.status === 200 && res.data && res.data._id) {
           this.$store.dispatch('setCurrentRun', res.data)
           this.run = res.data
@@ -436,14 +486,11 @@ export default {
       }
             
       this.step = step
+      // TODO : manage non continuous path quests
+      this.step.nextNumber = this.step.number + 1
       
       // refresh current run Id in store (step "end" uses it)
       this.$store.dispatch('setCurrentRun', this.run)
-      
-      // define if user can go back to previous step
-      if (this.step.number > 1) {
-        this.canGoToPreviousStep = true
-      }
       
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
@@ -459,7 +506,7 @@ export default {
             background.style.backgroundColor = '#fff'
             this.showControls()
           } else {
-            background.style.background = '#fff url("' + process.env.SERVER_URL + '/upload/quest/' + this.questId + '/step/background/' + this.step.backgroundImage + '") center/cover no-repeat'
+            background.style.background = '#fff url("' + process.env.SERVER_URL + '/upload/quest/' + this.quest.id + '/step/background/' + this.step.backgroundImage + '") center/cover no-repeat'
             // all background clickable for transitions
             //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
               //let clickable = document.getElementById('info-clickable')
@@ -567,57 +614,77 @@ export default {
     }
   },
   methods: {
-    
-    /* general / multi step methods */
+    /*
+     * Show controls buttons
+     */
     showControls () {
       this.controlsAreDisplayed = !this.controlsAreDisplayed
     },
-    showControlsManually () {
-      /*
-      this.controlsAreDisplayed = !this.controlsAreDisplayed
-      if (!this.controlsAreDisplayed) {
-        let clickable = document.getElementById('main-view')
-        clickable.addEventListener("mousedown", this.showControls, false);
-      } else {
-        let clickable = document.getElementById('main-view')
-        clickable.removeEventListener("mousedown", this.showControls, false);
-      }
-      */
-    },
+    /*
+     * Get the step data
+     */
     async getStep () {
-      return StepService.getByNumber(this.$route.params.questId, this.$route.params.stepNumber)
+      return StepService.getByNumber(this.quest.id, this.$route.params.stepNumber)
     },
-    
+    /*
+     * Move to next step
+     */
     async nextStep() {
       if (this.step.nextNumber === "no next step") {
-        this.$router.push('/quest/' + this.questId + '/end')
+        this.$router.push('/quest/' + this.quest.id + '/end')
       } else {
-        this.$router.push('/quest/play/' + this.questId + '/step/' + this.step.nextNumber);
+        this.$router.push('/quest/play/' + this.quest.id + '/step/' + this.step.nextNumber);
       }
     },
+    /*
+     * Save step answers and move to next step
+     */
     async saveAndNextStep() {
       await this.saveResult('success')
       await this.nextStep()
     },
+    /*
+     * Pass the current step
+     */
     async passStep() {
       await this.saveResult('pass')
       await this.nextStep()
     },
+    /*
+     * Return to previous step
+     */
     async previousStep() {
       if (this.step.number && this.step.number > 1) {
-        this.$router.push('/quest/play/' + this.step.questId + '/step/' + (this.step.number - 1))
+        this.$router.push('/quest/play/' + this.quest.id + '/step/' + (this.step.number - 1))
+      } else {
+        this.$router.push('/quest/play/' + this.quest.id)
       }
     },
-    
+    /*
+     * Ask for a hint
+     */
     async askForHint() {
-      await this.saveResult('hint')
-      this.$q.notify({
-        message: this.$t('message.Hint') + ' : ' + this.step.hint,
-        timeout: 10000,
-        icon: 'lightbulb outline'
-      })
+      if (this.hint.isOpened) {
+        this.closeAllPanels()
+      } else {
+        let hintLabel = await RunService.getHint(this.run._id, this.step._id)
+
+        if (hintLabel && hintLabel.hint) {
+          this.hint.label = hintLabel.hint
+          this.closeAllPanels()
+          this.hint.isOpened = true
+        }
+      }
     },
-    
+    closeAllPanels() {
+      this.inventory.isOpened = false
+      this.info.isOpened = false
+      this.hint.isOpened = false
+    },
+    /*
+     * Check if the answer is correct
+     * @param   {Object}    selectedAnswerKey            Answer object
+     */
     async checkAnswer(selectedAnswerKey) {
       if (this.playerResult !== null) {
         return
@@ -710,7 +777,7 @@ export default {
       
       await this.saveResult((this.playerResult ? 'success' : 'fail'))
     },
-    
+    // TODO : to remove ?
     getRightAnswerKey() {
       for (let i = 0; i < this.step.answers.length; i++) {
         if (this.step.answers[i].isRightAnswer) {
@@ -719,16 +786,28 @@ export default {
       }
       throw new Error('No right answer found')
     },
-    
+    /*
+     * Reset the key pad 
+     */
     resetKeypadCode() {
       this.playerCode = Array(this.step.answers.length).fill("")
     },
+    /*
+     * Reset the color code pad
+     */
     resetColorCode() {
       this.playerCode = Array(4).fill('red')
     },
+    /*
+     * Reset the image code pad
+     */
     resetImageCode() {
       this.playerCode = [0, 0, 0, 0]
     },
+    /*
+     * Display next image in the image code pad
+     * @param   {Number}    key            index in the code list array
+     */
     nextCodeAnswer: function(key) {
       this.playerCode[key]++
       var nbImagesUploaded = this.getNbImageUploadedForCode()
@@ -736,8 +815,12 @@ export default {
         this.playerCode[key] = 0
       }
       // force src refresh
-      document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.questId + '/step/code-image/' + this.step.answers.images[this.playerCode[key]].imagePath
+      document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.quest.id + '/step/code-image/' + this.step.answers.images[this.playerCode[key]].imagePath
     },
+    /*
+     * Display the next image in the image code pad
+     * @param   {Number}    key            Index in the code list array
+     */
     previousCodeAnswer: function(key) {
       this.playerCode[key]--
       var nbImagesUploaded = this.getNbImageUploadedForCode()
@@ -745,8 +828,11 @@ export default {
         this.playerCode[key] = nbImagesUploaded - 1
       }
       // force src refresh
-      document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.questId + '/step/code-image/' + this.step.answers.images[this.playerCode[key]].imagePath
+      document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.quest.id + '/step/code-image/' + this.step.answers.images[this.playerCode[key]].imagePath
     },
+    /*
+     * Get the number of images for the image code pad
+     */
     getNbImageUploadedForCode() {
       var nbImagesUploaded = 0
       for (var i = 0; i < this.step.answers.images.length; i++) {
@@ -756,7 +842,10 @@ export default {
       }
       return nbImagesUploaded
     },
-    
+    /*
+     * Save the results
+     * @param   {string}    success            define if answer was right or wrong
+     */
     async saveResult(success) {
       // TODO to avoid cheating, all answer checks
       let response = await RunService.saveResult(this.run._id, this.step._id, success)
@@ -768,9 +857,10 @@ export default {
         this.$q.notify({type: 'negative', message: this.$i18n.t('message.TechnicalIssue')})
       }
     },
-    
-    /* specific methods for step type 'code-keypad' */
-    
+    /*
+     * Add a number in the pad
+     * @param   {string}    char            Number to display
+     */
     addCodeChar(char) {
       // find next empty char in typed code
       let nextEmptyCharIndex = this.playerCode.indexOf('');
@@ -781,7 +871,9 @@ export default {
       
       Vue.set(this.playerCode, nextEmptyCharIndex, char)
     },
-    
+    /*
+     * Clear the latest char in the pad
+     */
     clearLastCodeChar() {
       // find next non empty char in typed code
       let lastTypedCharIndex = this.playerCode.indexOf('')
@@ -793,9 +885,10 @@ export default {
       
       Vue.set(this.playerCode, lastTypedCharIndex, '')
     },
-    
-    /* specific methods for step type 'code-color' */
-    
+    /*
+     * Change the color of a circle in the color pad
+     * @param   {number}    index            Index in the colors array
+     */
     changeColorForCode(index) {
       if (this.playerResult !== null) {
         return
@@ -804,9 +897,10 @@ export default {
       let nextColorIndex = (currentColorIndex + 1) % colorsForCode.length
       this.$set(this.playerCode, index, colorsForCode[nextColorIndex])
     },
-    
-    /* specific methods for step type 'code-image' */
-    
+    /*
+     * Change the image in the image code pad
+     * @param   {number}    index            Index in the images array
+     */
     changeImageForCode(index) {
       if (this.playerResult !== null) {
         return
@@ -815,9 +909,9 @@ export default {
       let nextColorIndex = (currentColorIndex + 1) % colorsForCode.length
       this.$set(this.playerCode, index, colorsForCode[nextColorIndex])
     },
-    
-    /* specific methods for step type 'image-recognition' */
-    
+    /*
+     * Display / hide camera
+     */
     togglecameraStream() {
       // already enabled ? => disable
       
@@ -863,7 +957,9 @@ export default {
         }
       }, false);
     },
-    
+    /*
+     * Check if a photo is similar to the one expected
+     */
     checkPhoto() {
       // take photo & stop camera flow
       let photoBuffer = this.$refs['photo-buffer']
@@ -882,7 +978,7 @@ export default {
         
         let imgOriginalPhoto = new Image()
         imgOriginalPhoto.crossOrigin = "anonymous";
-        imgOriginalPhoto.src = this.serverUrl + '/upload/quest/' + this.questId + '/step/image-recognition/' + this.step.answers
+        imgOriginalPhoto.src = this.serverUrl + '/upload/quest/' + this.quest.id + '/step/image-recognition/' + this.step.answers
         
         imgOriginalPhoto.onload = async () => {
           canvasOriginalPhoto.width = imgOriginalPhoto.naturalWidth
@@ -897,21 +993,26 @@ export default {
         }
       }
     },
-    
+    /*
+     * Stop the video tracking
+     */
     stopVideoTracks() {
       this.$refs['camera-stream-for-recognition'].srcObject.getVideoTracks().forEach(function(track) { track.stop() })
       this.cameraStreamEnabled = false
     },
-    
-    /* specific methods for step type 'geolocation' */
-    
+    /*
+     * Check device orientation
+     * @param   {object}    event            Event tracked
+     */
     handleOrientation(event) {
       // Chrome support only
       // TODO Support Safari/iOS using property webkitCompassHeading, see
       this.geolocation.alpha = (360 - event.alpha)
       this.geolocation.direction = Math.round((this.geolocation.rawDirection - this.geolocation.alpha + 360) % 360)
     },
-    
+    /*
+     * Draw direction arrows for geolocation
+     */
     drawDirectionArrow() {
       if (this.geolocation.alpha === null || document.querySelector('.direction-helper canvas')) {
         let drawDirectionInterval = this.$store.state.questSteps.geolocation.drawDirectionInterval
@@ -964,12 +1065,18 @@ export default {
       
       ctx.restore()
     },
-    
+    /*
+     * Handle location error
+     * @param   {string}    err            Error string
+     */
     watchLocationError(err) {
       console.warn('Could not get location from watchPosition()')
       console.log(err)
     },
-    
+    /*
+     * Handle location tracking success
+     * @param   {object}    pos            User position
+     */
     async watchLocationSuccess(pos) {
       let current = pos.coords;
       let target = this.step.answers
@@ -989,21 +1096,25 @@ export default {
       
       this.geolocation.rawDirection = this.geolocation.currentBearing
     },
-    
-    /* specific for steps 'new-item' */
-    
+    /*
+     * Get the icon for an inventory item
+     * @param   {string}    code            item code
+     */
     getItemIcon(code) {
       let item = questItems.find(item => item.code === code)
       return typeof item !== 'undefined' ? item.icon : 'clear'
     },
-    
+    /*
+     * Fill the inventory with objects won by the user
+     */
     async fillInventory() {
       // load items won on previous steps
-      this.inventory = await StepService.listWonObjects(this.questId, this.step._id)
+      this.inventory.items = await StepService.listWonObjects(this.quest.id, this.step._id)
     },
-    
-    /* specific for steps 'use-item' */
-    
+    /*
+     * Use an item
+     * @param   {object}    ev            Event when user touch screen to get location
+     */
     async useItem(ev) {
       if (this.playerResult === true || this.nbTry >= 3) {
         return
@@ -1055,7 +1166,7 @@ export default {
         var self = this
         setInterval(function() {
           if (cross.src === crossPicture) {
-            cross.src = self.serverUrl + '/upload/quest/' + self.questId + '/step/new-item/' + self.step.answers.item
+            cross.src = self.serverUrl + '/upload/quest/' + self.quest.id + '/step/new-item/' + self.step.answers.item
             cross.style.borderRadius = '50%'
           } else {
             cross.src = crossPicture
@@ -1064,16 +1175,57 @@ export default {
         }, 1000);
       }
     },
+    /*
+     * Open the inventory
+     */
     openInventory() {
-      this.isInventoryOpen = !this.isInventoryOpen
+      if (this.inventory.isOpened) {
+        this.closeAllPanels()
+      } else {
+        this.closeAllPanels()
+        this.inventory.isOpened = true
+      }
     },
+    /*
+     * Open the info box
+     */
+    async openInfo() {
+      if (this.info.isOpened) {
+        this.closeAllPanels()
+      } else {
+        await this.getQuest(this.quest.id)
+        await this.countStepsNumber(this.quest.id)
+        this.closeAllPanels()
+        this.info.isOpened = true
+      }
+    },
+    /*
+     * Get a quest information
+     * @param   {string}    id             Quest ID
+     */
+    async getQuest(id) {
+      let response = await QuestService.getById(id)
+      this.info.quest = response.data
+    },
+    /*
+     * count number of steps in a quest
+     * @param   {string}    id             Quest ID
+     */
+    async countStepsNumber(id) {
+      let response = await StepService.countForAQuest(id)
+      this.info.stepsNumber = response || 1
+    },
+    /*
+     * Select an item in the inventory
+     * @param   {object}    item            Item selected
+     */
     selectItem(item) {
       this.selectedItem = item
-      this.isInventoryOpen = false
+      this.inventory.isOpened = false
     },
-    
-    /* specific for steps 'jigsaw-puzzle' */
-    
+    /*
+     * Check if the puzzle is correct
+     */
     async checkPuzzle() {
       var result = true
       for (var i = 0; i < this.puzzle.pieces.length; i++) {
@@ -1088,6 +1240,9 @@ export default {
         await this.saveResult('success')
       }
     },
+    /*
+     * Initialize puzzle, re-order pieces
+     */
     initPuzzle() {
       // Puzzle sizes
       var level = parseInt((this.step.answers.level || 2), 10) // 1=easy, 2=medium, 3=hard
@@ -1112,8 +1267,12 @@ export default {
         this.puzzle.pieces[i] = this.puzzle.pieces[j]
         this.puzzle.pieces[j] = k
       }
-      this.puzzle.picture = this.serverUrl + '/upload/quest/' + this.questId + '/step/jigsaw-puzzle/' + this.step.answers.picture
+      this.puzzle.picture = this.serverUrl + '/upload/quest/' + this.quest.id + '/step/jigsaw-puzzle/' + this.step.answers.picture
     },
+    /*
+     * Handle puzzle piece move
+     * @param   {object}    e            Event when user touch puzzle piece
+     */
     handleDragStart(e) {
       if (e.target.className.indexOf('piece') > -1) {
         this.dragSrcEl = e.target;
@@ -1130,22 +1289,38 @@ export default {
         }
       }
     },
+    /*
+     * Handle puzzle piece move over
+     * @param   {object}    e            Event when user move puzzle piece over
+     */
     handleDragOver(e) {
       if (this.dragSrcEl) {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
       }
     },
+    /*
+     * Handle puzzle piece drag enter
+     * @param   {object}    e            Event when user touch puzzle piece
+     */
     handleDragEnter(e) {
       if (this.dragSrcEl) {
         e.target.classList.add('over');
       }
     },
+    /*
+     * Handle puzzle piece drag leave
+     * @param   {object}    e            Event when user touch puzzle piece
+     */
     handleDragLeave(e) {
       if (this.dragSrcEl) {
         e.target.classList.remove('over');
       }
     },
+    /*
+     * Handle puzzle piece move end
+     * @param   {object}    e            Event when user stop moving puzzle piece
+     */
     handleDragEnd(e) {
       this.dragSrcEl = null;
       var cols = document.querySelectorAll('#pieces .piece');
@@ -1154,6 +1329,10 @@ export default {
         col.classList.remove('over');
       });
     },
+    /*
+     * Handle puzzle piece drop
+     * @param   {object}    e            Event when user drop puzzle piece
+     */
     handleDrop(e) {
       if (this.dragSrcEl) {
         e.stopPropagation();
@@ -1185,9 +1364,10 @@ export default {
         }
       }
     },
-   
-    /* specific for steps 'find-item' */
-    
+    /*
+     * Check if user find the item in the picture
+     * @param   {object}    ev            Event when user touch the screen
+     */
     async findItem(ev) {
       if (this.playerResult === true || this.nbTry >= 3) {
         return
@@ -1237,6 +1417,10 @@ export default {
 </script>
 
 <style scoped>
+  
+  .inventory-items div { float: left; margin-right: 15px; width: 100px; height: 175px; overflow: hidden; text-align: center;}
+  .inventory-items div img { width: 100px; height: 100px; }
+
   #main-view { padding: 0rem; height: inherit; min-height: inherit; }
   
   #main-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
@@ -1371,12 +1555,6 @@ export default {
   
   .inventory-btn { position: fixed; bottom: 0.7rem; left: 0.7rem; z-index: 1; }
   .inventory-btn img { width: 100%; height: 100%; border-radius: 50%; }
-  
-  .inventory { background: white; position: fixed; bottom: 0; left: 0; width: 100%; height: 100%; overflow-y: scroll; }
-  .inventory h1 { padding-top: 1rem; margin-bottom: 1rem; }
-  
-  .inventory-items div { float: left; margin-right: 15px; width: 100px; height: 175px; overflow: hidden; text-align: center;}
-  .inventory-items div img { width: 100px; height: 100px; }
   
   /* transitions / animations */
   

@@ -9,7 +9,11 @@ export default {
   listForAQuest (questId) {
     return Api().get('run/quest/' + questId)
   },
-  
+  // get a step hint
+  async getHint (runId, stepId) {
+    let res = await Api().get('run/' + runId + '/step/' + stepId + '/hint')
+    return res.data
+  },
   // Save results of a step
   saveResult (runId, stepId, success) {
     return Api().put('run/' + runId + '/step/' + stepId + '/save/' + success)

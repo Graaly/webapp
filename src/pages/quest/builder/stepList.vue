@@ -115,12 +115,6 @@ export default {
 .title { display: flex; flex-flow: row nowrap; align-items: center; }
 .title h1 { flex-grow: 1; margin: 0; padding: 0; }
 
-.list-group { list-style-type: none; padding: 0; margin: 0; }
-.list-group-item { display: flex; flex-flow: row nowrap; align-items: center; padding: 0rem 0.2rem 0.4rem 0; }
-.list-group-item p { flex-grow: 1; padding: 0; margin: 0; overflow-x: hidden; }
-.list-group-item .handle { font-size: 2rem; padding-right: 0.3rem; }
-.list-group-item .q-btn { width: 3rem }
-
 #main-view > .q-btn { margin: 0.2rem; }
 #main-view > a { display: block; width: 100%; margin: 0.2rem auto; text-decoration: underline; text-align: center; }
 </style>

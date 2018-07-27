@@ -127,16 +127,23 @@ export default {
     async formSubmit() {
       switch (this.step) {
         case 'generic':
+          // check if name is set
+          this.$v.form.name.$touch()
           if (!this.$v.form.name.$error) {
             this.step = 'location'
           }
           break
         case 'location':
+          // check if location is set
+          this.$v.form.country.$touch()
+          this.$v.form.zipCode.$touch()
           if (!this.$v.form.country.$error && !this.$v.form.zipCode.$error) {
             this.step = 'password'
           }
           break
         case 'password':
+          // check if password is set
+          this.$v.form.password.$touch()
           if (!this.$v.form.password.$error) {
             // sign in user
             let newAccount = {

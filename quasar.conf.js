@@ -63,6 +63,13 @@ module.exports = function (ctx) {
       components: [
         'QAlert',
         'QBtn',
+        'QCard',
+        'QCardMain',
+        'QCardMedia',
+        'QCardTitle',
+        'QCarousel',
+        'QCarouselSlide',
+        'QCarouselControl',
         'QCheckbox',
         'QField', 
         'QIcon',
@@ -74,10 +81,12 @@ module.exports = function (ctx) {
         'QItemSeparator',
         'QItemTile',
         'QLayout',
-        'QLayoutHeader',
         'QLayoutDrawer',
+        'QLayoutFooter',
+        'QLayoutHeader',
         'QList',
         'QListHeader',
+        'QModal',
         'QPageContainer',
         'QPage',
         'QParallax',
@@ -106,7 +115,8 @@ module.exports = function (ctx) {
         'Dialog',
         'Loading',
         'Notify'
-      ]
+      ],
+      iconSet: 'fontawesome'
       // iconSet: ctx.theme.mat ? 'material-icons' : 'ionicons'
       // i18n: 'de' // Quasar language
     },

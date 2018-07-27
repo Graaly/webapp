@@ -23,7 +23,7 @@ var self = {
   buildOptionsForSelect: (data, fields, translateFct) => {
     let optionsForSelect = []
     data.forEach((item) => {
-      optionsForSelect.push({ value: item[fields.valueField], label: translateFct('message.' + item[fields.labelField]) })
+      optionsForSelect.push({ value: item[fields.valueField], label: translateFct('label.' + item[fields.labelField]) })
     })
     return optionsForSelect
   },

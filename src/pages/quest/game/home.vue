@@ -11,11 +11,12 @@
             <p>
               <span v-if="quest.rating">
                 <q-rating readonly :value="quest.rating && quest.rating.rounded" color="primary" :max="5" size="1.7rem" />
-              </span>
+              </span> &nbsp;
               <span>{{ $t('label.nbPointsToWin', { nb: quest.availablePoints }) }}</span>
             </p>
             <div class="text-center">
               <p><q-btn @click="$router.push('/quest/play/' + $route.params.id + '/step/1')" color="primary">{{ $t('label.SolveThisQuest') }}</q-btn></p>
+              <a @click="backToTheMap()">{{ $t('label.BackToTheMap') }}</a>
             </div>
             <div class="full-width text-center" v-if="!scrolled">
               {{ $t('label.ScrollForMoreDetails') }}
@@ -36,6 +37,7 @@
           {{ $t('label.QuestIsFarFromUser') }}<br />
           {{ $t('label.QuestIsFarFromUserDesc') }}
         </q-alert>
+        Ajouter la liste des amis qui ont passé l'enquête
         <p v-if="quest.mainLanguage"><strong>{{ $t('label.Languages') }}:</strong> <img class="image-and-text-aligned" :src="'/statics/icons/game/flag-' + quest.mainLanguage + '.png'" /></p>
         <p v-if="typeof quest.author !== 'undefined' && quest.author.name"><strong>{{ $t('label.Author') }}:</strong> {{ quest.author.name }}</span>
         <p v-if="quest.level"><strong>{{ $t('label.Difficulty') }}:</strong> <img class="image-and-text-aligned" src="/statics/icons/game/magnifying-red.png" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 1 ? 'grey' : 'red') + '.png'" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 3 ? 'red' : 'grey') + '.png'" /></p>
@@ -110,11 +112,10 @@ export default {
     }
   },
   async mounted() {
-    // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', this.$t('message.SolveAQuest'))
-    
+    // get quest information
     await this.getQuest(this.$route.params.id)
     
+    // get user runs for this quest
     await this.getRun()
     
     //check if location tracking is turned on
@@ -167,22 +168,14 @@ export default {
         if (maxStepComplete > 0) {
           var self = this
           this.$q.dialog({
-            title: this.$t('message.ContinueThisStep'),
-            message: this.$t('message.YouAlreadyStartThisQuest'),
-            buttons: [
-              {
-                label: this.$t('message.Restart'),
-                handler () {
-                  return self.$router.push('/quest/play/' + self.quest._id + '/step/1')
-                }
-              },
-              {
-                label: this.$t('message.Continue'),
-                handler () {
-                  return self.$router.push('/quest/play/' + self.quest._id + '/step/' + maxStepComplete)
-                }
-              }
-            ]
+            title: this.$t('label.ContinueThisStep'),
+            message: this.$t('label.YouAlreadyStartThisQuest'),
+            ok: this.$t('label.Continue'),
+            cancel: this.$t('label.Restart')
+          }).then(() => {
+            return self.$router.push('/quest/play/' + self.quest._id + '/step/' + maxStepComplete)
+          }).catch(() => {
+            return self.$router.push('/quest/play/' + self.quest._id + '/step/1')
           })
         }
       }
@@ -197,11 +190,13 @@ export default {
       } else {
         this.scrolled = false
       }
+    },
+    /*
+     * Manage back to the map button
+     */
+    backToTheMap () {
+      this.$router.push('/map')
     }
   }
 }
 </script>
-
-<style scoped>
-  .warning { padding: 1rem; font-size: 1.1rem; text-align: justify; background: #ec4; border-bottom: 1px solid #990; margin-bottom: 0.6rem; }
-</style>

@@ -4,21 +4,22 @@ import QuestMap from 'pages/quest/map'
 import QuestPlayHome from 'pages/quest/game/home'
 import QuestPlayStep from 'pages/quest/game/step'
 import QuestEnd from 'pages/quest/game/end'
-/*import QuestSearchText from 'pages/quest/searchText'
-import QuestManageWelcome from 'pages/quest/manage/welcome'
-import QuestManageSettings from 'pages/quest/manage/settings'
-import QuestManageStepType from 'pages/quest/manage/stepType'
-import QuestManageStepSettings from 'pages/quest/manage/stepSettings'
-import QuestManageStepList from 'pages/quest/manage/stepList'
-*/
+
+import QuestManageWelcome from 'pages/quest/builder/welcome'
+import QuestManageSettings from 'pages/quest/builder/settings'
+import QuestManageStepType from 'pages/quest/builder/stepType'
+import QuestManageStepSettings from 'pages/quest/builder/stepSettings'
+//import QuestManageStepList from 'pages/quest/builder/stepList'
+
 import UserLogin from 'pages/user/login'
 import UserLogout from 'pages/user/logout'
 import UserCreateAccount from 'pages/user/createAccount'
+import UserFirstUsage from 'pages/user/firstusage'
 /*import UserIntro from 'pages/user/intro'
-import UserHelp from 'pages/user/help'*/
+import UserHelp from 'pages/user/help'
 import UserSuccess from 'pages/user/success'
 import UserProfile from 'pages/user/profile'
-/*import UserProfileModify from 'pages/user/updateProfile'
+import UserProfileModify from 'pages/user/updateProfile'
 
 import TeamMembersList from 'pages/team/membersList'
 import TeamNewsList from 'pages/team/newsList'
@@ -42,11 +43,11 @@ export default [
         redirect: '/map',
         meta: { requiresAuth: true }
       },
-      /*{
-        path: 'quest/search/text/:searchText',
-        component: QuestSearchText,
-        meta: { requiresAuth: true }
-      },*/
+      {
+        path: 'firstusage',
+        component: UserFirstUsage,
+        meta: { requiresAuth: false }
+      },
       {
         path: 'map',
         component: QuestMap,
@@ -67,7 +68,7 @@ export default [
         component: QuestEnd,
         meta: { requiresAuth: true }
       },
-      /*{
+      {
         path: 'quest/create',
         redirect: '/quest/create/welcome',
         meta: { requiresAuth: true }
@@ -78,7 +79,7 @@ export default [
         meta: { requiresAuth: true }
       },
       {
-        path: 'quest/:action(create|edit)/settings',
+        path: 'quest/settings/:questId(\\w{24})',
         component: QuestManageSettings,
         meta: { requiresAuth: true }
       },
@@ -97,7 +98,7 @@ export default [
         component: QuestManageStepSettings,
         meta: { requiresAuth: true }
       },
-      {
+      /*{
         path: 'quest/:action(create|edit)/step/list',
         component: QuestManageStepList,
         meta: { requiresAuth: true }
@@ -131,7 +132,7 @@ export default [
         path: 'help',
         component: UserHelp,
         meta: { requiresAuth: false }
-      },*/
+      },
       {
         path: 'user/:id(\\w{24}|me)/success',
         name: 'success',
@@ -144,7 +145,7 @@ export default [
         component: UserProfile,
         meta: { requiresAuth: true }
       },
-      /*{
+      {
         path: 'user/profile/:id(\\w{24}|me)/modify',
         name: 'profileModification',
         component: UserProfileModify,
