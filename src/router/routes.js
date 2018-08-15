@@ -7,8 +7,8 @@ import QuestEnd from 'pages/quest/game/end'
 
 import QuestManageWelcome from 'pages/quest/builder/welcome'
 import QuestManageSettings from 'pages/quest/builder/settings'
-import QuestManageStepType from 'pages/quest/builder/stepType'
-import QuestManageStepSettings from 'pages/quest/builder/stepSettings'
+//import QuestManageStepType from 'pages/quest/builder/stepType'
+//import QuestManageStepSettings from 'pages/quest/builder/stepSettings'
 //import QuestManageStepList from 'pages/quest/builder/stepList'
 
 import UserLogin from 'pages/user/login'
@@ -59,7 +59,7 @@ export default [
         meta: { requiresAuth: true }
       },
       {
-        path: 'quest/play/:questId(\\w{24})/step/:stepNumber',
+        path: 'quest/play/:questId(\\w{24})/step/:stepNumber/:lang',
         component: QuestPlayStep,
         meta: { requiresAuth: true }
       },
@@ -83,8 +83,9 @@ export default [
         component: QuestManageSettings,
         meta: { requiresAuth: true }
       },
-      {
+      /*{
         path: 'quest/:action(create|edit)/step/type',
+        name: 'newstep',
         component: QuestManageStepType,
         meta: { requiresAuth: true }
       },
@@ -98,7 +99,7 @@ export default [
         component: QuestManageStepSettings,
         meta: { requiresAuth: true }
       },
-      /*{
+      {
         path: 'quest/:action(create|edit)/step/list',
         component: QuestManageStepList,
         meta: { requiresAuth: true }

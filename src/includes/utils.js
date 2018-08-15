@@ -110,9 +110,12 @@ var self = {
    * @return string - the HTML formatted string
    */
   replaceBreakByBR: function(string) {
-    string = string.replace(/\r\n/ig, "<br />")
-    string = string.replace(/\n/ig, "<br />")
-    string = string.replace(/\r/ig, "<br />")
+    if (string && (typeof string === 'string')) {
+      string = string.replace(/\r\n/ig, "<br />")
+      string = string.replace(/\n/ig, "<br />")
+      string = string.replace(/\r/ig, "<br />")
+    }
+    
     return string
   },
   
@@ -130,6 +133,34 @@ var self = {
       r = r.replace(new RegExp(nonAsciis[i], 'g'), i)
     }
     return r
+  },
+  
+  /**
+   * Shuffles array in place.
+   * @param {Array} a items An array containing the items.
+   */
+  shuffle: function(a) {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
+    }
+    return a;
+  },
+  
+  /**
+   * Build an incremental array (1,2,3, ...)
+   * @param {Number}   length   length of the array
+   */
+  buildIncrementalArray: function(length) {
+    var arr = [];
+
+    for (var i = 1; i <= length; i++) {
+       arr.push(i);
+    }
+    return arr;
   }
   
 }

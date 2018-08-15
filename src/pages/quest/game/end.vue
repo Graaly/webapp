@@ -1,46 +1,55 @@
 <template>
-  <div>
-    <div class="end-header">{{ $t('message.CongratulationThisCaseIsClassified') }}.</div>
+  <div class="dark-background">
+  
+    <!------------------ TITLE AREA ------------------------>
     
-    <div class="end-body">
-      <div class="result" v-if="awardPoints">
-        <p>{{ $t('message.YouWin') }}</p>
-        <div class="result-score">
-          <div>{{ run.score }}</div>
-          <div><img src="/statics/icons/game/medal.png" /></div>
-        </div>
-        <router-link to="/help/points">{{ $t('message.WhatCanYouDoWithThesePoints') }}</router-link>
-      </div>
-      <div v-if="!awardPoints">
-        <p>
-          {{ $t('message.YouAlreadyPlayThisQuestSoYouWinNoPoints') }}
-        </p>
-        <p>
-          {{ $t('message.ResolveOtherQuestsToWinPoints') }}
-        </p>
-      </div>
-      
-      <div class="rating">
-        <p>{{ $t('message.RateThisQuest') }}</p>
-        <q-rating v-model="rating" :max="5" size="2rem" @change="rate" />
-      </div>
-      
-      <div class="challenge">
-        <q-btn icon="people" color="primary" size="lg" @click="openChallengeBox" :label="$t('message.ChallengeYourFriends')" />
-      </div>
-      
-      <div class="share">
-        <p>{{ $t('message.ShareYourSuccess') }}</p>
-        <ul>
-          <li><img src="/statics/icons/social-networks/facebook.png"></li>
-          <li><img src="/statics/icons/social-networks/twitter.png"></li>
-          <li><img src="/statics/icons/social-networks/googleplus.png"></li>
-        </ul>
-      </div>
-      
-      <div class="back">
-        <router-link to="/quest/search/map">{{ $t('message.BackToTheMap') }}</router-link>
-      </div>
+    <div>    
+      <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouWin') }}</h2>
+      <h2 class="size-1 q-mt-sm q-mb-sm">{{ run.score }} <q-icon color="white" name="fas fa-trophy" /></h2>
+      <router-link to="/help/points">{{ $t('label.WhatCanYouDoWithThesePoints') }}</router-link>
+    </div>
+    
+    <!------------------ RATING AREA ------------------------>
+    
+    <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pb-md">
+      <h3 class="size-3 q-ma-sm">{{ $t('label.RateThisQuest') }}</h3>
+      <q-rating v-model="rating" :max="5" size="2rem" @change="rate" />
+    </div>
+    
+    <!------------------ CHALLENGE FRIENDS AREA ------------------------>
+    
+    <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pb-md">
+      <h3 class="size-3 q-ma-sm">{{ $t('label.ChallengeYourFriends') }}</h3>
+      <q-btn icon="people" color="primary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
+    </div>
+    
+    <!------------------ SHARE AREA ------------------------>
+    
+    <div class="share bg-secondary q-mt-md q-ml-md q-mr-md q-pb-md">
+      <h3 class="size-3 q-ma-sm">{{ $t('label.ShareYourSuccess') }}</h3>
+      <ul>
+        <li>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=http://graaly.com" target="_blank">
+            <img src="/statics/icons/social-networks/facebook.png" />
+          </a>
+        </li>
+        <li>
+          <a href="https://twitter.com/intent/tweet?text=To%Define&url=http://graaly.com" target="_blank">
+            <img src="/statics/icons/social-networks/twitter.png" />
+          </a>
+        </li>
+        <li>
+          <a href="https://plus.google.com/share?url=http://graaly.com" target="_blank">
+            <img src="/statics/icons/social-networks/googleplus.png" />
+          </a>
+        </li>
+      </ul>
+    </div>
+ 
+    <!------------------ BACK TO MAP LINK AREA ------------------------>
+    
+    <div class="back">
+      <router-link to="/quest/search/map">{{ $t('label.BackToTheMap') }}</router-link>
     </div>
     
   </div>
@@ -63,16 +72,11 @@ export default {
     }
   },
   async mounted () {
-    // dispatch specific title for other app components
-    this.$store.dispatch('setTitle', this.$data.title)
-    
     // List all run for this quest for current user
     var runs = await RunService.listForAQuest(this.questId)
-    
     if (runs && runs.data && runs.data.length > 0) {
       for (var i = 0; i < runs.data.length; i++) {
         if (runs.data[i].status === 'finished') {
-          this.awardPoints = false
           this.run = runs.data[i]
         }
         if (runs.data[i].status === 'in-progress') {
@@ -86,7 +90,6 @@ export default {
       // assign computed score
       this.run.score = endStatus.data.score
     }
-    this.$store.dispatch('setCurrentRun', null)
   },
   methods: {
     async rate() {
@@ -197,16 +200,6 @@ export default {
 #main-view div, #main-view p { text-align: center; font-size: 1.1rem;}
 
 #main-view a { text-decoration: underline; }
-
-.end-header { padding: 1rem; padding-left: 8rem; font-weight: bold; color: #fff; background: #000 url('/statics/icons/game/classified.png') no-repeat left center; height: 6rem; display: flex; align-items: center; }
-
-.end-body { flex-grow: 1; display: flex; flex-flow: column nowrap; justify-content: center; }
-.end-body > div { padding: 1rem 0; }
-
-.result-score { display: table; margin: 0 auto; }
-.result-score div { display: table-cell; color: $primary; font-weight: bold; font-size: 3.5rem !important; vertical-align: middle; height: 3.5rem; line-height: 2rem; padding: 0; }
-.result-score img { width: 3.5rem; height: 3.5rem; margin-left: 0.2rem; }
-.result a { font-size: 0.9rem; }
 
 .share ul { margin: 0; padding: 0; display: flex; flex-flow: row nowrap; justify-content: center; }
 .share li { list-style-type: none; margin: 0.5rem; }

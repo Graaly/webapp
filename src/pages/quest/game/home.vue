@@ -4,10 +4,13 @@
       
       <!------------------ MAIN INFORMATION AREA ------------------------>
       
-      <div class="fit" :style="'background: url(' + serverUrl + '/upload/quest/' + quest.picture + ' ) center center / cover no-repeat '">
+      <div class="fit" :style="'background: url(' + serverUrl + '/upload/quest/' + quest.picture + ' ) center center / cover no-repeat '" v-touch-swipe.horizontal="swipeMgmt">
         <div>
           <div class="text-center bottom-dark-banner">
-            <p class="title">{{ quest.title }}</p>
+            <p class="title">
+              {{getLanguage() ? quest.title[getLanguage()] : $t('label.NoTitle') }}
+              <img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'/statics/icons/game/flag-' + getLanguage() + '.png'" />
+            </p>
             <p>
               <span v-if="quest.rating">
                 <q-rating readonly :value="quest.rating && quest.rating.rounded" color="primary" :max="5" size="1.7rem" />
@@ -15,7 +18,25 @@
               <span>{{ $t('label.nbPointsToWin', { nb: quest.availablePoints }) }}</span>
             </p>
             <div class="text-center">
-              <p><q-btn @click="$router.push('/quest/play/' + $route.params.id + '/step/1')" color="primary">{{ $t('label.SolveThisQuest') }}</q-btn></p>
+              <p>
+                <q-btn v-if="getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">{{ $t('label.SolveThisQuest') }}</q-btn>
+                <q-btn-dropdown v-if="getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
+                  <q-list link>
+                    <q-item 
+                      v-for="lang in getAllLanguages()" :key="lang.lang" 
+                      v-show="lang.published" 
+                      @click.native="playQuest(quest._id, lang.lang)"
+                    >
+                      <q-item-main>
+                        <q-item-tile label>
+                          <img class="image-and-text-aligned" :src="'/statics/icons/game/flag-' + lang.lang + '.png'" />
+                          {{ $t('language.' + lang.lang) }}
+                        </q-item-tile>
+                      </q-item-main>
+                    </q-item>
+                  </q-list>
+                </q-btn-dropdown>
+              </p>
               <a @click="backToTheMap()">{{ $t('label.BackToTheMap') }}</a>
             </div>
             <div class="full-width text-center" v-if="!scrolled">
@@ -37,13 +58,14 @@
           {{ $t('label.QuestIsFarFromUser') }}<br />
           {{ $t('label.QuestIsFarFromUserDesc') }}
         </q-alert>
-        Ajouter la liste des amis qui ont passé l'enquête
-        <p v-if="quest.mainLanguage"><strong>{{ $t('label.Languages') }}:</strong> <img class="image-and-text-aligned" :src="'/statics/icons/game/flag-' + quest.mainLanguage + '.png'" /></p>
+        <q-alert type="warning" class="q-mb-md" v-if="typeof quest.author !== 'undefined' && quest.author._id === $store.state.user._id">
+          {{ $t('label.YouAreQuestOwnerDesc') }}
+        </q-alert>
         <p v-if="typeof quest.author !== 'undefined' && quest.author.name"><strong>{{ $t('label.Author') }}:</strong> {{ quest.author.name }}</span>
         <p v-if="quest.level"><strong>{{ $t('label.Difficulty') }}:</strong> <img class="image-and-text-aligned" src="/statics/icons/game/magnifying-red.png" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 1 ? 'grey' : 'red') + '.png'" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 3 ? 'red' : 'grey') + '.png'" /></p>
         <p v-if="quest.duration"><strong>{{ $t('label.Duration') }}:</strong> {{ quest.duration }} {{ $t('label.minutes') }}</p>
         <p v-if="quest.startingPlace"><strong>{{ $t('label.StartingPoint') }}:</strong> {{ quest.startingPlace }}</p>
-        <p v-html="quest.description"></p>
+        <p>{{getLanguage() ? quest.description[getLanguage()] : "" }}</p>
       </div>
     </div>
     
@@ -161,7 +183,6 @@ export default {
             this.isRunFinished = true
           }
           if (runs.data[i].status === 'in-progress' && runs.data[i].currentStep > maxStepComplete) {
-            this.$store.dispatch('setCurrentRun', runs.data[i])
             maxStepComplete = runs.data[i].currentStep
           }
         }
@@ -179,6 +200,81 @@ export default {
           })
         }
       }
+    },
+    /*
+     * Get the default language for this quest
+     * @param   {object}    quest            quest data
+     */
+    getLanguage(quest) {
+      if (!quest) {
+        quest = this.quest
+      }
+      // check that at least a language is set
+      if (!quest.languages || quest.languages.length === 0) {
+        return false
+      }
+      // get only published languages
+      var publishedLanguages = quest.languages.filter(language => language.published)
+      if (publishedLanguages && publishedLanguages.length > 0) {
+        // check if the user language is set => default language
+        var defaultLanguage = ''
+        for (var i = 0; i < publishedLanguages.length; i++) {
+          if (publishedLanguages[i].lang === this.$store.state.user.language) {
+            defaultLanguage = this.$store.state.user.language
+          }
+        }
+        if (defaultLanguage === '' && publishedLanguages.length > 0) {
+          defaultLanguage = publishedLanguages[0].lang
+        }
+      } else if (quest.languages.length > 0) {
+        defaultLanguage = quest.languages[0].lang
+      }
+      return defaultLanguage
+    },
+    /*
+     * Get all the published language for this quest
+     * @param   {object}    quest            quest data
+     */
+    getAllLanguages(quest) {
+      if (!quest) {
+        quest = this.quest
+      }
+      // check that at least a language is set
+      if (!quest || !quest.languages || quest.languages.length === 0) {
+        return false
+      }
+      // get only published languages
+      var publishedLanguages = quest.languages.filter(language => language.published)
+      
+      // when testing, no language published => Provide one
+      if (publishedLanguages && publishedLanguages.length === 0 && quest.languages.length > 0) {
+        publishedLanguages.push(quest.languages[0])
+      }
+      
+      return publishedLanguages
+    },
+    /*
+     * Launch a quest with default language
+     * @param   {Object}    obj         Swipe object
+     */
+    swipeMgmt(obj) {
+      if (obj.direction === 'right') {
+        this.backToTheMap()
+      }
+      if (obj.direction === 'left') {
+        const languages = this.getAllLanguages(this.quest)
+        const lang = languages[0].lang
+        alert(lang)
+        this.playQuest(this.quest._id, lang)
+      }
+    },
+    /*
+     * Launch a quest
+     * @param   {String}    questId            ID of the quest
+     * @param   {String}    lang               lang of the quest
+     */
+    playQuest(questId, lang) {
+      this.$router.push('/quest/play/' + questId + '/step/1/' + lang)
     },
     /*
      * Follow scroll position

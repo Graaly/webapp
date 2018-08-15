@@ -65,6 +65,9 @@
 a {
   text-decoration: underline;
 }
+.no-underline {
+  text-decoration: none;
+}
 
 /////////////////////////////// Panels CSS /////////////////////////////////////
 
@@ -97,6 +100,9 @@ h1.size-3 {
 }
 .infoWindow .title {
   font-size: 1.5em;
+}
+.centered {
+  text-align: center;
 }
 
 /////////////////////////////// Forms CSS /////////////////////////////////////
@@ -161,6 +167,7 @@ form {
 }
 .menu {
   height: 120px;
+  z-index: 5000;
 }
 .menu>div {
   padding-top: 20px;
@@ -184,6 +191,12 @@ form {
 
 .preview {
   height: 200px;
+}
+.big-icon {
+  font-size: 5rem
+}
+.medium-icon {
+  font-size: 2.5rem
 }
 
 /////////////////////////////// Images CSS /////////////////////////////////////
@@ -212,6 +225,16 @@ form {
 }
 .score-text {
   font-size: 2em;
+}
+.score {
+  font-size: 2.1rem;
+  text-align: center;
+  font-weight: bold;
+  background-position: center 50px;
+  background-repeat: no-repeat;
+  background-size: 35%;
+  width: 100px;
+  padding-top: 10px;
 }
 .map {
   width: 100%; 
@@ -257,7 +280,7 @@ form {
   position: absolute;
   padding: 7px 0;
   text-align: center;
-  width: 80px;
+  width: 70px;
   display: block;
   cursor: pointer;
 }
@@ -345,12 +368,6 @@ form {
   padding: 0;
 }
 
-.centered {
-  text-align: center;
-}
-.big-icon {
-  font-size: 5rem
-}
 .image-and-text-aligned {
   vertical-align: top;
 }
@@ -361,17 +378,6 @@ form {
   margin-bottom: 0.5rem;
 }
 
-.score {
-  font-size: 2.1rem;
-  text-align: center;
-  font-weight: bold;
-  background-image: url('/statics/icons/game/medal.png');
-  background-position: center 50px;
-  background-repeat: no-repeat;
-  background-size: 35%;
-  width: 100px;
-  padding-top: 10px;
-}
 .score-bar {
   text-align: center;
   font-size: 1.2em;

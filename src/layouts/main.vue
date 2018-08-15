@@ -7,7 +7,7 @@
     </q-page-container>
     
     <!------------------ IF NOT A MOBILE DEVICE ------------------------>
-    <div id="screen-too-large"><h5 class="text-center">{{ $t('message.GraalyIsOptimizedForSmallerScreens') }}</h5></div>
+    <div id="screen-too-large"><h5 class="text-center">{{ $t('label.GraalyIsOptimizedForSmallerScreens') }}</h5></div>
     
   </q-layout>
 </template>
@@ -34,13 +34,11 @@ export default {
     /*async getAccountInformations() {
       let response = await AuthService.getAccount()
       if (response.data && response.data.name) {
-      console.log(response.data)
         this.user = response.data
         
         // set the user language
         this.$i18n.locale = this.user.language 
       } else {
-      console.log(response)
         //this.$router.push('/quest/search/text/' + this.searchText)
       }
     },*/
@@ -52,7 +50,8 @@ export default {
       document.getElementById('q-app').style.minHeight = window.innerHeight + "px"
       document.getElementById('q-app').style.maxHeight = window.innerHeight + "px"
       // there are better although more complex ways to avoid hardcoding header height here
-      let computedHeight = (window.innerHeight - 50) + "px";
+      // let computedHeight = (window.innerHeight - 50) + "px";
+      let computedHeight = window.innerHeight + "px";
       let mainview = document.getElementById('main-view')
       if (typeof mainview !== 'undefined' && mainview !== null) {
         mainview.style.height = computedHeight;

@@ -1,5 +1,5 @@
-var DragDropTouch;
-(function (DragDropTouch_1) {
+var DragDropTouch = {};
+function initJigsaw (DragDropTouch_1) {
     'use strict';
     /**
      * Object used to hold the data that is being dragged during drag and drop operations.
@@ -404,5 +404,5 @@ var DragDropTouch;
     DragDropTouch._kbdProps = 'altKey,ctrlKey,metaKey,shiftKey'.split(',');
     DragDropTouch._ptProps = 'pageX,pageY,clientX,clientY,screenX,screenY'.split(',');
     DragDropTouch_1.DragDropTouch = DragDropTouch;
-})(DragDropTouch || (DragDropTouch = {}));
+}
 

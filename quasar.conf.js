@@ -63,6 +63,8 @@ module.exports = function (ctx) {
       components: [
         'QAlert',
         'QBtn',
+        'QBtnDropdown',
+        'QBtnGroup',
         'QCard',
         'QCardMain',
         'QCardMedia',
@@ -71,6 +73,8 @@ module.exports = function (ctx) {
         'QCarouselSlide',
         'QCarouselControl',
         'QCheckbox',
+        'QChip',
+        'QCollapsible',
         'QField', 
         'QIcon',
         'QInfiniteScroll',
@@ -87,6 +91,7 @@ module.exports = function (ctx) {
         'QList',
         'QListHeader',
         'QModal',
+        'QOptionGroup',
         'QPageContainer',
         'QPage',
         'QParallax',
@@ -101,13 +106,16 @@ module.exports = function (ctx) {
         'QTabs',
         'QTab',
         'QTabPane',
+        'QToggle',
         'QToolbar',
         'QToolbarTitle',
+        'QTooltip',
         'QUploader',
       ],
       directives: [
         'Ripple',
-        'Scroll'
+        'Scroll',
+        'TouchSwipe'
       ],
       // Quasar plugins
       plugins: [

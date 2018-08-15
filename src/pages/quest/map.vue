@@ -8,16 +8,17 @@
       <!------------------ HEADER AREA ------------------------>
         
       <div class="header row">
-        <div class="col-4 q-pl-md q-pt-sm">
-          <img src="statics/icons/game/cup-medium-white.png" />
+        <div class="col centered text-white">
+          <h2 class="size-3">{{ $store.state.user.score }} <q-icon color="white" name="fas fa-trophy" /></h2>
+          <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 10]">
+            {{ $t('label.YourScore') }}
+          </q-tooltip>
         </div>
-        <div class="col">
-          <p>
-            {{ $t('label.YourScore') }}: {{ $store.state.user.score }}
-          </p>
-          <p>
-            {{ $t('label.YourRevenues') }}: {{ $store.state.user.score }}
-          </p>
+        <div class="col centered text-white">
+          <h2 class="size-3">{{ $store.state.user.score }} <q-icon color="white" name="fas fa-coins" /></h2>
+          <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 10]">
+            {{ $t('label.YourRevenues') }}
+          </q-tooltip>
         </div>
       </div>
       
@@ -37,13 +38,13 @@
           <!------------------ LIST OF QUESTS BUILT AREA ------------------------>
           
           <q-list highlight>
-            <q-item v-for="quest in success.quests.built" :key="quest._id" @click.native="$router.push((profile.me ? '/quest/edit/' + quest._id : '/quest/play/' + quest._id))">
+            <q-item v-for="quest in success.quests.built" :key="quest._id" @click.native="$router.push('/quest/settings/' + quest._id)">
               <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
               <q-item-side v-if="!quest.picture" :avatar="'/statics/profiles/noprofile.png'" />
               <q-item-main>
-                <q-item-tile label>{{ quest.title }}</q-item-tile>
+                <q-item-tile label>{{ getQuestTitle(quest, false) }}</q-item-tile>
                 <q-item-tile sublabel v-if="quest.status === 'published'">
-                  <q-rating readonly :value="(quest.rating && quest.rating.rounded) ? quest.rating.rounded : null" color="primary" :max="5" size="1rem" /> -
+                  <q-rating readonly :value="(quest.rating && quest.rating.rounded) ? quest.rating.rounded : null" color="primary" :max="5" size="1rem" />
                   {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate}}
                 </q-item-tile>
                 <q-item-tile sublabel v-if="quest.status == 'unpublished'">
@@ -67,7 +68,7 @@
             <q-item-side v-if="quest.questData && quest.questData.picture" :avatar="serverUrl + '/upload/quest/' + quest.questData.picture" />
             <q-item-side v-if="!quest.questData || !quest.questData.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>
-              <q-item-tile label>{{ quest.questData.title }}</q-item-tile>
+              <q-item-tile label>{{ getQuestTitle(quest.questData, false) }}</q-item-tile>
               <q-item-tile sublabel v-if="quest.dateCreated && quest.status == 'finished' && !quest.score">
                 {{ $t('label.PlayedOn') }} {{quest.dateCreated | formatDate}}
               </q-item-tile>
@@ -82,7 +83,7 @@
               </q-item-tile>
             </q-item-main>
             <q-item-side right class="score">
-              {{ quest.score }}
+              {{ quest.score }} <q-icon name="fas fa-trophy" />
             </q-item-side>
           </q-item>
           <q-item v-if="success.quests.played.length === 0">
@@ -94,15 +95,6 @@
         </q-tab-pane>
       </q-tabs>
 
-      <!------------------ MENU AREA ------------------------>
-      
-      <div class="menu-background"></div>
-      <div class="menu row">
-        <div class="q-pr-xl col align-right" @click="backToMap()">
-          <q-btn @click="backToMap()" rounded color="primary" size="xl" :label="$t('label.BackToMap')" icon-right="arrow_forward" />
-        </div>
-      </div>  
-      
     </q-layout-drawer>
     
     <!------------------ PROFILE PANEL ------------------------>
@@ -116,7 +108,7 @@
           <div class="big-avatar">
             <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
             <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
-            <div v-if="!$store.state.user.picture" :style="'background-image: url(/statics/profiles/noprofile.png);'"></div>
+            <div v-if="!$store.state.user.picture" :style="'background-image: url(/statics/icons/game/profile-small.png); background-color: #fff;'"></div>
             <label for="picturefile">{{ $t('label.Edit') }}</label>
           <input @change="uploadImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;">
           </div>
@@ -198,15 +190,7 @@
         </q-tab-pane>
         
       </q-tabs>
-      
-      <!------------------ MENU AREA ------------------------>
-      
-      <div class="menu-background"></div>
-      <div class="menu row">
-        <div class="col q-pl-xl" @click="backToMap()">
-          <q-btn @click="backToMap()" rounded color="primary" size="xl" :label="$t('label.BackToMap')" icon="arrow_back" />
-        </div>
-      </div> 
+
     </q-layout-drawer>
     
     <!------------------ MAP PAGE ------------------------>
@@ -228,7 +212,7 @@
         
         <gmap-info-window :options="map.infoWindow.options" :position="map.infoWindow.location" :opened="map.infoWindow.isOpen" @closeclick="map.infoWindow.isOpen=false">
           <div class="infoWindow">
-            <p class="title">{{ currentQuest ? currentQuest.title : '' }}</p>
+            <p class="title" v-html="getQuestTitle(currentQuest, true)"></p>
             <p>{{ $t('label.Difficulty') }} : {{ $t('label.' + (currentQuest ? getQuestLevelName(currentQuest.level) : getQuestLevelName(2))) }}</p>
             <q-btn @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Play') }}</q-btn>
           </div>
@@ -320,7 +304,7 @@
     <!------------------ MENU AREA ------------------------>
     
     <div class="menu-background"></div>
-    <div class="menu row">
+    <div class="menu row" v-touch-swipe.horizontal="swipeMenu">
       <div class="col centered" @click="openSuccessPage()">
         <img src="statics/icons/game/menu-quest.png" />
       </div>
@@ -331,7 +315,7 @@
         <div class="mid-avatar">
           <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
           <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
-          <div v-if="!$store.state.user.picture" :style="'background-image: url(/statics/profiles/noprofile.png);'"></div>
+          <div v-if="!$store.state.user.picture" :style="'background-image: url(/statics/icons/game/profile-small.png);background-color: #fff;'"></div>
         </div>
       </div>
     </div>   
@@ -677,6 +661,7 @@ export default {
       //this.$refs.layout.toggleLeft()
       if (!this.showSuccess) {
         this.listCreatedQuests(this.$store.state.user._id)
+        this.listPlayedQuests(this.$store.state.user._id)
       }
       this.showSuccess = !this.showSuccess
       //this.$router.push('/user/me/success')
@@ -788,11 +773,37 @@ export default {
       })
     },
     /*
+     * Display title based on language
+     * @param   {object}    quest            quest data
+     * @param   {Boolean}   showLanguage     define if the map is displayed if the quest is not translated in the user language
+     */
+    getQuestTitle(quest, showLanguage) {
+      if (!quest || !quest.title) {
+        return this.$t('label.NoTitle')
+      }
+      if (this.$store.state.user.language && quest.title[this.$store.state.user.language]) {
+        return quest.title[this.$store.state.user.language]
+      } else {
+        return quest.title[Object.keys(quest.title)[0]] + (showLanguage ? ' <img class="image-and-text-aligned" src="/statics/icons/game/flag-' + Object.keys(quest.title)[0] + '.png" />' : '')
+      }
+    },
+    /*
      * Back to the map
      */
     backToMap() {
       this.showProfile = false
       this.showSuccess = false
+    },
+    /*
+     * Menu swipe tracking
+     */
+    swipeMenu (obj) {
+      if (obj.direction === 'right') {
+        this.openSuccessPage()
+      }
+      if (obj.direction === 'left') {
+        this.openProfilePage()
+      }
     },
     /*
      * Show search page
