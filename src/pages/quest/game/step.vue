@@ -206,7 +206,7 @@ export default {
       
       if (maxStepComplete === 0) {
         // no 'in-progress' run => create run for current player & current quest
-        let res = await RunService.init(this.quest.id)
+        let res = await RunService.init(this.quest.id, this.$route.params.lang)
         if (res.status === 200 && res.data && res.data._id) {
           this.run = res.data
         }
@@ -561,59 +561,5 @@ export default {
   
   .inventory-btn { position: fixed; bottom: 0.7rem; left: 0.7rem; z-index: 1; }
   .inventory-btn img { width: 100%; height: 100%; border-radius: 50%; }
-  
-  /* transitions / animations */
-  
-  .slideInBottom-enter-active, .slideInBottom-leave-active {
-    transition: all .3s ease;
-  }
-  .slideInBottom-enter, .slideInBottom-leave-to {
-    transform: translateY(100vh);
-    opacity: 0;
-  }
-  
-  /* display the controls progressively */
-  .fadeIn {
-    animation: fadein 2s;
-    -moz-animation: fadein 2s; /* Firefox */
-    -webkit-animation: fadein 2s; /* Safari et Chrome */
-    -o-animation: fadein 2s; /* Opera */
-  }
-  @keyframes fadein {
-    from {
-        opacity:0;
-    }
-    to {
-        opacity:1;
-    }
-  }
-  @-moz-keyframes fadein { /* Firefox */
-    from {
-        opacity:0;
-    }
-    to {
-        opacity:1;
-    }
-  }
-  @-webkit-keyframes fadein { /* Chrome */
-    from {
-        opacity:0;
-    }
-    to {
-        opacity:1;
-    }
-  }
-  @-o-keyframes fadein { /* Opera */
-    from {
-        opacity:0;
-    }
-    to {
-        opacity: 1;
-    }
-  }
-  
-  [draggable] {
-    user-select: none;
-  }
   
 </style>

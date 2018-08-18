@@ -54,6 +54,9 @@
           {{ $t('label.YouAlreadyDidThisQuest') }}<br />
           {{ $t('label.YouCanResolveItAgain') }}
         </q-alert>
+        <q-alert type="warning" class="q-mb-md" v-if="!this.isRunFinished">
+          {{ $t('label.GeneralWarning') }}
+        </q-alert>
         <q-alert type="warning" class="q-mb-md" v-if="this.isUserTooFar">
           {{ $t('label.QuestIsFarFromUser') }}<br />
           {{ $t('label.QuestIsFarFromUserDesc') }}
@@ -68,6 +71,38 @@
         <p>{{getLanguage() ? quest.description[getLanguage()] : "" }}</p>
       </div>
     </div>
+    
+    <!------------------ RANKING AREA ------------------------>
+    
+    <transition name="slideInBottom">
+      <div class="panel-bottom q-pa-md" v-show="ranking.show">
+        <a class="float-right no-underline" color="grey" @click="ranking.show = false"><q-icon name="close" class="medium-icon" /></a>
+        <h1 class="size-3 q-pl-md">{{ $t('label.Ranking') }}</h1>
+        <q-list>
+          <q-item v-for="rank in ranking.items" :key="rank.position" >
+            <q-item-side>
+              <q-item-tile avatar>
+                <img :src="'/statics/icons/game/medal-' + rank.position + '.png'">
+              </q-item-tile>
+            </q-item-side>
+            <q-item-main>
+              <q-item-tile label>{{ rank.name }} ({{ rank.score}} <q-icon name="fas fa-trophy" />)</q-item-tile>
+            </q-item-main>
+            <q-item-side right>
+              <q-item-tile avatar>
+                <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
+                <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
+                <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
+              </q-item-tile>
+            </q-item-side>
+            <q-item-side right v-if="!rank.isFriend" @click.native="addFriend(rank.id)">
+              <q-item-tile icon="person_add" color="primary" />
+            </q-item-side>
+            <q-item-side right v-if="rank.isFriend"></q-item-side>
+          </q-item>
+        </q-list>
+      </div>
+    </transition>
     
     <!------------------ NO GEOLOCATION AREA ------------------------>
     
@@ -93,6 +128,7 @@
 import AuthService from 'services/AuthService'
 import QuestService from 'services/QuestService'
 import RunService from 'services/RunService'
+import UserService from 'services/UserService'
 
 import utils from 'src/includes/utils'
 
@@ -100,6 +136,10 @@ export default {
   data () {
     return {
       quest: {},
+      ranking: {
+        show: false,
+        items: []
+      },
       serverUrl: process.env.SERVER_URL,
       isRunFinished: false,
       geolocationIsSupported: navigator.geolocation,
@@ -140,6 +180,9 @@ export default {
     // get user runs for this quest
     await this.getRun()
     
+    // get rankings this quest
+    await this.getRanking()
+    
     //check if location tracking is turned on
     if (this.$data.geolocationIsSupported) {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -176,6 +219,7 @@ export default {
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.quest._id)
       var maxStepComplete = 0
+      var lang = 'en'
       
       if (runs && runs.data && runs.data.length > 0) {
         for (var i = 0; i < runs.data.length; i++) {
@@ -184,6 +228,7 @@ export default {
           }
           if (runs.data[i].status === 'in-progress' && runs.data[i].currentStep > maxStepComplete) {
             maxStepComplete = runs.data[i].currentStep
+            lang = runs.data[i].language
           }
         }
         if (maxStepComplete > 0) {
@@ -194,12 +239,64 @@ export default {
             ok: this.$t('label.Continue'),
             cancel: this.$t('label.Restart')
           }).then(() => {
-            return self.$router.push('/quest/play/' + self.quest._id + '/step/' + maxStepComplete)
-          }).catch(() => {
-            return self.$router.push('/quest/play/' + self.quest._id + '/step/1')
+            return self.$router.push('/quest/play/' + self.quest._id + '/step/' + maxStepComplete + '/' + lang)
           })
         }
       }
+    },
+    /*
+     * Add a new friend
+     */
+    async addFriend(friendId) {
+      var newFriend = await UserService.addFriend(friendId)
+      
+      // hide add friend button for user concerned
+      console.log(newFriend)
+      if (newFriend) {
+        for (var i = 0; i < this.ranking.items.length; i++) {
+          if (this.ranking.items[i].id === friendId) {
+            this.ranking.items[i].isFriend = true
+          }
+        }
+      }
+    },
+    /*
+     * Get the ranking for this quest
+     */
+    async getRanking() {
+      var scores = await RunService.listPlayersForThisQuest(this.quest._id)
+      
+      if (scores && scores.data && scores.data.length > 0) {
+        this.ranking.items = scores.data
+        this.ranking.items.sort(this.compareScore)
+        // compute position
+        for (var i = 0; i < this.ranking.items.length; i++) {
+          if (i === 0 || this.ranking.items[i].score !== this.ranking.items[i - 1].score) {
+            this.ranking.items[i].position = i + 1
+          } else {
+            this.ranking.items[i].position = this.ranking.items[i - 1].position
+          }
+        }
+        setTimeout(this.showRanking, 3000)
+      }
+    },
+    /*
+     * Get the ranking for this quest
+     */
+    async showRanking() {
+      this.ranking.show = true
+    },
+    /*
+     * Sort based on the score
+     */
+    compareScore(a, b) {
+      if (a.score > b.score) {
+        return -1
+      }
+      if (a.score < b.score) {
+        return 1
+      }
+      return 0
     },
     /*
      * Get the default language for this quest
@@ -264,7 +361,6 @@ export default {
       if (obj.direction === 'left') {
         const languages = this.getAllLanguages(this.quest)
         const lang = languages[0].lang
-        alert(lang)
         this.playQuest(this.quest._id, lang)
       }
     },

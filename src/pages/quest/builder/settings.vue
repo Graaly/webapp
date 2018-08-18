@@ -1,12 +1,12 @@
 <template>
   <div>
     <router-link :to="{ path: '/map'}" class="float-right no-underline" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
-    <h1 class="size-3 q-pl-md" v-if="!steps.showNewStepOverview && form.fields.title && form.fields.title[languages.current] && form.fields.title[languages.current] !== ''">{{ form.fields.title[languages.current] }}</h1>
-    <h1 class="size-3 q-pl-md" v-if="!steps.showNewStepOverview && (!form.fields.title || !form.fields.title[languages.current] || form.fields.title[languages.current] === '')">{{ $t('label.NoTitle') }}</h1>
+    <h1 class="size-3 q-pl-md" v-show="!steps.showNewStepOverview && form.fields.title && form.fields.title[languages.current] && form.fields.title[languages.current] !== ''">{{ form.fields.title[languages.current] }}</h1>
+    <h1 class="size-3 q-pl-md" v-show="!steps.showNewStepOverview && (!form.fields.title || !form.fields.title[languages.current] || form.fields.title[languages.current] === '')">{{ $t('label.NoTitle') }}</h1>
     
     <!------------------ TABS ------------------------>
     
-    <q-tabs v-model="tabs.selected" v-if="!steps.showNewStepOverview">
+    <q-tabs v-model="tabs.selected" v-show="!steps.showNewStepOverview">
       <q-tab slot="title" name="languages" :icon="tabs.progress === 0 ?  'looks_one' : 'check_circle'" :label="$t('label.Languages')" default />
       <q-tab slot="title" :disable="tabs.progress < 1" name="settings" :icon="tabs.progress < 2 ?  'looks_two' : 'check_circle'" :label="$t('label.Intro') + ' (' + languages.current + ')'" />
       <q-tab slot="title" :disable="tabs.progress < 2" name="steps" :icon="tabs.progress < 3 ?  'looks_3' : 'check_circle'" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
@@ -212,7 +212,7 @@
       
     </q-modal>
     
-    <div v-if="steps.showNewStepOverview">
+    <div v-if="steps.showNewStepOverview" class="fit">
       <div class="fit">
     
         <!------------------ STEP SIMULATION ------------------------>
@@ -587,7 +587,8 @@ export default {
       this.stepId = '-1'
       this.steps.new.overviewData = {}
       this.steps.reloadStepPlay = false // reset the overview
-      this.steps.showNewStepOverview = false;
+      this.steps.showNewStepOverview = false
+      this.tabs.selected = 'steps'
     },
     /*
      * add a step

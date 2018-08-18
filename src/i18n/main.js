@@ -252,8 +252,8 @@ module.exports = {
       CreateYourQuestsAndWinMoney: "Build your own quests and earn money!",
       CenterOnYourPosition: "Center map on your location",
       BuildAQuestHere: "Build a quest here",
-      BestQuests: "Only best quests",
-      OnlyEasy: "Hide difficult quests",
+      BestQuests: "Best quests",
+      OnlyEasy: "Easiest quests",
       SearchForAQuest: "Search for a quest",
       DisplayAllQuests: "Display all quests",
       km: "km",
@@ -411,7 +411,9 @@ module.exports = {
       ChallengeYourFriends: "Challenge your friends!",
       YouAreQuestOwnerDesc: "You are the owner of this quest, you will not win any point",
       ConfirmPass: "Are you sure to pass this step, and to not win any point?",
-      TouchWhereYouUseThisItem: "Touch where you use this item"
+      TouchWhereYouUseThisItem: "Touch where you use this item",
+      Ranking: "Ranking",
+      GeneralWarning: "For your safety, do not play Graaly driving or riding your bicycle, always be alert to what is happening around you, do not enter private property without permission, follow the safety rules when you move."
     }
   },
   fr: {
@@ -663,8 +665,8 @@ module.exports = {
       CreateYourQuestsAndWinMoney: "Créez vos enquêtes et gagnez de l'argent !",
       CenterOnYourPosition: "Centrer sur votre position",
       BuildAQuestHere: "Créer une enquête ici",
-      BestQuests: "Juste les meilleurs enquêtes",
-      OnlyEasy: "Cacher les enquêtes difficiles",
+      BestQuests: "Les plus populaires",
+      OnlyEasy: "Les plus faciles",
       SearchForAQuest: "Chercher des enquêtes",
       DisplayAllQuests: "Afficher toutes les enquêtes",
       km: "km",
@@ -822,7 +824,9 @@ module.exports = {
       ChallengeYourFriends: "Défie tes amis !",
       YouAreQuestOwnerDesc: "Vous êtes le créateur de cette enquête, elle ne vous rapportera aucun point",
       ConfirmPass: "Etes-vous certain de passer cette étape, vous ne gagnerez pas de point ?",
-      TouchWhereYouUseThisItem: "Touchez l'endroit où vous utilisez cet objet"
+      TouchWhereYouUseThisItem: "Touchez l'endroit où vous utilisez cet objet",
+      Ranking: "Classement",
+      GeneralWarning: "Pour votre sécurité, ne jouez pas à Graaly en conduisant ou quand votre vélo est en mouvement, soyez toujours vigilant à ce qui se passe autour de vous, ne pénétrez pas dans des propriétés privées sans autorisation, respectez les règles de sécurité quand vous vous déplacez."
     }
   }
 }
