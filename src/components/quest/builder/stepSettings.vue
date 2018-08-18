@@ -116,7 +116,6 @@
     <!------------------ STEP : SIMPLE TEXT ------------------------>
     
     <div v-if="options.code == 'write-text'">
-    {{selectedStep.form.answers}}
       <q-field 
         :error="$v.selectedStep.form.answers.$error"
         :error-label="$t('label.RequiredField')">
