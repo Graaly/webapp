@@ -183,6 +183,9 @@
           <input v-model="writetext.playerAnswer" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" />
           <q-btn color="primary" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
         </div>
+        <div class="resultMessage buttons-bottom" v-show="playerResult === null && nbTry >0 && nbTry < 2">
+          <div class="text wrong">{{ $t('label.SecondTry') }}</div>
+        </div>
         <div class="resultMessage buttons-bottom" v-show="playerResult !== null">
           <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('label.GoodAnswer') : $t('label.WrongAnswer') }}</div>
         </div>

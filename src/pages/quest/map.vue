@@ -115,7 +115,7 @@
         </div>
         <div class="col">
           <div class="title">{{ $store.state.user.name }}</div>
-          <q-btn :label="$t('label.SignOut')" icon="power_settings_new" @click="Disconnect()" flat />
+          <q-btn :label="$t('label.SignOut')" icon="power_settings_new" @click.native="Disconnect()" flat />
         </div>
       </div>
       
@@ -139,30 +139,33 @@
         <q-tab-pane name="profile">
           <form @submit.prevent="submitProfileChanges()">
             <q-field icon="account circle" :label="$t('label.EditYourInformations')" class="padding-medium">
-              <q-field :error="profile.form.name.$error">
-                <q-input v-model="profile.form.name" :stack-label="$t('label.YourName')" placeholder="John Doe" @blur="profile.form.name.$touch"  />
+              <q-field :error="$v.profile.form.name.$error">
+                <q-input v-model="profile.form.name" :stack-label="$t('label.YourName')" placeholder="John Doe" @blur="$v.profile.form.name.$touch" />
                 <div class="q-field-bottom" v-if="profile.form.name.$error">
                   <div class="q-field-error" v-if="!profile.form.name.required">{{ $t('label.PleaseEnterYourName') }}</div>
                 </div>
               </q-field>
-              <q-field :error="profile.form.email.$error" v-if="profile.userCanChangeEmail">
-                <q-input v-model="profile.form.email" :stack-label="$t('label.YourEmail')" :placeholder="$t('label.emailExample')" @blur="profile.form.email.$touch" />
+              <q-field :error="$v.profile.form.email.$error" v-if="profile.userCanChangeEmail">
+                <q-input v-model="profile.form.email" :stack-label="$t('label.YourEmail')" :placeholder="$t('label.emailExample')" @blur="$v.profile.form.email.$touch" />
                 <div class="q-field-bottom" v-if="profile.form.email.$error">
                   <div class="q-field-error" v-if="!profile.form.email.required">{{ $t('label.PleaseEnterYourEmailAddress') }}</div>
                   <div class="q-field-error" v-if="!profile.form.email.email">{{ $t('label.PleaseEnterAValidEmailAddress') }}</div>
                 </div>
               </q-field>
-              <q-field :error="profile.form.country.$error">
+              <q-field :error="$v.profile.form.country.$error">
                 <q-select :stack-label="$t('label.YourCountry')" v-model="profile.form.country" :options="profile.countries" />
                 <div class="q-field-bottom" v-if="profile.form.country.$error">
                    <div class="q-field-error" v-if="!profile.form.country.required">{{ $t('label.PleaseSelectYourCountry') }}</div>
                 </div>
               </q-field>
-              <q-field :error="profile.form.zipCode.$error">
+              <q-field :error="$v.profile.form.zipCode.$error">
                 <q-input v-model="profile.form.zipCode" :stack-label="$t('label.YourZipCode')" placeholder="38500"  />
                 <div class="q-field-bottom" v-if="profile.form.zipCode.$error">
                   <div class="q-field-error" v-if="!profile.form.zipCode.required">{{ $t('label.PleaseEnterYourZipCode') }}</div>
                 </div>
+              </q-field> 
+              <q-field>
+                <q-select :stack-label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" @input="changeLanguage" />
               </q-field> 
               <q-btn color="primary" class="full-width" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
             </q-field>
@@ -326,6 +329,7 @@
 import QuestService from 'services/QuestService'
 import AuthService from 'services/AuthService'
 import utils from 'src/includes/utils'
+import { required, email } from 'vuelidate/lib/validators'
 
 import Notification from 'plugins/NotifyHelper'
 import LevelCompute from 'plugins/LevelCompute'
@@ -333,6 +337,7 @@ import LevelCompute from 'plugins/LevelCompute'
 import questLevels from 'data/questLevels.json'
 import countriesFR from 'data/countries_fr.json'
 import countriesEN from 'data/countries_en.json'
+import languages from 'data/languages.json'
 
 export default {
   data () {
@@ -399,11 +404,12 @@ export default {
       profile: {
         level: {},
         progress: 10,
-        form: {name: "--", picture: "", email: "", zipCode: "", country: "", oldPassword: "", newPassword: ""},
+        form: {name: "--", picture: "", email: "", zipCode: "", country: "", oldPassword: "", newPassword: "", language: "en"},
         countries: this.$i18n.locale === 'fr' ? countriesFR : countriesEN,
         userCanChangeEmail: true,
         userCanChangePassword: true
-      }
+      },
+      languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t)
     }
   },
   computed: {
@@ -701,7 +707,8 @@ export default {
         email: this.$store.state.user.email,
         picture: this.$store.state.user.picture,
         zipCode: this.$store.state.user.location.postalCode,
-        country: this.$store.state.user.location.country
+        country: this.$store.state.user.location.country,
+        language: this.$store.state.user.language
       }
       
       // check if user can change his email
@@ -714,17 +721,17 @@ export default {
      * Submit account changes
      */
     async submitProfileChanges() {      
-      if (!this.form.$error) {
+      if (!this.profile.form.$error) {
         // TODO keep the original route which required authentification
         // & redirect user to it when he clicks on the 'verify' link in email
         let modifications = {
-          name: this.form.name,
-          email: this.form.email,
-          oldPassword: this.form.oldPassword,
-          newPassword: this.form.newPassword,
-          zipCode: this.form.zipCode,
-          country: this.form.country,
-          language: "fr"
+          name: this.profile.form.name,
+          email: this.profile.form.email,
+          oldPassword: this.profile.form.oldPassword,
+          newPassword: this.profile.form.newPassword,
+          zipCode: this.profile.form.zipCode,
+          country: this.profile.form.country,
+          language: this.profile.form.language
         }
         let modificationStatus = await AuthService.modifyAccount(modifications)
         
@@ -734,6 +741,12 @@ export default {
           Notification(this.$t('label.AccountModifiedLong'), 'positive')
         }
       }
+    },
+    /*
+     * Change interface language dynamically
+     */
+    changeLanguage() {        
+      this.$i18n.locale = this.profile.form.language
     },
     /*
      * upload a profile image
@@ -850,6 +863,16 @@ export default {
         this.$q.loading.hide()
       } catch (e) {
         this.$q.loading.hide()
+      }
+    }
+  },
+  validations: {
+    profile: {
+      form: {
+        email: { required, email },
+        name: { required },
+        country: { required },
+        zipCode: { required }
       }
     }
   }

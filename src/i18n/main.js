@@ -413,7 +413,8 @@ module.exports = {
       ConfirmPass: "Are you sure to pass this step, and to not win any point?",
       TouchWhereYouUseThisItem: "Touch where you use this item",
       Ranking: "Ranking",
-      GeneralWarning: "For your safety, do not play Graaly driving or riding your bicycle, always be alert to what is happening around you, do not enter private property without permission, follow the safety rules when you move."
+      GeneralWarning: "For your safety, do not play Graaly driving or riding your bicycle, always be alert to what is happening around you, do not enter private property without permission, follow the safety rules when you move.",
+      YourLanguage: "Your language"
     }
   },
   fr: {
@@ -826,7 +827,8 @@ module.exports = {
       ConfirmPass: "Etes-vous certain de passer cette étape, vous ne gagnerez pas de point ?",
       TouchWhereYouUseThisItem: "Touchez l'endroit où vous utilisez cet objet",
       Ranking: "Classement",
-      GeneralWarning: "Pour votre sécurité, ne jouez pas à Graaly en conduisant ou quand votre vélo est en mouvement, soyez toujours vigilant à ce qui se passe autour de vous, ne pénétrez pas dans des propriétés privées sans autorisation, respectez les règles de sécurité quand vous vous déplacez."
+      GeneralWarning: "Pour votre sécurité, ne jouez pas à Graaly en conduisant ou quand votre vélo est en mouvement, soyez toujours vigilant à ce qui se passe autour de vous, ne pénétrez pas dans des propriétés privées sans autorisation, respectez les règles de sécurité quand vous vous déplacez.",
+      YourLanguage: "Votre langue"
     }
   }
 }

@@ -39,9 +39,9 @@
               </p>
               <a @click="backToTheMap()">{{ $t('label.BackToTheMap') }}</a>
             </div>
-            <div class="full-width text-center" v-if="!scrolled">
+            <div class="full-width text-center" v-if="!scrolled" @click="scrollToDetail()">
               {{ $t('label.ScrollForMoreDetails') }}
-              <q-icon class="text-primary big-icon" name="expand_more" @click="moveDown()" />
+              <q-icon class="text-primary big-icon" name="expand_more" />
             </div>
           </div>
         </div>
@@ -49,7 +49,7 @@
       
       <!------------------ DETAILS AREA ------------------------>
       
-      <div class="q-pa-md q-pb-xxxl">
+      <div id="detail" class="q-pa-md q-pb-xxxl">
         <q-alert type="warning" class="q-mb-md" v-if="this.isRunFinished">
           {{ $t('label.YouAlreadyDidThisQuest') }}<br />
           {{ $t('label.YouCanResolveItAgain') }}
@@ -131,6 +131,8 @@ import RunService from 'services/RunService'
 import UserService from 'services/UserService'
 
 import utils from 'src/includes/utils'
+import { scroll } from 'quasar'
+const { getScrollTarget, setScrollPosition } = scroll
 
 export default {
   data () {
@@ -382,6 +384,13 @@ export default {
       } else {
         this.scrolled = false
       }
+    },
+    scrollToDetail () {
+      let el = document.getElementById('detail')
+      let target = getScrollTarget(el)
+      let offset = el.offsetTop
+      let duration = 1000
+      setScrollPosition(target, offset, duration)
     },
     /*
      * Manage back to the map button

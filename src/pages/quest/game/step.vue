@@ -53,7 +53,7 @@
         <q-tab slot="title" name="previous" icon="arrow_back" @click="previousStep()" />
         <q-tab slot="title" name="info" icon="info" @click="openInfo()" />
         <q-tab slot="title" name="next" icon="arrow_forward" :disable="!canMoveNextStep && !canPass" @click="nextStep()" />
-        <q-tab slot="title" name="hint" icon="lightbulb outline" :disable="!step || !step.hint || step.hint === ''" @click="askForHint()"/>
+        <q-tab slot="title" name="hint" icon="lightbulb outline" :disable="!isHintAvailable()" @click="askForHint()"/>
       </q-tabs>
     </q-layout-footer>
   </div>
@@ -306,6 +306,9 @@ export default {
      * Ask for a hint
      */
     async askForHint() {
+      if (!this.isHintAvailable()) {
+        return
+      }
       if (this.hint.isOpened) {
         this.closeAllPanels()
       } else {
@@ -402,6 +405,9 @@ export default {
       }
       this.selectedItem = item
       this.closeAllPanels()
+    },
+    isHintAvailable() {
+      return (this.step && this.step.hint && this.step.hint !== '')
     }
   }
 }

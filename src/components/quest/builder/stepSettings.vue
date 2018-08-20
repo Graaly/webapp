@@ -532,6 +532,7 @@ export default {
         if (!Array.isArray(this.selectedStep.form.options)) {
           this.answerType = 'text'
           this.selectedStep.form.options = []
+          this.selectedStep.form.answers = 0
           for (let i = 0; i < this.defaultNbAnswers; i++) {
             this.selectedStep.form.options.push({ text: this.$t('label.AnswerNb', { nb: (i + 1) }), imagePath: null })
           }
