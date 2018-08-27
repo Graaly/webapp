@@ -63,9 +63,6 @@ export default {
    * @param   {Object}    data        Data of the step
    */
   save (data) {
-    //return data._id 
-    //  ? Api().put('quest/' + data.questId + '/step/' + data._id + '/update', data)
-    //  : Api().post('quest/' + data.questId + '/step/create', data)
     return Api().put('quest/' + data.questId + '/step/' + data._id + '/update', data)
   },
   /*
@@ -127,9 +124,10 @@ export default {
   /*
    * upload a item picture for 'new item' step
    * @param   {String}    questId        ID of the quest
+   * @param   {String}    stepType       step type code, like 'new-item'
    * @param   {Object}    data           upload data
    */
-  uploadItemImage(questId, data) {
-    return Api().post('/quest/' + questId + '/step/new-item/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+  uploadItemImage(questId, stepType, data) {
+    return Api().post('/quest/' + questId + '/step/' + stepType + '/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
   }
 }

@@ -135,5 +135,18 @@
       "maxNbChars": 50,
       "maxNbCarriageReturns": 1
     }
+  },
+  {
+    "category": "enigma",
+    "code": "locate-item-ar",
+    "icon": "cube",
+    "title": "LocateItemAR",
+    "description": "LocateItemARDesc",
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 50,
+      "maxNbCarriageReturns": 1
+    },
+    "hasBackgroundImage": false
   }
 ]
