@@ -82,7 +82,7 @@
           
           <div class="location-address">
             <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-              <gmap-autocomplete :placeholder="$t('label.StartingPointOfTheQuest')" v-model="form.fields.startingPlace" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
+              <gmap-autocomplete id="startingplace" :placeholder="$t('label.StartingPointOfTheQuest')" v-model="form.fields.startingPlace" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
             </div>
             <a @click="getCurrentLocation()"><img src="/statics/icons/game/location.png" /></a>
           </div>
@@ -212,7 +212,7 @@
       
     </q-modal>
     
-    <div v-if="steps.showNewStepOverview" class="fit">
+    <div id="overview" v-if="steps.showNewStepOverview" class="fit">
       <div class="fit">
     
         <!------------------ STEP SIMULATION ------------------------>
@@ -254,6 +254,8 @@ import questLevels from 'data/questLevels.json'
 import languages from 'data/languages.json'
 import stepTypes from 'data/stepTypes.json'
 import utils from 'src/includes/utils'
+import { scroll } from 'quasar'
+const { getScrollTarget, setScrollPosition } = scroll
 
 export default {
   components: {
@@ -436,6 +438,7 @@ export default {
      * Get current user location
      */
     async getCurrentLocation() {
+      this.$q.loading.show()
       // get the current coords
       navigator.geolocation.getCurrentPosition(this.fillLocation)
     },
@@ -448,10 +451,13 @@ export default {
       // get the address
       var geocoder = new google.maps.Geocoder();
       geocoder.geocode({'location': {lat: pos.coords.latitude, lng: pos.coords.longitude}}, (results, status) => {
+        this.$q.loading.hide()
         if (status === 'OK' && results[0].formatted_address) {
           this.form.fields.town = this.getCity(results[0])
           this.form.fields.zipcode = this.getZipcode(results[0])
           this.form.fields.startingPlace = results[0].formatted_address
+          // force field to be refreshed
+          document.getElementById("startingplace").value = this.form.fields.startingPlace
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
@@ -709,6 +715,8 @@ export default {
       this.steps.new.overviewData = step
       // reset the step overview
       this.steps.reloadStepPlay = true
+      // move to top
+      this.moveToTop()
     },
     /*
      * Launched when the step is played
@@ -738,6 +746,13 @@ export default {
         }
       }
       return ''
+    },
+    moveToTop() {
+      let el = document.getElementById('overview')
+      let target = getScrollTarget(el)
+      let offset = el.offsetTop
+      let duration = 1000
+      setScrollPosition(target, offset, duration)
     }
   },
   validations: {

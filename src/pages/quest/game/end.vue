@@ -4,37 +4,38 @@
     
       <!------------------ TITLE AREA ------------------------>
       
-      <div class="centered">    
+      <div class="centered" v-show="run.score > 0 || run.reward > 0">    
         <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouWin') }}</h2>
-        <h2 class="size-1 q-mt-sm q-mb-sm">{{ run.score }} <q-icon color="white" name="fas fa-trophy" /></h2>
-        <router-link to="/help/points">{{ $t('label.WhatCanYouDoWithThesePoints') }}</router-link>
+        <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.score > 0 || run.reward === 0">{{ run.score }} <q-icon color="white" name="fas fa-trophy" /></h2>
+        <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.reward > 0">{{ run.reward }} <q-icon color="white" name="fas fa-coins" /></h2>
+        <router-link to="/help/points" v-show="run.score > 0">{{ $t('label.WhatCanYouDoWithThesePoints') }}</router-link>
       </div>
       
       <!------------------ PROGRESS AREA ------------------------>
       
-      <div class="q-pa-md centered">
+      <div class="q-pa-md centered" v-show="run.score > 0">
         <p class="centered">{{ $t('label.MyLevel') }} : {{ $store.state.user.level }}</p>
-        <q-progress :percentage="level.progress" stripe animate height="30px" :color="level.color"></q-progress>
+        <q-progress :percentage="level.progress" height="30px" color="white"></q-progress>
       </div>
       
       <!------------------ RATING AREA ------------------------>
       
-      <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pb-md centered">
-        <h3 class="size-3 q-ma-sm">{{ $t('label.RateThisQuest') }}</h3>
-        <q-rating v-model="rating" :max="5" size="2rem" @change="rate" />
+      <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.reward <= 0">
+        <h3 class="size-2 q-ma-sm">{{ $t('label.RateThisQuest') }} (+2 <q-icon color="white" name="fas fa-coins" />)</h3>
+        <q-rating v-model="rating" :max="5" size="1.5rem" @input="rate" />
       </div>
       
       <!------------------ CHALLENGE FRIENDS AREA ------------------------>
       
-      <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pb-md centered">
-        <h3 class="size-3 q-ma-sm">{{ $t('label.ChallengeYourFriends') }}</h3>
+      <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.score > 0">
+         <h3 class="size-2 q-ma-sm">{{ $t('label.ChallengeYourFriends') }}</h3>
         <q-btn icon="people" color="primary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
       </div>
       
       <!------------------ SHARE AREA ------------------------>
       
       <div class="share bg-secondary q-mt-md q-ml-md q-mr-md q-pb-md centered">
-        <h3 class="size-3 q-ma-sm">{{ $t('label.ShareYourSuccess') }}</h3>
+         <h3 class="size-2 q-ma-sm">{{ $t('label.ShareYourSuccess') }}</h3>
         <ul>
           <li>
             <a href="https://www.facebook.com/sharer/sharer.php?u=http://graaly.com" target="_blank">
@@ -56,8 +57,8 @@
    
       <!------------------ BACK TO MAP LINK AREA ------------------------>
       
-      <div class="back centered">
-        <router-link to="/quest/search/map">{{ $t('label.BackToTheMap') }}</router-link>
+      <div class="back centered q-pa-md">
+        <q-btn flat :label="$t('label.BackToTheMap')" @click="$router.push('/map')" />
       </div>
       
     </div>
@@ -86,7 +87,7 @@
                 <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
               </q-item-tile>
             </q-item-side>
-            <q-item-side right v-if="!rank.isFriend" @click.native="addFriend(rank.id)">
+            <q-item-side right v-if="!rank.isFriend && rank.id !== $store.state.user._id" @click.native="addFriend(rank.id)">
               <q-item-tile icon="person_add" color="primary" />
             </q-item-side>
             <q-item-side right v-if="rank.isFriend"></q-item-side>
@@ -147,9 +148,10 @@ export default {
     this.initProgression()
   
     let endStatus = await RunService.endRun(this.run._id)
-    if (endStatus && endStatus.data && endStatus.data.score) {
+    if (endStatus && endStatus.data) {
       // assign computed score
       this.run.score = endStatus.data.score
+      this.run.reward = endStatus.data.reward
     }
     
     // get user new score
@@ -164,9 +166,9 @@ export default {
     async rate() {
       let rate = await RunService.rate(this.run._id, this.rating)
       if (rate.status !== 200) {
-        this.$q.notify({type: 'warning', message: this.$t('message.YourRatingHasNotBeenSaved')})
+        this.$q.notify({type: 'warning', message: this.$t('label.YourRatingHasNotBeenSaved')})
       } else {  
-        this.$q.notify({type: 'positive', message: this.$t('message.YourRatingHasBeenSaved')})
+        this.$q.notify({type: 'positive', message: this.$t('label.YourRatingHasBeenSaved')})
       }
     },
     /*

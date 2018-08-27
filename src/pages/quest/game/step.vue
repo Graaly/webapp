@@ -23,12 +23,14 @@
     
     <transition name="slideInBottom">
       <div v-show="info.isOpened">
-        <div class="panel-bottom no-padding" :style="'background: url(' + serverUrl + '/upload/quest/' + info.quest.picture + ' ) center center / cover no-repeat '">
+        <div class="panel-bottom no-padding" :style="'background: url(' + ((info.quest.picture && info.quest.picture[0] === '_') ? '/statics/images/quest/' + info.quest.picture : serverUrl + '/upload/quest/' + info.quest.picture) + ' ) center center / cover no-repeat '">
           <div class="text-center bottom-dark-banner q-pb-xl">
             <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title[lang] : $t('label.NoTitle') }}</p>
             <q-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-progress>
-            <p class="q-pa-md score-text">{{ info.score }} <q-icon color="white" name="fas fa-trophy" /></p>
-            <q-btn class="q-mb-xl" color="primary" @click="backToMap">{{ $t('label.LeaveQuest') }}</q-btn>
+            <p class="q-pa-md score-text" v-show="info && info.score">{{ info.score }} <q-icon color="white" name="fas fa-trophy" /></p>
+            <p class="q-pb-xl">
+              <q-btn color="primary" @click="backToMap">{{ $t('label.LeaveQuest') }}</q-btn>
+            </p>
           </div>
         </div>
       </div>
@@ -172,7 +174,7 @@ export default {
     this.getStep().then(async (step) => {
       // redirect to latest step run if user can not access this step
       if (step.redirect) {
-        return this.$router.push('/quest/play/' + this.quest.id + '/step/' + step.redirect)
+        return this.$router.push('/quest/play/' + this.quest.id + '/step/' + step.redirect + '/' + this.$route.params.lang)
       }
     
       // no more available step => we reached end of quest

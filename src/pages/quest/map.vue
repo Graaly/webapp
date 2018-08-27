@@ -1,36 +1,21 @@
 <template>
   <div class="column" ref="div-column">
     
-    <!------------------ SUCCESS PAGE ------------------------>
+    <!--====================== SUCCESS PAGE =================================-->
     
     <q-layout-drawer side="left" v-model="showSuccess">
-    
-      <!------------------ HEADER AREA ------------------------>
-        
-      <div class="header row">
-        <div class="col centered text-white">
-          <h2 class="size-3">{{ $store.state.user.score }} <q-icon color="white" name="fas fa-trophy" /></h2>
-          <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 10]">
-            {{ $t('label.YourScore') }}
-          </q-tooltip>
-        </div>
-        <div class="col centered text-white">
-          <h2 class="size-3">{{ $store.state.user.score }} <q-icon color="white" name="fas fa-coins" /></h2>
-          <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 10]">
-            {{ $t('label.YourRevenues') }}
-          </q-tooltip>
-        </div>
-      </div>
       
       <!------------------ TABS AREA ------------------------>
       
-      <q-tabs>
-        <q-tab slot="title" name="built" icon="message" :label="$t('label.QuestsCreated')" default />
-        <q-tab slot="title" name="played" icon="fingerprint" :label="$t('label.QuestsSuccessful')" />
+      <q-tabs two-lines>
+        <q-tab slot="title" name="ranking" icon="star" :label="$t('label.YourRanking')" default />
+        <q-tab slot="title" name="built" icon="add_box" :label="$t('label.QuestsCreated')" />
+        <q-tab slot="title" name="played" icon="play_circle_filled" :label="$t('label.QuestsSuccessful')" />
       
         <!------------------ LIST OF QUESTS BUILT TAB ------------------------>
         
         <q-tab-pane name="built">
+        
           <!------------------ ADD A QUEST BUTTON AREA ------------------------>
             
           <q-btn link class="full-width" @click="$router.push('/quest/create/welcome')" color="primary">{{ $t('label.CreateANewQuest') }}</q-btn>
@@ -93,11 +78,18 @@
           </q-item>
         </q-list>
         </q-tab-pane>
+        
+        <!------------------ LIST OF QUESTS BUILT TAB ------------------------>
+        
+        <q-tab-pane name="ranking">
+        Your ranking
+        </q-tab-pane>
+        
       </q-tabs>
 
     </q-layout-drawer>
     
-    <!------------------ PROFILE PANEL ------------------------>
+    <!--====================== PROFILE PAGE =================================-->
     
     <q-layout-drawer side="right" v-model="showProfile">
     
@@ -184,25 +176,77 @@
         <!------------------ FRIENDS TAB ------------------------>
         
         <q-tab-pane name="friends">
-          
+          <q-list highlight>
+            <q-item v-for="friend in friends.list" :key="friend.friendId" @click.native="openFriendCard(friend.friendId)">
+              <q-item-side>
+                <q-item-tile avatar>
+                  <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') !== -1" :src="friend.picture" />
+                  <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + friend.picture" />
+                  <img v-if="!friend.picture || friend.picture === ''" src="/statics/icons/game/profile-small.png" />
+                </q-item-tile>
+              </q-item-side>
+              <q-item-main>
+                <q-item-tile>{{ friend.name }}</q-item-tile>
+              </q-item-main>
+            </q-item>
+            <q-item v-if="friends.list.length === 0">
+              <q-item-main>
+                <q-item-tile label>{{ $t('label.NoFriend') }}</q-item-tile>
+              </q-item-main>
+            </q-item>
+          </q-list>
         </q-tab-pane>
         
         <!------------------ NEWS TAB ------------------------>
         
         <q-tab-pane name="news">
+          <q-infinite-scroll :handler="loadNews">
+            <q-list highlight>
+              <q-item v-for="(item, index) in friends.news.items" :key="item._id">
+                <q-item-side v-if="item.data.picture && item.data.picture.indexOf('http') !== -1" :avatar="item.data.picture" />
+                <q-item-side v-if="item.data.picture && item.data.picture.indexOf('http') === -1" :avatar="serverUrl + '/upload/profile/' + item.data.picture" />
+                <q-item-side v-if="!item.data.picture" :avatar="'/statics/profiles/noprofile.png'" />
+                <q-item-main>
+                  <q-item-tile label v-if="item.data && item.data.userId">{{ item.data.name }}</q-item-tile>
+                  <q-item-tile label v-if="item.type === 'standard'">
+                    {{ item.title }}
+                  </q-item-tile>
+                  <q-item-tile label v-if="item.type !== 'standard'">
+                    <dummytag v-html="$t('news.' + item.type, item.data)"></dummytag>
+                    <span v-if="item.type === 'challengeWon'">{{ $t('challenge.' + item.data.name) }}</span>
+                  </q-item-tile>
+                  <q-item-tile sublabel>
+                    {{item.creation.date | formatDate}}
+                    - 
+                    <a style="color: #000" v-if="!isLiked(item)" v-on:click="like(index)">{{ $t('label.Like') }}</a>
+                    <a v-if="isLiked(item)" v-on:click="unlike(index)">{{ $t('label.Like') }}</a>
+                    <span v-if="item.likes.length > 0">({{ item.likes.length }})</span>
+                  </q-item-tile>
+                </q-item-main>
+              </q-item>
+              <q-item v-if="friends.news.items.length === 0">
+                <q-item-main>
+                  <q-item-tile label>{{ $t('label.NoNews') }}</q-item-tile>
+                </q-item-main>
+              </q-item>
+            </q-list>
+            <div slot="message" class="row justify-center" style="margin-bottom: 50px;">
+              <q-spinner-dots :size="5" />
+            </div>
+          </q-infinite-scroll>
         </q-tab-pane>
         
       </q-tabs>
 
     </q-layout-drawer>
     
-    <!------------------ MAP PAGE ------------------------>
+    <!--====================== MAP PAGE =================================-->
     
     <div class="row" ref="map" v-if="geolocationIsSupported">
       
       <gmap-map
         :center="map.center"
-        :zoom="11"
+        :zoom="map.zoom"
         map-type-id="roadmap"
         class="map"
         ref="map"
@@ -210,7 +254,7 @@
         @center_changed="updateCenter($event)"
         @dragend="dragEnd($event)"
       >
-        <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="quest.status === 'played' ? map.marker.played : map.marker.quest"
+        <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="setMapIcon(quest)"
           @click="openQuestSummary(quest, index)" />
         
         <gmap-info-window :options="map.infoWindow.options" :position="map.infoWindow.location" :opened="map.infoWindow.isOpen" @closeclick="map.infoWindow.isOpen=false">
@@ -223,7 +267,7 @@
       </gmap-map>
     </div>
     
-    <!------------------ SEARCH AREA PAGE ------------------------>
+    <!--====================== SEARCH PAGE =================================-->
     
     <q-modal v-model="showSearch">
       <div class="column" ref="div-column">
@@ -282,6 +326,29 @@
       </div>
     </q-modal>
     
+    <!--====================== FRIEND PAGE =================================-->
+    
+    <q-modal v-model="friends.show">
+       <div class="panel-bottom q-pa-md">
+        <a class="float-right no-underline" color="grey" @click="friends.show = false"><q-icon name="close" class="medium-icon" /></a>
+        <h1 class="size-3 q-pl-md">{{ friends.selected.name }}</h1>
+        <q-tabs two-lines>
+          <q-tab slot="title" name="friendranking" icon="star" :label="$t('label.Ranking')" default />
+          <q-tab slot="title" name="friendbuilt" icon="add_box" :label="$t('label.QuestsCreated')" />
+          <q-tab slot="title" name="friendplayed" icon="play_circle_filled" :label="$t('label.QuestsSuccessful')" />
+          <q-tab-pane name="friendranking">
+            
+          </q-tab-pane>
+          <q-tab-pane name="friendbuilt">
+            
+          </q-tab-pane>
+          <q-tab-pane name="friendplayed">
+            
+          </q-tab-pane>
+        </q-tabs>
+      </div>
+    </q-modal>
+    
     <!------------------ NO GEOLOCATION AREA ------------------------>
     
     <div class="row enable-geolocation" v-if="!geolocationIsSupported">
@@ -290,9 +357,9 @@
         <div v-if="isChrome">
           <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
           <p>
-            {{ $t('message.OnceGeolocationEnabled') }}
+            {{ $t('label.OnceGeolocationEnabled') }}
             <!-- see https://github.com/vuejs/vue-router/issues/296 -->
-            <router-link :to="$route.path + '?_=' + (new Date).getTime()">{{ $t('message.PressHere') }}</router-link>.
+            <router-link :to="$route.path + '?_=' + (new Date).getTime()">{{ $t('label.PressHere') }}</router-link>.
           </p>
         </div>
       </div>
@@ -301,8 +368,11 @@
     <!------------------ SCORE AREA ------------------------>
     
     <div class="score-box">
-      <div class="q-pa-md score-text">{{ $store.state.user.score }} <img src="statics/icons/game/trophy-small.png" /></div>
-    </div>  
+      <div class="q-pa-md score-text">{{ $store.state.user.score }} <q-icon name="fas fa-trophy" /></div>
+    </div>
+    <div class="coin-box">
+      <div class="q-pa-md score-text"><q-icon name="fas fa-coins" /> {{ $store.state.user.coins }} <q-icon name="add_circle" @click.native="buyCoins()" color="primary" /></div>
+    </div>
     
     <!------------------ MENU AREA ------------------------>
     
@@ -328,8 +398,10 @@
 <script>
 import QuestService from 'services/QuestService'
 import AuthService from 'services/AuthService'
+import UserService from 'services/UserService'
 import utils from 'src/includes/utils'
 import { required, email } from 'vuelidate/lib/validators'
+import { QSpinnerDots, QInfiniteScroll } from 'quasar'
 
 import Notification from 'plugins/NotifyHelper'
 import LevelCompute from 'plugins/LevelCompute'
@@ -340,10 +412,15 @@ import countriesEN from 'data/countries_en.json'
 import languages from 'data/languages.json'
 
 export default {
+  components: {
+    QInfiniteScroll,
+    QSpinnerDots
+  },
   data () {
     return {
       map: {
         filter: 'all',
+        zoom: 13,
         center: { lat: 0, lng: 0 },
         centerTmp: { lat: 0, lng: 0 },
         // for smooth 'panTo()' transition between marker clicks
@@ -352,22 +429,6 @@ export default {
           queue: [],
           steps: 20,
           duration: 700 // in milliseconds
-        },
-        marker: {
-          quest: {
-            url: 'statics/icons/game/pointer-active.png',
-            size: {width: 40, height: 40, f: 'px', b: 'px'},
-            scaledSize: {width: 40, height: 40, f: 'px', b: 'px'},
-            origin: {x: 0, y: 0},
-            anchor: {x: 20, y: 40}
-          },
-          played: {
-            url: 'statics/icons/game/pointer-inactive.png',
-            size: {width: 40, height: 40, f: 'px', b: 'px'},
-            scaledSize: {width: 40, height: 40, f: 'px', b: 'px'},
-            origin: {x: 0, y: 0},
-            anchor: {x: 20, y: 40}
-          }
         },
         infoWindow: {
           content: '',
@@ -385,6 +446,16 @@ export default {
           latitude: 0,
           longitude: 0
         }
+      },
+      friends: {
+        list: [],
+        news: {
+          limit: 20,
+          skip: 0,
+          items: []
+        },
+        show: false,
+        selected: {}
       },
       currentQuestIndex: null,
       currentQuest: null,
@@ -691,11 +762,78 @@ export default {
     /*
      * Open the profile page
      */
-    openProfilePage() {
+    async openProfilePage() {
       this.showProfile = !this.showProfile
       this.profile.level = LevelCompute(this.$store.state.user.score)
       this.getProfileChangeData(this.$store.state.user._id)
-      //this.$router.push('/user/profile')
+      
+      await this.loadFriends()
+      //await this.loadNews()
+    },
+    /*
+     * List friends
+     */
+    async loadFriends() {
+      let response = await UserService.listFriends()
+      this.friends.list = response.data
+    },    
+    /*
+     * List news
+     */
+    loadNews(index, done) {
+      var self = this
+      // get the team news list
+      UserService.listNews(this.friends.news.limit, this.friends.news.skip, function(err, response) {
+        self.friends.news.skip += self.friends.news.limit
+        if (err) {
+          done(err)
+        }
+        if (response && response.data && response.data.length > 0) {
+          self.friends.news.items = self.friends.news.items.concat(response.data)
+          done()
+        }
+      })
+    },  
+    /*
+     * Like news
+     */
+    async like (index) {
+      this.friends.news.items[index].likes.push({userId: this.$store.state.user._id, date: new Date()})
+      await UserService.likeNews(this.friends.news.items[index]._id)
+    },
+    /*
+     * Unlike news
+     */
+    async unlike (index) {
+      for (var i = 0; i < this.friends.news.items[index].likes.length; i++) {
+        if (this.friends.news.items[index].likes[i].userId === this.$store.state.user._id) {
+          this.friends.news.items[index].likes.splice(i, 1)
+        }
+      }
+      await UserService.unlikeNews(this.friends.news.items[index]._id)
+    },
+    // return true if the current user has liked the news
+    isLiked (item) {
+      if (item.likes) {
+        for (var i = 0; i < item.likes.length; i++) {
+          if (item.likes[i].userId === this.$store.state.user._id) {
+            return true;
+          }
+        }
+      }
+      return false;
+    },
+    /*
+     * Open the friend card
+     * @param   {string}    id            ID of the friend
+     */
+    async openFriendCard(id) {
+      // load user data
+      let friend = await UserService.getFriend(id)
+      this.friends.selected = friend.data
+      
+      // display user page
+      this.friends.show = true
     },
     /*
      * Get the user informations
@@ -807,6 +945,23 @@ export default {
       this.showProfile = false
       this.showSuccess = false
     },
+    setMapIcon(quest) {
+      var marker = {
+        url: 'statics/icons/game/pointer-inactive.png',
+        size: {width: 40, height: 40, f: 'px', b: 'px'},
+        scaledSize: {width: 40, height: 40, f: 'px', b: 'px'},
+        origin: {x: 0, y: 0},
+        anchor: {x: 20, y: 40}
+      }
+      if (quest.status !== 'played') {
+        if (quest.type === 'quest') {
+          marker.url = 'statics/icons/game/pointer-quest.png'
+        } else {
+          marker.url = 'statics/icons/game/pointer-' + quest.category + '.png'
+        }
+      }
+      return marker
+    },
     /*
      * Menu swipe tracking
      */
@@ -864,6 +1019,12 @@ export default {
       } catch (e) {
         this.$q.loading.hide()
       }
+    },
+    /*
+     * Buy coins
+     */
+    buyCoins () {
+      this.$router.push('/map')
     }
   },
   validations: {

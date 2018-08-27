@@ -17,6 +17,7 @@
 .dark-background {
   background: #e82a34;
   color: #fff;
+  min-height: 100%;
 }
 .grow {
   flex-grow: 1;
@@ -82,18 +83,27 @@ a {
 h1.size-1 {
   font-size: 3.5em;
 }
-h2.size-1 {
-  font-size: 2.6em;
-}
 h1.size-2 {
   font-size: 3em;
-}
-h2.size-2 {
-  font-size: 2.1em;
 }
 h1.size-3 {
   font-size: 2rem;
   font-weight: normal;
+}
+h2.size-1 {
+  font-size: 2.6em;
+}
+h2.size-2 {
+  font-size: 2.1em;
+}
+h2.size-3 {
+  font-size: 1.8em;
+}
+h3.size-1 {
+  font-size: 1.8em;
+}
+h3.size-2 {
+  font-size: 1.5em;
 }
 .align-right {
   text-align: right;
@@ -103,6 +113,9 @@ h1.size-3 {
 }
 .centered {
   text-align: center;
+}
+span .q-icon {
+  margin-top: -2px;
 }
 
 /////////////////////////////// Forms CSS /////////////////////////////////////
@@ -277,8 +290,18 @@ form {
   top: 0px;
   right: 0px;
 }
+.coin-box {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+}
 .score-text {
   font-size: 2em;
+}
+.score-text i {
+  font-size: 0.7em;
+  line-height: 0.5em;
+  margin-top: -7px;
 }
 .score {
   font-size: 2.1rem;

@@ -4,23 +4,25 @@
       
       <!------------------ MAIN INFORMATION AREA ------------------------>
       
-      <div class="fit" :style="'background: url(' + serverUrl + '/upload/quest/' + quest.picture + ' ) center center / cover no-repeat '" v-touch-swipe.horizontal="swipeMgmt">
-        <div>
+      <div class="fit" :style="'background: url(' + ((quest.picture && quest.picture[0] === '_') ? '/statics/images/quest/' + quest.picture : serverUrl + '/upload/quest/' + quest.picture) + ' ) center center / cover no-repeat '" v-touch-swipe.horizontal="swipeMgmt">
+        <div class="fit">
           <div class="text-center bottom-dark-banner">
             <p class="title">
               {{getLanguage() ? quest.title[getLanguage()] : $t('label.NoTitle') }}
               <img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'/statics/icons/game/flag-' + getLanguage() + '.png'" />
             </p>
             <p>
-              <span v-if="quest.rating">
-                <q-rating readonly :value="quest.rating && quest.rating.rounded" color="primary" :max="5" size="1.7rem" />
-              </span> &nbsp;
-              <span>{{ $t('label.nbPointsToWin', { nb: quest.availablePoints }) }}</span>
+              <span class="q-ml-sm q-mr-sm" v-show="!isRunFinished && quest.availablePoints && quest.availablePoints > 0"><q-icon color="green" name="add_circle" />{{ quest.availablePoints }} <q-icon name="fas fa-trophy" /></span>
+              <span class="q-ml-sm q-mr-sm" v-show="!isRunFinished && quest.reward && quest.reward > 0"><q-icon color="green" name="add_circle" />{{ quest.reward }} <q-icon name="fas fa-coins" /></span>
+              <span class="q-ml-sm q-mr-sm" v-show="!isRunFinished && quest.price && quest.price > 0" :style="isRunPlayable ? '' : 'color: #f00'"><q-icon color="red" name="remove_circle" />{{ quest.price }} <q-icon name="fas fa-coins" /></span>
             </p>
+            <p v-if="quest.rating">
+              <q-rating readonly :value="quest.rating && quest.rating.rounded" color="white" :max="5" size="1.2rem" />
+            </p> &nbsp;
             <div class="text-center">
               <p>
-                <q-btn v-if="getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">{{ $t('label.SolveThisQuest') }}</q-btn>
-                <q-btn-dropdown v-if="getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
+                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">{{ $t('label.SolveThisQuest') }}</q-btn>
+                <q-btn-dropdown v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
                   <q-list link>
                     <q-item 
                       v-for="lang in getAllLanguages()" :key="lang.lang" 
@@ -36,12 +38,14 @@
                     </q-item>
                   </q-list>
                 </q-btn-dropdown>
+                <q-btn v-if="!isRunPlayable" @click="buyCoins()" color="primary">{{ $t('label.BuyCoinsToPlay') }}</q-btn>
+                <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary">{{ $t('label.GetCloserToStartingPoint') }}</q-btn>
               </p>
-              <a @click="backToTheMap()">{{ $t('label.BackToTheMap') }}</a>
             </div>
-            <div class="full-width text-center" v-if="!scrolled" @click="scrollToDetail()">
-              {{ $t('label.ScrollForMoreDetails') }}
-              <q-icon class="text-primary big-icon" name="expand_more" />
+            <div class="full-width text-center">
+              <q-btn flat :label="$t('label.BackToTheMap')" @click="backToTheMap()" />
+              <span  v-if="!scrolled"><q-btn flat icon="arrow_downward" :label="$t('label.ScrollForMoreDetails')" @click="scrollToDetail()" /></span>
+              
             </div>
           </div>
         </div>
@@ -57,7 +61,7 @@
         <q-alert type="warning" class="q-mb-md" v-if="!this.isRunFinished">
           {{ $t('label.GeneralWarning') }}
         </q-alert>
-        <q-alert type="warning" class="q-mb-md" v-if="this.isUserTooFar">
+        <q-alert type="warning" class="q-mb-md" v-if="this.isUserTooFar && quest.allowRemotePlay">
           {{ $t('label.QuestIsFarFromUser') }}<br />
           {{ $t('label.QuestIsFarFromUserDesc') }}
         </q-alert>
@@ -144,6 +148,8 @@ export default {
       },
       serverUrl: process.env.SERVER_URL,
       isRunFinished: false,
+      isRunStarted: false,
+      isRunPlayable: true,
       geolocationIsSupported: navigator.geolocation,
       isUserTooFar: false,
       scrolled: false
@@ -182,9 +188,13 @@ export default {
     // get user runs for this quest
     await this.getRun()
     
+    // check if user can play this quest
+    await this.checkUserCanPlay()
+    
     // get rankings this quest
     await this.getRanking()
     
+    this.checkUserIsCloseFromStartingPoint()
     //check if location tracking is turned on
     if (this.$data.geolocationIsSupported) {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -201,6 +211,27 @@ export default {
     }
   },
   methods: {
+    /*
+     * Sort based on the score
+     */
+    checkUserIsCloseFromStartingPoint() {
+      //check if location tracking is turned on
+      if (this.$data.geolocationIsSupported) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          //compare quest starting point with user localisation (1km distance)
+          if (this.quest.location && this.quest.location.coordinates && this.quest.location.coordinates.length > 1 && position.coords && position.coords.latitude) {
+            if ((Math.abs(position.coords.latitude - this.quest.location.coordinates[0]) > 0.009) || (Math.abs(position.coords.longitude - this.quest.location.coordinates[1]) > 0.013)) {
+              this.isUserTooFar = true
+              // check again in 15 seconds
+              setTimeout(this.checkUserIsCloseFromStartingPoint, 15000)
+            }
+          }
+        }, () => {
+          console.error('geolocation failed')
+          this.geolocationIsSupported = false
+        }, { timeout: 10000, maximumAge: 10000 });
+      }
+    },
     /*
      * Get a quest information
      * @param   {string}    id             Quest ID
@@ -234,6 +265,7 @@ export default {
           }
         }
         if (maxStepComplete > 0) {
+          this.isRunStarted = true
           var self = this
           this.$q.dialog({
             title: this.$t('label.ContinueThisStep'),
@@ -245,6 +277,19 @@ export default {
           })
         }
       }
+    },
+    /*
+     * Check if user can play this quest
+     */
+    async checkUserCanPlay() {
+      if (this.isRunStarted || this.isRunFinished) {
+        return true
+      }
+      if (this.quest.price > this.$store.state.user.coins) {
+        this.isRunPlayable = false
+        return false
+      }
+      return true
     },
     /*
      * Add a new friend
@@ -396,6 +441,12 @@ export default {
      * Manage back to the map button
      */
     backToTheMap () {
+      this.$router.push('/map')
+    },
+    /*
+     * Buy coins
+     */
+    buyCoins () {
       this.$router.push('/map')
     }
   }

@@ -400,7 +400,9 @@ export default {
             background.style.backgroundColor = '#fff'
             this.showControls()
           } else {
-            background.style.background = '#fff url("' + process.env.SERVER_URL + '/upload/quest/' + this.step.questId + '/step/background/' + this.step.backgroundImage + '") center/cover no-repeat'
+            // define if background image is a generic one or user defined one
+            let backgroundUrl = this.step.backgroundImage[0] === "_" ? '/statics/images/quest/' + this.step.backgroundImage : process.env.SERVER_URL + '/upload/quest/' + this.step.questId + '/step/background/' + this.step.backgroundImage
+            background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             // all background clickable for transitions
             //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
               //let clickable = document.getElementById('info-clickable')
