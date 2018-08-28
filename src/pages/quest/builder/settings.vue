@@ -213,20 +213,18 @@
     </q-modal>
     
     <div id="overview" v-if="steps.showNewStepOverview" class="fit">
-      <div class="fit">
     
-        <!------------------ STEP SIMULATION ------------------------>
-        
-        <div class="centered">
-          <q-btn-group push>
-            <q-btn disable :label="$t('label.Overview') + ':'" flat />
-            <q-btn color="primary" :label="$t('label.Submit')" @click="closeOverview" flat />
-            <q-btn color="primary" :label="$t('label.Edit')" @click="modifyStep" flat />
-          </q-btn-group>
-        </div>
-        <stepPlay :step="steps.new.overviewData" runId="0" :itemUsed="itemUsed" :reload="steps.reloadStepPlay" @change="trackStepPlayed"></stepPlay>
-        
+    <!------------------ STEP SIMULATION ------------------------>
+    
+      <div class="centered step-simulation-bar">
+        <q-btn-group push>
+          <q-btn disable :label="$t('label.Overview') + ':'" flat />
+          <q-btn color="primary" :label="$t('label.Submit')" @click="closeOverview" flat />
+          <q-btn color="primary" :label="$t('label.Edit')" @click="modifyStep" flat />
+        </q-btn-group>
       </div>
+      <stepPlay :step="steps.new.overviewData" runId="0" :itemUsed="itemUsed" :reload="steps.reloadStepPlay" @change="trackStepPlayed"></stepPlay>
+      
     </div>  
     
   </div>
@@ -765,3 +763,8 @@ export default {
   }
 }
 </script>
+
+<style>
+  .step-simulation-bar { position: absolute; top: 0; left: 0; width: 100%; z-index: 100; }
+  .step-simulation-bar .q-btn-group { background: white; }
+</style>

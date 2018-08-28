@@ -155,10 +155,9 @@
       <!------------------ GEOLOCALISATION STEP AREA ------------------------>
       
       <div class="geolocation" v-if="step.type == 'geolocation'">
-        <video ref="camera-stream-for-geolocation" v-show="cameraStreamEnabled"></video>
         <div>
           <p class="text">{{ step.text }}</p>
-          <p class="text">{{ $t('label.DistanceInMeters', { distance: geolocation.distance }) }}</p>
+          <p class="text" v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: geolocation.distance }) }}</p>
           <!--
           <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
           <p class="text">Alpha: {{ Math.round(geolocation.alpha) }}°</p>
@@ -272,6 +271,31 @@
           <div class="text right">{{ $t('label.WellDone') }}</div>
         </div>
       </div>
+      
+      <!------------------ LOCATE ITEM IN AUGMENTED REALITY STEP AREA ------------------------>
+      
+      <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
+        <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && !playerResult"></video>
+        <div v-show="!playerResult">
+          <p class="text">{{ step.text }}</p>
+          <p class="text">{{ $t('label.DistanceInMeters', { distance: geolocation.distance }) }}</p>
+          <!--
+          <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
+          <p class="text">Alpha: {{ Math.round(geolocation.alpha) }}°</p>
+          <p class="text">Beta: {{ Math.round(geolocation.beta) }}°</p>
+          <p class="text">Gamma: {{ Math.round(geolocation.gamma) }}°</p>
+          <p class="text">Difference direction: {{ geolocation.direction }}°</p>
+          -->
+        </div>
+        <div class="target-view" v-show="!playerResult">
+          <canvas id="target-canvas"></canvas>
+        </div>
+        <div class="resultMessage" v-show="playerResult">
+          <div class="text right">{{ $t('label.YouHaveWinANewItem') }}</div>
+          <img ref="itemImage" />
+        </div>
+      </div>
+      
     </div>
     <div v-show="playerResult === true && score > 0" class="fadein-message">+{{ score }} <q-icon color="white" name="fas fa-trophy" /></div>
   </div>
@@ -287,6 +311,9 @@ import questItems from 'data/questItems.json'
 import Notification from 'plugins/NotifyHelper'
 
 import Vue from 'vue'
+
+// required for step 'locate-item-ar'
+import * as THREE from 'three'
 
 export default {
   /*
@@ -312,7 +339,7 @@ export default {
     this.initData()
   },
   beforeDestroy() {
-    if (this.step.type === 'geolocation') {
+    if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
       navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
     }
   },
@@ -344,7 +371,7 @@ export default {
         photoComparisonThreshold: 70,
         photoTaken: false,
         
-        // for step type 'geoloc'
+        // for step types 'geoloc' and 'locate-item-ar'
         geolocation: {
           distance: null,
           direction: null,
@@ -354,7 +381,9 @@ export default {
           // direction
           currentBearing: null, // current direction compared to north
           rawDirection: null,
-          alpha: null
+          alpha: null,
+          beta: null,
+          gamma: null
         },
         
         // for step type 'write-text'
@@ -453,22 +482,8 @@ export default {
           this.$emit('pass')
         }
         
-        if (this.step.type === 'geolocation') {
-          /*let cameraStream = this.$refs['camera-stream-for-geolocation']
-          // enable rear camera stream
-          // TODO STOP CAMERA STREAM WHEN DESTINATION IS REACHED OR USER WANTS TO SKIP THE STEP
-          navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-            .then((stream) => {
-              cameraStream.srcObject = stream
-              cameraStream.play()
-              this.cameraStreamEnabled = true
-            })
-            .catch((err) => {
-              // TODO friendly behavior/message for user
-              console.warn("No camera stream available")
-              console.log(err)
-            });*/
-            
+        // common process to 'geolocation' and 'locate-item-ar'
+        if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
           // user can pass
           this.$emit('pass')
             
@@ -483,17 +498,19 @@ export default {
           }
           
           this.geolocation.locationWatcher = navigator.geolocation.watchPosition(this.watchLocationSuccess, this.watchLocationError, {
-            enableHighAccuracy: false,
+            enableHighAccuracy: true,
             timeout: this.geolocation.watchLocationInterval,
             maximumAge: 0
           })
-          
+        }
+        
+        if (this.step.type === 'geolocation') {
           // prepare arrow canvas
           let canvas = document.querySelector('.direction-helper canvas')
           
           canvas.width = canvas.clientWidth
           canvas.height = canvas.clientHeight
-          
+        
           // must store object returned by setInterval() in Vue store instead of component properties,
           // otherwise it is reset when route changes & component is reloaded
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 200))
@@ -503,6 +520,54 @@ export default {
             window.clearInterval(drawDirectionInterval)
           }
           this.$store.dispatch('setDrawDirectionInterval', null)
+        }
+        
+        if (this.step.type === 'locate-item-ar' && !this.playerResult) {
+          let cameraStream = this.$refs['camera-stream-for-locate-item-ar']
+          // enable rear camera stream
+          // TODO STOP CAMERA STREAM WHEN ITEM LOCATION IS REACHED OR USER WANTS TO SKIP THE STEP
+          navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+            .then((stream) => {
+              cameraStream.srcObject = stream
+              cameraStream.play()
+              this.cameraStreamEnabled = true
+            })
+            .catch((err) => {
+              // TODO friendly behavior/message for user
+              console.warn("No camera stream available")
+              console.log(err)
+            });
+          
+          // render 3d target object
+          // -----------------------
+          let sceneCanvas = document.getElementById("target-canvas")
+          let itemImage = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/locate-item-ar/' + this.step.options.picture
+          
+          this.$refs['itemImage'].src = itemImage
+                    
+          this.geolocation.target = {
+            scene: new THREE.Scene(),
+            camera: new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000),
+            renderer: new THREE.WebGLRenderer({ canvas: sceneCanvas, alpha: true })
+          }
+          
+          this.geolocation.target.renderer.setSize(window.innerWidth, window.innerHeight)
+          
+          // add a plane moving around the player, with the uploaded picture as texture
+          let geometry = new THREE.PlaneGeometry(1, 1)
+          let texture = new THREE.TextureLoader().load(itemImage)
+          let material = new THREE.MeshBasicMaterial({map: texture})
+          let plane = new THREE.Mesh(geometry, material)
+          plane.name = "targetPlane"
+          plane.rotation.x = Math.PI / 2
+          plane.position.y = 0
+          this.geolocation.target.scene.add(plane)
+          
+          // default camera direction => look at positive y axis from origin
+          this.geolocation.target.camera.lookAt(new THREE.Vector3(0, 1, 0))
+          
+          // animate & render
+          this.animateTargetCanvas()
         }
       })
     },
@@ -679,7 +744,15 @@ export default {
           }
           
           break
-        
+          
+        case 'locate-item-ar':
+          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: answer})
+
+          if (checkAnswerResult.result === true) {
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+          }
+          break
+
         default:
           console.log('checkAnswer(): Step type ' + this.step.type + ' not supported.')
       }
@@ -845,7 +918,7 @@ export default {
       // already enabled ? => disable
       
       if (this.cameraStreamEnabled) {
-        this.stopVideoTracks()
+        this.stopVideoTracks('camera-stream-for-recognition')
         return
       }
       
@@ -898,7 +971,7 @@ export default {
         
         let data = photoBuffer.toDataURL('image/png')
         this.$refs['player-photo'].setAttribute('src', data)
-        this.stopVideoTracks()
+        this.stopVideoTracks('camera-stream-for-recognition')
         
         let canvasOriginalPhoto = document.createElement('canvas')
         
@@ -923,8 +996,10 @@ export default {
     /*
      * Stop the video tracking
      */
-    stopVideoTracks() {
-      this.$refs['camera-stream-for-recognition'].srcObject.getVideoTracks().forEach(function(track) { track.stop() })
+    stopVideoTracks(cameraStreamElementRef) {
+      if (this.$refs[cameraStreamElementRef].srcObject) {
+        this.$refs[cameraStreamElementRef].srcObject.getVideoTracks().forEach(function(track) { track.stop() })
+      }
       this.cameraStreamEnabled = false
     },
     /*
@@ -936,6 +1011,8 @@ export default {
       // TODO Support Safari/iOS using property webkitCompassHeading, see
       this.geolocation.alpha = (360 - event.alpha)
       this.geolocation.direction = Math.round((this.geolocation.rawDirection - this.geolocation.alpha + 360) % 360)
+      this.geolocation.beta = event.beta
+      this.geolocation.gamma = event.gamma
     },
     /*
      * Draw direction arrows for geolocation
@@ -1011,9 +1088,20 @@ export default {
       // compute distance between two coordinates
       this.geolocation.distance = Math.round(utils.distanceInKmBetweenEarthCoordinates(target.lat, target.lng, current.latitude, current.longitude) * 1000, 2) // meters
       
+      if (this.step.type === 'locate-item-ar' && this.geolocation.target.scene !== null) {
+        let plane = this.geolocation.target.scene.getObjectByName('targetPlane')
+        plane.position.y = this.geolocation.distance
+      }
+      
       // TODO no hardcoding
-      if (this.geolocation.distance < 20) {
+      let distanceSolved = {
+        'geolocation': 20,
+        'locate-item-ar': 5
+      }
+      if (this.geolocation.distance <= distanceSolved[this.step.type]) {
         navigator.geolocation.clearWatch(this.geolocation.locationWatcher);
+        // stop camera streams
+        this.stopVideoTracks('camera-stream-for-locate-item-ar')
         await this.checkAnswer(current)
       }
       
@@ -1272,6 +1360,20 @@ export default {
           }
         }
       }
+    },
+    
+    /*
+    * Animate canvas showing item (target) to find, for step type "locate-item-ar"
+    */
+    animateTargetCanvas() {
+      requestAnimationFrame(this.animateTargetCanvas)
+      let target = this.geolocation.target
+      
+      let camera = target.camera
+      camera.rotation.y = utils.degreesToRadians(this.geolocation.direction)
+      camera.rotation.x = utils.degreesToRadians(this.geolocation.beta)
+      
+      target.renderer.render(target.scene, target.camera)
     }
   }
 }
@@ -1362,7 +1464,6 @@ export default {
   
   /* geolocation specific */
   
-  .geolocation video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
   .geolocation .direction-helper { flex-grow: 1; display: flex; flex-flow: column nowrap; }
   .geolocation .direction-helper canvas { width: 10rem; height: 10rem; margin: auto; margin-bottom: 0; }
   .geolocation .text { margin-bottom: 0.5rem; }
@@ -1382,6 +1483,12 @@ export default {
   
   .new-item .item { text-align: center; }
   .new-item .item p { font-size: 2rem; }
+  
+  /* locate-item-ar specific */
+  
+  .locate-item-ar video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+  .locate-item-ar .target-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  .locate-item-ar #target-canvas { width: 100%; height: 100%; z-index: 50; }
   
   /* right/wrong styles */
   
@@ -1413,6 +1520,8 @@ export default {
   .actions > div > .q-btn:not(:first-child) { flex-grow: 1; margin-left: 1rem; }
   
   .resultMessage .text { text-align: center; font-weight: bold; }
+  .resultMessage { text-align: center; width: 100%; }
+  .resultMessage img { margin: 10vw auto; }
   
   .inventory-btn { position: fixed; bottom: 60px; left: 0.7rem; z-index: 1; color: #fff; }
   .inventory-btn img { width: 100%; height: 100%; border-radius: 50%; }
