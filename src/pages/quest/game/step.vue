@@ -116,12 +116,16 @@ export default {
       isRunFinished: false,
       canMoveNextStep: false,
       canPass: false,
+      remotePlay: false,
       //cameraStreamEnabled: false,
       serverUrl: process.env.SERVER_URL,
       nbTry: 0,
       controlsAreDisplayed: false,
       
-      // for step 'choose'
+      // for step type 'use-item'
+      selectedItem: null
+      
+      /* for step 'choose'
       answerType: 'text', // 'text' or 'image'
       
       // for steps type 'code-keypad' & 'code-color'
@@ -162,11 +166,9 @@ export default {
         dragSrcEl: null
       },
       
-      // for step type 'use-item'
-      selectedItem: null,
-      
       // for step type 'find-item'
       itemAdded: null
+      */
     }
   },
   mounted () {
@@ -207,8 +209,9 @@ export default {
       this.info.score = this.run.tempScore
       
       if (maxStepComplete === 0) {
+        var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
         // no 'in-progress' run => create run for current player & current quest
-        let res = await RunService.init(this.quest.id, this.$route.params.lang)
+        let res = await RunService.init(this.quest.id, this.$route.params.lang, remotePlay)
         if (res.status === 200 && res.data && res.data._id) {
           this.run = res.data
         }
@@ -433,16 +436,6 @@ export default {
   #main-view div.find-item,
   #main-view div.use-item {
     padding-bottom: 3rem;
-  }
-  
-  .step-menu .q-tabs-normal .q-tab-icon, .step-menu .q-tabs-normal .q-tab-label {
-    opacity: 0.9 !important;
-  }
-  .step-menu .disabled, .step-menu [disabled] {
-    opacity: 0 !important;
-  }
-  .step-menu {
-    position: fixed !important;
   }
  
   .text,

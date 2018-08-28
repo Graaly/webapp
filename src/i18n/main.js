@@ -420,7 +420,12 @@ module.exports = {
       GetCloserToStartingPoint: "Get closer of starting point",
       OnceGeolocationEnabled: 'Once location enabled,',
       PressHere: 'press here',
-      Map: "Quests map"
+      Map: "Quests map",
+      AddressToFind: "Address of the location to find",
+      Address: "Address",
+      OrDefineGPSLocation: "Or define GPS location",
+      Latitude: "Latitude",
+      Longitude: "Longitude"
     }
   },
   fr: {
@@ -838,8 +843,13 @@ module.exports = {
       YourRatingHasBeenSaved: "Votre vote a été pris en compte",
       GetCloserToStartingPoint: "Rapprochez-vous du lieu de départ",
       OnceGeolocationEnabled: 'Une fois la localisation activée,',
-      PressHere: 'appuyez ici',
-      Map: "Carte"
+      PressHere: "appuyez ici",
+      Map: "Carte",
+      AddressToFind: "Adresse du lieu à trouver",
+      Address: "Adresse",
+      OrDefineGPSLocation: "Ou tapez les coordonnées GPS",
+      Latitude: "Latitude",
+      Longitude: "Longitude"
     }
   }
 }

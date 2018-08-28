@@ -35,9 +35,10 @@ export default {
    * init a new run for current user for a quest
    * @param   {String}    questId             ID f the quest
    * @param   {String}    lang                Language concerned
+   * @param   {Boolean}   remotePlay          is the player playing remotely
    */
-  init(questId, lang) {
-    return Api().post('run/quest/' + questId + '/init/' + lang)
+  init(questId, lang, remotePlay) {
+    return Api().post('run/quest/' + questId + '/init/' + lang + '/remote/' + remotePlay)
   },
   /*
    * set a run as finished

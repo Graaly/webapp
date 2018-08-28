@@ -62,21 +62,30 @@
     <!------------------ STEP : GEOLOCATION ------------------------>
     
     <div v-if="options.code == 'geolocation'" class="location-gps">
-      <!-- TODO: select location on GoogleMap -->
-      <p>Coordonnées GPS</p>
-      <div class="location-gps-inputs">
-        <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
-        <div>
-          <label for="answer-latitude">Latitude</label>
-          <input type="number" id="answer-latitude" v-model.number="selectedStep.form.answerCoordinates.lat" placeholder="par ex. 5,65487" step="any" />
-          <p class="error-label" v-show="$v.selectedStep.form.answerCoordinates.lat.$error">{{ $t('label.RequiredField') }}</p>
+      <p>{{ $t('label.AddressToFind') }}</p>
+      <div class="location-address">
+        <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
+          <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" v-model="selectedStep.form.destination" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
         </div>
-        <div>
-          <label for="answer-longitude">Longitude</label>
-          <input type="number" id="answer-longitude" v-model.number="selectedStep.form.answerCoordinates.lng" placeholder="par ex. 45,49812" step="any" />
-          <p class="error-label" v-show="$v.selectedStep.form.answerCoordinates.lng.$error">{{ $t('label.RequiredField') }}</p>
-        </div>
+        <a @click="getCurrentLocation()"><img src="/statics/icons/game/location.png" /></a>
       </div>
+      <q-list>
+        <q-collapsible icon="explore" :label="$t('label.OrDefineGPSLocation')">
+          <div class="location-gps-inputs">
+            <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
+            <div>
+              <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
+              <input type="number" id="answer-latitude" v-model.number="selectedStep.form.answerCoordinates.lat" placeholder="par ex. 5,65487" step="any" />
+              <p class="error-label" v-show="$v.selectedStep.form.answerCoordinates.lat.$error">{{ $t('label.RequiredField') }}</p>
+            </div>
+            <div>
+              <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
+              <input type="number" id="answer-longitude" v-model.number="selectedStep.form.answerCoordinates.lng" placeholder="par ex. 45,49812" step="any" />
+              <p class="error-label" v-show="$v.selectedStep.form.answerCoordinates.lng.$error">{{ $t('label.RequiredField') }}</p>
+            </div>
+          </div>
+        </q-collapsible>
+      </q-list>
       <q-checkbox v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
       <q-checkbox v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
     </div>
@@ -511,6 +520,8 @@ export default {
         // apply specific field changes from DB to form
         if (this.selectedStep.form.type === 'geolocation' && this.selectedStep.form.options !== null && this.selectedStep.form.options.hasOwnProperty('lat') && this.selectedStep.form.options.hasOwnProperty('lng')) {
           this.selectedStep.form.answerCoordinates = this.selectedStep.form.options
+        } else {
+          this.selectedStep.form.answerCoordinates = {lat: 0, lng: 0}
         }
         
         // let res = await QuestService.getById(this.questId)
@@ -950,6 +961,41 @@ export default {
       
       document.getElementById("cross").style.left = Math.round(this.selectedStep.form.answerPointerCoordinates.left * 90 * vw / 100 - solutionAreaRadius) + "px"
       document.getElementById("cross").style.top = Math.round(this.selectedStep.form.answerPointerCoordinates.top * 120 * vw / 100 - solutionAreaRadius) + "px"
+    },
+    /*
+     * Fill the GPS location in the settings
+     * @param   {Object}    place            Position & address data
+     */
+    async setLocation(place) {
+      this.selectedStep.form.answerCoordinates.lat = place.geometry.location.lat()
+      this.selectedStep.form.answerCoordinates.lng = place.geometry.location.lng()
+    },
+    /*
+     * Get current user location
+     */
+    async getCurrentLocation() {
+      this.$q.loading.show()
+      // get the current coords
+      navigator.geolocation.getCurrentPosition(this.fillLocation)
+    },
+    /*
+     * Get the address based on the position
+     * @param   {Object}    pos            Position data
+     */
+    async fillLocation(pos) {
+      this.selectedStep.form.answerCoordinates = {lat: pos.coords.latitude, lng: pos.coords.longitude}
+      // get the address
+      var geocoder = new google.maps.Geocoder();
+      geocoder.geocode({'location': {lat: pos.coords.latitude, lng: pos.coords.longitude}}, (results, status) => {
+        this.$q.loading.hide()
+        if (status === 'OK' && results[0].formatted_address) {
+          this.selectedStep.form.destination = results[0].formatted_address
+          // force field to be refreshed
+          document.getElementById("destination").value = this.selectedStep.form.destination
+        } else {
+          Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        }
+      });
     },
     /*
      * Check the length of the text input

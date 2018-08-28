@@ -1,12 +1,12 @@
 <template>
   <div>
-    <router-link :to="{ path: '/map'}" class="float-right no-underline" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
-    <h1 class="size-3 q-pl-md" v-show="!steps.showNewStepOverview && form.fields.title && form.fields.title[languages.current] && form.fields.title[languages.current] !== ''">{{ form.fields.title[languages.current] }}</h1>
-    <h1 class="size-3 q-pl-md" v-show="!steps.showNewStepOverview && (!form.fields.title || !form.fields.title[languages.current] || form.fields.title[languages.current] === '')">{{ $t('label.NoTitle') }}</h1>
+    <router-link v-show="!steps.showNewStepOverview && !steps.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
+    <h1 class="size-3 q-pl-md" v-show="!steps.showNewStepOverview && !steps.showNewStepPageSettings && form.fields.title && form.fields.title[languages.current] && form.fields.title[languages.current] !== ''">{{ form.fields.title[languages.current] }}</h1>
+    <h1 class="size-3 q-pl-md" v-show="!steps.showNewStepOverview && !steps.showNewStepPageSettings && (!form.fields.title || !form.fields.title[languages.current] || form.fields.title[languages.current] === '')">{{ $t('label.NoTitle') }}</h1>
     
     <!------------------ TABS ------------------------>
     
-    <q-tabs v-model="tabs.selected" v-show="!steps.showNewStepOverview">
+    <q-tabs v-model="tabs.selected" v-show="!steps.showNewStepOverview && !steps.showNewStepPageSettings">
       <q-tab slot="title" name="languages" :icon="tabs.progress === 0 ?  'looks_one' : 'check_circle'" :label="$t('label.Languages')" default />
       <q-tab slot="title" :disable="tabs.progress < 1" name="settings" :icon="tabs.progress < 2 ?  'looks_two' : 'check_circle'" :label="$t('label.Intro') + ' (' + languages.current + ')'" />
       <q-tab slot="title" :disable="tabs.progress < 2" name="steps" :icon="tabs.progress < 3 ?  'looks_3' : 'check_circle'" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
@@ -198,8 +198,8 @@
       
     </q-modal>
     
-    <q-modal v-model="steps.showNewStepPageSettings">
-      <div>
+    <div id="overview" v-if="steps.showNewStepPageSettings" class="fit">
+      <div class="fit">
     
         <!------------------ STEP SETTINGS SELECTION ------------------------>
         
@@ -209,25 +209,52 @@
           <stepSettings :questId="questId" :stepId="stepId" :lang="languages.current" :options="steps.new.type" @change="trackStepChanges"></stepSettings>
         </div>
       </div>
-      
-    </q-modal>
+    </div>  
     
     <div id="overview" v-if="steps.showNewStepOverview" class="fit">
       <div class="fit">
     
         <!------------------ STEP SIMULATION ------------------------>
         
-        <div class="centered">
-          <q-btn-group push>
-            <q-btn disable :label="$t('label.Overview') + ':'" flat />
-            <q-btn color="primary" :label="$t('label.Submit')" @click="closeOverview" flat />
-            <q-btn color="primary" :label="$t('label.Edit')" @click="modifyStep" flat />
-          </q-btn-group>
-        </div>
-        <stepPlay :step="steps.new.overviewData" runId="0" :itemUsed="itemUsed" :reload="steps.reloadStepPlay" @change="trackStepPlayed"></stepPlay>
-        
+        <stepPlay :step="steps.new.overviewData" runId="0" :itemUsed="selectedItem" :reload="steps.reloadStepPlay" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
+        <q-layout-footer class="step-menu">
+          <q-tabs v-model="overview.tabSelected">
+            <q-tab slot="title" name="inventory" icon="work" @click="openInventory()" />
+            <q-tab slot="title" name="previous" icon="arrow_back" @click="modifyStep" />
+            <q-tab slot="title" name="info" icon="edit" disable />
+            <q-tab slot="title" name="next" icon="arrow_forward" :disable="!canMoveNextStep && !canPass" @click="closeOverview" />
+            <q-tab slot="title" name="hint" icon="lightbulb outline" :disable="!isHintAvailable()" @click="askForHint()"/>
+          </q-tabs>
+        </q-layout-footer>
       </div>
     </div>  
+    
+    <!------------------ INVENTORY PAGE AREA ------------------------>
+    
+    <transition name="slideInBottom">
+      <div class="inventory panel-bottom q-pa-md" v-show="inventory.isOpened">
+        <h1>{{ $t('label.Inventory') }}</h1>
+        <p v-if="inventory.items.length > 0">{{ $t('label.InventoryUsage') }}</p>
+        <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
+        <div class="inventory-items">
+          <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
+            <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture" />
+            <p>{{ item.title}}</p>
+          </div>
+        </div>
+      </div>
+    </transition>
+    
+    <!------------------ HINT PAGE AREA ------------------------>
+    
+    <transition name="slideInBottom">
+      <div class="hint panel-bottom q-pa-md" v-show="hint.isOpened">
+        <h1>{{ $t('label.Hint') }}</h1>
+        <p v-if="hint.label === ''">{{ $t('label.NoHintForThisStep') }}</p>
+        <p v-if="hint.label !== ''">{{ hint.label }}</p>
+        <q-btn class="q-mb-xl" color="primary" @click="askForHint()">{{ $t('label.Close') }}</q-btn>
+      </div>
+    </transition>
     
   </div>
   
@@ -238,6 +265,7 @@ import { required } from 'vuelidate/lib/validators'
 import Notification from 'plugins/NotifyHelper'
 import QuestService from 'services/QuestService'
 import StepService from 'services/StepService'
+import RunService from 'services/RunService'
 
 // required to define v-sortable directive in Vue 2.0, see https://github.com/sagalbot/vue-sortable/issues/10
 import Vue from 'vue'
@@ -254,8 +282,6 @@ import questLevels from 'data/questLevels.json'
 import languages from 'data/languages.json'
 import stepTypes from 'data/stepTypes.json'
 import utils from 'src/includes/utils'
-import { scroll } from 'quasar'
-const { getScrollTarget, setScrollPosition } = scroll
 
 export default {
   components: {
@@ -269,6 +295,9 @@ export default {
       tabs: {
         selected: 'settings',
         progress: 0
+      },
+      overview: {
+        tabSelected: 'none'
       },
       languages: {
         current: '',
@@ -318,6 +347,18 @@ export default {
           overviewData: {}
         }
       },
+      inventory: {
+        isOpened: false,
+        items: []
+      },
+      // for step type 'use-item'
+      selectedItem: null,
+      hint: {
+        isOpened: false,
+        label: ""
+      },
+      canMoveNextStep: false,
+      canPass: false,
       itemUsed: null,
       serverUrl: process.env.SERVER_URL,
       pictureUploadURL: this.serverUrl + '/quest/picture/upload'
@@ -583,14 +624,18 @@ export default {
         this.stepId = step._id
         this.steps.new.type = this.getStepTypeInformations(step.type)
       }
+      this.closeAllPanels()
       this.steps.showNewStepOverview = false
       this.steps.showNewStepPageSettings = true
       this.steps.reloadStepPlay = false
+      // move to top
+      this.moveToTop()
     },
     /*
      * close overview page
      */
     async closeOverview() {
+      this.closeAllPanels()
       await this.refreshStepsList()
       this.stepId = '-1'
       this.steps.new.overviewData = {}
@@ -598,6 +643,16 @@ export default {
       this.steps.showNewStepOverview = false
       this.tabs.selected = 'steps'
     },
+    /*
+     * Close step settings page
+     */
+    async closeStepSettingsPage() {
+      await this.refreshStepsList()
+      this.steps.new.type = {}
+      this.stepId = '0'
+      this.steps.showNewStepPageSettings = false
+      this.tabs.selected = 'steps'
+    }, 
     /*
      * add a step
      */
@@ -680,14 +735,6 @@ export default {
       this.steps.showNewStepPage = false
     }, 
     /*
-     * Close step settings page
-     */
-    closeStepSettingsPage() {
-      this.steps.new.type = {}
-      this.stepId = '0'
-      this.steps.showNewStepPageSettings = false
-    }, 
-    /*
      * Filter step types based on main category code
      */
     filteredStepTypes(categoryCode) {
@@ -703,6 +750,8 @@ export default {
       // to trigger step type change
       this.stepId = '0'
       this.steps.showNewStepPageSettings = true
+      // move to top
+      this.moveToTop()
     },
     /*
      * Launched when the step settings are set
@@ -723,7 +772,22 @@ export default {
      * @param   {String}    stepId            ID of the step
      */
     async trackStepPlayed(stepId) {
-      alert("demande si continue édition ou valider?")
+      this.canMoveNextStep = true
+    },
+    async trackStepSuccess(stepId) {
+      this.canMoveNextStep = true
+    },
+    /*
+     * Track step passing
+     */
+    async trackStepPass () {
+      this.canPass = true
+    },
+    /*
+     * Track step fail
+     */
+    async trackStepFail () {
+      console.log("fail")
     },
     /*
      * Get the icon of a step type
@@ -747,12 +811,71 @@ export default {
       }
       return ''
     },
+    /*
+     * Fill the inventory with objects won by the user
+     */
+    async fillInventory() {
+      // load items won on previous steps
+      this.inventory.items = await StepService.listWonObjects(this.questId, this.stepId, this.languages.current)
+    },
+    /*
+     * Open the inventory
+     */
+    async openInventory() {
+      // check if the items are already loaded
+      if (this.inventory.items.length === 0) {
+        await this.fillInventory()
+      }
+      if (this.inventory.isOpened) {
+        this.closeAllPanels()
+      } else {
+        this.closeAllPanels()
+        this.inventory.isOpened = true
+        this.overview.tabSelected = 'inventory'
+      }
+    },
+    /*
+     * Select an item in the inventory
+     * @param   {object}    item            Item selected
+     */
+    selectItem(item) {
+      if (this.steps.new.overviewData.type !== 'use-item') {
+        Notification(this.$t('label.YouCanNotUseAnItemInThisStep'), 'warning')
+        return
+      }
+      this.selectedItem = item
+      this.closeAllPanels()
+    },
+    closeAllPanels() {
+      this.inventory.isOpened = false
+      this.hint.isOpened = false
+      this.overview.tabSelected = 'none'
+    },
+    /*
+     * Ask for a hint
+     */
+    async askForHint() {
+      if (!this.isHintAvailable()) {
+        return
+      }
+      if (this.hint.isOpened) {
+        this.closeAllPanels()
+      } else {
+        let hintLabel = await RunService.getHint(0, this.stepId)
+
+        if (hintLabel && hintLabel.hint) {
+          this.hint.label = hintLabel.hint
+          this.closeAllPanels()
+          this.hint.isOpened = true
+          this.overview.tabSelected = 'hint'
+        }
+      }
+    },
+    isHintAvailable() {
+      return (this.steps.new.overviewData && this.steps.new.overviewData.hint && this.steps.new.overviewData.hint !== '')
+    },
     moveToTop() {
-      let el = document.getElementById('overview')
-      let target = getScrollTarget(el)
-      let offset = el.offsetTop
-      let duration = 1000
-      setScrollPosition(target, offset, duration)
+      window.scrollTo(0, 0)
     }
   },
   validations: {

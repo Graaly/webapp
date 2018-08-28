@@ -417,7 +417,7 @@ export default {
      * @param   {String}    lang               lang of the quest
      */
     playQuest(questId, lang) {
-      this.$router.push('/quest/play/' + questId + '/step/1/' + lang)
+      this.$router.push('/quest/play/' + questId + '/step/1/' + lang + '?remoteplay=' + this.isUserTooFar)
     },
     /*
      * Follow scroll position
