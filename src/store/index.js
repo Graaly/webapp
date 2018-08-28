@@ -82,7 +82,16 @@ const actions = {
   },
   setLastLoadedRoute: ({ commit }, route) => commit('setLastLoadedRoute', route),
   // for step geolocation
-  setDrawDirectionInterval: ({ commit }, intervalObject) => commit('setDrawDirectionInterval', intervalObject),
+  setDrawDirectionInterval: ({ commit, state }, intervalObject) => {
+    if (intervalObject === null) {
+      // call clearInterval first, if any is defined (avoids issues with hot reloading during dev)
+      let drawDirectionInterval = state.questSteps.geolocation.drawDirectionInterval
+      if (drawDirectionInterval !== null) {
+        window.clearInterval(drawDirectionInterval)
+      }
+    }
+    commit('setDrawDirectionInterval', intervalObject)
+  },
   // for quest creation/edition
   setCurrentEditedQuest: ({ commit }, quest) => commit('setCurrentEditedQuest', quest),
   setCurrentEditedStep: ({ commit }, step) => commit('setCurrentEditedStep', step),

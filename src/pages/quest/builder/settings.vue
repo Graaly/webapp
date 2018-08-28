@@ -204,7 +204,7 @@
         <!------------------ STEP SETTINGS SELECTION ------------------------>
         
         <a class="float-right no-underline" color="grey" @click="closeStepSettingsPage"><q-icon name="close" class="medium-icon" /></a>
-        <h1 class="size-3 q-pl-md">{{ $t('stepType.' + steps.new.type.title) }}</h1>
+        <h1 class="size-3 q-pl-md">{{ typeof steps.new.type.title !== 'undefined' ? $t('stepType.' + steps.new.type.title) : '' }}</h1>
         <div class="q-pa-md">
           <stepSettings :questId="questId" :stepId="stepId" :lang="languages.current" :options="steps.new.type" @change="trackStepChanges"></stepSettings>
         </div>
@@ -212,7 +212,6 @@
     </div>  
     
     <div id="overview" v-if="steps.showNewStepOverview" class="fit">
-      <div class="fit">
     
         <!------------------ STEP SIMULATION ------------------------>
         
@@ -225,8 +224,8 @@
             <q-tab slot="title" name="next" icon="arrow_forward" :disable="!canMoveNextStep && !canPass" @click="closeOverview" />
             <q-tab slot="title" name="hint" icon="lightbulb outline" :disable="!isHintAvailable()" @click="askForHint()"/>
           </q-tabs>
-        </q-layout-footer>
-      </div>
+        </q-layout-footer>      
+        
     </div>  
     
     <!------------------ INVENTORY PAGE AREA ------------------------>
@@ -888,3 +887,8 @@ export default {
   }
 }
 </script>
+
+<style>
+  .step-simulation-bar { position: absolute; top: 0; left: 0; width: 100%; z-index: 100; }
+  .step-simulation-bar .q-btn-group { background: white; }
+</style>

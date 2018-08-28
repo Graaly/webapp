@@ -53,7 +53,9 @@ module.exports = {
       FindAnItem: "Search in a picture",
       FindAnItemDesc: "Player has to touch a part of your picture",
       UseAnItem: "Use an item",
-      UseAnItemDesc: "Player use an item of his inventory on a part of a picture"  
+      UseAnItemDesc: "Player use an item of his inventory on a part of a picture",
+      LocateItemAR: "Locate item using augmented reality",
+      LocateItemARDesc: "Player has to find an geolocated item, visible on his smartphone when he is near."
     },
     messages: {
       SignIn: "Sign-in",
@@ -425,7 +427,9 @@ module.exports = {
       Address: "Address",
       OrDefineGPSLocation: "Or define GPS location",
       Latitude: "Latitude",
-      Longitude: "Longitude"
+      Longitude: "Longitude",
+      PleaseUploadAFileInPNGFormat: "Please upload a file in PNG format with alpha transparency.",
+      GPSCoordinates: "GPS coordinates"
     }
   },
   fr: {
@@ -482,7 +486,9 @@ module.exports = {
       FindAnItem: "Rechercher dans une image",
       FindAnItemDesc: "Le joueur doit toucher une zone de l'image",
       UseAnItem: "Utiliser objet",
-      UseAnItemDesc: "Utiliser un objet de l'inventaire"  
+      UseAnItemDesc: "Utiliser un objet de l'inventaire",
+      LocateItemAR: "Localiser un objet en réalité augmentée",
+      LocateItemARDesc: "Le joueur doit trouver un objet géolocalisé et visible sur l'écran de son smartphone lorsqu'il se trouve à proximité."
     },
     messages: {
       SignIn: "Connectez-vous",
@@ -849,7 +855,9 @@ module.exports = {
       Address: "Adresse",
       OrDefineGPSLocation: "Ou tapez les coordonnées GPS",
       Latitude: "Latitude",
-      Longitude: "Longitude"
+      Longitude: "Longitude",
+      PleaseUploadAFileInPNGFormat: "Veuillez télécharger une image avec transparence au format PNG",
+      GPSCoordinates: "Coordonnées GPS"
     }
   }
 }

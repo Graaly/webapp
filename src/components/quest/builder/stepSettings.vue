@@ -28,7 +28,7 @@
       </q-field>
     </div>
 
-    <div class="background-upload">
+    <div class="background-upload" v-show="options.hasBackgroundImage !== false">
       <q-btn class="full-width" type="button">
         <label for="picturefile">{{ $t('label.UploadABackgroundImage') }}</label>
         <input @input="uploadBackgroundImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
@@ -219,7 +219,7 @@
         <input @change="uploadImageToRecognize" name="image-to-recognize" id="image-to-recognize" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       </q-btn>
       <p v-show="$v.selectedStep.form.answers.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-      <div v-if="selectedStep.form.answers">
+      <div v-if="selectedStep.form.answers != ''">
         <p>{{ $t('label.UploadedPicture') }} :</p>
         <img :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + selectedStep.form.answers" />
       </div>
@@ -299,6 +299,45 @@
       <div @click="getClickCoordinates($event)" id="findItemPicture" ref="findItemPicture" :style="'overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
         <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="statics/icons/game/find-item-locator.png" />
       </div>
+    </div>
+    
+    <!------------------ STEP : LOCATE ITEM USING AR ------------------------>
+
+    <div class="find-item" v-if="options.code === 'locate-item-ar'">
+      
+      <q-btn class="full-width" type="button">
+        <label for="item-to-find">{{ $t('label.UploadThePictureOfTheObjectToFind') }}</label>
+        <input @change="uploadItemImage" name="item-to-find" id="item-to-find" type="file" accept="image/png" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+      </q-btn>
+      <p v-show="!selectedStep.form.options.picture">{{ $t('label.PleaseUploadAFileInPNGFormat') }}</p>
+      <p v-show="$v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+      <div v-if="selectedStep.form.options.picture">
+        <p>{{ $t('label.UploadedPicture') }} :</p>
+        <img :src="serverUrl + '/upload/quest/' + questId + '/step/locate-item-ar/' + selectedStep.form.options.picture" />
+      </div>
+      
+      <!-- TODO: select location on GoogleMap -->
+      <!-- TODO: It would be nice to have a <gps-coordinates> common component with step 'geolocation', however
+        combining form validation (vuelidate) with child components is complex/strangely handled
+        (check Google results for "vuelidate child components").
+        => Better keeping it simple at the price of a few code duplication. Maybe it will worth the effort/complexity rise, when code will grow with the "select location on Google Maps" feature...
+        An alternate solution to avoid duplication (if necessary), could be adding "gps coordinates" field group in "common components" with a simple v-if="option.code == 'geolocation' || option.code == 'locate-item-ar'"...
+      -->
+      <p>{{ $t('label.GPSCoordinates') }}</p>
+      <div class="location-gps-inputs">
+        <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
+        <div>
+          <label for="answer-latitude">Latitude</label>
+          <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+          <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
+        </div>
+        <div>
+          <label for="answer-longitude">Longitude</label>
+          <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+          <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
+        </div>
+      </div>
+      
     </div>
     
     <!-- TODO. those options do nothing for the moment -->
@@ -485,7 +524,6 @@ export default {
         // info-video step specific
         videoStream: null,
         // geoloc step specific
-        answerCoordinates: { lat: 0, lng: 0 },
         answerPointerCoordinates: {top: 50, left: 50},
         answerItem: null,
         showDistanceToTarget: false,
@@ -499,8 +537,10 @@ export default {
         hint: '',
         number: null
       }
-      // reset upload item
-      document.getElementById("picturefile").value = ""
+      // reset upload item (after document fully loaded)
+      this.$nextTick(function () {
+        document.getElementById("picturefile").value = ""
+      })
     },
     /*
      * Init data of the component
@@ -523,9 +563,6 @@ export default {
         } else {
           this.selectedStep.form.answerCoordinates = {lat: 0, lng: 0}
         }
-        
-        // let res = await QuestService.getById(this.questId)
-        // this.$store.dispatch('setCurrentEditedQuest', res.data)
       }
       
       // compute number of steps
@@ -601,6 +638,10 @@ export default {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
           this.selectedStep.form.options = { picture: null, level: 2 }
         }
+      } else if (this.options.code === 'locate-item-ar') {
+        if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
+          this.selectedStep.form.options = { picture: null }
+        }
       }
     },
     /*
@@ -627,9 +668,6 @@ export default {
       }
       if (this.options.code === 'code-image') {
         this.selectedStep.form.answers = this.unformatedAnswer.join('')
-      }
-      if (this.options.code === 'geolocation') {
-        this.selectedStep.form.options = this.selectedStep.form.answerCoordinates
       }
       if (this.options.code === 'jigsaw-puzzle') {
         // build random order for jigsaw puzzle pieces.
@@ -879,7 +917,7 @@ export default {
       }
       var data = new FormData()
       data.append('image', files[0])
-      let uploadResult = await StepService.uploadItemImage(this.questId, data)
+      let uploadResult = await StepService.uploadItemImage(this.questId, this.options.code, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.selectedStep.form.options.picture = uploadResult.data.file
         this.$q.loading.hide()
@@ -1043,7 +1081,7 @@ export default {
         fieldsToValidate.backgroundImage = { required }
         break
       case 'geolocation':
-        fieldsToValidate.answerCoordinates = { lat: { required }, lng: { required } }
+        fieldsToValidate.options = { lat: { required }, lng: { required } }
         break
       case 'info-video':
         fieldsToValidate.videoStream = { required }
@@ -1063,6 +1101,9 @@ export default {
         break
       case 'write-text':
         fieldsToValidate.answers = { required }
+        break
+      case 'locate-item-ar':
+        fieldsToValidate.options = { picture: { required }, lat: { required }, lng: { required } }
         break
     }
     
