@@ -235,17 +235,17 @@
         <div ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + step.questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="/statics/icons/game/find-item-locator.png" />
         </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 3">
+        <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 2">
           <div class="text wrong">{{ $t('label.SecondTry') }}</div>
         </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry === 3">
+        <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry === 2">
           <div class="text wrong">{{ $t('label.WrongAnswer') }}</div>
         </div>
         <div class="resultMessage buttons-bottom" v-show="playerResult === true">
           <div class="text right">{{ $t('label.WellDone') }}</div>
         </div>
       </div>
-      <p v-if="step.type == 'use-item' && nbTry < 3 && playerResult === null && itemUsed !== null" class="inventory-btn" >
+      <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
         <q-btn round color="primary">
           <img v-if="itemUsed" :src="serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture" />
         </q-btn>
@@ -261,10 +261,10 @@
         <div ref="findItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + step.questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="/statics/icons/game/find-item-locator.png" />
         </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 3">
+        <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 2">
           <div class="text wrong">{{ $t('label.SecondTry') }}</div>
         </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry === 3">
+        <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry === 2">
           <div class="text right">{{ $t('label.WrongAnswer') }}</div>
         </div>
         <div class="resultMessage buttons-bottom" v-show="playerResult === true">
@@ -596,6 +596,7 @@ export default {
           checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {})
           this.submitGoodAnswer(0)
           break
+          
         case 'choose':
           checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: answer})
 
@@ -610,6 +611,13 @@ export default {
             selectedAnswer.icon = 'clear' // "x" icon
             selectedAnswer.class = 'wrong'
             Vue.set(this.step.options, answer, selectedAnswer)
+            // indicate the right answer
+            if (checkAnswerResult.answer || checkAnswerResult.answer === 0) {
+              let selectedAnswer = this.step.options[checkAnswerResult.answer]
+              selectedAnswer.icon = 'done'
+              selectedAnswer.class = 'right'
+              Vue.set(this.step.options, checkAnswerResult.answer, selectedAnswer)
+            }
             this.nbTry++
             this.submitWrongAnswer()
           }
@@ -652,7 +660,7 @@ export default {
           break
         
         case 'code-color':
-          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('')})
+          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')})
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -668,7 +676,7 @@ export default {
           break
           
         case 'code-image':
-          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('')})
+          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')})
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -1444,7 +1452,7 @@ export default {
   .typed-code td.typed { font-weight: bold; font-size: 1.7rem; }
   
   .keypad { flex-grow: 1; flex-flow: column nowrap; justify-content: center; text-align: center; }
-  .keypad .q-btn { margin: 0.5rem; width: 20%; height: 15%; font-weight: bold; font-size: 1.7rem; }
+  .keypad .q-btn { margin: 0.5rem; width: 20%; height: 15%; font-weight: bold; font-size: 1.3rem; }
   
   /* color code specific */
   
@@ -1519,9 +1527,20 @@ export default {
   .actions > div > .q-btn { flex-grow: 1; }
   .actions > div > .q-btn:not(:first-child) { flex-grow: 1; margin-left: 1rem; }
   
-  .resultMessage .text { text-align: center; font-weight: bold; }
-  .resultMessage { text-align: center; width: 100%; }
-  .resultMessage img { margin: 10vw auto; }
+  .resultMessage { 
+    text-align: center; 
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+  }
+  .resultMessage .text { 
+    text-align: center; 
+    font-weight: bold;
+  }
+  .resultMessage img { 
+    margin: 10vw auto;
+  }
   
   .inventory-btn { position: fixed; bottom: 60px; left: 0.7rem; z-index: 1; color: #fff; }
   .inventory-btn img { width: 100%; height: 100%; border-radius: 50%; }

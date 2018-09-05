@@ -429,7 +429,13 @@ module.exports = {
       Latitude: "Latitude",
       Longitude: "Longitude",
       PleaseUploadAFileInPNGFormat: "Please upload a file in PNG format with alpha transparency.",
-      GPSCoordinates: "GPS coordinates"
+      GPSCoordinates: "GPS coordinates",
+      TerritoriesWon: "Conquest of territories",
+      YourWorldRanking: "Your global rank",
+      YourCityRanking: "Your rank in your city",
+      PlayAllQuestsInACityToWin: "Play all the quests of a city to conquest the territory",
+      NoRankingYet: "Your rank is not yet computed, please wait for tomorrow"
+      
     }
   },
   fr: {
@@ -857,7 +863,12 @@ module.exports = {
       Latitude: "Latitude",
       Longitude: "Longitude",
       PleaseUploadAFileInPNGFormat: "Veuillez télécharger une image avec transparence au format PNG",
-      GPSCoordinates: "Coordonnées GPS"
+      GPSCoordinates: "Coordonnées GPS",
+      TerritoriesWon: "Conquête de territoires",
+      YourWorldRanking: "Votre classement mondial",
+      YourCityRanking: "Votre classement dans votre ville",
+      PlayAllQuestsInACityToWin: "Jouez à toutes les enquêtes d'une ville pour conquérir le territoire",
+      NoRankingYet: "Votre classement n'est pas encore calculé, veuillez attendre demain"
     }
   }
 }

@@ -65,7 +65,7 @@
       <p>{{ $t('label.AddressToFind') }}</p>
       <div class="location-address">
         <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-          <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" v-model="selectedStep.form.destination" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
+          <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" v-model="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
         </div>
         <a @click="getCurrentLocation()"><img src="/statics/icons/game/location.png" /></a>
       </div>
@@ -75,13 +75,13 @@
             <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
             <div>
               <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-              <input type="number" id="answer-latitude" v-model.number="selectedStep.form.answerCoordinates.lat" placeholder="par ex. 5,65487" step="any" />
-              <p class="error-label" v-show="$v.selectedStep.form.answerCoordinates.lat.$error">{{ $t('label.RequiredField') }}</p>
+              <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+              <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
             </div>
             <div>
               <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-              <input type="number" id="answer-longitude" v-model.number="selectedStep.form.answerCoordinates.lng" placeholder="par ex. 45,49812" step="any" />
-              <p class="error-label" v-show="$v.selectedStep.form.answerCoordinates.lng.$error">{{ $t('label.RequiredField') }}</p>
+              <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+              <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
             </div>
           </div>
         </q-collapsible>
@@ -433,7 +433,9 @@ export default {
         isNew: true,
         id: 0,
         code: null,
-        form: {}
+        form: {
+          options: {}
+        }
       },
       stepTypes,
       
@@ -539,7 +541,9 @@ export default {
       }
       // reset upload item (after document fully loaded)
       this.$nextTick(function () {
-        document.getElementById("picturefile").value = ""
+        if (document.getElementById("picturefile")) {
+          document.getElementById("picturefile").value = ""
+        }
       })
     },
     /*
@@ -556,13 +560,6 @@ export default {
       // initialize step form data when edited
       if (!this.selectedStep.isNew) {
         Object.assign(this.selectedStep.form, await StepService.getById(this.stepId))
-        
-        // apply specific field changes from DB to form
-        if (this.selectedStep.form.type === 'geolocation' && this.selectedStep.form.options !== null && this.selectedStep.form.options.hasOwnProperty('lat') && this.selectedStep.form.options.hasOwnProperty('lng')) {
-          this.selectedStep.form.answerCoordinates = this.selectedStep.form.options
-        } else {
-          this.selectedStep.form.answerCoordinates = {lat: 0, lng: 0}
-        }
       }
       
       // compute number of steps
@@ -587,16 +584,22 @@ export default {
           this.answerType = this.selectedStep.form.options[0].hasOwnProperty('imagePath') && this.selectedStep.form.options[0].imagePath !== null ? 'image' : 'text'
         }
       } else if (this.options.code === 'code-color') {
-        if (!Array.isArray(this.selectedStep.form.options)) {
+        if (this.selectedStep.form.answers && this.selectedStep.form.answers.indexOf('|') !== -1) {
+          this.unformatedAnswer = this.selectedStep.form.answers.split("|")
+        } else {
           this.unformatedAnswer = Array(4).fill('red')
         }
       } else if (this.options.code === 'code-image') {
-        if (!this.selectedStep.form.options || !this.selectedStep.form.options.code) {
+        if (!this.selectedStep.form.options) {
           this.selectedStep.form.options = {images: []}
-          this.unformatedAnswer = [0, 0, 0, 0]
           for (let i = 0; i < this.defaultNbAnswers; i++) {
             this.selectedStep.form.options.images.push({ imagePath: null })
           }
+        }
+        if (this.selectedStep.form.answers && this.selectedStep.form.answers.indexOf('|') !== -1) {
+          this.unformatedAnswer = this.selectedStep.form.answers.split("|")
+        } else {
+          this.unformatedAnswer = [0, 0, 0, 0]
         }
       } else if (this.options.code === 'code-keypad') {
         if (typeof this.selectedStep.form.answers !== 'string') {
@@ -639,6 +642,7 @@ export default {
           this.selectedStep.form.options = { picture: null, level: 2 }
         }
       } else if (this.options.code === 'locate-item-ar') {
+        this.selectedStep.form.options = {}
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
           this.selectedStep.form.options = { picture: null }
         }
@@ -664,10 +668,10 @@ export default {
         }
       }
       if (this.options.code === 'code-color') {
-        this.selectedStep.form.answers = this.unformatedAnswer.join('')
+        this.selectedStep.form.answers = this.unformatedAnswer.join('|')
       }
       if (this.options.code === 'code-image') {
-        this.selectedStep.form.answers = this.unformatedAnswer.join('')
+        this.selectedStep.form.answers = this.unformatedAnswer.join('|')
       }
       if (this.options.code === 'jigsaw-puzzle') {
         // build random order for jigsaw puzzle pieces.
@@ -813,7 +817,9 @@ export default {
     async resetBackgroundImage() {
       this.selectedStep.form.backgroundImage = null
       // reset input to let admin add the same picture again
-      document.getElementById("picturefile").value = ""
+      if (document.getElementById("picturefile")) {
+        document.getElementById("picturefile").value = ""
+      }
     },
     /*
      * Upload a video
@@ -1005,8 +1011,11 @@ export default {
      * @param   {Object}    place            Position & address data
      */
     async setLocation(place) {
-      this.selectedStep.form.answerCoordinates.lat = place.geometry.location.lat()
-      this.selectedStep.form.answerCoordinates.lng = place.geometry.location.lng()
+      this.selectedStep.form.options.lat = parseFloat(place.geometry.location.lat())
+      this.selectedStep.form.options.lng = parseFloat(place.geometry.location.lng())
+      this.selectedStep.form.options.destination = (place.formatted_address || '')
+      this.$v.selectedStep.form.options.lat.$touch()
+      this.$v.selectedStep.form.options.lng.$touch()
     },
     /*
      * Get current user location
@@ -1021,15 +1030,18 @@ export default {
      * @param   {Object}    pos            Position data
      */
     async fillLocation(pos) {
-      this.selectedStep.form.answerCoordinates = {lat: pos.coords.latitude, lng: pos.coords.longitude}
+      this.selectedStep.form.options.lat = pos.coords.latitude
+      this.selectedStep.form.options.lng = pos.coords.longitude
+      this.$v.selectedStep.form.options.lat.$touch()
+      this.$v.selectedStep.form.options.lng.$touch()
       // get the address
       var geocoder = new google.maps.Geocoder();
       geocoder.geocode({'location': {lat: pos.coords.latitude, lng: pos.coords.longitude}}, (results, status) => {
         this.$q.loading.hide()
         if (status === 'OK' && results[0].formatted_address) {
-          this.selectedStep.form.destination = results[0].formatted_address
+          this.selectedStep.form.options.destination = results[0].formatted_address
           // force field to be refreshed
-          document.getElementById("destination").value = this.selectedStep.form.destination
+          document.getElementById("destination").value = this.selectedStep.form.options.destination
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }

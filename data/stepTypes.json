@@ -44,7 +44,7 @@
     "description": "ChoiceQuestionDesc",
     "showTrick": "yes",
     "textRules": {
-      "maxNbChars": 180,
+      "maxNbChars": 240,
       "maxNbCarriageReturns": 5
     }
   },

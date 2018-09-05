@@ -38,6 +38,12 @@ export default {
     return Api().get('user/' + id)
   },
   /*
+   * Get current user ranking data
+   */
+  getRanking () {
+    return Api().get('account/ranking')
+  },
+  /*
    * Add a friend to the connected user
    * @param   {String}    id                  ID of the user
    */

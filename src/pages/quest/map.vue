@@ -79,10 +79,50 @@
         </q-list>
         </q-tab-pane>
         
-        <!------------------ LIST OF QUESTS BUILT TAB ------------------------>
+        <!------------------ RANKING TAB ------------------------>
         
         <q-tab-pane name="ranking">
-        Your ranking
+          <div class="row" v-if="$store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings">
+            <div class="col centered">
+              <q-icon class="big-icon" name="public" color="yellow-5">
+                <q-tooltip>
+                  {{ $t("label.YourWorldRanking") }}
+                </q-tooltip>
+              </q-icon>
+              <p class="size-1">
+                Rank: {{ $store.state.user.statistics.rankings.world }}
+              </p>
+            </div>
+            <div class="col centered">
+              <q-icon class="big-icon" name="home" color="yellow-5">
+                <q-tooltip>
+                  {{ $t("label.YourCityRanking") }}
+                </q-tooltip>
+              </q-icon>
+              <p class="size-1">
+                Rank: {{ $store.state.user.statistics.rankings.town }}
+              </p>
+            </div>
+          </div>
+          <q-list v-if="success.ranking && success.ranking.length > 0">
+            <q-list-header>{{ $t("label.TerritoriesWon") }}</q-list-header>
+            <q-item v-for="(item, index) in success.ranking" :key="index">
+              <q-item-main :label="item.town" />
+              <q-item-side right v-if="item.playedNb < item.totalNb">
+                <q-progress :percentage="parseInt((item.playedNb / item.totalNb) * 100, 10)" color="yellow-5" height="18px" style="width: 75px" />
+              </q-item-side>
+              <q-item-side right v-if="item.playedNb >= item.totalNb">
+                <q-icon name="flag" size="2rem" color="yellow-5" />
+              </q-item-side>
+            </q-item>
+            <q-item>
+            {{ $t("label.PlayAllQuestsInACityToWin") }}
+            </q-item>
+          </q-list>
+          
+          <p v-if="!($store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings) && !(success.ranking && success.ranking.length > 0)">
+            {{ $t("label.NoRankingYet") }}
+          </p>
         </q-tab-pane>
         
       </q-tabs>
@@ -205,7 +245,7 @@
               <q-item v-for="(item, index) in friends.news.items" :key="item._id">
                 <q-item-side v-if="item.data.picture && item.data.picture.indexOf('http') !== -1" :avatar="item.data.picture" />
                 <q-item-side v-if="item.data.picture && item.data.picture.indexOf('http') === -1" :avatar="serverUrl + '/upload/profile/' + item.data.picture" />
-                <q-item-side v-if="!item.data.picture" :avatar="'/statics/profiles/noprofile.png'" />
+                <q-item-side v-if="!item.data.picture" avatar="/statics/icons/game/profile-small.png" />
                 <q-item-main>
                   <q-item-tile label v-if="item.data && item.data.userId">{{ item.data.name }}</q-item-tile>
                   <q-item-tile label v-if="item.type === 'standard'">
@@ -293,7 +333,7 @@
                   <img :src="serverUrl + '/upload/quest/' + item.picture" />
 
                   <q-card-title slot="overlay" @click.native="$router.push('/quest/play/' + item._id)">
-                    {{ item.title }}
+                    {{ getQuestTitle(item, true) }}
                     <q-rating slot="subtitle" v-if="item.rating" v-model="item.rating" color="primary" :max="5" />
                     <span slot="right" class="row items-center text-white" v-if="item.distance && item.distance > 0 && item.distance <= 99">
                       <q-icon color="white" name="place" /> {{ item.distance }} {{ $t('label.km') }}
@@ -470,7 +510,8 @@ export default {
         quests: {
           played: [],
           built: []
-        }
+        },
+        ranking: []
       },
       profile: {
         level: {},
@@ -739,9 +780,17 @@ export default {
       if (!this.showSuccess) {
         this.listCreatedQuests(this.$store.state.user._id)
         this.listPlayedQuests(this.$store.state.user._id)
+        this.getRanking()
       }
       this.showSuccess = !this.showSuccess
       //this.$router.push('/user/me/success')
+    },
+    /*
+     * Get current user ranking data
+     */
+    async getRanking() {
+      let response = await UserService.getRanking()
+      this.success.ranking = response.data
     },
     /*
      * Get the list of the quests created by the user

@@ -113,6 +113,9 @@
         
       <q-tab-pane name="steps">
         <p>{{ $t('label.AddYourSteps') }}</p>
+        <p class="centered" v-show="steps.items && steps.items.length > 6">
+          <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
+        </p>
         <!-- using https://github.com/timruffles/ios-html5-drag-drop-shim to allow drag & drop on mobile -->
         <ul class="list-group" v-sortable="{ onUpdate: onStepListUpdate, handle: '.handle' }">
           <li class="list-group-item" v-for="step in steps.items" :key="step._id">
@@ -636,11 +639,20 @@ export default {
     async closeOverview() {
       this.closeAllPanels()
       await this.refreshStepsList()
+      this.resetStepData()
+      this.steps.showNewStepOverview = false
+      this.tabs.selected = 'steps'
+    },
+    /*
+     * reset step data between 2 steps creation
+     */
+    resetStepData() {
       this.stepId = '-1'
       this.steps.new.overviewData = {}
       this.steps.reloadStepPlay = false // reset the overview
-      this.steps.showNewStepOverview = false
-      this.tabs.selected = 'steps'
+      this.selectedItem = null
+      this.canMoveNextStep = false
+      this.canPass = false
     },
     /*
      * Close step settings page
@@ -775,6 +787,7 @@ export default {
     },
     async trackStepSuccess(stepId) {
       this.canMoveNextStep = true
+      this.hideHint()
     },
     /*
      * Track step passing
@@ -786,7 +799,10 @@ export default {
      * Track step fail
      */
     async trackStepFail () {
-      console.log("fail")
+      this.hideHint()
+    },
+    hideHint() {
+      this.steps.new.overviewData.hint = ''
     },
     /*
      * Get the icon of a step type
@@ -845,6 +861,9 @@ export default {
       this.selectedItem = item
       this.closeAllPanels()
     },
+    /*
+     * Close all opened panels to go back to main screen
+     */
     closeAllPanels() {
       this.inventory.isOpened = false
       this.hint.isOpened = false
@@ -870,9 +889,15 @@ export default {
         }
       }
     },
+    /*
+     * Check if a hint is available for the step
+     */
     isHintAvailable() {
       return (this.steps.new.overviewData && this.steps.new.overviewData.hint && this.steps.new.overviewData.hint !== '')
     },
+    /*
+     * Scroll page to the top
+     */
     moveToTop() {
       window.scrollTo(0, 0)
     }

@@ -243,6 +243,8 @@ export default {
     async trackStepSuccess (score) {
       // add step score to general score
       this.info.score += score
+      // hide hint
+      this.hideHint()
     },
     /*
      * Track step played
@@ -261,7 +263,10 @@ export default {
      * Track step fail
      */
     async trackStepFail () {
-      console.log("fail")
+      this.hideHint()
+    },
+    hideHint() {
+      this.step.hint = ''
     },
     /*
      * Launch a quest with default language
@@ -419,35 +424,11 @@ export default {
 </script>
 
 <style scoped>
-  
-  .inventory-items div { float: left; margin-right: 15px; width: 100px; height: 175px; overflow: hidden; text-align: center;}
-  .inventory-items div img { width: 100px; height: 100px; }
 
   #main-view { padding: 0rem; height: inherit; min-height: inherit; }
   
   #main-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
   #main-view > div > div { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
-  
-  #main-view div.info,
-  #main-view div.new-item,
-  #main-view div.geolocation {
-    padding-bottom: 1rem;
-  }
-  #main-view div.find-item,
-  #main-view div.use-item {
-    padding-bottom: 3rem;
-  }
- 
-  .text,
-  .answers-text .q-btn {
-    opacity: 0.9;
-    background-color: #fff;
-    border-radius: 0.5rem;
-    padding: 0.5rem;
-    margin: 0;
-    box-shadow: 0px 0px 0.1rem 0.1rem #fff;
-  }
-  .text { white-space: pre-wrap; }
   
   #controls {
     display: none
@@ -461,72 +442,6 @@ export default {
   .q-btn, audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
   
   .q-btn { margin-top: 1rem; }
-  
-  /* info specific */
-  
-  audio { opacity: 0.9; }
-  
-  .video { flex-grow: 1; display: flex; align-items: center; }
-  
-  /* text/image choice specific */
-  
-  .answers-text { flex-grow: 1; display: flex; flex-flow: column nowrap; justify-content: center; padding: 0 1rem; }
-  .answers-text .q-btn { margin: 0.75rem; font-weight: bold; font-size: 1.2rem; text-transform: none; }
-  
-  .answers-images { flex-grow: 1; text-align: center; display: flex; flex-flow: column nowrap; justify-content: center; }
-  
-  .images-block { display: flex; flex-flow: row wrap; justify-content: center; align-items: center; }
-  .images-block > div { border-radius: 1rem; padding: 0.5rem; position: relative; width: 45%;}
-  .images-block img { width: 100%; border-radius: 0.5rem; }
-  
-  /* keypad specific (code) */
-  
-  .typed-code { text-align: center; margin: 1rem auto; }
-  .typed-code table { border-collapse: collapse; background-color: rgba(255, 255, 255, 0.6); }
-  .typed-code td { width: 2rem; height: 3rem; border: 1px solid black; vertical-align: middle; text-align: center; line-height: 3rem; }
-  .typed-code td.typed { font-weight: bold; font-size: 1.7rem; }
-  
-  .keypad { flex-grow: 1; display: flex; flex-flow: column nowrap; justify-content: center; text-align: center; }
-  .keypad .q-btn { margin: 0.5rem; width: 15%; height: 15%; font-weight: bold; font-size: 1.7rem; }
-  
-  /* color code specific */
-  
-  .code-color .color-bubbles { margin-top: 5rem; flex-grow: 1; display: flex; flex-flow: row nowrap; justify-content: center; }
-  .code-color .color-bubbles div { display: block; width: 4rem; height: 4rem; border: 4px solid black; border-radius: 2rem; margin: 0.3rem; transition: background-color 0.3s; }
-  
-  /* image code specific */
-  .code-image td { width: 20% }
-  .code-image td img { width: 100% }
-  .code-image td .q-icon { font-size: 2em }
-
-  /* image recognition specific */
-  
-  .image-recognition .photo { flex-grow: 1; overflow-y: hidden; margin-top: 1rem; display: flex; flex-flow: column nowrap; justify-content: center; padding: 0.5rem; margin: -0.5rem; } /* negative margin required to have image shadow visible on sides */
-  .image-recognition .photo img, 
-  .image-recognition .photo > video { width: 100%; border-radius: 0.5rem; }
-  
-  /* geolocation specific */
-  
-  .geolocation video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-  .geolocation .direction-helper { flex-grow: 1; display: flex; flex-flow: column nowrap; }
-  .geolocation .direction-helper canvas { width: 10rem; height: 10rem; margin: auto; margin-bottom: 0; }
-  .geolocation .text { margin-bottom: 0.5rem; }
-  
-  /* jigsaw puzzle specific */
-  
-  #pieces { padding: 0; margin: 0; width: 100%; background: #777; border: 1px solid #777; display: block; }
-  #pieces .piece { display: inline-block; margin: 0; box-shadow: inset 0 0 3px #000; text-align: center; cursor: move; background-repeat: none; }
-  #pieces .piece.over { border: 2px dashed #000; }
-  
-  /* write-text specific */
-  
-  .answer-text { flex-grow: 1; display: flex; flex-flow: column nowrap; justify-content: center; }
-  .answer-text input { opacity: 0.7; font-size: 1.5em; font-weight: bold; height: 1.5em; background-color: #fff; border-radius: 0.5rem; box-shadow: 0px 0px 0.1rem 0.1rem #fff;}
-    
-  /* new-item specific */
-  
-  .new-item .item { text-align: center; }
-  .new-item .item p { font-size: 2rem; }
   
   /* right/wrong styles */
   
@@ -549,16 +464,9 @@ export default {
     visibility: visible;
   }
   
-  .disabled, [disabled] {
-    opacity: 0.9 !important;
-  }
-  
   .actions > div { display: flex; flex-flow: row nowrap; }
   .actions > div > .q-btn { flex-grow: 1; }
   .actions > div > .q-btn:not(:first-child) { flex-grow: 1; margin-left: 1rem; }
-  
-  .resultMessage, .fixed-bottom.actions { padding: 1rem; }
-  .resultMessage .text { text-align: center; font-weight: bold; }
   
   .inventory-btn { position: fixed; bottom: 0.7rem; left: 0.7rem; z-index: 1; }
   .inventory-btn img { width: 100%; height: 100%; border-radius: 50%; }
