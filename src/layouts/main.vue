@@ -24,12 +24,16 @@ export default {
   },
   mounted () {
     this.fixLayout()
-    this.$i18n.locale = this.$store.state.user.language
+    if (this.$store.state.user && this.$store.state.user.language) {
+      this.$i18n.locale = this.$store.state.user.language
+    }
   },
   watch: {
     '$route': function(value) {
       this.fixLayout()
-      this.$i18n.locale = this.$store.state.user.language
+      if (this.$store.state.user && this.$store.state.user.language) {
+        this.$i18n.locale = this.$store.state.user.language
+      }
     }
   },
   methods: {
