@@ -28,7 +28,7 @@ module.exports = function (ctx) {
       scopeHoisting: true,
       vueRouterMode: 'hash',
       env: loadEnvVars(ctx.dev),
-      publicPath: 'https://graaly.com',
+      publicPath: '',
       // vueCompiler: true,
       // gzip: true,
       // analyze: true,
