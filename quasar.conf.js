@@ -62,6 +62,7 @@ module.exports = function (ctx) {
     framework: {
       components: [
         'QAlert',
+        'QAutocomplete',
         'QBtn',
         'QBtnDropdown',
         'QBtnGroup',

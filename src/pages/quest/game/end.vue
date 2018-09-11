@@ -28,7 +28,6 @@
       <!------------------ CHALLENGE FRIENDS AREA ------------------------>
       
       <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.score > 0">
-         <h3 class="size-2 q-ma-sm">{{ $t('label.ChallengeYourFriends') }}</h3>
         <q-btn icon="people" color="primary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
       </div>
       
@@ -95,6 +94,41 @@
         </q-list>
       </div>
     </transition>
+    
+    <!--====================== CHALLENGE YOUR FRIENDS PAGE =================================-->
+    
+    <q-modal v-model="showChallenge">
+      <a class="float-right no-underline" color="grey" @click="closeChallenge"><q-icon name="close" class="medium-icon" /></a>
+      <h1 class="size-3 q-pl-md">{{ $t('label.ChallengeYourFriends') }}</h1>
+      <div class="q-pa-md" v-if="friends && friends.length !== 0">
+        <q-list highlight>
+          <q-item v-for="friend in friends" :key="friend.friendId">
+            <q-item-side>
+              <q-item-tile avatar>
+                <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') !== -1" :src="friend.picture" />
+                <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + friend.picture" />
+                <img v-if="!friend.picture || friend.picture === ''" src="/statics/icons/game/profile-small.png" />
+              </q-item-tile>
+            </q-item-side>
+            <q-item-main>
+              <q-item-tile>{{ friend.name }}</q-item-tile>
+            </q-item-main>
+            <q-item-side right>
+              <q-btn flat :label="$t('label.Challenge')" @click="challenge(friend.friendId)" />
+            </q-item-side>
+          </q-item>
+        </q-list>
+      </div>
+      <div class="q-pa-md centered">
+        <q-btn color="primary" size="lg" full @click="challengeAll" :label="$t('label.ChallengeAllFriends')" />
+      </div>
+      <div>
+        <q-chips-input v-model="terms" :placeholder="$t('label.TypeNameOrAddressOfYourFriends')">
+          <q-autocomplete @search="search" @selected="selected" />
+        </q-chips-input>
+      </div>
+    </q-modal>
+    
   </div>
 </template>
 
@@ -119,8 +153,10 @@ export default {
       run: {
         score: 0
       },
+      friends: [],
       questId: this.$route.params.questId,
       awardPoints: true,
+      showChallenge: false,
       serverUrl: process.env.SERVER_URL
     }
   },
@@ -287,93 +323,33 @@ export default {
       }
       return 0
     },
+    /*
+     * Open the challenge friends modal
+     */
     async openChallengeBox() {
-      var self = this
-      var actions = [
-         {
-           label: "Anne",
-           avatar: this.serverUrl + "/upload/profile/1525257260096.jpg",
-           handler () { self.challengeUser("5ae988e770c5652ff88ed65a") }
-         },
-         {
-           label: "Aurore",
-           avatar: this.serverUrl + "/upload/profile/1522851062997.JPG",
-           handler () { self.challengeUser("5aae56cc6198d40c61b67e26") }
-         },
-         {
-           label: "Barbara",
-           avatar: "/statics/profiles/noprofile.png",
-           handler () { self.challengeUser("5ae988e870c5652ff88ed65e") }
-         },
-         {
-           label: "Christian",
-           avatar: this.serverUrl + "/upload/profile/1525257321486.jpg",
-           handler () { self.challengeUser("5ae988e770c5652ff88ed65c") }
-         },
-         {
-           label: "Claude",
-           avatar: this.serverUrl + "/upload/profile/1525257292040.jpg",
-           handler () { self.challengeUser("5ae988e770c5652ff88ed65b") }
-         },
-         {
-           label: "Eric",
-           avatar: this.serverUrl + "/upload/profile/1521463800569.jpg",
-           handler () { self.challengeUser("5aacebfd874daa461b6815bc") }
-         },
-         {
-           label: "Hervé",
-           avatar: "/statics/profiles/noprofile.png",
-           handler () { self.challengeUser("5ae988e670c5652ff88ed657") }
-         },
-         {
-           label: "Jean-Noel",
-           avatar: "/statics/profiles/noprofile.png",
-           handler () { self.challengeUser("5ae988e770c5652ff88ed658") }
-         },
-         {
-           label: "Jingyi",
-           avatar: "/statics/profiles/noprofile.png",
-           handler () { self.challengeUser("5ae988e870c5652ff88ed65d") }
-         },
-         {
-           label: "Judi",
-           avatar: this.serverUrl + "/upload/profile/1525255361394.jpg",
-           handler () { self.challengeUser("5ae988e670c5652ff88ed656") }
-         },
-         {
-           label: "Maxime",
-           avatar: "/statics/profiles/noprofile.png",
-           handler () { self.challengeUser("5aafd596cd12470b526e32a2") }
-         },
-         {
-           label: "Valérie",
-           avatar: this.serverUrl + "/upload/profile/1525257230460.jpg",
-           handler () { self.challengeUser("5ae988e770c5652ff88ed659") }
-         },
-         {
-           label: "Vincent",
-           avatar: "/statics/profiles/noprofile.png",
-           handler () { self.challengeUser("5ae988ea70c5652ff88ed65f") }
-         }
-      ]
-      
-      //var friends = await UserService.listFriends(this.questId)
-
-      this.$q.actionSheet({
-        title: this.$t('message.ChallengeYourFriends'),
-        gallery: false,
-        actions: actions,
-        dismiss: {
-          label: this.$t('message.Cancel'),
-          icon: 'cancel',
-          handler () {
-            console.log('Cancelled...')
-          }
-        }
-      })
+      this.showChallenge = true
+      var challengers = await UserService.getBestFriends()
+      if (challengers && challengers.data && challengers.data.length > 0) {
+        this.friends = challengers.data
+      }
     },
-    async challengeUser(id) {
-      await UserService.challengeFriend(id, this.run._id)
+    /*
+     * Close the challenge friends modal
+     */
+    async closeChallenge() {
+      this.showChallenge = false
+    },
+    /*
+     * Challenge a friend
+     */
+    async challenge(userId) {
+      await UserService.challengeFriend(userId, this.run._id)
+    },
+    /*
+     * Challenge all the user's friends
+     */
+    async challengeAll() {
+      await UserService.challengeFriend('all', this.run._id)
     }
   }
 }

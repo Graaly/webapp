@@ -35,7 +35,7 @@ export default {
    * @param   {String}    id                  ID of the friend
    */
   getFriend (id) {
-    return Api().get('user/' + id)
+    return Api().get('user/' + id + '/profile')
   },
   /*
    * Get current user ranking data
@@ -57,6 +57,12 @@ export default {
    */
   challengeFriend (friendId, runId) {
     return Api().post('user/friend/' + friendId + '/challenge/' + runId)
+  },
+  /*
+   * Get current user's best friends)
+   */
+  getBestFriends () {
+    return Api().get('user/bestfriends')
   }
   
 }

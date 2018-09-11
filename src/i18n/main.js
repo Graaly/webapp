@@ -21,11 +21,9 @@ module.exports = {
       white: "White"
     },
     news: {
-      challengeWon: "Your team whon the challenge: ",
-      newTeam: "This team has just been created",
       newQuestWon: "Has won the quest <a href='/#/quest/play/{questId}'>{quest}</a>",
       newQuest: "Has created the quest <a href='/#/quest/play/{questId}'>{quest}</a>",
-      newMember: "Has joined your team"
+      challenge: "You are challenged on quest <a href='/#/quest/play/{questId}'>{quest}</a>"
     },
     stepType: {
       ImageAndText: "Picture & text",
@@ -382,7 +380,7 @@ module.exports = {
       DistanceInMeters: "Distance with the place to find: {distance} meters",
       YouHaveFoundThePlace: "Well done! You have found the place",
       points: "points",
-      Pass: "Pass",
+      Pass: "Skip",
       YourAnswer: "Your answer",
       ConfirmTheAnswer: "Confirm the answer",
       PleaseSelectAnItemFirst: "Please select an item in your inventory (button in the bottom left), then press the image to use it.",
@@ -407,7 +405,7 @@ module.exports = {
       ResolveOtherQuestsToWinPoints: "Play new quests to win points",
       ChallengeYourFriends: "Challenge your friends!",
       YouAreQuestOwnerDesc: "You are the owner of this quest, you will not win any point",
-      ConfirmPass: "Are you sure to pass this step, and to not win any point?",
+      ConfirmPass: "Are you sure to skip this step, and to not win any point?",
       TouchWhereYouUseThisItem: "Touch where you use this item",
       GeneralWarning: "For your safety, do not play Graaly driving or riding your bicycle, always be alert to what is happening around you, do not enter private property without permission, follow the safety rules when you move.",
       YourLanguage: "Your language",
@@ -434,7 +432,10 @@ module.exports = {
       YourWorldRanking: "Your global rank",
       YourCityRanking: "Your rank in your city",
       PlayAllQuestsInACityToWin: "Play all the quests of a city to conquest the territory",
-      NoRankingYet: "Your rank is not yet computed, please wait for tomorrow"
+      NoRankingYet: "Your rank is not yet computed, please wait for tomorrow",
+      Challenge: "Challenge",
+      ChallengeAllFriends: "Challenge all your friends",
+      TypeNameOrAddressOfYourFriends: "Type the email or the name of your friends"
       
     }
   },
@@ -460,11 +461,9 @@ module.exports = {
       white: "Blanc"
     },
     news: {
-      challengeWon: "Votre équipe a gagné le challenge",
-      newTeam: "Cette équipe vient d'être créée",
       newQuestWon: "A réussi l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>",
       newQuest: "A créé l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>",
-      newMember: "A rejoint votre équipe"
+      challenge: "Vous défie sur l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>"
     },
     stepType: {
       ImageAndText: "Image et Texte",
@@ -868,7 +867,10 @@ module.exports = {
       YourWorldRanking: "Votre classement mondial",
       YourCityRanking: "Votre classement dans votre ville",
       PlayAllQuestsInACityToWin: "Jouez à toutes les enquêtes d'une ville pour conquérir le territoire",
-      NoRankingYet: "Votre classement n'est pas encore calculé, veuillez attendre demain"
+      NoRankingYet: "Votre classement n'est pas encore calculé, veuillez attendre demain",
+      Challenge: "Défier",
+      ChallengeAllFriends: "Défier tous vos amis",
+      TypeNameOrAddressOfYourFriends: "Taper le nom ou l'adresse email de vos amis"
     }
   }
 }

@@ -623,6 +623,14 @@ export default {
       }
       let response = await QuestService.listNearest(this.map.center, this.map.filter)
       this.questList = response.data
+      
+      /*/ redifine zoom
+      const bounds = new google.maps.LatLngBounds()
+      for (let q of this.questList) {
+        bounds.extend({ lng: q.location.coordinates[0], lat: q.location.coordinates[1] })
+      }
+      this.$refs.gmap.$mapObject.fitBounds(bounds)
+      */
     },
     
     /*
