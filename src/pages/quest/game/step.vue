@@ -13,7 +13,7 @@
         <div class="inventory-items">
           <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
             <img :src="serverUrl + '/upload/quest/' + quest.id + '/step/new-item/' + item.picture" />
-            <p>{{ item.title}}</p>
+            <p>{{ item.title }}</p>
           </div>
         </div>
       </div>
@@ -298,6 +298,7 @@ export default {
           ok: this.$t('label.Ok'),
           cancel: this.$t('label.Cancel')
         }).then(async () => {
+          await RunService.passCurrentStep(this.run._id)
           this.$router.push('/quest/play/' + this.quest.id + '/step/' + this.step.nextNumber + '/' + this.$route.params.lang);
         })
       }

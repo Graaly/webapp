@@ -307,7 +307,6 @@ import StepService from 'services/StepService'
 import simi from 'src/includes/simi' // for image similarity
 import utils from 'src/includes/utils'
 import colorsForCode from 'data/colorsForCode.json'
-import questItems from 'data/questItems.json'
 import Notification from 'plugins/NotifyHelper'
 
 import Vue from 'vue'
@@ -1116,14 +1115,6 @@ export default {
       this.geolocation.currentBearing = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, target.lat, target.lng)
       
       this.geolocation.rawDirection = this.geolocation.currentBearing
-    },
-    /*
-     * Get the icon for an inventory item
-     * @param   {string}    code            item code
-     */
-    getItemIcon(code) {
-      let item = questItems.find(item => item.code === code)
-      return typeof item !== 'undefined' ? item.icon : 'clear'
     },
     /*
      * Use an item
