@@ -819,7 +819,7 @@ module.exports = {
       Pass: "Passer",
       YourAnswer: "Votre réponse",
       ConfirmTheAnswer: "Valider la réponse",
-      PleaseSelectAnItemFirst: "Sélectionnez un objet dans votre inventaire d'abord (bouton en bas à gauche), puis cliquez sur l'image pour l'utiliser.",
+      PleaseSelectAnItemFirst: "Sélectionnez un objet dans votre inventaire d'abord (bouton en bas à gauche), puis touchez l'image pour l'utiliser.",
       UseItemNothingHappens: "Rien ne se produit. Essayez un autre endroit, ou utilisez un autre objet.",
       FindItemNothingHappens: "Rien ne se produit. Essayez un autre endroit.",
       NoTitle: "Aucun titre",
