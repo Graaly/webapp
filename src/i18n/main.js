@@ -435,8 +435,8 @@ module.exports = {
       NoRankingYet: "Your rank is not yet computed, please wait for tomorrow",
       Challenge: "Challenge",
       ChallengeAllFriends: "Challenge all your friends",
-      TypeNameOrAddressOfYourFriends: "Type the email or the name of your friends"
-      
+      TypeNameOrAddressOfYourFriends: "Type the email or the name of your friends",
+      TouchTheObject: "Touch the object"
     }
   },
   fr: {
@@ -870,7 +870,8 @@ module.exports = {
       NoRankingYet: "Votre classement n'est pas encore calculé, veuillez attendre demain",
       Challenge: "Défier",
       ChallengeAllFriends: "Défier tous vos amis",
-      TypeNameOrAddressOfYourFriends: "Taper le nom ou l'adresse email de vos amis"
+      TypeNameOrAddressOfYourFriends: "Taper le nom ou l'adresse email de vos amis",
+      TouchTheObject: "Touchez l'objet"
     }
   }
 }
