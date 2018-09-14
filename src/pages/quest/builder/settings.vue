@@ -136,6 +136,12 @@
       <!------------------ PUBLISHING TAB ------------------------>
         
       <q-tab-pane name="publish">
+        <q-alert type="warning" class="q-mb-md" v-if="quest.status === 'tovalidate'">
+          {{ $t('label.QuestUnderValidation') }}
+        </q-alert>
+        <q-alert type="warning" class="q-mb-md" v-if="quest.status === 'rejected'">
+          {{ $t('label.QuestPublicationRejected') }}
+        </q-alert>
         <p class="centered q-pa-md">
           <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
         </p>
@@ -564,8 +570,9 @@ export default {
      * Publish a quest
      */
     async publish(lang) {
+      // if quest is already published in a language, accept automatically other language
       var action = 'unpublish'
-      // check if publish or unpublish
+      // check if at least one language is published
       for (var i = 0; i < this.form.fields.languages.length; i++) {
         if (this.form.fields.languages[i].lang && this.form.fields.languages[i].lang === lang) {
           if (this.form.fields.languages[i].published) {
@@ -575,9 +582,14 @@ export default {
       }
       if (action === 'publish') {
         await QuestService.publish(this.questId, lang)
+        if (this.quest.status === 'unpublished') {
+          this.quest.status = 'tovalidate'
+        }
         this.tabs.progress = 4
       } else {
+        // no language is published => unpublish the quest
         await QuestService.unpublish(this.questId, lang)
+        this.quest.status = 'unpublished'
         this.tabs.progress = 3
       }
     },

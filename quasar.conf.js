@@ -75,6 +75,7 @@ module.exports = function (ctx) {
         'QCarouselControl',
         'QCheckbox',
         'QChip',
+        'QChipsInput',
         'QCollapsible',
         'QField', 
         'QIcon',

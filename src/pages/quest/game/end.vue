@@ -17,18 +17,18 @@
         <p class="centered">{{ $t('label.MyLevel') }} : {{ $store.state.user.level }}</p>
         <q-progress :percentage="level.progress" height="30px" color="white"></q-progress>
       </div>
+            
+      <!------------------ CHALLENGE FRIENDS AREA ------------------------>
+      
+      <div class="q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.score > 0">
+        <q-btn icon="people" color="tertiary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
+      </div>
       
       <!------------------ RATING AREA ------------------------>
       
       <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.reward <= 0">
         <h3 class="size-2 q-ma-sm">{{ $t('label.RateThisQuest') }} (+2 <q-icon color="white" name="fas fa-coins" />)</h3>
         <q-rating v-model="rating" :max="5" size="1.5rem" @input="rate" />
-      </div>
-      
-      <!------------------ CHALLENGE FRIENDS AREA ------------------------>
-      
-      <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.score > 0">
-        <q-btn icon="people" color="primary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
       </div>
       
       <!------------------ SHARE AREA ------------------------>
@@ -97,37 +97,45 @@
     
     <!--====================== CHALLENGE YOUR FRIENDS PAGE =================================-->
     
-    <q-modal v-model="showChallenge">
-      <a class="float-right no-underline" color="grey" @click="closeChallenge"><q-icon name="close" class="medium-icon" /></a>
-      <h1 class="size-3 q-pl-md">{{ $t('label.ChallengeYourFriends') }}</h1>
-      <div class="q-pa-md" v-if="friends && friends.length !== 0">
-        <q-list highlight>
-          <q-item v-for="friend in friends" :key="friend.friendId">
-            <q-item-side>
-              <q-item-tile avatar>
-                <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') !== -1" :src="friend.picture" />
-                <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + friend.picture" />
-                <img v-if="!friend.picture || friend.picture === ''" src="/statics/icons/game/profile-small.png" />
-              </q-item-tile>
-            </q-item-side>
-            <q-item-main>
-              <q-item-tile>{{ friend.name }}</q-item-tile>
-            </q-item-main>
-            <q-item-side right>
-              <q-btn flat :label="$t('label.Challenge')" @click="challenge(friend.friendId)" />
-            </q-item-side>
-          </q-item>
-        </q-list>
+    <transition name="slideInBottom">
+      <div class="panel-bottom q-pa-md" v-show="showChallenge">      
+        <a class="float-right no-underline" color="grey" @click="closeChallenge"><q-icon name="close" class="medium-icon" /></a>
+        <h1 class="size-3 q-pl-md">{{ $t('label.ChallengeYourFriends') }}</h1>
+        <div>
+          <div class="q-pa-md centered">
+            <q-btn color="primary" size="lg" full @click="challengeAll" :label="$t('label.ChallengeAllFriends')" />
+          </div>
+          <div class="q-pa-md centered">
+            {{ $t('label.Or') }}
+          </div>
+          <!--<div>
+            <q-chips-input v-model="invitedFriends.name" :placeholder="$t('label.TypeNameOrAddressOfYourFriends')" add-icon="add_circle">
+              <q-autocomplete @search="searchFriend" @selected="selectFriend" :min-characters="0" />
+            </q-chips-input>
+          </div>-->
+          <!-- TODO : if no friend, add them from contact list. If friends, propose 3 randomly-->
+          <div v-if="friends && friends.length !== 0">
+            <q-list highlight>
+              <q-item v-for="friend in filteredFriends" :key="friend.friendId">
+                <q-item-side>
+                  <q-item-tile avatar>
+                    <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') !== -1" :src="friend.picture" />
+                    <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + friend.picture" />
+                    <img v-if="!friend.picture || friend.picture === ''" src="/statics/icons/game/profile-small.png" />
+                  </q-item-tile>
+                </q-item-side>
+                <q-item-main>
+                  <q-item-tile>{{ friend.name }}</q-item-tile>
+                </q-item-main>
+                <q-item-side right>
+                  <q-btn v-show="!friend.isChallenged" color="primary" :label="$t('label.Challenge')" @click="challenge(friend)" />
+                </q-item-side>
+              </q-item>
+            </q-list>
+          </div>
+        </div>
       </div>
-      <div class="q-pa-md centered">
-        <q-btn color="primary" size="lg" full @click="challengeAll" :label="$t('label.ChallengeAllFriends')" />
-      </div>
-      <div>
-        <q-chips-input v-model="terms" :placeholder="$t('label.TypeNameOrAddressOfYourFriends')">
-          <q-autocomplete @search="search" @selected="selected" />
-        </q-chips-input>
-      </div>
-    </q-modal>
+    </transition>
     
   </div>
 </template>
@@ -136,6 +144,9 @@
 import RunService from 'services/RunService'
 import UserService from 'services/UserService'
 import LevelCompute from 'plugins/LevelCompute'
+//import { filter } from 'quasar'
+//import utils from 'src/includes/utils'
+import Vue from 'vue'
 
 export default {
   data() {
@@ -154,6 +165,11 @@ export default {
         score: 0
       },
       friends: [],
+      filteredFriends: [],
+      invitedFriends: {
+        id: [],
+        name: []
+      },
       questId: this.$route.params.questId,
       awardPoints: true,
       showChallenge: false,
@@ -328,9 +344,14 @@ export default {
      */
     async openChallengeBox() {
       this.showChallenge = true
-      var challengers = await UserService.getBestFriends()
+      /*var challengers = await UserService.getBestFriends()
       if (challengers && challengers.data && challengers.data.length > 0) {
-        this.friends = challengers.data
+        this.bestFriends = challengers.data
+      }*/
+      var allFriends = await UserService.listFriends()
+      if (allFriends && allFriends.data && allFriends.data.length > 0) {
+        this.friends = allFriends.data
+        this.filteredFriends = this.friends
       }
     },
     /*
@@ -342,8 +363,28 @@ export default {
     /*
      * Challenge a friend
      */
-    async challenge(userId) {
-      await UserService.challengeFriend(userId, this.run._id)
+    async challenge(friend) {
+      await UserService.challengeFriend(friend.friendId, this.run._id)
+      
+      for (var i = 0; i < this.filteredFriends.length; i++) {
+        if (this.filteredFriends[i].friendId === friend.friendId) {
+          this.filteredFriends[i].isChallenged = true
+          Vue.set(this.filteredFriends, i, this.filteredFriends[i])
+        }
+      }
+      console.log(this.filteredFriends)
+      
+      /*if (this.invitedFriends.id.indexOf(friend.friendId) === -1) {
+        this.invitedFriends.name.push(friend.name)
+        this.invitedFriends.id.push(friend.friendId)
+      }
+      // remove challenger from the list & reset the list
+      for (var i = 0; i < this.friends.length; i++) {
+        if (this.friends[i].friendId === friend.friendId) {
+          this.friends.splice(i, 1)
+        }
+      }
+      this.filteredFriends = this.friends*/
     },
     /*
      * Challenge all the user's friends
@@ -351,6 +392,31 @@ export default {
     async challengeAll() {
       await UserService.challengeFriend('all', this.run._id)
     }
+    /*
+     * Search a friend
+     *
+    searchFriend(name, done) {
+      // if email, add in the friends list, or search in friends list
+      if (utils.isValidEmail(name)) {
+        alert("ajouter email")
+        this.invitedFriends.name.push(name)
+        this.invitedFriends.id.push(name)
+      } else {
+        setTimeout(() => {
+          done(filter(name, {field: 'label', list: this.friends}))
+        }, 1000)
+        //this.filteredFriends = filter(name, {field: 'label', list: this.friends})
+  //      done(this.filteredFriends)
+      }
+    },
+    /*
+     * Select a friend
+     *
+    selectFriend(friend) {
+      if (this.invitedFriends.id.indexOf(friend.friendId) === -1) {
+        this.invitedFriends.id.push(friend.friendId)
+      }
+    }*/
   }
 }
 </script>

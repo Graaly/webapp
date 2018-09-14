@@ -12,7 +12,7 @@
         
         <div class="q-pa-lg">
           <q-field :error="$v.form.email.$error" v-if="step === 'email'">
-            <q-input type="email" dark color="tertiary" :float-label="$t('label.YourEmail')" v-model="form.email" @blur="$v.form.email.$touch" />
+            <q-input type="email" dark color="white" :float-label="$t('label.YourEmail')" v-model="form.email" @blur="$v.form.email.$touch" />
             <div class="q-field-bottom" v-if="$v.form.email.$error">
               <div class="q-field-error" v-if="!$v.form.email.required">{{ $t('label.PleaseEnterYourEmailAddress') }}</div>
               <div class="q-field-error" v-if="!$v.form.email.email">{{ $t('label.PleaseEnterAValidEmailAddress') }}</div>
@@ -20,7 +20,7 @@
           </q-field>
         
           <q-field v-if="step === 'password'">
-            <q-input type="password" dark color="tertiary" v-model="form.password" :float-label="$t('label.YourPassword')" />
+            <q-input type="password" dark color="white" v-model="form.password" :float-label="$t('label.YourPassword')" />
           </q-field>
           
           <!------------------ FORGOTTEN PASS AREA ------------------------>
@@ -35,7 +35,7 @@
           </q-field>
           
           <q-field v-if="step === 'forgottenpassword'">
-            <q-input type="password" dark color="tertiary" v-model="form.newPassword" :float-label="$t('label.YourNewPassword')" @blur="$v.form.newPassword.$touch" />
+            <q-input type="password" dark color="white" v-model="form.newPassword" :float-label="$t('label.YourNewPassword')" @blur="$v.form.newPassword.$touch" />
             <div class="q-field-bottom" v-if="$v.form.newPassword.$error">
               <div class="q-field-error" v-if="!$v.form.newPassword.required">{{ $t('label.PleaseEnterYourPassword') }}</div>
               <div class="q-field-error" v-if="!$v.form.newPassword.minLength">{{ $t('label.YourPasswordMustBe6digitsLength') }}</div>
@@ -45,8 +45,8 @@
         </div>
         
         <p class="text-center multiple-btn margin-size-3 q-mt-lg q-mb-xl">
-          <q-btn v-if="step !== 'email'" round color="tertiary" text-color="primary" icon="arrow_back_ios" :loading="submitting" @click="backAction()" />
-          <q-btn round color="tertiary" text-color="primary" icon="arrow_forward_ios" :loading="submitting" type="submit" />
+          <q-btn v-if="step !== 'email'" round color="white" text-color="primary" icon="arrow_back_ios" :loading="submitting" @click="backAction()" />
+          <q-btn round color="white" text-color="primary" icon="arrow_forward_ios" :loading="submitting" type="submit" />
         </p>
         
       </form>

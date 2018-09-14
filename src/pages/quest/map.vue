@@ -35,6 +35,12 @@
                 <q-item-tile sublabel v-if="quest.status == 'unpublished'">
                   {{ $t('label.Unpublished') }}
                 </q-item-tile>
+                <q-item-tile sublabel v-if="quest.status == 'tovalidate'">
+                  {{ $t('label.PublicationRequested') }} ...
+                </q-item-tile>
+                <q-item-tile sublabel v-if="quest.status == 'rejected'" style="color: #f00">
+                  {{ $t('label.PublicationRejected') }}
+                </q-item-tile>
               </q-item-main>
             </q-item>
             <q-item v-if="success.quests.built.length === 0">
@@ -257,10 +263,12 @@
                   </q-item-tile>
                   <q-item-tile sublabel>
                     {{item.creation.date | formatDate}}
-                    - 
-                    <a style="color: #000" v-if="!isLiked(item)" v-on:click="like(index)">{{ $t('label.Like') }}</a>
-                    <a v-if="isLiked(item)" v-on:click="unlike(index)">{{ $t('label.Like') }}</a>
-                    <span v-if="item.likes.length > 0">({{ item.likes.length }})</span>
+                    <span v-if="item.destination === 'friends'">
+                      - 
+                      <a style="color: #000" v-if="!isLiked(item)" v-on:click="like(index)">{{ $t('label.Like') }}</a>
+                      <a v-if="isLiked(item)" v-on:click="unlike(index)">{{ $t('label.Like') }}</a>
+                      <span v-if="item.likes.length > 0">({{ item.likes.length }})</span>
+                    </span>
                   </q-item-tile>
                 </q-item-main>
               </q-item>
@@ -718,59 +726,73 @@ export default {
       } else if (this.showProfile) {
         this.showProfile = false
       } else {
-        this.$q.actionSheet({
-          grid: false,
-          actions: [
-            {
-              label: this.$t('label.CenterOnYourPosition'),
-              icon: 'gps_fixed',
-              color: 'primary',
-              handler: () => {
-                this.findLocation()
-              }
-            },
-            {
-              label: this.$t('label.BuildAQuestHere'),
-              icon: 'add_location',
-              color: 'primary',
-              handler: () => {
-                this.$router.push('/quest/create')
-              }
-            },
-            {}, // separator
-            {
-              label: this.map.filter === 'best' ? this.$t('label.DisplayAllQuests') : this.$t('label.BestQuests'),
-              icon: this.map.filter === 'best' ? 'place' : 'favorite',
-              color: 'primary',
-              handler: () => {
-                if (this.map.filter === 'best') {
-                  this.getQuests('all')
-                } else {
-                  this.getQuests('best')
-                }
-              }
-            },
-            {
-              label: this.map.filter === 'easy' ? this.$t('label.DisplayAllQuests') : this.$t('label.OnlyEasy'),
-              icon: this.map.filter === 'easy' ? 'place' : 'child_care',
-              color: 'primary',
-              handler: () => {
-                if (this.map.filter === 'easy') {
-                  this.getQuests('all')
-                } else {
-                  this.getQuests('easy')
-                }
-              }
-            },
-            {
-              label: this.$t('label.SearchForAQuest'),
-              icon: 'search',
-              color: 'primary',
-              handler: () => {
-                this.openSearch()
+        // define available actions
+        var actions = [
+          {
+            label: this.$t('label.CenterOnYourPosition'),
+            icon: 'gps_fixed',
+            color: 'primary',
+            handler: () => {
+              this.findLocation()
+            }
+          },
+          {
+            label: this.$t('label.BuildAQuestHere'),
+            icon: 'add_location',
+            color: 'primary',
+            handler: () => {
+              this.$router.push('/quest/create')
+            }
+          },
+          {}, // separator
+          {
+            label: this.map.filter === 'best' ? this.$t('label.DisplayAllQuests') : this.$t('label.BestQuests'),
+            icon: this.map.filter === 'best' ? 'place' : 'favorite',
+            color: 'primary',
+            handler: () => {
+              if (this.map.filter === 'best') {
+                this.getQuests('all')
+              } else {
+                this.getQuests('best')
               }
             }
-          ],
+          },
+          {
+            label: this.map.filter === 'easy' ? this.$t('label.DisplayAllQuests') : this.$t('label.OnlyEasy'),
+            icon: this.map.filter === 'easy' ? 'place' : 'child_care',
+            color: 'primary',
+            handler: () => {
+              if (this.map.filter === 'easy') {
+                this.getQuests('all')
+              } else {
+                this.getQuests('easy')
+              }
+            }
+          },
+          {
+            label: this.$t('label.SearchForAQuest'),
+            icon: 'search',
+            color: 'primary',
+            handler: () => {
+              this.openSearch()
+            }
+          }
+        ]
+        // if admin user
+        if (this.$store.state.user.isAdmin) {
+          actions.push({
+            label: this.$t('label.Administrate'),
+            icon: 'settings',
+            color: 'primary',
+            handler: () => {
+              this.openAdminPage()
+            }
+          })
+        }
+        
+        this.$q.actionSheet({
+          grid: false,
+          actions: actions,
           dismiss: {
             label: 'Cancel',
             handler: () => {
@@ -969,6 +991,9 @@ export default {
      */
     Disconnect() {
       this.$router.push('/user/logout')
+    },
+    openAdminPage() {
+      this.$router.push('/admin')
     },
     /*
      * Open How to popup

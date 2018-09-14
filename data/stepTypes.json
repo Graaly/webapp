@@ -114,6 +114,18 @@
   },
   {
     "category": "enigma",
+    "code": "memory",
+    "icon": "clone",
+    "title": "Memory",
+    "description": "MemoryDesc",
+    "showTrick": "no",
+    "textRules": {
+      "maxNbChars": 50,
+      "maxNbCarriageReturns": 1
+    }
+  },
+  {
+    "category": "enigma",
     "code": "find-item",
     "icon": "search",
     "title": "FindAnItem",

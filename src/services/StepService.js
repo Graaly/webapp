@@ -98,6 +98,14 @@ export default {
     return Api().post('/quest/' + questId + '/step/choose-image/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
   },
   /*
+   * upload an "image" (for step 'memory') 
+   * @param   {String}    questId        ID of the quest
+   * @param   {Object}    data           upload data
+   */
+  uploadMemoryImage(questId, data) {
+    return Api().post('/quest/' + questId + '/step/memory/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+  },
+  /*
    * upload an "answer image" (for step 'code-image') 
    * @param   {String}    questId        ID of the quest
    * @param   {Object}    data           upload data

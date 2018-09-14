@@ -192,7 +192,7 @@
       
       <!------------------ JIGSAW STEP AREA ------------------------>
       
-      <div class="puzzle" v-if="step.type == 'jigsaw-puzzle'">
+      <div class="puzzle" v-if="step.type === 'jigsaw-puzzle'">
         <div>
           <p class="text">{{ step.text }}</p>
         </div>
@@ -209,6 +209,22 @@
             ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'"></header></div>
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
+        <div class="resultMessage buttons-bottom" v-show="playerResult === true ">
+          <div class="text right">{{ $t('label.WellDone') }}</div>
+        </div>
+      </div>
+      
+      <!------------------ MEMORY STEP AREA ------------------------>
+      
+      <div class="puzzle" v-if="step.type === 'memory'">
+        <div>
+          <p class="text">{{ step.text }}</p>
+        </div>
+        <ul class="memory" id="card-deck">
+          <li v-for="(item, key) in memory.items" :key="key" class="card" :class="{ open: item.isClicked, show: item.isClicked, disabled: item.isFound }" @click="selectMemoryCard(key)">
+            <img :src="serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
+          </li>
+        </ul>
         <div class="resultMessage buttons-bottom" v-show="playerResult === true ">
           <div class="text right">{{ $t('label.WellDone') }}</div>
         </div>
@@ -398,6 +414,15 @@ export default {
           element: {}
         },
         
+        // for step type 'memory'
+        memory: {
+          items: [],
+          nbTry: 0,
+          score: 0,
+          selectedKey: null,
+          disabled: false
+        },
+        
         // for step type 'find-item'
         itemAdded: null
       }
@@ -479,6 +504,10 @@ export default {
         if (this.step.type === 'jigsaw-puzzle') {
           setTimeout(this.initPuzzle, 1000)
           this.$emit('pass')
+        }
+        
+        if (this.step.type === 'memory') {
+          this.initMemory()
         }
         
         // common process to 'geolocation' and 'locate-item-ar'
@@ -1254,15 +1283,20 @@ export default {
       }
       
       //Shuffle
-      for (i = this.puzzle.pieces.length -1; i > 0; i--) {
-        let j = Math.floor(Math.random() * (i + 1))
-        let k = this.puzzle.pieces[i]
-        this.puzzle.pieces[i] = this.puzzle.pieces[j]
-        this.puzzle.pieces[j] = k
-      }
+      this.puzzle.pieces = this.shuffle(this.puzzle.pieces)
+      
       this.puzzle.picture = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + this.step.options.picture
 
       initJigsaw(this.puzzle.element)
+    },
+    shuffle(array) {
+      for (var i = array.length -1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1))
+        let k = array[i]
+        array[i] = array[j]
+        array[j] = k
+      }
+      return array
     },
     /*
      * Handle puzzle piece move
@@ -1358,6 +1392,48 @@ export default {
             this.checkPuzzle()
           }
         }
+      }
+    },
+    /*
+     * Init the memory game
+     */
+    initMemory() {
+      for (var i = 0; i < 16; i++) {
+        this.memory.items[i] = {imagePath: (i < 8 ? this.step.options[i].imagePath : this.step.options[i-8].imagePath), isClicked: false, isFound: false}
+      }
+      this.memory.items = this.shuffle(this.memory.items)
+    },
+    /*
+     * Handle selection of the memory card
+     * @param   {Number}    key            index of the memory pieces array selected
+     */
+    selectMemoryCard(key) {
+      var _self = this
+      this.memory.items[key].isClicked = true
+      Vue.set(this.memory.items, key, this.memory.items[key])
+      if (this.memory.nbTry >= 1) {
+        if (this.memory.items[this.memory.selectedKey].imagePath === this.memory.items[key].imagePath) {
+          this.memory.score++;
+          if (this.memory.score === 8) {
+            alert("win")
+          } else {
+            _self.memory.items[_self.memory.selectedKey].isFound = true
+            _self.memory.items[key].isFound = true
+            Vue.set(_self.memory.items, _self.memory.selectedKey, _self.memory.items[_self.memory.selectedKey])
+            Vue.set(_self.memory.items, key, _self.memory.items[key])
+          }
+        } else {
+          setTimeout(function() {
+            _self.memory.items[_self.memory.selectedKey].isClicked = false
+            _self.memory.items[key].isClicked = false
+            Vue.set(_self.memory.items, _self.memory.selectedKey, _self.memory.items[_self.memory.selectedKey])
+            Vue.set(_self.memory.items, key, _self.memory.items[key])
+          }, 1500)
+        }
+        this.memory.nbTry = 0
+      } else {
+        this.memory.nbTry++
+        this.memory.selectedKey = key
       }
     },
     
@@ -1489,6 +1565,70 @@ export default {
   .locate-item-ar .target-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
   .locate-item-ar #target-canvas { width: 100%; height: 100%; z-index: 50; }
   
+  /* memory specific */
+  
+  .memory {
+    width: 100%;
+    padding: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    margin: 0 0 3em;
+    list-style-type: none;
+  }
+
+  .memory .card {
+    height: 3.7rem;
+    width: 3.7rem;
+    margin: 0.2rem 0.2rem;
+    background: #141214;
+    color: #ffffff;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 5px 2px 20px 0 rgba(46, 61, 73, 0.5);
+  }
+  .memory .card img {
+    width: 0;
+    height: 0;
+  }
+  .memory .card.open img {
+    transform: rotateY(0);
+    cursor: default;
+    animation-name: flipInY;
+    -webkit-backface-visibility: visible !important;
+    backface-visibility: visible !important;
+    animation-duration: .75s;
+  }
+  .memory .card.show img {
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+  }
+  .memory .card.disabled {
+    pointer-events: none;
+    opacity: 0.9;
+  }
+
+  .memory .card.match {
+    cursor: default;
+    background: #E5F720;
+    font-size: 33px;
+    -webkit-backface-visibility: visible !important;
+    backface-visibility: visible !important;
+    animation-duration: .75s;
+  }
+
+  .memory .card.unmatched {
+    -webkit-backface-visibility: visible !important;
+    backface-visibility: visible !important;
+    animation-duration: .75s;
+    background: #e2043b;
+  }
+
   /* right/wrong styles */
   
   .right, .q-btn.right { color: #0a0; background-color: #cfc; box-shadow: 0px 0px 0.3rem 0.3rem #9f9; }
@@ -1631,6 +1771,32 @@ export default {
     }
   }
   
+  @keyframes flipInY {
+    from {
+      transform: perspective(400px) rotate3d(0, 1, 0, 90deg);
+      animation-timing-function: ease-in;
+      opacity: 0;
+    }
+
+    40% {
+      transform: perspective(400px) rotate3d(0, 1, 0, -20deg);
+      animation-timing-function: ease-in;
+    }
+
+    60% {
+      transform: perspective(400px) rotate3d(0, 1, 0, 10deg);
+      opacity: 1;
+    }
+
+    80% {
+      transform: perspective(400px) rotate3d(0, 1, 0, -5deg);
+    }
+
+    to {
+      transform: perspective(400px);
+    }
+  }
+
   [draggable] {
     user-select: none;
   }

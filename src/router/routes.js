@@ -10,6 +10,8 @@ import QuestManageSettings from 'pages/quest/builder/settings'
 
 import UserLogin from 'pages/user/login'
 import UserLogout from 'pages/user/logout'
+import Admin from 'pages/admin/admin'
+import AdminValidation from 'pages/admin/validation'
 import UserCreateAccount from 'pages/user/createAccount'
 import UserFirstUsage from 'pages/user/firstusage'
 import ErrorMessage from 'pages/errorMessage'
@@ -82,6 +84,16 @@ export default [
       {
         path: 'user/logout',
         component: UserLogout,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'admin',
+        component: Admin,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'admin/validate/:questId(\\w{24})',
+        component: AdminValidation,
         meta: { requiresAuth: true }
       },
       {

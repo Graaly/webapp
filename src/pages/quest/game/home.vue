@@ -285,7 +285,7 @@ export default {
       if (this.isRunStarted || this.isRunFinished) {
         return true
       }
-      if (this.quest.price > this.$store.state.user.coins) {
+      if (this.quest.price > this.$store.state.user.coins && !this.$store.state.user.isAdmin && this.$store.state.user._id !== this.quest.authorUserId) {
         this.isRunPlayable = false
         return false
       }

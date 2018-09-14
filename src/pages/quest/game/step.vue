@@ -185,6 +185,8 @@ export default {
         await this.getQuest(this.quest.id)
         if (this.$store.state.user._id === this.info.quest.authorUserId) {
           return this.$router.push('/quest/settings/' + this.quest.id)
+        } else if (this.$store.state.user.isAdmin) {
+          return this.$router.push('/admin/validate/' + this.quest.id)
         } else {
           return this.$router.push('/quest/' + this.quest.id + '/end')
         }

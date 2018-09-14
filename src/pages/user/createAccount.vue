@@ -63,8 +63,8 @@
         </p>
       
         <p class="text-center multiple-btn margin-size-3 q-mt-lg q-mb-xl">
-          <q-btn v-if="step !== 'firstusage'" round color="tertiary" text-color="primary" icon="arrow_back_ios" :loading="submitting" @click="backAction()" />
-          <q-btn round color="tertiary" text-color="primary" icon="arrow_forward_ios" :loading="submitting" type="submit" />
+          <q-btn v-if="step !== 'firstusage'" round color="white" text-color="primary" icon="arrow_back_ios" :loading="submitting" @click="backAction()" />
+          <q-btn round color="white" text-color="primary" icon="arrow_forward_ios" :loading="submitting" type="submit" />
         </p>
       </form>
     

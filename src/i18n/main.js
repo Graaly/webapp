@@ -23,6 +23,7 @@ module.exports = {
     news: {
       newQuestWon: "Has won the quest <a href='/#/quest/play/{questId}'>{quest}</a>",
       newQuest: "Has created the quest <a href='/#/quest/play/{questId}'>{quest}</a>",
+      questUnderValidation: "Your quest <a href='/#/quest/play/{questId}'>{quest}</a> will be published soon",
       challenge: "You are challenged on quest <a href='/#/quest/play/{questId}'>{quest}</a>"
     },
     stepType: {
@@ -48,6 +49,8 @@ module.exports = {
       PhotographAnObjectDesc: "Compare your picture with a play camera picture",
       JigsawPuzzle: "Jigsaw Puzzle",
       JigsawPuzzleDesc: "Play a jigsaw puzzle based on your picture",
+      Memory: "Memory",
+      MemoryDesc: "Find the similar pictures",
       FindAnItem: "Search in a picture",
       FindAnItemDesc: "Player has to touch a part of your picture",
       UseAnItem: "Use an item",
@@ -435,8 +438,15 @@ module.exports = {
       NoRankingYet: "Your rank is not yet computed, please wait for tomorrow",
       Challenge: "Challenge",
       ChallengeAllFriends: "Challenge all your friends",
-      TypeNameOrAddressOfYourFriends: "Type the email or the name of your friends"
-      
+      TypeNameOrAddressOfYourFriends: "Type the email or the name of your friends",
+      Or: "Or",
+      Select: "Select",
+      Add: "Add",
+      Administrate: "Administration page",
+      QuestUnderValidation: "Your quest will be validated by our game master. This can take days. Please check your mailbox for more information",
+      PublicationRequested: "Publication requested",
+      PublicationRejected: "Publication rejected. You will receive an email to know why",
+      QuestPublicationRejected: "Your quest has not been published. You will receive an email to explain you how to update it to have it published"
     }
   },
   fr: {
@@ -463,6 +473,7 @@ module.exports = {
     news: {
       newQuestWon: "A réussi l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>",
       newQuest: "A créé l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>",
+      questUnderValidation: "Votre enquête <a href='/#/quest/play/{questId}'>{quest}</a> est en cours de validation",
       challenge: "Vous défie sur l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>"
     },
     stepType: {
@@ -488,6 +499,8 @@ module.exports = {
       PhotographAnObjectDesc: "Retrouver et photographier un objet",
       JigsawPuzzle: "Puzzle",
       JigsawPuzzleDesc: "Remettre en place les pièces",
+      Memory: "Memory",
+      MemoryDesc: "Trouver les images similaires",
       FindAnItem: "Rechercher dans une image",
       FindAnItemDesc: "Le joueur doit toucher une zone de l'image",
       UseAnItem: "Utiliser objet",
@@ -870,7 +883,15 @@ module.exports = {
       NoRankingYet: "Votre classement n'est pas encore calculé, veuillez attendre demain",
       Challenge: "Défier",
       ChallengeAllFriends: "Défier tous vos amis",
-      TypeNameOrAddressOfYourFriends: "Taper le nom ou l'adresse email de vos amis"
+      TypeNameOrAddressOfYourFriends: "Taper le nom ou l'email de vos amis",
+      Or: "Ou",
+      Select: "Selectionner",
+      Add: "Ajouter",
+      Administrate: "Administrer l'app",
+      QuestUnderValidation: "Votre enquête va être validée par nos game masters. Cela peut prendre quelques jours. Veuillez vérifier votre boîte mail pour plus d'information",
+      PublicationRequested: "En cours de validation",
+      PublicationRejected: "Publication rejectée. Cliquez ici pour savoir pourquoi",
+      QuestPublicationRejected: "Votre enquête n'a pas été publiée. Vous allez recevoir un email vous expliquant comment l'améliorer pour permettre sa publication"
     }
   }
 }

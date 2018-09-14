@@ -161,8 +161,19 @@ var self = {
        arr.push(i);
     }
     return arr;
-  }
+  },
   
+  /**
+   * Checks if an email address is valid
+   * @param   {String}    email       email
+   */
+  isValidEmail: function (email) {
+    var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+    if (email && re.test(email)) {
+        return true
+    }
+    return false
+  }
 }
 
 export default self
