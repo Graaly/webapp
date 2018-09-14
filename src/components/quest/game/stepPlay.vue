@@ -314,6 +314,7 @@ import Vue from 'vue'
 
 // required for step 'locate-item-ar'
 import * as THREE from 'three'
+import * as TWEEN from '@tweenjs/tween.js'
 
 export default {
   /*
@@ -377,7 +378,7 @@ export default {
           direction: null,
           // location
           locationWatcher: null,
-          watchLocationInterval: 2000, // ms
+          watchLocationInterval: 1000, // ms
           // direction
           rawDirection: null,
           alpha: null,
@@ -1121,9 +1122,17 @@ export default {
       if (this.step.type === 'locate-item-ar' && this.geolocation.target.scene !== null) {
         let scene = this.geolocation.target.scene
         let plane = scene.getObjectByName('targetPlane')
-        plane.position.y = this.geolocation.distance
+        // smooth distance change
+        new TWEEN.Tween(plane.position)
+          .to({ y: this.geolocation.distance }, this.geolocation.watchLocationInterval)
+          .easing(TWEEN.Easing.Sinusoidal.InOut)
+          .start()
+        // smooth camera direction change
         let pivotPoint = scene.getObjectByName('planePivotPoint')
-        pivotPoint.rotation.z = -utils.degreesToRadians(this.geolocation.rawDirection)
+        new TWEEN.Tween(pivotPoint.rotation)
+          .to({ z: -utils.degreesToRadians(this.geolocation.rawDirection) }, this.geolocation.watchLocationInterval)
+          .easing(TWEEN.Easing.Sinusoidal.InOut)
+          .start()
         // tell player to touch object + detect touch as soon as device is below a certain distance from the object coordinates
         if (!this.geolocation.canTouch && this.geolocation.distance <= 10) {
           this.geolocation.canTouch = true
@@ -1388,6 +1397,7 @@ export default {
       requestAnimationFrame(this.animateTargetCanvas)
       let target = this.geolocation.target
       target.renderer.render(target.scene, target.camera)
+      TWEEN.update()
     },
     /*
     * when reading a new value from AbsoluteOrientationSensor, update camera rotation so it matches device orientation
