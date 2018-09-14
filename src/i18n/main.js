@@ -446,7 +446,8 @@ module.exports = {
       QuestUnderValidation: "Your quest will be validated by our game master. This can take days. Please check your mailbox for more information",
       PublicationRequested: "Publication requested",
       PublicationRejected: "Publication rejected. You will receive an email to know why",
-      QuestPublicationRejected: "Your quest has not been published. You will receive an email to explain you how to update it to have it published"
+      QuestPublicationRejected: "Your quest has not been published. You will receive an email to explain you how to update it to have it published",
+      TouchTheObject: "Touch the object"
     }
   },
   fr: {
@@ -892,6 +893,7 @@ module.exports = {
       PublicationRequested: "En cours de validation",
       PublicationRejected: "Publication rejectée. Cliquez ici pour savoir pourquoi",
       QuestPublicationRejected: "Votre enquête n'a pas été publiée. Vous allez recevoir un email vous expliquant comment l'améliorer pour permettre sa publication"
+      TouchTheObject: "Touchez l'objet"
     }
   }
 }

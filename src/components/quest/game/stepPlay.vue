@@ -157,7 +157,7 @@
       <div class="geolocation" v-if="step.type == 'geolocation'">
         <div>
           <p class="text">{{ step.text }}</p>
-          <p class="text" v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: geolocation.distance }) }}</p>
+          <p class="text" v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
           <!--
           <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
           <p class="text">Alpha: {{ Math.round(geolocation.alpha) }}°</p>
@@ -294,7 +294,8 @@
         <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && !playerResult"></video>
         <div v-show="!playerResult">
           <p class="text">{{ step.text }}</p>
-          <p class="text">{{ $t('label.DistanceInMeters', { distance: geolocation.distance }) }}</p>
+          <p class="text">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+          <p class="text" v-if="this.geolocation.canTouch">{{ $t('label.TouchTheObject') }}</p>
           <!--
           <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
           <p class="text">Alpha: {{ Math.round(geolocation.alpha) }}°</p>
@@ -304,7 +305,7 @@
           -->
         </div>
         <div class="target-view" v-show="!playerResult">
-          <canvas id="target-canvas"></canvas>
+          <canvas id="target-canvas" @click="onTargetCanvasClick"></canvas>
         </div>
         <div class="resultMessage" v-show="playerResult">
           <div class="text right">{{ $t('label.YouHaveWinANewItem') }}</div>
@@ -329,6 +330,7 @@ import Vue from 'vue'
 
 // required for step 'locate-item-ar'
 import * as THREE from 'three'
+import * as TWEEN from '@tweenjs/tween.js'
 
 export default {
   /*
@@ -392,13 +394,16 @@ export default {
           direction: null,
           // location
           locationWatcher: null,
-          watchLocationInterval: 2000, // ms
+          watchLocationInterval: 1000, // ms
           // direction
-          currentBearing: null, // current direction compared to north
           rawDirection: null,
           alpha: null,
           beta: null,
-          gamma: null
+          gamma: null,
+          // for 'locate-item-ar'
+          absoluteOrientationSensor: null, 
+          target: null,
+          canTouch: false
         },
         
         // for step type 'write-text'
@@ -431,13 +436,7 @@ export default {
      * Init the component data
      */
     initData () {
-      Object.assign(this.$data, this.initialState());
-      /*
-      // TODO : manage non continuous path quests
-      this.step.nextNumber = this.step.number + 1
-      */
-      // refresh current run Id in store (step "end" uses it)
-      // this.$store.dispatch('setCurrentRun', this.run)
+      //Object.assign(this.$data, this.initialState());
       
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
@@ -518,9 +517,7 @@ export default {
           if ('ondeviceorientationabsolute' in window) {
             // chrome specific, see https://developers.google.com/web/updates/2016/03/device-orientation-changes
             window.addEventListener('deviceorientationabsolute', this.handleOrientation)
-          } else if ('ondeviceorientation' in window) {
-            window.addEventListener('deviceorientation', this.handleOrientation)
-          } else {
+          }  else {
             // TODO friendly behavior/message for user
             console.warn("No absolute orientation info is available")
           }
@@ -566,6 +563,16 @@ export default {
               console.log(err)
             });
           
+          // start absolute orientation sensor
+          // ---------------------------------
+          // (this is different from 'deviceorientationabsolute' listener whose values are not
+          // reliable when device is held vertically)
+          let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
+          sensor.onerror = event => console.log(event.error.name, event.error.message)
+          sensor.onreading = this.onAbsoluteOrientationSensorReading
+          sensor.start()
+          this.geolocation.absoluteOrientationSensor = sensor
+          
           // render 3d target object
           // -----------------------
           let sceneCanvas = document.getElementById("target-canvas")
@@ -575,21 +582,45 @@ export default {
                     
           this.geolocation.target = {
             scene: new THREE.Scene(),
-            camera: new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000),
+            camera: new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000),
             renderer: new THREE.WebGLRenderer({ canvas: sceneCanvas, alpha: true })
           }
           
           this.geolocation.target.renderer.setSize(window.innerWidth, window.innerHeight)
           
-          // add a plane moving around the player, with the uploaded picture as texture
-          let geometry = new THREE.PlaneGeometry(1, 1)
+          let scene = this.geolocation.target.scene
+          
+          this.geolocation.target.camera.position.z = 1.5
+          
+          // --- LIGHT ---
+          
+          // create a point light
+          const pointLight =
+            new THREE.PointLight(0xFFFFFF);
+
+          // set its position
+          pointLight.position.x = 10;
+          pointLight.position.y = 10;
+          pointLight.position.z = 10;
+
+          // add to the scene
+          scene.add(pointLight);
+          
+          // add a plane with the uploaded picture as texture
+          // then the camera will follow the device movements to show the plane "at the right place" & distance
+          let geometry = new THREE.PlaneGeometry(0.4, 0.4)
           let texture = new THREE.TextureLoader().load(itemImage)
           let material = new THREE.MeshBasicMaterial({map: texture})
           let plane = new THREE.Mesh(geometry, material)
           plane.name = "targetPlane"
           plane.rotation.x = Math.PI / 2
           plane.position.y = 0
-          this.geolocation.target.scene.add(plane)
+          scene.add(plane)
+          
+          let pivotPoint = new THREE.Object3D()
+          pivotPoint.name = "planePivotPoint"
+          pivotPoint.add(plane)
+          scene.add(pivotPoint)
           
           // default camera direction => look at positive y axis from origin
           this.geolocation.target.camera.lookAt(new THREE.Vector3(0, 1, 0))
@@ -811,15 +842,6 @@ export default {
       this.playerResult = false
       this.$emit('fail')
       this.$emit('played')
-    },
-    // TODO : to remove ?
-    getRightAnswerKey() {
-      for (let i = 0; i < this.step.answers.length; i++) {
-        if (this.step.answers[i].isRightAnswer) {
-          return i
-        }
-      }
-      throw new Error('No right answer found')
     },
     
     ////////////////////////////////////////////// MANAGEMENT OF THE ENIGMA COMPONENTS /////////////////////////////////////////////
@@ -1046,7 +1068,7 @@ export default {
       // Chrome support only
       // TODO Support Safari/iOS using property webkitCompassHeading, see
       this.geolocation.alpha = (360 - event.alpha)
-      this.geolocation.direction = Math.round((this.geolocation.rawDirection - this.geolocation.alpha + 360) % 360)
+      this.geolocation.direction = (this.geolocation.rawDirection - this.geolocation.alpha + 360) % 360
       this.geolocation.beta = event.beta
       this.geolocation.gamma = event.gamma
     },
@@ -1122,28 +1144,35 @@ export default {
       let target = this.step.options
       
       // compute distance between two coordinates
-      this.geolocation.distance = Math.round(utils.distanceInKmBetweenEarthCoordinates(target.lat, target.lng, current.latitude, current.longitude) * 1000, 2) // meters
+      this.geolocation.distance = utils.distanceInKmBetweenEarthCoordinates(target.lat, target.lng, current.latitude, current.longitude) * 1000 // meters
+      
+      this.geolocation.rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, target.lat, target.lng)
       
       if (this.step.type === 'locate-item-ar' && this.geolocation.target.scene !== null) {
-        let plane = this.geolocation.target.scene.getObjectByName('targetPlane')
-        plane.position.y = this.geolocation.distance
+        let scene = this.geolocation.target.scene
+        let plane = scene.getObjectByName('targetPlane')
+        // smooth distance change
+        new TWEEN.Tween(plane.position)
+          .to({ y: this.geolocation.distance }, this.geolocation.watchLocationInterval)
+          .easing(TWEEN.Easing.Sinusoidal.InOut)
+          .start()
+        // smooth camera direction change
+        let pivotPoint = scene.getObjectByName('planePivotPoint')
+        new TWEEN.Tween(pivotPoint.rotation)
+          .to({ z: -utils.degreesToRadians(this.geolocation.rawDirection) }, this.geolocation.watchLocationInterval)
+          .easing(TWEEN.Easing.Sinusoidal.InOut)
+          .start()
+        // tell player to touch object + detect touch as soon as device is below a certain distance from the object coordinates
+        if (!this.geolocation.canTouch && this.geolocation.distance <= 10) {
+          this.geolocation.canTouch = true
+        }
       }
       
-      // TODO no hardcoding
-      let distanceSolved = {
-        'geolocation': 20,
-        'locate-item-ar': 5
-      }
-      if (this.geolocation.distance <= distanceSolved[this.step.type]) {
-        navigator.geolocation.clearWatch(this.geolocation.locationWatcher);
-        // stop camera streams
-        this.stopVideoTracks('camera-stream-for-locate-item-ar')
+      // TODO no hardcoding + maybe store "success distance" on server side for security
+      if (this.step.type === 'geolocation' && this.geolocation.distance <= 20) {
+        navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
         await this.checkAnswer(current)
       }
-      
-      this.geolocation.currentBearing = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, target.lat, target.lng)
-      
-      this.geolocation.rawDirection = this.geolocation.currentBearing
     },
     /*
      * Use an item
@@ -1443,12 +1472,42 @@ export default {
     animateTargetCanvas() {
       requestAnimationFrame(this.animateTargetCanvas)
       let target = this.geolocation.target
-      
-      let camera = target.camera
-      camera.rotation.y = utils.degreesToRadians(this.geolocation.direction)
-      camera.rotation.x = utils.degreesToRadians(this.geolocation.beta)
-      
       target.renderer.render(target.scene, target.camera)
+      TWEEN.update()
+    },
+    /*
+    * when reading a new value from AbsoluteOrientationSensor, update camera rotation so it matches device orientation
+    */
+    onAbsoluteOrientationSensorReading() {
+      let camera = this.geolocation.target.camera
+      camera.quaternion.fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
+    },
+    /*
+    * Detect object touch
+    */
+    onTargetCanvasClick(event) {
+      event.preventDefault()
+      
+      let target = this.geolocation.target
+      let plane = target.scene.getObjectByName('targetPlane')
+      
+      let touchPos = new THREE.Vector2()
+      touchPos.x = (event.clientX / target.renderer.domElement.clientWidth) * 2 - 1
+      touchPos.y = -(event.clientY / target.renderer.domElement.clientHeight) * 2 + 1
+      
+      let raycaster = new THREE.Raycaster()
+      
+      raycaster.setFromCamera(touchPos, target.camera)
+      
+      let intersects = raycaster.intersectObject(plane)
+      
+      if (intersects.length > 0 && this.geolocation.canTouch) {
+        // stop location watching
+        navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
+        // stop camera streams
+        this.stopVideoTracks('camera-stream-for-locate-item-ar')
+        this.checkAnswer()
+      }
     }
   }
 }
@@ -1564,6 +1623,7 @@ export default {
   .locate-item-ar video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .locate-item-ar .target-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
   .locate-item-ar #target-canvas { width: 100%; height: 100%; z-index: 50; }
+  .locate-item-ar .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
   
   /* memory specific */
   
