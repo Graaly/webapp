@@ -757,6 +757,14 @@ export default {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           }
           break
+          
+        case 'memory':
+          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {})
+          
+          if (checkAnswerResult.result === true) {
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+          }
+          break
         
         case 'write-text':
           checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: this.writetext.playerAnswer})
@@ -1427,24 +1435,32 @@ export default {
      * Init the memory game
      */
     initMemory() {
-      for (var i = 0; i < 16; i++) {
-        this.memory.items[i] = {imagePath: (i < 8 ? this.step.options[i].imagePath : this.step.options[i-8].imagePath), isClicked: false, isFound: false}
+      var items = []
+      for (var i = 0; i < (this.step.options.length * 2); i++) {
+        items[i] = {imagePath: (i < this.step.options.length ? this.step.options[i].imagePath : this.step.options[i - this.step.options.length].imagePath), isClicked: false, isFound: false}
       }
-      this.memory.items = this.shuffle(this.memory.items)
+      
+      this.memory.items = this.shuffle(items)
     },
     /*
      * Handle selection of the memory card
      * @param   {Number}    key            index of the memory pieces array selected
      */
     selectMemoryCard(key) {
+      if (this.memory.disabled) {
+        return
+      }
+      if (this.memory.nbTry >= 1 && key === this.memory.selectedKey) {
+        return
+      }
       var _self = this
       this.memory.items[key].isClicked = true
       Vue.set(this.memory.items, key, this.memory.items[key])
       if (this.memory.nbTry >= 1) {
         if (this.memory.items[this.memory.selectedKey].imagePath === this.memory.items[key].imagePath) {
           this.memory.score++;
-          if (this.memory.score === 8) {
-            alert("win")
+          if (this.memory.score === this.step.options.length) { 
+            this.checkAnswer(true)
           } else {
             _self.memory.items[_self.memory.selectedKey].isFound = true
             _self.memory.items[key].isFound = true
@@ -1452,11 +1468,13 @@ export default {
             Vue.set(_self.memory.items, key, _self.memory.items[key])
           }
         } else {
+          this.memory.disabled = true
           setTimeout(function() {
             _self.memory.items[_self.memory.selectedKey].isClicked = false
             _self.memory.items[key].isClicked = false
             Vue.set(_self.memory.items, _self.memory.selectedKey, _self.memory.items[_self.memory.selectedKey])
             Vue.set(_self.memory.items, key, _self.memory.items[key])
+            _self.memory.disabled = false
           }, 1500)
         }
         this.memory.nbTry = 0

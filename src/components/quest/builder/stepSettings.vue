@@ -260,6 +260,9 @@
           <q-icon name="clear" />
         </q-btn>
       </div>
+      <q-btn @click="addAnswer()" class="full-width add-answer">
+        {{ $t('label.AddAnAnswer') }}
+      </q-btn>
     </div>
     
     <!------------------ STEP : USE INVENTORY ITEM ------------------------>
@@ -600,6 +603,8 @@ export default {
         } else {
           this.answerType = this.selectedStep.form.options[0].hasOwnProperty('imagePath') && this.selectedStep.form.options[0].imagePath !== null ? 'image' : 'text'
         }
+        this.minNbAnswers = 2
+        this.maxNbAnswers = 6
       } else if (this.options.code === 'code-color') {
         if (this.selectedStep.form.answers && this.selectedStep.form.answers.indexOf('|') !== -1) {
           this.unformatedAnswer = this.selectedStep.form.answers.split("|")
@@ -665,6 +670,8 @@ export default {
             this.selectedStep.form.options.push({ imagePath: null })
           }
         }
+        this.minNbAnswers = 3
+        this.maxNbAnswers = 12
       } else if (this.options.code === 'locate-item-ar') {
         this.selectedStep.form.options = {}
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {

@@ -892,7 +892,7 @@ module.exports = {
       QuestUnderValidation: "Votre enquête va être validée par nos game masters. Cela peut prendre quelques jours. Veuillez vérifier votre boîte mail pour plus d'information",
       PublicationRequested: "En cours de validation",
       PublicationRejected: "Publication rejectée. Cliquez ici pour savoir pourquoi",
-      QuestPublicationRejected: "Votre enquête n'a pas été publiée. Vous allez recevoir un email vous expliquant comment l'améliorer pour permettre sa publication"
+      QuestPublicationRejected: "Votre enquête n'a pas été publiée. Vous allez recevoir un email vous expliquant comment l'améliorer pour permettre sa publication",
       TouchTheObject: "Touchez l'objet"
     }
   }
