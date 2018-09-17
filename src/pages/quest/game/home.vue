@@ -11,17 +11,18 @@
               {{getLanguage() ? quest.title[getLanguage()] : $t('label.NoTitle') }}
               <img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'/statics/icons/game/flag-' + getLanguage() + '.png'" />
             </p>
-            <p>
-              <span class="q-ml-sm q-mr-sm" v-show="!isRunFinished && quest.availablePoints && quest.availablePoints > 0"><q-icon color="green" name="add_circle" />{{ quest.availablePoints }} <q-icon name="fas fa-trophy" /></span>
-              <span class="q-ml-sm q-mr-sm" v-show="!isRunFinished && quest.reward && quest.reward > 0"><q-icon color="green" name="add_circle" />{{ quest.reward }} <q-icon name="fas fa-coins" /></span>
-              <span class="q-ml-sm q-mr-sm" v-show="!isRunFinished && quest.price && quest.price > 0" :style="isRunPlayable ? '' : 'color: #f00'"><q-icon color="red" name="remove_circle" />{{ quest.price }} <q-icon name="fas fa-coins" /></span>
+            <p class="medium-icon q-pa-none q-ma-none">
+              <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || isOwner || isAdmin) && quest.availablePoints && quest.availablePoints > 0">{{ quest.availablePoints }} <q-icon name="fas fa-trophy" /></span>
+              <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || isOwner || isAdmin) && quest.availablePoints && quest.availablePoints > 0">0 <q-icon name="fas fa-trophy" /></span>
+              <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || isOwner || isAdmin) && quest.reward && quest.reward > 0">{{ quest.reward }} <q-icon name="fas fa-coins" /></span>
+              <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || isOwner || isAdmin) && quest.reward && quest.reward > 0">0 <q-icon name="fas fa-coins" /></span>
             </p>
             <p v-if="quest.rating">
               <q-rating readonly :value="quest.rating && quest.rating.rounded" color="white" :max="5" size="1.2rem" />
             </p> &nbsp;
             <div class="text-center">
               <p>
-                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">{{ $t('label.SolveThisQuest') }}</q-btn>
+                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && (isOwner || isAdmin || isRunStarted || isRunFinished) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">{{ $t('label.SolveThisQuest') }}</q-btn>
                 <q-btn-dropdown v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
                   <q-list link>
                     <q-item 
@@ -38,7 +39,11 @@
                     </q-item>
                   </q-list>
                 </q-btn-dropdown>
-                <q-btn v-if="!isRunPlayable" @click="buyCoins()" color="primary">{{ $t('label.BuyCoinsToPlay') }}</q-btn>
+                <button class="q-btn q-btn-item q-btn-rectange bg-primary" v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && !(isOwner || isAdmin || isRunStarted || isRunFinished) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">
+                  {{ $t('label.SolveThisQuest') }}<br />
+                  {{ quest.price }} <q-icon name="fas fa-coins" />
+                </button>
+                <q-btn v-if="!isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary">{{ $t('label.BuyCoinsToPlay') }}</q-btn>
                 <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary">{{ $t('label.GetCloserToStartingPoint') }}</q-btn>
               </p>
             </div>
@@ -150,6 +155,8 @@ export default {
       isRunFinished: false,
       isRunStarted: false,
       isRunPlayable: true,
+      isOwner: false,
+      isAdmin: false,
       geolocationIsSupported: navigator.geolocation,
       isUserTooFar: false,
       scrolled: false
@@ -187,6 +194,14 @@ export default {
     
     // get user runs for this quest
     await this.getRun()
+    
+    // check user access rights
+    if (this.$store.state.user.isAdmin) {
+      this.isAdmin = true
+    }
+    if (this.$store.state.user._id === this.quest.authorUserId) {
+      this.isOwner = true
+    }
     
     // check if user can play this quest
     await this.checkUserCanPlay()
@@ -285,7 +300,7 @@ export default {
       if (this.isRunStarted || this.isRunFinished) {
         return true
       }
-      if (this.quest.price > this.$store.state.user.coins && !this.$store.state.user.isAdmin && this.$store.state.user._id !== this.quest.authorUserId) {
+      if (this.quest.price > this.$store.state.user.coins && !this.isAdmin && !this.isOwner) {
         this.isRunPlayable = false
         return false
       }

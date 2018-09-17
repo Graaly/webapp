@@ -427,17 +427,18 @@
     <div class="menu-background"></div>
     <div class="menu row" v-touch-swipe.horizontal="swipeMenu">
       <div class="col centered" @click="openSuccessPage()">
-        <img src="statics/icons/game/menu-quest.png" />
+        <q-btn icon="fingerprint" round color="primary" />
       </div>
       <div class="col centered" @click="openSearchOptions()">
         <img src="statics/icons/game/menu-main.png" />
       </div>
       <div class="col centered" @click="openProfilePage()">
-        <div class="mid-avatar">
+        <q-btn icon="group" round color="primary" />
+        <!--<div class="mid-avatar">
           <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
           <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
           <div v-if="!$store.state.user.picture" :style="'background-image: url(/statics/icons/game/profile-small.png);background-color: #fff;'"></div>
-        </div>
+        </div>-->
       </div>
     </div>   
   </div>
