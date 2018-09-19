@@ -18,7 +18,7 @@
         
           <!------------------ ADD A QUEST BUTTON AREA ------------------------>
             
-          <q-btn link class="full-width" @click="$router.push('/quest/create/welcome')" color="primary">{{ $t('label.CreateANewQuest') }}</q-btn>
+          <q-btn link class="full-width" @click="$router.push('/quest/create/welcome')" color="tertiary">{{ $t('label.CreateANewQuest') }}</q-btn>
           
           <!------------------ LIST OF QUESTS BUILT AREA ------------------------>
           

@@ -5,8 +5,9 @@
       <!------------------ TABS AREA ------------------------>
       
       <q-tabs two-lines>
-        <q-tab slot="title" name="validation" icon="star" label="Quests validation" default />
-        <q-tab slot="title" name="rejected" icon="star" label="Quests rejected" />
+        <q-tab slot="title" name="validation" icon="check_box" label="Quests validation" default />
+        <q-tab slot="title" name="rejected" icon="sentiment_very_dissatisfied" label="Quests rejected" />
+        <q-tab slot="title" name="minigames" icon="child_friendly" label="Mini games" />
       
         <!------------------ LIST OF QUESTS TO VALIDATE TAB ------------------------>
         
@@ -61,6 +62,34 @@
             </q-item>
           </q-list>
         </q-tab-pane>
+        <!------------------ MINI GAMES TAB ------------------------>
+        
+        <q-tab-pane name="minigames">
+          
+          <q-btn link class="full-width" @click="$router.push('/admin/minigames/builder')" color="tertiary">{{ $t('label.AddATown') }}</q-btn>
+          
+          <q-list highlight>
+            <q-item v-for="town in towns.items" :key="town._id">
+              <q-item-main>
+                <q-item-tile label>{{ town.name }} ({{ town.zipcode }})</q-item-tile>
+                <q-item-tile sublabel >
+                  {{ town.country }}
+                </q-item-tile>
+              </q-item-main>
+              <q-item-side v-if="town.status === 'new'" >
+                <q-btn>Configure</q-btn>
+              </q-item-side>
+              <q-item-side v-if="town.status === 'configured'" >
+                <q-btn>Update</q-btn>
+              </q-item-side>
+            </q-item>
+            <q-item v-if="towns.items.length === 0">
+              <q-item-main>
+                <q-item-tile label>No town configured yet</q-item-tile>
+              </q-item-main>
+            </q-item>
+          </q-list>
+        </q-tab-pane>
         
       </q-tabs>
       
@@ -80,12 +109,16 @@ export default {
       questsRejected: {
         items: []
       },
+      towns: {
+        items: []
+      },
       serverUrl: process.env.SERVER_URL
     })
   },
   mounted () {
     this.loadQuestsToValidate()
     this.loadQuestsRejected()
+    this.loadTowns()
   },
   methods: {
     /*
@@ -95,6 +128,14 @@ export default {
       // get quests to validate
       let response = await AdminService.ListQuestsToValidate()
       this.questsToValidate.items = response.data.quests
+    },
+    /*
+     * List the towns
+     */
+    async loadTowns() {
+      // get quests to validate
+      let response = await AdminService.ListTowns()
+      this.towns.items = response.data.towns
     },
     /*
      * List quests rejected

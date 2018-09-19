@@ -325,20 +325,31 @@ export default {
       if (this.hint.isOpened) {
         this.closeAllPanels()
       } else {
-        this.$q.dialog({
-          message: this.$t('label.ConfirmHint'),
-          ok: this.$t('label.Ok'),
-          cancel: this.$t('label.Cancel')
-        }).then(async () => {
-          let hintLabel = await RunService.getHint(this.run._id, this.step._id)
+        // display confirmation box only if no infinite hints bonus
+        if (this.$store.state.user.bonus && this.$store.state.user.bonus.name && this.$store.state.user.bonus.name === 'infinitehint') {
+          await this.getHint()
+        } else {
+          this.$q.dialog({
+            message: this.$t('label.ConfirmHint'),
+            ok: this.$t('label.Ok'),
+            cancel: this.$t('label.Cancel')
+          }).then(async () => {
+            await this.getHint()
+          })
+        }
+      }
+    },
+    /*
+     * Get the hint and display
+     */
+    async getHint() {
+      let hintLabel = await RunService.getHint(this.run._id, this.step._id)
 
-          if (hintLabel && hintLabel.hint) {
-            this.hint.label = hintLabel.hint
-            this.closeAllPanels()
-            this.hint.isOpened = true
-            this.footer.tabSelected = 'hint'
-          }
-        })
+      if (hintLabel && hintLabel.hint) {
+        this.hint.label = hintLabel.hint
+        this.closeAllPanels()
+        this.hint.isOpened = true
+        this.footer.tabSelected = 'hint'
       }
     },
     closeAllPanels() {

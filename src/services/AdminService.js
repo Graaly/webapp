@@ -15,6 +15,12 @@ export default {
     return Api().get('admin/quests/rejected')
   },
   /*
+   * List the towns
+   */
+  ListTowns () {
+    return Api().get('admin/towns')
+  },
+  /*
    * Validate a quest
    */
   publish (id) {

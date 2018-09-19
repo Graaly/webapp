@@ -26,6 +26,16 @@ module.exports = {
       questUnderValidation: "Your quest <a href='/#/quest/play/{questId}'>{quest}</a> will be published soon",
       challenge: "You are challenged on quest <a href='/#/quest/play/{questId}'>{quest}</a>"
     },
+    bonus: {
+      scorex2: "Score x 2",
+      scorex2Desc: "The score of the quests you run during the next 3 days is doubled",
+      infinitehint: "Unlimited hints",
+      infinitehintDesc: "You have unlimited hints in quests during 1 day",
+      '100coins': "100 coins",
+      '100coinsDesc': "You win 100 extra coins",
+      '10coins': "10 coins",
+      '10coinsDesc': "You win 10 extra coins"
+    },
     stepType: {
       ImageAndText: "Picture & text",
       ImageAndTextDesc: "A background image and some text",
@@ -447,7 +457,9 @@ module.exports = {
       PublicationRequested: "Publication requested",
       PublicationRejected: "Publication rejected. You will receive an email to know why",
       QuestPublicationRejected: "Your quest has not been published. You will receive an email to explain you how to update it to have it published",
-      TouchTheObject: "Touch the object"
+      TouchTheObject: "Touch the object",
+      YouWonABonus: "You won a bonus",
+      AddATown: "Add a town"
     }
   },
   fr: {
@@ -476,6 +488,16 @@ module.exports = {
       newQuest: "A créé l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>",
       questUnderValidation: "Votre enquête <a href='/#/quest/play/{questId}'>{quest}</a> est en cours de validation",
       challenge: "Vous défie sur l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>"
+    },
+    bonus: {
+      scorex2: "Score x 2",
+      scorex2Desc: "Vous doublez le score de vos enquêtes durant 3 jours",
+      infinitehint: "Indices illimités",
+      infinitehintDesc: "Vous bénéficiez d'indices infinis durant l jour",
+      '100coins': "100 pièces",
+      '100coinsDesc': "Vous gagnez 100 pièces bonus",
+      '10coins': "10 pièces",
+      '10coinsDesc': "Vous gagnez 10 pièces bonus"
     },
     stepType: {
       ImageAndText: "Image et Texte",
@@ -893,7 +915,9 @@ module.exports = {
       PublicationRequested: "En cours de validation",
       PublicationRejected: "Publication rejectée. Cliquez ici pour savoir pourquoi",
       QuestPublicationRejected: "Votre enquête n'a pas été publiée. Vous allez recevoir un email vous expliquant comment l'améliorer pour permettre sa publication",
-      TouchTheObject: "Touchez l'objet"
+      TouchTheObject: "Touchez l'objet",
+      YouWonABonus: "Vous avez gagné un bonus",
+      AddATown: "Ajouter une ville"
     }
   }
 }

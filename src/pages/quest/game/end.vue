@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="dark-background">
-    
+      
       <!------------------ TITLE AREA ------------------------>
       
       <div class="centered" v-show="run.score > 0 || run.reward > 0">    
@@ -137,6 +137,32 @@
       </div>
     </transition>
     
+     <!--====================== BONUS PAGE =================================-->
+    
+    <transition name="slideInBottom">
+      <div class="panel-bottom q-pa-md" v-show="showBonus">      
+        <a class="float-right no-underline" color="grey" @click="closeBonus"><q-icon name="close" class="medium-icon" /></a>
+        <h1 class="size-3 q-pl-md">{{ $t('label.YouWonABonus') }}</h1>
+        <div class="q-pa-md">
+          <q-card inline class="q-ma-sm">
+            <q-card-media>
+              <img :src="'/statics/icons/game/bonus_' + run.bonus + '.png'">
+            </q-card-media>
+            <q-card-title>
+              {{ $t('bonus.' + run.bonus) }}
+            </q-card-title>
+            <q-card-main>
+              {{ $t('bonus.' + run.bonus + 'Desc') }}
+            </q-card-main>
+          </q-card>
+        </div>
+      </div>
+    </transition>
+    
+    <!--====================== WIN COINS ANIMATION =================================-->
+      
+    <div v-if="level.upgraded" class="fadein-message">+100 <q-icon color="white" name="fas fa-coins" /></div>
+        
   </div>
 </template>
 
@@ -159,7 +185,8 @@ export default {
       },
       score: {},
       level: {
-        color: "white"
+        color: "white",
+        upgraded: false
       }, 
       run: {
         score: 0
@@ -173,6 +200,7 @@ export default {
       questId: this.$route.params.questId,
       awardPoints: true,
       showChallenge: false,
+      showBonus: false,
       serverUrl: process.env.SERVER_URL
     }
   },
@@ -204,6 +232,10 @@ export default {
       // assign computed score
       this.run.score = endStatus.data.score
       this.run.reward = endStatus.data.reward
+      if (endStatus.data.newBonus && endStatus.data.newBonus !== '') {
+        this.run.bonus = endStatus.data.newBonus
+        this.showBonus = true
+      }
     }
     
     // get user new score
@@ -234,16 +266,22 @@ export default {
      * Update your score & level
      */
     async updateProgression() {
-      var newLevel = LevelCompute(this.score.new)
-      // check if the user will move to a new level
-      if (newLevel.level > this.level.level) {
-        this.level.progress = 100
-        this.$store.state.user.level = newLevel.level
-        this.level = newLevel
-        this.level.progress = 10
+      // delay animation if a modal is opened
+      if (this.ranking.show || this.showChallenge || this.showBonus) {
+        setTimeout(this.updateProgression, 2000)
       } else {
-        // get your updated score
-        this.level = newLevel
+        var newLevel = LevelCompute(this.score.new)
+        // check if the user will move to a new level
+        if (newLevel.level > this.level.level) {
+          this.level.progress = 100
+          this.$store.state.user.level = newLevel.level
+          this.level = newLevel
+          this.level.progress = 10
+          this.level.upgraded = true
+        } else {
+          // get your updated score
+          this.level = newLevel
+        }
       }
     },
     /*
@@ -391,6 +429,12 @@ export default {
      */
     async challengeAll() {
       await UserService.challengeFriend('all', this.run._id)
+    },
+    /*
+     * Close the bonus modal
+     */
+    async closeBonus() {
+      this.showBonus = false
     }
     /*
      * Search a friend

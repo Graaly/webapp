@@ -314,6 +314,9 @@
       </div>
       
     </div>
+    
+    <!--====================== WIN POINTS ANIMATION =================================-->
+    
     <div v-show="playerResult === true && score > 0" class="fadein-message">+{{ score }} <q-icon color="white" name="fas fa-trophy" /></div>
   </div>
   
@@ -1754,127 +1757,6 @@ export default {
   .inventory-btn { position: fixed; bottom: 60px; left: 0.7rem; z-index: 1; color: #fff; }
   .inventory-btn img { width: 100%; height: 100%; border-radius: 50%; }
   
-  /* transitions / animations */
-  
-  .slideInBottom-enter-active, .slideInBottom-leave-active {
-    transition: all .3s ease;
-  }
-  .slideInBottom-enter, .slideInBottom-leave-to {
-    transform: translateY(100vh);
-    opacity: 0;
-  }
-  
-  .fadein-message {
-    position: absolute;
-    z-index: 0;
-    top: 30%;
-    width: 100%;
-    height: 0;
-    overflow: hidden;
-    margin: auto;
-    text-align: center;
-    font-size: 88px;
-    color: #FFF;
-    transform-origin: 50% 100%;
-    text-shadow: 2px 2px 2px #333;
-    animation-duration: 2s;
-    animation-name: fadeAndScale;
-    animation-fill-mode: forwards;
-  }
-  
-  /* display the controls progressively */
-  .fadeIn {
-    animation: fadein 2s;
-    -moz-animation: fadein 2s; /* Firefox */
-    -webkit-animation: fadein 2s; /* Safari et Chrome */
-    -o-animation: fadein 2s; /* Opera */
-  }
-  @keyframes fadein {
-    from {
-        opacity:0;
-    }
-    to {
-        opacity:1;
-    }
-  }
-  @-moz-keyframes fadein { /* Firefox */
-    from {
-        opacity:0;
-    }
-    to {
-        opacity:1;
-    }
-  }
-  @-webkit-keyframes fadein { /* Chrome */
-    from {
-        opacity:0;
-    }
-    to {
-        opacity:1;
-    }
-  }
-  @-o-keyframes fadein { /* Opera */
-    from {
-        opacity:0;
-    }
-    to {
-        opacity: 1;
-    }
-  }
-  @keyframes fadeAndScale {
-    from {
-        opacity: 0;
-        transform: scale(.9, .9);
-        z-index: 10000;
-        height: auto;
-    }
-    30% {
-        opacity: 1;
-        transform: scale(1, 1);
-        height: auto;
-    }
-    70% {
-        opacity: 1;
-        transform: scale(1, 1);
-        height: auto;
-    }
-    99% {
-        opacity: 0;
-        transform: scale(1.1, 1.1);
-        height: auto;
-    }
-    to {
-        height: 0;
-        opacity: 0;
-    }
-  }
-  
-  @keyframes flipInY {
-    from {
-      transform: perspective(400px) rotate3d(0, 1, 0, 90deg);
-      animation-timing-function: ease-in;
-      opacity: 0;
-    }
-
-    40% {
-      transform: perspective(400px) rotate3d(0, 1, 0, -20deg);
-      animation-timing-function: ease-in;
-    }
-
-    60% {
-      transform: perspective(400px) rotate3d(0, 1, 0, 10deg);
-      opacity: 1;
-    }
-
-    80% {
-      transform: perspective(400px) rotate3d(0, 1, 0, -5deg);
-    }
-
-    to {
-      transform: perspective(400px);
-    }
-  }
-
   [draggable] {
     user-select: none;
   }
