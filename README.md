@@ -13,7 +13,7 @@ $ npm install -g quasar-cli
 $ quasar dev -m pwa
 
 # build for production with minification
-$ quasar build
+$ quasar build -m pwa
 
 # lint code
 $ quasar lint
