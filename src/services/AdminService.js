@@ -27,9 +27,22 @@ export default {
     return Api().get('admin/quests/publish/' + id)
   },
   /*
+   * Add a town
+   */
+  CreateTown (data) {
+    return Api().post('admin/town/add/', data)
+  },
+  /*
    * Reject a quest
    */
   reject (id) {
     return Api().get('admin/quests/reject/' + id)
+  },
+  /*
+   * Upload a place picture
+   * @param   {Object}    data                picture data
+   */
+  uploadPlaceImage(data) {
+    return Api().post('/admin/town/place/picture/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
   }
 }
