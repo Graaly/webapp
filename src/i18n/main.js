@@ -458,6 +458,7 @@ module.exports = {
       PublicationRejected: "Publication rejected. You will receive an email to know why",
       QuestPublicationRejected: "Your quest has not been published. You will receive an email to explain you how to update it to have it published",
       TouchTheObject: "Touch the object",
+      ObjectSize: "Object size",
       YouWonABonus: "You won a bonus",
       AddATown: "Add a town"
     }
@@ -493,7 +494,7 @@ module.exports = {
       scorex2: "Score x 2",
       scorex2Desc: "Vous doublez le score de vos enquêtes durant 3 jours",
       infinitehint: "Indices illimités",
-      infinitehintDesc: "Vous bénéficiez d'indices infinis durant l jour",
+      infinitehintDesc: "Vous bénéficiez d'indices infinis durant 1 jour",
       '100coins': "100 pièces",
       '100coinsDesc': "Vous gagnez 100 pièces bonus",
       '10coins': "10 pièces",
@@ -916,6 +917,7 @@ module.exports = {
       PublicationRejected: "Publication rejectée. Cliquez ici pour savoir pourquoi",
       QuestPublicationRejected: "Votre enquête n'a pas été publiée. Vous allez recevoir un email vous expliquant comment l'améliorer pour permettre sa publication",
       TouchTheObject: "Touchez l'objet",
+      ObjectSize: "Taille de l'objet",
       YouWonABonus: "Vous avez gagné un bonus",
       AddATown: "Ajouter une ville"
     }

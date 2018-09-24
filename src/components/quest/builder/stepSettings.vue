@@ -323,17 +323,32 @@
     
     <!------------------ STEP : LOCATE ITEM USING AR ------------------------>
 
-    <div class="find-item" v-if="options.code === 'locate-item-ar'">
+    <div class="locate-item-ar" v-if="options.code === 'locate-item-ar'">
       
-      <q-btn class="full-width" type="button">
-        <label for="item-to-find">{{ $t('label.UploadThePictureOfTheObjectToFind') }}</label>
-        <input @change="uploadItemImage" name="item-to-find" id="item-to-find" type="file" accept="image/png" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
-      </q-btn>
-      <p v-show="!selectedStep.form.options.picture">{{ $t('label.PleaseUploadAFileInPNGFormat') }}</p>
-      <p v-show="$v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-      <div v-if="selectedStep.form.options.picture">
-        <p>{{ $t('label.UploadedPicture') }} :</p>
-        <img :src="serverUrl + '/upload/quest/' + questId + '/step/locate-item-ar/' + selectedStep.form.options.picture" />
+      <q-radio v-model="selectedStep.form.options.is3D" :val="false" label="2D" />
+      <q-radio v-model="selectedStep.form.options.is3D" :val="true" label="3D" />
+      
+      <div class="fields-group" v-if="!selectedStep.form.options.is3D">
+        <q-btn class="full-width" type="button">
+          <label for="item-to-find">{{ $t('label.UploadThePictureOfTheObjectToFind') }}</label>
+          <input @change="uploadItemImage" name="item-to-find" id="item-to-find" type="file" accept="image/png" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+        </q-btn>
+        <p v-show="!selectedStep.form.options.picture">{{ $t('label.PleaseUploadAFileInPNGFormat') }}</p>
+        <p v-show="$v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+        <div v-if="selectedStep.form.options.picture">
+          <p>{{ $t('label.UploadedPicture') }} :</p>
+          <img :src="serverUrl + '/upload/quest/' + questId + '/step/locate-item-ar/' + selectedStep.form.options.picture" />
+        </div>
+        <div>
+          <p>{{ $t('label.ObjectSize') }}</p>
+          <q-slider v-model="selectedStep.form.options.objectSize" :min="0.5" :max="10" :step="0.1"
+            label-always :decimals="1" :label-value="`${ selectedStep.form.options.objectSize || 0.5 }m`" />
+        </div>
+      </div>
+      
+      <div class="fields-group" v-if="selectedStep.form.options.is3D">
+        <q-select v-model="selectedStep.form.options.model" :float-label="$t('Choose3DModel')" :options="selectModel3DOptions" />
+        <p class="error-label" v-show="$v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
       </div>
       
       <!-- TODO: select location on GoogleMap -->
@@ -429,6 +444,7 @@ import utils from 'src/includes/utils'
 
 import colorsForCode from 'data/colorsForCode.json'
 import stepTypes from 'data/stepTypes.json'
+import modelsList from 'data/3DModels.json'
 
 import StepService from 'services/StepService'
 
@@ -496,7 +512,10 @@ export default {
       questItemsAsOptions: [],
       questItems: [],
       
-      unformatedAnswer: null
+      unformatedAnswer: null,
+      
+      // for 'find-object-ar'
+      selectModel3DOptions: []
     }
   },
   computed: {
@@ -673,9 +692,18 @@ export default {
         this.minNbAnswers = 3
         this.maxNbAnswers = 12
       } else if (this.options.code === 'locate-item-ar') {
-        this.selectedStep.form.options = {}
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
           this.selectedStep.form.options = { picture: null }
+        }
+        if (!this.selectedStep.form.options.hasOwnProperty('objectSize')) {
+          this.selectedStep.form.options = { objectSize: 1 }
+        }
+        if (!this.selectedStep.form.options.hasOwnProperty('is3D')) {
+          this.selectedStep.form.options = { is3D: false }
+        }
+        // create options for 3D Model selection
+        for (let key in modelsList) {
+          this.selectModel3DOptions.push({label: modelsList[key].name[this.$store.state.user.language], value: key})
         }
       }
     },
@@ -1169,7 +1197,12 @@ export default {
         fieldsToValidate.answers = { required }
         break
       case 'locate-item-ar':
-        fieldsToValidate.options = { picture: { required }, lat: { required }, lng: { required } }
+        fieldsToValidate.options = { lat: { required }, lng: { required } }
+        if (this.selectedStep.form.options.is3D) {
+          fieldsToValidate.options.model = { required }
+        } else { // 2D
+          fieldsToValidate.options.picture = { required }
+        }
         break
     }
     
@@ -1207,6 +1240,10 @@ p { margin-bottom: 0.5rem; }
 .code-image td { width: 20% }
 .code-image td img { width: 100% }
 .code-image td .q-icon { font-size: 2em }
+
+.locate-item-ar .q-radio { padding:0.5rem 1rem; }
+
+.fields-group { padding: 0.5rem; margin: 0.5rem; border: 1px solid #999; border-radius: 0.5rem; }
 
 .inventory div { margin: 0.5rem auto; }
 .inventory .q-icon { width: 3rem; height: 3rem; font-size: 3rem; }

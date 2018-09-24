@@ -1,0 +1,140 @@
+{
+  "backpack": {
+    "name": {
+      "fr": "Sac à dos",
+      "en": "Backpack"  
+    },
+    "author": "Alex “SAFFY” Safayan",
+    "url": "https://poly.google.com/view/5UQVd1Agl11",
+    "scale": 0.4,
+    "rotation": {
+      "y": -45
+    }
+  },
+  "book": {
+    "name": {
+      "fr": "Livre",
+      "en": "Book"  
+    },
+    "author": "Anastasiia Ku",
+    "url": "https://poly.google.com/view/0-_UGETLPsX",
+    "rotation": {
+      "x": -15,
+      "y": 90,
+      "z": 55
+    }
+  },
+  "candelabra": {
+    "name": {
+      "fr": "Candélabre",
+      "en": "Candelabra"  
+    },
+    "author": "BitGem",
+    "url": "https://sketchfab.com/models/89f71a03a338491c92ada680e6f51749",
+    "scale": 0.005
+  },
+  "chest": {
+    "name": {
+      "fr": "Coffre",
+      "en": "Chest"  
+    },
+    "author": "Alex “SAFFY” Safayan",
+    "url": "https://poly.google.com/view/3SGvQIwe214",
+    "rotation": {
+      "y": 225
+    },
+    "scale": 0.2
+  },
+  "ghost": {
+    "name": {
+      "fr": "Fantôme",
+      "en": "Ghost"  
+    },
+    "url": "https://sketchfab.com/models/ea591844b42d459e86d0e7c9ab4cc43c",
+    "license": "Sketchfab standard, see https://sketchfab.com/licenses",
+    "scale": 100,
+    "translation": {
+      "z": 1
+    }
+  },
+  "griffin": {
+    "name": {
+      "fr": "Griffon",
+      "en": "Griffin"  
+    },
+    "author": "VitSh",
+    "url": "https://sketchfab.com/models/a8852f113416426bb06e6bba49a525a9",
+    "rotation": {
+      "y": 45
+    },
+    "scale": 0.3
+  },
+  "gun": {
+    "name": {
+      "fr": "Pistolet",
+      "en": "Gun"  
+    },
+    "author": "legoingr",
+    "url": "https://sketchfab.com/models/bcf398f3109a4d0ea384dcd3196a695e",
+    "rotation": {
+      "y": -135,
+      "z": 90
+    },
+    "scale": 0.02
+  },
+  "key": {
+    "name": {
+      "fr": "Clé",
+      "en": "Key"  
+    },
+    "author": "Jerad Bitner",
+    "url": "https://poly.google.com/view/dR-kItm5ihP",
+    "rotation": {
+      "x": 180,
+      "z": 45
+    },
+    "scale": 0.05
+  },
+  "knife": {
+    "name": {
+      "fr": "Couteau",
+      "en": "Knife"  
+    },
+    "author": "vepr",
+    "url": "https://sketchfab.com/models/555a53a177314b789d31e49d731c2184",
+    "scale": 4,
+    "rotation": {
+      "y": 225,
+      "z": 90
+    }
+  },
+  "lamp": {
+    "name": {
+      "fr": "Lampe à pétrole",
+      "en": "Kerosene lamp" 
+    },
+    "author": "Bruno Oliveira",
+    "url": "https://poly.google.com/view/3wJ6loGTYJj",
+    "rotation": {
+      "y": 135
+    }
+  },
+  "phone-rotary": {
+    "name": {
+      "fr": "Téléphone à cadran",
+      "en": "Phone (rotary)" 
+    },
+    "author": "Zell-Wu",
+    "url": "https://sketchfab.com/models/eb42c07e79764c74aa5377e092f783ce",
+    "scale": 0.01
+  },
+  "phone-booth": {
+    "name": {
+      "fr": "Cabine téléphonique",
+      "en": "Phone booth" 
+    },
+    "author": "Mountrise",
+    "url": "https://sketchfab.com/models/94fca8c5ac9f4974bd4a02e8f571f493",
+    "scale": 0.2
+  }
+}

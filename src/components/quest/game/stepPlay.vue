@@ -327,6 +327,7 @@ import StepService from 'services/StepService'
 import simi from 'src/includes/simi' // for image similarity
 import utils from 'src/includes/utils'
 import colorsForCode from 'data/colorsForCode.json'
+import modelsList from 'data/3DModels.json'
 import Notification from 'plugins/NotifyHelper'
 
 import Vue from 'vue'
@@ -334,6 +335,7 @@ import Vue from 'vue'
 // required for step 'locate-item-ar'
 import * as THREE from 'three'
 import * as TWEEN from '@tweenjs/tween.js'
+import GLTFLoader from 'three-gltf-loader'
 
 export default {
   /*
@@ -516,14 +518,6 @@ export default {
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
           // user can pass
           this.$emit('pass')
-            
-          if ('ondeviceorientationabsolute' in window) {
-            // chrome specific, see https://developers.google.com/web/updates/2016/03/device-orientation-changes
-            window.addEventListener('deviceorientationabsolute', this.handleOrientation)
-          }  else {
-            // TODO friendly behavior/message for user
-            console.warn("No absolute orientation info is available")
-          }
           
           this.geolocation.locationWatcher = navigator.geolocation.watchPosition(this.watchLocationSuccess, this.watchLocationError, {
             enableHighAccuracy: true,
@@ -533,6 +527,14 @@ export default {
         }
         
         if (this.step.type === 'geolocation') {
+          if ('ondeviceorientationabsolute' in window) {
+            // chrome specific, see https://developers.google.com/web/updates/2016/03/device-orientation-changes
+            window.addEventListener('deviceorientationabsolute', this.handleOrientation)
+          }  else {
+            // TODO friendly behavior/message for user
+            console.warn("No absolute orientation info is available")
+          }
+          
           // prepare arrow canvas
           let canvas = document.querySelector('.direction-helper canvas')
           
@@ -553,6 +555,7 @@ export default {
         if (this.step.type === 'locate-item-ar' && !this.playerResult) {
           let cameraStream = this.$refs['camera-stream-for-locate-item-ar']
           // enable rear camera stream
+          // ------------------------- 
           // TODO STOP CAMERA STREAM WHEN ITEM LOCATION IS REACHED OR USER WANTS TO SKIP THE STEP
           navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
             .then((stream) => {
@@ -566,67 +569,124 @@ export default {
               console.log(err)
             });
           
-          // start absolute orientation sensor
+          // Start absolute orientation sensor
           // ---------------------------------
-          // (this is different from 'deviceorientationabsolute' listener whose values are not
-          // reliable when device is held vertically)
+          // Required to make camera orientation follow device orientation 
+          // It is different from 'deviceorientationabsolute' listener whose values are not
+          // reliable when device is held vertically
           let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
           sensor.onerror = event => console.log(event.error.name, event.error.message)
           sensor.onreading = this.onAbsoluteOrientationSensorReading
           sensor.start()
           this.geolocation.absoluteOrientationSensor = sensor
           
-          // render 3d target object
+          // Prepare scene to render
           // -----------------------
-          let sceneCanvas = document.getElementById("target-canvas")
-          let itemImage = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/locate-item-ar/' + this.step.options.picture
           
-          this.$refs['itemImage'].src = itemImage
-                    
+          let sceneCanvas = document.getElementById("target-canvas")
+          
           this.geolocation.target = {
             scene: new THREE.Scene(),
-            camera: new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000),
-            renderer: new THREE.WebGLRenderer({ canvas: sceneCanvas, alpha: true })
+            camera: new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000),
+            renderer: new THREE.WebGLRenderer({ canvas: sceneCanvas, alpha: true, antialias: true }),
+            // for animation
+            mixers: [],
+            clock: new THREE.Clock()
           }
           
           this.geolocation.target.renderer.setSize(window.innerWidth, window.innerHeight)
           
           let scene = this.geolocation.target.scene
           
-          this.geolocation.target.camera.position.z = 1.5
+          // --- Light ---
           
-          // --- LIGHT ---
+          // create a point light from top
+          // TODO maybe a directional light would cost less CPU
+          const pointLight = new THREE.PointLight(0xD0D0D0)
+          pointLight.position.set(0, 0, 1000)
+          scene.add(pointLight)
           
-          // create a point light
-          const pointLight =
-            new THREE.PointLight(0xFFFFFF);
-
-          // set its position
-          pointLight.position.x = 10;
-          pointLight.position.y = 10;
-          pointLight.position.z = 10;
-
-          // add to the scene
-          scene.add(pointLight);
+          // soft ambient light
+          scene.add(new THREE.AmbientLight(0xA0A0A0))
           
-          // add a plane with the uploaded picture as texture
-          // then the camera will follow the device movements to show the plane "at the right place" & distance
-          let geometry = new THREE.PlaneGeometry(0.4, 0.4)
-          let texture = new THREE.TextureLoader().load(itemImage)
-          let material = new THREE.MeshBasicMaterial({map: texture})
-          let plane = new THREE.Mesh(geometry, material)
-          plane.name = "targetPlane"
-          plane.rotation.x = Math.PI / 2
-          plane.position.y = 0
-          scene.add(plane)
+          // --- specific parts for 2D/3D ---
+          let object
+          if (this.step.options.is3D) {
+            let objectModel = this.step.options.model
+            let objectInit = modelsList[objectModel]
+            let gltfData = await this.ModelLoaderAsync(objectModel)
+            
+            object = gltfData.scene
+            
+            object.name = 'targetObject'
+            
+            // apply user-defined scaling
+            if (objectInit.scale) {
+              let scale = objectInit.scale
+              object.scale.set(scale, scale, scale)
+            }
+            
+            // apply user-defined rotation
+            objectInit.rotation = objectInit.rotation || {}
+            if (objectInit.rotation.hasOwnProperty('x')) { object.rotateX(utils.degreesToRadians(objectInit.rotation.x)) } else {
+              object.rotateX(Math.PI / 2)
+            }
+            if (objectInit.rotation.hasOwnProperty('y')) { object.rotateY(utils.degreesToRadians(objectInit.rotation.y)) }
+            if (objectInit.rotation.hasOwnProperty('z')) { object.rotateZ(utils.degreesToRadians(objectInit.rotation.z)) }
+            
+            // set object origin at center
+            let box = new THREE.Box3().setFromObject(object)
+            let offset = new THREE.Vector3()
+            box.getCenter(offset)
+            offset.negate()
+            // added offset to make 3D object "sit on the ground" by default (z = 0 at the bottom of the object)
+            let onGroundOffset = (box.max.z - box.min.z) / 2 
+            object.applyMatrix(new THREE.Matrix4().makeTranslation(offset.x, offset.y, offset.z + onGroundOffset))
+            
+            // apply user-defined translation
+            if (objectInit.translation) {
+              if (objectInit.translation.hasOwnProperty('x')) { object.position.x += objectInit.translation.x }
+              if (objectInit.translation.hasOwnProperty('y')) { object.position.y += objectInit.translation.y }
+              if (objectInit.translation.hasOwnProperty('z')) { object.position.z += objectInit.translation.z }
+            }
+            
+            let bbox = new THREE.Box3().setFromObject(object)
+            console.log('bbox', bbox)
+            
+            // animations ? play first animation
+            if (gltfData.animations.length > 0) {
+              let mixer = new THREE.AnimationMixer(gltfData.scene)
+              mixer.clipAction(gltfData.animations[0]).play()
+              this.geolocation.target.mixers.push(mixer)
+            }
+          } else {
+            // 2D plane with transparent image (user uploaded picture) as texture
+            let itemImage = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/locate-item-ar/' + this.step.options.picture
           
+            this.$refs['itemImage'].src = itemImage
+            
+            let objectSize = this.step.options.objectSize || 1
+            let geometry = new THREE.PlaneGeometry(objectSize, objectSize)
+            let texture = new THREE.TextureLoader().load(itemImage)
+            let material = new THREE.MeshBasicMaterial({map: texture})
+            object = new THREE.Mesh(geometry, material)
+            object.rotation.x = Math.PI / 2
+            object.position.y = 0
+          }
+          
+          object.name = "targetObject"
+          scene.add(object)
+          
+          // pivot point to allow object rotate/move around the camera
           let pivotPoint = new THREE.Object3D()
-          pivotPoint.name = "planePivotPoint"
-          pivotPoint.add(plane)
+          pivotPoint.name = "targetPivotPoint"
+          pivotPoint.add(object)
           scene.add(pivotPoint)
           
           // default camera direction => look at positive y axis from origin
           this.geolocation.target.camera.lookAt(new THREE.Vector3(0, 1, 0))
+          // handheld device will be nearly 1.50m above ground
+          this.geolocation.target.camera.position.z = 1.5
           
           // animate & render
           this.animateTargetCanvas()
@@ -1159,28 +1219,55 @@ export default {
       
       this.geolocation.rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, target.lat, target.lng)
       
+      // detect if value 'jumps' (e.g. near Math.PI * 2 <===> 0), to avoid Tween.js animating a very large rotation
+      let originalDirectionInRadians = utils.degreesToRadians(this.geolocation.rawDirection)
+      let newDirectionInRadians = utils.degreesToRadians(this.geolocation.rawDirection)
+      let bigDirectionChange = Math.abs(originalDirectionInRadians - newDirectionInRadians) > 4
+      
       if (this.step.type === 'locate-item-ar' && this.geolocation.target.scene !== null) {
         let scene = this.geolocation.target.scene
-        let plane = scene.getObjectByName('targetPlane')
+        let object = scene.getObjectByName('targetObject')
+        // object may not be loaded at first calls
+        if (typeof object === 'undefined') { return }
         // smooth distance change
-        new TWEEN.Tween(plane.position)
+        new TWEEN.Tween(object.position)
           .to({ y: this.geolocation.distance }, this.geolocation.watchLocationInterval)
-          .easing(TWEEN.Easing.Sinusoidal.InOut)
+          .easing(TWEEN.Easing.Quadratic.InOut)
           .start()
-        // smooth camera direction change
-        let pivotPoint = scene.getObjectByName('planePivotPoint')
-        new TWEEN.Tween(pivotPoint.rotation)
-          .to({ z: -utils.degreesToRadians(this.geolocation.rawDirection) }, this.geolocation.watchLocationInterval)
-          .easing(TWEEN.Easing.Sinusoidal.InOut)
-          .start()
+        // TEMP
+        //object.position.y = 1
+        // smooth object direction change using pivot point
+        let pivotPoint = scene.getObjectByName('targetPivotPoint')
+        if (bigDirectionChange) {
+          // avoid TWEEN "jumps" between 0 and 2*PI => set rotation directly
+          // TODO smooth transition using values greater than Math.PI * 2 or lower than 0 using Tween.js, then update
+          // pivotPoint.rotation.z value to get something again between 0 and Math.PI * 2
+          TWEEN.removeAll()
+          setTimeout(pivotPoint.rotation.z = -newDirectionInRadians, this.geolocation.watchLocationInterval / 2)
+        } else {
+          new TWEEN.Tween(pivotPoint.rotation)
+            .to({ z: -newDirectionInRadians }, this.geolocation.watchLocationInterval)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .start()
+        }
+        
+        // TODO rotate the object itself in order that it always faces the same direction
+        //object.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), utils.degreesToRadians(20))
+        // rather complex, see for example https://stackoverflow.com/a/41720678/488666
+        // https://stackoverflow.com/q/27022160/488666 (coming from https://stackoverflow.com/a/14776900/488666)
+        
         // tell player to touch object + detect touch as soon as device is below a certain distance from the object coordinates
         if (!this.geolocation.canTouch && this.geolocation.distance <= 10) {
           this.geolocation.canTouch = true
         }
       }
       
-      // TODO no hardcoding + maybe store "success distance" on server side for security
-      if (this.step.type === 'geolocation' && this.geolocation.distance <= 20) {
+      let distanceToSuccess = {
+        'geolocation': 20,
+        'locate-item-ar': 3
+      }
+      
+      if (this.geolocation.distance <= distanceToSuccess[this.step.type]) {
         navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
         await this.checkAnswer(current)
       }
@@ -1493,6 +1580,19 @@ export default {
     animateTargetCanvas() {
       requestAnimationFrame(this.animateTargetCanvas)
       let target = this.geolocation.target
+      let mixers = target.mixers
+      
+      // 2D object: plane must always face camera
+      if (!this.step.options.is3D) {
+        let plane = target.scene.getObjectByName('targetObject')
+        plane.lookAt(target.camera.position)
+      }
+      // animation
+      if (mixers.length > 0) {
+        for (var i = 0; i < mixers.length; i++) {
+          mixers[i].update(target.clock.getDelta());
+        }
+      }
       target.renderer.render(target.scene, target.camera)
       TWEEN.update()
     },
@@ -1529,6 +1629,20 @@ export default {
         this.stopVideoTracks('camera-stream-for-locate-item-ar')
         this.checkAnswer()
       }
+    },
+    /*
+    * Loads material file and object file into a 3D Model for Three.js
+    * Supports only GLTF format
+    * Returns a Promise, usable with async/await
+    */
+    async ModelLoaderAsync(objName) {
+      let progress = console.log
+      
+      return new Promise((resolve, reject) => {
+        let gltfLoader = new GLTFLoader()
+        // loads automatically .bin and textures files if necessary
+        gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+      })
     }
   }
 }
