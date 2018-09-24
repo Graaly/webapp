@@ -65,7 +65,7 @@
           </div>
           <q-select float-label="Select" v-model="place.type"
             :options="[
-              {label: 'Remarquable place', value: 'remarquable'},
+              {label: 'Remarkable place', value: 'remarkable'},
               {label: 'Cimetery', value: 'cimetary'},
               {label: 'Shop', value: 'shop'},
             ]"

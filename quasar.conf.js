@@ -104,6 +104,7 @@ module.exports = function (ctx) {
         'QRouteTab',
         'QSearch',
         'QSelect',
+        'QSlider',
         'QSpinnerDots',
         'QTabs',
         'QTab',
