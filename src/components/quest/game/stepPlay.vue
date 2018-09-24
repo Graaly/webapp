@@ -309,7 +309,7 @@
         </div>
         <div class="resultMessage" v-show="playerResult">
           <div class="text right">{{ $t('label.YouHaveWinANewItem') }}</div>
-          <img ref="itemImage" />
+          <img ref="itemImage" v-if="!step.options.is3D" />
         </div>
       </div>
       
@@ -635,13 +635,16 @@ export default {
             if (objectInit.rotation.hasOwnProperty('z')) { object.rotateZ(utils.degreesToRadians(objectInit.rotation.z)) }
             
             // set object origin at center
+            object.traverse((child) => {
+              if (child instanceof THREE.Mesh) {
+                child.geometry.center()
+              }
+            })
+            
             let box = new THREE.Box3().setFromObject(object)
-            let offset = new THREE.Vector3()
-            box.getCenter(offset)
-            offset.negate()
             // added offset to make 3D object "sit on the ground" by default (z = 0 at the bottom of the object)
-            let onGroundOffset = (box.max.z - box.min.z) / 2 
-            object.applyMatrix(new THREE.Matrix4().makeTranslation(offset.x, offset.y, offset.z + onGroundOffset))
+            let onGroundOffset = (box.max.z - box.min.z) / 2
+            object.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, onGroundOffset))
             
             // apply user-defined translation
             if (objectInit.translation) {
@@ -649,9 +652,6 @@ export default {
               if (objectInit.translation.hasOwnProperty('y')) { object.position.y += objectInit.translation.y }
               if (objectInit.translation.hasOwnProperty('z')) { object.position.z += objectInit.translation.z }
             }
-            
-            let bbox = new THREE.Box3().setFromObject(object)
-            console.log('bbox', bbox)
             
             // animations ? play first animation
             if (gltfData.animations.length > 0) {
@@ -676,12 +676,6 @@ export default {
           
           object.name = "targetObject"
           scene.add(object)
-          
-          // pivot point to allow object rotate/move around the camera
-          let pivotPoint = new THREE.Object3D()
-          pivotPoint.name = "targetPivotPoint"
-          pivotPoint.add(object)
-          scene.add(pivotPoint)
           
           // default camera direction => look at positive y axis from origin
           this.geolocation.target.camera.lookAt(new THREE.Vector3(0, 1, 0))
@@ -1219,42 +1213,23 @@ export default {
       
       this.geolocation.rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, target.lat, target.lng)
       
-      // detect if value 'jumps' (e.g. near Math.PI * 2 <===> 0), to avoid Tween.js animating a very large rotation
-      let originalDirectionInRadians = utils.degreesToRadians(this.geolocation.rawDirection)
-      let newDirectionInRadians = utils.degreesToRadians(this.geolocation.rawDirection)
-      let bigDirectionChange = Math.abs(originalDirectionInRadians - newDirectionInRadians) > 4
+      // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
       
       if (this.step.type === 'locate-item-ar' && this.geolocation.target.scene !== null) {
         let scene = this.geolocation.target.scene
         let object = scene.getObjectByName('targetObject')
         // object may not be loaded at first calls
         if (typeof object === 'undefined') { return }
-        // smooth distance change
+        
+        let finalDirection = utils.degreesToRadians(this.geolocation.rawDirection - 90)
+        let newPositionX = this.geolocation.distance !== 0 ? Math.sin(finalDirection) * this.geolocation.distance : 0
+        let newPositionY = this.geolocation.distance !== 0 ? Math.cos(finalDirection) * this.geolocation.distance : 0
+        
+        // smooth position change
         new TWEEN.Tween(object.position)
-          .to({ y: this.geolocation.distance }, this.geolocation.watchLocationInterval)
+          .to({ x: newPositionX, y: newPositionY }, this.geolocation.watchLocationInterval)
           .easing(TWEEN.Easing.Quadratic.InOut)
           .start()
-        // TEMP
-        //object.position.y = 1
-        // smooth object direction change using pivot point
-        let pivotPoint = scene.getObjectByName('targetPivotPoint')
-        if (bigDirectionChange) {
-          // avoid TWEEN "jumps" between 0 and 2*PI => set rotation directly
-          // TODO smooth transition using values greater than Math.PI * 2 or lower than 0 using Tween.js, then update
-          // pivotPoint.rotation.z value to get something again between 0 and Math.PI * 2
-          TWEEN.removeAll()
-          setTimeout(pivotPoint.rotation.z = -newDirectionInRadians, this.geolocation.watchLocationInterval / 2)
-        } else {
-          new TWEEN.Tween(pivotPoint.rotation)
-            .to({ z: -newDirectionInRadians }, this.geolocation.watchLocationInterval)
-            .easing(TWEEN.Easing.Quadratic.InOut)
-            .start()
-        }
-        
-        // TODO rotate the object itself in order that it always faces the same direction
-        //object.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), utils.degreesToRadians(20))
-        // rather complex, see for example https://stackoverflow.com/a/41720678/488666
-        // https://stackoverflow.com/q/27022160/488666 (coming from https://stackoverflow.com/a/14776900/488666)
         
         // tell player to touch object + detect touch as soon as device is below a certain distance from the object coordinates
         if (!this.geolocation.canTouch && this.geolocation.distance <= 10) {
@@ -1610,7 +1585,7 @@ export default {
       event.preventDefault()
       
       let target = this.geolocation.target
-      let plane = target.scene.getObjectByName('targetPlane')
+      let object = target.scene.getObjectByName('targetObject')
       
       let touchPos = new THREE.Vector2()
       touchPos.x = (event.clientX / target.renderer.domElement.clientWidth) * 2 - 1
@@ -1620,7 +1595,7 @@ export default {
       
       raycaster.setFromCamera(touchPos, target.camera)
       
-      let intersects = raycaster.intersectObject(plane)
+      let intersects = raycaster.intersectObject(object)
       
       if (intersects.length > 0 && this.geolocation.canTouch) {
         // stop location watching
