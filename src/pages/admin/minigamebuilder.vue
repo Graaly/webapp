@@ -67,7 +67,7 @@
             :options="[
               {label: 'Remarquable place', value: 'remarquable'},
               {label: 'Cimetery', value: 'cimetary'},
-              {label: 'Church', value: 'church'}
+              {label: 'Shop', value: 'shop'},
             ]"
           />
           <div class="row">

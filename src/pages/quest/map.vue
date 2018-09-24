@@ -397,6 +397,14 @@
       </div>
     </q-modal>
     
+    <!--====================== SHOP PAGE =================================-->
+    
+    <q-modal v-model="shop.show">
+      <a class="float-right no-underline q-pa-md" color="grey" @click="closeShop"><q-icon name="close" class="medium-icon" /></a>
+      <h1 class="size-3 q-pl-md">{{ $t('label.Shop') }}</h1>
+      <shop></shop>
+    </q-modal>
+    
     <!------------------ NO GEOLOCATION AREA ------------------------>
     
     <div class="row enable-geolocation" v-if="!geolocationIsSupported">
@@ -448,6 +456,7 @@
 import QuestService from 'services/QuestService'
 import AuthService from 'services/AuthService'
 import UserService from 'services/UserService'
+import shop from 'components/shop'
 import utils from 'src/includes/utils'
 import { required, email } from 'vuelidate/lib/validators'
 import { QSpinnerDots, QInfiniteScroll } from 'quasar'
@@ -463,7 +472,8 @@ import languages from 'data/languages.json'
 export default {
   components: {
     QInfiniteScroll,
-    QSpinnerDots
+    QSpinnerDots,
+    shop
   },
   data () {
     return {
@@ -505,6 +515,9 @@ export default {
         },
         show: false,
         selected: {}
+      },
+      shop: {
+        show: false
       },
       currentQuestIndex: null,
       currentQuest: null,
@@ -1104,10 +1117,16 @@ export default {
       }
     },
     /*
-     * Buy coins
+     * Open shop
      */
     buyCoins () {
-      this.$router.push('/map')
+      this.shop.show = true
+    },
+    /*
+     * Close shop
+     */
+    closeShop () {
+      this.shop.show = false
     }
   },
   validations: {

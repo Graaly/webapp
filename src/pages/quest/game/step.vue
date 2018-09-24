@@ -28,9 +28,9 @@
             <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title[lang] : $t('label.NoTitle') }}</p>
             <q-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-progress>
             <p class="q-pa-md score-text" v-show="info && info.score">{{ info.score }} <q-icon color="white" name="fas fa-trophy" /></p>
-            <p class="q-pb-xl">
+            <!--<p class="q-pb-xl">
               <q-btn color="primary" @click="backToMap">{{ $t('label.LeaveQuest') }}</q-btn>
-            </p>
+            </p>-->
           </div>
         </div>
       </div>
@@ -53,6 +53,7 @@
       <q-tabs v-model="footer.tabSelected">
         <q-tab slot="title" name="inventory" icon="work" @click="openInventory()" />
         <q-tab slot="title" name="previous" icon="arrow_back" @click="previousStep()" />
+        <q-tab slot="title" name="home" icon="home" @click="backToMap()" />
         <q-tab slot="title" name="info" icon="info" @click="openInfo()" />
         <q-tab slot="title" name="next" icon="arrow_forward" :disable="!canMoveNextStep && !canPass" @click="nextStep()" />
         <q-tab slot="title" name="hint" icon="lightbulb outline" :disable="!isHintAvailable()" @click="askForHint()"/>
@@ -259,7 +260,10 @@ export default {
      * Track step passing
      */
     async trackStepPass () {
+      // Not possible to pass for the mini games
+      //if (this.info.quest.type === 'quest') {
       this.canPass = true
+      //}
     },
     /*
      * Track step fail

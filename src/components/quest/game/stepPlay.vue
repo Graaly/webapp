@@ -200,9 +200,6 @@
             <div class="piece" draggable="true"
               v-for="piece in puzzle.pieces" :key="piece.pos" :id="'piece-' + piece.pos"
               @dragstart="handleDragStart($event)"
-              @dragenter="handleDragEnter($event)"
-              @dragover="handleDragOver($event)"
-              @dragleave="handleDragLeave($event)"
               @drop="handleDrop($event)"
               @dragend="handleDragEnd($event)"
               :style="'background-image: url(' + puzzle.picture + '); background-size: ' + piece.backSize + '% ' + piece.backSize + '%;background-position: -' + piece.backXPos + ' -' + piece.backYPos + ';'"
@@ -318,6 +315,7 @@
     <!--====================== WIN POINTS ANIMATION =================================-->
     
     <div v-show="playerResult === true && score > 0" class="fadein-message">+{{ score }} <q-icon color="white" name="fas fa-trophy" /></div>
+    <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-coins" /></div>
   </div>
   
 </template>
@@ -373,6 +371,7 @@ export default {
         serverUrl: process.env.SERVER_URL,
         nbTry: 0,
         score: 0,
+        reward: 0,
         controlsAreDisplayed: false,
         
         // for step 'choose'
@@ -837,6 +836,7 @@ export default {
       
       // display score
       this.score = (checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0
+      this.reward = (checkAnswerResult && checkAnswerResult.reward) ? checkAnswerResult.reward : 0
     },
     /*
      * Send good andwer  
@@ -1325,7 +1325,7 @@ export default {
       //Shuffle
       this.puzzle.pieces = this.shuffle(this.puzzle.pieces)
       
-      this.puzzle.picture = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + this.step.options.picture
+      this.puzzle.picture = this.step.options.picture.indexOf('upload/') === -1 ? this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + this.step.options.picture : this.serverUrl + this.step.options.picture
 
       initJigsaw(this.puzzle.element)
     },
@@ -1343,35 +1343,35 @@ export default {
      * @param   {object}    e            Event when user touch puzzle piece
      */
     handleDragStart(e) {
-      if (e.target.className.indexOf('piece') > -1) {
-        this.dragSrcEl = e.target;
-        this.dragSrcEl.style.opacity = '0.4';
+      if (e.target.className.indexOf('piece') !== -1) {
+        this.puzzle.dragSrcEl = e.target;
+        /*this.puzzle.dragSrcEl.style.opacity = '0.4';
         var dt = e.dataTransfer;
         dt.effectAllowed = 'move';
-        dt.setData('text', this.dragSrcEl.innerHTML);
+        dt.setData('text', this.puzzle.dragSrcEl.innerHTML);
        
         // customize drag image for one of the panels
         if (dt.setDragImage instanceof Function && e.target.innerHTML.indexOf('X') > -1) {
           var img = new Image();
           img.src = 'dragimage.jpg';
           dt.setDragImage(img, img.width / 2, img.height / 2);
-        }
+        }*/
       }
     },
     /*
      * Handle puzzle piece move over
      * @param   {object}    e            Event when user move puzzle piece over
-     */
+     *
     handleDragOver(e) {
       if (this.dragSrcEl) {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
       }
-    },
+    },*/
     /*
      * Handle puzzle piece drag enter
      * @param   {object}    e            Event when user touch puzzle piece
-     */
+     *
     handleDragEnter(e) {
       if (this.dragSrcEl) {
         e.target.classList.add('over');
@@ -1380,18 +1380,18 @@ export default {
     /*
      * Handle puzzle piece drag leave
      * @param   {object}    e            Event when user touch puzzle piece
-     */
+     *
     handleDragLeave(e) {
       if (this.dragSrcEl) {
         e.target.classList.remove('over');
       }
-    },
+    },*/
     /*
      * Handle puzzle piece move end
      * @param   {object}    e            Event when user stop moving puzzle piece
      */
     handleDragEnd(e) {
-      this.dragSrcEl = null;
+      this.puzzle.dragSrcEl = null;
       var cols = document.querySelectorAll('#pieces .piece');
       [].forEach.call(cols, function (col) {
         col.style.opacity = '';
@@ -1403,16 +1403,18 @@ export default {
      * @param   {object}    e            Event when user drop puzzle piece
      */
     handleDrop(e) {
-      if (this.dragSrcEl) {
+      if (this.puzzle.dragSrcEl) {
         e.stopPropagation();
         e.stopImmediatePropagation();
         e.preventDefault();
-        // move piece
-        if (e.target.parentNode.id && this.dragSrcEl.id) {
+        // if the target is defined & a piece is moved
+        if (e.target.parentNode.id && this.puzzle.dragSrcEl.id) {
+          // get id of piece moved and piece destination
           var destId = e.target.parentNode.id.replace('piece-', '')
-          var sourceId = this.dragSrcEl.id.replace('piece-', '')
+          var sourceId = this.puzzle.dragSrcEl.id.replace('piece-', '')
           var destIdPos = 0, sourceIdPos = 0
           
+          // if the piece is moved
           if (destId !== sourceId) {
             // get the places in the arrays
             for (var i = 0; i < this.puzzle.pieces.length; i++) {
@@ -1423,12 +1425,13 @@ export default {
                 sourceIdPos = i
               }
             }
-
+alert(destIdPos)
+alert(sourceIdPos)
             // move the places in the arrays
             let oldPlace = this.puzzle.pieces[destIdPos]
             Vue.set(this.puzzle.pieces, destIdPos, this.puzzle.pieces[sourceIdPos])
             Vue.set(this.puzzle.pieces, sourceIdPos, oldPlace)
-            
+            // check if the puzzle is finished
             this.checkPuzzle()
           }
         }
@@ -1627,7 +1630,6 @@ export default {
   
   #pieces { padding: 0; margin: 0; width: 100%; background: #777; border: 1px solid #777; display: block; }
   #pieces .piece { display: inline-block; margin: 0; box-shadow: inset 0 0 3px #000; text-align: center; cursor: move; background-repeat: none; }
-  #pieces .piece.over { border: 2px dashed #000; }
   
   /* write-text specific */
   

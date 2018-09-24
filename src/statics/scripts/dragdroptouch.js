@@ -328,8 +328,10 @@ function initJigsaw (DragDropTouch_1) {
                     s.position = 'absolute';
                     s.pointerEvents = 'none';
                     s.zIndex = '999999';
-                    s.left = Math.round(pt.x - _this._imgOffset.x) + 'px';
-                    s.top = Math.round(pt.y - _this._imgOffset.y) + 'px';
+                    //s.left = Math.round(pt.x - (_this._imgOffset.x > 0 ? _this._imgOffset.x : 0)) + 'px';
+                    //s.top = Math.round(pt.y - (_this._imgOffset.y > 0 ? _this._imgOffset.y : 0)) + 'px';
+                    s.left = Math.round(pt.x - 35) + 'px';
+                    s.top = Math.round(pt.y - 35) + 'px';
                 });
             }
         };
@@ -405,4 +407,3 @@ function initJigsaw (DragDropTouch_1) {
     DragDropTouch._ptProps = 'pageX,pageY,clientX,clientY,screenX,screenY'.split(',');
     DragDropTouch_1.DragDropTouch = DragDropTouch;
 }
-

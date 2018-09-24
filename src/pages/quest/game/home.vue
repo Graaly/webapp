@@ -12,10 +12,10 @@
               <img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'/statics/icons/game/flag-' + getLanguage() + '.png'" />
             </p>
             <p class="medium-icon q-pa-none q-ma-none">
-              <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || isOwner || isAdmin) && quest.availablePoints && quest.availablePoints > 0">{{ quest.availablePoints }} <q-icon name="fas fa-trophy" /></span>
-              <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || isOwner || isAdmin) && quest.availablePoints && quest.availablePoints > 0">0 <q-icon name="fas fa-trophy" /></span>
-              <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || isOwner || isAdmin) && quest.reward && quest.reward > 0">{{ quest.reward }} <q-icon name="fas fa-coins" /></span>
-              <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || isOwner || isAdmin) && quest.reward && quest.reward > 0">0 <q-icon name="fas fa-coins" /></span>
+              <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">{{ quest.availablePoints }} <q-icon name="fas fa-trophy" /></span>
+              <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">0 <q-icon name="fas fa-trophy" /></span>
+              <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.reward && quest.reward > 0">{{ quest.reward }} <q-icon name="fas fa-coins" /></span>
+              <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || (isOwner && !isAdmin)) && quest.reward && quest.reward > 0">0 <q-icon name="fas fa-coins" /></span>
             </p>
             <p v-if="quest.rating">
               <q-rating readonly :value="quest.rating && quest.rating.rounded" color="white" :max="5" size="1.2rem" />
@@ -41,7 +41,7 @@
                 </q-btn-dropdown>
                 <button class="q-btn q-btn-item q-btn-rectange bg-primary" v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && !(isOwner || isAdmin || isRunStarted || isRunFinished) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">
                   {{ $t('label.SolveThisQuest') }}<br />
-                  {{ quest.price }} <q-icon name="fas fa-coins" />
+                  <span v-if="quest.price && quest.price > 0">{{ quest.price }} <q-icon name="fas fa-coins" /></span>
                 </button>
                 <q-btn v-if="!isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary">{{ $t('label.BuyCoinsToPlay') }}</q-btn>
                 <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary">{{ $t('label.GetCloserToStartingPoint') }}</q-btn>
@@ -113,6 +113,14 @@
       </div>
     </transition>
     
+    <!--====================== SHOP PAGE =================================-->
+    
+    <q-modal v-model="shop.show">
+      <a class="float-right no-underline q-pa-md" color="grey" @click="closeShop"><q-icon name="close" class="medium-icon" /></a>
+      <h1 class="size-3 q-pl-md">{{ $t('label.Shop') }}</h1>
+      <shop></shop>
+    </q-modal>
+    
     <!------------------ NO GEOLOCATION AREA ------------------------>
     
     <div class="row enable-geolocation" v-if="!geolocationIsSupported">
@@ -138,18 +146,25 @@ import AuthService from 'services/AuthService'
 import QuestService from 'services/QuestService'
 import RunService from 'services/RunService'
 import UserService from 'services/UserService'
+import shop from 'components/shop'
 
 import utils from 'src/includes/utils'
 import { scroll } from 'quasar'
 const { getScrollTarget, setScrollPosition } = scroll
 
 export default {
+  components: {
+    shop
+  },
   data () {
     return {
       quest: {},
       ranking: {
         show: false,
         items: []
+      },
+      shop: {
+        show: false
       },
       serverUrl: process.env.SERVER_URL,
       isRunFinished: false,
@@ -210,7 +225,7 @@ export default {
     await this.getRanking()
     
     this.checkUserIsCloseFromStartingPoint()
-    //check if location tracking is turned on
+    /*/check if location tracking is turned on
     if (this.$data.geolocationIsSupported) {
       navigator.geolocation.getCurrentPosition((position) => {
         //compare quest starting point with user localisation (1km distance)
@@ -223,7 +238,7 @@ export default {
         console.error('geolocation failed')
         this.geolocationIsSupported = false
       }, { timeout: 10000, maximumAge: 10000 });
-    }
+    }*/
   },
   methods: {
     /*
@@ -459,10 +474,16 @@ export default {
       this.$router.push('/map')
     },
     /*
-     * Buy coins
+     * Open shop
      */
     buyCoins () {
-      this.$router.push('/map')
+      this.shop.show = true
+    },
+    /*
+     * Close shop
+     */
+    closeShop () {
+      this.shop.show = false
     }
   }
 }

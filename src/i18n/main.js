@@ -459,7 +459,10 @@ module.exports = {
       QuestPublicationRejected: "Your quest has not been published. You will receive an email to explain you how to update it to have it published",
       TouchTheObject: "Touch the object",
       YouWonABonus: "You won a bonus",
-      AddATown: "Add a town"
+      AddATown: "Add a town",
+      Shop: "Shop",
+      Coins: "Coins",
+      coins: "coins"
     }
   },
   fr: {
@@ -917,7 +920,10 @@ module.exports = {
       QuestPublicationRejected: "Votre enquête n'a pas été publiée. Vous allez recevoir un email vous expliquant comment l'améliorer pour permettre sa publication",
       TouchTheObject: "Touchez l'objet",
       YouWonABonus: "Vous avez gagné un bonus",
-      AddATown: "Ajouter une ville"
+      AddATown: "Ajouter une ville",
+      Shop: "Boutique",
+      Coins: "Pièces",
+      coins: "pièces"
     }
   }
 }
