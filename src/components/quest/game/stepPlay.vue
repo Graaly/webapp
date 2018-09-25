@@ -290,15 +290,12 @@
       <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
         <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && !playerResult"></video>
         <div v-show="!playerResult">
-          <p class="text">{{ step.text }}</p>
-          <p class="text">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
-          <p class="text" v-if="this.geolocation.canTouch">{{ $t('label.TouchTheObject') }}</p>
-          <!--
-          <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
-          <p class="text">Alpha: {{ Math.round(geolocation.alpha) }}°</p>
-          <p class="text">Beta: {{ Math.round(geolocation.beta) }}°</p>
-          <p class="text">Difference direction: {{ geolocation.direction }}°</p>
-          -->
+          <div class="text">
+            <p>{{ step.text }}</p>
+            <p>{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+            <p v-if="!this.geolocation.canSeeTarget">{{ $t('label.ObjectIsTooFar') }}</p>
+            <p v-if="this.geolocation.canTouchTarget">{{ $t('label.TouchTheObject') }}</p>
+          </div>
         </div>
         <div class="target-view" v-show="!playerResult">
           <canvas id="target-canvas" @click="onTargetCanvasClick"></canvas>
@@ -405,7 +402,8 @@ export default {
           // for 'locate-item-ar'
           absoluteOrientationSensor: null, 
           target: null,
-          canTouch: false
+          canSeeTarget: false,
+          canTouchTarget: false
         },
         
         // for step type 'write-text'
@@ -586,6 +584,7 @@ export default {
             scene: new THREE.Scene(),
             camera: new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000),
             renderer: new THREE.WebGLRenderer({ canvas: sceneCanvas, alpha: true, antialias: true }),
+            size: null, // in meters
             // for animation
             mixers: [],
             clock: new THREE.Clock()
@@ -593,7 +592,8 @@ export default {
           
           this.geolocation.target.renderer.setSize(window.innerWidth, window.innerHeight)
           
-          let scene = this.geolocation.target.scene
+          let target = this.geolocation.target
+          let scene = target.scene
           
           // --- Light ---
           
@@ -635,11 +635,13 @@ export default {
                 child.geometry.center()
               }
             })
-            
             let box = new THREE.Box3().setFromObject(object)
             // added offset to make 3D object "sit on the ground" by default (z = 0 at the bottom of the object)
             let onGroundOffset = (box.max.z - box.min.z) / 2
             object.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, onGroundOffset))
+            
+            // compute object size = max(length, width, depth)
+            target.size = Math.max(box.max.x - box.min.x, box.max.y - box.min.y, box.max.z - box.min.z)
             
             // apply user-defined translation
             if (objectInit.translation) {
@@ -660,8 +662,8 @@ export default {
           
             this.$refs['itemImage'].src = itemImage
             
-            let objectSize = this.step.options.objectSize || 1
-            let geometry = new THREE.PlaneGeometry(objectSize, objectSize)
+            target.size = this.step.options.objectSize || 1
+            let geometry = new THREE.PlaneGeometry(target.size, target.size)
             let texture = new THREE.TextureLoader().load(itemImage)
             let material = new THREE.MeshBasicMaterial({map: texture})
             object = new THREE.Mesh(geometry, material)
@@ -1203,19 +1205,25 @@ export default {
      */
     async watchLocationSuccess(pos) {
       let current = pos.coords;
-      let target = this.step.options
+      let options = this.step.options
       
       // compute distance between two coordinates
-      this.geolocation.distance = utils.distanceInKmBetweenEarthCoordinates(target.lat, target.lng, current.latitude, current.longitude) * 1000 // meters
+      this.geolocation.distance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
       
-      this.geolocation.rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, target.lat, target.lng)
+      this.geolocation.rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
       
       // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
       
       if (this.step.type === 'locate-item-ar' && this.geolocation.target.scene !== null) {
-        let scene = this.geolocation.target.scene
+        let target = this.geolocation.target
+        let scene = target.scene
         let object = scene.getObjectByName('targetObject')
-        // object may not be loaded at first calls
+        
+        // if target size is 1m, consider that it can be seen at 40m
+        // target size 50cm => seen at 20m, etc.
+        this.geolocation.canSeeTarget = target.size === null || this.geolocation.distance < target.size * 40
+        
+        // object may not be loaded at first calls => skip part where 3D scene must be loaded
         if (typeof object === 'undefined') { return }
         object.visible = true
         
@@ -1230,8 +1238,8 @@ export default {
           .start()
         
         // tell player to touch object + detect touch as soon as device is below a certain distance from the object coordinates
-        if (!this.geolocation.canTouch && this.geolocation.distance <= 10) {
-          this.geolocation.canTouch = true
+        if (!this.geolocation.canTouchTarget && this.geolocation.distance <= 10) {
+          this.geolocation.canTouchTarget = true
         }
       }
       
@@ -1599,7 +1607,7 @@ export default {
       // and its children geometries
       let intersects = raycaster.intersectObject(object, true)
       
-      if (intersects.length > 0 && this.geolocation.canTouch) {
+      if (intersects.length > 0 && this.geolocation.canTouchTarget) {
         // stop location watching
         navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
         // stop camera streams
@@ -1656,6 +1664,7 @@ export default {
     box-shadow: 0px 0px 0.1rem 0.1rem #fff;
   }
   .text { white-space: pre-wrap; }
+  .text p { padding: 0.25rem 0; margin: 0; }
   
   #controls {
     display: none
