@@ -297,7 +297,6 @@
           <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
           <p class="text">Alpha: {{ Math.round(geolocation.alpha) }}°</p>
           <p class="text">Beta: {{ Math.round(geolocation.beta) }}°</p>
-          <p class="text">Gamma: {{ Math.round(geolocation.gamma) }}°</p>
           <p class="text">Difference direction: {{ geolocation.direction }}°</p>
           -->
         </div>
@@ -403,7 +402,6 @@ export default {
           rawDirection: null,
           alpha: null,
           beta: null,
-          gamma: null,
           // for 'locate-item-ar'
           absoluteOrientationSensor: null, 
           target: null,
@@ -1135,7 +1133,6 @@ export default {
       this.geolocation.alpha = (360 - event.alpha)
       this.geolocation.direction = (this.geolocation.rawDirection - this.geolocation.alpha + 360) % 360
       this.geolocation.beta = event.beta
-      this.geolocation.gamma = event.gamma
     },
     /*
      * Draw direction arrows for geolocation

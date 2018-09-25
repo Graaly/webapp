@@ -347,31 +347,34 @@
       </div>
       
       <div class="fields-group" v-if="selectedStep.form.options.is3D">
-        <q-select v-model="selectedStep.form.options.model" :float-label="$t('Choose3DModel')" :options="selectModel3DOptions" />
+        <q-select v-model="selectedStep.form.options.model" :float-label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
         <p class="error-label" v-show="$v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
       </div>
       
-      <!-- TODO: select location on GoogleMap -->
-      <!-- TODO: It would be nice to have a <gps-coordinates> common component with step 'geolocation', however
-        combining form validation (vuelidate) with child components is complex/strangely handled
-        (check Google results for "vuelidate child components").
-        => Better keeping it simple at the price of a few code duplication. Maybe it will worth the effort/complexity rise, when code will grow with the "select location on Google Maps" feature...
-        An alternate solution to avoid duplication (if necessary), could be adding "gps coordinates" field group in "common components" with a simple v-if="option.code == 'geolocation' || option.code == 'locate-item-ar'"...
-      -->
-      <p>{{ $t('label.GPSCoordinates') }}</p>
-      <div class="location-gps-inputs">
-        <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
-        <div>
-          <label for="answer-latitude">Latitude</label>
-          <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
-          <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
+      <p>{{ $t('label.AddressToFind') }}</p>
+      <div class="location-address">
+        <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
+          <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" v-model="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
         </div>
-        <div>
-          <label for="answer-longitude">Longitude</label>
-          <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
-          <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
-        </div>
+        <a @click="getCurrentLocation()"><img src="/statics/icons/game/location.png" /></a>
       </div>
+      <q-list>
+        <q-collapsible icon="explore" :label="$t('label.OrDefineGPSLocation')">
+          <div class="location-gps-inputs">
+            <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
+            <div>
+              <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
+              <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+              <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
+            </div>
+            <div>
+              <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
+              <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+              <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
+            </div>
+          </div>
+        </q-collapsible>
+      </q-list>
       
     </div>
     
@@ -693,13 +696,13 @@ export default {
         this.maxNbAnswers = 12
       } else if (this.options.code === 'locate-item-ar') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
-          this.selectedStep.form.options = { picture: null }
+          this.selectedStep.form.options.picture = null
         }
         if (!this.selectedStep.form.options.hasOwnProperty('objectSize')) {
-          this.selectedStep.form.options = { objectSize: 1 }
+          this.selectedStep.form.options.objectSize = 1
         }
         if (!this.selectedStep.form.options.hasOwnProperty('is3D')) {
-          this.selectedStep.form.options = { is3D: false }
+          this.selectedStep.form.options.is3D = false
         }
         // create options for 3D Model selection
         for (let key in modelsList) {

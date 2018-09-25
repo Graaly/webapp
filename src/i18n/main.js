@@ -463,7 +463,8 @@ module.exports = {
       AddATown: "Add a town",
       Shop: "Shop",
       Coins: "Coins",
-      coins: "coins"
+      coins: "coins",
+      Choose3DModel: "Choose a 3D model"
     }
   },
   fr: {
@@ -925,7 +926,8 @@ module.exports = {
       AddATown: "Ajouter une ville",
       Shop: "Boutique",
       Coins: "Pièces",
-      coins: "pièces"
+      coins: "pièces",
+      Choose3DModel: "Choisissez un modèle 3D"
     }
   }
 }
