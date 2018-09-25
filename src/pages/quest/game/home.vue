@@ -206,10 +206,7 @@ export default {
   async mounted() {
     // get quest information
     await this.getQuest(this.$route.params.id)
-    
-    // get user runs for this quest
-    await this.getRun()
-    
+        
     // check user access rights
     if (this.$store.state.user.isAdmin) {
       this.isAdmin = true
@@ -217,6 +214,9 @@ export default {
     if (this.$store.state.user._id === this.quest.authorUserId) {
       this.isOwner = true
     }
+    
+    // get user runs for this quest
+    await this.getRun()
     
     // check if user can play this quest
     await this.checkUserCanPlay()
@@ -297,14 +297,17 @@ export default {
         if (maxStepComplete > 0) {
           this.isRunStarted = true
           var self = this
-          this.$q.dialog({
-            title: this.$t('label.ContinueThisStep'),
-            message: this.$t('label.YouAlreadyStartThisQuest'),
-            ok: this.$t('label.Continue'),
-            cancel: this.$t('label.Restart')
-          }).then(() => {
-            return self.$router.push('/quest/play/' + self.quest._id + '/step/' + maxStepComplete + '/' + lang)
-          })
+          // propose to continue quest on last step played (only if not the creator of the quest)
+          if (!this.isOwner) {
+            this.$q.dialog({
+              title: this.$t('label.ContinueThisStep'),
+              message: this.$t('label.YouAlreadyStartThisQuest'),
+              ok: this.$t('label.Continue'),
+              cancel: this.$t('label.Restart')
+            }).then(() => {
+              return self.$router.push('/quest/play/' + self.quest._id + '/step/' + maxStepComplete + '/' + lang)
+            })
+          }
         }
       }
     },

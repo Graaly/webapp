@@ -26,11 +26,11 @@
         <div class="panel-bottom no-padding" :style="'background: url(' + ((info.quest.picture && info.quest.picture[0] === '_') ? '/statics/images/quest/' + info.quest.picture : serverUrl + '/upload/quest/' + info.quest.picture) + ' ) center center / cover no-repeat '">
           <div class="text-center bottom-dark-banner q-pb-xl">
             <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title[lang] : $t('label.NoTitle') }}</p>
-            <q-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-progress>
+            <!--<q-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-progress>-->
             <p class="q-pa-md score-text" v-show="info && info.score">{{ info.score }} <q-icon color="white" name="fas fa-trophy" /></p>
-            <!--<p class="q-pb-xl">
+            <p class="q-pb-xl">
               <q-btn color="primary" @click="backToMap">{{ $t('label.LeaveQuest') }}</q-btn>
-            </p>-->
+            </p>
           </div>
         </div>
       </div>
@@ -50,13 +50,13 @@
     <!------------------ FOOTER AREA ------------------------>
     
     <q-layout-footer v-model="footer.show" class="step-menu">
+      <q-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-progress>
       <q-tabs v-model="footer.tabSelected">
+        <q-tab slot="title" name="info" icon="menu" @click="openInfo()" />
         <q-tab slot="title" name="inventory" icon="work" @click="openInventory()" />
-        <q-tab slot="title" name="previous" icon="arrow_back" @click="previousStep()" />
-        <q-tab slot="title" name="home" icon="home" @click="backToMap()" />
-        <q-tab slot="title" name="info" icon="info" @click="openInfo()" />
-        <q-tab slot="title" name="next" icon="arrow_forward" :disable="!canMoveNextStep && !canPass" @click="nextStep()" />
         <q-tab slot="title" name="hint" icon="lightbulb outline" :disable="!isHintAvailable()" @click="askForHint()"/>
+        <q-tab slot="title" name="previous" icon="arrow_back" @click="previousStep()" />
+        <q-tab slot="title" name="next" icon="arrow_forward" :disable="!canMoveNextStep && !canPass" @click="nextStep()" />
       </q-tabs>
     </q-layout-footer>
   </div>
@@ -179,15 +179,19 @@ export default {
       if (step.redirect) {
         return this.$router.push('/quest/play/' + this.quest.id + '/step/' + step.redirect + '/' + this.$route.params.lang)
       }
-    
+      
+      // get quest information
+      await this.getQuest(this.quest.id)
+      // get quest number to compute progression
+      await this.countStepsNumber(this.quest.id, this.lang)
+      
       // no more available step => we reached end of quest
       if (typeof step === 'undefined' || step === 'OK') {
         // if user is owner of the quest, redirect to toolbox
-        await this.getQuest(this.quest.id)
-        if (this.$store.state.user._id === this.info.quest.authorUserId) {
-          return this.$router.push('/quest/settings/' + this.quest.id)
-        } else if (this.$store.state.user.isAdmin) {
+        if (this.$store.state.user.isAdmin) {
           return this.$router.push('/admin/validate/' + this.quest.id)
+        } else if (this.$store.state.user._id === this.info.quest.authorUserId) {
+          return this.$router.push('/quest/settings/' + this.quest.id)
         } else {
           return this.$router.push('/quest/' + this.quest.id + '/end')
         }
@@ -392,8 +396,6 @@ export default {
       if (this.info.isOpened) {
         this.closeAllPanels()
       } else {
-        await this.getQuest(this.quest.id)
-        await this.countStepsNumber(this.quest.id, this.lang)
         this.closeAllPanels()
         this.info.isOpened = true
         this.footer.tabSelected = 'info'

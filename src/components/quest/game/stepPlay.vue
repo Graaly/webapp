@@ -915,7 +915,8 @@ export default {
      * Reset the key pad 
      */
     resetKeypadCode() {
-      this.playerCode = Array(this.step.answers.length).fill("")
+      //this.playerCode = Array(this.step.answers.length).fill("")
+      this.playerCode = Array(4).fill("")
     },
     /*
      * Reset the color code pad
@@ -1487,8 +1488,6 @@ export default {
                 sourceIdPos = i
               }
             }
-alert(destIdPos)
-alert(sourceIdPos)
             // move the places in the arrays
             let oldPlace = this.puzzle.pieces[destIdPos]
             Vue.set(this.puzzle.pieces, destIdPos, this.puzzle.pieces[sourceIdPos])
