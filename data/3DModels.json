@@ -119,15 +119,6 @@
       "y": 135
     }
   },
-  "phone-rotary": {
-    "name": {
-      "fr": "Téléphone à cadran",
-      "en": "Phone (rotary)" 
-    },
-    "author": "Zell-Wu",
-    "url": "https://sketchfab.com/models/eb42c07e79764c74aa5377e092f783ce",
-    "scale": 0.01
-  },
   "phone-booth": {
     "name": {
       "fr": "Cabine téléphonique",
@@ -136,5 +127,14 @@
     "author": "Mountrise",
     "url": "https://sketchfab.com/models/94fca8c5ac9f4974bd4a02e8f571f493",
     "scale": 0.2
+  },
+  "phone-rotary": {
+    "name": {
+      "fr": "Téléphone à cadran",
+      "en": "Phone (rotary)" 
+    },
+    "author": "Zell-Wu",
+    "url": "https://sketchfab.com/models/eb42c07e79764c74aa5377e092f783ce",
+    "scale": 0.01
   }
 }

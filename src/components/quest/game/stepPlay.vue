@@ -617,8 +617,6 @@ export default {
             
             object = gltfData.scene
             
-            object.name = 'targetObject'
-            
             // apply user-defined scaling
             if (objectInit.scale) {
               let scale = objectInit.scale
@@ -674,6 +672,7 @@ export default {
           }
           
           object.name = "targetObject"
+          object.visible = false
           scene.add(object)
           
           // default camera direction => look at positive y axis from origin
@@ -1220,8 +1219,9 @@ export default {
         let object = scene.getObjectByName('targetObject')
         // object may not be loaded at first calls
         if (typeof object === 'undefined') { return }
+        object.visible = true
         
-        let finalDirection = utils.degreesToRadians(this.geolocation.rawDirection - 90)
+        let finalDirection = utils.degreesToRadians(this.geolocation.rawDirection)
         let newPositionX = this.geolocation.distance !== 0 ? Math.sin(finalDirection) * this.geolocation.distance : 0
         let newPositionY = this.geolocation.distance !== 0 ? Math.cos(finalDirection) * this.geolocation.distance : 0
         
@@ -1487,8 +1487,7 @@ export default {
                 sourceIdPos = i
               }
             }
-alert(destIdPos)
-alert(sourceIdPos)
+
             // move the places in the arrays
             let oldPlace = this.puzzle.pieces[destIdPos]
             Vue.set(this.puzzle.pieces, destIdPos, this.puzzle.pieces[sourceIdPos])
@@ -1598,7 +1597,9 @@ alert(sourceIdPos)
       
       raycaster.setFromCamera(touchPos, target.camera)
       
-      let intersects = raycaster.intersectObject(object)
+      // second parameter set to true so that intersectObject() traverses recursively the object
+      // and its children geometries
+      let intersects = raycaster.intersectObject(object, true)
       
       if (intersects.length > 0 && this.geolocation.canTouch) {
         // stop location watching
