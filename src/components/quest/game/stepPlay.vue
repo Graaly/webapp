@@ -1509,8 +1509,12 @@ export default {
      */
     initMemory() {
       var items = []
-      for (var i = 0; i < (this.step.options.length * 2); i++) {
-        items[i] = {imagePath: (i < this.step.options.length ? this.step.options[i].imagePath : this.step.options[i - this.step.options.length].imagePath), isClicked: false, isFound: false}
+      for (var i = 0; i < (this.step.options.items.length * 2); i++) {
+        let tileUsed = (i < this.step.options.items.length ? this.step.options.items[i] : this.step.options.items[i - this.step.options.items.length])
+        // tile is not displayed twice if single
+        if (!tileUsed.single || i < this.step.options.items.length) {
+          items[i] = {imagePath: tileUsed.imagePath, isClicked: false, isFound: false}
+        }
       }
       
       this.memory.items = this.shuffle(items)
@@ -1532,7 +1536,14 @@ export default {
       if (this.memory.nbTry >= 1) {
         if (this.memory.items[this.memory.selectedKey].imagePath === this.memory.items[key].imagePath) {
           this.memory.score++;
-          if (this.memory.score === this.step.options.length) { 
+          if (this.memory.score === Math.floor(this.memory.items.length / 2)) { 
+            // uncover all tiles
+            for (var i = 0; i < this.memory.items.length; i++) {
+              if (!this.memory.items[i].isFound) {
+                this.memory.items[i].isClicked = true
+                Vue.set(this.memory.items, i, this.memory.items[i])
+              }
+            }
             this.checkAnswer(true)
           } else {
             _self.memory.items[_self.memory.selectedKey].isFound = true

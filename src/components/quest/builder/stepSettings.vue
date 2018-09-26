@@ -248,21 +248,22 @@
     <!------------------ STEP : MEMORY PUZZLE ------------------------>
     
     <div v-if="options.code === 'memory'">
-      <div class="answer" v-for="(option, key) in selectedStep.form.options" :key="key">
+      <div class="answer" v-for="(option, key) in memoryItems" :key="key">
                 
-        <p v-show="option.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && !$v.selectedStep.form.options.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
+        <p v-show="option.imagePath === null" class="error-label">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/memory/' + option.imagePath" /></p>
         <q-btn>
           <label :for="'answerImage' + key"><q-icon name="file upload" /></label>
           <input @change="uploadMemoryImage(key, $event)" :name="'answerImage' + key" :id="'answerImage' + key" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
         </q-btn>
-        <q-btn @click="deleteAnswer(key)">
+        <q-btn @click="deleteMemoryAnswer(key)">
           <q-icon name="clear" />
         </q-btn>
       </div>
       <q-btn @click="addAnswer()" class="full-width add-answer">
         {{ $t('label.AddAnAnswer') }}
       </q-btn>
+      <q-checkbox v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
     </div>
     
     <!------------------ STEP : USE INVENTORY ITEM ------------------------>
@@ -515,6 +516,9 @@ export default {
       questItemsAsOptions: [],
       questItems: [],
       
+      // for 'memory' steps
+      memoryItems: [],
+      
       unformatedAnswer: null,
       
       // for 'find-object-ar'
@@ -628,19 +632,21 @@ export default {
         this.minNbAnswers = 2
         this.maxNbAnswers = 6
       } else if (this.options.code === 'code-color') {
-        if (this.selectedStep.form.answers && this.selectedStep.form.answers.indexOf('|') !== -1) {
+        if (this.selectedStep.form.answers && typeof this.selectedStep.form.answers === 'string' && this.selectedStep.form.answers.indexOf('|') !== -1) {
           this.unformatedAnswer = this.selectedStep.form.answers.split("|")
         } else {
           this.unformatedAnswer = Array(4).fill('red')
         }
       } else if (this.options.code === 'code-image') {
-        if (!this.selectedStep.form.options) {
+        // init images list
+        if (!this.selectedStep.form.options || !this.selectedStep.form.options.images) {
           this.selectedStep.form.options = {images: []}
           for (let i = 0; i < this.defaultNbAnswers; i++) {
             this.selectedStep.form.options.images.push({ imagePath: null })
           }
         }
-        if (this.selectedStep.form.answers && this.selectedStep.form.answers.indexOf('|') !== -1) {
+        // init answers
+        if (this.selectedStep.form.answers && typeof this.selectedStep.form.answers === 'string' && this.selectedStep.form.answers.indexOf('|') !== -1) {
           this.unformatedAnswer = this.selectedStep.form.answers.split("|")
         } else {
           this.unformatedAnswer = [0, 0, 0, 0]
@@ -686,11 +692,14 @@ export default {
           this.selectedStep.form.options = { picture: null, level: 2 }
         }
       } else if (this.options.code === 'memory') {
-        if (!Array.isArray(this.selectedStep.form.options)) {
-          this.selectedStep.form.options = []
+        if (!this.selectedStep.form.options.items) {
+          this.selectedStep.form.options = {lastIsSingle: false}
+          this.memoryItems = []
           for (let i = 0; i < 8; i++) {
-            this.selectedStep.form.options.push({ imagePath: null })
+            this.memoryItems.push({ imagePath: null, single: false })
           }
+        } else {
+          this.memoryItems = this.selectedStep.form.options.items
         }
         this.minNbAnswers = 3
         this.maxNbAnswers = 12
@@ -740,6 +749,12 @@ export default {
         let piecePositionArray = utils.buildIncrementalArray(Math.pow(parseInt(this.selectedStep.form.options.level, 10) * 2, 2))
         piecePositionArray = utils.shuffle(piecePositionArray)
         this.selectedStep.form.answers = piecePositionArray.join('|')
+      }
+      if (this.options.code === 'memory') {
+        this.selectedStep.form.options.items = this.memoryItems
+        if (this.selectedStep.form.options.lastIsSingle && this.selectedStep.form.options.items && this.selectedStep.form.options.items.length > 0) {
+          this.selectedStep.form.options.items[this.selectedStep.form.options.items.length - 1].single = true
+        }
       }
       if (this.options.code === 'find-item') {
         this.selectedStep.form.answers = this.selectedStep.form.answerPointerCoordinates
@@ -951,8 +966,18 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadMemoryImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.options[key].imagePath = uploadResult.data.file
+        this.memoryItems[key].imagePath = uploadResult.data.file
         this.$q.loading.hide()
+      }
+    },
+    /*
+     * Delete an answer in the memory game
+     */
+    deleteMemoryAnswer: function (key) {
+      if (this.memoryItems.length <= this.minNbAnswers) {
+        Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.minNbAnswers }), 'error')
+      } else {
+        this.memoryItems.splice(key, 1);
       }
     },
     /*
@@ -1183,11 +1208,6 @@ export default {
         break
       case 'jigsaw-puzzle':
         fieldsToValidate.options = { picture: { required } }
-        break
-      case 'memory':
-        fieldsToValidate.options = {
-          $each: { imagePath: { required } }
-        }
         break
       case 'new-item':
         fieldsToValidate.options = { picture: { required }, title: { required } }

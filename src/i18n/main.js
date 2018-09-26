@@ -465,7 +465,8 @@ module.exports = {
       Coins: "Coins",
       coins: "coins",
       Choose3DModel: "Choose a 3D model",
-      ObjectIsTooFar: "The object is too far to be visible on screen. Try to get closer."
+      ObjectIsTooFar: "The object is too far to be visible on screen. Try to get closer.",
+      LastItemIsUniq: "Last picture is unique (no twin in the game)"
     }
   },
   fr: {
@@ -929,7 +930,8 @@ module.exports = {
       Coins: "Pièces",
       coins: "pièces",
       Choose3DModel: "Choisissez un modèle 3D",
-      ObjectIsTooFar: "L'objet est trop éloigné pour être visible à l'écran. Essayez de vous rapprocher."
+      ObjectIsTooFar: "L'objet est trop éloigné pour être visible à l'écran. Essayez de vous rapprocher.",
+      LastItemIsUniq: "La dernière image sera unique dans le jeu"
     }
   }
 }
