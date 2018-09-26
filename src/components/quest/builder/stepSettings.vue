@@ -705,13 +705,16 @@ export default {
         this.maxNbAnswers = 12
       } else if (this.options.code === 'locate-item-ar') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
-          this.selectedStep.form.options.picture = null
+          this.$set(this.selectedStep.form.options, 'picture', null)
         }
         if (!this.selectedStep.form.options.hasOwnProperty('objectSize')) {
-          this.selectedStep.form.options.objectSize = 1
+          this.$set(this.selectedStep.form.options, 'objectSize', 1)
         }
         if (!this.selectedStep.form.options.hasOwnProperty('is3D')) {
-          this.selectedStep.form.options.is3D = false
+          this.$set(this.selectedStep.form.options, 'is3D', false)
+        }
+        if (!this.selectedStep.form.options.hasOwnProperty('model')) {
+          this.$set(this.selectedStep.form.options, 'model', null)
         }
         // create options for 3D Model selection
         for (let key in modelsList) {
