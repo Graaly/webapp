@@ -324,6 +324,7 @@ function initJigsaw (DragDropTouch_1) {
             var _this = this;
             if (this._img) {
                 requestAnimationFrame(function () {
+                  if (_this._img) {
                     var pt = _this._getPoint(e, true), s = _this._img.style;
                     s.position = 'absolute';
                     s.pointerEvents = 'none';
@@ -332,6 +333,7 @@ function initJigsaw (DragDropTouch_1) {
                     //s.top = Math.round(pt.y - (_this._imgOffset.y > 0 ? _this._imgOffset.y : 0)) + 'px';
                     s.left = Math.round(pt.x - 35) + 'px';
                     s.top = Math.round(pt.y - 35) + 'px';
+                  }
                 });
             }
         };

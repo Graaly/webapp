@@ -7,6 +7,9 @@
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
         <div id="info-clickable" :class="{ grow: !step.videoStream }">
           <p class="text">{{ step.text }}</p>
+          <div>
+            <div class="text right" v-show="playerResult">{{ $t('label.ClickOnArrowToMoveToNextStep') }}</div>
+          </div>
         </div>
         <div class="video" v-if="step.videoStream">
           <video class="full-width" controls controlsList="nodownload" autoplay>
@@ -234,8 +237,11 @@
           <p class="text">{{ step.text === '' ? $t('label.YouHaveWinANewItem') : step.text }}</p>
         </div>
         <div class="item">
-          <img :src="serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture" />
+          <img style="width: 80%" :src="(step.options.picture.indexOf('statics/') ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
           <p>{{ step.options.title }}</p>
+        </div>
+        <div>
+          <div class="text right" v-show="playerResult">{{ $t('label.ClickOnArrowToMoveToNextStep') }}</div>
         </div>
       </div>
       
@@ -260,7 +266,7 @@
       </div>
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
         <q-btn round color="primary">
-          <img v-if="itemUsed" :src="serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture" />
+          <img v-if="itemUsed" :src="(itemUsed.picture.indexOf('statics/') ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
         </q-btn>
         {{ $t('label.TouchWhereYouUseThisItem') }}
       </p>
@@ -473,7 +479,7 @@ export default {
         
         if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'new-item') {
           // validate steps with no enigma
-          this.checkAnswer()
+          setTimeout(this.checkAnswer, 4500)
         }
         
         if (this.step.type === 'choose') {
@@ -507,6 +513,7 @@ export default {
         
         if (this.step.type === 'memory') {
           this.initMemory()
+          this.$emit('pass')
         }
         
         // common process to 'geolocation' and 'locate-item-ar'

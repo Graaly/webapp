@@ -56,7 +56,7 @@
    
       <!------------------ BACK TO MAP LINK AREA ------------------------>
       
-      <div class="back centered q-pa-md">
+      <div class="back centered q-pa-md bg-primary">
         <q-btn flat :label="$t('label.BackToTheMap')" @click="$router.push('/map')" />
       </div>
       

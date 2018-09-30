@@ -435,6 +435,11 @@ export default {
      * Submit settings changes
      */
     async submitSettings() {
+      // start location must be defined
+      if (this.form.fields.location.lat === 0 || this.form.fields.location.lng === 0) {
+        Notification(this.$t('label.YouMustDefineStartLocation'), 'warning')
+        return
+      }
       this.$v.form.fields.$touch()
       if (!this.$v.form.fields.$error) {
         let commonProperties = {

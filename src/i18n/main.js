@@ -29,6 +29,8 @@ module.exports = {
     bonus: {
       scorex2: "Score x 2",
       scorex2Desc: "The score of the quests you run during the next 3 days is doubled",
+      rewardx2: "Coins x 2",
+      rewardx2Desc: "The coins you win during the next 3 days are doubled",
       infinitehint: "Unlimited hints",
       infinitehintDesc: "You have unlimited hints in quests during 1 day",
       '100coins': "100 coins",
@@ -466,7 +468,8 @@ module.exports = {
       coins: "coins",
       Choose3DModel: "Choose a 3D model",
       ObjectIsTooFar: "The object is too far to be visible on screen. Try to get closer.",
-      LastItemIsUniq: "Last picture is unique (no twin in the game)"
+      LastItemIsUniq: "Last picture is unique (no twin in the game)",
+      YouMustDefineStartLocation: "You must define the location of the starting point of the quest"
     }
   },
   fr: {
@@ -499,6 +502,8 @@ module.exports = {
     bonus: {
       scorex2: "Score x 2",
       scorex2Desc: "Vous doublez le score de vos enquêtes durant 3 jours",
+      rewardx2: "Pièces x 2",
+      rewardx2Desc: "Les pièces que vous gagnez sont doublées durant 3 jours",
       infinitehint: "Indices illimités",
       infinitehintDesc: "Vous bénéficiez d'indices infinis durant 1 jour",
       '100coins': "100 pièces",
@@ -536,7 +541,8 @@ module.exports = {
       UseAnItem: "Utiliser objet",
       UseAnItemDesc: "Utiliser un objet de l'inventaire",
       LocateItemAR: "Localiser un objet en réalité augmentée",
-      LocateItemARDesc: "Le joueur doit trouver un objet géolocalisé et visible sur l'écran de son smartphone lorsqu'il se trouve à proximité."
+      LocateItemARDesc: "Le joueur doit trouver un objet géolocalisé et visible sur l'écran de son smartphone lorsqu'il se trouve à proximité.",
+      ClickOnArrowToMoveToNextStep: "Touch the arrow to move to next step"
     },
     messages: {
       SignIn: "Connectez-vous",
@@ -931,7 +937,9 @@ module.exports = {
       coins: "pièces",
       Choose3DModel: "Choisissez un modèle 3D",
       ObjectIsTooFar: "L'objet est trop éloigné pour être visible à l'écran. Essayez de vous rapprocher.",
-      LastItemIsUniq: "La dernière image sera unique dans le jeu"
+      LastItemIsUniq: "La dernière image sera unique dans le jeu",
+      YouMustDefineStartLocation: "Vous devez définir l'adresse du point de départ de l'enquête",
+      ClickOnArrowToMoveToNextStep: "Touchez la flèche pour passer à l'étape suivante"
     }
   }
 }

@@ -56,10 +56,10 @@
         <q-tab-pane name="played">
           <q-list highlight>
           <q-item v-if="success.quests.played && success.quests.played.length > 0" v-for="quest in success.quests.played" :key="quest._id" @click.native="$router.push('/quest/play/'+quest.questId)">
-            <q-item-side v-if="quest.questData && quest.questData.picture" :avatar="serverUrl + '/upload/quest/' + quest.questData.picture" />
+            <q-item-side v-if="quest.questData && quest.questData.picture" :avatar="((quest.questData.picture && quest.questData.picture[0] === '_') ? '/statics/images/quest/' + quest.questData.picture : serverUrl + '/upload/quest/' + quest.questData.picture)" />
             <q-item-side v-if="!quest.questData || !quest.questData.picture" :avatar="'/statics/profiles/noprofile.png'" />
             <q-item-main>
-              <q-item-tile label>{{ getQuestTitle(quest.questData, false) }}</q-item-tile>
+              <q-item-tile label>{{ getQuestTitle(quest.questData, false) }} {{ quest.type }}</q-item-tile>
               <q-item-tile sublabel v-if="quest.dateCreated && quest.status == 'finished' && !quest.score">
                 {{ $t('label.PlayedOn') }} {{quest.dateCreated | formatDate}}
               </q-item-tile>
@@ -73,8 +73,11 @@
                 {{ $t('label.ContinueThisQuest') }}
               </q-item-tile>
             </q-item-main>
-            <q-item-side right class="score">
+            <q-item-side right class="score" v-if="!quest.questData.type || quest.questData.type === 'quest'">
               {{ quest.score }} <q-icon name="fas fa-trophy" />
+            </q-item-side>
+            <q-item-side right class="score" v-if="quest.questData.type && quest.questData.type !== 'quest'">
+              {{ quest.reward }} <q-icon name="fas fa-coins" />
             </q-item-side>
           </q-item>
           <q-item v-if="success.quests.played.length === 0">
@@ -302,6 +305,8 @@
         @center_changed="updateCenter($event)"
         @dragend="dragEnd($event)"
       >
+        <gmap-marker :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()" />
+        
         <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="setMapIcon(quest)"
           @click="openQuestSummary(quest, index)" />
         
@@ -479,7 +484,7 @@ export default {
     return {
       map: {
         filter: 'all',
-        zoom: 13,
+        zoom: 14,
         center: { lat: 0, lng: 0 },
         centerTmp: { lat: 0, lng: 0 },
         // for smooth 'panTo()' transition between marker clicks
@@ -1049,13 +1054,18 @@ export default {
         origin: {x: 0, y: 0},
         anchor: {x: 20, y: 40}
       }
-      if (quest.status !== 'played') {
-        if (quest.type === 'quest') {
-          marker.url = 'statics/icons/game/pointer-quest.png'
-        } else {
-          marker.url = 'statics/icons/game/pointer-' + quest.category + '.png'
+      if (quest) {
+        if (quest.status !== 'played') {
+          if (quest.type === 'quest') {
+            marker.url = 'statics/icons/game/pointer-quest.png'
+          } else {
+            marker.url = 'statics/icons/game/pointer-' + quest.category + '.png'
+          }
         }
+      } else {
+        marker.url = 'statics/icons/game/pointer-me.png'
       }
+      
       return marker
     },
     /*

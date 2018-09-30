@@ -1,0 +1,464 @@
+[
+  {
+    "id": "coins",
+    "file": "coins-big.png",
+    "thumb": "coins-medium.png",
+    "name": {
+      "fr": "Pièces",
+      "en": "Coins"  
+    },
+    "author": "Flaticons.com",
+    "url": ""
+  },
+  {
+    "id": "chest",
+    "file": "chest-big.png",
+    "thumb": "chest-medium.png",
+    "name": {
+      "fr": "Coffre",
+      "en": "Chest"  
+    },
+    "author": "Flaticons.com",
+    "url": ""
+  },
+  {
+    "id": "goldbag",
+    "file": "goldbag-big.png",
+    "thumb": "goldbag-medium.png",
+    "name": {
+      "fr": "Sac d'or",
+      "en": "Gold bag"  
+    },
+    "author": "Flaticons.com",
+    "url": ""
+  },
+  {
+    "id": "rope",
+    "file": "rope-big.png",
+    "thumb": "rope-medium.png",
+    "name": {
+      "fr": "Corde",
+      "en": "Rope"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/military-11"
+  },
+  {
+    "id": "key",
+    "file": "key-big.png",
+    "thumb": "key-medium.png",
+    "name": {
+      "fr": "Clé",
+      "en": "Key"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/miscellaneous"
+  },
+  {
+    "id": "airplane",
+    "file": "airplane-big.png",
+    "thumb": "airplane-medium.png",
+    "name": {
+      "fr": "Avion",
+      "en": "Airplane"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/miscellaneous"
+  },
+  {
+    "id": "backpack",
+    "file": "backpack-big.png",
+    "thumb": "backpack-medium.png",
+    "name": {
+      "fr": "Sac à dos",
+      "en": "Backpack"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/miscellaneous"
+  },
+  {
+    "id": "briefcase",
+    "file": "briefcase-big.png",
+    "thumb": "briefcase-medium.png",
+    "name": {
+      "fr": "Valise",
+      "en": "Briefcase"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/miscellaneous"
+  },
+  {
+    "id": "car",
+    "file": "car-big.png",
+    "thumb": "car-medium.png",
+    "name": {
+      "fr": "Voiture",
+      "en": "Car"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "clock",
+    "file": "clock-big.png",
+    "thumb": "clock-medium.png",
+    "name": {
+      "fr": "Horloge",
+      "en": "Clock"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "compass",
+    "file": "compass-big.png",
+    "thumb": "compass-medium.png",
+    "name": {
+      "fr": "Boussole",
+      "en": "Compass"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "diamond",
+    "file": "diamond-big.png",
+    "thumb": "diamond-medium.png",
+    "name": {
+      "fr": "Diamand",
+      "en": "Diamond"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "eyeglasses",
+    "file": "eyeglasses-big.png",
+    "thumb": "eyeglasses-medium.png",
+    "name": {
+      "fr": "Lunettes",
+      "en": "Glasses"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "gift",
+    "file": "gift-big.png",
+    "thumb": "gift-medium.png",
+    "name": {
+      "fr": "Cadeau",
+      "en": "Gift"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "lifebuoy",
+    "file": "help-big.png",
+    "thumb": "help-medium.png",
+    "name": {
+      "fr": "Boué de sauvetage",
+      "en": "Life buoy"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "letter",
+    "file": "letter-big.png",
+    "thumb": "letter-medium.png",
+    "name": {
+      "fr": "Lettre",
+      "en": "Letter"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "map",
+    "file": "map-big.png",
+    "thumb": "map-medium.png",
+    "name": {
+      "fr": "Carte",
+      "en": "Map"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "medal",
+    "file": "medal-big.png",
+    "thumb": "medal-medium.png",
+    "name": {
+      "fr": "Medaille",
+      "en": "Medal"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "newspaper",
+    "file": "newspaper-big.png",
+    "thumb": "newspaper-medium.png",
+    "name": {
+      "fr": "Journal",
+      "en": "Newspaper"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "paintbrush",
+    "file": "paintbrush-big.png",
+    "thumb": "paintbrush-medium.png",
+    "name": {
+      "fr": "Pinceau",
+      "en": "Paint brush"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "pencil",
+    "file": "pencil-big.png",
+    "thumb": "pencil-medium.png",
+    "name": {
+      "fr": "Crayon",
+      "en": "Pencil"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "camera",
+    "file": "camera-big.png",
+    "thumb": "camera-medium.png",
+    "name": {
+      "fr": "Appareil photo",
+      "en": "Camera"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "pictures",
+    "file": "pictures-big.png",
+    "thumb": "pictures-medium.png",
+    "name": {
+      "fr": "Photos",
+      "en": "Pictures"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "rocket",
+    "file": "rocket-big.png",
+    "thumb": "rocket-medium.png",
+    "name": {
+      "fr": "Fusée",
+      "en": "Rocket"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "scissors",
+    "file": "scissors-big.png",
+    "thumb": "scissors-medium.png",
+    "name": {
+      "fr": "Ciseaux",
+      "en": "Scissors"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "search",
+    "file": "search-big.png",
+    "thumb": "seach-medium.png",
+    "name": {
+      "fr": "Loupe",
+      "en": "Magnifier"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "bag",
+    "file": "bag-big.png",
+    "thumb": "bag-medium.png",
+    "name": {
+      "fr": "Sac",
+      "en": "Bag"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "smartphone",
+    "file": "smartphone-big.png",
+    "thumb": "smartphone-medium.png",
+    "name": {
+      "fr": "Téléphone",
+      "en": "Smartphone"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "swissknife",
+    "file": "swissknife-big.png",
+    "thumb": "swissknife-medium.png",
+    "name": {
+      "fr": "Couteau",
+      "en": "Knife"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "television",
+    "file": "television-big.png",
+    "thumb": "television-medium.png",
+    "name": {
+      "fr": "Télévision",
+      "en": "Television"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "trash",
+    "file": "trash-big.png",
+    "thumb": "trash-medium.png",
+    "name": {
+      "fr": "Poubelle",
+      "en": "Trash"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "umbrella",
+    "file": "umbrella-big.png",
+    "thumb": "umbrella-medium.png",
+    "name": {
+      "fr": "Parapluie",
+      "en": "Umbrella"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "vest",
+    "file": "vest-big.png",
+    "thumb": "vest-medium.png",
+    "name": {
+      "fr": "Veste",
+      "en": "Vest"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "wallet",
+    "file": "wallet-big.png",
+    "thumb": "wallet-medium.png",
+    "name": {
+      "fr": "Portefeuille",
+      "en": "Wallet"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "watch",
+    "file": "watch-big.png",
+    "thumb": "watch-medium.png",
+    "name": {
+      "fr": "Montre",
+      "en": "Watch"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "meal",
+    "file": "meal-big.png",
+    "thumb": "meal-medium.png",
+    "name": {
+      "fr": "Repas",
+      "en": "Meal"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "fruit",
+    "file": "fruit-big.png",
+    "thumb": "fruit-medium.png",
+    "name": {
+      "fr": "Fruit",
+      "en": "Fruit"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "chicken",
+    "file": "chicken-big.png",
+    "thumb": "chicken-medium.png",
+    "name": {
+      "fr": "Repas",
+      "en": "Meal"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/fast-food-43"
+  },
+  {
+    "id": "worker",
+    "file": "worker-big.png",
+    "thumb": "worker-medium.png",
+    "name": {
+      "fr": "Casque",
+      "en": "Helmet"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/basic-flat-icons"
+  },
+  {
+    "id": "oldkey",
+    "file": "oldkey-big.png",
+    "thumb": "oldkey-medium.png",
+    "name": {
+      "fr": "Vielle clé",
+      "en": "Old key"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/real-assets-3"
+  },
+  {
+    "id": "hammer",
+    "file": "hammer-big.png",
+    "thumb": "hammer-medium.png",
+    "name": {
+      "fr": "Marteau",
+      "en": "Hammer"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/real-assets-3"
+  },
+  {
+    "id": "tools",
+    "file": "tools-big.png",
+    "thumb": "tools-medium.png",
+    "name": {
+      "fr": "Outils",
+      "en": "Tools"  
+    },
+    "author": "Flaticons.com",
+    "url": "https://www.flaticon.com/packs/real-assets-3"
+  }
+]

@@ -289,6 +289,11 @@
     <!------------------ STEP : WIN NEW ITEM ------------------------>
     
     <div class="inventory" v-if="options.code == 'new-item'">
+      <div class="row">
+        <div class="col-2 q-pa-sm" v-for="(item, key) in objectsList" :key="key">
+          <img style="width: 100%" :src="'/statics/images/object/' + item.thumb" @click="selectObject(key)" />
+        </div>
+      </div>
       <q-btn class="full-width" type="button">
         <label for="itemfile">{{ $t('label.UploadTheItemPicture') }}</label>
         <input @change="uploadItemImage" name="itemfile" id="itemfile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
@@ -297,7 +302,7 @@
       <p>{{ $t('label.WarningImageSizeSquare') }}</p>
       <div v-if="selectedStep.form.options !== null && selectedStep.form.options.picture && selectedStep.form.options.picture !== null">
         <p>{{ $t('label.YourItemPicture') }} :</p>
-        <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.options.picture" />
+        <img style="width:100%" :src="(selectedStep.form.options.picture.indexOf('statics/') ? selectedStep.form.options.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.options.picture)" />
       </div>
       <!--<p>{{ $t('message.Or') }}</p>
       <q-select :float-label="$t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
@@ -449,6 +454,7 @@ import utils from 'src/includes/utils'
 import colorsForCode from 'data/colorsForCode.json'
 import stepTypes from 'data/stepTypes.json'
 import modelsList from 'data/3DModels.json'
+import objectsList from 'data/2Dobjects.json'
 
 import StepService from 'services/StepService'
 
@@ -478,6 +484,7 @@ export default {
         }
       },
       stepTypes,
+      objectsList,
       
       /*
        * List of the levels for the jigsaw step
@@ -1036,6 +1043,14 @@ export default {
         this.selectedStep.form.options.picture = uploadResult.data.file
         this.$q.loading.hide()
       }
+    },
+    /*
+     * Select an object in the list
+     * @param   {Number}    key            key in the objects array
+     */
+    async selectObject(key) {
+      this.selectedStep.form.options.title = this.objectsList[key].name[this.lang]
+      this.selectedStep.form.options.picture = '/statics/images/object/' + this.objectsList[key].file
     },
     /*
      * Get the list of colors for the color code step
