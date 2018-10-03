@@ -78,6 +78,7 @@
             <input type="number" id="longitude" v-model.number="form.fields.location.lng" step="any" />
             <input type="text" v-model="form.fields.zipcode" />
             <input type="text" v-model="form.fields.town" />
+            <input type="text" v-model="form.fields.country" />
           </div>
           
           <div class="location-address">
@@ -142,6 +143,12 @@
         <q-alert type="warning" class="q-mb-md" v-if="quest.status === 'rejected'">
           {{ $t('label.QuestPublicationRejected') }}
         </q-alert>
+        <q-alert type="warning" class="q-mb-md" v-if="steps.items.length < 6">
+          {{ $t('label.YourQuestMustContainAtLeast6Steps') }}
+        </q-alert>
+        <q-alert type="warning" class="q-mb-md" v-if="steps.items.length > 50">
+          {{ $t('label.YourQuestMustContainLessThan50Steps') }}
+        </q-alert>
         <p class="centered q-pa-md">
           <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
         </p>
@@ -151,7 +158,7 @@
           :label="$t('label.LanguagesPublished')"
         >
           <p v-for="lang in form.fields.languages" :key="lang.lang">
-            <q-toggle v-model="lang.published" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
+            <q-toggle v-model="lang.published" :disable="steps.items.length < 6 || steps.items.length > 50" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
           </p>
         </q-field>
         
@@ -326,6 +333,7 @@ export default {
           duration: 30,
           picture: null,
           town: "",
+          country: "",
           zipcode: ""
         },
         categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }, this.$t),
@@ -406,6 +414,7 @@ export default {
         this.form.fields.startingPlace = this.form.fields.location.address || ""
         this.form.fields.zipcode = (this.form.fields.location && this.form.fields.location.zipcode) ? this.form.fields.location.zipcode : ""
         this.form.fields.town = (this.form.fields.location && this.form.fields.location.town) ? this.form.fields.location.town : ""
+        this.form.fields.country = (this.form.fields.location && this.form.fields.location.country) ? this.form.fields.location.country : ""
         
         // adapt data from DB to match form data structure
         if (this.form.fields.location.hasOwnProperty('coordinates') && this.form.fields.location.coordinates.length === 2) {
@@ -448,6 +457,7 @@ export default {
             type: 'Point', 
             coordinates: [this.form.fields.location.lng, this.form.fields.location.lat],
             town: this.form.fields.town,
+            country: this.form.fields.country,
             zipcode: this.form.fields.zipcode,
             address: this.form.fields.startingPlace
           }
@@ -508,6 +518,7 @@ export default {
         this.$q.loading.hide()
         if (status === 'OK' && results[0].formatted_address) {
           this.form.fields.town = this.getCity(results[0])
+          this.form.fields.country = this.getCountry(results[0])
           this.form.fields.zipcode = this.getZipcode(results[0])
           this.form.fields.startingPlace = results[0].formatted_address
           // force field to be refreshed
@@ -524,6 +535,7 @@ export default {
     async setLocation(place) {
       this.form.fields.location = {lat: place.geometry.location.lat(), lng: place.geometry.location.lng()}
       this.form.fields.town = this.getCity(place)
+      this.form.fields.country = this.getCountry(place)
       this.form.fields.zipcode = this.getZipcode(place)
       this.form.fields.startingPlace = (place.formatted_address || '')
     },
@@ -556,6 +568,24 @@ export default {
             for (var j = 0; j < address.address_components[i].types.length; j++) {
               if (address.address_components[i].types[j] === 'locality') {
                 return address.address_components[i].long_name
+              }
+            }
+          }
+        }
+      }
+      return ""
+    },
+    /*
+     * Get the contry code from the location data
+     * @param   {Object}    address            Location data
+     */
+    getCountry(address) {
+      if (address && address.address_components && address.address_components.length > 0) {
+        for (var i = 0; i < address.address_components.length; i++) {
+          if (address.address_components[i].types) {
+            for (var j = 0; j < address.address_components[i].types.length; j++) {
+              if (address.address_components[i].types[j] === 'country') {
+                return address.address_components[i].short_name
               }
             }
           }

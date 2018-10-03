@@ -283,7 +283,7 @@ module.exports = {
       Start: "Start",
       AcceptTheRules: "Accepter les règles",
       SomeMoney: "Some money",
-      BuilderWelcomeMessage: "<p>Graaly helps you create funny quest to challenge players and win points!</p><p>By pressing the Start button, you accept those rules, described in the XXXXX:<ul>If you are not the owner of the place of the quest, do not ask players to touch, move, or degrade things.</p><p>The story of your quest must not undermine living or dead people</li><li>Your quest must concern a location where no quest has already be done, except if the content is enough different.</li><li>Our moderation team will check if your quest respects these rules, and if the quality level is enough. If not, you will be asked to improve your quest, or your quest will be rejected</li></ul></p>",
+      BuilderWelcomeMessage: "<p>Graaly helps you create funny quest to challenge players and win points!</p><p>By pressing the Start button, you accept those rules, described in the XXXXX:<ul>If you are not the owner of the place of the quest, do not ask players to touch, move, or degrade things.</p><p>The story of your quest must not undermine living or dead people</li><li>Your quest must concern a location where no quest has already be done, except if the content is enough different.</li><li>Your quest must have more than 6 steps and less than 50 steps</li><li>Our moderation team will check if your quest respects these rules, and if the quality level is enough. If not, you will be asked to improve your quest, or your quest will be rejected</li></ul></p>",
       HowToWinMoney: "How to win money?",
       HowToWinMoneyExplaination: "Graaly share with you 50% of the revenues of the ads displayed when a use play one of your quest. The revenues are payed when they reach $100.",
       NewQuest: "New quest",
@@ -469,7 +469,9 @@ module.exports = {
       Choose3DModel: "Choose a 3D model",
       ObjectIsTooFar: "The object is too far to be visible on screen. Try to get closer.",
       LastItemIsUniq: "Last picture is unique (no twin in the game)",
-      YouMustDefineStartLocation: "You must define the location of the starting point of the quest"
+      YouMustDefineStartLocation: "You must define the location of the starting point of the quest",
+      YourQuestMustContainAtLeast6Steps: "Your quest is too short, you must create at least 6 steps",
+      YourQuestMustContainLessThan50Steps: "Your quest is too long, you must create less than 50 steps"
     }
   },
   fr: {
@@ -752,7 +754,7 @@ module.exports = {
       Start: "Commencer",
       AcceptTheRules: "Accepter les règles",
       SomeMoney: "De l'argent",
-      BuilderWelcomeMessage: "<p>Graaly vous permet de créer très simplement, et pas à pas, des enquêtes ludiques pour les autres joueurs.</p><p>En appuyant sur le bouton Démarrer, vous acceptez les règles suivantes :<ul><li>Si le lieu ne vous appartient pas, ne demandez pas aux joueurs de toucher, déplacer, dégrader les lieux visités</li><li>L'histoire de votre enquête ne doit pas porter atteinte à des personnes vivantes ou ayant existé</li><li>Votre enquête ne doit pas concerner un lieu pour lequel une enquête existe déjà, sauf si le thême est suffisamment différent</li><li>Notre équipe de modérateurs validera si votre enquête respecte ces règles et atteint un niveau de qualité suffisant. Dans le cas contraire, il vous sera demandé d'améliorer votre enquête, ou elle sera refusée</li></ul></p>",
+      BuilderWelcomeMessage: "<p>Graaly vous permet de créer très simplement, et pas à pas, des enquêtes ludiques pour les autres joueurs.</p><p>En appuyant sur le bouton Démarrer, vous acceptez les règles suivantes :<ul><li>Si le lieu ne vous appartient pas, ne demandez pas aux joueurs de toucher, déplacer, dégrader les lieux visités</li><li>L'histoire de votre enquête ne doit pas porter atteinte à des personnes vivantes ou ayant existé</li><li>Votre enquête ne doit pas concerner un lieu pour lequel une enquête existe déjà, sauf si le thême est suffisamment différent</li><li>Votre enquête doit faire plus de 6 étapes et moins de 50</li><li>Notre équipe de modérateurs validera si votre enquête respecte ces règles et atteint un niveau de qualité suffisant. Dans le cas contraire, il vous sera demandé d'améliorer votre enquête, ou elle sera refusée</li></ul></p>",
       HowToWinMoney: "Comment gagner de l'argent",
       HowToWinMoneyExplaination: "Graaly partage avec vous 50% des revenus des publicités affichées quand un utilisateur joue à votre enquête. Les revenus sont payés à partir du moment où ils atteignent 100 euros.",
       NewQuest: "Nouvelle enquête",
@@ -939,7 +941,9 @@ module.exports = {
       ObjectIsTooFar: "L'objet est trop éloigné pour être visible à l'écran. Essayez de vous rapprocher.",
       LastItemIsUniq: "La dernière image sera unique dans le jeu",
       YouMustDefineStartLocation: "Vous devez définir l'adresse du point de départ de l'enquête",
-      ClickOnArrowToMoveToNextStep: "Touchez la flèche pour passer à l'étape suivante"
+      ClickOnArrowToMoveToNextStep: "Touchez la flèche pour passer à l'étape suivante",
+      YourQuestMustContainAtLeast6Steps: "Votre enquête est trop courte, vous devez créer au moins 6 étapes",
+      YourQuestMustContainLessThan50Steps: "Votre enquête est trop longue, vous devez créer moins de 50 étapes"
     }
   }
 }
