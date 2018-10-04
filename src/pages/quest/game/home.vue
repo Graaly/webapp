@@ -4,12 +4,12 @@
       
       <!------------------ MAIN INFORMATION AREA ------------------------>
       
-      <div class="fit" :style="'background: url(' + ((quest.picture && quest.picture[0] === '_') ? '/statics/images/quest/' + quest.picture : serverUrl + '/upload/quest/' + quest.picture) + ' ) center center / cover no-repeat '" v-touch-swipe.horizontal="swipeMgmt">
+      <div class="fit" :style="'background: url(' + ((quest.picture && quest.picture[0] === '_') ? 'statics/images/quest/' + quest.picture : serverUrl + '/upload/quest/' + quest.picture) + ' ) center center / cover no-repeat '" v-touch-swipe.horizontal="swipeMgmt">
         <div class="fit">
           <div class="text-center bottom-dark-banner">
             <p class="title">
               {{getLanguage() ? quest.title[getLanguage()] : $t('label.NoTitle') }}
-              <img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'/statics/icons/game/flag-' + getLanguage() + '.png'" />
+              <img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + getLanguage() + '.png'" />
             </p>
             <p class="medium-icon q-pa-none q-ma-none">
               <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">{{ quest.availablePoints }} <q-icon name="fas fa-trophy" /></span>
@@ -32,7 +32,7 @@
                     >
                       <q-item-main>
                         <q-item-tile label>
-                          <img class="image-and-text-aligned" :src="'/statics/icons/game/flag-' + lang.lang + '.png'" />
+                          <img class="image-and-text-aligned" :src="'statics/icons/game/flag-' + lang.lang + '.png'" />
                           {{ $t('language.' + lang.lang) }}
                         </q-item-tile>
                       </q-item-main>
@@ -74,7 +74,7 @@
           {{ $t('label.YouAreQuestOwnerDesc') }}
         </q-alert>
         <p v-if="typeof quest.author !== 'undefined' && quest.author.name"><strong>{{ $t('label.Author') }}:</strong> {{ quest.author.name }}</span>
-        <p v-if="quest.level"><strong>{{ $t('label.Difficulty') }}:</strong> <img class="image-and-text-aligned" src="/statics/icons/game/magnifying-red.png" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 1 ? 'grey' : 'red') + '.png'" /><img class="image-and-text-aligned" :src="'/statics/icons/game/magnifying-' + (quest.level === 3 ? 'red' : 'grey') + '.png'" /></p>
+        <p v-if="quest.level"><strong>{{ $t('label.Difficulty') }}:</strong> <img class="image-and-text-aligned" src="statics/icons/game/magnifying-red.png" /><img class="image-and-text-aligned" :src="'statics/icons/game/magnifying-' + (quest.level === 1 ? 'grey' : 'red') + '.png'" /><img class="image-and-text-aligned" :src="'statics/icons/game/magnifying-' + (quest.level === 3 ? 'red' : 'grey') + '.png'" /></p>
         <p v-if="quest.duration"><strong>{{ $t('label.Duration') }}:</strong> {{ quest.duration }} {{ $t('label.minutes') }}</p>
         <p v-if="quest.startingPlace"><strong>{{ $t('label.StartingPoint') }}:</strong> {{ quest.startingPlace }}</p>
         <p>{{getLanguage() ? quest.description[getLanguage()] : "" }}</p>
@@ -91,7 +91,7 @@
           <q-item v-for="rank in ranking.items" :key="rank.position" >
             <q-item-side>
               <q-item-tile avatar>
-                <img :src="'/statics/icons/game/medal-' + rank.position + '.png'">
+                <img :src="'statics/icons/game/medal-' + rank.position + '.png'">
               </q-item-tile>
             </q-item-side>
             <q-item-main>

@@ -19,7 +19,7 @@
           <q-list highlight>
             <q-item v-for="quest in questsToValidate.items" :key="quest._id" @click.native="$router.push('/quest/play/' + quest._id)">
               <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
-              <q-item-side v-if="!quest.picture" :avatar="'/statics/profiles/noprofile.png'" />
+              <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
               <q-item-main>
                 <q-item-tile label>{{ getQuestTitle(quest, false) }}</q-item-tile>
                 <q-item-tile sublabel v-if="quest.status === 'published'">
@@ -46,7 +46,7 @@
           <q-list highlight>
             <q-item v-for="quest in questsRejected.items" :key="quest._id" @click.native="$router.push('/quest/play/' + quest._id)">
               <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
-              <q-item-side v-if="!quest.picture" :avatar="'/statics/profiles/noprofile.png'" />
+              <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
               <q-item-main>
                 <q-item-tile label>{{ getQuestTitle(quest, false) }}</q-item-tile>
                 <q-item-tile sublabel v-if="quest.status === 'published'">
@@ -160,7 +160,7 @@ export default {
       if (this.$store.state.user.language && quest.title[this.$store.state.user.language]) {
         return quest.title[this.$store.state.user.language]
       } else {
-        return quest.title[Object.keys(quest.title)[0]] + (showLanguage ? ' <img class="image-and-text-aligned" src="/statics/icons/game/flag-' + Object.keys(quest.title)[0] + '.png" />' : '')
+        return quest.title[Object.keys(quest.title)[0]] + (showLanguage ? ' <img class="image-and-text-aligned" src="statics/icons/game/flag-' + Object.keys(quest.title)[0] + '.png" />' : '')
       }
     }
   }

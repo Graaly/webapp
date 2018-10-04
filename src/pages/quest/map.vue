@@ -25,7 +25,7 @@
           <q-list highlight>
             <q-item v-for="quest in success.quests.built" :key="quest._id" @click.native="$router.push('/quest/settings/' + quest._id)">
               <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
-              <q-item-side v-if="!quest.picture" :avatar="'/statics/profiles/noprofile.png'" />
+              <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
               <q-item-main>
                 <q-item-tile label>{{ getQuestTitle(quest, false) }}</q-item-tile>
                 <q-item-tile sublabel v-if="quest.status === 'published'">
@@ -56,8 +56,8 @@
         <q-tab-pane name="played">
           <q-list highlight>
           <q-item v-if="success.quests.played && success.quests.played.length > 0" v-for="quest in success.quests.played" :key="quest._id" @click.native="$router.push('/quest/play/'+quest.questId)">
-            <q-item-side v-if="quest.questData && quest.questData.picture" :avatar="((quest.questData.picture && quest.questData.picture[0] === '_') ? '/statics/images/quest/' + quest.questData.picture : serverUrl + '/upload/quest/' + quest.questData.picture)" />
-            <q-item-side v-if="!quest.questData || !quest.questData.picture" :avatar="'/statics/profiles/noprofile.png'" />
+            <q-item-side v-if="quest.questData && quest.questData.picture" :avatar="((quest.questData.picture && quest.questData.picture[0] === '_') ? 'statics/images/quest/' + quest.questData.picture : serverUrl + '/upload/quest/' + quest.questData.picture)" />
+            <q-item-side v-if="!quest.questData || !quest.questData.picture" :avatar="'statics/profiles/noprofile.png'" />
             <q-item-main>
               <q-item-tile label>{{ getQuestTitle(quest.questData, false) }} {{ quest.type }}</q-item-tile>
               <q-item-tile sublabel v-if="quest.dateCreated && quest.status == 'finished' && !quest.score">
@@ -149,7 +149,7 @@
           <div class="big-avatar">
             <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
             <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
-            <div v-if="!$store.state.user.picture" :style="'background-image: url(/statics/icons/game/profile-small.png); background-color: #fff;'"></div>
+            <div v-if="!$store.state.user.picture" :style="'background-image: url(statics/icons/game/profile-small.png); background-color: #fff;'"></div>
             <label for="picturefile">{{ $t('label.Edit') }}</label>
           <input @change="uploadImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;">
           </div>
@@ -231,7 +231,7 @@
                 <q-item-tile avatar>
                   <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') !== -1" :src="friend.picture" />
                   <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + friend.picture" />
-                  <img v-if="!friend.picture || friend.picture === ''" src="/statics/icons/game/profile-small.png" />
+                  <img v-if="!friend.picture || friend.picture === ''" src="statics/icons/game/profile-small.png" />
                 </q-item-tile>
               </q-item-side>
               <q-item-main>
@@ -254,7 +254,7 @@
               <q-item v-for="(item, index) in friends.news.items" :key="item._id">
                 <q-item-side v-if="item.data.picture && item.data.picture.indexOf('http') !== -1" :avatar="item.data.picture" />
                 <q-item-side v-if="item.data.picture && item.data.picture.indexOf('http') === -1" :avatar="serverUrl + '/upload/profile/' + item.data.picture" />
-                <q-item-side v-if="!item.data.picture" avatar="/statics/icons/game/profile-small.png" />
+                <q-item-side v-if="!item.data.picture" avatar="statics/icons/game/profile-small.png" />
                 <q-item-main>
                   <q-item-tile label v-if="item.data && item.data.userId">{{ item.data.name }}</q-item-tile>
                   <q-item-tile label v-if="item.type === 'standard'">
@@ -412,14 +412,21 @@
     
     <!------------------ NO GEOLOCATION AREA ------------------------>
     
-    <div class="row enable-geolocation" v-if="!geolocationIsSupported">
+    <div class="row enable-geolocation fixed-center centered" v-if="!geolocationIsSupported">
       <div class="col-12">
-        <h5>{{ $t('label.PleaseActivateGeolocation') }}</h5>
-        <div v-if="isChrome">
-          <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
+        <p class="text-primary">{{ $t('label.PleaseActivateGeolocation') }}</p>
+        <div v-if="nativeSettingsIsEnabled">
+          <q-btn color="primary" @click="openLocationSettings">{{ $t('label.PressHere') }}</q-btn>
+        </div>
+        <div v-if="!nativeSettingsIsEnabled">
+          <div v-if="isChrome">
+            <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
+          </div>
+          <div v-if="!isChrome">
+            <p v-html="$t('label.HowToActivateGeolocationOnIOs')"></p>
+          </div>
           <p>
             {{ $t('label.OnceGeolocationEnabled') }}
-            <!-- see https://github.com/vuejs/vue-router/issues/296 -->
             <router-link :to="$route.path + '?_=' + (new Date).getTime()">{{ $t('label.PressHere') }}</router-link>.
           </p>
         </div>
@@ -437,21 +444,32 @@
     
     <!------------------ MENU AREA ------------------------>
     
-    <div class="menu-background"></div>
-    <div class="menu row" v-touch-swipe.horizontal="swipeMenu">
-      <div class="col centered" @click="openSuccessPage()">
-        <q-btn icon="fingerprint" round color="primary" />
+    <div class="fixed-bottom">
+      <div class="menu-background"></div>
+      <div class="menu row" v-touch-swipe.horizontal="swipeMenu">
+        <div class="col-4 centered" @click="openSuccessPage()">
+          <q-btn icon="fingerprint" round color="primary" />
+        </div>
+        <div class="col-4 centered" @click="openSearchOptions()">
+          <img src="statics/icons/game/menu-main.png" />
+        </div>
+        <div class="col-4 centered" @click="openProfilePage()">
+          <q-btn icon="group" round color="primary" />
+          <!--<div class="mid-avatar">
+            <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
+            <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
+            <div v-if="!$store.state.user.picture" :style="'background-image: url(statics/icons/game/profile-small.png);background-color: #fff;'"></div>
+          </div>-->
+        </div>
       </div>
-      <div class="col centered" @click="openSearchOptions()">
-        <img src="statics/icons/game/menu-main.png" />
+      <div class="centered bg-warning q-pa-sm" v-if="warnings.noLocation">
+        <q-spinner-puff class="on-left" /> {{ $t('label.WarningNoLocation') }}
       </div>
-      <div class="col centered" @click="openProfilePage()">
-        <q-btn icon="group" round color="primary" />
-        <!--<div class="mid-avatar">
-          <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
-          <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
-          <div v-if="!$store.state.user.picture" :style="'background-image: url(/statics/icons/game/profile-small.png);background-color: #fff;'"></div>
-        </div>-->
+      <div class="centered bg-warning q-pa-sm" v-if="warnings.lowBattery">
+        <q-icon name="battery_alert" /> {{ $t('label.WarningLowBattery') }}
+      </div>
+      <div class="centered bg-warning q-pa-sm" v-if="warnings.noNetwork">
+        <q-spinner-radio class="on-left" /> {{ $t('label.WarningNoNetwork') }}
       </div>
     </div>   
   </div>
@@ -533,6 +551,12 @@ export default {
       showSuccess: false,
       showProfile: false,
       showSearch: false,
+      nativeSettingsIsEnabled: true,
+      warnings: {
+        lowBattery: false,
+        noLocation: false,
+        noNetwork: false
+      },
       success: {
         quests: {
           played: [],
@@ -579,6 +603,8 @@ export default {
   },
   mounted() {
     this.findLocation()
+    window.addEventListener("batterylow", this.checkBattery, false);
+    this.checkNetwork()
   },
   methods: {
     /*
@@ -586,6 +612,7 @@ export default {
      */
     findLocation() {
       var self = this
+      this.geolocationIsSupported = (navigator && navigator.geolocation)
       if (this.$data.geolocationIsSupported) {
         // getCurrentPosition() is not always reliable (timeouts/fails frequently)
         // see https://stackoverflow.com/q/3397585/488666
@@ -598,6 +625,7 @@ export default {
           // TODO maybe here save current position in 'state' for later use in case of failure
           self.getQuests()
           this.$q.loading.hide()
+          this.warnings.noLocation = false
         }, () => {
           console.error('geolocation failed')
           self.geolocationIsSupported = false
@@ -605,12 +633,41 @@ export default {
           // try again in 10s
           setTimeout(self.findLocation, 10000)
           // TODO maybe here recall position stored in 'state'
+          this.warnings.noLocation = true
         }, 
         { 
           timeout: 5000, 
           maximumAge: 10000 
         });
+      } else {
+        this.warnings.noLocation = true
+        setTimeout(self.findLocation, 10000)
       }
+    },
+    /*
+     * Check battery level
+     */
+    checkBattery(status) {
+      if (status.level < 30) {
+        this.warnings.lowBattery = true
+      } else {
+        this.warnings.lowBattery = false
+      }
+    },
+    /*
+     * Check network
+     */
+    checkNetwork() {
+      if (navigator.connection && navigator.connection.type && Connection) {
+        if (navigator.connection.type === Connection.NONE) {
+          this.warnings.noNetwork = true
+        } else {
+          this.warnings.noNetwork = false
+        }
+      } else {
+        this.warnings.noNetwork = false
+      }
+      setTimeout(this.checkNetwork, 20000)
     },
     CenterMapOnPosition(lat, lng) {
       this.$data.map.center = {lat: lat, lng: lng}
@@ -1036,7 +1093,7 @@ export default {
       if (this.$store.state.user.language && quest.title[this.$store.state.user.language]) {
         return quest.title[this.$store.state.user.language]
       } else {
-        return quest.title[Object.keys(quest.title)[0]] + (showLanguage ? ' <img class="image-and-text-aligned" src="/statics/icons/game/flag-' + Object.keys(quest.title)[0] + '.png" />' : '')
+        return quest.title[Object.keys(quest.title)[0]] + (showLanguage ? ' <img class="image-and-text-aligned" src="statics/icons/game/flag-' + Object.keys(quest.title)[0] + '.png" />' : '')
       }
     },
     /*
@@ -1137,6 +1194,22 @@ export default {
      */
     closeShop () {
       this.shop.show = false
+    },
+    openLocationSettings () {
+      if (window.cordova && window.cordova.plugins.settings) {
+        console.log('openNativeSettings is active')
+        window.cordova.plugins.settings.open("location", function() {
+          console.log('opened settings')
+          this.nativeSettingsIsEnabled = true
+        },
+        function () {
+          console.log('failed to open settings')
+          this.nativeSettingsIsEnabled = false
+        });
+      } else {
+        console.log('openNativeSettings is not active!')
+        this.nativeSettingsIsEnabled = false
+      }
     }
   },
   validations: {

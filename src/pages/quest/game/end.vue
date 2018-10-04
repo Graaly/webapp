@@ -38,17 +38,17 @@
         <ul>
           <li>
             <a href="https://www.facebook.com/sharer/sharer.php?u=http://graaly.com" target="_blank">
-              <img src="/statics/icons/social-networks/facebook.png" />
+              <img src="statics/icons/social-networks/facebook.png" />
             </a>
           </li>
           <li>
             <a href="https://twitter.com/intent/tweet?text=To%Define&url=http://graaly.com" target="_blank">
-              <img src="/statics/icons/social-networks/twitter.png" />
+              <img src="statics/icons/social-networks/twitter.png" />
             </a>
           </li>
           <li>
             <a href="https://plus.google.com/share?url=http://graaly.com" target="_blank">
-              <img src="/statics/icons/social-networks/googleplus.png" />
+              <img src="statics/icons/social-networks/googleplus.png" />
             </a>
           </li>
         </ul>
@@ -72,7 +72,7 @@
           <q-item v-for="rank in ranking.items" :key="rank.id" :class="rank.className" >
             <q-item-side>
               <q-item-tile avatar>
-                <img :src="'/statics/icons/game/medal-' + rank.position + '.png'">
+                <img :src="'statics/icons/game/medal-' + rank.position + '.png'">
               </q-item-tile>
             </q-item-side>
             <q-item-main>
@@ -83,7 +83,7 @@
               <q-item-tile avatar>
                 <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
                 <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
-                <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
+                <img v-if="!rank.picture || rank.picture === ''" src="statics/icons/game/profile-small.png" />
               </q-item-tile>
             </q-item-side>
             <q-item-side right v-if="!rank.isFriend && rank.id !== $store.state.user._id" @click.native="addFriend(rank.id)">
@@ -121,7 +121,7 @@
                   <q-item-tile avatar>
                     <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') !== -1" :src="friend.picture" />
                     <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + friend.picture" />
-                    <img v-if="!friend.picture || friend.picture === ''" src="/statics/icons/game/profile-small.png" />
+                    <img v-if="!friend.picture || friend.picture === ''" src="statics/icons/game/profile-small.png" />
                   </q-item-tile>
                 </q-item-side>
                 <q-item-main>
@@ -146,7 +146,7 @@
         <div class="q-pa-md">
           <q-card inline class="q-ma-sm">
             <q-card-media>
-              <img :src="'/statics/icons/game/bonus_' + run.bonus + '.png'">
+              <img :src="'statics/icons/game/bonus_' + run.bonus + '.png'">
             </q-card-media>
             <q-card-title>
               {{ $t('bonus.' + run.bonus) }}

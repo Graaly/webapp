@@ -3,7 +3,7 @@
   <div class="wrapper" >
     <div class="header team-box"> 
       <div class="badge">
-        <img :src="serverUrl + '/statics/badges/' + team.profile.badge" />
+        <img :src="serverUrl + 'statics/badges/' + team.profile.badge" />
       </div>
       
       <div class="desc">

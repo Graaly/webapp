@@ -252,7 +252,7 @@
           <p class="text">{{ step.text }}</p>
         </div>
         <div ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + step.questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
-          <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="/statics/icons/game/find-item-locator.png" />
+          <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
         </div>
         <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 2">
           <div class="text wrong">{{ $t('label.SecondTry') }}</div>
@@ -278,7 +278,7 @@
           <p class="text">{{ step.text }}</p>
         </div>
         <div ref="findItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + step.questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
-          <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="/statics/icons/game/find-item-locator.png" />
+          <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
         </div>
         <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 2">
           <div class="text wrong">{{ $t('label.SecondTry') }}</div>
@@ -420,7 +420,7 @@ export default {
         // for step type 'jigsaw puzzle'
         puzzle: {
           pieces: [],
-          picture: '/statics/icons/game/medal.png',
+          picture: 'statics/icons/game/medal.png',
           dragSrcEl: null,
           element: {}
         },
@@ -459,7 +459,7 @@ export default {
             this.showControls()
           } else {
             // define if background image is a generic one or user defined one
-            let backgroundUrl = this.step.backgroundImage[0] === "_" ? '/statics/images/quest/' + this.step.backgroundImage : process.env.SERVER_URL + '/upload/quest/' + this.step.questId + '/step/background/' + this.step.backgroundImage
+            let backgroundUrl = this.step.backgroundImage[0] === "_" ? 'statics/images/quest/' + this.step.backgroundImage : process.env.SERVER_URL + '/upload/quest/' + this.step.questId + '/step/background/' + this.step.backgroundImage
             background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             // all background clickable for transitions
             //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
@@ -1644,7 +1644,7 @@ export default {
       return new Promise((resolve, reject) => {
         let gltfLoader = new GLTFLoader()
         // loads automatically .bin and textures files if necessary
-        gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+        gltfLoader.load(this.serverUrl + 'statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
       })
     }
   }

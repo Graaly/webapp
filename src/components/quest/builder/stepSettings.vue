@@ -67,7 +67,7 @@
         <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
           <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" v-model="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
         </div>
-        <a @click="getCurrentLocation()"><img src="/statics/icons/game/location.png" /></a>
+        <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
       </div>
       <q-list>
         <q-collapsible icon="explore" :label="$t('label.OrDefineGPSLocation')">
@@ -271,7 +271,7 @@
     <div class="find-item" v-if="options.code == 'use-item' && selectedStep.form.backgroundImage">
       <p>{{ $t('label.ClickOnTheLocationTheItemMustBeUsed') }} :</p>
       <div @click="getClickCoordinates($event)" id="useItemPicture" ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
-        <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="/statics/icons/game/find-item-locator.png" />
+        <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="statics/icons/game/find-item-locator.png" />
       </div>
     </div>
     <div class="inventory" v-if="options.code == 'use-item'">
@@ -291,7 +291,7 @@
     <div class="inventory" v-if="options.code == 'new-item'">
       <div class="row">
         <div class="col-2 q-pa-sm" v-for="(item, key) in objectsList" :key="key">
-          <img style="width: 100%" :src="'/statics/images/object/' + item.thumb" @click="selectObject(key)" />
+          <img style="width: 100%" :src="'statics/images/object/' + item.thumb" @click="selectObject(key)" />
         </div>
       </div>
       <q-btn class="full-width" type="button">
@@ -362,7 +362,7 @@
         <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
           <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" v-model="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
         </div>
-        <a @click="getCurrentLocation()"><img src="/statics/icons/game/location.png" /></a>
+        <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
       </div>
       <q-list>
         <q-collapsible icon="explore" :label="$t('label.OrDefineGPSLocation')">
@@ -1050,7 +1050,7 @@ export default {
      */
     async selectObject(key) {
       this.selectedStep.form.options.title = this.objectsList[key].name[this.lang]
-      this.selectedStep.form.options.picture = '/statics/images/object/' + this.objectsList[key].file
+      this.selectedStep.form.options.picture = 'statics/images/object/' + this.objectsList[key].file
     },
     /*
      * Get the list of colors for the color code step

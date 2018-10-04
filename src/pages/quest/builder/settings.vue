@@ -85,7 +85,7 @@
             <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
               <gmap-autocomplete id="startingplace" :placeholder="$t('label.StartingPointOfTheQuest')" v-model="form.fields.startingPlace" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
             </div>
-            <a @click="getCurrentLocation()"><img src="/statics/icons/game/location.png" /></a>
+            <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
           </div>
           
           <div v-if="form.fields.picture !== null">

@@ -242,6 +242,7 @@ module.exports = {
       Play: "Play",
       PleaseActivateGeolocation: "Please turn on location on your mobile device",
       HowToActivateGeolocationOnChrome: 'Go to <strong>system settings</strong>, then in <strong>Security and Location</strong>, then <strong>Location</strong>, and activate the option <strong>Enabled</strong>. This may slightly change depending on your Android version.',
+      HowToActivateGeolocationOnIOs: 'Go to <strong>Settings</strong>, then in <strong>Privacy</strong>, then <strong>Location services</strong>, and activate the option <strong>Location services</strong> and check that location is enabled for the Graaly application in the list below. This may slightly change depending on your IOS version.',
       YouAlreadyDidThisQuest: "You already completed this quest",
       YouCanResolveItAgain: "You can play it again, but this will not give you points again",
       Author: "Author",
@@ -471,7 +472,10 @@ module.exports = {
       LastItemIsUniq: "Last picture is unique (no twin in the game)",
       YouMustDefineStartLocation: "You must define the location of the starting point of the quest",
       YourQuestMustContainAtLeast6Steps: "Your quest is too short, you must create at least 6 steps",
-      YourQuestMustContainLessThan50Steps: "Your quest is too long, you must create less than 50 steps"
+      YourQuestMustContainLessThan50Steps: "Your quest is too long, you must create less than 50 steps",
+      WarningNoLocation: "Searching your location...",
+      WarningLowBattery: "Charge your phone before starting quest",
+      WarningNoNetwork: "No network..."
     }
   },
   fr: {
@@ -712,7 +716,8 @@ module.exports = {
       Hard: "Difficile",
       Play: "Enquêter",
       PleaseActivateGeolocation: "Veuillez activer la localisation sur votre appareil mobile",
-      HowToActivateGeolocationOnChrome: 'Ouvrez les <strong>Paramètres Système</strong>, allez dans <strong>Sécurité et Position</strong>, puis <strong>Position</strong>, et activez l\'option <strong>Activé</strong>. Ceci peut changer légèrement selon votre version du système Android.',
+      HowToActivateGeolocationOnChrome: 'Ouvrez les <strong>Paramètres Système</strong>, allez dans <strong>Sécurité et Position</strong>, puis <strong>Position</strong>, et activez l\'option <strong>Activé</strong>. Ceci peut changer légèrement selon votre version d`Android.',
+      HowToActivateGeolocationOnIOs: 'Ouvrez les <strong>Réglages</strong>, allez dans <strong>Confidentialité</strong>, puis <strong>Service de localisation</strong>, et activez l\'option <strong>Service de localisation</strong> et vérifiez que la localisation est activée pour l`application Graaly dans la liste du dessous. Ceci peut changer légèrement selon votre version d`IOS.',
       YouAlreadyDidThisQuest: "Vous avez déjà réussi cette enquête",
       YouCanResolveItAgain: "Vous pouvez la résoudre à nouveau, mais elle ne vous rapportera aucun point",
       Author: "Auteur",
@@ -943,7 +948,10 @@ module.exports = {
       YouMustDefineStartLocation: "Vous devez définir l'adresse du point de départ de l'enquête",
       ClickOnArrowToMoveToNextStep: "Touchez la flèche pour passer à l'étape suivante",
       YourQuestMustContainAtLeast6Steps: "Votre enquête est trop courte, vous devez créer au moins 6 étapes",
-      YourQuestMustContainLessThan50Steps: "Votre enquête est trop longue, vous devez créer moins de 50 étapes"
+      YourQuestMustContainLessThan50Steps: "Votre enquête est trop longue, vous devez créer moins de 50 étapes",
+      WarningNoLocation: "Recherche de votre localisation ...",
+      WarningLowBattery: "Pensez à charger votre mobile",
+      WarningNoNetwork: "Aucun réseau ..."
     }
   }
 }

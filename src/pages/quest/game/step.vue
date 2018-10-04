@@ -163,7 +163,7 @@ export default {
       // for step type 'jigsaw puzzle'
       puzzle: {
         pieces: [],
-        picture: '/statics/icons/game/medal.png',
+        picture: 'statics/icons/game/medal.png',
         dragSrcEl: null
       },
       

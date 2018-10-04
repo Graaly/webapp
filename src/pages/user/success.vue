@@ -39,7 +39,7 @@
             <q-list highlight>
               <q-item v-for="quest in quests.built" :key="quest._id" @click.native="$router.push((profile.me ? '/quest/edit/' + quest._id : '/quest/play/' + quest._id))">
                 <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
-                <q-item-side v-if="!quest.picture" :avatar="'/statics/profiles/noprofile.png'" />
+                <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
                 <q-item-main>
                   <q-item-tile label>{{ quest.title }}</q-item-tile>
                   <q-item-tile sublabel v-if="quest.status === 'published'">
@@ -65,7 +65,7 @@
             <q-list highlight>
             <q-item v-if="quests.played && quests.played.length > 0" v-for="quest in quests.played" :key="quest._id" @click.native="$router.push('/quest/play/'+quest.questId)">
               <q-item-side v-if="quest.questData && quest.questData.picture" :avatar="serverUrl + '/upload/quest/' + quest.questData.picture" />
-              <q-item-side v-if="!quest.questData || !quest.questData.picture" :avatar="'/statics/profiles/noprofile.png'" />
+              <q-item-side v-if="!quest.questData || !quest.questData.picture" :avatar="'statics/profiles/noprofile.png'" />
               <q-item-main>
                 <q-item-tile label>{{ quest.questData.title }}</q-item-tile>
                 <q-item-tile sublabel v-if="quest.dateCreated && quest.status == 'finished' && !quest.score">

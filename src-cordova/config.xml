@@ -5,8 +5,7 @@
     <author email="eric@graaly.com" href="http://graaly.com">
         Graaly team
     </author>
-    <content src="http://192.168.43.151:8080/index.html" />
-    <plugin name="cordova-plugin-whitelist" spec="1" />
+    <content src="index.html" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
@@ -17,11 +16,27 @@
     <platform name="android">
         <allow-intent href="market:*" />
         <preference name="loadUrlTimeoutValue" value="700000" />
+        <icon density="ldpi" src="res/icon/android/icon-36-ldpi.png" />
+        <icon density="mdpi" src="res/icon/android/icon-48-mdpi.png" />
+        <icon density="hdpi" src="res/icon/android/icon-72-hdpi.png" />
+        <icon density="xhdpi" src="res/icon/android/icon-96-xhdpi.png" />
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
+        <icon height="57" src="res/icon/ios/icon-57.png" width="57" />
+        <icon height="114" src="res/icon/ios/icon-57-2x.png" width="114" />
+        <icon height="72" src="res/icon/ios/icon-72.png" width="72" />
+        <icon height="144" src="res/icon/ios/icon-72-2x.png" width="144" />
     </platform>
     <allow-navigation href="http://192.168.43.151:8080/index.html" />
+    <plugin name="cordova-plugin-whitelist" spec="1" />
+    <plugin name="cordova-open-native-settings" spec="^1.5.1" />
+    <plugin name="cordova-plugin-inapppurchase-fixed" spec="^1.1.2" />
+    <plugin name="cordova-plugin-battery-status" spec="^2.0.2" />
+    <plugin name="cordova-plugin-geolocation" spec="^4.0.1" />
+    <plugin name="cordova-plugin-network-information" spec="^2.0.1" />
+    <plugin name="cordova-plugin-splashscreen" spec="^5.0.2" />
+    <plugin name="cordova-plugin-contacts" spec="^3.0.1" />
     <engine name="android" spec="^7.0.0" />
 </widget>
