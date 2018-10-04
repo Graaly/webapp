@@ -1,9 +1,70 @@
 <template>
   <div class="column" ref="div-column">
     
+    <!--====================== MAP PAGE =================================-->
+    
+    <div class="row fullscreen" ref="map" v-if="geolocationIsSupported">
+      
+      <gmap-map
+        :center="map.center"
+        :zoom="map.zoom"
+        map-type-id="roadmap"
+        class="map"
+        ref="map"
+        :options="{disableDefaultUI:true}"
+        @center_changed="updateCenter($event)"
+        @dragend="dragEnd($event)"
+      >
+        <gmap-marker :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()" />
+        
+        <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="setMapIcon(quest)"
+          @click="openQuestSummary(quest, index)" />
+        
+        <gmap-info-window :options="map.infoWindow.options" :position="map.infoWindow.location" :opened="map.infoWindow.isOpen" @closeclick="map.infoWindow.isOpen=false">
+          <div class="infoWindow">
+            <p class="title" v-html="getQuestTitle(currentQuest, true)"></p>
+            <p>{{ $t('label.Difficulty') }} : {{ $t('label.' + (currentQuest ? getQuestLevelName(currentQuest.level) : getQuestLevelName(2))) }}</p>
+            <q-btn @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Play') }}</q-btn>
+          </div>
+        </gmap-info-window>
+      </gmap-map>
+    </div>
+    
+    <!------------------ NO GEOLOCATION AREA ------------------------>
+    
+    <div class="row enable-geolocation fixed-center centered" v-if="!geolocationIsSupported">
+      <div class="col-12">
+        <p class="text-primary">{{ $t('label.PleaseActivateGeolocation') }}</p>
+        <div v-if="nativeSettingsIsEnabled">
+          <q-btn color="primary" @click="openLocationSettings">{{ $t('label.PressHere') }}</q-btn>
+        </div>
+        <div v-if="!nativeSettingsIsEnabled">
+          <div v-if="isChrome">
+            <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
+          </div>
+          <div v-if="!isChrome">
+            <p v-html="$t('label.HowToActivateGeolocationOnIOs')"></p>
+          </div>
+          <p>
+            {{ $t('label.OnceGeolocationEnabled') }}
+            <router-link :to="$route.path + '?_=' + (new Date).getTime()">{{ $t('label.PressHere') }}</router-link>.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <!------------------ SCORE AREA ------------------------>
+    
+    <div class="score-box">
+      <div class="q-pa-md score-text">{{ $store.state.user.score }} <q-icon name="fas fa-trophy" /></div>
+    </div>
+    <div class="coin-box">
+      <div class="q-pa-md score-text"><q-icon name="fas fa-coins" /> {{ $store.state.user.coins }} <q-icon name="add_circle" @click.native="buyCoins()" color="primary" /></div>
+    </div>
+    
     <!--====================== SUCCESS PAGE =================================-->
     
-    <q-layout-drawer side="left" v-model="showSuccess">
+    <q-layout-drawer class="over-map" side="left" v-model="showSuccess">
       
       <!------------------ TABS AREA ------------------------>
       
@@ -140,7 +201,7 @@
     
     <!--====================== PROFILE PAGE =================================-->
     
-    <q-layout-drawer side="right" v-model="showProfile">
+    <q-layout-drawer class="over-map" side="right" v-model="showProfile">
     
       <!------------------ HEADER AREA ------------------------>
         
@@ -291,38 +352,9 @@
 
     </q-layout-drawer>
     
-    <!--====================== MAP PAGE =================================-->
-    
-    <div class="row" ref="map" v-if="geolocationIsSupported">
-      
-      <gmap-map
-        :center="map.center"
-        :zoom="map.zoom"
-        map-type-id="roadmap"
-        class="map"
-        ref="map"
-        :options="{disableDefaultUI:true}"
-        @center_changed="updateCenter($event)"
-        @dragend="dragEnd($event)"
-      >
-        <gmap-marker :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()" />
-        
-        <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="setMapIcon(quest)"
-          @click="openQuestSummary(quest, index)" />
-        
-        <gmap-info-window :options="map.infoWindow.options" :position="map.infoWindow.location" :opened="map.infoWindow.isOpen" @closeclick="map.infoWindow.isOpen=false">
-          <div class="infoWindow">
-            <p class="title" v-html="getQuestTitle(currentQuest, true)"></p>
-            <p>{{ $t('label.Difficulty') }} : {{ $t('label.' + (currentQuest ? getQuestLevelName(currentQuest.level) : getQuestLevelName(2))) }}</p>
-            <q-btn @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Play') }}</q-btn>
-          </div>
-        </gmap-info-window>
-      </gmap-map>
-    </div>
-    
     <!--====================== SEARCH PAGE =================================-->
     
-    <q-modal v-model="showSearch">
+    <q-modal v-model="showSearch" class="over-map">
       <div class="column" ref="div-column">
         <div class="row q-pa-md">
           <q-search 
@@ -381,7 +413,7 @@
     
     <!--====================== FRIEND PAGE =================================-->
     
-    <q-modal v-model="friends.show">
+    <q-modal v-model="friends.show" class="over-map">
        <div class="panel-bottom q-pa-md">
         <a class="float-right no-underline" color="grey" @click="friends.show = false"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ friends.selected.name }}</h1>
@@ -404,47 +436,15 @@
     
     <!--====================== SHOP PAGE =================================-->
     
-    <q-modal v-model="shop.show">
+    <q-modal v-model="shop.show" class="over-map">
       <a class="float-right no-underline q-pa-md" color="grey" @click="closeShop"><q-icon name="close" class="medium-icon" /></a>
       <h1 class="size-3 q-pl-md">{{ $t('label.Shop') }}</h1>
       <shop></shop>
     </q-modal>
     
-    <!------------------ NO GEOLOCATION AREA ------------------------>
-    
-    <div class="row enable-geolocation fixed-center centered" v-if="!geolocationIsSupported">
-      <div class="col-12">
-        <p class="text-primary">{{ $t('label.PleaseActivateGeolocation') }}</p>
-        <div v-if="nativeSettingsIsEnabled">
-          <q-btn color="primary" @click="openLocationSettings">{{ $t('label.PressHere') }}</q-btn>
-        </div>
-        <div v-if="!nativeSettingsIsEnabled">
-          <div v-if="isChrome">
-            <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
-          </div>
-          <div v-if="!isChrome">
-            <p v-html="$t('label.HowToActivateGeolocationOnIOs')"></p>
-          </div>
-          <p>
-            {{ $t('label.OnceGeolocationEnabled') }}
-            <router-link :to="$route.path + '?_=' + (new Date).getTime()">{{ $t('label.PressHere') }}</router-link>.
-          </p>
-        </div>
-      </div>
-    </div>
-    
-    <!------------------ SCORE AREA ------------------------>
-    
-    <div class="score-box">
-      <div class="q-pa-md score-text">{{ $store.state.user.score }} <q-icon name="fas fa-trophy" /></div>
-    </div>
-    <div class="coin-box">
-      <div class="q-pa-md score-text"><q-icon name="fas fa-coins" /> {{ $store.state.user.coins }} <q-icon name="add_circle" @click.native="buyCoins()" color="primary" /></div>
-    </div>
-    
     <!------------------ MENU AREA ------------------------>
     
-    <div class="fixed-bottom">
+    <div class="fixed-bottom over-map">
       <div class="menu-background"></div>
       <div class="menu row" v-touch-swipe.horizontal="swipeMenu">
         <div class="col-4 centered" @click="openSuccessPage()">
@@ -471,7 +471,8 @@
       <div class="centered bg-warning q-pa-sm" v-if="warnings.noNetwork">
         <q-spinner-radio class="on-left" /> {{ $t('label.WarningNoNetwork') }}
       </div>
-    </div>   
+    </div>
+       
   </div>
 </template>
 
