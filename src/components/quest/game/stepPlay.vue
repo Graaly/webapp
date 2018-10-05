@@ -477,6 +477,13 @@ export default {
           this.showControls()
         }
         
+        // always reset drawDirectionInterval (used for geolocation steps)
+        let drawDirectionInterval = this.$store.state.questSteps.geolocation.drawDirectionInterval
+        if (drawDirectionInterval !== null) {
+          window.clearInterval(drawDirectionInterval)
+        }
+        this.$store.dispatch('setDrawDirectionInterval', null)
+        
         if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'new-item') {
           // validate steps with no enigma
           setTimeout(this.checkAnswer, 4500)
@@ -537,21 +544,9 @@ export default {
             console.warn("No absolute orientation info is available")
           }
           
-          // prepare arrow canvas
-          let canvas = document.querySelector('.direction-helper canvas')
-          
-          canvas.width = canvas.clientWidth
-          canvas.height = canvas.clientHeight
-        
           // must store object returned by setInterval() in Vue store instead of component properties,
           // otherwise it is reset when route changes & component is reloaded
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 200))
-        } else {
-          let drawDirectionInterval = this.$store.state.questSteps.geolocation.drawDirectionInterval
-          if (drawDirectionInterval !== null) {
-            window.clearInterval(drawDirectionInterval)
-          }
-          this.$store.dispatch('setDrawDirectionInterval', null)
         }
         
         if (this.step.type === 'locate-item-ar' && !this.playerResult) {
@@ -1147,17 +1142,15 @@ export default {
      * Draw direction arrows for geolocation
      */
     drawDirectionArrow() {
-      if (this.geolocation.alpha === null || document.querySelector('.direction-helper canvas')) {
-        let drawDirectionInterval = this.$store.state.questSteps.geolocation.drawDirectionInterval
-        if (drawDirectionInterval !== null) {
-          window.clearInterval(drawDirectionInterval)
-        }
-        this.$store.dispatch('setDrawDirectionInterval', null)
+      if (this.geolocation.alpha === null || document.querySelector('.direction-helper canvas') === null) {
         return
       }
       
       // refresh arrow in canvas depending on direction
       let canvas = document.querySelector('.direction-helper canvas')
+      canvas.width = canvas.clientWidth
+      canvas.height = canvas.clientHeight
+      
       let ctx = canvas.getContext('2d')
       
       let w = canvas.width
