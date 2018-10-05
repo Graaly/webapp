@@ -167,7 +167,7 @@
           <p class="text">Difference direction: {{ geolocation.direction }}°</p>
           -->
         </div>
-        <div class="direction-helper">
+        <div class="direction-helper" v-if="step.showDirectionToTarget">
           <canvas id="direction-canvas"></canvas>
         </div>
         <div class="resultMessage" >
