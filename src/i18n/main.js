@@ -471,6 +471,7 @@ module.exports = {
       ObjectIsTooFar: "The object is too far to be visible on screen. Try to get closer.",
       LastItemIsUniq: "Last picture is unique (no twin in the game)",
       YouMustDefineStartLocation: "You must define the location of the starting point of the quest",
+      ClickOnArrowToMoveToNextStep: "Touch the arrow to move to next step",
       YourQuestMustContainAtLeast6Steps: "Your quest is too short, you must create at least 6 steps",
       YourQuestMustContainLessThan50Steps: "Your quest is too long, you must create less than 50 steps",
       WarningNoLocation: "Searching your location...",
@@ -547,8 +548,7 @@ module.exports = {
       UseAnItem: "Utiliser objet",
       UseAnItemDesc: "Utiliser un objet de l'inventaire",
       LocateItemAR: "Localiser un objet en réalité augmentée",
-      LocateItemARDesc: "Le joueur doit trouver un objet géolocalisé et visible sur l'écran de son smartphone lorsqu'il se trouve à proximité.",
-      ClickOnArrowToMoveToNextStep: "Touch the arrow to move to next step"
+      LocateItemARDesc: "Le joueur doit trouver un objet géolocalisé et visible sur l'écran de son smartphone lorsqu'il se trouve à proximité."
     },
     messages: {
       SignIn: "Connectez-vous",

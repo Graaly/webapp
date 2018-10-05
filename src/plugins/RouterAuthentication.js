@@ -6,7 +6,6 @@ export default ({ app, router, Vue }) => {
   router.beforeEach(async (to, from, next, Cookies) => {
     if (!to.meta.hasOwnProperty('requiresAuth') || to.meta.requiresAuth) {
       let response = await AuthService.getAccount()
-console.log(response)
       if (response.data && response.data.name) {
         store.state.user = response.data
         
