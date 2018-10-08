@@ -476,7 +476,8 @@ module.exports = {
       YourQuestMustContainLessThan50Steps: "Your quest is too long, you must create less than 50 steps",
       WarningNoLocation: "Searching your location...",
       WarningLowBattery: "Charge your phone before starting quest",
-      WarningNoNetwork: "No network..."
+      WarningNoNetwork: "No network...",
+      CouldNotDisplayObject: "The object to find cannot be displayed. To succeed finding the object, try to get very close using the distance indicator."
     }
   },
   fr: {
@@ -951,7 +952,8 @@ module.exports = {
       YourQuestMustContainLessThan50Steps: "Votre enquête est trop longue, vous devez créer moins de 50 étapes",
       WarningNoLocation: "Recherche de votre localisation ...",
       WarningLowBattery: "Pensez à charger votre mobile",
-      WarningNoNetwork: "Aucun réseau ..."
+      WarningNoNetwork: "Aucun réseau ...",
+      CouldNotDisplayObject: "L'objet à trouver ne peut pas être affiché. Pour réussir, essayez de vous approcher le plus possible à l'aide de l'indicateur de distance."
     }
   }
 }

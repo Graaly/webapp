@@ -613,7 +613,14 @@ export default {
           if (this.step.options.is3D) {
             let objectModel = this.step.options.model
             let objectInit = modelsList[objectModel]
-            let gltfData = await this.ModelLoaderAsync(objectModel)
+            let gltfData
+            try {
+              gltfData = await this.ModelLoaderAsync(objectModel)
+            } catch (err) {
+              console.error("Error while loading 3D model:", err)
+              Notification(this.$t('label.CouldNotDisplayObject'), 'error')
+              return
+            }
             
             object = gltfData.scene
             
@@ -666,7 +673,14 @@ export default {
             
             target.size = this.step.options.objectSize || 1
             let geometry = new THREE.PlaneGeometry(target.size, target.size)
-            let texture = new THREE.TextureLoader().load(itemImage)
+            let texture
+            try {
+              texture = new THREE.TextureLoader().load(itemImage)
+            } catch (err) {
+              console.error("Error while loading image:", err)
+              Notification(this.$t('label.CouldNotDisplayObject'), 'error')
+              return
+            }
             let material = new THREE.MeshBasicMaterial({map: texture})
             object = new THREE.Mesh(geometry, material)
             object.rotation.x = Math.PI / 2
@@ -1264,8 +1278,6 @@ export default {
 
       // if no item selected
       if (this.itemUsed === null) {
-        // this.$t() does not work, see https://github.com/kazupon/vue-i18n/issues/108
-        //this.$q.notify({type: 'negative', message: this.$i18n.t('label.PleaseSelectAnItemFirst')})
         Notification(this.$t('label.PleaseSelectAnItemFirst'), 'error')
         // TODO: maybe make blink the 'inventory' icon in the left bottom corner
         return
