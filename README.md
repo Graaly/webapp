@@ -62,3 +62,17 @@ On your computer:
 
 Now you should be able to view what is displayed on your smartphone in Chrome Desktop.
 Visible console output is related to the activity on the Android Chrome browser of the smartphone.
+
+
+# Technical specs
+
+`step.answers` types, depending on `step.type` value:
+
+* for *choose*, array of objects `{ text: <String>, isRightAnswer: <bool> }` (for text)
+                             or `{ imagePath: <String>, isRightAnswer: <bool> }` (for images)
+* for *code*, a `Number`
+* for *image-recognition*, a `String` (path of the image to recognize)
+* for *geolocation*, a position object `{ lat: Number, lng: Number }`
+* for *write-text*, a `String`
+* for *new-item*, a `String` (item code)
+* for *find-item* and *use-item*, an object `{ coordinates: { top: <Number 0-100>, left: <Number 0-100> }, item: <String> }`

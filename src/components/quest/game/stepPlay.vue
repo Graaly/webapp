@@ -6,7 +6,7 @@
       
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
         <div id="info-clickable" :class="{ grow: !step.videoStream }">
-          <p class="text">{{ step.text }}</p>
+          <p class="text">{{ step.text[lang] }}</p>
           <div>
             <div class="text right" v-show="playerResult">{{ $t('label.ClickOnArrowToMoveToNextStep') }}</div>
           </div>
@@ -16,16 +16,18 @@
             <source :src="serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
           </video>
         </div>
+        <!--
         <audio controls controlsList="nodownload" autoplay v-if="step.audioStream" class="full-width">
           <source :src="step.audioStream" type="audio/mpeg" />
         </audio>
+        -->
       </div>
         
       <!------------------ CHOOSE STEP AREA ------------------------>
       
       <div class="choose" v-if="step.type == 'choose'">
         <div>
-           <p class="text">{{ step.text }}</p>
+           <p class="text">{{ step.text[lang] }}</p>
         </div>
         <div class="answers-text" v-if="answerType === 'text'">
           <q-btn v-for="(option, key) in step.options" :key="key" class="full-width" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null">
@@ -49,7 +51,7 @@
       
       <div class="code" v-if="step.type == 'code-keypad'">
         <div>
-          <p class="text">{{ step.text }}</p>
+          <p class="text">{{ step.text[lang] }}</p>
         </div>
         <div class="typed-code">
           <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
@@ -81,7 +83,7 @@
       
       <div class="code code-color" v-if="step.type == 'code-color'">
         <div>
-          <p class="text">{{ step.text }}</p>
+          <p class="text">{{ step.text[lang] }}</p>
         </div>
         <div class="color-bubbles">
           <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">&nbsp;</div>
@@ -102,7 +104,7 @@
       
       <div class="code code-image" v-if="step.type == 'code-image'">
         <div>
-          <p class="text">{{ step.text }}</p>
+          <p class="text">{{ step.text[lang] }}</p>
         </div>
         <table>
           <tr>
@@ -137,7 +139,7 @@
       
       <div class="image-recognition" v-if="step.type == 'image-recognition'">
         <div>
-          <p class="text">{{ step.text }}</p>
+          <p class="text">{{ step.text[lang] }}</p>
         </div>
         <div class="photo">
           <img ref="original-photo" :src="serverUrl + '/upload/quest/' + step.questId + '/step/image-recognition/' + step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
@@ -159,7 +161,7 @@
       
       <div class="geolocation" v-if="step.type == 'geolocation'">
         <div>
-          <p class="text">{{ step.text }}</p>
+          <p class="text">{{ step.text[lang] }}</p>
           <p class="text" v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
           <!--
           <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
@@ -179,7 +181,7 @@
       
       <div class="write-text" v-if="step.type == 'write-text'">
         <div>
-          <p class="text">{{ step.text }}</p>
+          <p class="text">{{ step.text[lang] }}</p>
         </div>
         <div class="answer-text">
           <input v-model="writetext.playerAnswer" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" />
@@ -197,7 +199,7 @@
       
       <div class="puzzle" v-if="step.type === 'jigsaw-puzzle'">
         <div>
-          <p class="text">{{ step.text }}</p>
+          <p class="text">{{ step.text[lang] }}</p>
         </div>
         <div id="pieces">
             <div class="piece" draggable="true"
@@ -218,7 +220,7 @@
       
       <div class="puzzle" v-if="step.type === 'memory'">
         <div>
-          <p class="text">{{ step.text }}</p>
+          <p class="text">{{ step.text[lang] }}</p>
         </div>
         <ul class="memory" id="card-deck">
           <li v-for="(item, key) in memory.items" :key="key" class="card" :class="{ open: item.isClicked, show: item.isClicked, disabled: item.isFound }" @click="selectMemoryCard(key)">
@@ -234,7 +236,7 @@
       
       <div class="new-item" v-if="step.type == 'new-item'">
         <div>
-          <p class="text">{{ step.text === '' ? $t('label.YouHaveWinANewItem') : step.text }}</p>
+          <p class="text">{{ step.text[lang] === '' ? $t('label.YouHaveWinANewItem') : step.text[lang] }}</p>
         </div>
         <div class="item">
           <img style="width: 80%" :src="(step.options.picture.indexOf('statics/') ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
@@ -249,7 +251,7 @@
       
       <div class="use-item" v-if="step.type == 'use-item'" @click="useItem($event)">
         <div>
-          <p class="text">{{ step.text }}</p>
+          <p class="text">{{ step.text[lang] }}</p>
         </div>
         <div ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + step.questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
@@ -275,7 +277,7 @@
       
       <div class="find-item" v-if="step.type == 'find-item'" @click="findItem($event)">
         <div>
-          <p class="text">{{ step.text }}</p>
+          <p class="text">{{ step.text[lang] }}</p>
         </div>
         <div ref="findItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + step.questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
@@ -297,7 +299,7 @@
         <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && !playerResult"></video>
         <div v-show="!playerResult">
           <div class="text">
-            <p>{{ step.text }}</p>
+            <p>{{ step.text[lang] }}</p>
             <p>{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
             <p v-if="!this.geolocation.canSeeTarget">{{ $t('label.ObjectIsTooFar') }}</p>
             <p v-if="this.geolocation.canTouchTarget">{{ $t('label.TouchTheObject') }}</p>
@@ -344,8 +346,9 @@ export default {
    * runId : Id of the run (0 = simulation mode)
    * reload : set to true if data must be reload
    * itemUsed : item of the inventory used
+   * lang : language of the step (fr, en, ...)
    */
-  props: ['step', 'runId', 'reload', 'itemUsed'],
+  props: ['step', 'runId', 'reload', 'itemUsed', 'lang'],
   watch: { 
     // refresh component if stepId change
     reload: async function(newVal, oldVal) {
@@ -355,7 +358,7 @@ export default {
     }
   },
   data: function () {
-    return this.initialState();
+    return this.initialState()
   },
   mounted () {
     this.initData()
@@ -442,8 +445,6 @@ export default {
      * Init the component data
      */
     initData () {
-      //Object.assign(this.$data, this.initialState());
-      
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
         let background = document.getElementById('play-view')

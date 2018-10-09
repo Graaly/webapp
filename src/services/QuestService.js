@@ -11,7 +11,7 @@ export default {
   },
   /*
    * get a quest based on its ID
-   * @param   {String}    id                  ID f the quest
+   * @param   {String}    id                  ID of the quest
    */
   getById (id) {
     return Api().get('quest/' + id)
@@ -41,24 +41,23 @@ export default {
   },
   /*
    * Set the main language of a quest
-   * @param   {String}    id                  ID f the quest
+   * @param   {String}    id                  ID of the quest
    * @param   {String}    lang                language of the quest (en, fr, ...)
    */
-  setFirstLanguage (questId, lang) {
+  /*setFirstLanguage (questId, lang) {
     return Api().put('quest/' + questId + '/lang/set/' + lang)
-  },
+  },*/
   /*
    * Add a language for the quest
-   * @param   {String}    id                  ID f the quest
+   * @param   {String}    id                  ID of the quest
    * @param   {String}    lang                language of the quest (en, fr, ...)
-   * @param   {String}    action              extra action ('clonesteps', ...) 
    */
-  addLanguage (questId, lang, action) {
-    return Api().put('quest/' + questId + '/lang/add/' + lang + '/' + action)
+  addLanguage (questId, lang) {
+    return Api().put('quest/' + questId + '/lang/add/' + lang)
   },
   /*
    * Publish a quest
-   * @param   {String}    id                  ID f the quest
+   * @param   {String}    id                  ID of the quest
    * @param   {String}    lang                Language concerned
    */
   publish (id, lang) {
@@ -66,7 +65,7 @@ export default {
   },
   /*
    * Unpublish a quest
-   * @param   {String}    id                  ID f the quest
+   * @param   {String}    id                  ID of the quest
    * @param   {String}    lang                Language concerned
    */
   unpublish (id, lang) {
@@ -74,14 +73,14 @@ export default {
   },
   /*
    * List the quests created by a user
-   * @param   {String}    id                  ID f the user
+   * @param   {String}    id                  ID of the user
    */
   ListCreatedByAUser (id) {
     return Api().get('user/' + id + '/quests/created')
   },
   /*
    * List the quests played by a user
-   * @param   {String}    id                  ID f the user
+   * @param   {String}    id                  ID of the user
    */
   ListPlayedByAUser (id) {
     return Api().get('user/' + id + '/quests/played')

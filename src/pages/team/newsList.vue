@@ -50,7 +50,7 @@
                   {{ item.title }}
                 </q-item-tile>
                 <q-item-tile label v-if="item.type !== 'standard'">
-                  <dummytag v-html="$t('news.' + item.type, item.data)"></dummytag>
+                  <p v-html="$t('news.' + item.type, item.data)"></p>
                   <span v-if="item.type === 'challengeWon'">{{ $t('challenge.' + item.data.name) }}</span>
                 </q-item-tile>
                 <q-item-tile sublabel>
@@ -201,6 +201,6 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style>
+.q-item-label > p { padding: 0; margin: 0; }
 </style>
