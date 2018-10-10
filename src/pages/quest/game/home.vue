@@ -127,11 +127,11 @@
       <div class="col-12">
         <h5>{{ $t('label.PleaseActivateGeolocation') }}</h5>
         <div v-if="isChrome">
-          <p v-html="$t('message.HowToActivateGeolocationOnChrome')"></p>
+          <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
           <p>
-            {{ $t('message.OnceGeolocationEnabled') }}
+            {{ $t('label.OnceGeolocationEnabled') }}
             <!-- see https://github.com/vuejs/vue-router/issues/296 -->
-            <router-link :to="$route.path + '?_=' + (new Date).getTime()">{{ $t('message.PressHere') }}</router-link>.
+            <router-link :to="$route.path + '?_=' + (new Date).getTime()">{{ $t('label.PressHere') }}</router-link>.
           </p>
         </div>
       </div>

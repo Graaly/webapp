@@ -4,20 +4,18 @@ export default {
   /*
    * list the steps of a quest
    * @param   {String}    questId        ID of the quest
-   * @param   {String}    lang           language of the steps
    */
-  async listForAQuest (questId, lang) {
-    let res = await Api().get('quest/' + questId + '/steps/' + lang)
+  async listForAQuest (questId) {
+    let res = await Api().get('quest/' + questId + '/steps')
     return res.data
   },
   /*
    * list the objects won until a specific step of a quest
    * @param   {String}    questId        ID of the quest
    * @param   {String}    stepId         ID of the step
-   * @param   {String}    lang           language of the steps concerned
    */
-  async listWonObjects (questId, stepId, lang) {
-    let res = await Api().get('quest/' + questId + '/steps/' + stepId + '/objectswon/' + lang)
+  async listWonObjects (questId, stepId) {
+    let res = await Api().get('quest/' + questId + '/steps/' + stepId + '/objectswon')
     return res.data
   },
   /*
@@ -32,10 +30,9 @@ export default {
    * get a step by its number
    * @param   {String}    questId        ID of the quest
    * @param   {String}    number         Number of the step
-   * @param   {String}    lang           language of the steps concerned
    */
-  async getByNumber (questId, number, lang) {
-    let res = await Api().get('quest/' + questId + '/step/number/' + number + '/' + lang)
+  async getByNumber (questId, number) {
+    let res = await Api().get('quest/' + questId + '/step/number/' + number)
     return res.data
   },
   /*
@@ -52,10 +49,9 @@ export default {
   /*
    * count the steps for a quest
    * @param   {String}    questId        ID of the quest
-   * @param   {String}    lang           language of the steps
    */
-  async countForAQuest(questId, lang) {
-    let res = await Api().get('quest/' + questId + '/steps/' + lang + '/count')
+  async countForAQuest(questId) {
+    let res = await Api().get('quest/' + questId + '/steps/count')
     return res.data.count
   },
   /*

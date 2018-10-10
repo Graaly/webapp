@@ -1,7 +1,7 @@
 <template>
   <div v-touch-swipe.horizontal="swipeMgmt" class="play">
     
-    <stepPlay :step="step" :runId="run._id" :itemUsed="selectedItem" :reload="loadStepData" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
+    <stepPlay :step="step" :runId="run._id" :itemUsed="selectedItem" :reload="loadStepData" :lang="lang" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
       
     <!------------------ INVENTORY PAGE AREA ------------------------>
     
@@ -42,7 +42,7 @@
       <div class="hint panel-bottom q-pa-md" v-show="hint.isOpened">
         <h1>{{ $t('label.Hint') }}</h1>
         <p v-if="hint.label === ''">{{ $t('label.NoHintForThisStep') }}</p>
-        <p v-if="hint.label !== ''">{{ hint.label }}</p>
+        <p v-if="hint.label !== ''">{{ hint.label[lang] }}</p>
         <q-btn class="q-mb-xl" color="primary" @click="askForHint()">{{ $t('label.Close') }}</q-btn>
       </div>
     </transition>
@@ -111,7 +111,6 @@ export default {
       step: {
         nextNumber: 2
       },
-      lang: this.$route.params.lang,
       loadStepData: false,
       run: {},
       isRunFinished: false,
@@ -122,54 +121,10 @@ export default {
       serverUrl: process.env.SERVER_URL,
       nbTry: 0,
       controlsAreDisplayed: false,
+      lang: this.$route.params.lang,
       
       // for step type 'use-item'
       selectedItem: null
-      
-      /* for step 'choose'
-      answerType: 'text', // 'text' or 'image'
-      
-      // for steps type 'code-keypad' & 'code-color'
-      playerCode: [],
-      keypad: [
-        ["1", "2", "3"],
-        ["4", "5", "6"],
-        ["7", "8", "9"],
-        ["*", "0", "#"]
-      ],
-      
-      // for step type 'image-recognition'
-      photoComparisonThreshold: 70,
-      photoTaken: false,
-      
-      // for step type 'geoloc'
-      geolocation: {
-        distance: null,
-        direction: null,
-        // location
-        locationWatcher: null,
-        watchLocationInterval: 2000, // ms
-        // direction
-        currentBearing: null, // current direction compared to north
-        rawDirection: null,
-        alpha: null
-      },
-      
-      // for step type 'write-text'
-      writetext: {
-        playerAnswer: null
-      },
-      
-      // for step type 'jigsaw puzzle'
-      puzzle: {
-        pieces: [],
-        picture: 'statics/icons/game/medal.png',
-        dragSrcEl: null
-      },
-      
-      // for step type 'find-item'
-      itemAdded: null
-      */
     }
   },
   mounted () {
@@ -183,7 +138,7 @@ export default {
       // get quest information
       await this.getQuest(this.quest.id)
       // get quest number to compute progression
-      await this.countStepsNumber(this.quest.id, this.lang)
+      await this.countStepsNumber(this.quest.id)
       
       // no more available step => we reached end of quest
       if (typeof step === 'undefined' || step === 'OK') {
@@ -242,7 +197,7 @@ export default {
      * Get the step data
      */
     async getStep () {
-      return StepService.getByNumber(this.quest.id, this.$route.params.stepNumber, this.$route.params.lang)
+      return StepService.getByNumber(this.quest.id, this.$route.params.stepNumber)
     },
     /*
      * Track step success
@@ -276,7 +231,7 @@ export default {
       this.hideHint()
     },
     hideHint() {
-      this.step.hint = ''
+      this.step.hint = {}
     },
     /*
      * Launch a quest with default language
@@ -371,7 +326,7 @@ export default {
      */
     async fillInventory() {
       // load items won on previous steps
-      this.inventory.items = await StepService.listWonObjects(this.quest.id, this.step._id, this.$route.params.lang)
+      this.inventory.items = await StepService.listWonObjects(this.quest.id, this.step._id)
     },
     /*
      * Open the inventory
@@ -418,10 +373,9 @@ export default {
     /*
      * count number of steps in a quest
      * @param   {string}    id             Quest ID
-     * @param   {string}    lang           Language f the quest
      */
-    async countStepsNumber(id, lang) {
-      let response = await StepService.countForAQuest(id, lang)
+    async countStepsNumber(id) {
+      let response = await StepService.countForAQuest(id)
       this.info.stepsNumber = response || 1
     },
     /*
@@ -437,7 +391,7 @@ export default {
       this.closeAllPanels()
     },
     isHintAvailable() {
-      return (this.step && this.step.hint && this.step.hint !== '')
+      return (this.step && this.step.hint && this.step.hint[this.lang] && this.step.hint[this.lang] !== '')
     }
   }
 }

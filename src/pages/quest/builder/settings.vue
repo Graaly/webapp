@@ -15,12 +15,6 @@
       <!------------------ LANGUAGES TAB ------------------------>
         
       <q-tab-pane name="languages" class="q-pa-md">
-        <!-- <p class="q-pb-md">
-          {{ $t('label.YourQuestIsConfiguredIn') }}
-          <q-chip icon="language" color="primary" v-for="lang in quest.languages" :key="lang.lang">
-            {{ $t('language.' + lang.lang) }}
-          </q-chip>
-        </p>-->
         <q-field
           icon="language"
           :helper="$t('label.SelectTheLanguageAndClickOnNextButton')"
@@ -31,14 +25,10 @@
             color="primary"
             v-model="languages.current"
             :options="form.languages"
-            @input="setOtherLanguage"
           />
+          <!-- @input="setOtherLanguage" -->
         </q-field>
-        <q-btn big class="full-width" color="primary" @click="ChooseFirstLanguage()" v-show="tabs.progress === 0" :label="$t('label.StartConfigureYourQuest') + ' (' + $t('language.' + languages.current) + ')'" />
-        <div v-show="languages.isNew && tabs.progress !== 0">
-          <q-checkbox v-model="languages.cloneSteps" :label="$t('label.cloneSteps')" />
-          <q-btn big class="full-width" color="primary" @click="addLanguage()" :label="$t('label.StartConfigureYourQuest') + ' (' + $t('language.' + languages.current) + ')'" />
-        </div>
+        <q-btn big class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" />
       </q-tab-pane>
       
       <!------------------ SETTINGS TAB ------------------------>
@@ -47,8 +37,8 @@
     
         <form @submit.prevent="submitSettings()">
         
-          <q-field :error="$v.form.fields.title.$error">
-            <q-input type="text" :float-label="$t('label.Title')" v-model="form.fields.title[languages.current]" @blur="$v.form.fields.title.$touch" />
+          <q-field :error="$v.form.fields.title.$error" :count="titleMaxLength">
+            <q-input type="text" :float-label="$t('label.Title') + ' ' + currentLanguageForLabels" v-model="form.fields.title[languages.current]" @blur="$v.form.fields.title.$touch" maxlength="titleMaxLength" />
             <div class="q-field-bottom" v-if="$v.form.fields.title.$error">
               <div class="q-field-error" v-if="!$v.form.fields.title.required">{{ $t('label.PleaseEnterATitle') }}</div>
             </div>
@@ -62,11 +52,10 @@
           </q-field>
           
           <div class="description">
-            <!--<a href="#" @click="console.log('TODO: exemples')">{{ $t('label.Examples') }}</a>-->
             <q-input
               v-model="form.fields.description[languages.current]"
               type="textarea"
-              :float-label="$t('label.Description')"
+              :float-label="$t('label.Description') + ' ' + currentLanguageForLabels"
               :max-height="100"
               :min-rows="4"
               class="full-width"
@@ -83,7 +72,7 @@
           
           <div class="location-address">
             <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-              <gmap-autocomplete id="startingplace" :placeholder="$t('label.StartingPointOfTheQuest')" v-model="form.fields.startingPlace" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
+              <gmap-autocomplete v-if="tabs.selected === 'settings'" id="startingplace" :placeholder="$t('label.StartingPointOfTheQuest')" v-model="form.fields.startingPlace" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
             </div>
             <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
           </div>
@@ -121,7 +110,7 @@
         <ul class="list-group" v-sortable="{ onUpdate: onStepListUpdate, handle: '.handle' }">
           <li class="list-group-item" v-for="step in steps.items" :key="step._id">
             <q-icon class="handle" name="reorder" />
-            <p>{{ step.title }}</p>
+            <p>{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</p>
             <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
             <q-btn @click="modifyStep(step)"><q-icon name="mode edit" /></q-btn>
             <q-btn @click="removeStep(step._id)"><q-icon name="clear" /></q-btn>
@@ -222,7 +211,7 @@
         <a class="float-right no-underline" color="grey" @click="closeStepSettingsPage"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ typeof steps.new.type.title !== 'undefined' ? $t('stepType.' + steps.new.type.title) : '' }}</h1>
         <div class="q-pa-md">
-          <stepSettings :questId="questId" :stepId="stepId" :lang="languages.current" :options="steps.new.type" @change="trackStepChanges"></stepSettings>
+          <stepSettings :quest="quest" :stepId="stepId" :lang="languages.current" :options="steps.new.type" @change="trackStepChanges"></stepSettings>
         </div>
       </div>
     </div>  
@@ -231,7 +220,7 @@
     
         <!------------------ STEP SIMULATION ------------------------>
         
-        <stepPlay :step="steps.new.overviewData" runId="0" :itemUsed="selectedItem" :reload="steps.reloadStepPlay" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
+        <stepPlay :step="steps.new.overviewData" runId="0" :itemUsed="selectedItem" :reload="steps.reloadStepPlay" :lang="languages.current" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
         <q-layout-footer class="step-menu">
           <q-tabs v-model="overview.tabSelected">
             <q-tab slot="title" name="inventory" icon="work" @click="openInventory()" />
@@ -266,7 +255,7 @@
       <div class="hint panel-bottom q-pa-md" v-show="hint.isOpened">
         <h1>{{ $t('label.Hint') }}</h1>
         <p v-if="hint.label === ''">{{ $t('label.NoHintForThisStep') }}</p>
-        <p v-if="hint.label !== ''">{{ hint.label }}</p>
+        <p v-if="hint.label !== ''">{{ hint.label[languages.current] }}</p>
         <q-btn class="q-mb-xl" color="primary" @click="askForHint()">{{ $t('label.Close') }}</q-btn>
       </div>
     </transition>
@@ -316,15 +305,13 @@ export default {
       },
       languages: {
         current: '',
-        isNew: false,
-        available: [],
-        cloneSteps: true
+        available: []
       },
       form: {
         fields: {
-          title: {fr: '', en: ''},
+          title: {},
           category: '',
-          description: {fr: '', en: ''},
+          description: {},
           location: { lat: '', lng: '' },
           startingPlace: '',
           languages: [],
@@ -377,7 +364,13 @@ export default {
       canPass: false,
       itemUsed: null,
       serverUrl: process.env.SERVER_URL,
-      pictureUploadURL: this.serverUrl + '/quest/picture/upload'
+      pictureUploadURL: this.serverUrl + '/quest/picture/upload',
+      titleMaxLength: 50
+    }
+  },
+  computed: {
+    currentLanguageForLabels() {
+      return this.quest.languages.length > 1 ? '[' + this.languages.current.toUpperCase() + ']' : ''
     }
   },
   async mounted() {
@@ -405,8 +398,17 @@ export default {
         if (this.quest.languages && this.quest.languages.length > 0 && this.languages.current === '') {
           this.languages.current = this.quest.languages[0].lang
           for (var i = 0; i < this.quest.languages.length; i++) {
-            this.languages.available.push({label: this.$t('language.' + this.quest.languages), value: this.quest.languages[i]})
+            this.languages.available.push({label: this.$t('language.' + this.quest.languages[i].lang), value: this.quest.languages[i].lang})
           }
+        }
+        
+        // if empty, autofill title & description with main language values
+        if (!this.quest.title[this.languages.current] || this.quest.title[this.languages.current] === '') {
+          this.quest.title[this.languages.current] = this.quest.title[this.quest.mainLanguage]
+        }
+        
+        if (!this.quest.description[this.languages.current] || this.quest.description[this.languages.current] === '') {
+          this.quest.description[this.languages.current] = this.quest.description[this.quest.mainLanguage]
         }
         
         this.form.fields = this.quest
@@ -435,7 +437,7 @@ export default {
      */
     async refreshStepsList() {
       // list steps
-      this.steps.items = await StepService.listForAQuest(this.questId, this.languages.current)
+      this.steps.items = await StepService.listForAQuest(this.questId)
       if (this.steps.items && this.steps.items.length > 0 && this.tabs.progress < 3) {
         this.tabs.progress = 3
       }
@@ -730,7 +732,7 @@ export default {
     /*
      * Update the list of the languages available for the quest
      */
-    async setOtherLanguage() {
+    /*async setOtherLanguage() {
       var selLang = this.languages.current
       // check if quest is already available for this lang
       var questConfiguredForThisLanguage = false
@@ -749,11 +751,37 @@ export default {
         // display add button
         this.languages.isNew = true
       }
+    },*/
+    /*
+    * Quest author selected the language he wants to use for typing quest & steps texts
+    */
+    async selectLanguage() {
+      let selLang = this.languages.current
+      
+      // check if quest is already available for this lang
+      let questConfiguredForThisLanguage = false
+      if (this.quest.languages) {
+        for (var i = 0; i < this.quest.languages.length; i++) {
+          if (this.quest.languages[i].lang === selLang) {
+            questConfiguredForThisLanguage = true
+          }
+        }
+      }
+      
+      if (!questConfiguredForThisLanguage) {
+        // raises blocking exception if any problem occurs
+        await QuestService.addLanguage(this.questId, selLang)
+      }
+      
+      if (this.tabs.progress < 1) {
+        this.tabs.progress = 1
+      }
+      this.tabs.selected = 'settings'
     },
     /*
      * Update the list of the languages available for the quest
      */
-    async addLanguage() {
+    /*async addLanguage() {
       var selLang = this.languages.current
       // are the steps cloned ?
       let action = this.languages.cloneSteps ? 'clonesteps' : 'noaction'
@@ -768,11 +796,11 @@ export default {
         await this.loadQuestData()
         this.tabs.selected = 'settings'
       }
-    },
+    },*/
     /*
      * Set the first language for the quest
      */
-    async ChooseFirstLanguage() {
+    /*async ChooseFirstLanguage() {
       let firstLanguageSelection = await QuestService.setFirstLanguage(this.questId, this.languages.current)
       
       if (firstLanguageSelection) {
@@ -781,7 +809,7 @@ export default {
           this.tabs.selected = 'settings'
         }
       }
-    },
+    },*/
     /*
      * Close step type selection page
      */
@@ -849,7 +877,7 @@ export default {
       this.hideHint()
     },
     hideHint() {
-      this.steps.new.overviewData.hint = ''
+      this.steps.new.overviewData.hint = {}
     },
     /*
      * Get the icon of a step type
@@ -878,7 +906,7 @@ export default {
      */
     async fillInventory() {
       // load items won on previous steps
-      this.inventory.items = await StepService.listWonObjects(this.questId, this.stepId, this.languages.current)
+      this.inventory.items = await StepService.listWonObjects(this.questId, this.stepId)
     },
     /*
      * Open the inventory
@@ -940,7 +968,7 @@ export default {
      * Check if a hint is available for the step
      */
     isHintAvailable() {
-      return (this.steps.new.overviewData && this.steps.new.overviewData.hint && this.steps.new.overviewData.hint !== '')
+      return (this.steps.new.overviewData && this.steps.new.overviewData.hint && this.steps.new.overviewData.hint[languages.current] && this.steps.new.overviewData.hint[languages.current] !== '')
     },
     /*
      * Scroll page to the top

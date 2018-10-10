@@ -1,33 +1,32 @@
 <template>
   <div>
-    <q-field :error="$v.selectedStep.form.title.$error">
-      <q-input type="text" :float-label="$t('label.Title')" v-model="selectedStep.form.title" @blur="$v.selectedStep.form.title.$touch" />
-      <div class="q-field-bottom" v-if="$v.selectedStep.form.title.$error">
-        <div class="q-field-error" v-if="!$v.selectedStep.form.title.required">{{ $t('label.PleaseEnterATitle') }}</div>
-      </div>
-    </q-field>
 
     <!------------------ COMMON FOR ALL STEPS ------------------------>
     
-    <div>
-      <q-field
-        :error="$v.selectedStep.form.text.$error"
-        :error-label="$t('label.KeepEnigmaQuestionsShort')"
-        :count="mainTextMaxLength"
-      >
-        <q-input
-          :float-label="$t('label.' + mainTextFieldLabel)"
-          v-model="selectedStep.form.text"
-          type="textarea"
-          :max-height="100"
-          :min-rows="4"
-          class="full-width"
-          @blur="$v.selectedStep.form.text.$touch"
-          @input="$v.selectedStep.form.text.$touch"
-        />
-      </q-field>
-    </div>
-
+    <q-field :error="$v.selectedStep.form.title[lang].$error" :count="titleMaxLength">
+      <q-input type="text" :float-label="$t('label.Title') + ' ' + currentLanguageForLabels" v-model="selectedStep.form.title[lang]" @blur="$v.selectedStep.form.title[lang].$touch" :maxlength="titleMaxLength" />
+      <div class="q-field-bottom" v-if="$v.selectedStep.form.title[lang].$error">
+        <div class="q-field-error" v-if="!$v.selectedStep.form.title[lang].required">{{ $t('label.PleaseEnterATitle') }}</div>
+      </div>
+    </q-field>
+    
+    <q-field
+      :error="$v.selectedStep.form.text[lang].$error"
+      :error-label="$t('label.KeepEnigmaQuestionsShort')"
+      :count="mainTextMaxLength"
+    >
+      <q-input
+        :float-label="$t('label.' + mainTextFieldLabel) + ' ' + currentLanguageForLabels"
+        v-model="selectedStep.form.text[lang]"
+        type="textarea"
+        :max-height="100"
+        :min-rows="4"
+        class="full-width"
+        @blur="$v.selectedStep.form.text[lang].$touch"
+        @input="$v.selectedStep.form.text[lang].$touch"
+      />
+    </q-field>
+    
     <div class="background-upload" v-show="options.hasBackgroundImage !== false">
       <q-btn class="full-width" type="button">
         <label for="picturefile">{{ $t('label.UploadABackgroundImage') }}</label>
@@ -37,7 +36,7 @@
       <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
       <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.code !== 'find-item' && options.code !== 'use-item'">
         <p>{{ $t('label.YourPicture') }} :</p>
-        <img :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
+        <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
         <a @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
       </div>
     </div>
@@ -384,61 +383,10 @@
       
     </div>
     
-    <!-- TODO. those options do nothing for the moment -->
-    <!--
-    <h2>Autres options</h2>
-    
-    <p>Déclencheur</p>
-    
-    <q-list link>
-      <q-item tag="label" v-for="trigger in triggerList" :key="trigger.type">
-        <q-item-side>
-          <q-radio v-model="form.trigger.type" :val="trigger.type" />
-        </q-item-side>
-        <q-item-main>
-          <q-item-tile label>{{ trigger.label }}</q-item-tile>
-        </q-item-main>
-      </q-item>
-    </q-list>
-    
-    <p class="location-gps-inputs" v-if="form.trigger.type === 'location'">
-      <q-input type="text" stack-label="Latitude" v-model="form.trigger.lat" />
-      <q-input type="text" stack-label="Longitude" v-model="form.trigger.lng" />
-    </p>
-    
-    <p v-if="form.trigger.type === 'datetime'">
-      <q-input type="text" stack-label="Date" v-model="form.trigger.date" />
-      <q-input type="text" stack-label="Heure" v-model="form.trigger.time" />
-    </p>
-    
-    <p>Animation de réponse incorrecte</p>
-    
-    <q-list link>
-      <q-item tag="label" v-for="option in wrongAnswerAnimationList" :key="option.type">
-        <q-item-side>
-          <q-radio v-model="form.wrongAnswerAnimation.type" :val="option.type" />
-        </q-item-side>
-        <q-item-main>
-          <q-item-tile label>{{ option.label }}</q-item-tile>
-        </q-item-main>
-      </q-item>
-    </q-list>
-    
-    <q-input
-      v-if="form.wrongAnswerAnimation.type === 'text'"
-      v-model="form.wrongAnswerAnimation.text"
-      type="textarea"
-      float-label="Message en cas de mauvaise réponse"
-      :max-height="100"
-      :min-rows="4"
-      class="full-width"
-    />
-    -->
-    
     <!------------------ HINT ------------------------>
     
     <div v-if="options.showTrick == 'yes'">
-      <q-input v-model="selectedStep.form.hint" :float-label="$t('label.Hint')" />
+      <q-input v-model="selectedStep.form.hint[lang]" :float-label="$t('label.Hint')" />
     </div>
     
     <q-btn class="full-width" color="primary" @click="submitStep">{{ $t('label.SaveThisStep') }}</q-btn>
@@ -461,12 +409,12 @@ import StepService from 'services/StepService'
 export default {
   /*
    * Properties used on component call
-   * questId : Id of the quest (mandatory)
+   * quest : quest object (mandatory)
    * stepId : Id of the step (0= new step)
    * lang : language of the step (fr, en, ...)
    * options : configuration
    */
-  props: ['questId', 'stepId', 'lang', 'options'],
+  props: ['quest', 'stepId', 'lang', 'options'],
   watch: { 
     // refresh component if stepId change
     stepId: async function(newVal, oldVal) {
@@ -475,16 +423,20 @@ export default {
   },
   data() {
     return {
+      questId: null,
       selectedStep: {
         isNew: true,
         id: 0,
         code: null,
         form: {
+          title: {},
+          text: {},
           options: {}
         }
       },
       stepTypes,
       objectsList,
+      titleMaxLength: 50,
       
       /*
        * List of the levels for the jigsaw step
@@ -494,17 +446,6 @@ export default {
         { value: 2, label: this.$t('label.Medium') },
         { value: 3, label: this.$t('label.Hard') }
       ],
-      
-      /*triggerList: [
-        { type: 'none',     label: this.$t('label.NoneImmediate') },
-        { type: 'location', label: this.$t('label.NoneLocationAndDirection') },
-        { type: 'datetime', label: this.$t('label.DateTime') }
-      ],*/
-      
-      /*wrongAnswerAnimationList: [
-        { type: 'none', label: this.$t('label.NoneNextStep') },
-        { type: 'text', label: this.$t('label.Text') }
-      ],*/
             
       answerType: 'text',
       defaultNbAnswers: 4,
@@ -547,6 +488,9 @@ export default {
       }
       
       return maxNbChars
+    },
+    currentLanguageForLabels() {
+      return this.quest.languages.length > 1 ? '[' + this.lang.toUpperCase() + ']' : ''
     }
   },
   async mounted() {
@@ -571,8 +515,8 @@ export default {
      */
     async resetStep() {
       this.selectedStep.form = {
-        title: '',
-        text: null,
+        title: {}, // {fr: 'mon titre', en: 'my title', ...}
+        text: {}, // {fr: 'ma description', en: 'my description', ...}
         answers: {}, // using null triggers lots of "undefined property" errors complex to handle, due to nested objects + using them like v-model="form.answers.level" + template rendering executed before "mounted()"
         options: {},
         backgroundImage: null,
@@ -589,7 +533,7 @@ export default {
         wrongAnswerAnimation: {
           type: 'none'
         },
-        hint: '',
+        hint: {}, // {fr: 'un indice', en: 'a hint', ...}
         number: null
       }
       // reset upload item (after document fully loaded)
@@ -603,6 +547,7 @@ export default {
      * Init data of the component
      */
     async initData() {
+      this.questId = this.quest._id
       // reset step data
       this.resetStep()
       // if step is not defined and step type is not choosen
@@ -617,13 +562,34 @@ export default {
       
       // compute number of steps
       if (this.selectedStep.form.number === null) {
-        this.selectedStep.form.number = (await StepService.countForAQuest(this.questId, this.lang)) + 1
+        this.selectedStep.form.number = (await StepService.countForAQuest(this.questId)) + 1
       }
       
       // define the default title for the step
-      if (this.selectedStep.form.title === '') {
-        this.selectedStep.form.title = this.$t('label.Level') + ' ' + this.selectedStep.form.number
+      if (!this.selectedStep.form.title[this.lang] || this.selectedStep.form.title[this.lang] === '') {
+        let defaultTitle
+        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.title[this.quest.mainLanguage] !== '') {
+          defaultTitle = this.selectedStep.form.title[this.quest.mainLanguage]
+        } else {
+          defaultTitle = this.$t('label.Level') + ' ' + this.selectedStep.form.number
+        }
+        this.$set(this.selectedStep.form.title, this.lang, defaultTitle)
       }
+            
+      // define the default text/question for the step
+      if (!this.selectedStep.form.text[this.lang] || this.selectedStep.form.text[this.lang] === '') {
+        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.text[this.quest.mainLanguage] !== '') {
+          this.$set(this.selectedStep.form.text, this.lang, this.selectedStep.form.text[this.quest.mainLanguage])
+        }
+      }
+      
+      // define the default hint for the step
+      if (!this.selectedStep.form.hint[this.lang] || this.selectedStep.form.hint[this.lang] === '') {
+        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.hint[this.quest.mainLanguage] !== '') {
+          this.$set(this.selectedStep.form.hint, this.lang, this.selectedStep.form.hint[this.quest.mainLanguage])
+        }
+      }
+      
       // initialize specific steps
       if (this.options.code === 'choose') {
         if (!Array.isArray(this.selectedStep.form.options)) {
@@ -779,10 +745,7 @@ export default {
       // save step data
       let newStepData = Object.assign(this.selectedStep.form, {
         questId: this.questId,
-        type: this.options.code,
-        lang: this.lang,
-        textPosition: 'top', // tmp
-        audioStream: null // tmp
+        type: this.options.code
       })
       let stepData = await StepService.save(newStepData)
 
@@ -793,7 +756,6 @@ export default {
       } else {
         Notification(this.$t('label.TechnicalIssue'), 'error')
       }
-      //this.$router.push('/quest/edit/step/list')
     },
     
     /*
@@ -1081,7 +1043,7 @@ export default {
      */
     async getQuestItemsAsOptions() {
       // load items won on previous steps
-      this.questItems = await StepService.listWonObjects(this.questId, this.stepId, this.lang)
+      this.questItems = await StepService.listWonObjects(this.questId, this.stepId)
       let options = []
       this.questItems.forEach((item) => {
         options.push({
@@ -1182,7 +1144,7 @@ export default {
         maxNbCarriageReturns = this.options.textRules.maxNbCarriageReturns
       }
       
-      if (value === null) {
+      if (value === null || typeof value === 'undefined') {
         value = ''
       }
       
@@ -1193,9 +1155,12 @@ export default {
   },
   validations() {
     let fieldsToValidate = {
-      title: { required },
-      text: { function(value) { return this.checkMainTextLength(value) } }
+      title: {},
+      text: {}
     }
+    
+    fieldsToValidate.title[this.lang] = { required }
+    fieldsToValidate.text[this.lang] = { function(value) { return this.checkMainTextLength(value) } }
     
     // alphabetical order
     switch (this.options.code) {
