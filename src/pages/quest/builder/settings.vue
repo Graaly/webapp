@@ -600,8 +600,10 @@ export default {
      * @param   {Object}    event            touch event
      */
     async onStepListUpdate(event) {
-      this.steps.items.splice(event.newIndex, 0, this.steps.items.splice(event.oldIndex, 1)[0])
-      await this.reindexSteps()
+      let moveStatus = await StepService.move(this.questId, event.oldIndex + 1, event.newIndex + 1)
+      if (moveStatus) {
+        this.steps.items.splice(event.newIndex, 0, this.steps.items.splice(event.oldIndex, 1)[0])
+      }
     },
     /*
      * Publish a quest
@@ -661,7 +663,6 @@ export default {
         // reassign a number (1, 2, 3, ...) to remaining steps
         let removedStepIndex = _this.steps.items.map(function(e) { return e._id; }).indexOf(stepId)
         _this.steps.items.splice(removedStepIndex, 1)
-        await _this.reindexSteps()
         // refresh steps list
         await this.refreshStepsList()
       })

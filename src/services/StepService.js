@@ -70,6 +70,15 @@ export default {
     return Api().delete('quest/' + questId + '/step/' + stepId + '/remove')
   },
   /*
+   * Move a step
+   * @param   {String}    questId        ID of the quest
+   * @param   {Number}    oldPosition    Old position of the step
+   * @param   {Number}    newPosition    New position of the step
+   */
+  move(questId, oldPosition, newPosition) {
+    return Api().put('quest/' + questId + '/step/' + oldPosition + '/move/' + newPosition)
+  },
+  /*
    * upload a background image for step
    * @param   {String}    questId        ID of the quest
    * @param   {Object}    data           upload data
