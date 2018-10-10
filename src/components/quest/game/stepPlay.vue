@@ -237,7 +237,7 @@
           <p class="text">{{ step.text === '' ? $t('label.YouHaveWinANewItem') : step.text }}</p>
         </div>
         <div class="item">
-          <img style="width: 80%" :src="(step.options.picture.indexOf('statics/') ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
+          <img style="width: 80%" :src="(step.options.picture.indexOf('statics/') > -1 ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
           <p>{{ step.options.title }}</p>
         </div>
         <div>
@@ -266,7 +266,7 @@
       </div>
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
         <q-btn round color="primary">
-          <img v-if="itemUsed" :src="(itemUsed.picture.indexOf('statics/') ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
+          <img v-if="itemUsed" :src="(itemUsed.picture.indexOf('statics/') > -1 ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
         </q-btn>
         {{ $t('label.TouchWhereYouUseThisItem') }}
       </p>

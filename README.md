@@ -29,6 +29,8 @@ If no data from server is shown on webapp on Chrome (desktop or mobile), try to 
 
 Open console / terminal in the *webapp* folder
 
+Change the version in the quasar.conf.js file
+
 Build the unsigned apk file
 
 `$ quasar build -m cordova -T android`
@@ -38,7 +40,8 @@ Sign the apk
 $ cd src-cordova\platforms\android\app\build\outputs\apk\release
 $ keytool -genkey -v -keystore graaly-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-alias
 $ jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore graaly-key.jks app-release-unsigned.apk my-alias
-$ E:\logiciels\Android\sdk\build-tools\26.0.2\zipalign -v 4 app-release-unsigned.apk graaly001.apk
+$ rm graaly.apk
+$ E:\logiciels\Android\sdk\build-tools\26.0.2\zipalign -v 4 app-release-unsigned.apk graaly.apk
 ```
 
 # Debug web app

@@ -11,7 +11,8 @@ module.exports = function (ctx) {
       'RouterAuthentication',
       'VueGoogleMaps',
       'VueI18n',
-      'Vuelidate'
+      'Vuelidate',
+      ctx.mode.cordova ? 'google-analytics' : ''
     ],
     css: [
       'app.styl'
@@ -177,6 +178,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
+      version: '1.0.1'
       // id: 'org.cordova.quasar.app'
     },
     electron: {

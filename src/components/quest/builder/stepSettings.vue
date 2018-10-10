@@ -302,7 +302,7 @@
       <p>{{ $t('label.WarningImageSizeSquare') }}</p>
       <div v-if="selectedStep.form.options !== null && selectedStep.form.options.picture && selectedStep.form.options.picture !== null">
         <p>{{ $t('label.YourItemPicture') }} :</p>
-        <img style="width:100%" :src="(selectedStep.form.options.picture.indexOf('statics/') ? selectedStep.form.options.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.options.picture)" />
+        <img style="width:100%" :src="(selectedStep.form.options.picture.indexOf('statics/') !== -1 ? selectedStep.form.options.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.options.picture)" />
       </div>
       <!--<p>{{ $t('message.Or') }}</p>
       <q-select :float-label="$t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
