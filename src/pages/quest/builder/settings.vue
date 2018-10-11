@@ -300,7 +300,7 @@ export default {
       questId: null,
       stepId: '-1',
       tabs: {
-        selected: 'settings',
+        selected: 'languages',
         progress: 0,
         list: ['languages', 'settings', 'steps', 'publish']
       },
