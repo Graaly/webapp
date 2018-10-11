@@ -39,11 +39,9 @@ export default {
      * Create a new quest
      */
     async createNewQuest() {
-      var title = {}
-      title[this.$t('label.shortLang')] = this.$t('label.NewQuest')
       // Define default quest settings
       let newQuest = {
-        title: title
+        title: {}
       }
       let res = await QuestService.create(newQuest)
 

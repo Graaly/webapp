@@ -1,8 +1,11 @@
 <template>
   <div>
     <router-link v-show="!steps.showNewStepOverview && !steps.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
-    <h1 class="size-3 q-pl-md" v-show="!steps.showNewStepOverview && !steps.showNewStepPageSettings && form.fields.title && form.fields.title[languages.current] && form.fields.title[languages.current] !== ''">{{ form.fields.title[languages.current] }}</h1>
-    <h1 class="size-3 q-pl-md" v-show="!steps.showNewStepOverview && !steps.showNewStepPageSettings && (!form.fields.title || !form.fields.title[languages.current] || form.fields.title[languages.current] === '')">{{ $t('label.NoTitle') }}</h1>
+    
+    <h1 class="size-3 q-pl-md" v-show="!steps.showNewStepOverview && !steps.showNewStepPageSettings">
+      <span v-if="tabs.progress >= 2">{{ form.fields.title[languages.current] || form.fields.title[quest.mainLanguage] }}</span>
+      <span v-else>{{ $t('label.NewQuest') }}</span>
+    </h1>
     
     <!------------------ TABS ------------------------>
     
@@ -298,13 +301,14 @@ export default {
       stepId: '-1',
       tabs: {
         selected: 'settings',
-        progress: 0
+        progress: 0,
+        list: ['languages', 'settings', 'steps', 'publish']
       },
       overview: {
         tabSelected: 'none'
       },
       languages: {
-        current: '',
+        current: 'fr', // default
         available: []
       },
       form: {
@@ -402,11 +406,7 @@ export default {
           }
         }
         
-        // if empty, autofill title & description with main language values
-        if (!this.quest.title[this.languages.current] || this.quest.title[this.languages.current] === '') {
-          this.quest.title[this.languages.current] = this.quest.title[this.quest.mainLanguage]
-        }
-        
+        // if empty, autofill description with main language value
         if (!this.quest.description[this.languages.current] || this.quest.description[this.languages.current] === '') {
           this.quest.description[this.languages.current] = this.quest.description[this.quest.mainLanguage]
         }
@@ -426,10 +426,15 @@ export default {
         
         // define tabs status
         this.tabs.progress = this.quest.creationStep
+        // creation in progress => get creator back to the tab where he was
+        if (this.tabs.progress < 4) {
+          this.tabs.selected = this.tabs.list[this.tabs.progress]
+        }
         
         await this.refreshStepsList()
       } else {
-        // TODO : define action if data of quest are not loaded
+        console.error('Could not load quest data')
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
     },
     /*
@@ -774,43 +779,25 @@ export default {
         await QuestService.addLanguage(this.questId, selLang)
       }
       
+      // refresh quest data
+      await this.loadQuestData()
+      
+      // if quest title is empty, autofill it with a default value
+      if (!this.quest.title[selLang] || this.quest.title[selLang] === '') {
+        if (selLang === this.quest.mainLanguage) {
+          // if current language is main language, get title default value (label.NewQuest)
+          this.quest.title[selLang] = this.$t('label.NewQuest', selLang)
+        } else {
+          // copy value from main language
+          this.quest.title[selLang] = this.quest.title[this.quest.mainLanguage]
+        }
+      }
+      
       if (this.tabs.progress < 1) {
         this.tabs.progress = 1
       }
       this.tabs.selected = 'settings'
     },
-    /*
-     * Update the list of the languages available for the quest
-     */
-    /*async addLanguage() {
-      var selLang = this.languages.current
-      // are the steps cloned ?
-      let action = this.languages.cloneSteps ? 'clonesteps' : 'noaction'
-    
-      // create lang for the quest
-      let addStatus = await QuestService.addLanguage(this.questId, selLang, action)
-      
-      if (addStatus) {
-        this.quest.languages.push({lang: selLang, published: false})
-        this.languages.isNew = false
-        // reload data for the lang
-        await this.loadQuestData()
-        this.tabs.selected = 'settings'
-      }
-    },*/
-    /*
-     * Set the first language for the quest
-     */
-    /*async ChooseFirstLanguage() {
-      let firstLanguageSelection = await QuestService.setFirstLanguage(this.questId, this.languages.current)
-      
-      if (firstLanguageSelection) {
-        if (this.tabs.progress < 1) {
-          this.tabs.progress = 1
-          this.tabs.selected = 'settings'
-        }
-      }
-    },*/
     /*
      * Close step type selection page
      */
