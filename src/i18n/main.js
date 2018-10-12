@@ -282,7 +282,7 @@ module.exports = {
       CreateYourQuest: "Create your quest!",
       andWin: "and win",
       Start: "Start",
-      AcceptTheRules: "Accepter les règles",
+      AcceptTheRules: "Accept the rules",
       SomeMoney: "Some money",
       BuilderWelcomeMessage: "<p>Graaly helps you create funny quest to challenge players and win points!</p><p>By pressing the Start button, you accept those rules, described in the XXXXX:<ul><li>This application can be used by young people, it must not contain reference to violence, sex, horror, nudity, drug, alcohol, smoking, ...</li><li>If you are not the owner of the place of the quest, do not ask players to touch, move, or degrade things.</p><p>The story of your quest must not undermine living or dead people</li><li>Your quest must concern a location where no quest has already be done, except if the content is enough different.</li><li>Your quest must have more than 6 steps and less than 50 steps</li><li>Our moderation team will check if your quest respects these rules, and if the quality level is enough. If not, you will be asked to improve your quest, or your quest will be rejected</li></ul></p>",
       HowToWinMoney: "How to win money?",

@@ -1,18 +1,25 @@
 import { Notify } from 'quasar'
 
+const defaultSettings = {
+  position: 'top',
+  actions: [ { icon: 'close' } ]
+}
+
 export default (message, type) => {
+  let customSettings
   switch (type) {
     case 'positive':
-      Notify.create({message: message, position: 'top', icon: 'tag_faces', color: 'positive'})
+      customSettings = {icon: 'check_circle', color: 'positive'}
       break
     case 'warning':
-      Notify.create({message: message, position: 'top', icon: 'warning', color: 'orange'})
+      customSettings = {icon: 'warning', color: 'orange'}
       break
     case 'error':
-      Notify.create({message: message, position: 'top', icon: 'report_problem', color: 'negative'})
+      customSettings = {icon: 'report_problem', color: 'negative'}
       break
     default:
-      Notify.create({message: message, position: 'top', icon: 'info', color: 'info'})
+      customSettings = {icon: 'info', color: 'info'}
       break
   }
+  Notify.create(Object.assign({ message }, defaultSettings, customSettings))
 }
