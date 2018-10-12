@@ -6,11 +6,12 @@
     <div class="row fullscreen" ref="map" v-if="geolocationIsSupported">
       
       <gmap-map
+        v-if="isMounted"
         :center="map.center"
         :zoom="map.zoom"
         map-type-id="roadmap"
         class="map"
-        ref="map"
+        ref="mapRef"
         :options="{disableDefaultUI:true}"
         @center_changed="updateCenter($event)"
         @dragend="dragEnd($event)"
@@ -484,6 +485,7 @@ import shop from 'components/shop'
 import utils from 'src/includes/utils'
 import { required, email } from 'vuelidate/lib/validators'
 import { QSpinnerDots, QInfiniteScroll } from 'quasar'
+import { gmapApi } from 'vue2-google-maps'
 
 import Notification from 'plugins/NotifyHelper'
 import LevelCompute from 'plugins/LevelCompute'
@@ -545,7 +547,7 @@ export default {
       },
       currentQuestIndex: null,
       currentQuest: null,
-      geolocationIsSupported: (navigator && navigator.geolocation),
+      geolocationIsSupported: false,
       searchText: '',
       questList: [],
       serverUrl: process.env.SERVER_URL,
@@ -573,7 +575,8 @@ export default {
         userCanChangeEmail: true,
         userCanChangePassword: true
       },
-      languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t)
+      languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
+      isMounted: false
     }
   },
   computed: {
@@ -600,39 +603,53 @@ export default {
       } else {
         return false;
       }
-    }
+    },
+    google: gmapApi
   },
   mounted() {
     this.findLocation()
     window.addEventListener("batterylow", this.checkBattery, false);
     this.checkNetwork()
+    this.$nextTick(() => {
+      this.isMounted = true
+    })
   },
   methods: {
     /*
      * Get user location
      */
     findLocation() {
-      var self = this
-      this.geolocationIsSupported = (navigator && navigator.geolocation)
-      if (this.$data.geolocationIsSupported) {
+      if (navigator && navigator.geolocation) {
         // getCurrentPosition() is not always reliable (timeouts/fails frequently)
         // see https://stackoverflow.com/q/3397585/488666
         this.$q.loading.show()
-        navigator.geolocation.getCurrentPosition((position) => {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          this.geolocationIsSupported = true
+          // TODO maybe here save current position in 'state' for later use in case of failure
           this.user.position.latitude = position.coords.latitude
           this.user.position.longitude = position.coords.longitude
           
-          this.CenterMapOnPosition(this.user.position.latitude, this.user.position.longitude)
-          // TODO maybe here save current position in 'state' for later use in case of failure
-          self.getQuests()
+          await this.getQuests()
+          
+          // adjust zoom / pan to nearest quests, or current user location
+          if (this.questList.length > 0) {
+            const bounds = new google.maps.LatLngBounds()
+            for (let q of this.questList) {
+              bounds.extend({ lng: q.location.coordinates[0], lat: q.location.coordinates[1] })
+            }
+            this.$refs.mapRef.$mapObject.fitBounds(bounds)
+          } else {
+            this.CenterMapOnPosition(this.user.position.latitude, this.user.position.longitude)
+          }
+          
           this.$q.loading.hide()
           this.warnings.noLocation = false
-        }, () => {
-          console.error('geolocation failed')
-          self.geolocationIsSupported = false
+        }, (err) => {
+          console.error('geolocation failed', err)
+          this.geolocationIsSupported = false
           this.$q.loading.hide()
           // try again in 10s
-          setTimeout(self.findLocation, 10000)
+          setTimeout(this.findLocation, 10000)
           // TODO maybe here recall position stored in 'state'
           this.warnings.noLocation = true
         }, 
@@ -642,7 +659,6 @@ export default {
         });
       } else {
         this.warnings.noLocation = true
-        setTimeout(self.findLocation, 10000)
       }
     },
     /*
@@ -659,7 +675,7 @@ export default {
      * Check network
      */
     checkNetwork() {
-      if (navigator.connection && navigator.connection.type && Connection) {
+      if (navigator.connection && navigator.connection.type && typeof Connection !== 'undefined') {
         if (navigator.connection.type === Connection.NONE) {
           this.warnings.noNetwork = true
         } else {
@@ -706,16 +722,8 @@ export default {
       } else {
         this.map.filter = type
       }
-      let response = await QuestService.listNearest(this.map.center, this.map.filter)
+      let response = await QuestService.listNearest({ lng: this.user.position.longitude, lat: this.user.position.latitude }, this.map.filter)
       this.questList = response.data
-      
-      /*/ redifine zoom
-      const bounds = new google.maps.LatLngBounds()
-      for (let q of this.questList) {
-        bounds.extend({ lng: q.location.coordinates[0], lat: q.location.coordinates[1] })
-      }
-      this.$refs.gmap.$mapObject.fitBounds(bounds)
-      */
     },
     
     /*
@@ -728,49 +736,10 @@ export default {
     
     // ------------- Map manipulation functions ----------------
     
-    // from https://stackoverflow.com/a/33339155/488666
-    panTo (position) {
-      let panPath = this.map.pan.path
-      let panQueue = this.map.pan.queue
-      let panSteps = this.map.pan.steps
-      if (panPath.length > 0) {
-        // We are already panning...queue this up for next move
-        panQueue.push(position)
-      } else {
-        // easeIn animation computation: see https://stackoverflow.com/a/11808697/488666
-        panPath.push("LAZY SYNCRONIZED LOCK")  // make length non-zero - 'release' this before calling setTimeout
-        var curLat = this.map.center.lat
-        var curLng = this.map.center.lng
-        var dLat = (position.lat - curLat)
-        var dLng = (position.lng - curLng)
-        
-        for (var i = 1; i <= panSteps; i++) {
-          let elapsed = this.map.pan.duration * (i / panSteps);
-          let newLat = this.easeOutQuad(elapsed, curLat, dLat, this.map.pan.duration);
-          let newLng = this.easeOutQuad(elapsed, curLng, dLng, this.map.pan.duration);
-          panPath.push({ lat: newLat, lng: newLng })
-        }
-        panPath.push(position)
-        panPath.shift() // LAZY SYNCRONIZED LOCK
-        
-        setTimeout(this.doPan, this.map.pan.duration / this.map.pan.steps)
-      }
-    },
-
-    doPan () {
-      var next = this.map.pan.path.shift();
-        
-      if (next != null) {
-        // Continue our current pan action
-        this.map.center = next;
-        setTimeout(this.doPan, this.map.pan.duration / this.map.pan.steps);
-      } else {
-        // We are finished with this pan - check if there are any queue'd up locations to pan to 
-        var queued = this.map.pan.queue.shift();
-        if (queued != null) {
-          this.panTo(queued);
-        }
-      }
+    // from https://stackoverflow.com/a/3817835/488666
+    panTo (position) {      
+      // do not name <gmap-map> reference as 'map', otherwise $mapObject becomes undefined (!)
+      this.$refs.mapRef.$mapObject.panTo(position)
     },
     
     updateCenter (ev) {
@@ -786,12 +755,6 @@ export default {
       // new center coordinates are not available in event data
       // => use mapCenterTmp values saved by 'update_center' event
       this.map.center = this.map.centerTmp
-    },
-    
-    // https://github.com/danro/jquery-easing/blob/master/jquery.easing.js
-    // t: current time, b: beginning value, c: change in value, d: duration
-    easeOutQuad: function (t, b, c, d) {
-      return -c * (t /= d) * (t - 2) + b;
     },
     
     /*
@@ -883,14 +846,12 @@ export default {
      * Open the success page
      */
     openSuccessPage() {
-      //this.$refs.layout.toggleLeft()
       if (!this.showSuccess) {
         this.listCreatedQuests(this.$store.state.user._id)
         this.listPlayedQuests(this.$store.state.user._id)
         this.getRanking()
       }
       this.showSuccess = !this.showSuccess
-      //this.$router.push('/user/me/success')
     },
     /*
      * Get current user ranking data
