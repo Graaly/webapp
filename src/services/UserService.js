@@ -63,6 +63,13 @@ export default {
    */
   getBestFriends () {
     return Api().get('user/bestfriends')
+  },
+  /*
+   * buy coins
+   * @param   {String}    offer                  ID of the offer
+   */
+  buy (offer) {
+    return Api().post('user/buy/offer/' + offer)
   }
   
 }

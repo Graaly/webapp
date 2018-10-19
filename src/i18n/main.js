@@ -262,7 +262,7 @@ module.exports = {
       WinPointsAndUnlockQuests: "Win points and unlock quests!",
       CreateYourQuestsAndWinMoney: "Build your own quests and earn money!",
       CenterOnYourPosition: "Center map on your location",
-      BuildAQuestHere: "Build a quest here",
+      BuildAQuestHere: "Build a quest",
       BestQuests: "Best quests",
       OnlyEasy: "Easiest quests",
       SearchForAQuest: "Search for a quest",
@@ -473,7 +473,11 @@ module.exports = {
       WarningNoLocation: "Searching your location...",
       WarningLowBattery: "Charge your phone before starting quest",
       WarningNoNetwork: "No network...",
-      CouldNotDisplayObject: "The object to find cannot be displayed. To succeed finding the object, try to get very close using the distance indicator."
+      CouldNotDisplayObject: "The object to find cannot be displayed. To succeed finding the object, try to get very close using the distance indicator.",
+      Step: "Step",
+      EasyLongDesc: "Easy, for everyone, even a child",
+      NormalLongDesc: "Normal, no huge difficulties",
+      HardLongDesc: "Expert, for gamers"
     }
   },
   fr: {
@@ -734,7 +738,7 @@ module.exports = {
       WinPointsAndUnlockQuests: "Gagnez des points et débloquez des enquêtes !",
       CreateYourQuestsAndWinMoney: "Créez vos enquêtes et gagnez de l'argent !",
       CenterOnYourPosition: "Centrer sur votre position",
-      BuildAQuestHere: "Créer une enquête ici",
+      BuildAQuestHere: "Créer une enquête",
       BestQuests: "Les plus populaires",
       OnlyEasy: "Les plus faciles",
       SearchForAQuest: "Chercher des enquêtes",
@@ -945,7 +949,11 @@ module.exports = {
       WarningNoLocation: "Recherche de votre localisation ...",
       WarningLowBattery: "Pensez à charger votre mobile",
       WarningNoNetwork: "Aucun réseau ...",
-      CouldNotDisplayObject: "L'objet à trouver ne peut pas être affiché. Pour réussir, essayez de vous approcher le plus possible à l'aide de l'indicateur de distance."
+      CouldNotDisplayObject: "L'objet à trouver ne peut pas être affiché. Pour réussir, essayez de vous approcher le plus possible à l'aide de l'indicateur de distance.",
+      Step: "Etape",
+      EasyLongDesc: "Facile, tout public même jeune (> 6 ans)",
+      NormalLongDesc: "Normal, sans grosses difficultés",
+      HardLongDesc: "Expert, pour les fans d'énigmes"
     }
   }
 }

@@ -54,6 +54,14 @@
             </div>
           </q-field>
           
+          <q-field>
+            <q-select :float-label="$t('label.Difficulty')" v-model="form.fields.level" :options="form.levels" />
+          </q-field>
+          
+          <q-field>
+            <q-select :float-label="$t('label.Duration')" v-model="form.fields.duration" :options="form.durations" />
+          </q-field>
+          
           <div class="description">
             <q-input
               v-model="form.fields.description[languages.current]"
@@ -88,14 +96,6 @@
             <label for="picturefile">{{ $t('label.ModifyThePicture') }}</label>
             <input @change="uploadImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
           </q-btn>
-          
-          <q-field>
-            <q-select :float-label="$t('label.Difficulty')" v-model="form.fields.level" :options="form.levels" />
-          </q-field>
-          
-          <q-field>
-            <q-select :float-label="$t('label.Duration')" v-model="form.fields.duration" :options="form.durations" />
-          </q-field>
           
           <q-btn type="submit" color="primary" class="full-width">{{ $t('label.Save') }}</q-btn>
             
@@ -812,7 +812,7 @@ export default {
      * Filter step types based on main category code
      */
     filteredStepTypes(categoryCode) {
-      return stepTypes.filter(stepType => stepType.category === categoryCode)
+      return stepTypes.filter(stepType => (stepType.category === categoryCode && stepType.enabled))
     },
     /*
      * Select a step type

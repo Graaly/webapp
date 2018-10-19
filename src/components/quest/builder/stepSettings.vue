@@ -281,7 +281,7 @@
       </q-field>
       <div v-if="selectedStep.form.answerItem !== null">
         {{ $t('label.SelectedObject') }} :
-        <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.answerItem" />
+        <img :src="(selectedStep.form.answerItem.indexOf('statics/') !== -1 ? selectedStep.form.answerItem : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.answerItem)" />
       </div>
     </div>
     
@@ -571,7 +571,7 @@ export default {
         if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.title[this.quest.mainLanguage] !== '') {
           defaultTitle = this.selectedStep.form.title[this.quest.mainLanguage]
         } else {
-          defaultTitle = this.$t('label.Level') + ' ' + this.selectedStep.form.number
+          defaultTitle = this.$t('label.Step') + ' ' + this.selectedStep.form.number
         }
         this.$set(this.selectedStep.form.title, this.lang, defaultTitle)
       }

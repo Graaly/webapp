@@ -12,7 +12,7 @@
         <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
         <div class="inventory-items">
           <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-            <img :src="(item.picture.indexOf('statics/') ? item.picture : serverUrl + '/upload/quest/' + quest.id + '/step/new-item/' + item.picture)" />
+            <img :src="(item.picture.indexOf('statics/') > -1 ? item.picture : serverUrl + '/upload/quest/' + quest.id + '/step/new-item/' + item.picture)" />
             <p>{{ item.title }}</p>
           </div>
         </div>

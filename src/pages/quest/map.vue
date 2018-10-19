@@ -15,6 +15,7 @@
         :options="{disableDefaultUI:true}"
         @center_changed="updateCenter($event)"
         @dragend="dragEnd($event)"
+        @click="closeInfoWindows()"
       >
         <gmap-marker :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()" />
         
@@ -440,7 +441,7 @@
     <q-modal v-model="shop.show" class="over-map">
       <a class="float-right no-underline q-pa-md" color="grey" @click="closeShop"><q-icon name="close" class="medium-icon" /></a>
       <h1 class="size-3 q-pl-md">{{ $t('label.Shop') }}</h1>
-      <shop></shop>
+      <shop @close="closeShop"></shop>
     </q-modal>
     
     <!------------------ MENU AREA ------------------------>
@@ -610,11 +611,15 @@ export default {
     this.findLocation()
     window.addEventListener("batterylow", this.checkBattery, false);
     this.checkNetwork()
+    
     this.$nextTick(() => {
       this.isMounted = true
     })
   },
   methods: {
+    closeInfoWindows() {
+      this.map.infoWindow.isOpen = false
+    },
     /*
      * Get user location
      */
@@ -630,18 +635,21 @@ export default {
           this.user.position.longitude = position.coords.longitude
           
           await this.getQuests()
-          
+ 
           // adjust zoom / pan to nearest quests, or current user location
           if (this.questList.length > 0) {
-            const bounds = new google.maps.LatLngBounds()
-            for (let q of this.questList) {
-              bounds.extend({ lng: q.location.coordinates[0], lat: q.location.coordinates[1] })
-            }
-            this.$refs.mapRef.$mapObject.fitBounds(bounds)
+            // fix found on https://teunohooijer.com/tag/vue2-google-maps/ to use google library
+            this.$refs.mapRef.$mapPromise.then((map) => {
+              const bounds = new google.maps.LatLngBounds()
+              for (let q of this.questList) {
+                bounds.extend({ lng: q.location.coordinates[0], lat: q.location.coordinates[1] })
+              }
+              map.fitBounds(bounds);
+            });
           } else {
             this.CenterMapOnPosition(this.user.position.latitude, this.user.position.longitude)
           }
-          
+
           this.$q.loading.hide()
           this.warnings.noLocation = false
         }, (err) => {

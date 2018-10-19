@@ -5,7 +5,8 @@
     "icon": "file-image",
     "title": "ImageAndText",
     "description": "ImageAndTextDesc",
-    "showTrick": "no"
+    "showTrick": "no",
+    "enabled": true
   },
   {
     "category": "transition",
@@ -13,7 +14,8 @@
     "icon": "file-video",
     "title": "Video",
     "description": "VideoDesc",
-    "showTrick": "no"
+    "showTrick": "no",
+    "enabled": true
   },
   {
     "category": "transition",
@@ -21,9 +23,9 @@
     "icon": "briefcase",
     "title": "NewObject",
     "description": "NewObjectDesc",
-    "showTrick": "no"
+    "showTrick": "no",
+    "enabled": true
   },
-  
   {
     "category": "enigma",
     "code": "geolocation",
@@ -34,119 +36,8 @@
     "textRules": {
       "maxNbChars": 180,
       "maxNbCarriageReturns": 5
-    }
-  },
-  {
-    "category": "enigma",
-    "code": "choose",
-    "icon": "list",
-    "title": "ChoiceQuestion",
-    "description": "ChoiceQuestionDesc",
-    "showTrick": "yes",
-    "textRules": {
-      "maxNbChars": 240,
-      "maxNbCarriageReturns": 5
-    }
-  },
-  {
-    "category": "enigma",
-    "code": "write-text",
-    "icon": "font",
-    "title": "TextQuestion",
-    "description": "TextQuestionDesc",
-    "showTrick": "yes"
-  },
-  {
-    "category": "enigma",
-    "code": "code-keypad",
-    "icon": "calculator",
-    "title": "FindTheCode",
-    "description": "FindTheCodeDesc",
-    "showTrick": "yes",
-    "textRules": {
-      "maxNbChars": 90,
-      "maxNbCarriageReturns": 2
-    }
-  },
-  {
-    "category": "enigma",
-    "code": "code-color",
-    "icon": "paint-brush",
-    "title": "FindTheColorCode",
-    "description": "FindTheColorCodeDesc",
-    "showTrick": "yes",
-    "textRules": {
-      "maxNbChars": 150,
-      "maxNbCarriageReturns": 4
-    }
-  },
-  {
-    "category": "enigma",
-    "code": "code-image",
-    "icon": "images",
-    "title": "FindTheImageCode",
-    "description": "FindTheImageCodeDesc",
-    "showTrick": "yes",
-    "textRules": {
-      "maxNbChars": 150,
-      "maxNbCarriageReturns": 4
-    }
-  },
-  {
-    "category": "enigma",
-    "code": "image-recognition",
-    "icon": "camera",
-    "title": "PhotographAnObject",
-    "description": "PhotographAnObjectDesc",
-    "showTrick": "yes"
-  },
-  {
-    "category": "enigma",
-    "code": "jigsaw-puzzle",
-    "icon": "puzzle-piece",
-    "title": "JigsawPuzzle",
-    "description": "JigsawPuzzleDesc",
-    "showTrick": "no",
-    "textRules": {
-      "maxNbChars": 50,
-      "maxNbCarriageReturns": 1
-    }
-  },
-  {
-    "category": "enigma",
-    "code": "memory",
-    "icon": "clone",
-    "title": "Memory",
-    "description": "MemoryDesc",
-    "showTrick": "no",
-    "textRules": {
-      "maxNbChars": 50,
-      "maxNbCarriageReturns": 1
-    }
-  },
-  {
-    "category": "enigma",
-    "code": "find-item",
-    "icon": "search",
-    "title": "FindAnItem",
-    "description": "FindAnItemDesc",
-    "showTrick": "yes",
-    "textRules": {
-      "maxNbChars": 50,
-      "maxNbCarriageReturns": 1
-    }
-  },
-  {
-    "category": "enigma",
-    "code": "use-item",
-    "icon": "wrench",
-    "title": "UseAnItem",
-    "description": "UseAnItemDesc",
-    "showTrick": "yes",
-    "textRules": {
-      "maxNbChars": 50,
-      "maxNbCarriageReturns": 1
-    }
+    },
+    "enabled": true
   },
   {
     "category": "enigma",
@@ -159,6 +50,130 @@
       "maxNbChars": 50,
       "maxNbCarriageReturns": 1
     },
-    "hasBackgroundImage": false
+    "hasBackgroundImage": false,
+    "enabled": true
+  },
+  {
+    "category": "enigma",
+    "code": "choose",
+    "icon": "list",
+    "title": "ChoiceQuestion",
+    "description": "ChoiceQuestionDesc",
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 240,
+      "maxNbCarriageReturns": 5
+    },
+    "enabled": true
+  },
+  {
+    "category": "enigma",
+    "code": "write-text",
+    "icon": "font",
+    "title": "TextQuestion",
+    "description": "TextQuestionDesc",
+    "showTrick": "yes",
+    "enabled": true
+  },
+  {
+    "category": "enigma",
+    "code": "code-keypad",
+    "icon": "calculator",
+    "title": "FindTheCode",
+    "description": "FindTheCodeDesc",
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 90,
+      "maxNbCarriageReturns": 2
+    },
+    "enabled": true
+  },
+  {
+    "category": "enigma",
+    "code": "code-color",
+    "icon": "paint-brush",
+    "title": "FindTheColorCode",
+    "description": "FindTheColorCodeDesc",
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 150,
+      "maxNbCarriageReturns": 4
+    },
+    "enabled": true
+  },
+  {
+    "category": "enigma",
+    "code": "code-image",
+    "icon": "images",
+    "title": "FindTheImageCode",
+    "description": "FindTheImageCodeDesc",
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 150,
+      "maxNbCarriageReturns": 4
+    },
+    "enabled": true
+  },
+  {
+    "category": "enigma",
+    "code": "find-item",
+    "icon": "search",
+    "title": "FindAnItem",
+    "description": "FindAnItemDesc",
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 50,
+      "maxNbCarriageReturns": 1
+    },
+    "enabled": true
+  },
+  {
+    "category": "enigma",
+    "code": "use-item",
+    "icon": "wrench",
+    "title": "UseAnItem",
+    "description": "UseAnItemDesc",
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 50,
+      "maxNbCarriageReturns": 1
+    },
+    "enabled": true
+  },
+  {
+    "category": "enigma",
+    "code": "image-recognition",
+    "icon": "camera",
+    "title": "PhotographAnObject",
+    "description": "PhotographAnObjectDesc",
+    "showTrick": "yes",
+    "enabled": false
+  },
+  {
+    "category": "enigma",
+    "code": "jigsaw-puzzle",
+    "icon": "puzzle-piece",
+    "title": "JigsawPuzzle",
+    "description": "JigsawPuzzleDesc",
+    "showTrick": "no",
+    "textRules": {
+      "maxNbChars": 50,
+      "maxNbCarriageReturns": 1
+    },
+    "hasBackgroundImage": false,
+    "enabled": true
+  },
+  {
+    "category": "enigma",
+    "code": "memory",
+    "icon": "clone",
+    "title": "Memory",
+    "description": "MemoryDesc",
+    "showTrick": "no",
+    "textRules": {
+      "maxNbChars": 50,
+      "maxNbCarriageReturns": 1
+    },
+    "enabled": true
   }
 ]
