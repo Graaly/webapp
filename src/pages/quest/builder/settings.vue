@@ -154,6 +154,10 @@
           </p>
         </q-field>
         
+        <p class="centered q-pa-md" v-if="quest.status !== 'published'">
+          <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
+        </p>
+        
       </q-tab-pane>
       
     </q-tabs>
@@ -650,6 +654,22 @@ export default {
      */
     async testQuest() {
       this.$router.push('/quest/play/' + this.questId)
+    },
+    /*
+     * Remove the quest
+     */
+    async removeQuest() {
+      var _this = this; // workaround for closure scope quirks
+      
+      this.$q.dialog({
+        message: this.$t('label.AreYouSureYouWantToRemoveThisQuest'),
+        ok: true,
+        cancel: true
+      }).then(async () => {
+        await QuestService.remove(_this.questId)
+              
+        this.$router.push('/map')
+      })
     },
     /*
      * Remove a step

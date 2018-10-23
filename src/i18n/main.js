@@ -477,7 +477,9 @@ module.exports = {
       Step: "Step",
       EasyLongDesc: "Easy, for everyone, even a child",
       NormalLongDesc: "Normal, no huge difficulties",
-      HardLongDesc: "Expert, for gamers"
+      HardLongDesc: "Expert, for gamers",
+      RemoveThisQuest: "Remove this quest",
+      AreYouSureYouWantToRemoveThisQuest: "Are you sure to remove this quest? It will be remove permanently!"
     }
   },
   fr: {
@@ -953,7 +955,9 @@ module.exports = {
       Step: "Etape",
       EasyLongDesc: "Facile, tout public même jeune (> 6 ans)",
       NormalLongDesc: "Normal, sans grosses difficultés",
-      HardLongDesc: "Expert, pour les fans d'énigmes"
+      HardLongDesc: "Expert, pour les fans d'énigmes",
+      RemoveThisQuest: "Supprimer cette enquête",
+      AreYouSureYouWantToRemoveThisQuest: "Etes-vous sûr(e) de supprimer cette enquête ? Elle sera définivement supprimée."
     }
   }
 }

@@ -66,6 +66,30 @@ On your computer:
 Now you should be able to view what is displayed on your smartphone in Chrome Desktop.
 Visible console output is related to the activity on the Android Chrome browser of the smartphone.
 
+## With Chrome Desktop & Hybrid App
+
+On the Android smartphone:
+
+* [Enable USB debugging](https://developer.android.com/studio/debug/dev-options)
+* Connect your smartphone to your computer (desktop, laptop...)
+* CONNECT PC that build the app AND THE MOBILE ON THE SAME WIFI NETWORK (PC will start a server to run the webapp that will be opened by the mobile, so PC must be reacheable by mobile)
+* If something does not work, disable antivirus & windows defender
+
+On your computer:
+
+* Launch in windows console : quasar dev -m cordova -T android
+* Open Chrome browser
+* Press F12 to load developer tools
+* In the top right corner of the developer tools window/pane, click on the three vertically aligned dots > More tools > Remote devices
+* A new tab **Remote devices** should appear
+* In this tab, your smartphone should be listed in the left column list, click on it
+* In the right column, Graaly URL should appear. Click on the button "Inspect" next to the URL.
+
+If the app run as HTTP rather than HTTPS, follow this fix :  https://forum.quasar-framework.org/topic/2279/https-dev-server-with-cordova/5
+
+Now you should be able to view what is displayed on your smartphone in Chrome Desktop.
+Visible console output is related to the activity on the Android Chrome browser of the smartphone.
+
 
 # Technical specs
 

@@ -40,6 +40,13 @@ export default {
     return Api().put('quest/' + data._id + '/update', data)
   },
   /*
+   * Remove a quest
+   * @param   {String}    id                Quest Id
+   */
+  remove (id) {
+    return Api().delete('quest/' + id + '/remove')
+  },
+  /*
    * Set the main language of a quest
    * @param   {String}    id                  ID of the quest
    * @param   {String}    lang                language of the quest (en, fr, ...)

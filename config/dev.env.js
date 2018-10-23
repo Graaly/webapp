@@ -4,5 +4,6 @@ var prodEnv = require('./prod.env')
 module.exports = merge(prodEnv, {
   NODE_ENV: 'development',
   //SERVER_URL: 'https://78.247.66.31:3000'
-  SERVER_URL: 'https://localhost:3000'
+  SERVER_URL: 'https://192.168.0.13:3000'
+  //SERVER_URL: 'https://localhost:3000'
 })
