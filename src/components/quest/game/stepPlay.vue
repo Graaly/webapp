@@ -1650,7 +1650,7 @@ export default {
       return new Promise((resolve, reject) => {
         let gltfLoader = new GLTFLoader()
         // loads automatically .bin and textures files if necessary
-        gltfLoader.load(this.serverUrl + 'statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+        gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
       })
     }
   }
