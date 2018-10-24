@@ -13,12 +13,15 @@
         "cordova-android": "^7.0.0",
         "cordova-open-native-settings": "^1.5.1",
         "cordova-plugin-battery-status": "^2.0.2",
+        "cordova-plugin-compat": "^1.2.0",
         "cordova-plugin-geolocation": "^4.0.1",
         "cordova-plugin-inapppurchase-fixed": "^1.1.2",
         "cordova-plugin-network-information": "^2.0.1",
         "cordova-plugin-splashscreen": "^5.0.2",
         "cordova-plugin-statusbar": "^2.4.2",
-        "cordova-plugin-whitelist": "^1.3.3"
+        "cordova-plugin-whitelist": "^1.3.3",
+        "es6-promise-plugin": "^4.2.2",
+        "phonegap-plugin-media-stream": "^1.2.1"
     },
     "cordova": {
         "plugins": {
@@ -29,7 +32,8 @@
             "cordova-plugin-geolocation": {},
             "cordova-plugin-network-information": {},
             "cordova-plugin-splashscreen": {},
-            "cordova-plugin-statusbar": {}
+            "cordova-plugin-statusbar": {},
+            "phonegap-plugin-media-stream": {}
         },
         "platforms": [
             "android"
