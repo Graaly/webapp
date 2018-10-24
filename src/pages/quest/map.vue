@@ -25,8 +25,9 @@
         <gmap-info-window :options="map.infoWindow.options" :position="map.infoWindow.location" :opened="map.infoWindow.isOpen" @closeclick="map.infoWindow.isOpen=false">
           <div class="infoWindow">
             <p class="title" v-html="getQuestTitle(currentQuest, true)"></p>
-            <p>{{ $t('label.Difficulty') }} : {{ $t('label.' + (currentQuest ? getQuestLevelName(currentQuest.level) : getQuestLevelName(2))) }}</p>
-            <q-btn @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Play') }}</q-btn>
+            <p>{{ $t('label.Difficulty') }} : <img class="image-and-text-aligned" src="statics/icons/game/magnifying-red.png" /><img class="image-and-text-aligned" :src="'statics/icons/game/magnifying-' + ((currentQuest && currentQuest.level === 1) ? 'grey' : 'red') + '.png'" /><img class="image-and-text-aligned" :src="'statics/icons/game/magnifying-' + ((currentQuest && currentQuest.level === 3) ? 'red' : 'grey') + '.png'" /></p>
+            <q-btn v-if="currentQuest && currentQuest.authorUserId !== $store.state.user._id" @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Play') }}</q-btn>
+            <q-btn v-if="currentQuest && currentQuest.authorUserId === $store.state.user._id" @click="$router.push('/quest/settings/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Modify') }}</q-btn>
           </div>
         </gmap-info-window>
       </gmap-map>
@@ -379,7 +380,7 @@
                 <q-card-media class="preview" overlay-position="top">
                   <img :src="serverUrl + '/upload/quest/' + item.picture" />
 
-                  <q-card-title slot="overlay" @click.native="$router.push('/quest/play/' + item._id)">
+                  <q-card-title slot="overlay" @click.native="$router.push(item.authorUserId === $store.state.user._id ? '/quest/settings/' + item._id : '/quest/play/' + item._id)">
                     {{ getQuestTitle(item, true) }}
                     <q-rating slot="subtitle" v-if="item.rating" v-model="item.rating" color="primary" :max="5" />
                     <span slot="right" class="row items-center text-white" v-if="item.distance && item.distance > 0 && item.distance <= 99">
@@ -1084,11 +1085,15 @@ export default {
         anchor: {x: 20, y: 40}
       }
       if (quest) {
-        if (quest.status !== 'played') {
-          if (quest.type === 'quest') {
-            marker.url = 'statics/icons/game/pointer-quest.png'
-          } else {
-            marker.url = 'statics/icons/game/pointer-' + quest.category + '.png'
+        if (quest.authorUserId === this.$store.state.user._id) {
+          marker.url = 'statics/icons/game/pointer-myquest.png'
+        } else {
+          if (quest.status !== 'played') {
+            if (quest.type === 'quest') {
+              marker.url = 'statics/icons/game/pointer-quest.png'
+            } else {
+              marker.url = 'statics/icons/game/pointer-' + quest.category + '.png'
+            }
           }
         }
       } else {

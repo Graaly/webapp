@@ -456,7 +456,7 @@ module.exports = {
       PublicationRequested: "Publication requested",
       PublicationRejected: "Publication rejected. You will receive an email to know why",
       QuestPublicationRejected: "Your quest has not been published. You will receive an email to explain you how to update it to have it published",
-      TouchTheObject: "Touch the object",
+      TouchTheObject: "Find the object by looking around and touch it",
       ObjectSize: "Object size",
       YouWonABonus: "You won a bonus",
       AddATown: "Add a town",
@@ -479,7 +479,8 @@ module.exports = {
       NormalLongDesc: "Normal, no huge difficulties",
       HardLongDesc: "Expert, for gamers",
       RemoveThisQuest: "Remove this quest",
-      AreYouSureYouWantToRemoveThisQuest: "Are you sure to remove this quest? It will be remove permanently!"
+      AreYouSureYouWantToRemoveThisQuest: "Are you sure to remove this quest? It will be remove permanently!",
+      Modify: "Modify"
     }
   },
   fr: {
@@ -934,7 +935,7 @@ module.exports = {
       PublicationRequested: "En cours de validation",
       PublicationRejected: "Publication rejectée. Cliquez ici pour savoir pourquoi",
       QuestPublicationRejected: "Votre enquête n'a pas été publiée. Vous allez recevoir un email vous expliquant comment l'améliorer pour permettre sa publication",
-      TouchTheObject: "Touchez l'objet",
+      TouchTheObject: "Recherchez l'object en regardant autour de vous et touchez le",
       ObjectSize: "Taille de l'objet",
       YouWonABonus: "Vous avez gagné un bonus",
       AddATown: "Ajouter une ville",
@@ -957,7 +958,8 @@ module.exports = {
       NormalLongDesc: "Normal, sans grosses difficultés",
       HardLongDesc: "Expert, pour les fans d'énigmes",
       RemoveThisQuest: "Supprimer cette enquête",
-      AreYouSureYouWantToRemoveThisQuest: "Etes-vous sûr(e) de supprimer cette enquête ? Elle sera définivement supprimée."
+      AreYouSureYouWantToRemoveThisQuest: "Etes-vous sûr(e) de supprimer cette enquête ? Elle sera définivement supprimée.",
+      Modify: "Modifier"
     }
   }
 }

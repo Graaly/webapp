@@ -211,8 +211,17 @@ export default {
     if (this.$store.state.user.isAdmin) {
       this.isAdmin = true
     }
-    if (this.$store.state.user._id === this.quest.authorUserId) {
-      this.isOwner = true
+    // check if the user is one of the authors of the quest
+    if (this.quest.editorsUserId) {
+      for (var i = 0; i < this.quest.editorsUserId.length; i++) {
+        if (this.quest.editorsUserId[i] === this.$store.state.user._id) {
+          this.isOwner = true
+        }
+      }
+    } else {
+      if (this.$store.state.user._id === this.quest.authorUserId) {
+        this.isOwner = true
+      }
     }
     
     // get user runs for this quest
