@@ -68,7 +68,9 @@ module.exports = {
       UseAnItem: "Use an item",
       UseAnItemDesc: "Player use an item of his inventory on a part of a picture",
       LocateItemAR: "Locate item using augmented reality",
-      LocateItemARDesc: "Player has to find an geolocated item, visible on his smartphone when he is near."
+      LocateItemARDesc: "Player has to find an geolocated item, visible on his smartphone when he is near.",
+      LocateMarker: "Locate a symbol",
+      LocateMarkerDesc: "Player has to find a special symbol, printed or shown on a real screen."
     },
     messages: {
       SignIn: "Sign-in",
@@ -296,7 +298,7 @@ module.exports = {
       Category: "Category",
       PleaseSelectACategory: "Please select a category",
       Description: "Description",
-      StartingPointOfTheQuest: "Location of the starting of the quest",
+      StartingPointOfTheQuest: "Start location of the quest",
       MainLanguage: "Main language",
       UploadAPicture: "Upload a picture",
       YourPicture: "Your picture",
@@ -551,8 +553,10 @@ module.exports = {
       FindAnItemDesc: "Le joueur doit toucher une zone de l'image",
       UseAnItem: "Utiliser objet",
       UseAnItemDesc: "Utiliser un objet de l'inventaire",
-      LocateItemAR: "Localiser un objet en réalité augmentée",
-      LocateItemARDesc: "Le joueur doit trouver un objet géolocalisé et visible sur l'écran de son smartphone lorsqu'il se trouve à proximité."
+      LocateItemAR: "Trouver un objet en réalité augmentée",
+      LocateItemARDesc: "Le joueur doit trouver un objet géolocalisé et visible sur l'écran de son smartphone lorsqu'il se trouve à proximité.",
+      LocateMarker: "Trouver un symbole",
+      LocateMarkerDesc: "Le joueur doit trouver un symbole spécial, imprimé ou affiché sur un écran."
     },
     messages: {
       SignIn: "Connectez-vous",

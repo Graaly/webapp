@@ -45,6 +45,24 @@ module.exports = function (ctx) {
           data: path.resolve(__dirname, './data'),
           services: path.resolve(__dirname, './src/services')
         }
+        
+        // UGLY HACK to avoid "babel" processing src/includes/ar.js
+        // (error "Module Build Failed: TypeError: Cannot read property 'code' of null")
+        // mixing include & exclude do not work well => doing all necessary includes...
+        // cfg.module.rules[1] represents rule for processing "*.js" files
+        // => erase "include" property (default being: '/src', '/.quasar')
+        cfg.module.rules[1].include = [
+          path.resolve(__dirname, "src/i18n"),
+          path.resolve(__dirname, "src/includes/simi.js"),
+          path.resolve(__dirname, "src/includes/utils.js"),
+          // DO NOT INCLUDE "src/includes/ar.js
+          path.resolve(__dirname, "src/plugins"),
+          path.resolve(__dirname, "src/router"),
+          path.resolve(__dirname, "src/services"),
+          path.resolve(__dirname, "src/store"),
+          path.resolve(__dirname, ".quasar")
+        ]
+        
         // linter
         cfg.module.rules.push({
           enforce: 'pre',

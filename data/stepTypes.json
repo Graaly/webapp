@@ -55,6 +55,20 @@
   },
   {
     "category": "enigma",
+    "code": "locate-marker",
+    "icon": "qrcode",
+    "title": "LocateMarker",
+    "description": "LocateMarkerDesc",
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 100,
+      "maxNbCarriageReturns": 3
+    },
+    "hasBackgroundImage": false,
+    "enabled": true
+  },
+  {
+    "category": "enigma",
     "code": "choose",
     "icon": "list",
     "title": "ChoiceQuestion",

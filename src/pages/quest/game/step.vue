@@ -265,7 +265,7 @@ export default {
         }).then(async () => {
           await RunService.passCurrentStep(this.run._id)
           this.$router.push('/quest/play/' + this.quest.id + '/step/' + this.step.nextNumber + '/' + this.$route.params.lang);
-        })
+        }).catch(() => {})
       }
     },
     /*
@@ -407,12 +407,7 @@ export default {
   #controls {
     display: none
   }
-  
-  .play .buttons-bottom {
-    position: fixed;
-    bottom: 50px;
-  }
-    
+      
   .q-btn, audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
   
   .q-btn { margin-top: 1rem; }
