@@ -431,7 +431,8 @@ export default {
         form: {
           title: {},
           text: {},
-          options: {}
+          options: {},
+          hint: {}
         }
       },
       stepTypes,

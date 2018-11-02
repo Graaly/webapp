@@ -148,9 +148,9 @@
           <img ref="player-photo" v-show="photoTaken" :alt="$t('label.TheScreenCaptureWillAppearInThisBox')" />
         </div>
         <div class="actions buttons-bottom">
-          <q-btn @click="togglecameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" color="primary">{{ $t('label.TakeThePicture') }}</q-btn>
+          <q-btn @click="toggleCameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" color="primary">{{ $t('label.TakeThePicture') }}</q-btn>
           <div v-show="cameraStreamEnabled">
-            <q-btn color="primary" @click="togglecameraStream()" icon="clear">{{ $t('label.Cancel') }}</q-btn>
+            <q-btn color="primary" @click="toggleCameraStream()" icon="clear">{{ $t('label.Cancel') }}</q-btn>
             <q-btn color="primary" @click="checkAnswer()" icon="done">{{ $t('label.Check') }}</q-btn>
           </div>
           <div class="text resultMessage" :class="playerResult ? 'right' : 'wrong'" v-show="playerResult !== null">{{ playerResult ? $t('label.WellDone') : $t('label.PhotosDoesntMatch') }}</div>
@@ -172,7 +172,7 @@
         <div class="direction-helper" v-if="step.showDirectionToTarget">
           <canvas id="direction-canvas"></canvas>
         </div>
-        <div class="resultMessage" >
+        <div class="resultMessage buttons-bottom" >
           <div class="text right" v-show="playerResult">{{ $t('label.YouHaveFoundThePlace') }}</div>
         </div>
       </div>
@@ -286,7 +286,7 @@
           <div class="text wrong">{{ $t('label.SecondTry') }}</div>
         </div>
         <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry === 2">
-          <div class="text right">{{ $t('label.WrongAnswer') }}</div>
+          <div class="text wrong">{{ $t('label.WrongAnswer') }}</div>
         </div>
         <div class="resultMessage buttons-bottom" v-show="playerResult === true">
           <div class="text right">{{ $t('label.WellDone') }}</div>
@@ -308,9 +308,32 @@
         <div class="target-view" v-show="!playerResult">
           <canvas id="target-canvas" @click="onTargetCanvasClick"></canvas>
         </div>
-        <div class="resultMessage" v-show="playerResult">
+        <div class="resultMessage buttons-bottom" v-show="playerResult">
           <div class="text right">{{ $t('label.YouHaveWinANewItem') }}</div>
           <img ref="itemImage" v-if="!step.options.is3D" />
+        </div>
+      </div>
+      
+      <!------------------ LOCATE A 2D MARKER ------------------------>
+      
+      <div class="locate-marker" v-if="step.type == 'locate-marker'">
+        <video ref="camera-stream-for-locate-marker" v-show="cameraStreamEnabled && !playerResult"></video>
+        <div v-show="!playerResult">
+          <div class="text">
+            <p>{{ step.text[lang] }}</p>
+          </div>
+        </div>
+        <div class="marker-view" v-show="!playerResult">
+          <canvas id="marker-canvas"></canvas>
+        </div>
+        <div class="resultMessage buttons-bottom" v-show="nbTry > 0 && nbTry < 2">
+          <div class="text wrong">{{ $t('label.SecondTry') }}</div>
+        </div>
+        <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry === 2">
+          <div class="text wrong">{{ $t('label.WrongAnswer') }}</div>
+        </div>
+        <div class="resultMessage buttons-bottom" v-show="playerResult === true">
+          <div class="text right">{{ $t('label.WellDone') }}</div>
         </div>
       </div>
       
@@ -338,6 +361,13 @@ import Vue from 'vue'
 import * as THREE from 'three'
 import * as TWEEN from '@tweenjs/tween.js'
 import GLTFLoader from 'three-gltf-loader'
+
+// required for step 'locate-marker'
+// currently (AR.js 1.6.2) MODULE IMPORT IS NOT SUPPORTED.
+// => adapted AR.js to work as a module (from file three.js/build/ar.js of the original package).
+// see https://github.com/jeromeetienne/AR.js/issues/428
+import { THREEx } from 'src/includes/ar' // from 'ar.js' in future versions?
+import { promisify } from 'es6-promisify'
 
 export default {
   /*
@@ -413,6 +443,17 @@ export default {
           target: null,
           canSeeTarget: false,
           canTouchTarget: false
+        },
+        
+        // for step type 'locate-marker'
+        locateMarker: {
+          renderer: null,
+          scene: null,
+          camera: null,
+          arToolkitContext: null,
+          arSmoothedControls: null,
+          markerRoot: null,
+          markerControls: {}
         },
         
         // for step type 'write-text'
@@ -554,7 +595,7 @@ export default {
           let cameraStream = this.$refs['camera-stream-for-locate-item-ar']
           // enable rear camera stream
           // ------------------------- 
-          // TODO STOP CAMERA STREAM WHEN ITEM LOCATION IS REACHED OR USER WANTS TO SKIP THE STEP
+          // TODO STOP CAMERA STREAM WHEN USER WANTS TO SKIP THE STEP
           navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
             .then((stream) => {
               cameraStream.srcObject = stream
@@ -700,7 +741,126 @@ export default {
           // animate & render
           this.animateTargetCanvas()
         }
+        
+        if (this.step.type === 'locate-marker' && !this.playerResult) {
+          // user can pass
+          this.$emit('pass')
+          
+          let cameraStream = this.$refs['camera-stream-for-locate-marker']
+          // enable rear camera stream
+          // ------------------------- 
+          // TODO STOP CAMERA STREAM WHEN USER HAS FOUND THE MARKER OR WANTS TO SKIP THE STEP
+          navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+            .then((stream) => {
+              cameraStream.srcObject = stream
+              cameraStream.play()
+              cameraStream.onloadeddata = async (e) => {
+                this.cameraStreamEnabled = true
+                let sceneCanvas = document.getElementById('marker-canvas')
+                
+                let ratio = cameraStream.videoHeight ? sceneCanvas.clientHeight / cameraStream.videoHeight : 1
+                
+                sceneCanvas.height = cameraStream.videoHeight * ratio
+                sceneCanvas.width = Math.round(sceneCanvas.height * 4 / 3)
+                
+                let renderer = new THREE.WebGLRenderer({
+                  canvas: sceneCanvas,
+                  antialias: true,
+                  alpha: true
+                })
+                          
+                let scene = new THREE.Scene()
+                
+                let camera = new THREE.Camera()
+                scene.add(camera)
+                
+                // --- initialize arToolkitContext ---
+                
+                // create atToolkitContext
+                let arToolkitContext = new THREEx.ArToolkitContext({
+                  cameraParametersUrl: 'statics/markers/camera_para.dat',
+                  detectionMode: 'mono',
+                  maxDetectionRate: 30,
+                  // sampling size, always 4:3 ratio...
+                  canvasWidth: 640,
+                  canvasHeight: 480
+                })
+                // initialize it
+                arToolkitContext.initAsync = promisify(arToolkitContext.init)
+                await arToolkitContext.initAsync()
+                
+                // copy projection matrix to camera
+                camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix())
+                
+                // --- Create an ArMarkerControls ---
+                
+                let markerRoot = new THREE.Group()
+                scene.add(markerRoot)
+                                
+                // build a smoothedControls
+                let arWorldRoot = new THREE.Group()
+                scene.add(arWorldRoot)
+                let arSmoothedControls = new THREEx.ArSmoothedControls(arWorldRoot, {
+                  lerpPosition: 0.4,
+                  lerpQuaternion: 0.3,
+                  lerpScale: 1
+                })
+                
+                // --- add an object in the scene ---
+                
+                // add a translucent cube
+                /*let geometry = new THREE.CubeGeometry(1, 1, 1)
+                let material = new THREE.MeshNormalMaterial({
+                  transparent: true,
+                  opacity: 0.5,
+                  side: THREE.DoubleSide
+                }); 
+                let mesh  = new THREE.Mesh(geometry, material);
+                mesh.position.y = geometry.parameters.height/2
+                arWorldRoot.add(mesh);*/
+                
+                this.locateMarker.arToolkitContext = arToolkitContext
+                this.locateMarker.arSmoothedControls = arSmoothedControls
+                
+                this.locateMarker.renderer = renderer
+                this.locateMarker.scene = scene
+                this.locateMarker.camera = camera
+                
+                this.locateMarker.markerRoot = markerRoot
+                this.locateMarker.markerCodeAnswer = 'graaly'
+                this.locateMarker.markerControls = {
+                  hiro: this.createMarkerControl('hiro'),
+                  kanji: this.createMarkerControl('kanji'),
+                  graaly: this.createMarkerControl('graaly')
+                }
+                
+                this.animateMarkerCanvas()
+              }
+            })
+            .catch((err) => {
+              // TODO friendly behavior/message for user
+              console.warn("No camera stream available")
+              console.log(err)
+            });
+        }
       })
+    },
+    /*
+    * creates a marker control for step type 'locate-marker'
+    */
+    createMarkerControl (markerCode) {
+      let arToolkitContext = this.locateMarker.arToolkitContext
+      let markerRoot = this.locateMarker.markerRoot
+      
+      let marker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+        type: 'pattern',
+        patternUrl: 'statics/markers/' + markerCode + '.patt'
+      })
+      marker.code = markerCode
+      marker.addEventListener('markerFound', (ev) => { this.checkAnswer(ev.target.code) })
+      marker.detected = false
+      
+      return marker
     },
     /*
      * Show controls buttons
@@ -899,6 +1059,26 @@ export default {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           }
           break
+          
+        case 'locate-marker':
+          if (!this.locateMarker.markerControls[answer].detected) {
+            this.locateMarker.markerControls[answer].detected = true
+            checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: answer})
+            
+            //if (checkAnswerResult.result === true) {
+            // TEMP CONDITION! FOR DEMO PURPOSE ONLY
+            if (answer === 'graaly') {
+              this.submitGoodAnswer(checkAnswerResult.score)
+              this.stopVideoTracks('camera-stream-for-locate-marker')
+            } else {
+              this.nbTry++
+              if (this.nbTry === 2) {
+                this.submitWrongAnswer()
+                this.stopVideoTracks('camera-stream-for-locate-marker')
+              }
+            }
+          }
+          break
 
         default:
           console.log('checkAnswer(): Step type ' + this.step.type + ' not supported.')
@@ -985,21 +1165,6 @@ export default {
       return nbImagesUploaded
     },
     /*
-     * Save the results
-     * @param   {string}    success            define if answer was right or wrong
-     *
-    async saveResult(success) {
-      // TODO to avoid cheating, all answer checks
-      let response = await RunService.saveResult(this.run._id, this.step._id, success)
-
-      if (response.data && response.data.nextId) {
-        this.step.nextId = response.data.nextId
-        this.step.nextNumber = response.data.nextNumber
-      } else {
-        Notification(this.$t('label.TechnicalIssue'), 'error')
-      }
-    },*/
-    /*
      * Add a number in the pad
      * @param   {string}    char            Number to display
      */
@@ -1054,7 +1219,7 @@ export default {
     /*
      * Display / hide camera
      */
-    togglecameraStream() {
+    toggleCameraStream() {
       // already enabled ? => disable
       
       if (this.cameraStreamEnabled) {
@@ -1300,7 +1465,7 @@ export default {
      */
     async showItemLocation(posX, posY) {
       let vw = window.innerWidth / 100
-      let anwserPixelCoordinates = {
+      let answerPixelCoordinates = {
         left: Math.round(posX / 100 * 100 * vw),
         top: Math.round(posY / 100 * 133 * vw)
       }
@@ -1309,8 +1474,8 @@ export default {
       let solutionAreaRadius = Math.round(8 * vw)
       // display the right solution
       var cross = document.getElementById('cross-play')
-      cross.style.top = (anwserPixelCoordinates.top - solutionAreaRadius) + "px"
-      cross.style.left = (anwserPixelCoordinates.left - solutionAreaRadius) + "px"
+      cross.style.top = (answerPixelCoordinates.top - solutionAreaRadius) + "px"
+      cross.style.left = (answerPixelCoordinates.left - solutionAreaRadius) + "px"
       cross.style.display = "block"
       var crossPicture = cross.src
       var self = this
@@ -1348,7 +1513,7 @@ export default {
      */
     async showFoundLocation(posX, posY) {
       let vw = window.innerWidth / 100
-      let anwserPixelCoordinates = {
+      let answerPixelCoordinates = {
         left: Math.round(posX / 100 * 100 * vw),
         top: Math.round(posY / 100 * 133 * vw)
       }
@@ -1357,8 +1522,8 @@ export default {
       let solutionAreaRadius = Math.round(8 * vw)
       
       var cross = document.getElementById('cross-play')
-      cross.style.top = (anwserPixelCoordinates.top - solutionAreaRadius) + "px"
-      cross.style.left = (anwserPixelCoordinates.left - solutionAreaRadius) + "px"
+      cross.style.top = (answerPixelCoordinates.top - solutionAreaRadius) + "px"
+      cross.style.left = (answerPixelCoordinates.left - solutionAreaRadius) + "px"
       cross.style.display = "block"
     },
     
@@ -1604,6 +1769,21 @@ export default {
       TWEEN.update()
     },
     /*
+    * Animate canvas showing 3D object on top of marker, for step type "locate-marker"
+    */
+    animateMarkerCanvas() {
+      if (this.playerResult !== null) {
+        return
+      }
+      
+      // run the rendering loop
+      requestAnimationFrame(this.animateMarkerCanvas)
+      
+      this.locateMarker.arToolkitContext.update(this.$refs['camera-stream-for-locate-marker'])
+      this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoot)
+      this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera);
+    },    
+    /*
     * when reading a new value from AbsoluteOrientationSensor, update camera rotation so it matches device orientation
     */
     onAbsoluteOrientationSensorReading() {
@@ -1769,6 +1949,13 @@ export default {
   .locate-item-ar #target-canvas { width: 100%; height: 100%; z-index: 50; }
   .locate-item-ar .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
   
+  /* locate-marker specific */
+  
+  .locate-marker video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+  .locate-marker .marker-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  .locate-marker #marker-canvas { width: 100%; height: 100%; object-fit: cover; z-index: 50; }
+  .locate-marker .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
+    
   /* memory specific */
   
   .memory {
@@ -1862,13 +2049,6 @@ export default {
   .actions > div > .q-btn { flex-grow: 1; }
   .actions > div > .q-btn:not(:first-child) { flex-grow: 1; margin-left: 1rem; }
   
-  .resultMessage { 
-    text-align: center; 
-    position: fixed;
-    top: 5px;
-    left: 5px;
-    right: 5px;
-  }
   .resultMessage .text { 
     text-align: center; 
     font-weight: bold;
@@ -1882,6 +2062,13 @@ export default {
   
   [draggable] {
     user-select: none;
+  }
+  
+  .play .buttons-bottom {
+    position: fixed;
+    bottom: 70px;
+    left: 10px;
+    right: 10px;
   }
   
 </style>
