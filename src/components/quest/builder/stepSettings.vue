@@ -27,10 +27,10 @@
       />
     </q-field>
     
-    <div class="background-upload" v-show="options.hasBackgroundImage !== false">
+    <div class="background-upload" v-show="options.hasBackgroundImage && options.hasBackgroundImage === 'main'">
       <q-btn class="full-width" type="button">
-        <label for="picturefile">{{ $t('label.UploadABackgroundImage') }}</label>
-        <input @input="uploadBackgroundImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+        <q-icon name="cloud_upload" /> <label for="picturefile1">{{ $t('label.UploadABackgroundImage') }}</label>
+        <input @input="uploadBackgroundImage" name="picturefile1" id="picturefile1" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       </q-btn>
       <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
       <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
@@ -45,7 +45,7 @@
     
     <div v-if="options.code == 'info-video'">
       <q-btn class="full-width" type="button">
-        <label for="videofile">{{ $t('label.UploadAVideo') }}</label>
+        <q-icon name="cloud_upload" /> <label for="videofile">{{ $t('label.UploadAVideo') }}</label>
         <input @change="uploadVideo" name="videofile" id="videofile" type="file" accept="video/mp4,video/x-m4v,video/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       </q-btn>
       <div>
@@ -58,35 +58,71 @@
       </div>
     </div>
     
+    <!------------------ STEP : WIN NEW ITEM ------------------------>
+    
+    <div class="inventory" v-if="options.code == 'new-item'">
+      <q-radio v-model="imageSource" val="list" :label="$t('label.SelectPictureInTheList')" />
+      <div class="row objects-list" v-show="imageSource === 'list'">
+        <div class="col-2 q-pa-sm" v-for="(item, key) in objectsList" :key="key">
+          <img style="width: 100%" :class="{'selected': (selectedStep.form.options.picture && selectedStep.form.options.picture === 'statics/images/object/' + objectsList[key].file)}" :src="'statics/images/object/' + item.thumb" @click="selectObject(key)" />
+        </div>
+      </div>
+      <q-radio v-model="imageSource" val="upload" :label="$t('label.UploadTheItemPicture')" />
+      <div v-show="imageSource === 'upload'">
+        <q-btn class="full-width" type="button">
+          <label for="itemfile">{{ $t('label.UploadTheItemPicture') }}</label>
+          <input @change="uploadItemImage" name="itemfile" id="itemfile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+        </q-btn>
+        <p v-show="$v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+        <p>{{ $t('label.WarningImageSizeSquare') }}</p>
+      </div>
+      <div v-if="selectedStep.form.options !== null && selectedStep.form.options.picture && selectedStep.form.options.picture !== null">
+        <p>{{ $t('label.YourItemPicture') }} :</p>
+        <img style="width:100%" :src="(selectedStep.form.options.picture.indexOf('statics/') !== -1 ? selectedStep.form.options.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.options.picture)" />
+      </div>
+      <!--<p>{{ $t('message.Or') }}</p>
+      <q-select :float-label="$t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
+      <div v-show="form.answerItem !== null">
+        {{ $t('message.SelectedObject') }} :
+        <q-icon :name="getItemIcon(form.answerItem)" />
+      </div>-->
+      <q-field
+        :error="$v.selectedStep.form.options.title.$error"
+        :error-label="$t('label.RequiredField')"
+      >
+        <q-input v-model="selectedStep.form.options.title" :float-label="$t('label.ObjectName')" />
+      </q-field>
+    </div>
+    
     <!------------------ STEP : GEOLOCATION ------------------------>
     
     <div v-if="options.code == 'geolocation'" class="location-gps">
-      <p>{{ $t('label.AddressToFind') }}</p>
-      <div class="location-address">
-        <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-          <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" v-model="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
-        </div>
-        <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
-      </div>
-      <q-list>
-        <q-collapsible icon="explore" :label="$t('label.OrDefineGPSLocation')">
-          <div class="location-gps-inputs">
-            <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
-            <div>
-              <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-              <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
-              <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
-            </div>
-            <div>
-              <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-              <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
-              <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
-            </div>
+      <h2>{{ $t('label.AddressToFind') }}</h2>
+      <div class="fields-group">
+        <div class="location-address">
+          <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
+            <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" v-model="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
           </div>
-        </q-collapsible>
-      </q-list>
-      <q-checkbox v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
-      <q-checkbox v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
+          <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
+        </div>
+        <q-list>
+          <q-collapsible icon="explore" :label="$t('label.OrDefineGPSLocation')">
+            <div class="location-gps-inputs">
+              <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
+              <div>
+                <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
+                <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+                <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
+              </div>
+              <div>
+                <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
+                <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+                <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
+              </div>
+            </div>
+          </q-collapsible>
+        </q-list>
+      </div>
     </div>
     
     <!------------------ STEP : MULTIPLE CHOICE ------------------------>
@@ -247,8 +283,8 @@
     <!------------------ STEP : MEMORY PUZZLE ------------------------>
     
     <div v-if="options.code === 'memory'">
-      <div class="answer" v-for="(option, key) in memoryItems" :key="key">
-                
+      <h2>{{ $t('label.ImagesUsedForCards') }}</h2>
+      <div class="answer" v-for="(option, key) in memoryItems" :key="key">       
         <p v-show="option.imagePath === null" class="error-label">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/memory/' + option.imagePath" /></p>
         <q-btn>
@@ -262,7 +298,6 @@
       <q-btn @click="addAnswer()" class="full-width add-answer">
         {{ $t('label.AddAnAnswer') }}
       </q-btn>
-      <q-checkbox v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
     </div>
     
     <!------------------ STEP : USE INVENTORY ITEM ------------------------>
@@ -285,38 +320,6 @@
       </div>
     </div>
     
-    <!------------------ STEP : WIN NEW ITEM ------------------------>
-    
-    <div class="inventory" v-if="options.code == 'new-item'">
-      <div class="row">
-        <div class="col-2 q-pa-sm" v-for="(item, key) in objectsList" :key="key">
-          <img style="width: 100%" :src="'statics/images/object/' + item.thumb" @click="selectObject(key)" />
-        </div>
-      </div>
-      <q-btn class="full-width" type="button">
-        <label for="itemfile">{{ $t('label.UploadTheItemPicture') }}</label>
-        <input @change="uploadItemImage" name="itemfile" id="itemfile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
-      </q-btn>
-      <p v-show="$v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-      <p>{{ $t('label.WarningImageSizeSquare') }}</p>
-      <div v-if="selectedStep.form.options !== null && selectedStep.form.options.picture && selectedStep.form.options.picture !== null">
-        <p>{{ $t('label.YourItemPicture') }} :</p>
-        <img style="width:100%" :src="(selectedStep.form.options.picture.indexOf('statics/') !== -1 ? selectedStep.form.options.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.options.picture)" />
-      </div>
-      <!--<p>{{ $t('message.Or') }}</p>
-      <q-select :float-label="$t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
-      <div v-show="form.answerItem !== null">
-        {{ $t('message.SelectedObject') }} :
-        <q-icon :name="getItemIcon(form.answerItem)" />
-      </div>-->
-      <q-field
-        :error="$v.selectedStep.form.options.title.$error"
-        :error-label="$t('label.RequiredField')"
-      >
-        <q-input v-model="selectedStep.form.options.title" :float-label="$t('label.ObjectName')" />
-      </q-field>
-    </div>
-    
     <!------------------ STEP : FIND ITEM ------------------------>
 
     <div class="find-item" v-if="options.code === 'find-item' && (selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '')">
@@ -329,65 +332,95 @@
     <!------------------ STEP : LOCATE ITEM USING AR ------------------------>
 
     <div class="locate-item-ar" v-if="options.code === 'locate-item-ar'">
+      <h2>{{ $t('label.ObjectFormat') }}</h2>
+      <div class="fields-group">
+        <q-radio v-model="selectedStep.form.options.is3D" :val="false" :label="$t('label.2DPicture')" />
+        <q-radio v-model="selectedStep.form.options.is3D" :val="true" :label="$t('label.3DObject')" />
       
-      <q-radio v-model="selectedStep.form.options.is3D" :val="false" label="2D" />
-      <q-radio v-model="selectedStep.form.options.is3D" :val="true" label="3D" />
-      
-      <div class="fields-group" v-if="!selectedStep.form.options.is3D">
-        <q-btn class="full-width" type="button">
-          <label for="item-to-find">{{ $t('label.UploadThePictureOfTheObjectToFind') }}</label>
-          <input @change="uploadItemImage" name="item-to-find" id="item-to-find" type="file" accept="image/png" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
-        </q-btn>
-        <p v-show="!selectedStep.form.options.picture">{{ $t('label.PleaseUploadAFileInPNGFormat') }}</p>
-        <p v-show="$v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-        <div v-if="selectedStep.form.options.picture">
-          <p>{{ $t('label.UploadedPicture') }} :</p>
-          <img :src="serverUrl + '/upload/quest/' + questId + '/step/locate-item-ar/' + selectedStep.form.options.picture" />
-        </div>
-        <div>
-          <p>{{ $t('label.ObjectSize') }}</p>
-          <q-slider v-model="selectedStep.form.options.objectSize" :min="0.5" :max="10" :step="0.1"
-            label-always :decimals="1" :label-value="`${ selectedStep.form.options.objectSize || 0.5 }m`" />
-        </div>
-      </div>
-      
-      <div class="fields-group" v-if="selectedStep.form.options.is3D">
-        <q-select v-model="selectedStep.form.options.model" :float-label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
-        <p class="error-label" v-show="$v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
-      </div>
-      
-      <p>{{ $t('label.AddressToFind') }}</p>
-      <div class="location-address">
-        <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-          <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" v-model="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
-        </div>
-        <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
-      </div>
-      <q-list>
-        <q-collapsible icon="explore" :label="$t('label.OrDefineGPSLocation')">
-          <div class="location-gps-inputs">
-            <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
-            <div>
-              <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-              <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
-              <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
-            </div>
-            <div>
-              <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-              <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
-              <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
-            </div>
+        <div v-if="!selectedStep.form.options.is3D">
+          <q-btn class="full-width" type="button">
+            <label for="item-to-find">{{ $t('label.UploadThePictureOfTheObjectToFind') }}</label>
+            <input @change="uploadItemImage" name="item-to-find" id="item-to-find" type="file" accept="image/png" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+          </q-btn>
+          <p v-show="!selectedStep.form.options.picture">{{ $t('label.PleaseUploadAFileInPNGFormat') }}</p>
+          <p v-show="$v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+          <div v-if="selectedStep.form.options.picture">
+            <p>{{ $t('label.UploadedPicture') }} :</p>
+            <img :src="serverUrl + '/upload/quest/' + questId + '/step/locate-item-ar/' + selectedStep.form.options.picture" />
           </div>
-        </q-collapsible>
-      </q-list>
+          <div>
+            <p>{{ $t('label.ObjectSize') }}</p>
+            <q-slider v-model="selectedStep.form.options.objectSize" :min="0.5" :max="10" :step="0.1"
+              label-always :decimals="1" :label-value="`${ selectedStep.form.options.objectSize || 0.5 }m`" />
+          </div>
+        </div>
+        <div v-if="selectedStep.form.options.is3D">
+          <q-select v-model="selectedStep.form.options.model" :float-label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
+          <p class="error-label" v-show="$v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
+        </div>
+      </div>
       
+      <h2>{{ $t('label.AddressToFind') }}</h2>
+      <div class="fields-group">
+        <div class="location-address">
+          <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
+            <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" v-model="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
+          </div>
+          <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
+        </div>
+        <q-list>
+          <q-collapsible icon="explore" :label="$t('label.OrDefineGPSLocation')">
+            <div class="location-gps-inputs">
+              <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
+              <div>
+                <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
+                <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+                <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
+              </div>
+              <div>
+                <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
+                <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+                <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
+              </div>
+            </div>
+          </q-collapsible>
+        </q-list>
+      </div>
     </div>
+    
+    <!------------------ OTHER OPTIONS ------------------------>
+    <q-list v-show="options.hasOptions" separator>
+      <q-collapsible icon="add_box" :label="$t('label.OtherOptions')">
+        <div v-if="options.code == 'geolocation'" class="location-gps">
+          <q-checkbox v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
+          <q-checkbox v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
+        </div>
+        <div v-if="options.code === 'memory'">
+          <q-checkbox v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
+        </div>
+        <div class="background-upload" v-show="options.hasBackgroundImage && options.hasBackgroundImage === 'option'">
+          <q-btn class="full-width" type="button">
+            <q-icon name="cloud_upload" /> <label for="picturefile2">{{ $t('label.UploadABackgroundImage') }}</label>
+            <input @input="uploadBackgroundImage" name="picturefile2" id="picturefile2" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+          </q-btn>
+          <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+          <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
+          <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.code !== 'find-item' && options.code !== 'use-item'">
+            <p>{{ $t('label.YourPicture') }} :</p>
+            <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
+            <a @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
+          </div>
+        </div>
+      </q-collapsible>
+    </q-list>
     
     <!------------------ HINT ------------------------>
     
-    <div v-if="options.showTrick == 'yes'">
-      <q-input v-model="selectedStep.form.hint[lang]" :float-label="$t('label.Hint')" />
-    </div>
+    <q-list v-show="options.showTrick == 'yes'" separator>
+      <q-collapsible icon="lightbulb outline" :label="$t('label.Hint')">
+        <q-input v-model="selectedStep.form.hint[lang]" :float-label="$t('label.HintText')" />
+      </q-collapsible>
+    </q-list>
     
     <q-btn class="full-width" color="primary" @click="submitStep">{{ $t('label.SaveThisStep') }}</q-btn>
     
@@ -438,6 +471,7 @@ export default {
       stepTypes,
       objectsList,
       titleMaxLength: 50,
+      imageSource: '',
       
       /*
        * List of the levels for the jigsaw step
@@ -526,8 +560,8 @@ export default {
         // geoloc step specific
         answerPointerCoordinates: {top: 50, left: 50},
         answerItem: null,
-        showDistanceToTarget: false,
-        showDirectionToTarget: false,
+        showDistanceToTarget: true,
+        showDirectionToTarget: true,
         trigger: {
           type: 'none'
         },
@@ -539,8 +573,11 @@ export default {
       }
       // reset upload item (after document fully loaded)
       this.$nextTick(function () {
-        if (document.getElementById("picturefile")) {
-          document.getElementById("picturefile").value = ""
+        if (document.getElementById("picturefile1")) {
+          document.getElementById("picturefile1").value = ""
+        }
+        if (document.getElementById("picturefile2")) {
+          document.getElementById("picturefile2").value = ""
         }
       })
     },
@@ -867,8 +904,11 @@ export default {
     async resetBackgroundImage() {
       this.selectedStep.form.backgroundImage = null
       // reset input to let admin add the same picture again
-      if (document.getElementById("picturefile")) {
-        document.getElementById("picturefile").value = ""
+      if (document.getElementById("picturefile1")) {
+        document.getElementById("picturefile1").value = ""
+      }
+      if (document.getElementById("picturefile2")) {
+        document.getElementById("picturefile2").value = ""
       }
     },
     /*

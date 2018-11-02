@@ -2,6 +2,26 @@
 
 /////////////////////////////// page CSS /////////////////////////////////////
 
+@media (min-width: 841px) {
+  #main-view {
+    display: none
+  }
+} 
+@media (max-width: 840px) {
+  #screen-too-large {
+    display: none
+  }
+}
+#q-app { 
+  min-height: 0px; 
+}
+.wrapper {
+  overflow-y: scroll;
+}
+.layout-page, .layout-page-container {
+  overflow-y: hidden;
+  height: 100%;
+}
 #main-view { 
   padding: 0rem; 
   height: inherit; 
@@ -525,43 +545,52 @@ form {
 .menu .q-btn .q-icon {
   font-size: 2.4em;
 }
+.objects-list img {
+  border: 1px solid #fff;
+}
+.selected {
+  background: #eee;
+  border: 1px solid #ccc !important;
+}
+.q-list {
+  border: 0px !important;
+}
+.q-list-separator {
+  margin-top: 10px;
+  border: 1px solid #e0e0e0 !important;
+}
+.location-gps p {
+  color: rgba(0,0,0,0.46);
+}
+.location-gps-inputs {
+  display: flex;
+  flex-flow: row nowrap;
+}
+.location-gps-inputs input {
+  display: block;
+  margin: 0.5rem;
+  border: 0px none;
+  border-bottom: 1px solid #ccc;
+  width: 8rem;
+}
+.location-gps-inputs label {
+  display: block;
+  margin: 0.5rem;
+  color: rgba(0,0,0,0.46);
+}
+.image-and-text-aligned {
+  vertical-align: top;
+}
 
 /////////////////////////////////////////////////////////// OLD CSS ///////////////////////////////////////////////////////////////////// 
 // app global css
 
-/* required to avoid useless 50px overflow at bottom */
-#q-app { 
-  min-height: 0px; 
-  /*max-width: 840px;  if larger some quest type does not work */
-}
+/*
 
-/* Run graaly only on screens smaller than 840px */
-@media (min-width: 841px) {
-  #main-view {
-    display: none
-  }
-} 
-@media (max-width: 840px) {
-  #screen-too-large {
-    display: none
-  }
-}
-
-
-.layout-page, .layout-page-container {
-  overflow-y: hidden; /* can't easily override calc(100vm - 50px) on .layout-page */
-  height: 100%;
-}
-.wrapper {
-  overflow-y: scroll;
-}
 #main-view {
   padding: 0;
 }
 
-.image-and-text-aligned {
-  vertical-align: top;
-}
 .subtitle {
   font-size: 0.9rem;
   color: $dark-grey-text;
@@ -608,10 +637,6 @@ form {
 }
 .bottom-separator {
   border-bottom: 1px solid #ffc90e;
-}
-
-.q-list {
-  border: 0px !important;
 }
 
 .small-icon {
@@ -663,24 +688,4 @@ form {
   padding: 3px;
 }
 
-// Step specific CSS
-
-.location-gps p {
-  color: rgba(0,0,0,0.46);
-}
-.location-gps-inputs {
-  display: flex;
-  flex-flow: row nowrap;
-}
-.location-gps-inputs input {
-  display: block;
-  margin: 0.5rem;
-  border: 0px none;
-  border-bottom: 1px solid #ccc;
-  width: 8rem;
-}
-.location-gps-inputs label {
-  display: block;
-  margin: 0.5rem;
-  color: rgba(0,0,0,0.46);
-}
+*/

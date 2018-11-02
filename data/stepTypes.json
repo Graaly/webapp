@@ -6,7 +6,9 @@
     "title": "ImageAndText",
     "description": "ImageAndTextDesc",
     "showTrick": "no",
-    "enabled": true
+    "enabled": true,
+    "hasBackgroundImage": "main",
+    "hasOptions": false
   },
   {
     "category": "transition",
@@ -15,7 +17,9 @@
     "title": "Video",
     "description": "VideoDesc",
     "showTrick": "no",
-    "enabled": true
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true
   },
   {
     "category": "transition",
@@ -24,7 +28,9 @@
     "title": "NewObject",
     "description": "NewObjectDesc",
     "showTrick": "no",
-    "enabled": true
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true
   },
   {
     "category": "enigma",
@@ -37,7 +43,9 @@
       "maxNbChars": 180,
       "maxNbCarriageReturns": 5
     },
-    "enabled": true
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true
   },
   {
     "category": "enigma",
@@ -50,8 +58,9 @@
       "maxNbChars": 50,
       "maxNbCarriageReturns": 1
     },
-    "hasBackgroundImage": false,
-    "enabled": true
+    "hasBackgroundImage": "no",
+    "enabled": true,
+    "hasOptions": false
   },
   {
     "category": "enigma",
@@ -64,8 +73,9 @@
       "maxNbChars": 100,
       "maxNbCarriageReturns": 3
     },
-    "hasBackgroundImage": false,
-    "enabled": true
+    "hasBackgroundImage": "no",
+    "enabled": true,
+    "hasOptions": false
   },
   {
     "category": "enigma",
@@ -78,7 +88,9 @@
       "maxNbChars": 240,
       "maxNbCarriageReturns": 5
     },
-    "enabled": true
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true
   },
   {
     "category": "enigma",
@@ -87,7 +99,9 @@
     "title": "TextQuestion",
     "description": "TextQuestionDesc",
     "showTrick": "yes",
-    "enabled": true
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true
   },
   {
     "category": "enigma",
@@ -100,7 +114,9 @@
       "maxNbChars": 90,
       "maxNbCarriageReturns": 2
     },
-    "enabled": true
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true
   },
   {
     "category": "enigma",
@@ -113,7 +129,9 @@
       "maxNbChars": 150,
       "maxNbCarriageReturns": 4
     },
-    "enabled": true
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true
   },
   {
     "category": "enigma",
@@ -126,7 +144,9 @@
       "maxNbChars": 150,
       "maxNbCarriageReturns": 4
     },
-    "enabled": true
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true
   },
   {
     "category": "enigma",
@@ -139,7 +159,9 @@
       "maxNbChars": 50,
       "maxNbCarriageReturns": 1
     },
-    "enabled": true
+    "enabled": true,
+    "hasBackgroundImage": "main",
+    "hasOptions": false
   },
   {
     "category": "enigma",
@@ -152,7 +174,9 @@
       "maxNbChars": 50,
       "maxNbCarriageReturns": 1
     },
-    "enabled": true
+    "enabled": true,
+    "hasBackgroundImage": "main",
+    "hasOptions": false
   },
   {
     "category": "enigma",
@@ -161,7 +185,9 @@
     "title": "PhotographAnObject",
     "description": "PhotographAnObjectDesc",
     "showTrick": "yes",
-    "enabled": false
+    "enabled": false,
+    "hasBackgroundImage": "option",
+    "hasOptions": true
   },
   {
     "category": "enigma",
@@ -174,8 +200,9 @@
       "maxNbChars": 50,
       "maxNbCarriageReturns": 1
     },
-    "hasBackgroundImage": false,
-    "enabled": true
+    "hasBackgroundImage": "option",
+    "enabled": true,
+    "hasOptions": true
   },
   {
     "category": "enigma",
@@ -188,6 +215,8 @@
       "maxNbChars": 50,
       "maxNbCarriageReturns": 1
     },
-    "enabled": true
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true
   }
 ]

@@ -388,7 +388,14 @@ module.exports = {
       Editors: "Editors",
       InviteEditors: "Invite an editor",
       InviteEditorsHelp: "Type email address of the editor you want to invite",
-      UserIsNotAGraalyUser: "This email does not belong to a Graaly user. Ask this person to create a Graaly account."
+      UserIsNotAGraalyUser: "This email does not belong to a Graaly user. Ask this person to create a Graaly account.",
+      OtherOptions: "Other options",
+      SelectPictureInTheList: "Select the object is the list",
+      HintText: "Hint text",
+      "2DPicture": "Flat picture",
+      "3DObject": "3D object",
+      ObjectFormat: "Object format",
+      ImagesUsedForCards: "Cards pictures"
     }
   },
   fr: {
@@ -780,7 +787,14 @@ module.exports = {
       Editors: "Editeurs",
       InviteEditors: "Inviter un éditeur",
       InviteEditorsHelp: "Tapez l'adresse email de l'éditeur que vous invitez",
-      UserIsNotAGraalyUser: "Cet email n'appartient pas à un utilisateur Graaly. Demandez à cette personne de créer un compte Graaly."
+      UserIsNotAGraalyUser: "Cet email n'appartient pas à un utilisateur Graaly. Demandez à cette personne de créer un compte Graaly.",
+      OtherOptions: "Autres options",
+      SelectPictureInTheList: "Sélectionner l'objet dans la liste",
+      HintText: "Texte de l'indice",
+      "2DPicture": "Image à plat",
+      "3DObject": "Objet en 3D",
+      ObjectFormat: "Format de l'objet",
+      ImagesUsedForCards: "Images des cartes"
     }
   }
 }
