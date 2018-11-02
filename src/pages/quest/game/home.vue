@@ -48,7 +48,8 @@
               </p>
             </div>
             <div class="full-width text-center">
-              <q-btn flat :label="$t('label.BackToTheMap')" @click="backToTheMap()" />
+              <q-btn v-if="!(isOwner || isAdmin)" flat :label="$t('label.BackToTheMap')" @click="backToTheMap()" />
+              <q-btn v-if="isOwner || isAdmin" flat :label="$t('label.Modify')" @click="modifyQuest()" />
               <span  v-if="!scrolled"><q-btn flat icon="arrow_downward" :label="$t('label.ScrollForMoreDetails')" @click="scrollToDetail()" /></span>
               
             </div>
@@ -484,6 +485,12 @@ export default {
      */
     backToTheMap () {
       this.$router.push('/map')
+    },
+    /*
+     * Manage back to the map button
+     */
+    modifyQuest () {
+      this.$router.push('/quest/settings/' + this.quest._id)
     },
     /*
      * Open shop

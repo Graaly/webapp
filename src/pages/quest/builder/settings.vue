@@ -32,6 +32,9 @@
           <!-- @input="setOtherLanguage" -->
         </q-field>
         <q-btn big class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" />
+        <p class="centered q-pa-md" v-if="quest.status !== 'published'">
+          <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
+        </p>
       </q-tab-pane>
       
       <!------------------ SETTINGS TAB ------------------------>
@@ -144,6 +147,7 @@
         <p class="centered q-pa-md">
           <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
         </p>
+        
         <q-field
           icon="visibility"
           :helper="$t('label.ActivateTheLanguageVisible')"
@@ -152,6 +156,21 @@
           <p v-for="lang in form.fields.languages" :key="lang.lang">
             <q-toggle v-model="lang.published" :disable="steps.items.length < 6 || steps.items.length > 50" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
           </p>
+        </q-field>
+        
+        <q-field
+          v-if="editor.items && editor.items.length > 0"
+          icon="people"
+          :helper="$t('label.InviteEditorsHelp')"
+          :label="$t('label.Editors')"
+        >
+          <p v-for="item in editor.items" :key="item.id">
+            <q-toggle v-model="item.checked" :label="item.name" @input="removeEditor(item.id)" />
+          </p>
+          <q-input type="text" :float-label="$t('label.InviteEditors')" v-model="editor.new.email" :after="[{icon: 'add_circle', handler () {addEditor()}}]" />
+          <div class="q-field-bottom" v-if="!editor.new.isExisting">
+            <div class="q-field-error">{{ $t('label.UserIsNotAGraalyUser') }}</div>
+          </div>
         </q-field>
         
         <p class="centered q-pa-md" v-if="quest.status !== 'published'">
@@ -368,6 +387,13 @@ export default {
         isOpened: false,
         label: ""
       },
+      editor: {
+        items: [],
+        new: {
+          email: '',
+          isExisting: true
+        }
+      },
       canMoveNextStep: false,
       canPass: false,
       itemUsed: null,
@@ -436,6 +462,8 @@ export default {
         }
         
         await this.refreshStepsList()
+        
+        await this.listEditors()
       } else {
         console.error('Could not load quest data')
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -883,6 +911,37 @@ export default {
      */
     async trackStepFail () {
       this.hideHint()
+    },
+    /*
+     * add an editor
+     */
+    async addEditor () {
+      let addStatus = await QuestService.addEditor(this.questId, this.editor.new.email)
+
+      if (addStatus && addStatus.status !== 403) {
+        await this.listEditors()
+        this.editor.new.email = ''
+        this.editor.new.isExisting = true
+      } else {
+        this.editor.new.isExisting = false
+      }
+    },
+    /*
+     * list the editors
+     */
+    async listEditors () {
+      var results = await QuestService.listEditors(this.questId)
+      this.editor.items = results.data
+      for (var i = 0; i < this.editor.items.length; i++) {
+        this.editor.items[i].checked = true
+      }
+    },
+    /*
+     * Remove an editor
+     */
+    async removeEditor (id) {
+      await QuestService.removeEditor(this.questId, id)
+      await this.listEditors()
     },
     hideHint() {
       this.steps.new.overviewData.hint = {}

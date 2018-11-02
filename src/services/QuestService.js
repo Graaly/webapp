@@ -98,5 +98,29 @@ export default {
    */
   uploadPicture(data) {
     return Api().post('/quest/picture/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+  },
+  
+  /*
+   * List the editors of a quest
+   * @param   {String}    questId              questId
+   */
+  listEditors(questId) {
+    return Api().get('quest/' + questId + '/editor/list')  
+  },
+  /*
+   * Add an editor to a quest
+   * @param   {String}    questId              questId
+   * @param   {String}    email           email of the editor
+   */
+  addEditor (questId, email) {
+    return Api().put('quest/' + questId + '/editor/add/' + email)
+  },
+  /*
+   * Remove a quest
+   * @param   {String}    questId                Quest Id
+   * @param   {String}    editorId               Editor Id
+   */
+  removeEditor (questId, editorId) {
+    return Api().delete('quest/' + questId + '/editor/remove/' + editorId)
   }
 }
