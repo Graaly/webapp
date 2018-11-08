@@ -1,7 +1,7 @@
 <template>
   <div class="story" v-if="currentStep.id !== null" :class="{fadeout: hide}">
     <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
-    <div class="bubble-middle">
+    <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
       <p v-html="$t('story.' + steps[currentStep.id].discussions[currentStep.discussionId].text, data)"></p>
       <div class="right">
         <a v-if="steps[currentStep.id].discussions[currentStep.discussionId].link" @click="linkAction">
