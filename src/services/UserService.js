@@ -70,6 +70,13 @@ export default {
    */
   buy (offer) {
     return Api().post('user/buy/offer/' + offer)
+  },
+  /*
+   * Save the new story step of the user
+   * @param   {number}    step                  ID of the next story step
+   */
+  nextStoryStep (step) {
+    return Api().post('user/story/step/' + step)
   }
   
 }

@@ -163,7 +163,7 @@
                 </q-tooltip>
               </q-icon>
               <p class="size-1">
-                Rank: {{ $store.state.user.statistics.rankings.world }}
+                N°{{ $store.state.user.statistics.rankings.world }}
               </p>
             </div>
             <div class="col centered">
@@ -173,7 +173,7 @@
                 </q-tooltip>
               </q-icon>
               <p class="size-1">
-                Rank: {{ $store.state.user.statistics.rankings.town }}
+                N°{{ $store.state.user.statistics.rankings.town }}
               </p>
             </div>
           </div>
@@ -445,7 +445,7 @@
       <shop @close="closeShop"></shop>
     </q-modal>
     
-    <!------------------ MENU AREA ------------------------>
+    <!--====================== MENU =================================-->
     
     <div class="fixed-bottom over-map">
       <div class="menu-background"></div>
@@ -475,6 +475,12 @@
         <q-spinner-radio class="on-left" /> {{ $t('label.WarningNoNetwork') }}
       </div>
     </div>
+    
+    <!--====================== STORY =================================-->
+    
+    <div class="fixed-bottom over-map" v-if="story.step !== null">
+      <story :step="story.step" @next="endStory"></story>
+    </div>
        
   </div>
 </template>
@@ -484,6 +490,7 @@ import QuestService from 'services/QuestService'
 import AuthService from 'services/AuthService'
 import UserService from 'services/UserService'
 import shop from 'components/shop'
+import story from 'components/story'
 import utils from 'src/includes/utils'
 import { required, email } from 'vuelidate/lib/validators'
 import { QSpinnerDots, QInfiniteScroll } from 'quasar'
@@ -501,7 +508,8 @@ export default {
   components: {
     QInfiniteScroll,
     QSpinnerDots,
-    shop
+    shop,
+    story
   },
   data () {
     return {
@@ -577,6 +585,9 @@ export default {
         userCanChangeEmail: true,
         userCanChangePassword: true
       },
+      story: {
+        step: null
+      },
       languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
       isMounted: false
     }
@@ -612,6 +623,7 @@ export default {
     this.findLocation()
     window.addEventListener("batterylow", this.checkBattery, false);
     this.checkNetwork()
+    this.startStory()
     
     this.$nextTick(() => {
       this.isMounted = true
@@ -681,6 +693,14 @@ export default {
       }
     },
     /*
+     * start the story
+     */
+    startStory() {
+      if (this.$store.state.user.story.step === 0) {
+        this.story.step = 0
+      }
+    },
+    /*
      * Check network
      */
     checkNetwork() {
@@ -720,6 +740,10 @@ export default {
         infoWindow.isOpen = true
         // center map on last clicked quest
         this.panTo(questCoordinates)
+      }
+      // story
+      if (this.$store.state.user.story.step === 3) {
+        this.story.step = 3
       }
     },
      /*
@@ -861,6 +885,13 @@ export default {
         this.getRanking()
       }
       this.showSuccess = !this.showSuccess
+      // story
+      if (this.$store.state.user.story.step === 10) {
+        this.story.step = 10
+      }
+      if (this.$store.state.user.story.step === 12) {
+        this.story.step = 12
+      }
     },
     /*
      * Get current user ranking data
@@ -895,6 +926,14 @@ export default {
       
       await this.loadFriends()
       //await this.loadNews()
+      
+      // story
+      if (this.$store.state.user.story.step === 11) {
+        this.story.step = 11
+      }
+      if (this.$store.state.user.story.step === 13) {
+        this.story.step = 13
+      }
     },
     /*
      * List friends
@@ -1165,6 +1204,13 @@ export default {
      */
     buyCoins () {
       this.shop.show = true
+    },
+    /*
+     * End a story step
+     */
+    endStory (nextStep) {
+      this.story.step = null
+      this.$store.state.user.story.step = nextStep
     },
     /*
      * Close shop

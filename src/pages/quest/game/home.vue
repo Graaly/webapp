@@ -11,6 +11,7 @@
               {{getLanguage() ? quest.title[getLanguage()] : $t('label.NoTitle') }}
               <img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + getLanguage() + '.png'" />
             </p>
+            <p v-if="typeof quest.author !== 'undefined' && quest.author.name"><strong>{{ $t('label.Author') }}:</strong> {{ quest.author.name }}</span>
             <p class="medium-icon q-pa-none q-ma-none">
               <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">{{ quest.availablePoints }} <q-icon name="fas fa-trophy" /></span>
               <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">0 <q-icon name="fas fa-trophy" /></span>
@@ -50,35 +51,9 @@
             <div class="full-width text-center">
               <q-btn v-if="!(isOwner || isAdmin)" flat :label="$t('label.BackToTheMap')" @click="backToTheMap()" />
               <q-btn v-if="isOwner || isAdmin" flat :label="$t('label.Modify')" @click="modifyQuest()" />
-              <span  v-if="!scrolled"><q-btn flat icon="arrow_downward" :label="$t('label.ScrollForMoreDetails')" @click="scrollToDetail()" /></span>
-              
             </div>
           </div>
         </div>
-      </div>
-      
-      <!------------------ DETAILS AREA ------------------------>
-      
-      <div id="detail" class="q-pa-md q-pb-xxxl">
-        <q-alert type="warning" class="q-mb-md" v-if="this.isRunFinished">
-          {{ $t('label.YouAlreadyDidThisQuest') }}<br />
-          {{ $t('label.YouCanResolveItAgain') }}
-        </q-alert>
-        <q-alert type="warning" class="q-mb-md" v-if="!this.isRunFinished">
-          {{ $t('label.GeneralWarning') }}
-        </q-alert>
-        <q-alert type="warning" class="q-mb-md" v-if="this.isUserTooFar && quest.allowRemotePlay">
-          {{ $t('label.QuestIsFarFromUser') }}<br />
-          {{ $t('label.QuestIsFarFromUserDesc') }}
-        </q-alert>
-        <q-alert type="warning" class="q-mb-md" v-if="typeof quest.author !== 'undefined' && quest.author._id === $store.state.user._id">
-          {{ $t('label.YouAreQuestOwnerDesc') }}
-        </q-alert>
-        <p v-if="typeof quest.author !== 'undefined' && quest.author.name"><strong>{{ $t('label.Author') }}:</strong> {{ quest.author.name }}</span>
-        <p v-if="quest.level"><strong>{{ $t('label.Difficulty') }}:</strong> <img class="image-and-text-aligned" src="statics/icons/game/magnifying-red.png" /><img class="image-and-text-aligned" :src="'statics/icons/game/magnifying-' + (quest.level === 1 ? 'grey' : 'red') + '.png'" /><img class="image-and-text-aligned" :src="'statics/icons/game/magnifying-' + (quest.level === 3 ? 'red' : 'grey') + '.png'" /></p>
-        <p v-if="quest.duration"><strong>{{ $t('label.Duration') }}:</strong> {{ quest.duration }} {{ $t('label.minutes') }}</p>
-        <p v-if="quest.startingPlace"><strong>{{ $t('label.StartingPoint') }}:</strong> {{ quest.startingPlace }}</p>
-        <p>{{getLanguage() ? quest.description[getLanguage()] : "" }}</p>
       </div>
     </div>
     
@@ -138,6 +113,12 @@
       </div>
     </div>
     
+    <!--====================== STORY =================================-->
+    
+    <div class="fixed-bottom over-map" v-if="story.step !== null && story.step !== 'end'">
+      <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
+    </div>
+    
   </div>
 </template>
 
@@ -148,14 +129,16 @@ import QuestService from 'services/QuestService'
 import RunService from 'services/RunService'
 import UserService from 'services/UserService'
 import shop from 'components/shop'
+import story from 'components/story'
 
 import utils from 'src/includes/utils'
-import { scroll } from 'quasar'
-const { getScrollTarget, setScrollPosition } = scroll
+//import { scroll } from 'quasar'
+//const { getScrollTarget, setScrollPosition } = scroll
 
 export default {
   components: {
-    shop
+    shop,
+    story
   },
   data () {
     return {
@@ -166,6 +149,10 @@ export default {
       },
       shop: {
         show: false
+      },
+      story: {
+        step: null,
+        data: null
       },
       serverUrl: process.env.SERVER_URL,
       isRunFinished: false,
@@ -235,20 +222,6 @@ export default {
     await this.getRanking()
     
     this.checkUserIsCloseFromStartingPoint()
-    /*/check if location tracking is turned on
-    if (this.$data.geolocationIsSupported) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        //compare quest starting point with user localisation (1km distance)
-        if (this.quest.location && this.quest.location.coordinates && this.quest.location.coordinates.length > 1 && position.coords && position.coords.latitude) {
-          if ((Math.abs(position.coords.latitude - this.quest.location.coordinates[0]) > 0.009) || (Math.abs(position.coords.longitude - this.quest.location.coordinates[1]) > 0.013)) {
-            this.isUserTooFar = true
-          }
-        }
-      }, () => {
-        console.error('geolocation failed')
-        this.geolocationIsSupported = false
-      }, { timeout: 10000, maximumAge: 10000 });
-    }*/
   },
   methods: {
     /*
@@ -262,14 +235,37 @@ export default {
           if (this.quest.location && this.quest.location.coordinates && this.quest.location.coordinates.length > 1 && position.coords && position.coords.latitude) {
             if ((Math.abs(position.coords.latitude - this.quest.location.coordinates[0]) > 0.009) || (Math.abs(position.coords.longitude - this.quest.location.coordinates[1]) > 0.013)) {
               this.isUserTooFar = true
-              // check again in 15 seconds
-              setTimeout(this.checkUserIsCloseFromStartingPoint, 15000)
             }
           }
+          // check again in 15 seconds
+          setTimeout(this.checkUserIsCloseFromStartingPoint, 15000)
+          this.startStory()
         }, () => {
           console.error('geolocation failed')
           this.geolocationIsSupported = false
+          setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
         }, { timeout: 10000, maximumAge: 10000 });
+      } else {
+        setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
+        this.startStory()
+      }
+    },
+    /*
+     * Start the story
+     */
+    startStory() {
+      if (this.story.step === null) {
+        this.story.step = 1
+        this.story.data = {
+          level2: (this.quest.level === '1' ? 'grey' : 'red'),
+          level3: (this.quest.level === '3' ? 'red' : 'grey'),
+          startingPlace: this.quest.startingPlace,
+          duration: this.quest.duration,
+          isFar: (this.isUserTooFar && this.quest.allowRemotePlay),
+          isRunFinished: this.isRunFinished,
+          isOwner: (typeof this.quest.author !== 'undefined' && this.quest.author._id === this.$store.state.user._id),
+          description: (this.getLanguage() ? this.quest.description[this.getLanguage()] : "")
+        }
       }
     },
     /*
@@ -473,13 +469,14 @@ export default {
         this.scrolled = false
       }
     },
+    /*
     scrollToDetail () {
       let el = document.getElementById('detail')
       let target = getScrollTarget(el)
       let offset = el.offsetTop
       let duration = 1000
       setScrollPosition(target, offset, duration)
-    },
+    },*/
     /*
      * Manage back to the map button
      */

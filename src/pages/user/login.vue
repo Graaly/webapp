@@ -57,7 +57,7 @@
         {{ $t('label.orSignInWith') }}
       </p>
         
-      <div>
+      <div class="q-pl-md q-pr-md">
         <q-btn @click="facebookLogin" class="full-width" color="facebook" icon="fab fa-facebook" label="Facebook" />
         <q-btn @click="googleLogin" class="full-width" color="google" icon="fab fa-google" label="Google" />
       </div>

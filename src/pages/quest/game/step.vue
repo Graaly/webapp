@@ -36,7 +36,7 @@
       </div>
     </transition>
     
-    <!------------------ HINT PAGE AREA ------------------------>
+    <!------------------ HINT PAGE AREA -----------------------
     
     <transition name="slideInBottom">
       <div class="hint panel-bottom q-pa-md" v-show="hint.isOpened">
@@ -45,7 +45,19 @@
         <p v-if="hint.label !== ''">{{ hint.label[lang] }}</p>
         <q-btn class="q-mb-xl" color="primary" @click="askForHint()">{{ $t('label.Close') }}</q-btn>
       </div>
-    </transition>
+    </transition> -->
+    
+    <!--====================== HINT =================================-->
+    
+    <div class="fixed-bottom over-map" v-if="hint.isOpened">
+      <story step="2" :data="{hint: hint.label[lang]}" @next="askForHint()"></story>
+    </div>
+    
+    <!--====================== STORY =================================-->
+    
+    <div class="fixed-bottom over-map" v-if="story.step !== null && story.step !== 'end'">
+      <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
+    </div>
       
     <!------------------ FOOTER AREA ------------------------>
     
@@ -73,6 +85,7 @@ import QuestService from 'services/QuestService'
 //import questItems from 'data/questItems.json'
 import stepPlay from 'components/quest/game/stepPlay'
 import Notification from 'plugins/NotifyHelper'
+import story from 'components/story'
 
 import Vue from 'vue'
 import Sortable from 'sortablejs'
@@ -84,7 +97,8 @@ Vue.directive('sortable', {
 
 export default {
   components: {
-    stepPlay
+    stepPlay,
+    story
   },
   data () {
     return {
@@ -110,6 +124,10 @@ export default {
       },
       step: {
         nextNumber: 2
+      },
+      story: {
+        step: null,
+        data: null
       },
       loadStepData: false,
       run: {},

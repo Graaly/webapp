@@ -1516,7 +1516,7 @@ export default {
       if (this.step.type === 'new-item') {
         defaultText = this.$t('label.YouHaveWinANewItem')
       }
-      let translation = (this.step.text && this.step.text.length > 0 && this.step.text[this.lang]) ? this.step.text[this.lang] : defaultText
+      let translation = (this.step.text && typeof this.step.text === 'object' && this.step.text[this.lang]) ? this.step.text[this.lang] : defaultText
       return translation
     },
     /*
