@@ -173,6 +173,13 @@
           </div>
         </q-field>
         
+        <q-field v-if="quest.hasLocateMarkerSteps" icon="fa fa-qrcode" :label="$t('label.MarkersFile')">
+          <!-- for webapp mode -->
+          <q-btn v-if="!isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" type="a" href="statics/markers/all.pdf" download />
+          <!-- for hybrid mode -->
+          <q-btn v-if="isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" @click="downloadMarkers()" />
+        </q-field>
+        
         <p class="centered q-pa-md" v-if="quest.status !== 'published'">
           <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
         </p>
@@ -363,7 +370,8 @@ export default {
         ]
       },
       quest: {
-        languages: []
+        languages: [],
+        hasLocateMarkerSteps: false
       },
       steps: {
         items: [],
@@ -399,7 +407,8 @@ export default {
       itemUsed: null,
       serverUrl: process.env.SERVER_URL,
       pictureUploadURL: this.serverUrl + '/quest/picture/upload',
-      titleMaxLength: 50
+      titleMaxLength: 50,
+      isHybrid: false
     }
   },
   computed: {
@@ -409,6 +418,10 @@ export default {
   },
   async mounted() {
     if (this.$route.params.questId && this.$route.params.questId !== '') {
+      if (typeof window.cordova !== 'undefined') {
+        this.isHybrid = true
+      }
+      
       this.loadQuestData()
     } else {
       // if quest Id is not set, redirect to quest creation page
@@ -478,6 +491,17 @@ export default {
       if (this.steps.items && this.steps.items.length > 0 && this.tabs.progress < 3) {
         this.tabs.progress = 3
       }
+      
+      // update property this.quest.hasLocateMarkerSteps
+      let found = false
+      for (let i = 0; i < this.steps.items.length; i++) {
+        let item = this.steps.items[i]
+        if (item.type === 'locate-marker') {
+          found = true
+          break
+        }
+      }
+      this.quest.hasLocateMarkerSteps = found
     },
     /*
      * Submit settings changes
@@ -1042,6 +1066,61 @@ export default {
      */
     moveToTop() {
       window.scrollTo(0, 0)
+    },
+    /*
+     * download PDF file containing all AR markers
+     */
+    downloadMarkers() {
+      let quasarThis = this
+      
+      // see https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-file/#create-a-temporary-file
+      window.requestFileSystem(window.TEMPORARY, 5 * 1024 * 1024 /* reserved size in bytes */, (fs) => {
+        let req = new XMLHttpRequest()
+        req.open("GET", "statics/markers/all.pdf", true)
+        req.responseType = "blob"
+        
+        req.onload = function(ev) {
+          if (this.status !== 200) {
+            Notification(quasarThis.$t('label.TechnicalIssue'), 'error')
+            console.error('Could not download PDF markers file. Request status HTTP code: ', this.status)
+            return
+          }
+          let blob = new Blob([this.response], { type: 'application/pdf' })
+          
+          // cordova.file.externalDataDirectory <= maybe for persistent storage
+          fs.root.getFile("all.pdf", { create: true, exclusive: false }, function (fileEntry) {
+            // Create a FileWriter object for our FileEntry (log.txt).
+            fileEntry.createWriter((fileWriter) => {
+              fileWriter.onwriteend = (ev) => {
+                cordova.plugins.fileOpener2.open(
+                  ev.target.localURL, // You can also use a Cordova-style file uri: cdvfile://localhost/persistent/Download/starwars.pdf
+                  'application/pdf', 
+                  { 
+                    error: (err) => { 
+                      console.error('Could not open PDF markers file', err);
+                    },
+                    success: () => {}
+                  }
+                )
+              }
+
+              fileWriter.onerror = (err) => {
+                console.error("Failed file write: ", err);
+              }
+              
+              fileWriter.write(blob)
+            });
+          }, (err) => {
+            Notification(quasarThis.$t('label.TechnicalIssue'), 'error')
+            console.error('Could not create PDF markers file on device system', err)
+          })
+        }
+        
+        req.send()
+      }, (err) => {
+        Notification(quasarThis.$t('label.TechnicalIssue'), 'error')
+        console.error('Could not access to device filesystem', err)
+      })
     }
   },
   validations: {

@@ -410,6 +410,13 @@
       </div>
     </div>
     
+    <!------------------ STEP : FIND AR MARKER ------------------------>
+    
+    <div class="locate-marker" v-if="options.code === 'locate-marker'">
+      <h2>{{ $t('label.ChooseTheMarker') }}</h2>
+      <q-select v-model="selectedStep.form.answers" :options="selectMarkerOptions" />
+    </div>
+    
     <!------------------ OTHER OPTIONS ------------------------>
     <q-list v-show="options.hasOptions" separator>
       <q-collapsible icon="add_box" :label="$t('label.OtherOptions')">
@@ -458,6 +465,7 @@ import colorsForCode from 'data/colorsForCode.json'
 import stepTypes from 'data/stepTypes.json'
 import modelsList from 'data/3DModels.json'
 import objectsList from 'data/2Dobjects.json'
+import markersList from 'data/markers.json'
 
 import StepService from 'services/StepService'
 
@@ -527,7 +535,10 @@ export default {
       unformatedAnswer: null,
       
       // for 'find-object-ar'
-      selectModel3DOptions: []
+      selectModel3DOptions: [],
+      
+      // for 'locate-marker'
+      selectMarkerOptions: []
     }
   },
   computed: {
@@ -757,6 +768,16 @@ export default {
         // create options for 3D Model selection
         for (let key in modelsList) {
           this.selectModel3DOptions.push({label: modelsList[key].name[this.$store.state.user.language], value: key})
+        }
+      } else if (this.options.code === 'locate-marker') {
+        markersList.forEach((markerCode) => {
+          this.selectMarkerOptions.push({
+            label: markerCode,
+            value: markerCode
+          })
+        })
+        if (typeof this.selectedStep.form.answers !== 'string') {
+          this.$set(this.selectedStep.form, 'answers', markersList[0])
         }
       }
     },

@@ -55,9 +55,10 @@
 .column {
   display: flex;
   flex-flow: column nowrap;
-  align-items: stretch;
+  /* MP 2018-10-12 causes problem with <q-tab> on Quasar 0.17, icons get aligned to left instead of being centered */
+  /*align-items: stretch;*/
 }
-/* MP 2018-10-12 does not seem to be used, maybe remove in a few weeks
+/* MP 2018-10-12 does not seem to be used, maybe remove in a few weeks */
 /*.column .row {
   flex: 1;
 }
@@ -92,14 +93,15 @@ a {
 }
 
 /////////////////////////////// Panels CSS /////////////////////////////////////
-
+/* MP 2018-11-12 for quasar 0.17, a width parameter has to be set directly on <q-layout-drawer> tag */
+/*
 .q-layout-drawer-left {
     width: 100%;
 }
 .q-layout-drawer-right {
     width: 100%;
 }
-
+*/
 /////////////////////////////// Labels CSS /////////////////////////////////////
 h1.size-1 {
   font-size: 3.5em;
@@ -149,6 +151,9 @@ span .q-icon {
 
 .dark-background .q-if-label {
   color: #fff;
+}
+.q-field {
+  margin: 0 0 5vw 0;
 }
 .q-field-dark .q-field-label, .q-field-dark .q-field-icon, .q-field-dark .q-field-counter, .q-field-dark .q-field-bottom {
   color: #ef3;

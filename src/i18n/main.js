@@ -453,7 +453,10 @@ module.exports = {
       CreateAQuest: "Create a quest",
       NoThanks: "No thanks",
       Character: "Character",
-      Rankings: "Rankings"
+      Rankings: "Rankings",
+      MarkersFile: "Markers file",
+      ChooseTheMarker: "Choose the marker",
+      Download: "Download"
     }
   },
   fr: {
@@ -909,7 +912,10 @@ module.exports = {
       CreateAQuest: "Créer une enquête",
       NoThanks: "Non merci",
       Character: "Personnage",
-      Rankings: "Classements"
+      Rankings: "Classements",
+      MarkersFile: "Fichier de marqueurs",
+      ChooseTheMarker: "Choisissez le marqueur",
+      Download: "Télécharger"
     }
   }
 }
