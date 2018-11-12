@@ -22,6 +22,39 @@
         </audio>
         -->
       </div>
+      
+      <!------------------ WIN ITEM STEP AREA ------------------------>
+      
+      <div class="new-item" v-if="step.type == 'new-item'">
+        <div>
+          <p class="text">{{ getTranslatedText() }}</p>
+        </div>
+        <div class="item">
+          <img style="width: 80%" :src="(step.options.picture.indexOf('statics/') > -1 ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
+          <p>{{ step.options.title }}</p>
+        </div>
+        <div>
+          <div class="text right" v-show="playerResult">{{ $t('label.ClickOnArrowToMoveToNextStep') }}</div>
+        </div>
+      </div>
+            
+      <!------------------ CHARACTER STEP AREA ------------------------>
+      
+      <div class="character" v-if="step.type == 'character'">
+        <div class="fixed-bottom story" style="bottom: 50px">
+          <div>
+            <div class="text right" v-show="playerResult">{{ $t('label.ClickOnArrowToMoveToNextStep') }}</div>
+          </div>
+          <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
+          <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
+            <p>{{ getTranslatedText() }}</p>
+          </div>
+          <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
+          <div class="character">
+            <img :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
+          </div>
+        </div>
+      </div>
         
       <!------------------ CHOOSE STEP AREA ------------------------>
       
@@ -229,21 +262,6 @@
         </ul>
         <div class="resultMessage buttons-bottom" v-show="playerResult === true ">
           <div class="text right">{{ $t('label.WellDone') }}</div>
-        </div>
-      </div>
-      
-      <!------------------ WIN ITEM STEP AREA ------------------------>
-      
-      <div class="new-item" v-if="step.type == 'new-item'">
-        <div>
-          <p class="text">{{ getTranslatedText() }}</p>
-        </div>
-        <div class="item">
-          <img style="width: 80%" :src="(step.options.picture.indexOf('statics/') > -1 ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
-          <p>{{ step.options.title }}</p>
-        </div>
-        <div>
-          <div class="text right" v-show="playerResult">{{ $t('label.ClickOnArrowToMoveToNextStep') }}</div>
         </div>
       </div>
       
@@ -526,9 +544,9 @@ export default {
         }
         this.$store.dispatch('setDrawDirectionInterval', null)
         
-        if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'new-item') {
+        if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'character' || this.step.type === 'new-item') {
           // validate steps with no enigma
-          setTimeout(this.checkAnswer, 4500)
+          setTimeout(this.checkAnswer, 3000)
         }
         
         if (this.step.type === 'choose') {
@@ -883,6 +901,7 @@ export default {
         case 'info-text':
         case 'info-video':
         case 'new-item':
+        case 'character':
           // save step automatic success
           checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {})
           this.submitGoodAnswer(0)

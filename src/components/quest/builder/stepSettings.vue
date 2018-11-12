@@ -94,6 +94,28 @@
       </q-field>
     </div>
     
+    <!------------------ STEP : GRAALY CHARACTER ------------------------>
+    
+    <div v-if="options.code == 'character'">
+      <h2>{{ $t('label.Character') }}</h2>
+      <div class="answer">
+        <q-radio v-model="selectedStep.form.options.character" val="1" />
+        <p><img src="statics/icons/story/character1_attitude1.png" /></p>
+      </div>
+      <div class="answer">
+        <q-radio v-model="selectedStep.form.options.character" val="2" />
+        <p><img src="statics/icons/story/character2_attitude1.png" /></p>
+      </div>
+      <div class="answer">
+        <q-radio v-model="selectedStep.form.options.character" val="3" />
+        <p><img src="statics/icons/story/character3_attitude1.png" /></p>
+      </div>
+      <div class="answer">
+        <q-radio v-model="selectedStep.form.options.character" val="4" />
+        <p><img src="statics/icons/story/character4_attitude1.png" /></p>
+      </div>
+    </div>
+    
     <!------------------ STEP : GEOLOCATION ------------------------>
     
     <div v-if="options.code == 'geolocation'" class="location-gps">
@@ -629,6 +651,11 @@ export default {
       }
       
       // initialize specific steps
+      if (this.options.code === 'character') {
+        if (!this.selectedStep.form.options.character) {
+          this.selectedStep.form.options.character = "1"
+        }
+      }
       if (this.options.code === 'choose') {
         if (!Array.isArray(this.selectedStep.form.options)) {
           this.answerType = 'text'

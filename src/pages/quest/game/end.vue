@@ -159,6 +159,12 @@
       </div>
     </transition>
     
+    <!--====================== STORY =================================-->
+    
+    <div class="fixed-bottom over-map" v-if="story.step !== null && story.step !== 'end'">
+      <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
+    </div>
+    
     <!--====================== WIN COINS ANIMATION =================================-->
       
     <div v-if="level.upgraded" class="fadein-message">+100 <q-icon color="white" name="fas fa-coins" /></div>
@@ -173,8 +179,12 @@ import LevelCompute from 'plugins/LevelCompute'
 //import { filter } from 'quasar'
 //import utils from 'src/includes/utils'
 import Vue from 'vue'
+import story from 'components/story'
 
 export default {
+  components: {
+    story
+  },
   data() {
     return {
       title: 'Enquête réussie',
@@ -196,6 +206,10 @@ export default {
       invitedFriends: {
         id: [],
         name: []
+      },
+      story: {
+        step: null,
+        data: null
       },
       questId: this.$route.params.questId,
       awardPoints: true,
@@ -237,6 +251,9 @@ export default {
         this.showBonus = true
       }
     }
+    
+    // story management
+    this.startStory()
     
     // get user new score
     //this.level.color = "secondary"
@@ -435,6 +452,20 @@ export default {
      */
     async closeBonus() {
       this.showBonus = false
+    },
+    /*
+     * Start the story
+     */
+    startStory() {
+      if (this.story.step === null) {
+        this.story.step = 9
+        this.story.data = {
+          score: this.run.score,
+          level: this.$store.state.user.level,
+          progress: this.level.progress,
+          discovery: this.questId = '5b7303ec4efbcd1f8cb101c6'
+        }
+      }
     }
     /*
      * Search a friend

@@ -257,14 +257,15 @@ export default {
       if (this.story.step === null) {
         this.story.step = 1
         this.story.data = {
-          level2: (this.quest.level === '1' ? 'grey' : 'red'),
-          level3: (this.quest.level === '3' ? 'red' : 'grey'),
+          level2: (this.quest.level === 1 ? 'grey' : 'red'),
+          level3: (this.quest.level === 3 ? 'red' : 'grey'),
           startingPlace: this.quest.startingPlace,
           duration: this.quest.duration,
           isFar: (this.isUserTooFar && this.quest.allowRemotePlay),
           isRunFinished: this.isRunFinished,
           isOwner: (typeof this.quest.author !== 'undefined' && this.quest.author._id === this.$store.state.user._id),
-          description: (this.getLanguage() ? this.quest.description[this.getLanguage()] : "")
+          description: (this.getLanguage() ? this.quest.description[this.getLanguage()] : ""),
+          score: (this.isRunFinished || (this.isOwner && !this.isAdmin)) ? 0 : this.quest.availablePoints
         }
       }
     },

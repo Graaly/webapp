@@ -58,11 +58,15 @@
     
     <!------------------ SCORE AREA ------------------------>
     
-    <div class="score-box">
-      <div class="q-pa-md score-text">{{ $store.state.user.score }} <q-icon name="fas fa-trophy" /></div>
+    <div class="score-box" @click="openRanking">
+      <div class="q-px-md q-pt-md score-text">{{ $store.state.user.score }} <q-icon name="fas fa-trophy" /></div>
+      <div style="width: 100px">
+        <div class="centered bg-primary text-white" style="height: 12px; font-size: 10px; text-shadow: none;">{{ $t('label.MyLevel') }}: {{ $store.state.user.level }}</div>
+        <q-progress :percentage="profile.level.progress" stripe height="10px" animate color="primary"></q-progress>
+      </div>
     </div>
     <div class="coin-box">
-      <div class="q-pa-md score-text"><q-icon name="fas fa-coins" /> {{ $store.state.user.coins }} <q-icon name="add_circle" @click.native="buyCoins()" color="primary" /></div>
+      <div class="q-pa-md score-text"><q-icon name="fas fa-coins" /> {{ $store.state.user.coins }} <q-icon name="add_circle" v-if="$store.state.user.coins < 200" @click.native="buyCoins()" color="primary" /></div>
     </div>
     
     <!--====================== SUCCESS PAGE =================================-->
@@ -72,8 +76,7 @@
       <!------------------ TABS AREA ------------------------>
       
       <q-tabs two-lines>
-        <q-tab slot="title" name="ranking" icon="star" :label="$t('label.YourRanking')" default />
-        <q-tab slot="title" name="built" icon="add_box" :label="$t('label.QuestsCreated')" />
+        <q-tab slot="title" name="built" icon="add_box" :label="$t('label.QuestsCreated')" default />
         <q-tab slot="title" name="played" icon="play_circle_filled" :label="$t('label.QuestsSuccessful')" />
       
         <!------------------ LIST OF QUESTS BUILT TAB ------------------------>
@@ -152,52 +155,6 @@
         </q-list>
         </q-tab-pane>
         
-        <!------------------ RANKING TAB ------------------------>
-        
-        <q-tab-pane name="ranking">
-          <div class="row" v-if="$store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings">
-            <div class="col centered">
-              <q-icon class="big-icon" name="public" color="yellow-5">
-                <q-tooltip>
-                  {{ $t("label.YourWorldRanking") }}
-                </q-tooltip>
-              </q-icon>
-              <p class="size-1">
-                N°{{ $store.state.user.statistics.rankings.world }}
-              </p>
-            </div>
-            <div class="col centered">
-              <q-icon class="big-icon" name="home" color="yellow-5">
-                <q-tooltip>
-                  {{ $t("label.YourCityRanking") }}
-                </q-tooltip>
-              </q-icon>
-              <p class="size-1">
-                N°{{ $store.state.user.statistics.rankings.town }}
-              </p>
-            </div>
-          </div>
-          <q-list v-if="success.ranking && success.ranking.length > 0">
-            <q-list-header>{{ $t("label.TerritoriesWon") }}</q-list-header>
-            <q-item v-for="(item, index) in success.ranking" :key="index">
-              <q-item-main :label="item.town" />
-              <q-item-side right v-if="item.playedNb < item.totalNb">
-                <q-progress :percentage="parseInt((item.playedNb / item.totalNb) * 100, 10)" color="yellow-5" height="18px" style="width: 75px" />
-              </q-item-side>
-              <q-item-side right v-if="item.playedNb >= item.totalNb">
-                <q-icon name="flag" size="2rem" color="yellow-5" />
-              </q-item-side>
-            </q-item>
-            <q-item>
-            {{ $t("label.PlayAllQuestsInACityToWin") }}
-            </q-item>
-          </q-list>
-          
-          <p v-if="!($store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings) && !(success.ranking && success.ranking.length > 0)">
-            {{ $t("label.NoRankingYet") }}
-          </p>
-        </q-tab-pane>
-        
       </q-tabs>
 
     </q-layout-drawer>
@@ -222,14 +179,6 @@
           <div class="title">{{ $store.state.user.name }}</div>
           <q-btn :label="$t('label.SignOut')" icon="power_settings_new" @click.native="Disconnect()" flat />
         </div>
-      </div>
-      
-      <!------------------ LEVEL AREA ------------------------>
-      
-      <div class="q-pa-md">
-        <p class="centered">{{ $t('label.MyLevel') }} : {{ $store.state.user.level }}</p>
-        <q-progress :percentage="profile.level.progress" stripe animate height="30px" color="primary"></q-progress>
-        {{ $t('label.ReachScoreOf', {score: profile.level.max}) }} <a @click="openHowTo()">{{ $t('label.HowTo') }}</a>
       </div>
       
       <!------------------ TABS AREA ------------------------>
@@ -445,6 +394,59 @@
       <shop @close="closeShop"></shop>
     </q-modal>
     
+    <!--====================== RANKING PAGE =================================-->
+    
+    <q-modal v-model="ranking.show" class="over-map">
+      <a class="float-right no-underline q-pa-md" color="grey" @click="closeRanking"><q-icon name="close" class="medium-icon" /></a>
+      <h1 class="size-3 q-pl-md">{{ $t('label.YourRanking') }}</h1>
+      <q-list>
+        <q-list-header>{{ $t("label.Level") }}</q-list-header>
+        <q-item multiline>
+          <q-item-side icon="trending_up" color="primary" />
+          <q-item-main>
+            <q-item-tile label>{{ $t('label.MyLevel') }}: {{ $store.state.user.level }}</q-item-tile>
+            <q-item-tile sublabel>{{ $t('label.ReachScoreOf', {score: profile.level.max}) }}</q-item-tile>
+          </q-item-main>
+          <q-item-side right>
+            <q-progress :percentage="profile.level.progress" color="primary" height="18px" style="width: 75px" />
+          </q-item-side>
+        </q-item>
+      </q-list>
+      <q-list v-if="$store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings">
+        <q-list-header>{{ $t("label.Rankings") }}</q-list-header>
+        <q-item>
+          <q-item-side icon="public" color="primary" />
+          <q-item-main :label="$t('label.YourWorldRanking') + ': ' + $store.state.user.statistics.rankings.world" />
+        </q-item>
+        <q-item>
+          <q-item-side icon="home" color="primary" />
+          <q-item-main :label="$t('label.YourCityRanking') + ': ' + $store.state.user.statistics.rankings.town" />
+        </q-item>
+      </q-list>
+      <q-list v-if="success.ranking && success.ranking.length > 0">
+        <q-list-header>{{ $t("label.TerritoriesWon") }}</q-list-header>
+        <q-item v-for="(item, index) in success.ranking" :key="index">
+          <q-item-side v-if="item.playedNb < item.totalNb">
+            <q-icon name="flag" size="2rem" color="grey" />
+          </q-item-side>
+          <q-item-side v-if="item.playedNb >= item.totalNb">
+            <q-icon name="flag" size="2rem" color="primary" />
+          </q-item-side>
+          <q-item-main :label="item.town" />
+          <q-item-side right v-if="item.playedNb < item.totalNb">
+            <q-progress :percentage="parseInt((item.playedNb / item.totalNb) * 100, 10)" color="primary" height="18px" style="width: 75px" />
+          </q-item-side>
+        </q-item>
+        <q-item>
+        {{ $t("label.PlayAllQuestsInACityToWin") }}
+        </q-item>
+      </q-list>
+      
+      <p v-if="!($store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings) && !(success.ranking && success.ranking.length > 0)">
+        {{ $t("label.NoRankingYet") }}
+      </p>
+    </q-modal>
+    
     <!--====================== MENU =================================-->
     
     <div class="fixed-bottom over-map">
@@ -478,8 +480,8 @@
     
     <!--====================== STORY =================================-->
     
-    <div class="fixed-bottom over-map" v-if="story.step !== null">
-      <story :step="story.step" @next="endStory"></story>
+    <div class="fixed-bottom over-map fit" v-if="story.step !== null">
+      <story :step="story.step" :data="story.data" @next="endStory"></story>
     </div>
        
   </div>
@@ -586,7 +588,11 @@ export default {
         userCanChangePassword: true
       },
       story: {
-        step: null
+        step: null,
+        data: null
+      },
+      ranking: {
+        show: false
       },
       languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
       isMounted: false
@@ -624,6 +630,8 @@ export default {
     window.addEventListener("batterylow", this.checkBattery, false);
     this.checkNetwork()
     this.startStory()
+    // get current level of user
+    this.profile.level = LevelCompute(this.$store.state.user.score)
     
     this.$nextTick(() => {
       this.isMounted = true
@@ -699,6 +707,29 @@ export default {
       if (this.$store.state.user.story.step === 0) {
         this.story.step = 0
       }
+      if (this.$store.state.user.story.step === 10) {
+        this.story.step = 10
+      }
+    },
+    /*
+     * Check network
+     */
+    getClosestQuestUnplayed() {
+      var distance = 100000
+      var questSelected = null
+      // get the closest quest
+      for (var i = 0; i < this.questList.length; i++) {
+        // get only the quest unplayed
+        if (this.questList[i].authorUserId !== this.$store.state.user._id && this.questList[i].status !== 'played' && this.questList[i].type === 'quest') {
+          // compute the min distance
+          let newDistance = Math.sqrt(Math.pow(Math.abs(this.user.position.longitude - this.questList[i].location.coordinates[0]), 2) + Math.pow(Math.abs(this.user.position.latitude - this.questList[i].location.coordinates[1]), 2))
+          if (newDistance < distance) {
+            distance = newDistance
+            questSelected = this.questList[i]
+          }
+        }
+      }
+      return questSelected
     },
     /*
      * Check network
@@ -757,6 +788,22 @@ export default {
       }
       let response = await QuestService.listNearest({ lng: this.user.position.longitude, lat: this.user.position.latitude }, this.map.filter)
       this.questList = response.data
+      
+      if (this.$store.state.user.story.step === 16) {
+        // get the closest quest not already played
+        var closestQuest = this.getClosestQuestUnplayed()
+        
+        if (closestQuest !== null) {
+          this.story.data = {
+            questId: closestQuest._id,
+            quest: this.getQuestTitle(closestQuest, false)
+          }
+        } else {
+          this.story.data = null
+        }
+        
+        this.story.step = 16
+      }
     },
     
     /*
@@ -794,6 +841,11 @@ export default {
      * Open the search menu
      */
     openSearchOptions() {
+      // story
+      if (this.$store.state.user.story.step === 13) {
+        this.story.step = 13
+      }
+      
       if (this.showSuccess) {
         this.showSuccess = false
       } else if (this.showProfile) {
@@ -882,15 +934,11 @@ export default {
       if (!this.showSuccess) {
         this.listCreatedQuests(this.$store.state.user._id)
         this.listPlayedQuests(this.$store.state.user._id)
-        this.getRanking()
       }
       this.showSuccess = !this.showSuccess
       // story
-      if (this.$store.state.user.story.step === 10) {
-        this.story.step = 10
-      }
-      if (this.$store.state.user.story.step === 12) {
-        this.story.step = 12
+      if (this.$store.state.user.story.step === 15) {
+        this.story.step = 15
       }
     },
     /*
@@ -921,18 +969,17 @@ export default {
      */
     async openProfilePage() {
       this.showProfile = !this.showProfile
-      this.profile.level = LevelCompute(this.$store.state.user.score)
       this.getProfileChangeData(this.$store.state.user._id)
       
       await this.loadFriends()
       //await this.loadNews()
       
       // story
-      if (this.$store.state.user.story.step === 11) {
-        this.story.step = 11
+      if (this.$store.state.user.story.step === 12) {
+        this.story.step = 12
       }
-      if (this.$store.state.user.story.step === 13) {
-        this.story.step = 13
+      if (this.$store.state.user.story.step === 14) {
+        this.story.step = 14
       }
     },
     /*
@@ -1233,6 +1280,23 @@ export default {
         console.log('openNativeSettings is not active!')
         this.nativeSettingsIsEnabled = false
       }
+    },
+    /*
+     * Open the ranking page
+     */
+    openRanking () {
+      this.getRanking()
+      this.ranking.show = true
+      // story
+      if (this.$store.state.user.story.step === 11) {
+        this.story.step = 11
+      }
+    },
+    /*
+     * close the ranking page
+     */
+    closeRanking () {
+      this.ranking.show = false
     }
   },
   validations: {

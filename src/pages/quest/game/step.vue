@@ -23,7 +23,7 @@
     
     <transition name="slideInBottom">
       <div v-show="info.isOpened">
-        <div class="panel-bottom no-padding" :style="'background: url(' + ((info.quest.picture && info.quest.picture[0] === '_') ? '/statics/images/quest/' + info.quest.picture : serverUrl + '/upload/quest/' + info.quest.picture) + ' ) center center / cover no-repeat '">
+        <div class="panel-bottom no-padding" :style="'background: url(' + ((info.quest.picture && info.quest.picture[0] === '_') ? 'statics/images/quest/' + info.quest.picture : serverUrl + '/upload/quest/' + info.quest.picture) + ' ) center center / cover no-repeat '">
           <div class="text-center bottom-dark-banner q-pb-xl">
             <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title[lang] : $t('label.NoTitle') }}</p>
             <!--<q-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-progress>-->
@@ -203,6 +203,9 @@ export default {
       // TODO : manage non continuous path quests
       this.step.nextNumber = this.step.number + 1
       
+      // check if story needs to start
+      await this.startStory()
+      
       // load component data
       this.loadStepData = true
     }).catch((err) => {
@@ -379,6 +382,28 @@ export default {
      */
     async backToMap() {
       return this.$router.push('/map')
+    },
+    /*
+     * Start the story step
+     */
+    async startStory() {
+      if (this.info.quest.type === 'discovery') {
+        if (this.step.number === 1) {
+          this.story.step = 4
+        }
+        if (this.step.number === 2) {
+          this.story.step = 5
+        }
+        if (this.step.number === 3) {
+          this.story.step = 6
+        }
+        if (this.step.number === 5) {
+          this.story.step = 7
+        }
+        if (this.step.number === 7) {
+          this.story.step = 8
+        }
+      }
     },
     /*
      * Get a quest information

@@ -33,6 +33,17 @@
     "hasOptions": true
   },
   {
+    "category": "transition",
+    "code": "character",
+    "icon": "user",
+    "title": "GraalyCharacter",
+    "description": "GraalyCharacterDesc",
+    "showTrick": "no",
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true
+  },
+  {
     "category": "enigma",
     "code": "geolocation",
     "icon": "map-marker",
