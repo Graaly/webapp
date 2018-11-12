@@ -161,7 +161,7 @@
     
     <!--====================== PROFILE PAGE =================================-->
     
-    <q-layout-drawer class="over-map" side="right" v-model="showProfile">
+    <q-layout-drawer class="over-map" side="right" v-model="showProfile" :width="innerWidth">
     
       <!------------------ HEADER AREA ------------------------>
         
@@ -595,7 +595,8 @@ export default {
         show: false
       },
       languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
-      isMounted: false
+      isMounted: false,
+      innerWidth: window.innerWidth
     }
   },
   computed: {

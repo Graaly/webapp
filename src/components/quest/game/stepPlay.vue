@@ -344,7 +344,7 @@
         <div class="marker-view" v-show="!playerResult">
           <canvas id="marker-canvas"></canvas>
         </div>
-        <div class="resultMessage buttons-bottom" v-show="nbTry > 0 && nbTry < 2">
+        <div class="resultMessage buttons-bottom" v-show="playerResult !== true && nbTry > 0 && nbTry < 2">
           <div class="text wrong">{{ $t('label.SecondTry') }}</div>
         </div>
         <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry === 2">
@@ -369,8 +369,11 @@
 import StepService from 'services/StepService'
 import simi from 'src/includes/simi' // for image similarity
 import utils from 'src/includes/utils'
+
 import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
+import markersList from 'data/markers.json'
+
 import Notification from 'plugins/NotifyHelper'
 
 import Vue from 'vue'
@@ -384,7 +387,7 @@ import GLTFLoader from 'three-gltf-loader'
 // currently (AR.js 1.6.2) MODULE IMPORT IS NOT SUPPORTED.
 // => adapted AR.js to work as a module (from file three.js/build/ar.js of the original package).
 // see https://github.com/jeromeetienne/AR.js/issues/428
-import { THREEx } from 'src/includes/ar' // from 'ar.js' in future versions?
+import { THREEx } from 'src/includes/ar' // import * as ARjs from 'ar.js' in future versions?
 import { promisify } from 'es6-promisify'
 
 export default {
@@ -686,7 +689,8 @@ export default {
             
             // apply user-defined scaling
             if (objectInit.scale) {
-              let scale = objectInit.scale
+              // make objects twice bigger than their "real" size, for better usability
+              let scale = objectInit.scale * 2
               object.scale.set(scale, scale, scale)
             }
             
@@ -801,7 +805,8 @@ export default {
                   maxDetectionRate: 30,
                   // sampling size, always 4:3 ratio...
                   canvasWidth: 640,
-                  canvasHeight: 480
+                  canvasHeight: 480,
+                  patternRatio: 0.8
                 })
                 // initialize it
                 arToolkitContext.initAsync = promisify(arToolkitContext.init)
@@ -845,12 +850,10 @@ export default {
                 this.locateMarker.camera = camera
                 
                 this.locateMarker.markerRoot = markerRoot
-                this.locateMarker.markerCodeAnswer = 'graaly'
-                this.locateMarker.markerControls = {
-                  hiro: this.createMarkerControl('hiro'),
-                  kanji: this.createMarkerControl('kanji'),
-                  graaly: this.createMarkerControl('graaly')
-                }
+                this.locateMarker.markerCodeAnswer = this.step.answers
+                markersList.forEach((markerCode) => {
+                  this.locateMarker.markerControls[markerCode] = this.createMarkerControl(markerCode)
+                })
                 
                 this.animateMarkerCanvas()
               }
@@ -872,7 +875,7 @@ export default {
       
       let marker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
         type: 'pattern',
-        patternUrl: 'statics/markers/' + markerCode + '.patt'
+        patternUrl: 'statics/markers/' + markerCode + '/pattern-marker.patt'
       })
       marker.code = markerCode
       marker.addEventListener('markerFound', (ev) => { this.checkAnswer(ev.target.code) })
@@ -1084,16 +1087,18 @@ export default {
             this.locateMarker.markerControls[answer].detected = true
             checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: answer})
             
-            //if (checkAnswerResult.result === true) {
-            // TEMP CONDITION! FOR DEMO PURPOSE ONLY
-            if (answer === 'graaly') {
+            if (checkAnswerResult.result === true) {
               this.submitGoodAnswer(checkAnswerResult.score)
               this.stopVideoTracks('camera-stream-for-locate-marker')
+              this.locateMarker.scene = new THREE.Scene()
+              this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera);
             } else {
               this.nbTry++
               if (this.nbTry === 2) {
                 this.submitWrongAnswer()
                 this.stopVideoTracks('camera-stream-for-locate-marker')
+                this.locateMarker.scene = new THREE.Scene()
+                this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera);
               }
             }
           }

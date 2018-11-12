@@ -41,6 +41,7 @@
     <preference name="StatusBarBackgroundColor" value="#e82a34" />
     <preference name="StatusBarStyle" value="lightcontent" />
     <preference name="Orientation" value="portrait" />
+    <preference name="AndroidPersistentFileLocation" value="Compatibility" />
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <plugin name="cordova-open-native-settings" spec="^1.5.1" />
     <plugin name="cordova-plugin-inapppurchase-fixed" spec="^1.1.2" />
@@ -52,4 +53,6 @@
     <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
     <plugin name="phonegap-plugin-media-stream" spec="^1.2.1" />
     <engine name="android" spec="^7.0.0" />
+    <plugin name="cordova-plugin-file" spec="^6.0.1" />
+    <plugin name="cordova-plugin-file-opener2" spec="^2.0.19" />
 </widget>
