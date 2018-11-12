@@ -91,6 +91,9 @@ If the app run as HTTP rather than HTTPS, follow this fix :  https://forum.quasa
 Now you should be able to view what is displayed on your smartphone in Chrome Desktop.
 Visible console output is related to the activity on the Android Chrome browser of the smartphone.
 
+## Avoid HTTPS issues in local dev (Chrome desktop, missing images)
+
+Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
 
 # Technical specs
 
