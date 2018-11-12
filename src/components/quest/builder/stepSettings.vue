@@ -142,6 +142,9 @@
                 <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
               </div>
             </div>
+            <div>
+              <a @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+            </div>
           </q-collapsible>
         </q-list>
       </div>
@@ -404,6 +407,9 @@
                 <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
                 <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
               </div>
+            </div>
+            <div>
+              <a @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
             </div>
           </q-collapsible>
         </q-list>
@@ -1198,6 +1204,27 @@ export default {
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
+      });
+    },
+    /*
+     * Get the GPS location based on user location
+     * @param   {Object}    pos            Position data
+     */
+    async getMyGPSLocation() {
+      this.$q.loading.show()
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        this.selectedStep.form.options.lat = position.coords.latitude
+        this.selectedStep.form.options.lng = position.coords.longitude
+        this.$v.selectedStep.form.options.lat.$touch()
+        this.$v.selectedStep.form.options.lng.$touch()
+        this.$q.loading.hide()
+      }, (err) => {
+        console.log(err)
+        this.$q.loading.hide()
+      }, 
+      { 
+        timeout: 5000, 
+        maximumAge: 10000 
       });
     },
     /*

@@ -379,7 +379,7 @@ module.exports = {
       TouchWhereYouUseThisItem: "Touch where you use this item",
       YourLanguage: "Your language",
       NoFriend: "You have not friend yet",
-      YourRanking: "Your ranking",
+      YourRanking: "My ranking",
       Ranking: "Ranking",
       Like: "Like",
       NoNews: "No news yet",
@@ -398,8 +398,8 @@ module.exports = {
       PleaseUploadAFileInPNGFormat: "Please upload a file in PNG format with alpha transparency.",
       GPSCoordinates: "GPS coordinates",
       TerritoriesWon: "Conquest of territories",
-      YourWorldRanking: "Your global rank",
-      YourCityRanking: "Your rank in your city",
+      YourWorldRanking: "My global rank",
+      YourCityRanking: "My rank in my city",
       PlayAllQuestsInACityToWin: "Play all the quests of a city to conquest the territory",
       NoRankingYet: "Your rank is not yet computed, please wait for tomorrow",
       Challenge: "Challenge",
@@ -453,7 +453,8 @@ module.exports = {
       CreateAQuest: "Create a quest",
       NoThanks: "No thanks",
       Character: "Character",
-      Rankings: "Rankings"
+      Rankings: "Rankings",
+      UseMyCurrentGPSLocation: "Use my current GPS phone location"
     }
   },
   fr: {
@@ -835,7 +836,7 @@ module.exports = {
       TouchWhereYouUseThisItem: "Touchez l'endroit où vous utilisez cet objet",
       YourLanguage: "Votre langue",
       NoFriend: "Vous n'avez encore aucun ami",
-      YourRanking: "Votre classement",
+      YourRanking: "Mon classement",
       Ranking: "Classement",
       Like: "J'aime",
       NoNews: "Aucune actualité pour le moment",
@@ -854,8 +855,8 @@ module.exports = {
       PleaseUploadAFileInPNGFormat: "Veuillez télécharger une image avec transparence au format PNG",
       GPSCoordinates: "Coordonnées GPS",
       TerritoriesWon: "Conquête de territoires",
-      YourWorldRanking: "Votre classement mondial",
-      YourCityRanking: "Votre classement dans votre ville",
+      YourWorldRanking: "Mon classement mondial",
+      YourCityRanking: "Mon classement dans ma ville",
       PlayAllQuestsInACityToWin: "Jouez à toutes les enquêtes d'une ville pour conquérir le territoire",
       NoRankingYet: "Votre classement n'est pas encore calculé, veuillez attendre demain",
       Challenge: "Défier",
@@ -909,7 +910,8 @@ module.exports = {
       CreateAQuest: "Créer une enquête",
       NoThanks: "Non merci",
       Character: "Personnage",
-      Rankings: "Classements"
+      Rankings: "Classements",
+      UseMyCurrentGPSLocation: "Utiliser mes coordonnées GPS actuelles"
     }
   }
 }
