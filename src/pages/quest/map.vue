@@ -71,7 +71,7 @@
     
     <!--====================== SUCCESS PAGE =================================-->
     
-    <q-layout-drawer class="over-map" side="left" v-model="showSuccess">
+    <q-layout-drawer class="over-map" side="left" v-model="showSuccess" :width="innerWidth">
       
       <!------------------ TABS AREA ------------------------>
       
