@@ -394,9 +394,9 @@ export default {
         if (this.step.number === 2) {
           this.story.step = 5
         }
-        if (this.step.number === 3) {
+        /*if (this.step.number === 3) {
           this.story.step = 6
-        }
+        }*/
         if (this.step.number === 5) {
           this.story.step = 7
         }

@@ -7,7 +7,7 @@
       <div class="centered" v-show="run.score > 0 || run.reward > 0">    
         <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouWin') }}</h2>
         <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.score > 0 || run.reward === 0">{{ run.score }} <q-icon color="white" name="fas fa-trophy" /></h2>
-        <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.reward > 0">{{ run.reward }} <q-icon color="white" name="fas fa-coins" /></h2>
+        <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.reward > 0">{{ run.reward }} <q-icon color="white" name="fas fa-bolt" /></h2>
         <router-link to="/help/points" v-show="run.score > 0">{{ $t('label.WhatCanYouDoWithThesePoints') }}</router-link>
       </div>
       
@@ -27,7 +27,7 @@
       <!------------------ RATING AREA ------------------------>
       
       <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.reward <= 0">
-        <h3 class="size-2 q-ma-sm">{{ $t('label.RateThisQuest') }} (+2 <q-icon color="white" name="fas fa-coins" />)</h3>
+        <h3 class="size-2 q-ma-sm">{{ $t('label.RateThisQuest') }} (+2 <q-icon color="white" name="fas fa-bolt" />)</h3>
         <q-rating v-model="rating" :max="5" size="1.5rem" @input="rate" />
       </div>
       
@@ -56,8 +56,8 @@
    
       <!------------------ BACK TO MAP LINK AREA ------------------------>
       
-      <div class="back centered q-pa-md bg-primary">
-        <q-btn flat :label="$t('label.BackToTheMap')" @click="$router.push('/map')" />
+      <div class="back centered q-pa-md bg-primary text-primary">
+        <q-btn class="text-primary bg-white" :label="$t('label.BackToTheMap')" @click="$router.push('/map')" />
       </div>
       
     </div>
@@ -167,7 +167,7 @@
     
     <!--====================== WIN COINS ANIMATION =================================-->
       
-    <div v-if="level.upgraded" class="fadein-message">+100 <q-icon color="white" name="fas fa-coins" /></div>
+    <div v-if="level.upgraded" class="fadein-message">+100 <q-icon color="white" name="fas fa-bolt" /></div>
         
   </div>
 </template>

@@ -3,13 +3,13 @@
     <div :style="'position: fixed; bottom: ' + steps[currentStep.id].bottom + 'px;'">
       <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
       <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
-        <p v-html="$t('story.' + steps[currentStep.id].discussions[currentStep.discussionId].text, data)"></p>
+        <p class="tilt" v-html="$t('story.' + steps[currentStep.id].discussions[currentStep.discussionId].text, data)"></p>
         <div class="right">
           <a v-if="steps[currentStep.id].discussions[currentStep.discussionId].link" @click="linkAction">
             {{ $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].link.label) }}
           </a> &nbsp;
           <q-btn color="primary" @click="next">
-            {{ steps[currentStep.id].discussions[currentStep.discussionId].hasOwnProperty("button") ? $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].button.label) : $t('label.Next') + '>>' }}
+            {{ steps[currentStep.id].discussions[currentStep.discussionId].hasOwnProperty("button") ? $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].button.label) : $t('label.Next') + ' >>' }}
           </q-btn>
         </div>
       </div>
@@ -39,6 +39,9 @@ export default {
             {character: "2", text: "PresentSecretary2", condition: null},
             {character: "3", text: "PresentIndicator1", condition: null},
             {character: "3", text: "PresentIndicator2", condition: null},
+            {character: "1", text: "MapExplaination1", condition: null},
+            {character: "1", text: "MapExplaination2", condition: null},
+            {character: "1", text: "MapExplaination3", condition: null},
             {character: "1", text: "StartPlaying", condition: null, nextStep: 3}
           ],
           bottom: 0
@@ -88,11 +91,12 @@ export default {
           discussions: [
             {character: "1", text: "DiscoveryQuest8", condition: null},
             {character: "1", text: "DiscoveryQuest9", condition: null},
-            {character: "1", text: "DiscoveryQuest10", condition: null, nextStep: 6}
+            {character: "1", text: "DiscoveryQuest10", condition: null},
+            {character: "1", text: "DiscoveryQuest10b", condition: null, nextStep: 7}
           ],
           bottom: 50
         },
-        // step 6 - Discovery quest
+        // step 6 - Not used any more
         {
           discussions: [
             {character: "1", text: "DiscoveryQuest11", condition: null},
@@ -119,7 +123,8 @@ export default {
         // step 9 - End of first quest
         {
           discussions: [
-            {character: "1", text: "EndQuest1", condition: null},
+            {character: "1", text: "EndQuest1", condition: (this.data && this.data.hasOwnProperty("score") && this.data.score > 80)},
+            {character: "1", text: "EndQuest1b", condition: (this.data && this.data.hasOwnProperty("score") && this.data.score <= 0)},
             {character: "1", text: "EndQuest2", condition: (this.data && this.data.discovery)},
             {character: "1", text: "EndQuest3", condition: (this.data && this.data.hasOwnProperty("progress") && this.data.progress > 80)},
             {character: "1", text: "EndQuest4", condition: (this.data && this.data.discovery)},
@@ -141,11 +146,11 @@ export default {
             {character: "1", text: "RankingDescription1", condition: null},
             {character: "1", text: "RankingDescription2", condition: null},
             {character: "1", text: "RankingDescription3"},
-            {character: "1", text: "RankingDescription4", condition: null, nextStep: 12}
+            {character: "1", text: "RankingDescription4", condition: null, nextStep: 13}
           ],
           bottom: 0
         },
-        // step 12 - Complete profile
+        // step 12 - Complete profile - Not used anymore
         {
           discussions: [
             {character: "2", text: "CompleteProfile1", condition: null},
@@ -199,6 +204,9 @@ export default {
     this.currentStep.discussionId = 0
     this.nextStep = this.step
     this.hide = false
+    while (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].condition === false) {
+      this.currentStep.discussionId++
+    }
   },
   methods: {
     /*

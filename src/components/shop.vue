@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p class="q-ml-md">Pendant les tests, les pièces sont gratuites !</p>
+    <p class="q-ml-md">Pendant les tests, l'énergie est gratuite !</p>
     <q-list highlight>
       <q-list-header>{{ $t('label.Coins') }}</q-list-header>
       <q-item>
@@ -28,7 +28,7 @@
     
     <!--====================== WIN COINS ANIMATION =================================-->
       
-    <div v-if="coinsWon && coinsWon > 0" class="fadein-message">+{{ coinsWon }} <q-icon color="white" name="fas fa-coins" /></div>
+    <div v-if="coinsWon && coinsWon > 0" class="fadein-message">+{{ coinsWon }} <q-icon color="white" name="fas fa-bolt" /></div>
         
   </div>
 </template>

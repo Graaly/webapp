@@ -152,6 +152,15 @@ span .q-icon {
 .dark-background .q-if-label {
   color: #fff;
 }
+.dark-background .q-input-target, .dark-background .q-input-shadow {
+  color: #fff;
+}
+.dark-background .q-if-label, .dark-background .q-if-addon, .dark-background .q-if-control {
+  color: #fff;
+}
+.dark-background .q-if-error:before, .dark-background .q-if-error:after, .dark-background .q-if-error:not(.q-if-inverted) .q-if-label {
+  color: #fff;
+}
 .q-field {
   margin: 0 0 5vw 0;
 }
@@ -166,18 +175,6 @@ form {
 }
 .q-btn {
   margin: 0.3rem 0; 
-}
-.dark-background .q-if:after {
-  background-color: #fff;
-}
-.dark-background .q-input-target, .dark-background .q-input-shadow {
-  color: #fff;
-}
-.dark-background .q-if-label, .dark-background .q-if-addon, .dark-background .q-if-control {
-  color: #fff;
-}
-.dark-background .q-if-error:before, .dark-background .q-if-error:after, .dark-background .q-if-error:not(.q-if-inverted) .q-if-label {
-  color: #fff;
 }
 .location-address { 
   display: flex; 
@@ -602,7 +599,7 @@ form {
   padding: 0 15px;
   background-position: top left !important;
   background-size: 100% !important;
-  max-height: 160px;
+  max-height: 200px;
   overflow-y: auto;
 }
 .story .bubble-top img, .story .bubble-bottom img {
@@ -612,6 +609,9 @@ form {
 }
 .story .character img {
   width: 100%
+}
+.story-container {
+  z-index: 7000
 }
 #q-app .bg-facebook {
   background: #4267B2;
@@ -642,6 +642,12 @@ form {
   background-size: 16px;
   width: 60px;
   padding-right: 18px;
+}
+.tilt{
+  /*transform: rotateY(-3deg);
+  -moz-transform: rotateY(-3deg);
+  -webkit-transform: rotateY(-3deg);
+  -khtml-transform: rotateY(-3deg);*/
 }
 
 /////////////////////////////////////////////////////////// OLD CSS ///////////////////////////////////////////////////////////////////// 

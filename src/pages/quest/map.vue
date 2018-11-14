@@ -17,7 +17,7 @@
         @dragend="dragEnd($event)"
         @click="closeInfoWindows()"
       >
-        <gmap-marker :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()" />
+        <gmap-marker :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()" @click="openDiscoveryQuest()" />
         
         <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="setMapIcon(quest)"
           @click="openQuestSummary(quest, index)" />
@@ -66,7 +66,10 @@
       </div>
     </div>
     <div class="coin-box">
-      <div class="q-pa-md score-text"><q-icon name="fas fa-coins" /> {{ $store.state.user.coins }} <q-icon name="add_circle" v-if="$store.state.user.coins < 200" @click.native="buyCoins()" color="primary" /></div>
+      <div class="q-pa-md score-text">
+        <q-icon name="fas fa-bolt" /> {{ $store.state.user.coins }} 
+        <q-icon name="add_circle" v-if="$store.state.user.coins < 200" @click.native="buyCoins()" color="primary" />
+      </div>
     </div>
     
     <!--====================== SUCCESS PAGE =================================-->
@@ -144,7 +147,7 @@
               {{ quest.score }} <q-icon name="fas fa-trophy" />
             </q-item-side>
             <q-item-side right class="score" v-if="quest.questData.type && quest.questData.type !== 'quest'">
-              {{ quest.reward }} <q-icon name="fas fa-coins" />
+              {{ quest.reward }} <q-icon name="fas fa-bolt" />
             </q-item-side>
           </q-item>
           <q-item v-if="success.quests.played.length === 0">
@@ -172,7 +175,7 @@
             <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
             <div v-if="!$store.state.user.picture" :style="'background-image: url(statics/icons/game/profile-small.png); background-color: #fff;'"></div>
             <label for="picturefile">{{ $t('label.Edit') }}</label>
-          <input @change="uploadImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;">
+            <input @change="uploadImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;">
           </div>
         </div>
         <div class="col">
@@ -480,7 +483,7 @@
     
     <!--====================== STORY =================================-->
     
-    <div class="fixed-bottom over-map fit" v-if="story.step !== null">
+    <div class="fixed-bottom story-container fit" v-if="story.step !== null">
       <story :step="story.step" :data="story.data" @next="endStory"></story>
     </div>
        
@@ -709,6 +712,9 @@ export default {
         this.story.step = 0
       }
       if (this.$store.state.user.story.step === 10) {
+        this.story.data = {
+          score: this.$store.state.user.score
+        }
         this.story.step = 10
       }
     },
@@ -772,10 +778,6 @@ export default {
         infoWindow.isOpen = true
         // center map on last clicked quest
         this.panTo(questCoordinates)
-      }
-      // story
-      if (this.$store.state.user.story.step === 3) {
-        this.story.step = 3
       }
     },
      /*
@@ -842,11 +844,6 @@ export default {
      * Open the search menu
      */
     openSearchOptions() {
-      // story
-      if (this.$store.state.user.story.step === 13) {
-        this.story.step = 13
-      }
-      
       if (this.showSuccess) {
         this.showSuccess = false
       } else if (this.showProfile) {
@@ -974,11 +971,7 @@ export default {
       
       await this.loadFriends()
       //await this.loadNews()
-      
-      // story
-      if (this.$store.state.user.story.step === 12) {
-        this.story.step = 12
-      }
+
       if (this.$store.state.user.story.step === 14) {
         this.story.step = 14
       }
@@ -1298,6 +1291,19 @@ export default {
      */
     closeRanking () {
       this.ranking.show = false
+      // story
+      if (this.$store.state.user.story.step === 13) {
+        this.story.step = 13
+      }
+    },
+    /*
+     * Open the discovery quest
+     */
+    openDiscoveryQuest () {
+      // story
+      if (this.$store.state.user.story.step === 3) {
+        this.story.step = 3
+      }
     }
   },
   validations: {

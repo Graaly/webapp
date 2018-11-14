@@ -5,7 +5,7 @@
       <div class="grow">
         <div class="centered" v-html="$t('label.andWin')"></div>
         <div class="row q-pa-md">
-          <div class="col score-text centered">600 <q-icon color="warning" name="fas fa-coins" /></div>
+          <div class="col score-text centered">600 <q-icon color="warning" name="fas fa-bolt" /></div>
           <div class="col centered">
             <q-icon color="positive" size="2rem" name="fas fa-money-bill-wave" /> <br />
             {{ $t('label.SomeMoney') }} 
