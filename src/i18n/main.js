@@ -455,9 +455,11 @@ module.exports = {
       Character: "Character",
       Rankings: "Rankings",
       UseMyCurrentGPSLocation: "Use my current GPS phone location",
-      MarkersFile: "Markers file",
-      ChooseTheMarker: "Choose the marker",
-      Download: "Download"
+      MarkersFile: "Symbols file",
+      ChooseTheMarker: "Choose the symbol",
+      Download: "Download",
+      Marker: "Symbol",
+      Choose: "Choose..."
     }
   },
   fr: {
@@ -920,9 +922,11 @@ module.exports = {
       Character: "Personnage",
       Rankings: "Classements",
       UseMyCurrentGPSLocation: "Utiliser mes coordonnées GPS actuelles",
-      MarkersFile: "Fichier de marqueurs",
-      ChooseTheMarker: "Choisissez le marqueur",
-      Download: "Télécharger"
+      MarkersFile: "Fichier de symboles",
+      ChooseTheMarker: "Choisissez le symbole",
+      Download: "Télécharger",
+      Marker: "Symbole",
+      Choose: "Choisir..."
     }
   }
 }

@@ -418,9 +418,30 @@
     
     <!------------------ STEP : FIND AR MARKER ------------------------>
     
-    <div class="locate-marker" v-if="options.code === 'locate-marker'">
-      <h2>{{ $t('label.ChooseTheMarker') }}</h2>
-      <q-select v-model="selectedStep.form.answers" :options="selectMarkerOptions" />
+    <div class="locate-marker" v-if="options.code === 'locate-marker' && typeof selectedStep.form.answers === 'string'">
+      <h2>{{ $t('label.Marker') }}</h2>
+      
+      <p>
+        <img :src="'statics/markers/' + selectedStep.form.answers + '/marker.png'" />
+        <span>{{ selectedStep.form.answers }}</span>
+        <q-btn color="primary" :label="$t('label.Choose')" @click="openChooseMarkerModal()" />
+      </p>
+      
+      <q-modal v-model="markerModalOpened">
+        <h2>{{ $t('label.ChooseTheMarker') }}</h2>
+        
+        <q-btn v-for="(option, key) in markersList" :key="key" color="white" class="full-width" @click="selectMarker(option)">
+          <img :src="'statics/markers/' + option + '/marker.png'" />
+          <span>{{ option }}</span>
+        </q-btn>
+        
+        <q-btn
+          color="primary"
+          class="full-width"
+          @click="closeChooseMarkerModal()"
+          label="Cancel"
+        />
+      </q-modal>
     </div>
     
     <!------------------ OTHER OPTIONS ------------------------>
@@ -506,6 +527,7 @@ export default {
       },
       stepTypes,
       objectsList,
+      markersList,
       titleMaxLength: 50,
       imageSource: '',
       
@@ -544,7 +566,7 @@ export default {
       selectModel3DOptions: [],
       
       // for 'locate-marker'
-      selectMarkerOptions: []
+      markerModalOpened: false
     }
   },
   computed: {
@@ -776,12 +798,6 @@ export default {
           this.selectModel3DOptions.push({label: modelsList[key].name[this.$store.state.user.language], value: key})
         }
       } else if (this.options.code === 'locate-marker') {
-        markersList.forEach((markerCode) => {
-          this.selectMarkerOptions.push({
-            label: markerCode,
-            value: markerCode
-          })
-        })
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.$set(this.selectedStep.form, 'answers', markersList[0])
         }
@@ -1267,6 +1283,16 @@ export default {
       // (value.match(/\n/g) || []).length counts number of carriage returns in value.
       // see https://stackoverflow.com/q/881085/488666
       return value.length <= maxNbChars && (value.match(/\n/g) || []).length <= maxNbCarriageReturns
+    },
+    openChooseMarkerModal() {
+      this.markerModalOpened = true
+    },
+    closeChooseMarkerModal() {
+      this.markerModalOpened = false
+    },
+    selectMarker(code) {
+      this.selectedStep.form.answers = code
+      this.closeChooseMarkerModal()
     }
   },
   validations() {
@@ -1364,6 +1390,11 @@ p { margin-bottom: 0.5rem; }
 .code-image td .q-icon { font-size: 2em }
 
 .locate-item-ar .q-radio { padding:0.5rem 1rem; }
+
+.locate-marker p, .modal .q-btn { display: flex; align-items: center; }
+.locate-marker p img, .modal .q-btn img { width: 20vw; height: 20vw; flex-grow: 0 }
+.locate-marker p span, .modal .q-btn span { flex-grow: 1; color: #000; }
+.locate-marker p .q-btn { flex-grow: 0 }
 
 .fields-group { padding: 0.5rem; margin: 0.5rem; border: 1px solid #999; border-radius: 0.5rem; }
 
