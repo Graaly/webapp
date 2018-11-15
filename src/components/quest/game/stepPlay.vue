@@ -747,7 +747,6 @@ export default {
             }
             let material = new THREE.MeshBasicMaterial({map: texture})
             object = new THREE.Mesh(geometry, material)
-            object.rotation.x = Math.PI / 2
             object.position.y = 0
           }
           
@@ -1788,6 +1787,7 @@ export default {
       if (!this.step.options.is3D) {
         let plane = target.scene.getObjectByName('targetObject')
         plane.lookAt(target.camera.position)
+        plane.rotation.z = Math.PI
       }
       // animation
       if (mixers.length > 0) {
