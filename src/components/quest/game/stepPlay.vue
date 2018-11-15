@@ -1447,12 +1447,7 @@ export default {
         }
       }
       
-      let distanceToSuccess = {
-        'geolocation': 20,
-        'locate-item-ar': 3
-      }
-      
-      if (this.geolocation.distance <= distanceToSuccess[this.step.type]) {
+      if (this.step.type === 'geolocation' && this.geolocation.distance <= 20) {
         navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
         await this.checkAnswer(current)
       }

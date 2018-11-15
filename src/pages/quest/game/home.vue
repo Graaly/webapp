@@ -261,7 +261,7 @@ export default {
           level3: (this.quest.level === 3 ? 'red' : 'grey'),
           startingPlace: this.quest.startingPlace,
           duration: this.quest.duration,
-          isFar: (this.isUserTooFar && this.quest.allowRemotePlay),
+          isFar: (this.isUserTooFar && !this.quest.allowRemotePlay),
           isRunFinished: this.isRunFinished,
           isOwner: (typeof this.quest.author !== 'undefined' && this.quest.author._id === this.$store.state.user._id),
           description: (this.getLanguage() ? this.quest.description[this.getLanguage()] : ""),
