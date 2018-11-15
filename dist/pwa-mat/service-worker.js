@@ -11,10 +11,10 @@
  * See https://goo.gl/2aRDsh
  */
 
-importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.3.0/workbox-sw.js");
+importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.596573863d8a4d4e57927a73581230b3.js"
+  "precache-manifest.81715e5efc64be32388d685e5b4941a8.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "graaly-frontend"});
