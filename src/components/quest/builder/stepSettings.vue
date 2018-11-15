@@ -341,7 +341,7 @@
       </q-field>
       <div v-if="selectedStep.form.answerItem !== null">
         {{ $t('label.SelectedObject') }} :
-        <img :src="(selectedStep.form.answerItem.indexOf('statics/') !== -1 ? selectedStep.form.answerItem : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.answerItem)" />
+        <img style="width: 100%" :src="(selectedStep.form.answerItem.indexOf('statics/') !== -1 ? selectedStep.form.answerItem : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.answerItem)" />
       </div>
     </div>
     
@@ -445,6 +445,7 @@
     </div>
     
     <!------------------ OTHER OPTIONS ------------------------>
+    
     <q-list v-show="options.hasOptions" separator>
       <q-collapsible icon="add_box" :label="$t('label.OtherOptions')">
         <div v-if="options.code == 'geolocation'" class="location-gps">
@@ -467,6 +468,16 @@
             <a @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
           </div>
         </div>
+        <q-field>
+          <q-input
+            :float-label="$t('label.ExtraTextFieldLabel')"
+            v-model="selectedStep.form.extraText[lang]"
+            type="textarea"
+            :max-height="100"
+            :min-rows="4"
+            class="full-width"
+          />
+        </q-field>
       </q-collapsible>
     </q-list>
     
@@ -521,6 +532,7 @@ export default {
         form: {
           title: {},
           text: {},
+          extraText: {},
           options: {},
           hint: {}
         }
@@ -613,6 +625,7 @@ export default {
       this.selectedStep.form = {
         title: {}, // {fr: 'mon titre', en: 'my title', ...}
         text: {}, // {fr: 'ma description', en: 'my description', ...}
+        extraText: {}, // {fr: 'ma description', en: 'my description', ...}
         answers: {}, // using null triggers lots of "undefined property" errors complex to handle, due to nested objects + using them like v-model="form.answers.level" + template rendering executed before "mounted()"
         options: {},
         backgroundImage: null,
@@ -681,6 +694,12 @@ export default {
           this.$set(this.selectedStep.form.text, this.lang, this.selectedStep.form.text[this.quest.mainLanguage])
         }
       }
+      // define the default text/question for the step
+      if (!this.selectedStep.form.extraText[this.lang] || this.selectedStep.form.extraText[this.lang] === '') {
+        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.extraText[this.quest.mainLanguage] !== '') {
+          this.$set(this.selectedStep.form.extraText, this.lang, this.selectedStep.form.extraText[this.quest.mainLanguage])
+        }
+      }
       
       // define the default hint for the step
       if (!this.selectedStep.form.hint[this.lang] || this.selectedStep.form.hint[this.lang] === '') {
@@ -690,11 +709,6 @@ export default {
       }
       
       // initialize specific steps
-      if (this.options.code === 'character') {
-        if (!this.selectedStep.form.options.character) {
-          this.selectedStep.form.options.character = "1"
-        }
-      }
       if (this.options.code === 'choose') {
         if (!Array.isArray(this.selectedStep.form.options)) {
           this.answerType = 'text'
@@ -820,6 +834,11 @@ export default {
         if (this.answerType === 'text') {
           // clear all images => playStep.vue will consider that player should choose between text options
           this.selectedStep.form.options = this.selectedStep.form.options.map((option) => { option.imagePath = null; return option })
+        }
+      }
+      if (this.options.code === 'character') {
+        if (!this.selectedStep.form.options.character) {
+          this.selectedStep.form.options.character = "1"
         }
       }
       if (this.options.code === 'code-color') {

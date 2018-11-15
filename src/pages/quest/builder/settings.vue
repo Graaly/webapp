@@ -764,9 +764,9 @@ export default {
      * close overview page
      */
     async closeOverview() {
+      this.resetStepData()
       this.closeAllPanels()
       await this.refreshStepsList()
-      this.resetStepData()
       this.steps.showNewStepOverview = false
       this.tabs.selected = 'steps'
     },

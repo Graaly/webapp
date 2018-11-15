@@ -101,6 +101,7 @@ export default {
      * Manage login
      */
     async formSubmit() {
+      this.submitting = true
       //if (!this.$v.form.$error) {
       switch (this.step) {
         case 'email':
@@ -151,8 +152,6 @@ export default {
             // check validation code
             let changePasswordStatus = await AuthService.changePassword(this.form.email, this.form.newPassword, this.form.code)
             
-            this.submitting = true
-            
             if (changePasswordStatus.status && changePasswordStatus.status === 200) {
               let destination = '/home';
               if (this.$route.query.hasOwnProperty('redirect')) {
@@ -164,12 +163,10 @@ export default {
             } else {
               Notification(this.$t('label.IncorrectCodePleaseRetry'), 'warning')
             }
-            
-            this.submitting = false
           }
           break
-        //}
       }
+      this.submitting = false
     },
     /*
      * Manage back button actions

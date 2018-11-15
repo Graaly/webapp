@@ -4,7 +4,7 @@
       <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
       <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
         <p class="tilt" v-html="$t('story.' + steps[currentStep.id].discussions[currentStep.discussionId].text, data)"></p>
-        <div class="right">
+        <div class="text-right">
           <a v-if="steps[currentStep.id].discussions[currentStep.discussionId].link" @click="linkAction">
             {{ $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].link.label) }}
           </a> &nbsp;
@@ -96,11 +96,10 @@ export default {
           ],
           bottom: 50
         },
-        // step 6 - Not used any more
+        // step 6 - Read more text in quests
         {
           discussions: [
-            {character: "1", text: "DiscoveryQuest11", condition: null},
-            {character: "1", text: "DiscoveryQuest12", condition: null, nextStep: 7}
+            {character: "2", text: "readMore", button: {label: "OkThanks"}, condition: null}
           ],
           bottom: 50
         },
@@ -185,7 +184,7 @@ export default {
         {
           discussions: [
             {character: "1", text: "StartNewQuest1", condition: null},
-            {character: "1", text: "StartNewQuest2", condition: (this.data !== null && this.data.hasOwnProperty("questId")), button: {label: "letsGo", action: "/quest/play/" + ((this.data && this.data.hasOwnProperty("questId")) ? this.data.hasOwnProperty("questId") : '0')}, link: {label: "NoThanks"}},
+            {character: "1", text: "StartNewQuest2", condition: (this.data !== null && this.data.hasOwnProperty("questId")), button: {label: "letsGo", action: "/quest/play/" + ((this.data && this.data.hasOwnProperty("questId")) ? this.data.questId : '0')}, link: {label: "NoThanks"}},
             {character: "1", text: "StartNewQuest3", condition: null}
           ],
           bottom: 0

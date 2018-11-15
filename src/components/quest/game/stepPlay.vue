@@ -7,9 +7,6 @@
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
         <div id="info-clickable" :class="{ grow: !step.videoStream }">
           <p class="text">{{ getTranslatedText() }}</p>
-          <div>
-            <div class="text right" v-show="playerResult">{{ $t('label.ClickOnArrowToMoveToNextStep') }}</div>
-          </div>
         </div>
         <div class="video" v-if="step.videoStream">
           <video class="full-width" controls controlsList="nodownload" autoplay>
@@ -33,18 +30,12 @@
           <img style="width: 80%" :src="(step.options.picture.indexOf('statics/') > -1 ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
           <p>{{ step.options.title }}</p>
         </div>
-        <div>
-          <div class="text right" v-show="playerResult">{{ $t('label.ClickOnArrowToMoveToNextStep') }}</div>
-        </div>
       </div>
             
       <!------------------ CHARACTER STEP AREA ------------------------>
       
       <div class="character" v-if="step.type == 'character'">
         <div class="fixed-bottom story" style="bottom: 50px">
-          <div>
-            <div class="text right" v-show="playerResult">{{ $t('label.ClickOnArrowToMoveToNextStep') }}</div>
-          </div>
           <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
           <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
             <p>{{ getTranslatedText() }}</p>
@@ -75,9 +66,6 @@
             </div>
           </div>
         </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult !== null">
-          <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('label.GoodAnswer') : $t('label.WrongAnswer') }}</div>
-        </div>
       </div>
       
       <!------------------ KEYPAD STEP AREA ------------------------>
@@ -101,14 +89,10 @@
           </div>
         </div>
         <div class="actions buttons-bottom" v-show="playerResult === null">
-          <div v-if="nbTry === 1" class="text wrong">{{ $t('label.SecondTry') }}</div>
           <div>
             <q-btn color="primary" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('label.Clear') }}</q-btn>
             <q-btn color="primary" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()">{{ $t('label.Confirm') }}</q-btn>
           </div>
-        </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult !== null">
-           <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('label.GoodAnswer') : $t('label.WrongGoodCodeWas') + " " + step.answers }}</div>
         </div>
       </div>
       
@@ -123,13 +107,9 @@
         </div>
         
         <div class="actions buttons-bottom" v-show="playerResult === null">
-          <div v-if="nbTry === 1" class="text wrong">{{ $t('label.SecondTry') }}</div>
           <div>
             <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('label.Confirm') }}</q-btn>
           </div>
-        </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult !== null">
-           <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('label.GoodAnswer') : $t('label.WrongAnswer') }}</div>
         </div>
       </div>
       
@@ -158,13 +138,9 @@
         </table>
         
         <div class="actions buttons-bottom" v-show="playerResult === null">
-          <div v-if="nbTry === 1" class="text wrong">{{ $t('label.SecondTry') }}</div>
           <div>
             <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('label.Confirm') }}</q-btn>
           </div>
-        </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult !== null">
-           <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('label.GoodAnswer') : $t('label.WrongAnswer') }}</div>
         </div>
       </div>
       
@@ -186,7 +162,6 @@
             <q-btn color="primary" @click="toggleCameraStream()" icon="clear">{{ $t('label.Cancel') }}</q-btn>
             <q-btn color="primary" @click="checkAnswer()" icon="done">{{ $t('label.Check') }}</q-btn>
           </div>
-          <div class="text resultMessage" :class="playerResult ? 'right' : 'wrong'" v-show="playerResult !== null">{{ playerResult ? $t('label.WellDone') : $t('label.PhotosDoesntMatch') }}</div>
         </div>
       </div>
       
@@ -205,9 +180,6 @@
         <div class="direction-helper" v-if="step.showDirectionToTarget">
           <canvas id="direction-canvas"></canvas>
         </div>
-        <div class="resultMessage buttons-bottom" >
-          <div class="text right" v-show="playerResult">{{ $t('label.YouHaveFoundThePlace') }}</div>
-        </div>
       </div>
       
       <!------------------ SIMPLE TEXT INPUT STEP AREA ------------------------>
@@ -219,12 +191,6 @@
         <div class="answer-text">
           <input v-model="writetext.playerAnswer" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" />
           <q-btn color="primary" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
-        </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult === null && nbTry >0 && nbTry < 2">
-          <div class="text wrong">{{ $t('label.SecondTry') }}</div>
-        </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult !== null">
-          <div class="text" :class="playerResult ? 'right' : 'wrong'">{{ playerResult ? $t('label.GoodAnswer') : $t('label.WrongAnswer') }}</div>
         </div>
       </div>
       
@@ -244,9 +210,6 @@
             ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'"></header></div>
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
-        <div class="resultMessage buttons-bottom" v-show="playerResult === true ">
-          <div class="text right">{{ $t('label.WellDone') }}</div>
-        </div>
       </div>
       
       <!------------------ MEMORY STEP AREA ------------------------>
@@ -260,9 +223,6 @@
             <img :src="serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
           </li>
         </ul>
-        <div class="resultMessage buttons-bottom" v-show="playerResult === true ">
-          <div class="text right">{{ $t('label.WellDone') }}</div>
-        </div>
       </div>
       
       <!------------------ USE ITEM STEP AREA ------------------------>
@@ -273,15 +233,6 @@
         </div>
         <div ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + step.questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
-        </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 2">
-          <div class="text wrong">{{ $t('label.SecondTry') }}</div>
-        </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry === 2">
-          <div class="text wrong">{{ $t('label.WrongAnswer') }}</div>
-        </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult === true">
-          <div class="text right">{{ $t('label.WellDone') }}</div>
         </div>
       </div>
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
@@ -299,15 +250,6 @@
         </div>
         <div ref="findItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + step.questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
-        </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry >0 && nbTry < 2">
-          <div class="text wrong">{{ $t('label.SecondTry') }}</div>
-        </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry === 2">
-          <div class="text wrong">{{ $t('label.WrongAnswer') }}</div>
-        </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult === true">
-          <div class="text right">{{ $t('label.WellDone') }}</div>
         </div>
       </div>
       
@@ -327,7 +269,6 @@
           <canvas id="target-canvas" @click="onTargetCanvasClick"></canvas>
         </div>
         <div class="resultMessage buttons-bottom" v-show="playerResult">
-          <div class="text right">{{ $t('label.YouHaveWinANewItem') }}</div>
           <img ref="itemImage" v-if="!step.options.is3D" />
         </div>
       </div>
@@ -344,15 +285,6 @@
         <div class="marker-view" v-show="!playerResult">
           <canvas id="marker-canvas"></canvas>
         </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult !== true && nbTry > 0 && nbTry < 2">
-          <div class="text wrong">{{ $t('label.SecondTry') }}</div>
-        </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult === false && nbTry === 2">
-          <div class="text wrong">{{ $t('label.WrongAnswer') }}</div>
-        </div>
-        <div class="resultMessage buttons-bottom" v-show="playerResult === true">
-          <div class="text right">{{ $t('label.WellDone') }}</div>
-        </div>
       </div>
       
     </div>
@@ -361,6 +293,13 @@
     
     <div v-show="playerResult === true && score > 0" class="fadein-message">+{{ score }} <q-icon color="white" name="fas fa-trophy" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
+    
+    <!--====================== STORY =================================-->
+    
+    <div class="fixed-bottom over-map" v-if="story.step !== null && story.step !== 'end'">
+      <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
+    </div>
+    
   </div>
   
 </template>
@@ -375,6 +314,7 @@ import modelsList from 'data/3DModels.json'
 import markersList from 'data/markers.json'
 
 import Notification from 'plugins/NotifyHelper'
+import story from 'components/story'
 
 import Vue from 'vue'
 
@@ -400,11 +340,17 @@ export default {
    * lang : language of the step (fr, en, ...)
    */
   props: ['step', 'runId', 'reload', 'itemUsed', 'lang'],
+  components: {
+    story
+  },
   watch: { 
     // refresh component if stepId change
     reload: async function(newVal, oldVal) {
       if (newVal === true || newVal === 'true') {
         await this.initData()
+      }
+      if (newVal === false || newVal === 'false') {
+        this.hideReadMoreAlert()
       }
     }
   },
@@ -498,9 +444,13 @@ export default {
           selectedKey: null,
           disabled: false
         },
-        
+        story: {
+          step: null,
+          data: null
+        },
         // for step type 'find-item'
-        itemAdded: null
+        itemAdded: null,
+        readMoreNotif: null
       }
     },
     /*
@@ -966,6 +916,7 @@ export default {
             if (this.nbTry < 2) {
               // reset code
               this.resetKeypadCode()
+              this.submitRetry()
             } else {
               this.submitWrongAnswer()
             }
@@ -982,6 +933,7 @@ export default {
             if (this.nbTry < 2) {
               // reset code
               this.resetColorCode()
+              this.submitRetry()
             } else {
               this.submitWrongAnswer()
             }
@@ -998,6 +950,7 @@ export default {
             if (this.nbTry < 2) {
               // reset code
               this.resetImageCode()
+              this.submitRetry()
             } else {
               this.submitWrongAnswer()
             }
@@ -1029,6 +982,7 @@ export default {
             if (this.nbTry < 2) {
               // reset field
               this.writetext.playerAnswer = ""
+              this.submitRetry()
             } else {
               this.submitWrongAnswer()
             }
@@ -1099,6 +1053,8 @@ export default {
                 this.stopVideoTracks('camera-stream-for-locate-marker')
                 this.locateMarker.scene = new THREE.Scene()
                 this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera);
+              } else {
+                this.submitRetry()
               }
             }
           }
@@ -1119,6 +1075,38 @@ export default {
       this.playerResult = true
       this.$emit('success', score)
       this.$emit('played')
+      
+      this.displayReadMoreAlert()
+      
+      switch (this.step.type) {
+        case 'character': 
+        case 'new-item': 
+        case 'info-text': 
+        case 'info-video': 
+          this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'))
+          break
+        case 'choose':
+        case 'code-keypad':
+        case 'code-color':
+        case 'code-image':
+          this.displaySuccessMessage(true, this.$t('label.GoodAnswer'))
+          break
+        case 'image-recognition':
+        case 'write-text':
+        case 'jigsaw-puzzle':
+        case 'memory':
+        case 'use-item':
+        case 'find-item':
+        case 'locate-marker':
+          this.displaySuccessMessage(true, this.$t('label.WellDone'))
+          break
+        case 'geolocation':
+          this.displaySuccessMessage(true, this.$t('label.YouHaveFoundThePlace'))
+          break
+        case 'locate-item-ar':
+          this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'))
+          break
+      }
     },
     /*
      * Send wrong answer 
@@ -1127,6 +1115,41 @@ export default {
       this.playerResult = false
       this.$emit('fail')
       this.$emit('played')
+      
+      this.displayReadMoreAlert()
+      
+      if (this.step.type === 'image-recognition') {
+        this.displaySuccessMessage(false, this.$t('label.PhotosDoesntMatch'))
+      } else {
+        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
+      }
+    },
+    /*
+     * Display the read more alert
+     */
+    displayReadMoreAlert() {
+      if (this.step.extraText && typeof this.step.extraText === 'object' && this.step.extraText[this.lang]) {
+        var actions = [
+          {
+            label: this.$t('label.ReadMore'),
+            handler: () => {
+              this.readMore()
+            }
+          }
+        ]
+        this.readMoreNotif = Notification(this.$t('label.ClickHereToKnowMore'), 'readMore', actions)
+      }
+    },
+    hideReadMoreAlert() {
+      if (this.readMoreNotif !== null) {
+        this.readMoreNotif()
+      }
+    },
+    /*
+     * Display retry message when wrong answer
+     */
+    submitRetry() {
+      this.displaySuccessMessage(false, this.$t('label.SecondTry'))
     },
     
     ////////////////////////////////////////////// MANAGEMENT OF THE ENIGMA COMPONENTS /////////////////////////////////////////////
@@ -1867,7 +1890,25 @@ export default {
         // loads automatically .bin and textures files if necessary
         gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
       })
+    },
+    /*
+    * Display the success message
+    */
+    displaySuccessMessage (success, message, actions) {
+      Notification(message, (success ? 'rightAnswer' : 'wrongAnswer'), actions)
+    },
+    /*
+    * Display read more text
+    */
+    readMore() {
+      if (this.step.extraText && typeof this.step.extraText === 'object' && this.step.extraText[this.lang]) {
+        this.story.step = 6
+        this.story.data = {
+          readMore: this.step.extraText[this.lang]
+        }
+      }
     }
+    
   }
 }
 </script>

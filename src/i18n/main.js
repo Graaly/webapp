@@ -96,6 +96,7 @@ module.exports = {
       YouAreQuestOwnerDesc: "You are the owner of this quest, you will not win any point",
       GeneralWarning: "For your safety, do not play Graaly driving or riding your bicycle, always be alert to what is happening around you, do not enter private property without permission, follow the safety rules when you move.",
       hint: "Hello, here is a hint : {hint}",
+      readMore: "<b>I can tell you more about this:</b><br />{readMore}",
       DiscoveryQuest1: "Before you start your first investigation, come with me, I'll show you the basics of the job",
       RankingDescription1: "The tab Ranking allows you to show off with other detectives!",
       RankingDescription2: "Under the picture <i aria-hidden='true' class='q-icon material-icons text-yellow-5'>public</i> is displayed your global ranking, and under the picture <i aria-hidden='true' class='q-icon material-icons text-yellow-5'>home</i> is displayed your local ranking",
@@ -424,7 +425,7 @@ module.exports = {
       ObjectIsTooFar: "The object is too far to be visible on screen. Try to get closer.",
       LastItemIsUniq: "Last picture is unique (no twin in the game)",
       YouMustDefineStartLocation: "You must define the location of the starting point of the quest",
-      ClickOnArrowToMoveToNextStep: "Touch the arrow to move to next step",
+      ClickOnArrowToMoveToNextStep: "Touch the right arrow to move to next step",
       YourQuestMustContainAtLeast6Steps: "Your quest is too short, you must create at least 6 steps",
       YourQuestMustContainLessThan50Steps: "Your quest is too long, you must create less than 50 steps",
       WarningNoLocation: "Searching your location...",
@@ -459,7 +460,10 @@ module.exports = {
       ChooseTheMarker: "Choose the symbol",
       Download: "Download",
       Marker: "Symbol",
-      Choose: "Choose..."
+      Choose: "Choose...",
+      ExtraTextFieldLabel: "'Know more' description",
+      ReadMore: "Read more",
+      ClickHereToKnowMore: "Press here to know more"
     }
   },
   fr: {
@@ -562,6 +566,7 @@ module.exports = {
       YouAreQuestOwnerDesc: "Vous êtes le <b>créateur de cette enquête</b>, elle ne vous rapportera aucun point",
       GeneralWarning: "<b>Pour votre sécurité</b>, ne jouez pas à Graaly en conduisant ou quand votre vélo est en mouvement, soyez toujours vigilant à ce qui se passe autour de vous, ne pénétrez pas dans des propriétés privées sans autorisation, respectez les règles de sécurité quand vous vous déplacez.",
       hint: "Salut, voici un indice :<br /><b>{hint}</b>",
+      readMore: "<b>Je peux vous en dire un peu plus à ce sujet:</b><br />{readMore}",
       DiscoveryQuest1: "Tu veux que je t'apprenne les ficelles du métier ?<br />Vient avec moi, nous allons <b>résoudre la première enquête ensemble</b>. Elle ne te coûte aucun point d'énergie <i aria-hidden='true' style='font-size: 1.5em' class='q-icon fas fa-bolt'> </i>",
       RankingDescription1: "Le <b>Classement</b> vous permet de frimer auprès des autres détectives !",
       RankingDescription2: "Vous pouvez voir <b>votre classement mondial</b> <i aria-hidden='true' class='q-icon material-icons'>public</i>, et <b>votre classement local</b> <i aria-hidden='true' class='q-icon material-icons'>home</i>.",
@@ -891,7 +896,7 @@ module.exports = {
       ObjectIsTooFar: "L'objet est trop éloigné pour être visible à l'écran. Essayez de vous rapprocher.",
       LastItemIsUniq: "La dernière image sera unique dans le jeu",
       YouMustDefineStartLocation: "Vous devez définir l'adresse du point de départ de l'enquête",
-      ClickOnArrowToMoveToNextStep: "Touchez la flèche pour passer à l'étape suivante",
+      ClickOnArrowToMoveToNextStep: "Appuyez sur la flèche en bas à droite pour passer à l'étape suivante",
       YourQuestMustContainAtLeast6Steps: "Votre enquête est trop courte, vous devez créer au moins 6 étapes",
       YourQuestMustContainLessThan50Steps: "Votre enquête est trop longue, vous devez créer moins de 50 étapes",
       WarningNoLocation: "Recherche de votre localisation ...",
@@ -926,7 +931,10 @@ module.exports = {
       ChooseTheMarker: "Choisissez le symbole",
       Download: "Télécharger",
       Marker: "Symbole",
-      Choose: "Choisir..."
+      Choose: "Choisir...",
+      ExtraTextFieldLabel: "Texte complémentaire 'En savoir plus'",
+      ReadMore: "En savoir +",
+      ClickHereToKnowMore: "Appuyer ici pour en savoir plus"
     }
   }
 }

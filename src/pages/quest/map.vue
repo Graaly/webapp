@@ -789,13 +789,16 @@ export default {
       } else {
         this.map.filter = type
       }
+      
+      this.$q.loading.show()
       let response = await QuestService.listNearest({ lng: this.user.position.longitude, lat: this.user.position.latitude }, this.map.filter)
+      this.$q.loading.hide()
       this.questList = response.data
       
       if (this.$store.state.user.story.step === 16) {
         // get the closest quest not already played
         var closestQuest = this.getClosestQuestUnplayed()
-        
+console.log(closestQuest)
         if (closestQuest !== null) {
           this.story.data = {
             questId: closestQuest._id,
@@ -929,10 +932,12 @@ export default {
      * Open the success page
      */
     openSuccessPage() {
+      this.$q.loading.show()
       if (!this.showSuccess) {
         this.listCreatedQuests(this.$store.state.user._id)
         this.listPlayedQuests(this.$store.state.user._id)
       }
+      this.$q.loading.hide()
       this.showSuccess = !this.showSuccess
       // story
       if (this.$store.state.user.story.step === 15) {
@@ -943,7 +948,9 @@ export default {
      * Get current user ranking data
      */
     async getRanking() {
+      this.$q.loading.show()
       let response = await UserService.getRanking()
+      this.$q.loading.hide()
       this.success.ranking = response.data
     },
     /*
@@ -966,12 +973,14 @@ export default {
      * Open the profile page
      */
     async openProfilePage() {
+      this.$q.loading.show()
       this.showProfile = !this.showProfile
       this.getProfileChangeData(this.$store.state.user._id)
       
       await this.loadFriends()
       //await this.loadNews()
-
+      this.$q.loading.hide()
+      
       if (this.$store.state.user.story.step === 14) {
         this.story.step = 14
       }
@@ -1004,19 +1013,23 @@ export default {
      * Like news
      */
     async like (index) {
+      this.$q.loading.show()
       this.friends.news.items[index].likes.push({userId: this.$store.state.user._id, date: new Date()})
       await UserService.likeNews(this.friends.news.items[index]._id)
+      this.$q.loading.hide()
     },
     /*
      * Unlike news
      */
     async unlike (index) {
+      this.$q.loading.show()
       for (var i = 0; i < this.friends.news.items[index].likes.length; i++) {
         if (this.friends.news.items[index].likes[i].userId === this.$store.state.user._id) {
           this.friends.news.items[index].likes.splice(i, 1)
         }
       }
       await UserService.unlikeNews(this.friends.news.items[index]._id)
+      this.$q.loading.hide()
     },
     // return true if the current user has liked the news
     isLiked (item) {
@@ -1034,9 +1047,11 @@ export default {
      * @param   {string}    id            ID of the friend
      */
     async openFriendCard(id) {
+      this.$q.loading.show()
       // load user data
       let friend = await UserService.getFriend(id)
       this.friends.selected = friend.data
+      this.$q.loading.hide()
       
       // display user page
       this.friends.show = true
@@ -1077,7 +1092,9 @@ export default {
           country: this.profile.form.country,
           language: this.profile.form.language
         }
+        this.$q.loading.show()
         let modificationStatus = await AuthService.modifyAccount(modifications)
+        this.$q.loading.hide()
         
         if (modificationStatus.status >= 300 && modificationStatus.data && modificationStatus.data.message) {
           Notification(modificationStatus.data.message, 'warning')
@@ -1108,10 +1125,12 @@ export default {
       reader.onload = (e) => {
         this.form.picture = e.target.result;
       };*/
+      this.$q.loading.show()
       let uploadPicture = await AuthService.uploadAccountPicture(data)
       if (uploadPicture) {
         this.$store.state.user.picture = uploadPicture.data.file
       }
+      this.$q.loading.hide()
     },
     /*
      * Disconnection

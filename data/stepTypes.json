@@ -41,7 +41,7 @@
     "showTrick": "no",
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": true
+    "hasOptions": false
   },
   {
     "category": "enigma",
@@ -71,7 +71,7 @@
     },
     "hasBackgroundImage": "no",
     "enabled": true,
-    "hasOptions": false
+    "hasOptions": true
   },
   {
     "category": "enigma",
@@ -86,7 +86,7 @@
     },
     "hasBackgroundImage": "no",
     "enabled": true,
-    "hasOptions": false
+    "hasOptions": true
   },
   {
     "category": "enigma",
@@ -172,7 +172,7 @@
     },
     "enabled": true,
     "hasBackgroundImage": "main",
-    "hasOptions": false
+    "hasOptions": true
   },
   {
     "category": "enigma",
@@ -187,7 +187,7 @@
     },
     "enabled": true,
     "hasBackgroundImage": "main",
-    "hasOptions": false
+    "hasOptions": true
   },
   {
     "category": "enigma",
