@@ -107,3 +107,15 @@ Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install 
 * for *write-text*, a `String`
 * for *new-item*, a `String` (item code)
 * for *find-item* and *use-item*, an object `{ coordinates: { top: <Number 0-100>, left: <Number 0-100> }, item: <String> }`
+
+# COMMON ISSUES
+
+## Build unsuccessfull . Error message `Failed to execute aapt` 
+
+Add in the /src-cordova/build.gradle file : 
+
+    configurations.all {
+        resolutionStrategy {
+            force 'com.android.support:support-v4:27.1.0'
+        }
+    }

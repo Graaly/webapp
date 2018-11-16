@@ -7,10 +7,10 @@
       <div class="fit" :style="'background: url(' + ((quest.picture && quest.picture[0] === '_') ? 'statics/images/quest/' + quest.picture : serverUrl + '/upload/quest/' + quest.picture) + ' ) center center / cover no-repeat '" v-touch-swipe.horizontal="swipeMgmt">
         <div class="fit">
           <div class="text-center bottom-dark-banner">
-            <p class="title">
-              {{getLanguage() ? quest.title[getLanguage()] : $t('label.NoTitle') }}
+            <div class="title"" @click="restartStory()">
+              {{getLanguage() ? quest.title[getLanguage()] : $t('label.NoTitle') }} <q-icon name="help" />
               <img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + getLanguage() + '.png'" />
-            </p>
+            </div>
             <p v-if="typeof quest.author !== 'undefined' && quest.author.name"><strong>{{ $t('label.Author') }}:</strong> {{ quest.author.name }}</span>
             <p class="medium-icon q-pa-none q-ma-none">
               <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">{{ quest.availablePoints }} <q-icon name="fas fa-trophy" /></span>
@@ -45,7 +45,7 @@
                   <span v-if="quest.price && quest.price > 0">{{ quest.price }} <q-icon name="fas fa-bolt" /></span>
                 </button>
                 <q-btn v-if="!isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary">{{ $t('label.BuyCoinsToPlay') }}</q-btn>
-                <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary">{{ $t('label.GetCloserToStartingPoint') }}</q-btn>
+                <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary">{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</q-btn>
               </p>
             </div>
             <div class="full-width text-center">
@@ -162,6 +162,7 @@ export default {
       isAdmin: false,
       geolocationIsSupported: navigator.geolocation,
       isUserTooFar: false,
+      distanceFromStart: 0,
       scrolled: false
     }
   },
@@ -233,7 +234,8 @@ export default {
         navigator.geolocation.getCurrentPosition((position) => {
           //compare quest starting point with user localisation (1km distance)
           if (this.quest.location && this.quest.location.coordinates && this.quest.location.coordinates.length > 1 && position.coords && position.coords.latitude) {
-            if ((Math.abs(position.coords.latitude - this.quest.location.coordinates[0]) > 0.009) || (Math.abs(position.coords.longitude - this.quest.location.coordinates[1]) > 0.013)) {
+            this.distance = Math.round(utils.distanceInKmBetweenEarthCoordinates(this.quest.location.coordinates[1], this.quest.location.coordinates[0], position.coords.latitude, position.coords.longitude) * 1000) // meters
+            if (this.distance > 50) {
               this.isUserTooFar = true
             }
           }
@@ -259,7 +261,7 @@ export default {
         this.story.data = {
           level2: (this.quest.level === 1 ? 'grey' : 'red'),
           level3: (this.quest.level === 3 ? 'red' : 'grey'),
-          startingPlace: this.quest.startingPlace,
+          startingPlace: this.quest.location ? this.quest.location.address : null,
           duration: this.quest.duration,
           isFar: (this.isUserTooFar && !this.quest.allowRemotePlay),
           isRunFinished: this.isRunFinished,
@@ -268,6 +270,10 @@ export default {
           score: (this.isRunFinished || (this.isOwner && !this.isAdmin)) ? 0 : this.quest.availablePoints
         }
       }
+    },
+    restartStory() {
+      this.story.step = null
+      this.startStory()
     },
     /*
      * Get a quest information

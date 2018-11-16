@@ -272,6 +272,9 @@ export default {
      * Move to next step
      */
     async nextStep() {
+      // reload step to remove notifications
+      this.loadStepData = false
+      
       if (this.canMoveNextStep) {
         if (this.step.nextNumber === "no next step") {
           this.$router.push('/quest/' + this.quest.id + '/end')

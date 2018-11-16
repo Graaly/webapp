@@ -9,7 +9,7 @@
             {{ $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].link.label) }}
           </a> &nbsp;
           <q-btn color="primary" @click="next">
-            {{ steps[currentStep.id].discussions[currentStep.discussionId].hasOwnProperty("button") ? $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].button.label) : $t('label.Next') + ' >>' }}
+            {{ steps[currentStep.id].discussions[currentStep.discussionId].hasOwnProperty("button") ? $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].button.label) : (steps[currentStep.id].discussions.length - 1 === currentStep.discussionId ? $t('label.Close') : $t('label.Next') + ' >>') }}
           </q-btn>
         </div>
       </div>
@@ -175,8 +175,8 @@ export default {
         {
           discussions: [
             {character: "1", text: "CreateQuest1", condition: null},
-            {character: "1", text: "CreateQuest2", condition: null},
-            {character: "1", text: "CreateQuest3", condition: null, button: {label: "CreateAQuest", action: "/quest/create/welcome"}, link: {label: "NoThanks"}, nextStep: 16}
+            {character: "1", text: "CreateQuest2", condition: null, nextStep: 16},
+            {character: "1", text: "CreateQuest3", condition: null, button: {label: "CreateAQuest", action: "/quest/create/welcome"}, link: {label: "NoThanks"}}
           ],
           bottom: 0
         },
@@ -203,9 +203,10 @@ export default {
     this.currentStep.discussionId = 0
     this.nextStep = this.step
     this.hide = false
-    while (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].condition === false) {
-      this.currentStep.discussionId++
-    }
+    
+    this.moreToValidStep()
+    
+    await this.saveStepPassed()
   },
   methods: {
     /*
@@ -218,17 +219,23 @@ export default {
         await this.closeStory()
       }
     },
+    moreToValidStep () {
+      while (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].condition === false) {
+        this.currentStep.discussionId++
+      }
+    },
+    async saveStepPassed () {
+      if (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].hasOwnProperty("nextStep")) {
+        this.nextStep = this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].nextStep
+        await UserService.nextStoryStep(this.nextStep)
+      }
+    },
     async closeStory() {
       if (this.steps[this.currentStep.id].discussions.length - 1 > this.currentStep.discussionId) {
         this.currentStep.discussionId++
-        while (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].condition === false) {
-          this.currentStep.discussionId++
-        }
+        this.moreToValidStep()
       } else {
-        if (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].hasOwnProperty("nextStep")) {
-          this.nextStep = this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].nextStep
-          await UserService.nextStoryStep(this.nextStep)
-        }
+        await this.saveStepPassed()
         // TODO : transition
         this.hide = true
         setTimeout(this.emitNext, 2000)

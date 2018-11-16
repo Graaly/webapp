@@ -499,7 +499,7 @@ export default {
         
         if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'character' || this.step.type === 'new-item') {
           // validate steps with no enigma
-          setTimeout(this.checkAnswer, 3000)
+          setTimeout(this.checkAnswer, 2000)
         }
         
         if (this.step.type === 'choose') {
@@ -1082,7 +1082,7 @@ export default {
         case 'new-item': 
         case 'info-text': 
         case 'info-video': 
-          this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'))
+          
           break
         case 'choose':
         case 'code-keypad':
@@ -1106,6 +1106,8 @@ export default {
           this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'))
           break
       }
+      // advise user to move to next step
+      setTimeout(this.alertToPassToNextStep, 5000)
     },
     /*
      * Send wrong answer 
@@ -1122,6 +1124,11 @@ export default {
       } else {
         this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
       }
+      // advise user to move to next step
+      setTimeout(this.alertToPassToNextStep, 5000)
+    },
+    alertToPassToNextStep() {
+      this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'))
     },
     /*
      * Display the read more alert
@@ -1583,20 +1590,22 @@ export default {
      * Check if the puzzle is correct
      */
     async checkPuzzle() {
-      var result = true
+      var result = this.comparePuzzlePiecePositions()
+      
+      if (result) {
+        this.checkAnswer(result)
+      }
+    },
+    comparePuzzlePiecePositions() {
       var answer = []
       var rightPositions = this.step.answers.split('|')
       for (var i = 0; i < this.puzzle.pieces.length; i++) {
         answer.push(this.puzzle.pieces[i].pos)
         if (rightPositions[i] !== this.puzzle.pieces[i].pos) {
-          result = false
-          continue
+          return false
         }
       }
-      
-      if (result) {
-        this.checkAnswer(answer)
-      }
+      return answer
     },
     /*
      * Initialize puzzle, re-order pieces
@@ -1613,6 +1622,7 @@ export default {
       
       // get the pieces position
       let piecesPosition = this.step.answers.split('|')
+
       // Build pieces
       for (var i = 0; i < puzzleSize * puzzleSize; i++) {
         let xPos = (pieceWidth * (i % puzzleSize)) + 'px';
@@ -1620,8 +1630,12 @@ export default {
         this.puzzle.pieces[i] = { pos: piecesPosition[i], backSize: (puzzleSize * 100), backXPos: xPos, backYPos: yPos, width: pieceWidth, height: pieceHeight }
       }
       
-      //Shuffle
-      this.puzzle.pieces = this.shuffle(this.puzzle.pieces)
+      //Shuffle & check that after shuffle the piece are correctly shuffled
+      var ordered = true
+      while (ordered) {
+        this.puzzle.pieces = this.shuffle(this.puzzle.pieces)
+        ordered = this.comparePuzzlePiecePositions()
+      }
       
       this.puzzle.picture = this.step.options.picture.indexOf('upload/') === -1 ? this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + this.step.options.picture : this.serverUrl + this.step.options.picture
 

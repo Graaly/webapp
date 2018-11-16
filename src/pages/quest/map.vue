@@ -17,11 +17,11 @@
         @dragend="dragEnd($event)"
         @click="closeInfoWindows()"
       >
-        <gmap-marker :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()" @click="openDiscoveryQuest()" />
-        
-        <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="setMapIcon(quest)"
-          @click="openQuestSummary(quest, index)" />
-        
+        <!-- quest markers -->
+        <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="setMapIcon(quest)" @click="openQuestSummary(quest, index)" />
+        <!-- user markers -->
+        <gmap-marker v-show="map.loaded" :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()" @click="openDiscoveryQuest()" />
+        <!-- markers tooltips -->
         <gmap-info-window :options="map.infoWindow.options" :position="map.infoWindow.location" :opened="map.infoWindow.isOpen" @closeclick="map.infoWindow.isOpen=false">
           <div class="infoWindow">
             <p class="title" v-html="getQuestTitle(currentQuest, true)"></p>
@@ -535,7 +535,8 @@ export default {
           location: { lat: 0, lng: 0 },
           isOpen: false,
           options: { pixelOffset: { width: 0, height: -35 } }
-        }
+        },
+        loaded: false
       },
       search: {
         quests: [],
@@ -659,7 +660,10 @@ export default {
           this.user.position.latitude = position.coords.latitude
           this.user.position.longitude = position.coords.longitude
           
-          await this.getQuests()
+          // get quests only if tutorial is advanced
+          if (this.$store.state.user.story.step > 3) {
+            await this.getQuests()
+          }
  
           // adjust zoom / pan to nearest quests, or current user location
           if (this.questList.length > 0) {
@@ -798,7 +802,7 @@ export default {
       if (this.$store.state.user.story.step === 16) {
         // get the closest quest not already played
         var closestQuest = this.getClosestQuestUnplayed()
-console.log(closestQuest)
+
         if (closestQuest !== null) {
           this.story.data = {
             questId: closestQuest._id,

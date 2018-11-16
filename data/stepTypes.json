@@ -19,7 +19,7 @@
     "showTrick": "no",
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": true
+    "hasOptions": false
   },
   {
     "category": "transition",
@@ -30,7 +30,7 @@
     "showTrick": "no",
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": true
+    "hasOptions": false
   },
   {
     "category": "transition",
