@@ -639,8 +639,8 @@ export default {
             
             // apply user-defined scaling
             if (objectInit.scale) {
-              // make objects twice bigger than their "real" size, for better usability
-              let scale = objectInit.scale * 2
+              // make objects four times bigger than their "real" size, for better usability
+              let scale = objectInit.scale * 4
               object.scale.set(scale, scale, scale)
             }
             
@@ -701,10 +701,12 @@ export default {
           }
           
           object.name = "targetObject"
+          object.up = new THREE.Vector3(0, 0, 1)
           object.visible = false
           scene.add(object)
           
           // default camera direction => look at positive y axis from origin
+          this.geolocation.target.camera.up = new THREE.Vector3(0, 0, 1)
           this.geolocation.target.camera.lookAt(new THREE.Vector3(0, 1, 0))
           // handheld device will be nearly 1.50m above ground
           this.geolocation.target.camera.position.z = 1.5
@@ -1824,7 +1826,6 @@ export default {
       if (!this.step.options.is3D) {
         let plane = target.scene.getObjectByName('targetObject')
         plane.lookAt(target.camera.position)
-        plane.rotation.z = Math.PI
       }
       // animation
       if (mixers.length > 0) {
