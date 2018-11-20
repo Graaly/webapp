@@ -112,7 +112,7 @@ Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install 
 
 ## Build unsuccessfull . Error message `Failed to execute aapt` 
 
-Add in the /src-cordova/build.gradle file : 
+Add in the `allprojects` section of the `/src-cordova/platforms/android/build.gradle` file : 
 
     configurations.all {
         resolutionStrategy {
