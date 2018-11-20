@@ -350,7 +350,9 @@ export default {
      */
     async fillInventory() {
       // load items won on previous steps
+      this.$q.loading.show()
       this.inventory.items = await StepService.listWonObjects(this.quest.id, this.step._id)
+      this.$q.loading.hide()
     },
     /*
      * Open the inventory

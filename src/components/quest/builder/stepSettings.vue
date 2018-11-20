@@ -874,7 +874,9 @@ export default {
         questId: this.questId,
         type: this.options.code
       })
+      this.$q.loading.show()
       let stepData = await StepService.save(newStepData)
+      this.$q.loading.hide()
 
       if (stepData && stepData.data && stepData.data.stepId) {
         // send change event to parent, with stepId information

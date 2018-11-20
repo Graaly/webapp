@@ -241,18 +241,25 @@
         <!------------------ FRIENDS TAB ------------------------>
         
         <q-tab-pane name="friends">
+          
+          <!------------------ ADD FRIENDS BUTTON AREA ------------------------>
+          <q-btn link class="full-width" @click="openAddFriendsModal()" color="tertiary">{{ $t('label.AddFriends') }}</q-btn>
+          
           <q-list highlight>
-            <q-item v-for="friend in friends.list" :key="friend.friendId" @click.native="openFriendCard(friend.friendId)">
-              <q-item-side>
+            <q-item v-for="friend in friends.list" :key="friend.friendId">
+              <q-item-side @click.native="openFriendCard(friend.friendId)">
                 <q-item-tile avatar>
                   <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') !== -1" :src="friend.picture" />
                   <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + friend.picture" />
                   <img v-if="!friend.picture || friend.picture === ''" src="statics/icons/game/profile-small.png" />
                 </q-item-tile>
               </q-item-side>
-              <q-item-main>
+              <q-item-main @click.native="openFriendCard(friend.friendId)">
                 <q-item-tile>{{ friend.name }}</q-item-tile>
               </q-item-main>
+              <q-item-side right>
+                <q-btn icon="close" @click="removeFriend(friend.friendId)" />
+              </q-item-side>
             </q-item>
             <q-item v-if="friends.list.length === 0">
               <q-item-main>
@@ -391,6 +398,14 @@
     
     <!--====================== SHOP PAGE =================================-->
     
+    <q-modal v-model="friends.new.show" class="over-map">
+      <a class="float-right no-underline q-pa-md" color="grey" @click="closeAddFriends"><q-icon name="close" class="medium-icon" /></a>
+      <h1 class="size-3 q-pl-md">{{ $t('label.AddFriends') }}</h1>
+      <newfriend @close="closeAddFriends"></newfriend>
+    </q-modal>
+    
+    <!--====================== SHOP PAGE =================================-->
+    
     <q-modal v-model="shop.show" class="over-map">
       <a class="float-right no-underline q-pa-md" color="grey" @click="closeShop"><q-icon name="close" class="medium-icon" /></a>
       <h1 class="size-3 q-pl-md">{{ $t('label.Shop') }}</h1>
@@ -495,6 +510,7 @@ import QuestService from 'services/QuestService'
 import AuthService from 'services/AuthService'
 import UserService from 'services/UserService'
 import shop from 'components/shop'
+import newfriend from 'components/newfriend'
 import story from 'components/story'
 import utils from 'src/includes/utils'
 import { required, email } from 'vuelidate/lib/validators'
@@ -514,6 +530,7 @@ export default {
     QInfiniteScroll,
     QSpinnerDots,
     shop,
+    newfriend,
     story
   },
   data () {
@@ -556,7 +573,10 @@ export default {
           items: []
         },
         show: false,
-        selected: {}
+        selected: {},
+        new: {
+          show: false
+        }
       },
       shop: {
         show: false
@@ -1281,6 +1301,31 @@ export default {
      */
     closeShop () {
       this.shop.show = false
+    },
+    /*
+     * Open new friends page
+     */
+    openAddFriendsModal () {
+      this.friends.new.show = true
+    },
+    /*
+     * Close new friends page
+     */
+    async closeAddFriends () {
+      this.friends.new.show = false
+      // reload friend list
+      await this.loadFriends()
+    },
+    async removeFriend (friendId) {    
+      this.$q.dialog({
+        message: this.$t('label.AreYouSureYouWantToRemoveThisFriend'),
+        ok: true,
+        cancel: true
+      }).then(async () => {
+        await UserService.removeFriend(friendId)
+              
+        await this.loadFriends()
+      })
     },
     openLocationSettings () {
       if (window.cordova && window.cordova.plugins.settings) {

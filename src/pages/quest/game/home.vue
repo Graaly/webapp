@@ -115,7 +115,7 @@
     
     <!--====================== STORY =================================-->
     
-    <div class="fixed-bottom over-map" v-if="story.step !== null && story.step !== 'end'">
+    <div class="fixed-bottom over-map fit" v-if="story.step !== null && story.step !== 'end'">
       <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
     </div>
     
@@ -341,7 +341,9 @@ export default {
      * Add a new friend
      */
     async addFriend(friendId) {
+      this.$q.loading.show()
       var newFriend = await UserService.addFriend(friendId)
+      this.$q.loading.hide()
       
       // hide add friend button for user concerned
       console.log(newFriend)

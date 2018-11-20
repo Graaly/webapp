@@ -463,7 +463,15 @@ module.exports = {
       Choose: "Choose...",
       ExtraTextFieldLabel: "'Know more' description",
       ReadMore: "Read more",
-      ClickHereToKnowMore: "Press here to know more"
+      ClickHereToKnowMore: "Press here to know more",
+      AddFriends: "Add friends",
+      FriendsAdded: "Friend added",
+      InvitationSent: "Invitation sent",
+      Email: "Email",
+      EmailIsNotValid: "Invalid email",
+      PhoneNumber: "Phone number",
+      InvalidPhoneNumber: "Invalid phone number",
+      AreYouSureYouWantToRemoveThisFriend: "Are you sure you want to remove him/her from your friends list"
     }
   },
   fr: {
@@ -934,7 +942,15 @@ module.exports = {
       Choose: "Choisir...",
       ExtraTextFieldLabel: "Texte complémentaire 'En savoir plus'",
       ReadMore: "En savoir +",
-      ClickHereToKnowMore: "Appuyer ici pour en savoir plus"
+      ClickHereToKnowMore: "Appuyer ici pour en savoir plus",
+      AddFriends: "Ajouter des amis",
+      FriendsAdded: "Ami ajouté",
+      InvitationSent: "Invitation envoyée",
+      Email: "Email",
+      EmailIsNotValid: "Adresse email invalide",
+      PhoneNumber: "Numéro de téléphone",
+      InvalidPhoneNumber: "Numéro invalide",
+      AreYouSureYouWantToRemoveThisFriend: "Êtes-vous certain(e) de vouloir le/la supprimer de votre liste d'amis"
     }
   }
 }

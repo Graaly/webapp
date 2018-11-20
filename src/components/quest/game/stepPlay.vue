@@ -839,6 +839,20 @@ export default {
       this.controlsAreDisplayed = true // !this.controlsAreDisplayed
     },
     /*
+     * Send answer server side 
+     * @param   {Object}    selectedAnswerKey            Answer object
+     */
+    async sendAnswer(questId, stepId, runId, answerData, displaySpinner) {
+      if (displaySpinner) {
+        this.$q.loading.show()
+      }
+      let checkAnswerResult = await StepService.checkAnswer(questId, stepId, runId, answerData)
+      if (displaySpinner) {
+        this.$q.loading.hide()
+      }
+      return checkAnswerResult
+    },
+    /*
      * Check if the answer is correct
      * @param   {Object}    selectedAnswerKey            Answer object
      */
@@ -855,12 +869,12 @@ export default {
         case 'new-item':
         case 'character':
           // save step automatic success
-          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {})
+          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {}, false)
           this.submitGoodAnswer(0)
           break
           
         case 'choose':
-          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: answer})
+          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
 
           if (checkAnswerResult.result === true) {
             let selectedAnswer = this.step.options[answer]
@@ -887,7 +901,7 @@ export default {
           break
         
         case 'geolocation':
-          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: answer})
+          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, false)
 
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -896,7 +910,7 @@ export default {
           
         case 'image-recognition':
           const comparison = this.checkPhoto()
-          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: comparison})
+          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: comparison}, true)
 
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -906,7 +920,7 @@ export default {
           break
           
         case 'code-keypad':
-          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('')})
+          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('')}, true)
 
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -923,7 +937,8 @@ export default {
           break
         
         case 'code-color':
-          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')})
+          this.$q.loading.show()
+          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')}, true)
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -940,7 +955,7 @@ export default {
           break
           
         case 'code-image':
-          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')})
+          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')}, true)
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -957,7 +972,7 @@ export default {
           break
         
         case 'jigsaw-puzzle':
-          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: answer.join('|')})
+          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer.join('|')}, true)
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -965,7 +980,7 @@ export default {
           break
           
         case 'memory':
-          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {})
+          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {}, false)
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -973,7 +988,7 @@ export default {
           break
         
         case 'write-text':
-          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: this.writetext.playerAnswer})
+          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.writetext.playerAnswer}, true)
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           } else {
@@ -990,7 +1005,7 @@ export default {
           break
         
         case 'use-item':
-          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: answer})
+          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
           
           if (checkAnswerResult.result === true) {
             this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
@@ -1009,7 +1024,7 @@ export default {
           break
           
         case 'find-item':
-          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: answer})
+          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
           
           if (checkAnswerResult.result === true) {
             this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
@@ -1028,7 +1043,7 @@ export default {
           break
           
         case 'locate-item-ar':
-          checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: answer})
+          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, false)
 
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -1038,7 +1053,7 @@ export default {
         case 'locate-marker':
           if (!this.locateMarker.markerControls[answer].detected) {
             this.locateMarker.markerControls[answer].detected = true
-            checkAnswerResult = await StepService.checkAnswer(this.step.questId, this.step.id, this.runId, {answer: answer})
+            checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
             
             if (checkAnswerResult.result === true) {
               this.submitGoodAnswer(checkAnswerResult.score)

@@ -487,7 +487,9 @@ export default {
      */
     async refreshStepsList() {
       // list steps
+      this.$q.loading.show()
       this.steps.items = await StepService.listForAQuest(this.questId)
+      this.$q.loading.hide()
       if (this.steps.items && this.steps.items.length > 0 && this.tabs.progress < 3) {
         this.tabs.progress = 3
       }
@@ -529,7 +531,9 @@ export default {
         let quest = Object.assign({}, this.form.fields, commonProperties)
 
         // save to DB (or update, if property '_id' is defined)
+        this.$q.loading.show()
         let res = await QuestService.save(quest)
+        this.$q.loading.hide()
         
         if (res && res.data) {
           // update progression in stepper
@@ -681,14 +685,20 @@ export default {
         }
       }
       if (action === 'publish') {
+        this.$q.loading.show()
         await QuestService.publish(this.questId, lang)
+        this.$q.loading.hide()
+        
         if (this.quest.status === 'unpublished') {
           this.quest.status = 'tovalidate'
         }
         this.tabs.progress = 4
       } else {
         // no language is published => unpublish the quest
+        this.$q.loading.show()
         await QuestService.unpublish(this.questId, lang)
+        this.$q.loading.hide()
+        
         this.quest.status = 'unpublished'
         this.tabs.progress = 3
       }
@@ -698,7 +708,9 @@ export default {
      */
     async unpublish() {
       this.quest.status = 'unpublished';
+      this.$q.loading.show()
       await QuestService.unpublish(this.questId)
+      this.$q.loading.hide()
       Notification(this.$t('label.YourQuestIsUnpublished'), 'positive')
     },
     /*
@@ -940,7 +952,9 @@ export default {
      * add an editor
      */
     async addEditor () {
+      this.$q.loading.show()
       let addStatus = await QuestService.addEditor(this.questId, this.editor.new.email)
+      this.$q.loading.hide()
 
       if (addStatus && addStatus.status !== 403) {
         await this.listEditors()
@@ -964,7 +978,9 @@ export default {
      * Remove an editor
      */
     async removeEditor (id) {
+      this.$q.loading.show()
       await QuestService.removeEditor(this.questId, id)
+      this.$q.loading.hide()
       await this.listEditors()
     },
     hideHint() {
@@ -997,7 +1013,9 @@ export default {
      */
     async fillInventory() {
       // load items won on previous steps
+      this.$q.loading.show()
       this.inventory.items = await StepService.listWonObjects(this.questId, this.stepId)
+      this.$q.loading.hide()
     },
     /*
      * Open the inventory

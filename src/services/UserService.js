@@ -44,13 +44,6 @@ export default {
     return Api().get('account/ranking')
   },
   /*
-   * Add a friend to the connected user
-   * @param   {String}    id                  ID of the user
-   */
-  addFriend (id) {
-    return Api().post('user/friend/add/' + id)
-  },
-  /*
    * challenge a friend
    * @param   {String}    friendId              ID of the friend
    * @param   {String}    runId                 ID of the run concerned
@@ -77,6 +70,33 @@ export default {
    */
   nextStoryStep (step) {
     return Api().post('user/story/step/' + step)
+  },
+  /*
+   * add friend
+   * @param   {Object or String}    friendData          Data of the friend (phone, email, ID of friend...)
+   */
+  addFriend(friendData) {
+    if (friendData.email && friendData.email.length > 0) {
+      return Api().post('user/friends/add/email/' + friendData.email)
+    } else if (friendData.phone && friendData.phone.length > 0) {
+      return Api().post('user/friends/add/phone/' + friendData.phone)
+    } else {
+      return Api().post('user/friend/add/' + id)
+    }
+  },
+  /*
+   * remove friend
+   * @param   {String}    friendId          Id of the friend
+   */
+  removeFriend(id) {
+    return Api().delete('user/friend/remove/' + id)
+  },
+  /*
+   * check if contacts are app accounts
+   * @param   {Array}    contacts          Array of contacts
+   */
+  checkContacts(contacts) {
+    return Api().get('user/friends/contacts/check', {contacts: contacts})
   }
   
 }
