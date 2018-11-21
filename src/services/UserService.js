@@ -81,7 +81,7 @@ export default {
     } else if (friendData.phone && friendData.phone.length > 0) {
       return Api().post('user/friends/add/phone/' + friendData.phone)
     } else {
-      return Api().post('user/friend/add/' + id)
+      return Api().post('user/friend/add/' + friendData)
     }
   },
   /*
@@ -96,7 +96,7 @@ export default {
    * @param   {Array}    contacts          Array of contacts
    */
   checkContacts(contacts) {
-    return Api().get('user/friends/contacts/check', {contacts: contacts})
+    return Api().post('user/friends/contacts/check', {contacts: contacts})
   }
   
 }

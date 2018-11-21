@@ -209,6 +209,12 @@
                   <div class="q-field-error" v-if="!profile.form.email.email">{{ $t('label.PleaseEnterAValidEmailAddress') }}</div>
                 </div>
               </q-field>
+              <q-field :error="$v.profile.form.phone.$error" v-if="profile.userCanChangePhone">
+                <q-input v-model="profile.form.phone" :stack-label="$t('label.YourPhoneNumber')" :placeholder="$t('label.phoneExample')" @blur="$v.profile.form.phone.$touch" />
+                <div class="q-field-bottom" v-if="profile.form.phone.$error">
+                  <div class="q-field-error" v-if="!profile.form.phone.checkPhone">{{ $t('label.InvalidPhoneNumber') }}</div>
+                </div>
+              </q-field>
               <q-field :error="$v.profile.form.country.$error">
                 <q-select :stack-label="$t('label.YourCountry')" v-model="profile.form.country" :options="profile.countries" />
                 <div class="q-field-bottom" v-if="profile.form.country.$error">
@@ -396,12 +402,12 @@
       </div>
     </q-modal>
     
-    <!--====================== SHOP PAGE =================================-->
+    <!--====================== ADD FRIEND PAGE =================================-->
     
     <q-modal v-model="friends.new.show" class="over-map">
       <a class="float-right no-underline q-pa-md" color="grey" @click="closeAddFriends"><q-icon name="close" class="medium-icon" /></a>
       <h1 class="size-3 q-pl-md">{{ $t('label.AddFriends') }}</h1>
-      <newfriend @close="closeAddFriends"></newfriend>
+      <newfriend :load="friends.new.show" @close="closeAddFriends"></newfriend>
     </q-modal>
     
     <!--====================== SHOP PAGE =================================-->
@@ -514,6 +520,7 @@ import newfriend from 'components/newfriend'
 import story from 'components/story'
 import utils from 'src/includes/utils'
 import { required, email } from 'vuelidate/lib/validators'
+import checkPhone from 'plugins/CheckPhone'
 import { QSpinnerDots, QInfiniteScroll } from 'quasar'
 import { gmapApi } from 'vue2-google-maps'
 
@@ -606,9 +613,20 @@ export default {
       profile: {
         level: {},
         progress: 10,
-        form: {name: "--", picture: "", email: "", zipCode: "", country: "", oldPassword: "", newPassword: "", language: "en"},
+        form: {
+          name: "--", 
+          picture: "", 
+          email: "", 
+          phone: "",
+          zipCode: "", 
+          country: "", 
+          oldPassword: "", 
+          newPassword: "", 
+          language: "en"
+        },
         countries: this.$i18n.locale === 'fr' ? countriesFR : countriesEN,
         userCanChangeEmail: true,
+        userCanChangePhone: true,
         userCanChangePassword: true
       },
       story: {
@@ -1088,6 +1106,7 @@ export default {
       this.profile.form = {
         name: this.$store.state.user.name,
         email: this.$store.state.user.email,
+        phone: this.$store.state.user.phone ? this.$store.state.user.phone : '',
         picture: this.$store.state.user.picture,
         zipCode: this.$store.state.user.location.postalCode,
         country: this.$store.state.user.location.country,
@@ -1110,6 +1129,7 @@ export default {
         let modifications = {
           name: this.profile.form.name,
           email: this.profile.form.email,
+          phone: this.profile.form.phone ? this.profile.form.phone : "",
           oldPassword: this.profile.form.oldPassword,
           newPassword: this.profile.form.newPassword,
           zipCode: this.profile.form.zipCode,
@@ -1380,7 +1400,8 @@ export default {
         email: { required, email },
         name: { required },
         country: { required },
-        zipCode: { required }
+        zipCode: { required },
+        phone: { checkPhone }
       }
     }
   }

@@ -471,7 +471,12 @@ module.exports = {
       EmailIsNotValid: "Invalid email",
       PhoneNumber: "Phone number",
       InvalidPhoneNumber: "Invalid phone number",
-      AreYouSureYouWantToRemoveThisFriend: "Are you sure you want to remove him/her from your friends list"
+      AreYouSureYouWantToRemoveThisFriend: "Are you sure you want to remove him/her from your friends list",
+      Suggestions: "Suggestions",
+      FindWithEmail: "Find friend with email",
+      FindWithPhone: "Find friend with phone number",
+      YourPhoneNumber: "Your phone number",
+      phoneExample: "123 456 789"
     }
   },
   fr: {
@@ -950,7 +955,12 @@ module.exports = {
       EmailIsNotValid: "Adresse email invalide",
       PhoneNumber: "Numéro de téléphone",
       InvalidPhoneNumber: "Numéro invalide",
-      AreYouSureYouWantToRemoveThisFriend: "Êtes-vous certain(e) de vouloir le/la supprimer de votre liste d'amis"
+      AreYouSureYouWantToRemoveThisFriend: "Êtes-vous certain(e) de vouloir le/la supprimer de votre liste d'amis",
+      Suggestions: "Suggestions",
+      FindWithEmail: "Trouver un ami avec son email",
+      FindWithPhone: "Trouver un ami avec son num. de télephone",
+      YourPhoneNumber: "Votre numéro de téléphone",
+      phoneExample: "06 12 34 56 78"
     }
   }
 }
