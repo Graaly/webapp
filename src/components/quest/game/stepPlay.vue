@@ -276,17 +276,22 @@
       <!------------------ LOCATE A 2D MARKER ------------------------>
       
       <div class="locate-marker" v-if="step.type == 'locate-marker'">
-        <video ref="camera-stream-for-locate-marker" v-show="cameraStreamEnabled && !playerResult"></video>
+        <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
+          <video ref="camera-stream-for-locate-marker" v-show="cameraStreamEnabled && !playerResult"></video>
+        </transition>
+        <transition appear enter-active-class="animated slideInRight" leave-active-class="animated slideOutRight">
+          <img class="locate-marker-layer" src="statics/images/find-marker-layers/magnifying-glass.png" v-show="playerResult === null || (playerResult === false && nbTry < 2)" />
+        </transition>
         <div v-show="!playerResult">
-          <div class="text">
+          <div class="text" v-show="getTranslatedText() != ''">
             <p>{{ getTranslatedText() }}</p>
           </div>
         </div>
+        <img class="locate-marker-answer" v-if="playerResult" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
         <div class="marker-view" v-show="!playerResult">
           <canvas id="marker-canvas"></canvas>
         </div>
       </div>
-      
     </div>
     
     <!--====================== WIN POINTS ANIMATION =================================-->
@@ -420,7 +425,8 @@ export default {
           arToolkitContext: null,
           arSmoothedControls: null,
           markerRoot: null,
-          markerControls: {}
+          markerControls: {},
+          playerAnswer: ''
         },
         
         // for step type 'write-text'
@@ -748,7 +754,7 @@ export default {
                           
                 let scene = new THREE.Scene()
                 
-                let camera = new THREE.Camera()
+                let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000)
                 scene.add(camera)
                 
                 // --- initialize arToolkitContext ---
@@ -786,16 +792,14 @@ export default {
                 
                 // --- add an object in the scene ---
                 
-                // add a translucent cube
-                /*let geometry = new THREE.CubeGeometry(1, 1, 1)
-                let material = new THREE.MeshNormalMaterial({
-                  transparent: true,
-                  opacity: 0.5,
-                  side: THREE.DoubleSide
-                }); 
-                let mesh  = new THREE.Mesh(geometry, material);
-                mesh.position.y = geometry.parameters.height/2
-                arWorldRoot.add(mesh);*/
+                // add a transparent plane
+                //let geometry = new THREE.CubeGeometry(1, 1, 1)
+                let geometry = new THREE.PlaneGeometry(1, 1)
+                let material = new THREE.MeshNormalMaterial({ transparent: true, opacity: 0, side: THREE.DoubleSide });
+                let mesh  = new THREE.Mesh(geometry, material)
+                mesh.rotateX(Math.PI / 2)
+                arWorldRoot.add(mesh)
+                arWorldRoot.name = 'markerObject'
                 
                 this.locateMarker.arToolkitContext = arToolkitContext
                 this.locateMarker.arSmoothedControls = arSmoothedControls
@@ -875,12 +879,12 @@ export default {
         case 'new-item':
         case 'character':
           // save step automatic success
-          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {}, false)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {}, false)
           this.submitGoodAnswer(0)
           break
           
         case 'choose':
-          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
 
           if (checkAnswerResult.result === true) {
             let selectedAnswer = this.step.options[answer]
@@ -907,7 +911,7 @@ export default {
           break
         
         case 'geolocation':
-          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, false)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, false)
 
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -916,7 +920,7 @@ export default {
           
         case 'image-recognition':
           const comparison = this.checkPhoto()
-          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: comparison}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: comparison}, true)
 
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -926,7 +930,7 @@ export default {
           break
           
         case 'code-keypad':
-          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('')}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('')}, true)
 
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -944,7 +948,7 @@ export default {
         
         case 'code-color':
           this.$q.loading.show()
-          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')}, true)
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -961,7 +965,7 @@ export default {
           break
           
         case 'code-image':
-          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')}, true)
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -978,7 +982,7 @@ export default {
           break
         
         case 'jigsaw-puzzle':
-          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer.join('|')}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer.join('|')}, true)
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -986,7 +990,7 @@ export default {
           break
           
         case 'memory':
-          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {}, false)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {}, false)
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -994,7 +998,7 @@ export default {
           break
         
         case 'write-text':
-          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.writetext.playerAnswer}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.writetext.playerAnswer}, true)
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           } else {
@@ -1011,7 +1015,7 @@ export default {
           break
         
         case 'use-item':
-          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
           
           if (checkAnswerResult.result === true) {
             this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
@@ -1030,7 +1034,7 @@ export default {
           break
           
         case 'find-item':
-          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
           
           if (checkAnswerResult.result === true) {
             this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
@@ -1049,7 +1053,7 @@ export default {
           break
           
         case 'locate-item-ar':
-          checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, false)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, false)
 
           if (checkAnswerResult.result === true) {
             this.geolocation.absoluteOrientationSensor.stop() // stop moving camera when device moves
@@ -1104,23 +1108,37 @@ export default {
           
         case 'locate-marker':
           if (!this.locateMarker.markerControls[answer].detected) {
-            this.locateMarker.markerControls[answer].detected = true
-            checkAnswerResult = await sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+            let object = this.locateMarker.scene.getObjectByName('markerObject')
             
-            if (checkAnswerResult.result === true) {
-              this.submitGoodAnswer(checkAnswerResult.score)
-              this.stopVideoTracks('camera-stream-for-locate-marker')
-              this.locateMarker.scene = new THREE.Scene()
-              this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera);
-            } else {
-              this.nbTry++
-              if (this.nbTry === 2) {
-                this.submitWrongAnswer()
+            let raycaster = new THREE.Raycaster()
+            
+            // imaginary line starting from screen center
+            raycaster.setFromCamera(new THREE.Vector2(0, 0), this.locateMarker.camera)
+            
+            // second parameter set to true so that intersectObject() traverses recursively the object
+            // and its children geometries
+            let intersects = raycaster.intersectObject(object, true)
+            
+            if (intersects.length > 0) {
+              this.locateMarker.markerControls[answer].detected = true
+              checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+              
+              if (checkAnswerResult.result === true) {
+                this.submitGoodAnswer(checkAnswerResult.score)
                 this.stopVideoTracks('camera-stream-for-locate-marker')
                 this.locateMarker.scene = new THREE.Scene()
-                this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera);
+                this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
+                this.locateMarker.playerAnswer = answer // for display
               } else {
-                this.submitRetry()
+                this.nbTry++
+                if (this.nbTry === 2) {
+                  this.submitWrongAnswer()
+                  this.stopVideoTracks('camera-stream-for-locate-marker')
+                  this.locateMarker.scene = new THREE.Scene()
+                  this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
+                } else {
+                  this.submitRetry()
+                }
               }
             }
           }
@@ -2004,7 +2022,7 @@ export default {
 
   #play-view { padding: 0rem; height: inherit; min-height: inherit; }
   
-  #play-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; padding-bottom: 4rem; }
+  #play-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; /*padding-bottom: 4rem;*/ }
   #play-view > div > div { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; /*padding-bottom: 8rem;*/ }
   #play-view > div > div.find-item, #play-view > div > div.use-item { padding: 0px }
   #play-view > div > div.locate-item-ar { padding-bottom: 1rem; }
@@ -2115,9 +2133,11 @@ export default {
   
   .locate-marker video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .locate-marker .marker-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-  .locate-marker #marker-canvas { width: 100%; height: 100%; object-fit: cover; z-index: 50; }
+  .locate-marker #marker-canvas { width: 100%; height: 100%; object-fit: cover; z-index: 20; }
   .locate-marker .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
-    
+  .locate-marker img.locate-marker-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 30; padding: 0; margin: 0; }
+  .locate-marker img.locate-marker-answer { width: 60vw; margin: 30vw auto; }
+  
   /* memory specific */
   
   .memory {

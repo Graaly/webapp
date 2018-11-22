@@ -52,7 +52,7 @@ export default {
       // layout page computed min-height is wrong (too high, includes browser title bar), leading to a
       // useless bottom overflow of 50px, at least on Android Chrome, and maybe other mobile browsers,
       // see https://stackoverflow.com/q/37112218/488666
-      document.getElementById('q-app').style.height = window.innerHeight + "px"
+      /*document.getElementById('q-app').style.height = window.innerHeight + "px"
       document.getElementById('q-app').style.minHeight = window.innerHeight + "px"
       document.getElementById('q-app').style.maxHeight = window.innerHeight + "px"
       // there are better although more complex ways to avoid hardcoding header height here
@@ -63,7 +63,7 @@ export default {
         mainview.style.height = computedHeight;
         mainview.style.minHeight = computedHeight;
         mainview.style.maxHeight = computedHeight;
-      }
+      }*/
     }
   }
 }

@@ -449,8 +449,8 @@ export default {
 
   #main-view { padding: 0rem; height: inherit; min-height: inherit; }
   
-  #main-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
-  #main-view > div > div { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
+  #main-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; /*padding-bottom: 8rem;*/ }
+  #main-view > div > div { height: inherit; min-height: inherit; /*padding: 1rem;*/ display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
   
   #controls {
     display: none
