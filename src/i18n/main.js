@@ -571,7 +571,7 @@ module.exports = {
       MapExplaination3: "Chaque enquête vous rapporte des points <i aria-hidden='true' style='font-size: 1.5em' class='q-icon fas fa-trophy'> </i><br />Vos <i aria-hidden='true' style='font-size: 1.5em' class='q-icon fas fa-trophy'> </i> sont affichés en haut à droite",
       StartPlaying: "Ne perdons pas plus de temps, Je vous emmène sur une enquête, appuyez sur votre position représentée sur la carte par <img src='statics/icons/game/pointer-me.png' />",
       WelcomeToQuest1: "Bonjour, ravie de collaborer avec vous sur cette nouvelle enquête",
-      WelcomeToQuest2: "Rendez l'adresse suivante pour commencer : <br /><b>{startingPlace}</b>",
+      WelcomeToQuest2: "Rendez-vous à l'adresse suivante pour commencer : <br /><b>{startingPlace}</b>",
       QuestParams: "Cette enquête peut vous rapporter jusqu'à <b>{score}</b> <i aria-hidden='true' class='q-icon fas fa-trophy'> </i>.<br />Elle est de <b>difficulté</b> <img class='image-and-text-aligned' src='statics/icons/game/magnifying-red.png' /><img class='image-and-text-aligned' src='statics/icons/game/magnifying-{level2}.png' /><img class='image-and-text-aligned' src='statics/icons/game/magnifying-{level3}.png' />, la <b>durée</b> est estimée à {duration} minutes.",
       description: "{description}",
       QuestIsFarFromUser: "<b>Vous n'êtes pas sur le lieu de l'enquête</b>.<br />En résolvant cette enquête à distance, vous allez manquer plein d'indices et donc de points",
