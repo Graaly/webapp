@@ -61,7 +61,7 @@
     <div class="score-box" @click="openRanking">
       <div class="q-px-md q-pt-md score-text">{{ $store.state.user.score }} <q-icon name="fas fa-trophy" /></div>
       <div style="width: 100px">
-        <div class="centered bg-primary text-white" style="height: 12px; font-size: 10px; text-shadow: none;">{{ $t('label.MyLevel') }}: {{ $store.state.user.level }}</div>
+        <div class="centered bg-primary text-white level-box">{{ $t('label.Level') }} {{ $store.state.user.level }}</div>
         <q-progress :percentage="profile.level.progress" stripe height="10px" animate color="primary"></q-progress>
       </div>
     </div>
@@ -190,6 +190,7 @@
         <q-tab slot="title" name="profile" icon="face" :label="$t('label.MyProfile')" />
         <q-tab slot="title" name="friends" icon="supervised_user_circle" :label="$t('label.Friends')" />
         <q-tab slot="title" name="news" icon="notifications" :label="$t('label.News')" default />
+        <q-tab slot="title" name="pro" icon="store" :label="$t('label.Pro')" />
       
         <!------------------ PROFILE TAB ------------------------>
         
@@ -314,6 +315,31 @@
               <q-spinner-dots :size="5" />
             </div>
           </q-infinite-scroll>
+        </q-tab-pane>
+        
+        <!------------------ PRO TAB ------------------------>
+        
+        <q-tab-pane name="pro">
+            <q-card inline class="q-ma-sm">
+              <q-card-media>
+                <img src="statics/icons/game/storekeeper.jpg">
+
+                <q-card-title slot="overlay">
+                  {{ $t('label.Storekeeper') }}
+                  <span slot="subtitle">{{ $t('label.StorekeeperDesc') }}</span>
+                </q-card-title>
+              </q-card-media>
+            </q-card>
+            <q-card inline class="q-ma-sm">
+              <q-card-media>
+                <img src="statics/icons/game/tourism.jpg">
+
+                <q-card-title slot="overlay">
+                  {{ $t('label.TourismProfessional') }}
+                  <span slot="subtitle">{{ $t('label.TourismProfessionalDesc') }}</span>
+                </q-card-title>
+              </q-card-media>
+            </q-card>
         </q-tab-pane>
         
       </q-tabs>

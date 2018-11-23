@@ -476,11 +476,16 @@ module.exports = {
       FindWithEmail: "Find friend with email",
       FindWithPhone: "Find friend with phone number",
       YourPhoneNumber: "Your phone number",
-      phoneExample: "123 456 789"
+      phoneExample: "123 456 789",
+      Pro: "Pro.",
+      Storekeeper: "Storekeeper",
+      StorekeeperDesc: "Attract a qualified clientele with a unique gaming experience",
+      TourismProfessional: "Tourism professional",
+      TourismProfessionalDesc: "Offer a unique visitor experience with a personalized game"
     }
   },
   fr: {
-    challenge: {
+    challenge: { 
       challengePlay10Quests: "Résoudre 10 enquêtes",
       challengePlay30Quests: "Résoudre 30 enquêtes",
       challengePlay100Quests: "Résoudre 100 enquêtes",
@@ -960,7 +965,12 @@ module.exports = {
       FindWithEmail: "Trouver un ami avec son email",
       FindWithPhone: "Trouver un ami avec son num. de télephone",
       YourPhoneNumber: "Votre numéro de téléphone",
-      phoneExample: "06 12 34 56 78"
+      phoneExample: "06 12 34 56 78",
+      Pro: "Pro.",
+      Storekeeper: "Commerçant",
+      StorekeeperDesc: "Attirez une clientèle qualifiée avec une expérience unique de jeu",
+      TourismProfessional: "Professionnel du tourisme",
+      TourismProfessionalDesc: "Offrez une expérience de visite unique avec une enquête personnalisée"
     }
   }
 }

@@ -256,11 +256,11 @@
         <stepPlay :step="steps.new.overviewData" runId="0" :itemUsed="selectedItem" :reload="steps.reloadStepPlay" :lang="languages.current" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
         <q-layout-footer class="step-menu">
           <q-tabs v-model="overview.tabSelected">
-            <q-tab slot="title" name="inventory" icon="work" @click="openInventory()" />
-            <q-tab slot="title" name="previous" icon="arrow_back" @click="modifyStep" />
             <q-tab slot="title" name="info" icon="edit" disable />
-            <q-tab slot="title" name="next" icon="arrow_forward" :disable="!canMoveNextStep && !canPass" @click="closeOverview" />
+            <q-tab slot="title" name="inventory" icon="work" @click="openInventory()" />
             <q-tab slot="title" name="hint" icon="lightbulb outline" :disable="!isHintAvailable()" @click="askForHint()"/>
+            <q-tab slot="title" name="previous" icon="arrow_back" @click="modifyStep" />
+            <q-tab slot="title" name="next" icon="arrow_forward" :disable="!canMoveNextStep && !canPass" @click="closeOverview" />
           </q-tabs>
         </q-layout-footer>      
         
@@ -1077,7 +1077,7 @@ export default {
      * Check if a hint is available for the step
      */
     isHintAvailable() {
-      return (this.steps.new.overviewData && this.steps.new.overviewData.hint && this.steps.new.overviewData.hint[languages.current] && this.steps.new.overviewData.hint[languages.current] !== '')
+      return (this.steps.new.overviewData && this.steps.new.overviewData.hasOwnProperty("hint") && this.steps.new.overviewData.hint[this.languages.current] && this.steps.new.overviewData.hint[this.languages.current] !== '')
     },
     /*
      * Scroll page to the top
