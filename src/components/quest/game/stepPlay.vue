@@ -625,7 +625,7 @@ export default {
           scene.add(pointLight)
           
           // soft ambient light
-          scene.add(new THREE.AmbientLight(0xA0A0A0))
+          scene.add(new THREE.AmbientLight(0xC0C0C0))
           
           // --- specific parts for 2D/3D ---
           let object

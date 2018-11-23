@@ -811,6 +811,10 @@ export default {
         for (let key in modelsList) {
           this.selectModel3DOptions.push({label: modelsList[key].name[this.$store.state.user.language], value: key})
         }
+        // sort options in alphabetical order
+        this.selectModel3DOptions = this.selectModel3DOptions.sort((a, b) => {
+          return a.label.localeCompare(b.label)
+        })
       } else if (this.options.code === 'locate-marker') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.$set(this.selectedStep.form, 'answers', markersList[0])
