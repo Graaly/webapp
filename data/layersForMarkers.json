@@ -1,0 +1,14 @@
+[
+  {
+    "code": "magnifier",
+    "label": "Magnifier",
+    "animationShow": "slideInUp",
+    "animationHide": "slideOutDown"
+  },
+  {
+    "code": "code-scanner",
+    "label": "CodeScanner",
+    "animationShow": "FadeIn",
+    "animationHide": "FadeOut"
+  }
+]

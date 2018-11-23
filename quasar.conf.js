@@ -155,10 +155,14 @@ module.exports = function (ctx) {
     },
     // animations: 'all' --- includes all animations
     animations: [
+      'fadeIn',
+      'fadeOut',
       'slideInLeft',
       'slideOutLeft',
       'slideInRight',
-      'slideOutRight'
+      'slideOutRight',
+      'slideInUp',
+      'slideOutDown'
     ],
     pwa: {
       // workboxPluginMode: 'InjectManifest',

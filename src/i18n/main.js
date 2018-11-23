@@ -74,6 +74,10 @@ module.exports = {
       GraalyCharacter: "Graaly character",
       GraalyCharacterDesc: "Make a Graaly character speak (Boss, indicator, ...)"
     },
+    layersForMarkers: {
+      Magnifier: 'Magnifier',
+      CodeScanner: 'Code scanner'
+    },
     language: {
       en: "English",
       fr: "French"
@@ -481,7 +485,8 @@ module.exports = {
       Storekeeper: "Storekeeper",
       StorekeeperDesc: "Attract a qualified clientele with a unique gaming experience",
       TourismProfessional: "Tourism professional",
-      TourismProfessionalDesc: "Offer a unique visitor experience with a personalized game"
+      TourismProfessionalDesc: "Offer a unique visitor experience with a personalized game",
+      TransparentImageAboveCameraStream: "Transparent image above camera stream"
     }
   },
   fr: {
@@ -559,6 +564,10 @@ module.exports = {
       GraalyCharacter: "Personnage Graaly",
       GraalyCharacterDesc: "Faire parler un personnage Graaly (commissaire, indic, ...)"
     },
+    layersForMarkers: {
+      Magnifier: 'Loupe',
+      CodeScanner: 'Scanner'
+    },
     language: {
       en: "Anglais",
       fr: "Français"
@@ -576,7 +585,7 @@ module.exports = {
       MapExplaination3: "Chaque enquête vous rapporte des points <i aria-hidden='true' style='font-size: 1.5em' class='q-icon fas fa-trophy'> </i><br />Vos <i aria-hidden='true' style='font-size: 1.5em' class='q-icon fas fa-trophy'> </i> sont affichés en haut à droite",
       StartPlaying: "Ne perdons pas plus de temps, Je vous emmène sur une enquête, appuyez sur votre position représentée sur la carte par <img src='statics/icons/game/pointer-me.png' />",
       WelcomeToQuest1: "Bonjour, ravie de collaborer avec vous sur cette nouvelle enquête",
-      WelcomeToQuest2: "Rendez l'adresse suivante pour commencer : <br /><b>{startingPlace}</b>",
+      WelcomeToQuest2: "Rendez-vous à l'adresse suivante pour commencer : <br /><b>{startingPlace}</b>",
       QuestParams: "Cette enquête peut vous rapporter jusqu'à <b>{score}</b> <i aria-hidden='true' class='q-icon fas fa-trophy'> </i>.<br />Elle est de <b>difficulté</b> <img class='image-and-text-aligned' src='statics/icons/game/magnifying-red.png' /><img class='image-and-text-aligned' src='statics/icons/game/magnifying-{level2}.png' /><img class='image-and-text-aligned' src='statics/icons/game/magnifying-{level3}.png' />, la <b>durée</b> est estimée à {duration} minutes.",
       description: "{description}",
       QuestIsFarFromUser: "<b>Vous n'êtes pas sur le lieu de l'enquête</b>.<br />En résolvant cette enquête à distance, vous allez manquer plein d'indices et donc de points",
@@ -970,7 +979,8 @@ module.exports = {
       Storekeeper: "Commerçant",
       StorekeeperDesc: "Attirez une clientèle qualifiée avec une expérience unique de jeu",
       TourismProfessional: "Professionnel du tourisme",
-      TourismProfessionalDesc: "Offrez une expérience de visite unique avec une enquête personnalisée"
+      TourismProfessionalDesc: "Offrez une expérience de visite unique avec une enquête personnalisée",
+      TransparentImageAboveCameraStream: "Image transparente sur le flux caméra"
     }
   }
 }

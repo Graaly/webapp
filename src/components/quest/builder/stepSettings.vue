@@ -427,6 +427,8 @@
         <q-btn color="primary" :label="$t('label.Choose')" @click="openChooseMarkerModal()" />
       </p>
       
+      <q-select :float-label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
+      
       <q-modal v-model="markerModalOpened">
         <h2>{{ $t('label.ChooseTheMarker') }}</h2>
         
@@ -504,6 +506,7 @@ import stepTypes from 'data/stepTypes.json'
 import modelsList from 'data/3DModels.json'
 import objectsList from 'data/2Dobjects.json'
 import markersList from 'data/markers.json'
+import layersForMarkers from 'data/layersForMarkers.json'
 
 import StepService from 'services/StepService'
 
@@ -578,7 +581,8 @@ export default {
       selectModel3DOptions: [],
       
       // for 'locate-marker'
-      markerModalOpened: false
+      markerModalOpened: false,
+      layersForMarkersOptions: []
     }
   },
   computed: {
@@ -809,11 +813,27 @@ export default {
         }
         // create options for 3D Model selection
         for (let key in modelsList) {
-          this.selectModel3DOptions.push({label: modelsList[key].name[this.$store.state.user.language], value: key})
+          this.selectModel3DOptions.push({ label: modelsList[key].name[this.$store.state.user.language], value: key })
         }
+        // sort options in alphabetical order
+        this.selectModel3DOptions = this.selectModel3DOptions.sort((a, b) => {
+          return a.label.localeCompare(b.label)
+        })
       } else if (this.options.code === 'locate-marker') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.$set(this.selectedStep.form, 'answers', markersList[0])
+        }
+        // create options for layer above camera stream selection
+        for (let layer of layersForMarkers) {
+          this.layersForMarkersOptions.push({ label: this.$t('layersForMarkers.' + layer.label), value: layer.code })
+        }
+        // sort options in alphabetical order
+        this.layersForMarkersOptions = this.layersForMarkersOptions.sort((a, b) => {
+          return a.label.localeCompare(b.label)
+        })
+        // default layer = first
+        if (!this.selectedStep.form.options.hasOwnProperty('layerCode')) {
+          this.$set(this.selectedStep.form.options, 'layerCode', layersForMarkers[0].code)
         }
       }
     },
