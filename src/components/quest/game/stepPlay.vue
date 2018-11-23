@@ -279,9 +279,11 @@
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-marker" v-show="cameraStreamEnabled && !playerResult"></video>
         </transition>
-        <transition appear enter-active-class="animated slideInRight" leave-active-class="animated slideOutRight">
-          <img class="locate-marker-layer" src="statics/images/find-marker-layers/magnifying-glass.png" v-show="playerResult === null || (playerResult === false && nbTry < 2)" />
-        </transition>
+        <div v-if="locateMarker.layer !== null">
+          <transition appear :enter-active-class="'animated ' + locateMarker.layer.animationShow" :leave-active-class="'animated ' + locateMarker.layer.animationHide">
+            <img class="locate-marker-layer" :src="'statics/images/find-marker-layers/' + step.options.layerCode + '.png'" v-show="playerResult === null || (playerResult === false && nbTry < 2)" />
+          </transition>
+        </div>
         <div v-show="!playerResult">
           <div class="text" v-show="getTranslatedText() != ''">
             <p>{{ getTranslatedText() }}</p>
@@ -317,6 +319,7 @@ import utils from 'src/includes/utils'
 import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
 import markersList from 'data/markers.json'
+import layersForMarkers from 'data/layersForMarkers.json'
 
 import Notification from 'plugins/NotifyHelper'
 import story from 'components/story'
@@ -426,7 +429,8 @@ export default {
           arSmoothedControls: null,
           markerRoot: null,
           markerControls: {},
-          playerAnswer: ''
+          playerAnswer: '',
+          layer: null
         },
         
         // for step type 'write-text'
@@ -728,6 +732,13 @@ export default {
         if (this.step.type === 'locate-marker' && !this.playerResult) {
           // user can pass
           this.$emit('pass')
+          
+          for (let layer of layersForMarkers) {
+            if (layer.code === this.step.options.layerCode) {
+              this.locateMarker.layer = layer
+              break
+            }
+          }
           
           let cameraStream = this.$refs['camera-stream-for-locate-marker']
           // enable rear camera stream

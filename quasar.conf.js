@@ -160,7 +160,9 @@ module.exports = function (ctx) {
       'slideInLeft',
       'slideOutLeft',
       'slideInRight',
-      'slideOutRight'
+      'slideOutRight',
+      'slideInUp',
+      'slideOutDown'
     ],
     pwa: {
       // workboxPluginMode: 'InjectManifest',

@@ -74,6 +74,10 @@ module.exports = {
       GraalyCharacter: "Graaly character",
       GraalyCharacterDesc: "Make a Graaly character speak (Boss, indicator, ...)"
     },
+    layersForMarkers: {
+      Magnifier: 'Magnifier',
+      CodeScanner: 'Code scanner'
+    },
     language: {
       en: "English",
       fr: "French"
@@ -476,7 +480,8 @@ module.exports = {
       FindWithEmail: "Find friend with email",
       FindWithPhone: "Find friend with phone number",
       YourPhoneNumber: "Your phone number",
-      phoneExample: "123 456 789"
+      phoneExample: "123 456 789",
+      TransparentImageAboveCameraStream: "Transparent image above camera stream"
     }
   },
   fr: {
@@ -553,6 +558,10 @@ module.exports = {
       LocateMarkerDesc: "Le joueur doit trouver un symbole spécial, imprimé ou affiché sur un écran.",
       GraalyCharacter: "Personnage Graaly",
       GraalyCharacterDesc: "Faire parler un personnage Graaly (commissaire, indic, ...)"
+    },
+    layersForMarkers: {
+      Magnifier: 'Loupe',
+      CodeScanner: 'Scanner'
     },
     language: {
       en: "Anglais",
@@ -960,7 +969,8 @@ module.exports = {
       FindWithEmail: "Trouver un ami avec son email",
       FindWithPhone: "Trouver un ami avec son num. de télephone",
       YourPhoneNumber: "Votre numéro de téléphone",
-      phoneExample: "06 12 34 56 78"
+      phoneExample: "06 12 34 56 78",
+      TransparentImageAboveCameraStream: "Image transparente sur le flux caméra"
     }
   }
 }
