@@ -173,6 +173,16 @@ var self = {
         return true
     }
     return false
+  },
+  
+  /**
+   * Clear all timeouts created in other pages
+   */
+  clearAllTimeouts: function () {
+    var highestTimeoutId = setTimeout(function() {})
+    for (var i = 0; i < highestTimeoutId; i++) {
+      clearTimeout(i); 
+    }
   }
 }
 

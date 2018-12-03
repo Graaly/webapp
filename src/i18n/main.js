@@ -414,7 +414,7 @@ module.exports = {
       Select: "Select",
       Add: "Add",
       Administrate: "Administration page",
-      QuestUnderValidation: "Your quest will be validated by our game master. This can take days. Please check your mailbox for more information",
+      QuestUnderValidation: "Your quest is read only. Your quest will be validated by our game master. This can take days. Please check your mailbox for more information",
       PublicationRequested: "Publication requested",
       PublicationRejected: "Publication rejected. You will receive an email to know why",
       QuestPublicationRejected: "Your quest has not been published. You will receive an email to explain you how to update it to have it published",
@@ -486,7 +486,11 @@ module.exports = {
       StorekeeperDesc: "Attract a qualified clientele with a unique gaming experience",
       TourismProfessional: "Tourism professional",
       TourismProfessionalDesc: "Offer a unique visitor experience with a personalized game",
-      TransparentImageAboveCameraStream: "Transparent image above camera stream"
+      TransparentImageAboveCameraStream: "Transparent image above camera stream",
+      GeolocationFailed: "Geolocation failed",
+      GeolocationFailedDesc: "We can not localize you, either you have no network, or you blocked the localization for this app",
+      NumberOfColorsInTheCode: "Number of colors in the code",
+      NumberOfImagesInTheCode: "Number of pictures in the code"
     }
   },
   fr: {
@@ -908,7 +912,7 @@ module.exports = {
       Select: "Selectionner",
       Add: "Ajouter",
       Administrate: "Administrer l'app",
-      QuestUnderValidation: "Votre enquête va être validée par nos game masters. Cela peut prendre quelques jours. Veuillez vérifier votre boîte mail pour plus d'information",
+      QuestUnderValidation: "Votre enquête n'est pas modifiable. Votre enquête va être validée par nos game masters. Cela peut prendre quelques jours. Veuillez vérifier votre boîte mail pour plus d'information",
       PublicationRequested: "En cours de validation",
       PublicationRejected: "Publication rejectée. Cliquez ici pour savoir pourquoi",
       QuestPublicationRejected: "Votre enquête n'a pas été publiée. Vous allez recevoir un email vous expliquant comment l'améliorer pour permettre sa publication",
@@ -980,7 +984,11 @@ module.exports = {
       StorekeeperDesc: "Attirez une clientèle qualifiée avec une expérience unique de jeu",
       TourismProfessional: "Professionnel du tourisme",
       TourismProfessionalDesc: "Offrez une expérience de visite unique avec une enquête personnalisée",
-      TransparentImageAboveCameraStream: "Image transparente sur le flux caméra"
+      TransparentImageAboveCameraStream: "Image transparente sur le flux caméra",
+      GeolocationFailed: "Impossible de vous géolocaliser",
+      GeolocationFailedDesc: "Nous n'avons pas réussi à vous géolocaliser, soit vous n'avez pas de réseau, soit vous avez bloqué la géolocalisation pour cette app",
+      NumberOfColorsInTheCode: "Nombre de couleurs dans le code",
+      NumberOfImagesInTheCode: "Nombre d'images dans le code"
     }
   }
 }

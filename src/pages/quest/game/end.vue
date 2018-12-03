@@ -180,6 +180,7 @@ import LevelCompute from 'plugins/LevelCompute'
 //import utils from 'src/includes/utils'
 import Vue from 'vue'
 import story from 'components/story'
+import utils from 'src/includes/utils'
 
 export default {
   components: {
@@ -219,6 +220,7 @@ export default {
     }
   },
   async mounted () {
+    utils.clearAllTimeouts()
     var runIsInProgress = false
     // List all run for this quest for current user
     var runs = await RunService.listForAQuest(this.questId)

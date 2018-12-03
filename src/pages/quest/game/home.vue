@@ -1,6 +1,6 @@
 <template>
   <div class="scroll" v-scroll="scrolling">
-    <div class="fit" id="teaser" v-if="geolocationIsSupported">
+    <div class="fit" id="teaser">
       
       <!------------------ MAIN INFORMATION AREA ------------------------>
       
@@ -99,17 +99,9 @@
     
     <!------------------ NO GEOLOCATION AREA ------------------------>
     
-    <div class="row enable-geolocation" v-if="!geolocationIsSupported">
-      <div class="col-12">
-        <h5>{{ $t('label.PleaseActivateGeolocation') }}</h5>
-        <div v-if="isChrome">
-          <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
-          <p>
-            {{ $t('label.OnceGeolocationEnabled') }}
-            <!-- see https://github.com/vuejs/vue-router/issues/296 -->
-            <router-link :to="$route.path + '?_=' + (new Date).getTime()">{{ $t('label.PressHere') }}</router-link>.
-          </p>
-        </div>
+    <div class="fixed-bottom over-map" v-if="!geolocationIsSupported">
+      <div class="centered bg-warning q-pa-sm">
+        <q-spinner-puff class="on-left" /> {{ $t('label.WarningNoLocation') }}
       </div>
     </div>
     
@@ -193,6 +185,7 @@ export default {
     }
   },
   async mounted() {
+    utils.clearAllTimeouts()
     // get quest information
     await this.getQuest(this.$route.params.id)
         
@@ -230,7 +223,7 @@ export default {
      */
     checkUserIsCloseFromStartingPoint() {
       //check if location tracking is turned on
-      if (this.$data.geolocationIsSupported) {
+      if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           //compare quest starting point with user localisation (1km distance)
           if (this.quest.location && this.quest.location.coordinates && this.quest.location.coordinates.length > 1 && position.coords && position.coords.latitude) {
@@ -241,13 +234,15 @@ export default {
           }
           // check again in 15 seconds
           setTimeout(this.checkUserIsCloseFromStartingPoint, 15000)
+          this.geolocationIsSupported = true
           this.startStory()
         }, () => {
-          console.error('geolocation failed')
           this.geolocationIsSupported = false
           setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
+          this.startStory()
         }, { timeout: 10000, maximumAge: 10000 });
       } else {
+        this.geolocationIsSupported = false
         setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
         this.startStory()
       }

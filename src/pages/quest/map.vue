@@ -667,7 +667,7 @@ export default {
       innerWidth: window.innerWidth
     }
   },
-  computed: {
+  computed: {    
     // from https://stackoverflow.com/a/13348618/488666
     // adapted because my Android Chrome User Agent contains 'OPR'!
     // (Mozilla/5.0 (Linux; Android 8.0.0; ASUS_Z012D Build/OPR1.170623.026) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.109 Mobile Safari/537.36)
@@ -695,6 +695,7 @@ export default {
     google: gmapApi
   },
   mounted() {
+    utils.clearAllTimeouts()
     this.findLocation()
     window.addEventListener("batterylow", this.checkBattery, false);
     this.checkNetwork()
@@ -717,40 +718,43 @@ export default {
       if (navigator && navigator.geolocation) {
         // getCurrentPosition() is not always reliable (timeouts/fails frequently)
         // see https://stackoverflow.com/q/3397585/488666
-        this.$q.loading.show()
         navigator.geolocation.getCurrentPosition(async (position) => {
           this.geolocationIsSupported = true
           // TODO maybe here save current position in 'state' for later use in case of failure
           this.user.position.latitude = position.coords.latitude
           this.user.position.longitude = position.coords.longitude
           
-          // get quests only if tutorial is advanced
-          if (this.$store.state.user.story.step > 3) {
-            await this.getQuests()
+          if (this.questList.length === 0) {
+            this.$q.loading.show()
+            // get quests only if tutorial is advanced
+            if (this.$store.state.user.story.step > 3) {
+              await this.getQuests()
+            }
+   
+            // adjust zoom / pan to nearest quests, or current user location
+            if (this.questList.length > 0) {
+              // fix found on https://teunohooijer.com/tag/vue2-google-maps/ to use google library
+              this.$refs.mapRef.$mapPromise.then((map) => {
+                const bounds = new google.maps.LatLngBounds()
+                for (let q of this.questList) {
+                  bounds.extend({ lng: q.location.coordinates[0], lat: q.location.coordinates[1] })
+                }
+                map.fitBounds(bounds);
+              });
+            } else {
+              this.CenterMapOnPosition(this.user.position.latitude, this.user.position.longitude)
+            }
+            this.$q.loading.hide()
           }
- 
-          // adjust zoom / pan to nearest quests, or current user location
-          if (this.questList.length > 0) {
-            // fix found on https://teunohooijer.com/tag/vue2-google-maps/ to use google library
-            this.$refs.mapRef.$mapPromise.then((map) => {
-              const bounds = new google.maps.LatLngBounds()
-              for (let q of this.questList) {
-                bounds.extend({ lng: q.location.coordinates[0], lat: q.location.coordinates[1] })
-              }
-              map.fitBounds(bounds);
-            });
-          } else {
-            this.CenterMapOnPosition(this.user.position.latitude, this.user.position.longitude)
-          }
-
-          this.$q.loading.hide()
+          
+          // refresh user location periodically
+          setTimeout(this.findLocation, 30000)
           this.warnings.noLocation = false
         }, (err) => {
           console.error('geolocation failed', err)
           this.geolocationIsSupported = false
-          this.$q.loading.hide()
           // try again in 10s
-          setTimeout(this.findLocation, 10000)
+          setTimeout(this.findLocation, 5000)
           // TODO maybe here recall position stored in 'state'
           this.warnings.noLocation = true
         }, 

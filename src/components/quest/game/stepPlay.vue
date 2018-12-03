@@ -177,6 +177,9 @@
           <p class="text">Difference direction: {{ geolocation.direction }}°</p>
           -->
         </div>
+        <div class="centered bg-warning q-pa-sm" v-if="!geolocation.active">
+          <q-spinner-puff class="on-left" /> {{ $t('label.WarningNoLocation') }}
+        </div>
         <div class="direction-helper" v-if="step.showDirectionToTarget">
           <canvas id="direction-canvas"></canvas>
         </div>
@@ -417,7 +420,8 @@ export default {
           absoluteOrientationSensor: null, 
           target: null,
           canSeeTarget: false,
-          canTouchTarget: false
+          canTouchTarget: false,
+          active: true
         },
         
         // for step type 'locate-marker'
@@ -1261,19 +1265,24 @@ export default {
      */
     resetKeypadCode() {
       //this.playerCode = Array(this.step.answers.length).fill("")
-      this.playerCode = Array(4).fill("")
+      const length = ((this.step.options && this.step.options.codeLength && this.step.options.codeLength > 0) ? this.step.options.codeLength : 4)
+      this.playerCode = Array(length).fill("")
     },
     /*
      * Reset the color code pad
      */
     resetColorCode() {
-      this.playerCode = Array(4).fill('red')
+      const length = ((this.step.options && this.step.options.codeLength && this.step.options.codeLength > 0) ? this.step.options.codeLength : 4)
+      this.playerCode = Array(length).fill('red')
     },
     /*
      * Reset the image code pad
      */
     resetImageCode() {
-      this.playerCode = [0, 0, 0, 0]
+      this.playerCode.length = 0
+      for (var i = 0; i < ((this.step.options && this.step.options.codeLength && this.step.options.codeLength > 0) ? this.step.options.codeLength : 4); i++) {
+        this.playerCode.push(0)
+      }
     },
     /*
      * Display next image in the image code pad
@@ -1525,6 +1534,7 @@ export default {
      * @param   {string}    err            Error string
      */
     watchLocationError(err) {
+      this.geolocation.active = false
       console.warn('Could not get location from watchPosition()')
       console.log(err)
     },
@@ -1533,6 +1543,7 @@ export default {
      * @param   {object}    pos            User position
      */
     async watchLocationSuccess(pos) {
+      this.geolocation.active = true
       let current = pos.coords;
       let options = this.step.options
       

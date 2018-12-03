@@ -1,5 +1,5 @@
 <template>
-  <div v-touch-swipe.horizontal="swipeMgmt" class="play">
+  <div class="play">
     
     <stepPlay :step="step" :runId="run._id" :itemUsed="selectedItem" :reload="loadStepData" :lang="lang" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
       
@@ -77,7 +77,6 @@
 
 <script>
 //import simi from 'src/includes/simi' // for image similarity
-//import utils from 'src/includes/utils'
 import RunService from 'services/RunService'
 import StepService from 'services/StepService'
 import QuestService from 'services/QuestService'
@@ -86,6 +85,7 @@ import QuestService from 'services/QuestService'
 import stepPlay from 'components/quest/game/stepPlay'
 import Notification from 'plugins/NotifyHelper'
 import story from 'components/story'
+import utils from 'src/includes/utils'
 
 import Vue from 'vue'
 import Sortable from 'sortablejs'
@@ -146,6 +146,7 @@ export default {
     }
   },
   mounted () {
+    utils.clearAllTimeouts()
     // TODO: to avoid cheating for questions with text/image answers, do not load the 'right answer' info on front app, instead make a server call to check it, when player has already selected his answer and clicked on "check answer"
     this.getStep().then(async (step) => {
       // redirect to latest step run if user can not access this step
@@ -253,20 +254,6 @@ export default {
     },
     hideHint() {
       this.step.hint = {}
-    },
-    /*
-     * Launch a quest with default language
-     * @param   {Object}    obj         Swipe object
-     */
-    swipeMgmt(obj) {
-      if (obj.direction === 'right') {
-        this.previousStep()
-      }
-      if (obj.direction === 'left') {
-        if (this.canMoveNextStep) {
-          this.nextStep()
-        }
-      }
     },
     /*
      * Move to next step

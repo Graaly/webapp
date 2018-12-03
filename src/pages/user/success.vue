@@ -110,6 +110,7 @@
 <script>
 import QuestService from 'services/QuestService'
 import AuthService from 'services/AuthService'
+import utils from 'src/includes/utils'
 
 export default {
   data () {
@@ -124,6 +125,7 @@ export default {
     }
   },
   mounted() {
+    utils.clearAllTimeouts()
     this.userId = this.$route.params.id === 'me' ? this.$store.state.user._id : this.$route.params.id
     this.getAccountInformations(this.userId)
   },

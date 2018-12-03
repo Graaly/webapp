@@ -10,9 +10,9 @@
     <!------------------ TABS ------------------------>
     
     <q-tabs v-model="tabs.selected" v-show="!steps.showNewStepOverview && !steps.showNewStepPageSettings">
-      <q-tab slot="title" name="languages" :icon="tabs.progress === 0 ?  'looks_one' : 'check_circle'" :label="$t('label.Languages')" default />
-      <q-tab slot="title" :disable="tabs.progress < 1" name="settings" :icon="tabs.progress < 2 ?  'looks_two' : 'check_circle'" :label="$t('label.Intro') + ' (' + languages.current + ')'" />
-      <q-tab slot="title" :disable="tabs.progress < 2" name="steps" :icon="tabs.progress < 3 ?  'looks_3' : 'check_circle'" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
+      <q-tab slot="title" :disable="isReadOnly()" name="languages" :icon="tabs.progress === 0 ?  'looks_one' : 'check_circle'" :label="$t('label.Languages')" default />
+      <q-tab slot="title" :disable="tabs.progress < 1 || isReadOnly()" name="settings" :icon="tabs.progress < 2 ?  'looks_two' : 'check_circle'" :label="$t('label.Intro') + ' (' + languages.current + ')'" />
+      <q-tab slot="title" :disable="tabs.progress < 2 || isReadOnly()" name="steps" :icon="tabs.progress < 3 ?  'looks_3' : 'check_circle'" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
       <q-tab slot="title" :disable="tabs.progress < 3" name="publish" :icon="tabs.progress < 4 ?  'looks_4' : 'check_circle'" :label="$t('label.Publish')" />
       
       <!------------------ LANGUAGES TAB ------------------------>
@@ -417,6 +417,7 @@ export default {
     }
   },
   async mounted() {
+    utils.clearAllTimeouts()
     if (this.$route.params.questId && this.$route.params.questId !== '') {
       if (typeof window.cordova !== 'undefined') {
         this.isHybrid = true
@@ -470,7 +471,7 @@ export default {
         // define tabs status
         this.tabs.progress = this.quest.creationStep
         // creation in progress => get creator back to the tab where he was
-        if (this.tabs.progress < 4) {
+        if (this.tabs.progress <= 4) {
           this.tabs.selected = this.tabs.list[this.tabs.progress]
         }
         
@@ -571,7 +572,14 @@ export default {
     async getCurrentLocation() {
       this.$q.loading.show()
       // get the current coords
-      navigator.geolocation.getCurrentPosition(this.fillLocation)
+      navigator.geolocation.getCurrentPosition(this.fillLocation, getLocationError, {timeout: 5000, maximumAge: 10000})
+    },
+    getLocationError(err) {
+      console.log(err)
+      this.$q.dialog({
+        title: this.$t('label.GeolocationFailed'),
+        message: this.$t('label.GeolocationFailedDesc')
+      })
     },
     /*
      * Get the address based on the position
@@ -702,6 +710,15 @@ export default {
         this.quest.status = 'unpublished'
         this.tabs.progress = 3
       }
+    },
+    /*
+     * check if a quest is read only
+     */
+    isReadOnly() {
+      if (this.quest.status === 'disabled' || this.quest.status === 'tovalidate') {
+        return true
+      }
+      return false
     },
     /*
      * Unpublish a quest

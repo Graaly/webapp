@@ -86,6 +86,7 @@ import AuthService from 'services/AuthService'
 import { required, minLength } from 'vuelidate/lib/validators'
 import Notification from 'plugins/NotifyHelper'
 import checkPasswordComplexity from 'plugins/PasswordComplexity'
+import utils from 'src/includes/utils'
 
 import countriesFR from 'data/countries_fr.json'
 import countriesEN from 'data/countries_en.json'
@@ -112,6 +113,7 @@ export default {
     })
   },
   mounted () {
+    utils.clearAllTimeouts()
     // check that the email is provided
     if (this.$route.params.email) {
       this.form.email = this.$route.params.email

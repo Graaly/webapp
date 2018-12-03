@@ -198,6 +198,7 @@
     <!------------------ STEP : CODE KEYPAD ------------------------>
     
     <div v-if="options.code == 'code-keypad'">
+    
       <q-field 
         :error="$v.selectedStep.form.answers.$error"
         :error-label="$t('label.CodeKeypadFormatError')">
@@ -215,6 +216,7 @@
     <!------------------ STEP : COLOR CODE ------------------------>
     
     <div v-if="options.code == 'code-color'" class="code-color">
+      <q-select :float-label="$t('label.NumberOfColorsInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" />
       <h2>{{ $t('label.ExpectedColorCodeAnswer') }}</h2>
       <table>
       <tr>
@@ -251,6 +253,7 @@
       </q-btn>
       <div v-if="selectedStep.form.options.images && selectedStep.form.options.images.length > 0 && selectedStep.form.options.images[0].imagePath">
         <h2>{{ $t('label.ExpectedCode') }}</h2>
+        <q-select :float-label="$t('label.NumberOfImagesInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" />
         <table>
           <tr>
             <td v-for="(code, index) in unformatedAnswer" :key="index" class="text-center" @click="previousCodeAnswer(index)">
@@ -556,6 +559,12 @@ export default {
       ],
             
       answerType: 'text',
+      numberOfDigitsOptions: [
+        { value: 1, label: "1" },
+        { value: 2, label: "2" },
+        { value: 3, label: "3" },
+        { value: 4, label: "4" }
+      ],
       defaultNbAnswers: 4,
       minNbAnswers: 2,
       maxNbAnswers: 6,
@@ -732,6 +741,9 @@ export default {
         } else {
           this.unformatedAnswer = Array(4).fill('red')
         }
+        if (!this.selectedStep.form.options.codeLength) {
+          this.selectedStep.form.options.codeLength = 4
+        }
       } else if (this.options.code === 'code-image') {
         // init images list
         if (!this.selectedStep.form.options || !this.selectedStep.form.options.images) {
@@ -739,6 +751,9 @@ export default {
           for (let i = 0; i < this.defaultNbAnswers; i++) {
             this.selectedStep.form.options.images.push({ imagePath: null })
           }
+        }
+        if (!this.selectedStep.form.options.codeLength) {
+          this.selectedStep.form.options.codeLength = 4
         }
         // init answers
         if (this.selectedStep.form.answers && typeof this.selectedStep.form.answers === 'string' && this.selectedStep.form.answers.indexOf('|') !== -1) {
@@ -861,6 +876,9 @@ export default {
           this.selectedStep.form.options.character = "1"
         }
       }
+      if (this.options.code === 'code-keypad') {
+        this.selectedStep.form.options.codeLength = this.selectedStep.form.answers.length
+      }
       if (this.options.code === 'code-color') {
         this.selectedStep.form.answers = this.unformatedAnswer.join('|')
       }
@@ -933,6 +951,7 @@ export default {
         })
       }
     },
+    
     /*
      * Delete an answer in the multiple choice step
      */
@@ -951,6 +970,24 @@ export default {
         Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.minNbAnswers }), 'error')
       } else {
         this.selectedStep.form.options.images.splice(key, 1);
+      }
+    },
+    /*
+     * Change the number of digits in code
+     */
+    changeDigitsNumberInCode: function() {
+      if (this.options.code === 'code-color') {
+        this.unformatedAnswer.length = 0      
+        const codeLength = parseInt(this.selectedStep.form.options.codeLength, 10)
+        while (codeLength > this.unformatedAnswer.length) {
+          this.unformatedAnswer.push('red')
+        }
+      } else if (this.options.code === 'code-image') {
+        this.unformatedAnswer.length = 0      
+        const codeLength = parseInt(this.selectedStep.form.options.codeLength, 10)
+        while (codeLength > this.unformatedAnswer.length) {
+          this.unformatedAnswer.push(0)
+        }
       }
     },
     /*
@@ -1260,7 +1297,14 @@ export default {
     async getCurrentLocation() {
       this.$q.loading.show()
       // get the current coords
-      navigator.geolocation.getCurrentPosition(this.fillLocation)
+      navigator.geolocation.getCurrentPosition(this.fillLocation, getLocationError, {timeout: 5000, maximumAge: 10000});
+    },
+    getLocationError(err) {
+      console.log(err)
+      this.$q.dialog({
+        title: this.$t('label.GeolocationFailed'),
+        message: this.$t('label.GeolocationFailedDesc')
+      })
     },
     /*
      * Get the address based on the position
@@ -1296,10 +1340,8 @@ export default {
         this.$v.selectedStep.form.options.lat.$touch()
         this.$v.selectedStep.form.options.lng.$touch()
         this.$q.loading.hide()
-      }, (err) => {
-        console.log(err)
-        this.$q.loading.hide()
       }, 
+      getLocationError, 
       { 
         timeout: 5000, 
         maximumAge: 10000 

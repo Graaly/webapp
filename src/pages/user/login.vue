@@ -71,6 +71,7 @@ import AuthService from 'services/AuthService'
 import { required, minLength, email } from 'vuelidate/lib/validators'
 import checkPasswordComplexity from 'plugins/PasswordComplexity'
 import Notification from 'plugins/NotifyHelper'
+import utils from 'src/includes/utils'
 
 export default {
   data() {
@@ -87,6 +88,7 @@ export default {
     }
   },
   mounted () {
+    utils.clearAllTimeouts()
     // check if user is redirected to this page to validate his account
     if (this.$route.query.email && this.$route.query.code) {
       this.validateAccount(this.$route.query.email, this.$route.query.code)
