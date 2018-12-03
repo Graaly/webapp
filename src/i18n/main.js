@@ -138,7 +138,8 @@ module.exports = {
       MapDetail1: "Quand vous êtes sur la carte, touchez le bouton <img src='statics/icons/game/menu-main.png' style='width: 40px'> pour accéder aux options de la carte, et trouver les enquêtes qui vous intéressent.",
       StartNewQuest1: "Bon, on s'est assez reposé, démarrons une nouvelle enquête !",
       StartNewQuest2: "Je vous propose qu'on s'occupe de l'enquête <strong>{quest}</strong> ! Beaucoup s'y sont cassé les dents, y arriverez-vous ?",
-      StartNewQuest3: "Sélectionnez une enquête sur la carte"
+      StartNewQuest3: "Sélectionnez une enquête sur la carte",
+      help: "{help}"
     },
     label: {
       shortLang: "en",
@@ -490,7 +491,8 @@ module.exports = {
       GeolocationFailed: "Geolocation failed",
       GeolocationFailedDesc: "We can not localize you, either you have no network, or you blocked the localization for this app",
       NumberOfColorsInTheCode: "Number of colors in the code",
-      NumberOfImagesInTheCode: "Number of pictures in the code"
+      NumberOfImagesInTheCode: "Number of pictures in the code",
+      FindMarkerHelp: "Target the correct marker with your phone camera. A marker is a symbol surrounded by a black frame. Good luck!"
     }
   },
   fr: {
@@ -988,7 +990,8 @@ module.exports = {
       GeolocationFailed: "Impossible de vous géolocaliser",
       GeolocationFailedDesc: "Nous n'avons pas réussi à vous géolocaliser, soit vous n'avez pas de réseau, soit vous avez bloqué la géolocalisation pour cette app",
       NumberOfColorsInTheCode: "Nombre de couleurs dans le code",
-      NumberOfImagesInTheCode: "Nombre d'images dans le code"
+      NumberOfImagesInTheCode: "Nombre d'images dans le code",
+      FindMarkerHelp: "Visez le bon marqueur avec la caméra de votre téléphone. Un marqueur est un signe entouré d'un cadre noir. Bonne chance !"
     }
   }
 }

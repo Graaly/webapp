@@ -296,6 +296,11 @@
         <div class="marker-view" v-show="!playerResult">
           <canvas id="marker-canvas"></canvas>
         </div>
+        <!-- HELP -->
+        <q-btn round size="lg" class="absolute-bottom-left" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
+        <div class="fixed-bottom over-map" style="height: 100%" v-if="locateMarker.showHelp">
+          <story step="help" :data="{help: $t('label.FindMarkerHelp')}" @next="locateMarker.showHelp = false"></story>
+        </div>
       </div>
     </div>
     
@@ -434,7 +439,8 @@ export default {
           markerRoot: null,
           markerControls: {},
           playerAnswer: '',
-          layer: null
+          layer: null,
+          showHelp: false
         },
         
         // for step type 'write-text'
@@ -1960,7 +1966,7 @@ export default {
       this.locateMarker.arToolkitContext.update(this.$refs['camera-stream-for-locate-marker'])
       this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoot)
       this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera);
-    },    
+    },
     /*
     * when reading a new value from AbsoluteOrientationSensor, update camera rotation so it matches device orientation
     */
@@ -2159,6 +2165,8 @@ export default {
   .locate-marker .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
   .locate-marker img.locate-marker-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 30; padding: 0; margin: 0; }
   .locate-marker img.locate-marker-answer { width: 60vw; margin: 30vw auto; }
+  .locate-marker .q-btn { margin-bottom: 17vw; margin-left: 4vw; z-index: 50; }
+  .locate-marker .q-btn span { font-size: 36px; }
   
   /* memory specific */
   

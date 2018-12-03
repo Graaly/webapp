@@ -50,7 +50,7 @@
     <!--====================== HINT =================================-->
     
     <div class="fixed-bottom over-map" v-if="hint.isOpened">
-      <story step="2" :data="{hint: hint.label[lang]}" @next="askForHint()"></story>
+      <story step="hint" :data="{hint: hint.label[lang]}" @next="askForHint()"></story>
     </div>
     
     <!--====================== STORY =================================-->

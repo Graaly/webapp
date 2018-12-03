@@ -28,9 +28,23 @@ export default {
   props: ['step', 'data'],
   data() {
     return {
-      steps: [
+      steps: {
+        // Hint
+        'hint': {
+          discussions: [
+            {character: "3", text: "hint", button: {label: "OkThanks"}, condition: null}
+          ],
+          bottom: 50
+        },
+        // Help
+        'help': {
+          discussions: [
+            {character: "2", text: "help", button: {label: "OkThanks"}, condition: null}
+          ],
+          bottom: 50
+        },
         // step 0 - Graaly introduction
-        {
+        0: {
           discussions: [
             {character: "1", text: "Welcome", condition: null},
             {character: "1", text: "FirstStep", condition: null},
@@ -47,7 +61,7 @@ export default {
           bottom: 0
         },
         // step 1 - Secretary introduce a quest
-        {
+        1: {
           discussions: [
             {character: "2", text: "WelcomeToQuest1", link: {label: "BackToTheMap", action: "/map"}, condition: null},
             {character: "2", text: "WelcomeToQuest2", link: {label: "BackToTheMap", action: "/map"}, condition: (this.data && this.data.hasOwnProperty("startingPlace") && (typeof this.data.startingPlace !== 'undefined') && this.data.startingPlace.length > 1)},
@@ -60,22 +74,15 @@ export default {
           ],
           bottom: 0
         },
-        // step 2 - Hint
-        {
-          discussions: [
-            {character: "3", text: "hint", button: {label: "OkThanks"}, condition: null}
-          ],
-          bottom: 50
-        },
         // step 3 - Discovery quest
-        {
+        3: {
           discussions: [
             {character: "1", text: "DiscoveryQuest1", button: {label: "letsGo", action: "/quest/play/5b7303ec4efbcd1f8cb101c6"}, condition: null, nextStep: 4}
           ],
           bottom: 0
         },
         // step 4 - Discovery quest
-        {
+        4: {
           discussions: [
             {character: "1", text: "DiscoveryQuest2", condition: null},
             {character: "1", text: "DiscoveryQuest3", condition: null},
@@ -87,7 +94,7 @@ export default {
           bottom: 50
         },
         // step 5 - Discovery quest
-        {
+        5: {
           discussions: [
             {character: "1", text: "DiscoveryQuest8", condition: null},
             {character: "1", text: "DiscoveryQuest9", condition: null},
@@ -97,21 +104,21 @@ export default {
           bottom: 50
         },
         // step 6 - Read more text in quests
-        {
+        6: {
           discussions: [
             {character: "2", text: "readMore", button: {label: "OkThanks"}, condition: null}
           ],
           bottom: 50
         },
         // step 7 - Discovery quest
-        {
+        7: {
           discussions: [
             {character: "1", text: "DiscoveryQuest13", condition: null, nextStep: 8}
           ],
           bottom: 50
         },
         // step 8 - Discovery quest
-        {
+        8: {
           discussions: [
             {character: "1", text: "DiscoveryQuest14", condition: null},
             {character: "1", text: "DiscoveryQuest15", condition: null},
@@ -120,7 +127,7 @@ export default {
           bottom: 50
         },
         // step 9 - End of first quest
-        {
+        9: {
           discussions: [
             {character: "1", text: "EndQuest1", condition: (this.data && this.data.hasOwnProperty("score") && this.data.score > 80)},
             {character: "1", text: "EndQuest1b", condition: (this.data && this.data.hasOwnProperty("score") && this.data.score <= 0)},
@@ -133,14 +140,14 @@ export default {
           bottom: 0
         },
         // step 10 - Return to map
-        {
+        10: {
           discussions: [
             {character: "1", text: "MapReturn", condition: null, nextStep: 11}
           ],
           bottom: 0
         },
         // step 11 - Score
-        {
+        11: {
           discussions: [
             {character: "1", text: "RankingDescription1", condition: null},
             {character: "1", text: "RankingDescription2", condition: null},
@@ -150,7 +157,7 @@ export default {
           bottom: 0
         },
         // step 12 - Complete profile - Not used anymore
-        {
+        12: {
           discussions: [
             {character: "2", text: "CompleteProfile1", condition: null},
             {character: "2", text: "CompleteProfile2", condition: null, nextStep: 13}
@@ -158,21 +165,21 @@ export default {
           bottom: 0
         },
         // step 13 - Detail of the map
-        {
+        13: {
           discussions: [
             {character: "2", text: "MapDetail1", condition: null, nextStep: 14}
           ],
           bottom: 0
         },
         // step 14 - Add friends
-        {
+        14: {
           discussions: [
             {character: "2", text: "AddFriends", condition: null, nextStep: 15}
           ],
           bottom: 0
         },
         // step 15 - Create quest
-        {
+        15: {
           discussions: [
             {character: "1", text: "CreateQuest1", condition: null},
             {character: "1", text: "CreateQuest2", condition: null, nextStep: 16},
@@ -181,7 +188,7 @@ export default {
           bottom: 0
         },
         // step 16 - Start a new quest
-        {
+        16: {
           discussions: [
             {character: "1", text: "StartNewQuest1", condition: null},
             {character: "1", text: "StartNewQuest2", condition: (this.data !== null && this.data.hasOwnProperty("questId")), button: {label: "letsGo", action: "/quest/play/" + ((this.data && this.data.hasOwnProperty("questId")) ? this.data.questId : '0')}, link: {label: "NoThanks"}},
@@ -189,7 +196,7 @@ export default {
           ],
           bottom: 0
         }
-      ],
+      },
       currentStep: {
         id: null,
         discussionId: 0
@@ -236,9 +243,8 @@ export default {
         this.moreToValidStep()
       } else {
         await this.saveStepPassed()
-        // TODO : transition
         this.hide = true
-        setTimeout(this.emitNext, 2000)
+        setTimeout(this.emitNext, 500) // should match ".fadeout" transition duration in app.styl 
       }
     },
     emitNext() {
