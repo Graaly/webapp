@@ -374,18 +374,37 @@ export default {
     return this.initialState()
   },
   mounted () {
-    this.initData()
+    // seems always already done by "watch" on "reload" key
+    //this.initData()
   },
   beforeDestroy() {
+    // this is called every time route changes => cleanup all memory & CPU intensive tasks here
+    // (camera streams, 3D animations, GPS trackings...)
+    this.clearAllCameraStreams()
+    
+    // cancels recursive 'requestAnimationFrame()' calls
+    // otherwise they continue in the background even when route changes
+    this.stopLatestAnimation()
+    
+    // clean 3D objects/scenes to avoid memory leaks
+    this.geolocation.target = null
+    this.locateMarker.scene = null
+    this.locateMarker.renderer = null
+    this.locateMarker.camera = null
+    this.locateMarker.arToolkitContext = null
+    this.locateMarker.arSmoothedControls = null
+    this.locateMarker.markerRoot = null
+    this.locateMarker.markerControls = null
+    
     if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
       navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
     }
+    
+    utils.clearAllTimeouts()
   },
   methods: {
     initialState () {
       return {
-        run: {}, // to keep ?
-        isRunFinished: false,  // to keep ?
         playerResult: null,
         cameraStreamEnabled: false,
         serverUrl: process.env.SERVER_URL,
@@ -464,13 +483,16 @@ export default {
           selectedKey: null,
           disabled: false
         },
+        // for step type 'find-item'
+        itemAdded: null,
+        readMoreNotif: null,
+        // for story/tutorial
         story: {
           step: null,
           data: null
         },
-        // for step type 'find-item'
-        itemAdded: null,
-        readMoreNotif: null
+	// for cleanup
+        latestRequestAnimationId: null
       }
     },
     /*
@@ -585,8 +607,7 @@ export default {
         if (this.step.type === 'locate-item-ar' && !this.playerResult) {
           let cameraStream = this.$refs['camera-stream-for-locate-item-ar']
           // enable rear camera stream
-          // ------------------------- 
-          // TODO STOP CAMERA STREAM WHEN USER WANTS TO SKIP THE STEP
+          // -------------------------
           navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
             .then((stream) => {
               cameraStream.srcObject = stream
@@ -753,7 +774,6 @@ export default {
           let cameraStream = this.$refs['camera-stream-for-locate-marker']
           // enable rear camera stream
           // ------------------------- 
-          // TODO STOP CAMERA STREAM WHEN USER HAS FOUND THE MARKER OR WANTS TO SKIP THE STEP
           navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
             .then((stream) => {
               cameraStream.srcObject = stream
@@ -1934,7 +1954,7 @@ export default {
     * Animate canvas showing item (target) to find, for step type "locate-item-ar"
     */
     animateTargetCanvas() {
-      requestAnimationFrame(this.animateTargetCanvas)
+      this.latestRequestAnimationId = requestAnimationFrame(this.animateTargetCanvas)
       let target = this.geolocation.target
       let mixers = target.mixers
       
@@ -1961,11 +1981,18 @@ export default {
       }
       
       // run the rendering loop
-      requestAnimationFrame(this.animateMarkerCanvas)
+      this.latestRequestAnimationId = requestAnimationFrame(this.animateMarkerCanvas)
       
       this.locateMarker.arToolkitContext.update(this.$refs['camera-stream-for-locate-marker'])
       this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoot)
       this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera);
+    },
+    /*
+    * stop latest animation
+    */
+    stopLatestAnimation() {
+      cancelAnimationFrame(this.latestRequestAnimationId)
+      this.latestRequestAnimationId = null
     },
     /*
     * when reading a new value from AbsoluteOrientationSensor, update camera rotation so it matches device orientation
@@ -2037,6 +2064,31 @@ export default {
         this.story.data = {
           readMore: this.step.extraText[this.lang]
         }
+      }
+    },
+    /*
+    * clear all camera streams
+    */
+    clearAllCameraStreams() {
+      // TODO maybe only one "camera stream" <div> could be used by all steps
+      let streamDivs = [
+        'camera-stream-for-recognition',
+        'camera-stream-for-locate-marker',
+        'camera-stream-for-locate-item-ar'
+      ]
+      
+      let streams = []
+      
+      for (let streamDiv of streamDivs) {
+        let element = this.$refs[streamDiv]
+        console.log('streamDiv', streamDiv, element)
+        if (typeof element !== 'undefined' && element.srcObject) {
+          streams.push(element.srcObject)
+        }
+      }
+            
+      for (let stream of streams) {
+        utils.clearCameraStream(stream)
       }
     }
   }

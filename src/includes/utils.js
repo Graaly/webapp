@@ -183,6 +183,14 @@ var self = {
     for (var i = 0; i < highestTimeoutId; i++) {
       clearTimeout(i); 
     }
+  },
+  
+  /**
+   * Clear all tracks of a camera stream
+   * from https://stackoverflow.com/a/47357550/488666
+   */
+  clearCameraStream: function (stream) {
+    stream.getTracks().forEach(track => track.stop())
   }
 }
 
