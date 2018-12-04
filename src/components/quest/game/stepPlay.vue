@@ -491,7 +491,7 @@ export default {
           step: null,
           data: null
         },
-	// for cleanup
+        // for cleanup
         latestRequestAnimationId: null
       }
     },
