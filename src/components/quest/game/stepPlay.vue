@@ -374,8 +374,8 @@ export default {
     return this.initialState()
   },
   mounted () {
-    // seems always already done by "watch" on "reload" key
-    //this.initData()
+    // seems always already done by "watch" on "reload" key // Uncommented by EMA on 122018, in some case watcher does not work
+    this.initData()
   },
   beforeDestroy() {
     // this is called every time route changes => cleanup all memory & CPU intensive tasks here
@@ -524,7 +524,7 @@ export default {
             //}
             
             // display controls after some seconds to let user see background
-            setTimeout(this.showControls, 1500)
+            setTimeout(this.showControls, 1000)
           }
         } else {
           background.style.background = 'none'
@@ -538,10 +538,10 @@ export default {
           window.clearInterval(drawDirectionInterval)
         }
         this.$store.dispatch('setDrawDirectionInterval', null)
-        
+
         if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'character' || this.step.type === 'new-item') {
           // validate steps with no enigma
-          setTimeout(this.checkAnswer, 2000)
+          setTimeout(this.checkAnswer, 1000)
         }
         
         if (this.step.type === 'choose') {
@@ -1233,7 +1233,7 @@ export default {
           break
       }
       // advise user to move to next step
-      setTimeout(this.alertToPassToNextStep, 5000)
+      setTimeout(this.alertToPassToNextStep, 15000)
     },
     /*
      * Send wrong answer 
@@ -1251,7 +1251,7 @@ export default {
         this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
       }
       // advise user to move to next step
-      setTimeout(this.alertToPassToNextStep, 5000)
+      setTimeout(this.alertToPassToNextStep, 15000)
     },
     alertToPassToNextStep() {
       this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'))

@@ -252,7 +252,7 @@
     <div id="overview" v-if="steps.showNewStepOverview" class="fit">
     
         <!------------------ STEP SIMULATION ------------------------>
-        
+
         <stepPlay :step="steps.new.overviewData" runId="0" :itemUsed="selectedItem" :reload="steps.reloadStepPlay" :lang="languages.current" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
         <q-layout-footer class="step-menu">
           <q-tabs v-model="overview.tabSelected">
@@ -572,9 +572,9 @@ export default {
     async getCurrentLocation() {
       this.$q.loading.show()
       // get the current coords
-      navigator.geolocation.getCurrentPosition(this.fillLocation, getLocationError, {timeout: 5000, maximumAge: 10000})
+      navigator.geolocation.getCurrentPosition(this.fillLocation, this.getLocationError, {timeout: 5000, maximumAge: 10000})
     },
-    getLocationError(err) {
+    async getLocationError(err) {
       console.log(err)
       this.$q.dialog({
         title: this.$t('label.GeolocationFailed'),
@@ -947,9 +947,11 @@ export default {
      * @param   {String}    stepId            ID of the step
      */
     async trackStepPlayed(stepId) {
+      console.log("played")
       this.canMoveNextStep = true
     },
     async trackStepSuccess(stepId) {
+      console.log("success")
       this.canMoveNextStep = true
       this.hideHint()
     },
@@ -957,12 +959,14 @@ export default {
      * Track step passing
      */
     async trackStepPass () {
+      console.log("pass")
       this.canPass = true
     },
     /*
      * Track step fail
      */
     async trackStepFail () {
+      console.log("fail")
       this.hideHint()
     },
     /*

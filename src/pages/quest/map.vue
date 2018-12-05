@@ -3,7 +3,7 @@
     
     <!--====================== MAP PAGE =================================-->
     
-    <div class="row fullscreen" ref="map" v-if="geolocationIsSupported">
+    <div class="row fullscreen" ref="map" v-if="user.position.isSupported">
       
       <gmap-map
         v-if="isMounted"
@@ -35,8 +35,12 @@
     
     <!------------------ NO GEOLOCATION AREA ------------------------>
     
-    <div class="row enable-geolocation fixed-center centered" v-if="!geolocationIsSupported">
-      <div class="col-12">
+    <div class="row enable-geolocation fixed-center centered" v-if="!user.position.isSupported">
+      <div class="col-12 centered" v-if="user.position.nbFails <= 1">
+        <p><q-spinner-puff color="primary" size="40px" /></p>
+        <p>{{ $t('label.LocationSearching') }}</p>
+      </div>
+      <div class="col-12" v-if="user.position.nbFails > 1">
         <p class="text-primary">{{ $t('label.PleaseActivateGeolocation') }}</p>
         <div v-if="nativeSettingsIsEnabled">
           <q-btn color="primary" @click="openLocationSettings">{{ $t('label.PressHere') }}</q-btn>
@@ -412,17 +416,80 @@
         <a class="float-right no-underline" color="grey" @click="friends.show = false"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ friends.selected.name }}</h1>
         <q-tabs two-lines>
-          <q-tab slot="title" name="friendranking" icon="star" :label="$t('label.Ranking')" default />
-          <q-tab slot="title" name="friendbuilt" icon="add_box" :label="$t('label.QuestsCreated')" />
+          <!--<q-tab slot="title" name="friendranking" icon="star" :label="$t('label.Ranking')" default />-->
+          <q-tab slot="title" name="friendbuilt" icon="add_box" :label="$t('label.QuestsCreated')" default />
           <q-tab slot="title" name="friendplayed" icon="play_circle_filled" :label="$t('label.QuestsSuccessful')" />
-          <q-tab-pane name="friendranking">
-            
+          
+          <q-tab-pane name="friendranking">  
           </q-tab-pane>
+          
           <q-tab-pane name="friendbuilt">
-            
+            <q-list highlight>
+              <q-item v-for="quest in friends.selected.built" :key="quest._id" @click.native="$router.push('/quest/play/' + quest._id)">
+                <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
+                <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
+                <q-item-main>
+                  <q-item-tile label>{{ getQuestTitle(quest, false) }}</q-item-tile>
+                  <q-item-tile sublabel v-if="quest.status === 'published'">
+                    <q-rating readonly :value="(quest.rating && quest.rating.rounded) ? quest.rating.rounded : null" color="primary" :max="5" size="1rem" />
+                    {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate}}
+                  </q-item-tile>
+                  
+                  <q-item-tile sublabel v-if="quest.status == 'unpublished'">
+                    {{ $t('label.Unpublished') }}
+                  </q-item-tile>
+                  <q-item-tile sublabel v-if="quest.status == 'tovalidate'">
+                    {{ $t('label.PublicationRequested') }} ...
+                  </q-item-tile>
+                  <q-item-tile sublabel v-if="quest.status == 'rejected'" style="color: #f00">
+                    {{ $t('label.PublicationRejected') }}
+                  </q-item-tile>
+                  
+                </q-item-main>
+              </q-item>
+              <q-item v-if="friends.selected.built.length === 0">
+                <q-item-main>
+                  <q-item-tile label>{{ $t('label.NoQuestCreated') }}</q-item-tile>
+                </q-item-main>
+              </q-item>
+            </q-list>
           </q-tab-pane>
+          
           <q-tab-pane name="friendplayed">
-            
+            <q-list highlight>
+              <q-item v-if="friends.selected.played && friends.selected.played.length > 0" v-for="quest in friends.selected.played" :key="quest._id" @click.native="$router.push('/quest/play/' + quest.questId)">
+                <q-item-side v-if="quest.questData && quest.questData.picture" :avatar="((quest.questData.picture && quest.questData.picture[0] === '_') ? 'statics/images/quest/' + quest.questData.picture : serverUrl + '/upload/quest/' + quest.questData.picture)" />
+                <q-item-side v-if="!quest.questData || !quest.questData.picture" :avatar="'statics/profiles/noprofile.png'" />
+                <q-item-main>
+                  <q-item-tile label>{{ getQuestTitle(quest.questData, false) }} {{ quest.type }}</q-item-tile>
+                  <q-item-tile sublabel v-if="quest.dateCreated && quest.status == 'finished' && !quest.score">
+                    {{ $t('label.PlayedOn') }} {{quest.dateCreated | formatDate}}
+                  </q-item-tile>
+                  <q-item-tile sublabel v-if="quest.dateCreated && quest.status == 'finished' && quest.score">
+                    {{ $t('label.Succeeded') }} {{quest.dateCreated | formatDate}}
+                  </q-item-tile>
+                  <q-item-tile sublabel v-if="!quest.dateCreated">
+                    {{ $t('label.Succeeded') }}
+                  </q-item-tile>
+                  
+                  <q-item-tile sublabel v-if="quest.status == 'in-progress'">
+                    {{ $t('label.ContinueThisQuest') }}
+                  </q-item-tile>
+                  
+                </q-item-main>
+                <q-item-side right class="score" v-if="!quest.questData.type || quest.questData.type === 'quest'">
+                  {{ quest.score }} <q-icon name="fas fa-trophy" />
+                </q-item-side>
+                <q-item-side right class="score" v-if="quest.questData.type && quest.questData.type !== 'quest'">
+                  {{ quest.reward }} <q-icon name="fas fa-bolt" />
+                </q-item-side>
+              </q-item>
+              <q-item v-if="friends.selected.played.length === 0">
+                <q-item-main>
+                  <q-item-tile label>{{ $t('label.NoQuestPlayed') }}</q-item-tile>
+                </q-item-main>
+              </q-item>
+            </q-list>
           </q-tab-pane>
         </q-tabs>
       </div>
@@ -594,6 +661,8 @@ export default {
       },
       user: {
         position: {
+          isSupported: false,
+          nbFails: 0,
           latitude: 0,
           longitude: 0
         }
@@ -606,7 +675,11 @@ export default {
           items: []
         },
         show: false,
-        selected: {},
+        selected: {
+          name: '',
+          played: [],
+          built: []
+        },
         new: {
           show: false
         }
@@ -616,7 +689,6 @@ export default {
       },
       currentQuestIndex: null,
       currentQuest: null,
-      geolocationIsSupported: false,
       searchText: '',
       questList: [],
       serverUrl: process.env.SERVER_URL,
@@ -719,7 +791,8 @@ export default {
         // getCurrentPosition() is not always reliable (timeouts/fails frequently)
         // see https://stackoverflow.com/q/3397585/488666
         navigator.geolocation.getCurrentPosition(async (position) => {
-          this.geolocationIsSupported = true
+          this.user.position.isSupported = true
+          this.user.position.nbFails = 0
           // TODO maybe here save current position in 'state' for later use in case of failure
           this.user.position.latitude = position.coords.latitude
           this.user.position.longitude = position.coords.longitude
@@ -742,7 +815,7 @@ export default {
                 map.fitBounds(bounds);
               });
             } else {
-              this.CenterMapOnPosition(this.user.position.latitude, this.user.position.longitude)
+              this.centerOnUserPosition()
             }
             this.$q.loading.hide()
           }
@@ -752,7 +825,8 @@ export default {
           this.warnings.noLocation = false
         }, (err) => {
           console.error('geolocation failed', err)
-          this.geolocationIsSupported = false
+          this.user.position.isSupported = false
+          this.user.position.nbFails++
           // try again in 10s
           setTimeout(this.findLocation, 5000)
           // TODO maybe here recall position stored in 'state'
@@ -764,7 +838,11 @@ export default {
         });
       } else {
         this.warnings.noLocation = true
+        this.user.position.nbFails = 2
       }
+    },
+    centerOnUserPosition() {
+      this.CenterMapOnPosition(this.user.position.latitude, this.user.position.longitude)
     },
     /*
      * Check battery level
@@ -931,7 +1009,7 @@ export default {
             icon: 'gps_fixed',
             color: 'primary',
             handler: () => {
-              this.findLocation()
+              this.centerOnUserPosition()
             }
           },
           {
@@ -1122,7 +1200,16 @@ export default {
       this.$q.loading.show()
       // load user data
       let friend = await UserService.getFriend(id)
-      this.friends.selected = friend.data
+      this.friends.selected.name = friend.data.name
+      
+      // load user played quests
+      let played = await QuestService.ListPlayedByAUser(id)
+      this.friends.selected.played = played.data
+      
+      // load user build quests
+      let built = await QuestService.ListCreatedByAUser(id)
+      this.friends.selected.built = built.data
+      
       this.$q.loading.hide()
       
       // display user page
@@ -1313,7 +1400,7 @@ export default {
           this.search.quests = response.data
          
           // compute distance
-          if (this.geolocationIsSupported) {
+          if (this.user.position.isSupported) {
             this.search.quests = this.search.quests.map(function(quest) {
               const R = 6378.137
               let dLat = quest.location.coordinates[1] * Math.PI / 180 - userPosition.latitude * Math.PI / 180

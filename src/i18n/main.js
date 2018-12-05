@@ -415,7 +415,7 @@ module.exports = {
       Select: "Select",
       Add: "Add",
       Administrate: "Administration page",
-      QuestUnderValidation: "Your quest is read only. Your quest will be validated by our game master. This can take days. Please check your mailbox for more information",
+      QuestUnderValidation: "Your quest is now read only. Your quest will be validated by our game master. This can take days. Please check your mailbox for more information",
       PublicationRequested: "Publication requested",
       PublicationRejected: "Publication rejected. You will receive an email to know why",
       QuestPublicationRejected: "Your quest has not been published. You will receive an email to explain you how to update it to have it published",
@@ -492,7 +492,8 @@ module.exports = {
       GeolocationFailedDesc: "We can not localize you, either you have no network, or you blocked the localization for this app",
       NumberOfColorsInTheCode: "Number of colors in the code",
       NumberOfImagesInTheCode: "Number of pictures in the code",
-      FindMarkerHelp: "Target the correct marker with your phone camera. A marker is a symbol surrounded by a black frame. Good luck!"
+      FindMarkerHelp: "Target the correct marker with your phone camera. A marker is a symbol surrounded by a black frame. Good luck!",
+      LocationSearching: "Looking for your position..."
     }
   },
   fr: {
@@ -914,7 +915,7 @@ module.exports = {
       Select: "Selectionner",
       Add: "Ajouter",
       Administrate: "Administrer l'app",
-      QuestUnderValidation: "Votre enquête n'est pas modifiable. Votre enquête va être validée par nos game masters. Cela peut prendre quelques jours. Veuillez vérifier votre boîte mail pour plus d'information",
+      QuestUnderValidation: "Votre enquête n'est plus modifiable. Votre enquête va être validée par nos game masters. Cela peut prendre quelques jours. Veuillez vérifier votre boîte mail pour plus d'information",
       PublicationRequested: "En cours de validation",
       PublicationRejected: "Publication rejectée. Cliquez ici pour savoir pourquoi",
       QuestPublicationRejected: "Votre enquête n'a pas été publiée. Vous allez recevoir un email vous expliquant comment l'améliorer pour permettre sa publication",
@@ -991,7 +992,8 @@ module.exports = {
       GeolocationFailedDesc: "Nous n'avons pas réussi à vous géolocaliser, soit vous n'avez pas de réseau, soit vous avez bloqué la géolocalisation pour cette app",
       NumberOfColorsInTheCode: "Nombre de couleurs dans le code",
       NumberOfImagesInTheCode: "Nombre d'images dans le code",
-      FindMarkerHelp: "Visez le bon marqueur avec la caméra de votre téléphone. Un marqueur est un signe entouré d'un cadre noir. Bonne chance !"
+      FindMarkerHelp: "Visez le bon marqueur avec la caméra de votre téléphone. Un marqueur est un signe entouré d'un cadre noir. Bonne chance !",
+      LocationSearching: "Recherche de votre position ..."
     }
   }
 }
