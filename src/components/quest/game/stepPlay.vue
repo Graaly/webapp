@@ -379,6 +379,7 @@ export default {
   },
   beforeDestroy() {
     // this is called every time route changes => cleanup all memory & CPU intensive tasks here
+    
     // (camera streams, 3D animations, GPS trackings...)
     this.clearAllCameraStreams()
     
