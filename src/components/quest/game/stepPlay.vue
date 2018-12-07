@@ -2085,7 +2085,6 @@ export default {
       
       for (let streamDiv of streamDivs) {
         let element = this.$refs[streamDiv]
-        console.log('streamDiv', streamDiv, element)
         if (typeof element !== 'undefined' && element.srcObject) {
           streams.push(element.srcObject)
         }
