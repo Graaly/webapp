@@ -396,8 +396,12 @@ export default {
     this.locateMarker.markerRoot = null
     this.locateMarker.markerControls = null
     
-    if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
+    if (this.geolocation.locationWatcher !== null) {
       navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
+    }
+    
+    if (this.geolocation.absoluteOrientationSensor !== null) {
+      this.geolocation.absoluteOrientationSensor.stop()
     }
     
     utils.clearAllTimeouts()
