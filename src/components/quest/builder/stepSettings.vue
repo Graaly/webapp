@@ -453,12 +453,12 @@
     
     <q-list v-show="options.hasOptions" separator>
       <q-collapsible icon="add_box" :label="$t('label.OtherOptions')">
-        <div v-if="options.code == 'geolocation'" class="location-gps">
-          <q-checkbox v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
-          <q-checkbox v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
+        <div v-if="options.code == 'geolocation' || options.code == 'locate-item-ar'" class="location-gps">
+          <q-toggle v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
+          <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
         </div>
         <div v-if="options.code === 'memory'">
-          <q-checkbox v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
+          <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
         </div>
         <div class="background-upload" v-show="options.hasBackgroundImage && options.hasBackgroundImage === 'option'">
           <q-btn class="full-width" type="button">
@@ -586,7 +586,7 @@ export default {
       
       unformatedAnswer: null,
       
-      // for 'find-object-ar'
+      // for 'locate-item-ar'
       selectModel3DOptions: [],
       
       // for 'locate-marker'
