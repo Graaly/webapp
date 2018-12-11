@@ -237,16 +237,11 @@
     </q-modal>
     
     <div id="overview" v-if="steps.showNewStepPageSettings" class="fit">
-      <div class="fit">
-    
-        <!------------------ STEP SETTINGS SELECTION ------------------------>
-        
-        <a class="float-right no-underline" color="grey" @click="closeStepSettingsPage"><q-icon name="close" class="medium-icon" /></a>
-        <h1 class="size-3 q-pl-md">{{ typeof steps.new.type.title !== 'undefined' ? $t('stepType.' + steps.new.type.title) : '' }}</h1>
-        <div class="q-pa-md">
-          <stepSettings :quest="quest" :stepId="stepId" :lang="languages.current" :options="steps.new.type" @change="trackStepChanges"></stepSettings>
-        </div>
-      </div>
+      
+      <!------------------ STEP SETTINGS SELECTION ------------------------>
+      
+      <stepSettings :quest="quest" :stepId="stepId" :lang="languages.current" :options="steps.new.type" @change="trackStepChanges" @close="closeStepSettingsPage"></stepSettings>
+      
     </div>  
     
     <div id="overview" v-if="steps.showNewStepOverview" class="fit">

@@ -493,7 +493,10 @@ module.exports = {
       NumberOfColorsInTheCode: "Number of colors in the code",
       NumberOfImagesInTheCode: "Number of pictures in the code",
       FindMarkerHelp: "Target the correct marker with your phone camera. A marker is a symbol surrounded by a black frame. Good luck!",
-      LocationSearching: "Looking for your position..."
+      LocationSearching: "Looking for your position...",
+      ConfirmSaveChanges: "Save changes?",
+      Yes: "Yes",
+      No: "No"
     }
   },
   fr: {
@@ -993,7 +996,10 @@ module.exports = {
       NumberOfColorsInTheCode: "Nombre de couleurs dans le code",
       NumberOfImagesInTheCode: "Nombre d'images dans le code",
       FindMarkerHelp: "Visez le bon marqueur avec la caméra de votre téléphone. Un marqueur est un signe entouré d'un cadre noir. Bonne chance !",
-      LocationSearching: "Recherche de votre position ..."
+      LocationSearching: "Recherche de votre position ...",
+      ConfirmSaveChanges: "Enregistrer les modifications ?",
+      Yes: "Oui",
+      No: "Non"
     }
   }
 }
