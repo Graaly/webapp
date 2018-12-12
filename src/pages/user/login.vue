@@ -59,7 +59,7 @@
         
       <div class="q-pl-md q-pr-md">
         <q-btn @click="facebookLogin" class="full-width" color="facebook" icon="fab fa-facebook" label="Facebook" />
-        <q-btn @click="googleLogin" class="full-width" color="google" icon="fab fa-google" label="Google" />
+        <!--<q-btn @click="googleLogin" class="full-width" color="google" icon="fab fa-google" label="Google" />-->
       </div>
     
     </div>
@@ -238,13 +238,39 @@ export default {
       window.location = this.serverUrl + '/auth/google'
       localStorage.setItem('isLoggedIn', true)
     },
-    
+    fbLoginSuccess(userData) {
+      facebookConnectPlugin.getAccessToken(function(token) {
+        AuthService.checkFacebookToken(userData.authResponse.userID, token, function(err, response) {
+          if (err) {
+            Notification(this.$t('label.TechnicalIssue'), 'error')
+          }
+var responseTxt = JSON.stringify(response);
+alert(responseTxt)
+          if (response && (response.message === 'login successful' || (response.data && response.data.message === 'login successful'))) {
+alert('move to map')
+            this.$router.push('/map')
+          } else {
+alert('technical issue')
+            Notification(this.$t('label.TechnicalIssue'), 'error')
+          }
+        });
+      });
+    },
     /*
      * manage facebook login
      */
     facebookLogin() {
-      window.location = this.serverUrl + '/auth/facebook'
-      localStorage.setItem('isLoggedIn', true)
+      // check if hybrid app and if cordova plugin is installed
+      if (facebookConnectPlugin) {
+        facebookConnectPlugin.login(["public_profile"], this.fbLoginSuccess,
+          function loginError () {
+            Notification(this.$t('label.TechnicalIssue'), 'error')
+          }
+        )
+      } else {
+        window.location = this.serverUrl + '/auth/facebook'
+        localStorage.setItem('isLoggedIn', true)
+      }
     },
     
     /*

@@ -13,6 +13,7 @@ export default ({ app, router, Vue }) => {
         next()
       } else {
         let firstusage = Cookies.get('firstusage')
+
         if (firstusage && firstusage === 'ok') {
           next({
             path: '/user/login',

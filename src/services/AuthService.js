@@ -17,6 +17,16 @@ export default {
     return Api().post('login', {email: email, password: password})
   },
   /*
+   * Check the user facebook Id and facebook token, and sign him in
+   * @param   {String}    fbId          Facebook Id
+   * @param   {String}    token         Facebook Access Token
+   */
+  checkFacebookToken (fbId, token, done) {
+    return Api().post('login/facebook', {id: fbId, token: token}).then(function (response) {
+      done(false, response)
+    })
+  },
+  /*
    * Sign-out user
    */
   logout () {
