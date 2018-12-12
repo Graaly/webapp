@@ -191,6 +191,31 @@ var self = {
    */
   clearCameraStream: function (stream) {
     stream.getTracks().forEach(track => track.stop())
+  },
+  
+  /*
+  * By default, Javascript copies object references when doing assignments with '='.
+  * This method can be useful when you want do make deep copies of objects and change their
+  * properties independently afterwards.
+  * see https://stackoverflow.com/a/5344074/488666
+  * 
+  * @param   {Object}   obj   object to clone
+  */
+  clone: function (obj) {
+    if (obj === null || typeof (obj) !== 'object' || 'isActiveClone' in obj) {
+      return obj
+    }
+    
+    let temp = obj instanceof Date ? new obj.constructor() : obj.constructor()
+    
+    for (var key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        obj['isActiveClone'] = null
+        temp[key] = this.clone(obj[key])
+        delete obj['isActiveClone']
+      }
+    }
+    return temp
   }
 }
 

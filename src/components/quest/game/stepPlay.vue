@@ -180,9 +180,6 @@
         <div class="centered bg-warning q-pa-sm" v-if="!geolocation.active">
           <q-spinner-puff class="on-left" /> {{ $t('label.WarningNoLocation') }}
         </div>
-        <div class="direction-helper" v-if="step.showDirectionToTarget">
-          <canvas id="direction-canvas"></canvas>
-        </div>
       </div>
       
       <!------------------ SIMPLE TEXT INPUT STEP AREA ------------------------>
@@ -265,7 +262,7 @@
         <div v-show="!playerResult">
           <div class="text">
             <p>{{ getTranslatedText() }}</p>
-            <p>{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+            <p v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
             <p v-if="!this.geolocation.canSeeTarget">{{ $t('label.ObjectIsTooFar') }}</p>
             <p v-if="this.geolocation.canTouchTarget">{{ $t('label.TouchTheObject') }}</p>
           </div>
@@ -302,6 +299,12 @@
           <story step="help" :data="{help: $t('label.FindMarkerHelp')}" @next="locateMarker.showHelp = false"></story>
         </div>
       </div>
+    </div>
+    
+    <!------------------ COMMON COMPONENTS ------------------>
+    
+    <div class="direction-helper" v-show="(step.type == 'geolocation' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null">
+      <canvas id="direction-canvas"></canvas>
     </div>
     
     <!--====================== WIN POINTS ANIMATION =================================-->
@@ -379,6 +382,7 @@ export default {
   },
   beforeDestroy() {
     // this is called every time route changes => cleanup all memory & CPU intensive tasks here
+    
     // (camera streams, 3D animations, GPS trackings...)
     this.clearAllCameraStreams()
     
@@ -396,8 +400,12 @@ export default {
     this.locateMarker.markerRoot = null
     this.locateMarker.markerControls = null
     
-    if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
+    if (this.geolocation.locationWatcher !== null) {
       navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
+    }
+    
+    if (this.geolocation.absoluteOrientationSensor !== null) {
+      this.geolocation.absoluteOrientationSensor.stop()
     }
     
     utils.clearAllTimeouts()
@@ -590,7 +598,7 @@ export default {
           })
         }
         
-        if (this.step.type === 'geolocation') {
+        if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
           if ('ondeviceorientationabsolute' in window) {
             // chrome specific, see https://developers.google.com/web/updates/2016/03/device-orientation-changes
             window.addEventListener('deviceorientationabsolute', this.handleOrientation)
@@ -2081,7 +2089,6 @@ export default {
       
       for (let streamDiv of streamDivs) {
         let element = this.$refs[streamDiv]
-        console.log('streamDiv', streamDiv, element)
         if (typeof element !== 'undefined' && element.srcObject) {
           streams.push(element.srcObject)
         }
@@ -2181,9 +2188,6 @@ export default {
   .image-recognition .photo > video { width: 100%; border-radius: 0.5rem; }
   
   /* geolocation specific */
-  
-  .geolocation .direction-helper { flex-grow: 1; display: flex; flex-flow: column nowrap; }
-  .geolocation .direction-helper canvas { width: 10rem; height: 10rem; margin: auto; margin-bottom: 0; }
   .geolocation .text { margin-bottom: 0.5rem; }
   
   /* jigsaw puzzle specific */
@@ -2205,7 +2209,7 @@ export default {
   
   .locate-item-ar video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .locate-item-ar .target-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-  .locate-item-ar #target-canvas { width: 100%; height: 100%; z-index: 50; }
+  .locate-item-ar #target-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }
   .locate-item-ar .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
   .locate-item-ar img { margin: 30vw auto; } /* 2D result image */
   
@@ -2326,5 +2330,8 @@ export default {
     left: 10px;
     right: 10px;
   }
+  
+  .direction-helper { position: absolute; width: 10rem; height: 10rem !important; bottom: 20vw; left: 0; right: 0; margin-left: auto; margin-right: auto; z-index: 30; min-height: initial !important; }
+  .direction-helper canvas { width: 10rem; height: 10rem; margin: auto; }
   
 </style>

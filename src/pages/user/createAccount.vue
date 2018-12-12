@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper dark-background">
-    <div class="page-content top-padding-middle">
+    <div class="page-content top-padding-middle q-pa-lg">
       
       <!------------------ TITLE AREA ------------------------>
       
@@ -63,8 +63,8 @@
         </p>
       
         <p class="text-center multiple-btn margin-size-3 q-mt-lg q-mb-xl">
-          <q-btn v-if="step !== 'firstusage'" round color="white" text-color="primary" icon="arrow_back_ios" :loading="submitting" @click="backAction()" />
-          <q-btn round color="white" text-color="primary" icon="arrow_forward_ios" :loading="submitting" type="submit" />
+          <q-btn v-if="step !== 'firstusage'" round color="white" text-color="primary" icon="fas fa-chevron-left" :loading="submitting" @click="backAction()" />
+          <q-btn round color="white" text-color="primary" icon="fas fa-chevron-right" :loading="submitting" type="submit" />
         </p>
       </form>
     
@@ -165,7 +165,7 @@ export default {
             if (creationStatus.status && creationStatus.status === 200) {
               this.step = 'validation'
             } else {
-              Notification(this.$t('label.IncorrectLoginPleaseRetry'), 'warning')
+              Notification(this.$t('label.ErrorStandardMessage'), 'error')
             }
             
             this.submitting = false
@@ -237,7 +237,7 @@ export default {
       name: { required },
       country: { required },
       zipCode: { required },
-      password: { required, minLength: minLength(6), checkPasswordComplexity }
+      password: { required, minLength: minLength(8), checkPasswordComplexity }
     }
   }
 }

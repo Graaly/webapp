@@ -54,15 +54,15 @@
             @click="carousel.previous"
             :disable="!carousel.canGoToPrevious"
             color="white" text-color="primary"
-            icon="keyboard_arrow_left"
-            round
+            icon="fas fa-chevron-left"
+            round size="lg"
           />
           <q-btn class="q-carousel-right-arrow absolute"
             @click="nextSlide(carousel)"
             :disable="hideRightButton"
             color="white" text-color="primary"
-            icon="keyboard_arrow_right"
-            round
+            icon="fas fa-chevron-right"
+            round size="lg"
           />
         </q-carousel-control>
      

@@ -1,6 +1,10 @@
 <template>
-  <div>
+  <div class="q-pa-md">
 
+    <a class="float-right no-underline" color="grey" @click="close"><q-icon name="close" class="medium-icon" /></a>
+    
+    <h1 class="size-3" v-if="selectedStep.type !== null">{{ $t('stepType.' + selectedStep.type.title) }}</h1>
+    
     <!------------------ COMMON FOR ALL STEPS ------------------------>
     
     <q-field :error="$v.selectedStep.form.title[lang].$error" :count="titleMaxLength">
@@ -453,12 +457,12 @@
     
     <q-list v-show="options.hasOptions" separator>
       <q-collapsible icon="add_box" :label="$t('label.OtherOptions')">
-        <div v-if="options.code == 'geolocation'" class="location-gps">
-          <q-checkbox v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
-          <q-checkbox v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
+        <div v-if="options.code == 'geolocation' || options.code == 'locate-item-ar'" class="location-gps">
+          <q-toggle v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
+          <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
         </div>
         <div v-if="options.code === 'memory'">
-          <q-checkbox v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
+          <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
         </div>
         <div class="background-upload" v-show="options.hasBackgroundImage && options.hasBackgroundImage === 'option'">
           <q-btn class="full-width" type="button">
@@ -496,12 +500,24 @@
     
     <q-btn class="full-width" color="primary" @click="submitStep">{{ $t('label.SaveThisStep') }}</q-btn>
     
+    <q-modal id="save-changes-modal" v-model="saveChangesModalOpened" minimized>
+      <a class="float-right no-underline" @click="saveChangesModalOpened = false"><q-icon name="close" class="medium-icon" /></a>
+      
+      <p>{{ $t('label.ConfirmSaveChanges') }}</p>
+      
+      <div class="full-width">
+        <q-btn color="primary" @click="submitStep()" :label="$t('label.Yes')" />
+        <q-btn color="primary" @click="$emit('close')" :label="$t('label.No')" />
+      </div>
+    </q-modal>
+    
   </div>
 </template>
 
 <script>
 import { required } from 'vuelidate/lib/validators'
 import Notification from 'plugins/NotifyHelper'
+import hash from 'object-hash'
 import utils from 'src/includes/utils'
 
 import colorsForCode from 'data/colorsForCode.json'
@@ -535,6 +551,7 @@ export default {
         isNew: true,
         id: 0,
         code: null,
+        type: null,
         form: {
           title: {},
           text: {},
@@ -548,6 +565,8 @@ export default {
       markersList,
       titleMaxLength: 50,
       imageSource: '',
+      originalStepData: {}, // helps to detect if step has been modified
+      saveChangesModalOpened: false,
       
       /*
        * List of the levels for the jigsaw step
@@ -586,7 +605,7 @@ export default {
       
       unformatedAnswer: null,
       
-      // for 'find-object-ar'
+      // for 'locate-item-ar'
       selectModel3DOptions: [],
       
       // for 'locate-marker'
@@ -684,6 +703,9 @@ export default {
       if (!this.selectedStep.isNew) {
         Object.assign(this.selectedStep.form, await StepService.getById(this.stepId))
       }
+      
+      // retrieve step type properties
+      this.selectedStep.type = this.getStepType(this.selectedStep.form.type)
       
       // compute number of steps
       if (this.selectedStep.form.number === null) {
@@ -851,6 +873,8 @@ export default {
           this.$set(this.selectedStep.form.options, 'layerCode', layersForMarkers[0].code)
         }
       }
+      
+      this.originalStepData = utils.clone(this.selectedStep.form)
     },
     /*
      * Submit step data
@@ -1376,6 +1400,22 @@ export default {
     selectMarker(code) {
       this.selectedStep.form.answers = code
       this.closeChooseMarkerModal()
+    },
+    close() {
+      if (hash(this.originalStepData) !== hash(this.selectedStep.form)) {
+        this.saveChangesModalOpened = true
+      } else {
+        this.$emit('close')
+      }
+    },
+    getStepType(code) {
+      for (let stepType of stepTypes) {
+        if (stepType.code === code) {
+          return stepType
+        }
+      }
+      console.warn("Could not retrieve step type from code '" + code + "'")
+      return null
     }
   },
   validations() {
@@ -1446,6 +1486,7 @@ export default {
 
 #main-view { padding: 1rem; overflow-y: scroll; }
 
+h1 { margin-top: 0; }
 h2 { font-size: 1.2rem; color: grey; }
 p { margin-bottom: 0.5rem; }
 
@@ -1486,5 +1527,10 @@ p { margin-bottom: 0.5rem; }
 
 .error-label { color: #db2828; }
 .answer .error-label { font-size: 0.8rem; white-space: nowrap; }
+
+#save-changes-modal p { font-size: 2rem; }
+#save-changes-modal div { display: flex; flex-flow: row nowrap; width: 100%; }
+#save-changes-modal .q-btn { flex-grow: 1 }
+#save-changes-modal .q-btn:not(:last-child) { margin-right: 3vw; }
 
 </style>
