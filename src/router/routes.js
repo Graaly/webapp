@@ -10,6 +10,7 @@ import QuestManageSettings from 'pages/quest/builder/settings'
 
 import UserLogin from 'pages/user/login'
 import UserLogout from 'pages/user/logout'
+import UserProfile from 'pages/user/updateprofile'
 
 import Admin from 'pages/admin/admin'
 import AdminValidation from 'pages/admin/validation'
@@ -87,6 +88,11 @@ export default [
       {
         path: 'user/logout',
         component: UserLogout,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'user/updateprofile',
+        component: UserProfile,
         meta: { requiresAuth: true }
       },
       {

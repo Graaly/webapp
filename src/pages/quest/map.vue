@@ -767,6 +767,8 @@ export default {
     google: gmapApi
   },
   mounted() {
+    // check if profile is complete
+    this.checkIfProfileIsComplete()
     utils.clearAllTimeouts()
     this.findLocation()
     window.addEventListener("batterylow", this.checkBattery, false);
@@ -780,6 +782,19 @@ export default {
     })
   },
   methods: {
+    /*
+     * Check if user profile is enough completed to have Graaly work
+     */
+    checkIfProfileIsComplete() {
+      if (!this.$store.state.user.name || this.$store.state.user.name === '' || 
+        //!this.$store.state.user.sex || this.$store.state.user.sex === '' || 
+        //!this.$store.state.user.age || this.$store.state.user.age === '' || 
+        !this.$store.state.user.location || 
+        !this.$store.state.user.location.postalCode || this.$store.state.user.location.postalCode === '' || 
+        !this.$store.state.user.location.country || this.$store.state.user.location.country === '') {
+        this.$router.push('/user/updateprofile')
+      }
+    },
     closeInfoWindows() {
       this.map.infoWindow.isOpen = false
     },

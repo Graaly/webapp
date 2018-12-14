@@ -79,6 +79,13 @@ export default {
     return Api().put('quest/' + id + '/unpublish/' + lang)
   },
   /*
+   * Count the quests created by a user
+   * @param   {String}    id                  ID of the user
+   */
+  countForUser (id) {
+    return Api().get('user/' + id + '/quests/created/count')
+  },
+  /*
    * List the quests created by a user
    * @param   {String}    id                  ID of the user
    */

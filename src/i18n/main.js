@@ -496,7 +496,11 @@ module.exports = {
       LocationSearching: "Looking for your position...",
       ConfirmSaveChanges: "Save changes?",
       Yes: "Yes",
-      No: "No"
+      No: "No",
+      WeNeedMoreInformationAboutYou: "We need more information about you",
+      ToDisplayRelevantQuests: "To display the right quests...",
+      ToHelpYouFindYourFriends: "To help you find your friends (optional)...",
+      ToAvoidSendingYourToUnrelevantQuests: "To avoid to make you go to unsuitable quests..."
     }
   },
   fr: {
@@ -999,7 +1003,11 @@ module.exports = {
       LocationSearching: "Recherche de votre position ...",
       ConfirmSaveChanges: "Enregistrer les modifications ?",
       Yes: "Oui",
-      No: "Non"
+      No: "Non",
+      WeNeedMoreInformationAboutYou: "Nous avons besoin de quelques informations complémentaires",
+      ToDisplayRelevantQuests: "Pour vous afficher les bonnes enquêtes ...",
+      ToHelpYouFindYourFriends: "Pour vous aider à trouver vos amis (optionnel) ...",
+      ToAvoidSendingYourToUnrelevantQuests: "Pour ne pas vous faire aller vers des enquêtes inadaptées ..."
     }
   }
 }

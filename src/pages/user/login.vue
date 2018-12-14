@@ -239,19 +239,16 @@ export default {
       localStorage.setItem('isLoggedIn', true)
     },
     fbLoginSuccess(userData) {
+      var _this = this
       facebookConnectPlugin.getAccessToken(function(token) {
         AuthService.checkFacebookToken(userData.authResponse.userID, token, function(err, response) {
           if (err) {
-            Notification(this.$t('label.TechnicalIssue'), 'error')
+            Notification(_this.$t('label.TechnicalIssue'), 'error')
           }
-var responseTxt = JSON.stringify(response);
-alert(responseTxt)
           if (response && (response.message === 'login successful' || (response.data && response.data.message === 'login successful'))) {
-alert('move to map')
-            this.$router.push('/map')
+            return _this.$router.push('/map')
           } else {
-alert('technical issue')
-            Notification(this.$t('label.TechnicalIssue'), 'error')
+            Notification(_this.$t('label.TechnicalIssue'), 'error')
           }
         });
       });

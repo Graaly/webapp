@@ -6,7 +6,7 @@
       <span v-if="tabs.progress >= 2">{{ form.fields.title[languages.current] || form.fields.title[quest.mainLanguage] }}</span>
       <span v-else>{{ $t('label.NewQuest') }}</span>
     </h1>
-    
+
     <!------------------ TABS ------------------------>
     
     <q-tabs v-model="tabs.selected" v-show="!steps.showNewStepOverview && !steps.showNewStepPageSettings">
@@ -288,6 +288,12 @@
       </div>
     </transition>
     
+    <!--====================== STORY =================================-->
+    
+    <div class="fixed-bottom over-map fit" v-if="story.step !== null && story.step !== 'end'">
+      <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
+    </div>
+    
   </div>
   
 </template>
@@ -298,6 +304,7 @@ import Notification from 'plugins/NotifyHelper'
 import QuestService from 'services/QuestService'
 import StepService from 'services/StepService'
 import RunService from 'services/RunService'
+import story from 'components/story'
 
 // required to define v-sortable directive in Vue 2.0, see https://github.com/sagalbot/vue-sortable/issues/10
 import Vue from 'vue'
@@ -318,7 +325,8 @@ import utils from 'src/includes/utils'
 export default {
   components: {
     stepSettings,
-    stepPlay
+    stepPlay,
+    story
   },
   data() {
     return {
@@ -397,6 +405,10 @@ export default {
           isExisting: true
         }
       },
+      story: {
+        step: null,
+        data: null
+      },
       canMoveNextStep: false,
       canPass: false,
       itemUsed: null,
@@ -423,6 +435,8 @@ export default {
       // if quest Id is not set, redirect to quest creation page
       this.$router.push('/quest/create/welcome')
     }
+    // start tutorial 
+    this.startStory()
   },
   methods: {
     /*
@@ -559,6 +573,22 @@ export default {
       if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
         this.form.fields.picture = uploadPictureResult.data.file
         this.$q.loading.hide()
+      }
+    },
+    /*
+     * Start the tutorial
+     */
+    async startStory() {
+      // count the number of quests built, to start tutorial only for the first quest
+      const questCreatedNb = await QuestService.countForUser(this.$store.state.user._id)
+alert("test" + questCreatedNb)
+      if (questCreatedNb < 2) {
+        if (this.story.step === null) {
+          this.story.step = 17
+          this.story.data = {
+            
+          }
+        }
       }
     },
     /*
