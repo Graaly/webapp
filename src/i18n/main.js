@@ -646,7 +646,8 @@ module.exports = {
       MapDetail1: "Quand vous êtes sur la carte, appuyez sur le bouton <img src='statics/icons/game/menu-main.png' style='width: 30px'> pour <b>accéder aux options de la carte</b>, et trouver les enquêtes qui vous intéressent.<br />Le bouton <i aria-hidden='true' style='font-size: 1.5em' class='q-icon material-icons bg-primary text-white'>fingerprint</i> liste les enquêtes que vous avez résolue et que vous avez créées.<br />Le bouton <i aria-hidden='true' style='font-size: 1.5em' class='q-icon material-icons bg-primary text-white'>group</i> vous permet d'accéder à votre profil et aux infos de vos amis.",
       StartNewQuest1: "Bon, on s'est assez reposé, <b>démarrons une nouvelle enquête</b> !<br />N'oubliez pas de charger votre portable à plus de 50% avant une enquête.",
       StartNewQuest2: "Je vous propose qu'on s'occupe de l'enquête <strong>{quest}</strong> ! Beaucoup s'y sont cassé les dents, y arriverez-vous ?",
-      StartNewQuest3: "Sélectionnez une nouvelle enquête sur la carte quand vous êtes prêt"
+      StartNewQuest3: "Sélectionnez une nouvelle enquête sur la carte quand vous êtes prêt",
+      help: "{help}"
     },
     label: {
       shortLang: "fr",

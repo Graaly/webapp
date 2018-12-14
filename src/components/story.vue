@@ -1,8 +1,8 @@
 <template>
   <div class="story fit" v-if="currentStep.id !== null" :class="{fadeout: hide}" style="background: rgba(0,0,0,0.3); height: 100%;">
     <div :style="'position: fixed; bottom: ' + steps[currentStep.id].bottom + 'px;'">
-      <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
-      <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
+      <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" style="min-height: 5vh" /></div>
+      <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh">
         <p class="tilt" v-html="$t('story.' + steps[currentStep.id].discussions[currentStep.discussionId].text, data)"></p>
         <div class="text-right">
           <a v-if="steps[currentStep.id].discussions[currentStep.discussionId].link" @click="linkAction">
@@ -13,9 +13,9 @@
           </q-btn>
         </div>
       </div>
-      <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
+      <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" style="min-height: 20vh" /></div>
       <div class="character">
-        <img :src="'statics/icons/story/character' + steps[currentStep.id].discussions[currentStep.discussionId].character + '_attitude1.png'" />
+        <img :src="'statics/icons/story/character' + steps[currentStep.id].discussions[currentStep.discussionId].character + '_attitude1.png'" style="min-height: 30vh" />
       </div>
     </div>
   </div>
