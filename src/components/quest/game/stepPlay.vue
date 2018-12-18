@@ -678,7 +678,9 @@ export default {
             let objectInit = modelsList[objectModel]
             let gltfData
             try {
+              this.$q.loading.show()
               gltfData = await this.ModelLoaderAsync(objectModel)
+              this.$q.loading.hide()
             } catch (err) {
               console.error("Error while loading 3D model:", err)
               Notification(this.$t('label.CouldNotDisplayObject'), 'error')
