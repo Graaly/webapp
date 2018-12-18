@@ -1,4 +1,5 @@
 import { Notify } from 'quasar'
+import utils from 'src/includes/utils'
 
 const defaultSettings = {
   position: 'top',
@@ -33,6 +34,10 @@ export default (message, type, actions) => {
   if (actions) {
     customSettings.actions = actions
   }
+  
+  var newNotification = Notify.create(Object.assign({ message }, defaultSettings, customSettings))
+  
+  utils.notificationsArr.push(newNotification)
 
-  return Notify.create(Object.assign({ message }, defaultSettings, customSettings))
+  return newNotification
 }

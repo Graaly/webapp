@@ -113,7 +113,7 @@ export default {
     })
   },
   mounted () {
-    utils.clearAllTimeouts()
+    utils.clearAllRunningProcesses()
     // check that the email is provided
     if (this.$route.params.email) {
       this.form.email = this.$route.params.email

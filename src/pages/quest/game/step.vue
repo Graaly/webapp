@@ -146,7 +146,7 @@ export default {
     }
   },
   mounted () {
-    utils.clearAllTimeouts()
+    utils.clearAllRunningProcesses()
     // TODO: to avoid cheating for questions with text/image answers, do not load the 'right answer' info on front app, instead make a server call to check it, when player has already selected his answer and clicked on "check answer"
     this.getStep().then(async (step) => {
       // redirect to latest step run if user can not access this step

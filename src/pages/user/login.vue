@@ -88,7 +88,7 @@ export default {
     }
   },
   mounted () {
-    utils.clearAllTimeouts()
+    utils.clearAllRunningProcesses()
     // check if user is redirected to this page to validate his account
     if (this.$route.query.email && this.$route.query.code) {
       this.validateAccount(this.$route.query.email, this.$route.query.code)

@@ -424,7 +424,8 @@ export default {
     }
   },
   async mounted() {
-    utils.clearAllTimeouts()
+    utils.clearAllRunningProcesses()
+    
     if (this.$route.params.questId && this.$route.params.questId !== '') {
       if (typeof window.cordova !== 'undefined') {
         this.isHybrid = true
@@ -823,6 +824,7 @@ alert("test" + questCreatedNb)
       await this.refreshStepsList()
       this.steps.showNewStepOverview = false
       this.tabs.selected = 'steps'
+      utils.clearAllNotifications()
     },
     /*
      * reset step data between 2 steps creation

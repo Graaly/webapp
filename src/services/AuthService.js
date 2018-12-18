@@ -33,6 +33,12 @@ export default {
     return Api().post('logout')
   }, 
   /*
+   * Remove a user account
+   */
+  removeAccount() {
+    return Api().post('account/remove')  
+  },
+  /*
    * get connected user data
    * @param   {String}    id          User ID
    */

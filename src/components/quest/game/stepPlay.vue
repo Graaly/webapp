@@ -408,7 +408,7 @@ export default {
       this.geolocation.absoluteOrientationSensor.stop()
     }
     
-    utils.clearAllTimeouts()
+    utils.clearAllRunningProcesses()
   },
   methods: {
     initialState () {

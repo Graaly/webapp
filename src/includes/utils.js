@@ -2,6 +2,7 @@ import store from '../store'
 import router from '../router'
 
 var self = {
+  notificationsArr: [],
   
   // ----------- Error handling -------------
   
@@ -183,6 +184,21 @@ var self = {
     for (var i = 0; i < highestTimeoutId; i++) {
       clearTimeout(i); 
     }
+  },
+  
+  /**
+   * Clear all notifications
+   */
+  clearAllNotifications: function () {
+    if (this.notificationsArr) {
+      for (var i = 0; i < this.notificationsArr.length; i++) {
+        this.notificationsArr[i]()
+      }
+    }
+  },
+  clearAllRunningProcesses: function() {
+    this.clearAllTimeouts()
+    this.clearAllNotifications()
   },
   
   /**

@@ -220,7 +220,7 @@ export default {
     }
   },
   async mounted () {
-    utils.clearAllTimeouts()
+    utils.clearAllRunningProcesses()
     var runIsInProgress = false
     // List all run for this quest for current user
     var runs = await RunService.listForAQuest(this.questId)

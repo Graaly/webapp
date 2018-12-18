@@ -500,7 +500,12 @@ module.exports = {
       WeNeedMoreInformationAboutYou: "We need more information about you",
       ToDisplayRelevantQuests: "To display the right quests...",
       ToHelpYouFindYourFriends: "To help you find your friends (optional)...",
-      ToAvoidSendingYourToUnrelevantQuests: "To avoid to make you go to unsuitable quests..."
+      ToAvoidSendingYourToUnrelevantQuests: "To avoid to make you go to unsuitable quests...",
+      RemoveYourAccountDesc: "By removing your account, you will loose your score, all the items you bought, and your progression, and you will not be able to log again to the application.",
+      RemoveYourAccount: "Remove your account",
+      IConfirmIWantToRemoveMyAccount: "I confirm I want to remove my account",
+      AreYouSureYouWantToRemoveYourAccount: "Are you sure to remove your account, and not use LinkyLove any more? This actions can not be canceled!",
+      YourAccountIsRemoved: "Your account has been removed"
     }
   },
   fr: {
@@ -1007,7 +1012,12 @@ module.exports = {
       WeNeedMoreInformationAboutYou: "Nous avons besoin de quelques informations complémentaires",
       ToDisplayRelevantQuests: "Pour vous afficher les bonnes enquêtes ...",
       ToHelpYouFindYourFriends: "Pour vous aider à trouver vos amis (optionnel) ...",
-      ToAvoidSendingYourToUnrelevantQuests: "Pour ne pas vous faire aller vers des enquêtes inadaptées ..."
+      ToAvoidSendingYourToUnrelevantQuests: "Pour ne pas vous faire aller vers des enquêtes inadaptées ...",
+      RemoveYourAccountDesc: "En supprimant votre compte, vous allez perdre votre score, vos achats, votre progression et toutes autres données, et vous ne pourrez plus vous connecter à l'application",
+      RemoveYourAccount: "Supprimer mon compte",
+      IConfirmIWantToRemoveMyAccount: "Je confirme que je veux supprimer mon compte",
+      AreYouSureYouWantToRemoveYourAccount: "Êtes-vous sûrs de supprimer votre compte, et de ne plus pouvoir vous connecter ? Vous ne pourrez pas annuler cette action !",
+      YourAccountIsRemoved: "Votre compte est supprimé"
     }
   }
 }

@@ -185,7 +185,7 @@ export default {
     }
   },
   async mounted() {
-    utils.clearAllTimeouts()
+    utils.clearAllRunningProcesses()
     // get quest information
     await this.getQuest(this.$route.params.id)
         

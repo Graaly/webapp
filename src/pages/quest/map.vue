@@ -184,7 +184,7 @@
         </div>
         <div class="col">
           <div class="title">{{ $store.state.user.name }}</div>
-          <q-btn :label="$t('label.SignOut')" icon="power_settings_new" @click.native="Disconnect()" flat />
+          <q-btn :label="$t('label.SignOut')" icon="power_settings_new" @click.native="disconnect()" flat />
         </div>
       </div>
       
@@ -245,6 +245,10 @@
                 <q-input type="password" v-model="profile.form.newPassword" :stack-label="$t('label.NewPassword')" />
               </q-field>
               <q-btn color="primary" class="full-width" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
+            </q-field>
+            <q-field icon="remove_circle" :label="$t('label.RemoveYourAccount')" class="padding-medium">
+              {{ $t('label.RemoveYourAccountDesc') }}
+              <q-btn class="q-my-md" color="primary" :label="$t('label.IConfirmIWantToRemoveMyAccount')" @click="removeAccount()" />
             </q-field>
           </form>
         </q-tab-pane>
@@ -769,7 +773,7 @@ export default {
   mounted() {
     // check if profile is complete
     this.checkIfProfileIsComplete()
-    utils.clearAllTimeouts()
+    utils.clearAllRunningProcesses()
     this.findLocation()
     window.addEventListener("batterylow", this.checkBattery, false);
     this.checkNetwork()
@@ -1311,7 +1315,7 @@ export default {
     /*
      * Disconnection
      */
-    Disconnect() {
+    disconnect() {
       this.$router.push('/user/logout')
     },
     openAdminPage() {
@@ -1477,6 +1481,27 @@ export default {
         await UserService.removeFriend(friendId)
               
         await this.loadFriends()
+      })
+    },
+    /*
+     * Remove user account
+     */
+    async removeAccount() {
+      var _this = this; // workaround for closure scope quirks
+      
+      this.$q.dialog({
+        message: this.$t('label.AreYouSureYouWantToRemoveYourAccount'),
+        ok: true,
+        cancel: true
+      }).then(async () => {
+        const removeAccountStatus = await AuthService.removeAccount()
+
+        if (removeAccountStatus) {
+          Notification(_this.$t('label.YourAccountIsRemoved'), 'info')
+          await _this.disconnect()
+        } else {
+          Notification(_this.$t('label.ErrorStandardMessage'), 'error')
+        }
       })
     },
     openLocationSettings () {
