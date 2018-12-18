@@ -233,17 +233,17 @@ export default {
             }
           }
           // check again in 15 seconds
-          setTimeout(this.checkUserIsCloseFromStartingPoint, 15000)
+          utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 15000)
           this.geolocationIsSupported = true
           this.startStory()
         }, () => {
           this.geolocationIsSupported = false
-          setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
+          utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
           this.startStory()
         }, { timeout: 10000, maximumAge: 10000 });
       } else {
         this.geolocationIsSupported = false
-        setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
+        utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
         this.startStory()
       }
     },
@@ -367,7 +367,7 @@ export default {
             this.ranking.items[i].position = this.ranking.items[i - 1].position
           }
         }
-        setTimeout(this.showRanking, 3000)
+        utils.setTimeout(this.showRanking, 3000)
       }
     },
     /*

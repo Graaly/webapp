@@ -582,7 +582,6 @@ export default {
     async startStory() {
       // count the number of quests built, to start tutorial only for the first quest
       const questCreatedNb = await QuestService.countForUser(this.$store.state.user._id)
-alert("test" + questCreatedNb)
       if (questCreatedNb < 2) {
         if (this.story.step === null) {
           this.story.step = 17

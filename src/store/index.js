@@ -23,7 +23,8 @@ const state = {
   currentEditedQuest: null,
   currentEditedStep: null,
   errorMessage: null,
-  currentRun: null
+  currentRun: null,
+  runningTimeoutsIds: []
 }
 
 // mutations are operations that actually mutates the state.
@@ -60,6 +61,12 @@ const mutations = {
   },
   setCurrentRun(state, run) {
     state.currentRun = run
+  },
+  addTimeoutId(state, timeoutId) {
+    state.runningTimeoutsIds.push(timeoutId)
+  },
+  clearTimeoutIds(state) {
+    state.runningTimeoutsIds = []
   }
 }
 
@@ -97,7 +104,10 @@ const actions = {
   setCurrentEditedStep: ({ commit }, step) => commit('setCurrentEditedStep', step),
   setErrorMessage: ({ commit }, message) => commit('setErrorMessage', message),
   // for quest playing
-  setCurrentRun: ({ commit }, run) => commit('setCurrentRun', run)
+  setCurrentRun: ({ commit }, run) => commit('setCurrentRun', run),
+  // for timeouts handling
+  addTimeoutId: ({ commit }, timeoutId) => commit('addTimeoutId', timeoutId),
+  clearTimeoutIds: ({ commit }) => commit('clearTimeoutIds')
 }
 
 // getters are functions

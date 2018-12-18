@@ -260,7 +260,7 @@ export default {
     // get user new score
     //this.level.color = "secondary"
     this.score.new = runIsInProgress ? this.score.old + this.run.score : this.score.old
-    setTimeout(this.updateProgression, 3000)
+    utils.setTimeout(this.updateProgression, 3000)
   },
   methods: {
     /*
@@ -290,7 +290,7 @@ export default {
     async updateProgression() {
       // delay animation if a modal is opened
       if (this.ranking.show || this.showChallenge || this.showBonus) {
-        setTimeout(this.updateProgression, 2000)
+        utils.setTimeout(this.updateProgression, 2000)
       } else {
         var newLevel = LevelCompute(this.score.new)
         // check if the user will move to a new level
@@ -317,7 +317,7 @@ export default {
         this.ranking.items.sort(this.compareScore)
         // compute position
         this.refreshPosition()
-        setTimeout(this.showRanking, 5000)
+        utils.setTimeout(this.showRanking, 5000)
       }
     },
     /*
@@ -345,7 +345,7 @@ export default {
           className: "selected"
         })
         // start animation
-        setTimeout(this.updateRanking, 3000)
+        utils.setTimeout(this.updateRanking, 3000)
       }
     },
     /*
@@ -360,7 +360,7 @@ export default {
             this.$set(this.ranking.items, i, otherRanking)
             this.$set(this.ranking.items, i - 1, userRanking)
             this.refreshPosition()
-            setTimeout(this.updateRanking, 500)
+            utils.setTimeout(this.updateRanking, 500)
             break
           }
         }
@@ -482,7 +482,7 @@ export default {
         this.invitedFriends.name.push(name)
         this.invitedFriends.id.push(name)
       } else {
-        setTimeout(() => {
+        utils.setTimeout(() => {
           done(filter(name, {field: 'label', list: this.friends}))
         }, 1000)
         //this.filteredFriends = filter(name, {field: 'label', list: this.friends})
