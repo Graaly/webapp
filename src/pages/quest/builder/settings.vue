@@ -10,11 +10,11 @@
     <!------------------ TABS ------------------------>
     
     <q-tabs v-model="tabs.selected" v-show="!steps.showNewStepOverview && !steps.showNewStepPageSettings">
-      <q-tab slot="title" :disable="isReadOnly()" name="languages" :icon="tabs.progress === 0 ?  'looks_one' : 'check_circle'" :label="$t('label.Languages')" default />
-      <q-tab slot="title" :disable="tabs.progress < 1 || isReadOnly()" name="settings" :icon="tabs.progress < 2 ?  'looks_two' : 'check_circle'" :label="$t('label.Intro') + ' (' + languages.current + ')'" />
-      <q-tab slot="title" :disable="tabs.progress < 2 || isReadOnly()" name="steps" :icon="tabs.progress < 3 ?  'looks_3' : 'check_circle'" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
-      <q-tab slot="title" :disable="tabs.progress < 3" name="publish" :icon="tabs.progress < 4 ?  'looks_4' : 'check_circle'" :label="$t('label.Publish')" />
-      <q-tab slot="title" name="reviews" :icon="'check_circle'" :label="$t('label.Reviews')" />
+      <q-tab slot="title" :disable="isReadOnly()" name="languages" :icon="getTabIcon(1)" :label="$t('label.Languages')" default />
+      <q-tab slot="title" :disable="tabs.progress < 1 || isReadOnly()" name="settings" :icon="getTabIcon(2)" :label="$t('label.Intro') + ' (' + languages.current + ')'" />
+      <q-tab slot="title" :disable="tabs.progress < 2 || isReadOnly()" name="steps" :icon="getTabIcon(3)" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
+      <q-tab slot="title" :disable="tabs.progress < 3" name="publish" :icon="getTabIcon(4)" :label="$t('label.Publish')" />
+      <q-tab slot="title" name="reviews" :label="$t('label.Reviews')" v-if="this.isEdition" />
       
       <!------------------ LANGUAGES TAB ------------------------>
         
@@ -366,7 +366,8 @@ export default {
       tabs: {
         selected: 'languages',
         progress: 0,
-        list: ['languages', 'settings', 'steps', 'publish']
+        list: ['languages', 'settings', 'steps', 'publish'],
+        icons: ['looks_one', 'looks_two', 'looks_3', 'looks_4']
       },
       overview: {
         tabSelected: 'none'
@@ -453,6 +454,12 @@ export default {
   computed: {
     currentLanguageForLabels() {
       return this.quest.languages.length > 1 ? '[' + this.languages.current.toUpperCase() + ']' : ''
+    },
+    isCreation() {
+      return this.tabs.progress < 4
+    },
+    isEdition() {
+      return !this.isCreation
     }
   },
   async mounted() {
@@ -514,7 +521,7 @@ export default {
         this.tabs.progress = this.quest.creationStep
         // creation in progress => get creator back to the tab where he was
         if (this.tabs.progress <= 4) {
-          this.tabs.selected = this.tabs.list[this.tabs.progress]
+          this.tabs.selected = this.tabs.list[Math.min(this.tabs.progress + 1, 3)]
         }
         
         await this.refreshStepsList()
@@ -1239,6 +1246,20 @@ export default {
         }
       } else {
         return '/statics/profiles/noprofile.png'
+      }
+    },
+    /*
+     * Returns icon name depending on tab number, progress in creation mode, and edition mode
+     * @param    {Number}    number     tab number (starting at 1 for first tab)
+     */
+    getTabIcon(number) {
+      let creationTodoIcon = this.tabs.icons[number - 1] // icons array indexes start at 0
+      let creationDoneIcon = 'check_circle'
+      
+      if (this.isEdition) {
+        return ''
+      } else {
+        return number <= this.tabs.progress ? creationDoneIcon : creationTodoIcon
       }
     }
   },
