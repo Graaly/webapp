@@ -129,6 +129,7 @@ module.exports = {
       DiscoveryQuest15: "Une fois l'objet sélectionné, appliquez en touchant le sac à dos de l'homme sur l'image",
       DiscoveryQuest16: "Si vous vous trompez d'objet ou d'emplacement pour appliquer l'objet, vous avez une chance supplémentaire, mais vous ne gagnerez que la moitié des points de l'énigme",
       EndQuest1: "Bien joué, vous avez gagné {score} <i aria-hidden='true' class='q-icon fas fa-trophy'> </i> !",
+      EndQuest1b: "Bravo, même si vous n'avez gagné aucun point, vous êtes arrivé au bout de cette enquête !",
       EndQuest2: "Vous débutez au niveau 1, mais rapidement vous pourrez passer au niveau 2 et débloquer de nouvelles enquêtes !",
       EndQuest3: "Vous n'êtes pas loin de passer au niveau supérieur ! Encore un petit effort !",
       EndQuest4: "Défiez vos amis enquêteurs pour gagner plus de points et s'amuser à comparer vos scores. Cela vous permet aussi d'être averti si un ami créé une enquête.",
@@ -376,7 +377,7 @@ module.exports = {
       ConfirmHint: "The hint will cost you 5 points. Are you sure to use it?",
       YouWin: "You win",
       WhatCanYouDoWithThesePoints: "What can you do with these points?",
-      RateThisQuest: "Rate this quest",
+      ReviewThisQuest: "Review this quest",
       ShareYourSuccess: "Share your success!",
       YouAlreadyPlayThisQuestSoYouWinNoPoints: "You already won the points of this quest in the past",
       ResolveOtherQuestsToWinPoints: "Play new quests to win points",
@@ -505,7 +506,16 @@ module.exports = {
       RemoveYourAccount: "Remove your account",
       IConfirmIWantToRemoveMyAccount: "I confirm I want to remove my account",
       AreYouSureYouWantToRemoveYourAccount: "Are you sure to remove your account, and not use LinkyLove any more? This actions can not be canceled!",
-      YourAccountIsRemoved: "Your account has been removed"
+      YourAccountIsRemoved: "Your account has been removed",
+      Reviews: "Reviews",
+      CommentThisQuest: "Comments for quest author",
+      Send: "Send",
+      ReviewSent: "Review sent to the author. Thank you!",
+      Optional: "optional",
+      Colon: ":",
+      Rating: "Rating",
+      PleaseRateTheQuest: "Please rate the quest before sending your review",
+      QuestNotReviewed: "This quest has not been reviewed yet."
     }
   },
   fr: {
@@ -641,10 +651,10 @@ module.exports = {
       DiscoveryQuest15: "Une fois l'objet sélectionné, appliquez en appuyant sur le sac à dos de l'homme sur l'image",
       DiscoveryQuest16: "Si vous vous trompez d'objet ou d'emplacement pour appliquer l'objet, vous avez une <b>chance supplémentaire</b>, mais vous ne gagnerez que la moitié des points de l'énigme",
       EndQuest1: "Bien joué, vous avez gagné <b>{score}</b> <i aria-hidden='true' class='q-icon fas fa-trophy'> </i> !",
-      EndQuest1b: "Bravo, même si vous n'avez gagné aucun point, vous êtes arrivé au boût de cette enquête !",
+      EndQuest1b: "Bravo, même si vous n'avez gagné aucun point, vous êtes arrivé au bout de cette enquête !",
       EndQuest2: "Vous <b>débutez au niveau 1</b>, mais rapidement vous pourrez passer au niveau 2 et <b>débloquer de nouvelles enquêtes</b> !",
       EndQuest3: "Vous n'êtes pas loin de <b>passer au niveau supérieur</b> ! Encore un petit effort !",
-      EndQuest4: "<b>Défiez vos amis</b> enquêteurs pour gagner plus de points et s'amuser à comparer vos scores.<br />Cela vous permet aussi d'être averti si un ami créé une enquête.",
+      EndQuest4: "<b>Défiez vos amis</b> enquêteurs pour gagner plus de points et s'amuser à comparer vos scores.<br />Cela vous permet aussi d'être averti si un ami crée une enquête.",
       EndQuest5: "En <b>notant cette enquête</b>, vous gagnez 2 <i aria-hidden='true' class='q-icon fas fa-bolt'> </i>",
       EndQuest6: "Appuyez sur le <b>bouton 'Retour à la carte'</b>, pour revenir à la carte des enquêtes, et démarrer une nouvelle enquête",
       MapReturn: "Bravo, vous avez réussi votre première enquête. Appuyez sur <b>{score}</b> <i aria-hidden='true' class='q-icon fas fa-trophy'> </i>, en haut à droite, <b>pour voir votre classement</b>.",
@@ -889,7 +899,7 @@ module.exports = {
       ConfirmHint: "L'indice va vous coûter 5 points, êtes-vous sûr(e) de vouloir l'utiliser ?",
       YouWin: "Vous gagnez",
       WhatCanYouDoWithThesePoints: "Que faire avec ces points ?",
-      RateThisQuest: "Notez cette enquête",
+      ReviewThisQuest: "Votre avis sur cette enquête",
       ShareYourSuccess: "Partagez votre réussite !",
       YouAlreadyPlayThisQuestSoYouWinNoPoints: "Vous avez déjà gagné précedemment les points de cette enquête",
       ResolveOtherQuestsToWinPoints: "Résolvez de nouvelles enquêtes pour gagner des points",
@@ -1018,7 +1028,16 @@ module.exports = {
       RemoveYourAccount: "Supprimer mon compte",
       IConfirmIWantToRemoveMyAccount: "Je confirme que je veux supprimer mon compte",
       AreYouSureYouWantToRemoveYourAccount: "Êtes-vous sûrs de supprimer votre compte, et de ne plus pouvoir vous connecter ? Vous ne pourrez pas annuler cette action !",
-      YourAccountIsRemoved: "Votre compte est supprimé"
+      YourAccountIsRemoved: "Votre compte est supprimé",
+      Reviews: "Avis",
+      CommentThisQuest: "Commentaires pour l'auteur",
+      Send: "Envoyer",
+      ReviewSent: "Avis envoyé à l'auteur. Merci !",
+      Optional: "facultatif",
+      Colon: " :",
+      Rating: "Note",
+      PleaseRateTheQuest: "Veuillez mettre une note à l'enquête avant d'envoyer votre avis.",
+      QuestNotReviewed: "Cette enquête n'a pas encore reçu d'avis."
     }
   }
 }

@@ -14,6 +14,7 @@
       <q-tab slot="title" :disable="tabs.progress < 1 || isReadOnly()" name="settings" :icon="tabs.progress < 2 ?  'looks_two' : 'check_circle'" :label="$t('label.Intro') + ' (' + languages.current + ')'" />
       <q-tab slot="title" :disable="tabs.progress < 2 || isReadOnly()" name="steps" :icon="tabs.progress < 3 ?  'looks_3' : 'check_circle'" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
       <q-tab slot="title" :disable="tabs.progress < 3" name="publish" :icon="tabs.progress < 4 ?  'looks_4' : 'check_circle'" :label="$t('label.Publish')" />
+      <q-tab slot="title" name="reviews" :icon="'check_circle'" :label="$t('label.Reviews')" />
       
       <!------------------ LANGUAGES TAB ------------------------>
         
@@ -186,6 +187,35 @@
         
       </q-tab-pane>
       
+      <!------------------ REVIEWS TAB ------------------------>
+        
+      <q-tab-pane name="reviews">
+        <!--<q-infinite-scroll :handler="getReviews">-->
+          <q-list highlight v-if="reviews.length > 0">
+            <q-item v-for="review in reviews" :key="review._id">
+              
+              <q-item-side :avatar="getAvatar(review.userId.picture)" />
+                
+              <q-item-main>
+                <q-item-tile>{{ review.userId.name }}</q-item-tile>
+                <q-item-tile>
+                  <q-rating readonly v-model="review.rating" />
+                </q-item-tile>
+                <q-item-tile>
+                  {{ review.text }}
+                </q-item-tile>
+              </q-item-main>
+              
+              <q-item-side right :stamp="$options.filters.formatDate(review.created)" />
+              
+            </q-item>
+          </q-list>
+        <!--</q-infinite-scroll>-->
+        
+        <p v-if="reviews.length === 0">{{ $t('label.QuestNotReviewed') }}</p>
+        
+      </q-tab-pane>
+      
     </q-tabs>
     
     <q-modal v-model="steps.showNewStepPage">
@@ -302,8 +332,9 @@
 import { required } from 'vuelidate/lib/validators'
 import Notification from 'plugins/NotifyHelper'
 import QuestService from 'services/QuestService'
-import StepService from 'services/StepService'
+import ReviewService from 'services/ReviewService'
 import RunService from 'services/RunService'
+import StepService from 'services/StepService'
 import story from 'components/story'
 
 // required to define v-sortable directive in Vue 2.0, see https://github.com/sagalbot/vue-sortable/issues/10
@@ -409,6 +440,7 @@ export default {
         step: null,
         data: null
       },
+      reviews: [],
       canMoveNextStep: false,
       canPass: false,
       itemUsed: null,
@@ -488,6 +520,8 @@ export default {
         await this.refreshStepsList()
         
         await this.listEditors()
+        
+        await this.listReviews()
       } else {
         console.error('Could not load quest data')
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1186,6 +1220,26 @@ export default {
         Notification(quasarThis.$t('label.TechnicalIssue'), 'error')
         console.error('Could not access to device filesystem', err)
       })
+    },
+    async listReviews () {
+      let results = await ReviewService.list({ questId: this.questId })
+      this.reviews = results.data
+    },
+    /*
+     * Get avatar URL given file name (may be already an URL)
+     * TODO: maybe needed at other places => move to utils
+     * @param    {String}    filename     
+     */
+    getAvatar (filename) {
+      if (filename) {
+        if (filename.indexOf('http') !== -1) {
+          return filename
+        } else {
+          return this.serverUrl + '/upload/profile/' + filename
+        }
+      } else {
+        return '/statics/profiles/noprofile.png'
+      }
     }
   },
   validations: {
