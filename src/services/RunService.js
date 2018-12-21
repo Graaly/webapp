@@ -48,14 +48,6 @@ export default {
     return Api().put('run/' + id + '/end')
   },
   /*
-   * rate a run & a quest
-   * @param   {String}    id                  ID of the run
-   * @param   {String}    rating              Rating (1 > 5)
-   */
-  rate (id, rating) {
-    return Api().put('run/' + id + '/rate/' + rating)
-  },
-  /*
    * skip a step
    * @param   {String}    id                  ID of the run
    */

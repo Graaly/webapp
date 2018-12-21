@@ -281,20 +281,6 @@ export default {
   },
   methods: {
     /*
-     * Rate the quest
-     */
-    async rate() {
-      this.$q.loading.show()
-      let rate = await RunService.rate(this.run._id, this.rating)
-      this.$q.loading.hide()
-      
-      if (rate.status !== 200) {
-        this.$q.notify({type: 'warning', message: this.$t('label.YourRatingHasNotBeenSaved')})
-      } else {  
-        this.$q.notify({type: 'positive', message: this.$t('label.YourRatingHasBeenSaved')})
-      }
-    },
-    /*
      * Init score & level
      */
     async initProgression() {
