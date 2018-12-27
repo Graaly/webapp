@@ -407,7 +407,8 @@ export default {
       },
       story: {
         step: null,
-        data: null
+        data: null,
+        active: false
       },
       canMoveNextStep: false,
       canPass: false,
@@ -551,6 +552,10 @@ export default {
           if (this.tabs.progress < 2) {
             this.tabs.progress = 2
             this.tabs.selected = 'steps'
+            // start configuration story
+            if (this.story.active) {
+              this.story.step = 19
+            }
           }
           Notification(this.$t('label.QuestSaved'), 'info')
         } else {
@@ -582,13 +587,11 @@ export default {
     async startStory() {
       // count the number of quests built, to start tutorial only for the first quest
       const questCreatedNb = await QuestService.countForUser(this.$store.state.user._id)
-alert("test" + questCreatedNb)
-      if (questCreatedNb < 2) {
-        if (this.story.step === null) {
+      
+      if (questCreatedNb.data && questCreatedNb.data < 2) {
+        this.story.active = true
+        if (this.story.step === null && this.tabs.selected === 'languages') {
           this.story.step = 17
-          this.story.data = {
-            
-          }
         }
       }
     },
@@ -825,6 +828,10 @@ alert("test" + questCreatedNb)
       this.steps.showNewStepOverview = false
       this.tabs.selected = 'steps'
       utils.clearAllNotifications()
+      // start the story only for the 7th step
+      if (this.story.active && this.steps.items.length === 7) {
+        this.story.step = 22
+      }
     },
     /*
      * reset step data between 2 steps creation
@@ -925,6 +932,11 @@ alert("test" + questCreatedNb)
         this.tabs.progress = 1
       }
       this.tabs.selected = 'settings'
+      
+      if (this.story.active) {
+        // start configuration story
+        this.story.step = 18
+      }
     },
     /*
      * Close step type selection page
@@ -954,6 +966,10 @@ alert("test" + questCreatedNb)
       this.steps.showNewStepPageSettings = true
       // move to top
       this.moveToTop()
+      
+      if (this.steps.items.length === 0 && this.story.active) {
+        this.story.step = 20
+      }
     },
     /*
      * Launched when the step settings are set
@@ -968,6 +984,10 @@ alert("test" + questCreatedNb)
       this.steps.reloadStepPlay = true
       // move to top
       this.moveToTop()
+      
+      if (this.story.active && this.steps.items.length === 0) {
+        this.story.step = 21
+      }
     },
     /*
      * Launched when the step is played

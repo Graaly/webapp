@@ -194,6 +194,7 @@ var self = {
       for (var i = 0; i < this.notificationsArr.length; i++) {
         this.notificationsArr[i]()
       }
+      this.notificationsArr.length = 0
     }
   },
   clearAllRunningProcesses: function() {

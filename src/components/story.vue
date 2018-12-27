@@ -196,12 +196,62 @@ export default {
           ],
           bottom: 0
         },
-        // step 17 - Builder tutorial
+        // step 17 - Builder tutorial - Language selection
         17: {
           discussions: [
-            {character: "1", text: "StartNewQuest1", condition: null},
-            {character: "1", text: "StartNewQuest2", condition: (this.data !== null && this.data.hasOwnProperty("questId")), button: {label: "letsGo", action: "/quest/play/" + ((this.data && this.data.hasOwnProperty("questId")) ? this.data.questId : '0')}, link: {label: "NoThanks"}},
-            {character: "1", text: "StartNewQuest3", condition: null}
+            {character: "1", text: "BuilderLanguage1", condition: null},
+            {character: "1", text: "BuilderLanguage2", condition: null},
+            {character: "1", text: "BuilderLanguage3", condition: null}
+          ],
+          bottom: 0
+        },
+        // step 18 - Builder tutorial - Configuration
+        18: {
+          discussions: [
+            {character: "1", text: "BuilderConfiguration1", condition: null},
+            {character: "1", text: "BuilderConfiguration2", condition: null},
+            {character: "1", text: "BuilderConfiguration3", condition: null},
+            {character: "1", text: "BuilderConfiguration4", condition: null},
+            {character: "1", text: "BuilderConfiguration5", condition: null},
+            {character: "1", text: "BuilderConfiguration6", condition: null}
+          ],
+          bottom: 0
+        },
+        // step 19 - Builder tutorial - steps
+        19: {
+          discussions: [
+            {character: "1", text: "BuilderStep1", condition: null},
+            {character: "1", text: "BuilderStep2", condition: null},
+            {character: "1", text: "BuilderStep3", condition: null},
+            {character: "1", text: "BuilderStep4", condition: null},
+            {character: "1", text: "BuilderStep5", condition: null}
+          ],
+          bottom: 0
+        },
+        // step 20 - Builder tutorial - Creating
+        20: {
+          discussions: [
+            {character: "1", text: "BuilderStepSettings1", condition: null},
+            {character: "1", text: "BuilderStepSettings2", condition: null}
+          ],
+          bottom: 0
+        },
+        // step 21 - Builder tutorial - overview
+        21: {
+          discussions: [
+            {character: "1", text: "BuilderStepOverview1", condition: null},
+            {character: "1", text: "BuilderStepOverview2", condition: null},
+            {character: "1", text: "BuilderStepOverview3", condition: null}
+          ],
+          bottom: 0
+        },
+        // step 22 - Builder tutorial - publishing
+        22: {
+          discussions: [
+            {character: "1", text: "BuilderPublishing1", condition: null},
+            {character: "1", text: "BuilderPublishing2", condition: null},
+            {character: "1", text: "BuilderPublishing3", condition: null},
+            {character: "1", text: "BuilderPublishing4", condition: null}
           ],
           bottom: 0
         }
