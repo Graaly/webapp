@@ -840,14 +840,14 @@ export default {
           }
           
           // refresh user location periodically
-          setTimeout(this.findLocation, 30000)
+          utils.setTimeout(this.findLocation, 30000)
           this.warnings.noLocation = false
         }, (err) => {
           console.error('geolocation failed', err)
           this.user.position.isSupported = false
           this.user.position.nbFails++
           // try again in 10s
-          setTimeout(this.findLocation, 5000)
+          utils.setTimeout(this.findLocation, 5000)
           // TODO maybe here recall position stored in 'state'
           this.warnings.noLocation = true
         }, 
@@ -920,7 +920,7 @@ export default {
       } else {
         this.warnings.noNetwork = false
       }
-      setTimeout(this.checkNetwork, 20000)
+      utils.setTimeout(this.checkNetwork, 20000)
     },
     CenterMapOnPosition(lat, lng) {
       this.$data.map.center = {lat: lat, lng: lng}

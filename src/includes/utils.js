@@ -175,15 +175,25 @@ var self = {
     }
     return false
   },
-  
+  /**
+   * Works like native setTimeout() function, except that it keeps the timeout ID
+   * in Vue store for easier cleaning with clearAllTimeouts(),
+   * otherwise cleaning all timeouts can prevent Webpack's hot module reloading to work.
+   * @param     {Function}    func        The function to run after the timeout
+   * @param     {Number}      duration    The timeout duration in milliseconds
+   */
+  setTimeout: function (func, duration) {
+    let timeoutId = setTimeout(func, duration)
+    store.dispatch('addTimeoutId', timeoutId)
+  },
   /**
    * Clear all timeouts created in other pages
    */
   clearAllTimeouts: function () {
-    var highestTimeoutId = setTimeout(function() {})
-    for (var i = 0; i < highestTimeoutId; i++) {
-      clearTimeout(i); 
+    for (let timeoutId of store.state.runningTimeoutsIds) {
+      clearTimeout(timeoutId)
     }
+    store.dispatch('clearTimeoutIds')
   },
   
   /**

@@ -532,7 +532,7 @@ export default {
             //}
             
             // display controls after some seconds to let user see background
-            setTimeout(this.showControls, 1000)
+            utils.setTimeout(this.showControls, 1000)
           }
         } else {
           background.style.background = 'none'
@@ -549,7 +549,7 @@ export default {
 
         if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'character' || this.step.type === 'new-item') {
           // validate steps with no enigma
-          setTimeout(this.checkAnswer, 1000)
+          utils.setTimeout(this.checkAnswer, 1000)
         }
         
         if (this.step.type === 'choose') {
@@ -577,7 +577,7 @@ export default {
         }*/
         
         if (this.step.type === 'jigsaw-puzzle') {
-          setTimeout(this.initPuzzle, 1000)
+          utils.setTimeout(this.initPuzzle, 1000)
           this.$emit('pass')
         }
         
@@ -1243,7 +1243,7 @@ export default {
           break
       }
       // advise user to move to next step
-      setTimeout(this.alertToPassToNextStep, 15000)
+      utils.setTimeout(this.alertToPassToNextStep, 15000)
     },
     /*
      * Send wrong answer 
@@ -1261,7 +1261,7 @@ export default {
         this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
       }
       // advise user to move to next step
-      setTimeout(this.alertToPassToNextStep, 15000)
+      utils.setTimeout(this.alertToPassToNextStep, 15000)
     },
     alertToPassToNextStep() {
       this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'))
@@ -1945,7 +1945,7 @@ export default {
           }
         } else {
           this.memory.disabled = true
-          setTimeout(function() {
+          utils.setTimeout(function() {
             _self.memory.items[_self.memory.selectedKey].isClicked = false
             _self.memory.items[key].isClicked = false
             Vue.set(_self.memory.items, _self.memory.selectedKey, _self.memory.items[_self.memory.selectedKey])

@@ -24,17 +24,20 @@
         <q-btn icon="people" color="tertiary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
       </div>
       
-      <!------------------ RATING AREA ------------------------>
+      <!------------------ REVIEW AREA ------------------------>
       
-      <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.reward <= 0">
-        <h3 class="size-2 q-ma-sm">{{ $t('label.RateThisQuest') }} (+2 <q-icon color="white" name="fas fa-bolt" />)</h3>
-        <q-rating v-model="rating" :max="5" size="1.5rem" @input="rate" />
+      <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="showAddReview">
+        <h3 class="size-2">{{ $t('label.ReviewThisQuest') }} (+2 <q-icon color="white" name="fas fa-bolt" />)</h3>
+        <p>{{ $t('label.Rating') + $t('label.Colon') }} <q-rating v-model="rating" :max="5" size="1.5rem" :disable="reviewSent" /></p>
+        <p>{{ $t('label.CommentThisQuest') }} ({{ $t('label.Optional') }}){{ $t('label.Colon') }}</p>
+        <textarea class="full-width" v-model="comment" rows="5" :disabled="reviewSent" />
+        <q-btn class="full-width" color="primary" :label="$t('label.Send')" @click="addReview()" :disabled="reviewSent" />
       </div>
       
       <!------------------ SHARE AREA ------------------------>
       
-      <div class="share bg-secondary q-mt-md q-ml-md q-mr-md q-pb-md centered">
-         <h3 class="size-2 q-ma-sm">{{ $t('label.ShareYourSuccess') }}</h3>
+      <div class="share bg-secondary q-mt-md q-ml-md q-mr-md q-pa-sm centered">
+        <h3 class="size-2 q-ma-sm">{{ $t('label.ShareYourSuccess') }}</h3>
         <ul>
           <li>
             <a href="https://www.facebook.com/sharer/sharer.php?u=http://graaly.com" target="_blank">
@@ -57,7 +60,7 @@
       <!------------------ BACK TO MAP LINK AREA ------------------------>
       
       <div class="back centered q-pa-md bg-primary text-primary">
-        <q-btn class="text-primary bg-white" :label="$t('label.BackToTheMap')" @click="$router.push('/map')" />
+        <q-btn class="text-primary bg-white full-width" :label="$t('label.BackToTheMap')" @click="$router.push('/map')" />
       </div>
       
     </div>
@@ -140,7 +143,7 @@
      <!--====================== BONUS PAGE =================================-->
     
     <transition name="slideInBottom">
-      <div class="panel-bottom q-pa-md" v-show="showBonus">      
+      <div class="panel-bottom q-pa-md" v-if="showBonus">      
         <a class="float-right no-underline" color="grey" @click="closeBonus"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ $t('label.YouWonABonus') }}</h1>
         <div class="q-pa-md">
@@ -173,11 +176,13 @@
 </template>
 
 <script>
+import QuestService from 'services/QuestService'
+import ReviewService from 'services/ReviewService'
 import RunService from 'services/RunService'
 import UserService from 'services/UserService'
 import LevelCompute from 'plugins/LevelCompute'
+import Notification from 'plugins/NotifyHelper'
 //import { filter } from 'quasar'
-//import utils from 'src/includes/utils'
 import Vue from 'vue'
 import story from 'components/story'
 import utils from 'src/includes/utils'
@@ -190,6 +195,7 @@ export default {
     return {
       title: 'Enquête réussie',
       rating: 0,
+      comment: '',
       ranking: {
         show: false,
         items: []
@@ -216,6 +222,8 @@ export default {
       awardPoints: true,
       showChallenge: false,
       showBonus: false,
+      showAddReview: false,
+      reviewSent: false,
       serverUrl: process.env.SERVER_URL
     }
   },
@@ -239,6 +247,15 @@ export default {
     // get ranking without the user (status of run is still in-progress)
     await this.getRanking()
     
+    // get quest data
+    let quest = await QuestService.getById(this.questId)
+    
+    // show review part only if player is not author & has not already sent a review for this quest
+    let isUserAuthor = this.$store.state.user._id === quest.data.authorUserId
+    let results = await ReviewService.list({ questId: this.questId, userId: this.$store.state.user._id }, { limit: 1 })
+    let isReviewAlreadySent = results.data && results.data.length >= 1
+    this.showAddReview = !isUserAuthor && !isReviewAlreadySent 
+    
     // get user old score
     this.score.old = this.$store.state.user.score
     this.initProgression()
@@ -260,23 +277,9 @@ export default {
     // get user new score
     //this.level.color = "secondary"
     this.score.new = runIsInProgress ? this.score.old + this.run.score : this.score.old
-    setTimeout(this.updateProgression, 3000)
+    utils.setTimeout(this.updateProgression, 3000)
   },
   methods: {
-    /*
-     * Rate the quest
-     */
-    async rate() {
-      this.$q.loading.show()
-      let rate = await RunService.rate(this.run._id, this.rating)
-      this.$q.loading.hide()
-      
-      if (rate.status !== 200) {
-        this.$q.notify({type: 'warning', message: this.$t('label.YourRatingHasNotBeenSaved')})
-      } else {  
-        this.$q.notify({type: 'positive', message: this.$t('label.YourRatingHasBeenSaved')})
-      }
-    },
     /*
      * Init score & level
      */
@@ -290,7 +293,7 @@ export default {
     async updateProgression() {
       // delay animation if a modal is opened
       if (this.ranking.show || this.showChallenge || this.showBonus) {
-        setTimeout(this.updateProgression, 2000)
+        utils.setTimeout(this.updateProgression, 2000)
       } else {
         var newLevel = LevelCompute(this.score.new)
         // check if the user will move to a new level
@@ -317,7 +320,7 @@ export default {
         this.ranking.items.sort(this.compareScore)
         // compute position
         this.refreshPosition()
-        setTimeout(this.showRanking, 5000)
+        utils.setTimeout(this.showRanking, 5000)
       }
     },
     /*
@@ -345,7 +348,7 @@ export default {
           className: "selected"
         })
         // start animation
-        setTimeout(this.updateRanking, 3000)
+        utils.setTimeout(this.updateRanking, 3000)
       }
     },
     /*
@@ -360,7 +363,7 @@ export default {
             this.$set(this.ranking.items, i, otherRanking)
             this.$set(this.ranking.items, i - 1, userRanking)
             this.refreshPosition()
-            setTimeout(this.updateRanking, 500)
+            utils.setTimeout(this.updateRanking, 500)
             break
           }
         }
@@ -468,9 +471,25 @@ export default {
           score: this.run.score,
           level: this.$store.state.user.level,
           progress: this.level.progress,
-          discovery: this.questId = '5b7303ec4efbcd1f8cb101c6'
+          discovery: this.questId === '5b7303ec4efbcd1f8cb101c6'
         }
       }
+    },
+    /*
+     * Send a review
+     */
+    async addReview() {
+      if (this.rating === 0) {
+        Notification(this.$t('label.PleaseRateTheQuest'), 'success')
+        return false
+      }
+      
+      this.$q.loading.show()
+      await ReviewService.add(this.questId, this.run._id, this.comment, this.rating)
+      this.$q.loading.hide()
+      
+      this.reviewSent = true
+      Notification(this.$t('label.ReviewSent'), 'success')
     }
     /*
      * Search a friend
@@ -482,7 +501,7 @@ export default {
         this.invitedFriends.name.push(name)
         this.invitedFriends.id.push(name)
       } else {
-        setTimeout(() => {
+        utils.setTimeout(() => {
           done(filter(name, {field: 'label', list: this.friends}))
         }, 1000)
         //this.filteredFriends = filter(name, {field: 'label', list: this.friends})
@@ -502,7 +521,6 @@ export default {
 </script>
 
 <style lang="styl" scoped>
-@import '~variables'
 
 #main-view { display: flex; flex-flow: column nowrap; }
 
@@ -510,6 +528,10 @@ export default {
 .share li { list-style-type: none; margin: 0.5rem; }
 .share img { width: 3rem; height: 3rem; }
 
-.selected {background-color: #ddd}
+.selected { background-color: #ddd; }
+
+h3 { line-height: normal; margin: 0 auto 2vw auto; padding: 2vw; }
+
+.bg-secondary p { text-align: left }
 
 </style>
