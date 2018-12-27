@@ -189,7 +189,7 @@
       
       <!------------------ REVIEWS TAB ------------------------>
         
-      <q-tab-pane name="reviews">
+      <q-tab-pane name="reviews" v-if="this.isEdition">
         <!--<q-infinite-scroll :handler="getReviews">-->
           <q-list highlight v-if="reviews.length > 0">
             <q-item v-for="review in reviews" :key="review._id">

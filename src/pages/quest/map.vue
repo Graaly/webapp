@@ -23,11 +23,15 @@
         <gmap-marker v-show="map.loaded" :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()" @click="openDiscoveryQuest()" />
         <!-- markers tooltips -->
         <gmap-info-window :options="map.infoWindow.options" :position="map.infoWindow.location" :opened="map.infoWindow.isOpen" @closeclick="map.infoWindow.isOpen=false">
-          <div class="infoWindow">
+          <div class="infoWindow" v-if="!this.$store.state.user.story || !this.$store.state.user.story.step || this.$store.state.user.story.step > 3">
             <p class="title" v-html="getQuestTitle(currentQuest, true)"></p>
             <p>{{ $t('label.Difficulty') }} : <img class="image-and-text-aligned" src="statics/icons/game/magnifying-red.png" /><img class="image-and-text-aligned" :src="'statics/icons/game/magnifying-' + ((currentQuest && currentQuest.level === 1) ? 'grey' : 'red') + '.png'" /><img class="image-and-text-aligned" :src="'statics/icons/game/magnifying-' + ((currentQuest && currentQuest.level === 3) ? 'red' : 'grey') + '.png'" /></p>
             <q-btn v-if="currentQuest && currentQuest.authorUserId !== $store.state.user._id" @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Play') }}</q-btn>
             <q-btn v-if="currentQuest && currentQuest.authorUserId === $store.state.user._id" @click="$router.push('/quest/settings/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Modify') }}</q-btn>
+          </div>
+          <div class="infoWindow" v-if="this.$store.state.user.story && this.$store.state.user.story.step && this.$store.state.user.story.step <= 3">
+            <p>{{ $t('label.ClickHereToStartDiscoveryQuest') }}</p>
+            <q-btn @click="openDiscoveryQuest()" color="primary">{{ $t('label.Start') }}</q-btn>
           </div>
         </gmap-info-window>
       </gmap-map>
@@ -821,6 +825,8 @@ export default {
             // get quests only if tutorial is advanced
             if (this.$store.state.user.story.step > 3) {
               await this.getQuests()
+            } else {
+              this.openDiscoveryQuestSummary()
             }
    
             // adjust zoom / pan to nearest quests, or current user location
@@ -948,6 +954,15 @@ export default {
         // center map on last clicked quest
         this.panTo(questCoordinates)
       }
+    },
+    /*
+     * Open the summary box for the discovery quest
+     */
+    openDiscoveryQuestSummary() {
+      let infoWindow = this.map.infoWindow
+      let questCoordinates = { lng: this.user.position.longitude, lat: this.user.position.latitude }
+      this.map.infoWindow.location = questCoordinates
+      infoWindow.isOpen = true
     },
      /*
      * Get the list of quests near the location of the user

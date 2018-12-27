@@ -65,11 +65,11 @@ export default {
           discussions: [
             {character: "2", text: "WelcomeToQuest1", link: {label: "BackToTheMap", action: "/map"}, condition: null},
             {character: "2", text: "WelcomeToQuest2", link: {label: "BackToTheMap", action: "/map"}, condition: (this.data && this.data.hasOwnProperty("startingPlace") && (typeof this.data.startingPlace !== 'undefined') && this.data.startingPlace.length > 1)},
-            {character: "2", text: "YouAlreadyDidThisQuest", condition: (this.data && this.data.isRunFinished)},
-            {character: "2", text: "YouAreQuestOwnerDesc", condition: (this.data && this.data.isOwner)},
-            {character: "2", text: "QuestIsFarFromUser", condition: (this.data && this.data.isFar && this.data.hasOwnProperty("startingPlace") && (typeof this.data.startingPlace !== 'undefined') && this.data.startingPlace.length > 1)},
-            {character: "2", text: "QuestParams", condition: (this.data && this.data.hasOwnProperty("score") && this.data.score > 0)},
-            {character: "2", text: "description", condition: (this.data && this.data.hasOwnProperty("description") && this.data.description.length > 1)},
+            {character: "2", text: "YouAlreadyDidThisQuest", link: {label: "BackToTheMap", action: "/map"}, condition: (this.data && this.data.isRunFinished)},
+            {character: "2", text: "YouAreQuestOwnerDesc", link: {label: "BackToTheMap", action: "/map"}, condition: (this.data && this.data.isOwner)},
+            {character: "2", text: "QuestIsFarFromUser", link: {label: "BackToTheMap", action: "/map"}, condition: (this.data && this.data.isFar && this.data.hasOwnProperty("startingPlace") && (typeof this.data.startingPlace !== 'undefined') && this.data.startingPlace.length > 1)},
+            {character: "2", text: "QuestParams", link: {label: "BackToTheMap", action: "/map"}, condition: (this.data && this.data.hasOwnProperty("score") && this.data.score > 0)},
+            {character: "2", text: "description", link: {label: "BackToTheMap", action: "/map"}, condition: (this.data && this.data.hasOwnProperty("description") && this.data.description.length > 1)},
             {character: "2", text: "GeneralWarning", condition: null}
           ],
           bottom: 0

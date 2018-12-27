@@ -541,7 +541,8 @@ module.exports = {
       Colon: ":",
       Rating: "Rating",
       PleaseRateTheQuest: "Please rate the quest before sending your review",
-      QuestNotReviewed: "This quest has not been reviewed yet."
+      QuestNotReviewed: "This quest has not been reviewed yet.",
+      ClickHereToStartDiscoveryQuest: "Press here to start the discovery quest"
     }
   },
   fr: {
@@ -628,7 +629,7 @@ module.exports = {
       fr: "Français"
     },
     story: {
-      Welcome: "Bienvenue <b>jeune détective</b>, vous venez de rejoindre mon équipe.<br />Nous devons faire face à une augmentation des enquêtes, et avons choisi de faire appel à <b>quelqu'un de prométeur comme vous</b> !",
+      Welcome: "Bienvenue <b>jeune détective</b>, vous venez de rejoindre mon équipe.<br />Nous devons faire face à une augmentation des enquêtes, et avons choisi de faire appel à <b>quelqu'un de prometteur comme vous</b> !",
       FirstStep: 'Autant vous le dire tout de suite, il va y avoir du boulot.<br />Mais si vous êtes motivé et que vous écoutez mes conseils, vous allez <b>rapidement devenir un bon détective</b>.',
       PresentTeam: "Avant d'aller plus loin, je vais vous <b>présenter notre l'équipe</b>",
       PresentSecretary1: "Bonjour, je suis <b>Jeanne</b>, je vous assisterai dans vos missions.",
@@ -1086,7 +1087,8 @@ module.exports = {
       Colon: " :",
       Rating: "Note",
       PleaseRateTheQuest: "Veuillez mettre une note à l'enquête avant d'envoyer votre avis.",
-      QuestNotReviewed: "Cette enquête n'a pas encore reçu d'avis."
+      QuestNotReviewed: "Cette enquête n'a pas encore reçu d'avis.",
+      ClickHereToStartDiscoveryQuest: "Appuyez ici pour démarrer l'enquête de découverte"
     }
   }
 }
