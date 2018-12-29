@@ -30,7 +30,7 @@
         <h3 class="size-2">{{ $t('label.ReviewThisQuest') }} (+2 <q-icon color="white" name="fas fa-bolt" />)</h3>
         <p>{{ $t('label.Rating') + $t('label.Colon') }} <q-rating v-model="rating" :max="5" size="1.5rem" :disable="reviewSent" /></p>
         <p>{{ $t('label.CommentThisQuest') }} ({{ $t('label.Optional') }}){{ $t('label.Colon') }}</p>
-        <textarea class="full-width" v-model="comment" rows="5" :disabled="reviewSent" />
+        <textarea class="shadowed full-width" v-model="comment" rows="5" :disabled="reviewSent" />
         <q-btn class="full-width" color="primary" :label="$t('label.Send')" @click="addReview()" :disabled="reviewSent" />
       </div>
       

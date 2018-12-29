@@ -1321,7 +1321,7 @@ export default {
     async getCurrentLocation() {
       this.$q.loading.show()
       // get the current coords
-      navigator.geolocation.getCurrentPosition(this.fillLocation, getLocationError, {timeout: 5000, maximumAge: 10000});
+      navigator.geolocation.getCurrentPosition(this.fillLocation, this.getLocationError, {timeout: 5000, maximumAge: 10000});
     },
     getLocationError(err) {
       console.log(err)
@@ -1365,7 +1365,7 @@ export default {
         this.$v.selectedStep.form.options.lng.$touch()
         this.$q.loading.hide()
       }, 
-      getLocationError, 
+      this.getLocationError, 
       { 
         timeout: 5000, 
         maximumAge: 10000 
