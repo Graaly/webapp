@@ -303,8 +303,8 @@
     
     <!------------------ COMMON COMPONENTS ------------------>
     
-    <div class="direction-helper" v-show="(step.type == 'geolocation' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null">
-      <canvas id="direction-canvas"></canvas>
+    <div class="direction-helper" v-show="(step.type == 'geolocation' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem !important' }">
+      <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
     <!--====================== WIN POINTS ANIMATION =================================-->
