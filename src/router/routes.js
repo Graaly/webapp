@@ -27,91 +27,109 @@ export default [
     children: [
       {
         path: '',
+        name: 'none',
         redirect: '/map',
         meta: { requiresAuth: true }
       },
       {
         path: 'home',
+        name: 'home',
         redirect: '/map',
         meta: { requiresAuth: true }
       },
       {
         path: 'firstusage',
+        name: 'firstusage',
         component: UserFirstUsage,
         meta: { requiresAuth: false }
       },
       {
         path: 'map',
+        name: 'map',
         component: QuestMap,
         meta: { requiresAuth: true }
       },
       {
         path: 'quest/play/:id(\\w{24})',
+        name: 'playhome',
         component: QuestPlayHome,
         meta: { requiresAuth: true }
       },
       {
         path: 'quest/play/:questId(\\w{24})/step/:stepNumber/:lang',
+        name: 'playstep',
         component: QuestPlayStep,
         meta: { requiresAuth: true }
       },
       {
         path: 'quest/:questId(\\w{24})/end',
+        name: 'playend',
         component: QuestEnd,
         meta: { requiresAuth: true }
       },
       {
         path: 'quest/create',
+        name: 'build',
         redirect: '/quest/create/welcome',
         meta: { requiresAuth: true }
       },
       {
         path: 'quest/create/welcome',
+        name: 'buildhome',
         component: QuestManageWelcome,
         meta: { requiresAuth: true }
       },
       {
         path: 'quest/settings/:questId(\\w{24})',
+        name: 'buildsettings',
         component: QuestManageSettings,
         meta: { requiresAuth: true }
       },
       {
         path: 'user/createAccount/:email/:step',
+        name: 'signup',
         component: UserCreateAccount,
         meta: { requiresAuth: false }
       },
       {
         path: 'user/login',
+        name: 'signin',
         component: UserLogin,
         meta: { requiresAuth: false }
       },
       {
         path: 'user/logout',
+        name: 'signout',
         component: UserLogout,
         meta: { requiresAuth: true }
       },
       {
         path: 'user/updateprofile',
+        name: 'profile',
         component: UserProfile,
         meta: { requiresAuth: true }
       },
       {
         path: 'admin',
+        name: 'admin',
         component: Admin,
         meta: { requiresAuth: true }
       },
       {
         path: 'admin/validate/:questId(\\w{24})',
+        name: 'adminvalidate',
         component: AdminValidation,
         meta: { requiresAuth: true }
       },
       {
         path: 'admin/minigames/builder',
+        name: 'adminminigame',
         component: AdminMinigamesBuilder,
         meta: { requiresAuth: true }
       },
       {
         path: 'error',
+        name: 'error',
         component: ErrorMessage,
         meta: { requiresAuth: false }
       }

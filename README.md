@@ -42,6 +42,14 @@ $ rm graaly.apk
 $ E:\logiciels\Android\sdk\build-tools\26.0.2\zipalign -v 4 app-release-unsigned.apk graaly.apk
 ```
 
+# Publish the app
+
+## Android app
+
+Open https://play.google.com/apps/publish/?account=5104428642488176820#ManageReleaseTrackPlace:p=com.graaly.app&appid=4972151247150188990&releaseTrackId=4700787750850651322
+
+Create a new version by uploading the apk signed file
+
 # Debug web app
 
 ## With Chrome Desktop & Chrome Android

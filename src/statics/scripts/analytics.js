@@ -16,6 +16,6 @@ export default {
       'sessionId': sessionId
     })
     // MP 2018-11-12 see https://github.com/Graaly/webapp/issues/176
-    //dataLayer.push({ 'event': 'appScreenView' })
+    dataLayer.push({ 'event': 'appScreenView' })
   }
 }

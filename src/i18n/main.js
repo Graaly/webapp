@@ -542,7 +542,8 @@ module.exports = {
       Rating: "Rating",
       PleaseRateTheQuest: "Please rate the quest before sending your review",
       QuestNotReviewed: "This quest has not been reviewed yet.",
-      ClickHereToStartDiscoveryQuest: "Press here to start the discovery quest"
+      ClickHereToStartDiscoveryQuest: "Press here to start the discovery quest",
+      contactUsPro: "You can find our professional services on <a href='https://graaly.com' target='_blank'>https://graaly.com</a> or contact us at sales@graaly.com."
     }
   },
   fr: {
@@ -1088,7 +1089,8 @@ module.exports = {
       Rating: "Note",
       PleaseRateTheQuest: "Veuillez mettre une note à l'enquête avant d'envoyer votre avis.",
       QuestNotReviewed: "Cette enquête n'a pas encore reçu d'avis.",
-      ClickHereToStartDiscoveryQuest: "Appuyez ici pour démarrer l'enquête de découverte"
+      ClickHereToStartDiscoveryQuest: "Appuyez ici pour démarrer l'enquête de découverte",
+      contactUsPro: "Vous pouvez retrouver nos offres professionnelles sur <a href='https://graaly.com' target='_blank'>https://graaly.com</a> ou nous contacter à sales@graaly.com."
     }
   }
 }

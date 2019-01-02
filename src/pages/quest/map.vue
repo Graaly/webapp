@@ -332,7 +332,8 @@
         <!------------------ PRO TAB ------------------------>
         
         <q-tab-pane name="pro">
-            <q-card inline class="q-ma-sm">
+          <div v-if="!pro.showContact">
+            <q-card inline class="q-ma-sm" @click.native="pro.showContact = true">
               <q-card-media>
                 <img src="statics/icons/game/storekeeper.jpg">
 
@@ -342,7 +343,7 @@
                 </q-card-title>
               </q-card-media>
             </q-card>
-            <q-card inline class="q-ma-sm">
+            <q-card inline class="q-ma-sm" @click.native="pro.showContact = true">
               <q-card-media>
                 <img src="statics/icons/game/tourism.jpg">
 
@@ -352,6 +353,10 @@
                 </q-card-title>
               </q-card-media>
             </q-card>
+          </div>
+          <div v-if="pro.showContact">
+            <span v-html="$t('label.contactUsPro')" />
+          </div>
         </q-tab-pane>
         
       </q-tabs>
@@ -694,6 +699,9 @@ export default {
       },
       shop: {
         show: false
+      },
+      pro: {
+        showContact: false
       },
       currentQuestIndex: null,
       currentQuest: null,
