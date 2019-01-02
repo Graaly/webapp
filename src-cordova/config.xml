@@ -36,6 +36,7 @@
         <icon height="114" src="res/icon/ios/icon-57-2x.png" width="114" />
         <icon height="72" src="res/icon/ios/icon-72.png" width="72" />
         <icon height="144" src="res/icon/ios/icon-72-2x.png" width="144" />
+        <icon height="1024" src="res/icon/ios/icon.jpg" width="1024" />
     </platform>
     <allow-navigation href="http://192.168.43.151:8080/index.html" />
     <preference name="StatusBarBackgroundColor" value="#e82a34" />

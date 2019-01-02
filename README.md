@@ -63,6 +63,8 @@ Build and Archive the app (select Generic iOS Device to archive), then deploy it
 If any issue with certificate, or provisioning profile, generate a new certificate, or provisioning profile on https://developer.apple.com/account/ios/profile/production/edit/44CLFUHY8J
 (/!\ the current provisioning profile works with 3/11/2018 certificate)
 
+Account to test the app : graaly / Gr44lY43v3r
+
 # Debug web app
 
 ## With Chrome Desktop & Chrome Android
