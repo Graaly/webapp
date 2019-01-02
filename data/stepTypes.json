@@ -41,7 +41,7 @@
     "showTrick": "no",
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": false
+    "hasOptions": true
   },
   {
     "category": "enigma",
