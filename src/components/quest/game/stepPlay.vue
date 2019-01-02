@@ -303,8 +303,8 @@
     
     <!------------------ COMMON COMPONENTS ------------------>
     
-    <div class="direction-helper" v-show="(step.type == 'geolocation' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null">
-      <canvas id="direction-canvas"></canvas>
+    <div class="direction-helper" v-show="(step.type == 'geolocation' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem !important' }">
+      <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
     <!--====================== WIN POINTS ANIMATION =================================-->
@@ -375,6 +375,11 @@ export default {
   },
   data: function () {
     return this.initialState()
+  },
+  computed: {
+    directionHelperSize: function () {
+      return this.step && this.step.type === 'locate-item-ar' ? 7 : 10 // in rem
+    }
   },
   mounted () {
     // seems always already done by "watch" on "reload" key // Uncommented by EMA on 122018, in some case watcher does not work
@@ -1537,7 +1542,7 @@ export default {
       
       ctx.translate(arrowCenterX, arrowCenterY)
       
-      ctx.lineWidth = 20
+      ctx.lineWidth = Math.round(20 * this.directionHelperSize / 10)
       ctx.strokeStyle = '#ff0000'
       ctx.fillStyle = '#ff0000'
       
@@ -2343,7 +2348,10 @@ export default {
     right: 10px;
   }
   
-  .direction-helper { position: absolute; width: 10rem; height: 10rem !important; bottom: 20vw; left: 0; right: 0; margin-left: auto; margin-right: auto; z-index: 30; min-height: initial !important; }
-  .direction-helper canvas { width: 10rem; height: 10rem; margin: auto; }
+  /*
+  * direction helper: width and height are computed properties (depending on the current step type)
+  */  
+  .direction-helper { position: absolute; bottom: 20vw; left: 0; right: 0; margin-left: auto; margin-right: auto; z-index: 30; min-height: initial !important; }
+  .direction-helper canvas { margin: auto; }
   
 </style>
