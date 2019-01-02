@@ -50,6 +50,19 @@ Open https://play.google.com/apps/publish/?account=5104428642488176820#ManageRel
 
 Create a new version by uploading the apk signed file
 
+## iPhone app
+
+Open console / terminal in the *webapp* folder
+
+quasar build -m cordova -T ios
+
+Open the xproj file
+
+Build and Archive the app (select Generic iOS Device to archive), then deploy it
+
+If any issue with certificate, or provisioning profile, generate a new certificate, or provisioning profile on https://developer.apple.com/account/ios/profile/production/edit/44CLFUHY8J
+(/!\ the current provisioning profile works with 3/11/2018 certificate)
+
 # Debug web app
 
 ## With Chrome Desktop & Chrome Android
