@@ -170,15 +170,12 @@
       <div class="geolocation" v-if="step.type == 'geolocation'">
         <div>
           <p class="text">{{ getTranslatedText() }}</p>
-          <p class="text" v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+          <p class="text" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
           <!--
           <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
           <p class="text">Alpha: {{ Math.round(geolocation.alpha) }}°</p>
           <p class="text">Difference direction: {{ geolocation.direction }}°</p>
           -->
-        </div>
-        <div class="centered bg-warning q-pa-sm" v-if="!geolocation.active">
-          <q-spinner-puff class="on-left" /> {{ $t('label.WarningNoLocation') }}
         </div>
       </div>
       
@@ -262,9 +259,9 @@
         <div v-show="!playerResult">
           <div class="text">
             <p>{{ getTranslatedText() }}</p>
-            <p v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
-            <p v-if="!this.geolocation.canSeeTarget">{{ $t('label.ObjectIsTooFar') }}</p>
-            <p v-if="this.geolocation.canTouchTarget">{{ $t('label.TouchTheObject') }}</p>
+            <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+            <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
+            <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
           </div>
         </div>
         <div class="target-view" v-show="!playerResult || (playerResult && step.options.is3D)">
@@ -303,10 +300,19 @@
     
     <!------------------ COMMON COMPONENTS ------------------>
     
-    <div class="direction-helper" v-show="(step.type == 'geolocation' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem !important' }">
+    <div class="direction-helper" v-show="(step.type == 'geolocation' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && geolocation.active" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem !important' }">
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
+    <div class="please-enable-geolocation" v-if="(step.type == 'geolocation' || step.type == 'locate-item-ar')&& !geolocation.active">
+      <p>{{ $t('label.PleaseActivateGeolocation') }}</p>
+    </div>
+    <!--
+    <div class="warning-no-location centered bg-warning q-pa-sm" v-if="(step.type == 'geolocation' || step.type == 'locate-item-ar') && !geolocation.active">
+      <p><q-spinner-puff color="primary" size="40px" /></p>
+      <p>{{ $t('label.WarningNoLocation') }}</p>
+    </div>
+    -->
     <!--====================== WIN POINTS ANIMATION =================================-->
     
     <div v-show="playerResult === true && score > 0" class="fadein-message">+{{ score }} <q-icon color="white" name="fas fa-trophy" /></div>
@@ -1519,7 +1525,7 @@ export default {
      * Draw direction arrows for geolocation
      */
     drawDirectionArrow() {
-      if (this.geolocation.alpha === null || document.querySelector('.direction-helper canvas') === null) {
+      if (this.geolocation.alpha === null || document.querySelector('.direction-helper canvas') === null || !this.geolocation.active) {
         return
       }
       
@@ -1604,6 +1610,7 @@ export default {
       }
       
       // compute distance between two coordinates
+      // note: current.accuracy contains the result accuracy in meters
       this.geolocation.distance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
       
       this.geolocation.rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
@@ -2354,4 +2361,14 @@ export default {
   .direction-helper { position: absolute; bottom: 20vw; left: 0; right: 0; margin-left: auto; margin-right: auto; z-index: 30; min-height: initial !important; }
   .direction-helper canvas { margin: auto; }
   
+  .please-enable-geolocation {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: white; z-index: 40; display: flex; align-items: center; justify-content: center;
+  }
+  .please-enable-geolocation p {
+    margin: 0;
+  }
+  /*
+  .warning-no-location { position: absolute; bottom: 13vw; width: 100%; height: 13vw !important; min-height: initial !important; z-index: 50; display: flex; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center; justify-content: center; }
+  .warning-no-location p { display: flex; margin: 1vw; }
+  */
 </style>

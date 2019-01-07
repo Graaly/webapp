@@ -1530,7 +1530,7 @@ export default {
     openLocationSettings () {
       if (window.cordova && window.cordova.plugins.settings) {
         console.log('openNativeSettings is active')
-        window.cordova.plugins.settings.open("location", function() {
+        window.cordova.plugins.settings.open("location", () => {
           console.log('opened settings')
           this.nativeSettingsIsEnabled = true
         },
