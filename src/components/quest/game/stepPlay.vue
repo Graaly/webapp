@@ -254,7 +254,7 @@
       
       <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && !playerResult"></video>
+          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && !playerResult && geolocation.active"></video>
         </transition>
         <div v-show="!playerResult">
           <div class="text">
@@ -304,15 +304,8 @@
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
-    <div class="please-enable-geolocation" v-if="(step.type == 'geolocation' || step.type == 'locate-item-ar')&& !geolocation.active">
-      <p>{{ $t('label.PleaseActivateGeolocation') }}</p>
-    </div>
-    <!--
-    <div class="warning-no-location centered bg-warning q-pa-sm" v-if="(step.type == 'geolocation' || step.type == 'locate-item-ar') && !geolocation.active">
-      <p><q-spinner-puff color="primary" size="40px" /></p>
-      <p>{{ $t('label.WarningNoLocation') }}</p>
-    </div>
-    -->
+    <geolocation ref="geolocation-component" :interval="1000" :maximumAge="0" v-if="step.type == 'geolocation' || step.type == 'locate-item-ar'" @success="onNewUserPosition($event)" :withNavBar="true" />
+    
     <!--====================== WIN POINTS ANIMATION =================================-->
     
     <div v-show="playerResult === true && score > 0" class="fadein-message">+{{ score }} <q-icon color="white" name="fas fa-trophy" /></div>
@@ -339,6 +332,8 @@ import markersList from 'data/markers.json'
 import layersForMarkers from 'data/layersForMarkers.json'
 
 import Notification from 'plugins/NotifyHelper'
+
+import geolocation from 'components/geolocation'
 import story from 'components/story'
 
 import Vue from 'vue'
@@ -366,6 +361,7 @@ export default {
    */
   props: ['step', 'runId', 'reload', 'itemUsed', 'lang'],
   components: {
+    geolocation,
     story
   },
   watch: { 
@@ -411,10 +407,6 @@ export default {
     this.locateMarker.markerRoot = null
     this.locateMarker.markerControls = null
     
-    if (this.geolocation.locationWatcher !== null) {
-      navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
-    }
-    
     if (this.geolocation.absoluteOrientationSensor !== null) {
       this.geolocation.absoluteOrientationSensor.stop()
     }
@@ -450,11 +442,9 @@ export default {
         
         // for step types 'geoloc' and 'locate-item-ar'
         geolocation: {
+          active: false,
           distance: null,
           direction: null,
-          // location
-          locationWatcher: null,
-          watchLocationInterval: 1000, // ms
           // direction
           rawDirection: null,
           alpha: null,
@@ -463,8 +453,7 @@ export default {
           absoluteOrientationSensor: null, 
           target: null,
           canSeeTarget: false,
-          canTouchTarget: false,
-          active: true
+          canTouchTarget: false
         },
         
         // for step type 'locate-marker'
@@ -602,12 +591,6 @@ export default {
           // user can pass
           this.$emit('pass')
           
-          this.geolocation.locationWatcher = navigator.geolocation.watchPosition(this.watchLocationSuccess, this.watchLocationError, {
-            enableHighAccuracy: true,
-            timeout: this.geolocation.watchLocationInterval,
-            maximumAge: 0
-          })
-        
           if ('ondeviceorientationabsolute' in window) {
             // chrome specific, see https://developers.google.com/web/updates/2016/03/device-orientation-changes
             window.addEventListener('deviceorientationabsolute', this.handleOrientation)
@@ -1575,19 +1558,10 @@ export default {
       ctx.restore()
     },
     /*
-     * Handle location error
-     * @param   {string}    err            Error string
-     */
-    watchLocationError(err) {
-      this.geolocation.active = false
-      console.warn('Could not get location from watchPosition()')
-      console.log(err)
-    },
-    /*
      * Handle location tracking success
-     * @param   {object}    pos            User position
+     * @param   {object}    pos            User position (from native call to navigator.geolocation.watchLocation())
      */
-    async watchLocationSuccess(pos) {
+    async onNewUserPosition(pos) {
       this.geolocation.active = true
       let current = pos.coords;
       
@@ -1647,7 +1621,8 @@ export default {
       }
       
       if (this.step.type === 'geolocation' && this.geolocation.distance <= 20) {
-        navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
+        this.$refs['geolocation-component'].clearWatch()
+        this.geolocation.active = false
         await this.checkAnswer(current)
       }
     },
@@ -2061,7 +2036,8 @@ export default {
       
       if (intersects.length > 0 && this.geolocation.canTouchTarget) {
         // stop location watching
-        navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
+        this.$refs['geolocation-component'].clearWatch()
+        this.geolocation.active = false
         // stop camera streams
         this.stopVideoTracks('camera-stream-for-locate-item-ar')
         this.checkAnswer()
@@ -2361,14 +2337,4 @@ export default {
   .direction-helper { position: absolute; bottom: 20vw; left: 0; right: 0; margin-left: auto; margin-right: auto; z-index: 30; min-height: initial !important; }
   .direction-helper canvas { margin: auto; }
   
-  .please-enable-geolocation {
-    position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: white; z-index: 40; display: flex; align-items: center; justify-content: center;
-  }
-  .please-enable-geolocation p {
-    margin: 0;
-  }
-  /*
-  .warning-no-location { position: absolute; bottom: 13vw; width: 100%; height: 13vw !important; min-height: initial !important; z-index: 50; display: flex; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center; justify-content: center; }
-  .warning-no-location p { display: flex; margin: 1vw; }
-  */
 </style>

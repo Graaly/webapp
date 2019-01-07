@@ -158,32 +158,6 @@ export default {
       scrolled: false
     }
   },
-  computed: {
-    // from https://stackoverflow.com/a/13348618/488666
-    // adapted because my Android Chrome User Agent contains 'OPR'!
-    // (Mozilla/5.0 (Linux; Android 8.0.0; ASUS_Z012D Build/OPR1.170623.026) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.109 Mobile Safari/537.36)
-    isChrome() {
-      let isChromium = window.chrome,
-        winNav = window.navigator,
-        vendorName = winNav.vendor,
-        //isOpera = winNav.userAgent.indexOf("OPR") > -1,
-        isIEedge = winNav.userAgent.indexOf("Edge") > -1,
-        isIOSChrome = winNav.userAgent.match("CriOS");
-      if (isIOSChrome) {
-        return true;
-      } else if (
-        isChromium !== null &&
-        typeof isChromium !== "undefined" &&
-        vendorName === "Google Inc." &&
-        //isOpera === false &&
-        isIEedge === false
-      ) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  },
   async mounted() {
     utils.clearAllRunningProcesses()
     // get quest information
