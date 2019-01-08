@@ -6,7 +6,7 @@ export default {
    * @param   {String}    email         Email to check
    */
   checkEmail(email) {
-    return Api().get('check/email/' + email)
+    return Api().get('check/email/' + email).catch(error => { console.log("tata" + error) })
   },
   /*
    * Sign-in user
