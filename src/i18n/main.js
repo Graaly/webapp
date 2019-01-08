@@ -543,7 +543,8 @@ module.exports = {
       PleaseRateTheQuest: "Please rate the quest before sending your review",
       QuestNotReviewed: "This quest has not been reviewed yet.",
       ClickHereToStartDiscoveryQuest: "Press here to start the discovery quest",
-      contactUsPro: "You can find our professional services on <a href='https://graaly.com' target='_blank'>https://graaly.com</a> or contact us at sales@graaly.com."
+      contactUsPro: "You can find our professional services on <a href='https://graaly.com' target='_blank'>https://graaly.com</a> or contact us at sales@graaly.com.",
+      GeolocationNotSupported: "Sorry, geolocation is not supported by your device."
     }
   },
   fr: {
@@ -784,8 +785,8 @@ module.exports = {
       Hard: "Difficile",
       Play: "Enquêter",
       PleaseActivateGeolocation: "Veuillez activer la localisation sur votre appareil mobile",
-      HowToActivateGeolocationOnChrome: 'Ouvrez les <strong>Paramètres Système</strong>, allez dans <strong>Sécurité et Position</strong>, puis <strong>Position</strong>, et activez l\'option <strong>Activé</strong>. Ceci peut changer légèrement selon votre version d`Android.',
-      HowToActivateGeolocationOnIOs: 'Ouvrez les <strong>Réglages</strong>, allez dans <strong>Confidentialité</strong>, puis <strong>Service de localisation</strong>, et activez l\'option <strong>Service de localisation</strong> et vérifiez que la localisation est activée pour l`application Graaly dans la liste du dessous. Ceci peut changer légèrement selon votre version d`IOS.',
+      HowToActivateGeolocationOnChrome: 'Ouvrez les <strong>Paramètres Système</strong>, allez dans <strong>Sécurité et Position</strong>, puis <strong>Position</strong>, et activez l\'option <strong>Activé</strong>. Ceci peut changer légèrement selon votre version d\'Android.',
+      HowToActivateGeolocationOnIOs: 'Ouvrez les <strong>Réglages</strong>, allez dans <strong>Confidentialité</strong>, puis <strong>Service de localisation</strong>, et activez l\'option <strong>Service de localisation</strong> et vérifiez que la localisation est activée pour l\'application Graaly dans la liste du dessous. Ceci peut changer légèrement selon votre version d\'IOS.',
       Author: "Auteur",
       nbPointsToWin: "{nb} points à gagner",
       SolveThisQuest: "Résoudre l'enquête",
@@ -1090,7 +1091,8 @@ module.exports = {
       PleaseRateTheQuest: "Veuillez mettre une note à l'enquête avant d'envoyer votre avis.",
       QuestNotReviewed: "Cette enquête n'a pas encore reçu d'avis.",
       ClickHereToStartDiscoveryQuest: "Appuyez ici pour démarrer l'enquête de découverte",
-      contactUsPro: "Vous pouvez retrouver nos offres professionnelles sur <a href='https://graaly.com' target='_blank'>https://graaly.com</a> ou nous contacter à sales@graaly.com."
+      contactUsPro: "Vous pouvez retrouver nos offres professionnelles sur <a href='https://graaly.com' target='_blank'>https://graaly.com</a> ou nous contacter à sales@graaly.com.",
+      GeolocationNotSupported: "Désolé, votre appareil ne permet pas la géolocalisation."
     }
   }
 }

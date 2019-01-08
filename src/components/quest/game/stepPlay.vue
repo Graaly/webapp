@@ -170,15 +170,12 @@
       <div class="geolocation" v-if="step.type == 'geolocation'">
         <div>
           <p class="text">{{ getTranslatedText() }}</p>
-          <p class="text" v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+          <p class="text" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
           <!--
           <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
           <p class="text">Alpha: {{ Math.round(geolocation.alpha) }}°</p>
           <p class="text">Difference direction: {{ geolocation.direction }}°</p>
           -->
-        </div>
-        <div class="centered bg-warning q-pa-sm" v-if="!geolocation.active">
-          <q-spinner-puff class="on-left" /> {{ $t('label.WarningNoLocation') }}
         </div>
       </div>
       
@@ -257,14 +254,14 @@
       
       <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && !playerResult"></video>
+          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && !playerResult && geolocation.active"></video>
         </transition>
         <div v-show="!playerResult">
           <div class="text">
             <p>{{ getTranslatedText() }}</p>
-            <p v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
-            <p v-if="!this.geolocation.canSeeTarget">{{ $t('label.ObjectIsTooFar') }}</p>
-            <p v-if="this.geolocation.canTouchTarget">{{ $t('label.TouchTheObject') }}</p>
+            <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+            <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
+            <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
           </div>
         </div>
         <div class="target-view" v-show="!playerResult || (playerResult && step.options.is3D)">
@@ -303,9 +300,11 @@
     
     <!------------------ COMMON COMPONENTS ------------------>
     
-    <div class="direction-helper" v-show="(step.type == 'geolocation' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem !important' }">
+    <div class="direction-helper" v-show="(step.type == 'geolocation' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && geolocation.active" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem !important' }">
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
+    
+    <geolocation ref="geolocation-component" :interval="1000" :maximumAge="0" v-if="step.type == 'geolocation' || step.type == 'locate-item-ar'" @success="onNewUserPosition($event)" :withNavBar="true" />
     
     <!--====================== WIN POINTS ANIMATION =================================-->
     
@@ -333,6 +332,8 @@ import markersList from 'data/markers.json'
 import layersForMarkers from 'data/layersForMarkers.json'
 
 import Notification from 'plugins/NotifyHelper'
+
+import geolocation from 'components/geolocation'
 import story from 'components/story'
 
 import Vue from 'vue'
@@ -360,6 +361,7 @@ export default {
    */
   props: ['step', 'runId', 'reload', 'itemUsed', 'lang'],
   components: {
+    geolocation,
     story
   },
   watch: { 
@@ -405,10 +407,6 @@ export default {
     this.locateMarker.markerRoot = null
     this.locateMarker.markerControls = null
     
-    if (this.geolocation.locationWatcher !== null) {
-      navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
-    }
-    
     if (this.geolocation.absoluteOrientationSensor !== null) {
       this.geolocation.absoluteOrientationSensor.stop()
     }
@@ -444,11 +442,9 @@ export default {
         
         // for step types 'geoloc' and 'locate-item-ar'
         geolocation: {
+          active: false,
           distance: null,
           direction: null,
-          // location
-          locationWatcher: null,
-          watchLocationInterval: 1000, // ms
           // direction
           rawDirection: null,
           alpha: null,
@@ -457,8 +453,7 @@ export default {
           absoluteOrientationSensor: null, 
           target: null,
           canSeeTarget: false,
-          canTouchTarget: false,
-          active: true
+          canTouchTarget: false
         },
         
         // for step type 'locate-marker'
@@ -596,12 +591,6 @@ export default {
           // user can pass
           this.$emit('pass')
           
-          this.geolocation.locationWatcher = navigator.geolocation.watchPosition(this.watchLocationSuccess, this.watchLocationError, {
-            enableHighAccuracy: true,
-            timeout: this.geolocation.watchLocationInterval,
-            maximumAge: 0
-          })
-        
           if ('ondeviceorientationabsolute' in window) {
             // chrome specific, see https://developers.google.com/web/updates/2016/03/device-orientation-changes
             window.addEventListener('deviceorientationabsolute', this.handleOrientation)
@@ -1519,7 +1508,7 @@ export default {
      * Draw direction arrows for geolocation
      */
     drawDirectionArrow() {
-      if (this.geolocation.alpha === null || document.querySelector('.direction-helper canvas') === null) {
+      if (this.geolocation.alpha === null || document.querySelector('.direction-helper canvas') === null || !this.geolocation.active) {
         return
       }
       
@@ -1569,19 +1558,10 @@ export default {
       ctx.restore()
     },
     /*
-     * Handle location error
-     * @param   {string}    err            Error string
-     */
-    watchLocationError(err) {
-      this.geolocation.active = false
-      console.warn('Could not get location from watchPosition()')
-      console.log(err)
-    },
-    /*
      * Handle location tracking success
-     * @param   {object}    pos            User position
+     * @param   {object}    pos            User position (from native call to navigator.geolocation.watchLocation())
      */
-    async watchLocationSuccess(pos) {
+    async onNewUserPosition(pos) {
       this.geolocation.active = true
       let current = pos.coords;
       
@@ -1604,6 +1584,7 @@ export default {
       }
       
       // compute distance between two coordinates
+      // note: current.accuracy contains the result accuracy in meters
       this.geolocation.distance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
       
       this.geolocation.rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
@@ -1640,7 +1621,8 @@ export default {
       }
       
       if (this.step.type === 'geolocation' && this.geolocation.distance <= 20) {
-        navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
+        this.$refs['geolocation-component'].clearWatch()
+        this.geolocation.active = false
         await this.checkAnswer(current)
       }
     },
@@ -2054,7 +2036,8 @@ export default {
       
       if (intersects.length > 0 && this.geolocation.canTouchTarget) {
         // stop location watching
-        navigator.geolocation.clearWatch(this.geolocation.locationWatcher)
+        this.$refs['geolocation-component'].clearWatch()
+        this.geolocation.active = false
         // stop camera streams
         this.stopVideoTracks('camera-stream-for-locate-item-ar')
         this.checkAnswer()

@@ -3,7 +3,7 @@
     
     <!--====================== MAP PAGE =================================-->
     
-    <div class="row fullscreen" ref="map" v-if="user.position.isSupported">
+    <div class="row fullscreen" ref="map" v-if="user.position !== null">
       
       <gmap-map
         v-if="isMounted"
@@ -37,32 +37,9 @@
       </gmap-map>
     </div>
     
-    <!------------------ NO GEOLOCATION AREA ------------------------>
+    <!------------------ GEOLOCATION COMPONENT ------------------------>
     
-    <div class="row enable-geolocation fixed-center centered" v-if="!user.position.isSupported">
-      <div class="col-12 centered" v-if="user.position.nbFails <= 1">
-        <p><q-spinner-puff color="primary" size="40px" /></p>
-        <p>{{ $t('label.LocationSearching') }}</p>
-      </div>
-      <div class="col-12" v-if="user.position.nbFails > 1">
-        <p class="text-primary">{{ $t('label.PleaseActivateGeolocation') }}</p>
-        <div v-if="nativeSettingsIsEnabled">
-          <q-btn color="primary" @click="openLocationSettings">{{ $t('label.PressHere') }}</q-btn>
-        </div>
-        <div v-if="!nativeSettingsIsEnabled">
-          <div v-if="isChrome">
-            <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
-          </div>
-          <div v-if="!isChrome">
-            <p v-html="$t('label.HowToActivateGeolocationOnIOs')"></p>
-          </div>
-          <p>
-            {{ $t('label.OnceGeolocationEnabled') }}
-            <router-link :to="$route.path + '?_=' + (new Date).getTime()">{{ $t('label.PressHere') }}</router-link>.
-          </p>
-        </div>
-      </div>
-    </div>
+    <geolocation :interval="5000" :maximumAge="10000" @success="onNewUserPosition($event)" />
     
     <!------------------ SCORE AREA ------------------------>
     
@@ -621,9 +598,12 @@
 import QuestService from 'services/QuestService'
 import AuthService from 'services/AuthService'
 import UserService from 'services/UserService'
-import shop from 'components/shop'
+
+import geolocation from 'components/geolocation'
 import newfriend from 'components/newfriend'
+import shop from 'components/shop'
 import story from 'components/story'
+
 import utils from 'src/includes/utils'
 import { required, email } from 'vuelidate/lib/validators'
 import checkPhone from 'plugins/CheckPhone'
@@ -642,8 +622,9 @@ export default {
   components: {
     QInfiniteScroll,
     QSpinnerDots,
-    shop,
+    geolocation,
     newfriend,
+    shop,
     story
   },
   data () {
@@ -673,12 +654,7 @@ export default {
         text: ''
       },
       user: {
-        position: {
-          isSupported: false,
-          nbFails: 0,
-          latitude: 0,
-          longitude: 0
-        }
+        position: null
       },
       friends: {
         list: [],
@@ -711,7 +687,6 @@ export default {
       showSuccess: false,
       showProfile: false,
       showSearch: false,
-      nativeSettingsIsEnabled: true,
       warnings: {
         lowBattery: false,
         noLocation: false,
@@ -755,38 +730,13 @@ export default {
       innerWidth: window.innerWidth
     }
   },
-  computed: {    
-    // from https://stackoverflow.com/a/13348618/488666
-    // adapted because my Android Chrome User Agent contains 'OPR'!
-    // (Mozilla/5.0 (Linux; Android 8.0.0; ASUS_Z012D Build/OPR1.170623.026) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.109 Mobile Safari/537.36)
-    isChrome() {
-      let isChromium = window.chrome,
-        winNav = window.navigator,
-        vendorName = winNav.vendor,
-        //isOpera = winNav.userAgent.indexOf("OPR") > -1,
-        isIEedge = winNav.userAgent.indexOf("Edge") > -1,
-        isIOSChrome = winNav.userAgent.match("CriOS");
-      if (isIOSChrome) {
-        return true;
-      } else if (
-        isChromium !== null &&
-        typeof isChromium !== "undefined" &&
-        vendorName === "Google Inc." &&
-        //isOpera === false &&
-        isIEedge === false
-      ) {
-        return true;
-      } else {
-        return false;
-      }
-    },
+  computed: {
     google: gmapApi
   },
   mounted() {
     // check if profile is complete
     this.checkIfProfileIsComplete()
     utils.clearAllRunningProcesses()
-    this.findLocation()
     window.addEventListener("batterylow", this.checkBattery, false);
     this.checkNetwork()
     this.startStory()
@@ -814,64 +764,32 @@ export default {
     closeInfoWindows() {
       this.map.infoWindow.isOpen = false
     },
-    /*
-     * Get user location
-     */
-    findLocation() {
-      if (navigator && navigator.geolocation) {
-        // getCurrentPosition() is not always reliable (timeouts/fails frequently)
-        // see https://stackoverflow.com/q/3397585/488666
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          this.user.position.isSupported = true
-          this.user.position.nbFails = 0
-          // TODO maybe here save current position in 'state' for later use in case of failure
-          this.user.position.latitude = position.coords.latitude
-          this.user.position.longitude = position.coords.longitude
-          
-          if (this.questList.length === 0) {
-            this.$q.loading.show()
-            // get quests only if tutorial is advanced
-            if (this.$store.state.user.story.step > 3) {
-              await this.getQuests()
-            } else {
-              this.openDiscoveryQuestSummary()
+    async onNewUserPosition(position) {
+      this.$set(this.user, 'position', position.coords)
+      
+      if (this.questList.length === 0) {
+        this.$q.loading.show()
+        // get quests only if tutorial is advanced
+        if (this.$store.state.user.story.step > 3) {
+          await this.getQuests()
+        } else {
+          this.openDiscoveryQuestSummary()
+        }
+        
+        // adjust zoom / pan to nearest quests, or current user location
+        if (this.questList.length > 0) {
+          // fix found on https://teunohooijer.com/tag/vue2-google-maps/ to use google library
+          this.$refs.mapRef.$mapPromise.then((map) => {
+            const bounds = new google.maps.LatLngBounds()
+            for (let q of this.questList) {
+              bounds.extend({ lng: q.location.coordinates[0], lat: q.location.coordinates[1] })
             }
-   
-            // adjust zoom / pan to nearest quests, or current user location
-            if (this.questList.length > 0) {
-              // fix found on https://teunohooijer.com/tag/vue2-google-maps/ to use google library
-              this.$refs.mapRef.$mapPromise.then((map) => {
-                const bounds = new google.maps.LatLngBounds()
-                for (let q of this.questList) {
-                  bounds.extend({ lng: q.location.coordinates[0], lat: q.location.coordinates[1] })
-                }
-                map.fitBounds(bounds);
-              });
-            } else {
-              this.centerOnUserPosition()
-            }
-            this.$q.loading.hide()
-          }
-          
-          // refresh user location periodically
-          utils.setTimeout(this.findLocation, 30000)
-          this.warnings.noLocation = false
-        }, (err) => {
-          console.error('geolocation failed', err)
-          this.user.position.isSupported = false
-          this.user.position.nbFails++
-          // try again in 10s
-          utils.setTimeout(this.findLocation, 5000)
-          // TODO maybe here recall position stored in 'state'
-          this.warnings.noLocation = true
-        }, 
-        { 
-          timeout: 5000, 
-          maximumAge: 10000 
-        });
-      } else {
-        this.warnings.noLocation = true
-        this.user.position.nbFails = 2
+            map.fitBounds(bounds);
+          });
+        } else {
+          this.centerOnUserPosition()
+        }
+        this.$q.loading.hide()
       }
     },
     centerOnUserPosition() {
@@ -1526,22 +1444,6 @@ export default {
           Notification(_this.$t('label.ErrorStandardMessage'), 'error')
         }
       })
-    },
-    openLocationSettings () {
-      if (window.cordova && window.cordova.plugins.settings) {
-        console.log('openNativeSettings is active')
-        window.cordova.plugins.settings.open("location", function() {
-          console.log('opened settings')
-          this.nativeSettingsIsEnabled = true
-        },
-        function () {
-          console.log('failed to open settings')
-          this.nativeSettingsIsEnabled = false
-        });
-      } else {
-        console.log('openNativeSettings is not active!')
-        this.nativeSettingsIsEnabled = false
-      }
     },
     /*
      * Open the ranking page
