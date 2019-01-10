@@ -26,6 +26,7 @@
 
 <script>
 import UserService from 'services/UserService'
+import utils from 'src/includes/utils'
 
 export default {
   props: ['step', 'data'],
@@ -288,10 +289,14 @@ export default {
         this.$router.push(this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].button.action)
       } else {
         await this.closeStory()
-        setTimeout(this.checkIfTextIsHidden, 500)
+        utils.setTimeout(this.checkIfTextIsHidden, 500)
       }
     },
     async checkIfTextIsHidden() {
+      if (!this.$refs.bubbleText) {
+        return
+      }
+      
       // check if height > max size of the box
       let bubbleHeight = this.$refs.bubbleText.clientHeight
       if (bubbleHeight > '165') {

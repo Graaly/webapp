@@ -92,7 +92,7 @@ module.exports = {
       PresentIndicator2: "Do not hesitate <b>to ask me hints</b> during quests",
       MapExplaination1: "You will be able to start a quest. <br /> Quests are represented by <i aria-hidden='true' style='font-size: 1.5em' class='q-icon fas fa-map-marker'> </i> on the map below.",
       MapExplaination2: "To start a quest, you need <b>enough energy</b>.<br />Your energy is represented by <i aria-hidden='true' style='font-size: 1.5em' class='q-icon fas fa-bolt'> </i>, on the top left corner of your screen",
-      MapExplaination3: "Each quest earns you <i aria-hidden='true' style='font-size: 1.5em' class='q-icon fas fa-trophy'> </ i> points.<br />Your <i aria- hidden='true' style='font-size: 1.5em' class='q-icon fas fa-trophy'> </ i> points are displayed on the top right corner of your screen",
+      MapExplaination3: "Each quest earns you <i aria-hidden='true' style='font-size: 1.5em' class='q-icon fas fa-trophy'> </i> points.<br />Your <i aria- hidden='true' style='font-size: 1.5em' class='q-icon fas fa-trophy'> </i> points are displayed on the top right corner of your screen",
       StartPlaying: "Don't waste more time, select a discovery quest (that you can play at home) represented by the picture <img src='statics/icons/game/pointer-quest.png' /> on the map",
       WelcomeToQuest1: "Hello, nice to collaborate with you on this new quest",
       WelcomeToQuest2: "Please go to this place to start: <br /><b>{startingPlace}</b>",
