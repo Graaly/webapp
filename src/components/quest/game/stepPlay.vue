@@ -899,11 +899,19 @@ export default {
       if (displaySpinner) {
         this.$q.loading.show()
       }
-      let checkAnswerResult = await StepService.checkAnswer(questId, stepId, runId, answerData)
-      if (displaySpinner) {
-        this.$q.loading.hide()
+      var response = await StepService.checkAnswer(questId, stepId, runId, answerData)
+      if (response && response.data) {
+        if (displaySpinner) {
+          this.$q.loading.hide()
+        }
+        let checkAnswerResult = response.data
+        return checkAnswerResult
+      } else {
+        if (displaySpinner) {
+          this.$q.loading.hide()
+        }
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
-      return checkAnswerResult
     },
     /*
      * Check if the answer is correct

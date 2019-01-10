@@ -44,7 +44,7 @@
     <!------------------ SCORE AREA ------------------------>
     
     <div class="score-box" @click="openRanking">
-      <div class="q-px-md q-pt-md score-text">{{ $store.state.user.score }} <q-icon name="fas fa-trophy" /></div>
+      <div class="q-px-md q-pt-md score-text" :class="{'bouncing': warnings.score}">{{ $store.state.user.score }} <q-icon name="fas fa-trophy" /></div>
       <div style="width: 100px">
         <div class="centered bg-primary text-white level-box">{{ $t('label.Level') }} {{ $store.state.user.level }}</div>
         <q-progress :percentage="profile.level.progress" stripe height="10px" animate color="primary"></q-progress>
@@ -77,6 +77,9 @@
           
           <!------------------ LIST OF QUESTS BUILT AREA ------------------------>
           
+          <div class="centered bg-warning q-pa-sm" v-if="warnings.listCreatedQuestsMissing" @click="listCreatedQuests($store.state.user._id)">
+            <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+          </div>
           <q-list highlight>
             <q-item v-for="quest in success.quests.built" :key="quest._id" @click.native="$router.push('/quest/settings/' + quest._id)">
               <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
@@ -98,7 +101,7 @@
                 </q-item-tile>
               </q-item-main>
             </q-item>
-            <q-item v-if="success.quests.built.length === 0">
+            <q-item v-if="success.quests.built.length === 0 && !warnings.listCreatedQuestsMissing">
               <q-item-main>
                 <q-item-tile label>{{ $t('label.NoQuestCreated') }}</q-item-tile>
               </q-item-main>
@@ -109,6 +112,9 @@
         <!------------------ LIST OF QUESTS PLAYED TAB ------------------------>
         
         <q-tab-pane name="played">
+          <div class="centered bg-warning q-pa-sm" v-if="warnings.listPlayedQuestsMissing" @click="listPlayedQuests($store.state.user._id)">
+            <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+          </div>
           <q-list highlight>
           <q-item v-if="success.quests.played && success.quests.played.length > 0" v-for="quest in success.quests.played" :key="quest._id" @click.native="$router.push('/quest/play/'+quest.questId)">
             <q-item-side v-if="quest.questData && quest.questData.picture" :avatar="((quest.questData.picture && quest.questData.picture[0] === '_') ? 'statics/images/quest/' + quest.questData.picture : serverUrl + '/upload/quest/' + quest.questData.picture)" />
@@ -135,7 +141,7 @@
               {{ quest.reward }} <q-icon name="fas fa-bolt" />
             </q-item-side>
           </q-item>
-          <q-item v-if="success.quests.played.length === 0">
+          <q-item v-if="success.quests.played.length === 0 && !warnings.listPlayedQuestsMissing">
             <q-item-main>
               <q-item-tile label>{{ $t('label.NoQuestPlayed') }}</q-item-tile>
             </q-item-main>
@@ -241,6 +247,9 @@
           <!------------------ ADD FRIENDS BUTTON AREA ------------------------>
           <q-btn link class="full-width" @click="openAddFriendsModal()" color="tertiary">{{ $t('label.AddFriends') }}</q-btn>
           
+          <div class="centered bg-warning q-pa-sm" v-if="warnings.listFriendsMissing" @click="loadFriends">
+            <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+          </div>
           <q-list highlight>
             <q-item v-for="friend in friends.list" :key="friend.friendId">
               <q-item-side @click.native="openFriendCard(friend.friendId)">
@@ -257,7 +266,7 @@
                 <q-btn icon="close" @click="removeFriend(friend.friendId)" />
               </q-item-side>
             </q-item>
-            <q-item v-if="friends.list.length === 0">
+            <q-item v-if="friends.list.length === 0 && !warnings.listFriendsMissing">
               <q-item-main>
                 <q-item-tile label>{{ $t('label.NoFriend') }}</q-item-tile>
               </q-item-main>
@@ -347,6 +356,7 @@
         <div class="row q-pa-md">
           <q-search 
             v-model="search.text" 
+            :placeholder="$t('label.Search')"
             @input="findQuests()" 
             :after="[
               {
@@ -361,11 +371,11 @@
         <div class="row">
           <q-list highlight>
             <q-item v-for="item in search.quests" :key="item._id">
-              <q-card inline class="q-ma-sm">
+              <q-card inline class="q-ma-sm" @click.native="$router.push(item.authorUserId === $store.state.user._id ? '/quest/settings/' + item._id : '/quest/play/' + item._id)">
                 <q-card-media class="preview" overlay-position="top">
                   <img :src="serverUrl + '/upload/quest/' + item.picture" />
 
-                  <q-card-title slot="overlay" @click.native="$router.push(item.authorUserId === $store.state.user._id ? '/quest/settings/' + item._id : '/quest/play/' + item._id)">
+                  <q-card-title slot="overlay">
                     {{ getQuestTitle(item, true) }}
                     <q-rating slot="subtitle" v-if="item.rating" v-model="item.rating" color="primary" :max="5" />
                     <span slot="right" class="row items-center text-white" v-if="item.distance && item.distance > 0 && item.distance <= 99">
@@ -504,6 +514,9 @@
     <!--====================== RANKING PAGE =================================-->
     
     <q-modal v-model="ranking.show" class="over-map">
+      <div class="centered bg-warning q-pa-sm" v-if="warnings.rankingMissing" @click="getRanking">
+        <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+      </div>
       <a class="float-right no-underline q-pa-md" color="grey" @click="closeRanking"><q-icon name="close" class="medium-icon" /></a>
       <h1 class="size-3 q-pl-md">{{ $t('label.YourRanking') }}</h1>
       <q-list>
@@ -560,13 +573,13 @@
       <div class="menu-background"></div>
       <div class="menu row" v-touch-swipe.horizontal="swipeMenu">
         <div class="col-4 centered" @click="openSuccessPage()">
-          <q-btn icon="fingerprint" round color="primary" />
+          <q-btn icon="fingerprint" round color="primary" :class="{'bouncing': warnings.questButton}" />
         </div>
         <div class="col-4 centered" @click="openSearchOptions()">
-          <img src="statics/icons/game/menu-main.png" />
+          <img src="statics/icons/game/menu-main.png" :class="{'bouncing': warnings.mainButton}" />
         </div>
         <div class="col-4 centered" @click="openProfilePage()">
-          <q-btn icon="group" round color="primary" />
+          <q-btn icon="group" round color="primary" :class="{'bouncing': warnings.networkButton}" />
           <!--<div class="mid-avatar">
             <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
             <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
@@ -580,8 +593,13 @@
       <div class="centered bg-warning q-pa-sm" v-if="warnings.lowBattery">
         <q-icon name="battery_alert" /> {{ $t('label.WarningLowBattery') }}
       </div>
-      <div class="centered bg-warning q-pa-sm" v-if="warnings.noNetwork">
-        <q-spinner-radio class="on-left" /> {{ $t('label.WarningNoNetwork') }}
+      <div v-if="warnings.noNetwork || warnings.noServerReponse">
+        <div class="centered bg-warning q-pa-sm" v-if="warnings.noNetwork">
+          <q-spinner-radio class="on-left" /> {{ $t('label.WarningNoNetwork') }}
+        </div>
+        <div class="centered bg-warning q-pa-sm" v-if="!warnings.noNetwork && warnings.noServerReponse" @click="reloadMap">
+          <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+        </div>
       </div>
     </div>
     
@@ -690,7 +708,16 @@ export default {
       warnings: {
         lowBattery: false,
         noLocation: false,
-        noNetwork: false
+        noNetwork: false,
+        noServerReponse: false,
+        rankingMissing: false,
+        listCreatedQuestsMissing: false,
+        listPlayedQuestsMissing: false,
+        listFriendsMissing: false,
+        score: false,
+        questButton: false,
+        networkButton: false,
+        mainButton: false
       },
       success: {
         quests: {
@@ -768,28 +795,7 @@ export default {
       this.$set(this.user, 'position', position.coords)
       
       if (this.questList.length === 0) {
-        this.$q.loading.show()
-        // get quests only if tutorial is advanced
-        if (this.$store.state.user.story.step > 3) {
-          await this.getQuests()
-        } else {
-          this.openDiscoveryQuestSummary()
-        }
-        
-        // adjust zoom / pan to nearest quests, or current user location
-        if (this.questList.length > 0) {
-          // fix found on https://teunohooijer.com/tag/vue2-google-maps/ to use google library
-          this.$refs.mapRef.$mapPromise.then((map) => {
-            const bounds = new google.maps.LatLngBounds()
-            for (let q of this.questList) {
-              bounds.extend({ lng: q.location.coordinates[0], lat: q.location.coordinates[1] })
-            }
-            map.fitBounds(bounds);
-          });
-        } else {
-          this.centerOnUserPosition()
-        }
-        this.$q.loading.hide()
+        await this.reloadMap()
       }
     },
     centerOnUserPosition() {
@@ -813,6 +819,7 @@ export default {
         this.story.step = 0
       }
       if (this.$store.state.user.story.step === 10) {
+        this.warnings.score = true
         this.story.data = {
           score: this.$store.state.user.score
         }
@@ -890,6 +897,34 @@ export default {
       this.map.infoWindow.location = questCoordinates
       infoWindow.isOpen = true
     },
+    /*
+     * reload the map
+     */
+    async reloadMap() {
+      this.warnings.noServerReponse = false
+      this.$q.loading.show()
+      // get quests only if tutorial is advanced
+      if (this.$store.state.user.story.step > 3) {
+        await this.getQuests()
+      } else {
+        this.openDiscoveryQuestSummary()
+      }
+      
+      // adjust zoom / pan to nearest quests, or current user location
+      if (this.questList.length > 0) {
+        // fix found on https://teunohooijer.com/tag/vue2-google-maps/ to use google library
+        this.$refs.mapRef.$mapPromise.then((map) => {
+          const bounds = new google.maps.LatLngBounds()
+          for (let q of this.questList) {
+            bounds.extend({ lng: q.location.coordinates[0], lat: q.location.coordinates[1] })
+          }
+          map.fitBounds(bounds);
+        });
+      } else {
+        this.centerOnUserPosition()
+      }
+      this.$q.loading.hide()
+    },
      /*
      * Get the list of quests near the location of the user
      */
@@ -903,22 +938,26 @@ export default {
       this.$q.loading.show()
       let response = await QuestService.listNearest({ lng: this.user.position.longitude, lat: this.user.position.latitude }, this.map.filter)
       this.$q.loading.hide()
-      this.questList = response.data
+      if (response && response.data) {
+        this.questList = response.data
       
-      if (this.$store.state.user.story.step === 16) {
-        // get the closest quest not already played
-        var closestQuest = this.getClosestQuestUnplayed()
+        if (this.$store.state.user.story.step === 16) {
+          // get the closest quest not already played
+          var closestQuest = this.getClosestQuestUnplayed()
 
-        if (closestQuest !== null) {
-          this.story.data = {
-            questId: closestQuest._id,
-            quest: this.getQuestTitle(closestQuest, false)
+          if (closestQuest !== null) {
+            this.story.data = {
+              questId: closestQuest._id,
+              quest: this.getQuestTitle(closestQuest, false)
+            }
+          } else {
+            this.story.data = null
           }
-        } else {
-          this.story.data = null
+          
+          this.story.step = 16
         }
-        
-        this.story.step = 16
+      } else {
+        this.warnings.noServerReponse = true
       }
     },
     
@@ -1058,31 +1097,53 @@ export default {
      * Get current user ranking data
      */
     async getRanking() {
+      this.warnings.rankingMissing = false
       this.$q.loading.show()
       let response = await UserService.getRanking()
       this.$q.loading.hide()
-      this.success.ranking = response.data
+      if (response && response.data) {
+        this.success.ranking = response.data
+      } else {
+        this.warnings.rankingMissing = true
+      }
     },
     /*
      * Get the list of the quests created by the user
      * @param   {string}    id            ID of the user
      */
     async listCreatedQuests(id) {
+      if (!id) {
+        id = this.$store.state.user._id
+      }
+      this.warnings.listCreatedQuestsMissing = false
       let response = await QuestService.ListCreatedByAUser(id)
-      this.success.quests.built = response.data
+      if (response && response.data) {
+        this.success.quests.built = response.data
+      } else {
+        this.warnings.listCreatedQuestsMissing = true
+      }
     },
     /*
      * Get the list of the quests played by the user
      * @param   {string}    id            ID of the user
      */
     async listPlayedQuests(id) {
+      if (!id) {
+        id = this.$store.state.user._id
+      }
+      this.warnings.listPlayedQuestsMissing = false
       let response = await QuestService.ListPlayedByAUser(id)
-      this.success.quests.played = response.data
+      if (response && response.data) {
+        this.success.quests.played = response.data
+      } else {
+        this.warnings.listPlayedQuestsMissing = true
+      }
     },
     /*
      * Open the profile page
      */
     async openProfilePage() {
+      this.warnings.networkButton = false
       this.$q.loading.show()
       this.showProfile = !this.showProfile
       this.getProfileChangeData(this.$store.state.user._id)
@@ -1099,8 +1160,14 @@ export default {
      * List friends
      */
     async loadFriends() {
+      this.warnings.listFriendsMissing = false
       let response = await UserService.listFriends()
-      this.friends.list = response.data
+      
+      if (response && response.data) {
+        this.friends.list = response.data
+      } else {
+        this.warnings.listFriendsMissing = true
+      }
     },    
     /*
      * List news
@@ -1158,22 +1225,46 @@ export default {
      */
     async openFriendCard(id) {
       this.$q.loading.show()
+      var allDataLoaded = true
       // load user data
       let friend = await UserService.getFriend(id)
-      this.friends.selected.name = friend.data.name
       
-      // load user played quests
-      let played = await QuestService.ListPlayedByAUser(id)
-      this.friends.selected.played = played.data
+      if (friend && friend.data) {
+        this.friends.selected.name = friend.data.name
       
-      // load user build quests
-      let built = await QuestService.ListCreatedByAUser(id)
-      this.friends.selected.built = built.data
+        // load user played quests
+        let played = await QuestService.ListPlayedByAUser(id)
+        if (played && played.data) {
+          this.friends.selected.played = played.data
+        } else {
+          allDataLoaded = false
+        }
+        
+        // load user build quests
+        let built = await QuestService.ListCreatedByAUser(id)
+        if (played && played.data) {
+          this.friends.selected.built = built.data
+        } else {
+          allDataLoaded = false
+        }
+      } else {
+        allDataLoaded = false
+      }
       
       this.$q.loading.hide()
       
-      // display user page
-      this.friends.show = true
+      if (allDataLoaded) {
+        // display user page
+        this.friends.show = true
+      } else {
+        this.displayNetworkIssueMessage()
+      }
+    },
+    displayNetworkIssueMessage() {
+      this.$q.dialog({
+        title: this.$t('label.TechnicalProblem'),
+        message: this.$t('label.TechnicalProblemNetworkIssue')
+      })
     },
     /*
      * Get the user informations
@@ -1250,6 +1341,8 @@ export default {
       let uploadPicture = await AuthService.uploadAccountPicture(data)
       if (uploadPicture) {
         this.$store.state.user.picture = uploadPicture.data.file
+      } else {
+        this.displayNetworkIssueMessage()
       }
       this.$q.loading.hide()
     },
@@ -1357,22 +1450,26 @@ export default {
           // Get quests for the search
           var userPosition = this.user.position
           let response = await QuestService.find(this.search.text, userPosition)
-          this.search.quests = response.data
+          if (response && response.data) {
+            this.search.quests = response.data
          
-          // compute distance
-          if (this.user.position.isSupported) {
-            this.search.quests = this.search.quests.map(function(quest) {
-              const R = 6378.137
-              let dLat = quest.location.coordinates[1] * Math.PI / 180 - userPosition.latitude * Math.PI / 180
-              let dLon = quest.location.coordinates[0] * Math.PI / 180 - userPosition.longitude * Math.PI / 180
-              let a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(userPosition.latitude * Math.PI / 180) * Math.cos(quest.location.coordinates[1] * Math.PI / 180) *
-                Math.sin(dLon/2) * Math.sin(dLon/2)
-              let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-              quest.distance = Math.floor(R * c)
+            // compute distance
+            if (this.user.position.isSupported) {
+              this.search.quests = this.search.quests.map(function(quest) {
+                const R = 6378.137
+                let dLat = quest.location.coordinates[1] * Math.PI / 180 - userPosition.latitude * Math.PI / 180
+                let dLon = quest.location.coordinates[0] * Math.PI / 180 - userPosition.longitude * Math.PI / 180
+                let a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(userPosition.latitude * Math.PI / 180) * Math.cos(quest.location.coordinates[1] * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2)
+                let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+                quest.distance = Math.floor(R * c)
 
-              return quest
-            });
+                return quest
+              });
+            }
+          } else {
+            this.displayNetworkIssueMessage()
           }
         }
         this.$q.loading.hide()
@@ -1420,7 +1517,7 @@ export default {
         cancel: true
       }).then(async () => {
         await UserService.removeFriend(friendId)
-              
+        // TODO: manage network issue with removeFriend
         await this.loadFriends()
       })
     },
@@ -1449,6 +1546,7 @@ export default {
      * Open the ranking page
      */
     openRanking () {
+      this.warnings.score = false
       this.getRanking()
       this.ranking.show = true
       // story
@@ -1463,6 +1561,7 @@ export default {
       this.ranking.show = false
       // story
       if (this.$store.state.user.story.step === 13) {
+        this.warnings.networkButton = true
         this.story.step = 13
       }
     },

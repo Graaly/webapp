@@ -3,7 +3,10 @@
     <div :style="'position: fixed; bottom: ' + steps[currentStep.id].bottom + 'px;'">
       <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" style="min-height: 5vh" /></div>
       <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh">
-        <p class="tilt" v-html="$t('story.' + steps[currentStep.id].discussions[currentStep.discussionId].text, data)"></p>
+        <div v-if="needToScroll" class="scroll-indicator">
+          <q-icon size="2.5em" name="arrow_drop_down_circle" />
+        </div>
+        <p class="tilt" ref="bubbleText" v-html="$t('story.' + steps[currentStep.id].discussions[currentStep.discussionId].text, data)"></p>
         <div class="text-right">
           <a v-if="steps[currentStep.id].discussions[currentStep.discussionId].link" @click="linkAction">
             {{ $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].link.label) }}
@@ -261,7 +264,8 @@ export default {
         discussionId: 0
       },
       nextStep: 0,
-      hide: false
+      hide: false,
+      needToScroll: false
     }
   },
   async mounted() {
@@ -279,10 +283,19 @@ export default {
      * User select an offer in the shop
      */
     async next() {
+      this.needToScroll = false
       if (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].hasOwnProperty("button") && this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].button.hasOwnProperty("action")) {
         this.$router.push(this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].button.action)
       } else {
         await this.closeStory()
+        setTimeout(this.checkIfTextIsHidden, 500)
+      }
+    },
+    async checkIfTextIsHidden() {
+      // check if height > max size of the box
+      let bubbleHeight = this.$refs.bubbleText.clientHeight
+      if (bubbleHeight > '165') {
+        this.needToScroll = true
       }
     },
     moreToValidStep () {

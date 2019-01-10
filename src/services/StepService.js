@@ -15,8 +15,8 @@ export default {
    * @param   {String}    stepId         ID of the step
    */
   async listWonObjects (questId, stepId) {
-    let res = await Api().get('quest/' + questId + '/steps/' + stepId + '/objectswon')
-    return res.data
+    let res = await Api().get('quest/' + questId + '/steps/' + stepId + '/objectswon').catch(error => console.log(error.request))
+    return res
   },
   /*
    * get a step by its ID
@@ -32,8 +32,8 @@ export default {
    * @param   {String}    number         Number of the step
    */
   async getByNumber (questId, number) {
-    let res = await Api().get('quest/' + questId + '/step/number/' + number)
-    return res.data
+    let res = await Api().get('quest/' + questId + '/step/number/' + number).catch(error => console.log(error.request))
+    return res
   },
   /*
    * check an answer
@@ -43,8 +43,8 @@ export default {
    * @param   {Object}    answer          Answer to the step
    */
   async checkAnswer (questId, stepId, runId, answer) {
-    let res = await Api().post('quest/' + questId + '/step/' + stepId + '/check/' + runId, answer)
-    return res.data
+    let res = await Api().post('quest/' + questId + '/step/' + stepId + '/check/' + runId, answer).catch(error => console.log(error.request))
+    return res
   },
   /*
    * count the steps for a quest
@@ -59,7 +59,7 @@ export default {
    * @param   {Object}    data        Data of the step
    */
   save (data) {
-    return Api().put('quest/' + data.questId + '/step/' + data._id + '/update', data)
+    return Api().put('quest/' + data.questId + '/step/' + data._id + '/update', data).catch(error => console.log(error.request))
   },
   /*
    * Remove a step
@@ -76,7 +76,7 @@ export default {
    * @param   {Number}    newPosition    New position of the step
    */
   move(questId, oldPosition, newPosition) {
-    return Api().put('quest/' + questId + '/step/' + oldPosition + '/move/' + newPosition)
+    return Api().put('quest/' + questId + '/step/' + oldPosition + '/move/' + newPosition).catch(error => console.log(error.request))
   },
   /*
    * upload a background image for step
@@ -84,7 +84,7 @@ export default {
    * @param   {Object}    data           upload data
    */
   uploadBackgroundImage(questId, data) {
-    return Api().post('/quest/' + questId + '/step/background/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+    return Api().post('/quest/' + questId + '/step/background/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   },
   /*
    * upload an image to recognize (for steps 'image-recognition')
@@ -92,7 +92,7 @@ export default {
    * @param   {Object}    data           upload data
    */
   uploadImageToRecognize(questId, data) {
-    return Api().post('/quest/' + questId + '/step/image-recognition/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+    return Api().post('/quest/' + questId + '/step/image-recognition/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request)) 
   },
   /*
    * upload an "answer image" (for step 'choose') 
@@ -100,7 +100,7 @@ export default {
    * @param   {Object}    data           upload data
    */
   uploadAnswerImage(questId, data) {
-    return Api().post('/quest/' + questId + '/step/choose-image/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+    return Api().post('/quest/' + questId + '/step/choose-image/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   },
   /*
    * upload an "image" (for step 'memory') 
@@ -108,7 +108,7 @@ export default {
    * @param   {Object}    data           upload data
    */
   uploadMemoryImage(questId, data) {
-    return Api().post('/quest/' + questId + '/step/memory/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+    return Api().post('/quest/' + questId + '/step/memory/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request)) 
   },
   /*
    * upload an "answer image" (for step 'code-image') 
@@ -116,7 +116,7 @@ export default {
    * @param   {Object}    data           upload data
    */
   uploadCodeAnswerImage(questId, data) {
-    return Api().post('/quest/' + questId + '/step/code-image/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+    return Api().post('/quest/' + questId + '/step/code-image/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request)) 
   },
   /*
    * upload a video for 'info-video' step
@@ -124,7 +124,7 @@ export default {
    * @param   {Object}    data           upload data
    */
   uploadVideo(questId, data) {
-    return Api().post('/quest/' + questId + '/step/video/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+    return Api().post('/quest/' + questId + '/step/video/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request)) 
   },
   /*
    * upload a jigsaw picture 'jigsaw puzzle' step
@@ -132,7 +132,7 @@ export default {
    * @param   {Object}    data           upload data
    */
   uploadPuzzleImage(questId, data) {
-    return Api().post('/quest/' + questId + '/step/jigsaw-puzzle/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+    return Api().post('/quest/' + questId + '/step/jigsaw-puzzle/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request)) 
   },
   /*
    * upload a item picture for 'new item' step
@@ -141,6 +141,6 @@ export default {
    * @param   {Object}    data           upload data
    */
   uploadItemImage(questId, stepType, data) {
-    return Api().post('/quest/' + questId + '/step/' + stepType + '/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+    return Api().post('/quest/' + questId + '/step/' + stepType + '/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   }
 }

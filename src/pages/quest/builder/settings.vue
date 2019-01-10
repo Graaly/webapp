@@ -109,6 +109,9 @@
       <!------------------ STEPS TAB ------------------------>
         
       <q-tab-pane name="steps">
+        <div class="centered bg-warning q-pa-sm" v-if="warnings.stepsMissing" @click="refreshStepsList">
+          <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+        </div>
         <p>{{ $t('label.AddYourSteps') }}</p>
         <p class="centered" v-show="steps.items && steps.items.length > 6">
           <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
@@ -160,7 +163,6 @@
         </q-field>
         
         <q-field
-          v-if="editor.items && editor.items.length > 0"
           icon="people"
           :helper="$t('label.InviteEditorsHelp')"
           :label="$t('label.Editors')"
@@ -168,6 +170,7 @@
           <p v-for="item in editor.items" :key="item.id">
             <q-toggle v-model="item.checked" :label="item.name" @input="removeEditor(item.id)" />
           </p>
+          <p v-if="warnings.editorsMissing">{{ $t('label.TechnicalIssue') }}</p>
           <q-input type="text" :float-label="$t('label.InviteEditors')" v-model="editor.new.email" :after="[{icon: 'add_circle', handler () {addEditor()}}]" />
           <div class="q-field-bottom" v-if="!editor.new.isExisting">
             <div class="q-field-error">{{ $t('label.UserIsNotAGraalyUser') }}</div>
@@ -296,7 +299,10 @@
     <transition name="slideInBottom">
       <div class="inventory panel-bottom q-pa-md" v-show="inventory.isOpened">
         <h1>{{ $t('label.Inventory') }}</h1>
-        <p v-if="inventory.items.length > 0">{{ $t('label.InventoryUsage') }}</p>
+        <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
+          <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+        </div>
+        <p v-if="inventory.items.length > 0 && !warnings.inventoryMissing">{{ $t('label.InventoryUsage') }}</p>
         <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
         <div class="inventory-items">
           <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
@@ -449,7 +455,12 @@ export default {
       serverUrl: process.env.SERVER_URL,
       pictureUploadURL: this.serverUrl + '/quest/picture/upload',
       titleMaxLength: 50,
-      isHybrid: false
+      isHybrid: false,
+      warnings: {
+        stepsMissing: false,
+        editorsMissing: false,
+        inventoryMissing: false
+      }
     }
   },
   computed: {
@@ -531,7 +542,6 @@ export default {
         
         await this.listReviews()
       } else {
-        console.error('Could not load quest data')
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
     },
@@ -539,24 +549,30 @@ export default {
      * Refresh / load the step list
      */
     async refreshStepsList() {
+      this.warnings.stepsMissing = false
       // list steps
       this.$q.loading.show()
-      this.steps.items = await StepService.listForAQuest(this.questId)
-      this.$q.loading.hide()
-      if (this.steps.items && this.steps.items.length > 0 && this.tabs.progress < 3) {
-        this.tabs.progress = 3
-      }
-      
-      // update property this.quest.hasLocateMarkerSteps
-      let found = false
-      for (let i = 0; i < this.steps.items.length; i++) {
-        let item = this.steps.items[i]
-        if (item.type === 'locate-marker') {
-          found = true
-          break
+      var response = await StepService.listForAQuest(this.questId)
+      if (response) {
+        this.steps.items = response
+        if (this.steps.items && this.steps.items.length > 0 && this.tabs.progress < 3) {
+          this.tabs.progress = 3
         }
+        
+        // update property this.quest.hasLocateMarkerSteps
+        let found = false
+        for (let i = 0; i < this.steps.items.length; i++) {
+          let item = this.steps.items[i]
+          if (item.type === 'locate-marker') {
+            found = true
+            break
+          }
+        }
+        this.quest.hasLocateMarkerSteps = found
+      } else {
+        this.warnings.stepsMissing = true
       }
-      this.quest.hasLocateMarkerSteps = found
+      this.$q.loading.hide()
     },
     /*
      * Submit settings changes
@@ -619,8 +635,10 @@ export default {
       let uploadPictureResult = await QuestService.uploadPicture(data)
       if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
         this.form.fields.picture = uploadPictureResult.data.file
-        this.$q.loading.hide()
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
+      this.$q.loading.hide()
     },
     /*
      * Start the tutorial
@@ -765,6 +783,7 @@ export default {
       if (action === 'publish') {
         this.$q.loading.show()
         await QuestService.publish(this.questId, lang)
+        //TODO: manage if publishing failed
         this.$q.loading.hide()
         
         if (this.quest.status === 'unpublished') {
@@ -818,7 +837,7 @@ export default {
         cancel: true
       }).then(async () => {
         await QuestService.remove(_this.questId)
-              
+        // TODO: manage when remove failed
         this.$router.push('/map')
       })
     },
@@ -835,7 +854,7 @@ export default {
         cancel: true
       }).then(async () => {
         await StepService.remove(_this.questId, stepId)
-              
+        // TODO: manage when remove failed
         // reassign a number (1, 2, 3, ...) to remaining steps
         let removedStepIndex = _this.steps.items.map(function(e) { return e._id; }).indexOf(stepId)
         _this.steps.items.splice(removedStepIndex, 1)
@@ -1077,10 +1096,15 @@ export default {
      * list the editors
      */
     async listEditors () {
+      this.warnings.editorsMissing = false
       var results = await QuestService.listEditors(this.questId)
-      this.editor.items = results.data
-      for (var i = 0; i < this.editor.items.length; i++) {
-        this.editor.items[i].checked = true
+      if (results && results.data) {
+        this.editor.items = results.data
+        for (var i = 0; i < this.editor.items.length; i++) {
+          this.editor.items[i].checked = true
+        }
+      } else {
+        this.warnings.editorsMissing = true
       }
     },
     /*
@@ -1089,6 +1113,7 @@ export default {
     async removeEditor (id) {
       this.$q.loading.show()
       await QuestService.removeEditor(this.questId, id)
+      // TODO: manage editor removal
       this.$q.loading.hide()
       await this.listEditors()
     },
@@ -1121,9 +1146,16 @@ export default {
      * Fill the inventory with objects won by the user
      */
     async fillInventory() {
+      this.warnings.inventoryMissing = false
       // load items won on previous steps
       this.$q.loading.show()
-      this.inventory.items = await StepService.listWonObjects(this.questId, this.stepId)
+      var response = await StepService.listWonObjects(this.questId, this.stepId)
+      if (response && response.data) {
+        this.inventory.items = response.data
+      } else {
+        this.warnings.inventoryMissing = true
+      }
+      
       this.$q.loading.hide()
     },
     /*
@@ -1179,6 +1211,8 @@ export default {
           this.closeAllPanels()
           this.hint.isOpened = true
           this.overview.tabSelected = 'hint'
+        } else {
+          Notification(_this.$t('label.ErrorStandardMessage'), 'error')
         }
       }
     },

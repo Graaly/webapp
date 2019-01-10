@@ -1,6 +1,6 @@
 <template>
   <div class="geolocation-layer centered" :class="withNavBar ? 'with-nav-bar' : 'without-nav-bar'" v-if="!isSupported || !isActive">
-    <div class="enable-geolocation" v-if="!isActive">
+    <div class="enable-geolocation" v-if="!isActive && nbFails > 1">
       <p class="text-primary">{{ $t('label.PleaseActivateGeolocation') }}</p>
       <div v-if="nativeSettingsIsEnabled">
         <q-btn color="primary" @click="openLocationSettings">{{ $t('label.PressHere') }}</q-btn>
@@ -18,7 +18,7 @@
         </p>
       </div>
     </div>
-    <div class="search-geolocation centered" :class="withNavBar ? 'with-nav-bar' : 'without-nav-bar'" v-if="!isActive">
+    <div class="search-geolocation centered" :class="withNavBar ? 'with-nav-bar' : 'without-nav-bar'" v-if="!isActive && nbFails <= 1">
       <p><q-spinner-puff color="primary" size="25px" /></p>
       <p>{{ $t('label.LocationSearching') }}</p>
     </div>
@@ -39,9 +39,10 @@ export default {
   data () {
     return {
       locationWatcher: null,
-      isSupported: false,
+      isSupported: true,
       isActive: false,
-      nativeSettingsIsEnabled: true
+      nativeSettingsIsEnabled: true,
+      nbFails: 0
     }
   },
   computed: {
@@ -74,12 +75,17 @@ export default {
     if (!navigator || !navigator.geolocation) {
       return
     }
-    
-    this.locationWatcher = navigator.geolocation.watchPosition(this.watchLocationSuccess, this.watchLocationError, {
-      enableHighAccuracy: true,
-      timeout: this.interval,
-      maximumAge: this.maximumAge
-    })
+
+    try {
+      this.locationWatcher = navigator.geolocation.watchPosition(this.watchLocationSuccess, this.watchLocationError, {
+        enableHighAccuracy: true,
+        timeout: this.interval,
+        maximumAge: this.maximumAge
+      })
+    } catch (e) {
+      console.log(e)
+      this.isSupported = false
+    }
   },
   beforeDestroy() {
     this.clearWatch()
@@ -94,6 +100,7 @@ export default {
       console.warn('Could not get location from watchPosition()')
       console.log(err)
       this.isSupported = true
+      this.nbFails++
       this.isActive = false
       this.$emit('error')
     },
@@ -104,6 +111,7 @@ export default {
     watchLocationSuccess(position) {
       this.isSupported = true
       this.isActive = true
+      this.nbFails = 0
       this.$emit('success', position)
     },
     /*

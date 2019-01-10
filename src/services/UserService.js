@@ -6,7 +6,7 @@ export default {
    * List friends for the user
    */
   listFriends () {
-    return Api().get('user/friends/list')
+    return Api().get('user/friends/list').catch(error => console.log(error.request))
   },  
   /*
    * List news of user's friend
@@ -21,27 +21,27 @@ export default {
    * @param   {String}    id                  ID of the news
    */
   likeNews(id) {
-    return Api().put('user/friends/news/' + id + '/like')
+    return Api().put('user/friends/news/' + id + '/like').catch(error => console.log(error.request))
   },
   /*
    * UnLike a news
    * @param   {String}    id                  ID of the news
    */
   unlikeNews(id) {
-    return Api().put('user/friends/news/' + id + '/unlike')
+    return Api().put('user/friends/news/' + id + '/unlike').catch(error => console.log(error.request))
   },
   /*
    * Get a friend data
    * @param   {String}    id                  ID of the friend
    */
   getFriend (id) {
-    return Api().get('user/' + id + '/profile')
+    return Api().get('user/' + id + '/profile').catch(error => console.log(error.request))
   },
   /*
    * Get current user ranking data
    */
   getRanking () {
-    return Api().get('account/ranking')
+    return Api().get('account/ranking').catch(error => console.log(error.request))
   },
   /*
    * challenge a friend
@@ -49,27 +49,27 @@ export default {
    * @param   {String}    runId                 ID of the run concerned
    */
   challengeFriend (friendId, runId) {
-    return Api().post('user/friend/' + friendId + '/challenge/' + runId)
+    return Api().post('user/friend/' + friendId + '/challenge/' + runId).catch(error => console.log(error.request))
   },
   /*
    * Get current user's best friends)
    */
   getBestFriends () {
-    return Api().get('user/bestfriends')
+    return Api().get('user/bestfriends').catch(error => console.log(error.request))
   },
   /*
    * buy coins
    * @param   {String}    offer                  ID of the offer
    */
   buy (offer) {
-    return Api().post('user/buy/offer/' + offer)
+    return Api().post('user/buy/offer/' + offer).catch(error => console.log(error.request))
   },
   /*
    * Save the new story step of the user
    * @param   {number}    step                  ID of the next story step
    */
   nextStoryStep (step) {
-    return Api().post('user/story/step/' + step)
+    return Api().post('user/story/step/' + step).catch(error => console.log(error.request))
   },
   /*
    * add friend
@@ -77,11 +77,11 @@ export default {
    */
   addFriend(friendData) {
     if (friendData.email && friendData.email.length > 0) {
-      return Api().post('user/friends/add/email/' + friendData.email)
+      return Api().post('user/friends/add/email/' + friendData.email).catch(error => console.log(error.request))
     } else if (friendData.phone && friendData.phone.length > 0) {
-      return Api().post('user/friends/add/phone/' + friendData.phone)
+      return Api().post('user/friends/add/phone/' + friendData.phone).catch(error => console.log(error.request))
     } else {
-      return Api().post('user/friend/add/' + friendData)
+      return Api().post('user/friend/add/' + friendData).catch(error => console.log(error.request))
     }
   },
   /*
@@ -96,7 +96,7 @@ export default {
    * @param   {Array}    contacts          Array of contacts
    */
   checkContacts(contacts) {
-    return Api().post('user/friends/contacts/check', {contacts: contacts})
+    return Api().post('user/friends/contacts/check', {contacts: contacts}).catch(error => console.log(error.request))
   }
   
 }

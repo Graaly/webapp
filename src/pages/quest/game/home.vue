@@ -23,7 +23,8 @@
             </p> &nbsp;
             <div class="text-center">
               <p>
-                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && (isOwner || isAdmin || isRunStarted || isRunFinished) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">{{ $t('label.SolveThisQuest') }}</q-btn>
+                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && (isOwner || isAdmin || isRunStarted) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">{{ $t('label.SolveThisQuest') }}</q-btn>
+                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && isRunFinished && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">{{ $t('label.SolveAgainThisQuest') }}</q-btn>
                 <q-btn-dropdown v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
                   <q-list link>
                     <q-item 
@@ -250,11 +251,21 @@ export default {
      */
     async getQuest(id) {
       let response = await QuestService.getById(id)
-      this.quest = response.data
-      if (typeof this.quest.authorUserId !== 'undefined') {
-        response = await AuthService.getAccount(this.quest.authorUserId)
-        this.$set(this.quest, 'author', response.data)
-        this.quest.description = utils.replaceBreakByBR(this.quest.description)
+      if (response && response.data) {
+        this.quest = response.data
+        if (typeof this.quest.authorUserId !== 'undefined') {
+          response = await AuthService.getAccount(this.quest.authorUserId)
+          this.$set(this.quest, 'author', response.data)
+          this.quest.description = utils.replaceBreakByBR(this.quest.description)
+        }
+      } else {
+        this.$q.dialog({
+          title: this.$t('label.TechnicalProblem'),
+          message: this.$t('label.TechnicalProblemNetworkIssue'),
+          ok: this.$t('label.BackToMap')
+        }).then(() => {
+          this.backToTheMap()
+        })
       }
     },
     /*
@@ -315,7 +326,6 @@ export default {
       this.$q.loading.hide()
       
       // hide add friend button for user concerned
-      console.log(newFriend)
       if (newFriend) {
         for (var i = 0; i < this.ranking.items.length; i++) {
           if (this.ranking.items[i].id === friendId) {

@@ -701,7 +701,12 @@ export default {
       await this.getStepId()
       // initialize step form data when edited
       if (!this.selectedStep.isNew) {
-        Object.assign(this.selectedStep.form, await StepService.getById(this.stepId))
+        var response = await StepService.getById(this.stepId)
+        if (response) {
+          Object.assign(this.selectedStep.form, response)
+        } else {
+          Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        }
       }
       
       // retrieve step type properties
@@ -709,7 +714,8 @@ export default {
       
       // compute number of steps
       if (this.selectedStep.form.number === null) {
-        this.selectedStep.form.number = (await StepService.countForAQuest(this.questId)) + 1
+        var numberOfSteps = await StepService.countForAQuest(this.questId)
+        this.selectedStep.form.number = numberOfSteps ? numberOfSteps + 1 : 1
       }
       
       // define the default title for the step
@@ -1067,8 +1073,10 @@ export default {
       let uploadResult = await StepService.uploadBackgroundImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.selectedStep.form.backgroundImage = uploadResult.data.file
-        this.$q.loading.hide()
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
+      this.$q.loading.hide()
     },
     /*
      * Reset the background image
@@ -1098,8 +1106,10 @@ export default {
       let uploadResult = await StepService.uploadVideo(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.selectedStep.form.videoStream = uploadResult.data.file
-        this.$q.loading.hide()
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
+      this.$q.loading.hide()
     },
     /*
      * Upload the picture for the image regognition step
@@ -1116,8 +1126,10 @@ export default {
       let uploadResult = await StepService.uploadImageToRecognize(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.selectedStep.form.answers = uploadResult.data.file
-        this.$q.loading.hide()
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
+      this.$q.loading.hide()
     },
     /*
      * Upload a picture for the multiple choice step
@@ -1134,8 +1146,10 @@ export default {
       let uploadResult = await StepService.uploadAnswerImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.selectedStep.form.options[key].imagePath = uploadResult.data.file
-        this.$q.loading.hide()
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
+      this.$q.loading.hide()
     },
     /*
      * Upload a picture for the memory step
@@ -1152,8 +1166,10 @@ export default {
       let uploadResult = await StepService.uploadMemoryImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.memoryItems[key].imagePath = uploadResult.data.file
-        this.$q.loading.hide()
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
+      this.$q.loading.hide()
     },
     /*
      * Delete an answer in the memory game
@@ -1180,8 +1196,10 @@ export default {
       let uploadResult = await StepService.uploadCodeAnswerImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.selectedStep.form.options.images[key].imagePath = uploadResult.data.file
-        this.$q.loading.hide()
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
+      this.$q.loading.hide()
     },
     /*
      * Upload a picture for the puzzle
@@ -1198,8 +1216,10 @@ export default {
       let uploadResult = await StepService.uploadPuzzleImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.selectedStep.form.options.picture = uploadResult.data.file
-        this.$q.loading.hide()
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
+      this.$q.loading.hide()
     },
     /*
      * Upload an inventory item picture
@@ -1216,8 +1236,10 @@ export default {
       let uploadResult = await StepService.uploadItemImage(this.questId, this.options.code, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.selectedStep.form.options.picture = uploadResult.data.file
-        this.$q.loading.hide()
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
+      this.$q.loading.hide()
     },
     /*
      * Select an object in the list
@@ -1256,16 +1278,21 @@ export default {
      */
     async getQuestItemsAsOptions() {
       // load items won on previous steps
-      this.questItems = await StepService.listWonObjects(this.questId, this.stepId)
-      let options = []
-      this.questItems.forEach((item) => {
-        options.push({
-          value: item.picture,
-          label: item.title
+      var response = await StepService.listWonObjects(this.questId, this.stepId)
+      if (response) {
+        this.questItems = response
+        let options = []
+        this.questItems.forEach((item) => {
+          options.push({
+            value: item.picture,
+            label: item.title
+          })
         })
-      })
-      options.sort((a, b) => { return a.label > b.label ? 1 : -1 })
-      this.questItemsAsOptions = options
+        options.sort((a, b) => { return a.label > b.label ? 1 : -1 })
+        this.questItemsAsOptions = options
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
     },
     /*
      * Get the icon of an item

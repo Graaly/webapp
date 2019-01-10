@@ -280,6 +280,8 @@ export default {
       
       if (codeSent.status === 200) {
         this.step = 'forgottenpassword'
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
       
       this.submitting = false

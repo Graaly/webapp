@@ -1,6 +1,9 @@
 <template>
   <div class="play">
     
+    <div class="centered bg-warning q-pa-sm" v-if="warnings.stepDataMissing" @click="initData()">
+      <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+    </div>
     <stepPlay :step="step" :runId="run._id" :itemUsed="selectedItem" :reload="loadStepData" :lang="lang" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
       
     <!------------------ INVENTORY PAGE AREA ------------------------>
@@ -8,7 +11,10 @@
     <transition name="slideInBottom">
       <div class="inventory panel-bottom q-pa-md" v-show="inventory.isOpened">
         <h1>{{ $t('label.Inventory') }}</h1>
-        <p v-if="inventory.items.length > 0">{{ $t('label.InventoryUsage') }}</p>
+        <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
+          <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+        </div>
+        <p v-if="inventory.items.length > 0 && !warnings.inventoryMissing">{{ $t('label.InventoryUsage') }}</p>
         <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
         <div class="inventory-items">
           <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
@@ -23,11 +29,14 @@
     
     <transition name="slideInBottom">
       <div v-show="info.isOpened">
-        <div class="panel-bottom no-padding" :style="'background: url(' + ((info.quest.picture && info.quest.picture[0] === '_') ? 'statics/images/quest/' + info.quest.picture : serverUrl + '/upload/quest/' + info.quest.picture) + ' ) center center / cover no-repeat '">
+        <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="getQuest(quest.id)">
+          <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+        </div>
+        <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + ((info.quest.picture && info.quest.picture[0] === '_') ? 'statics/images/quest/' + info.quest.picture : serverUrl + '/upload/quest/' + info.quest.picture) + ' ) center center / cover no-repeat '">
           <div class="text-center bottom-dark-banner q-pb-xl">
             <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title[lang] : $t('label.NoTitle') }}</p>
             <!--<q-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-progress>-->
-            <p class="q-pa-md score-text" v-show="info && info.score">{{ info.score }} <q-icon color="white" name="fas fa-trophy" /></p>
+            <p class="q-pa-md score-text" v-show="info">{{ $t('label.CurrentScore') }} {{ info.score }} <q-icon color="white" name="fas fa-trophy" /></p>
             <p class="q-pb-xl">
               <q-btn color="primary" @click="backToMap">{{ $t('label.LeaveQuest') }}</q-btn>
             </p>
@@ -35,17 +44,6 @@
         </div>
       </div>
     </transition>
-    
-    <!------------------ HINT PAGE AREA -----------------------
-    
-    <transition name="slideInBottom">
-      <div class="hint panel-bottom q-pa-md" v-show="hint.isOpened">
-        <h1>{{ $t('label.Hint') }}</h1>
-        <p v-if="hint.label === ''">{{ $t('label.NoHintForThisStep') }}</p>
-        <p v-if="hint.label !== ''">{{ hint.label[lang] }}</p>
-        <q-btn class="q-mb-xl" color="primary" @click="askForHint()">{{ $t('label.Close') }}</q-btn>
-      </div>
-    </transition> -->
     
     <!--====================== HINT =================================-->
     
@@ -140,6 +138,11 @@ export default {
       nbTry: 0,
       controlsAreDisplayed: false,
       lang: this.$route.params.lang,
+      warnings: {
+        inventoryMissing: false,
+        questDataMissing: false,
+        stepDataMissing: false
+      },
       
       // for step type 'use-item'
       selectedItem: null
@@ -147,8 +150,15 @@ export default {
   },
   mounted () {
     utils.clearAllRunningProcesses()
-    // TODO: to avoid cheating for questions with text/image answers, do not load the 'right answer' info on front app, instead make a server call to check it, when player has already selected his answer and clicked on "check answer"
-    this.getStep().then(async (step) => {
+    this.initData()
+  },
+  methods: {
+    /*
+     * Init step data
+     */
+    async initData () {
+      // TODO: to avoid cheating for questions with text/image answers, do not load the 'right answer' info on front app, instead make a server call to check it, when player has already selected his answer and clicked on "check answer"
+      var step = await this.getStep()
       // redirect to latest step run if user can not access this step
       if (step.redirect) {
         return this.$router.push('/quest/play/' + this.quest.id + '/step/' + step.redirect + '/' + this.$route.params.lang)
@@ -195,6 +205,13 @@ export default {
         let res = await RunService.init(this.quest.id, this.$route.params.lang, remotePlay)
         if (res.status === 200 && res.data && res.data._id) {
           this.run = res.data
+        } else {
+          this.$q.dialog({
+            title: this.$t('label.TechnicalProblem'),
+            message: this.$t('label.TechnicalProblemNetworkIssue')
+          }).then(() => {
+            this.$router.push('/quest/play/' + this.quest.id)
+          })
         }
       }
             
@@ -209,17 +226,19 @@ export default {
       
       // load component data
       this.loadStepData = true
-    }).catch((err) => {
-      Notification(this.$t('label.ErrorStandardMessage'), 'error')
-      console.log(err)
-    })
-  },
-  methods: {
+    },
     /*
      * Get the step data
      */
     async getStep () {
-      return StepService.getByNumber(this.quest.id, this.$route.params.stepNumber)
+      this.warnings.stepDataMissing = false
+      const response = await StepService.getByNumber(this.quest.id, this.$route.params.stepNumber)
+      if (response && response.data) {
+        return response.data
+      } else {
+        this.warnings.stepDataMissing = true
+        return false
+      }
     },
     /*
      * Track step success
@@ -275,6 +294,7 @@ export default {
           cancel: this.$t('label.Cancel')
         }).then(async () => {
           await RunService.passCurrentStep(this.run._id)
+          // TODO: manage if pass failed
           this.$router.push('/quest/play/' + this.quest.id + '/step/' + this.step.nextNumber + '/' + this.$route.params.lang);
         }).catch(() => {})
       }
@@ -324,6 +344,8 @@ export default {
         this.closeAllPanels()
         this.hint.isOpened = true
         this.footer.tabSelected = 'hint'
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
     },
     closeAllPanels() {
@@ -336,9 +358,16 @@ export default {
      * Fill the inventory with objects won by the user
      */
     async fillInventory() {
+      this.warnings.inventoryMissing = false
       // load items won on previous steps
       this.$q.loading.show()
-      this.inventory.items = await StepService.listWonObjects(this.quest.id, this.step._id)
+      var response = await StepService.listWonObjects(this.quest.id, this.step._id)
+      if (response && response.data) {
+        this.inventory.items = response.data
+      } else {
+        this.warnings.inventoryMissing = true
+      }
+      
       this.$q.loading.hide()
     },
     /*
@@ -402,8 +431,13 @@ export default {
      * @param   {string}    id             Quest ID
      */
     async getQuest(id) {
+      this.warnings.questDataMissing = false
       let response = await QuestService.getById(id)
-      this.info.quest = response.data
+      if (response && response.data) {
+        this.info.quest = response.data
+      } else {
+        this.warnings.questDataMissing = true
+      }
     },
     /*
      * count number of steps in a quest

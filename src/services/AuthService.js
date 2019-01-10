@@ -14,7 +14,7 @@ export default {
    * @param   {String}    password      User password
    */
   login (email, password) {
-    return Api().post('login', {email: email, password: password})
+    return Api().post('login', {email: email, password: password}).catch(error => console.log(error.request))
   },
   /*
    * Check the user facebook Id and facebook token, and sign him in
@@ -30,13 +30,13 @@ export default {
    * Sign-out user
    */
   logout () {
-    return Api().post('logout')
+    return Api().post('logout').catch(error => console.log(error.request))
   }, 
   /*
    * Remove a user account
    */
   removeAccount() {
-    return Api().post('account/remove')  
+    return Api().post('account/remove').catch(error => console.log(error.request))
   },
   /*
    * get connected user data
@@ -44,9 +44,9 @@ export default {
    */
   getAccount (id) {
     if (id && id !== "me") {
-      return Api().get('user/' + id)
+      return Api().get('user/' + id).catch(error => console.log(error.request))
     } else {
-      return Api().get('account')
+      return Api().get('account').catch(error => console.log(error.request))
     }
   },
   /*
@@ -54,21 +54,21 @@ export default {
    * @param   {Object}    data          User data
    */
   createAccount(data) {
-    return Api().post('user/create', data)
+    return Api().post('user/create', data).catch(error => console.log(error.request))
   },
   /*
    * Modify a user account
    * @param   {Object}    data          User data
    */
   modifyAccount(data) {
-    return Api().post('user/modify', data)  
+    return Api().post('user/modify', data).catch(error => console.log(error.request))
   },
   /*
    * Upload a user profile picture
    * @param   {Object}    data          Upload data
    */
   uploadAccountPicture(data) {
-    return Api().post('/user/picture/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+    return Api().post('/user/picture/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   },
   /*
    * Validate a user account
@@ -77,7 +77,7 @@ export default {
    */
   // a user validate his account
   validateAccount(email, code) {
-    return Api().post('account/validate', {email: email, code: code})
+    return Api().post('account/validate', {email: email, code: code}).catch(error => console.log(error.request))
   },
   /*
    * Change a user password
@@ -86,20 +86,20 @@ export default {
    * @param   {String}    code          Validation code
    */
   changePassword(email, password, code) {
-    return Api().post('user/forgottenpassword/code/validate', {email: email, password: password, code: code})
+    return Api().post('user/forgottenpassword/code/validate', {email: email, password: password, code: code}).catch(error => console.log(error.request))
   },
   /*
    * Send a code to secure password modification (user not authentifyed)
    * @param   {String}    email         User email
    */
   sendForgottenPasswordCode(email) {
-    return Api().post('user/forgottenpassword/code/generate', {email: email})
+    return Api().post('user/forgottenpassword/code/generate', {email: email}).catch(error => console.log(error.request))
   },
   /*
    * Send a code to secure password modification (user authentified)
    * @param   {String}    email         User email
    */
   generateANewValidationCode(email) {
-    return Api().post('user/validate/code/new', {email: email})
+    return Api().post('user/validate/code/new', {email: email}).catch(error => console.log(error.request))
   }
 }

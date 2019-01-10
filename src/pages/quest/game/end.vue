@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="dark-background">
+    <div class="dark-background" v-if="!warnings.noNetwork">
       
       <!------------------ TITLE AREA ------------------------>
       
@@ -8,7 +8,7 @@
         <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouWin') }}</h2>
         <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.score > 0 || run.reward === 0">{{ run.score }} <q-icon color="white" name="fas fa-trophy" /></h2>
         <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.reward > 0">{{ run.reward }} <q-icon color="white" name="fas fa-bolt" /></h2>
-        <router-link to="/help/points" v-show="run.score > 0">{{ $t('label.WhatCanYouDoWithThesePoints') }}</router-link>
+        <!--<router-link to="/help/points" v-show="run.score > 0">{{ $t('label.WhatCanYouDoWithThesePoints') }}</router-link>-->
       </div>
       
       <!------------------ PROGRESS AREA ------------------------>
@@ -36,7 +36,7 @@
       
       <!------------------ SHARE AREA ------------------------>
       
-      <div class="share bg-secondary q-mt-md q-ml-md q-mr-md q-pa-sm centered">
+      <!--<div class="share bg-secondary q-mt-md q-ml-md q-mr-md q-pa-sm centered">
         <h3 class="size-2 q-ma-sm">{{ $t('label.ShareYourSuccess') }}</h3>
         <ul>
           <li>
@@ -55,7 +55,7 @@
             </a>
           </li>
         </ul>
-      </div>
+      </div>-->
    
       <!------------------ BACK TO MAP LINK AREA ------------------------>
       
@@ -63,6 +63,9 @@
         <q-btn class="text-primary bg-white full-width" :label="$t('label.BackToTheMap')" @click="$router.push('/map')" />
       </div>
       
+    </div>
+    <div class="centered bg-warning q-pa-sm" v-if="warnings.noNetwork" @click="loadData()">
+      <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
     </div>
     
     <!------------------ RANKING AREA ------------------------>
@@ -224,62 +227,75 @@ export default {
       showBonus: false,
       showAddReview: false,
       reviewSent: false,
+      warnings: {
+        noNetwork: false
+      },
       serverUrl: process.env.SERVER_URL
     }
   },
   async mounted () {
     utils.clearAllRunningProcesses()
-    var runIsInProgress = false
-    // List all run for this quest for current user
-    var runs = await RunService.listForAQuest(this.questId)
-    if (runs && runs.data && runs.data.length > 0) {
-      for (var i = 0; i < runs.data.length; i++) {
-        if (runs.data[i].status === 'finished') {
-          this.run = runs.data[i]
-        }
-        if (runs.data[i].status === 'in-progress') {
-          this.run = runs.data[i]
-          runIsInProgress = true
-        }
-      }
-    }
-    
-    // get ranking without the user (status of run is still in-progress)
-    await this.getRanking()
-    
-    // get quest data
-    let quest = await QuestService.getById(this.questId)
-    
-    // show review part only if player is not author & has not already sent a review for this quest
-    let isUserAuthor = this.$store.state.user._id === quest.data.authorUserId
-    let results = await ReviewService.list({ questId: this.questId, userId: this.$store.state.user._id }, { limit: 1 })
-    let isReviewAlreadySent = results.data && results.data.length >= 1
-    this.showAddReview = !isUserAuthor && !isReviewAlreadySent 
-    
-    // get user old score
-    this.score.old = this.$store.state.user.score
-    this.initProgression()
-  
-    let endStatus = await RunService.endRun(this.run._id)
-    if (endStatus && endStatus.data) {
-      // assign computed score
-      this.run.score = endStatus.data.score
-      this.run.reward = endStatus.data.reward
-      if (endStatus.data.newBonus && endStatus.data.newBonus !== '') {
-        this.run.bonus = endStatus.data.newBonus
-        this.showBonus = true
-      }
-    }
-    
-    // story management
-    this.startStory()
-    
-    // get user new score
-    //this.level.color = "secondary"
-    this.score.new = runIsInProgress ? this.score.old + this.run.score : this.score.old
-    utils.setTimeout(this.updateProgression, 3000)
+    await this.loadData()
   },
   methods: {
+    /*
+     * Init score & level
+     */
+    async loadData() {
+      this.warnings.noNetwork = false
+      var runIsInProgress = false
+      // List all run for this quest for current user
+      var runs = await RunService.listForAQuest(this.questId)
+      if (runs && runs.data && runs.data.length > 0) {
+        for (var i = 0; i < runs.data.length; i++) {
+          if (runs.data[i].status === 'finished') {
+            this.run = runs.data[i]
+          }
+          if (runs.data[i].status === 'in-progress') {
+            this.run = runs.data[i]
+            runIsInProgress = true
+          }
+        }
+      }
+      
+      // get ranking without the user (status of run is still in-progress)
+      await this.getRanking()
+      
+      // get quest data
+      const quest = await QuestService.getById(this.questId)
+      if (quest && quest.data) {
+        // show review part only if player is not author & has not already sent a review for this quest
+        const isUserAuthor = this.$store.state.user._id === quest.data.authorUserId
+        const results = await ReviewService.list({ questId: this.questId, userId: this.$store.state.user._id }, { limit: 1 })
+        const isReviewAlreadySent = results.data && results.data.length >= 1
+        this.showAddReview = !isUserAuthor && !isReviewAlreadySent 
+      }
+      
+      // get user old score
+      this.score.old = this.$store.state.user.score
+      this.initProgression()
+    
+      let endStatus = await RunService.endRun(this.run._id)
+      if (endStatus && endStatus.data) {
+        // assign computed score
+        this.run.score = endStatus.data.score
+        this.run.reward = endStatus.data.reward
+        if (endStatus.data.newBonus && endStatus.data.newBonus !== '') {
+          this.run.bonus = endStatus.data.newBonus
+          this.showBonus = true
+        }
+      } else {
+        this.warnings.noNetwork = true
+      }
+      
+      // story management
+      this.startStory()
+      
+      // get user new score
+      //this.level.color = "secondary"
+      this.score.new = runIsInProgress ? this.score.old + this.run.score : this.score.old
+      utils.setTimeout(this.updateProgression, 3000)
+    },
     /*
      * Init score & level
      */
@@ -435,7 +451,6 @@ export default {
           Vue.set(this.filteredFriends, i, this.filteredFriends[i])
         }
       }
-      console.log(this.filteredFriends)
       
       /*if (this.invitedFriends.id.indexOf(friend.friendId) === -1) {
         this.invitedFriends.name.push(friend.name)
@@ -486,6 +501,7 @@ export default {
       
       this.$q.loading.show()
       await ReviewService.add(this.questId, this.run._id, this.comment, this.rating)
+      // TODO: add error tracking
       this.$q.loading.hide()
       
       this.reviewSent = true

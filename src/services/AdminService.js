@@ -30,7 +30,7 @@ export default {
    * Add a town
    */
   CreateTown (data) {
-    return Api().post('admin/town/add/', data)
+    return Api().post('admin/town/add/', data).catch(error => console.log(error.request))
   },
   /*
    * Reject a quest
@@ -43,6 +43,6 @@ export default {
    * @param   {Object}    data                picture data
    */
   uploadPlaceImage(data) {
-    return Api().post('/admin/town/place/picture/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+    return Api().post('/admin/town/place/picture/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   }
 }

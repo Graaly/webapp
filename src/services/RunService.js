@@ -38,20 +38,20 @@ export default {
    * @param   {Boolean}   remotePlay          is the player playing remotely
    */
   init(questId, lang, remotePlay) {
-    return Api().post('run/quest/' + questId + '/init/' + lang + '/remote/' + remotePlay)
+    return Api().post('run/quest/' + questId + '/init/' + lang + '/remote/' + remotePlay).catch(error => console.log(error.request))
   },
   /*
    * set a run as finished
    * @param   {String}    id                  ID of the run
    */
   endRun (id) {
-    return Api().put('run/' + id + '/end')
+    return Api().put('run/' + id + '/end').catch(error => console.log(error.request))
   },
   /*
    * skip a step
    * @param   {String}    id                  ID of the run
    */
   passCurrentStep(id) {
-    return Api().put('run/' + id + '/passCurrentStep')
+    return Api().put('run/' + id + '/passCurrentStep').catch(error => console.log(error.request))
   }
 }

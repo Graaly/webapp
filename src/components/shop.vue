@@ -35,6 +35,7 @@
 
 <script>
 import UserService from 'services/UserService'
+import Notification from 'plugins/NotifyHelper'
 
 export default {
   data() {
@@ -59,6 +60,8 @@ export default {
       if (buyStatus && buyStatus.data && buyStatus.data.coins) {
         this.coinsWon = buyStatus.data.coins
         this.$store.state.user.coins += this.coinsWon
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
       setTimeout(this.resetCoinsWon, 2000)
     },

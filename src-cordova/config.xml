@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.graaly.app" version="1.1.18" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.graaly.app" version="1.1.22" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Graaly</name>
     <description>Graaly Frontend</description>
     <author email="eric@graaly.com" href="http://graaly.com">
@@ -61,21 +61,21 @@
         <variable name="APP_NAME" value="graaly" />
         <variable name="FACEBOOK_ANDROID_SDK_VERSION" value="4.38.1" />
     </plugin>
-    <engine name="android" spec="^7.0.0" />
-    <engine name="ios" spec="^4.5.5" />
-    <edit-config target="NSLocationWhenInUseUsageDescription" file="*-Info.plist" mode="merge">
+    <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsageDescription">
         <string>Graaly uses the player location to gives him the list of the quests available around him. Some quest's enigmas also use the location to give reward if the user find the good location</string>
     </edit-config>
-    <edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="merge">
+    <edit-config file="*-Info.plist" mode="merge" target="NSCameraUsageDescription">
         <string>Graaly uses the camera to display augmented reality objects in the real environment provided by the camera. The player will have to catch these virtual objects in some quests</string>
     </edit-config>
-    <edit-config target="NSContactsUsageDescription" file="*-Info.plist" mode="merge">
+    <edit-config file="*-Info.plist" mode="merge" target="NSContactsUsageDescription">
         <string>Graaly helps players to challenge their friends of the contacts list. The player will choose the contacts he wants to challenge. No contact is saved in the app.</string>
     </edit-config>
-    <edit-config target="NSLocationUsageDescription" file="*-Info.plist" mode="merge">
+    <edit-config file="*-Info.plist" mode="merge" target="NSLocationUsageDescription">
         <string>Graaly uses the player location to gives him the list of the quests available around him. Some quest's enigmas also use the location to give reward if the user find the good location</string>
     </edit-config>
-    <edit-config target="NSPhotoLibraryUsageDescription" file="*-Info.plist" mode="merge">
+    <edit-config file="*-Info.plist" mode="merge" target="NSPhotoLibraryUsageDescription">
         <string>Each player can get photos of his library to build a quest</string>
     </edit-config>
+    <engine name="android" spec="^7.0.0" />
+    <engine name="ios" spec="^4.5.5" />
 </widget>

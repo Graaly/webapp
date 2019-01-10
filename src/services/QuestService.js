@@ -30,14 +30,14 @@ export default {
    * @param   {Object}    data                Quest data (title, ...)
    */
   create (data) {
-    return Api().post('quest/create', data)
+    return Api().post('quest/create', data).catch(error => console.log(error.request))
   },
   /*
    * Save a quest data
    * @param   {Object}    data                Quest data to update
    */
   save (data) {
-    return Api().put('quest/' + data._id + '/update', data)
+    return Api().put('quest/' + data._id + '/update', data).catch(error => console.log(error.request))
   },
   /*
    * Remove a quest
@@ -60,7 +60,7 @@ export default {
    * @param   {String}    lang                language of the quest (en, fr, ...)
    */
   addLanguage (questId, lang) {
-    return Api().put('quest/' + questId + '/lang/add/' + lang)
+    return Api().put('quest/' + questId + '/lang/add/' + lang).catch(error => console.log(error.request))
   },
   /*
    * Publish a quest
@@ -68,7 +68,7 @@ export default {
    * @param   {String}    lang                Language concerned
    */
   publish (id, lang) {
-    return Api().put('quest/' + id + '/publish/' + lang)
+    return Api().put('quest/' + id + '/publish/' + lang).catch(error => console.log(error.request))
   },
   /*
    * Unpublish a quest
@@ -76,7 +76,7 @@ export default {
    * @param   {String}    lang                Language concerned
    */
   unpublish (id, lang) {
-    return Api().put('quest/' + id + '/unpublish/' + lang)
+    return Api().put('quest/' + id + '/unpublish/' + lang).catch(error => console.log(error.request))
   },
   /*
    * Count the quests created by a user
@@ -104,7 +104,7 @@ export default {
    * @param   {Object}    data                picture data
    */
   uploadPicture(data) {
-    return Api().post('/quest/picture/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } })  
+    return Api().post('/quest/picture/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   },
   
   /*
@@ -120,7 +120,7 @@ export default {
    * @param   {String}    email           email of the editor
    */
   addEditor (questId, email) {
-    return Api().put('quest/' + questId + '/editor/add/' + email)
+    return Api().put('quest/' + questId + '/editor/add/' + email).catch(error => console.log(error.request))
   },
   /*
    * Remove a quest

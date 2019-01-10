@@ -33,10 +33,7 @@ export default ({ app, router, Vue }) => {
         next()
       }
     } catch (e) {
-      next({
-        path: '/user/login',
-        query: from.path === '/' ? null : { redirect: to.fullPath }
-      })
+      next()
     }
   })
 }

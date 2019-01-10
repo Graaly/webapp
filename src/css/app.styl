@@ -293,6 +293,9 @@ form {
   margin-top: 10px;
   margin-bottom: 20px;
 }
+.bouncing {
+  animation: bounce 0.7s ease infinite;
+}
 
 /////////////////////////////// Animation CSS /////////////////////////////////////
 
@@ -421,6 +424,11 @@ form {
   to {
     transform: perspective(400px);
   }
+}
+@keyframes bounce{
+  from {margin-top: 3px;}
+  50%  {margin-top: -3px;}
+  to   {margin-top: 3px;}
 }
 .fadeout {
   visibility: hidden;
@@ -674,4 +682,9 @@ form {
   -moz-transform: rotateY(-3deg);
   -webkit-transform: rotateY(-3deg);
   -khtml-transform: rotateY(-3deg);*/
+}
+.scroll-indicator {
+  position: absolute;
+  margin-top: 170px;
+  opacity: 0.5;
 }

@@ -178,7 +178,8 @@ export default {
           this.submitting = true
           
           if (validationStatus.status && validationStatus.status === 200) {
-            this.step = 'firstusage'
+            //this.step = 'firstusage'
+            this.openHome() // remove firstusage step
           } else if (validationStatus.data && validationStatus.data.message === "You have tries too much codes") {
             Notification(this.$t('label.YourAccountIsBlocked'), 'warning')
           } else {
@@ -189,14 +190,17 @@ export default {
           
           break
         case 'firstusage':         
-          let destination = '/home';
-          if (this.$route.query.hasOwnProperty('redirect')) {
-            destination = this.$route.query.redirect
-          }
-          this.$router.push(destination)
+          this.openHome()
           
           break
       }
+    },
+    openHome() {
+      let destination = '/home';
+      if (this.$route.query.hasOwnProperty('redirect')) {
+        destination = this.$route.query.redirect
+      }
+      this.$router.push(destination)
     },
     /*
      * Manage back button actions
@@ -227,6 +231,8 @@ export default {
       
       if (codeSent.status === 200) {
         Notification(this.$t('label.ANewCodeHasBeenSent'), 'info')
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
       
       this.submitting = false

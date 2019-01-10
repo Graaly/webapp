@@ -9,7 +9,7 @@ export default {
    * @param   {Number}    rating                 rating between 1 and 5
    */
   add (questId, runId, text, rating) {
-    return Api().put('review/add', { questId, runId, text, rating })
+    return Api().put('review/add', { questId, runId, text, rating }).catch(error => console.log(error.request))
   },
   /*
    * List reviews

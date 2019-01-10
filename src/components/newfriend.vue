@@ -36,7 +36,7 @@
           {{ $t('label.FindWithEmail') }}
           <div class="row q-pb-md">
             <div class="col-8">
-              <q-input dark color="secondary" type="email" :float-label="$t('label.Email')" v-model="form.email" @blur="$v.form.email.$touch()" />
+              <q-input color="secondary" type="email" :float-label="$t('label.Email')" v-model="form.email" @blur="$v.form.email.$touch()" />
               <div class="q-field-bottom" v-if="$v.form.email.$error">
                 <div class="q-field-error" v-if="!$v.form.email.email">{{ $t('label.EmailIsNotValid') }}</div>
               </div>
@@ -48,7 +48,7 @@
           {{ $t('label.FindWithPhone') }}
           <div class="row">
             <div class="col-8">
-              <q-input dark color="secondary" :float-label="$t('label.PhoneNumber')" v-model="form.phone" @blur="$v.form.phone.$touch()" />
+              <q-input color="secondary" :float-label="$t('label.PhoneNumber')" v-model="form.phone" @blur="$v.form.phone.$touch()" />
               <div class="q-field-bottom" v-if="$v.form.phone.$error">
                 <div class="q-field-error" v-if="!$v.form.phone.checkPhone">{{ $t('label.InvalidPhoneNumber') }}</div>
               </div>
