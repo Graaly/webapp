@@ -12,7 +12,6 @@ Vue.use(Vuex)
 const state = {
   isLoggedIn: !!localStorage.getItem('isLoggedIn'),
   loginPending: false,
-  // for quest steps, keep track of objects given by setInterval() to clear them properly & avoid useless calls
   questSteps: {
     geolocation: {
       drawDirectionInterval: null
@@ -24,6 +23,8 @@ const state = {
   currentEditedStep: null,
   errorMessage: null,
   currentRun: null,
+  // for quest steps, keep track of objects given by setInterval() & setTimeout() to clear them properly & avoid useless calls
+  runningIntervalIds: [],
   runningTimeoutsIds: []
 }
 
@@ -67,6 +68,12 @@ const mutations = {
   },
   clearTimeoutIds(state) {
     state.runningTimeoutsIds = []
+  },
+  addIntervalId(state, intervalId) {
+    state.runningIntervalIds.push(intervalId)
+  },
+  clearIntervalIds(state) {
+    state.runningIntervalIds = []
   }
 }
 
@@ -107,7 +114,10 @@ const actions = {
   setCurrentRun: ({ commit }, run) => commit('setCurrentRun', run),
   // for timeouts handling
   addTimeoutId: ({ commit }, timeoutId) => commit('addTimeoutId', timeoutId),
-  clearTimeoutIds: ({ commit }) => commit('clearTimeoutIds')
+  clearTimeoutIds: ({ commit }) => commit('clearTimeoutIds'),
+  // for intervals handling
+  addIntervalId: ({ commit }, intervalId) => commit('addIntervalId', intervalId),
+  clearIntervalIds: ({ commit }) => commit('clearIntervalIds')
 }
 
 // getters are functions

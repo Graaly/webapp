@@ -1680,7 +1680,7 @@ export default {
       cross.style.display = "block"
       var crossPicture = cross.src
       var self = this
-      setInterval(function() {
+      utils.setInterval(function() {
         if (cross.src === crossPicture) {
           cross.src = (self.step.answers.item.indexOf('statics/') > -1 ? self.step.answers.item : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
           cross.style.borderRadius = '50%'

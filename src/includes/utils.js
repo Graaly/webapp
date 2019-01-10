@@ -195,6 +195,25 @@ var self = {
     }
     store.dispatch('clearTimeoutIds')
   },
+  /**
+   * Works like native setInterval() function, except that it keeps the interval ID
+   * in Vue store for easier cleaning with clearAllIntervals()
+   * @param     {Function}    func        The function to run after the interval
+   * @param     {Number}      duration    The interval duration in milliseconds
+   */
+  setInterval: function (func, duration) {
+    let intervalId = setInterval(func, duration)
+    store.dispatch('addIntervalId', intervalId)
+  },
+  /**
+   * Clear all intervals created in other pages
+   */
+  clearAllIntervals: function () {
+    for (let intervalId of store.state.runningIntervalIds) {
+      clearInterval(intervalId)
+    }
+    store.dispatch('clearIntervalIds')
+  },
   
   /**
    * Clear all notifications
@@ -209,6 +228,7 @@ var self = {
   },
   clearAllRunningProcesses: function() {
     this.clearAllTimeouts()
+    this.clearAllIntervals()
     this.clearAllNotifications()
   },
   
