@@ -2200,7 +2200,7 @@ export default {
   
   /* jigsaw puzzle specific */
   
-  #pieces { padding: 0; margin: 0; width: 100%; background: #777; border: 1px solid #777; display: block; }
+  #pieces { padding: 0; margin: 0; width: 100%; background: #777; display: block; }
   #pieces .piece { display: inline-block; margin: 0; box-shadow: inset 0 0 3px #000; text-align: center; cursor: move; background-repeat: none; }
   
   /* write-text specific */
