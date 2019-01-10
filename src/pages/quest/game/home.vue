@@ -50,7 +50,7 @@
               </p>
             </div>
             <div class="full-width text-center">
-              <q-btn v-if="!(isOwner || isAdmin)" flat :label="$t('label.BackToTheMap')" @click="backToTheMap()" />
+              <q-btn flat :label="$t('label.BackToTheMap')" @click="backToTheMap()" />
               <q-btn v-if="isOwner || isAdmin" flat :label="$t('label.Modify')" @click="modifyQuest()" />
             </div>
           </div>
