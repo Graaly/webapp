@@ -16,7 +16,12 @@ export default {
    * @param   {Object}    filter         example: { questId: 'abcd123' }
    * @param   {Object}    options        Search options accepted by model 'list()' method: sort, limit, etc.
    */
-  list (filter, options) {
-    return Api().get('review/list', { params: { filter: JSON.stringify(filter), options: JSON.stringify(options) } })
+  async list (filter, options) {
+    let result = await Api().get('review/list', { params: { filter: JSON.stringify(filter), options: JSON.stringify(options) } })
+    if (result.status !== 200) {
+      throw new Error('Request ' + result.config.url + ' failed with code ' + result.status + '/' +
+                      result.statusText +'. Data returned: ' + result.data)
+    }
+    return result
   }
 }
