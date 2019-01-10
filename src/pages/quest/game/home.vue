@@ -23,7 +23,7 @@
             </p> &nbsp;
             <div class="text-center">
               <p>
-                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && (isOwner || isAdmin || isRunStarted) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">{{ $t('label.SolveThisQuest') }}</q-btn>
+                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && !isRunFinished && (isOwner || isAdmin || isRunStarted) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">{{ $t('label.SolveThisQuest') }}</q-btn>
                 <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && isRunFinished && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">{{ $t('label.SolveAgainThisQuest') }}</q-btn>
                 <q-btn-dropdown v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
                   <q-list link>
