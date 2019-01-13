@@ -38,7 +38,7 @@
             <q-input type="password" dark color="white" v-model="form.newPassword" :float-label="$t('label.YourNewPassword')" @blur="$v.form.newPassword.$touch" />
             <div class="q-field-bottom" v-if="$v.form.newPassword.$error">
               <div class="q-field-error" v-if="!$v.form.newPassword.required">{{ $t('label.PleaseEnterYourPassword') }}</div>
-              <div class="q-field-error" v-if="!$v.form.newPassword.minLength">{{ $t('label.YourPasswordMustBe6digitsLength') }}</div>
+              <div class="q-field-error" v-if="!$v.form.newPassword.minLength">{{ $t('label.YourPasswordMustBe8digitsLength') }}</div>
               <div class="q-field-error" v-if="!$v.form.newPassword.checkPasswordComplexity">{{ $t('label.PasswordComplexityRule') }}</div>
             </div>
           </q-field>
@@ -290,7 +290,7 @@ export default {
   validations: {
     form: {
       email: { required, email },
-      newPassword: { required, minLength: minLength(6), checkPasswordComplexity }
+      newPassword: { required, minLength: minLength(8), checkPasswordComplexity }
     }
   }
 }
