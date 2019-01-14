@@ -63,10 +63,10 @@
       <q-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-progress>
       <q-tabs v-model="footer.tabSelected">
         <q-tab slot="title" name="info" icon="menu" @click="openInfo()" />
-        <q-tab slot="title" name="inventory" icon="work" @click="openInventory()" />
-        <q-tab slot="title" name="hint" icon="lightbulb outline" :disable="!isHintAvailable()" @click="askForHint()"/>
+        <q-tab slot="title" name="inventory" icon="work" @click="openInventory()" :disable="!inventory.show" />
+        <q-tab slot="title" :class="{'flashing': hint.suggest}" name="hint" icon="lightbulb outline" :disable="!hint.show" @click="askForHint()"/>
         <q-tab slot="title" name="previous" icon="arrow_back" @click="previousStep()" />
-        <q-tab slot="title" name="next" icon="arrow_forward" :disable="!canMoveNextStep && !canPass" @click="nextStep()" />
+        <q-tab slot="title" :class="{'flashing': canMoveNextStep}" name="next" icon="arrow_forward" :disable="!canMoveNextStep && !canPass" @click="nextStep()" />
       </q-tabs>
     </q-layout-footer>
   </div>
@@ -106,11 +106,14 @@ export default {
       },
       inventory: {
         isOpened: false,
-        items: []
+        items: [],
+        show: true
       },
       hint: {
         isOpened: false,
-        label: ""
+        label: "",
+        suggest: false,
+        show: false
       },
       info: {
         isOpened: false,
@@ -218,6 +221,11 @@ export default {
       this.step = step
       this.step.id = step._id
       
+      // display hint
+      if (this.isHintAvailable()) {
+        this.hint.show = true
+      }
+      
       // TODO : manage non continuous path quests
       this.step.nextNumber = this.step.number + 1
       
@@ -254,6 +262,9 @@ export default {
      */
     async trackStepPlayed () {
       this.canMoveNextStep = true
+      this.hint.suggest = false
+      this.hint.show = false
+      this.inventory.show = false
       this.footer.tabSelected = 'next'
     },
     /*
@@ -460,7 +471,15 @@ export default {
       this.closeAllPanels()
     },
     isHintAvailable() {
-      return (this.step && this.step.hint && this.step.hint[this.lang] && this.step.hint[this.lang] !== '')
+      if (this.step && this.step.hint && this.step.hint[this.lang] && this.step.hint[this.lang] !== '') {
+        utils.setTimeout(this.alertOnHint, 12000)
+        return true
+      } else {
+        return false
+      }
+    },
+    alertOnHint() {
+      this.hint.suggest = true
     }
   }
 }

@@ -315,11 +315,11 @@ export default {
       }
     },
     async closeStory() {
+      await this.saveStepPassed()
       if (this.steps[this.currentStep.id].discussions.length - 1 > this.currentStep.discussionId) {
         this.currentStep.discussionId++
         this.moreToValidStep()
       } else {
-        await this.saveStepPassed()
         this.hide = true
         setTimeout(this.emitNext, 500) // should match ".fadeout" transition duration in app.styl 
       }

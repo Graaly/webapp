@@ -4,7 +4,7 @@
       
       <!------------------ TITLE AREA ------------------------>
       
-      <div class="centered" v-show="run.score > 0 || run.reward > 0">    
+      <div class="centered">    
         <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouWin') }}</h2>
         <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.score > 0 || run.reward === 0">{{ run.score }} <q-icon color="white" name="fas fa-trophy" /></h2>
         <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.reward > 0">{{ run.reward }} <q-icon color="white" name="fas fa-bolt" /></h2>
@@ -13,7 +13,7 @@
       
       <!------------------ PROGRESS AREA ------------------------>
       
-      <div class="q-pa-md centered" v-show="run.score > 0">
+      <div class="q-pa-md centered">
         <p class="centered">{{ $t('label.MyLevel') }} : {{ $store.state.user.level }}</p>
         <q-progress :percentage="level.progress" height="30px" color="white"></q-progress>
       </div>

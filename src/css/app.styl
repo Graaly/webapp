@@ -293,12 +293,15 @@ form {
   margin-top: 10px;
   margin-bottom: 20px;
 }
-.bouncing {
-  animation: bounce 0.7s ease infinite;
-}
 
 /////////////////////////////// Animation CSS /////////////////////////////////////
 
+.bouncing {
+  animation: bounce 0.7s ease infinite;
+}
+.flashing {
+  animation: fadeAndScale 0.7s ease infinite;
+}
 .slideInBottom-enter-active, .slideInBottom-leave-active {
   transition: all .3s ease;
 }
@@ -429,6 +432,11 @@ form {
   from {margin-top: 3px;}
   50%  {margin-top: -3px;}
   to   {margin-top: 3px;}
+}
+@keyframes flash{
+  from {visibility: hidden; opacity: 0;}
+  50%  {visibility: visible; opacity: 100;}
+  to   {visibility: hidden; opacity: 0;}
 }
 .fadeout {
   visibility: hidden;

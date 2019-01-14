@@ -573,7 +573,7 @@
       <div class="menu-background"></div>
       <div class="menu row" v-touch-swipe.horizontal="swipeMenu">
         <div class="col-4 centered" @click="openSuccessPage()">
-          <q-btn icon="fingerprint" round color="primary" :class="{'bouncing': warnings.questButton}" />
+          <q-btn icon="playlist_add_check" round color="primary" :class="{'bouncing': warnings.questButton}" />
         </div>
         <div class="col-4 centered" @click="openSearchOptions()">
           <img src="statics/icons/game/menu-main.png" :class="{'bouncing': warnings.mainButton}" />

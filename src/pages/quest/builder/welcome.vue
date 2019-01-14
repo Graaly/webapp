@@ -14,7 +14,8 @@
         </div>
         <div class="q-pa-md" v-html="$t('label.BuilderWelcomeMessage')"></div>
       </div>
-      <q-btn color="primary" class="full-width center" @click="createNewQuest()">{{ $t('label.AcceptTheRules') }}</q-btn>
+      <q-btn color="primary" class="full-width center q-mx-md" @click="createNewQuest()">{{ $t('label.AcceptTheRules') }}</q-btn>
+      <q-btn class="full-width center q-ma-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>
     </div>
   </div>
 </template>
@@ -50,6 +51,12 @@ export default {
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
+    },
+    /*
+     * Cancel creation
+     */
+    async cancel() {
+      this.$router.push('/map')
     }
   }
 }

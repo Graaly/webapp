@@ -121,8 +121,8 @@
         </div>
         <table>
           <tr>
-            <td v-for="(code, index) in playerCode" :key="index" class="text-center" @click="previousCodeAnswer(index)">
-              <q-icon name="keyboard_arrow_up" />
+            <td v-for="(code, index) in playerCode" :key="index" class="text-center">
+              <q-btn color="primary" round icon="keyboard_arrow_up" @click="previousCodeAnswer(index)" />
             </td>
           </tr>
           <tr>
@@ -131,8 +131,8 @@
             </td>
           </tr>
           <tr>
-            <td v-for="(code, index) in playerCode" :key="index" class="text-center" @click="nextCodeAnswer(index)">
-              <q-icon name="keyboard_arrow_down" />
+            <td v-for="(code, index) in playerCode" :key="index" class="text-center">
+              <q-btn color="primary" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" />
             </td>
           </tr>
         </table>
@@ -1221,6 +1221,7 @@ export default {
           
           break
         case 'choose':
+          break
         case 'code-keypad':
         case 'code-color':
         case 'code-image':
@@ -1243,7 +1244,7 @@ export default {
           break
       }
       // advise user to move to next step
-      utils.setTimeout(this.alertToPassToNextStep, 15000)
+      //utils.setTimeout(this.alertToPassToNextStep, 15000)
     },
     /*
      * Send wrong answer 
@@ -2141,7 +2142,10 @@ export default {
     margin: 0;
     box-shadow: 0px 0px 0.1rem 0.1rem #fff;
   }
-  .text { white-space: pre-wrap; }
+  .text { 
+    white-space: pre-wrap; 
+    text-align: justify;
+  }
   .text p { padding: 0.25rem 0; margin: 0; }
   
   #controls {

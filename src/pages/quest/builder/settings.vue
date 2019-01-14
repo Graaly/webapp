@@ -130,6 +130,9 @@
         <p class="centered">
           <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
         </p>
+        <p class="centered q-pa-md" v-if="steps.items && steps.items.length > 3">
+          <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
+        </p>
       
       </q-tab-pane>
       
