@@ -60,7 +60,8 @@ module.exports = function (ctx) {
           path.resolve(__dirname, "src/router"),
           path.resolve(__dirname, "src/services"),
           path.resolve(__dirname, "src/store"),
-          path.resolve(__dirname, ".quasar")
+          path.resolve(__dirname, ".quasar"),
+          path.resolve(__dirname, "node_modules/quasar-framework") // otherwise src/plugins/platform.js is not transpiled and contains ES6 specific code 
         ]
         
         // linter
