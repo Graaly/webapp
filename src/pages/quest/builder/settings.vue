@@ -860,7 +860,7 @@ export default {
         _this.steps.items.splice(removedStepIndex, 1)
         // refresh steps list
         await this.refreshStepsList()
-      })
+      }).catch(() => {})
     },
     /*
      * modify a step

@@ -39,7 +39,7 @@
     
     <!------------------ GEOLOCATION COMPONENT ------------------------>
     
-    <geolocation :interval="5000" :maximumAge="10000" @success="onNewUserPosition($event)" />
+    <geolocation :interval="30000" @success="onNewUserPosition($event)" @error="onUserPositionError()" />
     
     <!------------------ SCORE AREA ------------------------>
     
@@ -792,9 +792,11 @@ export default {
       this.map.infoWindow.isOpen = false
     },
     async onNewUserPosition(position) {
+      let positionNeedsUpdate = (this.user.position === null || this.questList.length === 0)
+      
       this.$set(this.user, 'position', position.coords)
       
-      if (this.questList.length === 0) {
+      if (positionNeedsUpdate) {
         await this.reloadMap()
       }
     },
@@ -1573,6 +1575,9 @@ export default {
       if (this.$store.state.user.story.step === 3) {
         this.story.step = 3
       }
+    },
+    onUserPositionError() {
+      this.user.position = null
     }
   },
   validations: {

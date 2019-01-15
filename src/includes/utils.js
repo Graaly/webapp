@@ -185,6 +185,7 @@ var self = {
   setTimeout: function (func, duration) {
     let timeoutId = setTimeout(func, duration)
     store.dispatch('addTimeoutId', timeoutId)
+    return timeoutId
   },
   /**
    * Clear all timeouts created in other pages
