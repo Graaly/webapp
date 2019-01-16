@@ -120,6 +120,11 @@ export default {
      * @param   {string}    err            Error string
      */
     locationError(err) {
+      // avoids to run this method asynchronously (can happen even after component is set to disabled !)
+      if (this.disabled) {
+        return
+      }
+      
       console.warn('Could not get location')
       console.log(err)
       this.isSupported = true
@@ -135,6 +140,11 @@ export default {
      * @param   {object}    position        Current device position
      */
     locationSuccess(position) {
+      // avoids to run this method asynchronously (can happen even after component is set to disabled !)
+      if (this.disabled) {
+        return
+      }
+      
       this.isSupported = true
       this.isActive = true
       this.nbFails = 0

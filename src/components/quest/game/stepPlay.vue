@@ -304,7 +304,7 @@
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
-    <geolocation ref="geolocation-component" :interval="1000" :maximumAge="0" v-if="step.type == 'geolocation' || step.type == 'locate-item-ar'" @success="onNewUserPosition($event)" :withNavBar="true" />
+    <geolocation ref="geolocation-component" :interval="1000" v-if="step.type == 'geolocation' || step.type == 'locate-item-ar'" @success="onNewUserPosition($event)" :withNavBar="true" />
     
     <!--====================== WIN POINTS ANIMATION =================================-->
     
@@ -444,11 +444,10 @@ export default {
         geolocation: {
           active: false,
           distance: null,
-          direction: null,
           // direction
+          direction: null,
           rawDirection: null,
-          alpha: null,
-          beta: null,
+          waitForNextQuaternionRead: false,
           // for 'locate-item-ar'
           absoluteOrientationSensor: null, 
           target: null,
@@ -544,13 +543,8 @@ export default {
           this.showControls()
         }
         
-        // always reset drawDirectionInterval (used for geolocation steps)
-        let drawDirectionInterval = this.$store.state.questSteps.geolocation.drawDirectionInterval
-        if (drawDirectionInterval !== null) {
-          window.clearInterval(drawDirectionInterval)
-        }
-        this.$store.dispatch('setDrawDirectionInterval', null)
-
+        this.resetDrawDirectionInterval()
+        
         if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'character' || this.step.type === 'new-item') {
           // validate steps with no enigma
           utils.setTimeout(this.checkAnswer, 1000)
@@ -595,17 +589,20 @@ export default {
           // user can pass
           this.$emit('pass')
           
-          if ('ondeviceorientationabsolute' in window) {
-            // chrome specific, see https://developers.google.com/web/updates/2016/03/device-orientation-changes
-            window.addEventListener('deviceorientationabsolute', this.handleOrientation)
-          }  else {
-            // TODO friendly behavior/message for user
-            console.warn("No absolute orientation info is available")
-          }
+          // Start absolute orientation sensor
+          // ---------------------------------
+          // Required to make camera orientation follow device orientation 
+          // It is different from 'deviceorientationabsolute' listener whose values are not
+          // reliable when device is held vertically
+          let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
+          sensor.onerror = event => console.error(event.error.name, event.error.message)
+          sensor.onreading = this.onAbsoluteOrientationSensorReading
+          sensor.start()
+          this.geolocation.absoluteOrientationSensor = sensor
           
           // must store object returned by setInterval() in Vue store instead of component properties,
           // otherwise it is reset when route changes & component is reloaded
-          this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 200))
+          this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
         }
         
         if (this.step.type === 'locate-item-ar' && !this.playerResult) {
@@ -623,17 +620,6 @@ export default {
               console.warn("No camera stream available")
               console.log(err)
             });
-          
-          // Start absolute orientation sensor
-          // ---------------------------------
-          // Required to make camera orientation follow device orientation 
-          // It is different from 'deviceorientationabsolute' listener whose values are not
-          // reliable when device is held vertically
-          let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
-          sensor.onerror = event => console.error(event.error.name, event.error.message)
-          sensor.onreading = this.onAbsoluteOrientationSensorReading
-          sensor.start()
-          this.geolocation.absoluteOrientationSensor = sensor
           
           // Prepare scene to render
           // -----------------------
@@ -1507,21 +1493,10 @@ export default {
       this.cameraStreamEnabled = false
     },
     /*
-     * Check device orientation
-     * @param   {object}    event            Event tracked
-     */
-    handleOrientation(event) {
-      // Chrome support only
-      // TODO Support Safari/iOS using property webkitCompassHeading, see https://developer.apple.com/documentation/webkitjs/deviceorientationevent
-      this.geolocation.alpha = (360 - event.alpha)
-      this.geolocation.direction = (this.geolocation.rawDirection - this.geolocation.alpha + 360) % 360
-      this.geolocation.beta = event.beta
-    },
-    /*
      * Draw direction arrows for geolocation
      */
     drawDirectionArrow() {
-      if (this.geolocation.alpha === null || document.querySelector('.direction-helper canvas') === null || !this.geolocation.active) {
+      if (this.geolocation.direction === null || document.querySelector('.direction-helper canvas') === null || !this.geolocation.active) {
         return
       }
       
@@ -1636,6 +1611,7 @@ export default {
       if (this.step.type === 'geolocation' && this.geolocation.distance <= 20) {
         this.$refs['geolocation-component'].disabled = true
         this.geolocation.active = false
+        this.resetDrawDirectionInterval()
         await this.checkAnswer(current)
       }
     },
@@ -2018,8 +1994,22 @@ export default {
     * when reading a new value from AbsoluteOrientationSensor, update camera rotation so it matches device orientation
     */
     onAbsoluteOrientationSensorReading() {
-      let camera = this.geolocation.target.camera
-      camera.quaternion.fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
+      let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
+      
+      if (this.step.type === 'locate-item-ar') {
+        this.geolocation.target.camera.quaternion = quaternion
+      }
+      
+      // every 100ms, update geolocation direction
+      if (!this.waitForNextQuaternionRead) {
+        let rotationZXY = new THREE.Euler().setFromQuaternion(quaternion, 'ZXY')
+        let rotationXZY = new THREE.Euler().setFromQuaternion(quaternion, 'XZY')
+        let tmpAlpha = (rotationZXY.x < Math.PI / 4 ? rotationZXY.z : rotationXZY.y)
+        let newAlpha = JSON.stringify((360 - utils.radiansToDegrees(tmpAlpha)) % 360)
+        this.geolocation.direction = (this.geolocation.rawDirection - newAlpha + 360) % 360 
+        this.waitForNextQuaternionRead = true
+        utils.setTimeout(() => { this.waitForNextQuaternionRead = false }, 100)
+      }
     },
     /*
     * Detect object touch
@@ -2048,6 +2038,7 @@ export default {
       let intersects = raycaster.intersectObject(object, true)
       
       if (intersects.length > 0 && this.geolocation.canTouchTarget) {
+        this.resetDrawDirectionInterval()
         // stop location watching
         this.$refs['geolocation-component'].disabled = true
         this.geolocation.active = false
@@ -2110,6 +2101,17 @@ export default {
       for (let stream of streams) {
         utils.clearCameraStream(stream)
       }
+    },
+    /*
+    * reset draw direction "interval" (created with setInterval())
+    */
+    resetDrawDirectionInterval() {
+      // always reset drawDirectionInterval (used for geolocation steps)
+      let drawDirectionInterval = this.$store.state.questSteps.geolocation.drawDirectionInterval
+      if (drawDirectionInterval !== null) {
+        window.clearInterval(drawDirectionInterval)
+      }
+      this.$store.dispatch('setDrawDirectionInterval', null)
     }
   }
 }
