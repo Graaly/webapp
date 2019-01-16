@@ -1512,7 +1512,7 @@ export default {
      */
     handleOrientation(event) {
       // Chrome support only
-      // TODO Support Safari/iOS using property webkitCompassHeading, see
+      // TODO Support Safari/iOS using property webkitCompassHeading, see https://developer.apple.com/documentation/webkitjs/deviceorientationevent
       this.geolocation.alpha = (360 - event.alpha)
       this.geolocation.direction = (this.geolocation.rawDirection - this.geolocation.alpha + 360) % 360
       this.geolocation.beta = event.beta
@@ -1634,7 +1634,7 @@ export default {
       }
       
       if (this.step.type === 'geolocation' && this.geolocation.distance <= 20) {
-        this.$refs['geolocation-component'].clearWatch()
+        this.$refs['geolocation-component'].disabled = true
         this.geolocation.active = false
         await this.checkAnswer(current)
       }
@@ -2049,7 +2049,7 @@ export default {
       
       if (intersects.length > 0 && this.geolocation.canTouchTarget) {
         // stop location watching
-        this.$refs['geolocation-component'].clearWatch()
+        this.$refs['geolocation-component'].disabled = true
         this.geolocation.active = false
         // stop camera streams
         this.stopVideoTracks('camera-stream-for-locate-item-ar')
