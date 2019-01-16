@@ -8,7 +8,7 @@
     "showTrick": "no",
     "enabled": true,
     "hasBackgroundImage": "main",
-    "hasOptions": false
+    "hasOptions": true
   },
   {
     "category": "transition",

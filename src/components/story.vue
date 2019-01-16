@@ -1,5 +1,5 @@
 <template>
-  <div class="story fit" v-if="currentStep.id !== null" :class="{fadeout: hide}" style="background: rgba(0,0,0,0.3); height: 100%;">
+  <div class="story fit" v-if="currentStep.id !== null" :class="{fadeout: hide}" style="background: rgba(0,0,0,0.4); height: 100%;">
     <div :style="'position: fixed; bottom: ' + steps[currentStep.id].bottom + 'px;'">
       <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" style="min-height: 5vh" /></div>
       <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh">
@@ -19,6 +19,9 @@
       <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" style="min-height: 20vh" /></div>
       <div class="character">
         <img :src="'statics/icons/story/character' + steps[currentStep.id].discussions[currentStep.discussionId].character + '_attitude1.png'" style="min-height: 30vh" />
+      </div>
+      <div class="fixed-bottom-left q-pa-md">
+        <a class="text-white" @click="skipTutorial">{{ $t('label.SkipTutorial') }}</a>
       </div>
     </div>
   </div>
@@ -311,8 +314,15 @@ export default {
     async saveStepPassed () {
       if (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].hasOwnProperty("nextStep")) {
         this.nextStep = this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].nextStep
+        this.$store.state.user.story.step = this.nextStep
         await UserService.nextStoryStep(this.nextStep)
       }
+    },
+    async skipTutorial () {
+      this.nextStep = 17
+      await UserService.nextStoryStep(this.nextStep)
+      this.$store.state.user.story.step = this.nextStep
+      this.hideStory()
     },
     async closeStory() {
       await this.saveStepPassed()
@@ -320,9 +330,12 @@ export default {
         this.currentStep.discussionId++
         this.moreToValidStep()
       } else {
-        this.hide = true
-        setTimeout(this.emitNext, 500) // should match ".fadeout" transition duration in app.styl 
+        this.hideStory()
       }
+    },
+    async hideStory() {
+      this.hide = true
+      setTimeout(this.emitNext, 500) // should match ".fadeout" transition duration in app.styl 
     },
     emitNext() {
       this.$emit('next', this.nextStep)

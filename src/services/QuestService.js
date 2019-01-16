@@ -7,14 +7,14 @@ export default {
    * @param   {String}    type                type of quest
    */
   listNearest (location, type) {
-    return Api().get('quests/nearest/' + location.lng + '-' + location.lat + '/' + type)
+    return Api().get('quests/nearest/' + location.lng + '-' + location.lat + '/' + type).catch(error => console.log(error.request))
   },
   /*
    * get a quest based on its ID
    * @param   {String}    id                  ID of the quest
    */
   getById (id) {
-    return Api().get('quest/' + id)
+    return Api().get('quest/' + id).catch(error => console.log(error.request))
   },
   /*
    * Find quests based on keyword
@@ -83,21 +83,21 @@ export default {
    * @param   {String}    id                  ID of the user
    */
   countForUser (id) {
-    return Api().get('user/' + id + '/quests/created/count')
+    return Api().get('user/' + id + '/quests/created/count').catch(error => console.log(error.request))
   },
   /*
    * List the quests created by a user
    * @param   {String}    id                  ID of the user
    */
   ListCreatedByAUser (id) {
-    return Api().get('user/' + id + '/quests/created')
+    return Api().get('user/' + id + '/quests/created').catch(error => console.log(error.request))
   },
   /*
    * List the quests played by a user
    * @param   {String}    id                  ID of the user
    */
   ListPlayedByAUser (id) {
-    return Api().get('user/' + id + '/quests/played')
+    return Api().get('user/' + id + '/quests/played').catch(error => console.log(error.request))
   },
   /*
    * Upload a quest picture
@@ -112,7 +112,7 @@ export default {
    * @param   {String}    questId              questId
    */
   listEditors(questId) {
-    return Api().get('quest/' + questId + '/editor/list')  
+    return Api().get('quest/' + questId + '/editor/list').catch(error => console.log(error.request))
   },
   /*
    * Add an editor to a quest

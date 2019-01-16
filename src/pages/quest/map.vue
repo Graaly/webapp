@@ -23,13 +23,36 @@
         <gmap-marker v-show="map.loaded" :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()" @click="openDiscoveryQuest()" />
         <!-- markers tooltips -->
         <gmap-info-window :options="map.infoWindow.options" :position="map.infoWindow.location" :opened="map.infoWindow.isOpen" @closeclick="map.infoWindow.isOpen=false">
-          <div class="infoWindow" v-if="!this.$store.state.user.story || !this.$store.state.user.story.step || this.$store.state.user.story.step > 3">
+          <div class="infoWindow" v-if="!this.$store.state.user.story || this.$store.state.user.story.step > 3">
             <p class="title" v-html="getQuestTitle(currentQuest, true)"></p>
-            <p>{{ $t('label.Difficulty') }} : <img class="image-and-text-aligned" src="statics/icons/game/magnifying-red.png" /><img class="image-and-text-aligned" :src="'statics/icons/game/magnifying-' + ((currentQuest && currentQuest.level === 1) ? 'grey' : 'red') + '.png'" /><img class="image-and-text-aligned" :src="'statics/icons/game/magnifying-' + ((currentQuest && currentQuest.level === 3) ? 'red' : 'grey') + '.png'" /></p>
+            <p class="subtitle">
+              <span v-if="currentQuest && currentQuest.level === 1">{{ $t('label.Easy') }}</span>
+              <span v-if="currentQuest && currentQuest.level === 2">{{ $t('label.Normal') }}</span>
+              <span v-if="currentQuest && currentQuest.level === 3">{{ $t('label.Hard') }}</span>
+              <span v-if="currentQuest && currentQuest.level" class="text-blue-grey-2"> | </span>
+              <span v-if="currentQuest && currentQuest.duration">{{ currentQuest.duration }} {{ $t('label.min') }}</span>
+              <span v-if="currentQuest && currentQuest.duration" class="text-blue-grey-2"> | </span>
+              <span v-if="currentQuest && currentQuest.availablePoints">{{ currentQuest.availablePoints }} {{ $t('label.pts') }}</span>
+              <span v-if="currentQuest && currentQuest.availablePoints && currentQuest.category" class="text-blue-grey-2"> | </span>
+              <span v-if="currentQuest && currentQuest.category">
+                <q-icon name="directions_run" v-if="currentQuest.category === 3" /> <!-- sport -->
+                <q-icon name="local_see" v-if="currentQuest.category === 2" /> <!-- discovery -->
+                <q-icon name="account_balance" v-if="currentQuest.category === 1" /> <!-- culture -->
+                <q-icon name="child_care" v-if="currentQuest.category === 4" /> <!-- children -->
+                <q-icon name="commute" v-if="currentQuest.category === 5" /> <!-- with transport -->
+                <q-icon name="favorite" v-if="currentQuest.category === 6" /> <!-- Love -->
+                <q-icon name="shopping_cart" v-if="currentQuest.category === 7" /> <!-- Shop -->
+                <q-icon name="work" v-if="currentQuest.category === 8" /> <!-- Enterprise -->
+                <q-icon name="highlight" v-if="currentQuest.category === 9" /> <!-- By night -->
+                <q-icon name="landscape" v-if="currentQuest.category === 10" /> <!-- Mountain -->
+                <q-icon name="restaurant" v-if="currentQuest.category === 11" /> <!-- Culinar -->
+                <q-icon name="local_bar" v-if="currentQuest.category === 12" /> <!-- Bars -->
+              </span>
+            </p>
             <q-btn v-if="currentQuest && currentQuest.authorUserId !== $store.state.user._id" @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Play') }}</q-btn>
             <q-btn v-if="currentQuest && currentQuest.authorUserId === $store.state.user._id" @click="$router.push('/quest/settings/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Modify') }}</q-btn>
           </div>
-          <div class="infoWindow" v-if="this.$store.state.user.story && this.$store.state.user.story.step && this.$store.state.user.story.step <= 3">
+          <div class="infoWindow" v-if="this.$store.state.user.story && this.$store.state.user.story.step <= 3">
             <p>{{ $t('label.ClickHereToStartDiscoveryQuest') }}</p>
             <q-btn @click="openDiscoveryQuest()" color="primary">{{ $t('label.Start') }}</q-btn>
           </div>
@@ -43,19 +66,19 @@
     
     <!------------------ SCORE AREA ------------------------>
     
-    <div class="score-box" @click="openRanking">
-      <div class="q-px-md q-pt-md score-text" :class="{'bouncing': warnings.score}">{{ $store.state.user.score }} <q-icon name="fas fa-trophy" /></div>
+    <div class="score-box q-mr-md" @click="openRanking">
+      <div class="q-px-md q-pt-md score-text" :class="{'bouncing': warnings.score}">{{ $store.state.user.score }} <!--<q-icon name="fas fa-trophy" />--></div>
       <div style="width: 100px">
         <div class="centered bg-primary text-white level-box">{{ $t('label.Level') }} {{ $store.state.user.level }}</div>
         <q-progress :percentage="profile.level.progress" stripe height="10px" animate color="primary"></q-progress>
       </div>
     </div>
-    <div class="coin-box">
+    <!--<div class="coin-box">
       <div class="q-pa-md score-text">
         <q-icon name="fas fa-bolt" /> {{ $store.state.user.coins }} 
         <q-icon name="add_circle" v-if="$store.state.user.coins < 200" @click.native="buyCoins()" color="primary" />
       </div>
-    </div>
+    </div>-->
     
     <!--====================== SUCCESS PAGE =================================-->
     
@@ -135,7 +158,7 @@
               </q-item-tile>
             </q-item-main>
             <q-item-side right class="score" v-if="!quest.questData.type || quest.questData.type === 'quest'">
-              {{ quest.score }} <q-icon name="fas fa-trophy" />
+              {{ quest.score }} <!--<q-icon name="fas fa-trophy" />-->
             </q-item-side>
             <q-item-side right class="score" v-if="quest.questData.type && quest.questData.type !== 'quest'">
               {{ quest.reward }} <q-icon name="fas fa-bolt" />
@@ -189,49 +212,52 @@
           <form @submit.prevent="submitProfileChanges()">
             <q-field icon="account circle" :label="$t('label.EditYourInformations')" class="padding-medium">
               <q-field :error="$v.profile.form.name.$error">
-                <q-input v-model="profile.form.name" :stack-label="$t('label.YourName')" placeholder="John Doe" @blur="$v.profile.form.name.$touch" />
+                <q-input v-model="profile.form.name" :stack-label="$t('label.YourName')" placeholder="John Doe" @focus="hideMenu()" @blur="showMenu();$v.profile.form.name.$touch" maxlength="30" />
                 <div class="q-field-bottom" v-if="profile.form.name.$error">
                   <div class="q-field-error" v-if="!profile.form.name.required">{{ $t('label.PleaseEnterYourName') }}</div>
                 </div>
               </q-field>
               <q-field :error="$v.profile.form.email.$error" v-if="profile.userCanChangeEmail">
-                <q-input v-model="profile.form.email" :stack-label="$t('label.YourEmail')" :placeholder="$t('label.emailExample')" @blur="$v.profile.form.email.$touch" />
+                <q-input v-model="profile.form.email" :stack-label="$t('label.YourEmail')" :placeholder="$t('label.emailExample')" @focus="hideMenu()" @blur="showMenu();$v.profile.form.email.$touch" />
                 <div class="q-field-bottom" v-if="profile.form.email.$error">
                   <div class="q-field-error" v-if="!profile.form.email.required">{{ $t('label.PleaseEnterYourEmailAddress') }}</div>
                   <div class="q-field-error" v-if="!profile.form.email.email">{{ $t('label.PleaseEnterAValidEmailAddress') }}</div>
                 </div>
               </q-field>
               <q-field :error="$v.profile.form.phone.$error" v-if="profile.userCanChangePhone">
-                <q-input v-model="profile.form.phone" :stack-label="$t('label.YourPhoneNumber')" :placeholder="$t('label.phoneExample')" @blur="$v.profile.form.phone.$touch" />
+                <q-input v-model="profile.form.phone" :stack-label="$t('label.YourPhoneNumber')" :placeholder="$t('label.phoneExample')" @focus="hideMenu()" @blur="showMenu();$v.profile.form.phone.$touch" />
                 <div class="q-field-bottom" v-if="profile.form.phone.$error">
                   <div class="q-field-error" v-if="!profile.form.phone.checkPhone">{{ $t('label.InvalidPhoneNumber') }}</div>
                 </div>
               </q-field>
               <q-field :error="$v.profile.form.country.$error">
-                <q-select :stack-label="$t('label.YourCountry')" v-model="profile.form.country" :options="profile.countries" />
+                <q-select :stack-label="$t('label.YourCountry')" v-model="profile.form.country" :options="profile.countries" @focus="hideMenu()" @blur="showMenu()" />
                 <div class="q-field-bottom" v-if="profile.form.country.$error">
                    <div class="q-field-error" v-if="!profile.form.country.required">{{ $t('label.PleaseSelectYourCountry') }}</div>
                 </div>
               </q-field>
               <q-field :error="$v.profile.form.zipCode.$error">
-                <q-input v-model="profile.form.zipCode" :stack-label="$t('label.YourZipCode')" placeholder="38500"  />
+                <q-input v-model="profile.form.zipCode" :stack-label="$t('label.YourZipCode')" placeholder="38500" @focus="hideMenu()" @blur="showMenu()" />
                 <div class="q-field-bottom" v-if="profile.form.zipCode.$error">
                   <div class="q-field-error" v-if="!profile.form.zipCode.required">{{ $t('label.PleaseEnterYourZipCode') }}</div>
                 </div>
               </q-field> 
               <q-field>
-                <q-select :stack-label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" @input="changeLanguage" />
+                <q-select :stack-label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" @input="changeLanguage" @focus="hideMenu()" @blur="showMenu()" />
               </q-field> 
               <q-btn color="primary" class="full-width" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
             </q-field>
             <q-field icon="lock" :label="$t('label.ChangeYourPassword')" class="padding-medium" v-if="profile.userCanChangePassword">
               <q-field>
-                <q-input type="password" v-model="profile.form.oldPassword" :stack-label="$t('label.CurrentPassword')" />
+                <q-input type="password" v-model="profile.form.oldPassword" :stack-label="$t('label.CurrentPassword')" @focus="hideMenu()" @blur="showMenu()" />
               </q-field>
               <q-field>
-                <q-input type="password" v-model="profile.form.newPassword" :stack-label="$t('label.NewPassword')" />
+                <q-input type="password" v-model="profile.form.newPassword" :stack-label="$t('label.NewPassword')" @focus="hideMenu()" @blur="showMenu()" />
               </q-field>
               <q-btn color="primary" class="full-width" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
+            </q-field>
+            <q-field icon="help" :label="$t('label.Tutorial')" class="padding-medium">
+              <q-btn class="q-my-md" color="primary" :label="$t('label.IWantToRestartTutorial')" @click="restartTutorial()" />
             </q-field>
             <q-field icon="remove_circle" :label="$t('label.RemoveYourAccount')" class="padding-medium">
               {{ $t('label.RemoveYourAccountDesc') }}
@@ -478,7 +504,7 @@
                   
                 </q-item-main>
                 <q-item-side right class="score" v-if="!quest.questData.type || quest.questData.type === 'quest'">
-                  {{ quest.score }} <q-icon name="fas fa-trophy" />
+                  {{ quest.score }} <!--<q-icon name="fas fa-trophy" />-->
                 </q-item-side>
                 <q-item-side right class="score" v-if="quest.questData.type && quest.questData.type !== 'quest'">
                   {{ quest.reward }} <q-icon name="fas fa-bolt" />
@@ -569,7 +595,7 @@
     
     <!--====================== MENU =================================-->
     
-    <div class="fixed-bottom over-map">
+    <div class="fixed-bottom over-map" v-if="menu.show">
       <div class="menu-background"></div>
       <div class="menu row" v-touch-swipe.horizontal="swipeMenu">
         <div class="col-4 centered" @click="openSuccessPage()">
@@ -705,6 +731,9 @@ export default {
       showSuccess: false,
       showProfile: false,
       showSearch: false,
+      menu: {
+        show: true
+      },
       warnings: {
         lowBattery: false,
         noLocation: false,
@@ -760,21 +789,27 @@ export default {
   computed: {
     google: gmapApi
   },
+  created () {
+    document.addEventListener("backbutton", this.trackCallBackFunction, false);
+  },
   mounted() {
-    // check if profile is complete
-    this.checkIfProfileIsComplete()
-    utils.clearAllRunningProcesses()
-    window.addEventListener("batterylow", this.checkBattery, false);
-    this.checkNetwork()
-    this.startStory()
-    // get current level of user
-    this.profile.level = LevelCompute(this.$store.state.user.score)
+    this.initPage()
     
     this.$nextTick(() => {
       this.isMounted = true
     })
   },
   methods: {
+    async initPage () {
+      // check if profile is complete
+      this.checkIfProfileIsComplete()
+      utils.clearAllRunningProcesses()
+      window.addEventListener("batterylow", this.checkBattery, false);
+      this.checkNetwork()
+      this.startStory()
+      // get current level of user
+      this.profile.level = LevelCompute(this.$store.state.user.score)
+    },
     /*
      * Check if user profile is enough completed to have Graaly work
      */
@@ -1489,6 +1524,10 @@ export default {
     endStory (nextStep) {
       this.story.step = null
       this.$store.state.user.story.step = nextStep
+      // if skip tutorial
+      if (nextStep === 17) {
+        this.reloadMap()
+      }
     },
     /*
      * Close shop
@@ -1573,6 +1612,35 @@ export default {
       if (this.$store.state.user.story.step === 3) {
         this.story.step = 3
       }
+    },
+    /*
+     * Restart tutorial
+     */
+    async restartTutorial () {
+      await UserService.nextStoryStep(0)
+      this.$store.state.user.story.step = 0
+      this.backToMap()
+      
+      await this.initPage()
+    },
+    /*
+     * Show main menu
+     */
+    async showMenu () {
+      this.menu.show = true
+    },
+    /*
+     * Hide main menu
+     */
+    async hideMenu () {
+      var _this = this
+      utils.setTimeout(function() { _this.menu.show = false }, 500)
+    },
+    /*
+     * Prevent mobile player to use back button here
+     */
+    trackCallBackFunction() {
+      return false
     }
   },
   validations: {

@@ -13,8 +13,8 @@
             </div>
             <p v-if="typeof quest.author !== 'undefined' && quest.author.name"><strong>{{ $t('label.Author') }}:</strong> {{ quest.author.name }}</span>
             <p class="medium-icon q-pa-none q-ma-none">
-              <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">{{ quest.availablePoints }} <q-icon name="fas fa-trophy" /></span>
-              <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">0 <q-icon name="fas fa-trophy" /></span>
+              <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">{{ quest.availablePoints }} {{ $t('label.points') }}<!--<q-icon name="fas fa-trophy" />--></span>
+              <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">0 <!--<q-icon name="fas fa-trophy" />--></span>
               <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.reward && quest.reward > 0">{{ quest.reward }} <q-icon name="fas fa-bolt" /></span>
               <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || (isOwner && !isAdmin)) && quest.reward && quest.reward > 0">0 <q-icon name="fas fa-bolt" /></span>
             </p>
@@ -43,7 +43,7 @@
                 </q-btn-dropdown>
                 <button class="q-btn q-btn-item q-btn-rectange bg-primary" v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && !(isOwner || isAdmin || isRunStarted || isRunFinished) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">
                   {{ $t('label.SolveThisQuest') }}<br />
-                  <span v-if="quest.price && quest.price > 0">{{ quest.price }} <q-icon name="fas fa-bolt" /></span>
+                  <!--<span v-if="quest.price && quest.price > 0">{{ quest.price }} <q-icon name="fas fa-bolt" /></span>-->
                 </button>
                 <q-btn v-if="!isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary">{{ $t('label.BuyCoinsToPlay') }}</q-btn>
                 <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary">{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</q-btn>
@@ -72,7 +72,7 @@
               </q-item-tile>
             </q-item-side>
             <q-item-main>
-              <q-item-tile label>{{ rank.name }} ({{ rank.score}} <q-icon name="fas fa-trophy" />)</q-item-tile>
+              <q-item-tile label>{{ rank.name }} ({{ rank.score}} <!--<q-icon name="fas fa-trophy" />-->)</q-item-tile>
             </q-item-main>
             <q-item-side right>
               <q-item-tile avatar>
@@ -210,16 +210,16 @@ export default {
           // check again in 15 seconds
           utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 15000)
           this.geolocationIsSupported = true
-          this.startStory()
+          utils.setTimeout(this.startStory, 4000)
         }, () => {
           this.geolocationIsSupported = false
           utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
-          this.startStory()
+          utils.setTimeout(this.startStory, 4000)
         }, { timeout: 10000, maximumAge: 10000 });
       } else {
         this.geolocationIsSupported = false
         utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
-        this.startStory()
+        utils.setTimeout(this.startStory, 4000)
       }
     },
     /*

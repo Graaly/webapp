@@ -1,11 +1,12 @@
 import ga from '../statics/scripts/analytics.js'
+import store from '../store/index'
 
 export default ({ router }) => {
   router.afterEach((to, from) => {
-console.log(to.path)
-console.log(to.name)
-    ga.logPage(to.path, to.name, '1234')
-    // TODO : get sessionId = userId
-    //ga.logPage(to.path, to.name, sessionId)
+    var userId = 'anonymous'
+    if (store && store.state && store.state.user && store.state.user._id) {
+      userId = store.state.user._id
+    }
+    ga.logPage(to.path, to.name, userId)
   })
 }

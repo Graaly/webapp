@@ -12,7 +12,7 @@
       <form @submit.prevent="formSubmit()">
             
         <q-field :error="$v.form.name.$error" v-if="step === 'generic'">
-          <q-input dark :float-label="$t('label.YourName')" v-model="form.name" @blur="$v.form.name.$touch" />
+          <q-input dark :float-label="$t('label.YourName')" v-model="form.name" @blur="$v.form.name.$touch" maxlength="30" />
           <div class="q-field-bottom" v-if="$v.form.name.$error">
             <div class="q-field-error" v-if="!$v.form.name.required">{{ $t('label.PleaseEnterYourName') }}</div>
           </div>

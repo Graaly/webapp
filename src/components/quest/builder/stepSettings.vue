@@ -346,7 +346,7 @@
         :error-label="$t('label.RequiredField')">
         <q-select :float-label="$t('label.ObjectToUse')" :options="questItemsAsOptions" v-model="selectedStep.form.answerItem" @change="$v.selectedStep.form.answerItem.$touch" />
       </q-field>
-      <div v-if="selectedStep.form.answerItem !== null">
+      <div v-if="selectedStep.form.answerItem">
         {{ $t('label.SelectedObject') }} :
         <img style="width: 100%" :src="(selectedStep.form.answerItem.indexOf('statics/') !== -1 ? selectedStep.form.answerItem : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.answerItem)" />
       </div>
@@ -463,6 +463,9 @@
         </div>
         <div v-if="options.code === 'memory'">
           <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
+        </div>
+        <div v-if="options.code === 'info-text'">
+          <q-input v-model="selectedStep.form.options.initDuration" :float-label="$t('label.DurationBeforeTextAppearAbovePicture')" />
         </div>
         <div class="background-upload" v-show="options.hasBackgroundImage && options.hasBackgroundImage === 'option'">
           <q-btn class="full-width" type="button">
@@ -796,6 +799,10 @@ export default {
       } else if (this.options.code === 'write-text') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.selectedStep.form.answers = ""
+        }
+      } else if (this.options.code === 'info-text') {
+        if (!this.selectedStep.form.options.hasOwnProperty('initDuration')) {
+          this.selectedStep.form.options = { initDuration: 1 }
         }
       } else if (this.options.code === 'image-recognition') {
         if (typeof this.selectedStep.form.answers !== 'string') {
@@ -1279,8 +1286,8 @@ export default {
     async getQuestItemsAsOptions() {
       // load items won on previous steps
       var response = await StepService.listWonObjects(this.questId, this.stepId)
-      if (response) {
-        this.questItems = response
+      if (response && response.data) {
+        this.questItems = response.data
         let options = []
         this.questItems.forEach((item) => {
           options.push({

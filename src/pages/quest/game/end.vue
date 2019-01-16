@@ -6,7 +6,7 @@
       
       <div class="centered">    
         <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouWin') }}</h2>
-        <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.score > 0 || run.reward === 0">{{ run.score }} <q-icon color="white" name="fas fa-trophy" /></h2>
+        <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.score > 0 || run.reward === 0">{{ run.score }} {{ $t('label.points') }} <!--<q-icon color="white" name="fas fa-trophy" />--></h2>
         <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.reward > 0">{{ run.reward }} <q-icon color="white" name="fas fa-bolt" /></h2>
         <!--<router-link to="/help/points" v-show="run.score > 0">{{ $t('label.WhatCanYouDoWithThesePoints') }}</router-link>-->
       </div>
@@ -27,7 +27,7 @@
       <!------------------ REVIEW AREA ------------------------>
       
       <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="showAddReview">
-        <h3 class="size-2">{{ $t('label.ReviewThisQuest') }} (+2 <q-icon color="white" name="fas fa-bolt" />)</h3>
+        <h3 class="size-2">{{ $t('label.ReviewThisQuest') }} <!--(+2 <q-icon color="white" name="fas fa-bolt" />)--></h3>
         <p>{{ $t('label.Rating') + $t('label.Colon') }} <q-rating v-model="rating" :max="5" size="1.5rem" :disable="reviewSent" /></p>
         <p>{{ $t('label.CommentThisQuest') }} ({{ $t('label.Optional') }}){{ $t('label.Colon') }}</p>
         <textarea class="shadowed full-width" v-model="comment" rows="5" :disabled="reviewSent" />
@@ -83,7 +83,7 @@
             </q-item-side>
             <q-item-main>
               <q-item-tile label>{{ rank.name }}</q-item-tile>
-              <q-item-tile sublabel>{{ rank.score}} <q-icon name="fas fa-trophy" /></q-item-tile>
+              <q-item-tile sublabel>{{ rank.score}} {{ $t('label.points') }}<!--<q-icon name="fas fa-trophy" />--></q-item-tile>
             </q-item-main>
             <q-item-side right>
               <q-item-tile avatar>
@@ -276,6 +276,8 @@ export default {
       this.initProgression()
     
       let endStatus = await RunService.endRun(this.run._id)
+console.log("end")
+console.log("endStatus")
       if (endStatus && endStatus.data) {
         // assign computed score
         this.run.score = endStatus.data.score

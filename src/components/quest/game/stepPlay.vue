@@ -308,7 +308,7 @@
     
     <!--====================== WIN POINTS ANIMATION =================================-->
     
-    <div v-show="playerResult === true && score > 0" class="fadein-message">+{{ score }} <q-icon color="white" name="fas fa-trophy" /></div>
+    <div v-show="playerResult === true && score > 0" class="fadein-message">+{{ score }} <!--<q-icon color="white" name="fas fa-trophy" />--></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
     
     <!--====================== STORY =================================-->
@@ -532,7 +532,11 @@ export default {
             //}
             
             // display controls after some seconds to let user see background
-            utils.setTimeout(this.showControls, 1000)
+            if (this.step.options && this.step.options.hasOwnProperty('initDuration')) {
+              utils.setTimeout(this.showControls, parseInt(this.step.options.initDuration, 10) * 1000)
+            } else {
+              utils.setTimeout(this.showControls, 1000)
+            }
           }
         } else {
           background.style.background = 'none'

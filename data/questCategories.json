@@ -1,6 +1,8 @@
 [
-{ "id": 1, "name": "Museum" },
-{ "id": 2, "name": "CityOrDistrict" },
-{ "id": 3, "name": "Countryside" },
-{ "id": 4, "name": "Other" }
+{ "id": 1, "name": "CulturalQuest" },
+{ "id": 2, "name": "DiscoveryQuest" },
+{ "id": 3, "name": "SportQuest" },
+{ "id": 4, "name": "ChildQuest" },
+{ "id": 7, "name": "ShopQuest" },
+{ "id": 13, "name": "Other" }
 ]

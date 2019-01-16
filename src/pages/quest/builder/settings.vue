@@ -477,6 +477,9 @@ export default {
       return !this.isCreation
     }
   },
+  created () {
+    document.addEventListener("backbutton", this.trackCallBackFunction, false);
+  },
   async mounted() {
     utils.clearAllRunningProcesses()
     
@@ -1319,6 +1322,12 @@ export default {
       } else {
         return number <= this.tabs.progress ? creationDoneIcon : creationTodoIcon
       }
+    },
+    /*
+     * Prevent mobile player to use back button here
+     */
+    trackCallBackFunction() {
+      return false
     }
   },
   validations: {
