@@ -1,6 +1,11 @@
 <template>
   <div id="play-view" class="fit">
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
+      
+      <!------------------ COMPONENT TO KEEP THE SCREEN ON ------------------------>
+      <video v-if="step.type === 'geolocation'" id="keep-screen-on" autoplay loop style="width: 0px; height: 0px;">
+        <source src="statics/videos/empty.mp4" type="video/mp4" />
+      </video>
     
       <!------------------ TRANSITION AREA ------------------------>
       
