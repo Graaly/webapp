@@ -41,7 +41,7 @@
               <q-btn color="primary" @click="backToMap">{{ $t('label.LeaveQuest') }}</q-btn>
             </p>
             <p class="q-pb-xl">
-              <q-btn @click="openInfo">{{ $t('label.BackToQuest') }}</q-btn>
+              <q-btn color="secondary" @click="openInfo">{{ $t('label.BackToQuest') }}</q-btn>
             </p>
           </div>
         </div>

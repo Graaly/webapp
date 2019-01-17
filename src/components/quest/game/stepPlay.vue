@@ -327,6 +327,8 @@
 </template>
 
 <script>
+import { colors } from 'quasar'
+
 import StepService from 'services/StepService'
 import simi from 'src/includes/simi' // for image similarity
 import utils from 'src/includes/utils'
@@ -385,7 +387,7 @@ export default {
   },
   computed: {
     directionHelperSize: function () {
-      return this.step && this.step.type === 'locate-item-ar' ? 7 : 10 // in rem
+      return this.step && this.step.type === 'locate-item-ar' ? 9 : 12 // in rem
     }
   },
   mounted () {
@@ -457,7 +459,8 @@ export default {
           absoluteOrientationSensor: null, 
           target: null,
           canSeeTarget: false,
-          canTouchTarget: false
+          canTouchTarget: false,
+          primaryColor: colors.getBrand('primary')
         },
         
         // for step type 'locate-marker'
@@ -1316,33 +1319,41 @@ export default {
       this.playerCode.length = 0
       for (var i = 0; i < ((this.step.options && this.step.options.codeLength && this.step.options.codeLength > 0) ? this.step.options.codeLength : 4); i++) {
         this.playerCode.push(0)
+        this.forceImageRefresh(i)
       }
     },
     /*
      * Display next image in the image code pad
      * @param   {Number}    key            index in the code list array
      */
-    nextCodeAnswer: function(key) {
+    nextCodeAnswer(key) {
       this.playerCode[key]++
       var nbImagesUploaded = this.getNbImageUploadedForCode()
       if (this.playerCode[key] >= nbImagesUploaded) {
         this.playerCode[key] = 0
       }
-      // force src refresh
-      document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + this.step.options.images[this.playerCode[key]].imagePath
+      this.forceImageRefresh(key)
     },
     /*
      * Display the next image in the image code pad
      * @param   {Number}    key            Index in the code list array
      */
-    previousCodeAnswer: function(key) {
+    previousCodeAnswer(key) {
       this.playerCode[key]--
       var nbImagesUploaded = this.getNbImageUploadedForCode()
       if (this.playerCode[key] < 0) {
         this.playerCode[key] = nbImagesUploaded - 1
       }
-      // force src refresh
-      document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + this.step.options.images[this.playerCode[key]].imagePath
+      this.forceImageRefresh(key)
+    },
+    /*
+    * Force image refresh for image code
+    * @param   {Number}    key            Index in the code list array
+    */
+    forceImageRefresh(key) {
+      if (document.getElementById('image-code-' + key) !== null) {
+        document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + this.step.options.images[this.playerCode[key]].imagePath
+      }
     },
     /*
      * Get the number of images for the image code pad
@@ -1526,29 +1537,36 @@ export default {
       
       ctx.translate(arrowCenterX, arrowCenterY)
       
-      ctx.lineWidth = Math.round(20 * this.directionHelperSize / 10)
-      ctx.strokeStyle = '#ff0000'
-      ctx.fillStyle = '#ff0000'
+      ctx.shadowColor = "#000"
+      ctx.shadowBlur = 6
+      ctx.shadowOffsetX = 0
+      ctx.shadowOffsetY = 0
       
+      ctx.lineWidth = 1
+      ctx.fillStyle = this.geolocation.primaryColor
+      ctx.strokeStyle = this.geolocation.primaryColor
+      
+      // circle
+      ctx.lineWidth = Math.round(this.directionHelperSize * 1.5)
       ctx.beginPath()
-      ctx.arc(0, 0, Math.round(h / 2) - 10, 0, 2 * Math.PI)
+      ctx.arc(0, 0, Math.round(h / 2.5) - 10, 0, 2 * Math.PI)
       ctx.stroke()
       
       ctx.rotate(utils.degreesToRadians(this.geolocation.direction))
       
-      ctx.beginPath()
-      ctx.moveTo(0, Math.round(h / 2) - 30)
-      ctx.lineTo(0, -Math.round(h / 2) + 45)
-      ctx.stroke()
-      
+      // arrow
+      let arrowHalfWidth = Math.round(this.directionHelperSize * 0.8)
       ctx.lineWidth = 1
-      
       ctx.beginPath()
-      ctx.moveTo(0, -Math.round(h / 2) + 25)
-      ctx.lineTo(-20, -Math.round(h / 2) + 45)
-      ctx.lineTo(20, -Math.round(h / 2) + 45)
-      ctx.fill()
+      ctx.moveTo(0, -Math.round(h / 2.5) + 25)
+      ctx.lineTo(-20, -Math.round(h / 2.5) + 45)
+      ctx.lineTo(-arrowHalfWidth, -Math.round(h / 2.5) + 45)
+      ctx.lineTo(-arrowHalfWidth, Math.round(h / 2.5) - 25)
+      ctx.lineTo(arrowHalfWidth, Math.round(h / 2.5) - 25)
+      ctx.lineTo(arrowHalfWidth, -Math.round(h / 2.5) + 45)
+      ctx.lineTo(20, -Math.round(h / 2.5) + 45)
       ctx.stroke()
+      ctx.fill()
       
       ctx.restore()
     },
