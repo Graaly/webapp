@@ -265,7 +265,7 @@
           </div>
         </div>
         <div class="target-view" v-show="!playerResult || (playerResult && step.options.is3D)">
-          <canvas id="target-canvas" @click="onTargetCanvasClick"></canvas>
+          <canvas id="target-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
         <img ref="item-image" v-show="playerResult && !step.options.is3D" />
       </div>
@@ -2048,6 +2048,13 @@ export default {
         this.stopVideoTracks('camera-stream-for-locate-item-ar')
         this.checkAnswer()
       }
+    },
+    /*
+    * detect objects when user is "panning" (moving fingertip on screen, then touching a part of the object)
+    * => simulate a "touch/click" event at each panning position
+    */
+    handlePanOnTargetCanvas(event) {
+      this.onTargetCanvasClick({ clientX: event.position.left, clientY: event.position.top, preventDefault: function() {} })
     },
     /*
     * Loads material file and object file into a 3D Model for Three.js
