@@ -1311,33 +1311,41 @@ export default {
       this.playerCode.length = 0
       for (var i = 0; i < ((this.step.options && this.step.options.codeLength && this.step.options.codeLength > 0) ? this.step.options.codeLength : 4); i++) {
         this.playerCode.push(0)
+        this.forceImageRefresh(i)
       }
     },
     /*
      * Display next image in the image code pad
      * @param   {Number}    key            index in the code list array
      */
-    nextCodeAnswer: function(key) {
+    nextCodeAnswer(key) {
       this.playerCode[key]++
       var nbImagesUploaded = this.getNbImageUploadedForCode()
       if (this.playerCode[key] >= nbImagesUploaded) {
         this.playerCode[key] = 0
       }
-      // force src refresh
-      document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + this.step.options.images[this.playerCode[key]].imagePath
+      this.forceImageRefresh(key)
     },
     /*
      * Display the next image in the image code pad
      * @param   {Number}    key            Index in the code list array
      */
-    previousCodeAnswer: function(key) {
+    previousCodeAnswer(key) {
       this.playerCode[key]--
       var nbImagesUploaded = this.getNbImageUploadedForCode()
       if (this.playerCode[key] < 0) {
         this.playerCode[key] = nbImagesUploaded - 1
       }
-      // force src refresh
-      document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + this.step.options.images[this.playerCode[key]].imagePath
+      this.forceImageRefresh(key)
+    },
+    /*
+    * Force image refresh for image code
+    * @param   {Number}    key            Index in the code list array
+    */
+    forceImageRefresh(key) {
+      if (document.getElementById('image-code-' + key) !== null) {
+        document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + this.step.options.images[this.playerCode[key]].imagePath
+      }
     },
     /*
      * Get the number of images for the image code pad
