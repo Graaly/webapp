@@ -1,73 +1,78 @@
 <template>
   <div>
     <div class="dark-background" v-if="!warnings.noNetwork">
-      
-      <!------------------ TITLE AREA ------------------------>
-      
-      <div class="centered">    
-        <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouWin') }}</h2>
-        <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.score > 0 || run.reward === 0">{{ run.score }} {{ $t('label.points') }} <!--<q-icon color="white" name="fas fa-trophy" />--></h2>
-        <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.reward > 0">{{ run.reward }} <q-icon color="white" name="fas fa-bolt" /></h2>
-        <!--<router-link to="/help/points" v-show="run.score > 0">{{ $t('label.WhatCanYouDoWithThesePoints') }}</router-link>-->
+      <div class="bg-primary">
+        <!------------------ TITLE AREA ------------------------>
+        
+        <div class="centered">    
+          <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouWin') }}</h2>
+          <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.score > 0 || run.reward === 0">{{ run.score }} {{ $t('label.points') }} <!--<q-icon color="white" name="fas fa-trophy" />--></h2>
+          <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.reward > 0">{{ run.reward }} <q-icon color="white" name="fas fa-bolt" /></h2>
+          <!--<router-link to="/help/points" v-show="run.score > 0">{{ $t('label.WhatCanYouDoWithThesePoints') }}</router-link>-->
+          <q-icon name="fas fa-award" class="big-icon" />
+          <q-icon name="fas fa-award" class="big-icon q-ml-md" v-if="run.stars > 1" />
+          <q-icon name="fas fa-award" class="big-icon q-ml-md" style="color: #ed555d" v-if="run.stars <= 1" />
+          <q-icon name="fas fa-award" class="big-icon q-ml-md" v-if="run.stars > 2" />
+          <q-icon name="fas fa-award" class="big-icon q-ml-md" style="color: #ed555d" v-if="run.stars <= 2" />
+        </div>
+        
+        <!------------------ PROGRESS AREA ------------------------>
+        
+        <div class="q-pa-md centered">
+          <p class="centered">{{ $t('label.YourLevel') }} : {{ $store.state.user.level }}</p>
+          <q-progress :percentage="level.progress" height="30px" color="white"></q-progress>
+        </div>
+              
+        <!------------------ CHALLENGE FRIENDS AREA ------------------------>
+        
+        <div class="q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.score > 0">
+          <q-btn icon="people" color="tertiary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
+        </div>
+        
+        <!------------------ REVIEW AREA ------------------------>
+        
+        <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="showAddReview">
+          <h3 class="size-2">{{ $t('label.ReviewThisQuest') }} <!--(+2 <q-icon color="white" name="fas fa-bolt" />)--></h3>
+          <p>{{ $t('label.Rating') + $t('label.Colon') }} <q-rating v-model="rating" :max="5" size="1.5rem" :disable="reviewSent" /></p>
+          <p>{{ $t('label.CommentThisQuest') }} ({{ $t('label.Optional') }}){{ $t('label.Colon') }}</p>
+          <textarea class="shadowed full-width" v-model="comment" rows="5" :disabled="reviewSent" />
+          <q-btn class="full-width" color="primary" :label="$t('label.Send')" @click="addReview()" :disabled="reviewSent" />
+        </div>
+        
+        <!------------------ SHARE AREA ------------------------>
+        
+        <!--<div class="share bg-secondary q-mt-md q-ml-md q-mr-md q-pa-sm centered">
+          <h3 class="size-2 q-ma-sm">{{ $t('label.ShareYourSuccess') }}</h3>
+          <ul>
+            <li>
+              <a href="https://www.facebook.com/sharer/sharer.php?u=http://graaly.com" target="_blank">
+                <img src="statics/icons/social-networks/facebook.png" />
+              </a>
+            </li>
+            <li>
+              <a href="https://twitter.com/intent/tweet?text=To%Define&url=http://graaly.com" target="_blank">
+                <img src="statics/icons/social-networks/twitter.png" />
+              </a>
+            </li>
+            <li>
+              <a href="https://plus.google.com/share?url=http://graaly.com" target="_blank">
+                <img src="statics/icons/social-networks/googleplus.png" />
+              </a>
+            </li>
+          </ul>
+        </div>-->
+     
+        <!------------------ BACK TO MAP LINK AREA ------------------------>
+        
+        <div class="back centered q-pa-md bg-primary text-primary">
+          <q-btn class="text-primary bg-white full-width" :label="$t('label.BackToTheMap')" @click="$router.push('/map')" />
+        </div>
+        
       </div>
-      
-      <!------------------ PROGRESS AREA ------------------------>
-      
-      <div class="q-pa-md centered">
-        <p class="centered">{{ $t('label.MyLevel') }} : {{ $store.state.user.level }}</p>
-        <q-progress :percentage="level.progress" height="30px" color="white"></q-progress>
+      <div class="centered bg-warning q-pa-sm" v-if="warnings.noNetwork" @click="loadData()">
+        <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
       </div>
-            
-      <!------------------ CHALLENGE FRIENDS AREA ------------------------>
-      
-      <div class="q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.score > 0">
-        <q-btn icon="people" color="tertiary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
-      </div>
-      
-      <!------------------ REVIEW AREA ------------------------>
-      
-      <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="showAddReview">
-        <h3 class="size-2">{{ $t('label.ReviewThisQuest') }} <!--(+2 <q-icon color="white" name="fas fa-bolt" />)--></h3>
-        <p>{{ $t('label.Rating') + $t('label.Colon') }} <q-rating v-model="rating" :max="5" size="1.5rem" :disable="reviewSent" /></p>
-        <p>{{ $t('label.CommentThisQuest') }} ({{ $t('label.Optional') }}){{ $t('label.Colon') }}</p>
-        <textarea class="shadowed full-width" v-model="comment" rows="5" :disabled="reviewSent" />
-        <q-btn class="full-width" color="primary" :label="$t('label.Send')" @click="addReview()" :disabled="reviewSent" />
-      </div>
-      
-      <!------------------ SHARE AREA ------------------------>
-      
-      <!--<div class="share bg-secondary q-mt-md q-ml-md q-mr-md q-pa-sm centered">
-        <h3 class="size-2 q-ma-sm">{{ $t('label.ShareYourSuccess') }}</h3>
-        <ul>
-          <li>
-            <a href="https://www.facebook.com/sharer/sharer.php?u=http://graaly.com" target="_blank">
-              <img src="statics/icons/social-networks/facebook.png" />
-            </a>
-          </li>
-          <li>
-            <a href="https://twitter.com/intent/tweet?text=To%Define&url=http://graaly.com" target="_blank">
-              <img src="statics/icons/social-networks/twitter.png" />
-            </a>
-          </li>
-          <li>
-            <a href="https://plus.google.com/share?url=http://graaly.com" target="_blank">
-              <img src="statics/icons/social-networks/googleplus.png" />
-            </a>
-          </li>
-        </ul>
-      </div>-->
-   
-      <!------------------ BACK TO MAP LINK AREA ------------------------>
-      
-      <div class="back centered q-pa-md bg-primary text-primary">
-        <q-btn class="text-primary bg-white full-width" :label="$t('label.BackToTheMap')" @click="$router.push('/map')" />
-      </div>
-      
     </div>
-    <div class="centered bg-warning q-pa-sm" v-if="warnings.noNetwork" @click="loadData()">
-      <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
-    </div>
-    
     <!------------------ RANKING AREA ------------------------>
     
     <transition name="slideInBottom">
@@ -209,7 +214,8 @@ export default {
         upgraded: false
       }, 
       run: {
-        score: 0
+        score: 0,
+        stars: 1
       },
       friends: [],
       filteredFriends: [],
@@ -276,12 +282,11 @@ export default {
       this.initProgression()
     
       let endStatus = await RunService.endRun(this.run._id)
-console.log("end")
-console.log("endStatus")
       if (endStatus && endStatus.data) {
         // assign computed score
         this.run.score = endStatus.data.score
         this.run.reward = endStatus.data.reward
+        this.run.stars = endStatus.data.stars
         if (endStatus.data.newBonus && endStatus.data.newBonus !== '') {
           this.run.bonus = endStatus.data.newBonus
           this.showBonus = true

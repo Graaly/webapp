@@ -61,7 +61,7 @@ export default {
             {character: "3", text: "PresentIndicator1", condition: null},
             {character: "3", text: "PresentIndicator2", condition: null},
             {character: "1", text: "MapExplaination1", condition: null},
-            {character: "1", text: "MapExplaination2", condition: null},
+            //{character: "1", text: "MapExplaination2", condition: null},
             {character: "1", text: "MapExplaination3", condition: null},
             {character: "1", text: "StartPlaying", condition: null, nextStep: 3}
           ],

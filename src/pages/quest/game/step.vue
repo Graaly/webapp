@@ -36,7 +36,7 @@
           <div class="text-center bottom-dark-banner q-pb-xl">
             <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title[lang] : $t('label.NoTitle') }}</p>
             <!--<q-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-progress>-->
-            <p class="q-pa-md score-text" v-show="info">{{ $t('label.CurrentScore') }} {{ info.score }} <!--<q-icon color="white" name="fas fa-trophy" />--></p>
+            <p class="q-pa-md score-text" v-show="info">{{ $t('label.CurrentScore') }}: {{ info.score }} <!--<q-icon color="white" name="fas fa-trophy" />--></p>
             <p>
               <q-btn color="primary" @click="backToMap">{{ $t('label.LeaveQuest') }}</q-btn>
             </p>

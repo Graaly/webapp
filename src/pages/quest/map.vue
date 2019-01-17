@@ -110,7 +110,7 @@
               <q-item-main>
                 <q-item-tile label>{{ getQuestTitle(quest, false) }}</q-item-tile>
                 <q-item-tile sublabel v-if="quest.status === 'published'">
-                  <q-rating readonly :value="(quest.rating && quest.rating.rounded) ? quest.rating.rounded : null" color="primary" :max="5" size="1rem" />
+                  <q-rating readonly v-if="quest.rating && quest.rating.rounded" v-model="quest.rating.rounded" color="primary" :max="5" size="1rem" />
                   {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate}}
                 </q-item-tile>
                 <q-item-tile sublabel v-if="quest.status == 'unpublished'">
@@ -153,12 +153,17 @@
               <q-item-tile sublabel v-if="!quest.dateCreated">
                 {{ $t('label.Succeeded') }}
               </q-item-tile>
+              <q-item-tile sublabel v-if="quest.dateCreated && quest.status == 'finished' && quest.score">
+                {{ $t('label.MyScore') }}: {{ quest.score }} <!--<q-icon name="fas fa-trophy" />-->
+              </q-item-tile>
               <q-item-tile sublabel v-if="quest.status == 'in-progress'">
                 {{ $t('label.ContinueThisQuest') }}
               </q-item-tile>
             </q-item-main>
             <q-item-side right class="score" v-if="!quest.questData.type || quest.questData.type === 'quest'">
-              {{ quest.score }} <!--<q-icon name="fas fa-trophy" />-->
+              <q-icon color="warning" name="fas fa-award" />
+              <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="quest.stars > 1" />
+              <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="quest.stars > 2" />
             </q-item-side>
             <q-item-side right class="score" v-if="quest.questData.type && quest.questData.type !== 'quest'">
               {{ quest.reward }} <q-icon name="fas fa-bolt" />
@@ -319,6 +324,11 @@
                     <span v-if="item.type === 'challengeWon'">{{ $t('challenge.' + item.data.name) }}</span>
                   </q-item-tile>
                   <q-item-tile sublabel>
+                    <span v-if="item.data.stars">
+                      <q-icon color="warning" name="fas fa-award" />
+                      <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="item.data.stars > 1" />
+                      <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="item.data.stars > 2" />
+                    </span>
                     {{item.creation.date | formatDate}}
                     <span v-if="item.destination === 'friends'">
                       - 
@@ -403,7 +413,7 @@
 
                   <q-card-title slot="overlay">
                     {{ getQuestTitle(item, true) }}
-                    <q-rating slot="subtitle" v-if="item.rating" v-model="item.rating" color="primary" :max="5" />
+                    <q-rating slot="subtitle" v-if="item.rating && item.rating.rounded" v-model="item.rating.rounded" color="primary" :max="5" />
                     <span slot="right" class="row items-center text-white" v-if="item.distance && item.distance > 0 && item.distance <= 99">
                       <q-icon color="white" name="place" /> {{ item.distance }} {{ $t('label.km') }}
                     </span>
@@ -457,7 +467,7 @@
                 <q-item-main>
                   <q-item-tile label>{{ getQuestTitle(quest, false) }}</q-item-tile>
                   <q-item-tile sublabel v-if="quest.status === 'published'">
-                    <q-rating readonly :value="(quest.rating && quest.rating.rounded) ? quest.rating.rounded : null" color="primary" :max="5" size="1rem" />
+                    <q-rating readonly v-if="quest.rating && quest.rating.rounded" v-model="quest.rating.rounded" color="primary" :max="5" size="1rem" />
                     {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate}}
                   </q-item-tile>
                   
@@ -837,6 +847,7 @@ export default {
     },
     centerOnUserPosition() {
       this.CenterMapOnPosition(this.user.position.latitude, this.user.position.longitude)
+      this.map.zoom = 15
     },
     /*
      * Check battery level
@@ -1039,57 +1050,71 @@ export default {
         this.showProfile = false
       } else {
         // define available actions
-        var actions = [
-          {
-            label: this.$t('label.CenterOnYourPosition'),
-            icon: 'gps_fixed',
-            color: 'primary',
-            handler: () => {
-              this.centerOnUserPosition()
-            }
-          },
-          {
-            label: this.$t('label.BuildAQuestHere'),
-            icon: 'add_location',
-            color: 'primary',
-            handler: () => {
-              this.$router.push('/quest/create')
-            }
-          },
-          {}, // separator
-          {
-            label: this.map.filter === 'best' ? this.$t('label.DisplayAllQuests') : this.$t('label.BestQuests'),
-            icon: this.map.filter === 'best' ? 'place' : 'favorite',
-            color: 'primary',
-            handler: () => {
-              if (this.map.filter === 'best') {
-                this.getQuests('all')
-              } else {
-                this.getQuests('best')
-              }
-            }
-          },
-          {
-            label: this.map.filter === 'easy' ? this.$t('label.DisplayAllQuests') : this.$t('label.OnlyEasy'),
-            icon: this.map.filter === 'easy' ? 'place' : 'child_care',
-            color: 'primary',
-            handler: () => {
-              if (this.map.filter === 'easy') {
-                this.getQuests('all')
-              } else {
-                this.getQuests('easy')
-              }
-            }
-          },
-          {
-            label: this.$t('label.SearchForAQuest'),
-            icon: 'search',
-            color: 'primary',
-            handler: () => {
-              this.openSearch()
-            }
+        var actions = []
+        // center on user position option
+        actions.push({
+          label: this.$t('label.CenterOnYourPosition'),
+          icon: 'gps_fixed',
+          color: 'primary',
+          handler: () => {
+            this.centerOnUserPosition()
           }
-        ]
+        })
+        // build a quest option
+        actions.push({
+          label: this.$t('label.BuildAQuestHere'),
+          icon: 'add_location',
+          color: 'primary',
+          handler: () => {
+            this.$router.push('/quest/create')
+          }
+        })
+        // add separator
+        actions.push({})
+        // return to whole list of quest
+        if (this.map.filter === 'best' || this.map.filter === 'easy') {
+          actions.push({
+            label: this.$t('label.DisplayAllQuests'),
+            icon: 'place',
+            color: 'primary',
+            handler: () => {
+              this.getQuests('all')
+            }
+          })
+          actions.push({})
+        }
+        // best quests option
+        if (this.map.filter !== 'best') {
+          actions.push({
+            label: this.$t('label.BestQuests'),
+            icon: 'favorite',
+            color: 'primary',
+            handler: () => {
+              this.getQuests('best')
+            }
+          })
+        }
+        // easier quests option
+        if (this.map.filter !== 'easy') {
+          actions.push({
+            label: this.$t('label.OnlyEasy'),
+            icon: 'child_care',
+            color: 'primary',
+            handler: () => {
+              this.getQuests('easy')
+            }
+          })
+        }
+        // search for a quest option
+        actions.push({
+          label: this.$t('label.SearchForAQuest'),
+          icon: 'search',
+          color: 'primary',
+          handler: () => {
+            this.openSearch()
+          }
+        })
+        
         // if admin user
         if (this.$store.state.user.isAdmin) {
           actions.push({
