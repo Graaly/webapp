@@ -62,7 +62,7 @@
     
     <!------------------ GEOLOCATION COMPONENT ------------------------>
     
-    <geolocation :interval="30000" @success="onNewUserPosition($event)" @error="onUserPositionError()" />
+    <geolocation ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError()" />
     
     <!------------------ SCORE AREA ------------------------>
     
@@ -834,6 +834,9 @@ export default {
       if (positionNeedsUpdate) {
         await this.reloadMap()
       }
+      
+      // stop watchLocation() geolocation tracking to save some battery
+      this.$refs['geolocation-component'].disabled = true
     },
     centerOnUserPosition() {
       this.CenterMapOnPosition(this.user.position.latitude, this.user.position.longitude)

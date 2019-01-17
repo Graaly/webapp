@@ -304,7 +304,7 @@
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
-    <geolocation ref="geolocation-component" :interval="1000" v-if="step.type == 'geolocation' || step.type == 'locate-item-ar'" @success="onNewUserPosition($event)" :withNavBar="true" />
+    <geolocation ref="geolocation-component" v-if="step.type == 'geolocation' || step.type == 'locate-item-ar'" @success="onNewUserPosition($event)" :withNavBar="true" />
     
     <!--====================== WIN POINTS ANIMATION =================================-->
     
@@ -588,6 +588,8 @@ export default {
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
           // user can pass
           this.$emit('pass')
+          
+          this.$refs['geolocation-component'].disabled = false
           
           // Start absolute orientation sensor
           // ---------------------------------
@@ -2352,7 +2354,7 @@ export default {
   /*
   * direction helper: width and height are computed properties (depending on the current step type)
   */  
-  .direction-helper { position: absolute; bottom: 20vw; left: 0; right: 0; margin-left: auto; margin-right: auto; z-index: 30; min-height: initial !important; }
+  .direction-helper { position: absolute; bottom: 20vw; left: 0; right: 0; margin-left: auto; margin-right: auto; z-index: 30; min-height: initial !important; pointer-events: none; }
   .direction-helper canvas { margin: auto; }
   
 </style>

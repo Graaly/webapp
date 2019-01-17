@@ -1,10 +1,15 @@
 <template>
   <div class="geolocation-layer centered" :class="{'with-nav-bar': withNavBar, 'without-nav-bar': !withNavBar, 'disabled': disabled}" v-if="!isSupported || !isActive">
     <div class="enable-geolocation" v-if="!isActive && askUserToEnableGeolocation">
-      <p class="text-primary">{{ $t('label.PleaseActivateGeolocation') }}</p>
-      <div v-if="nativeSettingsIsEnabled">
-        <q-btn color="primary" @click="openLocationSettings">{{ $t('label.PressHere') }}</q-btn>
-      </div>
+      <p class="text-primary">{{ $t('label.CouldNotRetrieveYourPosition') }}</p>
+      <p>{{ $t('label.PossibleReasons') }}</p>
+      <ul>
+        <li>{{ $t('label.ClosedEnvironment') }}</li>
+        <li>
+          {{ $t('label.GeolocationDisabled') }}
+          <span v-if="nativeSettingsIsEnabled"><br /><q-btn color="primary" @click="openLocationSettings">{{ $t('label.OpenLocationSettings') }}</q-btn></span>
+        </li>
+      </ul>
       <div v-if="!nativeSettingsIsEnabled">
         <div v-if="isChrome">
           <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
@@ -12,10 +17,12 @@
         <div v-if="!isChrome">
           <p v-html="$t('label.HowToActivateGeolocationOnIOs')"></p>
         </div>
+        <!--
         <p>
           {{ $t('label.OnceGeolocationEnabled') }}
           <router-link :to="$route.path + '?_=' + (new Date).getTime()">{{ $t('label.PressHere') }}</router-link>.
         </p>
+        -->
       </div>
     </div>
     <div class="search-geolocation centered" :class="withNavBar ? 'with-nav-bar' : 'without-nav-bar'" v-if="!isActive">
@@ -35,7 +42,6 @@ import utils from 'src/includes/utils'
 export default {
   // name: 'ComponentName',
   props: {
-    interval: Number, // refresh location interval, in ms
     maximumAge: { type: Number, default: 0 },
     withNavBar: { type: Boolean, default: false }
   },
@@ -43,18 +49,24 @@ export default {
     return {
       isSupported: true,
       isActive: false,
-      nativeSettingsIsEnabled: true,
+      nativeSettingsIsEnabled: (window.cordova && window.cordova.plugins.settings),
       userDeniedGeolocation: false,
-      timeoutIds: [],
-      timeoutBetweenFailedAttempts: 5000,
+      timeoutBetweenFailedAttempts: 10000,
       nbFails: 0,
-      disabled: false
+      disabled: false,
+      method: 'watchPosition', // 'watchPosition' or 'getCurrentPosition'
+      // specific to method 'watchPosition'
+      geolocationWatchId: null,
+      // specific to method 'getCurrentPosition' (not currently used)
+      timeoutIds: []
     }
   },
   watch: {
     disabled: function (newVal, oldVal) {
       if (newVal === true) {
-        this.clearLocationTimeouts()
+        this.stopTracking()
+      } else {
+        this.startTracking()
       }
     }
   },
@@ -83,7 +95,7 @@ export default {
         return false;
       }
     },
-    askUserToEnableGeolocation() { return this.nbFails >= 3 || this.userDeniedGeolocation }
+    askUserToEnableGeolocation() { return this.nbFails >= 1 || this.userDeniedGeolocation }
   },
   mounted() {
     if (!navigator || !navigator.geolocation) {
@@ -91,28 +103,29 @@ export default {
       return
     }
     
-    this.getCurrentPosition()
+    this.startTracking()
   },
   beforeDestroy() {
-    utils.clearAllTimeouts()
+    this.stopTracking()
   },
   methods: {
-    getCurrentPosition() {
-      this.clearLocationTimeouts()
-      
+    startTracking() {
       if (this.disabled) {
         return
       }
-    
-      try {
+      
+      if (this.method === 'watchPosition') {
+        this.geolocationWatchId = navigator.geolocation.watchPosition(this.locationSuccess, this.locationError, {
+          enableHighAccuracy: true,
+          timeout: this.timeoutBetweenFailedAttempts,
+          maximumAge: this.maximumAge
+        })
+      } else {
         navigator.geolocation.getCurrentPosition(this.locationSuccess, this.locationError, {
           enableHighAccuracy: true,
           timeout: this.timeoutBetweenFailedAttempts, // fixed timeout of 5s for first attempt => better chances to avoid timeout error
           maximumAge: this.maximumAge
         })
-      } catch (e) {
-        this.isActive = false
-        console.error(e)
       }
     },
     /*
@@ -133,10 +146,20 @@ export default {
       this.userDeniedGeolocation = (err.code === 1) // corresponding to PositionError.PERMISSION_DENIED. works only for webapp mode.
       this.$emit('error')
       
-      this.timeoutIds.push(utils.setTimeout(this.getCurrentPosition, this.timeoutBetweenFailedAttempts))
+      if (this.method === 'watchPosition') {
+        this.stopTracking()
+      }
+      
+      let timeoutId = utils.setTimeout(this.startTracking, this.timeoutBetweenFailedAttempts)
+      
+      if (this.method === 'getCurrentPosition') {
+        this.timeoutIds.push(timeoutId)
+      }
     },
     /*
      * Handle location tracking success
+     * method 'watchPosition' calls locationSuccess() each time a position change has been detected
+     * method 'getCurrentPosition' calls locationSuccess() only once when location has been detected
      * @param   {object}    position        Current device position
      */
     locationSuccess(position) {
@@ -150,18 +173,23 @@ export default {
       this.nbFails = 0
       this.userDeniedGeolocation = false
       this.$emit('success', position)
-      
-      this.timeoutIds.push(utils.setTimeout(this.getCurrentPosition, this.interval))
     },
     /*
      * Forces stop refreshing location
      */
-    clearLocationTimeouts() {
-      if (this.timeoutIds.length > 0) {
-        for (let timeoutId of this.timeoutIds) {
-          clearTimeout(timeoutId)
+    stopTracking() {
+      if (this.method === 'watchPosition') {
+        if (this.geolocationWatchId !== null) {
+          navigator.geolocation.clearWatch(this.geolocationWatchId)
+          this.geolocationWatchId = null
         }
-        this.timeoutIds = []
+      } else {
+        if (this.timeoutIds.length > 0) {
+          for (let timeoutId of this.timeoutIds) {
+            clearTimeout(timeoutId)
+          }
+          this.timeoutIds = []
+        }
       }
     },
     openLocationSettings () {
@@ -193,13 +221,18 @@ export default {
 .geolocation-layer.disabled { display: none !important; }
 
 .enable-geolocation, .geolocation-not-supported {
-  background: white; z-index: 40; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 1rem; height: 100% !important; flex-grow: 1;
+  background: white; z-index: 40; display: flex; align-items: left; justify-content: center; flex-direction: column; padding: 1rem; height: 100% !important; flex-grow: 1;
 }
+
+.enable-geolocation .text-primary { font-weight: bold; }
+.enable-geolocation p { text-align: justify; margin: 0.5rem; }
+.enable-geolocation li { text-align: justify; margin: 0.5rem; }
+.enable-geolocation ul { margin: 0 1rem; padding: 0 }
 
 .search-geolocation { position: absolute; width: 100%; height: 10vw !important; min-height: initial !important;  display: flex; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center; justify-content: center; background: orange; }
 .search-geolocation p { display: flex; margin: 1vw; }
 
 .search-geolocation.without-nav-bar { z-index: 7000; bottom: 0; }
 .search-geolocation.with-nav-bar { z-index: 60; bottom: 4vw; }
-  
+
 </style>
