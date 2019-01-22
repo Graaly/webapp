@@ -197,7 +197,7 @@ export default {
         // step 16 - Start a new quest
         16: {
           discussions: [
-            {character: "1", text: "StartNewQuest1", condition: null},
+            {character: "1", text: "StartNewQuest1", condition: null, link: {label: "NoThanks"}},
             {character: "1", text: "StartNewQuest2", condition: (this.data !== null && this.data.hasOwnProperty("questId")), button: {label: "letsGo", action: "/quest/play/" + ((this.data && this.data.hasOwnProperty("questId")) ? this.data.questId : '0')}, link: {label: "NoThanks"}},
             {character: "1", text: "StartNewQuest3", condition: null}
           ],

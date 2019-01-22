@@ -79,6 +79,7 @@
       <div class="panel-bottom q-pa-md" v-show="ranking.show">
         <a class="float-right no-underline" color="grey" @click="ranking.show = false"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ $t('label.Ranking') }}</h1>
+        <div class="q-pl-md">{{ $t('label.RankingEndIntro') }}</div>
         <q-list>
           <q-item v-for="rank in ranking.items" :key="rank.id" :class="rank.className" >
             <q-item-side>
@@ -103,6 +104,9 @@
             <q-item-side right v-if="rank.isFriend"></q-item-side>
           </q-item>
         </q-list>
+        <div class="centered">
+          <q-btn color="primary" :label="$t('label.CloseEndRanking')" @click="ranking.show = false" />
+        </div>
       </div>
     </transition>
     
@@ -336,14 +340,17 @@ export default {
      * Get the ranking for this quest
      */
     async getRanking() {
-      var scores = await RunService.listPlayersForThisQuest(this.questId)
-      
-      if (scores && scores.data && scores.data.length > 0) {
-        this.ranking.items = scores.data
-        this.ranking.items.sort(this.compareScore)
-        // compute position
-        this.refreshPosition()
-        utils.setTimeout(this.showRanking, 5000)
+      // do not launch with discovery quest
+      if (this.questId !== '5b7303ec4efbcd1f8cb101c6') {
+        var scores = await RunService.listPlayersForThisQuest(this.questId)
+        
+        if (scores && scores.data && scores.data.length > 0) {
+          this.ranking.items = scores.data
+          this.ranking.items.sort(this.compareScore)
+          // compute position
+          this.refreshPosition()
+          utils.setTimeout(this.showRanking, 5000)
+        }
       }
     },
     /*

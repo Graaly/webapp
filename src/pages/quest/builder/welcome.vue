@@ -3,6 +3,7 @@
     <div class="wrapper">
       <h1 class="size-3 centered">{{ $t('label.CreateYourQuest') }}</h1>
       <div class="grow">
+        <!--
         <div class="centered" v-html="$t('label.andWin')"></div>
         <div class="row q-pa-md">
           <div class="col score-text centered">600 <q-icon color="warning" name="fas fa-bolt" /></div>
@@ -12,10 +13,13 @@
             <a @click="openMoneyPopup()">*</a>
           </div>
         </div>
+        -->
         <div class="q-pa-md" v-html="$t('label.BuilderWelcomeMessage')"></div>
       </div>
-      <q-btn color="primary" class="full-width center q-mx-md" @click="createNewQuest()">{{ $t('label.AcceptTheRules') }}</q-btn>
-      <q-btn class="full-width center q-ma-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>
+      <div class="q-px-md">
+        <q-btn color="primary" class="full-width center" @click="createNewQuest()">{{ $t('label.AcceptTheRules') }}</q-btn>
+        <q-btn class="full-width center q-mt-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>
+      </div>
     </div>
   </div>
 </template>

@@ -67,7 +67,7 @@
     <!------------------ SCORE AREA ------------------------>
     
     <div class="score-box q-mr-md" @click="openRanking">
-      <div class="q-px-md q-pt-md score-text" :class="{'bouncing': warnings.score}">{{ $store.state.user.score }} <!--<q-icon name="fas fa-trophy" />--></div>
+      <div class="q-px-md q-pt-md score-text centered" :class="{'bouncing': warnings.score}">{{ $store.state.user.score }}<!--<q-icon name="fas fa-trophy" />--></div>
       <div style="width: 100px">
         <div class="centered bg-primary text-white level-box">{{ $t('label.Level') }} {{ $store.state.user.level }}</div>
         <q-progress :percentage="profile.level.progress" stripe height="10px" animate color="primary"></q-progress>

@@ -19,11 +19,17 @@
         </q-field>
         
         <q-field v-if="step === 'generic'">
-          <q-select dark :float-label="$t('label.YourSex')" v-model="form.sex" :options="sexes" />
+          <q-select dark :float-label="$t('label.YourSex')" v-model="form.sex" :options="sexes" @blur="$v.form.sex.$touch" />
+          <div class="q-field-bottom" v-if="$v.form.sex.$error">
+            <div class="q-field-error" v-if="!$v.form.sex.required">{{ $t('label.PleaseSelectYourSex') }}</div>
+          </div>
         </q-field>
         
         <q-field v-if="step === 'generic'">
-          <q-select dark :float-label="$t('label.YourAge')" v-model="form.age" :options="ages" />
+          <q-select dark :float-label="$t('label.YourAge')" v-model="form.age" :options="ages" @blur="$v.form.age.$touch" />
+          <div class="q-field-bottom" v-if="$v.form.age.$error">
+            <div class="q-field-error" v-if="!$v.form.age.required">{{ $t('label.PleaseSelectYourAge') }}</div>
+          </div>
         </q-field>
       
         <q-field :error="$v.form.country.$error" v-if="step === 'location'">
@@ -129,9 +135,12 @@ export default {
     async formSubmit() {
       switch (this.step) {
         case 'generic':
+          // check if sex and age are set
+          this.$v.form.sex.$touch()
+          this.$v.form.age.$touch()
           // check if name is set
           this.$v.form.name.$touch()
-          if (!this.$v.form.name.$error) {
+          if (!this.$v.form.name.$error && !this.$v.form.sex.$error && !this.$v.form.age.$error) {
             this.step = 'location'
           }
           break
@@ -243,6 +252,8 @@ export default {
       name: { required },
       country: { required },
       zipCode: { required },
+      age: { required },
+      sex: { required },
       password: { required, minLength: minLength(8), checkPasswordComplexity }
     }
   }

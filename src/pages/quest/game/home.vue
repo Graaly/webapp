@@ -64,6 +64,7 @@
       <div class="panel-bottom q-pa-md" v-show="ranking.show">
         <a class="float-right no-underline" color="grey" @click="ranking.show = false"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ $t('label.Ranking') }}</h1>
+        {{ $t('label.RankingIntro') }}
         <q-list>
           <q-item v-for="rank in ranking.items" :key="rank.position" >
             <q-item-side>
@@ -72,7 +73,8 @@
               </q-item-tile>
             </q-item-side>
             <q-item-main>
-              <q-item-tile label>{{ rank.name }} ({{ rank.score}} <!--<q-icon name="fas fa-trophy" />-->)</q-item-tile>
+              <q-item-tile label>{{ rank.name }}</q-item-tile>
+              <q-item-tile sublabel>{{ rank.score}} {{ $t('label.points') }}<!--<q-icon name="fas fa-trophy" />--></q-item-tile>
             </q-item-main>
             <q-item-side right>
               <q-item-tile avatar>
@@ -87,6 +89,9 @@
             <q-item-side right v-if="rank.isFriend"></q-item-side>
           </q-item>
         </q-list>
+        <div class="centered">
+          <q-btn color="primary" :label="$t('label.CloseQuestRanking')" @click="ranking.show = false" />
+        </div>
       </div>
     </transition>
     
@@ -338,20 +343,23 @@ export default {
      * Get the ranking for this quest
      */
     async getRanking() {
-      var scores = await RunService.listPlayersForThisQuest(this.quest._id)
+      // do not show ranking for discovery quest
+      if (this.quest._id !== '5b7303ec4efbcd1f8cb101c6') {
+        var scores = await RunService.listPlayersForThisQuest(this.quest._id)
       
-      if (scores && scores.data && scores.data.length > 0) {
-        this.ranking.items = scores.data
-        this.ranking.items.sort(this.compareScore)
-        // compute position
-        for (var i = 0; i < this.ranking.items.length; i++) {
-          if (i === 0 || this.ranking.items[i].score !== this.ranking.items[i - 1].score) {
-            this.ranking.items[i].position = i + 1
-          } else {
-            this.ranking.items[i].position = this.ranking.items[i - 1].position
+        if (scores && scores.data && scores.data.length > 0) {
+          this.ranking.items = scores.data
+          this.ranking.items.sort(this.compareScore)
+          // compute position
+          for (var i = 0; i < this.ranking.items.length; i++) {
+            if (i === 0 || this.ranking.items[i].score !== this.ranking.items[i - 1].score) {
+              this.ranking.items[i].position = i + 1
+            } else {
+              this.ranking.items[i].position = this.ranking.items[i - 1].position
+            }
           }
+          utils.setTimeout(this.showRanking, 3000)
         }
-        utils.setTimeout(this.showRanking, 3000)
       }
     },
     /*

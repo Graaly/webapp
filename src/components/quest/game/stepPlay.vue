@@ -10,7 +10,7 @@
       <!------------------ TRANSITION AREA ------------------------>
       
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
-        <div id="info-clickable" :class="{ grow: !step.videoStream }">
+        <div id="info-clickable" :class="{ grow: !step.videoStream }" @click="hideControlsTemporaly">
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="video" v-if="step.videoStream">
@@ -55,7 +55,7 @@
       <!------------------ CHOOSE STEP AREA ------------------------>
       
       <div class="choose" v-if="step.type == 'choose'">
-        <div>
+        <div @click="hideControlsTemporaly">
            <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="answers-text" v-if="answerType === 'text'">
@@ -890,6 +890,19 @@ export default {
      */
     showControls () {
       this.controlsAreDisplayed = true // !this.controlsAreDisplayed
+    },
+    /*
+     * Switch controls display
+     */
+    switchControls () {
+      this.controlsAreDisplayed = !this.controlsAreDisplayed
+    },
+    /*
+     * Hide controls temporaly
+     */
+    hideControlsTemporaly () {
+      this.controlsAreDisplayed = false
+      utils.setTimeout(this.showControls, 4000)
     },
     /*
      * Send answer server side 
