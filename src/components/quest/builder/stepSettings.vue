@@ -1368,7 +1368,7 @@ export default {
      * Get the address based on the position
      * @param   {Object}    pos            Position data
      */
-    async fillLocation(pos) {
+    fillLocation(pos) {
       this.selectedStep.form.options.lat = pos.coords.latitude
       this.selectedStep.form.options.lng = pos.coords.longitude
       this.$v.selectedStep.form.options.lat.$touch()

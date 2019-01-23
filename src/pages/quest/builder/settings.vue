@@ -668,7 +668,7 @@ export default {
       // get the current coords
       navigator.geolocation.getCurrentPosition(this.fillLocation, this.getLocationError, {timeout: 5000, maximumAge: 10000})
     },
-    async getLocationError(err) {
+    getLocationError(err) {
       console.log(err)
       this.$q.dialog({
         title: this.$t('label.GeolocationFailed'),
@@ -679,7 +679,7 @@ export default {
      * Get the address based on the position
      * @param   {Object}    pos            Position data
      */
-    async fillLocation(pos) {
+    fillLocation(pos) {
       this.form.fields.location = {lat: pos.coords.latitude, lng: pos.coords.longitude}
       // get the address
       var geocoder = new google.maps.Geocoder();
