@@ -226,6 +226,7 @@ export default {
       
       // display hint
       if (this.isHintAvailable()) {
+        utils.setTimeout(this.alertOnHint, 12000)
         this.hint.show = true
       }
       
@@ -330,6 +331,8 @@ export default {
       if (!this.isHintAvailable()) {
         return
       }
+      // stop suggesting hint if opened
+      this.hint.suggest = false
       if (this.hint.isOpened) {
         this.closeAllPanels()
       } else {
@@ -459,7 +462,7 @@ export default {
      */
     async countStepsNumber(id) {
       let response = await StepService.countForAQuest(id)
-      this.info.stepsNumber = response || 1
+      this.info.stepsNumber = (response && response.data && response.data.count) ? response.data.count : 1
     },
     /*
      * Select an item in the inventory
@@ -475,7 +478,6 @@ export default {
     },
     isHintAvailable() {
       if (this.step && this.step.hint && this.step.hint[this.lang] && this.step.hint[this.lang] !== '') {
-        utils.setTimeout(this.alertOnHint, 12000)
         return true
       } else {
         return false

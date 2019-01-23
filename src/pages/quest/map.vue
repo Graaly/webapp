@@ -160,7 +160,7 @@
                 {{ $t('label.ContinueThisQuest') }}
               </q-item-tile>
             </q-item-main>
-            <q-item-side right class="score" v-if="!quest.questData.type || quest.questData.type === 'quest'">
+            <q-item-side right class="score" v-if="quest.status == 'finished' && (!quest.questData.type || quest.questData.type === 'quest')">
               <q-icon color="warning" name="fas fa-award" />
               <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="quest.stars > 1" />
               <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="quest.stars > 2" />
@@ -171,7 +171,7 @@
           </q-item>
           <q-item v-if="success.quests.played.length === 0 && !warnings.listPlayedQuestsMissing">
             <q-item-main>
-              <q-item-tile label>{{ $t('label.NoQuestPlayed') }}</q-item-tile>
+              <q-item-tile label>{{ $t('label.NoQuestPlayedLong') }}</q-item-tile>
             </q-item-main>
           </q-item>
         </q-list>
@@ -498,23 +498,17 @@
                 <q-item-side v-if="!quest.questData || !quest.questData.picture" :avatar="'statics/profiles/noprofile.png'" />
                 <q-item-main>
                   <q-item-tile label>{{ getQuestTitle(quest.questData, false) }} {{ quest.type }}</q-item-tile>
-                  <q-item-tile sublabel v-if="quest.dateCreated && quest.status == 'finished' && !quest.score">
-                    {{ $t('label.PlayedOn') }} {{quest.dateCreated | formatDate}}
-                  </q-item-tile>
-                  <q-item-tile sublabel v-if="quest.dateCreated && quest.status == 'finished' && quest.score">
-                    {{ $t('label.Succeeded') }} {{quest.dateCreated | formatDate}}
-                  </q-item-tile>
                   <q-item-tile sublabel v-if="!quest.dateCreated">
                     {{ $t('label.Succeeded') }}
                   </q-item-tile>
-                  
-                  <q-item-tile sublabel v-if="quest.status == 'in-progress'">
-                    {{ $t('label.ContinueThisQuest') }}
+                  <q-item-tile sublabel v-if="quest.score">
+                    {{ $t('label.Score') }}: {{ quest.score }} <!--<q-icon name="fas fa-trophy" />-->
                   </q-item-tile>
-                  
                 </q-item-main>
                 <q-item-side right class="score" v-if="!quest.questData.type || quest.questData.type === 'quest'">
-                  {{ quest.score }} <!--<q-icon name="fas fa-trophy" />-->
+                  <q-icon color="warning" name="fas fa-award" />
+                  <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="quest.stars > 1" />
+                  <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="quest.stars > 2" />
                 </q-item-side>
                 <q-item-side right class="score" v-if="quest.questData.type && quest.questData.type !== 'quest'">
                   {{ quest.reward }} <q-icon name="fas fa-bolt" />
@@ -536,7 +530,7 @@
     <q-modal v-model="friends.new.show" class="over-map">
       <a class="float-right no-underline q-pa-md" color="grey" @click="closeAddFriends"><q-icon name="close" class="medium-icon" /></a>
       <h1 class="size-3 q-pl-md">{{ $t('label.AddFriends') }}</h1>
-      <newfriend :load="friends.new.show" @close="closeAddFriends"></newfriend>
+      <newfriend :load="friends.new.show" @close="closeAddFriends" @friendadded="updateFriendsActivity"></newfriend>
     </q-modal>
     
     <!--====================== SHOP PAGE =================================-->
@@ -1588,7 +1582,16 @@ export default {
         await UserService.removeFriend(friendId)
         // TODO: manage network issue with removeFriend
         await this.loadFriends()
+        await this.updateFriendsActivity()
       })
+    },
+    /*
+     * Reset the friends' activity list
+     */
+    async updateFriendsActivity() {
+      this.friends.news.skip = 0
+      this.friends.news.items = []
+      this.friends.news.items.length = 0
     },
     /*
      * Remove user account

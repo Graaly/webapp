@@ -109,6 +109,7 @@ export default {
             Notification(this.$t('label.InvitationSent'), 'success')
           } else {
             Notification(this.$t('label.FriendsAdded'), 'success')
+            this.$emit('friendadded')
           }
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -191,6 +192,7 @@ export default {
           Notification(this.$t('label.InvitationSent'), 'success')
         } else {
           Notification(this.$t('label.FriendsAdded'), 'success')
+          this.$emit('friendadded')
         }
         // hide the user to avoid user add him again as friend
         this.hideUserFromValidatedContacts(friendId)

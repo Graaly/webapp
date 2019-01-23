@@ -705,8 +705,8 @@ export default {
       // initialize step form data when edited
       if (!this.selectedStep.isNew) {
         var response = await StepService.getById(this.stepId)
-        if (response) {
-          Object.assign(this.selectedStep.form, response)
+        if (response && response.data) {
+          Object.assign(this.selectedStep.form, response.data)
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
@@ -718,7 +718,7 @@ export default {
       // compute number of steps
       if (this.selectedStep.form.number === null) {
         var numberOfSteps = await StepService.countForAQuest(this.questId)
-        this.selectedStep.form.number = numberOfSteps ? numberOfSteps + 1 : 1
+        this.selectedStep.form.number = (numberOfSteps && numberOfSteps.data && numberOfSteps.data.count) ? numberOfSteps.data.count + 1 : 1
       }
       
       // define the default title for the step

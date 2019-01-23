@@ -197,7 +197,7 @@ export default {
         // step 16 - Start a new quest
         16: {
           discussions: [
-            {character: "1", text: "StartNewQuest1", condition: null, link: {label: "NoThanks"}},
+            {character: "1", text: "StartNewQuest1", condition: null, link: {label: "NoThanks", action: "close"}},
             {character: "1", text: "StartNewQuest2", condition: (this.data !== null && this.data.hasOwnProperty("questId")), button: {label: "letsGo", action: "/quest/play/" + ((this.data && this.data.hasOwnProperty("questId")) ? this.data.questId : '0')}, link: {label: "NoThanks"}},
             {character: "1", text: "StartNewQuest3", condition: null}
           ],
@@ -342,7 +342,11 @@ export default {
     },
     async linkAction() {
       if (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].link.hasOwnProperty("action")) {
-        this.$router.push(this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].link.action)
+        if (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].link.action === 'close') {
+          this.hideStory()
+        } else {
+          this.$router.push(this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].link.action)
+        }
       } else {
         await this.closeStory()
       }

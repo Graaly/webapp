@@ -258,7 +258,7 @@ export default {
      */
     facebookLogin() {
       // check if hybrid app and if cordova plugin is installed
-      if (facebookConnectPlugin) {
+      if (window.cordova && facebookConnectPlugin) {
         facebookConnectPlugin.login(["public_profile"], this.fbLoginSuccess,
           function loginError () {
             Notification(this.$t('label.TechnicalIssue'), 'error')

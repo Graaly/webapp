@@ -6,21 +6,21 @@ export default {
    * @param   {String}    id                  ID of the run
    */
   getById (id) {
-    return Api().get('run/' + id)
+    return Api().get('run/' + id).catch(error => console.log(error.request))
   },
   /*
    * list runs for a quest and a user
    * @param   {String}    questId                  ID of the quest
    */
   listForAQuest (questId) {
-    return Api().get('run/quest/' + questId)
+    return Api().get('run/quest/' + questId).catch(error => console.log(error.request))
   },
   /*
    * list players that played this quest
    * @param   {String}    questId                  ID of the quest
    */
   listPlayersForThisQuest (questId) {
-    return Api().get('run/quest/' + questId + '/ranking')
+    return Api().get('run/quest/' + questId + '/ranking').catch(error => console.log(error.request))
   },
   /*
    * get a step hint

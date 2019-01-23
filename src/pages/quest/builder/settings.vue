@@ -309,7 +309,7 @@
         <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
         <div class="inventory-items">
           <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-            <img :src="serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture" />
+            <img :src="(item.picture.indexOf('statics/') > -1 ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
             <p>{{ item.title}}</p>
           </div>
         </div>
@@ -478,7 +478,7 @@ export default {
     }
   },
   created () {
-    document.addEventListener("backbutton", this.trackCallBackFunction, false);
+    document.addEventListener("backbutton", this.trackCallBackFunction, false)
   },
   async mounted() {
     utils.clearAllRunningProcesses()
@@ -539,7 +539,7 @@ export default {
         this.tabs.progress = this.quest.creationStep
         // creation in progress => get creator back to the tab where he was
         if (this.tabs.progress <= 4) {
-          this.tabs.selected = this.tabs.list[Math.min(this.tabs.progress + 1, 3)]
+          this.tabs.selected = this.tabs.list[Math.min(this.tabs.progress, 3)]
         }
         
         await this.refreshStepsList()

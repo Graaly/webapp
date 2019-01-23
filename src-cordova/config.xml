@@ -56,6 +56,7 @@
         <splash height="1242" src="res/screen/ios/Default-Landscape-736h.png" width="2208" />
     </platform>
     <allow-navigation href="http://192.168.43.151:8080/index.html" />
+    <preference name="StatusBarOverlaysWebView" value="true" />
     <preference name="StatusBarBackgroundColor" value="#e82a34" />
     <preference name="StatusBarStyle" value="lightcontent" />
     <preference name="Orientation" value="portrait" />

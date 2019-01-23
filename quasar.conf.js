@@ -151,9 +151,14 @@ module.exports = function (ctx) {
         'Loading',
         'Notify'
       ],
-      iconSet: 'fontawesome'
+      iconSet: 'fontawesome',
       // iconSet: ctx.theme.mat ? 'material-icons' : 'ionicons'
       // i18n: 'de' // Quasar language
+      config: {
+        cordova: {
+          backButtonExit: false // prevent user to exit if back button on home page
+        }
+      }
     },
     // animations: 'all' --- includes all animations
     animations: [

@@ -211,7 +211,8 @@ module.exports = {
       PublishedSince: "Publish",
       Unpublished: "Unpublished",
       NoQuestCreated: "No quest created",
-      NoQuestPlayed: "No quet played. To play a quest, return to the map and select a quest near from you!",
+      NoQuestPlayed: "No quet played",
+      NoQuestPlayedLong: "No quet played. To play a quest, return to the map and select a quest near from you!",
       PlayedOn: "Played",
       Succeeded: "Succeeded!",
       ContinueThisQuest: "You have not finished it. Continue?",
@@ -575,12 +576,14 @@ module.exports = {
       YouAlreadyPlayedThisQuest: "You already played this quest (no points to win)",
       YourLevel: "Your level",
       MyScore: "My score",
+      Score: "Score",
       PleaseSelectYourSex: "Please select your sex",
       PleaseSelectYourAge: "Please selection you age",
       RankingIntro: "Here is the best players for this quest",
       CloseQuestRanking: "Back to the quest",
       RankingEndIntro: "Here is your ranking among your friends",
-      CloseEndRanking: "Back to end of the quest"
+      CloseEndRanking: "Back to end of the quest",
+      NoFriendsLong: "You do not have friends yet. To add friends, go back to map, open your profile, and select the friends tab"
     }
   },
   fr: {
@@ -796,7 +799,8 @@ module.exports = {
       PublishedSince: "Publié",
       Unpublished: "Non publié",
       NoQuestCreated: "Aucune enquête créée",
-      NoQuestPlayed: "Aucune enquête résolue. Pour résoudre une enquête, retournez à la carte et cliquez sur une enquête près de chez vous !",
+      NoQuestPlayed: "Aucune enquête résolue",
+      NoQuestPlayedLong: "Aucune enquête résolue. Pour résoudre une enquête, retournez à la carte et cliquez sur une enquête près de chez vous !",
       PlayedOn: "Résolue",
       Succeeded: "Réussi !",
       ContinueThisQuest: "Vous n'êtes pas allé au bout. Continuer ?",
@@ -1160,12 +1164,14 @@ module.exports = {
       YouAlreadyPlayedThisQuest: "Vous avez déjà réussi cette enquête (aucun point à gagner)",
       YourLevel: "Votre niveau",
       MyScore: "Mon score",
+      Score: "Score",
       PleaseSelectYourSex: "Veuillez indiquer votre sexe",
       PleaseSelectYourAge: "Veuillez indiquer votre age",
       RankingIntro: "Voici les meilleurs scores pour cette enquête",
       CloseQuestRanking: "Retour à l'enquête",
       RankingEndIntro: "Voici votre classement parmis vos amis",
-      CloseEndRanking: "Retour à l'enquête"
+      CloseEndRanking: "Retour à l'enquête",
+      NoFriendsLong: "Vous n'avez encore ajouté aucun ami. Pour ajouter des amis, retournez à la carte, puis ouvrez votre profil, et sélectionnez l'onglet Amis"
     }
   }
 }

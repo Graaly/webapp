@@ -116,7 +116,10 @@
       <div class="panel-bottom q-pa-md" v-show="showChallenge">      
         <a class="float-right no-underline" color="grey" @click="closeChallenge"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ $t('label.ChallengeYourFriends') }}</h1>
-        <div>
+        <div v-if="filteredFriends.length === 0">
+          {{ $t('label.NoFriendsLong') }}
+        </div>
+        <div v-if="filteredFriends.length > 0">
           <div class="q-pa-md centered">
             <q-btn color="primary" size="lg" full @click="challengeAll" :label="$t('label.ChallengeAllFriends')" />
           </div>

@@ -23,8 +23,8 @@ export default {
    * @param   {String}    stepId         ID of the step
    */
   async getById (stepId) {
-    let res = await Api().get('step/' + stepId)
-    return res.data
+    let res = await Api().get('step/' + stepId).catch(error => console.log(error.request))
+    return res
   },
   /*
    * get a step by its number
@@ -51,8 +51,8 @@ export default {
    * @param   {String}    questId        ID of the quest
    */
   async countForAQuest(questId) {
-    let res = await Api().get('quest/' + questId + '/steps/count')
-    return res.data.count
+    let res = await Api().get('quest/' + questId + '/steps/count').catch(error => console.log(error.request))
+    return res
   },
   /*
    * Save a step settings (or create if the step is not existing)
