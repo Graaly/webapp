@@ -20,7 +20,7 @@
         <!-- quest markers -->
         <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="setMapIcon(quest)" @click="openQuestSummary(quest, index)" />
         <!-- user markers -->
-        <gmap-marker v-show="map.loaded" :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()" @click="openDiscoveryQuest()" />
+        <gmap-marker v-if="map.loaded" :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()" @click="openDiscoveryQuest()" />
         <!-- markers tooltips -->
         <gmap-info-window :options="map.infoWindow.options" :position="map.infoWindow.location" :opened="map.infoWindow.isOpen" @closeclick="map.infoWindow.isOpen=false">
           <div class="infoWindow" v-if="!this.$store.state.user.story || this.$store.state.user.story.step > 3">
@@ -837,16 +837,14 @@ export default {
       this.map.infoWindow.isOpen = false
     },
     async onNewUserPosition(position) {
-      let positionNeedsUpdate = (this.user.position === null || this.questList.length === 0)
+      //let positionNeedsUpdate = (this.user.position === null || this.questList.length === 0)
       
       this.$set(this.user, 'position', position.coords)
       
-      if (positionNeedsUpdate) {
+      //if (positionNeedsUpdate) {
+      if (!this.map.loaded) {
         await this.reloadMap()
       }
-      
-      // stop watchLocation() geolocation tracking to save some battery
-      this.$refs['geolocation-component'].disabled = true
     },
     centerOnUserPosition() {
       this.CenterMapOnPosition(this.user.position.latitude, this.user.position.longitude)
@@ -975,6 +973,7 @@ export default {
         this.centerOnUserPosition()
       }
       this.$q.loading.hide()
+      this.map.loaded = true
     },
      /*
      * Get the list of quests near the location of the user
