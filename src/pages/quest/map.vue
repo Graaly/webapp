@@ -268,6 +268,8 @@
               {{ $t('label.RemoveYourAccountDesc') }}
               <q-btn class="q-my-md" color="primary" :label="$t('label.IConfirmIWantToRemoveMyAccount')" @click="removeAccount()" />
             </q-field>
+            <div class="centered" v-html="$t('label.TermsAndConditionsLink')"></div>
+            <div class="centered q-mb-xl" v-html="$t('label.PrivacyPolicyLink')"></div>
           </form>
         </q-tab-pane>
         

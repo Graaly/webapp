@@ -47,11 +47,34 @@
         </q-field>
       
         <q-field :error="$v.form.password.$error" v-if="step === 'password'">
-          <q-input dark type="password" v-model="form.password" :float-label="$t('label.YourPassword')"  @blur="$v.form.password.$touch" />
+          <q-input dark type="password" v-model="form.password" :float-label="$t('label.YourPassword')" @blur="$v.form.password.$touch" />
           <div class="q-field-bottom" v-if="$v.form.password.$error">
             <div class="q-field-error" v-if="!$v.form.password.required">{{ $t('label.PleaseEnterYourPassword') }}</div>
             <div class="q-field-error" v-if="!$v.form.password.minLength">{{ $t('label.YourPasswordMustBe8digitsLength') }}</div>
             <div class="q-field-error" v-if="!$v.form.password.checkPasswordComplexity">{{ $t('label.PasswordComplexityRule') }}</div>
+          </div>
+        </q-field>
+        
+        <q-field :error="$v.form.terms.$error" v-if="step === 'password'">
+          <div class="row">
+            <div class="col-2"><q-checkbox dark color="gold" v-model="form.terms" /></div>
+            <div class="col">
+              <span v-html="$t('label.IAgreeTheTermsAndConditions')" />
+              <div class="q-field-bottom" v-if="$v.form.terms.$error">
+                <div class="q-field-error">{{ $t('label.PleaseAgreeTheTermsAndConditions') }}</div>
+              </div>
+            </div>
+          </div>
+        </q-field>
+        <q-field :error="$v.form.privacy.$error" v-if="step === 'password'">
+          <div class="row">
+            <div class="col-2"><q-checkbox dark color="gold" v-model="form.privacy" /></div>
+            <div class="col">
+              <span v-html="$t('label.IAgreeThePrivacyPolicy')" />
+              <div class="q-field-bottom" v-if="$v.form.privacy.$error">
+                <div class="q-field-error">{{ $t('label.PleaseAgreeThePrivacyPolicy') }}</div>
+              </div>
+            </div>
           </div>
         </q-field>
         
@@ -73,15 +96,6 @@
           <q-btn round color="white" text-color="primary" icon="fas fa-chevron-right" :loading="submitting" type="submit" />
         </p>
       </form>
-    
-      <!------------------ PRIVATE DATA AREA ------------------------>
-      
-      <div class="link-below-button" v-if="step === 'generic'">
-        <a @click="showPrivateBox = true">{{ $t('label.HowWeUseYourData') }}</a>
-      </div>
-      <div v-if="showPrivateBox && step === 'generic'">
-        TODO
-      </div>
       
     </div>
   </div>
@@ -89,7 +103,7 @@
 
 <script>
 import AuthService from 'services/AuthService'
-import { required, minLength } from 'vuelidate/lib/validators'
+import { required, minLength, sameAs } from 'vuelidate/lib/validators'
 import Notification from 'plugins/NotifyHelper'
 import checkPasswordComplexity from 'plugins/PasswordComplexity'
 import utils from 'src/includes/utils'
@@ -108,7 +122,9 @@ export default {
         country: '',
         zipCode: '',
         password: '',
-        code: ''
+        code: '',
+        terms: false,
+        privacy: false
       },
       showPrivateBox: false,
       submitting: false,
@@ -155,7 +171,9 @@ export default {
         case 'password':
           // check if password is set
           this.$v.form.password.$touch()
-          if (!this.$v.form.password.$error) {
+          this.$v.form.terms.$touch()
+          this.$v.form.privacy.$touch()
+          if (!this.$v.form.password.$error && !this.$v.form.terms.$error && !this.$v.form.privacy.$error) {
             // sign in user
             let newAccount = {
               name: this.form.name,
@@ -254,6 +272,12 @@ export default {
       zipCode: { required },
       age: { required },
       sex: { required },
+      terms: {
+        sameAs: sameAs(() => true)
+      },
+      privacy: {
+        sameAs: sameAs(() => true)
+      },
       password: { required, minLength: minLength(8), checkPasswordComplexity }
     }
   }

@@ -583,7 +583,13 @@ module.exports = {
       CloseQuestRanking: "Back to the quest",
       RankingEndIntro: "Here is your ranking among your friends",
       CloseEndRanking: "Back to end of the quest",
-      NoFriendsLong: "You do not have friends yet. To add friends, go back to map, open your profile, and select the friends tab"
+      NoFriendsLong: "You do not have friends yet. To add friends, go back to map, open your profile, and select the friends tab",
+      IAgreeTheTermsAndConditions: "I agree the <a target='_blank' href='https://graaly.com/termsandconditions.html'>terms & conditions</a>",
+      PleaseAgreeTheTermsAndConditions: "Please agree the terms & conditions to user Graaly",
+      IAgreeThePrivacyPolicy: "I agree the <a target='_blank' href='https://graaly.com/privacy.html'>privacy policy</a>",
+      PleaseAgreeThePrivacyPolicy: "Please agree the privacy policy to use Graaly",
+      TermsAndConditionsLink: "<a target='_blank' href='https://graaly.com/termsandconditions.html'>Terms & conditions</a>",
+      PrivacyPolicyLink: "<a target='_blank' href='https://graaly.com/privacy.html'>Privacy policy</a>"
     }
   },
   fr: {
@@ -1171,7 +1177,13 @@ module.exports = {
       CloseQuestRanking: "Retour à l'enquête",
       RankingEndIntro: "Voici votre classement parmis vos amis",
       CloseEndRanking: "Retour à l'enquête",
-      NoFriendsLong: "Vous n'avez encore ajouté aucun ami. Pour ajouter des amis, retournez à la carte, puis ouvrez votre profil, et sélectionnez l'onglet Amis"
+      NoFriendsLong: "Vous n'avez encore ajouté aucun ami. Pour ajouter des amis, retournez à la carte, puis ouvrez votre profil, et sélectionnez l'onglet Amis",
+      IAgreeTheTermsAndConditions: "Je suis d'accord avec les <a target='_blank' href='https://graaly.com/cgu.html'>conditions d'utilisation</a>",
+      PleaseAgreeTheTermsAndConditions: "Veuillez accepter les conditions d'utilisation pour utiliser Graaly",
+      IAgreeThePrivacyPolicy: "Je suis d'accord avec la <a target='_blank' href='https://graaly.com/confidentialite.html'>politique de confidentialité</a>",
+      PleaseAgreeThePrivacyPolicy: "Veuillez accepter la politique de confidentialité pour utiliser Graaly",
+      TermsAndConditionsLink: "<a target='_blank' href='https://graaly.com/cgu.html'>Conditions d'utilisation</a>",
+      PrivacyPolicyLink: "<a target='_blank' href='https://graaly.com/confidentialite.html'>Politique de confidentialité</a>"
     }
   }
 }

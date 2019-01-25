@@ -44,7 +44,7 @@ export default {
    */
   getAccount (id) {
     if (id && id !== "me") {
-      return Api().get('user/' + id).catch(error => console.log(error.request))
+      return Api().get('user/' + id + '/profile').catch(error => console.log(error.request))
     } else {
       return Api().get('account').catch(error => console.log(error.request))
     }
