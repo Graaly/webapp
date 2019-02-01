@@ -547,8 +547,11 @@ export default {
             }
           }
         } else {
-          background.style.background = 'none'
-          background.style.backgroundColor = '#fff'
+          // no background on some steps to display camera stream
+          if (this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker') {
+            background.style.background = 'none'
+            background.style.backgroundColor = '#fff'
+          }
           this.showControls()
         }
         
@@ -617,20 +620,26 @@ export default {
         }
         
         if (this.step.type === 'locate-item-ar' && !this.playerResult) {
-          let cameraStream = this.$refs['camera-stream-for-locate-item-ar']
-          // enable rear camera stream
-          // -------------------------
-          navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-            .then((stream) => {
-              cameraStream.srcObject = stream
-              cameraStream.play()
-              this.cameraStreamEnabled = true
-            })
-            .catch((err) => {
-              // TODO friendly behavior/message for user
-              console.warn("No camera stream available")
-              console.log(err)
-            });
+          if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
+            let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
+            CameraPreview.startCamera(options)
+            CameraPreview.show()
+          } else {
+            var cameraStream = this.$refs['camera-stream-for-locate-item-ar']
+            // enable rear camera stream
+            // -------------------------
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+              .then((stream) => {
+                cameraStream.srcObject = stream
+                cameraStream.play()
+                this.cameraStreamEnabled = true
+              })
+              .catch((err) => {
+                // TODO friendly behavior/message for user
+                console.warn("No camera stream available")
+                console.log(err)
+              });
+          }
           
           // Prepare scene to render
           // -----------------------
@@ -775,30 +784,14 @@ export default {
           }
           
           if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
-console.log("test1")
-            let options = {
-              x: 0,
-              y: 0,
-              width: window.screen.width,
-              height: window.screen.height,
-              camera: CameraPreview.CAMERA_DIRECTION.BACK,
-              toBack: false,
-              tapPhoto: false,
-              tapFocus: false,
-              previewDrag: false
-            };
-console.log("test2")
-            CameraPreview.startCamera(options);
-console.log("test3")
-            CameraPreview.show();
-console.log("test4")
+            let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
+            CameraPreview.startCamera(options)
+            CameraPreview.show()
             let sceneCanvas = document.getElementById('marker-canvas')
-console.log("test5")            
             sceneCanvas.height = window.screen.height
             sceneCanvas.width = window.screen.width
-console.log("test6")
+            
             await this.displayMarkers(sceneCanvas)
-console.log("test7")
           } else {
             let cameraStream = this.$refs['camera-stream-for-locate-marker']
             // enable rear camera stream
@@ -817,7 +810,6 @@ console.log("test7")
                   sceneCanvas.width = Math.round(sceneCanvas.height * 4 / 3)
                   
                   await this.displayMarkers(sceneCanvas)
-                  
                 }
               })
               .catch((err) => {
