@@ -97,5 +97,4 @@
     </edit-config>
     <engine name="android" spec="^7.0.0" />
     <engine name="ios" spec="^4.5.5" />
-    <plugin name="cordova-plugin-iosrtc" spec="^4.0.2" />
 </widget>
