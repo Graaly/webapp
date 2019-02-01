@@ -2,10 +2,11 @@
   <div id="play-view" class="fit">
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
       
-      <!------------------ COMPONENT TO KEEP THE SCREEN ON ------------------------>
+      <!------------------ COMPONENT TO KEEP THE SCREEN ON ----------------------
       <video v-if="step.type === 'geolocation'" id="keep-screen-on" autoplay loop style="width: 0px; height: 0px;">
         <source src="statics/videos/empty.mp4" type="video/mp4" />
       </video>
+      -->
     
       <!------------------ TRANSITION AREA ------------------------>
       
@@ -43,7 +44,7 @@
         <div class="fixed-bottom story" style="bottom: 50px">
           <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
           <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
-            <p>{{ getTranslatedText() }}</p>
+            <p class="carrier-return">{{ getTranslatedText() }}</p>
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
@@ -773,98 +774,118 @@ export default {
             }
           }
           
-          let cameraStream = this.$refs['camera-stream-for-locate-marker']
-          // enable rear camera stream
-          // ------------------------- 
-          navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-            .then((stream) => {
-              cameraStream.srcObject = stream
-              cameraStream.play()
-              cameraStream.onloadeddata = async (e) => {
-                this.cameraStreamEnabled = true
-                let sceneCanvas = document.getElementById('marker-canvas')
-                
-                let ratio = cameraStream.videoHeight ? sceneCanvas.clientHeight / cameraStream.videoHeight : 1
-                
-                sceneCanvas.height = cameraStream.videoHeight * ratio
-                sceneCanvas.width = Math.round(sceneCanvas.height * 4 / 3)
-                
-                let renderer = new THREE.WebGLRenderer({
-                  canvas: sceneCanvas,
-                  antialias: true,
-                  alpha: true
-                })
-                          
-                let scene = new THREE.Scene()
-                
-                let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000)
-                scene.add(camera)
-                
-                // --- initialize arToolkitContext ---
-                
-                // create atToolkitContext
-                let arToolkitContext = new THREEx.ArToolkitContext({
-                  cameraParametersUrl: 'statics/markers/camera_para.dat',
-                  detectionMode: 'mono',
-                  maxDetectionRate: 30,
-                  // sampling size, always 4:3 ratio...
-                  canvasWidth: 640,
-                  canvasHeight: 480,
-                  patternRatio: 0.8
-                })
-                // initialize it
-                arToolkitContext.initAsync = promisify(arToolkitContext.init)
-                await arToolkitContext.initAsync()
-                
-                // copy projection matrix to camera
-                camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix())
-                
-                // --- Create an ArMarkerControls ---
-                
-                let markerRoot = new THREE.Group()
-                scene.add(markerRoot)
-                                
-                // build a smoothedControls
-                let arWorldRoot = new THREE.Group()
-                scene.add(arWorldRoot)
-                let arSmoothedControls = new THREEx.ArSmoothedControls(arWorldRoot, {
-                  lerpPosition: 0.4,
-                  lerpQuaternion: 0.3,
-                  lerpScale: 1
-                })
-                
-                // --- add an object in the scene ---
-                
-                // add a transparent plane
-                //let geometry = new THREE.CubeGeometry(1, 1, 1)
-                let geometry = new THREE.PlaneGeometry(1, 1)
-                let material = new THREE.MeshNormalMaterial({ transparent: true, opacity: 0, side: THREE.DoubleSide });
-                let mesh  = new THREE.Mesh(geometry, material)
-                mesh.rotateX(Math.PI / 2)
-                arWorldRoot.add(mesh)
-                arWorldRoot.name = 'markerObject'
-                
-                this.locateMarker.arToolkitContext = arToolkitContext
-                this.locateMarker.arSmoothedControls = arSmoothedControls
-                
-                this.locateMarker.renderer = renderer
-                this.locateMarker.scene = scene
-                this.locateMarker.camera = camera
-                
-                this.locateMarker.markerRoot = markerRoot
-                this.locateMarker.markerCodeAnswer = this.step.answers
-                markersList.forEach((markerCode) => {
-                  this.locateMarker.markerControls[markerCode] = this.createMarkerControl(markerCode)
-                })
-                
-                this.animateMarkerCanvas()
-              }
-            })
-            .catch((err) => {
-              // TODO friendly behavior/message for user
-              console.warn("No camera stream available")
-              console.log(err)
-            });
+          if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
+console.log("test1")
+            let options = {
+              x: 0,
+              y: 0,
+              width: window.screen.width,
+              height: window.screen.height,
+              camera: CameraPreview.CAMERA_DIRECTION.BACK,
+              toBack: false,
+              tapPhoto: false,
+              tapFocus: false,
+              previewDrag: false
+            };
+console.log("test2")
+            CameraPreview.startCamera(options);
+console.log("test3")
+            CameraPreview.show();
+console.log("test4")
+          } else {
+            let cameraStream = this.$refs['camera-stream-for-locate-marker']
+            // enable rear camera stream
+            // ------------------------- 
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+              .then((stream) => {
+                cameraStream.srcObject = stream
+                cameraStream.play()
+                cameraStream.onloadeddata = async (e) => {
+                  this.cameraStreamEnabled = true
+                  let sceneCanvas = document.getElementById('marker-canvas')
+                  
+                  let ratio = cameraStream.videoHeight ? sceneCanvas.clientHeight / cameraStream.videoHeight : 1
+                  
+                  sceneCanvas.height = cameraStream.videoHeight * ratio
+                  sceneCanvas.width = Math.round(sceneCanvas.height * 4 / 3)
+                  
+                  let renderer = new THREE.WebGLRenderer({
+                    canvas: sceneCanvas,
+                    antialias: true,
+                    alpha: true
+                  })
+                            
+                  let scene = new THREE.Scene()
+                  
+                  let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000)
+                  scene.add(camera)
+                  
+                  // --- initialize arToolkitContext ---
+                  
+                  // create atToolkitContext
+                  let arToolkitContext = new THREEx.ArToolkitContext({
+                    cameraParametersUrl: 'statics/markers/camera_para.dat',
+                    detectionMode: 'mono',
+                    maxDetectionRate: 30,
+                    // sampling size, always 4:3 ratio...
+                    canvasWidth: 640,
+                    canvasHeight: 480,
+                    patternRatio: 0.8
+                  })
+                  // initialize it
+                  arToolkitContext.initAsync = promisify(arToolkitContext.init)
+                  await arToolkitContext.initAsync()
+                  
+                  // copy projection matrix to camera
+                  camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix())
+                  
+                  // --- Create an ArMarkerControls ---
+                  
+                  let markerRoot = new THREE.Group()
+                  scene.add(markerRoot)
+                                  
+                  // build a smoothedControls
+                  let arWorldRoot = new THREE.Group()
+                  scene.add(arWorldRoot)
+                  let arSmoothedControls = new THREEx.ArSmoothedControls(arWorldRoot, {
+                    lerpPosition: 0.4,
+                    lerpQuaternion: 0.3,
+                    lerpScale: 1
+                  })
+                  
+                  // --- add an object in the scene ---
+                  
+                  // add a transparent plane
+                  //let geometry = new THREE.CubeGeometry(1, 1, 1)
+                  let geometry = new THREE.PlaneGeometry(1, 1)
+                  let material = new THREE.MeshNormalMaterial({ transparent: true, opacity: 0, side: THREE.DoubleSide });
+                  let mesh  = new THREE.Mesh(geometry, material)
+                  mesh.rotateX(Math.PI / 2)
+                  arWorldRoot.add(mesh)
+                  arWorldRoot.name = 'markerObject'
+                  
+                  this.locateMarker.arToolkitContext = arToolkitContext
+                  this.locateMarker.arSmoothedControls = arSmoothedControls
+                  
+                  this.locateMarker.renderer = renderer
+                  this.locateMarker.scene = scene
+                  this.locateMarker.camera = camera
+                  
+                  this.locateMarker.markerRoot = markerRoot
+                  this.locateMarker.markerCodeAnswer = this.step.answers
+                  markersList.forEach((markerCode) => {
+                    this.locateMarker.markerControls[markerCode] = this.createMarkerControl(markerCode)
+                  })
+                  
+                  this.animateMarkerCanvas()
+                }
+              })
+              .catch((err) => {
+                // TODO friendly behavior/message for user
+                console.warn("No camera stream available")
+                console.log(err)
+              });
+          }
         }
       })
     },
@@ -2188,7 +2209,7 @@ export default {
   .answers-text .q-btn {
     opacity: 0.9;
     background-color: #fff;
-    border-radius: 0.5rem;
+    /*border-radius: 0.5rem;*/
     padding: 0.5rem;
     margin: 0;
     box-shadow: 0px 0px 0.1rem 0.1rem #fff;
@@ -2198,6 +2219,10 @@ export default {
     text-align: justify;
   }
   .text p { padding: 0.25rem 0; margin: 0; }
+  .carrier-return {
+    white-space: pre-wrap; 
+    text-align: justify;
+  }
   
   #controls {
     display: none

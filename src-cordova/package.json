@@ -14,6 +14,7 @@
         "cordova-ios": "^4.5.5",
         "cordova-open-native-settings": "^1.5.2",
         "cordova-plugin-battery-status": "^2.0.2",
+        "cordova-plugin-camera-preview": "^0.10.0",
         "cordova-plugin-compat": "^1.2.0",
         "cordova-plugin-contacts": "^3.0.1",
         "cordova-plugin-facebook4": "^4.0.0",
@@ -48,7 +49,8 @@
                 "APP_NAME": "graaly",
                 "FACEBOOK_ANDROID_SDK_VERSION": "4.38.1"
             },
-            "cordova-plugin-contacts": {}
+            "cordova-plugin-contacts": {},
+            "cordova-plugin-camera-preview": {}
         },
         "platforms": [
             "android",

@@ -9,17 +9,19 @@
     <!------------------ INVENTORY PAGE AREA ------------------------>
     
     <transition name="slideInBottom">
-      <div class="inventory panel-bottom q-pa-md" v-show="inventory.isOpened">
-        <h1>{{ $t('label.Inventory') }}</h1>
-        <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
-          <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
-        </div>
-        <p v-if="inventory.items.length > 0 && !warnings.inventoryMissing">{{ $t('label.InventoryUsage') }}</p>
-        <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
-        <div class="inventory-items">
-          <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-            <img :src="(item.picture.indexOf('statics/') > -1 ? item.picture : serverUrl + '/upload/quest/' + quest.id + '/step/new-item/' + item.picture)" />
-            <p>{{ item.title }}</p>
+      <div>
+        <div class="inventory panel-bottom q-pa-md" v-show="inventory.isOpened">
+          <h1>{{ $t('label.Inventory') }}</h1>
+          <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
+            <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+          </div>
+          <p v-if="inventory.items.length > 0 && !warnings.inventoryMissing">{{ $t('label.InventoryUsage') }}</p>
+          <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
+          <div class="inventory-items">
+            <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
+              <img :src="(item.picture.indexOf('statics/') > -1 ? item.picture : serverUrl + '/upload/quest/' + quest.id + '/step/new-item/' + item.picture)" />
+              <p>{{ item.title }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -529,8 +531,5 @@ export default {
   .actions > div { display: flex; flex-flow: row nowrap; }
   .actions > div > .q-btn { flex-grow: 1; }
   .actions > div > .q-btn:not(:first-child) { flex-grow: 1; margin-left: 1rem; }
-  
-  .inventory-btn { position: fixed; bottom: 0.7rem; left: 0.7rem; z-index: 1; }
-  .inventory-btn img { width: 100%; height: 100%; border-radius: 50%; }
   
 </style>
