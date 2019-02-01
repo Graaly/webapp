@@ -784,9 +784,29 @@ export default {
           }
           
           if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
+var pc = new cordova.plugins.iosrtc.RTCPeerConnection({
+  iceServers: []
+});
+
+cordova.plugins.iosrtc.getUserMedia(
+  // constraints
+  { audio: true, video: true },
+  // success callback
+  function (stream) {
+    console.log('got local MediaStream: ', stream);
+
+    pc.addStream(stream);
+  },
+  // failure callback
+  function (error) {
+    console.error('getUserMedia failed: ', error);
+  }
+);
+            /*
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
             CameraPreview.startCamera(options)
             CameraPreview.show()
+            */
             let sceneCanvas = document.getElementById('marker-canvas')
             sceneCanvas.height = window.screen.height
             sceneCanvas.width = window.screen.width
