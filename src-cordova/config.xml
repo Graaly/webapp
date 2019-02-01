@@ -72,7 +72,7 @@
     <plugin name="cordova-plugin-splashscreen" spec="^5.0.2" />
     <plugin name="cordova-plugin-contacts" spec="^3.0.1" />
     <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
-    <plugin name="phonegap-plugin-media-stream" spec="^1.2.1" />
+    <plugin name="cordova-plugin-iosrtc" spec="https://github.com/BasqueVoIPMafia/cordova-plugin-iosrtc" />
     <plugin name="cordova-plugin-file" spec="^6.0.1" />
     <plugin name="cordova-plugin-file-opener2" spec="^2.0.19" />
     <plugin name="cordova-plugin-facebook4" spec="4.0.0">
