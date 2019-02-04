@@ -280,9 +280,9 @@
       
       <div class="locate-marker" v-if="step.type == 'locate-marker'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-          <video ref="camera-stream-for-locate-marker" v-show="cameraStreamEnabled && !playerResult"></video>
+          <video ref="camera-stream-for-locate-marker"  webkit-playsinline playsinline src="" autoplay v-show="cameraStreamEnabled && !playerResult"></video>
         </transition>
-        <div v-if="locateMarker.layer !== null">
+        <div v-if="locateMarker.layer !== null &&  locateMarker.compliant">
           <transition appear :enter-active-class="'animated ' + locateMarker.layer.animationShow" :leave-active-class="'animated ' + locateMarker.layer.animationHide">
             <img class="locate-marker-layer" :src="'statics/images/find-marker-layers/' + step.options.layerCode + '.png'" v-show="playerResult === null || (playerResult === false && nbTry < 2)" />
           </transition>
@@ -292,12 +292,15 @@
             <p>{{ getTranslatedText() }}</p>
           </div>
         </div>
-        <img class="locate-marker-answer" v-if="playerResult" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
-        <div class="marker-view" v-show="!playerResult">
+        <div v-if="!locateMarker.compliant">
+          {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
+        </div>
+        <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
+        <div class="marker-view" v-show="!playerResult && locateMarker.compliant">
           <canvas id="marker-canvas"></canvas>
         </div>
         <!-- HELP -->
-        <q-btn round size="lg" class="absolute-bottom-left" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
+        <q-btn round size="lg" v-if="locateMarker.compliant" class="absolute-bottom-left" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
         <div class="fixed-bottom over-map" style="height: 100%" v-if="locateMarker.showHelp">
           <story step="help" :data="{help: $t('label.FindMarkerHelp')}" @next="locateMarker.showHelp = false"></story>
         </div>
@@ -475,7 +478,8 @@ export default {
           markerControls: {},
           playerAnswer: '',
           layer: null,
-          showHelp: false
+          showHelp: false,
+          compliant: true
         },
         
         // for step type 'write-text'
@@ -784,35 +788,39 @@ export default {
           }
           
           if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
-var pc = new cordova.plugins.iosrtc.RTCPeerConnection({
-  iceServers: []
-});
+            /* with plugin iosrtc
+              var pc = new cordova.plugins.iosrtc.RTCPeerConnection({
+                iceServers: []
+              });
 
-cordova.plugins.iosrtc.getUserMedia(
-  // constraints
-  { audio: true, video: true },
-  // success callback
-  function (stream) {
-    console.log('got local MediaStream: ', stream);
+              cordova.plugins.iosrtc.getUserMedia(
+                // constraints
+                { audio: true, video: true },
+                // success callback
+                function (stream) {
+                  console.log('got local MediaStream: ', stream);
 
-    pc.addStream(stream);
-  },
-  // failure callback
-  function (error) {
-    console.error('getUserMedia failed: ', error);
-  }
-)
-            /*
+                  pc.addStream(stream);
+                },
+                // failure callback
+                function (error) {
+                  console.error('getUserMedia failed: ', error);
+                }
+              )
+            */
+            this.locateMarker.compliant = false
+            
+            // With plugin Cordova-plugin-camera-preview 
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
             CameraPreview.startCamera(options)
             CameraPreview.show()
-            */
             let sceneCanvas = document.getElementById('marker-canvas')
             sceneCanvas.height = window.screen.height
             sceneCanvas.width = window.screen.width
             
             await this.displayMarkers(sceneCanvas)
           } else {
+            // with plugin phonegap-plugin-media-stream
             let cameraStream = this.$refs['camera-stream-for-locate-marker']
             // enable rear camera stream
             // ------------------------- 

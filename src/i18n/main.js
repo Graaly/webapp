@@ -589,7 +589,8 @@ module.exports = {
       IAgreeThePrivacyPolicy: "I agree the <a target='_blank' href='https://graaly.com/privacy.html'>privacy policy</a>",
       PleaseAgreeThePrivacyPolicy: "Please agree the privacy policy to use Graaly",
       TermsAndConditionsLink: "<a target='_blank' href='https://graaly.com/termsandconditions.html'>Terms & conditions</a>",
-      PrivacyPolicyLink: "<a target='_blank' href='https://graaly.com/privacy.html'>Privacy policy</a>"
+      PrivacyPolicyLink: "<a target='_blank' href='https://graaly.com/privacy.html'>Privacy policy</a>",
+      YourPhoneIsNotCompliantWithThisStepType: "Your device is currently not compliant with this step type. Please apologize for the inconvenience, please move to next step"
     }
   },
   fr: {
@@ -1183,7 +1184,8 @@ module.exports = {
       IAgreeThePrivacyPolicy: "Je suis d'accord avec la <a target='_blank' href='https://graaly.com/confidentialite.html'>politique de confidentialité</a>",
       PleaseAgreeThePrivacyPolicy: "Veuillez accepter la politique de confidentialité pour utiliser Graaly",
       TermsAndConditionsLink: "<a target='_blank' href='https://graaly.com/cgu.html'>Conditions d'utilisation</a>",
-      PrivacyPolicyLink: "<a target='_blank' href='https://graaly.com/confidentialite.html'>Politique de confidentialité</a>"
+      PrivacyPolicyLink: "<a target='_blank' href='https://graaly.com/confidentialite.html'>Politique de confidentialité</a>",
+      YourPhoneIsNotCompliantWithThisStepType: "Votre appareil n'est pour le moment pas compatible avec ce type d'étape. Nous sommes désolé pour ce désagréement, veuillez passer à l'étape suivante"
     }
   }
 }
