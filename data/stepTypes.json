@@ -90,6 +90,21 @@
   },
   {
     "category": "enigma",
+    "code": "touch-object-on-marker",
+    "icon": "qrcode",
+    "title": "TouchObjectOnMarker",
+    "description": "TouchObjectOnMarkerDesc",
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 100,
+      "maxNbCarriageReturns": 3
+    },
+    "hasBackgroundImage": "no",
+    "enabled": true,
+    "hasOptions": true
+  },
+  {
+    "category": "enigma",
     "code": "choose",
     "icon": "list",
     "title": "ChoiceQuestion",

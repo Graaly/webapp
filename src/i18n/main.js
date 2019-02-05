@@ -71,6 +71,8 @@ module.exports = {
       LocateItemARDesc: "Player has to find an geolocated item, visible on his smartphone when he is near.",
       LocateMarker: "Locate a symbol",
       LocateMarkerDesc: "Player has to find a special symbol, printed or shown on a real screen.",
+      TouchObjectOnMarker: "Touch an object on a symbol",
+      TouchObjectOnMarkerDesc: "Player has to find a special symbol, printed or shown on a real screen, and touch an object (in augmented reality) displayed above the symbol.",
       GraalyCharacter: "Graaly character",
       GraalyCharacterDesc: "Make a Graaly character speak (Boss, indicator, ...)"
     },
@@ -665,6 +667,8 @@ module.exports = {
       LocateItemARDesc: "Le joueur doit trouver un objet géolocalisé et visible sur l'écran de son smartphone lorsqu'il se trouve à proximité.",
       LocateMarker: "Trouver un symbole",
       LocateMarkerDesc: "Le joueur doit trouver un symbole spécial, imprimé ou affiché sur un écran.",
+      TouchObjectOnMarker: "Toucher un objet sur un symbole",
+      TouchObjectOnMarkerDesc: "Le joueur doit trouver un symbole spécial, imprimé ou affiché sur un écran, puis toucher un objet (en réalité augmentée) affiché sur le symbole.",
       GraalyCharacter: "Personnage Graaly",
       GraalyCharacterDesc: "Faire parler un personnage Graaly (commissaire, indic, ...)"
     },

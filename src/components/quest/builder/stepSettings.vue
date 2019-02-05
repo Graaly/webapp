@@ -423,9 +423,9 @@
       </div>
     </div>
     
-    <!------------------ STEP : FIND AR MARKER ------------------------>
+    <!------------------ STEPS : FIND AR MARKER, TOUCH OBJECT ON AR MARKER ------------------------>
     
-    <div class="locate-marker" v-if="options.code === 'locate-marker' && typeof selectedStep.form.answers === 'string'">
+    <div class="locate-marker" v-if="(options.code === 'locate-marker' || options.code === 'touch-object-on-marker') && typeof selectedStep.form.answers === 'string'">
       <h2>{{ $t('label.Marker') }}</h2>
       
       <p>
@@ -434,7 +434,12 @@
         <q-btn color="primary" :label="$t('label.Choose')" @click="openChooseMarkerModal()" />
       </p>
       
-      <q-select :float-label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
+      <q-select v-if="options.code === 'locate-marker'" :float-label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
+      
+      <div v-if="options.code === 'touch-object-on-marker'">
+        <q-select v-model="selectedStep.form.options.model" :float-label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
+        <p class="error-label" v-show="$v.selectedStep.form.options && $v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
+      </div>
       
       <q-modal v-model="markerModalOpened">
         <h2>{{ $t('label.ChooseTheMarker') }}</h2>
@@ -611,9 +616,9 @@ export default {
       // for 'locate-item-ar'
       selectModel3DOptions: [],
       
-      // for 'locate-marker'
+      // for 'locate-marker' and 'touch-object-on-marker'
       markerModalOpened: false,
-      layersForMarkersOptions: []
+      layersForMarkersOptions: [] // for 'locate-marker' only
     }
   },
   computed: {
@@ -710,8 +715,11 @@ export default {
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
+      } else {
+        this.selectedStep.form.type = this.options.code
       }
-      
+      console.log('*2*', this.selectedStep.form)
+      console.log('*2.1*', this.options)
       // retrieve step type properties
       this.selectedStep.type = this.getStepType(this.selectedStep.form.type)
       
@@ -884,6 +892,21 @@ export default {
         // default layer = first
         if (!this.selectedStep.form.options.hasOwnProperty('layerCode')) {
           this.$set(this.selectedStep.form.options, 'layerCode', layersForMarkers[0].code)
+        }
+      } else if (this.options.code === 'touch-object-on-marker') {
+        if (typeof this.selectedStep.form.answers !== 'string') {
+          this.$set(this.selectedStep.form, 'answers', markersList[0])
+        }
+        // create options for 3D Model selection
+        for (let key in modelsList) {
+          this.selectModel3DOptions.push({ label: modelsList[key].name[this.$store.state.user.language], value: key })
+        }
+        // sort options in alphabetical order
+        this.selectModel3DOptions = this.selectModel3DOptions.sort((a, b) => {
+          return a.label.localeCompare(b.label)
+        })
+        if (!this.selectedStep.form.options.hasOwnProperty('model')) {
+          this.$set(this.selectedStep.form.options, 'model', null)
         }
       }
       
@@ -1509,6 +1532,9 @@ export default {
           fieldsToValidate.options.picture = { required }
         }
         break
+      case 'touch-object-on-marker':
+        fieldsToValidate.option = { model: { required } }
+        break
     }
     
     return { selectedStep: { form: fieldsToValidate } }
@@ -1550,7 +1576,7 @@ p { margin-bottom: 0.5rem; }
 .locate-item-ar .q-radio { padding:0.5rem 1rem; }
 
 .locate-marker p, .modal .q-btn { display: flex; align-items: center; }
-.locate-marker p img, .modal .q-btn img { width: 20vw; height: 20vw; flex-grow: 0 }
+.locate-marker p img,  .modal .q-btn img { width: 20vw; height: 20vw; flex-grow: 0 }
 .locate-marker p span, .modal .q-btn span { flex-grow: 1; color: #000; }
 .locate-marker p .q-btn { flex-grow: 0 }
 
