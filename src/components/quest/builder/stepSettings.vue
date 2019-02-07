@@ -718,8 +718,6 @@ export default {
       } else {
         this.selectedStep.form.type = this.options.code
       }
-      console.log('*2*', this.selectedStep.form)
-      console.log('*2.1*', this.options)
       // retrieve step type properties
       this.selectedStep.type = this.getStepType(this.selectedStep.form.type)
       
@@ -1533,7 +1531,7 @@ export default {
         }
         break
       case 'touch-object-on-marker':
-        fieldsToValidate.option = { model: { required } }
+        fieldsToValidate.options = { model: { required } }
         break
     }
     

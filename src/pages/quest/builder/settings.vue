@@ -1029,7 +1029,6 @@ export default {
       this.steps.showNewStepPage = false
       // to trigger step type change
       this.stepId = '0'
-      console.log('*3*', this.steps.new.type)
       this.steps.showNewStepPageSettings = true
       // move to top
       this.moveToTop()
