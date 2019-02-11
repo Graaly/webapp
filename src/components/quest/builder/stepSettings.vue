@@ -1664,7 +1664,7 @@ export default {
         }
         break
       case 'touch-object-on-marker':
-        fieldsToValidate.option = { model: { required } }
+        fieldsToValidate.options = { model: { required } }
         break
     }
     
