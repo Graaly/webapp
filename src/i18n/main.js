@@ -74,7 +74,9 @@ module.exports = {
       TouchObjectOnMarker: "Touch an object on a symbol",
       TouchObjectOnMarkerDesc: "Player has to find a special symbol, printed or shown on a real screen, and touch an object (in augmented reality) displayed above the symbol.",
       GraalyCharacter: "Graaly character",
-      GraalyCharacterDesc: "Make a Graaly character speak (Boss, indicator, ...)"
+      GraalyCharacterDesc: "Make a Graaly character speak (Boss, indicator, ...)",
+      EndOfChapter: "End of chapter",
+      EndOfChapterDesc: "This transition send player to next chapter"
     },
     layersForMarkers: {
       Magnifier: 'Magnifier',
@@ -592,7 +594,27 @@ module.exports = {
       PleaseAgreeThePrivacyPolicy: "Please agree the privacy policy to use Graaly",
       TermsAndConditionsLink: "<a target='_blank' href='https://graaly.com/termsandconditions.html'>Terms & conditions</a>",
       PrivacyPolicyLink: "<a target='_blank' href='https://graaly.com/privacy.html'>Privacy policy</a>",
-      YourPhoneIsNotCompliantWithThisStepType: "Your device is currently not compliant with this step type. Please apologize for the inconvenience, please move to next step"
+      YourPhoneIsNotCompliantWithThisStepType: "Your device is currently not compliant with this step type. Please apologize for the inconvenience, please move to next step",
+      DoYouWantToRemoveThisChapter: "Are you sure to remove this chapter? It must not contain any step",
+      FollowStep: "Follow step",
+      NoCondition: "No condition (start at the beginning of the chapter)",
+      Conditions: "Triggers",
+      AddACondition: "Add a trigger",
+      ConditionType: "Trigger type",
+      ConditionValue: "Trigger value",
+      YourStepCanOnlyFollowOneStep: "Your step can only follow one step",
+      ThisStepIsTriggeredWhen: "This step is displayed when",
+      YouCanNotRemoveAChapterWithSteps: "You can not remove a chapter with steps. Please remove steps before.",
+      ModifyTheChapter: "Edit the chapter",
+      NewChapter: "New chapter",
+      AddASChapter: "Add a chapter",
+      SelectANewObject: "Select a new object",
+      ThisStepIsNotShowToPlayers: "This step is not shown to players, you can pass to next step",
+      By: "By",
+      YourChapterMustHaveAEndOfChapterStep: "You must have a End of chapter step in each chapter to move player to next chapter",
+      FollowingStepsHaveNoConditionsOnlyTheFirstStepCanHaveThis: "Following steps have no trigger. Only the introduction step of a chapter can not have triggers",
+      FollowingStepsHaveNoValidParent: "Following steps have invalid trigger",
+      IssuesInYouQuest: "Issues of your quest"
     }
   },
   fr: {
@@ -670,7 +692,9 @@ module.exports = {
       TouchObjectOnMarker: "Toucher un objet sur un symbole",
       TouchObjectOnMarkerDesc: "Le joueur doit trouver un symbole spécial, imprimé ou affiché sur un écran, puis toucher un objet (en réalité augmentée) affiché sur le symbole.",
       GraalyCharacter: "Personnage Graaly",
-      GraalyCharacterDesc: "Faire parler un personnage Graaly (commissaire, indic, ...)"
+      GraalyCharacterDesc: "Faire parler un personnage Graaly (commissaire, indic, ...)",
+      EndOfChapter: "Fin de chapitre",
+      EndOfChapterDesc: "Cette transition fait passer le joueur au chapitre suivant"
     },
     layersForMarkers: {
       Magnifier: 'Loupe',
@@ -1189,7 +1213,27 @@ module.exports = {
       PleaseAgreeThePrivacyPolicy: "Veuillez accepter la politique de confidentialité pour utiliser Graaly",
       TermsAndConditionsLink: "<a target='_blank' href='https://graaly.com/cgu.html'>Conditions d'utilisation</a>",
       PrivacyPolicyLink: "<a target='_blank' href='https://graaly.com/confidentialite.html'>Politique de confidentialité</a>",
-      YourPhoneIsNotCompliantWithThisStepType: "Votre appareil n'est pour le moment pas compatible avec ce type d'étape. Nous sommes désolé pour ce désagréement, veuillez passer à l'étape suivante"
+      YourPhoneIsNotCompliantWithThisStepType: "Votre appareil n'est pour le moment pas compatible avec ce type d'étape. Nous sommes désolé pour ce désagréement, veuillez passer à l'étape suivante",
+      DoYouWantToRemoveThisChapter: "Etes-vous sur de supprimer ce chapitre, il ne doit contenir aucune étape ?",
+      FollowStep: "Suit l'étape",
+      NoCondition: "Aucune condition (démarre au début du chapitre)",
+      Conditions: "Déclencheurs",
+      AddACondition: "Ajouter un déclencheur",
+      ConditionType: "Type de déclencheur",
+      ConditionValue: "Valeur du déclencheur",
+      YourStepCanOnlyFollowOneStep: "Votre étape ne peut suivre qu'une seule autre étape",
+      ThisStepIsTriggeredWhen: "Cette étape est affichée quand",
+      YouCanNotRemoveAChapterWithSteps: "Vous ne pouvez supprimer un chapitre avec des étapes. Veuillez supprimer les étapes d'abord.",
+      ModifyTheChapter: "Modifier le chapitre",
+      NewChapter: "Nouveau chapitre",
+      AddASChapter: "Ajouter un chapitre",
+      SelectANewObject: "Selectionner un autre objet",
+      ThisStepIsNotShowToPlayers: "Cette étape n'est pas visible par les joueurs. Vous pouvez passer à l'étape suivante",
+      By: "Par",
+      YourChapterMustHaveAEndOfChapterStep: "Vous devez créer une étape de type Fin de chapitre dans chaque chapitre pour que le joueur passe au chapitre suivant",
+      FollowingStepsHaveNoConditionsOnlyTheFirstStepCanHaveThis: "Les étapes suivantes n'ont pas de déclencheur. Seul la première étape d'un chapitre peut ne pas avoir de déclencheur",
+      FollowingStepsHaveNoValidParent: "Les étapes suivantes ont un déclencheur incorrect",
+      IssuesInYouQuest: "Problèmes de votre enquête"
     }
   }
 }

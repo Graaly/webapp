@@ -56,7 +56,7 @@ export default [
         meta: { requiresAuth: true }
       },
       {
-        path: 'quest/play/:questId(\\w{24})/step/:stepNumber/:lang',
+        path: 'quest/play/:questId(\\w{24})/step/:stepId/:lang',
         name: 'playstep',
         component: QuestPlayStep,
         meta: { requiresAuth: true }

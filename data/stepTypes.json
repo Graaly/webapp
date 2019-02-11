@@ -44,6 +44,17 @@
     "hasOptions": true
   },
   {
+    "category": "transition",
+    "code": "end-chapter",
+    "icon": "step-forward",
+    "title": "EndOfChapter",
+    "description": "EndOfChapterDesc",
+    "showTrick": "no",
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": false
+  },
+  {
     "category": "enigma",
     "code": "geolocation",
     "icon": "map-marker",

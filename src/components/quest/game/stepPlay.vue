@@ -38,6 +38,12 @@
         </div>
       </div>
             
+      <!------------------ END OF CHAPTER AREA ------------------------>
+      
+      <div class="end-of-chapter" v-if="step.type == 'end-chapter'">
+        {{ $t('label.ThisStepIsNotShowToPlayers') }}
+      </div>    
+      
       <!------------------ CHARACTER STEP AREA ------------------------>
       
       <div class="character" v-if="step.type == 'character'">
@@ -278,13 +284,18 @@
       
       <!------------------ LOCATE A 2D MARKER ------------------------>
       
-      <div class="locate-marker" v-if="step.type == 'locate-marker'">
+      <div class="locate-marker" v-if="step.type == 'locate-marker' || step.id == 'sensor'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-marker"  webkit-playsinline playsinline src="" autoplay v-show="cameraStreamEnabled && !playerResult"></video>
         </transition>
-        <div v-if="locateMarker.layer !== null &&  locateMarker.compliant">
+        <div v-if="step.type == 'locate-marker' && locateMarker.layer !== null &&  locateMarker.compliant">
           <transition appear :enter-active-class="'animated ' + locateMarker.layer.animationShow" :leave-active-class="'animated ' + locateMarker.layer.animationHide">
             <img class="locate-marker-layer" :src="'statics/images/find-marker-layers/' + step.options.layerCode + '.png'" v-show="playerResult === null || (playerResult === false && nbTry < 2)" />
+          </transition>
+        </div>
+        <div v-if="step.id == 'sensor' && locateMarker.layer !== null &&  locateMarker.compliant">
+          <transition appear :enter-active-class="'animated ' + locateMarker.layer.animationShow" :leave-active-class="'animated ' + locateMarker.layer.animationHide">
+            <img class="locate-marker-layer" :src="'statics/images/find-marker-layers/magnifier.png'" />
           </transition>
         </div>
         <div v-show="!playerResult">
@@ -523,6 +534,10 @@ export default {
       this.$nextTick(async () => {
         let background = document.getElementById('play-view')
         
+        if (this.step.id === 'sensor') {
+          alert("sensor step play")
+        }
+        
         if (this.step.backgroundImage) {
           if (this.step.type === 'find-item' || this.step.type === 'use-item') {
             background.style.background = 'none'
@@ -564,6 +579,9 @@ export default {
         if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'character' || this.step.type === 'new-item') {
           // validate steps with no enigma
           utils.setTimeout(this.checkAnswer, 1000)
+        }
+        if (this.step.type === 'end-chapter') {
+          this.checkAnswer()
         }
         
         if (this.step.type === 'choose') {
@@ -776,15 +794,19 @@ export default {
           this.animateTargetCanvas()
         }
         
-        if (this.step.type === 'locate-marker' && !this.playerResult) {
+        if ((this.step.type === 'locate-marker' || this.step.id === 'sensor') && !this.playerResult) {
           // user can pass
-          this.$emit('pass')
-          
-          for (let layer of layersForMarkers) {
-            if (layer.code === this.step.options.layerCode) {
-              this.locateMarker.layer = layer
-              break
+          if (this.step.type === 'locate-marker') {
+            this.$emit('pass')
+            
+            for (let layer of layersForMarkers) {
+              if (layer.code === this.step.options.layerCode) {
+                this.locateMarker.layer = layer
+                break
+              }
             }
+          } else {
+            this.locateMarker.layer = layersForMarkers[0]
           }
           
           if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
@@ -861,7 +883,7 @@ export default {
         patternUrl: 'statics/markers/' + markerCode + '/pattern-marker.patt'
       })
       marker.code = markerCode
-      marker.addEventListener('markerFound', (ev) => { this.checkAnswer(ev.target.code) })
+      marker.addEventListener('markerFound', (ev) => { this.checkAnswer(ev.target.code) })     
       marker.detected = false
       
       return marker
@@ -993,10 +1015,20 @@ export default {
         return
       }
       
+      // if generic marker sensor
+      if (this.step.id === 'sensor') {
+        alert("check sensor result")
+        this.$emit('played', answer)
+        //this.stopMarkersSensors()
+              
+        return 
+      }
+      
       switch (this.step.type) {
         case 'info-text':
         case 'info-video':
         case 'new-item':
+        case 'end-chapter':
         case 'character':
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {}, false)
@@ -1245,17 +1277,13 @@ export default {
               
               if (checkAnswerResult.result === true) {
                 this.submitGoodAnswer(checkAnswerResult.score)
-                this.stopVideoTracks('camera-stream-for-locate-marker')
-                this.locateMarker.scene = new THREE.Scene()
-                this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
+                this.stopMarkersSensors()
                 this.locateMarker.playerAnswer = answer // for display
               } else {
                 this.nbTry++
                 if (this.nbTry === 2) {
                   this.submitWrongAnswer()
-                  this.stopVideoTracks('camera-stream-for-locate-marker')
-                  this.locateMarker.scene = new THREE.Scene()
-                  this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
+                  this.stopMarkersSensors()
                 } else {
                   this.submitRetry()
                 }
@@ -1286,6 +1314,7 @@ export default {
         case 'character': 
         case 'new-item': 
         case 'info-text': 
+        case 'end-chapter': 
         case 'info-video': 
           
           break
@@ -1314,6 +1343,14 @@ export default {
       }
       // advise user to move to next step
       //utils.setTimeout(this.alertToPassToNextStep, 15000)
+    },
+    /*
+     * stop the markers sensors
+     */
+    stopMarkersSensors() {
+      this.stopVideoTracks('camera-stream-for-locate-marker')
+      this.locateMarker.scene = new THREE.Scene()
+      this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
     },
     /*
      * Send wrong answer 

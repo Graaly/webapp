@@ -11,7 +11,7 @@
               {{getLanguage() ? quest.title[getLanguage()] : $t('label.NoTitle') }} <q-icon name="help" />
               <img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + getLanguage() + '.png'" />
             </div>
-            <p v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.name && quest.author.name.indexOf('Graaly') === -1">{{ quest.author.name }}</span>
+            <p v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.name && quest.author.name.indexOf('Graaly') === -1">{{ $t('label.By') }} {{ quest.author.name }}</span>
             <p class="medium-icon q-pa-none q-ma-none">
               <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">{{ quest.availablePoints }} <span style="font-size: 0.5em">{{ $t('label.pointsToWin') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
               <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAlreadyPlayedThisQuest') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
@@ -130,8 +130,6 @@ import shop from 'components/shop'
 import story from 'components/story'
 
 import utils from 'src/includes/utils'
-//import { scroll } from 'quasar'
-//const { getScrollTarget, setScrollPosition } = scroll
 
 export default {
   components: {
@@ -452,7 +450,7 @@ export default {
      * @param   {String}    lang               lang of the quest
      */
     playQuest(questId, lang) {
-      this.$router.push('/quest/play/' + questId + '/step/1/' + lang + '?remoteplay=' + this.isUserTooFar)
+      this.$router.push('/quest/play/' + questId + '/step/0/' + lang + '?remoteplay=' + this.isUserTooFar)
     },
     /*
      * Follow scroll position
