@@ -1,5 +1,6 @@
 import store from '../store'
 import router from '../router'
+import * as THREE from 'three'
 
 var self = {
   notificationsArr: [],
@@ -264,6 +265,29 @@ var self = {
       }
     }
     return temp
+  },
+  
+  // ------- Utils for THREE.js --------
+  
+  /*
+  * detach a 3D object from its parent
+  * copied from https://github.com/mrdoob/three.js/blob/master/examples/js/utils/SceneUtils.js
+  */
+  detachObject3D: function (child, parent, scene) {
+    child.applyMatrix(parent.matrixWorld)
+    parent.remove(child)
+    scene.add(child)
+  },
+
+  /*
+  * attach a 3D object to a parent
+  * copied from https://github.com/mrdoob/three.js/blob/master/examples/js/utils/SceneUtils.js
+  * WARNING: changed order of parameters compared to original version
+  */
+  attachObject3D: function (child, parent, scene) {
+    child.applyMatrix(new THREE.Matrix4().getInverse(parent.matrixWorld))
+    scene.remove(child)
+    parent.add(child)
   }
 }
 

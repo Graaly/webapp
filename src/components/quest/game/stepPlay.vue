@@ -282,7 +282,7 @@
         <img ref="item-image" v-show="playerResult && !step.options.is3D" />
       </div>
       
-      <!------------------ LOCATE A 2D MARKER ------------------------>
+      <!------------------ LOCATE A 2D MARKER / TOUCH OBJECT ON MARKER ------------------------>
       
       <div class="locate-marker" v-if="step.type == 'locate-marker' || step.id == 'sensor' || step.type == 'touch-object-on-marker'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
@@ -307,11 +307,11 @@
           {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
         </div>
         <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant && step.type == 'locate-marker'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
-        <div class="marker-view" v-show="!playerResult && locateMarker.compliant">
-          <canvas id="marker-canvas"></canvas>
+        <div class="marker-view" v-show="locateMarker.compliant">
+          <canvas id="marker-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
         <!-- HELP -->
-        <q-btn round size="lg" v-if="locateMarker.compliant" class="absolute-bottom-left" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
+        <q-btn round size="lg" v-if="locateMarker.compliant && !playerResult" class="absolute-bottom-left" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
         <div class="fixed-bottom over-map" style="height: 100%" v-if="locateMarker.showHelp">
           <story step="help" :data="{ help: step.type == 'locate-marker' ? $t('label.FindMarkerHelp') : $t('label.TouchObjectOnMarkerHelp') }" @next="locateMarker.showHelp = false"></story>
         </div>
@@ -424,6 +424,8 @@ export default {
     this.locateMarker.scene = null
     this.locateMarker.renderer = null
     this.locateMarker.camera = null
+    this.locateMarker.mixers = [] // animations
+    this.locateMarker.clock = null // animations
     this.locateMarker.arToolkitContext = null
     this.locateMarker.arSmoothedControls = null
     this.locateMarker.markerRoots = {}
@@ -434,6 +436,8 @@ export default {
     }
     
     utils.clearAllRunningProcesses()
+    
+    TWEEN.removeAll() // 3D animations
   },
   methods: {
     initialState () {
@@ -483,6 +487,8 @@ export default {
           renderer: null,
           scene: null,
           camera: null,
+          mixers: [], // animations
+          clock: null, // animations
           arToolkitContext: null,
           arSmoothedControls: null,
           markerRoots: {},
@@ -530,6 +536,7 @@ export default {
      * Init the component data
      */
     initData () {
+      TWEEN.removeAll()
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
         let background = document.getElementById('play-view')
@@ -684,9 +691,11 @@ export default {
           this.addDefaultLightTo3DScene(scene)
           
           // --- specific parts for 2D/3D ---
-          let object
+          let object, animations
           if (this.step.options.is3D) {
-            object = await this.loadAndPrepare3DModel(this.step.options.model)
+            let data = await this.loadAndPrepare3DModel(this.step.options.model)
+            object = data.object
+            animations = data.animations
             
             // add offset to make 3D object "sit on the ground" by default (z = 0 at the bottom of the object)
             let box = new THREE.Box3().setFromObject(object)
@@ -697,12 +706,11 @@ export default {
             target.size = Math.max(box.max.x - box.min.x, box.max.y - box.min.y, box.max.z - box.min.z)
             
             // animations ? play first animation
-            // TEMP !!! SHOULD BE ENABLED
-            /*if (gltfData.animations.length > 0) {
-              let mixer = new THREE.AnimationMixer(gltfData.scene)
-              mixer.clipAction(gltfData.animations[0]).play()
+            if (animations.length > 0) {
+              let mixer = new THREE.AnimationMixer(object)
+              mixer.clipAction(animations[0]).play()
               this.geolocation.target.mixers.push(mixer)
-            }*/
+            }
           } else {
             // 2D plane with transparent image (user uploaded picture) as texture
             let itemImage = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/locate-item-ar/' + this.step.options.picture
@@ -759,6 +767,7 @@ export default {
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
             CameraPreview.startCamera(options)
             CameraPreview.show()
+            this.cameraStreamEnabled = true
             let sceneCanvas = document.getElementById('marker-canvas')
             sceneCanvas.height = window.screen.height
             sceneCanvas.width = window.screen.width
@@ -776,11 +785,8 @@ export default {
                 cameraStream.onloadeddata = async (e) => {
                   this.cameraStreamEnabled = true
                   let sceneCanvas = document.getElementById('marker-canvas')
-                  
-                  let ratio = cameraStream.videoHeight ? sceneCanvas.clientHeight / cameraStream.videoHeight : 1
-                  
-                  sceneCanvas.height = cameraStream.videoHeight * ratio
-                  sceneCanvas.width = Math.round(sceneCanvas.height * 4 / 3)
+                  sceneCanvas.height = window.screen.height
+                  sceneCanvas.width = window.screen.width
                   
                   await this.displayMarkers(sceneCanvas)
                 }
@@ -801,7 +807,7 @@ export default {
       let arToolkitContext = this.locateMarker.arToolkitContext
       let markerRoot
       
-      if (this.step.type === 'locate-marker') {
+      if (this.step.type === 'locate-marker' || this.step.id === 'sensor') {
         markerRoot = this.locateMarker.markerRoots['commonRoot']
       } else {
         markerRoot = this.locateMarker.markerRoots[markerCode]
@@ -854,10 +860,10 @@ export default {
         alpha: true,
         logarithmicDepthBuffer: true // workaround for AR.js z-fighting issue, see https://github.com/jeromeetienne/AR.js/issues/146 and https://github.com/jeromeetienne/AR.js/issues/410
       })
-                
+      
       let scene = new THREE.Scene()
       
-      let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 100)
+      let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000) // 0.01, 100
       scene.add(camera)
       
       // --- Light ---
@@ -880,9 +886,6 @@ export default {
       arToolkitContext.initAsync = promisify(arToolkitContext.init)
       await arToolkitContext.initAsync()
       
-      // copy projection matrix to camera
-      camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix())
-      
       // --- Create ArMarkerControls / ArSmoothedControls ---
       
       // build a smoothedControls
@@ -903,7 +906,7 @@ export default {
       
       this.locateMarker.markerCodeAnswer = this.step.answers
       
-      if (this.step.type === 'locate-marker') {
+      if (this.step.type === 'locate-marker' || this.step.id === 'sensor') {
         // only one marker root is enough
         let markerRoot = new THREE.Group()
         scene.add(markerRoot)
@@ -912,7 +915,7 @@ export default {
         // add a transparent plane, common for all markers
         // (helps to detect if marker "touches" the center of the screen)
         let geometry = new THREE.PlaneGeometry(1, 1)
-        let material = new THREE.MeshNormalMaterial({ transparent: true, opacity: 0.8 /* TEMP !!! for testing. should be 0 */, side: THREE.DoubleSide })
+        let material = new THREE.MeshNormalMaterial({ transparent: true, opacity: 0, side: THREE.DoubleSide })
         let mesh  = new THREE.Mesh(geometry, material)
         mesh.rotateX(Math.PI / 2)
         smoothedRoot.add(mesh)
@@ -930,8 +933,10 @@ export default {
       })
       
       if (this.step.type === 'touch-object-on-marker') {
-        console.log('add 3D model over smoothed root', this.step.options.model)
-        let object = await this.loadAndPrepare3DModel(this.step.options.model)
+        let object, animations
+        let data = await this.loadAndPrepare3DModel(this.step.options.model)
+        object = data.object
+        animations = data.animations
         
         object.rotateX(-Math.PI / 2)
         
@@ -940,15 +945,16 @@ export default {
         let onGroundOffset = (box.max.y - box.min.y) / 2
         object.applyMatrix(new THREE.Matrix4().makeTranslation(0, onGroundOffset, 0))
         
-        /*var geometry = new THREE.CubeGeometry(1, 1, 1)
-        var material = new THREE.MeshNormalMaterial({
-          transparent: true,
-          opacity: 0.5,
-          side: THREE.DoubleSide
-        });
-        var mesh  = new THREE.Mesh(geometry, material)
-        mesh.position.y = geometry.parameters.height / 2
-        smoothedRoot.add(mesh)*/
+        object.name = 'targetObject'
+        
+        // animations ? play first animation
+        if (animations.length > 0) {
+          let mixer = new THREE.AnimationMixer(object)
+          mixer.clipAction(animations[0]).play()
+          this.locateMarker.mixers.push(mixer)
+        }
+        this.locateMarker.clock = new THREE.Clock()
+        
         smoothedRoot.add(object)
       }
       
@@ -1193,33 +1199,51 @@ export default {
           break
           
         case 'locate-item-ar':
+        case 'touch-object-on-marker':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, false)
 
           if (checkAnswerResult.result === true) {
-            this.geolocation.absoluteOrientationSensor.stop() // stop moving camera when device moves
+            if (this.step.type === 'locate-item-ar') {
+              this.geolocation.absoluteOrientationSensor.stop() // stop moving camera when device moves
+            }
             
             TWEEN.removeAll() // clear all running animations
             
             // show found object when it's a 3D model
-            if (this.step.options && this.step.options.is3D) {
-              let target = this.geolocation.target
+            if ((this.step.type === 'locate-item-ar' && this.step.options && this.step.options.is3D) || this.step.type === 'touch-object-on-marker') {
+              let target
+              if (this.step.type === 'locate-item-ar') {
+                target = this.geolocation.target
+              } else {
+                target = this.locateMarker
+                target.arToolkitContext = null // otherwise ending animation is 'erased' by AR.js behavior: 3D object disappears because camera stream is removed and markers are not found anymore !
+              }
               let camera = target.camera
               let object = target.scene.getObjectByName('targetObject')
               
               let box = new THREE.Box3().setFromObject(object)
               let size = new THREE.Vector3()
               box.getSize(size)
-                            
+              
               let cameraDistance = Math.max(size.x, size.y, size.z) * 2
               
-              let startScale = object.scale
+              let startScale = Object.assign({}, object.scale) // copy the full Vector3 object, not a reference
               
               let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
                 .easing(TWEEN.Easing.Back.In)
                 .onComplete(() => {
-                  camera.position.set(0, 0, cameraDistance * 2 / 3)
+                  if (this.step.type === 'touch-object-on-marker') {
+                    // detach 3D object (target to find) from arSmoothedControl and attach it directly at scene root, for hassle free manipulation of the 3D object
+                    utils.detachObject3D(object, object.parent, target.scene)
+                    utils.attachObject3D(object, target.scene, target.scene)
+                  }
+                  
+                  camera.position.set(0, 0,  cameraDistance * 2 / 3)
                   camera.lookAt(new THREE.Vector3(0, cameraDistance, size.z / 2))
+                  // reset object position/scale/rotation
+                  object.scale.set(0, 0, 0)
                   object.position.set(0, cameraDistance, size.z / 2)
+                  object.rotation.set(0, 0, 0)
                   
                   this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
                 })
@@ -1230,13 +1254,6 @@ export default {
               // https://stackoverflow.com/a/31766476/488666
               let rotationAnimation = new TWEEN.Tween(object.rotation)
                 .to({ z: "-" + Math.PI / 2 }, 2000) // relative animation
-                .onComplete(function() {
-                    // Check that the full 360 degrees of rotation, 
-                    // and calculate the remainder of the division to avoid overflow.
-                    if (Math.abs(object.rotation.z) >= 2 * Math.PI) {
-                        object.rotation.z = object.rotation.z % (2 * Math.PI);
-                    }
-                })
                 .repeat(Infinity)
                 
               disappearAnimation.chain(appearAnimation, rotationAnimation).start()
@@ -2081,7 +2098,6 @@ export default {
     * Animate canvas showing item (target) to find, for step type "locate-item-ar"
     */
     animateTargetCanvas() {
-      this.latestRequestAnimationId = requestAnimationFrame(this.animateTargetCanvas)
       let target = this.geolocation.target
       let mixers = target.mixers
       
@@ -2098,29 +2114,43 @@ export default {
       }
       target.renderer.render(target.scene, target.camera)
       TWEEN.update()
+      this.latestRequestAnimationId = requestAnimationFrame(this.animateTargetCanvas)
     },
     /*
     * Animate canvas where AR markers are detected, for step types "locate-marker" and "touch-object-on-marker"
     */
     animateMarkerCanvas() {
-      if (this.playerResult !== null) {
-        return
-      }
+      let mixers = this.locateMarker.mixers
       
-      // run the rendering loop
-      this.latestRequestAnimationId = requestAnimationFrame(this.animateMarkerCanvas)
-      
-      this.locateMarker.arToolkitContext.update(this.$refs['camera-stream-for-locate-marker'])
-      
-      if (this.step.type === 'locate-marker') {
-        for (let markerCode in this.locateMarker.markerRoots) {
-          this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoots[markerCode])
+      if (this.locateMarker.arToolkitContext !== null) {
+        // player has not found object yet ?
+        // => adjust camera orientation & object position according to detected marker position
+        this.locateMarker.arToolkitContext.update(this.$refs['camera-stream-for-locate-marker'])
+        
+        if (this.step.type === 'locate-marker' || this.step.id === 'sensor') {
+          // any marker is "recognized"
+          for (let markerCode in this.locateMarker.markerRoots) {
+            this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoots[markerCode])
+          }
+        } else {
+          // touch object step type => only one marker is "recognized"
+          this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoots[this.step.answers])
         }
-      } else {
-        this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoots[this.step.answers])
       }
       
-      this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
+      if (this.locateMarker.renderer !== null) {
+        this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
+      }
+      
+      // animation
+      if (mixers.length > 0) {
+        for (var i = 0; i < mixers.length; i++) {
+          mixers[i].update(this.locateMarker.clock.getDelta());
+        }
+      }
+      
+      TWEEN.update()
+      this.latestRequestAnimationId = requestAnimationFrame(this.animateMarkerCanvas)
     },
     /*
     * stop latest animation
@@ -2152,16 +2182,27 @@ export default {
     },
     /*
     * Detect object touch
+    * used by steps 'locate-item-ar' and 'touch-object-on-marker'
     */
     onTargetCanvasClick(event) {
-      if (this.playerResult !== null) {
+      // only for specific steps
+      if (!['locate-item-ar', 'touch-object-on-marker'].includes(this.step.type)) {
+        return
+      }
+      
+      if (this.playerResult !== null && this.step.type === 'locate-item-ar') {
         this.geolocation.canTouchTarget = false
         return
       }
       
       event.preventDefault()
       
-      let target = this.geolocation.target
+      let target // this object must contain at least properties scene, renderer & camera
+      if (this.step.type === 'locate-item-ar') {
+        target = this.geolocation.target
+      } else {
+        target = this.locateMarker
+      }
       let object = target.scene.getObjectByName('targetObject')
       
       let touchPos = new THREE.Vector2()
@@ -2176,13 +2217,19 @@ export default {
       // and its children geometries
       let intersects = raycaster.intersectObject(object, true)
       
-      if (intersects.length > 0 && this.geolocation.canTouchTarget) {
-        this.resetDrawDirectionInterval()
-        // stop location watching
-        this.$refs['geolocation-component'].disabled = true
-        this.geolocation.active = false
+      let canTouchTarget = (this.step.type === 'locate-item-ar' && this.geolocation.canTouchTarget) ||
+        (this.step.type === 'touch-object-on-marker' && this.locateMarker.arSmoothedControls.object3d.visible)
+      
+      if (intersects.length > 0 && canTouchTarget) {
+        if (this.step.type === 'locate-item-ar') {
+          this.resetDrawDirectionInterval()
+          // stop location watching
+          this.$refs['geolocation-component'].disabled = true
+          this.geolocation.active = false
+        }
         // stop camera streams
-        this.stopVideoTracks('camera-stream-for-locate-item-ar')
+        let cameraStreamRef = (this.step.type === 'locate-item-ar' ? 'camera-stream-for-locate-item-ar' : 'camera-stream-for-locate-marker')
+        this.stopVideoTracks(cameraStreamRef)
         this.checkAnswer()
       }
     },
@@ -2197,6 +2244,7 @@ export default {
     /*
     * loads GLTF data, puts object origin at center, sets position of 3D model according to its settings in 3DModels.json
     * @param     modelCode     code of the 3D model, for example "lamp"
+    * @return    object        { object: <3D object>, animations: <animations from GLTF data> }
     */
     async loadAndPrepare3DModel(modelCode) {
       let scaleFactor = 4 // make objects four times bigger than their "real" size, for better usability
@@ -2245,8 +2293,7 @@ export default {
         if (objectInit.translation.hasOwnProperty('z')) { object.position.z += objectInit.translation.z * scaleFactor }
       }
       
-      // TODO maybe return a structure like { object, animations } 
-      return object
+      return { object, animations: gltfData.animations }
     },
     /*
     * Loads material file and object file into a 3D Model for Three.js
@@ -2269,12 +2316,12 @@ export default {
     addDefaultLightTo3DScene(scene) {
       // create a point light from top
       // TODO maybe a directional light would cost less CPU
-      let light = new THREE.DirectionalLight(0xffffff)
+      let light = new THREE.DirectionalLight(0xdddddd)
       light.position.set(0, 1, 1).normalize()
       scene.add(light)
       
       // soft ambient light
-      scene.add(new THREE.AmbientLight(0x909090))
+      scene.add(new THREE.AmbientLight(0xb0b0b0))
     },
     /*
     * Display the success message
@@ -2454,7 +2501,7 @@ export default {
   
   .locate-marker video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .locate-marker .marker-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-  .locate-marker #marker-canvas { width: 100%; height: 100%; object-fit: cover; z-index: 20; }
+  .locate-marker #marker-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }
   .locate-marker .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
   .locate-marker img.locate-marker-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 30; padding: 0; margin: 0; }
   .locate-marker img.locate-marker-answer { width: 60vw; margin: 30vw auto; }
