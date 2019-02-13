@@ -597,6 +597,8 @@ module.exports = {
       YourPhoneIsNotCompliantWithThisStepType: "Your device is currently not compliant with this step type. Please apologize for the inconvenience, please move to next step",
       DoYouWantToRemoveThisChapter: "Are you sure to remove this chapter? It must not contain any step",
       FollowStep: "Follow step",
+      StepSuccess: "Right answer on step",
+      StepFail: "Wrong answer on step",
       NoCondition: "No condition (start at the beginning of the chapter)",
       Conditions: "Triggers",
       AddACondition: "Add a trigger",
@@ -614,7 +616,8 @@ module.exports = {
       YourChapterMustHaveAEndOfChapterStep: "You must have a End of chapter step in each chapter to move player to next chapter",
       FollowingStepsHaveNoConditionsOnlyTheFirstStepCanHaveThis: "Following steps have no trigger. Only the introduction step of a chapter can not have triggers",
       FollowingStepsHaveNoValidParent: "Following steps have invalid trigger",
-      IssuesInYouQuest: "Issues of your quest"
+      IssuesInYouQuest: "Issues of your quest",
+      DisplayRightAnswer: "Display right answer"
     }
   },
   fr: {
@@ -1216,6 +1219,8 @@ module.exports = {
       YourPhoneIsNotCompliantWithThisStepType: "Votre appareil n'est pour le moment pas compatible avec ce type d'étape. Nous sommes désolé pour ce désagréement, veuillez passer à l'étape suivante",
       DoYouWantToRemoveThisChapter: "Etes-vous sur de supprimer ce chapitre, il ne doit contenir aucune étape ?",
       FollowStep: "Suit l'étape",
+      StepSuccess: "Bonne réponse à",
+      StepFail: "Mauvaise réponse à",
       NoCondition: "Aucune condition (démarre au début du chapitre)",
       Conditions: "Déclencheurs",
       AddACondition: "Ajouter un déclencheur",
@@ -1233,7 +1238,8 @@ module.exports = {
       YourChapterMustHaveAEndOfChapterStep: "Vous devez créer une étape de type Fin de chapitre dans chaque chapitre pour que le joueur passe au chapitre suivant",
       FollowingStepsHaveNoConditionsOnlyTheFirstStepCanHaveThis: "Les étapes suivantes n'ont pas de déclencheur. Seul la première étape d'un chapitre peut ne pas avoir de déclencheur",
       FollowingStepsHaveNoValidParent: "Les étapes suivantes ont un déclencheur incorrect",
-      IssuesInYouQuest: "Problèmes de votre enquête"
+      IssuesInYouQuest: "Problèmes de votre enquête",
+      DisplayRightAnswer: "Afficher la bonne réponse"
     }
   }
 }

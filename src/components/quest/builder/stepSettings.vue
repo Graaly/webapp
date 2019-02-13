@@ -494,6 +494,9 @@
     
     <q-list v-show="options.type.hasOptions" separator>
       <q-collapsible icon="add_box" :label="$t('label.OtherOptions')">
+        <div v-if="options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'color-keypad' || options.type.code == 'choose' || options.type.code == 'write-text'" class="q-pb-md">
+          <q-toggle v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
+        </div>
         <div v-if="options.type.code == 'geolocation' || options.type.code == 'locate-item-ar'" class="location-gps">
           <q-toggle v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
           <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
@@ -606,7 +609,9 @@ export default {
         newCondition: {
           selectedType: 'stepDone',
           types: [
-            {label: this.$t('label.FollowStep'), value: 'stepDone'}
+            {label: this.$t('label.FollowStep'), value: 'stepDone'},
+            {label: this.$t('label.StepSuccess'), value: 'stepSuccess'},
+            {label: this.$t('label.StepFail'), value: 'stepFail'}
           ],
           selectedValue: '',
           values: []
@@ -721,6 +726,7 @@ export default {
         answerItem: null,
         showDistanceToTarget: true,
         showDirectionToTarget: true,
+        displayRightAnswer: true,
         trigger: {
           type: 'none'
         },
@@ -768,6 +774,7 @@ export default {
         this.getUnderstandableConditions()
       } else {
         this.selectedStep.form.type = this.options.type.code
+        this.selectedStep.form.chapterId = this.options.chapterId
         // build default condition if step is not the first of the chapter
         if (this.options.previousStepId !== 0) {
           this.selectedStep.form.conditions.push('stepDone_' + this.options.previousStepId)
@@ -1156,11 +1163,19 @@ export default {
       for (var i = 0; i < this.selectedStep.form.conditions.length; i++) {
         var condition = this.selectedStep.form.conditions[i]
         var conditionParts = condition.split("_")
-        if (conditionParts[0] === 'stepDone') {
+        if (conditionParts[0] === 'stepDone' || conditionParts[0] === 'stepSuccess' || conditionParts[0] === 'stepFail') {
           const stepData = await StepService.getById(conditionParts[1])
           if (stepData && stepData.data && stepData.data.hasOwnProperty("title")) {
             let condStepTitle = stepData.data.title[this.lang] ? stepData.data.title[this.lang] : conditionParts[1]
-            this.selectedStep.formatedConditions.push(this.$t("label.FollowStep") + " <i>" + condStepTitle + "</i>")
+            if (conditionParts[0] === 'stepDone') {
+              this.selectedStep.formatedConditions.push(this.$t("label.FollowStep") + " <i>" + condStepTitle + "</i>")
+            }
+            if (conditionParts[0] === 'stepSuccess') {
+              this.selectedStep.formatedConditions.push(this.$t("label.StepSuccess") + " <i>" + condStepTitle + "</i>")
+            }
+            if (conditionParts[0] === 'stepFail') {
+              this.selectedStep.formatedConditions.push(this.$t("label.StepFail") + " <i>" + condStepTitle + "</i>")
+            }
           }
         }
       }
@@ -1176,7 +1191,7 @@ export default {
      * update the conditions values
      */
     async changeNewConditionType() {
-      if (this.selectedStep.newCondition.selectedType === 'stepDone') {
+      if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail') {
         const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId)
         if (response && response.data && response.data.length > 0) {
           for (var i = 0; i < response.data.length; i++) {
@@ -1205,6 +1220,12 @@ export default {
             }
           }*/
           this.selectedStep.form.conditions.push('stepDone_' + this.selectedStep.newCondition.selectedValue)
+        }
+        if (this.selectedStep.newCondition.selectedType === 'stepSuccess') {
+          this.selectedStep.form.conditions.push('stepSuccess_' + this.selectedStep.newCondition.selectedValue)
+        }
+        if (this.selectedStep.newCondition.selectedType === 'stepFail') {
+          this.selectedStep.form.conditions.push('stepFail_' + this.selectedStep.newCondition.selectedValue)
         }
       }
       this.getUnderstandableConditions()

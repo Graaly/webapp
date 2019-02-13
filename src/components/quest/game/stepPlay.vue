@@ -534,10 +534,6 @@ export default {
       this.$nextTick(async () => {
         let background = document.getElementById('play-view')
         
-        if (this.step.id === 'sensor') {
-          alert("sensor step play")
-        }
-        
         if (this.step.backgroundImage) {
           if (this.step.type === 'find-item' || this.step.type === 'use-item') {
             background.style.background = 'none'
@@ -993,7 +989,6 @@ export default {
       
       // if generic marker sensor
       if (this.step.id === 'sensor') {
-        alert("check sensor result")
         this.$emit('played', answer)
         //this.stopMarkersSensors()
               
@@ -1013,8 +1008,13 @@ export default {
           
         case 'choose':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
-
-          if (checkAnswerResult.result === true) {
+          
+          if (!this.step.displayRightAnswer) {
+            let selectedAnswer = this.step.options[answer]
+            selectedAnswer.class = 'rightorwrong'
+            Vue.set(this.step.options, answer, selectedAnswer)
+            this.submitAnswer(0)
+          } else if (checkAnswerResult.result === true) {
             let selectedAnswer = this.step.options[answer]
             selectedAnswer.icon = 'done'
             selectedAnswer.class = 'right'
@@ -1060,7 +1060,9 @@ export default {
         case 'code-keypad':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('')}, true)
 
-          if (checkAnswerResult.result === true) {
+          if (!this.step.displayRightAnswer) {
+            this.submitAnswer(0)
+          } else if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           } else {
             this.nbTry++
@@ -1078,7 +1080,9 @@ export default {
           this.$q.loading.show()
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')}, true)
           
-          if (checkAnswerResult.result === true) {
+          if (!this.step.displayRightAnswer) {
+            this.submitAnswer(0)
+          } else if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           } else {
             this.nbTry++
@@ -1095,7 +1099,9 @@ export default {
         case 'code-image':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')}, true)
           
-          if (checkAnswerResult.result === true) {
+          if (!this.step.displayRightAnswer) {
+            this.submitAnswer(0)
+          } else if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           } else {
             this.nbTry++
@@ -1127,7 +1133,9 @@ export default {
         
         case 'write-text':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.writetext.playerAnswer}, true)
-          if (checkAnswerResult.result === true) {
+          if (!this.step.displayRightAnswer) {
+            this.submitAnswer(0)
+          } else if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           } else {
             this.nbTry++
@@ -1145,7 +1153,9 @@ export default {
         case 'use-item':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
           
-          if (checkAnswerResult.result === true) {
+          if (!this.step.displayRightAnswer) {
+            this.submitAnswer(0)
+          } else if (checkAnswerResult.result === true) {
             this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           } else {
@@ -1164,7 +1174,9 @@ export default {
         case 'find-item':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
           
-          if (checkAnswerResult.result === true) {
+          if (!this.step.displayRightAnswer) {
+            this.submitAnswer(0)
+          } else if (checkAnswerResult.result === true) {
             this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           } else {
@@ -1275,6 +1287,17 @@ export default {
       // display score
       this.score = (checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0
       this.reward = (checkAnswerResult && checkAnswerResult.reward) ? checkAnswerResult.reward : 0
+    },
+    /*
+     * Send answer without telling if it is true or false
+     */
+    submitAnswer() {
+      this.$emit('played')
+      
+      this.displayReadMoreAlert()
+      
+      // advise user to move to next step
+      utils.setTimeout(this.alertToPassToNextStep, 15000)
     },
     /*
      * Send good andwer  
@@ -2506,6 +2529,7 @@ export default {
   
   .right, .q-btn.right { color: #0a0; background-color: #cfc; box-shadow: 0px 0px 0.3rem 0.3rem #9f9; }
   .wrong, .q-btn.wrong { color: #c22; background-color: #fcc; box-shadow: 0px 0px 0.3rem 0.3rem #f99; }
+  .rightorwrong, .q-btn.rightorwrong { color: #fff; background-color: #ccc; box-shadow: 0px 0px 0.3rem 0.3rem #ccc; }
   .images-block > div.right,
   .images-block > div.wrong {
     box-shadow: none; background-color: transparent;

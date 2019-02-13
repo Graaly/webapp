@@ -606,22 +606,32 @@ export default {
           for (i = 0; i < stepsOfChapter.length; i++) {
             // if no parent (stepDone), 
             if ((stepsOfChapter[i].conditions && stepsOfChapter[i].conditions.length > 0) || stepsOfChapter[i].type === 'locate-marker') {
-              for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
-                var noStepDone = true
-                if (stepsOfChapter[i].conditions[k].indexOf('stepDone') !== -1) {
-                  noStepDone = false
-                  parent[stepsOfChapter[i]._id.toString()] = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
+              if (stepsOfChapter[i].type !== 'locate-marker') {
+                for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
+                  var noStepDone = true
+                  if (stepsOfChapter[i].conditions[k].indexOf('stepDone') !== -1) {
+                    noStepDone = false
+                    parent[stepsOfChapter[i]._id.toString()] = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
+                  }
+                  if (stepsOfChapter[i].conditions[k].indexOf('stepSuccess') !== -1) {
+                    noStepDone = false
+                    parent[stepsOfChapter[i]._id.toString()] = stepsOfChapter[i].conditions[k].replace("stepSuccess_", "")
+                  }
+                  if (stepsOfChapter[i].conditions[k].indexOf('stepFail') !== -1) {
+                    noStepDone = false
+                    parent[stepsOfChapter[i]._id.toString()] = stepsOfChapter[i].conditions[k].replace("stepFail_", "")
+                  }
                 }
               }
               if (noStepDone || stepsOfChapter[i].type === 'locate-marker') {
-                order[orderIndex.toString()] = stepsOfChapter[i]._id
+                order.push({key: orderIndex.toString(), value: stepsOfChapter[i]._id}) 
                 orderIndex++
               }
             } else {
               if (order.length === 0) {
-                order["0"] = stepsOfChapter[i]._id
+                order.push({key: "0", value: stepsOfChapter[i]._id})
               } else {
-                order[orderIndex.toString()] = stepsOfChapter[i]._id
+                order.push({key: orderIndex.toString(), value: stepsOfChapter[i]._id}) 
                 orderIndex++
               }
               
@@ -634,21 +644,26 @@ export default {
           var inc = 0
           while (Object.keys(parent).length > 0 && inc < nbToTreat) {
             for (var child in parent) {
-              for (var key in order) {
-                if (parent[child] === order[key]) {
-                  order[key + "." + order[key]] = child
+              for (i = 0; i < order.length; i++) {
+                if (parent[child] === order[i].value) {
+                  order.push({key: order[i].key + "." + order[i].value, value: child})
                   delete parent[child]
                 }
               }
             }
             inc++
           }
-
+          
+          order.sort(function(a, b) {
+            return a.key < b.key ? -1 : a.key > b.key ? 1 : 0
+          })
+          
           // order steps
-          for (key in order) {
-            for (i = 0; i < stepsOfChapter.length; i++) {
-              if (order[key] === stepsOfChapter[i]._id.toString()) {
-                this.chapters.items[j].steps.push(stepsOfChapter[i])
+          for (i = 0; i < order.length; i++) {
+console.log(order[i].key + " : " + order[i].value)
+            for (k = 0; k < stepsOfChapter.length; k++) {
+              if (order[i].value === stepsOfChapter[k]._id.toString()) {
+                this.chapters.items[j].steps.push(stepsOfChapter[k])
               }
             }
           }

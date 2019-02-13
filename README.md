@@ -114,6 +114,8 @@ Visible console output is related to the activity on the Android Chrome browser 
 
 ## Avoid HTTPS issues in local dev (Chrome desktop, missing images)
 
+Remove the cache of your browser (if you renew the certificate)
+
 Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
 
 # Technical specs
