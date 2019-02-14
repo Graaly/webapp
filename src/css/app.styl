@@ -449,6 +449,16 @@ form {
   opacity: 0;
   transition: visibility 0s 0.5s, opacity 0.5s linear;
 }
+.flashlight {
+  animation-duration: 2s;
+  animation-name: cameraFlash;
+  animation-fill-mode: linear;
+}
+@keyframes cameraFlash {
+  from {visibility: visible; opacity: 100;}
+  50%  {visibility: visible; opacity: 100; filter: brightness(0) invert(1);}
+  to   {visibility: visible; opacity: 100;}
+}
 
 [draggable] {
   user-select: none;

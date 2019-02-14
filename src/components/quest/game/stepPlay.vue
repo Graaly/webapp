@@ -295,7 +295,7 @@
         </div>
         <div v-if="step.id == 'sensor' && locateMarker.layer !== null &&  locateMarker.compliant">
           <transition appear :enter-active-class="'animated ' + locateMarker.layer.animationShow" :leave-active-class="'animated ' + locateMarker.layer.animationHide">
-            <img class="locate-marker-layer" :src="'statics/images/find-marker-layers/magnifier.png'" />
+            <img class="locate-marker-layer" :class="{flashlight: locateMarker.flash}" :src="'statics/images/find-marker-layers/magnifier.png'" />
           </transition>
         </div>
         <div v-show="!playerResult">
@@ -495,6 +495,7 @@ export default {
           markerControls: {},
           playerAnswer: '',
           layer: null,
+          flash: false,
           showHelp: false,
           compliant: !(window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios')
         },
@@ -995,9 +996,13 @@ export default {
       
       // if generic marker sensor
       if (this.step.id === 'sensor') {
-        this.$emit('played', answer)
-        //this.stopMarkersSensors()
-              
+        if (!this.locateMarker.markerControls[answer].detected) {
+          this.locateMarker.flash = false
+          this.locateMarker.flash = true
+          this.locateMarker.markerControls[answer].detected = true
+          this.$emit('played', answer)
+          //this.stopMarkersSensors()
+        }
         return 
       }
       

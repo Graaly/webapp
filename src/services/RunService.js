@@ -35,7 +35,6 @@ export default {
    * @param   {String}    markerCode             Code of the marker
    */
   getMarkerNextStep (runId, markerCode) {
-console.log("go")
     return Api().get('run/' + runId + '/marker/' + markerCode + '/next').catch(error => console.log(error.request))
   },
   /*

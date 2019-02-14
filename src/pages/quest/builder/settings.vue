@@ -583,7 +583,7 @@ export default {
           var hasEndOfChapterStep = false
           var stepsWithNoCondition = []
           var order = []
-          var orderIndex = 1
+          var orderIndex = 100
           var stepsOfChapter = []
           var parent = []
      
