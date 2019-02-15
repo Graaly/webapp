@@ -116,6 +116,16 @@ Visible console output is related to the activity on the Android Chrome browser 
 
 Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
 
+# Testing
+
+* [Ways to economically test your apps on a range of devices](https://www.androidauthority.com/test-your-apps-607217/)
+
+* [Android devices distribution dashboard](https://developer.android.com/about/dashboards/)
+
+* [Top devices for testing Android apps](https://bugfender.com/blog/top-devices-testing-android-apps/)
+
+* Graaly currently supports devices with Android version >= 4.4
+
 # Technical specs
 
 `step.answers` types, depending on `step.type` value:
