@@ -126,6 +126,10 @@ Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install 
 
 * Graaly currently supports devices with Android version >= 4.4
 
+* Online services for testing on real devices:
+** [Google Firebase Test Lab](https://firebase.google.com/docs/test-lab/) (maybe for native Android apps only)
+** [Saucelabs mobile app testing](https://saucelabs.com/products/mobile-app-testing) (paid service)
+
 # Technical specs
 
 `step.answers` types, depending on `step.type` value:
