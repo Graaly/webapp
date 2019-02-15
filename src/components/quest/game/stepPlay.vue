@@ -266,9 +266,9 @@
       
       <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && !playerResult && geolocation.active"></video>
+          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && geolocation.active"></video>
         </transition>
-        <div v-show="!playerResult">
+        <div v-show="playerResult === null">
           <div class="text">
             <p>{{ getTranslatedText() }}</p>
             <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
@@ -276,7 +276,7 @@
             <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
           </div>
         </div>
-        <div class="target-view" v-show="!playerResult || (playerResult && step.options.is3D)">
+        <div class="target-view" v-show="playerResult === null || (playerResult && step.options.is3D)">
           <canvas id="target-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
         <img ref="item-image" v-show="playerResult && !step.options.is3D" />
@@ -284,21 +284,16 @@
       
       <!------------------ LOCATE A 2D MARKER / TOUCH OBJECT ON MARKER ------------------------>
       
-      <div class="locate-marker" v-if="step.type == 'locate-marker' || step.id == 'sensor' || step.type == 'touch-object-on-marker'">
+      <div class="locate-marker" v-if="step.type == 'locate-marker' || step.id == 'sensor'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-          <video ref="camera-stream-for-locate-marker"  webkit-playsinline playsinline src="" autoplay v-show="cameraStreamEnabled && !playerResult"></video>
+          <video ref="camera-stream-for-locate-marker"  webkit-playsinline playsinline src="" autoplay v-show="cameraStreamEnabled && playerResult === null"></video>
         </transition>
-        <div v-if="step.type == 'locate-marker' && locateMarker.layer !== null &&  locateMarker.compliant">
+        <div v-if="((step.type == 'locate-marker' && step.options.mode === 'scan') || step.id == 'sensor') && locateMarker.layer !== null &&  locateMarker.compliant">
           <transition appear :enter-active-class="'animated ' + locateMarker.layer.animationShow" :leave-active-class="'animated ' + locateMarker.layer.animationHide">
-            <img class="locate-marker-layer" :src="'statics/images/find-marker-layers/' + step.options.layerCode + '.png'" v-show="playerResult === null || (playerResult === false && nbTry < 2)" />
+            <img class="locate-marker-layer" :src="'statics/images/find-marker-layers/' + step.options.layerCode + '.png'" v-show="step.id === 'sensor' || (playerResult === null || (playerResult === false && nbTry < 2))" />
           </transition>
         </div>
-        <div v-if="step.id == 'sensor' && locateMarker.layer !== null &&  locateMarker.compliant">
-          <transition appear :enter-active-class="'animated ' + locateMarker.layer.animationShow" :leave-active-class="'animated ' + locateMarker.layer.animationHide">
-            <img class="locate-marker-layer" :class="{flashlight: locateMarker.flash}" :src="'statics/images/find-marker-layers/magnifier.png'" />
-          </transition>
-        </div>
-        <div v-show="!playerResult">
+        <div v-show="playerResult === null">
           <div class="text" v-show="getTranslatedText() != ''">
             <p>{{ getTranslatedText() }}</p>
           </div>
@@ -306,14 +301,14 @@
         <div v-if="!locateMarker.compliant">
           {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
         </div>
-        <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant && step.type == 'locate-marker'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
+        <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant && step.options.mode == 'scan'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
         <div class="marker-view" v-show="locateMarker.compliant">
           <canvas id="marker-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
         <!-- HELP -->
-        <q-btn round size="lg" v-if="locateMarker.compliant && !playerResult" class="absolute-bottom-left" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
+        <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null" class="absolute-bottom-left" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
         <div class="fixed-bottom over-map" style="height: 100%" v-if="locateMarker.showHelp">
-          <story step="help" :data="{ help: step.type == 'locate-marker' ? $t('label.FindMarkerHelp') : $t('label.TouchObjectOnMarkerHelp') }" @next="locateMarker.showHelp = false"></story>
+          <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? $t('label.FindMarkerHelp') : $t('label.TouchObjectOnMarkerHelp') }" @next="locateMarker.showHelp = false"></story>
         </div>
       </div>
     </div>
@@ -482,7 +477,7 @@ export default {
           primaryColor: colors.getBrand('primary')
         },
         
-        // for step types 'locate-marker' and 'touch-object-on-marker'
+        // for step type 'locate-marker'
         locateMarker: {
           renderer: null,
           scene: null,
@@ -571,7 +566,7 @@ export default {
           }
         } else {
           // no background on some steps to display camera stream
-          if (this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker' && this.step.type !== 'touch-object-on-marker') {
+          if (this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker') {
             background.style.background = 'none'
             background.style.backgroundColor = '#fff'
           }
@@ -748,19 +743,21 @@ export default {
           this.animateTargetCanvas()
         }
         
-        if ((this.step.type === 'locate-marker' || this.step.type === 'touch-object-on-marker' || this.step.id === 'sensor') && !this.playerResult) {
-          // user can pass
-          if (this.step.type === 'locate-marker') {
+        if ((this.step.type === 'locate-marker' || this.step.id === 'sensor') && !this.playerResult) {
+          if (this.step.id === 'sensor') {
+            this.step.options = { mode: 'scan', layerCode: 'magnifier' }
+          } else {
+            // user can pass
             this.$emit('pass')
-            
+          }
+          
+          if (this.step.options.mode === 'scan') {
             for (let layer of layersForMarkers) {
               if (layer.code === this.step.options.layerCode) {
                 this.locateMarker.layer = layer
                 break
               }
             }
-          } else {
-            this.locateMarker.layer = layersForMarkers[0]
           }
           
           if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
@@ -808,7 +805,7 @@ export default {
       let arToolkitContext = this.locateMarker.arToolkitContext
       let markerRoot
       
-      if (this.step.type === 'locate-marker' || this.step.id === 'sensor') {
+      if (this.step.options.mode === 'scan') {
         markerRoot = this.locateMarker.markerRoots['commonRoot']
       } else {
         markerRoot = this.locateMarker.markerRoots[markerCode]
@@ -821,7 +818,7 @@ export default {
       marker.code = markerCode
 
       marker.addEventListener('markerFound', (ev) => {
-        if (this.step.type === 'locate-marker' || this.step.id === 'sensor') {
+        if (this.step.options.mode === 'scan') {
           this.checkAnswer(ev.target.code)
         }
       })
@@ -907,7 +904,7 @@ export default {
       
       this.locateMarker.markerCodeAnswer = this.step.answers
       
-      if (this.step.type === 'locate-marker' || this.step.id === 'sensor') {
+      if (this.step.options.mode === 'scan') {
         // only one marker root is enough
         let markerRoot = new THREE.Group()
         scene.add(markerRoot)
@@ -924,7 +921,7 @@ export default {
       }
       
       markersList.forEach((markerCode) => {
-        if (this.step.type === 'touch-object-on-marker') {
+        if (this.step.options.mode === 'touch') {
           // one marker root per marker
           let markerRoot = new THREE.Group()
           scene.add(markerRoot)
@@ -933,7 +930,7 @@ export default {
         this.locateMarker.markerControls[markerCode] = this.createMarkerControl(markerCode)
       })
       
-      if (this.step.type === 'touch-object-on-marker') {
+      if (this.step.options.mode === 'touch') {
         let object, animations
         let data = await this.loadAndPrepare3DModel(this.step.options.model)
         object = data.object
@@ -1204,98 +1201,96 @@ export default {
           break
           
         case 'locate-item-ar':
-        case 'touch-object-on-marker':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, false)
-
-          if (checkAnswerResult.result === true) {
-            if (this.step.type === 'locate-item-ar') {
-              this.geolocation.absoluteOrientationSensor.stop() // stop moving camera when device moves
-            }
-            
-            TWEEN.removeAll() // clear all running animations
-            
-            // show found object when it's a 3D model
-            if ((this.step.type === 'locate-item-ar' && this.step.options && this.step.options.is3D) || this.step.type === 'touch-object-on-marker') {
-              let target
-              if (this.step.type === 'locate-item-ar') {
-                target = this.geolocation.target
-              } else {
-                target = this.locateMarker
-                target.arToolkitContext = null // otherwise ending animation is 'erased' by AR.js behavior: 3D object disappears because camera stream is removed and markers are not found anymore !
-              }
-              let camera = target.camera
-              let object = target.scene.getObjectByName('targetObject')
-              
-              let box = new THREE.Box3().setFromObject(object)
-              let size = new THREE.Vector3()
-              box.getSize(size)
-              
-              let cameraDistance = Math.max(size.x, size.y, size.z) * 2
-              
-              let startScale = Object.assign({}, object.scale) // copy the full Vector3 object, not a reference
-              
-              let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
-                .easing(TWEEN.Easing.Back.In)
-                .onComplete(() => {
-                  if (this.step.type === 'touch-object-on-marker') {
-                    // detach 3D object (target to find) from arSmoothedControl and attach it directly at scene root, for hassle free manipulation of the 3D object
-                    utils.detachObject3D(object, object.parent, target.scene)
-                    utils.attachObject3D(object, target.scene, target.scene)
-                  }
-                  
-                  camera.position.set(0, 0,  cameraDistance * 2 / 3)
-                  camera.lookAt(new THREE.Vector3(0, cameraDistance, size.z / 2))
-                  // reset object position/scale/rotation
-                  object.scale.set(0, 0, 0)
-                  object.position.set(0, cameraDistance, size.z / 2)
-                  object.rotation.set(0, 0, 0)
-                  
-                  this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
-                })
-              
-              let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
-                .easing(TWEEN.Easing.Back.Out)
-              
-              // https://stackoverflow.com/a/31766476/488666
-              let rotationAnimation = new TWEEN.Tween(object.rotation)
-                .to({ z: "-" + Math.PI / 2 }, 2000) // relative animation
-                .repeat(Infinity)
-                
-              disappearAnimation.chain(appearAnimation, rotationAnimation).start()
-            } else { // 2D image on plane
-              this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
-            }
-          }
-          break
-          
         case 'locate-marker':
-          if (!this.locateMarker.markerControls[answer].detected) {
-            let object = this.locateMarker.scene.getObjectByName('markerObject')
-            
-            let raycaster = new THREE.Raycaster()
-            
-            // imaginary line starting from screen center
-            raycaster.setFromCamera(new THREE.Vector2(0, 0), this.locateMarker.camera)
-            
-            // second parameter set to true so that intersectObject() traverses recursively the object
-            // and its children geometries
-            let intersects = raycaster.intersectObject(object, true)
-            
-            if (intersects.length > 0) {
-              this.locateMarker.markerControls[answer].detected = true
-              checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+          if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
+            checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, false)
+            if (checkAnswerResult.result === true) {
+              if (this.step.type === 'locate-item-ar') {
+                this.geolocation.absoluteOrientationSensor.stop() // stop moving camera when device moves
+              }
               
-              if (checkAnswerResult.result === true) {
-                this.submitGoodAnswer(checkAnswerResult.score)
-                this.stopMarkersSensors()
-                this.locateMarker.playerAnswer = answer // for display
-              } else {
-                this.nbTry++
-                if (this.nbTry === 2) {
-                  this.submitWrongAnswer()
-                  this.stopMarkersSensors()
+              TWEEN.removeAll() // clear all running animations
+              
+              // show found object when it's a 3D model
+              if ((this.step.type === 'locate-item-ar' && this.step.options && this.step.options.is3D) || this.step.type === 'locate-marker') {
+                let target
+                if (this.step.type === 'locate-item-ar') {
+                  target = this.geolocation.target
                 } else {
-                  this.submitRetry()
+                  target = this.locateMarker
+                  target.arToolkitContext = null // otherwise ending animation is 'erased' by AR.js behavior: 3D object disappears because camera stream is removed and markers are not found anymore !
+                }
+                let camera = target.camera
+                let object = target.scene.getObjectByName('targetObject')
+                
+                let box = new THREE.Box3().setFromObject(object)
+                let size = new THREE.Vector3()
+                box.getSize(size)
+                
+                let cameraDistance = Math.max(size.x, size.y, size.z) * 2
+                
+                let startScale = Object.assign({}, object.scale) // copy the full Vector3 object, not a reference
+                
+                let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
+                  .easing(TWEEN.Easing.Back.In)
+                  .onComplete(() => {
+                    if (this.step.type === 'locate-marker') {
+                      // detach 3D object (target to find) from arSmoothedControl and attach it directly at scene root, for hassle free manipulation of the 3D object
+                      utils.detachObject3D(object, object.parent, target.scene)
+                      utils.attachObject3D(object, target.scene, target.scene)
+                    }
+                    
+                    camera.position.set(0, 0,  cameraDistance * 2 / 3)
+                    camera.lookAt(new THREE.Vector3(0, cameraDistance, size.z / 2))
+                    // reset object position/scale/rotation
+                    object.scale.set(0, 0, 0)
+                    object.position.set(0, cameraDistance, size.z / 2)
+                    object.rotation.set(0, 0, 0)
+                    this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+                  })
+                
+                let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
+                  .easing(TWEEN.Easing.Back.Out)
+                
+                // https://stackoverflow.com/a/31766476/488666
+                let rotationAnimation = new TWEEN.Tween(object.rotation)
+                  .to({ z: "-" + Math.PI / 2 }, 2000) // relative animation
+                  .repeat(Infinity)
+                  
+                disappearAnimation.chain(appearAnimation, rotationAnimation).start()
+              } else { // 2D image on plane
+                this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+              }
+            }
+          } else { // locate-marker, mode scan
+            if (!this.locateMarker.markerControls[answer].detected) {
+              let object = this.locateMarker.scene.getObjectByName('markerObject')
+              
+              let raycaster = new THREE.Raycaster()
+              
+              // imaginary line starting from screen center
+              raycaster.setFromCamera(new THREE.Vector2(0, 0), this.locateMarker.camera)
+              
+              // second parameter set to true so that intersectObject() traverses recursively the object
+              // and its children geometries
+              let intersects = raycaster.intersectObject(object, true)
+              
+              if (intersects.length > 0) {
+                this.locateMarker.markerControls[answer].detected = true
+                checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+                
+                if (checkAnswerResult.result === true) {
+                  this.submitGoodAnswer(checkAnswerResult.score)
+                  this.stopMarkersSensors()
+                  this.locateMarker.playerAnswer = answer // for display
+                } else {
+                  this.nbTry++
+                  if (this.nbTry === 2) {
+                    this.submitWrongAnswer()
+                    this.stopMarkersSensors()
+                  } else {
+                    this.submitRetry()
+                  }
                 }
               }
             }
@@ -1352,15 +1347,16 @@ export default {
         case 'memory':
         case 'use-item':
         case 'find-item':
-        case 'locate-marker':
-          this.displaySuccessMessage(true, this.$t('label.WellDone'))
-          break
         case 'geolocation':
           this.displaySuccessMessage(true, this.$t('label.YouHaveFoundThePlace'))
           break
         case 'locate-item-ar':
-        case 'touch-object-on-marker':
-          this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'))
+        case 'locate-marker':
+          if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
+            this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'))
+          } else { // locate marker, mode scan
+            this.displaySuccessMessage(true, this.$t('label.WellDone'))
+          }
           break
       }
       // advise user to move to next step
@@ -2122,7 +2118,7 @@ export default {
       this.latestRequestAnimationId = requestAnimationFrame(this.animateTargetCanvas)
     },
     /*
-    * Animate canvas where AR markers are detected, for step types "locate-marker" and "touch-object-on-marker"
+    * Animate canvas where AR markers are detected, for step type "locate-marker"
     */
     animateMarkerCanvas() {
       let mixers = this.locateMarker.mixers
@@ -2132,7 +2128,7 @@ export default {
         // => adjust camera orientation & object position according to detected marker position
         this.locateMarker.arToolkitContext.update(this.$refs['camera-stream-for-locate-marker'])
         
-        if (this.step.type === 'locate-marker' || this.step.id === 'sensor') {
+        if ((this.step.type === 'locate-marker' && this.step.options.mode === 'scan') || this.step.id === 'sensor') {
           // any marker is "recognized"
           for (let markerCode in this.locateMarker.markerRoots) {
             this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoots[markerCode])
@@ -2190,8 +2186,8 @@ export default {
     * used by steps 'locate-item-ar' and 'touch-object-on-marker'
     */
     onTargetCanvasClick(event) {
-      // only for specific steps
-      if (!['locate-item-ar', 'touch-object-on-marker'].includes(this.step.type)) {
+      // handle touch only for specific steps & modes
+      if (!(this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch'))) {
         return
       }
       
@@ -2223,7 +2219,7 @@ export default {
       let intersects = raycaster.intersectObject(object, true)
       
       let canTouchTarget = (this.step.type === 'locate-item-ar' && this.geolocation.canTouchTarget) ||
-        (this.step.type === 'touch-object-on-marker' && this.locateMarker.arSmoothedControls.object3d.visible)
+        (this.step.type === 'locate-marker' && this.locateMarker.arSmoothedControls.object3d.visible)
       
       if (intersects.length > 0 && canTouchTarget) {
         if (this.step.type === 'locate-item-ar') {
@@ -2235,7 +2231,7 @@ export default {
         // stop camera streams
         let cameraStreamRef = (this.step.type === 'locate-item-ar' ? 'camera-stream-for-locate-item-ar' : 'camera-stream-for-locate-marker')
         this.stopVideoTracks(cameraStreamRef)
-        this.checkAnswer()
+        this.checkAnswer(this.step.answers) // currently, answer checking cannot be done on server side. step type 'locate-marker' requires a valid marker number.
       }
     },
     /*
@@ -2292,7 +2288,7 @@ export default {
       object = pivotObj
       
       // apply user-defined translation
-      if (objectInit.translation && this.step.type !== 'touch-object-on-marker') {
+      if (objectInit.translation && this.step.type === 'locate-item-ar') {
         if (objectInit.translation.hasOwnProperty('x')) { object.position.x += objectInit.translation.x * scaleFactor }
         if (objectInit.translation.hasOwnProperty('y')) { object.position.y += objectInit.translation.y * scaleFactor }
         if (objectInit.translation.hasOwnProperty('z')) { object.position.z += objectInit.translation.z * scaleFactor }
@@ -2316,7 +2312,7 @@ export default {
     },
     /*
     * Adds a point light & ambient light to 3D scene.
-    * Common for steps 'locate-item-ar' and 'touch-object-on-marker'
+    * Common for steps 'locate-item-ar' and 'locate-marker'
     */
     addDefaultLightTo3DScene(scene) {
       // create a point light from top

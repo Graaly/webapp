@@ -71,8 +71,6 @@ module.exports = {
       LocateItemARDesc: "Player has to find an geolocated item, visible on his smartphone when he is near.",
       LocateMarker: "Locate a symbol",
       LocateMarkerDesc: "Player has to find a special symbol, printed or shown on a real screen.",
-      TouchObjectOnMarker: "Touch an object on a symbol",
-      TouchObjectOnMarkerDesc: "Player has to find a special symbol, printed or shown on a real screen, and touch an object (in augmented reality) displayed above the symbol.",
       GraalyCharacter: "Graaly character",
       GraalyCharacterDesc: "Make a Graaly character speak (Boss, indicator, ...)",
       EndOfChapter: "End of chapter",
@@ -618,7 +616,10 @@ module.exports = {
       FollowingStepsHaveNoConditionsOnlyTheFirstStepCanHaveThis: "Following steps have no trigger. Only the introduction step of a chapter can not have triggers",
       FollowingStepsHaveNoValidParent: "Following steps have invalid trigger",
       IssuesInYouQuest: "Issues of your quest",
-      DisplayRightAnswer: "Display right answer"
+      DisplayRightAnswer: "Display right answer",
+      Mode: "Mode",
+      TouchA3DObjectOnTheMarker: "Touch a 3D object on the marker",
+      ScanTheMarker: "Scan the marker (two attempts)"
     }
   },
   fr: {
@@ -693,8 +694,6 @@ module.exports = {
       LocateItemARDesc: "Le joueur doit trouver un objet géolocalisé et visible sur l'écran de son smartphone lorsqu'il se trouve à proximité.",
       LocateMarker: "Trouver un symbole",
       LocateMarkerDesc: "Le joueur doit trouver un symbole spécial, imprimé ou affiché sur un écran.",
-      TouchObjectOnMarker: "Toucher un objet sur un symbole",
-      TouchObjectOnMarkerDesc: "Le joueur doit trouver un symbole spécial, imprimé ou affiché sur un écran, puis toucher un objet (en réalité augmentée) affiché sur le symbole.",
       GraalyCharacter: "Personnage Graaly",
       GraalyCharacterDesc: "Faire parler un personnage Graaly (commissaire, indic, ...)",
       EndOfChapter: "Fin de chapitre",
@@ -1241,7 +1240,10 @@ module.exports = {
       FollowingStepsHaveNoConditionsOnlyTheFirstStepCanHaveThis: "Les étapes suivantes n'ont pas de déclencheur. Seul la première étape d'un chapitre peut ne pas avoir de déclencheur",
       FollowingStepsHaveNoValidParent: "Les étapes suivantes ont un déclencheur incorrect",
       IssuesInYouQuest: "Problèmes de votre enquête",
-      DisplayRightAnswer: "Afficher la bonne réponse"
+      DisplayRightAnswer: "Afficher la bonne réponse",
+      Mode: "Mode",
+      TouchA3DObjectOnTheMarker: "Toucher un objet 3D sur le marqueur",
+      ScanTheMarker: "Scanner le bon marqueur (2 essais)"
     }
   }
 }
