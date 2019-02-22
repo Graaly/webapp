@@ -98,4 +98,7 @@
     <engine name="ios" spec="^4.5.5" />
     <plugin name="cordova-plugin-camera-preview" spec="^0.10.0" />
     <plugin name="phonegap-plugin-media-stream" spec="^1.2.1" />
+    <plugin name="phonegap-plugin-barcodescanner" spec="^8.0.1">
+        <variable name="ANDROID_SUPPORT_V4_VERSION" value="27.+" />
+    </plugin>
 </widget>
