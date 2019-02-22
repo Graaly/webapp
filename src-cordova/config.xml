@@ -94,8 +94,6 @@
     <edit-config file="*-Info.plist" mode="merge" target="NSPhotoLibraryUsageDescription">
         <string>Each player can get photos of his library to build a quest</string>
     </edit-config>
-    <engine name="android" spec="^7.0.0" />
-    <engine name="ios" spec="^4.5.5" />
     <plugin name="cordova-plugin-camera-preview" spec="^0.10.0" />
     <plugin name="phonegap-plugin-media-stream" spec="^1.2.1" />
     <plugin name="phonegap-plugin-barcodescanner" spec="^8.0.1">

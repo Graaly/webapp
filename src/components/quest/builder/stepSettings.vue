@@ -438,6 +438,7 @@
         <q-btn color="primary" :label="$t('label.Choose')" @click="openChooseMarkerModal()" />
       </p>
       
+      <!--
       <h2>{{ $t('label.Mode') }}</h2>
       
       <div class="fields-group">
@@ -451,11 +452,12 @@
             { label: $t('label.ScanTheMarker'), value: 'scan' }
           ]"
         />
+        -->
         <!--
         'Touch a 3D object on the marker' [TODO TRANSLATE]
         'Scan the marker (two attempts) [TODO TRANSLATE]
         -->
-        
+        <!--
         <div v-if="selectedStep.form.options.mode === 'touch'">
           <q-select v-model="selectedStep.form.options.model" :float-label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
           <p class="error-label" v-show="$v.selectedStep.form.options && $v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
@@ -463,7 +465,7 @@
         
         <q-select v-if="selectedStep.form.options.mode === 'scan'" :float-label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
       
-      </div>
+      </div>-->
       
       <q-modal v-model="markerModalOpened">
         <h2>{{ $t('label.ChooseTheMarker') }}</h2>
@@ -987,9 +989,9 @@ export default {
         if (!this.selectedStep.form.options.hasOwnProperty('model')) {
           this.$set(this.selectedStep.form.options, 'model', this.selectModel3DOptions[0].value)
         }
-        // default mode: touch 3D object
+        // default mode: scan code
         if (!this.selectedStep.form.options.hasOwnProperty('mode')) {
-          this.$set(this.selectedStep.form.options, 'mode', 'touch')
+          this.$set(this.selectedStep.form.options, 'mode', 'scan')
         }
       }
       

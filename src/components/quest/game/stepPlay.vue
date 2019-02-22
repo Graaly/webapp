@@ -760,17 +760,39 @@ export default {
             }
           }
           
-          if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
-            // With plugin Cordova-plugin-camera-preview 
-            let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
-            CameraPreview.startCamera(options)
-            CameraPreview.show()
+          //if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
+          if (window.cordova) {
+            cordova.plugins.barcodeScanner.scan(
+              function (result) {
+                alert("We got a barcode\n" +
+                  "Result: " + result.text + "\n" +
+                  "Format: " + result.format + "\n" +
+                  "Cancelled: " + result.cancelled)
+              },
+              function (error) {
+                alert("Scanning failed: " + error)
+              },
+              {
+                preferFrontCamera: false, // iOS and Android
+                showFlipCameraButton: false, // iOS and Android
+                showTorchButton: true, // iOS and Android
+                torchOn: false, // Android, launch with the torch switched on (if available)
+                saveHistory: true, // Android, save scan history (default false)
+                prompt: "", // Android
+                resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+                formats: "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
+                orientation: "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
+                disableAnimations: true, // iOS
+                disableSuccessBeep: false // iOS and Android
+              }
+            )
+            /*/ With plugin Cordova-plugin-camera-preview 
             this.cameraStreamEnabled = true
             let sceneCanvas = document.getElementById('marker-canvas')
             sceneCanvas.height = window.screen.height
             sceneCanvas.width = window.screen.width
             
-            await this.displayMarkers(sceneCanvas)
+            await this.displayMarkers(sceneCanvas)*/
           } else {
             // with plugin phonegap-plugin-media-stream
             let cameraStream = this.$refs['camera-stream-for-locate-marker']

@@ -98,7 +98,7 @@ On the Android smartphone:
 
 On your computer:
 
-* change the SERVER_URL in webapp/config/dev.env.js
+* change the SERVER_URL in webapp/config/dev.env.js (get server URL with ipconfig on the PC)
 * Launch in windows console : quasar dev -m cordova -T android
 * Open Chrome browser
 * Press F12 to load developer tools
