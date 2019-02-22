@@ -427,9 +427,9 @@
       </div>
     </div>
     
-    <!------------------ STEPS : FIND AR MARKER, TOUCH OBJECT ON AR MARKER ------------------------>
+    <!------------------ STEP : FIND AR MARKER ------------------------>
     
-    <div class="locate-marker" v-if="(options.type.code === 'locate-marker' || options.type.code === 'touch-object-on-marker') && typeof selectedStep.form.answers === 'string'">
+    <div class="locate-marker" v-if="options.type.code === 'locate-marker' && typeof selectedStep.form.answers === 'string'">
       <h2>{{ $t('label.Marker') }}</h2>
       
       <p>
@@ -438,11 +438,31 @@
         <q-btn color="primary" :label="$t('label.Choose')" @click="openChooseMarkerModal()" />
       </p>
       
-      <q-select v-if="options.type.code === 'locate-marker'" :float-label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
+      <h2>{{ $t('label.Mode') }}</h2>
       
-      <div v-if="options.type.code === 'touch-object-on-marker'">
-        <q-select v-model="selectedStep.form.options.model" :float-label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
-        <p class="error-label" v-show="$v.selectedStep.form.options && $v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
+      <div class="fields-group">
+        
+        <q-option-group
+          type="radio"
+          color="secondary"
+          v-model="selectedStep.form.options.mode"
+          :options="[
+            { label: $t('label.TouchA3DObjectOnTheMarker'), value: 'touch' },
+            { label: $t('label.ScanTheMarker'), value: 'scan' }
+          ]"
+        />
+        <!--
+        'Touch a 3D object on the marker' [TODO TRANSLATE]
+        'Scan the marker (two attempts) [TODO TRANSLATE]
+        -->
+        
+        <div v-if="selectedStep.form.options.mode === 'touch'">
+          <q-select v-model="selectedStep.form.options.model" :float-label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
+          <p class="error-label" v-show="$v.selectedStep.form.options && $v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
+        </div>
+        
+        <q-select v-if="selectedStep.form.options.mode === 'scan'" :float-label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
+      
       </div>
       
       <q-modal v-model="markerModalOpened">
@@ -662,10 +682,10 @@ export default {
       
       unformatedAnswer: null,
       
-      // for 'locate-item-ar'
+      // for 'locate-item-ar' and 'locate-marker'
       selectModel3DOptions: [],
       
-      // for 'locate-marker' and 'touch-object-on-marker'
+      // for 'locate-marker'
       markerModalOpened: false,
       layersForMarkersOptions: [] // for 'locate-marker' only
     }
@@ -928,9 +948,6 @@ export default {
         if (!this.selectedStep.form.options.hasOwnProperty('is3D')) {
           this.$set(this.selectedStep.form.options, 'is3D', false)
         }
-        if (!this.selectedStep.form.options.hasOwnProperty('model')) {
-          this.$set(this.selectedStep.form.options, 'model', null)
-        }
         // create options for 3D Model selection
         for (let key in modelsList) {
           this.selectModel3DOptions.push({ label: modelsList[key].name[this.$store.state.user.language], value: key })
@@ -939,6 +956,9 @@ export default {
         this.selectModel3DOptions = this.selectModel3DOptions.sort((a, b) => {
           return a.label.localeCompare(b.label)
         })
+        if (!this.selectedStep.form.options.hasOwnProperty('model')) {
+          this.$set(this.selectedStep.form.options, 'model', this.selectModel3DOptions[0].value)
+        }
       } else if (this.options.type.code === 'locate-marker') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.$set(this.selectedStep.form, 'answers', markersList[0])
@@ -955,10 +975,7 @@ export default {
         if (!this.selectedStep.form.options.hasOwnProperty('layerCode')) {
           this.$set(this.selectedStep.form.options, 'layerCode', layersForMarkers[0].code)
         }
-      } else if (this.options.type.code === 'touch-object-on-marker') {
-        if (typeof this.selectedStep.form.answers !== 'string') {
-          this.$set(this.selectedStep.form, 'answers', markersList[0])
-        }
+        
         // create options for 3D Model selection
         for (let key in modelsList) {
           this.selectModel3DOptions.push({ label: modelsList[key].name[this.$store.state.user.language], value: key })
@@ -968,7 +985,11 @@ export default {
           return a.label.localeCompare(b.label)
         })
         if (!this.selectedStep.form.options.hasOwnProperty('model')) {
-          this.$set(this.selectedStep.form.options, 'model', null)
+          this.$set(this.selectedStep.form.options, 'model', this.selectModel3DOptions[0].value)
+        }
+        // default mode: touch 3D object
+        if (!this.selectedStep.form.options.hasOwnProperty('mode')) {
+          this.$set(this.selectedStep.form.options, 'mode', 'touch')
         }
       }
       
