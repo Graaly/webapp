@@ -96,7 +96,9 @@
     </edit-config>
     <plugin name="cordova-plugin-camera-preview" spec="^0.10.0" />
     <plugin name="phonegap-plugin-media-stream" spec="^1.2.1" />
-    <plugin name="graaly-cordova-plugin-qrscanner" spec="../graaly-cordova-plugins/graaly-marker-scanner" />
     <engine name="android" spec="^7.0.0" />
     <engine name="ios" spec="^4.5.5" />
+    <plugin name="graaly-plugin-marker-scanner" spec="../graaly-cordova-plugins/marker-scanner/">
+        <variable name="ANDROID_SUPPORT_V4_VERSION" value="27.+" />
+    </plugin>
 </widget>

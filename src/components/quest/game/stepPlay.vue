@@ -761,16 +761,16 @@ export default {
           
           //if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
           if (window.cordova) {
-            this.initQRCodes()
-            QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
+            /*this.initQRCodes()
+            //QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
             // Start a scan. Scanning will continue until something is detected or
             // `BBScanner.cancelScan()` is called.
             //QRScanner.scan({format: cordova.plugins.QRScanner.types.QR_CODE}, this.scanQRCode)
             this.startScanQRCode()
 
             // Make the webview transparent so the video preview is visible behind it.
-            QRScanner.show()
-            /*
+            //QRScanner.show()
+            */
             cordova.plugins.barcodeScanner.scan(
               function (result) {
                 if (result && result.text) {
@@ -794,7 +794,7 @@ export default {
                 disableSuccessBeep: false // iOS and Android
               }
             )
-            */
+            
             /*/ With plugin Cordova-plugin-camera-preview 
             this.cameraStreamEnabled = true
             let sceneCanvas = document.getElementById('marker-canvas')
@@ -831,7 +831,7 @@ export default {
     },
     /*
     * Init QR Codes
-    */
+    *
     initQRCodes() {
       for (var i = 1; i <= 16; i++) {
         let code = i.toString()
@@ -842,23 +842,29 @@ console.log(code)
     },
     /*
     * start the scanner for hybrid app
-    */
+    *
     startScanQRCode() {
       if (window.cordova) {
         this.stopScanQRCode()
         QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
         QRScanner.scan(this.scanQRCode)
         QRScanner.show()
+        QRScanner.getStatus(function(status) {
+          console.log(status);
+        });
       }
     },
     stopScanQRCode() {
-      QRScanner.destroy(function(status) {
-        console.log(status)
-      })
+      QRScanner.hide(function(status) {
+        console.log(status);
+        QRScanner.destroy(function(status) {
+          console.log(status)
+        })
+      });
     },
     /*
     * Triggered when a qr code is scanned
-    */
+    *
     scanQRCode (err, text) {
       if (err) {
         console.log("Error with scanner: " + err)
@@ -871,25 +877,28 @@ console.log("found marker : " + text)
     },
     /*
     * Prepare QR Code scanner
-    */
+    *
     prepareQRCodeScanner (err, status) {
       if (err) {
        // here we can handle errors and clean up any loose ends.
        console.error(err);
       }
       if (status.authorized) {
+        console.log("QR Code scan not authorized")
         // W00t, you have camera access and the scanner is initialized.
         // QRscanner.show() should feel very fast.
       } else if (status.denied) {
+        console.log("QR Code access denied")
        // The video preview will remain black, and scanning is disabled. We can
        // try to ask the user to change their mind, but we'll have to send them
        // to their device settings with `BBScanner.openSettings()`.
       } else {
+        console.log("QR Code scan error with permission")
         // we didn't get permission, but we didn't get permanently denied. (On
         // Android, a denial isn't permanent unless the user checks the "Don't
         // ask again" box.) We can ask again at the next relevant opportunity.
       }
-    },
+    },*/
     /*
     * creates a marker control for step type 'locate-marker'
     */

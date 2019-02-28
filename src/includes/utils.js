@@ -232,12 +232,12 @@ var self = {
     this.clearAllTimeouts()
     this.clearAllIntervals()
     this.clearAllNotifications()
-    // hide QR Code scanner
+    /* hide QR Code scanner
     if (window.cordova && QRScanner) {
       QRScanner.destroy(function(status) {
         console.log(status)
       })
-    }
+    }*/
   },
   
   /**

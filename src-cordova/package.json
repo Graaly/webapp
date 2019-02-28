@@ -54,7 +54,9 @@
             },
             "cordova-plugin-contacts": {},
             "cordova-plugin-camera-preview": {},
-            "graaly-cordova-plugin-qrscanner": {}
+            "graaly-plugin-marker-scanner": {
+                "ANDROID_SUPPORT_V4_VERSION": "27.+"
+            }
         },
         "platforms": [
             "android",
