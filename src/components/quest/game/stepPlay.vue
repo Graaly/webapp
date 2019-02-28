@@ -771,29 +771,7 @@ export default {
             // Make the webview transparent so the video preview is visible behind it.
             //QRScanner.show()
             */
-            cordova.plugins.barcodeScanner.scan(
-              function (result) {
-                if (result && result.text) {
-                  this.checkAnswer(result.text)
-                }
-              },
-              function (error) {
-                console.log("Scanning failed: " + error)
-              },
-              {
-                preferFrontCamera: false, // iOS and Android
-                showFlipCameraButton: false, // iOS and Android
-                showTorchButton: true, // iOS and Android
-                torchOn: false, // Android, launch with the torch switched on (if available)
-                saveHistory: true, // Android, save scan history (default false)
-                prompt: "", // Android
-                resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
-                formats: "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
-                orientation: "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
-                disableAnimations: true, // iOS
-                disableSuccessBeep: false // iOS and Android
-              }
-            )
+            this.startScanQRCode()
             
             /*/ With plugin Cordova-plugin-camera-preview 
             this.cameraStreamEnabled = true
@@ -839,22 +817,45 @@ export default {
 console.log(code)
         this.locateMarker.markerControls[code] = {detected: false}
       }
-    },
+    },*/
     /*
     * start the scanner for hybrid app
-    *
+    */
     startScanQRCode() {
       if (window.cordova) {
-        this.stopScanQRCode()
+        cordova.plugins.barcodeScanner.scan(
+          function (result) {
+            if (result && result.text) {
+              this.checkAnswer(result.text)
+            }
+          },
+          function (error) {
+            console.log("Scanning failed: " + error)
+          },
+          {
+            preferFrontCamera: false, // iOS and Android
+            showFlipCameraButton: false, // iOS and Android
+            showTorchButton: true, // iOS and Android
+            torchOn: false, // Android, launch with the torch switched on (if available)
+            saveHistory: true, // Android, save scan history (default false)
+            prompt: "", // Android
+            resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+            formats: "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
+            orientation: "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
+            disableAnimations: true, // iOS
+            disableSuccessBeep: false // iOS and Android
+          }
+        )
+        /*this.stopScanQRCode()
         QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
         QRScanner.scan(this.scanQRCode)
         QRScanner.show()
         QRScanner.getStatus(function(status) {
           console.log(status);
-        });
+        });*/
       }
     },
-    stopScanQRCode() {
+    /*stopScanQRCode() {
       QRScanner.hide(function(status) {
         console.log(status);
         QRScanner.destroy(function(status) {
@@ -1487,7 +1488,7 @@ console.log(this.locateMarker.markerControls)
     stopMarkersSensors() {
 console.log("destroy qr scanner")
       if (window.cordova) {
-        this.stopScanQRCode()
+        //this.stopScanQRCode()
       } else {
         this.stopVideoTracks('camera-stream-for-locate-marker')
         this.locateMarker.scene = new THREE.Scene()
