@@ -389,7 +389,7 @@ module.exports = {
       WellDone: "Well done!",
       PhotosDoesntMatch: "Unfortunately, the photos do not match.",
       DistanceInMeters: "Distance with the place to find: {distance} meters",
-      YouHaveFoundThePlace: "Well done! You have found the place",
+      YouHaveFoundThePlace: "Well done! You have found it",
       points: "points",
       Pass: "Skip",
       YourAnswer: "Your answer",
@@ -619,7 +619,8 @@ module.exports = {
       DisplayRightAnswer: "Display right answer",
       Mode: "Mode",
       TouchA3DObjectOnTheMarker: "Touch a 3D object on the marker",
-      ScanTheMarker: "Scan the marker (two attempts)"
+      ScanTheMarker: "Scan the marker (two attempts)",
+      NothingOccurs: "Nothing occurs, try something else"
     }
   },
   fr: {
@@ -1013,7 +1014,7 @@ module.exports = {
       WellDone: "Bien joué !",
       PhotosDoesntMatch: "Malheureusement, cette photo ne correspond pas.",
       DistanceInMeters: "Distance du lieu à trouver : {distance} mètres",
-      YouHaveFoundThePlace: "Bravo ! Vous avez trouvé le lieu",
+      YouHaveFoundThePlace: "Bravo ! Vous avez trouvé",
       points: "points",
       Pass: "Passer",
       YourAnswer: "Votre réponse",
@@ -1243,7 +1244,8 @@ module.exports = {
       DisplayRightAnswer: "Afficher la bonne réponse",
       Mode: "Mode",
       TouchA3DObjectOnTheMarker: "Toucher un objet 3D sur le marqueur",
-      ScanTheMarker: "Scanner le bon marqueur (2 essais)"
+      ScanTheMarker: "Scanner le bon marqueur (2 essais)",
+      NothingOccurs: "Rien ne se passe, essayez autre chose"
     }
   }
 }

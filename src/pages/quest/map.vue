@@ -105,7 +105,7 @@
           </div>
           <q-list highlight>
             <q-item v-for="quest in success.quests.built" :key="quest._id" @click.native="$router.push('/quest/settings/' + quest._id)">
-              <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
+              <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.thumb" />
               <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
               <q-item-main>
                 <q-item-tile label>{{ getQuestTitle(quest, false) }}</q-item-tile>
@@ -140,8 +140,9 @@
           </div>
           <q-list highlight>
           <q-item v-if="success.quests.played && success.quests.played.length > 0" v-for="quest in success.quests.played" :key="quest._id" @click.native="$router.push('/quest/play/'+quest.questId)">
-            <q-item-side v-if="quest.questData && quest.questData.picture" :avatar="((quest.questData.picture && quest.questData.picture[0] === '_') ? 'statics/images/quest/' + quest.questData.picture : serverUrl + '/upload/quest/' + quest.questData.picture)" />
-            <q-item-side v-if="!quest.questData || !quest.questData.picture" :avatar="'statics/profiles/noprofile.png'" />
+            <q-item-side v-if="quest.questData && quest.questData.thumb" :avatar="((quest.questData.thumb && quest.questData.thumb[0] === '_') ? 'statics/images/quest/' + quest.questData.thumb : serverUrl + '/upload/quest/' + quest.questData.thumb)" />
+            <q-item-side v-if="quest.questData && !quest.questData.thumb && quest.questData.picture" :avatar="((quest.questData.picture && quest.questData.picture[0] === '_') ? 'statics/images/quest/' + quest.questData.picture : serverUrl + '/upload/quest/' + quest.questData.picture)" />
+            <q-item-side v-if="!quest.questData || (!quest.questData.picture && !quest.questData.thumb)" :avatar="'statics/profiles/noprofile.png'" />
             <q-item-main>
               <q-item-tile label>{{ getQuestTitle(quest.questData, false) }} {{ quest.type }}</q-item-tile>
               <q-item-tile sublabel v-if="quest.dateCreated && quest.status == 'finished' && !quest.score">

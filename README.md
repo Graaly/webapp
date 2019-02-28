@@ -42,6 +42,8 @@ $ rm graaly.apk
 $ E:\logiciels\Android\sdk\build-tools\26.0.2\zipalign -v 4 app-release-unsigned.apk graaly.apk
 ```
 
+Attention: the keystore (jks file) needs to be saved in a secure location. It can not be built again.
+
 # Publish the app
 
 ## Android app

@@ -1,5 +1,5 @@
 <template>
-  <div id="scrollpage">
+  <div id="scrollpage" :class="{'bg-white': !chapters.showNewStepOverview}">
     <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
     
     <h1 class="size-3 q-pl-md" v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings">
@@ -133,6 +133,7 @@
                 <span>{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
                 <q-btn class="float-right" @click="removeStep(step._id)"><q-icon name="delete" /></q-btn>
                 <q-btn class="float-right" @click="modifyStep(step)"><q-icon name="mode edit" /></q-btn>
+                <q-btn class="float-right" @click="playStep(step)"><q-icon name="play_arrow" /></q-btn>
               </div>
             </div>
           </li>
@@ -299,15 +300,25 @@
         <!------------------ STEP SIMULATION ------------------------>
 
         <stepPlay :step="chapters.newStep.overviewData" runId="0" :itemUsed="selectedItem" :reload="chapters.reloadStepPlay" :lang="languages.current" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
-        <q-layout-footer class="step-menu">
-          <q-tabs v-model="overview.tabSelected">
-            <q-tab slot="title" name="info" icon="edit" disable />
-            <q-tab slot="title" name="inventory" icon="work" @click="openInventory()" />
-            <q-tab slot="title" name="hint" icon="lightbulb outline" :disable="!isHintAvailable()" @click="askForHint()"/>
-            <q-tab slot="title" name="previous" icon="arrow_back" @click="modifyStep" />
-            <q-tab slot="title" name="next" icon="arrow_forward" :disable="!canMoveNextStep && !canPass" @click="closeOverview" />
-          </q-tabs>
-        </q-layout-footer>      
+        <div v-show="overview.tabSelected" class="step-menu fixed-bottom">
+          <!--<q-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-progress>-->
+          <div class="row">
+            <div class="col centered q-pb-md">
+            </div>
+            <div class="col centered q-pb-md">
+              <q-btn round size="lg" color="primary" icon="work" :class="{'bg-secondary': inventory.isOpened}" @click="openInventory()" />
+            </div>
+            <div class="col centered q-pb-md">
+              <q-btn round size="lg" color="primary" icon="lightbulb outline" :class="{'flashing': hint.suggest, 'bg-secondary': hint.isOpened}" @click="askForHint()" v-show="isHintAvailable()" />
+            </div>
+            <div class="col centered q-pb-md">
+              <q-btn round size="lg" color="primary" icon="arrow_back" @click="modifyStep()" />
+            </div>
+            <div class="col centered q-pb-md">
+              <q-btn round size="lg" color="primary" icon="arrow_forward" :class="{'flashing': canMoveNextStep}" v-show="canMoveNextStep || canPass" @click="closeOverview" />
+            </div>
+          </div>
+        </div>
         
     </div>  
     
@@ -411,6 +422,7 @@ export default {
           level: 2,
           duration: 30,
           picture: null,
+          thumb: null,
           town: "",
           country: "",
           zipcode: ""
@@ -660,7 +672,6 @@ export default {
           
           // order steps
           for (i = 0; i < order.length; i++) {
-console.log(order[i].key + " : " + order[i].value)
             for (k = 0; k < stepsOfChapter.length; k++) {
               if (order[i].value === stepsOfChapter[k]._id.toString()) {
                 this.chapters.items[j].steps.push(stepsOfChapter[k])
@@ -790,6 +801,12 @@ console.log(order[i].key + " : " + order[i].value)
       let uploadPictureResult = await QuestService.uploadPicture(data)
       if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
         this.form.fields.picture = uploadPictureResult.data.file
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      let uploadThumbResult = await QuestService.uploadThumb(data)
+      if (uploadThumbResult && uploadThumbResult.hasOwnProperty('data')) {
+        this.form.fields.thumb = uploadThumbResult.data.file
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1113,6 +1130,28 @@ console.log(order[i].key + " : " + order[i].value)
       this.chapters.showNewStepOverview = false
       this.chapters.showNewStepPageSettings = true
       this.chapters.reloadStepPlay = false
+      // move to top
+      this.moveToTop()
+    },
+    /*
+     * play a step
+     * @param   {Object}    step            Data of the step to play
+     */
+    async playStep(step) {
+      this.chapters.reloadStepPlay = false
+      if (step && step._id) {
+        this.stepId = step._id
+        step.id = step._id
+        this.chapters.newStep.type = this.getStepTypeInformations(step.type)
+        this.chapters.newStep.chapterId = step.chapterId
+        this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
+      }
+      this.closeAllPanels()
+console.log(step)
+      this.chapters.newStep.overviewData = step
+      this.chapters.showNewStepPageSettings = false
+      this.chapters.showNewStepOverview = true
+      this.chapters.reloadStepPlay = true
       // move to top
       this.moveToTop()
     },

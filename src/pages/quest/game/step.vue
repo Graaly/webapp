@@ -1,5 +1,5 @@
 <template>
-  <div class="play">
+  <div>
     
     <div class="centered bg-warning q-pa-sm" v-if="warnings.stepDataMissing" @click="initData()">
       <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
@@ -45,6 +45,8 @@
             <p class="q-pb-xl">
               <q-btn color="secondary" @click="openInfo">{{ $t('label.BackToQuest') }}</q-btn>
             </p>
+            <p class="q-pb-lg">
+            </p>
           </div>
         </div>
       </div>
@@ -64,16 +66,26 @@
       
     <!------------------ FOOTER AREA ------------------------>
     
-    <q-layout-footer v-model="footer.show" class="step-menu">
+    <div v-show="footer.show" class="step-menu fixed-bottom">
       <!--<q-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-progress>-->
-      <q-tabs v-model="footer.tabSelected">
-        <q-tab slot="title" name="info" icon="menu" @click="openInfo()" />
-        <q-tab slot="title" name="inventory" icon="work" @click="openInventory()" :disable="!inventory.show" />
-        <q-tab slot="title" :class="{'flashing': hint.suggest}" name="hint" icon="lightbulb outline" :disable="!hint.show" @click="askForHint()"/>
-        <q-tab slot="title" name="previous" :disable="previousStepId === ''" icon="arrow_back" @click="previousStep()" />
-        <q-tab slot="title" :class="{'flashing': canMoveNextStep}" name="next" icon="arrow_forward" :disable="!canMoveNextStep && !canPass" @click="nextStep()" />
-      </q-tabs>
-    </q-layout-footer>
+      <div class="row">
+        <div class="col centered q-pb-md">
+          <q-btn round size="lg" color="primary" icon="menu" :class="{'bg-secondary': info.isOpened}" @click="openInfo()" />
+        </div>
+        <div class="col centered q-pb-md">
+          <q-btn round size="lg" color="primary" icon="work" :class="{'bg-secondary': inventory.isOpened}" @click="openInventory()" v-show="inventory.show" />
+        </div>
+        <div class="col centered q-pb-md">
+          <q-btn round size="lg" color="primary" icon="lightbulb outline" :class="{'flashing': hint.suggest, 'bg-secondary': hint.isOpened}" @click="askForHint()" v-show="hint.show" />
+        </div>
+        <div class="col centered q-pb-md">
+          <q-btn round size="lg" color="primary" icon="arrow_back" v-show="previousStepId !== ''" @click="previousStep()" />
+        </div>
+        <div class="col centered q-pb-md">
+          <q-btn round size="lg" color="primary" icon="arrow_forward" :class="{'flashing': canMoveNextStep}" v-show="canMoveNextStep || canPass" @click="nextStep()" />
+        </div>
+      </div>
+    </div>
   </div>
   
 </template>
@@ -179,6 +191,7 @@ export default {
      * Init step data
      */
     async initData () {
+      this.loadStepData = false
       // get current run or create it
       await this.getRun()
    
@@ -371,6 +384,8 @@ export default {
             this.$router.push('/quest/play/' + this.quest.id + '/step/' + response.data.next + '/' + this.$route.params.lang)
             //this.stopMarkersSensors()
           }
+        } else {
+          Notification(this.$t('label.NothingOccurs'), 'info')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -582,8 +597,8 @@ export default {
 
   #main-view { padding: 0rem; height: inherit; min-height: inherit; }
   
-  #main-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; /*padding-bottom: 8rem;*/ }
-  #main-view > div > div { height: inherit; min-height: inherit; /*padding: 1rem;*/ display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
+  #main-view > #play-view { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; }
+  #main-view > #play-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
   
   #controls {
     display: none

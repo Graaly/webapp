@@ -298,6 +298,8 @@
             <p>{{ getTranslatedText() }}</p>
           </div>
         </div>
+        <!-- HELP -->
+        <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
         <div v-if="!locateMarker.compliant">
           {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
         </div>
@@ -305,8 +307,6 @@
         <div class="marker-view" v-show="locateMarker.compliant">
           <canvas id="marker-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
-        <!-- HELP -->
-        <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null" class="absolute-bottom-left" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
         <div class="fixed-bottom over-map" style="height: 100%" v-if="locateMarker.showHelp">
           <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? $t('label.FindMarkerHelp') : $t('label.TouchObjectOnMarkerHelp') }" @next="locateMarker.showHelp = false"></story>
         </div>
@@ -536,7 +536,6 @@ export default {
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
         let background = document.getElementById('play-view')
-        
         if (this.step.backgroundImage) {
           if (this.step.type === 'find-item' || this.step.type === 'use-item') {
             background.style.background = 'none'
@@ -566,7 +565,7 @@ export default {
           }
         } else {
           // no background on some steps to display camera stream
-          if (this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker') {
+          if (this.step.type && this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker' && this.step.id !== 'sensor') {        
             background.style.background = 'none'
             background.style.backgroundColor = '#fff'
           }
@@ -762,15 +761,24 @@ export default {
           
           //if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
           if (window.cordova) {
+            this.initQRCodes()
+            QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
+            // Start a scan. Scanning will continue until something is detected or
+            // `BBScanner.cancelScan()` is called.
+            //QRScanner.scan({format: cordova.plugins.QRScanner.types.QR_CODE}, this.scanQRCode)
+            this.startScanQRCode()
+
+            // Make the webview transparent so the video preview is visible behind it.
+            QRScanner.show()
+            /*
             cordova.plugins.barcodeScanner.scan(
               function (result) {
-                alert("We got a barcode\n" +
-                  "Result: " + result.text + "\n" +
-                  "Format: " + result.format + "\n" +
-                  "Cancelled: " + result.cancelled)
+                if (result && result.text) {
+                  this.checkAnswer(result.text)
+                }
               },
               function (error) {
-                alert("Scanning failed: " + error)
+                console.log("Scanning failed: " + error)
               },
               {
                 preferFrontCamera: false, // iOS and Android
@@ -786,6 +794,7 @@ export default {
                 disableSuccessBeep: false // iOS and Android
               }
             )
+            */
             /*/ With plugin Cordova-plugin-camera-preview 
             this.cameraStreamEnabled = true
             let sceneCanvas = document.getElementById('marker-canvas')
@@ -819,6 +828,67 @@ export default {
           }
         }
       })
+    },
+    /*
+    * Init QR Codes
+    */
+    initQRCodes() {
+      for (var i = 1; i <= 16; i++) {
+        let code = i.toString()
+        code = code.padStart(3, "0")
+console.log(code)
+        this.locateMarker.markerControls[code] = {detected: false}
+      }
+    },
+    /*
+    * start the scanner for hybrid app
+    */
+    startScanQRCode() {
+      if (window.cordova) {
+        this.stopScanQRCode()
+        QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
+        QRScanner.scan(this.scanQRCode)
+        QRScanner.show()
+      }
+    },
+    stopScanQRCode() {
+      QRScanner.destroy(function(status) {
+        console.log(status)
+      })
+    },
+    /*
+    * Triggered when a qr code is scanned
+    */
+    scanQRCode (err, text) {
+      if (err) {
+        console.log("Error with scanner: " + err)
+        // an error occurred, or the scan was canceled (error code `6`)
+      } else {
+console.log("found marker : " + text)
+        // The scan completed, display the contents of the QR code:
+        this.checkAnswer(text)
+      }
+    },
+    /*
+    * Prepare QR Code scanner
+    */
+    prepareQRCodeScanner (err, status) {
+      if (err) {
+       // here we can handle errors and clean up any loose ends.
+       console.error(err);
+      }
+      if (status.authorized) {
+        // W00t, you have camera access and the scanner is initialized.
+        // QRscanner.show() should feel very fast.
+      } else if (status.denied) {
+       // The video preview will remain black, and scanning is disabled. We can
+       // try to ask the user to change their mind, but we'll have to send them
+       // to their device settings with `BBScanner.openSettings()`.
+      } else {
+        // we didn't get permission, but we didn't get permanently denied. (On
+        // Android, a denial isn't permanent unless the user checks the "Don't
+        // ask again" box.) We can ask again at the next relevant opportunity.
+      }
     },
     /*
     * creates a marker control for step type 'locate-marker'
@@ -1020,6 +1090,8 @@ export default {
           this.locateMarker.flash = true
           this.locateMarker.markerControls[answer].detected = true
           this.$emit('played', answer)
+          // reactivate scanner
+          this.startScanQRCode()
           //this.stopMarkersSensors()
         }
         return 
@@ -1285,34 +1357,50 @@ export default {
               }
             }
           } else { // locate-marker, mode scan
-            if (!this.locateMarker.markerControls[answer].detected) {
-              let object = this.locateMarker.scene.getObjectByName('markerObject')
-              
-              let raycaster = new THREE.Raycaster()
-              
-              // imaginary line starting from screen center
-              raycaster.setFromCamera(new THREE.Vector2(0, 0), this.locateMarker.camera)
-              
-              // second parameter set to true so that intersectObject() traverses recursively the object
-              // and its children geometries
-              let intersects = raycaster.intersectObject(object, true)
-              
-              if (intersects.length > 0) {
+console.log("check marker answer")
+            var markerDetected = false
+            if (window.cordova) {
+console.log(answer)
+console.log(this.locateMarker.markerControls)
+              if (this.locateMarker.markerControls[answer] && !this.locateMarker.markerControls[answer].detected) {
                 this.locateMarker.markerControls[answer].detected = true
-                checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+                markerDetected = true
+              }
+            } else {
+              if (!this.locateMarker.markerControls[answer].detected) {
+                let object = this.locateMarker.scene.getObjectByName('markerObject')
                 
-                if (checkAnswerResult.result === true) {
-                  this.submitGoodAnswer(checkAnswerResult.score)
+                let raycaster = new THREE.Raycaster()
+                
+                // imaginary line starting from screen center
+                raycaster.setFromCamera(new THREE.Vector2(0, 0), this.locateMarker.camera)
+                
+                // second parameter set to true so that intersectObject() traverses recursively the object
+                // and its children geometries
+                let intersects = raycaster.intersectObject(object, true)
+                
+                if (intersects.length > 0) {
+                  this.locateMarker.markerControls[answer].detected = true
+                  markerDetected = true
+                }
+              }
+            }
+            
+            if (markerDetected) {
+              checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+              
+              if (checkAnswerResult.result === true) {
+                this.submitGoodAnswer(checkAnswerResult.score)
+                this.stopMarkersSensors()
+                this.locateMarker.playerAnswer = answer // for display
+              } else {
+                this.nbTry++
+                if (this.nbTry === 2) {
+                  this.submitWrongAnswer()
                   this.stopMarkersSensors()
-                  this.locateMarker.playerAnswer = answer // for display
                 } else {
-                  this.nbTry++
-                  if (this.nbTry === 2) {
-                    this.submitWrongAnswer()
-                    this.stopMarkersSensors()
-                  } else {
-                    this.submitRetry()
-                  }
+                  this.startScanQRCode()
+                  this.submitRetry()
                 }
               }
             }
@@ -1388,9 +1476,14 @@ export default {
      * stop the markers sensors
      */
     stopMarkersSensors() {
-      this.stopVideoTracks('camera-stream-for-locate-marker')
-      this.locateMarker.scene = new THREE.Scene()
-      this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
+console.log("destroy qr scanner")
+      if (window.cordova) {
+        this.stopScanQRCode()
+      } else {
+        this.stopVideoTracks('camera-stream-for-locate-marker')
+        this.locateMarker.scene = new THREE.Scene()
+        this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
+      }
     },
     /*
      * Send wrong answer 
@@ -1426,7 +1519,9 @@ export default {
             }
           }
         ]
-        this.readMoreNotif = Notification(this.$t('label.ClickHereToKnowMore'), 'readMore', actions)
+        if (this.readMoreNotif === null) {
+          this.readMoreNotif = Notification(this.$t('label.ClickHereToKnowMore'), 'readMore', actions)
+        }
       }
     },
     hideReadMoreAlert() {
@@ -2499,8 +2594,22 @@ export default {
   
   /* jigsaw puzzle specific */
   
-  #pieces { padding: 0; margin: 0; width: 100%; background: #777; display: block; }
-  #pieces .piece { display: inline-block; margin: 0; box-shadow: inset 0 0 3px #000; text-align: center; cursor: move; background-repeat: none; }
+  #pieces { 
+    padding: 0; 
+    margin: 0; 
+    width: 100%; 
+    background: #ddd; 
+    display: block; 
+  }
+  #pieces .piece { 
+    display: inline-block; 
+    margin: 0px; 
+    padding: 0px; 
+    /*box-shadow: inset 0 0 1px #000; */
+    text-align: center; 
+    cursor: move; 
+    background-repeat: none; 
+  }
   
   /* write-text specific */
   
@@ -2545,9 +2654,9 @@ export default {
   }
 
   .memory .card {
-    height: 3.7rem;
-    width: 3.7rem;
-    margin: 0.2rem 0.2rem;
+    height: 15vw;
+    width: 15vw;
+    margin: 2vw 2vw;
     background: #141214;
     color: #ffffff;
     border-radius: 5px;

@@ -20,7 +20,7 @@
       <div class="character">
         <img :src="'statics/icons/story/character' + steps[currentStep.id].discussions[currentStep.discussionId].character + '_attitude1.png'" style="min-height: 30vh" />
       </div>
-      <div class="fixed-bottom-left q-pa-md">
+      <div class="fixed-bottom-left q-pa-md" v-if="steps[currentStep.id].allowSkip">
         <a class="text-white" @click="skipTutorial">{{ $t('label.SkipTutorial') }}</a>
       </div>
     </div>
@@ -41,14 +41,16 @@ export default {
           discussions: [
             {character: "3", text: "hint", button: {label: "OkThanks"}, condition: null}
           ],
-          bottom: 50
+          bottom: 0,
+          allowSkip: false
         },
         // Help
         'help': {
           discussions: [
             {character: "2", text: "help", button: {label: "OkThanks"}, condition: null}
           ],
-          bottom: 50
+          bottom: 0,
+          allowSkip: false
         },
         // step 0 - Graaly introduction
         0: {
@@ -65,7 +67,8 @@ export default {
             {character: "1", text: "MapExplaination3", condition: null},
             {character: "1", text: "StartPlaying", condition: null, nextStep: 3}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: true
         },
         // step 1 - Secretary introduce a quest
         1: {
@@ -79,14 +82,16 @@ export default {
             {character: "2", text: "description", link: {label: "BackToTheMap", action: "/map"}, condition: (this.data && this.data.hasOwnProperty("description") && this.data.description.length > 1)},
             {character: "2", text: "GeneralWarning", condition: null}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: false
         },
         // step 3 - Discovery quest
         3: {
           discussions: [
             {character: "1", text: "DiscoveryQuest1", button: {label: "letsGo", action: "/quest/play/5b7303ec4efbcd1f8cb101c6"}, condition: null, nextStep: 4}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: false
         },
         // step 4 - Discovery quest
         4: {
@@ -98,7 +103,8 @@ export default {
             {character: "1", text: "DiscoveryQuest6", condition: null},
             {character: "1", text: "DiscoveryQuest7", condition: null, nextStep: 5}
           ],
-          bottom: 50
+          bottom: 0,
+          allowSkip: false
         },
         // step 5 - Discovery quest
         5: {
@@ -108,21 +114,24 @@ export default {
             {character: "1", text: "DiscoveryQuest10", condition: null},
             {character: "1", text: "DiscoveryQuest10b", condition: null, nextStep: 7}
           ],
-          bottom: 50
+          bottom: 0,
+          allowSkip: false
         },
         // step 6 - Read more text in quests
         6: {
           discussions: [
             {character: "2", text: "readMore", button: {label: "OkThanks"}, condition: null}
           ],
-          bottom: 50
+          bottom: 0,
+          allowSkip: false
         },
         // step 7 - Discovery quest
         7: {
           discussions: [
             {character: "1", text: "DiscoveryQuest13", condition: null, nextStep: 8}
           ],
-          bottom: 50
+          bottom: 0,
+          allowSkip: false
         },
         // step 8 - Discovery quest
         8: {
@@ -131,7 +140,8 @@ export default {
             {character: "1", text: "DiscoveryQuest15", condition: null},
             {character: "1", text: "DiscoveryQuest16", condition: null, nextStep: 10}
           ],
-          bottom: 50
+          bottom: 0,
+          allowSkip: false
         },
         // step 9 - End of first quest
         9: {
@@ -144,14 +154,16 @@ export default {
             {character: "1", text: "EndQuest5", condition: (this.data && this.data.discovery)},
             {character: "1", text: "EndQuest6", condition: null}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: false
         },
         // step 10 - Return to map
         10: {
           discussions: [
             {character: "1", text: "MapReturn", condition: null, nextStep: 11}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: false
         },
         // step 11 - Score
         11: {
@@ -161,7 +173,8 @@ export default {
             {character: "1", text: "RankingDescription3"},
             {character: "1", text: "RankingDescription4", condition: null, nextStep: 13}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: true
         },
         // step 12 - Complete profile - Not used anymore
         12: {
@@ -169,21 +182,24 @@ export default {
             {character: "2", text: "CompleteProfile1", condition: null},
             {character: "2", text: "CompleteProfile2", condition: null, nextStep: 13}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: true
         },
         // step 13 - Detail of the map
         13: {
           discussions: [
             {character: "2", text: "MapDetail1", condition: null, nextStep: 14}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: true
         },
         // step 14 - Add friends
         14: {
           discussions: [
             {character: "2", text: "AddFriends", condition: null, nextStep: 15}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: true
         },
         // step 15 - Create quest
         15: {
@@ -192,7 +208,8 @@ export default {
             {character: "1", text: "CreateQuest2", condition: null, nextStep: 16},
             {character: "1", text: "CreateQuest3", condition: null, button: {label: "CreateAQuest", action: "/quest/create/welcome"}, link: {label: "NoThanks"}}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: true
         },
         // step 16 - Start a new quest
         16: {
@@ -201,7 +218,8 @@ export default {
             {character: "1", text: "StartNewQuest2", condition: (this.data !== null && this.data.hasOwnProperty("questId")), button: {label: "letsGo", action: "/quest/play/" + ((this.data && this.data.hasOwnProperty("questId")) ? this.data.questId : '0')}, link: {label: "NoThanks"}},
             {character: "1", text: "StartNewQuest3", condition: null}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: true
         },
         // step 17 - Builder tutorial - Language selection
         17: {
@@ -210,7 +228,8 @@ export default {
             {character: "1", text: "BuilderLanguage2", condition: null},
             {character: "1", text: "BuilderLanguage3", condition: null}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: true
         },
         // step 18 - Builder tutorial - Configuration
         18: {
@@ -222,7 +241,8 @@ export default {
             {character: "1", text: "BuilderConfiguration5", condition: null},
             {character: "1", text: "BuilderConfiguration6", condition: null}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: true
         },
         // step 19 - Builder tutorial - steps
         19: {
@@ -233,7 +253,8 @@ export default {
             {character: "1", text: "BuilderStep4", condition: null},
             {character: "1", text: "BuilderStep5", condition: null}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: true
         },
         // step 20 - Builder tutorial - Creating
         20: {
@@ -241,7 +262,8 @@ export default {
             {character: "1", text: "BuilderStepSettings1", condition: null},
             {character: "1", text: "BuilderStepSettings2", condition: null}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: true
         },
         // step 21 - Builder tutorial - overview
         21: {
@@ -250,7 +272,8 @@ export default {
             {character: "1", text: "BuilderStepOverview2", condition: null},
             {character: "1", text: "BuilderStepOverview3", condition: null}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: true
         },
         // step 22 - Builder tutorial - publishing
         22: {
@@ -260,7 +283,8 @@ export default {
             {character: "1", text: "BuilderPublishing3", condition: null},
             {character: "1", text: "BuilderPublishing4", condition: null}
           ],
-          bottom: 0
+          bottom: 0,
+          allowSkip: true
         }
       },
       currentStep: {
