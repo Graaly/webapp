@@ -735,8 +735,8 @@ export default {
           // default camera direction => look at positive y axis from origin
           this.geolocation.target.camera.up = new THREE.Vector3(0, 0, 1)
           this.geolocation.target.camera.lookAt(new THREE.Vector3(0, 1, 0))
-          // handheld device will be nearly 1.50m above ground (1.5 * 4 = 6 if "is3D")
-          this.geolocation.target.camera.position.z = this.step.options.is3D ? 6 : 1.5
+          // handheld device will be nearly 1.50m above ground
+          this.geolocation.target.camera.position.z = 1.5
           
           // animate & render
           this.animateTargetCanvas()
