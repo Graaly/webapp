@@ -492,7 +492,7 @@ export default {
           layer: null,
           flash: false,
           showHelp: false,
-          compliant: !(window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios')
+          compliant: true //!(window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios')
         },
         
         // for step type 'write-text'
