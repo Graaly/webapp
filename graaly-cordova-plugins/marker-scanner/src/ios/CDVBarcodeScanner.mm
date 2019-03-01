@@ -309,8 +309,8 @@ parentViewController:(UIViewController*)parentViewController
     self.parentViewController = parentViewController;
     self.alternateXib         = alternateXib;
 
-    self.is1D      = YES;
-    self.is2D      = YES;
+    self.is1D      = NO; // YES - changed by EMA on 01/03
+    self.is2D      = NO; // YES - changed by EMA on 01/03
     self.capturing = NO;
     self.results = [NSMutableArray new];
 
@@ -856,7 +856,8 @@ parentViewController:(UIViewController*)parentViewController
         return [self buildOverlayViewFromXib];
     }
     CGRect bounds = self.view.frame;
-    bounds = CGRectMake(0, 0, bounds.size.width, bounds.size.height);
+    bounds = CGRectMake(0, 70, bounds.size.width, (bounds.size.height - 150));
+    // bounds = CGRectMake(0, 0, bounds.size.width, bounds.size.height); - changed by EMA on 01/03/19
 
     UIView* overlayView = [[UIView alloc] initWithFrame:bounds];
     overlayView.autoresizesSubviews = YES;
