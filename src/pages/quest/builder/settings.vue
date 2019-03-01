@@ -123,17 +123,16 @@
             <div>
               <p>
                 {{ chapter.title[languages.current] || chapter.title[quest.mainLanguage] }}
-                <q-icon name="add_box" class="float-right q-ml-md a-bit-bigger" @click.native="addStep(chapter._id)" />
+                <q-icon name="add_box" class="float-right q-ml-md size-1" style="margin-top: -8px" @click.native="addStep(chapter._id)" />
                 <q-icon name="delete" class="float-right q-ml-md a-bit-bigger" @click.native="removeChapter(chapter._id)" />
                 <q-icon name="mode edit" class="float-right q-ml-md a-bit-bigger" @click.native="modifyChapter(chapter._id)" />
                 <q-icon name="warning" color="primary" class="float-right a-bit-bigger" v-if="chapter.warnings && chapter.warnings.length > 0" @click.native="showChapterWarnings(chapter.warnings)" />
               </p>
               <div v-for="step in chapter.steps" :key="step._id">
                 <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
-                <span>{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                <span @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
                 <q-btn class="float-right" @click="removeStep(step._id)"><q-icon name="delete" /></q-btn>
                 <q-btn class="float-right" @click="modifyStep(step)"><q-icon name="mode edit" /></q-btn>
-                <q-btn class="float-right" @click="playStep(step)"><q-icon name="play_arrow" /></q-btn>
               </div>
             </div>
           </li>

@@ -66,7 +66,7 @@
            <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="answers-text" v-if="answerType === 'text'">
-          <q-btn v-for="(option, key) in step.options" :key="key" class="full-width" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null">
+          <q-btn v-for="(option, key) in step.options" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null">
             {{ option.text }}
           </q-btn>
         </div>
@@ -100,7 +100,7 @@
             </div>
           </div>
         </div>
-        <div class="actions buttons-bottom" v-show="playerResult === null">
+        <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
             <q-btn color="primary" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('label.Clear') }}</q-btn>
             <q-btn color="primary" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()">{{ $t('label.Confirm') }}</q-btn>
@@ -118,7 +118,7 @@
           <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">&nbsp;</div>
         </div>
         
-        <div class="actions buttons-bottom" v-show="playerResult === null">
+        <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
             <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('label.Confirm') }}</q-btn>
           </div>
@@ -149,7 +149,7 @@
           </tr>
         </table>
         
-        <div class="actions buttons-bottom" v-show="playerResult === null">
+        <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
             <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('label.Confirm') }}</q-btn>
           </div>
@@ -168,7 +168,7 @@
           <canvas ref="photo-buffer" class="hidden"></canvas>
           <img ref="player-photo" v-show="photoTaken" :alt="$t('label.TheScreenCaptureWillAppearInThisBox')" />
         </div>
-        <div class="actions buttons-bottom">
+        <div class="actions q-mt-lg">
           <q-btn @click="toggleCameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" color="primary">{{ $t('label.TakeThePicture') }}</q-btn>
           <div v-show="cameraStreamEnabled">
             <q-btn color="primary" @click="toggleCameraStream()" icon="clear">{{ $t('label.Cancel') }}</q-btn>
@@ -761,8 +761,8 @@ export default {
           
           //if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
           if (window.cordova) {
-            /*this.initQRCodes()
-            //QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
+            this.initQRCodes()
+            /* //QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
             // Start a scan. Scanning will continue until something is detected or
             // `BBScanner.cancelScan()` is called.
             //QRScanner.scan({format: cordova.plugins.QRScanner.types.QR_CODE}, this.scanQRCode)
@@ -809,7 +809,7 @@ export default {
     },
     /*
     * Init QR Codes
-    *
+    */
     initQRCodes() {
       for (var i = 1; i <= 16; i++) {
         let code = i.toString()
@@ -817,16 +817,17 @@ export default {
 console.log(code)
         this.locateMarker.markerControls[code] = {detected: false}
       }
-    },*/
+    },
     /*
     * start the scanner for hybrid app
     */
     startScanQRCode() {
+      var _this = this
       if (window.cordova) {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
             if (result && result.text) {
-              this.checkAnswer(result.text)
+              _this.checkAnswer(result.text)
             }
           },
           function (error) {
@@ -2536,7 +2537,7 @@ console.log("destroy qr scanner")
     /*border-radius: 0.5rem;*/
     padding: 0.5rem;
     margin: 0;
-    box-shadow: 0px 0px 0.1rem 0.1rem #fff;
+    /*box-shadow: 0px 0px 0.1rem 0.1rem #fff;*/
   }
   .text { 
     white-space: pre-wrap; 
@@ -2580,12 +2581,12 @@ console.log("destroy qr scanner")
   .typed-code td { width: 2rem; height: 3rem; border: 1px solid black; vertical-align: middle; text-align: center; line-height: 3rem; }
   .typed-code td.typed { font-weight: bold; font-size: 1.7rem; }
   
-  .keypad { flex-grow: 1; flex-flow: column nowrap; justify-content: center; text-align: center; }
+  .keypad { flex-flow: column nowrap; justify-content: center; text-align: center; }
   .keypad .q-btn { margin: 0.5rem; width: 20%; height: 15%; font-weight: bold; font-size: 1.3rem; }
   
   /* color code specific */
   
-  .code-color .color-bubbles { margin-top: 5rem; flex-grow: 1; display: flex; flex-flow: row nowrap; justify-content: center; }
+  .code-color .color-bubbles { margin-top: 5rem; display: flex; flex-flow: row nowrap; justify-content: center; }
   .code-color .color-bubbles div { display: block; width: 4rem; height: 4rem; border: 4px solid black; border-radius: 2rem; margin: 0.3rem; transition: background-color 0.3s; }
   
   /* image code specific */

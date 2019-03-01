@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Graaly Frontend",
   "productName": "Graaly",
-  "cordovaId": "com.graaly.app",
+  "cordovaId": "graaly.app",
   "author": "Eric Mathieu <eric.mathieu13@gmail.com>, Maxime Pacary <maxime.pacary@gmail.com>",
   "private": true,
   "scripts": {
