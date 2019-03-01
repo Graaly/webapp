@@ -120,6 +120,11 @@ Remove the cache of your browser (if you renew the certificate)
 
 Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
 
+# Generate AR.js pattern files to detect markers
+
+* Follow [this procedure](https://medium.com/arjs/how-to-create-your-own-marker-44becbec1105)
+* Warning: set pattern ratio to 0.80 instead of 0.50 (ratio pattern size / black border size)
+
 # Technical specs
 
 `step.answers` types, depending on `step.type` value:

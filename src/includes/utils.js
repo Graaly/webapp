@@ -86,20 +86,22 @@ var self = {
   },
   
   /**
-   * Calculates the bearing between two positions as a value from 0-360
+   * Calculates the initial bearing between two positions as a value in degrees in the range 0-360°
    * see https://www.movable-type.co.uk/scripts/latlong.html
    *
-   * @param lat1 - The latitude of the first position
-   * @param lng1 - The longitude of the first position
-   * @param lat2 - The latitude of the second position
-   * @param lng2 - The longitude of the second position
+   * @param lat1 - The latitude of the first position in degrees
+   * @param lng1 - The longitude of the first position in degrees
+   * @param lat2 - The latitude of the second position in degrees
+   * @param lng2 - The longitude of the second position in degrees
    *
-   * @return int - The bearing between 0 and 360
+   * @return int - The bearing between 0° and 360°
    */
   bearingBetweenEarthCoordinates: function (lat1, lng1, lat2, lng2) {
-    var dLon = (lng2 - lng1)
-    var y = Math.sin(dLon) * Math.cos(lat2)
-    var x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon)
+    var dLon = self.degreesToRadians(lng2 - lng1)
+    let lat1InRadians = self.degreesToRadians(lat1)
+    let lat2InRadians = self.degreesToRadians(lat2)
+    var y = Math.sin(dLon) * Math.cos(lat2InRadians)
+    var x = Math.cos(lat1InRadians) * Math.sin(lat2InRadians) - Math.sin(lat1InRadians) * Math.cos(lat2InRadians) * Math.cos(dLon)
     var brng = self.radiansToDegrees(Math.atan2(y, x))
     return (brng + 360) % 360
   },

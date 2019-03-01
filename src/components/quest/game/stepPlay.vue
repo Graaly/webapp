@@ -1367,11 +1367,8 @@ console.log("found marker : " + text)
               }
             }
           } else { // locate-marker, mode scan
-console.log("check marker answer")
             var markerDetected = false
             if (window.cordova) {
-console.log(answer)
-console.log(this.locateMarker.markerControls)
               if (this.locateMarker.markerControls[answer] && !this.locateMarker.markerControls[answer].detected) {
                 this.locateMarker.markerControls[answer].detected = true
                 markerDetected = true
