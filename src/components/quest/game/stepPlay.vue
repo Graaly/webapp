@@ -304,7 +304,7 @@
         -->
         <div v-if="locateMarker.compliant && playerResult === null" class="text-white centered q-mt-md">
           {{ $t('label.ScanTheMarkersLikeThat') }}
-          <div><img src="/statics/markers/020/marker_full.png" style="width: 50%" /></div>
+          <div><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
           <div><q-btn color="primary" @click="startScanQRCode()">{{ $t('label.LaunchTheScanner') }}</q-btn></div>
         </div>
         <div v-if="!locateMarker.compliant">
