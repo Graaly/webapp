@@ -113,7 +113,7 @@ module.exports = {
       RankingDescription4: "Return to the map by pressing the <i aria-hidden='true' class='q-icon medium-icon material-icons'>close</i> button",
       CompleteProfile1: "Do not forget to <b>complete your profile</b>, to help me contact you if I need.",
       CompleteProfile2: "When it is done, touch the button <img src='statics/icons/game/menu-main.png' style='width: 40px'>.",
-      CreateQuest1: "If you create your own quest on a place you know well, you will win 600 <i aria-hidden='true' class='q-icon fas fa-bolt'> </i>",
+      CreateQuest1: "If you create your own quest on a place you know well, you will win points",
       CreateQuest2: "You can also <b>win real money</b> if your quest is very popular",
       CreateQuest3: "But it is especially <b>the way to have fun to make cogitate all the other investigators</b> by creating them enigmas",
       AddFriends: "Do not forget to <b>add your friends</b>.<br />You will then follow their progression, play their quests and compare your results",
@@ -620,7 +620,8 @@ module.exports = {
       Mode: "Mode",
       TouchA3DObjectOnTheMarker: "Touch a 3D object on the marker",
       ScanTheMarker: "Scan the marker (two attempts)",
-      NothingOccurs: "Nothing occurs, try something else"
+      NothingOccurs: "Nothing occurs, try something else",
+      ClickOnButtonToAddStep: "Click on the + button to add a step in this chapter"
     }
   },
   fr: {
@@ -738,7 +739,7 @@ module.exports = {
       RankingDescription4: "Revenez à la carte en appuyant sur le bouton <i aria-hidden='true' class='q-icon medium-icon material-icons'>close</i>",
       CompleteProfile1: "N'oubliez pas de bien <b>compléter votre profil</b>, pour que je puisse vous contacter sans problème.",
       CompleteProfile2: "Dès que c'est bon, appuyez sur le bouton <img src='statics/icons/game/menu-main.png' style='width: 40px'>.",
-      CreateQuest1: "Vous pouvez créer votre propre enquête, cela vous rapporte 600 <i aria-hidden='true' class='q-icon fas fa-bolt'> </i>",
+      CreateQuest1: "Vous pouvez créer votre propre enquête, cela vous rapporte des points",
       CreateQuest2: "Vous pouvez aussi <b>gagner de l'argent</b> si votre enquête est très populaire.",
       CreateQuest3: "Mais c'est surtout le moyen de <b>s'amuser à faire cogiter tous les autres enquêteurs</b> en leur créant des énigmes",
       AddFriends: "N'oubliez pas <b>d'ajouter vos amis</b>.<br />Cela permet de suivre leur évolution, de jouer à leur enquêtes et de comparer vos résultats",
@@ -1245,7 +1246,8 @@ module.exports = {
       Mode: "Mode",
       TouchA3DObjectOnTheMarker: "Toucher un objet 3D sur le marqueur",
       ScanTheMarker: "Scanner le bon marqueur (2 essais)",
-      NothingOccurs: "Rien ne se passe, essayez autre chose"
+      NothingOccurs: "Rien ne se passe, essayez autre chose",
+      ClickOnButtonToAddStep: "Cliquer sur le + pour ajouter une étape dans ce chapitre"
     }
   }
 }

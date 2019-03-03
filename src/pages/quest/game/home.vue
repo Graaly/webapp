@@ -213,16 +213,22 @@ export default {
           // check again in 15 seconds
           utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 15000)
           this.geolocationIsSupported = true
-          utils.setTimeout(this.startStory, 4000)
+          if (!this.isRunStarted && !this.isRunFinished) {
+            utils.setTimeout(this.startStory, 4000)
+          }
         }, () => {
           this.geolocationIsSupported = false
           utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
-          utils.setTimeout(this.startStory, 4000)
+          if (!this.isRunStarted && !this.isRunFinished) {
+            utils.setTimeout(this.startStory, 4000)
+          }
         }, { timeout: 10000, maximumAge: 10000 });
       } else {
         this.geolocationIsSupported = false
         utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
-        utils.setTimeout(this.startStory, 4000)
+        if (!this.isRunStarted && !this.isRunFinished) {
+          utils.setTimeout(this.startStory, 4000)
+        }
       }
     },
     /*
@@ -277,35 +283,39 @@ export default {
     async getRun() {
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.quest._id)
-      var maxStepComplete = 0
-      var lang = 'en'
+      var currentRun = 0
       
       if (runs && runs.data && runs.data.length > 0) {
         for (var i = 0; i < runs.data.length; i++) {
           if (runs.data[i].status === 'finished') {
             this.isRunFinished = true
           }
-          if (runs.data[i].status === 'in-progress' && runs.data[i].currentStep > maxStepComplete) {
-            maxStepComplete = runs.data[i].currentStep
-            lang = runs.data[i].language
+          if (runs.data[i].status === 'in-progress' && runs.data[i].currentStep) {
+            this.isRunStarted = true
+            currentRun = runs.data[i]._id
           }
         }
-        if (maxStepComplete > 0) {
-          this.isRunStarted = true
+        if (this.isRunStarted) {
           var self = this
           // propose to continue quest on last step played (only if not the creator of the quest)
-          if (!this.isOwner) {
+          //if (!this.isOwner) {
             this.$q.dialog({
               title: this.$t('label.ContinueThisStep'),
               message: this.$t('label.YouAlreadyStartThisQuest'),
-              ok: this.$t('label.Continue'),
-              cancel: this.$t('label.Restart')
+              ok: this.$t('label.Restart'),
+              cancel: this.$t('label.Continue')
             }).then(() => {
-              return self.$router.push('/quest/play/' + self.quest._id + '/step/' + maxStepComplete + '/' + lang)
+              self.cancelRun(currentRun)
             })
-          }
+          //}
         }
       }
+    },
+    /*
+     * Cancel a run
+     */
+    async cancelRun(rundId) {
+      await RunService.endRun(rundId)
     },
     /*
      * Check if user can play this quest

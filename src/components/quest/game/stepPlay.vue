@@ -759,8 +759,8 @@ export default {
             }
           }
           
-          //if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
-          if (window.cordova) {
+          if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
+          //if (window.cordova) {
             this.initQRCodes()
             /* //QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
             // Start a scan. Scanning will continue until something is detected or
@@ -823,7 +823,7 @@ console.log(code)
     */
     startScanQRCode() {
       var _this = this
-      if (window.cordova) {
+      if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
             if (result && result.text) {
@@ -1369,7 +1369,7 @@ console.log("found marker : " + text)
             }
           } else { // locate-marker, mode scan
             var markerDetected = false
-            if (window.cordova) {
+            if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
               if (this.locateMarker.markerControls[answer] && !this.locateMarker.markerControls[answer].detected) {
                 this.locateMarker.markerControls[answer].detected = true
                 markerDetected = true
@@ -1484,8 +1484,7 @@ console.log("found marker : " + text)
      * stop the markers sensors
      */
     stopMarkersSensors() {
-console.log("destroy qr scanner")
-      if (window.cordova) {
+      if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
         //this.stopScanQRCode()
       } else {
         this.stopVideoTracks('camera-stream-for-locate-marker')

@@ -128,6 +128,9 @@
                 <q-icon name="mode edit" class="float-right q-ml-md a-bit-bigger" @click.native="modifyChapter(chapter._id)" />
                 <q-icon name="warning" color="primary" class="float-right a-bit-bigger" v-if="chapter.warnings && chapter.warnings.length > 0" @click.native="showChapterWarnings(chapter.warnings)" />
               </p>
+              <div v-if="!chapter.steps || chapter.steps.length === 0">
+                {{ $t('label.ClickOnButtonToAddStep') }}
+              </div>
               <div v-for="step in chapter.steps" :key="step._id">
                 <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
                 <span @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
