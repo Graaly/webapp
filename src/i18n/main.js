@@ -621,7 +621,9 @@ module.exports = {
       TouchA3DObjectOnTheMarker: "Touch a 3D object on the marker",
       ScanTheMarker: "Scan the marker (two attempts)",
       NothingOccurs: "Nothing occurs, try something else",
-      ClickOnButtonToAddStep: "Click on the + button to add a step in this chapter"
+      ClickOnButtonToAddStep: "Click on the + button to add a step in this chapter",
+      ScanTheMarkersLikeThat: "The mark to find and scan with your camera is similar to",
+      LaunchTheScanner: "Launch the scanner"
     }
   },
   fr: {
@@ -1247,7 +1249,9 @@ module.exports = {
       TouchA3DObjectOnTheMarker: "Toucher un objet 3D sur le marqueur",
       ScanTheMarker: "Scanner le bon marqueur (2 essais)",
       NothingOccurs: "Rien ne se passe, essayez autre chose",
-      ClickOnButtonToAddStep: "Cliquer sur le + pour ajouter une étape dans ce chapitre"
+      ClickOnButtonToAddStep: "Cliquer sur le + pour ajouter une étape dans ce chapitre",
+      ScanTheMarkersLikeThat: "La marque à trouver et à scanner avec votre téléphone a une forme similaire à",
+      LaunchTheScanner: "Lancer le scanner"
     }
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div id="play-view" class="fit">
+  <div id="play-view" class="fit" :class="{'bg-black': (step.type == 'locate-marker' || step.id === 'sensor')}">
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
       
       <!------------------ COMPONENT TO KEEP THE SCREEN ON ----------------------
@@ -298,8 +298,15 @@
             <p>{{ getTranslatedText() }}</p>
           </div>
         </div>
-        <!-- HELP -->
+        
+        <!-- HELP 
         <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
+        -->
+        <div v-if="locateMarker.compliant && playerResult === null" class="text-white centered q-mt-md">
+          {{ $t('label.ScanTheMarkersLikeThat') }}
+          <div><img src="/statics/markers/020/marker_full.png" style="width: 50%" /></div>
+          <div><q-btn color="primary" @click="startScanQRCode()">{{ $t('label.LaunchTheScanner') }}</q-btn></div>
+        </div>
         <div v-if="!locateMarker.compliant">
           {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
         </div>
@@ -628,15 +635,19 @@ export default {
           // Required to make camera orientation follow device orientation 
           // It is different from 'deviceorientationabsolute' listener whose values are not
           // reliable when device is held vertically
-          let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
-          sensor.onerror = event => console.error(event.error.name, event.error.message)
-          sensor.onreading = this.onAbsoluteOrientationSensorReading
-          sensor.start()
-          this.geolocation.absoluteOrientationSensor = sensor
-          
-          // must store object returned by setInterval() in Vue store instead of component properties,
-          // otherwise it is reset when route changes & component is reloaded
-          this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
+          try {
+            let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
+            sensor.onerror = event => console.error(event.error.name, event.error.message)
+            sensor.onreading = this.onAbsoluteOrientationSensorReading
+            sensor.start()
+            this.geolocation.absoluteOrientationSensor = sensor
+            
+            // must store object returned by setInterval() in Vue store instead of component properties,
+            // otherwise it is reset when route changes & component is reloaded
+            this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
+          } catch (error) {
+            console.log(error)
+          }
         }
         
         if (this.step.type === 'locate-item-ar' && !this.playerResult) {
@@ -759,8 +770,8 @@ export default {
             }
           }
           
-          if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
-          //if (window.cordova) {
+          //if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
+          if (window.cordova) {
             this.initQRCodes()
             /* //QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
             // Start a scan. Scanning will continue until something is detected or
@@ -771,7 +782,7 @@ export default {
             // Make the webview transparent so the video preview is visible behind it.
             //QRScanner.show()
             */
-            this.startScanQRCode()
+            //this.startScanQRCode()
             
             /*/ With plugin Cordova-plugin-camera-preview 
             this.cameraStreamEnabled = true
@@ -814,7 +825,6 @@ export default {
       for (var i = 1; i <= 16; i++) {
         let code = i.toString()
         code = code.padStart(3, "0")
-console.log(code)
         this.locateMarker.markerControls[code] = {detected: false}
       }
     },
@@ -823,7 +833,8 @@ console.log(code)
     */
     startScanQRCode() {
       var _this = this
-      if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
+      if (window.cordova) {
+      //if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
             if (result && result.text) {
@@ -1102,7 +1113,7 @@ console.log("found marker : " + text)
           this.locateMarker.markerControls[answer].detected = true
           this.$emit('played', answer)
           // reactivate scanner
-          this.startScanQRCode()
+          //this.startScanQRCode()
           //this.stopMarkersSensors()
         }
         return 
@@ -1369,7 +1380,8 @@ console.log("found marker : " + text)
             }
           } else { // locate-marker, mode scan
             var markerDetected = false
-            if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
+            if (window.cordova) {
+            //if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
               if (this.locateMarker.markerControls[answer] && !this.locateMarker.markerControls[answer].detected) {
                 this.locateMarker.markerControls[answer].detected = true
                 markerDetected = true
@@ -1407,7 +1419,7 @@ console.log("found marker : " + text)
                   this.submitWrongAnswer()
                   this.stopMarkersSensors()
                 } else {
-                  this.startScanQRCode()
+                  //this.startScanQRCode()
                   this.submitRetry()
                 }
               }
