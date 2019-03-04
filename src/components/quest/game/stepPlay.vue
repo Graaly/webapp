@@ -408,7 +408,7 @@ export default {
   },
   mounted () {
     // seems always already done by "watch" on "reload" key // Uncommented by EMA on 122018, in some case watcher does not work
-    this.initData()
+    //this.initData()
   },
   beforeDestroy() {
     // this is called every time route changes => cleanup all memory & CPU intensive tasks here
@@ -572,6 +572,7 @@ export default {
             }
           }
         } else {
+console.log("No duration 2")
           // no background on some steps to display camera stream
           if (this.step.type && this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker' && this.step.id !== 'sensor') {        
             background.style.background = 'none'

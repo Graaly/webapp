@@ -623,7 +623,11 @@ module.exports = {
       NothingOccurs: "Nothing occurs, try something else",
       ClickOnButtonToAddStep: "Click on the + button to add a step in this chapter",
       ScanTheMarkersLikeThat: "The mark to find and scan with your camera is similar to",
-      LaunchTheScanner: "Launch the scanner"
+      LaunchTheScanner: "Launch the scanner",
+      RedirectionPleaseWait: "Redirection, please wait ...",
+      UpgradeRequired: "You need to upgrade your Graaly application to continue to use it",
+      SorryAnErrorOccurs: "Sorry, an error occurs.",
+      PleaseContactTheSupport: "Please contact the support"
     }
   },
   fr: {
@@ -1251,7 +1255,11 @@ module.exports = {
       NothingOccurs: "Rien ne se passe, essayez autre chose",
       ClickOnButtonToAddStep: "Cliquer sur le + pour ajouter une étape dans ce chapitre",
       ScanTheMarkersLikeThat: "La marque à trouver et à scanner avec votre téléphone a une forme similaire à",
-      LaunchTheScanner: "Lancer le scanner"
+      LaunchTheScanner: "Lancer le scanner",
+      RedirectionPleaseWait: "Redirection en cours ...",
+      UpgradeRequired: "Vous devez mettre à jour votre application Graaly pour continuer à l'utiliser",
+      SorryAnErrorOccurs: "Désolé, une erreur est survenue.",
+      PleaseContactTheSupport: "Veuillez contacter le support."
     }
   }
 }

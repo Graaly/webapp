@@ -29,7 +29,9 @@ If no data from server is shown on webapp on Chrome (desktop or mobile), try to 
 
 Open console / terminal in the *webapp* folder
 
-/!!!!!!!\ Change the version in the quasar.conf.js file
+/!!!!!!!\ 
+  Change the version in the quasar.conf.js file
+  If needed change the client required version in /server/routes/main.js & webapp/src/plugins/RouterAuthentication.js
 
 `$ quasar build -m cordova -T android`
 

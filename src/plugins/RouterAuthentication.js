@@ -4,18 +4,21 @@ import * as Cookies from 'js-cookie'
 
 export default ({ app, router, Vue }) => {
   // check if user is authenticated for specific routes
-console.log("check")
   router.beforeEach(async (to, from, next) => {
     try {
-console.log("check2")      
       if (!to.meta.hasOwnProperty('requiresAuth') || to.meta.requiresAuth) {
-console.log("check4")              
         let response = await AuthService.getAccount()
-console.log(response)
-        if (response.data && response.data.name) {
-          store.state.user = response.data
+        
+        if (response && response.data && response.data.name) {
+          if (response.data.clientSupportedVersion && response.data.clientSupportedVersion > "1.3") {
+            next({
+              path: '/error/upgraderequired'
+            })
+          } else {
+            store.state.user = response.data
           
-          next()
+            next()
+          }
         } else {
           let firstusage = Cookies.get('firstusage')
 
@@ -32,12 +35,10 @@ console.log(response)
           }        
         }
       } else {
-console.log("check5")      
         // authentication not required for this route
         next()
       }
     } catch (e) {
-console.log("check3")
       next()
     }
   })

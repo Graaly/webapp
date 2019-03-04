@@ -50,7 +50,7 @@
               </span>
             </p>
             <q-btn v-if="currentQuest && currentQuest.authorUserId !== $store.state.user._id" @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Play') }}</q-btn>
-            <q-btn v-if="currentQuest && currentQuest.authorUserId === $store.state.user._id" @click="$router.push('/quest/settings/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Modify') }}</q-btn>
+            <q-btn v-if="currentQuest && currentQuest.authorUserId === $store.state.user._id" @click="$router.push('/quest/builder/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Modify') }}</q-btn>
           </div>
           <div class="infoWindow" v-if="this.$store.state.user.story && this.$store.state.user.story.step <= 3">
             <p>{{ $t('label.ClickHereToStartDiscoveryQuest') }}</p>
@@ -104,7 +104,7 @@
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
           <q-list highlight>
-            <q-item v-for="quest in success.quests.built" :key="quest._id" @click.native="$router.push('/quest/settings/' + quest._id)">
+            <q-item v-for="quest in success.quests.built" :key="quest._id" @click.native="$router.push('/quest/builder/' + quest._id)">
               <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.thumb" />
               <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
               <q-item-main>
@@ -410,7 +410,7 @@
         <div class="row">
           <q-list highlight>
             <q-item v-for="item in search.quests" :key="item._id">
-              <q-card inline class="q-ma-sm" @click.native="$router.push(item.authorUserId === $store.state.user._id ? '/quest/settings/' + item._id : '/quest/play/' + item._id)">
+              <q-card inline class="q-ma-sm" @click.native="$router.push(item.authorUserId === $store.state.user._id ? '/quest/builder/' + item._id : '/quest/play/' + item._id)">
                 <q-card-media class="preview" overlay-position="top">
                   <img :src="serverUrl + '/upload/quest/' + item.picture" />
 
@@ -861,15 +861,17 @@ export default {
      * start the story
      */
     startStory() {
-      if (this.$store.state.user.story.step === 0) {
-        this.story.step = 0
-      }
-      if (this.$store.state.user.story.step === 10) {
-        this.warnings.score = true
-        this.story.data = {
-          score: this.$store.state.user.score
+      if (this.$store.state.user.story) {
+        if (this.$store.state.user.story.step === 0) {
+          this.story.step = 0
         }
-        this.story.step = 10
+        if (this.$store.state.user.story.step === 10) {
+          this.warnings.score = true
+          this.story.data = {
+            score: this.$store.state.user.score
+          }
+          this.story.step = 10
+        }
       }
     },
     /*

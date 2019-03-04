@@ -1152,9 +1152,11 @@ export default {
       this.chapters.newStep.overviewData = step
       this.chapters.showNewStepPageSettings = false
       this.chapters.showNewStepOverview = true
-      this.chapters.reloadStepPlay = true
       // move to top
       this.moveToTop()
+      // add timer else the watcher is not working in stepPlay
+      var _this = this
+      setTimeout(function() { _this.chapters.reloadStepPlay = true }, 300)
     },
     /*
      * Move screen to current chapter (anchor)
@@ -1352,10 +1354,11 @@ export default {
       this.chapters.showNewStepOverview = true
       this.stepId = step.id
       this.chapters.newStep.overviewData = step
-      // reset the step overview
-      this.chapters.reloadStepPlay = true
       // move to top
       this.moveToTop()
+      // add timer else the watcher is not working in stepPlay
+      var _this = this
+      setTimeout(function() { _this.chapters.reloadStepPlay = true }, 300)
       
       if (this.story.active && this.countSteps() === 0) {
         this.story.step = 21

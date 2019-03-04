@@ -264,7 +264,9 @@ export default {
         this.quest = response.data
         if (typeof this.quest.authorUserId !== 'undefined') {
           response = await AuthService.getAccount(this.quest.authorUserId)
-          this.$set(this.quest, 'author', response.data)
+          if (response && response.data) {
+            this.$set(this.quest, 'author', response.data)
+          }
           this.quest.description = utils.replaceBreakByBR(this.quest.description)
         }
       } else {
@@ -491,7 +493,7 @@ export default {
      * Manage back to the map button
      */
     modifyQuest () {
-      this.$router.push('/quest/settings/' + this.quest._id)
+      this.$router.push('/quest/builder/' + this.quest._id)
     },
     /*
      * Open shop
