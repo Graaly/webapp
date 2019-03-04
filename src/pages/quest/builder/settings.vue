@@ -1149,7 +1149,6 @@ export default {
         this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
       }
       this.closeAllPanels()
-console.log(step)
       this.chapters.newStep.overviewData = step
       this.chapters.showNewStepPageSettings = false
       this.chapters.showNewStepOverview = true

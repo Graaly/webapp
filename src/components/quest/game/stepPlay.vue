@@ -299,10 +299,9 @@
           </div>
         </div>
         
-        <!-- HELP 
-        <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
-        -->
-        <div v-if="locateMarker.compliant && playerResult === null" class="text-white centered q-mt-md">
+        <!-- HELP -->
+        <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null && !isHybrid" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
+        <div v-if="locateMarker.compliant && playerResult === null && isHybrid" class="text-white centered q-mt-md">
           {{ $t('label.ScanTheMarkersLikeThat') }}
           <div><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
           <div><q-btn color="primary" @click="startScanQRCode()">{{ $t('label.LaunchTheScanner') }}</q-btn></div>
@@ -451,6 +450,8 @@ export default {
         score: 0,
         reward: 0,
         controlsAreDisplayed: false,
+        isHybrid: window.cordova,
+        isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
         
         // for step 'choose'
         answerType: 'text', // 'text' or 'image'
@@ -651,7 +652,7 @@ export default {
         }
         
         if (this.step.type === 'locate-item-ar' && !this.playerResult) {
-          if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
+          if (this.isIOs) {
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
             CameraPreview.startCamera(options)
             CameraPreview.show()
@@ -770,8 +771,8 @@ export default {
             }
           }
           
-          //if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
-          if (window.cordova) {
+          //if (this.isIOs) {
+          if (this.isHybrid) {
             this.initQRCodes()
             /* //QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
             // Start a scan. Scanning will continue until something is detected or
@@ -833,8 +834,8 @@ export default {
     */
     startScanQRCode() {
       var _this = this
-      if (window.cordova) {
-      //if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
+      if (this.isHybrid) {
+      //if (this.isIOs) {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
             if (result && result.text) {
@@ -882,8 +883,7 @@ export default {
       if (err) {
         console.log("Error with scanner: " + err)
         // an error occurred, or the scan was canceled (error code `6`)
-      } else {
-console.log("found marker : " + text)
+      } else {console.log("found marker : " + text)
         // The scan completed, display the contents of the QR code:
         this.checkAnswer(text)
       }
@@ -1380,8 +1380,8 @@ console.log("found marker : " + text)
             }
           } else { // locate-marker, mode scan
             var markerDetected = false
-            if (window.cordova) {
-            //if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
+            if (this.isHybrid) {
+            //if (this.isIOs) {
               if (this.locateMarker.markerControls[answer] && !this.locateMarker.markerControls[answer].detected) {
                 this.locateMarker.markerControls[answer].detected = true
                 markerDetected = true
@@ -1399,7 +1399,11 @@ console.log("found marker : " + text)
                 // and its children geometries
                 let intersects = raycaster.intersectObject(object, true)
                 
+                // EMA on 04/03 : to discuss with MPA why detected was not triggered if no intersect
                 if (intersects.length > 0) {
+                  this.locateMarker.markerControls[answer].detected = true
+                  markerDetected = true
+                } else {
                   this.locateMarker.markerControls[answer].detected = true
                   markerDetected = true
                 }
@@ -1496,7 +1500,7 @@ console.log("found marker : " + text)
      * stop the markers sensors
      */
     stopMarkersSensors() {
-      if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
+      if (this.isIOs) {
         //this.stopScanQRCode()
       } else {
         this.stopVideoTracks('camera-stream-for-locate-marker')

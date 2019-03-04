@@ -29,7 +29,7 @@ If no data from server is shown on webapp on Chrome (desktop or mobile), try to 
 
 Open console / terminal in the *webapp* folder
 
-/!\ Change the version in the quasar.conf.js file
+/!!!!!!!\ Change the version in the quasar.conf.js file
 
 `$ quasar build -m cordova -T android`
 
@@ -62,10 +62,12 @@ Open the xproj file
 
 Build and Archive the app (select Generic iOS Device to archive), then deploy it
 
+Open https://appstoreconnect.apple.com/WebObjects/iTunesConnect.woa/ra/ng/app/1448284225/testflight?section=iosbuilds and activate the testfight build
+
 If any issue with certificate, or provisioning profile, generate a new certificate, or provisioning profile on https://developer.apple.com/account/ios/profile/production/edit/44CLFUHY8J
 (/!\ the current provisioning profile works with 3/11/2018 certificate)
 
-Account to test the app : graaly / Gr44lY43v3r
+Account to test the app : eric.mathieu@graaly.com / Gr44ly!2k19
 
 # Debug web app
 
