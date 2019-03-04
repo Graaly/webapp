@@ -373,6 +373,9 @@ import GLTFLoader from 'three-gltf-loader'
 import { THREEx } from 'src/includes/ar' // import * as ARjs from 'ar.js' in future versions?
 import { promisify } from 'es6-promisify'
 
+// required for iOS compatibility
+import { AbsoluteOrientationSensor } from 'src/includes/motion-sensors';
+
 export default {
   /*
    * Properties used on component call
@@ -663,6 +666,10 @@ console.log("No duration 2")
             // -------------------------
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
               .then((stream) => {
+                // Hacks for Safari iOS
+                cameraStream.setAttribute("muted", true)
+                cameraStream.setAttribute("playsinline", true)
+                
                 cameraStream.srcObject = stream
                 cameraStream.play()
                 this.cameraStreamEnabled = true
@@ -2304,7 +2311,12 @@ console.log("No duration 2")
     /*
     * when reading a new value from AbsoluteOrientationSensor, update camera rotation so it matches device orientation
     */
-    onAbsoluteOrientationSensorReading() {
+    onAbsoluteOrientationSensorReading() {      
+      if (this.geolocation.absoluteOrientationSensor.activated === false) {
+        console.warn('sensor is not activated')
+        return
+      }
+      
       let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
       
       if (this.step.type === 'locate-item-ar') {
