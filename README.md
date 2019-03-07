@@ -118,6 +118,12 @@ Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to ea
 
 # Testing
 
+* Use [Quasar's own testing framework](https://testing.quasar-framework.org/) which promotes:
+
+  * Jest (unit tests)
+  * Cypress & WebDriver.io (UI tests for webapp & hybrid)
+  * Lighthouse (PWA audit: perfs, SEO, standards...)
+
 * [Ways to economically test your apps on a range of devices](https://www.androidauthority.com/test-your-apps-607217/)
 
 * [Android devices distribution dashboard](https://developer.android.com/about/dashboards/)
@@ -127,8 +133,9 @@ Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to ea
 * Graaly currently supports devices with Android version >= 4.4
 
 * Online services for testing on real devices:
-** [Google Firebase Test Lab](https://firebase.google.com/docs/test-lab/) (maybe for native Android apps only)
-** [Saucelabs mobile app testing](https://saucelabs.com/products/mobile-app-testing) (paid service)
+
+  * [Google Firebase Test Lab](https://firebase.google.com/docs/test-lab/) (maybe for native Android apps only)
+  * [Saucelabs mobile app testing](https://saucelabs.com/products/mobile-app-testing) (paid service)
 
 # Technical specs
 
