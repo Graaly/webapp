@@ -106,6 +106,13 @@ export default {
   uploadPicture(data) {
     return Api().post('/quest/picture/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   },
+  /*
+   * Upload a quest thumb
+   * @param   {Object}    data                picture data
+   */
+  uploadThumb(data) {
+    return Api().post('/quest/thumb/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+  },
   
   /*
    * List the editors of a quest

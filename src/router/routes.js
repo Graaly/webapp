@@ -5,6 +5,7 @@ import QuestPlayHome from 'pages/quest/game/home'
 import QuestPlayStep from 'pages/quest/game/step'
 import QuestEnd from 'pages/quest/game/end'
 
+import QuestManage from 'pages/quest/builder/redirection'
 import QuestManageWelcome from 'pages/quest/builder/welcome'
 import QuestManageSettings from 'pages/quest/builder/settings'
 
@@ -56,7 +57,7 @@ export default [
         meta: { requiresAuth: true }
       },
       {
-        path: 'quest/play/:questId(\\w{24})/step/:stepNumber/:lang',
+        path: 'quest/play/:questId(\\w{24})/step/:stepId/:lang',
         name: 'playstep',
         component: QuestPlayStep,
         meta: { requiresAuth: true }
@@ -77,6 +78,12 @@ export default [
         path: 'quest/create/welcome',
         name: 'buildhome',
         component: QuestManageWelcome,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'quest/builder/:questId(\\w{24})',
+        name: 'builder',
+        component: QuestManage,
         meta: { requiresAuth: true }
       },
       {
@@ -128,7 +135,7 @@ export default [
         meta: { requiresAuth: true }
       },
       {
-        path: 'error',
+        path: 'error/:errorType',
         name: 'error',
         component: ErrorMessage,
         meta: { requiresAuth: false }

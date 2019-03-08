@@ -18,6 +18,7 @@
       :error="$v.selectedStep.form.text[lang].$error"
       :error-label="$t('label.KeepEnigmaQuestionsShort')"
       :count="mainTextMaxLength"
+      v-if="options.type.code !== 'end-chapter'"
     >
       <q-input
         :float-label="$t('label.' + mainTextFieldLabel) + ' ' + currentLanguageForLabels"
@@ -31,14 +32,14 @@
       />
     </q-field>
     
-    <div class="background-upload" v-show="options.hasBackgroundImage && options.hasBackgroundImage === 'main'">
+    <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'main'">
       <q-btn class="full-width" type="button">
         <q-icon name="cloud_upload" /> <label for="picturefile1">{{ $t('label.UploadABackgroundImage') }}</label>
         <input @input="uploadBackgroundImage" name="picturefile1" id="picturefile1" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       </q-btn>
       <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
       <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
-      <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.code !== 'find-item' && options.code !== 'use-item'">
+      <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
         <p>{{ $t('label.YourPicture') }} :</p>
         <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
         <a @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
@@ -47,7 +48,7 @@
     
     <!------------------ STEP : VIDEO ------------------------>
     
-    <div v-if="options.code == 'info-video'">
+    <div v-if="options.type.code == 'info-video'">
       <q-btn class="full-width" type="button">
         <q-icon name="cloud_upload" /> <label for="videofile">{{ $t('label.UploadAVideo') }}</label>
         <input @change="uploadVideo" name="videofile" id="videofile" type="file" accept="video/mp4,video/x-m4v,video/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
@@ -64,14 +65,14 @@
     
     <!------------------ STEP : WIN NEW ITEM ------------------------>
     
-    <div class="inventory" v-if="options.code == 'new-item'">
-      <q-radio v-model="imageSource" val="list" :label="$t('label.SelectPictureInTheList')" />
+    <div class="inventory" v-if="options.type.code == 'new-item'">
+      <q-radio v-model="imageSource" v-if="selectedStep.form.options === null || !selectedStep.form.options.picture || selectedStep.form.options.picture === null" val="list" :label="$t('label.SelectPictureInTheList')" />
       <div class="row objects-list" v-show="imageSource === 'list'">
         <div class="col-2 q-pa-sm" v-for="(item, key) in objectsList" :key="key">
           <img style="width: 100%" :class="{'selected': (selectedStep.form.options.picture && selectedStep.form.options.picture === 'statics/images/object/' + objectsList[key].file)}" :src="'statics/images/object/' + item.thumb" @click="selectObject(key)" />
         </div>
       </div>
-      <q-radio v-model="imageSource" val="upload" :label="$t('label.UploadTheItemPicture')" />
+      <q-radio v-model="imageSource" v-if="selectedStep.form.options === null || !selectedStep.form.options.picture || selectedStep.form.options.picture === null" val="upload" :label="$t('label.UploadTheItemPicture')" />
       <div v-show="imageSource === 'upload'">
         <q-btn class="full-width" type="button">
           <label for="itemfile">{{ $t('label.UploadTheItemPicture') }}</label>
@@ -82,7 +83,10 @@
       </div>
       <div v-if="selectedStep.form.options !== null && selectedStep.form.options.picture && selectedStep.form.options.picture !== null">
         <p>{{ $t('label.YourItemPicture') }} :</p>
-        <img style="width:100%" :src="(selectedStep.form.options.picture.indexOf('statics/') !== -1 ? selectedStep.form.options.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.options.picture)" />
+        <div class="centered">
+          <img style="width:100%" :src="(selectedStep.form.options.picture.indexOf('statics/') !== -1 ? selectedStep.form.options.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.options.picture)" />
+          <a @click="selectedStep.form.options.picture = null">{{ $t('label.SelectANewObject') }}</a>
+        </div>
       </div>
       <!--<p>{{ $t('message.Or') }}</p>
       <q-select :float-label="$t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
@@ -100,7 +104,7 @@
     
     <!------------------ STEP : GRAALY CHARACTER ------------------------>
     
-    <div v-if="options.code == 'character'">
+    <div v-if="options.type.code == 'character'">
       <h2>{{ $t('label.Character') }}</h2>
       <div class="answer">
         <q-radio v-model="selectedStep.form.options.character" val="1" />
@@ -122,7 +126,7 @@
     
     <!------------------ STEP : GEOLOCATION ------------------------>
     
-    <div v-if="options.code == 'geolocation'" class="location-gps">
+    <div v-if="options.type.code == 'geolocation'" class="location-gps">
       <h2>{{ $t('label.AddressToFind') }}</h2>
       <div class="fields-group">
         <div class="location-address">
@@ -156,7 +160,7 @@
     
     <!------------------ STEP : MULTIPLE CHOICE ------------------------>
     
-    <div v-if="options.code == 'choose'">
+    <div v-if="options.type.code == 'choose'">
       
       <h2>{{ $t('label.ResponseTypes') }}</h2>
       <q-radio v-model="answerType" val="text" :label="$t('label.Texts')" @click="$v.selectedStep.form.options.$touch" />
@@ -188,7 +192,7 @@
     
     <!------------------ STEP : SIMPLE TEXT ------------------------>
     
-    <div v-if="options.code == 'write-text'">
+    <div v-if="options.type.code == 'write-text'">
       <q-field 
         :error="$v.selectedStep.form.answers.$error"
         :error-label="$t('label.RequiredField')">
@@ -201,7 +205,7 @@
     
     <!------------------ STEP : CODE KEYPAD ------------------------>
     
-    <div v-if="options.code == 'code-keypad'">
+    <div v-if="options.type.code == 'code-keypad'">
     
       <q-field 
         :error="$v.selectedStep.form.answers.$error"
@@ -219,7 +223,7 @@
     
     <!------------------ STEP : COLOR CODE ------------------------>
     
-    <div v-if="options.code == 'code-color'" class="code-color">
+    <div v-if="options.type.code == 'code-color'" class="code-color">
       <q-select :float-label="$t('label.NumberOfColorsInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" />
       <h2>{{ $t('label.ExpectedColorCodeAnswer') }}</h2>
       <table>
@@ -238,7 +242,7 @@
     
     <!------------------ STEP : IMAGE CODE ------------------------>
     
-    <div v-if="options.code == 'code-image'" class="code-image">
+    <div v-if="options.type.code == 'code-image'" class="code-image">
       <h2>{{ $t('label.ImagesUsedForCode') }}</h2>
       <div class="answer" v-for="(image, key) in selectedStep.form.options.images" :key="key">
         
@@ -280,7 +284,7 @@
     
     <!------------------ STEP : IMAGE RECOGNITION ------------------------>
     
-    <div v-if="options.code == 'image-recognition'" class="image-recognition">
+    <div v-if="options.type.code == 'image-recognition'" class="image-recognition">
       <q-btn class="full-width" type="button">
         <label for="image-to-recognize">{{ $t('label.UploadThePictureOfTheObjectToFind') }}</label>
         <input @change="uploadImageToRecognize" name="image-to-recognize" id="image-to-recognize" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
@@ -294,7 +298,7 @@
     
     <!------------------ STEP : JIGSAW PUZZLE ------------------------>
     
-    <div v-if="options.code === 'jigsaw-puzzle'">
+    <div v-if="options.type.code === 'jigsaw-puzzle'">
       <div class="background-upload">
         <q-btn class="full-width" type="button">
           <label for="puzzlefile">{{ $t('label.UploadThePuzzlePicture') }}</label>
@@ -314,7 +318,7 @@
     
     <!------------------ STEP : MEMORY PUZZLE ------------------------>
     
-    <div v-if="options.code === 'memory'">
+    <div v-if="options.type.code === 'memory'">
       <h2>{{ $t('label.ImagesUsedForCards') }}</h2>
       <div class="answer" v-for="(option, key) in memoryItems" :key="key">       
         <p v-show="option.imagePath === null" class="error-label">{{ $t('label.NoPictureUploaded') }}</p>
@@ -334,13 +338,13 @@
     
     <!------------------ STEP : USE INVENTORY ITEM ------------------------>
     
-    <div class="find-item" v-if="options.code == 'use-item' && selectedStep.form.backgroundImage">
+    <div class="find-item" v-if="options.type.code == 'use-item' && selectedStep.form.backgroundImage">
       <p>{{ $t('label.ClickOnTheLocationTheItemMustBeUsed') }} :</p>
       <div @click="getClickCoordinates($event)" id="useItemPicture" ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
         <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="statics/icons/game/find-item-locator.png" />
       </div>
     </div>
-    <div class="inventory" v-if="options.code == 'use-item'">
+    <div class="inventory" v-if="options.type.code == 'use-item'">
       <q-field
         :error="$v.selectedStep.form.answerItem && $v.selectedStep.form.answerItem.$error"
         :error-label="$t('label.RequiredField')">
@@ -354,7 +358,7 @@
     
     <!------------------ STEP : FIND ITEM ------------------------>
 
-    <div class="find-item" v-if="options.code === 'find-item' && (selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '')">
+    <div class="find-item" v-if="options.type.code === 'find-item' && (selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '')">
       <p>{{ $t('label.ClickOnTheItemThatIsToFind') }} :</p>
       <div @click="getClickCoordinates($event)" id="findItemPicture" ref="findItemPicture" :style="'overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
         <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="statics/icons/game/find-item-locator.png" />
@@ -363,7 +367,7 @@
     
     <!------------------ STEP : LOCATE ITEM USING AR ------------------------>
 
-    <div class="locate-item-ar" v-if="options.code === 'locate-item-ar'">
+    <div class="locate-item-ar" v-if="options.type.code === 'locate-item-ar'">
       <h2>{{ $t('label.ObjectFormat') }}</h2>
       <div class="fields-group">
         <q-radio v-model="selectedStep.form.options.is3D" :val="false" :label="$t('label.2DPicture')" />
@@ -425,7 +429,7 @@
     
     <!------------------ STEP : FIND AR MARKER ------------------------>
     
-    <div class="locate-marker" v-if="options.code === 'locate-marker' && typeof selectedStep.form.answers === 'string'">
+    <div class="locate-marker" v-if="options.type.code === 'locate-marker' && typeof selectedStep.form.answers === 'string'">
       <h2>{{ $t('label.Marker') }}</h2>
       
       <p>
@@ -434,7 +438,34 @@
         <q-btn color="primary" :label="$t('label.Choose')" @click="openChooseMarkerModal()" />
       </p>
       
-      <q-select :float-label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
+      <!--
+      <h2>{{ $t('label.Mode') }}</h2>
+      
+      <div class="fields-group">
+        
+        <q-option-group
+          type="radio"
+          color="secondary"
+          v-model="selectedStep.form.options.mode"
+          :options="[
+            { label: $t('label.TouchA3DObjectOnTheMarker'), value: 'touch' },
+            { label: $t('label.ScanTheMarker'), value: 'scan' }
+          ]"
+        />
+        -->
+        <!--
+        'Touch a 3D object on the marker' [TODO TRANSLATE]
+        'Scan the marker (two attempts) [TODO TRANSLATE]
+        -->
+        <!--
+        <div v-if="selectedStep.form.options.mode === 'touch'">
+          <q-select v-model="selectedStep.form.options.model" :float-label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
+          <p class="error-label" v-show="$v.selectedStep.form.options && $v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
+        </div>
+        
+        <q-select v-if="selectedStep.form.options.mode === 'scan'" :float-label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
+      
+      </div>-->
       
       <q-modal v-model="markerModalOpened">
         <h2>{{ $t('label.ChooseTheMarker') }}</h2>
@@ -448,33 +479,64 @@
           color="primary"
           class="full-width"
           @click="closeChooseMarkerModal()"
-          label="Cancel"
+          :label="$t('label.Cancel')"
         />
       </q-modal>
     </div>
     
+    <!------------------ CONDITIONS ------------------------>
+    
+    <q-list separator>
+      <q-collapsible icon="add_box" :label="$t('label.Conditions')">
+        <q-list highlight v-if="selectedStep.formatedConditions.length > 0">
+          <q-list-header>{{ $t('label.ThisStepIsTriggeredWhen') }}</q-list-header>
+          <q-item v-for="(condition, index) in selectedStep.formatedConditions" :key="index">
+            <q-item-main :label="condition" />
+            <q-item-side right>
+              <q-item-tile icon="delete" @click.native="deleteCondition(index)" />
+            </q-item-side>
+          </q-item>
+        </q-list>
+        <div v-if="selectedStep.formatedConditions.length === 0">
+          {{ $t("label.NoCondition") }}
+        </div>
+        <q-btn color="primary" class="full-width" v-if="!selectedStep.newConditionForm" @click="selectedStep.newConditionForm = true" :label="$t('label.AddACondition')" />
+        <div v-if="selectedStep.newConditionForm">
+          <q-select :float-label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @change="changeNewConditionType" />
+          <q-select :float-label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
+          <div class="centered">
+            <q-btn color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />
+            <q-btn color="primary" flat @click="selectedStep.newConditionForm = false" :label="$t('label.Cancel')" />
+          </div>
+        </div>
+      </q-collapsible>
+    </q-list>
+    
     <!------------------ OTHER OPTIONS ------------------------>
     
-    <q-list v-show="options.hasOptions" separator>
+    <q-list v-show="options.type.hasOptions" separator>
       <q-collapsible icon="add_box" :label="$t('label.OtherOptions')">
-        <div v-if="options.code == 'geolocation' || options.code == 'locate-item-ar'" class="location-gps">
+        <div v-if="options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'color-keypad' || options.type.code == 'choose' || options.type.code == 'write-text'" class="q-pb-md">
+          <q-toggle v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
+        </div>
+        <div v-if="options.type.code == 'geolocation' || options.type.code == 'locate-item-ar'" class="location-gps">
           <q-toggle v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
           <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
         </div>
-        <div v-if="options.code === 'memory'">
+        <div v-if="options.type.code === 'memory'">
           <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
         </div>
-        <div v-if="options.code === 'info-text'">
+        <div v-if="options.type.code === 'info-text'">
           <q-input v-model="selectedStep.form.options.initDuration" :float-label="$t('label.DurationBeforeTextAppearAbovePicture')" />
         </div>
-        <div class="background-upload" v-show="options.hasBackgroundImage && options.hasBackgroundImage === 'option'">
+        <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
           <q-btn class="full-width" type="button">
             <q-icon name="cloud_upload" /> <label for="picturefile2">{{ $t('label.UploadABackgroundImage') }}</label>
             <input @input="uploadBackgroundImage" name="picturefile2" id="picturefile2" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
           </q-btn>
           <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
           <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
-          <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.code !== 'find-item' && options.code !== 'use-item'">
+          <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
             <p>{{ $t('label.YourPicture') }} :</p>
             <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
             <a @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
@@ -495,7 +557,7 @@
     
     <!------------------ HINT ------------------------>
     
-    <q-list v-show="options.showTrick == 'yes'" separator>
+    <q-list v-show="options.type.showTrick == 'yes'" separator>
       <q-collapsible icon="lightbulb outline" :label="$t('label.Hint')">
         <q-input v-model="selectedStep.form.hint[lang]" :float-label="$t('label.HintText')" />
       </q-collapsible>
@@ -552,6 +614,7 @@ export default {
       questId: null,
       selectedStep: {
         isNew: true,
+        newConditionForm: false,
         id: 0,
         code: null,
         type: null,
@@ -560,7 +623,20 @@ export default {
           text: {},
           extraText: {},
           options: {},
-          hint: {}
+          hint: {},
+          chapterId: "0",
+          conditions: []
+        },
+        formatedConditions: [],
+        newCondition: {
+          selectedType: 'stepDone',
+          types: [
+            {label: this.$t('label.FollowStep'), value: 'stepDone'},
+            {label: this.$t('label.StepSuccess'), value: 'stepSuccess'},
+            {label: this.$t('label.StepFail'), value: 'stepFail'}
+          ],
+          selectedValue: '',
+          values: []
         }
       },
       stepTypes,
@@ -570,7 +646,7 @@ export default {
       imageSource: '',
       originalStepData: {}, // helps to detect if step has been modified
       saveChangesModalOpened: false,
-      
+
       /*
        * List of the levels for the jigsaw step
        */
@@ -608,17 +684,17 @@ export default {
       
       unformatedAnswer: null,
       
-      // for 'locate-item-ar'
+      // for 'locate-item-ar' and 'locate-marker'
       selectModel3DOptions: [],
       
       // for 'locate-marker'
       markerModalOpened: false,
-      layersForMarkersOptions: []
+      layersForMarkersOptions: [] // for 'locate-marker' only
     }
   },
   computed: {
     mainTextFieldLabel() {
-      return this.options.category === 'enigma' ? 'Question' : 'Text'
+      return this.options.type.category === 'enigma' ? 'Question' : 'Text'
     },
     /*
      * Define text field length
@@ -626,8 +702,8 @@ export default {
     mainTextMaxLength() {
       let maxNbChars = 500 // default
       
-      if (this.options.textRules && this.options.textRules.maxNbChars) {
-        maxNbChars = this.options.textRules.maxNbChars
+      if (this.options.type.textRules && this.options.type.textRules.maxNbChars) {
+        maxNbChars = this.options.type.textRules.maxNbChars
       }
       
       return maxNbChars
@@ -663,6 +739,7 @@ export default {
         extraText: {}, // {fr: 'ma description', en: 'my description', ...}
         answers: {}, // using null triggers lots of "undefined property" errors complex to handle, due to nested objects + using them like v-model="form.answers.level" + template rendering executed before "mounted()"
         options: {},
+        conditions: [],
         backgroundImage: null,
         // info-video step specific
         videoStream: null,
@@ -671,6 +748,7 @@ export default {
         answerItem: null,
         showDistanceToTarget: true,
         showDirectionToTarget: true,
+        displayRightAnswer: true,
         trigger: {
           type: 'none'
         },
@@ -704,14 +782,28 @@ export default {
       await this.getStepId()
       // initialize step form data when edited
       if (!this.selectedStep.isNew) {
+        // get step data
         var response = await StepService.getById(this.stepId)
         if (response && response.data) {
           Object.assign(this.selectedStep.form, response.data)
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
+        //get chapter Id
+        this.options.chapterId = response.data.chapterId ? response.data.chapterId : 0
+        
+        // get conditions
+        this.getUnderstandableConditions()
+      } else {
+        this.selectedStep.form.type = this.options.type.code
+        this.selectedStep.form.chapterId = this.options.chapterId
+        // build default condition if step is not the first of the chapter
+        if (this.options.previousStepId !== 0) {
+          this.selectedStep.form.conditions.push('stepDone_' + this.options.previousStepId)
+          this.getUnderstandableConditions()
+        }
       }
-      
+
       // retrieve step type properties
       this.selectedStep.type = this.getStepType(this.selectedStep.form.type)
       
@@ -753,7 +845,7 @@ export default {
       }
       
       // initialize specific steps
-      if (this.options.code === 'choose') {
+      if (this.options.type.code === 'choose') {
         if (!Array.isArray(this.selectedStep.form.options)) {
           this.answerType = 'text'
           this.selectedStep.form.options = []
@@ -766,7 +858,7 @@ export default {
         }
         this.minNbAnswers = 2
         this.maxNbAnswers = 6
-      } else if (this.options.code === 'code-color') {
+      } else if (this.options.type.code === 'code-color') {
         if (this.selectedStep.form.answers && typeof this.selectedStep.form.answers === 'string' && this.selectedStep.form.answers.indexOf('|') !== -1) {
           this.unformatedAnswer = this.selectedStep.form.answers.split("|")
         } else {
@@ -775,7 +867,7 @@ export default {
         if (!this.selectedStep.form.options.codeLength) {
           this.selectedStep.form.options.codeLength = 4
         }
-      } else if (this.options.code === 'code-image') {
+      } else if (this.options.type.code === 'code-image') {
         // init images list
         if (!this.selectedStep.form.options || !this.selectedStep.form.options.images) {
           this.selectedStep.form.options = {images: []}
@@ -792,23 +884,23 @@ export default {
         } else {
           this.unformatedAnswer = [0, 0, 0, 0]
         }
-      } else if (this.options.code === 'code-keypad') {
+      } else if (this.options.type.code === 'code-keypad') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.selectedStep.form.answers = ""
         }
-      } else if (this.options.code === 'write-text') {
+      } else if (this.options.type.code === 'write-text') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.selectedStep.form.answers = ""
         }
-      } else if (this.options.code === 'info-text') {
+      } else if (this.options.type.code === 'info-text') {
         if (!this.selectedStep.form.options.hasOwnProperty('initDuration')) {
           this.selectedStep.form.options = { initDuration: 1 }
         }
-      } else if (this.options.code === 'image-recognition') {
+      } else if (this.options.type.code === 'image-recognition') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.selectedStep.form.answers = ""
         }
-      } else if (this.options.code === 'find-item') {
+      } else if (this.options.type.code === 'find-item') {
         if (this.selectedStep.form.answers.hasOwnProperty('top')) {
           this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers
           this.$nextTick(function () {
@@ -816,7 +908,7 @@ export default {
             this.positionFindItemPointer()
           })
         }
-      } else if (this.options.code === 'use-item') {
+      } else if (this.options.type.code === 'use-item') {
         if (this.selectedStep.form.answers.hasOwnProperty('coordinates')) {
           this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers.coordinates
           this.$nextTick(function () {
@@ -828,15 +920,15 @@ export default {
           this.selectedStep.form.answerItem = this.selectedStep.form.answers.item
         }
         this.getQuestItemsAsOptions()
-      } else if (this.options.code === 'new-item') {
+      } else if (this.options.type.code === 'new-item') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
           this.selectedStep.form.options = { picture: null, title: "" }
         }
-      } else if (this.options.code === 'jigsaw-puzzle') {
+      } else if (this.options.type.code === 'jigsaw-puzzle') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
           this.selectedStep.form.options = { picture: null, level: 2 }
         }
-      } else if (this.options.code === 'memory') {
+      } else if (this.options.type.code === 'memory') {
         if (!this.selectedStep.form.options.items) {
           this.selectedStep.form.options = {lastIsSingle: false}
           this.memoryItems = []
@@ -848,7 +940,7 @@ export default {
         }
         this.minNbAnswers = 3
         this.maxNbAnswers = 12
-      } else if (this.options.code === 'locate-item-ar') {
+      } else if (this.options.type.code === 'locate-item-ar') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
           this.$set(this.selectedStep.form.options, 'picture', null)
         }
@@ -858,9 +950,6 @@ export default {
         if (!this.selectedStep.form.options.hasOwnProperty('is3D')) {
           this.$set(this.selectedStep.form.options, 'is3D', false)
         }
-        if (!this.selectedStep.form.options.hasOwnProperty('model')) {
-          this.$set(this.selectedStep.form.options, 'model', null)
-        }
         // create options for 3D Model selection
         for (let key in modelsList) {
           this.selectModel3DOptions.push({ label: modelsList[key].name[this.$store.state.user.language], value: key })
@@ -869,7 +958,10 @@ export default {
         this.selectModel3DOptions = this.selectModel3DOptions.sort((a, b) => {
           return a.label.localeCompare(b.label)
         })
-      } else if (this.options.code === 'locate-marker') {
+        if (!this.selectedStep.form.options.hasOwnProperty('model')) {
+          this.$set(this.selectedStep.form.options, 'model', this.selectModel3DOptions[0].value)
+        }
+      } else if (this.options.type.code === 'locate-marker') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.$set(this.selectedStep.form, 'answers', markersList[0])
         }
@@ -885,9 +977,28 @@ export default {
         if (!this.selectedStep.form.options.hasOwnProperty('layerCode')) {
           this.$set(this.selectedStep.form.options, 'layerCode', layersForMarkers[0].code)
         }
+        
+        // create options for 3D Model selection
+        for (let key in modelsList) {
+          this.selectModel3DOptions.push({ label: modelsList[key].name[this.$store.state.user.language], value: key })
+        }
+        // sort options in alphabetical order
+        this.selectModel3DOptions = this.selectModel3DOptions.sort((a, b) => {
+          return a.label.localeCompare(b.label)
+        })
+        if (!this.selectedStep.form.options.hasOwnProperty('model')) {
+          this.$set(this.selectedStep.form.options, 'model', this.selectModel3DOptions[0].value)
+        }
+        // default mode: scan code
+        if (!this.selectedStep.form.options.hasOwnProperty('mode')) {
+          this.$set(this.selectedStep.form.options, 'mode', 'scan')
+        }
       }
       
       this.originalStepData = utils.clone(this.selectedStep.form)
+      
+      // init the conditions form
+      this.changeNewConditionType()
     },
     /*
      * Submit step data
@@ -902,52 +1013,53 @@ export default {
       }
       
       // format answer based on the type of step
-      if (this.options.code === 'choose') {
+      if (this.options.type.code === 'choose') {
         if (this.answerType === 'text') {
           // clear all images => playStep.vue will consider that player should choose between text options
           this.selectedStep.form.options = this.selectedStep.form.options.map((option) => { option.imagePath = null; return option })
         }
       }
-      if (this.options.code === 'character') {
+      if (this.options.type.code === 'character') {
         if (!this.selectedStep.form.options.character) {
           this.selectedStep.form.options.character = "1"
         }
       }
-      if (this.options.code === 'code-keypad') {
+      if (this.options.type.code === 'code-keypad') {
         this.selectedStep.form.options.codeLength = this.selectedStep.form.answers.length
       }
-      if (this.options.code === 'code-color') {
+      if (this.options.type.code === 'code-color') {
         this.selectedStep.form.answers = this.unformatedAnswer.join('|')
       }
-      if (this.options.code === 'code-image') {
+      if (this.options.type.code === 'code-image') {
         this.selectedStep.form.answers = this.unformatedAnswer.join('|')
       }
-      if (this.options.code === 'jigsaw-puzzle') {
+      if (this.options.type.code === 'jigsaw-puzzle') {
         // build random order for jigsaw puzzle pieces.
         let piecePositionArray = utils.buildIncrementalArray(Math.pow(parseInt(this.selectedStep.form.options.level, 10) * 2, 2))
         piecePositionArray = utils.shuffle(piecePositionArray)
         this.selectedStep.form.answers = piecePositionArray.join('|')
       }
-      if (this.options.code === 'memory') {
+      if (this.options.type.code === 'memory') {
         this.selectedStep.form.options.items = this.memoryItems
         if (this.selectedStep.form.options.lastIsSingle && this.selectedStep.form.options.items && this.selectedStep.form.options.items.length > 0) {
           this.selectedStep.form.options.items[this.selectedStep.form.options.items.length - 1].single = true
         }
       }
-      if (this.options.code === 'find-item') {
+      if (this.options.type.code === 'find-item') {
         this.selectedStep.form.answers = this.selectedStep.form.answerPointerCoordinates
       }
-      if (this.options.code === 'use-item') {
+      if (this.options.type.code === 'use-item') {
         this.selectedStep.form.answers = {coordinates: this.selectedStep.form.answerPointerCoordinates, item: this.selectedStep.form.answerItem}
       }
-      if (this.options.code === 'new-item') {
+      if (this.options.type.code === 'new-item') {
         //this.selectedStep.form.answers = this.selectedStep.form.answerItem
       }
       
       // save step data
       let newStepData = Object.assign(this.selectedStep.form, {
         questId: this.questId,
-        type: this.options.code
+        chapterId: this.options.chapterId,
+        type: this.options.type.code
       })
       this.$q.loading.show()
       let stepData = await StepService.save(newStepData)
@@ -1013,13 +1125,13 @@ export default {
      * Change the number of digits in code
      */
     changeDigitsNumberInCode: function() {
-      if (this.options.code === 'code-color') {
+      if (this.options.type.code === 'code-color') {
         this.unformatedAnswer.length = 0      
         const codeLength = parseInt(this.selectedStep.form.options.codeLength, 10)
         while (codeLength > this.unformatedAnswer.length) {
           this.unformatedAnswer.push('red')
         }
-      } else if (this.options.code === 'code-image') {
+      } else if (this.options.type.code === 'code-image') {
         this.unformatedAnswer.length = 0      
         const codeLength = parseInt(this.selectedStep.form.options.codeLength, 10)
         while (codeLength > this.unformatedAnswer.length) {
@@ -1064,6 +1176,92 @@ export default {
         }
       }
       return nbImagesUploaded
+    },
+    /*
+     * Format the conditions to by understandable
+     */
+    async getUnderstandableConditions() {
+      this.selectedStep.formatedConditions.length = 0
+      
+      for (var i = 0; i < this.selectedStep.form.conditions.length; i++) {
+        var condition = this.selectedStep.form.conditions[i]
+        var conditionParts = condition.split("_")
+        if (conditionParts[0] === 'stepDone' || conditionParts[0] === 'stepSuccess' || conditionParts[0] === 'stepFail') {
+          const stepData = await StepService.getById(conditionParts[1])
+          if (stepData && stepData.data && stepData.data.hasOwnProperty("title")) {
+            let condStepTitle = stepData.data.title[this.lang] ? stepData.data.title[this.lang] : conditionParts[1]
+            if (conditionParts[0] === 'stepDone') {
+              this.selectedStep.formatedConditions.push(this.$t("label.FollowStep") + " <i>" + condStepTitle + "</i>")
+            }
+            if (conditionParts[0] === 'stepSuccess') {
+              this.selectedStep.formatedConditions.push(this.$t("label.StepSuccess") + " <i>" + condStepTitle + "</i>")
+            }
+            if (conditionParts[0] === 'stepFail') {
+              this.selectedStep.formatedConditions.push(this.$t("label.StepFail") + " <i>" + condStepTitle + "</i>")
+            }
+          }
+        }
+      }
+    },
+    /*
+     * Remove a condition
+     */
+    async deleteCondition(index) {
+      this.selectedStep.form.conditions.splice(index, 1)
+      this.selectedStep.formatedConditions.splice(index, 1)
+    },
+    /*
+     * update the conditions values
+     */
+    async changeNewConditionType() {
+      if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail') {
+        const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId)
+        if (response && response.data && response.data.length > 0) {
+          for (var i = 0; i < response.data.length; i++) {
+            if (response.data[i]._id.toString() !== this.stepId.toString()) {
+              let condStepTitle = response.data[i].title[this.lang] ? response.data[i].title[this.lang] : response.data[i]._id.toString()
+              this.selectedStep.newCondition.values.push({label: condStepTitle, value: response.data[i]._id})
+            }
+          }
+        }
+      }
+    },
+    /*
+     * Save a new condition
+     */
+    async saveNewCondition() {
+      // Update conditions array
+      if (this.selectedStep.newCondition.selectedType !== '' && this.selectedStep.newCondition.selectedValue !== '') {
+        if (this.selectedStep.newCondition.selectedType === 'stepDone') {
+          // prevent from having several stepDone conditions (only one possible)
+          /*for (var i = 0; i < this.selectedStep.form.conditions.length; i++) {
+            var condition = this.selectedStep.form.conditions[i]
+            var conditionParts = condition.split("_")
+            if (conditionParts[0] === "stepDone") {
+              Notification(this.$t('label.YourStepCanOnlyFollowOneStep'), 'error')
+              return false
+            }
+          }*/
+          this.selectedStep.form.conditions.push('stepDone_' + this.selectedStep.newCondition.selectedValue)
+        }
+        if (this.selectedStep.newCondition.selectedType === 'stepSuccess') {
+          this.selectedStep.form.conditions.push('stepSuccess_' + this.selectedStep.newCondition.selectedValue)
+        }
+        if (this.selectedStep.newCondition.selectedType === 'stepFail') {
+          this.selectedStep.form.conditions.push('stepFail_' + this.selectedStep.newCondition.selectedValue)
+        }
+      }
+      this.getUnderstandableConditions()
+      await this.resetNewConditionForm()
+      this.selectedStep.newConditionForm = false
+    },
+    /*
+     * Reset condition form
+     */
+    async resetNewConditionForm() {
+      this.selectedStep.newCondition.selectedType = 'stepDone'
+      await this.changeNewConditionType()
+      this.selectedStep.newCondition.selectedValue = ''
     },
     /*
      * Upload the background image
@@ -1240,7 +1438,7 @@ export default {
       }
       var data = new FormData()
       data.append('image', files[0])
-      let uploadResult = await StepService.uploadItemImage(this.questId, this.options.code, data)
+      let uploadResult = await StepService.uploadItemImage(this.questId, this.options.type.code, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         this.selectedStep.form.options.picture = uploadResult.data.file
       } else {
@@ -1319,7 +1517,7 @@ export default {
       let posX = ev.clientX - rect.left
       let posY = ev.clientY - rect.top
       
-      let picture = this.options.code === 'use-item' ? this.$refs['useItemPicture'] : this.$refs['findItemPicture']
+      let picture = this.options.type.code === 'use-item' ? this.$refs['useItemPicture'] : this.$refs['findItemPicture']
       
       // relative position between 0 to 100
       this.selectedStep.form.answerPointerCoordinates.left = Math.round(posX / picture.clientWidth * 100)
@@ -1413,8 +1611,8 @@ export default {
       let maxNbCarriageReturns = 11 // default
       let maxNbChars = this.mainTextMaxLength
       
-      if (this.options.textRules && this.options.textRules.maxNbCarriageReturns) {
-        maxNbCarriageReturns = this.options.textRules.maxNbCarriageReturns
+      if (this.options.type.textRules && this.options.type.textRules.maxNbCarriageReturns) {
+        maxNbCarriageReturns = this.options.type.textRules.maxNbCarriageReturns
       }
       
       if (value === null || typeof value === 'undefined') {
@@ -1462,7 +1660,7 @@ export default {
     fieldsToValidate.text[this.lang] = { function(value) { return this.checkMainTextLength(value) } }
     
     // alphabetical order
-    switch (this.options.code) {
+    switch (this.options.type.code) {
       case 'choose':
         fieldsToValidate.options = {
           $each: this.answerType === 'text' ? { text: { required }, imagePath: {} } : { text: {}, imagePath: { required } }
@@ -1509,6 +1707,9 @@ export default {
           fieldsToValidate.options.picture = { required }
         }
         break
+      case 'touch-object-on-marker':
+        fieldsToValidate.options = { model: { required } }
+        break
     }
     
     return { selectedStep: { form: fieldsToValidate } }
@@ -1550,7 +1751,7 @@ p { margin-bottom: 0.5rem; }
 .locate-item-ar .q-radio { padding:0.5rem 1rem; }
 
 .locate-marker p, .modal .q-btn { display: flex; align-items: center; }
-.locate-marker p img, .modal .q-btn img { width: 20vw; height: 20vw; flex-grow: 0 }
+.locate-marker p img,  .modal .q-btn img { width: 20vw; height: 20vw; flex-grow: 0 }
 .locate-marker p span, .modal .q-btn span { flex-grow: 1; color: #000; }
 .locate-marker p .q-btn { flex-grow: 0 }
 

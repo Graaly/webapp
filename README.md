@@ -29,7 +29,9 @@ If no data from server is shown on webapp on Chrome (desktop or mobile), try to 
 
 Open console / terminal in the *webapp* folder
 
-⚠️ Change the version in the quasar.conf.js file
+/!!!!!!!\ 
+  Change the version in the quasar.conf.js file
+  If needed change the client required version in /server/routes/main.js & webapp/src/plugins/RouterAuthentication.js
 
 `$ quasar build -m cordova -T android`
 
@@ -41,6 +43,8 @@ $ jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore graaly-key.jk
 $ rm graaly.apk
 $ E:\logiciels\Android\sdk\build-tools\26.0.2\zipalign -v 4 app-release-unsigned.apk graaly.apk
 ```
+
+Attention: the keystore (jks file) needs to be saved in a secure location. It can not be built again.
 
 # Publish the app
 
@@ -60,10 +64,12 @@ Open the xproj file
 
 Build and Archive the app (select Generic iOS Device to archive), then deploy it
 
+Open https://appstoreconnect.apple.com/WebObjects/iTunesConnect.woa/ra/ng/app/1448284225/testflight?section=iosbuilds and activate the testfight build
+
 If any issue with certificate, or provisioning profile, generate a new certificate, or provisioning profile on https://developer.apple.com/account/ios/profile/production/edit/44CLFUHY8J
 (⚠️ the current provisioning profile works with 3/11/2018 certificate)
 
-Account to test the app : graaly / Gr44lY43v3r
+Account to test the app : eric.mathieu@graaly.com / Gr44ly!2k19
 
 # Debug web app
 
@@ -98,7 +104,7 @@ On the Android smartphone:
 
 On your computer:
 
-* change the SERVER_URL in webapp/config/dev.env.js
+* change the SERVER_URL in webapp/config/dev.env.js (get server URL with ipconfig on the PC)
 * Launch in windows console : quasar dev -m cordova -T android
 * Open Chrome browser
 * Press F12 to load developer tools
@@ -113,6 +119,11 @@ Now you should be able to view what is displayed on your smartphone in Chrome De
 Visible console output is related to the activity on the Android Chrome browser of the smartphone.
 
 ## Enable HTTPS on dev environment
+
+
+Remove the cache of your browser (if you renew the certificate)
+
+Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
 
 Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to easily create a custom Certification Authority, generate certificates for any IP/domain, and make all your dev devices trust them.
 
@@ -136,6 +147,11 @@ Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to ea
 
   * [Google Firebase Test Lab](https://firebase.google.com/docs/test-lab/) (maybe for native Android apps only)
   * [Saucelabs mobile app testing](https://saucelabs.com/products/mobile-app-testing) (paid service)
+
+# Generate AR.js pattern files to detect markers
+
+* Follow [this procedure](https://medium.com/arjs/how-to-create-your-own-marker-44becbec1105)
+* Warning: set pattern ratio to 0.80 instead of 0.50 (ratio pattern size / black border size)
 
 # Technical specs
 

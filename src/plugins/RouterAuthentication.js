@@ -8,11 +8,17 @@ export default ({ app, router, Vue }) => {
     try {
       if (!to.meta.hasOwnProperty('requiresAuth') || to.meta.requiresAuth) {
         let response = await AuthService.getAccount()
-
-        if (response.data && response.data.name) {
-          store.state.user = response.data
+        
+        if (response && response.data && response.data.name) {
+          if (response.data.clientSupportedVersion && response.data.clientSupportedVersion > "1.3") {
+            next({
+              path: '/error/upgraderequired'
+            })
+          } else {
+            store.state.user = response.data
           
-          next()
+            next()
+          }
         } else {
           let firstusage = Cookies.get('firstusage')
 

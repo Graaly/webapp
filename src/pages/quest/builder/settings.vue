@@ -1,15 +1,15 @@
 <template>
-  <div>
-    <router-link v-show="!steps.showNewStepOverview && !steps.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
+  <div id="scrollpage" :class="{'bg-white': !chapters.showNewStepOverview}">
+    <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
     
-    <h1 class="size-3 q-pl-md" v-show="!steps.showNewStepOverview && !steps.showNewStepPageSettings">
+    <h1 class="size-3 q-pl-md" v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings">
       <span v-if="tabs.progress >= 2">{{ form.fields.title[languages.current] || form.fields.title[quest.mainLanguage] }}</span>
       <span v-else>{{ $t('label.NewQuest') }}</span>
     </h1>
 
     <!------------------ TABS ------------------------>
     
-    <q-tabs v-model="tabs.selected" v-show="!steps.showNewStepOverview && !steps.showNewStepPageSettings">
+    <q-tabs v-model="tabs.selected" v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings">
       <q-tab slot="title" :disable="isReadOnly()" name="languages" :icon="getTabIcon(1)" :label="$t('label.Languages')" default />
       <q-tab slot="title" :disable="tabs.progress < 1 || isReadOnly()" name="settings" :icon="getTabIcon(2)" :label="$t('label.Intro') + ' (' + languages.current + ')'" />
       <q-tab slot="title" :disable="tabs.progress < 2 || isReadOnly()" name="steps" :icon="getTabIcon(3)" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
@@ -113,24 +113,41 @@
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
         <p>{{ $t('label.AddYourSteps') }}</p>
-        <p class="centered" v-show="steps.items && steps.items.length > 6">
+        <!--<p class="centered" v-show="chapters.items && chapters.items.length > 6">
           <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
-        </p>
+        </p>-->
         <!-- using https://github.com/timruffles/ios-html5-drag-drop-shim to allow drag & drop on mobile -->
-        <ul class="list-group" v-sortable="{ onUpdate: onStepListUpdate, handle: '.handle' }">
-          <li class="list-group-item" v-for="step in steps.items" :key="step._id">
+        <ul class="list-group" v-sortable="{ onUpdate: onChapterListUpdate, handle: '.handle' }">
+          <li class="list-group-item" v-for="chapter in chapters.items" :key="chapter._id">
             <q-icon class="handle" name="reorder" />
-            <p>{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</p>
-            <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
-            <q-btn @click="modifyStep(step)"><q-icon name="mode edit" /></q-btn>
-            <q-btn @click="removeStep(step._id)"><q-icon name="clear" /></q-btn>
+            <div>
+              <p>
+                {{ chapter.title[languages.current] || chapter.title[quest.mainLanguage] }}
+                <q-icon name="add_box" class="float-right q-ml-md size-1" style="margin-top: -8px" @click.native="addStep(chapter._id)" />
+                <q-icon name="delete" class="float-right q-ml-md a-bit-bigger" @click.native="removeChapter(chapter._id)" />
+                <q-icon name="mode edit" class="float-right q-ml-md a-bit-bigger" @click.native="modifyChapter(chapter._id)" />
+                <q-icon name="warning" color="primary" class="float-right a-bit-bigger" v-if="chapter.warnings && chapter.warnings.length > 0" @click.native="showChapterWarnings(chapter.warnings)" />
+              </p>
+              <div v-if="!chapter.steps || chapter.steps.length === 0">
+                {{ $t('label.ClickOnButtonToAddStep') }}
+              </div>
+              <div v-for="step in chapter.steps" :key="step._id">
+                <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
+                <span @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                <q-btn class="float-right" @click="removeStep(step._id)"><q-icon name="delete" /></q-btn>
+                <q-btn class="float-right" @click="modifyStep(step)"><q-icon name="mode edit" /></q-btn>
+              </div>
+            </div>
           </li>
         </ul>
         
         <p class="centered">
-          <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
+          <q-btn color="primary" icon="fas fa-plus-circle" @click="addChapter()" :label="$t('label.AddASChapter')" />
         </p>
-        <p class="centered q-pa-md" v-if="steps.items && steps.items.length > 3">
+        <!--<p class="centered">
+          <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
+        </p>-->
+        <p class="centered q-pa-md" v-if="chapters.items && chapters.items.length > 3">
           <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
         </p>
       
@@ -145,12 +162,12 @@
         <q-alert type="warning" class="q-mb-md" v-if="quest.status === 'rejected'">
           {{ $t('label.QuestPublicationRejected') }}
         </q-alert>
-        <q-alert type="warning" class="q-mb-md" v-if="steps.items.length < 6">
+        <!--<q-alert type="warning" class="q-mb-md" v-if="chapters.items.length < 6">
           {{ $t('label.YourQuestMustContainAtLeast6Steps') }}
         </q-alert>
-        <q-alert type="warning" class="q-mb-md" v-if="steps.items.length > 50">
+        <q-alert type="warning" class="q-mb-md" v-if="chapters.items.length > 50">
           {{ $t('label.YourQuestMustContainLessThan50Steps') }}
-        </q-alert>
+        </q-alert>-->
         <p class="centered q-pa-md">
           <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
         </p>
@@ -161,7 +178,7 @@
           :label="$t('label.LanguagesPublished')"
         >
           <p v-for="lang in form.fields.languages" :key="lang.lang">
-            <q-toggle v-model="lang.published" :disable="steps.items.length < 6 || steps.items.length > 50" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
+            <q-toggle v-model="lang.published" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
           </p>
         </q-field>
         
@@ -224,7 +241,7 @@
       
     </q-tabs>
     
-    <q-modal v-model="steps.showNewStepPage">
+    <q-modal v-model="chapters.showNewStepPage">
       <div>
     
         <!------------------ STEP TYPE SELECTION ------------------------>
@@ -272,28 +289,38 @@
       
     </q-modal>
     
-    <div id="overview" v-if="steps.showNewStepPageSettings" class="fit">
+    <div id="overview" v-if="chapters.showNewStepPageSettings" class="fit">
       
       <!------------------ STEP SETTINGS SELECTION ------------------------>
       
-      <stepSettings :quest="quest" :stepId="stepId" :lang="languages.current" :options="steps.new.type" @change="trackStepChanges" @close="closeStepSettingsPage"></stepSettings>
+      <stepSettings :quest="quest" :stepId="stepId" :lang="languages.current" :options="{type: chapters.newStep.type, chapterId: chapters.newStep.chapterId, previousStepId: chapters.newStep.previousStepId}" @change="trackStepChanges" @close="closeStepSettingsPage"></stepSettings>
       
     </div>  
     
-    <div id="overview" v-if="steps.showNewStepOverview" class="fit">
+    <div id="overview" v-if="chapters.showNewStepOverview" class="fit">
     
         <!------------------ STEP SIMULATION ------------------------>
 
-        <stepPlay :step="steps.new.overviewData" runId="0" :itemUsed="selectedItem" :reload="steps.reloadStepPlay" :lang="languages.current" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
-        <q-layout-footer class="step-menu">
-          <q-tabs v-model="overview.tabSelected">
-            <q-tab slot="title" name="info" icon="edit" disable />
-            <q-tab slot="title" name="inventory" icon="work" @click="openInventory()" />
-            <q-tab slot="title" name="hint" icon="lightbulb outline" :disable="!isHintAvailable()" @click="askForHint()"/>
-            <q-tab slot="title" name="previous" icon="arrow_back" @click="modifyStep" />
-            <q-tab slot="title" name="next" icon="arrow_forward" :disable="!canMoveNextStep && !canPass" @click="closeOverview" />
-          </q-tabs>
-        </q-layout-footer>      
+        <stepPlay :step="chapters.newStep.overviewData" runId="0" :itemUsed="selectedItem" :reload="chapters.reloadStepPlay" :lang="languages.current" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
+        <div v-show="overview.tabSelected" class="step-menu fixed-bottom">
+          <!--<q-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-progress>-->
+          <div class="row">
+            <div class="col centered q-pb-md">
+            </div>
+            <div class="col centered q-pb-md">
+              <q-btn round size="lg" color="primary" icon="work" :class="{'bg-secondary': inventory.isOpened}" @click="openInventory()" />
+            </div>
+            <div class="col centered q-pb-md">
+              <q-btn round size="lg" color="primary" icon="lightbulb outline" :class="{'flashing': hint.suggest, 'bg-secondary': hint.isOpened}" @click="askForHint()" v-show="isHintAvailable()" />
+            </div>
+            <div class="col centered q-pb-md">
+              <q-btn round size="lg" color="primary" icon="arrow_back" @click="modifyStep()" />
+            </div>
+            <div class="col centered q-pb-md">
+              <q-btn round size="lg" color="primary" icon="arrow_forward" :class="{'flashing': canMoveNextStep}" v-show="canMoveNextStep || canPass" @click="closeOverview" />
+            </div>
+          </div>
+        </div>
         
     </div>  
     
@@ -397,6 +424,7 @@ export default {
           level: 2,
           duration: 30,
           picture: null,
+          thumb: null,
           town: "",
           country: "",
           zipcode: ""
@@ -417,15 +445,17 @@ export default {
         languages: [],
         hasLocateMarkerSteps: false
       },
-      steps: {
+      chapters: {
         items: [],
         showNewStepPage: false,
         showNewStepPageSettings: false,
         showNewStepOverview: false,
         reloadStepPlay: false,
-        new: {
+        newStep: {
           title: 'ImageAndText',
           type: {},
+          chapterId: 0,
+          previousStepId: 0,
           overviewData: {}
         }
       },
@@ -559,16 +589,119 @@ export default {
       // list steps
       this.$q.loading.show()
       var response = await StepService.listForAQuest(this.questId)
-      if (response) {
-        this.steps.items = response
-        if (this.steps.items && this.steps.items.length > 0 && this.tabs.progress < 3) {
+      if (response && response.data) {
+        this.chapters.items = response.data.chapters
+        
+        const steps = response.data.steps
+        for (var j = 0; j < this.chapters.items.length; j++) {
+          var hasEndOfChapterStep = false
+          var stepsWithNoCondition = []
+          var order = []
+          var orderIndex = 100
+          var stepsOfChapter = []
+          var parent = []
+     
+          // Get the steps of current chapter
+          for (var i = 0; i < steps.length; i++) {
+            if (steps[i].chapterId.toString() === this.chapters.items[j]._id.toString()) {
+              // create steps array
+              if (!this.chapters.items[j].steps) {
+                this.chapters.items[j].steps = []
+              }
+              // check if there is an end of chapter step
+              if (steps[i].type === 'end-chapter') {
+                hasEndOfChapterStep = true
+              }
+              stepsOfChapter.push(steps[i])
+            }
+          }
+          
+          // first step : find the lower level steps
+          for (i = 0; i < stepsOfChapter.length; i++) {
+            // if no parent (stepDone), 
+            if ((stepsOfChapter[i].conditions && stepsOfChapter[i].conditions.length > 0) || stepsOfChapter[i].type === 'locate-marker') {
+              if (stepsOfChapter[i].type !== 'locate-marker') {
+                for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
+                  var noStepDone = true
+                  if (stepsOfChapter[i].conditions[k].indexOf('stepDone') !== -1) {
+                    noStepDone = false
+                    parent[stepsOfChapter[i]._id.toString()] = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
+                  }
+                  if (stepsOfChapter[i].conditions[k].indexOf('stepSuccess') !== -1) {
+                    noStepDone = false
+                    parent[stepsOfChapter[i]._id.toString()] = stepsOfChapter[i].conditions[k].replace("stepSuccess_", "")
+                  }
+                  if (stepsOfChapter[i].conditions[k].indexOf('stepFail') !== -1) {
+                    noStepDone = false
+                    parent[stepsOfChapter[i]._id.toString()] = stepsOfChapter[i].conditions[k].replace("stepFail_", "")
+                  }
+                }
+              }
+              if (noStepDone || stepsOfChapter[i].type === 'locate-marker') {
+                order.push({key: orderIndex.toString(), value: stepsOfChapter[i]._id}) 
+                orderIndex++
+              }
+            } else {
+              if (order.length === 0) {
+                order.push({key: "0", value: stepsOfChapter[i]._id})
+              } else {
+                order.push({key: orderIndex.toString(), value: stepsOfChapter[i]._id}) 
+                orderIndex++
+              }
+              
+              stepsWithNoCondition.push(stepsOfChapter[i].title[this.languages.current])
+            }
+          }
+
+          // get order based on parent/child hierarchy
+          var nbToTreat = Object.keys(parent).length
+          var inc = 0
+          while (Object.keys(parent).length > 0 && inc < nbToTreat) {
+            for (var child in parent) {
+              for (i = 0; i < order.length; i++) {
+                if (parent[child] === order[i].value) {
+                  order.push({key: order[i].key + "." + order[i].value, value: child})
+                  delete parent[child]
+                }
+              }
+            }
+            inc++
+          }
+          
+          order.sort(function(a, b) {
+            return a.key < b.key ? -1 : a.key > b.key ? 1 : 0
+          })
+          
+          // order steps
+          for (i = 0; i < order.length; i++) {
+            for (k = 0; k < stepsOfChapter.length; k++) {
+              if (order[i].value === stepsOfChapter[k]._id.toString()) {
+                this.chapters.items[j].steps.push(stepsOfChapter[k])
+              }
+            }
+          }
+          
+          // Checks
+          this.chapters.items[j].warnings = []
+          if (!hasEndOfChapterStep) {
+            this.chapters.items[j].warnings.push({noEndOfChapter: true})
+          }
+          if (stepsWithNoCondition.length > 1) {
+            this.chapters.items[j].warnings.push({moreThan1StepWithNoCondition: stepsWithNoCondition})
+          }
+          if (parent.length > 0) {
+            this.chapters.items[j].warnings.push({stepsWithMissingParent: parent})
+          }
+        }
+        
+        if (steps && steps.length > 0 && this.tabs.progress < 3) {
           this.tabs.progress = 3
         }
         
         // update property this.quest.hasLocateMarkerSteps
         let found = false
-        for (let i = 0; i < this.steps.items.length; i++) {
-          let item = this.steps.items[i]
+        for (let i = 0; i < steps.length; i++) {
+          let item = steps[i]
           if (item.type === 'locate-marker') {
             found = true
             break
@@ -579,6 +712,35 @@ export default {
         this.warnings.stepsMissing = true
       }
       this.$q.loading.hide()
+    },
+    showChapterWarnings (warnings) {
+      var message = ""
+      for (var i = 0; i < warnings.length; i++) {
+        if (warnings[i].hasOwnProperty('noEndOfChapter')) {
+          message += this.$t('label.YourChapterMustHaveAEndOfChapterStep') + ". "
+        }
+        if (warnings[i].hasOwnProperty('moreThan1StepWithNoCondition')) {
+          message += this.$t('label.FollowingStepsHaveNoConditionsOnlyTheFirstStepCanHaveThis') + ": " + warnings[i].moreThan1StepWithNoCondition.join(', ') + ". "
+        }
+        if (warnings[i].hasOwnProperty('stepsWithMissingParent')) {
+          message += this.$t('label.FollowingStepsHaveNoValidParent') + ": "
+          for (var child in warnings[i].stepsWithMissingParent) {
+            for (var j = 0; j < this.chapters.items.length; j++) {
+              // Get the steps of current chapter
+              for (var k = 0; k < this.chapters.items[j].steps.length; k++) {
+                if (this.chapters.items[j].steps[k]._id.toString() === child) {
+                  message += this.chapters.items[j].steps[k].title[this.languages.current]
+                }
+              }
+            }
+          }
+          message += ". "
+        }
+      }
+      this.$q.dialog({
+        title: this.$t('label.IssuesInYouQuest'),
+        message: message
+      })      
     },
     /*
      * Submit settings changes
@@ -641,6 +803,12 @@ export default {
       let uploadPictureResult = await QuestService.uploadPicture(data)
       if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
         this.form.fields.picture = uploadPictureResult.data.file
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      let uploadThumbResult = await QuestService.uploadThumb(data)
+      if (uploadThumbResult && uploadThumbResult.hasOwnProperty('data')) {
+        this.form.fields.thumb = uploadThumbResult.data.file
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -766,10 +934,10 @@ export default {
      * Reindex elements in the list after drag & drop
      * @param   {Object}    event            touch event
      */
-    async onStepListUpdate(event) {
-      let moveStatus = await StepService.move(this.questId, event.oldIndex + 1, event.newIndex + 1)
+    async onChapterListUpdate(event) {
+      let moveStatus = await StepService.moveChapter(this.questId, event.oldIndex + 1, event.newIndex + 1)
       if (moveStatus) {
-        this.steps.items.splice(event.newIndex, 0, this.steps.items.splice(event.oldIndex, 1)[0])
+        this.chapters.items.splice(event.newIndex, 0, this.chapters.items.splice(event.oldIndex, 1)[0])
       }
     },
     /*
@@ -853,18 +1021,99 @@ export default {
      */
     async removeStep(stepId) {
       var _this = this; // workaround for closure scope quirks
-      
+
       this.$q.dialog({
         message: this.$t('label.DoYouWantToRemoveThisStep'),
         ok: true,
         cancel: true
       }).then(async () => {
         await StepService.remove(_this.questId, stepId)
+        // refresh steps list
+        await _this.refreshStepsList()
+      }).catch((e) => { console.log(e) })
+    },
+    /*
+     * Remove a chapter
+     * @param   {String}    chapterId            ID of the chapter removed
+     */
+    async removeChapter(chapterId) {
+      var _this = this; // workaround for closure scope quirks
+      
+      // check that there are no steps in this chapter
+      for (var i = 0; i < this.chapters.items.length; i++) {
+        if (this.chapters.items[i]._id.toString() === chapterId) {
+          if (this.chapters.items[i].steps && this.chapters.items[i].steps.length > 0) {
+            Notification(this.$t('label.YouCanNotRemoveAChapterWithSteps'), 'warning')
+            return false
+          }
+        }
+      }
+      
+      this.$q.dialog({
+        message: this.$t('label.DoYouWantToRemoveThisChapter'),
+        ok: true,
+        cancel: true
+      }).then(async () => {
+        await StepService.removeChapter(_this.questId, chapterId)
         // TODO: manage when remove failed
         // reassign a number (1, 2, 3, ...) to remaining steps
-        let removedStepIndex = _this.steps.items.map(function(e) { return e._id; }).indexOf(stepId)
-        _this.steps.items.splice(removedStepIndex, 1)
+        let removedChapterIndex = _this.chapters.items.map(function(e) { return e._id; }).indexOf(chapterId)
+        _this.chapters.items.splice(removedChapterIndex, 1)
         // refresh steps list
+        await this.refreshStepsList()
+      }).catch((e) => { console.log(e) })
+    },
+    /*
+     * Modify a chapter
+     * @param   {String}    chapterId            ID of the chapter removed
+     */
+    async modifyChapter(chapterId) {
+      var _this = this; // workaround for closure scope quirks
+      var chapterData = {name: '', position: 0}
+      
+      // Get chapter position and title
+      for (var i = 0; i < this.chapters.items.length; i++) {
+        if (this.chapters.items[i]._id.toString() === chapterId) {
+          chapterData.name = this.chapters.items[i].title[this.languages.current] ? this.chapters.items[i].title[this.languages.current] : ''
+          chapterData.position = i
+        }
+      }
+      
+      this.$q.dialog({
+        message: this.$t('label.ModifyTheChapter'),
+        prompt: {
+          model: chapterData.name,
+          type: 'text'
+        },
+        cancel: true
+      }).then(async (data) => {
+        var title = {}
+        title[_this.languages.current] = data
+        
+        await StepService.modifyChapter({questId: _this.questId, _id: chapterId, title: title})
+        
+        _this.chapters.items[chapterData.position].title[_this.languages.current] = data
+      }).catch(() => {})
+    },
+    /*
+     * Create a chapter
+     */
+    async addChapter() {
+      var _this = this; // workaround for closure scope quirks
+      
+      this.$q.dialog({
+        message: this.$t('label.NewChapter'),
+        prompt: {
+          model: '',
+          type: 'text'
+        },
+        cancel: true
+      }).then(async (data) => {
+        var title = {}
+        title[_this.languages.current] = data
+        
+        await StepService.modifyChapter({questId: _this.questId, _id: '0', title: title})
+        
         await this.refreshStepsList()
       }).catch(() => {})
     },
@@ -875,14 +1124,45 @@ export default {
     async modifyStep(step) {
       if (step && step._id) {
         this.stepId = step._id
-        this.steps.new.type = this.getStepTypeInformations(step.type)
+        this.chapters.newStep.type = this.getStepTypeInformations(step.type)
+        this.chapters.newStep.chapterId = step.chapterId
+        this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
       }
       this.closeAllPanels()
-      this.steps.showNewStepOverview = false
-      this.steps.showNewStepPageSettings = true
-      this.steps.reloadStepPlay = false
+      this.chapters.showNewStepOverview = false
+      this.chapters.showNewStepPageSettings = true
+      this.chapters.reloadStepPlay = false
       // move to top
       this.moveToTop()
+    },
+    /*
+     * play a step
+     * @param   {Object}    step            Data of the step to play
+     */
+    async playStep(step) {
+      this.chapters.reloadStepPlay = false
+      if (step && step._id) {
+        this.stepId = step._id
+        step.id = step._id
+        this.chapters.newStep.type = this.getStepTypeInformations(step.type)
+        this.chapters.newStep.chapterId = step.chapterId
+        this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
+      }
+      this.closeAllPanels()
+      this.chapters.newStep.overviewData = step
+      this.chapters.showNewStepPageSettings = false
+      this.chapters.showNewStepOverview = true
+      // move to top
+      this.moveToTop()
+      // add timer else the watcher is not working in stepPlay
+      var _this = this
+      setTimeout(function() { _this.chapters.reloadStepPlay = true }, 300)
+    },
+    /*
+     * Move screen to current chapter (anchor)
+     */
+    async moveToPosition(position) {
+        window.scrollTo(0, position)
     },
     /*
      * close overview page
@@ -891,11 +1171,12 @@ export default {
       this.resetStepData()
       this.closeAllPanels()
       await this.refreshStepsList()
-      this.steps.showNewStepOverview = false
+      this.moveToPosition(this.chapters.newStep.scrollPosition)
+      this.chapters.showNewStepOverview = false
       this.tabs.selected = 'steps'
       utils.clearAllNotifications()
       // start the story only for the 7th step
-      if (this.story.active && this.steps.items.length === 7) {
+      if (this.story.active && this.countSteps() === 7) {
         this.story.step = 22
       }
     },
@@ -904,8 +1185,10 @@ export default {
      */
     resetStepData() {
       this.stepId = '-1'
-      this.steps.new.overviewData = {}
-      this.steps.reloadStepPlay = false // reset the overview
+      this.chapters.newStep.chaptedId = 0
+      this.chapters.newStep.previousStepId = 0
+      this.chapters.newStep.overviewData = {}
+      this.chapters.reloadStepPlay = false // reset the overview
       this.selectedItem = null
       this.canMoveNextStep = false
       this.canPass = false
@@ -915,25 +1198,37 @@ export default {
      */
     async closeStepSettingsPage() {
       await this.refreshStepsList()
-      this.steps.new.type = {}
+      this.moveToPosition(this.chapters.newStep.scrollPosition)
+      this.chapters.newStep.type = {}
       this.stepId = '0'
-      this.steps.showNewStepPageSettings = false
+      this.chapters.showNewStepPageSettings = false
       this.tabs.selected = 'steps'
     }, 
     /*
      * add a step
      */
-    async addStep() {
-      this.steps.showNewStepPage = true;
+    async addStep(chapterId) {
+      this.chapters.showNewStepPage = true
+      this.chapters.newStep.chapterId = chapterId
+      this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
+      var previousStepId = 0
+      // get last step id of this chapter, to build the default condition
+      for (var i = 0; i < this.chapters.items.length; i++) {
+        if (this.chapters.items[i]._id.toString() === chapterId && this.chapters.items[i].steps) {
+          let nbStepsInChapter = this.chapters.items[i].steps.length
+          previousStepId = this.chapters.items[i].steps[nbStepsInChapter - 1]._id
+        }
+      }
+      this.chapters.newStep.previousStepId = previousStepId
     },
     /*
      * Save steps order
      */
     // TODO : do the same with only one query
-    async reindexSteps() {
-      for (let i = 0; i < this.steps.items.length; i++) {
-        let step = this.steps.items[i]
-        await StepService.save({ _id: step._id, questId: this.questId, number: i + 1 })
+    async reindexChapters() {
+      for (let i = 0; i < this.chapters.items.length; i++) {
+        let chapter = this.chapters.items[i]
+        await StepService.saveChapter({ _id: chapter._id, questId: this.questId, order: i + 1 })
       }
     },
     /*
@@ -1010,9 +1305,9 @@ export default {
     closeStepTypePage() {
       // to trigger step type change
       this.stepId = '-1'
-      this.steps.reloadStepPlay = false // reset the overview
-      this.steps.new.type = {}
-      this.steps.showNewStepPage = false
+      this.chapters.reloadStepPlay = false // reset the overview
+      this.chapters.newStep.type = {}
+      this.chapters.showNewStepPage = false
     }, 
     /*
      * Filter step types based on main category code
@@ -1025,33 +1320,47 @@ export default {
      * @param   {Object}    stepType            Type of the step
      */
     async selectStepType(stepType) {
-      this.steps.new.type = stepType
-      this.steps.showNewStepPage = false
+      this.chapters.newStep.type = stepType
+      this.chapters.showNewStepPage = false
       // to trigger step type change
       this.stepId = '0'
-      this.steps.showNewStepPageSettings = true
+      this.chapters.showNewStepPageSettings = true
       // move to top
       this.moveToTop()
       
-      if (this.steps.items.length === 0 && this.story.active) {
+      if (this.countSteps() === 0 && this.story.active) {
         this.story.step = 20
       }
+    },
+    countSteps() {
+      var count = 0
+      for (var i = 0; i < this.chapters.items.length; i++) {
+        if (this.chapters.items[i].steps && this.chapters.items[i].steps.length > 0) {
+          count += this.chapters.items[i].steps.length
+        }
+      }
+      return count
     },
     /*
      * Launched when the step settings are set
      * @param   {Object}    step            New step data
      */
     async trackStepChanges(step) {
-      this.steps.showNewStepPageSettings = false
-      this.steps.showNewStepOverview = true
+      this.chapters.showNewStepPageSettings = false
+      if (step.type === 'end-chapter') {
+        await this.closeOverview()
+        return false
+      }
+      this.chapters.showNewStepOverview = true
       this.stepId = step.id
-      this.steps.new.overviewData = step
-      // reset the step overview
-      this.steps.reloadStepPlay = true
+      this.chapters.newStep.overviewData = step
       // move to top
       this.moveToTop()
+      // add timer else the watcher is not working in stepPlay
+      var _this = this
+      setTimeout(function() { _this.chapters.reloadStepPlay = true }, 300)
       
-      if (this.story.active && this.steps.items.length === 0) {
+      if (this.story.active && this.countSteps() === 0) {
         this.story.step = 21
       }
     },
@@ -1124,7 +1433,7 @@ export default {
       await this.listEditors()
     },
     hideHint() {
-      this.steps.new.overviewData.hint = {}
+      this.chapters.newStep.overviewData.hint = {}
     },
     /*
      * Get the icon of a step type
@@ -1185,7 +1494,7 @@ export default {
      * @param   {object}    item            Item selected
      */
     selectItem(item) {
-      if (this.steps.new.overviewData.type !== 'use-item') {
+      if (this.chapters.newStep.overviewData.type !== 'use-item') {
         Notification(this.$t('label.YouCanNotUseAnItemInThisStep'), 'warning')
         return
       }
@@ -1226,7 +1535,7 @@ export default {
      * Check if a hint is available for the step
      */
     isHintAvailable() {
-      return (this.steps.new.overviewData && this.steps.new.overviewData.hasOwnProperty("hint") && this.steps.new.overviewData.hint[this.languages.current] && this.steps.new.overviewData.hint[this.languages.current] !== '')
+      return (this.chapters.newStep.overviewData && this.chapters.newStep.overviewData.hasOwnProperty("hint") && this.chapters.newStep.overviewData.hint[this.languages.current] && this.chapters.newStep.overviewData.hint[this.languages.current] !== '')
     },
     /*
      * Scroll page to the top

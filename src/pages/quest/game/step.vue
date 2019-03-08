@@ -1,5 +1,5 @@
 <template>
-  <div class="play">
+  <div>
     
     <div class="centered bg-warning q-pa-sm" v-if="warnings.stepDataMissing" @click="initData()">
       <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
@@ -45,6 +45,8 @@
             <p class="q-pb-xl">
               <q-btn color="secondary" @click="openInfo">{{ $t('label.BackToQuest') }}</q-btn>
             </p>
+            <p class="q-pb-lg">
+            </p>
           </div>
         </div>
       </div>
@@ -64,16 +66,26 @@
       
     <!------------------ FOOTER AREA ------------------------>
     
-    <q-layout-footer v-model="footer.show" class="step-menu">
-      <q-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-progress>
-      <q-tabs v-model="footer.tabSelected">
-        <q-tab slot="title" name="info" icon="menu" @click="openInfo()" />
-        <q-tab slot="title" name="inventory" icon="work" @click="openInventory()" :disable="!inventory.show" />
-        <q-tab slot="title" :class="{'flashing': hint.suggest}" name="hint" icon="lightbulb outline" :disable="!hint.show" @click="askForHint()"/>
-        <q-tab slot="title" name="previous" icon="arrow_back" @click="previousStep()" />
-        <q-tab slot="title" :class="{'flashing': canMoveNextStep}" name="next" icon="arrow_forward" :disable="!canMoveNextStep && !canPass" @click="nextStep()" />
-      </q-tabs>
-    </q-layout-footer>
+    <div v-show="footer.show" class="step-menu fixed-bottom">
+      <!--<q-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-progress>-->
+      <div class="row">
+        <div class="col centered q-pb-md">
+          <q-btn round size="lg" color="primary" icon="menu" :class="{'bg-secondary': info.isOpened}" @click="openInfo()" />
+        </div>
+        <div class="col centered q-pb-md">
+          <q-btn round size="lg" color="primary" icon="work" :class="{'bg-secondary': inventory.isOpened}" @click="openInventory()" v-show="inventory.show" />
+        </div>
+        <div class="col centered q-pb-md">
+          <q-btn round size="lg" color="primary" icon="lightbulb outline" :class="{'flashing': hint.suggest, 'bg-secondary': hint.isOpened}" @click="askForHint()" v-show="hint.show" />
+        </div>
+        <div class="col centered q-pb-md">
+          <q-btn round size="lg" color="primary" icon="arrow_back" v-show="previousStepId !== ''" @click="previousStep()" />
+        </div>
+        <div class="col centered q-pb-md">
+          <q-btn round size="lg" color="primary" icon="arrow_forward" :class="{'flashing': canMoveNextStep}" v-show="canMoveNextStep || canPass" @click="nextStep()" />
+        </div>
+      </div>
+    </div>
   </div>
   
 </template>
@@ -104,110 +116,127 @@ export default {
     story
   },
   data () {
-    return {
-      footer: {
-        show: true,
-        tabSelected: 'none'
-      },
-      inventory: {
-        isOpened: false,
-        items: [],
-        show: true
-      },
-      hint: {
-        isOpened: false,
-        label: "",
-        suggest: false,
-        show: false
-      },
-      info: {
-        isOpened: false,
-        score: 0,
-        quest: {}
-      },
-      quest: {
-        id: this.$route.params.questId
-      },
-      step: {
-        nextNumber: 2
-      },
-      story: {
-        step: null,
-        data: null
-      },
-      loadStepData: false,
-      run: {},
-      isRunFinished: false,
-      canMoveNextStep: false,
-      canPass: false,
-      remotePlay: false,
-      //cameraStreamEnabled: false,
-      serverUrl: process.env.SERVER_URL,
-      nbTry: 0,
-      controlsAreDisplayed: false,
-      lang: this.$route.params.lang,
-      warnings: {
-        inventoryMissing: false,
-        questDataMissing: false,
-        stepDataMissing: false
-      },
-      
-      // for step type 'use-item'
-      selectedItem: null
-    }
+    return this.initialState()
   },
   mounted () {
     utils.clearAllRunningProcesses()
     this.initData()
   },
   methods: {
+    initialState () {
+      return {
+        footer: {
+          show: true,
+          tabSelected: 'none'
+        },
+        inventory: {
+          isOpened: false,
+          items: [],
+          show: true
+        },
+        hint: {
+          isOpened: false,
+          label: "",
+          suggest: false,
+          show: false
+        },
+        info: {
+          isOpened: false,
+          score: 0,
+          quest: {}
+        },
+        quest: {
+          id: this.$route.params.questId
+        },
+        step: {},
+        story: {
+          step: null,
+          data: null
+        },
+        loadStepData: false,
+        run: {},
+        isRunFinished: false,
+        canMoveNextStep: false,
+        canPass: false,
+        remotePlay: false,
+        //cameraStreamEnabled: false,
+        serverUrl: process.env.SERVER_URL,
+        nbTry: 0,
+        controlsAreDisplayed: false,
+        lang: this.$route.params.lang,
+        warnings: {
+          inventoryMissing: false,
+          questDataMissing: false,
+          stepDataMissing: false
+        },
+        previousStepId: '',
+        
+        // for step type 'use-item'
+        selectedItem: null
+      }
+    },
+    resetData () {
+      const defaultVars = this.initialState()
+      this.inventory = defaultVars.inventory
+      this.hint = defaultVars.hint
+      this.step = defaultVars.step
+      this.canMoveNextStep = defaultVars.canMoveNextStep
+      this.canPass = defaultVars.canPass
+      this.nbTry = defaultVars.nbTry
+      this.warnings = defaultVars.warnings
+      this.selectedItem = defaultVars.selectItem
+      this.loadStepData = defaultVars.loadStepData
+    },
     /*
      * Init step data
      */
     async initData () {
-      // TODO: to avoid cheating for questions with text/image answers, do not load the 'right answer' info on front app, instead make a server call to check it, when player has already selected his answer and clicked on "check answer"
-      var step = await this.getStep()
-      // redirect to latest step run if user can not access this step
-      if (step.redirect) {
-        return this.$router.push('/quest/play/' + this.quest.id + '/step/' + step.redirect + '/' + this.$route.params.lang)
-      }
-      
+      this.loadStepData = false
+      // get current run or create it
+      await this.getRun()
+   
+      // get current step
+      await this.getStep()
+
       // get quest information
       await this.getQuest(this.quest.id)
-      // get quest number to compute progression
-      await this.countStepsNumber(this.quest.id)
       
-      // no more available step => we reached end of quest
-      if (typeof step === 'undefined' || step === 'OK') {
-        // if user is owner of the quest, redirect to toolbox
-        if (this.$store.state.user.isAdmin) {
-          return this.$router.push('/admin/validate/' + this.quest.id)
-        } else if (this.$store.state.user._id === this.info.quest.authorUserId) {
-          return this.$router.push('/quest/settings/' + this.quest.id)
-        } else {
-          return this.$router.push('/quest/' + this.quest.id + '/end')
-        }
+      // get quest number to compute progression
+      //await this.countStepsNumber(this.quest.id)
+
+      // display hint
+      if (this.isHintAvailable()) {
+        utils.setTimeout(this.alertOnHint, 12000)
+        this.hint.show = true
       }
       
+      // check if story needs to start
+      await this.startStory()
+      
+      // load component data
+      this.loadStepData = true
+    },
+    /*
+     * Get the current run or create it
+     */
+    async getRun() {
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.quest.id)
-      var maxStepComplete = 0
+      var currentChapter = 0
       
       if (runs && runs.data && runs.data.length > 0) {
         for (var i = 0; i < runs.data.length; i++) {
           if (runs.data[i].status === 'finished') {
             this.isRunFinished = true
           }
-          if (runs.data[i].status === 'in-progress' && runs.data[i].currentStep > maxStepComplete) {
+          if (runs.data[i].status === 'in-progress') {
             this.run = runs.data[i]
-            maxStepComplete = runs.data[i].currentStep
+            currentChapter = runs.data[i].currentChapter
           }
         }
       }
-      // get current score
-      this.info.score = this.run.tempScore
       
-      if (maxStepComplete === 0) {
+      if (currentChapter === 0) {
         var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
         // no 'in-progress' run => create run for current player & current quest
         let res = await RunService.init(this.quest.id, this.$route.params.lang, remotePlay)
@@ -221,37 +250,78 @@ export default {
             this.$router.push('/quest/play/' + this.quest.id)
           })
         }
+        // set current score
+        this.info.score = 0
+      } else {
+        // get current score
+        this.info.score = this.run.tempScore
       }
-            
-      this.step = step
-      this.step.id = step._id
-      
-      // display hint
-      if (this.isHintAvailable()) {
-        utils.setTimeout(this.alertOnHint, 12000)
-        this.hint.show = true
-      }
-      
-      // TODO : manage non continuous path quests
-      this.step.nextNumber = this.step.number + 1
-      
-      // check if story needs to start
-      await this.startStory()
-      
-      // load component data
-      this.loadStepData = true
     },
     /*
      * Get the step data
      */
     async getStep () {
-      this.warnings.stepDataMissing = false
-      const response = await StepService.getByNumber(this.quest.id, this.$route.params.stepNumber)
-      if (response && response.data) {
-        return response.data
+      this.warnings.stepDataMissing = false   
+      // if no stepId given, load the next one
+      var stepId
+
+      if (this.$route.params.stepId && this.$route.params.stepId !== '0' && this.$route.params.stepId.indexOf('success_') === -1 && this.$route.params.stepId.indexOf('pass_') === -1) {
+        stepId = this.$route.params.stepId
+      } else {
+        const response = await RunService.getNextStep(this.run._id)
+        if (response && response.data) {
+          // check if a step is triggered
+          if (response.data.next) {
+            // if quest is finished
+            if (response.data.next === 'end') {
+              // if user is owner of the quest, redirect to toolbox
+              if (this.$store.state.user.isAdmin) {
+                return this.$router.push('/admin/validate/' + this.quest.id)
+              } else if (this.$store.state.user._id === this.info.quest.authorUserId) {
+                return this.$router.push('/quest/builder/' + this.quest.id)
+              } else {
+                return this.$router.push('/quest/' + this.quest.id + '/end')
+              }
+            } else {
+              stepId = response.data.next
+            }
+          } else {
+            // if no step is triggered, display the markers sensor
+            this.step = {
+              id: "sensor"
+            }
+            return false
+          }
+        } else {
+          this.warnings.stepDataMissing = true
+          return false
+        }
+      }
+
+      const response2 = await StepService.getById(stepId)
+      if (response2 && response2.data) {
+        this.step = response2.data
+        this.step.id = this.step._id
+        // get previous button redirect
+        this.getPreviousStep()
       } else {
         this.warnings.stepDataMissing = true
         return false
+      }
+    },
+    /*
+     * Get the previous step ID
+     */
+    getPreviousStep () {
+      if (this.step.conditions && this.step.conditions.length > 0) {
+        for (var i = 0; i < this.step.conditions.length; i++) {
+          if (this.step.conditions[i].indexOf('stepDone') !== -1) {
+            var stepId = this.step.conditions[i].replace('stepDone_', '')
+            this.previousStepId = stepId
+            
+            return stepId
+          }
+        }
       }
     },
     /*
@@ -266,12 +336,16 @@ export default {
     /*
      * Track step played
      */
-    async trackStepPlayed () {
-      this.canMoveNextStep = true
-      this.hint.suggest = false
-      this.hint.show = false
-      this.inventory.show = false
-      this.footer.tabSelected = 'next'
+    async trackStepPlayed (returnData) {
+      if (this.step.id === 'sensor') {
+        await this.getMarkerStep(returnData)
+      } else {
+        this.canMoveNextStep = true
+        this.hint.suggest = false
+        this.hint.show = false
+        this.inventory.show = false
+        this.footer.tabSelected = 'next'
+      }
     },
     /*
      * Track step passing
@@ -288,6 +362,35 @@ export default {
     async trackStepFail () {
       this.hideHint()
     },
+    /*
+     * Track step fail
+     */
+    async getMarkerStep (answer) {
+      var response = await RunService.getMarkerNextStep(this.run._id, answer)
+      if (response && response.data) {
+        // check if a step is triggered
+        if (response.data.next) {
+          // if quest is finished
+          if (response.data.next === 'end') {
+            // if user is owner of the quest, redirect to toolbox
+            if (this.$store.state.user.isAdmin) {
+              return this.$router.push('/admin/validate/' + this.quest.id)
+            } else if (this.$store.state.user._id === this.info.quest.authorUserId) {
+              return this.$router.push('/quest/builder/' + this.quest.id)
+            } else {
+              return this.$router.push('/quest/' + this.quest.id + '/end')
+            }
+          } else {
+            this.$router.push('/quest/play/' + this.quest.id + '/step/' + response.data.next + '/' + this.$route.params.lang)
+            //this.stopMarkersSensors()
+          }
+        } else {
+          Notification(this.$t('label.NothingOccurs'), 'info')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+    },
     hideHint() {
       this.step.hint = {}
     },
@@ -299,20 +402,20 @@ export default {
       this.loadStepData = false
       
       if (this.canMoveNextStep) {
-        if (this.step.nextNumber === "no next step") {
-          this.$router.push('/quest/' + this.quest.id + '/end')
-        } else {
-          this.$router.push('/quest/play/' + this.quest.id + '/step/' + this.step.nextNumber + '/' + this.$route.params.lang);
-        }
+        /*utils.clearAllRunningProcesses()
+        this.resetData()
+        await this.initData()
+        */
+        this.$router.push('/quest/play/' + this.quest.id + '/step/success_' + this.step.id + '/' + this.$route.params.lang)
       } else if (this.canPass) {
         this.$q.dialog({
           message: this.$t('label.ConfirmPass'),
           ok: this.$t('label.Ok'),
           cancel: this.$t('label.Cancel')
         }).then(async () => {
-          await RunService.passCurrentStep(this.run._id)
+          await RunService.passStep(this.run._id, this.step.id)
           // TODO: manage if pass failed
-          this.$router.push('/quest/play/' + this.quest.id + '/step/' + this.step.nextNumber + '/' + this.$route.params.lang);
+          this.$router.push('/quest/play/' + this.quest.id + '/step/pass_' + this.step.id + '/' + this.$route.params.lang)
         }).catch(() => {})
       }
     },
@@ -320,10 +423,8 @@ export default {
      * Return to previous step
      */
     async previousStep() {
-      if (this.step.number && this.step.number > 1) {
-        this.$router.push('/quest/play/' + this.quest.id + '/step/' + (this.step.number - 1) + '/' + this.$route.params.lang)
-      } else {
-        this.$router.push('/quest/play/' + this.quest.id)
+      if (this.previousStepId !== '') {
+        this.$router.push('/quest/play/' + this.quest.id + '/step/' + this.previousStepId + '/' + this.$route.params.lang)
       }
     },
     /*
@@ -380,7 +481,7 @@ export default {
       this.warnings.inventoryMissing = false
       // load items won on previous steps
       this.$q.loading.show()
-      var response = await StepService.listWonObjects(this.quest.id, this.step._id)
+      var response = await RunService.listWonObjects(this.quest.id, this.run._id)
       if (response && response.data) {
         this.inventory.items = response.data
       } else {
@@ -496,8 +597,8 @@ export default {
 
   #main-view { padding: 0rem; height: inherit; min-height: inherit; }
   
-  #main-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; /*padding-bottom: 8rem;*/ }
-  #main-view > div > div { height: inherit; min-height: inherit; /*padding: 1rem;*/ display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
+  #main-view > #play-view { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; }
+  #main-view > #play-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
   
   #controls {
     display: none

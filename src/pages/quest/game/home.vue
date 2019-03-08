@@ -11,7 +11,7 @@
               {{getLanguage() ? quest.title[getLanguage()] : $t('label.NoTitle') }} <q-icon name="help" />
               <img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + getLanguage() + '.png'" />
             </div>
-            <p v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.name && quest.author.name.indexOf('Graaly') === -1">{{ quest.author.name }}</span>
+            <p v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.name && quest.author.name.indexOf('Graaly') === -1">{{ $t('label.By') }} {{ quest.author.name }}</span>
             <p class="medium-icon q-pa-none q-ma-none">
               <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">{{ quest.availablePoints }} <span style="font-size: 0.5em">{{ $t('label.pointsToWin') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
               <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAlreadyPlayedThisQuest') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
@@ -130,8 +130,6 @@ import shop from 'components/shop'
 import story from 'components/story'
 
 import utils from 'src/includes/utils'
-//import { scroll } from 'quasar'
-//const { getScrollTarget, setScrollPosition } = scroll
 
 export default {
   components: {
@@ -215,16 +213,22 @@ export default {
           // check again in 15 seconds
           utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 15000)
           this.geolocationIsSupported = true
-          utils.setTimeout(this.startStory, 4000)
+          if (!this.isRunStarted && !this.isRunFinished) {
+            utils.setTimeout(this.startStory, 4000)
+          }
         }, () => {
           this.geolocationIsSupported = false
           utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
-          utils.setTimeout(this.startStory, 4000)
+          if (!this.isRunStarted && !this.isRunFinished) {
+            utils.setTimeout(this.startStory, 4000)
+          }
         }, { timeout: 10000, maximumAge: 10000 });
       } else {
         this.geolocationIsSupported = false
         utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
-        utils.setTimeout(this.startStory, 4000)
+        if (!this.isRunStarted && !this.isRunFinished) {
+          utils.setTimeout(this.startStory, 4000)
+        }
       }
     },
     /*
@@ -260,7 +264,9 @@ export default {
         this.quest = response.data
         if (typeof this.quest.authorUserId !== 'undefined') {
           response = await AuthService.getAccount(this.quest.authorUserId)
-          this.$set(this.quest, 'author', response.data)
+          if (response && response.data) {
+            this.$set(this.quest, 'author', response.data)
+          }
           this.quest.description = utils.replaceBreakByBR(this.quest.description)
         }
       } else {
@@ -279,35 +285,39 @@ export default {
     async getRun() {
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.quest._id)
-      var maxStepComplete = 0
-      var lang = 'en'
+      var currentRun = 0
       
       if (runs && runs.data && runs.data.length > 0) {
         for (var i = 0; i < runs.data.length; i++) {
           if (runs.data[i].status === 'finished') {
             this.isRunFinished = true
           }
-          if (runs.data[i].status === 'in-progress' && runs.data[i].currentStep > maxStepComplete) {
-            maxStepComplete = runs.data[i].currentStep
-            lang = runs.data[i].language
+          if (runs.data[i].status === 'in-progress' && runs.data[i].currentStep) {
+            this.isRunStarted = true
+            currentRun = runs.data[i]._id
           }
         }
-        if (maxStepComplete > 0) {
-          this.isRunStarted = true
+        if (this.isRunStarted) {
           var self = this
           // propose to continue quest on last step played (only if not the creator of the quest)
-          if (!this.isOwner) {
+          //if (!this.isOwner) {
             this.$q.dialog({
               title: this.$t('label.ContinueThisStep'),
               message: this.$t('label.YouAlreadyStartThisQuest'),
-              ok: this.$t('label.Continue'),
-              cancel: this.$t('label.Restart')
+              ok: this.$t('label.Restart'),
+              cancel: this.$t('label.Continue')
             }).then(() => {
-              return self.$router.push('/quest/play/' + self.quest._id + '/step/' + maxStepComplete + '/' + lang)
+              self.cancelRun(currentRun)
             })
-          }
+          //}
         }
       }
+    },
+    /*
+     * Cancel a run
+     */
+    async cancelRun(rundId) {
+      await RunService.endRun(rundId)
     },
     /*
      * Check if user can play this quest
@@ -452,7 +462,7 @@ export default {
      * @param   {String}    lang               lang of the quest
      */
     playQuest(questId, lang) {
-      this.$router.push('/quest/play/' + questId + '/step/1/' + lang + '?remoteplay=' + this.isUserTooFar)
+      this.$router.push('/quest/play/' + questId + '/step/0/' + lang + '?remoteplay=' + this.isUserTooFar)
     },
     /*
      * Follow scroll position
@@ -483,7 +493,7 @@ export default {
      * Manage back to the map button
      */
     modifyQuest () {
-      this.$router.push('/quest/settings/' + this.quest._id)
+      this.$router.push('/quest/builder/' + this.quest._id)
     },
     /*
      * Open shop

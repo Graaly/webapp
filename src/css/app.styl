@@ -2,12 +2,12 @@
 
 /////////////////////////////// page CSS /////////////////////////////////////
 
-@media (min-width: 841px) {
+@media (min-width: 1621px) {
   #main-view {
     display: none
   }
 } 
-@media (max-width: 840px) {
+@media (max-width: 1620px) {
   #screen-too-large {
     display: none
   }
@@ -149,6 +149,9 @@ h3.size-2 {
 .size-1 {
   font-size: 2em;
 }
+.a-bit-bigger {
+  font-size: 1.1em;
+}
 .align-right {
   text-align: right;
 }
@@ -260,11 +263,9 @@ form {
 .disabled, [disabled] {
   opacity: 0.9 !important;
 }
-.step-menu .disabled, .step-menu [disabled] {
-  opacity: 0 !important;
-}
 .step-menu {
   position: fixed !important;
+  z-index: 2000;
 }
 
 /////////////////////////////// Images CSS /////////////////////////////////////
@@ -303,7 +304,7 @@ form {
   animation: bounce 0.7s ease infinite;
 }
 .flashing {
-  animation: fadeAndScale 0.7s ease infinite;
+  animation: blink 0.7s ease infinite;
 }
 .slideInBottom-enter-active, .slideInBottom-leave-active {
   transition: all .3s ease;
@@ -405,6 +406,23 @@ form {
       opacity: 0;
   }
 }
+@keyframes blink {
+  from {
+      opacity: 0;
+  }
+  30% {
+      opacity: 1;
+  }
+  70% {
+      opacity: 1;
+  }
+  99% {
+      opacity: 0;
+  }
+  to {
+      opacity: 0;
+  }
+}
 
 @keyframes flipInY {
   from {
@@ -445,6 +463,16 @@ form {
   visibility: hidden;
   opacity: 0;
   transition: visibility 0s 0.5s, opacity 0.5s linear;
+}
+.flashlight {
+  animation-duration: 2s;
+  animation-name: cameraFlash;
+  animation-fill-mode: linear;
+}
+@keyframes cameraFlash {
+  from {visibility: visible; opacity: 100;}
+  50%  {visibility: visible; opacity: 100; filter: brightness(0) invert(1);}
+  to   {visibility: visible; opacity: 100;}
 }
 
 [draggable] {
@@ -569,14 +597,23 @@ form {
 .list-group-item { 
   display: flex; 
   flex-flow: row nowrap; 
-  align-items: center; 
+  align-items: start; 
   padding: 0rem 0.2rem 0.4rem 0; 
 }
-.list-group-item p { 
+.list-group-item p {
+  height: 30px;
+  padding: 7px;
+  background-color: #ddd;
+}
+.list-group-item div { 
   flex-grow: 1; 
   padding: 0; 
   margin: 0; 
   overflow-x: hidden; 
+}
+.list-group-item div span { 
+  margin-top: 10px;
+  display: inline-block;
 }
 .list-group-item .handle { 
   font-size: 2rem; 
@@ -587,15 +624,14 @@ form {
 }
 .inventory-items div { 
   float: left; 
-  margin-right: 15px; 
-  width: 100px; 
-  height: 175px; 
+  padding: 5px 
+  width: 30vw; 
+  height: 40vw; 
   overflow: hidden; 
   text-align: center;
 }
 .inventory-items div img { 
-  width: 100px; 
-  height: 100px;
+  width: 100%; 
 }
 .menu .q-btn .q-icon {
   font-size: 2.4em;

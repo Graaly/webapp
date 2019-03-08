@@ -23,6 +23,30 @@ export default {
     return Api().get('run/quest/' + questId + '/ranking').catch(error => console.log(error.request))
   },
   /*
+   * Get the next step of a run
+   * @param   {String}    runId                  ID of the run
+   */
+  getNextStep (runId) {
+    return Api().get('run/' + runId + '/step/next').catch(error => console.log(error.request))
+  },
+  /*
+   * check if a market launch a new step
+   * @param   {String}    runId                  ID of the run
+   * @param   {String}    markerCode             Code of the marker
+   */
+  getMarkerNextStep (runId, markerCode) {
+    return Api().get('run/' + runId + '/marker/' + markerCode + '/next').catch(error => console.log(error.request))
+  },
+  /*
+   * list the objects won until a specific run
+   * @param   {String}    questId        ID of the quest
+   * @param   {String}    runId          ID of the run
+   */
+  async listWonObjects (questId, runId) {
+    let res = await Api().get('quest/' + questId + '/runs/' + runId + '/objectswon').catch(error => console.log(error.request))
+    return res
+  },
+  /*
    * get a step hint
    * @param   {String}    runId                 ID of the run
    * @param   {String}    stepId                ID of the step
@@ -50,8 +74,9 @@ export default {
   /*
    * skip a step
    * @param   {String}    id                  ID of the run
+   * @param   {String}    stepId              ID of the step
    */
-  passCurrentStep(id) {
-    return Api().put('run/' + id + '/passCurrentStep').catch(error => console.log(error.request))
+  passStep(id, stepId) {
+    return Api().put('run/' + id + '/passstep/' + stepId).catch(error => console.log(error.request))
   }
 }

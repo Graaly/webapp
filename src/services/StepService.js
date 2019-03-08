@@ -6,8 +6,17 @@ export default {
    * @param   {String}    questId        ID of the quest
    */
   async listForAQuest (questId) {
-    let res = await Api().get('quest/' + questId + '/steps')
-    return res.data
+    let res = await Api().get('quest/' + questId + '/steps').catch(error => console.log(error.request))
+    return res
+  },
+  /*
+   * list the steps of a chapter
+   * @param   {String}    questId        ID of the quest
+   * @param   {String}    chapterId      ID of the chapter
+   */
+  async listForAChapter (questId, chapterId) {
+    let res = await Api().get('quest/' + questId + '/chapter/' + chapterId + '/steps').catch(error => console.log(error.request))
+    return res
   },
   /*
    * list the objects won until a specific step of a quest
@@ -62,12 +71,27 @@ export default {
     return Api().put('quest/' + data.questId + '/step/' + data._id + '/update', data).catch(error => console.log(error.request))
   },
   /*
+   * Save a chapter settings (or create if the channel is not existing)
+   * @param   {Object}    data        Data of the step
+   */
+  modifyChapter (data) {
+    return Api().put('quest/' + data.questId + '/chapter/' + data._id + '/update', data).catch(error => console.log(error.request))
+  },
+  /*
    * Remove a step
    * @param   {String}    questId        ID of the quest
    * @param   {String}    stepId         ID of the step
    */
   remove(questId, stepId) {
     return Api().delete('quest/' + questId + '/step/' + stepId + '/remove')
+  },
+  /*
+   * Remove a chapter
+   * @param   {String}    questId        ID of the quest
+   * @param   {String}    chapterId      ID of the chapter
+   */
+  removeChapter(questId, chapterId) {
+    return Api().delete('quest/' + questId + '/chapter/' + chapterId + '/remove')
   },
   /*
    * Move a step
@@ -77,6 +101,15 @@ export default {
    */
   move(questId, oldPosition, newPosition) {
     return Api().put('quest/' + questId + '/step/' + oldPosition + '/move/' + newPosition).catch(error => console.log(error.request))
+  },
+  /*
+   * Move a chapter
+   * @param   {String}    questId        ID of the quest
+   * @param   {Number}    oldPosition    Old position of the chapter
+   * @param   {Number}    newPosition    New position of the chapter
+   */
+  moveChapter(questId, oldPosition, newPosition) {
+    return Api().put('quest/' + questId + '/chapter/' + oldPosition + '/move/' + newPosition).catch(error => console.log(error.request))
   },
   /*
    * upload a background image for step

@@ -1,5 +1,5 @@
 <template>
-  <div id="play-view" class="fit">
+  <div id="play-view" class="fit" :class="{'bg-black': (step.type == 'locate-marker' || step.id === 'sensor')}">
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
       
       <!------------------ COMPONENT TO KEEP THE SCREEN ON ----------------------
@@ -38,6 +38,12 @@
         </div>
       </div>
             
+      <!------------------ END OF CHAPTER AREA ------------------------>
+      
+      <div class="end-of-chapter" v-if="step.type == 'end-chapter'">
+        {{ $t('label.ThisStepIsNotShowToPlayers') }}
+      </div>    
+      
       <!------------------ CHARACTER STEP AREA ------------------------>
       
       <div class="character" v-if="step.type == 'character'">
@@ -60,7 +66,7 @@
            <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="answers-text" v-if="answerType === 'text'">
-          <q-btn v-for="(option, key) in step.options" :key="key" class="full-width" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null">
+          <q-btn v-for="(option, key) in step.options" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null">
             {{ option.text }}
           </q-btn>
         </div>
@@ -94,7 +100,7 @@
             </div>
           </div>
         </div>
-        <div class="actions buttons-bottom" v-show="playerResult === null">
+        <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
             <q-btn color="primary" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('label.Clear') }}</q-btn>
             <q-btn color="primary" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()">{{ $t('label.Confirm') }}</q-btn>
@@ -112,7 +118,7 @@
           <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">&nbsp;</div>
         </div>
         
-        <div class="actions buttons-bottom" v-show="playerResult === null">
+        <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
             <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('label.Confirm') }}</q-btn>
           </div>
@@ -143,7 +149,7 @@
           </tr>
         </table>
         
-        <div class="actions buttons-bottom" v-show="playerResult === null">
+        <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
             <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('label.Confirm') }}</q-btn>
           </div>
@@ -162,7 +168,7 @@
           <canvas ref="photo-buffer" class="hidden"></canvas>
           <img ref="player-photo" v-show="photoTaken" :alt="$t('label.TheScreenCaptureWillAppearInThisBox')" />
         </div>
-        <div class="actions buttons-bottom">
+        <div class="actions q-mt-lg">
           <q-btn @click="toggleCameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" color="primary">{{ $t('label.TakeThePicture') }}</q-btn>
           <div v-show="cameraStreamEnabled">
             <q-btn color="primary" @click="toggleCameraStream()" icon="clear">{{ $t('label.Cancel') }}</q-btn>
@@ -260,9 +266,9 @@
       
       <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && !playerResult && geolocation.active"></video>
+          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && geolocation.active"></video>
         </transition>
-        <div v-show="!playerResult">
+        <div v-show="playerResult === null">
           <div class="text">
             <p>{{ getTranslatedText() }}</p>
             <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
@@ -270,39 +276,45 @@
             <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
           </div>
         </div>
-        <div class="target-view" v-show="!playerResult || (playerResult && step.options.is3D)">
+        <div class="target-view" v-show="playerResult === null || (playerResult && step.options.is3D)">
           <canvas id="target-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
         <img ref="item-image" v-show="playerResult && !step.options.is3D" />
       </div>
       
-      <!------------------ LOCATE A 2D MARKER ------------------------>
+      <!------------------ LOCATE A 2D MARKER / TOUCH OBJECT ON MARKER ------------------------>
       
-      <div class="locate-marker" v-if="step.type == 'locate-marker'">
+      <div class="locate-marker" v-if="step.type == 'locate-marker' || step.id == 'sensor'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-          <video ref="camera-stream-for-locate-marker"  webkit-playsinline playsinline src="" autoplay v-show="cameraStreamEnabled && !playerResult"></video>
+          <video ref="camera-stream-for-locate-marker"  webkit-playsinline playsinline src="" autoplay v-show="cameraStreamEnabled && playerResult === null"></video>
         </transition>
-        <div v-if="locateMarker.layer !== null &&  locateMarker.compliant">
+        <div v-if="((step.type == 'locate-marker' && step.options.mode === 'scan') || step.id == 'sensor') && locateMarker.layer !== null &&  locateMarker.compliant">
           <transition appear :enter-active-class="'animated ' + locateMarker.layer.animationShow" :leave-active-class="'animated ' + locateMarker.layer.animationHide">
-            <img class="locate-marker-layer" :src="'statics/images/find-marker-layers/' + step.options.layerCode + '.png'" v-show="playerResult === null || (playerResult === false && nbTry < 2)" />
+            <img class="locate-marker-layer" :src="'statics/images/find-marker-layers/' + step.options.layerCode + '.png'" v-show="step.id === 'sensor' || (playerResult === null || (playerResult === false && nbTry < 2))" />
           </transition>
         </div>
-        <div v-show="!playerResult">
+        <div v-show="playerResult === null">
           <div class="text" v-show="getTranslatedText() != ''">
             <p>{{ getTranslatedText() }}</p>
           </div>
         </div>
+        
+        <!-- HELP -->
+        <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null && !isHybrid" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
+        <div v-if="locateMarker.compliant && playerResult === null && isHybrid" class="text-white centered q-mt-md">
+          {{ $t('label.ScanTheMarkersLikeThat') }}
+          <div><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
+          <div><q-btn color="primary" @click="startScanQRCode()">{{ $t('label.LaunchTheScanner') }}</q-btn></div>
+        </div>
         <div v-if="!locateMarker.compliant">
           {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
         </div>
-        <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
-        <div class="marker-view" v-show="!playerResult && locateMarker.compliant">
-          <canvas id="marker-canvas"></canvas>
+        <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant && step.options.mode == 'scan'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
+        <div class="marker-view" v-show="locateMarker.compliant">
+          <canvas id="marker-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
-        <!-- HELP -->
-        <q-btn round size="lg" v-if="locateMarker.compliant" class="absolute-bottom-left" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
         <div class="fixed-bottom over-map" style="height: 100%" v-if="locateMarker.showHelp">
-          <story step="help" :data="{help: $t('label.FindMarkerHelp')}" @next="locateMarker.showHelp = false"></story>
+          <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? $t('label.FindMarkerHelp') : $t('label.TouchObjectOnMarkerHelp') }" @next="locateMarker.showHelp = false"></story>
         </div>
       </div>
     </div>
@@ -361,6 +373,9 @@ import GLTFLoader from 'three-gltf-loader'
 import { THREEx } from 'src/includes/ar' // import * as ARjs from 'ar.js' in future versions?
 import { promisify } from 'es6-promisify'
 
+// required for iOS compatibility
+import { AbsoluteOrientationSensor } from 'src/includes/motion-sensors';
+
 export default {
   /*
    * Properties used on component call
@@ -396,7 +411,7 @@ export default {
   },
   mounted () {
     // seems always already done by "watch" on "reload" key // Uncommented by EMA on 122018, in some case watcher does not work
-    this.initData()
+    //this.initData()
   },
   beforeDestroy() {
     // this is called every time route changes => cleanup all memory & CPU intensive tasks here
@@ -413,16 +428,20 @@ export default {
     this.locateMarker.scene = null
     this.locateMarker.renderer = null
     this.locateMarker.camera = null
+    this.locateMarker.mixers = [] // animations
+    this.locateMarker.clock = null // animations
     this.locateMarker.arToolkitContext = null
     this.locateMarker.arSmoothedControls = null
-    this.locateMarker.markerRoot = null
-    this.locateMarker.markerControls = null
+    this.locateMarker.markerRoots = {}
+    this.locateMarker.markerControls = {}
     
     if (this.geolocation.absoluteOrientationSensor !== null) {
       this.geolocation.absoluteOrientationSensor.stop()
     }
     
     utils.clearAllRunningProcesses()
+    
+    TWEEN.removeAll() // 3D animations
   },
   methods: {
     initialState () {
@@ -434,6 +453,8 @@ export default {
         score: 0,
         reward: 0,
         controlsAreDisplayed: false,
+        isHybrid: window.cordova,
+        isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
         
         // for step 'choose'
         answerType: 'text', // 'text' or 'image'
@@ -472,14 +493,17 @@ export default {
           renderer: null,
           scene: null,
           camera: null,
+          mixers: [], // animations
+          clock: null, // animations
           arToolkitContext: null,
           arSmoothedControls: null,
-          markerRoot: null,
+          markerRoots: {},
           markerControls: {},
           playerAnswer: '',
           layer: null,
+          flash: false,
           showHelp: false,
-          compliant: true
+          compliant: true //!(window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios')
         },
         
         // for step type 'write-text'
@@ -519,10 +543,10 @@ export default {
      * Init the component data
      */
     initData () {
+      TWEEN.removeAll()
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
         let background = document.getElementById('play-view')
-        
         if (this.step.backgroundImage) {
           if (this.step.type === 'find-item' || this.step.type === 'use-item') {
             background.style.background = 'none'
@@ -551,8 +575,9 @@ export default {
             }
           }
         } else {
+console.log("No duration 2")
           // no background on some steps to display camera stream
-          if (this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker') {
+          if (this.step.type && this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker' && this.step.id !== 'sensor') {        
             background.style.background = 'none'
             background.style.backgroundColor = '#fff'
           }
@@ -564,6 +589,9 @@ export default {
         if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'character' || this.step.type === 'new-item') {
           // validate steps with no enigma
           utils.setTimeout(this.checkAnswer, 1000)
+        }
+        if (this.step.type === 'end-chapter') {
+          this.checkAnswer()
         }
         
         if (this.step.type === 'choose') {
@@ -612,19 +640,23 @@ export default {
           // Required to make camera orientation follow device orientation 
           // It is different from 'deviceorientationabsolute' listener whose values are not
           // reliable when device is held vertically
-          let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
-          sensor.onerror = event => console.error(event.error.name, event.error.message)
-          sensor.onreading = this.onAbsoluteOrientationSensorReading
-          sensor.start()
-          this.geolocation.absoluteOrientationSensor = sensor
-          
-          // must store object returned by setInterval() in Vue store instead of component properties,
-          // otherwise it is reset when route changes & component is reloaded
-          this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
+          try {
+            let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
+            sensor.onerror = event => console.error(event.error.name, event.error.message)
+            sensor.onreading = this.onAbsoluteOrientationSensorReading
+            sensor.start()
+            this.geolocation.absoluteOrientationSensor = sensor
+            
+            // must store object returned by setInterval() in Vue store instead of component properties,
+            // otherwise it is reset when route changes & component is reloaded
+            this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
+          } catch (error) {
+            console.log(error)
+          }
         }
         
         if (this.step.type === 'locate-item-ar' && !this.playerResult) {
-          if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
+          if (this.isIOs) {
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
             CameraPreview.startCamera(options)
             CameraPreview.show()
@@ -634,6 +666,10 @@ export default {
             // -------------------------
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
               .then((stream) => {
+                // Hacks for Safari iOS
+                cameraStream.setAttribute("muted", true)
+                cameraStream.setAttribute("playsinline", true)
+                
                 cameraStream.srcObject = stream
                 cameraStream.play()
                 this.cameraStreamEnabled = true
@@ -667,59 +703,16 @@ export default {
           
           // --- Light ---
           
-          // create a point light from top
-          // TODO maybe a directional light would cost less CPU
-          const pointLight = new THREE.PointLight(0xD0D0D0)
-          pointLight.position.set(0, 0, 1000)
-          scene.add(pointLight)
-          
-          // soft ambient light
-          scene.add(new THREE.AmbientLight(0xC0C0C0))
+          this.addDefaultLightTo3DScene(scene)
           
           // --- specific parts for 2D/3D ---
-          let object
+          let object, animations
           if (this.step.options.is3D) {
-            let scaleFactor = 4 // make objects four times bigger than their "real" size, for better usability
-            let objectModel = this.step.options.model
-            let objectInit = modelsList[objectModel]
-            let gltfData
-            try {
-              this.$q.loading.show()
-              gltfData = await this.ModelLoaderAsync(objectModel)
-              this.$q.loading.hide()
-            } catch (err) {
-              console.error("Error while loading 3D model:", err)
-              Notification(this.$t('label.CouldNotDisplayObject'), 'error')
-              return
-            }
+            let data = await this.loadAndPrepare3DModel(this.step.options.model)
+            object = data.object
+            animations = data.animations
             
-            object = gltfData.scene
-            
-            // apply user-defined rotation
-            objectInit.rotation = objectInit.rotation || {}
-            if (objectInit.rotation.hasOwnProperty('x')) { object.rotateX(utils.degreesToRadians(objectInit.rotation.x)) } else {
-              object.rotateX(Math.PI / 2)
-            }
-            if (objectInit.rotation.hasOwnProperty('y')) { object.rotateY(utils.degreesToRadians(objectInit.rotation.y)) }
-            if (objectInit.rotation.hasOwnProperty('z')) { object.rotateZ(utils.degreesToRadians(objectInit.rotation.z)) }
-            
-            // apply user-defined scaling
-            let scale = (objectInit.scale || 1) * scaleFactor
-            object.scale.set(scale, scale, scale)
-            
-            // set object origin at center
-            let objBbox = new THREE.Box3().setFromObject(object)
-            
-            let pivot = objBbox.getCenter(new THREE.Vector3())
-            pivot.multiplyScalar(-1)
-            
-            let pivotObj = new THREE.Object3D();
-            object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
-            pivotObj.add(object)
-            pivotObj.up = new THREE.Vector3(0, 0, 1)
-            object = pivotObj
-            
-            // added offset to make 3D object "sit on the ground" by default (z = 0 at the bottom of the object)
+            // add offset to make 3D object "sit on the ground" by default (z = 0 at the bottom of the object)
             let box = new THREE.Box3().setFromObject(object)
             let onGroundOffset = (box.max.z - box.min.z) / 2
             object.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, onGroundOffset))
@@ -727,17 +720,10 @@ export default {
             // compute object size = max(length, width, depth)
             target.size = Math.max(box.max.x - box.min.x, box.max.y - box.min.y, box.max.z - box.min.z)
             
-            // apply user-defined translation
-            if (objectInit.translation) {
-              if (objectInit.translation.hasOwnProperty('x')) { object.position.x += objectInit.translation.x * scaleFactor }
-              if (objectInit.translation.hasOwnProperty('y')) { object.position.y += objectInit.translation.y * scaleFactor }
-              if (objectInit.translation.hasOwnProperty('z')) { object.position.z += objectInit.translation.z * scaleFactor }
-            }
-            
             // animations ? play first animation
-            if (gltfData.animations.length > 0) {
-              let mixer = new THREE.AnimationMixer(gltfData.scene)
-              mixer.clipAction(gltfData.animations[0]).play()
+            if (animations.length > 0) {
+              let mixer = new THREE.AnimationMixer(object)
+              mixer.clipAction(animations[0]).play()
               this.geolocation.target.mixers.push(mixer)
             }
           } else {
@@ -769,56 +755,51 @@ export default {
           // default camera direction => look at positive y axis from origin
           this.geolocation.target.camera.up = new THREE.Vector3(0, 0, 1)
           this.geolocation.target.camera.lookAt(new THREE.Vector3(0, 1, 0))
-          // handheld device will be nearly 1.50m above ground (1.5 * 4 = 6 if "is3D")
-          this.geolocation.target.camera.position.z = this.step.options.is3D ? 6 : 1.5
+          // handheld device will be nearly 1.50m above ground
+          this.geolocation.target.camera.position.z = 1.5
           
           // animate & render
           this.animateTargetCanvas()
         }
         
-        if (this.step.type === 'locate-marker' && !this.playerResult) {
-          // user can pass
-          this.$emit('pass')
+        if ((this.step.type === 'locate-marker' || this.step.id === 'sensor') && !this.playerResult) {
+          if (this.step.id === 'sensor') {
+            this.step.options = { mode: 'scan', layerCode: 'magnifier' }
+          } else {
+            // user can pass
+            this.$emit('pass')
+          }
           
-          for (let layer of layersForMarkers) {
-            if (layer.code === this.step.options.layerCode) {
-              this.locateMarker.layer = layer
-              break
+          if (this.step.options.mode === 'scan') {
+            for (let layer of layersForMarkers) {
+              if (layer.code === this.step.options.layerCode) {
+                this.locateMarker.layer = layer
+                break
+              }
             }
           }
           
-          if (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios') {
-            /* with plugin iosrtc
-              var pc = new cordova.plugins.iosrtc.RTCPeerConnection({
-                iceServers: []
-              });
+          //if (this.isIOs) {
+          if (this.isHybrid) {
+            this.initQRCodes()
+            /* //QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
+            // Start a scan. Scanning will continue until something is detected or
+            // `BBScanner.cancelScan()` is called.
+            //QRScanner.scan({format: cordova.plugins.QRScanner.types.QR_CODE}, this.scanQRCode)
+            this.startScanQRCode()
 
-              cordova.plugins.iosrtc.getUserMedia(
-                // constraints
-                { audio: true, video: true },
-                // success callback
-                function (stream) {
-                  console.log('got local MediaStream: ', stream);
-
-                  pc.addStream(stream);
-                },
-                // failure callback
-                function (error) {
-                  console.error('getUserMedia failed: ', error);
-                }
-              )
+            // Make the webview transparent so the video preview is visible behind it.
+            //QRScanner.show()
             */
-            this.locateMarker.compliant = false
+            //this.startScanQRCode()
             
-            // With plugin Cordova-plugin-camera-preview 
-            let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
-            CameraPreview.startCamera(options)
-            CameraPreview.show()
+            /*/ With plugin Cordova-plugin-camera-preview 
+            this.cameraStreamEnabled = true
             let sceneCanvas = document.getElementById('marker-canvas')
             sceneCanvas.height = window.screen.height
             sceneCanvas.width = window.screen.width
             
-            await this.displayMarkers(sceneCanvas)
+            await this.displayMarkers(sceneCanvas)*/
           } else {
             // with plugin phonegap-plugin-media-stream
             let cameraStream = this.$refs['camera-stream-for-locate-marker']
@@ -831,11 +812,8 @@ export default {
                 cameraStream.onloadeddata = async (e) => {
                   this.cameraStreamEnabled = true
                   let sceneCanvas = document.getElementById('marker-canvas')
-                  
-                  let ratio = cameraStream.videoHeight ? sceneCanvas.clientHeight / cameraStream.videoHeight : 1
-                  
-                  sceneCanvas.height = cameraStream.videoHeight * ratio
-                  sceneCanvas.width = Math.round(sceneCanvas.height * 4 / 3)
+                  sceneCanvas.height = window.screen.height
+                  sceneCanvas.width = window.screen.width
                   
                   await this.displayMarkers(sceneCanvas)
                 }
@@ -844,24 +822,128 @@ export default {
                 // TODO friendly behavior/message for user
                 console.warn("No camera stream available")
                 console.log(err)
-              });
+              })
           }
         }
       })
     },
     /*
+    * Init QR Codes
+    */
+    initQRCodes() {
+      for (var i = 1; i <= 16; i++) {
+        let code = i.toString()
+        code = code.padStart(3, "0")
+        this.locateMarker.markerControls[code] = {detected: false}
+      }
+    },
+    /*
+    * start the scanner for hybrid app
+    */
+    startScanQRCode() {
+      var _this = this
+      if (this.isHybrid) {
+      //if (this.isIOs) {
+        cordova.plugins.barcodeScanner.scan(
+          function (result) {
+            if (result && result.text) {
+              _this.checkAnswer(result.text)
+            }
+          },
+          function (error) {
+            console.log("Scanning failed: " + error)
+          },
+          {
+            preferFrontCamera: false, // iOS and Android
+            showFlipCameraButton: false, // iOS and Android
+            showTorchButton: true, // iOS and Android
+            torchOn: false, // Android, launch with the torch switched on (if available)
+            saveHistory: true, // Android, save scan history (default false)
+            prompt: "", // Android
+            resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+            formats: "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
+            orientation: "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
+            disableAnimations: true, // iOS
+            disableSuccessBeep: false // iOS and Android
+          }
+        )
+        /*this.stopScanQRCode()
+        QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
+        QRScanner.scan(this.scanQRCode)
+        QRScanner.show()
+        QRScanner.getStatus(function(status) {
+          console.log(status);
+        });*/
+      }
+    },
+    /*stopScanQRCode() {
+      QRScanner.hide(function(status) {
+        console.log(status);
+        QRScanner.destroy(function(status) {
+          console.log(status)
+        })
+      });
+    },
+    /*
+    * Triggered when a qr code is scanned
+    *
+    scanQRCode (err, text) {
+      if (err) {
+        console.log("Error with scanner: " + err)
+        // an error occurred, or the scan was canceled (error code `6`)
+      } else {console.log("found marker : " + text)
+        // The scan completed, display the contents of the QR code:
+        this.checkAnswer(text)
+      }
+    },
+    /*
+    * Prepare QR Code scanner
+    *
+    prepareQRCodeScanner (err, status) {
+      if (err) {
+       // here we can handle errors and clean up any loose ends.
+       console.error(err);
+      }
+      if (status.authorized) {
+        console.log("QR Code scan not authorized")
+        // W00t, you have camera access and the scanner is initialized.
+        // QRscanner.show() should feel very fast.
+      } else if (status.denied) {
+        console.log("QR Code access denied")
+       // The video preview will remain black, and scanning is disabled. We can
+       // try to ask the user to change their mind, but we'll have to send them
+       // to their device settings with `BBScanner.openSettings()`.
+      } else {
+        console.log("QR Code scan error with permission")
+        // we didn't get permission, but we didn't get permanently denied. (On
+        // Android, a denial isn't permanent unless the user checks the "Don't
+        // ask again" box.) We can ask again at the next relevant opportunity.
+      }
+    },*/
+    /*
     * creates a marker control for step type 'locate-marker'
     */
     createMarkerControl (markerCode) {
       let arToolkitContext = this.locateMarker.arToolkitContext
-      let markerRoot = this.locateMarker.markerRoot
+      let markerRoot
+      
+      if (this.step.options.mode === 'scan') {
+        markerRoot = this.locateMarker.markerRoots['commonRoot']
+      } else {
+        markerRoot = this.locateMarker.markerRoots[markerCode]
+      }
       
       let marker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
         type: 'pattern',
         patternUrl: 'statics/markers/' + markerCode + '/pattern-marker.patt'
       })
       marker.code = markerCode
-      marker.addEventListener('markerFound', (ev) => { this.checkAnswer(ev.target.code) })
+
+      marker.addEventListener('markerFound', (ev) => {
+        if (this.step.options.mode === 'scan') {
+          this.checkAnswer(ev.target.code)
+        }
+      })
       marker.detected = false
       
       return marker
@@ -890,16 +972,23 @@ export default {
      * @param   {Object}    sceneCanvas            Scene canvas object
      */
     async displayMarkers(sceneCanvas) {
+      this.locateMarker.markerRoots = {}
+      
       let renderer = new THREE.WebGLRenderer({
         canvas: sceneCanvas,
         antialias: true,
-        alpha: true
+        alpha: true,
+        logarithmicDepthBuffer: true // workaround for AR.js z-fighting issue, see https://github.com/jeromeetienne/AR.js/issues/146 and https://github.com/jeromeetienne/AR.js/issues/410
       })
-                
+      
       let scene = new THREE.Scene()
       
-      let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000)
+      let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000) // 0.01, 100
       scene.add(camera)
+      
+      // --- Light ---
+      
+      this.addDefaultLightTo3DScene(scene)
       
       // --- initialize arToolkitContext ---
       
@@ -917,33 +1006,16 @@ export default {
       arToolkitContext.initAsync = promisify(arToolkitContext.init)
       await arToolkitContext.initAsync()
       
-      // copy projection matrix to camera
-      camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix())
+      // --- Create ArMarkerControls / ArSmoothedControls ---
       
-      // --- Create an ArMarkerControls ---
-      
-      let markerRoot = new THREE.Group()
-      scene.add(markerRoot)
-                      
       // build a smoothedControls
-      let arWorldRoot = new THREE.Group()
-      scene.add(arWorldRoot)
-      let arSmoothedControls = new THREEx.ArSmoothedControls(arWorldRoot, {
+      let smoothedRoot = new THREE.Group()
+      scene.add(smoothedRoot)
+      let arSmoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
         lerpPosition: 0.4,
         lerpQuaternion: 0.3,
         lerpScale: 1
       })
-      
-      // --- add an object in the scene ---
-      
-      // add a transparent plane
-      //let geometry = new THREE.CubeGeometry(1, 1, 1)
-      let geometry = new THREE.PlaneGeometry(1, 1)
-      let material = new THREE.MeshNormalMaterial({ transparent: true, opacity: 0, side: THREE.DoubleSide });
-      let mesh  = new THREE.Mesh(geometry, material)
-      mesh.rotateX(Math.PI / 2)
-      arWorldRoot.add(mesh)
-      arWorldRoot.name = 'markerObject'
       
       this.locateMarker.arToolkitContext = arToolkitContext
       this.locateMarker.arSmoothedControls = arSmoothedControls
@@ -952,11 +1024,59 @@ export default {
       this.locateMarker.scene = scene
       this.locateMarker.camera = camera
       
-      this.locateMarker.markerRoot = markerRoot
       this.locateMarker.markerCodeAnswer = this.step.answers
+      
+      if (this.step.options.mode === 'scan') {
+        // only one marker root is enough
+        let markerRoot = new THREE.Group()
+        scene.add(markerRoot)
+        this.locateMarker.markerRoots['commonRoot'] = markerRoot
+        
+        // add a transparent plane, common for all markers
+        // (helps to detect if marker "touches" the center of the screen)
+        let geometry = new THREE.PlaneGeometry(1, 1)
+        let material = new THREE.MeshNormalMaterial({ transparent: true, opacity: 0, side: THREE.DoubleSide })
+        let mesh  = new THREE.Mesh(geometry, material)
+        mesh.rotateX(Math.PI / 2)
+        smoothedRoot.add(mesh)
+        smoothedRoot.name = 'markerObject'
+      }
+      
       markersList.forEach((markerCode) => {
+        if (this.step.options.mode === 'touch') {
+          // one marker root per marker
+          let markerRoot = new THREE.Group()
+          scene.add(markerRoot)
+          this.locateMarker.markerRoots[markerCode] = markerRoot
+        }
         this.locateMarker.markerControls[markerCode] = this.createMarkerControl(markerCode)
       })
+      
+      if (this.step.options.mode === 'touch') {
+        let object, animations
+        let data = await this.loadAndPrepare3DModel(this.step.options.model)
+        object = data.object
+        animations = data.animations
+        
+        object.rotateX(-Math.PI / 2)
+        
+        // add offset to make 3D object "sit on the ground" by default (y = 0 at the bottom of the object)
+        let box = new THREE.Box3().setFromObject(object)
+        let onGroundOffset = (box.max.y - box.min.y) / 2
+        object.applyMatrix(new THREE.Matrix4().makeTranslation(0, onGroundOffset, 0))
+        
+        object.name = 'targetObject'
+        
+        // animations ? play first animation
+        if (animations.length > 0) {
+          let mixer = new THREE.AnimationMixer(object)
+          mixer.clipAction(animations[0]).play()
+          this.locateMarker.mixers.push(mixer)
+        }
+        this.locateMarker.clock = new THREE.Clock()
+        
+        smoothedRoot.add(object)
+      }
       
       this.animateMarkerCanvas()
     },
@@ -993,10 +1113,25 @@ export default {
         return
       }
       
+      // if generic marker sensor
+      if (this.step.id === 'sensor') {
+        if (!this.locateMarker.markerControls[answer].detected) {
+          this.locateMarker.flash = false
+          this.locateMarker.flash = true
+          this.locateMarker.markerControls[answer].detected = true
+          this.$emit('played', answer)
+          // reactivate scanner
+          //this.startScanQRCode()
+          //this.stopMarkersSensors()
+        }
+        return 
+      }
+      
       switch (this.step.type) {
         case 'info-text':
         case 'info-video':
         case 'new-item':
+        case 'end-chapter':
         case 'character':
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {}, false)
@@ -1005,8 +1140,13 @@ export default {
           
         case 'choose':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
-
-          if (checkAnswerResult.result === true) {
+          
+          if (!this.step.displayRightAnswer) {
+            let selectedAnswer = this.step.options[answer]
+            selectedAnswer.class = 'rightorwrong'
+            Vue.set(this.step.options, answer, selectedAnswer)
+            this.submitAnswer(0)
+          } else if (checkAnswerResult.result === true) {
             let selectedAnswer = this.step.options[answer]
             selectedAnswer.icon = 'done'
             selectedAnswer.class = 'right'
@@ -1052,7 +1192,9 @@ export default {
         case 'code-keypad':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('')}, true)
 
-          if (checkAnswerResult.result === true) {
+          if (!this.step.displayRightAnswer) {
+            this.submitAnswer(0)
+          } else if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           } else {
             this.nbTry++
@@ -1070,7 +1212,9 @@ export default {
           this.$q.loading.show()
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')}, true)
           
-          if (checkAnswerResult.result === true) {
+          if (!this.step.displayRightAnswer) {
+            this.submitAnswer(0)
+          } else if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           } else {
             this.nbTry++
@@ -1087,7 +1231,9 @@ export default {
         case 'code-image':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')}, true)
           
-          if (checkAnswerResult.result === true) {
+          if (!this.step.displayRightAnswer) {
+            this.submitAnswer(0)
+          } else if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           } else {
             this.nbTry++
@@ -1119,7 +1265,9 @@ export default {
         
         case 'write-text':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.writetext.playerAnswer}, true)
-          if (checkAnswerResult.result === true) {
+          if (!this.step.displayRightAnswer) {
+            this.submitAnswer(0)
+          } else if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           } else {
             this.nbTry++
@@ -1137,7 +1285,9 @@ export default {
         case 'use-item':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
           
-          if (checkAnswerResult.result === true) {
+          if (!this.step.displayRightAnswer) {
+            this.submitAnswer(0)
+          } else if (checkAnswerResult.result === true) {
             this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           } else {
@@ -1156,7 +1306,9 @@ export default {
         case 'find-item':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
           
-          if (checkAnswerResult.result === true) {
+          if (!this.step.displayRightAnswer) {
+            this.submitAnswer(0)
+          } else if (checkAnswerResult.result === true) {
             this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
           } else {
@@ -1173,90 +1325,113 @@ export default {
           break
           
         case 'locate-item-ar':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, false)
-
-          if (checkAnswerResult.result === true) {
-            this.geolocation.absoluteOrientationSensor.stop() // stop moving camera when device moves
-            
-            TWEEN.removeAll() // clear all running animations
-            
-            // show found object when it's a 3D model
-            if (this.step.options && this.step.options.is3D) {
-              let target = this.geolocation.target
-              let camera = target.camera
-              let object = target.scene.getObjectByName('targetObject')
-              
-              let box = new THREE.Box3().setFromObject(object)
-              let size = new THREE.Vector3()
-              box.getSize(size)
-                            
-              let cameraDistance = Math.max(size.x, size.y, size.z) * 2
-              
-              let startScale = object.scale
-              
-              let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
-                .easing(TWEEN.Easing.Back.In)
-                .onComplete(() => {
-                  camera.position.set(0, 0, cameraDistance * 2 / 3)
-                  camera.lookAt(new THREE.Vector3(0, cameraDistance, size.z / 2))
-                  object.position.set(0, cameraDistance, size.z / 2)
-                  
-                  this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
-                })
-              
-              let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
-                .easing(TWEEN.Easing.Back.Out)
-              
-              // https://stackoverflow.com/a/31766476/488666
-              let rotationAnimation = new TWEEN.Tween(object.rotation)
-                .to({ z: "-" + Math.PI / 2 }, 2000) // relative animation
-                .onComplete(function() {
-                    // Check that the full 360 degrees of rotation, 
-                    // and calculate the remainder of the division to avoid overflow.
-                    if (Math.abs(object.rotation.z) >= 2 * Math.PI) {
-                        object.rotation.z = object.rotation.z % (2 * Math.PI);
-                    }
-                })
-                .repeat(Infinity)
-                
-              disappearAnimation.chain(appearAnimation, rotationAnimation).start()
-            } else { // 2D image on plane
-              this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
-            }
-          }
-          break
-          
         case 'locate-marker':
-          if (!this.locateMarker.markerControls[answer].detected) {
-            let object = this.locateMarker.scene.getObjectByName('markerObject')
+          if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
+            checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, false)
+            if (checkAnswerResult.result === true) {
+              if (this.step.type === 'locate-item-ar') {
+                this.geolocation.absoluteOrientationSensor.stop() // stop moving camera when device moves
+              }
+              
+              TWEEN.removeAll() // clear all running animations
+              
+              // show found object when it's a 3D model
+              if ((this.step.type === 'locate-item-ar' && this.step.options && this.step.options.is3D) || this.step.type === 'locate-marker') {
+                let target
+                if (this.step.type === 'locate-item-ar') {
+                  target = this.geolocation.target
+                } else {
+                  target = this.locateMarker
+                  target.arToolkitContext = null // otherwise ending animation is 'erased' by AR.js behavior: 3D object disappears because camera stream is removed and markers are not found anymore !
+                }
+                let camera = target.camera
+                let object = target.scene.getObjectByName('targetObject')
+                
+                let box = new THREE.Box3().setFromObject(object)
+                let size = new THREE.Vector3()
+                box.getSize(size)
+                
+                let cameraDistance = Math.max(size.x, size.y, size.z) * 2
+                
+                let startScale = Object.assign({}, object.scale) // copy the full Vector3 object, not a reference
+                
+                let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
+                  .easing(TWEEN.Easing.Back.In)
+                  .onComplete(() => {
+                    if (this.step.type === 'locate-marker') {
+                      // detach 3D object (target to find) from arSmoothedControl and attach it directly at scene root, for hassle free manipulation of the 3D object
+                      utils.detachObject3D(object, object.parent, target.scene)
+                      utils.attachObject3D(object, target.scene, target.scene)
+                    }
+                    
+                    camera.position.set(0, 0,  cameraDistance * 2 / 3)
+                    camera.lookAt(new THREE.Vector3(0, cameraDistance, size.z / 2))
+                    // reset object position/scale/rotation
+                    object.scale.set(0, 0, 0)
+                    object.position.set(0, cameraDistance, size.z / 2)
+                    object.rotation.set(0, 0, 0)
+                    this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+                  })
+                
+                let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
+                  .easing(TWEEN.Easing.Back.Out)
+                
+                // https://stackoverflow.com/a/31766476/488666
+                let rotationAnimation = new TWEEN.Tween(object.rotation)
+                  .to({ z: "-" + Math.PI / 2 }, 2000) // relative animation
+                  .repeat(Infinity)
+                  
+                disappearAnimation.chain(appearAnimation, rotationAnimation).start()
+              } else { // 2D image on plane
+                this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+              }
+            }
+          } else { // locate-marker, mode scan
+            var markerDetected = false
+            if (this.isHybrid) {
+            //if (this.isIOs) {
+              if (this.locateMarker.markerControls[answer] && !this.locateMarker.markerControls[answer].detected) {
+                this.locateMarker.markerControls[answer].detected = true
+                markerDetected = true
+              }
+            } else {
+              if (!this.locateMarker.markerControls[answer].detected) {
+                let object = this.locateMarker.scene.getObjectByName('markerObject')
+                
+                let raycaster = new THREE.Raycaster()
+                
+                // imaginary line starting from screen center
+                raycaster.setFromCamera(new THREE.Vector2(0, 0), this.locateMarker.camera)
+                
+                // second parameter set to true so that intersectObject() traverses recursively the object
+                // and its children geometries
+                let intersects = raycaster.intersectObject(object, true)
+                
+                // EMA on 04/03 : to discuss with MPA why detected was not triggered if no intersect
+                if (intersects.length > 0) {
+                  this.locateMarker.markerControls[answer].detected = true
+                  markerDetected = true
+                } else {
+                  this.locateMarker.markerControls[answer].detected = true
+                  markerDetected = true
+                }
+              }
+            }
             
-            let raycaster = new THREE.Raycaster()
-            
-            // imaginary line starting from screen center
-            raycaster.setFromCamera(new THREE.Vector2(0, 0), this.locateMarker.camera)
-            
-            // second parameter set to true so that intersectObject() traverses recursively the object
-            // and its children geometries
-            let intersects = raycaster.intersectObject(object, true)
-            
-            if (intersects.length > 0) {
-              this.locateMarker.markerControls[answer].detected = true
+            if (markerDetected) {
               checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
               
               if (checkAnswerResult.result === true) {
                 this.submitGoodAnswer(checkAnswerResult.score)
-                this.stopVideoTracks('camera-stream-for-locate-marker')
-                this.locateMarker.scene = new THREE.Scene()
-                this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
+                this.stopMarkersSensors()
                 this.locateMarker.playerAnswer = answer // for display
               } else {
                 this.nbTry++
                 if (this.nbTry === 2) {
                   this.submitWrongAnswer()
-                  this.stopVideoTracks('camera-stream-for-locate-marker')
-                  this.locateMarker.scene = new THREE.Scene()
-                  this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
+                  this.stopMarkersSensors()
                 } else {
+                  //this.startScanQRCode()
                   this.submitRetry()
                 }
               }
@@ -1273,6 +1448,17 @@ export default {
       this.reward = (checkAnswerResult && checkAnswerResult.reward) ? checkAnswerResult.reward : 0
     },
     /*
+     * Send answer without telling if it is true or false
+     */
+    submitAnswer() {
+      this.$emit('played')
+      
+      this.displayReadMoreAlert()
+      
+      // advise user to move to next step
+      utils.setTimeout(this.alertToPassToNextStep, 15000)
+    },
+    /*
      * Send good andwer  
      */
     submitGoodAnswer(score) {
@@ -1286,6 +1472,7 @@ export default {
         case 'character': 
         case 'new-item': 
         case 'info-text': 
+        case 'end-chapter': 
         case 'info-video': 
           
           break
@@ -1302,18 +1489,32 @@ export default {
         case 'memory':
         case 'use-item':
         case 'find-item':
-        case 'locate-marker':
-          this.displaySuccessMessage(true, this.$t('label.WellDone'))
-          break
         case 'geolocation':
           this.displaySuccessMessage(true, this.$t('label.YouHaveFoundThePlace'))
           break
         case 'locate-item-ar':
-          this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'))
+        case 'locate-marker':
+          if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
+            this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'))
+          } else { // locate marker, mode scan
+            this.displaySuccessMessage(true, this.$t('label.WellDone'))
+          }
           break
       }
       // advise user to move to next step
       //utils.setTimeout(this.alertToPassToNextStep, 15000)
+    },
+    /*
+     * stop the markers sensors
+     */
+    stopMarkersSensors() {
+      if (this.isIOs) {
+        //this.stopScanQRCode()
+      } else {
+        this.stopVideoTracks('camera-stream-for-locate-marker')
+        this.locateMarker.scene = new THREE.Scene()
+        this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
+      }
     },
     /*
      * Send wrong answer 
@@ -1349,7 +1550,9 @@ export default {
             }
           }
         ]
-        this.readMoreNotif = Notification(this.$t('label.ClickHereToKnowMore'), 'readMore', actions)
+        if (this.readMoreNotif === null) {
+          this.readMoreNotif = Notification(this.$t('label.ClickHereToKnowMore'), 'readMore', actions)
+        }
       }
     },
     hideReadMoreAlert() {
@@ -2044,7 +2247,6 @@ export default {
     * Animate canvas showing item (target) to find, for step type "locate-item-ar"
     */
     animateTargetCanvas() {
-      this.latestRequestAnimationId = requestAnimationFrame(this.animateTargetCanvas)
       let target = this.geolocation.target
       let mixers = target.mixers
       
@@ -2061,21 +2263,43 @@ export default {
       }
       target.renderer.render(target.scene, target.camera)
       TWEEN.update()
+      this.latestRequestAnimationId = requestAnimationFrame(this.animateTargetCanvas)
     },
     /*
-    * Animate canvas showing 3D object on top of marker, for step type "locate-marker"
+    * Animate canvas where AR markers are detected, for step type "locate-marker"
     */
     animateMarkerCanvas() {
-      if (this.playerResult !== null) {
-        return
+      let mixers = this.locateMarker.mixers
+      
+      if (this.locateMarker.arToolkitContext !== null) {
+        // player has not found object yet ?
+        // => adjust camera orientation & object position according to detected marker position
+        this.locateMarker.arToolkitContext.update(this.$refs['camera-stream-for-locate-marker'])
+        
+        if ((this.step.type === 'locate-marker' && this.step.options.mode === 'scan') || this.step.id === 'sensor') {
+          // any marker is "recognized"
+          for (let markerCode in this.locateMarker.markerRoots) {
+            this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoots[markerCode])
+          }
+        } else {
+          // touch object step type => only one marker is "recognized"
+          this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoots[this.step.answers])
+        }
       }
       
-      // run the rendering loop
-      this.latestRequestAnimationId = requestAnimationFrame(this.animateMarkerCanvas)
+      if (this.locateMarker.renderer !== null) {
+        this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
+      }
       
-      this.locateMarker.arToolkitContext.update(this.$refs['camera-stream-for-locate-marker'])
-      this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoot)
-      this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera);
+      // animation
+      if (mixers.length > 0) {
+        for (var i = 0; i < mixers.length; i++) {
+          mixers[i].update(this.locateMarker.clock.getDelta());
+        }
+      }
+      
+      TWEEN.update()
+      this.latestRequestAnimationId = requestAnimationFrame(this.animateMarkerCanvas)
     },
     /*
     * stop latest animation
@@ -2087,7 +2311,12 @@ export default {
     /*
     * when reading a new value from AbsoluteOrientationSensor, update camera rotation so it matches device orientation
     */
-    onAbsoluteOrientationSensorReading() {
+    onAbsoluteOrientationSensorReading() {      
+      if (this.geolocation.absoluteOrientationSensor.activated === false) {
+        console.warn('sensor is not activated')
+        return
+      }
+      
       let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
       
       if (this.step.type === 'locate-item-ar') {
@@ -2107,16 +2336,27 @@ export default {
     },
     /*
     * Detect object touch
+    * used by steps 'locate-item-ar' and 'touch-object-on-marker'
     */
     onTargetCanvasClick(event) {
-      if (this.playerResult !== null) {
+      // handle touch only for specific steps & modes
+      if (!(this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch'))) {
+        return
+      }
+      
+      if (this.playerResult !== null && this.step.type === 'locate-item-ar') {
         this.geolocation.canTouchTarget = false
         return
       }
       
       event.preventDefault()
       
-      let target = this.geolocation.target
+      let target // this object must contain at least properties scene, renderer & camera
+      if (this.step.type === 'locate-item-ar') {
+        target = this.geolocation.target
+      } else {
+        target = this.locateMarker
+      }
       let object = target.scene.getObjectByName('targetObject')
       
       let touchPos = new THREE.Vector2()
@@ -2131,14 +2371,20 @@ export default {
       // and its children geometries
       let intersects = raycaster.intersectObject(object, true)
       
-      if (intersects.length > 0 && this.geolocation.canTouchTarget) {
-        this.resetDrawDirectionInterval()
-        // stop location watching
-        this.$refs['geolocation-component'].disabled = true
-        this.geolocation.active = false
+      let canTouchTarget = (this.step.type === 'locate-item-ar' && this.geolocation.canTouchTarget) ||
+        (this.step.type === 'locate-marker' && this.locateMarker.arSmoothedControls.object3d.visible)
+      
+      if (intersects.length > 0 && canTouchTarget) {
+        if (this.step.type === 'locate-item-ar') {
+          this.resetDrawDirectionInterval()
+          // stop location watching
+          this.$refs['geolocation-component'].disabled = true
+          this.geolocation.active = false
+        }
         // stop camera streams
-        this.stopVideoTracks('camera-stream-for-locate-item-ar')
-        this.checkAnswer()
+        let cameraStreamRef = (this.step.type === 'locate-item-ar' ? 'camera-stream-for-locate-item-ar' : 'camera-stream-for-locate-marker')
+        this.stopVideoTracks(cameraStreamRef)
+        this.checkAnswer(this.step.answers) // currently, answer checking cannot be done on server side. step type 'locate-marker' requires a valid marker number.
       }
     },
     /*
@@ -2147,6 +2393,61 @@ export default {
     */
     handlePanOnTargetCanvas(event) {
       this.onTargetCanvasClick({ clientX: event.position.left, clientY: event.position.top, preventDefault: function() {} })
+    },
+    
+    /*
+    * loads GLTF data, puts object origin at center, sets position of 3D model according to its settings in 3DModels.json
+    * @param     modelCode     code of the 3D model, for example "lamp"
+    * @return    object        { object: <3D object>, animations: <animations from GLTF data> }
+    */
+    async loadAndPrepare3DModel(modelCode) {
+      let scaleFactor = 4 // make objects four times bigger than their "real" size, for better usability
+      let objectInit = modelsList[modelCode]
+      let gltfData
+      try {
+        this.$q.loading.show()
+        gltfData = await this.ModelLoaderAsync(modelCode)
+        this.$q.loading.hide()
+      } catch (err) {
+        console.error("Error while loading 3D model:", err)
+        Notification(this.$t('label.CouldNotDisplayObject'), 'error')
+        return
+      }
+      
+      let object = gltfData.scene
+      
+      // apply user-defined rotation
+      objectInit.rotation = objectInit.rotation || {}
+      if (objectInit.rotation.hasOwnProperty('x')) { object.rotateX(utils.degreesToRadians(objectInit.rotation.x)) } else {
+        object.rotateX(Math.PI / 2)
+      }
+      if (objectInit.rotation.hasOwnProperty('y')) { object.rotateY(utils.degreesToRadians(objectInit.rotation.y)) }
+      if (objectInit.rotation.hasOwnProperty('z')) { object.rotateZ(utils.degreesToRadians(objectInit.rotation.z)) }
+      
+      // apply user-defined scaling
+      let scale = (objectInit.scale || 1) * scaleFactor
+      object.scale.set(scale, scale, scale)
+      
+      // set object origin at center
+      let objBbox = new THREE.Box3().setFromObject(object)
+      
+      let pivot = objBbox.getCenter(new THREE.Vector3())
+      pivot.multiplyScalar(-1)
+      
+      let pivotObj = new THREE.Object3D();
+      object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
+      pivotObj.add(object)
+      pivotObj.up = new THREE.Vector3(0, 0, 1)
+      object = pivotObj
+      
+      // apply user-defined translation
+      if (objectInit.translation && this.step.type === 'locate-item-ar') {
+        if (objectInit.translation.hasOwnProperty('x')) { object.position.x += objectInit.translation.x * scaleFactor }
+        if (objectInit.translation.hasOwnProperty('y')) { object.position.y += objectInit.translation.y * scaleFactor }
+        if (objectInit.translation.hasOwnProperty('z')) { object.position.z += objectInit.translation.z * scaleFactor }
+      }
+      
+      return { object, animations: gltfData.animations }
     },
     /*
     * Loads material file and object file into a 3D Model for Three.js
@@ -2161,6 +2462,20 @@ export default {
         // loads automatically .bin and textures files if necessary
         gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
       })
+    },
+    /*
+    * Adds a point light & ambient light to 3D scene.
+    * Common for steps 'locate-item-ar' and 'locate-marker'
+    */
+    addDefaultLightTo3DScene(scene) {
+      // create a point light from top
+      // TODO maybe a directional light would cost less CPU
+      let light = new THREE.DirectionalLight(0xdddddd)
+      light.position.set(0, 1, 1).normalize()
+      scene.add(light)
+      
+      // soft ambient light
+      scene.add(new THREE.AmbientLight(0xb0b0b0))
     },
     /*
     * Display the success message
@@ -2247,7 +2562,7 @@ export default {
     /*border-radius: 0.5rem;*/
     padding: 0.5rem;
     margin: 0;
-    box-shadow: 0px 0px 0.1rem 0.1rem #fff;
+    /*box-shadow: 0px 0px 0.1rem 0.1rem #fff;*/
   }
   .text { 
     white-space: pre-wrap; 
@@ -2291,12 +2606,12 @@ export default {
   .typed-code td { width: 2rem; height: 3rem; border: 1px solid black; vertical-align: middle; text-align: center; line-height: 3rem; }
   .typed-code td.typed { font-weight: bold; font-size: 1.7rem; }
   
-  .keypad { flex-grow: 1; flex-flow: column nowrap; justify-content: center; text-align: center; }
+  .keypad { flex-flow: column nowrap; justify-content: center; text-align: center; }
   .keypad .q-btn { margin: 0.5rem; width: 20%; height: 15%; font-weight: bold; font-size: 1.3rem; }
   
   /* color code specific */
   
-  .code-color .color-bubbles { margin-top: 5rem; flex-grow: 1; display: flex; flex-flow: row nowrap; justify-content: center; }
+  .code-color .color-bubbles { margin-top: 5rem; display: flex; flex-flow: row nowrap; justify-content: center; }
   .code-color .color-bubbles div { display: block; width: 4rem; height: 4rem; border: 4px solid black; border-radius: 2rem; margin: 0.3rem; transition: background-color 0.3s; }
   
   /* image code specific */
@@ -2315,8 +2630,22 @@ export default {
   
   /* jigsaw puzzle specific */
   
-  #pieces { padding: 0; margin: 0; width: 100%; background: #777; display: block; }
-  #pieces .piece { display: inline-block; margin: 0; box-shadow: inset 0 0 3px #000; text-align: center; cursor: move; background-repeat: none; }
+  #pieces { 
+    padding: 0; 
+    margin: 0; 
+    width: 100%; 
+    background: #ddd; 
+    display: block; 
+  }
+  #pieces .piece { 
+    display: inline-block; 
+    margin: 0px; 
+    padding: 0px; 
+    /*box-shadow: inset 0 0 1px #000; */
+    text-align: center; 
+    cursor: move; 
+    background-repeat: none; 
+  }
   
   /* write-text specific */
   
@@ -2340,7 +2669,7 @@ export default {
   
   .locate-marker video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .locate-marker .marker-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-  .locate-marker #marker-canvas { width: 100%; height: 100%; object-fit: cover; z-index: 20; }
+  .locate-marker #marker-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }
   .locate-marker .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
   .locate-marker img.locate-marker-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 30; padding: 0; margin: 0; }
   .locate-marker img.locate-marker-answer { width: 60vw; margin: 30vw auto; }
@@ -2361,9 +2690,9 @@ export default {
   }
 
   .memory .card {
-    height: 3.7rem;
-    width: 3.7rem;
-    margin: 0.2rem 0.2rem;
+    height: 15vw;
+    width: 15vw;
+    margin: 2vw 2vw;
     background: #141214;
     color: #ffffff;
     border-radius: 5px;
@@ -2415,6 +2744,7 @@ export default {
   
   .right, .q-btn.right { color: #0a0; background-color: #cfc; box-shadow: 0px 0px 0.3rem 0.3rem #9f9; }
   .wrong, .q-btn.wrong { color: #c22; background-color: #fcc; box-shadow: 0px 0px 0.3rem 0.3rem #f99; }
+  .rightorwrong, .q-btn.rightorwrong { color: #fff; background-color: #ccc; box-shadow: 0px 0px 0.3rem 0.3rem #ccc; }
   .images-block > div.right,
   .images-block > div.wrong {
     box-shadow: none; background-color: transparent;
