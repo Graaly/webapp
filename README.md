@@ -67,7 +67,7 @@ Build and Archive the app (select Generic iOS Device to archive), then deploy it
 Open https://appstoreconnect.apple.com/WebObjects/iTunesConnect.woa/ra/ng/app/1448284225/testflight?section=iosbuilds and activate the testfight build
 
 If any issue with certificate, or provisioning profile, generate a new certificate, or provisioning profile on https://developer.apple.com/account/ios/profile/production/edit/44CLFUHY8J
-(/!\ the current provisioning profile works with 3/11/2018 certificate)
+(⚠️ the current provisioning profile works with 3/11/2018 certificate)
 
 Account to test the app : eric.mathieu@graaly.com / Gr44ly!2k19
 
@@ -118,11 +118,35 @@ If the app run as HTTP rather than HTTPS, follow this fix :  https://forum.quasa
 Now you should be able to view what is displayed on your smartphone in Chrome Desktop.
 Visible console output is related to the activity on the Android Chrome browser of the smartphone.
 
-## Avoid HTTPS issues in local dev (Chrome desktop, missing images)
+## Enable HTTPS on dev environment
+
 
 Remove the cache of your browser (if you renew the certificate)
 
 Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
+
+Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to easily create a custom Certification Authority, generate certificates for any IP/domain, and make all your dev devices trust them.
+
+# Testing
+
+* Use [Quasar's own testing framework](https://testing.quasar-framework.org/) which promotes:
+
+  * Jest (unit tests)
+  * Cypress & WebDriver.io (UI tests for webapp & hybrid)
+  * Lighthouse (PWA audit: perfs, SEO, standards...)
+
+* [Ways to economically test your apps on a range of devices](https://www.androidauthority.com/test-your-apps-607217/)
+
+* [Android devices distribution dashboard](https://developer.android.com/about/dashboards/)
+
+* [Top devices for testing Android apps](https://bugfender.com/blog/top-devices-testing-android-apps/)
+
+* Graaly currently supports devices with Android version >= 4.4
+
+* Online services for testing on real devices:
+
+  * [Google Firebase Test Lab](https://firebase.google.com/docs/test-lab/) (maybe for native Android apps only)
+  * [Saucelabs mobile app testing](https://saucelabs.com/products/mobile-app-testing) (paid service)
 
 # Generate AR.js pattern files to detect markers
 
