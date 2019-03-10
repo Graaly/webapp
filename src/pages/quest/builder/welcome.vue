@@ -50,8 +50,8 @@ export default {
       }
       let res = await QuestService.create(newQuest)
 
-      if (res && res.data && res.data._id) {
-        this.$router.push('/quest/builder/' + res.data._id)
+      if (res && res.data && res.data.questId) {
+        this.$router.push('/quest/builder/' + res.data.questId)
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }

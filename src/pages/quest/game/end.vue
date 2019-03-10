@@ -275,11 +275,11 @@ export default {
       await this.getRanking()
       
       // get quest data
-      const quest = await QuestService.getById(this.questId)
+      const quest = await QuestService.getById(this.questId, this.run.version)
       if (quest && quest.data) {
         // show review part only if player is not author & has not already sent a review for this quest
         const isUserAuthor = this.$store.state.user._id === quest.data.authorUserId
-        const results = await ReviewService.list({ questId: this.questId, userId: this.$store.state.user._id }, { limit: 1 })
+        const results = await ReviewService.list({ questId: this.questId, userId: this.$store.state.user._id, version: this.run.version }, { limit: 1 })
         const isReviewAlreadySent = results.data && results.data.length >= 1
         this.showAddReview = !isUserAuthor && !isReviewAlreadySent 
       }

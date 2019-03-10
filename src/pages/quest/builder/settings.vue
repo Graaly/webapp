@@ -1,5 +1,10 @@
 <template>
   <div id="scrollpage" :class="{'bg-white': !chapters.showNewStepOverview}">
+    <!------------------ NEW RELEASE BUTTON ---------->
+    <div v-if="readOnly && (quest.status === 'published' || quest.status === 'unpublished')" class="centered bg-tertiary text-white q-pa-md" @click="createNewVersion()">
+      {{ $t('label.ClickHereToCreateANewQuestVersion') }}
+    </div>
+    
     <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
     
     <h1 class="size-3 q-pl-md" v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings">
@@ -29,10 +34,11 @@
             color="primary"
             v-model="languages.current"
             :options="form.languages"
+            :disable="readOnly"
           />
           <!-- @input="setOtherLanguage" -->
         </q-field>
-        <q-btn big class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" />
+        <q-btn big :disabled="readOnly" class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" />
         <p class="centered q-pa-md" v-if="quest.status !== 'published'">
           <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
         </p>
@@ -45,29 +51,30 @@
         <form @submit.prevent="submitSettings()">
         
           <q-field :error="$v.form.fields.title.$error" :count="titleMaxLength">
-            <q-input type="text" :float-label="$t('label.Title') + ' ' + currentLanguageForLabels" v-model="form.fields.title[languages.current]" @blur="$v.form.fields.title.$touch" maxlength="titleMaxLength" />
+            <q-input :readonly="readOnly" type="text" :float-label="$t('label.Title') + ' ' + currentLanguageForLabels" v-model="form.fields.title[languages.current]" @blur="$v.form.fields.title.$touch" maxlength="titleMaxLength" />
             <div class="q-field-bottom" v-if="$v.form.fields.title.$error">
               <div class="q-field-error" v-if="!$v.form.fields.title.required">{{ $t('label.PleaseEnterATitle') }}</div>
             </div>
           </q-field>
           
           <q-field :error="$v.form.fields.category.$error">
-            <q-select :float-label="$t('label.Category')" v-model="form.fields.category" @blur="$v.form.fields.category.$touch" :options="form.categories" />
+            <q-select :readonly="readOnly" :float-label="$t('label.Category')" v-model="form.fields.category" @blur="$v.form.fields.category.$touch" :options="form.categories" />
             <div class="q-field-bottom" v-if="$v.form.fields.category.$error">
               <div class="q-field-error" v-if="!$v.form.fields.category.required">{{ $t('label.PleaseSelectACategory') }}</div>
             </div>
           </q-field>
           
           <q-field>
-            <q-select :float-label="$t('label.Difficulty')" v-model="form.fields.level" :options="form.levels" />
+            <q-select :readonly="readOnly" :float-label="$t('label.Difficulty')" v-model="form.fields.level" :options="form.levels" />
           </q-field>
           
           <q-field>
-            <q-select :float-label="$t('label.Duration')" v-model="form.fields.duration" :options="form.durations" />
+            <q-select :readonly="readOnly" :float-label="$t('label.Duration')" v-model="form.fields.duration" :options="form.durations" />
           </q-field>
           
           <div class="description">
             <q-input
+              :disable="readOnly"
               v-model="form.fields.description[languages.current]"
               type="textarea"
               :float-label="$t('label.Description') + ' ' + currentLanguageForLabels"
@@ -78,14 +85,14 @@
           </div>
           
           <div class="location-gps" style="display: none">
-            <input type="number" id="latitude" v-model.number="form.fields.location.lat" step="any" />
-            <input type="number" id="longitude" v-model.number="form.fields.location.lng" step="any" />
-            <input type="text" v-model="form.fields.zipcode" />
-            <input type="text" v-model="form.fields.town" />
-            <input type="text" v-model="form.fields.country" />
+            <input :readonly="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" step="any" />
+            <input :readonly="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" step="any" />
+            <input :readonly="readOnly" type="text" v-model="form.fields.zipcode" />
+            <input :readonly="readOnly" type="text" v-model="form.fields.town" />
+            <input :readonly="readOnly" type="text" v-model="form.fields.country" />
           </div>
           
-          <div class="location-address">
+          <div v-if="!readOnly" class="location-address">
             <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
               <gmap-autocomplete v-if="tabs.selected === 'settings'" id="startingplace" :placeholder="$t('label.StartingPointOfTheQuest')" v-model="form.fields.startingPlace" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
             </div>
@@ -96,12 +103,12 @@
             <p>{{ $t('label.Picture') }} :</p>
             <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.picture" />
           </div>
-          <q-btn class="full-width" type="button">
+          <q-btn class="full-width" type="button" v-if="!readOnly">
             <label for="picturefile">{{ $t('label.ModifyThePicture') }}</label>
             <input @change="uploadImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
           </q-btn>
           
-          <q-btn type="submit" color="primary" class="full-width">{{ $t('label.Save') }}</q-btn>
+          <q-btn v-if="!readOnly" type="submit" color="primary" class="full-width">{{ $t('label.Save') }}</q-btn>
             
         </form>
       </q-tab-pane>
@@ -112,20 +119,20 @@
         <div class="centered bg-warning q-pa-sm" v-if="warnings.stepsMissing" @click="refreshStepsList">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
-        <p>{{ $t('label.AddYourSteps') }}</p>
+        <p v-if="!readOnly && (!chapters.items || chapters.items.length < 2)">{{ $t('label.AddYourSteps') }}</p>
         <!--<p class="centered" v-show="chapters.items && chapters.items.length > 6">
           <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
         </p>-->
         <!-- using https://github.com/timruffles/ios-html5-drag-drop-shim to allow drag & drop on mobile -->
         <ul class="list-group" v-sortable="{ onUpdate: onChapterListUpdate, handle: '.handle' }">
           <li class="list-group-item" v-for="chapter in chapters.items" :key="chapter._id">
-            <q-icon class="handle" name="reorder" />
+            <q-icon v-if="!readOnly" class="handle" name="reorder" />
             <div>
               <p>
                 {{ chapter.title[languages.current] || chapter.title[quest.mainLanguage] }}
-                <q-icon name="add_box" class="float-right q-ml-md size-1" style="margin-top: -8px" @click.native="addStep(chapter._id)" />
-                <q-icon name="delete" class="float-right q-ml-md a-bit-bigger" @click.native="removeChapter(chapter._id)" />
-                <q-icon name="mode edit" class="float-right q-ml-md a-bit-bigger" @click.native="modifyChapter(chapter._id)" />
+                <q-icon v-if="!readOnly" name="add_box" class="float-right q-ml-md size-1" style="margin-top: -8px" @click.native="addStep(chapter.chapterId)" />
+                <q-icon v-if="!readOnly" name="delete" class="float-right q-ml-md a-bit-bigger" @click.native="removeChapter(chapter.chapterId)" />
+                <q-icon v-if="!readOnly" name="mode edit" class="float-right q-ml-md a-bit-bigger" @click.native="modifyChapter(chapter.chapterId)" />
                 <q-icon name="warning" color="primary" class="float-right a-bit-bigger" v-if="chapter.warnings && chapter.warnings.length > 0" @click.native="showChapterWarnings(chapter.warnings)" />
               </p>
               <div v-if="!chapter.steps || chapter.steps.length === 0">
@@ -134,20 +141,20 @@
               <div v-for="step in chapter.steps" :key="step._id">
                 <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
                 <span @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
-                <q-btn class="float-right" @click="removeStep(step._id)"><q-icon name="delete" /></q-btn>
-                <q-btn class="float-right" @click="modifyStep(step)"><q-icon name="mode edit" /></q-btn>
+                <q-btn v-if="!readOnly" class="float-right" @click="removeStep(step.stepId)"><q-icon name="delete" /></q-btn>
+                <q-btn v-if="!readOnly" class="float-right" @click="modifyStep(step)"><q-icon name="mode edit" /></q-btn>
               </div>
             </div>
           </li>
         </ul>
         
-        <p class="centered">
+        <p v-if="!readOnly" class="centered">
           <q-btn color="primary" icon="fas fa-plus-circle" @click="addChapter()" :label="$t('label.AddASChapter')" />
         </p>
         <!--<p class="centered">
           <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
         </p>-->
-        <p class="centered q-pa-md" v-if="chapters.items && chapters.items.length > 3">
+        <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items.length > 3">
           <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
         </p>
       
@@ -313,7 +320,7 @@
             <div class="col centered q-pb-md">
               <q-btn round size="lg" color="primary" icon="lightbulb outline" :class="{'flashing': hint.suggest, 'bg-secondary': hint.isOpened}" @click="askForHint()" v-show="isHintAvailable()" />
             </div>
-            <div class="col centered q-pb-md">
+            <div v-if="!readOnly" class="col centered q-pb-md">
               <q-btn round size="lg" color="primary" icon="arrow_back" @click="modifyStep()" />
             </div>
             <div class="col centered q-pb-md">
@@ -399,6 +406,7 @@ export default {
     return {
       questId: null,
       stepId: '-1',
+      readOnly: false,
       tabs: {
         selected: 'languages',
         progress: 0,
@@ -534,10 +542,15 @@ export default {
       this.questId = this.$route.params.questId
       
       // fill quest settings form
-      let res = await QuestService.getById(this.questId)
+      let res = await QuestService.getLastById(this.questId)
       
       if (res && res.data) {
         this.quest = res.data
+        
+        // if not draft => read only
+        if (this.quest.status !== 'draft') {
+          this.readOnly = true
+        }
 
         // get languages
         if (this.quest.languages && this.quest.languages.length > 0 && this.languages.current === '') {
@@ -588,7 +601,7 @@ export default {
       this.warnings.stepsMissing = false
       // list steps
       this.$q.loading.show()
-      var response = await StepService.listForAQuest(this.questId)
+      var response = await StepService.listForAQuest(this.questId, this.quest.version)
       if (response && response.data) {
         this.chapters.items = response.data.chapters
         
@@ -603,7 +616,7 @@ export default {
      
           // Get the steps of current chapter
           for (var i = 0; i < steps.length; i++) {
-            if (steps[i].chapterId.toString() === this.chapters.items[j]._id.toString()) {
+            if (steps[i].chapterId.toString() === this.chapters.items[j].chapterId.toString()) {
               // create steps array
               if (!this.chapters.items[j].steps) {
                 this.chapters.items[j].steps = []
@@ -625,27 +638,27 @@ export default {
                   var noStepDone = true
                   if (stepsOfChapter[i].conditions[k].indexOf('stepDone') !== -1) {
                     noStepDone = false
-                    parent[stepsOfChapter[i]._id.toString()] = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
+                    parent[stepsOfChapter[i].stepId.toString()] = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
                   }
                   if (stepsOfChapter[i].conditions[k].indexOf('stepSuccess') !== -1) {
                     noStepDone = false
-                    parent[stepsOfChapter[i]._id.toString()] = stepsOfChapter[i].conditions[k].replace("stepSuccess_", "")
+                    parent[stepsOfChapter[i].stepId.toString()] = stepsOfChapter[i].conditions[k].replace("stepSuccess_", "")
                   }
                   if (stepsOfChapter[i].conditions[k].indexOf('stepFail') !== -1) {
                     noStepDone = false
-                    parent[stepsOfChapter[i]._id.toString()] = stepsOfChapter[i].conditions[k].replace("stepFail_", "")
+                    parent[stepsOfChapter[i].stepId.toString()] = stepsOfChapter[i].conditions[k].replace("stepFail_", "")
                   }
                 }
               }
               if (noStepDone || stepsOfChapter[i].type === 'locate-marker') {
-                order.push({key: orderIndex.toString(), value: stepsOfChapter[i]._id}) 
+                order.push({key: orderIndex.toString(), value: stepsOfChapter[i].stepId}) 
                 orderIndex++
               }
             } else {
               if (order.length === 0) {
-                order.push({key: "0", value: stepsOfChapter[i]._id})
+                order.push({key: "0", value: stepsOfChapter[i].stepId})
               } else {
-                order.push({key: orderIndex.toString(), value: stepsOfChapter[i]._id}) 
+                order.push({key: orderIndex.toString(), value: stepsOfChapter[i].stepId}) 
                 orderIndex++
               }
               
@@ -675,7 +688,7 @@ export default {
           // order steps
           for (i = 0; i < order.length; i++) {
             for (k = 0; k < stepsOfChapter.length; k++) {
-              if (order[i].value === stepsOfChapter[k]._id.toString()) {
+              if (order[i].value === stepsOfChapter[k].stepId.toString()) {
                 this.chapters.items[j].steps.push(stepsOfChapter[k])
               }
             }
@@ -728,7 +741,7 @@ export default {
             for (var j = 0; j < this.chapters.items.length; j++) {
               // Get the steps of current chapter
               for (var k = 0; k < this.chapters.items[j].steps.length; k++) {
-                if (this.chapters.items[j].steps[k]._id.toString() === child) {
+                if (this.chapters.items[j].steps[k].stepId.toString() === child) {
                   message += this.chapters.items[j].steps[k].title[this.languages.current]
                 }
               }
@@ -755,6 +768,7 @@ export default {
       if (!this.$v.form.fields.$error) {
         let commonProperties = {
           'languages': [this.form.fields.mainLanguage],
+          'version': this.quest.version,
           'location': { 
             type: 'Point', 
             coordinates: [this.form.fields.location.lng, this.form.fields.location.lat],
@@ -935,7 +949,7 @@ export default {
      * @param   {Object}    event            touch event
      */
     async onChapterListUpdate(event) {
-      let moveStatus = await StepService.moveChapter(this.questId, event.oldIndex + 1, event.newIndex + 1)
+      let moveStatus = await StepService.moveChapter(this.questId, this.quest.version, event.oldIndex + 1, event.newIndex + 1)
       if (moveStatus) {
         this.chapters.items.splice(event.newIndex, 0, this.chapters.items.splice(event.oldIndex, 1)[0])
       }
@@ -960,7 +974,7 @@ export default {
         //TODO: manage if publishing failed
         this.$q.loading.hide()
         
-        if (this.quest.status === 'unpublished') {
+        if (this.quest.status === 'unpublished' || this.quest.status === 'draft') {
           this.quest.status = 'tovalidate'
         }
         this.tabs.progress = 4
@@ -1010,7 +1024,7 @@ export default {
         ok: true,
         cancel: true
       }).then(async () => {
-        await QuestService.remove(_this.questId)
+        await QuestService.remove(_this.questId, _this.quest.version)
         // TODO: manage when remove failed
         this.$router.push('/map')
       })
@@ -1027,9 +1041,25 @@ export default {
         ok: true,
         cancel: true
       }).then(async () => {
-        await StepService.remove(_this.questId, stepId)
+        await StepService.remove(_this.questId, stepId, _this.quest.version)
         // refresh steps list
         await _this.refreshStepsList()
+      }).catch((e) => { console.log(e) })
+    },
+    /*
+     * Create a new draft version for this quest
+     */
+    async createNewVersion() {
+      var _this = this; // workaround for closure scope quirks
+
+      this.$q.dialog({
+        message: this.$t('label.CreateNewVersionDescription'),
+        ok: true,
+        cancel: true
+      }).then(async () => {
+        await QuestService.createNewVersion(_this.questId)
+        // reload quest data with new version
+        this.$router.push('/quest/builder/' + _this.questId)
       }).catch((e) => { console.log(e) })
     },
     /*
@@ -1041,7 +1071,7 @@ export default {
       
       // check that there are no steps in this chapter
       for (var i = 0; i < this.chapters.items.length; i++) {
-        if (this.chapters.items[i]._id.toString() === chapterId) {
+        if (this.chapters.items[i].chapterId.toString() === chapterId) {
           if (this.chapters.items[i].steps && this.chapters.items[i].steps.length > 0) {
             Notification(this.$t('label.YouCanNotRemoveAChapterWithSteps'), 'warning')
             return false
@@ -1054,10 +1084,10 @@ export default {
         ok: true,
         cancel: true
       }).then(async () => {
-        await StepService.removeChapter(_this.questId, chapterId)
+        await StepService.removeChapter(_this.questId, chapterId, _this.quest.version)
         // TODO: manage when remove failed
         // reassign a number (1, 2, 3, ...) to remaining steps
-        let removedChapterIndex = _this.chapters.items.map(function(e) { return e._id; }).indexOf(chapterId)
+        let removedChapterIndex = _this.chapters.items.map(function(e) { return e.chapterId; }).indexOf(chapterId)
         _this.chapters.items.splice(removedChapterIndex, 1)
         // refresh steps list
         await this.refreshStepsList()
@@ -1073,7 +1103,7 @@ export default {
       
       // Get chapter position and title
       for (var i = 0; i < this.chapters.items.length; i++) {
-        if (this.chapters.items[i]._id.toString() === chapterId) {
+        if (this.chapters.items[i].chapterId.toString() === chapterId) {
           chapterData.name = this.chapters.items[i].title[this.languages.current] ? this.chapters.items[i].title[this.languages.current] : ''
           chapterData.position = i
         }
@@ -1090,7 +1120,7 @@ export default {
         var title = {}
         title[_this.languages.current] = data
         
-        await StepService.modifyChapter({questId: _this.questId, _id: chapterId, title: title})
+        await StepService.modifyChapter({questId: _this.questId, version: _this.quest.version, chapterId: chapterId, title: title})
         
         _this.chapters.items[chapterData.position].title[_this.languages.current] = data
       }).catch(() => {})
@@ -1112,7 +1142,7 @@ export default {
         var title = {}
         title[_this.languages.current] = data
         
-        await StepService.modifyChapter({questId: _this.questId, _id: '0', title: title})
+        await StepService.modifyChapter({questId: _this.questId, version: _this.quest.version, chapterId: '0', title: title})
         
         await this.refreshStepsList()
       }).catch(() => {})
@@ -1122,8 +1152,8 @@ export default {
      * @param   {Object}    step            Data of the step to modify
      */
     async modifyStep(step) {
-      if (step && step._id) {
-        this.stepId = step._id
+      if (step && step.stepId) {
+        this.stepId = step.stepId
         this.chapters.newStep.type = this.getStepTypeInformations(step.type)
         this.chapters.newStep.chapterId = step.chapterId
         this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
@@ -1141,9 +1171,9 @@ export default {
      */
     async playStep(step) {
       this.chapters.reloadStepPlay = false
-      if (step && step._id) {
-        this.stepId = step._id
-        step.id = step._id
+      if (step && step.stepId) {
+        this.stepId = step.stepId
+        step.id = step.stepId
         this.chapters.newStep.type = this.getStepTypeInformations(step.type)
         this.chapters.newStep.chapterId = step.chapterId
         this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
@@ -1214,9 +1244,9 @@ export default {
       var previousStepId = 0
       // get last step id of this chapter, to build the default condition
       for (var i = 0; i < this.chapters.items.length; i++) {
-        if (this.chapters.items[i]._id.toString() === chapterId && this.chapters.items[i].steps) {
+        if (this.chapters.items[i].chapterId.toString() === chapterId && this.chapters.items[i].steps) {
           let nbStepsInChapter = this.chapters.items[i].steps.length
-          previousStepId = this.chapters.items[i].steps[nbStepsInChapter - 1]._id
+          previousStepId = this.chapters.items[i].steps[nbStepsInChapter - 1].stepId
         }
       }
       this.chapters.newStep.previousStepId = previousStepId
@@ -1228,7 +1258,7 @@ export default {
     async reindexChapters() {
       for (let i = 0; i < this.chapters.items.length; i++) {
         let chapter = this.chapters.items[i]
-        await StepService.saveChapter({ _id: chapter._id, questId: this.questId, order: i + 1 })
+        await StepService.modifyChapter({ chapterId: chapter.chapterId, questId: this.questId, order: i + 1 })
       }
     },
     /*
@@ -1396,7 +1426,7 @@ export default {
      */
     async addEditor () {
       this.$q.loading.show()
-      let addStatus = await QuestService.addEditor(this.questId, this.editor.new.email)
+      let addStatus = await QuestService.addEditor(this.questId, this.quest.version, this.editor.new.email)
       this.$q.loading.hide()
 
       if (addStatus && addStatus.status !== 403) {
@@ -1412,7 +1442,7 @@ export default {
      */
     async listEditors () {
       this.warnings.editorsMissing = false
-      var results = await QuestService.listEditors(this.questId)
+      var results = await QuestService.listEditors(this.questId, this.quest.version)
       if (results && results.data) {
         this.editor.items = results.data
         for (var i = 0; i < this.editor.items.length; i++) {
@@ -1427,7 +1457,7 @@ export default {
      */
     async removeEditor (id) {
       this.$q.loading.show()
-      await QuestService.removeEditor(this.questId, id)
+      await QuestService.removeEditor(this.questId, this.quest.version, id)
       // TODO: manage editor removal
       this.$q.loading.hide()
       await this.listEditors()
@@ -1464,7 +1494,7 @@ export default {
       this.warnings.inventoryMissing = false
       // load items won on previous steps
       this.$q.loading.show()
-      var response = await StepService.listWonObjects(this.questId, this.stepId)
+      var response = await StepService.listWonObjects(this.questId, this.stepId, this.quest.version)
       if (response && response.data) {
         this.inventory.items = response.data
       } else {
@@ -1519,7 +1549,7 @@ export default {
       if (this.hint.isOpened) {
         this.closeAllPanels()
       } else {
-        let hintLabel = await RunService.getHint(0, this.stepId)
+        let hintLabel = await RunService.getHint(0, this.stepId, this.quest.version)
 
         if (hintLabel && hintLabel.hint) {
           this.hint.label = hintLabel.hint
@@ -1599,7 +1629,7 @@ export default {
       })
     },
     async listReviews () {
-      let results = await ReviewService.list({ questId: this.questId })
+      let results = await ReviewService.list({ questId: this.questId, version: this.quest.version })
       this.reviews = results.data
     },
     /*

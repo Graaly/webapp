@@ -51,18 +51,19 @@ export default {
    * @param   {String}    runId                 ID of the run
    * @param   {String}    stepId                ID of the step
    */
-  async getHint (runId, stepId) {
-    let res = await Api().get('run/' + runId + '/step/' + stepId + '/hint')
+  async getHint (runId, stepId, version) {
+    let res = await Api().get('run/' + runId + '/step/' + stepId + '/version/' + version + '/hint')
     return res.data
   },
   /*
    * init a new run for current user for a quest
    * @param   {String}    questId             ID of the quest
+   * @param   {Number}    version             version of the quest
    * @param   {String}    lang                Language concerned
    * @param   {Boolean}   remotePlay          is the player playing remotely
    */
-  init(questId, lang, remotePlay) {
-    return Api().post('run/quest/' + questId + '/init/' + lang + '/remote/' + remotePlay).catch(error => console.log(error.request))
+  init(questId, version, lang, remotePlay) {
+    return Api().post('run/quest/' + questId + '/version/' + version + '/init/' + lang + '/remote/' + remotePlay).catch(error => console.log(error.request))
   },
   /*
    * set a run as finished

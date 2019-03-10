@@ -57,7 +57,7 @@ export default [
         meta: { requiresAuth: true }
       },
       {
-        path: 'quest/play/:questId(\\w{24})/step/:stepId/:lang',
+        path: 'quest/play/:questId(\\w{24})/version/:version/step/:stepId/:lang',
         name: 'playstep',
         component: QuestPlayStep,
         meta: { requiresAuth: true }
@@ -123,7 +123,7 @@ export default [
         meta: { requiresAuth: true }
       },
       {
-        path: 'admin/validate/:questId(\\w{24})',
+        path: 'admin/validate/:questId(\\w{24})/version/:version',
         name: 'adminvalidate',
         component: AdminValidation,
         meta: { requiresAuth: true }

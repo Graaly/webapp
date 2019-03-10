@@ -772,7 +772,7 @@ export default {
      * Init data of the component
      */
     async initData() {
-      this.questId = this.quest._id
+      this.questId = this.quest.questId
       // reset step data
       this.resetStep()
       // if step is not defined and step type is not choosen
@@ -783,7 +783,7 @@ export default {
       // initialize step form data when edited
       if (!this.selectedStep.isNew) {
         // get step data
-        var response = await StepService.getById(this.stepId)
+        var response = await StepService.getById(this.stepId, this.quest.version)
         if (response && response.data) {
           Object.assign(this.selectedStep.form, response.data)
         } else {
@@ -809,7 +809,7 @@ export default {
       
       // compute number of steps
       if (this.selectedStep.form.number === null) {
-        var numberOfSteps = await StepService.countForAQuest(this.questId)
+        var numberOfSteps = await StepService.countForAQuest(this.questId, this.quest.version)
         this.selectedStep.form.number = (numberOfSteps && numberOfSteps.data && numberOfSteps.data.count) ? numberOfSteps.data.count + 1 : 1
       }
       
@@ -1058,6 +1058,7 @@ export default {
       // save step data
       let newStepData = Object.assign(this.selectedStep.form, {
         questId: this.questId,
+        version: this.quest.version,
         chapterId: this.options.chapterId,
         type: this.options.type.code
       })
@@ -1068,6 +1069,7 @@ export default {
       if (stepData && stepData.data && stepData.data.stepId) {
         // send change event to parent, with stepId information
         newStepData.id = stepData.data.stepId
+        newStepData.stepId = stepData.data.stepId
         this.$emit('change', newStepData)
       } else {
         Notification(this.$t('label.TechnicalIssue'), 'error')
@@ -1187,7 +1189,7 @@ export default {
         var condition = this.selectedStep.form.conditions[i]
         var conditionParts = condition.split("_")
         if (conditionParts[0] === 'stepDone' || conditionParts[0] === 'stepSuccess' || conditionParts[0] === 'stepFail') {
-          const stepData = await StepService.getById(conditionParts[1])
+          const stepData = await StepService.getById(conditionParts[1], this.quest.version)
           if (stepData && stepData.data && stepData.data.hasOwnProperty("title")) {
             let condStepTitle = stepData.data.title[this.lang] ? stepData.data.title[this.lang] : conditionParts[1]
             if (conditionParts[0] === 'stepDone') {
@@ -1215,12 +1217,12 @@ export default {
      */
     async changeNewConditionType() {
       if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail') {
-        const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId)
+        const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version)
         if (response && response.data && response.data.length > 0) {
           for (var i = 0; i < response.data.length; i++) {
-            if (response.data[i]._id.toString() !== this.stepId.toString()) {
-              let condStepTitle = response.data[i].title[this.lang] ? response.data[i].title[this.lang] : response.data[i]._id.toString()
-              this.selectedStep.newCondition.values.push({label: condStepTitle, value: response.data[i]._id})
+            if (response.data[i].stepId.toString() !== this.stepId.toString()) {
+              let condStepTitle = response.data[i].title[this.lang] ? response.data[i].title[this.lang] : response.data[i].stepId.toString()
+              this.selectedStep.newCondition.values.push({label: condStepTitle, value: response.data[i].stepId})
             }
           }
         }
@@ -1483,7 +1485,7 @@ export default {
      */
     async getQuestItemsAsOptions() {
       // load items won on previous steps
-      var response = await StepService.listWonObjects(this.questId, this.stepId)
+      var response = await StepService.listWonObjects(this.questId, this.stepId, this.quest.version)
       if (response && response.data) {
         this.questItems = response.data
         let options = []

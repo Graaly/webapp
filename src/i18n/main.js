@@ -21,10 +21,10 @@ module.exports = {
       white: "White"
     },
     news: {
-      newQuestWon: "Has won the quest <a href='/#/quest/play/{questId}'>{quest}</a>",
-      newQuest: "Has created the quest <a href='/#/quest/play/{questId}'>{quest}</a>",
-      questUnderValidation: "Your quest <a href='/#/quest/play/{questId}'>{quest}</a> will be published soon",
-      challenge: "You are challenged on quest <a href='/#/quest/play/{questId}'>{quest}</a>"
+      newQuestWon: "Has won the quest <a href='/#/quest/play/{questId}/version/last'>{quest}</a>",
+      newQuest: "Has created the quest <a href='/#/quest/play/{questId}/version/last'>{quest}</a>",
+      questUnderValidation: "Your quest <a href='/#/quest/play/{questId}/version/last'>{quest}</a> will be published soon",
+      challenge: "You are challenged on quest <a href='/#/quest/play/{questId}/version/last'>{quest}</a>"
     },
     bonus: {
       scorex2: "Score x 2",
@@ -627,7 +627,15 @@ module.exports = {
       RedirectionPleaseWait: "Redirection, please wait ...",
       UpgradeRequired: "You need to upgrade your Graaly application to continue to use it",
       SorryAnErrorOccurs: "Sorry, an error occurs.",
-      PleaseContactTheSupport: "Please contact the support"
+      PleaseContactTheSupport: "Please contact the support",
+      CreateNewVersionDescription: "You will create a new draft version for this quest. Your published quest will be still available for player, until you will publish this new quest version.",
+      ClickHereToCreateANewQuestVersion: "To edit your quest, click here",
+      YourUnderValidationQuests: "Your quest(s) currently reviewed",
+      YourRejectedQuests: "Your quest(s) rejected",
+      YourDraftQuests: "Your draft(s)",
+      YourPublishedQuests: "Your published quest(s)",
+      Loading: "Loading ...",
+      QuestDraftVersion: "Non published quest"
     }
   },
   fr: {
@@ -652,10 +660,10 @@ module.exports = {
       white: "Blanc"
     },
     news: {
-      newQuestWon: "A réussi l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>",
-      newQuest: "A créé l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>",
-      questUnderValidation: "Votre enquête <a href='/#/quest/play/{questId}'>{quest}</a> est en cours de validation",
-      challenge: "Vous défie sur l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>"
+      newQuestWon: "A réussi l'énigme <a href='/#/quest/play/{questId}/version/last'>{quest}</a>",
+      newQuest: "A créé l'énigme <a href='/#/quest/play/{questId}/version/last'>{quest}</a>",
+      questUnderValidation: "Votre enquête <a href='/#/quest/play/{questId}/version/last'>{quest}</a> est en cours de validation",
+      challenge: "Vous défie sur l'énigme <a href='/#/quest/play/{questId}/version/last'>{quest}</a>"
     },
     bonus: {
       scorex2: "Score x 2",
@@ -1259,7 +1267,15 @@ module.exports = {
       RedirectionPleaseWait: "Redirection en cours ...",
       UpgradeRequired: "Vous devez mettre à jour votre application Graaly pour continuer à l'utiliser",
       SorryAnErrorOccurs: "Désolé, une erreur est survenue.",
-      PleaseContactTheSupport: "Veuillez contacter le support."
+      PleaseContactTheSupport: "Veuillez contacter le support.",
+      CreateNewVersionDescription: "Vous allez créer un nouveau brouillon pour cette enquête. Votre enquête publiée restera accessible aux joueurs, jusqu'à ce que vous publiiez cette nouvelle version de votre enquête.",
+      ClickHereToCreateANewQuestVersion: "Pour modifier votre enquête, cliquez ici",
+      YourUnderValidationQuests: "Vos enquêtes en cours de validation",
+      YourRejectedQuests: "Vos enquêtes rejetées",
+      YourDraftQuests: "Vos brouillons",
+      YourPublishedQuests: "Vos enquêtes publiées",
+      Loading: "Chargement ...",
+      QuestDraftVersion: "Enquête non publiée"
     }
   }
 }

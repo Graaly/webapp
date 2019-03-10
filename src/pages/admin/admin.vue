@@ -17,7 +17,7 @@
         <q-tab-pane name="validation">
           
           <q-list highlight>
-            <q-item v-for="quest in questsToValidate.items" :key="quest._id" @click.native="$router.push('/quest/play/' + quest._id)">
+            <q-item v-for="quest in questsToValidate.items" :key="quest._id" @click.native="$router.push('/quest/play/' + quest.questId)">
               <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
               <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
               <q-item-main>
@@ -44,7 +44,7 @@
         <q-tab-pane name="rejected">
           
           <q-list highlight>
-            <q-item v-for="quest in questsRejected.items" :key="quest._id" @click.native="$router.push('/quest/play/' + quest._id)">
+            <q-item v-for="quest in questsRejected.items" :key="quest._id" @click.native="$router.push('/quest/play/' + quest.questId)">
               <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
               <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
               <q-item-main>

@@ -49,8 +49,8 @@
                 <q-icon name="local_bar" v-if="currentQuest.category === 12" /> <!-- Bars -->
               </span>
             </p>
-            <q-btn v-if="currentQuest && currentQuest.authorUserId !== $store.state.user._id" @click="$router.push('/quest/play/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Play') }}</q-btn>
-            <q-btn v-if="currentQuest && currentQuest.authorUserId === $store.state.user._id" @click="$router.push('/quest/builder/' + (currentQuest ? currentQuest._id : ''))" color="primary">{{ $t('label.Modify') }}</q-btn>
+            <q-btn v-if="currentQuest && currentQuest.authorUserId !== $store.state.user._id" @click="$router.push('/quest/play/' + (currentQuest ? currentQuest.questId : ''))" color="primary">{{ $t('label.Play') }}</q-btn>
+            <q-btn v-if="currentQuest && currentQuest.authorUserId === $store.state.user._id" @click="$router.push('/quest/builder/' + (currentQuest ? currentQuest.questId : ''))" color="primary">{{ $t('label.Modify') }}</q-btn>
           </div>
           <div class="infoWindow" v-if="this.$store.state.user.story && this.$store.state.user.story.step <= 3">
             <p>{{ $t('label.ClickHereToStartDiscoveryQuest') }}</p>
@@ -95,7 +95,9 @@
         <q-tab-pane name="built">
         
           <!------------------ ADD A QUEST BUTTON AREA ------------------------>
-            
+          <div class="centered q-pa-md" v-if="success.quests.built.tovalidate && success.quests.built.tovalidate.length === 0 && success.quests.built.rejected.length === 0 && success.quests.built.published.length === 0 && success.quests.built.draft.length === 0 && !warnings.listCreatedQuestsMissing">
+            {{ $t('label.NoQuestCreated') }}
+          </div>
           <q-btn link class="full-width" @click="$router.push('/quest/create/welcome')" color="tertiary">{{ $t('label.CreateANewQuest') }}</q-btn>
           
           <!------------------ LIST OF QUESTS BUILT AREA ------------------------>
@@ -103,33 +105,62 @@
           <div class="centered bg-warning q-pa-sm" v-if="warnings.listCreatedQuestsMissing" @click="listCreatedQuests($store.state.user._id)">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
-          <q-list highlight>
-            <q-item v-for="quest in success.quests.built" :key="quest._id" @click.native="$router.push('/quest/builder/' + quest._id)">
+          <q-list highlight v-if="success.quests.built.tovalidate && success.quests.built.tovalidate.length > 0">
+            <q-list-header>{{ $t('label.YourUnderValidationQuests') }}</q-list-header>
+            <q-item v-for="quest in success.quests.built.tovalidate" :key="quest._id">
               <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.thumb" />
               <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
               <q-item-main>
-                <q-item-tile label>{{ getQuestTitle(quest, false) }}</q-item-tile>
-                <q-item-tile sublabel v-if="quest.status === 'published'">
-                  <q-rating readonly v-if="quest.rating && quest.rating.rounded" v-model="quest.rating.rounded" color="primary" :max="5" size="1rem" />
-                  {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate}}
-                </q-item-tile>
-                <q-item-tile sublabel v-if="quest.status == 'unpublished'">
-                  {{ $t('label.Unpublished') }}
-                </q-item-tile>
-                <q-item-tile sublabel v-if="quest.status == 'tovalidate'">
+                <q-item-tile label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-tile>
+                <q-item-tile sublabel>
                   {{ $t('label.PublicationRequested') }} ...
                 </q-item-tile>
-                <q-item-tile sublabel v-if="quest.status == 'rejected'" style="color: #f00">
+              </q-item-main>
+            </q-item>
+          </q-list>
+          <q-list highlight v-if="success.quests.built.rejected && success.quests.built.rejected.length > 0">
+            <q-list-header>{{ $t('label.YourRejectedQuests') }}</q-list-header>
+            <q-item v-for="quest in success.quests.built.rejected" :key="quest._id" @click.native="$router.push('/quest/builder/' + quest.questId)">
+              <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.thumb" />
+              <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
+              <q-item-main>
+                <q-item-tile label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-tile>
+                <q-item-tile sublabel style="color: #f00">
                   {{ $t('label.PublicationRejected') }}
                 </q-item-tile>
               </q-item-main>
             </q-item>
-            <q-item v-if="success.quests.built.length === 0 && !warnings.listCreatedQuestsMissing">
+          </q-list>
+          <q-list highlight v-if="success.quests.built.draft && success.quests.built.draft.length > 0">
+            <q-list-header>{{ $t('label.YourDraftQuests') }}</q-list-header>
+            <q-item v-for="quest in success.quests.built.draft" :key="quest._id" @click.native="$router.push('/quest/builder/' + quest.questId)">
+              <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.thumb" />
+              <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
               <q-item-main>
-                <q-item-tile label>{{ $t('label.NoQuestCreated') }}</q-item-tile>
+                <q-item-tile label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-tile>
+                <q-item-tile sublabel>
+                  {{ $t('label.Unpublished') }}
+                </q-item-tile>
               </q-item-main>
             </q-item>
           </q-list>
+          <q-list highlight v-if="success.quests.built.published && success.quests.built.published.length > 0">
+            <q-list-header>{{ $t('label.YourPublishedQuests') }}</q-list-header>
+            <q-item v-for="quest in success.quests.built.published" :key="quest._id" @click.native="$router.push('/quest/builder/' + quest.questId)">
+              <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.thumb" />
+              <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
+              <q-item-main>
+                <q-item-tile label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-tile>
+                <q-item-tile sublabel v-if="quest.status === 'published'">
+                  <q-rating readonly v-if="quest.rating && quest.rating.rounded" v-model="quest.rating.rounded" color="primary" :max="5" size="1rem" />
+                  {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate}}
+                </q-item-tile>
+              </q-item-main>
+            </q-item>
+          </q-list>
+          <div v-if="!success.quests.built.tovalidate && !warnings.listCreatedQuestsMissing">
+            {{ $t('label.Loading') }}
+          </div>
         </q-tab-pane>
         
         <!------------------ LIST OF QUESTS PLAYED TAB ------------------------>
@@ -139,7 +170,7 @@
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
           <q-list highlight>
-          <q-item v-if="success.quests.played && success.quests.played.length > 0" v-for="quest in success.quests.played" :key="quest._id" @click.native="$router.push('/quest/play/'+quest.questId)">
+          <q-item v-if="success.quests.played && success.quests.played.length > 0" v-for="quest in success.quests.played" :key="quest._id" @click.native="$router.push('/quest/play/' + quest.questId)">
             <q-item-side v-if="quest.questData && quest.questData.thumb" :avatar="((quest.questData.thumb && quest.questData.thumb[0] === '_') ? 'statics/images/quest/' + quest.questData.thumb : serverUrl + '/upload/quest/' + quest.questData.thumb)" />
             <q-item-side v-if="quest.questData && !quest.questData.thumb && quest.questData.picture" :avatar="((quest.questData.picture && quest.questData.picture[0] === '_') ? 'statics/images/quest/' + quest.questData.picture : serverUrl + '/upload/quest/' + quest.questData.picture)" />
             <q-item-side v-if="!quest.questData || (!quest.questData.picture && !quest.questData.thumb)" :avatar="'statics/profiles/noprofile.png'" />
@@ -410,7 +441,7 @@
         <div class="row">
           <q-list highlight>
             <q-item v-for="item in search.quests" :key="item._id">
-              <q-card inline class="q-ma-sm" @click.native="$router.push(item.authorUserId === $store.state.user._id ? '/quest/builder/' + item._id : '/quest/play/' + item._id)">
+              <q-card inline class="q-ma-sm" @click.native="$router.push(item.authorUserId === $store.state.user._id ? '/quest/builder/' + item.questId : '/quest/play/' + item.questId)">
                 <q-card-media class="preview" overlay-position="top">
                   <img :src="serverUrl + '/upload/quest/' + item.picture" />
 
@@ -464,7 +495,7 @@
           
           <q-tab-pane name="friendbuilt">
             <q-list highlight>
-              <q-item v-for="quest in friends.selected.built" :key="quest._id" @click.native="$router.push('/quest/play/' + quest._id)">
+              <q-item v-for="quest in friends.selected.built" :key="quest._id" @click.native="$router.push('/quest/play/' + quest.questId)">
                 <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
                 <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
                 <q-item-main>
@@ -758,7 +789,7 @@ export default {
       success: {
         quests: {
           played: [],
-          built: []
+          built: {}
         },
         ranking: []
       },
@@ -996,7 +1027,7 @@ export default {
 
           if (closestQuest !== null) {
             this.story.data = {
-              questId: closestQuest._id,
+              questId: closestQuest.questId,
               quest: this.getQuestTitle(closestQuest, false)
             }
           } else {
@@ -1180,8 +1211,25 @@ export default {
       }
       this.warnings.listCreatedQuestsMissing = false
       let response = await QuestService.ListCreatedByAUser(id)
+      this.success.quests.built = {
+        rejected: [],
+        tovalidate: [],
+        draft: [],
+        published: []
+      }
       if (response && response.data) {
-        this.success.quests.built = response.data
+        for (var i = 0; i < response.data.length; i++) {
+          var quest = response.data[i]
+          if (quest.status === 'published') {
+            this.success.quests.built['published'].push(quest)
+          } else if (quest.status === 'rejected') {
+            this.success.quests.built['rejected'].push(quest)
+          } else if (quest.status === 'tovalidate') {
+            this.success.quests.built['tovalidate'].push(quest)
+          } else {
+            this.success.quests.built['draft'].push(quest)
+          }
+        }
       } else {
         this.warnings.listCreatedQuestsMissing = true
       }

@@ -47,7 +47,7 @@
       <!------------------ CHARACTER STEP AREA ------------------------>
       
       <div class="character" v-if="step.type == 'character'">
-        <div class="fixed-bottom story" style="bottom: 50px">
+        <div class="fixed-bottom story">
           <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
           <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
             <p class="carrier-return">{{ getTranslatedText() }}</p>
@@ -1088,7 +1088,7 @@ console.log("No duration 2")
       if (displaySpinner) {
         this.$q.loading.show()
       }
-      var response = await StepService.checkAnswer(questId, stepId, runId, answerData)
+      var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData)
       if (response && response.data) {
         if (displaySpinner) {
           this.$q.loading.hide()
@@ -1134,12 +1134,12 @@ console.log("No duration 2")
         case 'end-chapter':
         case 'character':
           // save step automatic success
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {}, false)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
           this.submitGoodAnswer(0)
           break
           
         case 'choose':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
           
           if (!this.step.displayRightAnswer) {
             let selectedAnswer = this.step.options[answer]
@@ -1171,7 +1171,7 @@ console.log("No duration 2")
           break
         
         case 'geolocation':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, false)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, false)
 
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -1180,7 +1180,7 @@ console.log("No duration 2")
           
         case 'image-recognition':
           const comparison = this.checkPhoto()
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: comparison}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: comparison}, true)
 
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -1190,7 +1190,7 @@ console.log("No duration 2")
           break
           
         case 'code-keypad':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('')}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('')}, true)
 
           if (!this.step.displayRightAnswer) {
             this.submitAnswer(0)
@@ -1210,7 +1210,7 @@ console.log("No duration 2")
         
         case 'code-color':
           this.$q.loading.show()
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|')}, true)
           
           if (!this.step.displayRightAnswer) {
             this.submitAnswer(0)
@@ -1229,7 +1229,7 @@ console.log("No duration 2")
           break
           
         case 'code-image':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|')}, true)
           
           if (!this.step.displayRightAnswer) {
             this.submitAnswer(0)
@@ -1248,7 +1248,7 @@ console.log("No duration 2")
           break
         
         case 'jigsaw-puzzle':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer.join('|')}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer.join('|')}, true)
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -1256,7 +1256,7 @@ console.log("No duration 2")
           break
           
         case 'memory':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {}, false)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
@@ -1264,7 +1264,7 @@ console.log("No duration 2")
           break
         
         case 'write-text':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.writetext.playerAnswer}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.writetext.playerAnswer}, true)
           if (!this.step.displayRightAnswer) {
             this.submitAnswer(0)
           } else if (checkAnswerResult.result === true) {
@@ -1283,7 +1283,7 @@ console.log("No duration 2")
           break
         
         case 'use-item':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
           
           if (!this.step.displayRightAnswer) {
             this.submitAnswer(0)
@@ -1304,7 +1304,7 @@ console.log("No duration 2")
           break
           
         case 'find-item':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
           
           if (!this.step.displayRightAnswer) {
             this.submitAnswer(0)
@@ -1327,7 +1327,7 @@ console.log("No duration 2")
         case 'locate-item-ar':
         case 'locate-marker':
           if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
-            checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, false)
+            checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, false)
             if (checkAnswerResult.result === true) {
               if (this.step.type === 'locate-item-ar') {
                 this.geolocation.absoluteOrientationSensor.stop() // stop moving camera when device moves
@@ -1419,7 +1419,7 @@ console.log("No duration 2")
             }
             
             if (markerDetected) {
-              checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+              checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
               
               if (checkAnswerResult.result === true) {
                 this.submitGoodAnswer(checkAnswerResult.score)

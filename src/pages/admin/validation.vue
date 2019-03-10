@@ -33,15 +33,16 @@ export default {
   },
   async mounted() {
     // get quest information
-    await this.getQuest(this.$route.params.questId)
+    await this.getQuest(this.$route.params.questId, this.$route.params.version)
   },
   methods: {
     /*
      * Get a quest information
      * @param   {string}    id             Quest ID
+     * @param   {number}    version        Quest version
      */
-    async getQuest(id) {
-      let response = await QuestService.getById(id)
+    async getQuest(id, version) {
+      let response = await QuestService.getById(id, version)
       this.quest = response.data
     },
     /*

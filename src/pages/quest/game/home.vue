@@ -7,6 +7,9 @@
       <div class="fit" :style="'background: url(' + ((quest.picture && quest.picture[0] === '_') ? 'statics/images/quest/' + quest.picture : serverUrl + '/upload/quest/' + quest.picture) + ' ) center center / cover no-repeat '" v-touch-swipe.horizontal="swipeMgmt">
         <div class="fit">
           <div class="text-center bottom-dark-banner">
+            <div v-if="quest.version !== 'draft'" class="bg-tertiary centered q-pa-sm">
+              {{ $t('label.QuestDraftVersion') }}
+            </div>
             <div class="title"" @click="restartStory()">
               {{getLanguage() ? quest.title[getLanguage()] : $t('label.NoTitle') }} <q-icon name="help" />
               <img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + getLanguage() + '.png'" />
@@ -23,25 +26,25 @@
             </p> &nbsp;
             <div class="text-center">
               <p>
-                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && !isRunFinished && (isOwner || isAdmin || isRunStarted) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">{{ $t('label.SolveThisQuest') }}</q-btn>
-                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && isRunFinished && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">{{ $t('label.SolveAgainThisQuest') }}</q-btn>
+                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && !isRunFinished && (isOwner || isAdmin || isRunStarted) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">{{ $t('label.SolveThisQuest') }}</q-btn>
+                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && isRunFinished && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">{{ $t('label.SolveAgainThisQuest') }}</q-btn>
                 <q-btn-dropdown v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
                   <q-list link>
                     <q-item 
                       v-for="lang in getAllLanguages()" :key="lang.lang" 
                       v-show="lang.published" 
-                      @click.native="playQuest(quest._id, lang.lang)"
+                      @click.native="playQuest(quest.questId, lang.lang)"
                     >
                       <q-item-main>
                         <q-item-tile label>
-                          <img class="image-and-text-aligned" :src="'statics/icons/game/flag-' + lang.lang + '.png'" />
+                          <img style="vertical-align: middle; margin-left: 8px" :src="'statics/icons/game/flag-' + lang.lang + '.png'" />
                           {{ $t('language.' + lang.lang) }}
                         </q-item-tile>
                       </q-item-main>
                     </q-item>
                   </q-list>
                 </q-btn-dropdown>
-                <button class="q-btn q-btn-item q-btn-rectange bg-primary" v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && !(isOwner || isAdmin || isRunStarted || isRunFinished) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest._id, getLanguage())" color="primary">
+                <button class="q-btn q-btn-item q-btn-rectange bg-primary" v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && !(isOwner || isAdmin || isRunStarted || isRunFinished) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
                   {{ $t('label.SolveThisQuest') }}<br />
                   <!--<span v-if="quest.price && quest.price > 0">{{ quest.price }} <q-icon name="fas fa-bolt" /></span>-->
                 </button>
@@ -259,7 +262,8 @@ export default {
      * @param   {string}    id             Quest ID
      */
     async getQuest(id) {
-      let response = await QuestService.getById(id)
+      // get the last version accessible by user depending on user access
+      let response = await QuestService.getLastById(id)
       if (response && response.data) {
         this.quest = response.data
         if (typeof this.quest.authorUserId !== 'undefined') {
@@ -284,7 +288,7 @@ export default {
      */
     async getRun() {
       // List all run for this quest for current user
-      var runs = await RunService.listForAQuest(this.quest._id)
+      var runs = await RunService.listForAQuest(this.quest.questId)
       var currentRun = 0
       
       if (runs && runs.data && runs.data.length > 0) {
@@ -354,8 +358,8 @@ export default {
      */
     async getRanking() {
       // do not show ranking for discovery quest
-      if (this.quest._id !== '5b7303ec4efbcd1f8cb101c6') {
-        var scores = await RunService.listPlayersForThisQuest(this.quest._id)
+      if (this.quest.questId !== '5b7303ec4efbcd1f8cb101c6') {
+        var scores = await RunService.listPlayersForThisQuest(this.quest.questId)
       
         if (scores && scores.data && scores.data.length > 0) {
           this.ranking.items = scores.data
@@ -453,7 +457,7 @@ export default {
       if (obj.direction === 'left') {
         const languages = this.getAllLanguages(this.quest)
         const lang = languages[0].lang
-        this.playQuest(this.quest._id, lang)
+        this.playQuest(this.quest.questId, lang)
       }
     },
     /*
@@ -462,7 +466,7 @@ export default {
      * @param   {String}    lang               lang of the quest
      */
     playQuest(questId, lang) {
-      this.$router.push('/quest/play/' + questId + '/step/0/' + lang + '?remoteplay=' + this.isUserTooFar)
+      this.$router.push('/quest/play/' + questId + '/version/' + this.quest.version + '/step/0/' + lang + '?remoteplay=' + this.isUserTooFar)
     },
     /*
      * Follow scroll position
@@ -493,7 +497,7 @@ export default {
      * Manage back to the map button
      */
     modifyQuest () {
-      this.$router.push('/quest/builder/' + this.quest._id)
+      this.$router.push('/quest/builder/' + this.quest.questId)
     },
     /*
      * Open shop

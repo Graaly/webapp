@@ -19,7 +19,7 @@
           <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
             <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-              <img :src="(item.picture.indexOf('statics/') > -1 ? item.picture : serverUrl + '/upload/quest/' + quest.id + '/step/new-item/' + item.picture)" />
+              <img :src="(item.picture.indexOf('statics/') > -1 ? item.picture : serverUrl + '/upload/quest/' + quest.questId + '/step/new-item/' + item.picture)" />
               <p>{{ item.title }}</p>
             </div>
           </div>
@@ -31,7 +31,7 @@
     
     <transition name="slideInBottom">
       <div v-show="info.isOpened">
-        <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="getQuest(quest.id)">
+        <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="getQuest(quest.questId)">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + ((info.quest.picture && info.quest.picture[0] === '_') ? 'statics/images/quest/' + info.quest.picture : serverUrl + '/upload/quest/' + info.quest.picture) + ' ) center center / cover no-repeat '">
@@ -146,7 +146,8 @@ export default {
           quest: {}
         },
         quest: {
-          id: this.$route.params.questId
+          questId: this.$route.params.questId,
+          version: this.$route.params.version
         },
         step: {},
         story: {
@@ -199,10 +200,10 @@ export default {
       await this.getStep()
 
       // get quest information
-      await this.getQuest(this.quest.id)
+      await this.getQuest(this.quest.questId)
       
       // get quest number to compute progression
-      //await this.countStepsNumber(this.quest.id)
+      //await this.countStepsNumber(this.quest.questId)
 
       // display hint
       if (this.isHintAvailable()) {
@@ -221,7 +222,7 @@ export default {
      */
     async getRun() {
       // List all run for this quest for current user
-      var runs = await RunService.listForAQuest(this.quest.id)
+      var runs = await RunService.listForAQuest(this.quest.questId)
       var currentChapter = 0
       
       if (runs && runs.data && runs.data.length > 0) {
@@ -239,7 +240,7 @@ export default {
       if (currentChapter === 0) {
         var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
         // no 'in-progress' run => create run for current player & current quest
-        let res = await RunService.init(this.quest.id, this.$route.params.lang, remotePlay)
+        let res = await RunService.init(this.quest.questId, this.quest.version, this.$route.params.lang, remotePlay)
         if (res.status === 200 && res.data && res.data._id) {
           this.run = res.data
         } else {
@@ -247,7 +248,7 @@ export default {
             title: this.$t('label.TechnicalProblem'),
             message: this.$t('label.TechnicalProblemNetworkIssue')
           }).then(() => {
-            this.$router.push('/quest/play/' + this.quest.id)
+            this.$router.push('/quest/play/' + this.quest.questId)
           })
         }
         // set current score
@@ -276,11 +277,11 @@ export default {
             if (response.data.next === 'end') {
               // if user is owner of the quest, redirect to toolbox
               if (this.$store.state.user.isAdmin) {
-                return this.$router.push('/admin/validate/' + this.quest.id)
+                return this.$router.push('/admin/validate/' + this.quest.questId + '/version/' + this.quest.version)
               } else if (this.$store.state.user._id === this.info.quest.authorUserId) {
-                return this.$router.push('/quest/builder/' + this.quest.id)
+                return this.$router.push('/quest/builder/' + this.quest.questId)
               } else {
-                return this.$router.push('/quest/' + this.quest.id + '/end')
+                return this.$router.push('/quest/' + this.quest.questId + '/end')
               }
             } else {
               stepId = response.data.next
@@ -298,10 +299,10 @@ export default {
         }
       }
 
-      const response2 = await StepService.getById(stepId)
+      const response2 = await StepService.getById(stepId, this.quest.version)
       if (response2 && response2.data) {
         this.step = response2.data
-        this.step.id = this.step._id
+        this.step.id = this.step.stepId
         // get previous button redirect
         this.getPreviousStep()
       } else {
@@ -374,14 +375,14 @@ export default {
           if (response.data.next === 'end') {
             // if user is owner of the quest, redirect to toolbox
             if (this.$store.state.user.isAdmin) {
-              return this.$router.push('/admin/validate/' + this.quest.id)
+              return this.$router.push('/admin/validate/' + this.quest.questId)
             } else if (this.$store.state.user._id === this.info.quest.authorUserId) {
-              return this.$router.push('/quest/builder/' + this.quest.id)
+              return this.$router.push('/quest/builder/' + this.quest.questId)
             } else {
-              return this.$router.push('/quest/' + this.quest.id + '/end')
+              return this.$router.push('/quest/' + this.quest.questId + '/end')
             }
           } else {
-            this.$router.push('/quest/play/' + this.quest.id + '/step/' + response.data.next + '/' + this.$route.params.lang)
+            this.$router.push('/quest/play/' + this.quest.questId + '/version/' + this.quest.version + '/step/' + response.data.next + '/' + this.$route.params.lang)
             //this.stopMarkersSensors()
           }
         } else {
@@ -406,7 +407,7 @@ export default {
         this.resetData()
         await this.initData()
         */
-        this.$router.push('/quest/play/' + this.quest.id + '/step/success_' + this.step.id + '/' + this.$route.params.lang)
+        this.$router.push('/quest/play/' + this.quest.questId + '/version/' + this.quest.version + '/step/success_' + this.step.id + '/' + this.$route.params.lang)
       } else if (this.canPass) {
         this.$q.dialog({
           message: this.$t('label.ConfirmPass'),
@@ -415,7 +416,7 @@ export default {
         }).then(async () => {
           await RunService.passStep(this.run._id, this.step.id)
           // TODO: manage if pass failed
-          this.$router.push('/quest/play/' + this.quest.id + '/step/pass_' + this.step.id + '/' + this.$route.params.lang)
+          this.$router.push('/quest/play/' + this.quest.questId + '/version/' + this.quest.version + '/step/pass_' + this.step.id + '/' + this.$route.params.lang)
         }).catch(() => {})
       }
     },
@@ -424,7 +425,7 @@ export default {
      */
     async previousStep() {
       if (this.previousStepId !== '') {
-        this.$router.push('/quest/play/' + this.quest.id + '/step/' + this.previousStepId + '/' + this.$route.params.lang)
+        this.$router.push('/quest/play/' + this.quest.questId + '/version/' + this.quest.version + '/step/' + this.previousStepId + '/' + this.$route.params.lang)
       }
     },
     /*
@@ -457,7 +458,7 @@ export default {
      * Get the hint and display
      */
     async getHint() {
-      let hintLabel = await RunService.getHint(this.run._id, this.step._id)
+      let hintLabel = await RunService.getHint(this.run._id, this.step.stepId, this.run.version)
 
       if (hintLabel && hintLabel.hint) {
         this.hint.label = hintLabel.hint
@@ -481,7 +482,7 @@ export default {
       this.warnings.inventoryMissing = false
       // load items won on previous steps
       this.$q.loading.show()
-      var response = await RunService.listWonObjects(this.quest.id, this.run._id)
+      var response = await RunService.listWonObjects(this.quest.questId, this.run._id)
       if (response && response.data) {
         this.inventory.items = response.data
       } else {
@@ -552,7 +553,7 @@ export default {
      */
     async getQuest(id) {
       this.warnings.questDataMissing = false
-      let response = await QuestService.getById(id)
+      let response = await QuestService.getById(id, this.run.version)
       if (response && response.data) {
         this.info.quest = response.data
       } else {
@@ -564,7 +565,7 @@ export default {
      * @param   {string}    id             Quest ID
      */
     async countStepsNumber(id) {
-      let response = await StepService.countForAQuest(id)
+      let response = await StepService.countForAQuest(id, this.run.version)
       this.info.stepsNumber = (response && response.data && response.data.count) ? response.data.count : 1
     },
     /*
