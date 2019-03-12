@@ -185,3 +185,9 @@ Add in the `allprojects` section of the `/src-cordova/platforms/android/build.gr
 `C:\...\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml Error: Validation failed, exiting`
 
 See https://stackoverflow.com/a/51788464/488666
+
+### Error `Unable to merge dex`
+`Execution failed for task ':app:transformDexArchiveWithExternalLibsDexMergerForDebug'.`
+`> java.lang.RuntimeException: java.lang.RuntimeException: com.android.builder.dexing.DexArchiveMergerException: Unable to merge dex`
+
+Check this [solution](https://stackoverflow.com/a/55120122/488666)
