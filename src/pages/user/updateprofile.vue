@@ -32,6 +32,8 @@
           :label="$t('label.YourCountry')"
           v-model="profile.form.country"
           :options="countries"
+          emit-value
+          map-options
           bottom-slots
           :error="$v.profile.form.country.$error"
           :error-message="$t('label.PleaseSelectYourCountry')"
@@ -46,7 +48,7 @@
           :error-message="$t('label.PleaseEnterYourZipCode')"
           />
           
-        <q-select :label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" @input="changeLanguage" />
+        <q-select :label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" emit-value map-options @input="changeLanguage" />
         
         {{ $t('label.ToHelpYouFindYourFriends') }}
         
@@ -54,8 +56,8 @@
         
         {{ $t('label.ToAvoidSendingYourToUnrelevantQuests') }}
         
-        <q-select dark :label="$t('label.YourSex')" v-model="profile.form.sex" :options="sexes" />
-        <q-select dark :label="$t('label.YourAge')" v-model="profile.form.age" :options="ages" />
+        <q-select dark :label="$t('label.YourSex')" v-model="profile.form.sex" :options="sexes" emit-value map-options />
+        <q-select dark :label="$t('label.YourAge')" v-model="profile.form.age" :options="ages" emit-value map-options />
         
         <q-btn class="text-primary bg-white full-width" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
       </form>

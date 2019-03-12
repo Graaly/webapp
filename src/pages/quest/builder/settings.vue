@@ -72,16 +72,18 @@
             v-model="form.fields.category"
             @blur="$v.form.fields.category.$touch"
             :options="form.categories"
+            emit-value
+            map-options
             bottom-slots
             :error="$v.form.fields.category.$error"
             :error-message="$t('label.PleaseSelectACategory')"
             />
           
           <q-select
-            :readonly="readOnly" :label="$t('label.Difficulty')" v-model="form.fields.level" :options="form.levels" />
+            :readonly="readOnly" :label="$t('label.Difficulty')" v-model="form.fields.level" :options="form.levels" emit-value map-options />
         
           <q-select
-            :readonly="readOnly" :label="$t('label.Duration')" v-model="form.fields.duration" :options="form.durations" />
+            :readonly="readOnly" :label="$t('label.Duration')" v-model="form.fields.duration" :options="form.durations" emit-value map-options />
           
           <div class="description">
             <q-input
@@ -1072,11 +1074,11 @@ export default {
         message: this.$t('label.CreateNewVersionDescription'),
         ok: true,
         cancel: true
-      }).then(async () => {
+      }).onOk(async () => {
         await QuestService.createNewVersion(_this.questId)
         // reload quest data with new version
         this.$router.push('/quest/builder/' + _this.questId)
-      }).catch((e) => { console.log(e) })
+      })
     },
     /*
      * Remove a chapter

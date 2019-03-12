@@ -319,6 +319,8 @@
                   :label="$t('label.YourCountry')"
                   v-model="profile.form.country"
                   :options="profile.countries"
+                  emit-value
+                  map-options
                   @focus="hideMenu()"
                   @blur="showMenu()"
                   bottom-slots
@@ -337,7 +339,7 @@
                   :error-message="$t('label.PleaseEnterYourZipCode')"
                   />
                   
-                <q-select :label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" @input="changeLanguage" @focus="hideMenu()" @blur="showMenu()" />
+                <q-select :label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" emit-value map-options @input="changeLanguage" @focus="hideMenu()" @blur="showMenu()" />
                 
                 <q-btn color="primary" class="full-width" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
               </q-item-section>

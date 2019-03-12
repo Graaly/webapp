@@ -29,6 +29,8 @@
           :label="$t('label.YourSex')"
           v-model="form.sex"
           :options="sexes"
+          emit-value
+          map-options
           @blur="$v.form.sex.$touch"
           bottom-slots
           :error="$v.form.sex.$error"
@@ -41,6 +43,8 @@
           :label="$t('label.YourAge')"
           v-model="form.age"
           :options="ages"
+          emit-value
+          map-options
           @blur="$v.form.age.$touch"
           bottom-slots
           :error="$v.form.age.$error"
@@ -53,6 +57,8 @@
           :label="$t('label.YourCountry')"
           v-model="form.country"
           :options="countries"
+          emit-value
+          map-options
           @blur="$v.form.country.$touch"
           bottom-slots
           :error="$v.form.country.$error"
