@@ -7,30 +7,34 @@
     
     <!------------------ COMMON FOR ALL STEPS ------------------------>
     
-    <q-field :error="$v.selectedStep.form.title[lang].$error" :count="titleMaxLength">
-      <q-input type="text" :float-label="$t('label.Title') + ' ' + currentLanguageForLabels" v-model="selectedStep.form.title[lang]" @blur="$v.selectedStep.form.title[lang].$touch" :maxlength="titleMaxLength" />
-      <div class="q-field-bottom" v-if="$v.selectedStep.form.title[lang].$error">
-        <div class="q-field-error" v-if="!$v.selectedStep.form.title[lang].required">{{ $t('label.PleaseEnterATitle') }}</div>
-      </div>
-    </q-field>
-    
-    <q-field
-      :error="$v.selectedStep.form.text[lang].$error"
-      :error-label="$t('label.KeepEnigmaQuestionsShort')"
-      :count="mainTextMaxLength"
-      v-if="options.type.code !== 'end-chapter'"
-    >
-      <q-input
-        :float-label="$t('label.' + mainTextFieldLabel) + ' ' + currentLanguageForLabels"
-        v-model="selectedStep.form.text[lang]"
-        type="textarea"
-        :max-height="100"
-        :min-rows="4"
-        class="full-width"
-        @blur="$v.selectedStep.form.text[lang].$touch"
-        @input="$v.selectedStep.form.text[lang].$touch"
+    <q-input
+      type="text"
+      :label="$t('label.Title') + ' ' + currentLanguageForLabels"
+      v-model="selectedStep.form.title[lang]"
+      @blur="$v.selectedStep.form.title[lang].$touch"
+      bottom-slots
+      counter
+      :maxlength="titleMaxLength"
+      :error="$v.selectedStep.form.title[lang].$error"
+      :error-message="$t('label.PleaseEnterATitle')"
       />
-    </q-field>
+    
+    <q-input
+      v-if="options.type.code !== 'end-chapter'"
+      :label="$t('label.' + mainTextFieldLabel) + ' ' + currentLanguageForLabels"
+      v-model="selectedStep.form.text[lang]"
+      type="textarea"
+      :max-height="100"
+      :min-rows="4"
+      class="full-width"
+      @blur="$v.selectedStep.form.text[lang].$touch"
+      @input="$v.selectedStep.form.text[lang].$touch"
+      bottom-slots
+      counter
+      :maxlength="mainTextMaxLength"
+      :error="$v.selectedStep.form.text[lang].$error"
+      :error-message="$t('label.KeepEnigmaQuestionsShort')"
+    />
     
     <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'main'">
       <q-btn class="full-width" type="button">
@@ -89,17 +93,18 @@
         </div>
       </div>
       <!--<p>{{ $t('message.Or') }}</p>
-      <q-select :float-label="$t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
+      <q-select :label="$t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
       <div v-show="form.answerItem !== null">
         {{ $t('message.SelectedObject') }} :
         <q-icon :name="getItemIcon(form.answerItem)" />
       </div>-->
-      <q-field
-        :error="$v.selectedStep.form.options.title.$error"
-        :error-label="$t('label.RequiredField')"
-      >
-        <q-input v-model="selectedStep.form.options.title" :float-label="$t('label.ObjectName')" />
-      </q-field>
+        <q-input
+          v-model="selectedStep.form.options.title"
+          :label="$t('label.ObjectName')"
+          bottom-slots
+          :error="$v.selectedStep.form.options.title.$error"
+          :error-message="$t('label.RequiredField')"
+          />
     </div>
     
     <!------------------ STEP : GRAALY CHARACTER ------------------------>
@@ -136,7 +141,7 @@
           <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
         </div>
         <q-list>
-          <q-collapsible icon="explore" :label="$t('label.OrDefineGPSLocation')">
+          <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
               <div>
@@ -153,7 +158,7 @@
             <div>
               <a @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
             </div>
-          </q-collapsible>
+          </q-expansion-item>
         </q-list>
       </div>
     </div>
@@ -193,38 +198,35 @@
     <!------------------ STEP : SIMPLE TEXT ------------------------>
     
     <div v-if="options.type.code == 'write-text'">
-      <q-field 
+      <q-input
+        v-model="selectedStep.form.answers"
+        :label="$t('label.ExpectedAnswer')"
+        bottom-slots
         :error="$v.selectedStep.form.answers.$error"
-        :error-label="$t('label.RequiredField')">
-        <q-input
-          v-model="selectedStep.form.answers"
-          :float-label="$t('label.ExpectedAnswer')"
+        :error-message="$t('label.RequiredField')"
         />
-      </q-field>
     </div>
     
     <!------------------ STEP : CODE KEYPAD ------------------------>
     
     <div v-if="options.type.code == 'code-keypad'">
-    
-      <q-field 
+      <q-input
+        v-model="selectedStep.form.answers"
+        :label="$t('label.Code')"
+        min-length="2"
+        max-length="6"
+        @blur="$v.selectedStep.form.answers.$touch"
+        @input="$v.selectedStep.form.answers.$touch"
+        bottom-slots
         :error="$v.selectedStep.form.answers.$error"
-        :error-label="$t('label.CodeKeypadFormatError')">
-        <q-input
-          v-model="selectedStep.form.answers"
-          :float-label="$t('label.Code')"
-          min-length="2"
-          max-length="6"
-          @blur="$v.selectedStep.form.answers.$touch"
-          @input="$v.selectedStep.form.answers.$touch"
-        />
-      </q-field>
+        :error-message="$t('label.CodeKeypadFormatError')"
+      />
     </div>
     
     <!------------------ STEP : COLOR CODE ------------------------>
     
     <div v-if="options.type.code == 'code-color'" class="code-color">
-      <q-select :float-label="$t('label.NumberOfColorsInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" />
+      <q-select :label="$t('label.NumberOfColorsInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" />
       <h2>{{ $t('label.ExpectedColorCodeAnswer') }}</h2>
       <table>
       <tr>
@@ -261,7 +263,7 @@
       </q-btn>
       <div v-if="selectedStep.form.options.images && selectedStep.form.options.images.length > 0 && selectedStep.form.options.images[0].imagePath">
         <h2>{{ $t('label.ExpectedCode') }}</h2>
-        <q-select :float-label="$t('label.NumberOfImagesInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" />
+        <q-select :label="$t('label.NumberOfImagesInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" />
         <table>
           <tr>
             <td v-for="(code, index) in unformatedAnswer" :key="index" class="text-center" @click="previousCodeAnswer(index)">
@@ -312,7 +314,7 @@
         </div>
       </div>
       <div>
-        <q-select :float-label="$t('label.Difficulty')" :options="jigsawLevels" v-model="selectedStep.form.options.level" />
+        <q-select :label="$t('label.Difficulty')" :options="jigsawLevels" v-model="selectedStep.form.options.level" />
       </div>
     </div>
     
@@ -345,11 +347,14 @@
       </div>
     </div>
     <div class="inventory" v-if="options.type.code == 'use-item'">
-      <q-field
+      <q-select
+        :label="$t('label.ObjectToUse')"
+        :options="questItemsAsOptions"
+        v-model="selectedStep.form.answerItem"
+        @change="$v.selectedStep.form.answerItem.$touch"
+        bottom-slots
         :error="$v.selectedStep.form.answerItem && $v.selectedStep.form.answerItem.$error"
-        :error-label="$t('label.RequiredField')">
-        <q-select :float-label="$t('label.ObjectToUse')" :options="questItemsAsOptions" v-model="selectedStep.form.answerItem" @change="$v.selectedStep.form.answerItem.$touch" />
-      </q-field>
+        :error-message="$t('label.RequiredField')"/>
       <div v-if="selectedStep.form.answerItem">
         {{ $t('label.SelectedObject') }} :
         <img style="width: 100%" :src="(selectedStep.form.answerItem.indexOf('statics/') !== -1 ? selectedStep.form.answerItem : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.answerItem)" />
@@ -391,7 +396,7 @@
           </div>
         </div>
         <div v-if="selectedStep.form.options.is3D">
-          <q-select v-model="selectedStep.form.options.model" :float-label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
+          <q-select v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
           <p class="error-label" v-show="$v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
         </div>
       </div>
@@ -405,7 +410,7 @@
           <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
         </div>
         <q-list>
-          <q-collapsible icon="explore" :label="$t('label.OrDefineGPSLocation')">
+          <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
               <div>
@@ -422,7 +427,7 @@
             <div>
               <a @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
             </div>
-          </q-collapsible>
+          </q-expansion-item>
         </q-list>
       </div>
     </div>
@@ -459,15 +464,15 @@
         -->
         <!--
         <div v-if="selectedStep.form.options.mode === 'touch'">
-          <q-select v-model="selectedStep.form.options.model" :float-label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
+          <q-select v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
           <p class="error-label" v-show="$v.selectedStep.form.options && $v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
         </div>
         
-        <q-select v-if="selectedStep.form.options.mode === 'scan'" :float-label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
+        <q-select v-if="selectedStep.form.options.mode === 'scan'" :label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
       
       </div>-->
       
-      <q-modal v-model="markerModalOpened">
+      <q-dialog v-model="markerModalOpened">
         <h2>{{ $t('label.ChooseTheMarker') }}</h2>
         
         <q-btn v-for="(option, key) in markersList" :key="key" color="white" class="full-width" @click="selectMarker(option)">
@@ -481,20 +486,20 @@
           @click="closeChooseMarkerModal()"
           :label="$t('label.Cancel')"
         />
-      </q-modal>
+      </q-dialog>
     </div>
     
     <!------------------ CONDITIONS ------------------------>
     
     <q-list separator>
-      <q-collapsible icon="add_box" :label="$t('label.Conditions')">
+      <q-expansion-item icon="add_box" :label="$t('label.Conditions')">
         <q-list highlight v-if="selectedStep.formatedConditions.length > 0">
-          <q-list-header>{{ $t('label.ThisStepIsTriggeredWhen') }}</q-list-header>
+          <q-item-label>{{ $t('label.ThisStepIsTriggeredWhen') }}</q-item-label>
           <q-item v-for="(condition, index) in selectedStep.formatedConditions" :key="index">
-            <q-item-main :label="condition" />
-            <q-item-side right>
-              <q-item-tile icon="delete" @click.native="deleteCondition(index)" />
-            </q-item-side>
+            <q-item-label>{{ condition }}</q-item-label>
+            <q-item-section side>
+              <q-icon name="delete" @click.native="deleteCondition(index)" />
+            </q-item-section>
           </q-item>
         </q-list>
         <div v-if="selectedStep.formatedConditions.length === 0">
@@ -502,20 +507,20 @@
         </div>
         <q-btn color="primary" class="full-width" v-if="!selectedStep.newConditionForm" @click="selectedStep.newConditionForm = true" :label="$t('label.AddACondition')" />
         <div v-if="selectedStep.newConditionForm">
-          <q-select :float-label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @change="changeNewConditionType" />
-          <q-select :float-label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
+          <q-select :label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @change="changeNewConditionType" />
+          <q-select :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
           <div class="centered">
             <q-btn color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />
             <q-btn color="primary" flat @click="selectedStep.newConditionForm = false" :label="$t('label.Cancel')" />
           </div>
         </div>
-      </q-collapsible>
+      </q-expansion-item>
     </q-list>
     
     <!------------------ OTHER OPTIONS ------------------------>
     
     <q-list v-show="options.type.hasOptions" separator>
-      <q-collapsible icon="add_box" :label="$t('label.OtherOptions')">
+      <q-expansion-item icon="add_box" :label="$t('label.OtherOptions')">
         <div v-if="options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'color-keypad' || options.type.code == 'choose' || options.type.code == 'write-text'" class="q-pb-md">
           <q-toggle v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
         </div>
@@ -527,7 +532,7 @@
           <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
         </div>
         <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
-          <q-input v-model="selectedStep.form.options.initDuration" :float-label="$t('label.DurationBeforeTextAppearAbovePicture')" />
+          <q-input v-model="selectedStep.form.options.initDuration" :label="$t('label.DurationBeforeTextAppearAbovePicture')" />
         </div>
         <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
           <q-btn class="full-width" type="button">
@@ -542,30 +547,28 @@
             <a @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
           </div>
         </div>
-        <q-field>
-          <q-input
-            :float-label="$t('label.ExtraTextFieldLabel')"
-            v-model="selectedStep.form.extraText[lang]"
-            type="textarea"
-            :max-height="100"
-            :min-rows="4"
-            class="full-width"
-          />
-        </q-field>
-      </q-collapsible>
+        <q-input
+          :label="$t('label.ExtraTextFieldLabel')"
+          v-model="selectedStep.form.extraText[lang]"
+          type="textarea"
+          :max-height="100"
+          :min-rows="4"
+          class="full-width"
+        />
+      </q-expansion-item>
     </q-list>
     
     <!------------------ HINT ------------------------>
     
     <q-list v-show="options.type.showTrick == 'yes'" separator>
-      <q-collapsible icon="lightbulb outline" :label="$t('label.Hint')">
-        <q-input v-model="selectedStep.form.hint[lang]" :float-label="$t('label.HintText')" />
-      </q-collapsible>
+      <q-expansion-item icon="lightbulb outline" :label="$t('label.Hint')">
+        <q-input v-model="selectedStep.form.hint[lang]" :label="$t('label.HintText')" />
+      </q-expansion-item>
     </q-list>
     
     <q-btn class="full-width" color="primary" @click="submitStep">{{ $t('label.SaveThisStep') }}</q-btn>
     
-    <q-modal id="save-changes-modal" v-model="saveChangesModalOpened" minimized>
+    <q-dialog id="save-changes-modal" v-model="saveChangesModalOpened">
       <a class="float-right no-underline" @click="saveChangesModalOpened = false"><q-icon name="close" class="medium-icon" /></a>
       
       <p>{{ $t('label.ConfirmSaveChanges') }}</p>
@@ -574,14 +577,14 @@
         <q-btn color="primary" @click="submitStep()" :label="$t('label.Yes')" />
         <q-btn color="primary" @click="$emit('close')" :label="$t('label.No')" />
       </div>
-    </q-modal>
+    </q-dialog>
     
   </div>
 </template>
 
 <script>
 import { required } from 'vuelidate/lib/validators'
-import Notification from 'plugins/NotifyHelper'
+import Notification from 'boot/NotifyHelper'
 import hash from 'object-hash'
 import utils from 'src/includes/utils'
 

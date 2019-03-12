@@ -10,78 +10,102 @@
       <!------------------ FORM AREA ------------------------>
     
       <form @submit.prevent="formSubmit()">
-            
-        <q-field :error="$v.form.name.$error" v-if="step === 'generic'">
-          <q-input dark :float-label="$t('label.YourName')" v-model="form.name" @blur="$v.form.name.$touch" maxlength="30" />
-          <div class="q-field-bottom" v-if="$v.form.name.$error">
-            <div class="q-field-error" v-if="!$v.form.name.required">{{ $t('label.PleaseEnterYourName') }}</div>
-          </div>
-        </q-field>
         
-        <q-field v-if="step === 'generic'">
-          <q-select dark :float-label="$t('label.YourSex')" v-model="form.sex" :options="sexes" @blur="$v.form.sex.$touch" />
-          <div class="q-field-bottom" v-if="$v.form.sex.$error">
-            <div class="q-field-error" v-if="!$v.form.sex.required">{{ $t('label.PleaseSelectYourSex') }}</div>
-          </div>
-        </q-field>
+        <q-input
+          v-if="step === 'generic'"
+          dark
+          :label="$t('label.YourName')"
+          v-model="form.name"
+          @blur="$v.form.name.$touch"
+          maxlength="30"
+          bottom-slots
+          :error="$v.form.name.$error"
+          :error-message="$t('label.PleaseEnterYourName')"
+          />
         
-        <q-field v-if="step === 'generic'">
-          <q-select dark :float-label="$t('label.YourAge')" v-model="form.age" :options="ages" @blur="$v.form.age.$touch" />
-          <div class="q-field-bottom" v-if="$v.form.age.$error">
-            <div class="q-field-error" v-if="!$v.form.age.required">{{ $t('label.PleaseSelectYourAge') }}</div>
-          </div>
-        </q-field>
-      
-        <q-field :error="$v.form.country.$error" v-if="step === 'location'">
-          <q-select dark :float-label="$t('label.YourCountry')" v-model="form.country" :options="countries" @blur="$v.form.country.$touch" />
-          <div class="q-field-bottom" v-if="$v.form.country.$error">
-            <div class="q-field-error" v-if="!$v.form.country.required">{{ $t('label.PleaseSelectYourCountry') }}</div>
-          </div>
-        </q-field>
-      
-        <q-field :error="$v.form.zipCode.$error" v-if="step === 'location'">
-          <q-input dark :float-label="$t('label.YourZipCode')" v-model="form.zipCode" @blur="$v.form.zipCode.$touch" />
-          <div class="q-field-bottom" v-if="$v.form.zipCode.$error">
-            <div class="q-field-error" v-if="!$v.form.zipCode.required">{{ $t('label.PleaseEnterYourZipCode') }}</div>
-          </div>
-        </q-field>
-      
-        <q-field :error="$v.form.password.$error" v-if="step === 'password'">
-          <q-input dark type="password" v-model="form.password" :float-label="$t('label.YourPassword')" @blur="$v.form.password.$touch" />
-          <div class="q-field-bottom" v-if="$v.form.password.$error">
-            <div class="q-field-error" v-if="!$v.form.password.required">{{ $t('label.PleaseEnterYourPassword') }}</div>
-            <div class="q-field-error" v-if="!$v.form.password.minLength">{{ $t('label.YourPasswordMustBe8digitsLength') }}</div>
-            <div class="q-field-error" v-if="!$v.form.password.checkPasswordComplexity">{{ $t('label.PasswordComplexityRule') }}</div>
-          </div>
-        </q-field>
+        <q-select
+          v-if="step === 'generic'"
+          dark
+          :label="$t('label.YourSex')"
+          v-model="form.sex"
+          :options="sexes"
+          @blur="$v.form.sex.$touch"
+          bottom-slots
+          :error="$v.form.sex.$error"
+          :error-message="$t('label.PleaseSelectYourSex')"
+          />
         
-        <q-field :error="$v.form.terms.$error" v-if="step === 'password'">
-          <div class="row">
-            <div class="col-2"><q-checkbox dark color="gold" v-model="form.terms" /></div>
-            <div class="col">
-              <span v-html="$t('label.IAgreeTheTermsAndConditions')" />
-              <div class="q-field-bottom" v-if="$v.form.terms.$error">
-                <div class="q-field-error">{{ $t('label.PleaseAgreeTheTermsAndConditions') }}</div>
-              </div>
+        <q-select
+          v-if="step === 'generic'"
+          dark
+          :label="$t('label.YourAge')"
+          v-model="form.age"
+          :options="ages"
+          @blur="$v.form.age.$touch"
+          bottom-slots
+          :error="$v.form.age.$error"
+          :error-message="$t('label.PleaseSelectYourAge')"
+          />
+          
+        <q-select
+          v-if="step === 'location'"
+          dark
+          :label="$t('label.YourCountry')"
+          v-model="form.country"
+          :options="countries"
+          @blur="$v.form.country.$touch"
+          bottom-slots
+          :error="$v.form.country.$error"
+          :error-message="$t('label.PleaseSelectYourCountry')"
+          />
+        
+        <q-input
+          v-if="step === 'location'"
+          dark
+          :label="$t('label.YourZipCode')"
+          v-model="form.zipCode"
+          @blur="$v.form.zipCode.$touch"
+          bottom-slots
+          :error="$v.form.zipCode.$error"
+          :error-message="$t('label.PleaseEnterYourZipCode')"
+          />
+        
+        <q-input
+          v-if="step === 'password'"
+          dark
+          type="password"
+          v-model="form.password"
+          :label="$t('label.YourPassword')"
+          @blur="$v.form.password.$touch"
+          bottom-slots
+          :error="$v.form.password.$error"
+          :error-message="!$v.form.password.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.form.password.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
+          />
+          
+        <div class="row" v-if="step === 'password'">
+          <div class="col-2"><q-checkbox dark color="gold" v-model="form.terms" /></div>
+          <div class="col">
+            <span v-html="$t('label.IAgreeTheTermsAndConditions')" />
+            <div class="q-field-bottom" v-if="$v.form.terms.$error">
+              <div class="q-field-error">{{ $t('label.PleaseAgreeTheTermsAndConditions') }}</div>
             </div>
           </div>
-        </q-field>
-        <q-field :error="$v.form.privacy.$error" v-if="step === 'password'">
-          <div class="row">
-            <div class="col-2"><q-checkbox dark color="gold" v-model="form.privacy" /></div>
-            <div class="col">
-              <span v-html="$t('label.IAgreeThePrivacyPolicy')" />
-              <div class="q-field-bottom" v-if="$v.form.privacy.$error">
-                <div class="q-field-error">{{ $t('label.PleaseAgreeThePrivacyPolicy') }}</div>
-              </div>
+        </div>
+        
+        <div class="row" v-if="step === 'password'">
+          <div class="col-2"><q-checkbox dark color="gold" v-model="form.privacy" /></div>
+          <div class="col">
+            <span v-html="$t('label.IAgreeThePrivacyPolicy')" />
+            <div class="q-field-bottom" v-if="$v.form.privacy.$error">
+              <div class="q-field-error">{{ $t('label.PleaseAgreeThePrivacyPolicy') }}</div>
             </div>
           </div>
-        </q-field>
+        </div>
         
-        <q-field v-if="step === 'validation'">
-          {{ $t('label.EnterTheCodeYouReceivedByEmail') }}
-          <q-input dark :float-label="$t('label.Code')" v-model="form.code" />
-        </q-field>
+        <div v-if="step === 'validation'">
+          <p>{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
+          <q-input dark :label="$t('label.Code')" v-model="form.code" />
+        </div>
         
         <p class="text-right q-mt-md q-mb-md" v-if="step === 'validation'">
           <a @click="generateANewCode()">{{ $t('label.NewCode') }}</a>
@@ -104,8 +128,8 @@
 <script>
 import AuthService from 'services/AuthService'
 import { required, minLength, sameAs } from 'vuelidate/lib/validators'
-import Notification from 'plugins/NotifyHelper'
-import checkPasswordComplexity from 'plugins/PasswordComplexity'
+import Notification from 'boot/NotifyHelper'
+import checkPasswordComplexity from 'boot/PasswordComplexity'
 import utils from 'src/includes/utils'
 
 import countriesFR from 'data/countries_fr.json'

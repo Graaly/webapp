@@ -37,7 +37,7 @@
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + ((info.quest.picture && info.quest.picture[0] === '_') ? 'statics/images/quest/' + info.quest.picture : serverUrl + '/upload/quest/' + info.quest.picture) + ' ) center center / cover no-repeat '">
           <div class="text-center bottom-dark-banner q-pb-xl">
             <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title[lang] : $t('label.NoTitle') }}</p>
-            <!--<q-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-progress>-->
+            <!--<q-linear-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-linear-progress>-->
             <p class="q-pa-md score-text" v-show="info">{{ $t('label.CurrentScore') }}: {{ info.score }} <!--<q-icon color="white" name="fas fa-trophy" />--></p>
             <p>
               <q-btn color="primary" @click="backToMap">{{ $t('label.LeaveQuest') }}</q-btn>
@@ -67,7 +67,7 @@
     <!------------------ FOOTER AREA ------------------------>
     
     <div v-show="footer.show" class="step-menu fixed-bottom">
-      <!--<q-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-progress>-->
+      <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
       <div class="row">
         <div class="col centered q-pb-md">
           <q-btn round size="lg" color="primary" icon="menu" :class="{'bg-secondary': info.isOpened}" @click="openInfo()" />
@@ -98,7 +98,7 @@ import QuestService from 'services/QuestService'
 //import colorsForCode from 'data/colorsForCode.json'
 //import questItems from 'data/questItems.json'
 import stepPlay from 'components/quest/game/stepPlay'
-import Notification from 'plugins/NotifyHelper'
+import Notification from 'boot/NotifyHelper'
 import story from 'components/story'
 import utils from 'src/includes/utils'
 
@@ -247,7 +247,7 @@ export default {
           this.$q.dialog({
             title: this.$t('label.TechnicalProblem'),
             message: this.$t('label.TechnicalProblemNetworkIssue')
-          }).then(() => {
+          }).onOk(() => {
             this.$router.push('/quest/play/' + this.quest.questId)
           })
         }
@@ -413,11 +413,11 @@ export default {
           message: this.$t('label.ConfirmPass'),
           ok: this.$t('label.Ok'),
           cancel: this.$t('label.Cancel')
-        }).then(async () => {
+        }).onOk(async () => {
           await RunService.passStep(this.run._id, this.step.id)
           // TODO: manage if pass failed
           this.$router.push('/quest/play/' + this.quest.questId + '/version/' + this.quest.version + '/step/pass_' + this.step.id + '/' + this.$route.params.lang)
-        }).catch(() => {})
+        }).onCancel(() => {})
       }
     },
     /*
@@ -448,7 +448,7 @@ export default {
             message: this.$t('label.ConfirmHint'),
             ok: this.$t('label.Ok'),
             cancel: this.$t('label.Cancel')
-          }).then(async () => {
+          }).onOk(async () => {
             await this.getHint()
           })
         }

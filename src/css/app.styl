@@ -11,7 +11,7 @@
   #screen-too-large {
     display: none
   }
-  .q-layout, .q-layout-page-container {
+  .q-layout, .q-page-container {
     height: 100%;
     min-height: 100%;
     overflow-y: scroll;
@@ -73,13 +73,6 @@ body {
   /* MP 2018-10-12 causes problem with <q-tab> on Quasar 0.17, icons get aligned to left instead of being centered */
   /*align-items: stretch;*/
 }
-/* MP 2018-10-12 does not seem to be used, maybe remove in a few weeks */
-/*.column .row {
-  flex: 1;
-}
-.column .row, .column .row-auto {
-  width: 100%;
-}*/
 .header {
   width: 100%;
   background-color: #ccc;
@@ -110,16 +103,6 @@ a {
   text-decoration: none;
 }
 
-/////////////////////////////// Panels CSS /////////////////////////////////////
-/* MP 2018-11-12 for quasar 0.17, a width parameter has to be set directly on <q-layout-drawer> tag */
-/*
-.q-layout-drawer-left {
-    width: 100%;
-}
-.q-layout-drawer-right {
-    width: 100%;
-}
-*/
 /////////////////////////////// Labels CSS /////////////////////////////////////
 h1.size-1 {
   font-size: 3.5em;
@@ -179,7 +162,23 @@ span .q-icon {
 
 /////////////////////////////// Forms CSS /////////////////////////////////////
 
-.dark-background .q-if-label {
+form .q-item__label {
+  font-size: 1.3rem;
+  margin: 0.5rem 0;
+  color: #777;
+}
+form .left-icon {
+  font-size: 2.5rem !important;
+}
+/* for Quasar v1.0.0, login page */
+.dark-background .q-field, .dark-background .q-field__label {
+  color: #fff;
+}
+.dark-background .q-field--error .q-field__bottom, .dark-background .q-field  .q-icon.text-negative {
+  color: #ef3 !important;
+}
+/* for Quasar v0.17 */
+/*.dark-background .q-if-label {
   color: #fff;
 }
 .dark-background .q-input-target, .dark-background .q-input-shadow {
@@ -190,7 +189,7 @@ span .q-icon {
 }
 .dark-background .q-if-error:before, .dark-background .q-if-error:after, .dark-background .q-if-error:not(.q-if-inverted) .q-if-label {
   color: #fff;
-}
+}*/
 .q-field {
   margin: 0 0 5vw 0;
 }
@@ -200,9 +199,9 @@ span .q-icon {
 .dark-background .q-if-focused .q-if-label {
   color: #eee !important;
 }
-form {
+/*form {
   margin-top: 1rem;
-}
+}*/
 .q-btn {
   margin: 0.3rem 0; 
 }
@@ -580,14 +579,21 @@ form {
 .q-pb-xxxl {
   padding-bottom: 200px;
 }
-.q-carousel-quick-nav {
-  background: transparent;
-}
-.q-carousel-quick-nav>.text-primary {
-  color: white !important;
+.q-carousel__slides-container {
+  height: inherit;
+  min-height: inherit;
 }
 .q-carousel .q-btn.disabled {
-  display: none;
+  visibility: hidden;
+}
+.q-carousel__control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2vw;
+}
+.q-carousel__navigation {
+  z-index: 1; /* otherwise bottom navigation "dots" are not clickable (under the layer containing the left & right arrows) */
 }
 .list-group { 
   list-style-type: none; 
@@ -597,7 +603,7 @@ form {
 .list-group-item { 
   display: flex; 
   flex-flow: row nowrap; 
-  align-items: start; 
+  align-items: flex-start; 
   padding: 0rem 0.2rem 0.4rem 0; 
 }
 .list-group-item p {

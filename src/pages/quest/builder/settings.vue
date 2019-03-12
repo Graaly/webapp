@@ -7,28 +7,32 @@
     
     <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
     
-    <h1 class="size-3 q-pl-md" v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings">
+    <h1 class="size-3 q-pl-md">
       <span v-if="tabs.progress >= 2">{{ form.fields.title[languages.current] || form.fields.title[quest.mainLanguage] }}</span>
       <span v-else>{{ $t('label.NewQuest') }}</span>
     </h1>
-
+    
     <!------------------ TABS ------------------------>
     
-    <q-tabs v-model="tabs.selected" v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings">
-      <q-tab slot="title" :disable="isReadOnly()" name="languages" :icon="getTabIcon(1)" :label="$t('label.Languages')" default />
-      <q-tab slot="title" :disable="tabs.progress < 1 || isReadOnly()" name="settings" :icon="getTabIcon(2)" :label="$t('label.Intro') + ' (' + languages.current + ')'" />
-      <q-tab slot="title" :disable="tabs.progress < 2 || isReadOnly()" name="steps" :icon="getTabIcon(3)" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
-      <q-tab slot="title" :disable="tabs.progress < 3" name="publish" :icon="getTabIcon(4)" :label="$t('label.Publish')" />
-      <q-tab slot="title" name="reviews" :label="$t('label.Reviews')" v-if="this.isEdition" />
+    <q-tabs v-model="tabs.selected" class="bg-primary text-white">
+      <q-tab :disable="isReadOnly()" name="languages" :icon="getTabIcon(1)" :label="$t('label.Languages')" />
+      <q-tab :disable="tabs.progress < 1 || isReadOnly()" name="settings" :icon="getTabIcon(2)" :label="$t('label.Intro') + ' (' + languages.current + ')'" />
+      <q-tab :disable="tabs.progress < 2 || isReadOnly()" name="steps" :icon="getTabIcon(3)" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
+      <q-tab :disable="tabs.progress < 3" name="publish" :icon="getTabIcon(4)" :label="$t('label.Publish')" />
+      <q-tab name="reviews" :label="$t('label.Reviews')" v-if="this.isEdition" />
+    </q-tabs>
+
+    <q-separator />
+    
+    <q-tab-panels v-model="tabs.selected" animated>
       
       <!------------------ LANGUAGES TAB ------------------------>
         
-      <q-tab-pane name="languages" class="q-pa-md">
-        <q-field
-          icon="language"
-          :helper="$t('label.SelectTheLanguageAndClickOnNextButton')"
-          :label="$t('label.SelectedLanguage')"
-        >
+      <q-tab-panel name="languages" class="q-pa-md">
+        <div>
+          <q-icon name="language" />
+          <p>{{ $t('label.SelectedLanguage') }}</p>
+          <p>{{ $t('label.SelectTheLanguageAndClickOnNextButton') }}</p>
           <q-option-group
             type="radio"
             color="primary"
@@ -36,48 +40,55 @@
             :options="form.languages"
             :disable="readOnly"
           />
-          <!-- @input="setOtherLanguage" -->
-        </q-field>
+        </div>
         <q-btn big :disabled="readOnly" class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" />
         <p class="centered q-pa-md" v-if="quest.status !== 'published'">
           <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
         </p>
-      </q-tab-pane>
+      </q-tab-panel>
       
       <!------------------ SETTINGS TAB ------------------------>
-        
-      <q-tab-pane name="settings">
-    
+      
+      <q-tab-panel name="settings">
+      
         <form @submit.prevent="submitSettings()">
+          
+          <q-input
+            :readonly="readOnly"
+            type="text"
+            :label="$t('label.Title') + ' ' + currentLanguageForLabels"
+            v-model="form.fields.title[languages.current]"
+            @blur="$v.form.fields.title.$touch"
+            bottom-slots
+            counter
+            :maxlength="titleMaxLength"
+            :error="$v.form.fields.title.$error"
+            :error-message="$t('label.PleaseEnterATitle')"
+            />
+          
+          <q-select
+            :readonly="readOnly"
+            :label="$t('label.Category')"
+            v-model="form.fields.category"
+            @blur="$v.form.fields.category.$touch"
+            :options="form.categories"
+            bottom-slots
+            :error="$v.form.fields.category.$error"
+            :error-message="$t('label.PleaseSelectACategory')"
+            />
+          
+          <q-select
+            :readonly="readOnly" :label="$t('label.Difficulty')" v-model="form.fields.level" :options="form.levels" />
         
-          <q-field :error="$v.form.fields.title.$error" :count="titleMaxLength">
-            <q-input :readonly="readOnly" type="text" :float-label="$t('label.Title') + ' ' + currentLanguageForLabels" v-model="form.fields.title[languages.current]" @blur="$v.form.fields.title.$touch" maxlength="titleMaxLength" />
-            <div class="q-field-bottom" v-if="$v.form.fields.title.$error">
-              <div class="q-field-error" v-if="!$v.form.fields.title.required">{{ $t('label.PleaseEnterATitle') }}</div>
-            </div>
-          </q-field>
-          
-          <q-field :error="$v.form.fields.category.$error">
-            <q-select :readonly="readOnly" :float-label="$t('label.Category')" v-model="form.fields.category" @blur="$v.form.fields.category.$touch" :options="form.categories" />
-            <div class="q-field-bottom" v-if="$v.form.fields.category.$error">
-              <div class="q-field-error" v-if="!$v.form.fields.category.required">{{ $t('label.PleaseSelectACategory') }}</div>
-            </div>
-          </q-field>
-          
-          <q-field>
-            <q-select :readonly="readOnly" :float-label="$t('label.Difficulty')" v-model="form.fields.level" :options="form.levels" />
-          </q-field>
-          
-          <q-field>
-            <q-select :readonly="readOnly" :float-label="$t('label.Duration')" v-model="form.fields.duration" :options="form.durations" />
-          </q-field>
+          <q-select
+            :readonly="readOnly" :label="$t('label.Duration')" v-model="form.fields.duration" :options="form.durations" />
           
           <div class="description">
             <q-input
               :disable="readOnly"
               v-model="form.fields.description[languages.current]"
               type="textarea"
-              :float-label="$t('label.Description') + ' ' + currentLanguageForLabels"
+              :label="$t('label.Description') + ' ' + currentLanguageForLabels"
               :max-height="100"
               :min-rows="4"
               class="full-width"
@@ -111,11 +122,11 @@
           <q-btn v-if="!readOnly" type="submit" color="primary" class="full-width">{{ $t('label.Save') }}</q-btn>
             
         </form>
-      </q-tab-pane>
+      </q-tab-panel>
       
       <!------------------ STEPS TAB ------------------------>
         
-      <q-tab-pane name="steps">
+      <q-tab-panel name="steps">
         <div class="centered bg-warning q-pa-sm" v-if="warnings.stepsMissing" @click="refreshStepsList">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
@@ -158,85 +169,90 @@
           <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
         </p>
       
-      </q-tab-pane>
+      </q-tab-panel>
       
       <!------------------ PUBLISHING TAB ------------------------>
         
-      <q-tab-pane name="publish">
-        <q-alert type="warning" class="q-mb-md" v-if="quest.status === 'tovalidate'">
+      <q-tab-panel name="publish">
+        <q-banner class="q-mb-md bg-warning" v-if="quest.status === 'tovalidate'">
           {{ $t('label.QuestUnderValidation') }}
-        </q-alert>
-        <q-alert type="warning" class="q-mb-md" v-if="quest.status === 'rejected'">
+        </q-banner>
+        <q-banner class="q-mb-md bg-warning" v-if="quest.status === 'rejected'">
           {{ $t('label.QuestPublicationRejected') }}
-        </q-alert>
-        <!--<q-alert type="warning" class="q-mb-md" v-if="chapters.items.length < 6">
+        </q-banner>
+        <!--<q-banner class="q-mb-md bg-warning" v-if="chapters.items.length < 6">
           {{ $t('label.YourQuestMustContainAtLeast6Steps') }}
-        </q-alert>
-        <q-alert type="warning" class="q-mb-md" v-if="chapters.items.length > 50">
+        </q-banner>
+        <q-banner class="q-mb-md bg-warning" v-if="chapters.items.length > 50">
           {{ $t('label.YourQuestMustContainLessThan50Steps') }}
-        </q-alert>-->
+        </q-banner>-->
         <p class="centered q-pa-md">
           <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
         </p>
         
-        <q-field
-          icon="visibility"
-          :helper="$t('label.ActivateTheLanguageVisible')"
-          :label="$t('label.LanguagesPublished')"
-        >
+        <div>
+          <q-icon name="visibility" />
+          <p>$t('label.LanguagesPublished')</p>
+          <p>$t('label.ActivateTheLanguageVisible')</p>
           <p v-for="lang in form.fields.languages" :key="lang.lang">
             <q-toggle :disable="quest.status === 'tovalidate'" v-model="lang.published" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
           </p>
-        </q-field>
+        </div>
         
-        <q-field
-          icon="people"
-          :helper="$t('label.InviteEditorsHelp')"
-          :label="$t('label.Editors')"
-        >
+        <div>
+          <q-icon name="people" />
+          <p>$t('label.Editors')</p>
+          <p>$t('label.InviteEditorsHelp')</p>
           <p v-for="item in editor.items" :key="item.id">
             <q-toggle v-model="item.checked" :label="item.name" @input="removeEditor(item.id)" />
           </p>
           <p v-if="warnings.editorsMissing">{{ $t('label.TechnicalIssue') }}</p>
-          <q-input type="text" :float-label="$t('label.InviteEditors')" v-model="editor.new.email" :after="[{icon: 'add_circle', handler () {addEditor()}}]" />
-          <div class="q-field-bottom" v-if="!editor.new.isExisting">
-            <div class="q-field-error">{{ $t('label.UserIsNotAGraalyUser') }}</div>
-          </div>
-        </q-field>
+          <q-input
+            type="text"
+            :label="$t('label.InviteEditors')"
+            v-model="editor.new.email"
+            :after="[{icon: 'add_circle', handler () {addEditor()}}]"
+            bottom-slots
+            :error="!editor.new.isExisting"
+            :error-message="$t('label.UserIsNotAGraalyUser')"
+            />
+        </div>
         
-        <q-field v-if="quest.hasLocateMarkerSteps" icon="fa fa-qrcode" :label="$t('label.MarkersFile')">
+        <div v-if="quest.hasLocateMarkerSteps">
+          <q-icon name="fa fa-qrcode" />
+          <p>{{ $t('label.MarkersFile') }}</p>
           <!-- for webapp mode -->
           <q-btn v-if="!isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" type="a" href="statics/markers/all.pdf" download />
           <!-- for hybrid mode -->
           <q-btn v-if="isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" @click="downloadMarkers()" />
-        </q-field>
+        </div>
         
         <p class="centered q-pa-md" v-if="quest.status !== 'published'">
           <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
         </p>
         
-      </q-tab-pane>
-      
+      </q-tab-panel>
+        
       <!------------------ REVIEWS TAB ------------------------>
         
-      <q-tab-pane name="reviews" v-if="this.isEdition">
+      <q-tab-panel name="reviews" v-if="this.isEdition">
         <!--<q-infinite-scroll :handler="getReviews">-->
           <q-list highlight v-if="reviews.length > 0">
             <q-item v-for="review in reviews" :key="review._id">
               
-              <q-item-side :avatar="getAvatar(review.userId.picture)" />
+              <q-item-section avatar><img :src="getAvatar(review.userId.picture)" /></q-item-section>
                 
-              <q-item-main>
-                <q-item-tile>{{ review.userId.name }}</q-item-tile>
-                <q-item-tile>
+              <q-item-section>
+                <q-item-label>{{ review.userId.name }}</q-item-label>
+                <q-item-label>
                   <q-rating readonly v-model="review.rating" />
-                </q-item-tile>
-                <q-item-tile>
+                </q-item-label>
+                <q-item-label>
                   {{ review.text }}
-                </q-item-tile>
-              </q-item-main>
+                </q-item-label>
+              </q-item-section>
               
-              <q-item-side right :stamp="$options.filters.formatDate(review.created)" />
+              <q-item-section side>{{ $options.filters.formatDate(review.created) }}</q-item-section>
               
             </q-item>
           </q-list>
@@ -244,11 +260,11 @@
         
         <p v-if="reviews.length === 0">{{ $t('label.QuestNotReviewed') }}</p>
         
-      </q-tab-pane>
+      </q-tab-panel>
       
-    </q-tabs>
+    </q-tab-panels>
     
-    <q-modal v-model="chapters.showNewStepPage">
+    <q-dialog v-model="chapters.showNewStepPage">
       <div>
     
         <!------------------ STEP TYPE SELECTION ------------------------>
@@ -259,7 +275,7 @@
         <div class="q-pa-md">
           <p class="caption">{{ $t('label.Transition') }}</p>
           <q-list>
-            <q-collapsible color="primary" popup
+            <q-expansion-item color="primary" popup
               group="steptype"
               v-for="stepType in filteredStepTypes('transition')" :key="stepType.code" 
               :icon="'fas fa-' + stepType.icon"
@@ -269,13 +285,13 @@
                 {{ $t('stepType.' + stepType.description) }}
                 <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" />
               </div>
-            </q-collapsible>
+            </q-expansion-item>
           </q-list> 
           
           <p class="caption">{{ $t('label.Quest') }}</p>
           
           <q-list>
-            <q-collapsible color="primary" popup
+            <q-expansion-item color="primary" popup
               group="steptype"
               v-for="stepType in filteredStepTypes('enigma')" :key="stepType.code" 
               :icon="'fas fa-' + stepType.icon"
@@ -285,7 +301,7 @@
                 {{ $t('stepType.' + stepType.description) }}
                 <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" />
               </div>
-            </q-collapsible>
+            </q-expansion-item>
           </q-list>
           
           <div class="q-pa-md centered">
@@ -294,7 +310,7 @@
         </div>
       </div>
       
-    </q-modal>
+    </q-dialog>
     
     <div id="overview" v-if="chapters.showNewStepPageSettings" class="fit">
       
@@ -310,7 +326,7 @@
 
         <stepPlay :step="chapters.newStep.overviewData" runId="0" :itemUsed="selectedItem" :reload="chapters.reloadStepPlay" :lang="languages.current" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
         <div v-show="overview.tabSelected" class="step-menu fixed-bottom">
-          <!--<q-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-progress>-->
+          <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
           <div class="row">
             <div class="col centered q-pb-md">
             </div>
@@ -373,7 +389,7 @@
 
 <script>
 import { required } from 'vuelidate/lib/validators'
-import Notification from 'plugins/NotifyHelper'
+import Notification from 'boot/NotifyHelper'
 import QuestService from 'services/QuestService'
 import ReviewService from 'services/ReviewService'
 import RunService from 'services/RunService'
@@ -1023,7 +1039,7 @@ export default {
         message: this.$t('label.AreYouSureYouWantToRemoveThisQuest'),
         ok: true,
         cancel: true
-      }).then(async () => {
+      }).onOk(async () => {
         await QuestService.remove(_this.questId, _this.quest.version)
         // TODO: manage when remove failed
         this.$router.push('/map')
@@ -1040,11 +1056,11 @@ export default {
         message: this.$t('label.DoYouWantToRemoveThisStep'),
         ok: true,
         cancel: true
-      }).then(async () => {
+      }).onOk(async () => {
         await StepService.remove(_this.questId, stepId, _this.quest.version)
         // refresh steps list
         await _this.refreshStepsList()
-      }).catch((e) => { console.log(e) })
+      }).onCancel((e) => { console.log(e) })
     },
     /*
      * Create a new draft version for this quest
@@ -1083,7 +1099,7 @@ export default {
         message: this.$t('label.DoYouWantToRemoveThisChapter'),
         ok: true,
         cancel: true
-      }).then(async () => {
+      }).onOk(async () => {
         await StepService.removeChapter(_this.questId, chapterId, _this.quest.version)
         // TODO: manage when remove failed
         // reassign a number (1, 2, 3, ...) to remaining steps
@@ -1091,7 +1107,7 @@ export default {
         _this.chapters.items.splice(removedChapterIndex, 1)
         // refresh steps list
         await this.refreshStepsList()
-      }).catch((e) => { console.log(e) })
+      }).onCancel((e) => { console.log(e) })
     },
     /*
      * Modify a chapter
@@ -1116,14 +1132,14 @@ export default {
           type: 'text'
         },
         cancel: true
-      }).then(async (data) => {
+      }).onOk(async (data) => {
         var title = {}
         title[_this.languages.current] = data
         
         await StepService.modifyChapter({questId: _this.questId, version: _this.quest.version, chapterId: chapterId, title: title})
         
         _this.chapters.items[chapterData.position].title[_this.languages.current] = data
-      }).catch(() => {})
+      }).onCancel(() => {})
     },
     /*
      * Create a chapter
@@ -1138,14 +1154,14 @@ export default {
           type: 'text'
         },
         cancel: true
-      }).then(async (data) => {
+      }).onOk(async (data) => {
         var title = {}
         title[_this.languages.current] = data
         
         await StepService.modifyChapter({questId: _this.questId, version: _this.quest.version, chapterId: '0', title: title})
         
         await this.refreshStepsList()
-      }).catch(() => {})
+      }).onCancel(() => {})
     },
     /*
      * modify a step
@@ -1681,6 +1697,4 @@ export default {
 </script>
 
 <style>
-  .step-simulation-bar { position: absolute; top: 0; left: 0; width: 100%; z-index: 100; }
-  .step-simulation-bar .q-btn-group { background: white; }
 </style>

@@ -15,44 +15,47 @@
         </div>
       </div>
       <form @submit.prevent="submitProfileChanges()">
-        <q-field :error="$v.profile.form.name.$error">
-          <q-input v-model="profile.form.name" :stack-label="$t('label.YourName')" placeholder="John Doe" @blur="$v.profile.form.name.$touch" />
-          <div class="q-field-bottom" v-if="profile.form.name.$error">
-            <div class="q-field-error" v-if="!profile.form.name.required">{{ $t('label.PleaseEnterYourName') }}</div>
-          </div>
-        </q-field>
         
+        <q-input
+          v-model="profile.form.name"
+          :label="$t('label.YourName')"
+          placeholder="John Doe"
+          @blur="$v.profile.form.name.$touch"
+          bottom-slots
+          :error="$v.profile.form.name.$error"
+          :error-message="$t('label.PleaseEnterYourName')"
+          />
+                  
         {{ $t('label.ToDisplayRelevantQuests') }}
-        <q-field :error="$v.profile.form.country.$error">
-          <q-select :stack-label="$t('label.YourCountry')" v-model="profile.form.country" :options="countries" />
-          <div class="q-field-bottom" v-if="profile.form.country.$error">
-             <div class="q-field-error" v-if="!profile.form.country.required">{{ $t('label.PleaseSelectYourCountry') }}</div>
-          </div>
-        </q-field>
         
-        <q-field :error="$v.profile.form.zipCode.$error">
-          <q-input v-model="profile.form.zipCode" :stack-label="$t('label.YourZipCode')" placeholder="38500"  />
-          <div class="q-field-bottom" v-if="profile.form.zipCode.$error">
-            <div class="q-field-error" v-if="!profile.form.zipCode.required">{{ $t('label.PleaseEnterYourZipCode') }}</div>
-          </div>
-        </q-field> 
-        
-        <q-field>
-          <q-select :stack-label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" @input="changeLanguage" />
-        </q-field>
+        <q-select
+          :label="$t('label.YourCountry')"
+          v-model="profile.form.country"
+          :options="countries"
+          bottom-slots
+          :error="$v.profile.form.country.$error"
+          :error-message="$t('label.PleaseSelectYourCountry')"
+          />
+          
+        <q-input
+          v-model="profile.form.zipCode"
+          :label="$t('label.YourZipCode')"
+          placeholder="38500"
+          bottom-slots
+          :error="$v.profile.form.zipCode.$error"
+          :error-message="$t('label.PleaseEnterYourZipCode')"
+          />
+          
+        <q-select :label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" @input="changeLanguage" />
         
         {{ $t('label.ToHelpYouFindYourFriends') }}
-        <q-field>
-          <q-input v-model="profile.form.phone" :stack-label="$t('label.YourPhoneNumber')" :placeholder="$t('label.phoneExample')" />
-        </q-field>
+        
+        <q-input v-model="profile.form.phone" :label="$t('label.YourPhoneNumber')" :placeholder="$t('label.phoneExample')" />
         
         {{ $t('label.ToAvoidSendingYourToUnrelevantQuests') }}
-        <q-field>
-          <q-select dark :float-label="$t('label.YourSex')" v-model="profile.form.sex" :options="sexes" />
-        </q-field>
-        <q-field>
-          <q-select dark :float-label="$t('label.YourAge')" v-model="profile.form.age" :options="ages" />
-        </q-field>
+        
+        <q-select dark :label="$t('label.YourSex')" v-model="profile.form.sex" :options="sexes" />
+        <q-select dark :label="$t('label.YourAge')" v-model="profile.form.age" :options="ages" />
         
         <q-btn class="text-primary bg-white full-width" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
       </form>
@@ -64,7 +67,7 @@
 <script>
 import AuthService from 'services/AuthService'
 import { required } from 'vuelidate/lib/validators'
-import Notification from 'plugins/NotifyHelper'
+import Notification from 'boot/NotifyHelper'
 import languages from 'data/languages.json'
 import utils from 'src/includes/utils'
 

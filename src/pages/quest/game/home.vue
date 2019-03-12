@@ -10,11 +10,11 @@
             <div v-if="quest.version !== 'draft'" class="bg-tertiary centered q-pa-sm">
               {{ $t('label.QuestDraftVersion') }}
             </div>
-            <div class="title"" @click="restartStory()">
+            <div class="title" @click="restartStory()">
               {{getLanguage() ? quest.title[getLanguage()] : $t('label.NoTitle') }} <q-icon name="help" />
               <img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + getLanguage() + '.png'" />
             </div>
-            <p v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.name && quest.author.name.indexOf('Graaly') === -1">{{ $t('label.By') }} {{ quest.author.name }}</span>
+            <p v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.name && quest.author.name.indexOf('Graaly') === -1">{{ $t('label.By') }} {{ quest.author.name }}</p>
             <p class="medium-icon q-pa-none q-ma-none">
               <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">{{ quest.availablePoints }} <span style="font-size: 0.5em">{{ $t('label.pointsToWin') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
               <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAlreadyPlayedThisQuest') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
@@ -35,12 +35,10 @@
                       v-show="lang.published" 
                       @click.native="playQuest(quest.questId, lang.lang)"
                     >
-                      <q-item-main>
-                        <q-item-tile label>
-                          <img style="vertical-align: middle; margin-left: 8px" :src="'statics/icons/game/flag-' + lang.lang + '.png'" />
-                          {{ $t('language.' + lang.lang) }}
-                        </q-item-tile>
-                      </q-item-main>
+                      <q-item-label>
+                        <img style="vertical-align: middle; margin-left: 8px" :src="'statics/icons/game/flag-' + lang.lang + '.png'" />
+                        {{ $t('language.' + lang.lang) }}
+                      </q-item-label>
                     </q-item>
                   </q-list>
                 </q-btn-dropdown>
@@ -70,26 +68,24 @@
         {{ $t('label.RankingIntro') }}
         <q-list>
           <q-item v-for="rank in ranking.items" :key="rank.position" >
-            <q-item-side>
-              <q-item-tile avatar>
-                <img :src="'statics/icons/game/medal-' + rank.position + '.png'">
-              </q-item-tile>
-            </q-item-side>
-            <q-item-main>
-              <q-item-tile label>{{ rank.name }}</q-item-tile>
-              <q-item-tile sublabel>{{ rank.score}} {{ $t('label.points') }}<!--<q-icon name="fas fa-trophy" />--></q-item-tile>
-            </q-item-main>
-            <q-item-side right>
-              <q-item-tile avatar>
+            <q-item-section avatar>
+              <img :src="'statics/icons/game/medal-' + rank.position + '.png'">
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>{{ rank.name }}</q-item-label>
+              <q-item-label caption>{{ rank.score}} {{ $t('label.points') }}<!--<q-icon name="fas fa-trophy" />--></q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-avatar>
                 <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
                 <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
                 <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
-              </q-item-tile>
-            </q-item-side>
-            <q-item-side right v-if="!rank.isFriend" @click.native="addFriend(rank.id)">
-              <q-item-tile icon="person_add" color="primary" />
-            </q-item-side>
-            <q-item-side right v-if="rank.isFriend"></q-item-side>
+              </q-avatar>
+            </q-item-section>
+            <q-item-section side v-if="!rank.isFriend" @click.native="addFriend(rank.id)">
+              <q-icon name="person_add" color="primary" />
+            </q-item-section>
+            <q-item-section side v-if="rank.isFriend"></q-item-section>
           </q-item>
         </q-list>
         <div class="centered">
@@ -100,11 +96,11 @@
     
     <!--====================== SHOP PAGE =================================-->
     
-    <q-modal v-model="shop.show">
+    <q-dialog v-model="shop.show">
       <a class="float-right no-underline q-pa-md" color="grey" @click="closeShop"><q-icon name="close" class="medium-icon" /></a>
       <h1 class="size-3 q-pl-md">{{ $t('label.Shop') }}</h1>
       <shop></shop>
-    </q-modal>
+    </q-dialog>
     
     <!------------------ NO GEOLOCATION AREA ------------------------>
     
@@ -278,7 +274,7 @@ export default {
           title: this.$t('label.TechnicalProblem'),
           message: this.$t('label.TechnicalProblemNetworkIssue'),
           ok: this.$t('label.BackToMap')
-        }).then(() => {
+        }).onOk(() => {
           this.backToTheMap()
         })
       }
@@ -310,7 +306,7 @@ export default {
               message: this.$t('label.YouAlreadyStartThisQuest'),
               ok: this.$t('label.Restart'),
               cancel: this.$t('label.Continue')
-            }).then(() => {
+            }).onOk(() => {
               self.cancelRun(currentRun)
             })
           //}

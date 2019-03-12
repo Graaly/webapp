@@ -7,94 +7,91 @@
       
       <!------------------ TABS AREA ------------------------>
       
-      <q-tabs two-lines>
-        <q-tab slot="title" name="validation" icon="check_box" label="Quests validation" default />
-        <q-tab slot="title" name="rejected" icon="sentiment_very_dissatisfied" label="Quests rejected" />
-        <q-tab slot="title" name="minigames" icon="child_friendly" label="Mini games" />
+      <q-tabs v-model="adminTab" class="bg-primary text-white">
+        <q-tab name="validation" icon="check_box" label="Quests validation" />
+        <q-tab name="rejected" icon="sentiment_very_dissatisfied" label="Quests rejected" />
+        <q-tab name="minigames" icon="child_friendly" label="Mini games" />
+      </q-tabs>
+      
+      <q-separator />
+      
+      <q-tab-panels v-model="adminTab" animated>
       
         <!------------------ LIST OF QUESTS TO VALIDATE TAB ------------------------>
         
-        <q-tab-pane name="validation">
+        <q-tab-panel name="validation">
           
           <q-list highlight>
             <q-item v-for="quest in questsToValidate.items" :key="quest._id" @click.native="$router.push('/quest/play/' + quest.questId)">
-              <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
-              <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
-              <q-item-main>
-                <q-item-tile label>{{ getQuestTitle(quest, false) }}</q-item-tile>
-                <q-item-tile sublabel v-if="quest.status === 'published'">
+              <q-item-section v-if="quest.picture" avatar><img :src="serverUrl + '/upload/quest/' + quest.picture" /></q-item-section>
+              <q-item-section v-if="!quest.picture" avatar><img src="statics/profiles/noprofile.png" /></q-item-section>
+              <q-item-section>
+                <q-item-label>{{ getQuestTitle(quest, false) }}</q-item-label>
+                <q-item-label caption v-if="quest.status === 'published'">
                   <q-rating readonly :value="(quest.rating && quest.rating.rounded) ? quest.rating.rounded : null" color="primary" :max="5" size="1rem" />
                   {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate}}
-                </q-item-tile>
-                <q-item-tile sublabel v-if="quest.status == 'unpublished'">
+                </q-item-label>
+                <q-item-label caption v-if="quest.status == 'unpublished'">
                   {{ $t('label.Unpublished') }}
-                </q-item-tile>
-              </q-item-main>
+                </q-item-label>
+              </q-item-section>
             </q-item>
             <q-item v-if="questsToValidate.items.length === 0">
-              <q-item-main>
-                <q-item-tile label>No quest to validate</q-item-tile>
-              </q-item-main>
+              <q-item-label>No quest to validate</q-item-label>
             </q-item>
           </q-list>
-        </q-tab-pane>
+        </q-tab-panel>
         
         <!------------------ LIST OF QUESTS REJECTED TAB ------------------------>
         
-        <q-tab-pane name="rejected">
+        <q-tab-panel name="rejected">
           
           <q-list highlight>
             <q-item v-for="quest in questsRejected.items" :key="quest._id" @click.native="$router.push('/quest/play/' + quest.questId)">
-              <q-item-side v-if="quest.picture" :avatar="serverUrl + '/upload/quest/' + quest.picture" />
-              <q-item-side v-if="!quest.picture" :avatar="'statics/profiles/noprofile.png'" />
-              <q-item-main>
-                <q-item-tile label>{{ getQuestTitle(quest, false) }}</q-item-tile>
-                <q-item-tile sublabel v-if="quest.status === 'published'">
+              <q-item-section v-if="quest.picture"><img :src="serverUrl + '/upload/quest/' + quest.picture" /></q-item-section>
+              <q-item-section v-if="!quest.picture"><img src="'statics/profiles/noprofile.png'" /></q-item-section>
+              <q-item-section>
+                <q-item-label>{{ getQuestTitle(quest, false) }}</q-item-label>
+                <q-item-label caption v-if="quest.status === 'published'">
                   <q-rating readonly :value="(quest.rating && quest.rating.rounded) ? quest.rating.rounded : null" color="primary" :max="5" size="1rem" />
                   {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate}}
-                </q-item-tile>
-                <q-item-tile sublabel v-if="quest.status == 'unpublished'">
+                </q-item-label>
+                <q-item-label caption v-if="quest.status !== 'published'">
                   {{ $t('label.Unpublished') }}
-                </q-item-tile>
-              </q-item-main>
+                </q-item-label>
+              </q-item-section>
             </q-item>
             <q-item v-if="questsRejected.items.length === 0">
-              <q-item-main>
-                <q-item-tile label>No quest rejected</q-item-tile>
-              </q-item-main>
+              <q-item-label>No quest rejected</q-item-label>
             </q-item>
           </q-list>
-        </q-tab-pane>
+        </q-tab-panel>
         <!------------------ MINI GAMES TAB ------------------------>
         
-        <q-tab-pane name="minigames">
+        <q-tab-panel name="minigames">
           
-          <q-btn link class="full-width" @click="$router.push('/admin/minigames/builder')" color="tertiary">{{ $t('label.AddATown') }}</q-btn>
+          <q-btn link class="full-width" @click="$router.push('/admin/minigames/builder')" color="accent">{{ $t('label.AddATown') }}</q-btn>
           
           <q-list highlight>
             <q-item v-for="town in towns.items" :key="town._id">
-              <q-item-main>
-                <q-item-tile label>{{ town.name }} ({{ town.zipcode }})</q-item-tile>
-                <q-item-tile sublabel >
-                  {{ town.country }}
-                </q-item-tile>
-              </q-item-main>
-              <q-item-side v-if="town.status === 'new'" >
+              <q-item-section>
+                <q-item-label>{{ town.name }} ({{ town.zipcode }})</q-item-label>
+                <q-item-label caption>{{ town.country }}</q-item-label>
+              </q-item-section>
+              <q-item-section v-if="town.status === 'new'" side>
                 <q-btn>Configure</q-btn>
-              </q-item-side>
-              <q-item-side v-if="town.status === 'configured'" >
+              </q-item-section>
+              <q-item-section v-if="town.status === 'configured'" side>
                 <q-btn>Update</q-btn>
-              </q-item-side>
+              </q-item-section>
             </q-item>
             <q-item v-if="towns.items.length === 0">
-              <q-item-main>
-                <q-item-tile label>No town configured yet</q-item-tile>
-              </q-item-main>
+              <q-item-label>No town configured yet</q-item-label>
             </q-item>
           </q-list>
-        </q-tab-pane>
+        </q-tab-panel>
         
-      </q-tabs>
+      </q-tab-panels>
       
     </div>
   </div>

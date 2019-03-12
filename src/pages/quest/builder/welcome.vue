@@ -26,7 +26,7 @@
 
 <script>
 
-import Notification from 'plugins/NotifyHelper'
+import Notification from 'boot/NotifyHelper'
 import QuestService from 'services/QuestService'
 
 export default {
