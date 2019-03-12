@@ -185,7 +185,7 @@
           :label="$t('label.LanguagesPublished')"
         >
           <p v-for="lang in form.fields.languages" :key="lang.lang">
-            <q-toggle v-model="lang.published" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
+            <q-toggle :disable="quest.status === 'tovalidate'" v-model="lang.published" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
           </p>
         </q-field>
         

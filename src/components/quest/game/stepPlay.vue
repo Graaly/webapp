@@ -575,7 +575,6 @@ export default {
             }
           }
         } else {
-console.log("No duration 2")
           // no background on some steps to display camera stream
           if (this.step.type && this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker' && this.step.id !== 'sensor') {        
             background.style.background = 'none'

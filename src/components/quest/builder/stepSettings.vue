@@ -526,7 +526,7 @@
         <div v-if="options.type.code === 'memory'">
           <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
         </div>
-        <div v-if="options.type.code === 'info-text'">
+        <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
           <q-input v-model="selectedStep.form.options.initDuration" :float-label="$t('label.DurationBeforeTextAppearAbovePicture')" />
         </div>
         <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
@@ -892,7 +892,7 @@ export default {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.selectedStep.form.answers = ""
         }
-      } else if (this.options.type.code === 'info-text') {
+      } else if (this.options.type.code === 'info-text' || this.options.type.code === 'character' || this.options.type.code === 'choose' || this.options.type.code === 'write-text' || this.options.type.code === 'code-keypad') {
         if (!this.selectedStep.form.options.hasOwnProperty('initDuration')) {
           this.selectedStep.form.options = { initDuration: 1 }
         }
