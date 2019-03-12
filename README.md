@@ -168,7 +168,7 @@ Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to ea
 
 # COMMON ISSUES
 
-## Cordova Android Build unsuccessfull
+## Cordova Android Build unsuccessful
 
 ### Error message `Failed to execute aapt` 
 
@@ -180,7 +180,8 @@ Add in the `allprojects` section of the `/src-cordova/platforms/android/build.gr
         }
     }
 
-### Error `Element uses-feature#android.hardware.camera at AndroidManifest.xml:39:5-60 duplicated with element declared at AndroidManifest.xml:36:5-84`
+### Error "Element ... at  AndroidManifest.xml:... duplicated with element declared at  AndroidManifest.xml:..."
+`Element uses-feature#android.hardware.camera at AndroidManifest.xml:39:5-60 duplicated with element declared at AndroidManifest.xml:36:5-84`
 `C:\...\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml Error: Validation failed, exiting`
 
 See https://stackoverflow.com/a/51788464/488666
