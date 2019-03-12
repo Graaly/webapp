@@ -28,6 +28,8 @@
           :options="[
             {label: 'France', value: 'fr'}
           ]"
+          emit-value
+          map-options
         />
         
         <div>
@@ -79,6 +81,8 @@
               {label: 'Cimetery', value: 'cimetary'},
               {label: 'Shop', value: 'shop'},
             ]"
+            emit-value
+            map-options
           />
           <div class="row">
             <div class="col-6">
