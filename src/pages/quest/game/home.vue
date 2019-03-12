@@ -7,7 +7,7 @@
       <div class="fit" :style="'background: url(' + ((quest.picture && quest.picture[0] === '_') ? 'statics/images/quest/' + quest.picture : serverUrl + '/upload/quest/' + quest.picture) + ' ) center center / cover no-repeat '" v-touch-swipe.horizontal="swipeMgmt">
         <div class="fit">
           <div class="text-center bottom-dark-banner">
-            <div v-if="quest.version !== 'draft'" class="bg-tertiary centered q-pa-sm">
+            <div v-if="quest.version !== 'draft'" class="bg-accent centered q-pa-sm">
               {{ $t('label.QuestDraftVersion') }}
             </div>
             <div class="title" @click="restartStory()">

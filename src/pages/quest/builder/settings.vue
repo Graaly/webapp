@@ -1,7 +1,7 @@
 <template>
   <div id="scrollpage" :class="{'bg-white': !chapters.showNewStepOverview}">
     <!------------------ NEW RELEASE BUTTON ---------->
-    <div v-if="readOnly && (quest.status === 'published' || quest.status === 'unpublished')" class="centered bg-tertiary text-white q-pa-md" @click="createNewVersion()">
+    <div v-if="readOnly && (quest.status === 'published' || quest.status === 'unpublished')" class="centered bg-accent text-white q-pa-md" @click="createNewVersion()">
       {{ $t('label.ClickHereToCreateANewQuestVersion') }}
     </div>
     
