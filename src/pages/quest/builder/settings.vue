@@ -160,8 +160,8 @@
               <div v-for="step in chapter.steps" :key="step._id">
                 <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
                 <span @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
-                <q-btn v-if="!readOnly" class="float-right" @click="removeStep(step.stepId)"><q-icon name="delete" /></q-btn>
-                <q-btn v-if="!readOnly" class="float-right" @click="modifyStep(step)"><q-icon name="mode edit" /></q-btn>
+                <q-btn v-if="!readOnly" class="float-right" icon="delete" dense @click="removeStep(step.stepId)" />
+                <q-btn v-if="!readOnly" class="float-right" icon="mode_edit" dense @click="modifyStep(step)" />
               </div>
             </div>
           </li>
@@ -225,11 +225,13 @@
               type="text"
               :label="$t('label.InviteEditors')"
               v-model="editor.new.email"
-              :after="[{icon: 'add_circle', handler () {addEditor()}}]"
               bottom-slots
               :error="!editor.new.isExisting"
               :error-message="$t('label.UserIsNotAGraalyUser')"
               >
+              <template v-slot:after>
+                <q-btn icon="add_circle" color="primary" flat round dense @click="addEditor()" />
+              </template>
               <template v-slot:hint>
                 {{ $t('label.InviteEditorsHelp') }}
               </template>
