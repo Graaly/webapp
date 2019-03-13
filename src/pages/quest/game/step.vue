@@ -4,7 +4,7 @@
     <div class="centered bg-warning q-pa-sm" v-if="warnings.stepDataMissing" @click="initData()">
       <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
     </div>
-    <div class="bg-tertiary text-white q-pa-md" v-if="warnings.isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
+    <div class="bg-accent text-white q-pa-md" v-if="warnings.isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     
     <stepPlay :step="step" :runId="run._id" :itemUsed="selectedItem" :reload="loadStepData" :lang="lang" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
       

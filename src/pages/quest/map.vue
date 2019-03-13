@@ -422,16 +422,20 @@
           <q-infinite-scroll @load="loadNews">
             <q-list highlight>
               <q-item v-for="(item, index) in friends.news.items" :key="item._id">
-                <q-item-section avatar v-if="item.data.picture && item.data.picture.indexOf('http') !== -1"><img :src="item.data.picture" /></q-item-section>
-                <q-item-section avatar v-if="item.data.picture && item.data.picture.indexOf('http') === -1"><img :src="serverUrl + '/upload/profile/' + item.data.picture" /></q-item-section>
-                <q-item-section avatar v-if="!item.data.picture"><img src="statics/icons/game/profile-small.png" /></q-item-section>
+                <q-item-section avatar>
+                  <q-avatar>
+                    <img v-if="item.data.picture && item.data.picture.indexOf('http') !== -1" :src="item.data.picture" />
+                    <img v-if="item.data.picture && item.data.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + item.data.picture" />
+                    <img v-if="!item.data.picture" src="statics/icons/game/profile-small.png" />
+                  </q-avatar>
+                </q-item-section>
                 <q-item-section>
-                  <q-item-label header v-if="item.data && item.data.userId">{{ item.data.name }}</q-item-label>
-                  <q-item-label header v-if="item.type === 'standard'">
+                  <q-item-label v-if="item.data && item.data.userId"><strong>{{ item.data.name }}</strong></q-item-label>
+                  <q-item-label v-if="item.type === 'standard'">
                     {{ item.title }}
                   </q-item-label>
-                  <q-item-label header v-if="item.type !== 'standard'">
-                    <p v-html="$t('news.' + item.type, item.data)"></p>
+                  <q-item-label v-if="item.type !== 'standard'">
+                    <span v-html="$t('news.' + item.type, item.data)"></span>
                     <span v-if="item.type === 'challengeWon'">{{ $t('challenge.' + item.data.name) }}</span>
                   </q-item-label>
                   <q-item-label caption>
@@ -464,21 +468,22 @@
         
         <q-tab-panel name="pro">
           <div v-if="!pro.showContact">
-            <q-card class="q-ma-sm" @click.native="pro.showContact = true">
-              <img src="statics/icons/game/storekeeper.jpg">
-
-              <q-card-section>
-                <div class="text-h6">{{ $t('label.Storekeeper') }}</div>
-                <div class="text-subtitle2">{{ $t('label.StorekeeperDesc') }}</div>
-              </q-card-section>
+            <q-card class="q-mb-md" @click.native="pro.showContact = true">
+              <q-img src="statics/icons/game/storekeeper.jpg">
+                <div class="absolute-bottom">
+                  <div class="text-h6">{{ $t('label.Storekeeper') }}</div>
+                  <div class="text-subtitle2">{{ $t('label.StorekeeperDesc') }}</div>
+                </div>
+              </q-img>
             </q-card>
-            <q-card class="q-ma-sm" @click.native="pro.showContact = true">
-              <img src="statics/icons/game/tourism.jpg">
-
-              <q-card-section>
-                <div class="text-h6">{{ $t('label.TourismProfessional') }}</div>
-                <div class="text-subtitle2">{{ $t('label.TourismProfessionalDesc') }}</div>
-              </q-card-section>
+            
+            <q-card @click.native="pro.showContact = true">
+              <q-img src="statics/icons/game/tourism.jpg">
+                <div class="absolute-bottom">
+                  <div class="text-h6">{{ $t('label.TourismProfessional') }}</div>
+                  <div class="text-subtitle2">{{ $t('label.TourismProfessionalDesc') }}</div>
+                </div>
+              </q-img>
             </q-card>
           </div>
           <div v-if="pro.showContact">
@@ -628,9 +633,17 @@
     <!--====================== ADD FRIEND PAGE =================================-->
     
     <q-dialog v-model="friends.new.show" class="over-map">
-      <a class="float-right no-underline q-pa-md" color="grey" @click="closeAddFriends"><q-icon name="close" class="medium-icon" /></a>
-      <h1 class="size-3 q-pl-md">{{ $t('label.AddFriends') }}</h1>
-      <newfriend :load="friends.new.show" @close="closeAddFriends" @friendadded="updateFriendsActivity"></newfriend>
+      <q-card>
+        <q-card-section class="row items-center">
+          <h1 class="size-3 q-pl-md">{{ $t('label.AddFriends') }}</h1>
+          <q-space />
+          <q-btn icon="close" flat round dense @click="closeAddFriends" />
+        </q-card-section>
+        
+        <q-card-section>
+          <newfriend :load="friends.new.show" @close="closeAddFriends" @friendadded="updateFriendsActivity"></newfriend>
+        </q-card-section>
+      </q-card>
     </q-dialog>
     
     <!--====================== SHOP PAGE =================================-->
@@ -643,58 +656,62 @@
     
     <!--====================== RANKING PAGE =================================-->
     
-    <q-dialog v-model="ranking.show" class="over-map">
-      <div class="centered bg-warning q-pa-sm" v-if="warnings.rankingMissing" @click="getRanking">
-        <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
-      </div>
-      <a class="float-right no-underline q-pa-md" color="grey" @click="closeRanking"><q-icon name="close" class="medium-icon" /></a>
-      <h1 class="size-3 q-pl-md">{{ $t('label.YourRanking') }}</h1>
-      <q-list>
-        <q-item-label>{{ $t("label.Level") }}</q-item-label>
-        <q-item multiline>
-          <q-item-section><q-icon name="trending_up" color="primary" /></q-item-section>
-          <q-item-section>
-            <q-item-label>{{ $t('label.MyLevel') }}: {{ $store.state.user.level }}</q-item-label>
-            <q-item-label caption>{{ $t('label.ReachScoreOf', {score: profile.level.max}) }}</q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-linear-progress :percentage="profile.level.progress" color="primary" height="18px" style="width: 75px" />
-          </q-item-section>
-        </q-item>
-      </q-list>
-      <q-list v-if="$store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings">
-        <q-item-label>{{ $t("label.Rankings") }}</q-item-label>
-        <q-item>
-          <q-item-section><q-icon name="public" color="primary" /></q-item-section>
-          <q-item-label>{{ $t('label.YourWorldRanking') + ': ' + $store.state.user.statistics.rankings.world }}</q-item-label>
-        </q-item>
-        <q-item>
-          <q-item-section><q-icon name="home" color="primary" /></q-item-section>
-          <q-item-label>{{ $t('label.YourCityRanking') + ': ' + $store.state.user.statistics.rankings.town}}</q-item-label>
-        </q-item>
-      </q-list>
-      <q-list v-if="success.ranking && success.ranking.length > 0">
-        <q-item-label>{{ $t("label.TerritoriesWon") }}</q-item-label>
-        <q-item v-for="(item, index) in success.ranking" :key="index">
-          <q-item-section v-if="item.playedNb < item.totalNb">
-            <q-icon name="flag" size="2rem" color="grey" />
-          </q-item-section>
-          <q-item-section v-if="item.playedNb >= item.totalNb">
-            <q-icon name="flag" size="2rem" color="primary" />
-          </q-item-section>
-          <q-item-label>{{ item.town }}</q-item-label>
-          <q-item-section side v-if="item.playedNb < item.totalNb">
-            <q-linear-progress :percentage="parseInt((item.playedNb / item.totalNb) * 100, 10)" color="primary" height="18px" style="width: 75px" />
-          </q-item-section>
-        </q-item>
-        <q-item>
-        {{ $t("label.PlayAllQuestsInACityToWin") }}
-        </q-item>
-      </q-list>
-      
-      <p v-if="!($store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings) && !(success.ranking && success.ranking.length > 0)">
-        {{ $t("label.NoRankingYet") }}
-      </p>
+    <q-dialog maximized v-model="ranking.show" class="over-map">
+      <q-card>
+        <q-card-section class="row items-center">
+          <h1 class="size-3 q-pl-md">{{ $t('label.YourRanking') }}</h1>
+          <q-space />
+          <q-btn icon="close" flat round dense @click="closeRanking" />
+        </q-card-section>
+        <q-card-section class="centered bg-warning q-pa-sm" v-if="warnings.rankingMissing" @click="getRanking">
+          <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+        </q-card-section>
+        <q-card-section>
+          <q-list>
+            <q-item-label header>{{ $t("label.Level") }}</q-item-label>
+            <q-item multiline>
+              <q-item-section avatar><q-icon name="trending_up" color="primary" /></q-item-section>
+              <q-item-section>
+                <q-item-label>{{ $t('label.MyLevel') }}: {{ $store.state.user.level }}</q-item-label>
+                <q-item-label caption>{{ $t('label.ReachScoreOf', {score: profile.level.max}) }}</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-linear-progress :percentage="profile.level.progress" color="primary" height="18px" style="width: 75px" />
+              </q-item-section>
+            </q-item>
+          </q-list>
+          <q-list v-if="$store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings">
+            <q-item-label header>{{ $t("label.Rankings") }}</q-item-label>
+            <q-item>
+              <q-item-section avatar><q-icon name="public" color="primary" /></q-item-section>
+              <q-item-label>{{ $t('label.YourWorldRanking') + ': ' + $store.state.user.statistics.rankings.world }}</q-item-label>
+            </q-item>
+            <q-item>
+              <q-item-section avatar><q-icon name="home" color="primary" /></q-item-section>
+              <q-item-label>{{ $t('label.YourCityRanking') + ': ' + $store.state.user.statistics.rankings.town}}</q-item-label>
+            </q-item>
+          </q-list>
+          <q-list v-if="success.ranking && success.ranking.length > 0">
+            <q-item-label header>{{ $t("label.TerritoriesWon") }}</q-item-label>
+            <q-item v-for="(item, index) in success.ranking" :key="index">
+              <q-item-section avatar>
+                <q-icon v-if="item.playedNb < item.totalNb" name="flag" size="2rem" color="grey" />
+                <q-icon v-if="item.playedNb >= item.totalNb" name="flag" size="2rem" color="primary" />
+              </q-item-section>
+              <q-item-label>{{ item.town }}</q-item-label>
+              <q-item-section side v-if="item.playedNb < item.totalNb">
+                <q-linear-progress :percentage="parseInt((item.playedNb / item.totalNb) * 100, 10)" color="primary" height="18px" style="width: 75px" />
+              </q-item-section>
+            </q-item>
+            <q-item>
+            {{ $t("label.PlayAllQuestsInACityToWin") }}
+            </q-item>
+          </q-list>
+        </q-card-section>
+        <q-card-section v-if="!($store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings) && !(success.ranking && success.ranking.length > 0)">
+          {{ $t("label.NoRankingYet") }}
+        </q-card-section>
+      </q-card>
     </q-dialog>
     
     <!--====================== BOTTOM BAR =================================-->

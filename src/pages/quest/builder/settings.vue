@@ -29,18 +29,24 @@
       <!------------------ LANGUAGES TAB ------------------------>
         
       <q-tab-panel name="languages" class="q-pa-md">
-        <div>
-          <q-icon name="language" />
-          <p>{{ $t('label.SelectedLanguage') }}</p>
-          <p>{{ $t('label.SelectTheLanguageAndClickOnNextButton') }}</p>
-          <q-option-group
-            type="radio"
-            color="primary"
-            v-model="languages.current"
-            :options="form.languages"
-            :disable="readOnly"
-          />
-        </div>
+        
+        <q-item>
+          <q-item-section side top>
+            <q-icon name="language" class="left-icon" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="big-label">{{ $t('label.SelectedLanguage') }}</q-item-label>
+            <q-option-group
+              type="radio"
+              color="primary"
+              v-model="languages.current"
+              :options="form.languages"
+              :disable="readOnly"
+            />
+            <q-item-label caption>{{ $t('label.SelectTheLanguageAndClickOnNextButton') }}</q-item-label>
+          </q-item-section>
+        </q-item>
+        
         <q-btn big :disabled="readOnly" class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" />
         <p class="centered q-pa-md" v-if="quest.status !== 'published'">
           <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
@@ -154,8 +160,8 @@
               <div v-for="step in chapter.steps" :key="step._id">
                 <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
                 <span @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
-                <q-btn v-if="!readOnly" class="float-right" @click="removeStep(step.stepId)"><q-icon name="delete" /></q-btn>
-                <q-btn v-if="!readOnly" class="float-right" @click="modifyStep(step)"><q-icon name="mode edit" /></q-btn>
+                <q-btn v-if="!readOnly" class="float-right" icon="delete" dense @click="removeStep(step.stepId)" />
+                <q-btn v-if="!readOnly" class="float-right" icon="mode_edit" dense @click="modifyStep(step)" />
               </div>
             </div>
           </li>
@@ -192,42 +198,59 @@
           <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
         </p>
         
-        <div>
-          <q-icon name="visibility" />
-          <p>$t('label.LanguagesPublished')</p>
-          <p>$t('label.ActivateTheLanguageVisible')</p>
-          <p v-for="lang in form.fields.languages" :key="lang.lang">
-            <q-toggle :disable="quest.status === 'tovalidate'" v-model="lang.published" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
-          </p>
-        </div>
+        <q-item>
+          <q-item-section side top>
+            <q-icon name="visibility" class="left-icon" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="big-label">{{ $t('label.LanguagesPublished') }}</q-item-label>
+            <p v-for="lang in form.fields.languages" :key="lang.lang">
+              <q-toggle :disable="quest.status === 'tovalidate'" v-model="lang.published" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
+            </p>
+            <q-item-label caption>{{ $t('label.ActivateTheLanguageVisible') }}</q-item-label>
+          </q-item-section>
+        </q-item>
         
-        <div>
-          <q-icon name="people" />
-          <p>$t('label.Editors')</p>
-          <p>$t('label.InviteEditorsHelp')</p>
-          <p v-for="item in editor.items" :key="item.id">
-            <q-toggle v-model="item.checked" :label="item.name" @input="removeEditor(item.id)" />
-          </p>
-          <p v-if="warnings.editorsMissing">{{ $t('label.TechnicalIssue') }}</p>
-          <q-input
-            type="text"
-            :label="$t('label.InviteEditors')"
-            v-model="editor.new.email"
-            :after="[{icon: 'add_circle', handler () {addEditor()}}]"
-            bottom-slots
-            :error="!editor.new.isExisting"
-            :error-message="$t('label.UserIsNotAGraalyUser')"
-            />
-        </div>
+        <q-item>
+          <q-item-section side top>
+            <q-icon name="people" class="left-icon" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="big-label">{{ $t('label.Editors') }}</q-item-label>
+            <p v-for="item in editor.items" :key="item.id">
+              <q-toggle v-model="item.checked" :label="item.name" @input="removeEditor(item.id)" />
+            </p>
+            <p v-if="warnings.editorsMissing">{{ $t('label.TechnicalIssue') }}</p>
+            <q-input
+              type="text"
+              :label="$t('label.InviteEditors')"
+              v-model="editor.new.email"
+              bottom-slots
+              :error="!editor.new.isExisting"
+              :error-message="$t('label.UserIsNotAGraalyUser')"
+              >
+              <template v-slot:after>
+                <q-btn icon="add_circle" color="primary" flat round dense @click="addEditor()" />
+              </template>
+              <template v-slot:hint>
+                {{ $t('label.InviteEditorsHelp') }}
+              </template>
+            </q-input>
+          </q-item-section>
+        </q-item>
         
-        <div v-if="quest.hasLocateMarkerSteps">
-          <q-icon name="fa fa-qrcode" />
-          <p>{{ $t('label.MarkersFile') }}</p>
-          <!-- for webapp mode -->
-          <q-btn v-if="!isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" type="a" href="statics/markers/all.pdf" download />
-          <!-- for hybrid mode -->
-          <q-btn v-if="isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" @click="downloadMarkers()" />
-        </div>
+        <q-item>
+          <q-item-section side top>
+            <q-icon name="fa fa-qrcode" class="left-icon" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="big-label">{{ $t('label.MarkersFile') }}</q-item-label>
+            <!-- for webapp mode -->
+            <q-btn v-if="!isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" type="a" href="statics/markers/all.pdf" download />
+            <!-- for hybrid mode -->
+            <q-btn v-if="isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" @click="downloadMarkers()" />
+          </q-item-section>
+        </q-item>
         
         <p class="centered q-pa-md" v-if="quest.status !== 'published'">
           <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
