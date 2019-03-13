@@ -468,21 +468,22 @@
         
         <q-tab-panel name="pro">
           <div v-if="!pro.showContact">
-            <q-card class="q-ma-sm" @click.native="pro.showContact = true">
-              <img src="statics/icons/game/storekeeper.jpg">
-
-              <q-card-section>
-                <div class="text-h6">{{ $t('label.Storekeeper') }}</div>
-                <div class="text-subtitle2">{{ $t('label.StorekeeperDesc') }}</div>
-              </q-card-section>
+            <q-card class="q-mb-md" @click.native="pro.showContact = true">
+              <q-img src="statics/icons/game/storekeeper.jpg">
+                <div class="absolute-bottom">
+                  <div class="text-h6">{{ $t('label.Storekeeper') }}</div>
+                  <div class="text-subtitle2">{{ $t('label.StorekeeperDesc') }}</div>
+                </div>
+              </q-img>
             </q-card>
-            <q-card class="q-ma-sm" @click.native="pro.showContact = true">
-              <img src="statics/icons/game/tourism.jpg">
-
-              <q-card-section>
-                <div class="text-h6">{{ $t('label.TourismProfessional') }}</div>
-                <div class="text-subtitle2">{{ $t('label.TourismProfessionalDesc') }}</div>
-              </q-card-section>
+            
+            <q-card @click.native="pro.showContact = true">
+              <q-img src="statics/icons/game/tourism.jpg">
+                <div class="absolute-bottom">
+                  <div class="text-h6">{{ $t('label.TourismProfessional') }}</div>
+                  <div class="text-subtitle2">{{ $t('label.TourismProfessionalDesc') }}</div>
+                </div>
+              </q-img>
             </q-card>
           </div>
           <div v-if="pro.showContact">

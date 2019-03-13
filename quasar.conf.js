@@ -104,6 +104,7 @@ module.exports = function (ctx) {
         'QDrawer',
         'QExpansionItem',
         'QIcon',
+        'QImg',
         'QInfiniteScroll',
         'QInput', 
         'QItem',
