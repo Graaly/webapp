@@ -93,6 +93,7 @@ module.exports = function (ctx) {
         'QBtnDropdown',
         'QBtnGroup',
         'QCard',
+        'QCardActions',
         'QCardSection',
         'QCarousel',
         'QCarouselControl',
