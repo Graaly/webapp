@@ -422,16 +422,20 @@
           <q-infinite-scroll @load="loadNews">
             <q-list highlight>
               <q-item v-for="(item, index) in friends.news.items" :key="item._id">
-                <q-item-section avatar v-if="item.data.picture && item.data.picture.indexOf('http') !== -1"><img :src="item.data.picture" /></q-item-section>
-                <q-item-section avatar v-if="item.data.picture && item.data.picture.indexOf('http') === -1"><img :src="serverUrl + '/upload/profile/' + item.data.picture" /></q-item-section>
-                <q-item-section avatar v-if="!item.data.picture"><img src="statics/icons/game/profile-small.png" /></q-item-section>
+                <q-item-section avatar>
+                  <q-avatar>
+                    <img v-if="item.data.picture && item.data.picture.indexOf('http') !== -1" :src="item.data.picture" />
+                    <img v-if="item.data.picture && item.data.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + item.data.picture" />
+                    <img v-if="!item.data.picture" src="statics/icons/game/profile-small.png" />
+                  </q-avatar>
+                </q-item-section>
                 <q-item-section>
-                  <q-item-label header v-if="item.data && item.data.userId">{{ item.data.name }}</q-item-label>
-                  <q-item-label header v-if="item.type === 'standard'">
+                  <q-item-label v-if="item.data && item.data.userId"><strong>{{ item.data.name }}</strong></q-item-label>
+                  <q-item-label v-if="item.type === 'standard'">
                     {{ item.title }}
                   </q-item-label>
-                  <q-item-label header v-if="item.type !== 'standard'">
-                    <p v-html="$t('news.' + item.type, item.data)"></p>
+                  <q-item-label v-if="item.type !== 'standard'">
+                    <span v-html="$t('news.' + item.type, item.data)"></span>
                     <span v-if="item.type === 'challengeWon'">{{ $t('challenge.' + item.data.name) }}</span>
                   </q-item-label>
                   <q-item-label caption>
@@ -628,9 +632,17 @@
     <!--====================== ADD FRIEND PAGE =================================-->
     
     <q-dialog v-model="friends.new.show" class="over-map">
-      <a class="float-right no-underline q-pa-md" color="grey" @click="closeAddFriends"><q-icon name="close" class="medium-icon" /></a>
-      <h1 class="size-3 q-pl-md">{{ $t('label.AddFriends') }}</h1>
-      <newfriend :load="friends.new.show" @close="closeAddFriends" @friendadded="updateFriendsActivity"></newfriend>
+      <q-card>
+        <q-card-section class="row items-center">
+          <h1 class="size-3 q-pl-md">{{ $t('label.AddFriends') }}</h1>
+          <q-space />
+          <q-btn icon="close" flat round dense @click="closeAddFriends" />
+        </q-card-section>
+        
+        <q-card-section>
+          <newfriend :load="friends.new.show" @close="closeAddFriends" @friendadded="updateFriendsActivity"></newfriend>
+        </q-card-section>
+      </q-card>
     </q-dialog>
     
     <!--====================== SHOP PAGE =================================-->

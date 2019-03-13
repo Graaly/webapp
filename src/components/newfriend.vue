@@ -15,12 +15,14 @@
           <q-list highlight>
             <q-item v-for="contact in validatedContacts" :key="contact._id">
               <q-item-section avatar>
-                <img v-if="contact.picture && contact.picture !== '' && contact.picture.indexOf('http') !== -1" :src="contact.picture" />
-                <img v-if="contact.picture && contact.picture !== '' && contact.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + contact.picture" />
-                <img v-if="!contact.picture || contact.picture === ''" src="statics/icons/game/profile-small.png" />
+                <q-avatar>
+                  <img v-if="contact.picture && contact.picture !== '' && contact.picture.indexOf('http') !== -1" :src="contact.picture" />
+                  <img v-if="contact.picture && contact.picture !== '' && contact.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + contact.picture" />
+                  <img v-if="!contact.picture || contact.picture === ''" src="statics/icons/game/profile-small.png" />
+                </q-avatar>
               </q-item-section>
-              <q-item-label>{{ contact.name }}</q-item-label>
-              <q-item-section side>
+              <q-item-section>
+                <q-item-label>{{ contact.name }}</q-item-label>
                 <q-btn :label="$t('label.Add')" @click="addFriend(contact._id)" />
               </q-item-section>
             </q-item>
@@ -90,7 +92,8 @@ export default {
       validatedContacts: null,
       serverUrl: process.env.SERVER_URL,
       submitting: false,
-      console: ''
+      console: '',
+      newFriendTab: "suggestions"
     }
   },
   async mounted() {
