@@ -91,7 +91,7 @@
         <div class="typed-code">
           <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
           <tr>
-            <td v-for="(sign, key) in playerCode":key="key" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
+            <td v-for="(sign, key) in playerCode" :key="key" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
           </tr>
           </table>
         </div>
@@ -356,7 +356,7 @@ import modelsList from 'data/3DModels.json'
 import markersList from 'data/markers.json'
 import layersForMarkers from 'data/layersForMarkers.json'
 
-import Notification from 'plugins/NotifyHelper'
+import Notification from 'boot/NotifyHelper'
 
 import geolocation from 'components/geolocation'
 import story from 'components/story'

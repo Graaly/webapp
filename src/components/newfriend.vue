@@ -1,42 +1,42 @@
 <template>
   <div>
-    <q-tabs>
-      <q-tab default slot="title" name="suggestions" :label="$t('label.Suggestions')" />
-      <q-tab slot="title" name="addfriends" :label="$t('label.Add')" />
-      
+    <q-tabs v-model="newFriendTab" class="bg-primary text-white">
+      <q-tab name="suggestions" :label="$t('label.Suggestions')" />
+      <q-tab name="addfriends" :label="$t('label.Add')" />
+    </q-tabs>
+    
+    <q-separator />
+    
+    <q-tab-panels v-model="newFriendTab" animated>
       <!-- ========================================== FRIENDS SUGGESTIONS ====================================== -->
       
-      <q-tab-pane name="suggestions">
+      <q-tab-panel name="suggestions">
         <div v-if="validatedContacts && validatedContacts.length > 0">
           <q-list highlight>
             <q-item v-for="contact in validatedContacts" :key="contact._id">
-              <q-item-side>
-                <q-item-tile avatar>
-                  <img v-if="contact.picture && contact.picture !== '' && contact.picture.indexOf('http') !== -1" :src="contact.picture" />
-                  <img v-if="contact.picture && contact.picture !== '' && contact.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + contact.picture" />
-                  <img v-if="!contact.picture || contact.picture === ''" src="statics/icons/game/profile-small.png" />
-                </q-item-tile>
-              </q-item-side>
-              <q-item-main>
-                <q-item-tile>{{ contact.name }}</q-item-tile>
-              </q-item-main>
-              <q-item-side right>
+              <q-item-section avatar>
+                <img v-if="contact.picture && contact.picture !== '' && contact.picture.indexOf('http') !== -1" :src="contact.picture" />
+                <img v-if="contact.picture && contact.picture !== '' && contact.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + contact.picture" />
+                <img v-if="!contact.picture || contact.picture === ''" src="statics/icons/game/profile-small.png" />
+              </q-item-section>
+              <q-item-label>{{ contact.name }}</q-item-label>
+              <q-item-section side>
                 <q-btn :label="$t('label.Add')" @click="addFriend(contact._id)" />
-              </q-item-side>
+              </q-item-section>
             </q-item>
           </q-list>
         </div>
-      </q-tab-pane>
+      </q-tab-panel>
       
       <!-- ========================================== ADD FRIEND MANUALLY ====================================== -->
       
-      <q-tab-pane name="addfriends">
+      <q-tab-panel name="addfriends">
         <form @submit.prevent="formSubmit()" class="q-pt-md">
         
           {{ $t('label.FindWithEmail') }}
           <div class="row q-pb-md">
             <div class="col-8">
-              <q-input color="secondary" type="email" :float-label="$t('label.Email')" v-model="form.email" @blur="$v.form.email.$touch()" />
+              <q-input color="secondary" type="email" :label="$t('label.Email')" v-model="form.email" @blur="$v.form.email.$touch()" />
               <div class="q-field-bottom" v-if="$v.form.email.$error">
                 <div class="q-field-error" v-if="!$v.form.email.email">{{ $t('label.EmailIsNotValid') }}</div>
               </div>
@@ -48,7 +48,7 @@
           {{ $t('label.FindWithPhone') }}
           <div class="row">
             <div class="col-8">
-              <q-input color="secondary" :float-label="$t('label.PhoneNumber')" v-model="form.phone" @blur="$v.form.phone.$touch()" />
+              <q-input color="secondary" :label="$t('label.PhoneNumber')" v-model="form.phone" @blur="$v.form.phone.$touch()" />
               <div class="q-field-bottom" v-if="$v.form.phone.$error">
                 <div class="q-field-error" v-if="!$v.form.phone.checkPhone">{{ $t('label.InvalidPhoneNumber') }}</div>
               </div>
@@ -58,8 +58,8 @@
             </div>
           </div>
         </form>
-      </q-tab-pane>
-    </q-tabs>
+      </q-tab-panel>
+    </q-tab-panels>
 
   </div>
 </template>
@@ -67,8 +67,8 @@
 <script>
 import UserService from 'services/UserService'
 import { email } from 'vuelidate/lib/validators'
-import Notification from 'plugins/NotifyHelper'
-import checkPhone from 'plugins/CheckPhone'
+import Notification from 'boot/NotifyHelper'
+import checkPhone from 'boot/CheckPhone'
 
 export default {
   props: ['load'],

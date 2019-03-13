@@ -25,6 +25,7 @@
         "cordova-plugin-inapppurchase-fixed": "^1.1.2",
         "cordova-plugin-insomnia": "git+https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git",
         "cordova-plugin-network-information": "^2.0.1",
+        "cordova-plugin-platform-replace": "^1.0.0",
         "cordova-plugin-qrscanner": "file:../graaly-cordova-plugins/graaly-marker-scanner",
         "cordova-plugin-splashscreen": "^5.0.2",
         "cordova-plugin-statusbar": "^2.4.2",
@@ -58,7 +59,8 @@
             "graaly-plugin-marker-scanner": {
                 "ANDROID_SUPPORT_V4_VERSION": "27.+"
             },
-            "cordova-plugin-insomnia": {}
+            "cordova-plugin-insomnia": {},
+            "cordova-plugin-platform-replace": {}
         },
         "platforms": [
             "android",

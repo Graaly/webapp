@@ -20,13 +20,13 @@
         
         <div class="q-pa-md centered">
           <p class="centered">{{ $t('label.YourLevel') }} : {{ $store.state.user.level }}</p>
-          <q-progress :percentage="level.progress" height="30px" color="white"></q-progress>
+          <q-linear-progress :percentage="level.progress" height="30px" color="white"></q-linear-progress>
         </div>
               
         <!------------------ CHALLENGE FRIENDS AREA ------------------------>
         
         <div class="q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.score > 0">
-          <q-btn icon="people" color="tertiary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
+          <q-btn icon="people" color="accent" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
         </div>
         
         <!------------------ REVIEW AREA ------------------------>
@@ -82,26 +82,24 @@
         <div class="q-pl-md">{{ $t('label.RankingEndIntro') }}</div>
         <q-list>
           <q-item v-for="rank in ranking.items" :key="rank.id" :class="rank.className" >
-            <q-item-side>
-              <q-item-tile avatar>
-                <img :src="'statics/icons/game/medal-' + rank.position + '.png'">
-              </q-item-tile>
-            </q-item-side>
-            <q-item-main>
-              <q-item-tile label>{{ rank.name }}</q-item-tile>
-              <q-item-tile sublabel>{{ rank.score}} {{ $t('label.points') }}<!--<q-icon name="fas fa-trophy" />--></q-item-tile>
-            </q-item-main>
-            <q-item-side right>
-              <q-item-tile avatar>
+            <q-item-section avatar>
+              <img :src="'statics/icons/game/medal-' + rank.position + '.png'">
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>{{ rank.name }}</q-item-label>
+              <q-item-label caption>{{ rank.score}} {{ $t('label.points') }}<!--<q-icon name="fas fa-trophy" />--></q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-avatar>
                 <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
                 <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
                 <img v-if="!rank.picture || rank.picture === ''" src="statics/icons/game/profile-small.png" />
-              </q-item-tile>
-            </q-item-side>
-            <q-item-side right v-if="!rank.isFriend && rank.id !== $store.state.user._id" @click.native="addFriend(rank.id)">
-              <q-item-tile icon="person_add" color="primary" />
-            </q-item-side>
-            <q-item-side right v-if="rank.isFriend"></q-item-side>
+              </q-avatar>
+            </q-item-section>
+            <q-item-section side v-if="!rank.isFriend && rank.id !== $store.state.user._id" @click.native="addFriend(rank.id)">
+              <q-icon name="person_add" color="primary" />
+            </q-item-section>
+            <q-item-section side v-if="rank.isFriend"></q-item-section>
           </q-item>
         </q-list>
         <div class="centered">
@@ -135,19 +133,17 @@
           <div v-if="friends && friends.length !== 0">
             <q-list highlight>
               <q-item v-for="friend in filteredFriends" :key="friend.friendId">
-                <q-item-side>
-                  <q-item-tile avatar>
+                <q-item-section>
+                  <q-avatar>
                     <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') !== -1" :src="friend.picture" />
                     <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + friend.picture" />
                     <img v-if="!friend.picture || friend.picture === ''" src="statics/icons/game/profile-small.png" />
-                  </q-item-tile>
-                </q-item-side>
-                <q-item-main>
-                  <q-item-tile>{{ friend.name }}</q-item-tile>
-                </q-item-main>
-                <q-item-side right>
+                  </q-avatar>
+                </q-item-section>
+                <q-item-label>{{ friend.name }}</q-item-label>
+                <q-item-section side>
                   <q-btn v-show="!friend.isChallenged" color="primary" :label="$t('label.Challenge')" @click="challenge(friend)" />
-                </q-item-side>
+                </q-item-section>
               </q-item>
             </q-list>
           </div>
@@ -162,16 +158,14 @@
         <a class="float-right no-underline" color="grey" @click="closeBonus"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ $t('label.YouWonABonus') }}</h1>
         <div class="q-pa-md">
-          <q-card inline class="q-ma-sm">
-            <q-card-media>
-              <img :src="'statics/icons/game/bonus_' + run.bonus + '.png'">
-            </q-card-media>
-            <q-card-title>
-              {{ $t('bonus.' + run.bonus) }}
-            </q-card-title>
-            <q-card-main>
+          <q-card class="q-ma-sm">
+            <img :src="'statics/icons/game/bonus_' + run.bonus + '.png'">
+            <q-card-section>
+              <div class="text-h6">{{ $t('bonus.' + run.bonus) }}</div>
+            </q-card-section>
+            <q-card-section>
               {{ $t('bonus.' + run.bonus + 'Desc') }}
-            </q-card-main>
+            </q-card-section>
           </q-card>
         </div>
       </div>
@@ -195,8 +189,8 @@ import QuestService from 'services/QuestService'
 import ReviewService from 'services/ReviewService'
 import RunService from 'services/RunService'
 import UserService from 'services/UserService'
-import LevelCompute from 'plugins/LevelCompute'
-import Notification from 'plugins/NotifyHelper'
+import LevelCompute from 'boot/LevelCompute'
+import Notification from 'boot/NotifyHelper'
 //import { filter } from 'quasar'
 import Vue from 'vue'
 import story from 'components/story'

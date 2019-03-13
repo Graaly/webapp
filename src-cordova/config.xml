@@ -28,6 +28,7 @@
         <splash density="port-ldpi" src="res/screen/android/screen-ldpi-portrait.png" />
         <splash density="port-mdpi" src="res/screen/android/screen-mdpi-portrait.png" />
         <splash density="port-xhdpi" src="res/screen/android/screen-xhdpi-portrait.png" />
+        <replace-string file="project.properties" find="regex:com\.facebook\.android\:facebook-android-sdk\:[\+0-9\.]+" replace="com.facebook.android:facebook-android-sdk:4.25.0" />
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
@@ -100,6 +101,7 @@
         <variable name="ANDROID_SUPPORT_V4_VERSION" value="27.+" />
     </plugin>
     <plugin name="cordova-plugin-insomnia" spec="https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git" />
+    <plugin name="cordova-plugin-platform-replace" spec="^1.0.0" />
     <engine name="android" spec="^7.0.0" />
     <engine name="ios" spec="^4.5.5" />
 </widget>

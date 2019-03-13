@@ -6,8 +6,8 @@ var fs = require('fs')
 
 module.exports = function (ctx) {
   return {
-    // app plugins (/src/plugins)
-    plugins: [
+    // app boot (/src/boot)
+    boot: [
       'DateFormatFilter',
       'RouterAuthentication',
       'VueGoogleMaps',
@@ -19,11 +19,11 @@ module.exports = function (ctx) {
       'app.styl'
     ],
     extras: [
-      ctx.theme.mat ? 'roboto-font' : null,
+      'roboto-font',
       'material-icons', // optional, you are not bound to it
-      // 'ionicons',
-      // 'mdi',
-      'fontawesome'
+      // 'ionicons-v4',
+      // 'mdi-v3',
+      'fontawesome-v5'
     ],
     supportIE: false,
     build: {
@@ -86,62 +86,50 @@ module.exports = function (ctx) {
     // framework: 'all' --- includes everything; for dev only!
     framework: {
       components: [
-        'QAlert',
-        'QAutocomplete',
+        //'QAutocomplete',
+        'QAvatar',
+        'QBanner',
         'QBtn',
         'QBtnDropdown',
         'QBtnGroup',
         'QCard',
-        'QCardMain',
-        'QCardMedia',
-        'QCardTitle',
+        'QCardSection',
         'QCarousel',
-        'QCarouselSlide',
         'QCarouselControl',
+        'QCarouselSlide',
         'QCheckbox',
-        'QChip',
-        'QChipsInput',
-        'QCollapsible',
-        'QField', 
+        //'QChip',
+        //'QChipsInput',
+        'QDialog',
+        'QDrawer',
+        'QExpansionItem',
         'QIcon',
         'QInfiniteScroll',
         'QInput', 
         'QItem',
-        'QItemMain',
-        'QItemSide',
-        'QItemSeparator',
-        'QItemTile',
+        'QItemLabel',
+        'QItemSection',
         'QLayout',
-        'QLayoutDrawer',
-        'QLayoutFooter',
-        'QLayoutHeader',
         'QList',
-        'QListHeader',
-        'QModal',
         'QOptionGroup',
         'QPageContainer',
         'QPage',
         'QParallax',
-        'QPopover',
-        'QProgress',
+        'QLinearProgress',
         'QRadio',
         'QRating',
-        'QRouteTab',
-        'QSearch',
         'QSelect',
+        'QSeparator',
         'QSlider',
         'QSpinner',
         'QSpinnerDots',
         'QSpinnerPuff',
         'QSpinnerRadio',
-        'QTabs',
         'QTab',
-        'QTabPane',
-        'QToggle',
-        'QToolbar',
-        'QToolbarTitle',
-        'QTooltip',
-        'QUploader',
+        'QTabs',
+        'QTabPanel',
+        'QTabPanels',
+        'QToggle'
       ],
       directives: [
         'Ripple',
@@ -151,14 +139,12 @@ module.exports = function (ctx) {
       ],
       // Quasar plugins
       plugins: [
-        'ActionSheet',
         'Dialog',
         'Loading',
         'Notify'
       ],
-      iconSet: 'fontawesome',
-      // iconSet: ctx.theme.mat ? 'material-icons' : 'ionicons'
-      // i18n: 'de' // Quasar language
+      iconSet: 'fontawesome-v5',
+      // lang: 'de' // Quasar language
       config: {
         cordova: {
           backButtonExit: false // prevent user to exit if back button on home page

@@ -11,17 +11,21 @@
       <form @submit.prevent="formSubmit()">
         
         <div class="q-pa-lg">
-          <q-field :error="$v.form.email.$error" v-if="step === 'email'">
-            <q-input type="email" dark color="white" :float-label="$t('label.YourEmail')" v-model="form.email" @blur="$v.form.email.$touch" />
-            <div class="q-field-bottom" v-if="$v.form.email.$error">
-              <div class="q-field-error" v-if="!$v.form.email.required">{{ $t('label.PleaseEnterYourEmailAddress') }}</div>
-              <div class="q-field-error" v-if="!$v.form.email.email">{{ $t('label.PleaseEnterAValidEmailAddress') }}</div>
-            </div>
-          </q-field>
-        
-          <q-field v-if="step === 'password'">
-            <q-input type="password" dark color="white" v-model="form.password" :float-label="$t('label.YourPassword')" />
-          </q-field>
+          
+          <q-input
+            v-if="step === 'email'"
+            type="email"
+            dark
+            color="white"
+            :label="$t('label.YourEmail')"
+            v-model="form.email"
+            @blur="$v.form.email.$touch"
+            bottom-slots
+            :error="$v.form.email.$error"
+            :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
+            />
+            
+          <q-input v-if="step === 'password'" type="password" dark color="white" v-model="form.password" :label="$t('label.YourPassword')" />
           
           <!------------------ FORGOTTEN PASS AREA ------------------------>
           
@@ -29,19 +33,23 @@
             <a @click="sendForgottenPasswordCode()">{{ $t('label.ForgottenPassword') }}</a>
           </p>
           
-          <q-field v-if="step === 'forgottenpassword'">
-            {{ $t('label.EnterTheCodeYouReceivedByEmail') }}
-            <q-input :float-label="$t('label.Code')" v-model="form.code" />
-          </q-field>
+          <div v-if="step === 'forgottenpassword'">
+            <p>{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
+            <q-input :label="$t('label.Code')" v-model="form.code" />
+          </div>
           
-          <q-field v-if="step === 'forgottenpassword'">
-            <q-input type="password" dark color="white" v-model="form.newPassword" :float-label="$t('label.YourNewPassword')" @blur="$v.form.newPassword.$touch" />
-            <div class="q-field-bottom" v-if="$v.form.newPassword.$error">
-              <div class="q-field-error" v-if="!$v.form.newPassword.required">{{ $t('label.PleaseEnterYourPassword') }}</div>
-              <div class="q-field-error" v-if="!$v.form.newPassword.minLength">{{ $t('label.YourPasswordMustBe8digitsLength') }}</div>
-              <div class="q-field-error" v-if="!$v.form.newPassword.checkPasswordComplexity">{{ $t('label.PasswordComplexityRule') }}</div>
-            </div>
-          </q-field>
+          <div v-if="step === 'forgottenpassword'">
+            <q-input
+              type="password"
+              dark color="white"
+              v-model="form.newPassword"
+              :label="$t('label.YourNewPassword')"
+              @blur="$v.form.newPassword.$touch"
+              bottom-slots
+              :error="$v.form.newPassword.$error"
+              :error-message="!$v.form.newPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.form.newPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
+              />
+          </div>
         </div>
         
         <p class="text-center multiple-btn margin-size-3 q-mt-lg q-mb-xl">
@@ -69,8 +77,8 @@
 <script>
 import AuthService from 'services/AuthService'
 import { required, minLength, email } from 'vuelidate/lib/validators'
-import checkPasswordComplexity from 'plugins/PasswordComplexity'
-import Notification from 'plugins/NotifyHelper'
+import checkPasswordComplexity from 'boot/PasswordComplexity'
+import Notification from 'boot/NotifyHelper'
 import utils from 'src/includes/utils'
 
 export default {
