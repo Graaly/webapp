@@ -656,7 +656,7 @@
     
     <!--====================== RANKING PAGE =================================-->
     
-    <q-dialog v-model="ranking.show" class="over-map">
+    <q-dialog maximized v-model="ranking.show" class="over-map">
       <q-card>
         <q-card-section class="row items-center">
           <h1 class="size-3 q-pl-md">{{ $t('label.YourRanking') }}</h1>
