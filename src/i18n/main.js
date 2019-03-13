@@ -873,7 +873,7 @@ module.exports = {
       AccountModifiedLong: "Votre compte a été modifié. Si vous avez modifié votre adresse email, un message vient de vous être envoyé sur cette adresse pour la confirmer.",
       SignOut: "Déconnexion",
       HowTo: "Comment faire ?",
-      ReachScoreOf: "Atteignez une score de {score} pour débloquer de nouvelles énigmes",
+      ReachScoreOf: "Atteignez un score de {score} pour débloquer de nouvelles énigmes",
       MyLevel: "Mon niveau",
       Difficulty: "Difficulté",
       Normal: "Normal",

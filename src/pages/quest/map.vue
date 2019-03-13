@@ -657,57 +657,61 @@
     <!--====================== RANKING PAGE =================================-->
     
     <q-dialog v-model="ranking.show" class="over-map">
-      <div class="centered bg-warning q-pa-sm" v-if="warnings.rankingMissing" @click="getRanking">
-        <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
-      </div>
-      <a class="float-right no-underline q-pa-md" color="grey" @click="closeRanking"><q-icon name="close" class="medium-icon" /></a>
-      <h1 class="size-3 q-pl-md">{{ $t('label.YourRanking') }}</h1>
-      <q-list>
-        <q-item-label>{{ $t("label.Level") }}</q-item-label>
-        <q-item multiline>
-          <q-item-section><q-icon name="trending_up" color="primary" /></q-item-section>
-          <q-item-section>
-            <q-item-label>{{ $t('label.MyLevel') }}: {{ $store.state.user.level }}</q-item-label>
-            <q-item-label caption>{{ $t('label.ReachScoreOf', {score: profile.level.max}) }}</q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-linear-progress :percentage="profile.level.progress" color="primary" height="18px" style="width: 75px" />
-          </q-item-section>
-        </q-item>
-      </q-list>
-      <q-list v-if="$store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings">
-        <q-item-label>{{ $t("label.Rankings") }}</q-item-label>
-        <q-item>
-          <q-item-section><q-icon name="public" color="primary" /></q-item-section>
-          <q-item-label>{{ $t('label.YourWorldRanking') + ': ' + $store.state.user.statistics.rankings.world }}</q-item-label>
-        </q-item>
-        <q-item>
-          <q-item-section><q-icon name="home" color="primary" /></q-item-section>
-          <q-item-label>{{ $t('label.YourCityRanking') + ': ' + $store.state.user.statistics.rankings.town}}</q-item-label>
-        </q-item>
-      </q-list>
-      <q-list v-if="success.ranking && success.ranking.length > 0">
-        <q-item-label>{{ $t("label.TerritoriesWon") }}</q-item-label>
-        <q-item v-for="(item, index) in success.ranking" :key="index">
-          <q-item-section v-if="item.playedNb < item.totalNb">
-            <q-icon name="flag" size="2rem" color="grey" />
-          </q-item-section>
-          <q-item-section v-if="item.playedNb >= item.totalNb">
-            <q-icon name="flag" size="2rem" color="primary" />
-          </q-item-section>
-          <q-item-label>{{ item.town }}</q-item-label>
-          <q-item-section side v-if="item.playedNb < item.totalNb">
-            <q-linear-progress :percentage="parseInt((item.playedNb / item.totalNb) * 100, 10)" color="primary" height="18px" style="width: 75px" />
-          </q-item-section>
-        </q-item>
-        <q-item>
-        {{ $t("label.PlayAllQuestsInACityToWin") }}
-        </q-item>
-      </q-list>
-      
-      <p v-if="!($store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings) && !(success.ranking && success.ranking.length > 0)">
-        {{ $t("label.NoRankingYet") }}
-      </p>
+      <q-card>
+        <q-card-section class="row items-center">
+          <h1 class="size-3 q-pl-md">{{ $t('label.YourRanking') }}</h1>
+          <q-space />
+          <q-btn icon="close" flat round dense @click="closeRanking" />
+        </q-card-section>
+        <q-card-section class="centered bg-warning q-pa-sm" v-if="warnings.rankingMissing" @click="getRanking">
+          <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+        </q-card-section>
+        <q-card-section>
+          <q-list>
+            <q-item-label header>{{ $t("label.Level") }}</q-item-label>
+            <q-item multiline>
+              <q-item-section avatar><q-icon name="trending_up" color="primary" /></q-item-section>
+              <q-item-section>
+                <q-item-label>{{ $t('label.MyLevel') }}: {{ $store.state.user.level }}</q-item-label>
+                <q-item-label caption>{{ $t('label.ReachScoreOf', {score: profile.level.max}) }}</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-linear-progress :percentage="profile.level.progress" color="primary" height="18px" style="width: 75px" />
+              </q-item-section>
+            </q-item>
+          </q-list>
+          <q-list v-if="$store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings">
+            <q-item-label header>{{ $t("label.Rankings") }}</q-item-label>
+            <q-item>
+              <q-item-section avatar><q-icon name="public" color="primary" /></q-item-section>
+              <q-item-label>{{ $t('label.YourWorldRanking') + ': ' + $store.state.user.statistics.rankings.world }}</q-item-label>
+            </q-item>
+            <q-item>
+              <q-item-section avatar><q-icon name="home" color="primary" /></q-item-section>
+              <q-item-label>{{ $t('label.YourCityRanking') + ': ' + $store.state.user.statistics.rankings.town}}</q-item-label>
+            </q-item>
+          </q-list>
+          <q-list v-if="success.ranking && success.ranking.length > 0">
+            <q-item-label header>{{ $t("label.TerritoriesWon") }}</q-item-label>
+            <q-item v-for="(item, index) in success.ranking" :key="index">
+              <q-item-section avatar>
+                <q-icon v-if="item.playedNb < item.totalNb" name="flag" size="2rem" color="grey" />
+                <q-icon v-if="item.playedNb >= item.totalNb" name="flag" size="2rem" color="primary" />
+              </q-item-section>
+              <q-item-label>{{ item.town }}</q-item-label>
+              <q-item-section side v-if="item.playedNb < item.totalNb">
+                <q-linear-progress :percentage="parseInt((item.playedNb / item.totalNb) * 100, 10)" color="primary" height="18px" style="width: 75px" />
+              </q-item-section>
+            </q-item>
+            <q-item>
+            {{ $t("label.PlayAllQuestsInACityToWin") }}
+            </q-item>
+          </q-list>
+        </q-card-section>
+        <q-card-section v-if="!($store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings) && !(success.ranking && success.ranking.length > 0)">
+          {{ $t("label.NoRankingYet") }}
+        </q-card-section>
+      </q-card>
     </q-dialog>
     
     <!--====================== BOTTOM BAR =================================-->

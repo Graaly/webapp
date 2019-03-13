@@ -75,8 +75,9 @@ body {
 .column {
   display: flex;
   flex-flow: column nowrap;
-  /* MP 2018-10-12 causes problem with <q-tab> on Quasar 0.17, icons get aligned to left instead of being centered */
-  /*align-items: stretch;*/
+}
+.q-list .column {
+  align-items: stretch;
 }
 .header {
   width: 100%;
@@ -171,6 +172,12 @@ span .q-icon {
 
 /////////////////////////////// Forms CSS /////////////////////////////////////
 
+.q-item .row {
+  align-items: center;
+}
+.q-item__label--header {
+  font-size: 1.3rem;
+}
 form .q-item__label {
   font-size: 1.3rem;
   margin: 0.5rem 0;
