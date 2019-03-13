@@ -155,5 +155,11 @@ export default {
    */
   removeEditor (questId, version, editorId) {
     return Api().delete('quest/' + questId + '/version/' + version + '/editor/remove/' + editorId)
+  },
+  /*
+   * Check if network is ok
+   */
+  checkNetwork () {
+    return Api().get('check').catch(error => console.log(error.request))
   }
 }

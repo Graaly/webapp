@@ -7,6 +7,8 @@
         <source src="statics/videos/empty.mp4" type="video/mp4" />
       </video>
       -->
+      
+      <div class="bg-tertiary text-white q-pa-md" v-if="isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     
       <!------------------ TRANSITION AREA ------------------------>
       
@@ -455,6 +457,7 @@ export default {
         controlsAreDisplayed: false,
         isHybrid: window.cordova,
         isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
+        isNetworkLow: false,
         
         // for step 'choose'
         answerType: 'text', // 'text' or 'image'
@@ -1087,7 +1090,17 @@ export default {
       if (displaySpinner) {
         this.$q.loading.show()
       }
+      
+      // alert if the network is low
+      var _this = this
+      var lowNetworkTimeout = setTimeout(function () { _this.isNetworkLow = true }, 6000)
+      
       var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData)
+      
+      // clear low network alerte if displayed
+      clearTimeout(lowNetworkTimeout)
+      this.isNetworkLow = false
+      
       if (response && response.data) {
         if (displaySpinner) {
           this.$q.loading.hide()
@@ -2639,12 +2652,11 @@ export default {
   #pieces .piece { 
     display: inline-block; 
     margin: 0px; 
-    padding: 0px; 
-    /*box-shadow: inset 0 0 1px #000; */
+    box-shadow: inset 0 0 3px #666;
     text-align: center; 
     cursor: move; 
     background-repeat: none; 
-  }
+  }  
   
   /* write-text specific */
   

@@ -856,6 +856,7 @@ export default {
         title: this.$t('label.GeolocationFailed'),
         message: this.$t('label.GeolocationFailedDesc')
       })
+      this.$q.loading.hide()
     },
     /*
      * Get the address based on the position
@@ -875,6 +876,7 @@ export default {
           // force field to be refreshed
           document.getElementById("startingplace").value = this.form.fields.startingPlace
         } else {
+          this.$q.loading.hide()
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
       });

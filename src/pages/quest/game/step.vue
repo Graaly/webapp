@@ -4,6 +4,8 @@
     <div class="centered bg-warning q-pa-sm" v-if="warnings.stepDataMissing" @click="initData()">
       <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
     </div>
+    <div class="bg-tertiary text-white q-pa-md" v-if="warnings.isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
+    
     <stepPlay :step="step" :runId="run._id" :itemUsed="selectedItem" :reload="loadStepData" :lang="lang" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
       
     <!------------------ INVENTORY PAGE AREA ------------------------>
@@ -121,6 +123,7 @@ export default {
   mounted () {
     utils.clearAllRunningProcesses()
     this.initData()
+    this.keepScreenAwake()
   },
   methods: {
     initialState () {
@@ -168,7 +171,8 @@ export default {
         warnings: {
           inventoryMissing: false,
           questDataMissing: false,
-          stepDataMissing: false
+          stepDataMissing: false,
+          isNetworkLow: false
         },
         previousStepId: '',
         
@@ -401,14 +405,17 @@ export default {
     async nextStep() {
       // reload step to remove notifications
       this.loadStepData = false
+      this.$q.loading.show()
       
       if (this.canMoveNextStep) {
         /*utils.clearAllRunningProcesses()
         this.resetData()
         await this.initData()
         */
-        this.$router.push('/quest/play/' + this.quest.questId + '/version/' + this.quest.version + '/step/success_' + this.step.id + '/' + this.$route.params.lang)
+        await this.moveToNextStep('success')
+        this.$q.loading.hide()
       } else if (this.canPass) {
+        this.$q.loading.hide()
         this.$q.dialog({
           message: this.$t('label.ConfirmPass'),
           ok: this.$t('label.Ok'),
@@ -416,8 +423,28 @@ export default {
         }).then(async () => {
           await RunService.passStep(this.run._id, this.step.id)
           // TODO: manage if pass failed
-          this.$router.push('/quest/play/' + this.quest.questId + '/version/' + this.quest.version + '/step/pass_' + this.step.id + '/' + this.$route.params.lang)
+          await this.moveToNextStep('pass')
         }).catch(() => {})
+      }
+    },
+    /*
+     * Move to next step
+     */
+    async moveToNextStep(type) {
+      // alert if the network is low
+      var _this = this
+      var lowNetworkAlert = setTimeout(function () { _this.warnings.isNetworkLow = true }, 6000)
+      // check network is ok before moving next step
+      let checkNetwork = await QuestService.checkNetwork()
+      
+      // clear low network alerte if displayed
+      clearTimeout(lowNetworkAlert)
+      this.warnings.isNetworkLow = false
+      
+      if (checkNetwork && checkNetwork.data) {
+        this.$router.push('/quest/play/' + this.quest.questId + '/version/' + this.quest.version + '/step/' + type + '_' + this.step.id + '/' + this.$route.params.lang)
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
     },
     /*
@@ -474,6 +501,11 @@ export default {
       this.info.isOpened = false
       this.hint.isOpened = false
       this.footer.tabSelected = 'none'
+    },
+    keepScreenAwake() {
+      if (window.cordova) {
+        window.plugins.insomnia.keepAwake()
+      }
     },
     /*
      * Fill the inventory with objects won by the user
