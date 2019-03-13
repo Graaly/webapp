@@ -19,7 +19,7 @@
 }
 
 /* general default Quasar font size looks very small */
-div, p, .q-field__native { font-size: 1rem; }
+div, p, .q-field__native, .q-radio__label { font-size: 1rem; }
 span, .text-caption { font-size: inherit; }
 
 /* required for backgrounds with full height in step play */
@@ -72,13 +72,6 @@ body {
   text-align: center;
   padding: 3px;
 }
-.column {
-  display: flex;
-  flex-flow: column nowrap;
-}
-.q-list .column {
-  align-items: stretch;
-}
 .header {
   width: 100%;
   background-color: #ccc;
@@ -111,7 +104,7 @@ a {
 
 /////////////////////////////// Labels CSS /////////////////////////////////////
 h1 {
-  line-height: 3.5rem;
+  line-height: 3rem;
   margin: 0;
 }
 h1.size-1 {
@@ -178,12 +171,12 @@ span .q-icon {
 .q-item__label--header {
   font-size: 1.3rem;
 }
-form .q-item__label {
+form .q-item__label, .option-group-header {
   font-size: 1.3rem;
   margin: 0.5rem 0;
   color: #777;
 }
-form .left-icon {
+.left-icon {
   font-size: 2.5rem !important;
 }
 /* for Quasar v1.0.0, login page */

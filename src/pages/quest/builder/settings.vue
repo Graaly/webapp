@@ -29,18 +29,24 @@
       <!------------------ LANGUAGES TAB ------------------------>
         
       <q-tab-panel name="languages" class="q-pa-md">
-        <div>
-          <q-icon name="language" />
-          <p>{{ $t('label.SelectedLanguage') }}</p>
-          <p>{{ $t('label.SelectTheLanguageAndClickOnNextButton') }}</p>
-          <q-option-group
-            type="radio"
-            color="primary"
-            v-model="languages.current"
-            :options="form.languages"
-            :disable="readOnly"
-          />
-        </div>
+        
+        <q-item>
+          <q-item-section side top>
+            <q-icon name="language" class="left-icon" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="option-group-header">{{ $t('label.SelectedLanguage') }}</q-item-label>
+            <q-option-group
+              type="radio"
+              color="primary"
+              v-model="languages.current"
+              :options="form.languages"
+              :disable="readOnly"
+            />
+            <q-item-label caption>{{ $t('label.SelectTheLanguageAndClickOnNextButton') }}</q-item-label>
+          </q-item-section>
+        </q-item>
+        
         <q-btn big :disabled="readOnly" class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" />
         <p class="centered q-pa-md" v-if="quest.status !== 'published'">
           <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />

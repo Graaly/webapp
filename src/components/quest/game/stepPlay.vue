@@ -8,7 +8,7 @@
       </video>
       -->
       
-      <div class="bg-tertiary text-white q-pa-md" v-if="isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
+      <div class="bg-accent text-white q-pa-md" v-if="isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     
       <!------------------ TRANSITION AREA ------------------------>
       
