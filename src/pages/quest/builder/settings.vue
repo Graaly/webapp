@@ -289,7 +289,7 @@
       
     </q-tab-panels>
     
-    <q-dialog v-model="chapters.showNewStepPage">
+    <q-dialog v-model="chapters.showNewStepPage" maximized>
       <div>
     
         <!------------------ STEP TYPE SELECTION ------------------------>
@@ -337,15 +337,15 @@
       
     </q-dialog>
     
-    <div id="overview" v-if="chapters.showNewStepPageSettings" class="fit">
+    <q-dialog maximized v-model="chapters.showNewStepPageSettings">
       
       <!------------------ STEP SETTINGS SELECTION ------------------------>
       
       <stepSettings :quest="quest" :stepId="stepId" :lang="languages.current" :options="{type: chapters.newStep.type, chapterId: chapters.newStep.chapterId, previousStepId: chapters.newStep.previousStepId}" @change="trackStepChanges" @close="closeStepSettingsPage"></stepSettings>
       
-    </div>  
+    </q-dialog>
     
-    <div id="overview" v-if="chapters.showNewStepOverview" class="fit">
+    <div v-if="chapters.showNewStepOverview" class="fullscreen">
     
         <!------------------ STEP SIMULATION ------------------------>
 
