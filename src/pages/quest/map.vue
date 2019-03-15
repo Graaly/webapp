@@ -214,13 +214,13 @@
                 {{ $t('label.ContinueThisQuest') }}
               </q-item-label>
             </q-item-section>
-            <q-item-section side class="score" v-if="quest.status == 'finished' && (!quest.questData.type || quest.questData.type === 'quest')">
-              <q-icon color="warning" name="fas fa-award" />
-              <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="quest.stars > 1" />
-              <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="quest.stars > 2" />
-            </q-item-section>
-            <q-item-section side class="score" v-if="quest.questData.type && quest.questData.type !== 'quest'">
-              {{ quest.reward }} <q-icon name="fas fa-bolt" />
+            <q-item-section side top>
+              <q-item-label class="score" v-if="quest.status == 'finished' && (!quest.questData.type || quest.questData.type === 'quest')">
+                <q-icon color="warning" name="fas fa-award" />
+                <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="quest.stars > 1" />
+                <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="quest.stars > 2" />
+              </q-item-label>
+              <q-item-label class="score" v-if="quest.questData.type && quest.questData.type !== 'quest'">{{ quest.reward }} <q-icon name="fas fa-bolt" /></q-item-label>
             </q-item-section>
           </q-item>
           <q-item v-if="success.quests.played.length === 0 && !warnings.listPlayedQuestsMissing">
