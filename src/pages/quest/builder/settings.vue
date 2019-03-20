@@ -8,56 +8,68 @@
     <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
     
     <h1 class="size-3 q-pl-md">
-      <span v-if="tabs.progress >= 2">{{ form.fields.title[languages.current] || form.fields.title[quest.mainLanguage] }}</span>
+      <span v-if="tabs.progress > 0">{{ form.fields.title[languages.current] || form.fields.title[quest.mainLanguage] }}</span>
       <span v-else>{{ $t('label.NewQuest') }}</span>
     </h1>
     
     <!------------------ TABS ------------------------>
     
     <q-tabs v-model="tabs.selected" class="bg-primary text-white">
-      <q-tab :disable="isReadOnly()" name="languages" :icon="getTabIcon(1)" :label="$t('label.Languages')" />
-      <q-tab :disable="tabs.progress < 1 || isReadOnly()" name="settings" :icon="getTabIcon(2)" :label="$t('label.Intro') + ' (' + languages.current + ')'" />
-      <q-tab :disable="tabs.progress < 2 || isReadOnly()" name="steps" :icon="getTabIcon(3)" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
-      <q-tab :disable="tabs.progress < 3" name="publish" :icon="getTabIcon(4)" :label="$t('label.Publish')" />
-      <q-tab name="reviews" :label="$t('label.Reviews')" v-if="this.isEdition" />
+      <q-tab :disable="isReadOnly()" name="settings" :icon="getTabIcon(1)" :label="$t('label.Intro') + ' (' + languages.current + ')'" default />
+      <q-tab :disable="tabs.progress < 1 || isReadOnly()" name="steps" :icon="getTabIcon(2)" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
+      <q-tab :disable="tabs.progress < 2" name="publish" :icon="getTabIcon(3)" :label="$t('label.Publish')" />
+      <q-tab name="reviews" :icon="getTabIcon(4)" :label="$t('label.Reviews')" v-if="isEdition && quest.access === 'public'" />
+      <q-tab name="results" :icon="getTabIcon(5)" :label="$t('label.Results')" v-if="quest.status !== 'draft' && quest.access === 'private'" />
     </q-tabs>
 
     <q-separator />
     
     <q-tab-panels v-model="tabs.selected" animated>
       
-      <!------------------ LANGUAGES TAB ------------------------>
-        
-      <q-tab-panel name="languages" class="q-pa-md">
-        
-        <q-item>
-          <q-item-section side top>
-            <q-icon name="language" class="left-icon" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="big-label">{{ $t('label.SelectedLanguage') }}</q-item-label>
-            <q-option-group
-              type="radio"
-              color="primary"
-              v-model="languages.current"
-              :options="form.languages"
-              :disable="readOnly"
-            />
-            <q-item-label caption>{{ $t('label.SelectTheLanguageAndClickOnNextButton') }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        
-        <q-btn big :disabled="readOnly" class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" />
-        <p class="centered q-pa-md" v-if="quest.status !== 'published'">
-          <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
-        </p>
-      </q-tab-panel>
-      
       <!------------------ SETTINGS TAB ------------------------>
-      
+        
       <q-tab-panel name="settings">
+        
+        <div v-if="!this.quest.languages || this.quest.languages.length === 0">
+          <q-item>
+            <q-item-section side top>
+              <q-icon name="language" class="left-icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="big-label">{{ $t('label.SelectedLanguage') }}</q-item-label>
+              <q-option-group
+                type="radio"
+                color="primary"
+                v-model="languages.current"
+                :options="form.languages"
+                :disable="readOnly"
+              />
+              <q-item-label caption>{{ $t('label.SelectTheLanguageAndClickOnNextButton') }}</q-item-label>
+            </q-item-section>
+          </q-item>
+          
+          <q-btn big :disabled="readOnly" class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" />
+        </div>
       
-        <form @submit.prevent="submitSettings()">
+        <form @submit.prevent="submitSettings()" v-if="this.quest.languages.length > 0">
+          
+          <div v-if="this.quest.access === 'private'">
+            <q-chip color="primary" text-color="white" icon="lock">
+              {{ $t('label.PrivateQuest') }}
+            </q-chip>
+          </div>
+          
+          <div v-if="this.quest.access === 'public'">
+            <q-chip color="primary" text-color="white" icon="public">
+              {{ $t('label.PublicQuest') }}
+            </q-chip>
+          </div>
+          
+          <q-select outlined :readonly="readOnly" emit-value map-options v-model="languages.current" :label="$t('label.Language')" :options="form.languages" :dense="true" @input="changeLanguage">
+            <template v-slot:prepend>
+              <q-icon name="language" />
+            </template>
+          </q-select>
           
           <q-input
             :readonly="readOnly"
@@ -130,6 +142,10 @@
           <q-btn v-if="!readOnly" type="submit" color="primary" class="full-width">{{ $t('label.Save') }}</q-btn>
             
         </form>
+        
+        <p class="centered q-pa-md" v-if="quest.status !== 'published'">
+          <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
+        </p>
       </q-tab-panel>
       
       <!------------------ STEPS TAB ------------------------>
@@ -159,7 +175,8 @@
               </div>
               <div v-for="step in chapter.steps" :key="step._id">
                 <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
-                <span @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                <span v-if="!readOnly" @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                <span v-if="readOnly">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
                 <q-btn v-if="!readOnly" class="float-right" icon="delete" dense @click="removeStep(step.stepId)" />
                 <q-btn v-if="!readOnly" class="float-right" icon="mode_edit" dense @click="modifyStep(step)" />
               </div>
@@ -182,85 +199,122 @@
       <!------------------ PUBLISHING TAB ------------------------>
         
       <q-tab-panel name="publish">
-        <q-banner class="q-mb-md bg-warning" v-if="quest.status === 'tovalidate'">
-          {{ $t('label.QuestUnderValidation') }}
-        </q-banner>
-        <q-banner class="q-mb-md bg-warning" v-if="quest.status === 'rejected'">
-          {{ $t('label.QuestPublicationRejected') }}
-        </q-banner>
-        <!--<q-banner class="q-mb-md bg-warning" v-if="chapters.items.length < 6">
-          {{ $t('label.YourQuestMustContainAtLeast6Steps') }}
-        </q-banner>
-        <q-banner class="q-mb-md bg-warning" v-if="chapters.items.length > 50">
-          {{ $t('label.YourQuestMustContainLessThan50Steps') }}
-        </q-banner>-->
-        <p class="centered q-pa-md">
-          <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
-        </p>
-        
-        <q-item>
-          <q-item-section side top>
-            <q-icon name="visibility" class="left-icon" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="big-label">{{ $t('label.LanguagesPublished') }}</q-item-label>
-            <p v-for="lang in form.fields.languages" :key="lang.lang">
-              <q-toggle :disable="quest.status === 'tovalidate'" v-model="lang.published" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
-            </p>
-            <q-item-label caption>{{ $t('label.ActivateTheLanguageVisible') }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        
-        <q-item>
-          <q-item-section side top>
-            <q-icon name="people" class="left-icon" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="big-label">{{ $t('label.Editors') }}</q-item-label>
-            <p v-for="item in editor.items" :key="item.id">
-              <q-toggle v-model="item.checked" :label="item.name" @input="removeEditor(item.id)" />
-            </p>
-            <p v-if="warnings.editorsMissing">{{ $t('label.TechnicalIssue') }}</p>
-            <q-input
-              type="text"
-              :label="$t('label.InviteEditors')"
-              v-model="editor.new.email"
-              bottom-slots
-              :error="!editor.new.isExisting"
-              :error-message="$t('label.UserIsNotAGraalyUser')"
-              >
-              <template v-slot:after>
-                <q-btn icon="add_circle" color="primary" flat round dense @click="addEditor()" />
-              </template>
-              <template v-slot:hint>
-                {{ $t('label.InviteEditorsHelp') }}
-              </template>
-            </q-input>
-          </q-item-section>
-        </q-item>
-        
-        <q-item>
-          <q-item-section side top>
-            <q-icon name="fa fa-qrcode" class="left-icon" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="big-label">{{ $t('label.MarkersFile') }}</q-item-label>
-            <!-- for webapp mode -->
-            <q-btn v-if="!isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" type="a" href="statics/markers/all.pdf" download />
-            <!-- for hybrid mode -->
-            <q-btn v-if="isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" @click="downloadMarkers()" />
-          </q-item-section>
-        </q-item>
-        
-        <p class="centered q-pa-md" v-if="quest.status !== 'published'">
-          <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
-        </p>
+        <div v-if="quest.status === 'old'">
+          <q-banner class="q-mb-md bg-warning">
+            {{ $t('label.YourQuestIsClosedAndCanNotBePublishedAnymore') }}
+          </q-banner>
+        </div>
+        <div v-if="quest.access === 'public' || (quest.access === 'private' && quest.status !== 'old')">
+          <q-banner class="q-mb-md bg-warning" v-if="quest.status === 'tovalidate'">
+            {{ $t('label.QuestUnderValidation') }}
+          </q-banner>
+          <q-banner class="q-mb-md bg-warning" v-if="quest.status === 'rejected'">
+            {{ $t('label.QuestPublicationRejected') }}
+          </q-banner>
+          <!--<q-banner class="q-mb-md bg-warning" v-if="chapters.items.length < 3">
+            {{ $t('label.YourQuestMustContainAtLeast6Steps') }}
+          </q-banner>
+          <q-banner class="q-mb-md bg-warning" v-if="chapters.items.length > 60">
+            {{ $t('label.YourQuestMustContainLessThan50Steps') }}
+          </q-banner>-->
+          <p class="centered q-pa-md">
+            <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
+          </p>
+          
+          <q-item v-if="quest.access === 'private'">
+            <q-item-section side top>
+              <q-icon name="people" class="left-icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="big-label">{{ $t('label.Invitees') }} <span v-if="quest.limitations && quest.limitations.nbInvitees">({{ invitee.items.length }}/{{ quest.limitations.nbInvitees }})</span></q-item-label>
+              <p v-for="item in invitee.items" :key="item.id">
+                <q-toggle v-model="item.checked" :label="item.name" @input="removeInvitee(item.id)" />
+              </p>
+              <p v-if="warnings.inviteeMissing">{{ $t('label.TechnicalIssue') }}</p>
+              <q-input
+                type="text"
+                :label="$t('label.InvitePeople')"
+                v-model="invitee.new.email"
+                bottom-slots
+                :error="!invitee.new.isExisting"
+                :error-message="$t('label.UserIsNotAGraalyUser')"
+                >
+                <template v-slot:after>
+                  <q-btn icon="add_circle" color="primary" flat round dense @click="addInvitee()" />
+                </template>
+                <template v-slot:hint>
+                  {{ $t('label.InviteInviteesHelp') }}
+                </template>
+              </q-input>
+            </q-item-section>
+          </q-item>
+          
+          <q-item>
+            <q-item-section side top>
+              <q-icon name="visibility" class="left-icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="big-label">{{ $t('label.LanguagesPublished') }}</q-item-label>
+              <p v-for="lang in form.fields.languages" :key="lang.lang">
+                <q-toggle :disable="quest.status === 'tovalidate'" v-model="lang.published" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
+              </p>
+              <q-item-label caption v-if="quest.access === 'public'">{{ $t('label.ActivateTheLanguageVisible') }}</q-item-label>
+              <q-item-label caption v-if="quest.access === 'private'">{{ $t('label.ActivateTheLanguageVisiblePrivate') }}</q-item-label>
+            </q-item-section>
+          </q-item>
+          
+          <q-item>
+            <q-item-section side top>
+              <q-icon name="edit" class="left-icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="big-label">{{ $t('label.Editors') }} <span v-if="quest.limitations && quest.limitations.nbEditors">({{ editor.items.length }}/{{ quest.limitations.nbEditors }})</span></q-item-label>
+              <p v-for="item in editor.items" :key="item.id">
+                <q-toggle v-model="item.checked" :label="item.name" @input="removeEditor(item.id)" />
+              </p>
+              <p v-if="warnings.editorsMissing">{{ $t('label.TechnicalIssue') }}</p>
+              <q-input
+                type="text"
+                :label="$t('label.InviteEditors')"
+                v-model="editor.new.email"
+                bottom-slots
+                :error="!editor.new.isExisting"
+                :error-message="$t('label.UserIsNotAGraalyUser')"
+                >
+                <template v-slot:after>
+                  <q-btn icon="add_circle" color="primary" flat round dense @click="addEditor()" />
+                </template>
+                <template v-slot:hint>
+                  {{ $t('label.InviteEditorsHelp') }}
+                </template>
+              </q-input>
+            </q-item-section>
+          </q-item>
+          
+          <q-item>
+            <q-item-section side top>
+              <q-icon name="fa fa-qrcode" class="left-icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="big-label">{{ $t('label.MarkersFile') }}</q-item-label>
+              <!-- for webapp mode -->
+              <q-btn v-if="!isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" type="a" href="statics/markers/all.pdf" download />
+              <!-- for hybrid mode -->
+              <q-btn v-if="isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" @click="downloadMarkers()" />
+            </q-item-section>
+          </q-item>
+          
+          <p class="centered q-pa-md" v-if="quest.status !== 'published'">
+            <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
+          </p>
+          
+        </div>
         
       </q-tab-panel>
         
       <!------------------ REVIEWS TAB ------------------------>
         
-      <q-tab-panel name="reviews" v-if="this.isEdition">
+      <q-tab-panel name="reviews" v-if="isEdition && quest.access === 'public'">
         <!--<q-infinite-scroll :handler="getReviews">-->
           <q-list highlight v-if="reviews.length > 0">
             <q-item v-for="review in reviews" :key="review._id">
@@ -284,6 +338,66 @@
         <!--</q-infinite-scroll>-->
         
         <p v-if="reviews.length === 0">{{ $t('label.QuestNotReviewed') }}</p>
+        
+      </q-tab-panel>
+    
+    <!------------------ RESULTS TAB ------------------------>
+        
+      <q-tab-panel name="results" v-if="isEdition && quest.access === 'private'">
+        <div v-if="quest.status === 'published'">
+          <div v-if="ranking && ranking.items && ranking.items.length > 0">
+            <q-list>
+              <q-item v-for="(rank, index) in ranking.items" :key="index" >
+                <q-item-section top avatar>
+                  <q-avatar>
+                    <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
+                    <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
+                    <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
+                  </q-avatar>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ rank.name }}</q-item-label>
+                  <q-item-label caption v-if="rank.status === 'finished'">{{ $t('label.Succeeded') }}</q-item-label>
+                  <q-item-label caption v-if="rank.status !== 'finished'">{{ $t('label.CurrentlyPlaying') }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+          <div class="centered" v-if="ranking && ranking.items && ranking.items.length === 0">
+            {{ $t('label.NoPlayersYetForThisQuest') }}
+          </div>
+          <div class="centered">
+            <q-btn color="primary" @click="closePrivateQuest">{{ $t('label.ClosePrivateQuest') }}</q-btn>
+            <div>{{ $t('label.ClosePrivateQuestDesc') }}</div>
+          </div>
+        </div>
+        <div v-if="quest.status === 'old'">
+          <h1 class="size-3">{{ $t('label.FinalRanking') }}</h1>
+          <div v-if="ranking && ranking.items && ranking.items.length > 0">
+            {{ $t('label.FinalRankingIntro') }}
+            <q-list>
+              <q-item v-for="(rank, index) in ranking.items" :key="index" >
+                <q-item-section avatar>
+                  <img v-if="rank.position <= 10" :src="'statics/icons/game/medal-' + rank.position + '.png'">
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ rank.name }}</q-item-label>
+                  <q-item-label caption>{{ rank.score}} {{ $t('label.points') }}<!--<q-icon name="fas fa-trophy" />--></q-item-label>
+                </q-item-section>
+                <q-item-section side top avatar>
+                  <q-avatar>
+                    <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
+                    <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
+                    <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
+                  </q-avatar>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+          <div class="centered" v-if="ranking && ranking.items && ranking.items.length === 0">
+            {{ $t('label.NoPlayerForThisQuest') }}
+          </div>
+        </div>
         
       </q-tab-panel>
       
@@ -449,9 +563,9 @@ export default {
       stepId: '-1',
       readOnly: false,
       tabs: {
-        selected: 'languages',
+        selected: 'settings',
         progress: 0,
-        list: ['languages', 'settings', 'steps', 'publish'],
+        list: ['settings', 'steps', 'publish'],
         icons: ['looks_one', 'looks_two', 'looks_3', 'looks_4']
       },
       overview: {
@@ -508,6 +622,7 @@ export default {
           overviewData: {}
         }
       },
+      ranking: [],
       inventory: {
         isOpened: false,
         items: []
@@ -519,6 +634,13 @@ export default {
         label: ""
       },
       editor: {
+        items: [],
+        new: {
+          email: '',
+          isExisting: true
+        }
+      },
+      invitee: {
         items: [],
         new: {
           email: '',
@@ -541,6 +663,7 @@ export default {
       warnings: {
         stepsMissing: false,
         editorsMissing: false,
+        inviteeMissing: false,
         inventoryMissing: false
       }
     }
@@ -550,7 +673,7 @@ export default {
       return this.quest.languages.length > 1 ? '[' + this.languages.current.toUpperCase() + ']' : ''
     },
     isCreation() {
-      return this.tabs.progress < 4
+      return this.tabs.progress < 3
     },
     isEdition() {
       return !this.isCreation
@@ -622,15 +745,21 @@ export default {
         // define tabs status
         this.tabs.progress = this.quest.creationStep
         // creation in progress => get creator back to the tab where he was
-        if (this.tabs.progress <= 4) {
-          this.tabs.selected = this.tabs.list[Math.min(this.tabs.progress, 3)]
+        if (this.tabs.progress <= 3) {
+          this.tabs.selected = this.tabs.list[Math.min(this.tabs.progress, 2)]
         }
-        
+
         await this.refreshStepsList()
         
         await this.listEditors()
         
+        await this.listInvitees()
+        
         await this.listReviews()
+        
+        if (this.quest.access && this.quest.access === 'private') {
+          this.getPrivateRanking()
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -748,8 +877,8 @@ export default {
           }
         }
         
-        if (steps && steps.length > 0 && this.tabs.progress < 3) {
-          this.tabs.progress = 3
+        if (steps && steps.length > 0 && this.tabs.progress < 2) {
+          this.tabs.progress = 2
         }
         
         // update property this.quest.hasLocateMarkerSteps
@@ -829,8 +958,8 @@ export default {
         
         if (res && res.data) {
           // update progression in stepper
-          if (this.tabs.progress < 2) {
-            this.tabs.progress = 2
+          if (this.tabs.progress < 1) {
+            this.tabs.progress = 1
             this.tabs.selected = 'steps'
             // start configuration story
             if (this.story.active) {
@@ -878,7 +1007,7 @@ export default {
       
       if (questCreatedNb.data && questCreatedNb.data < 2) {
         this.story.active = true
-        if (this.story.step === null && this.tabs.selected === 'languages') {
+        if (this.story.step === null && this.tabs.selected === 'settings') {
           this.story.step = 17
         }
       }
@@ -1018,9 +1147,14 @@ export default {
         this.$q.loading.hide()
         
         if (this.quest.status === 'unpublished' || this.quest.status === 'draft') {
-          this.quest.status = 'tovalidate'
+          if (this.quest.access === 'public') {
+            this.quest.status = 'tovalidate'            
+          } else {
+            this.quest.status = 'published'
+          }
+          this.readOnly = true
         }
-        this.tabs.progress = 4
+        this.tabs.progress = 3
       } else {
         // no language is published => unpublish the quest
         this.$q.loading.show()
@@ -1028,7 +1162,7 @@ export default {
         this.$q.loading.hide()
         
         this.quest.status = 'unpublished'
-        this.tabs.progress = 3
+        this.tabs.progress = 2
       }
     },
     /*
@@ -1362,14 +1496,126 @@ export default {
         }
       }
       
-      if (this.tabs.progress < 1) {
-        this.tabs.progress = 1
-      }
-      this.tabs.selected = 'settings'
-      
       if (this.story.active) {
         // start configuration story
         this.story.step = 18
+      }
+    },
+    /*
+    * Quest author change the language
+    */
+    async changeLanguage(language) {
+      // check if quest is already available for this lang
+      let questConfiguredForThisLanguage = false
+      if (this.quest.languages) {
+        for (var i = 0; i < this.quest.languages.length; i++) {
+          if (this.quest.languages[i].lang === language) {
+            questConfiguredForThisLanguage = true
+          }
+        }
+      }
+      
+      if (!questConfiguredForThisLanguage) {
+        // ask the user if he want to create the language
+        var _this = this;
+      
+        this.$q.dialog({
+          message: this.$t('label.AreYouSureToAddThisNewLanguage'),
+            ok: true,
+            cancel: true
+          }).onOk(async () => {
+            // raises blocking exception if any problem occurs
+            await QuestService.addLanguage(_this.questId, language)
+            
+            // if quest title is empty, autofill it with a default value
+            if (!this.quest.title[language] || this.quest.title[language] === '') {
+              if (language === this.quest.mainLanguage) {
+                // if current language is main language, get title default value (label.NewQuest)
+                this.quest.title[language] = this.$t('label.NewQuest', language)
+              } else {
+                // copy value from main language
+                this.quest.title[language] = this.quest.title[this.quest.mainLanguage]
+              }
+            }            
+          }).onCancel(async () => {
+            _this.languages.current = _this.quest.languages[0].lang
+          })
+      } else {
+        // refresh quest data
+        await this.loadQuestData()
+            
+        // if quest title is empty, autofill it with a default value
+        if (!this.quest.title[language] || this.quest.title[language] === '') {
+          if (language === this.quest.mainLanguage) {
+            // if current language is main language, get title default value (label.NewQuest)
+            this.quest.title[language] = this.$t('label.NewQuest', language)
+          } else {
+            // copy value from main language
+            this.quest.title[language] = this.quest.title[this.quest.mainLanguage]
+          }
+        }
+      }
+    },
+    /*
+     * Close a private quest
+     */
+    async closePrivateQuest() {
+      var _this = this; // workaround for closure scope quirks
+
+      this.$q.dialog({
+        message: this.$t('label.ClosePrivateQuestAlert'),
+        ok: true,
+        cancel: true
+      }).onOk(async () => {
+        await QuestService.closePrivate(_this.questId, _this.quest.version)
+        _this.quest.status = 'old'
+        // refresh steps list
+        await _this.getPrivateRanking()
+      }).onCancel((e) => { console.log(e) })
+    },
+    /*
+     * list the scores
+     */
+    async getPrivateRanking () {
+      var results = await RunService.listPlayersForThisQuest(this.questId)
+      if (results && results.data) {
+        this.ranking.items = results.data
+        this.ranking.items.sort(this.compareScore)
+        // compute position
+        this.refreshPosition()
+      }
+    },
+    /*
+     * Sort based on the score
+     */
+    compareScore(a, b) {
+      if (a.score > b.score) {
+        return -1
+      }
+      if (a.score < b.score) {
+        return 1
+      }
+      return 0
+    },
+    /*
+     * Update the position in the ranking
+     */
+    refreshPosition() {
+      var position = 0
+      for (var i = 0; i < this.ranking.items.length; i++) {
+        if (i === 0 || this.ranking.items[i].score !== this.ranking.items[i - 1].score) {
+          position = i + 1
+          if (!this.ranking.items[i].position || this.ranking.items[i].position !== position) {
+            this.ranking.items[i].position = position
+            this.$set(this.ranking.items, i, this.ranking.items[i]) // refresh display
+          }
+        } else {
+          position = this.ranking.items[i - 1].position
+          if (!this.ranking.items[i].position || this.ranking.items[i].position !== position) {
+            this.ranking.items[i].position = position
+            this.$set(this.ranking.items, i, this.ranking.items[i]) // refresh display
+          }
+        }
       }
     },
     /*
@@ -1504,6 +1750,47 @@ export default {
       // TODO: manage editor removal
       this.$q.loading.hide()
       await this.listEditors()
+    },
+    /*
+     * add an invitee
+     */
+    async addInvitee () {
+      this.$q.loading.show()
+      let addStatus = await QuestService.addInvitee(this.questId, this.quest.version, this.invitee.new.email)
+      this.$q.loading.hide()
+
+      if (addStatus && addStatus.status !== 403) {
+        await this.listInvitees()
+        this.invitee.new.email = ''
+        this.invitee.new.isExisting = true
+      } else {
+        this.invitee.new.isExisting = false
+      }
+    },
+    /*
+     * list the invitees
+     */
+    async listInvitees () {
+      this.warnings.inviteeMissing = false
+      var results = await QuestService.listInvitees(this.questId, this.quest.version)
+      if (results && results.data) {
+        this.invitee.items = results.data
+        for (var i = 0; i < this.invitee.items.length; i++) {
+          this.invitee.items[i].checked = true
+        }
+      } else {
+        this.warnings.inviteeMissing = true
+      }
+    },
+    /*
+     * Remove an invitee
+     */
+    async removeInvitee (id) {
+      this.$q.loading.show()
+      await QuestService.removeInvitee(this.questId, this.quest.version, id)
+      // TODO: manage invitee removal
+      this.$q.loading.hide()
+      await this.listInvitees()
     },
     hideHint() {
       this.chapters.newStep.overviewData.hint = {}

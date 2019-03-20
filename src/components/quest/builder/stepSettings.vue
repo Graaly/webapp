@@ -491,7 +491,7 @@
     
     <!------------------ CONDITIONS ------------------------>
     
-    <q-list separator>
+    <q-list bordered>
       <q-expansion-item icon="add_box" :label="$t('label.Conditions')">
         <q-list highlight v-if="selectedStep.formatedConditions.length > 0">
           <q-item-label>{{ $t('label.ThisStepIsTriggeredWhen') }}</q-item-label>
@@ -519,7 +519,7 @@
     
     <!------------------ OTHER OPTIONS ------------------------>
     
-    <q-list v-show="options.type.hasOptions" separator>
+    <q-list v-show="options.type.hasOptions" bordered>
       <q-expansion-item icon="add_box" :label="$t('label.OtherOptions')">
         <div v-if="options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'color-keypad' || options.type.code == 'choose' || options.type.code == 'write-text'" class="q-pb-md">
           <q-toggle v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
@@ -560,7 +560,7 @@
     
     <!------------------ HINT ------------------------>
     
-    <q-list v-show="options.type.showTrick == 'yes'" separator>
+    <q-list v-show="options.type.showTrick == 'yes'" bordered>
       <q-expansion-item icon="lightbulb outline" :label="$t('label.Hint')">
         <q-input v-model="selectedStep.form.hint[lang]" :label="$t('label.HintText')" />
       </q-expansion-item>

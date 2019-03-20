@@ -99,7 +99,7 @@ module.exports = function (ctx) {
         'QCarouselControl',
         'QCarouselSlide',
         'QCheckbox',
-        //'QChip',
+        'QChip',
         //'QChipsInput',
         'QDialog',
         'QDrawer',

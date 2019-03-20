@@ -37,8 +37,8 @@ export default {
    * Create a quest
    * @param   {Object}    data                Quest data (title, ...)
    */
-  create (data) {
-    return Api().post('quest/create', data).catch(error => console.log(error.request))
+  create (data, access) {
+    return Api().post('quest/create/' + access, data).catch(error => console.log(error.request))
   },
   /*
    * Create a quest
@@ -61,6 +61,14 @@ export default {
    */
   remove (id, version) {
     return Api().delete('quest/' + id + '/version/' + version + '/remove')
+  },
+  /*
+   * Close a private quest
+   * @param   {String}    id                  Quest Id
+   * @param   {Number}    version             version of the quest
+   */
+  closePrivate (id, version) {
+    return Api().post('quest/' + id + '/version/' + version + '/close')
   },
   /*
    * Set the main language of a quest
@@ -116,6 +124,12 @@ export default {
     return Api().get('user/' + id + '/quests/played').catch(error => console.log(error.request))
   },
   /*
+   * list user invitations to private quests
+   */
+  getInvitations () {
+    return Api().get('user/quests/invitations/list').catch(error => console.log(error.request))
+  },
+  /*
    * Upload a quest picture
    * @param   {Object}    data                picture data
    */
@@ -148,14 +162,42 @@ export default {
     return Api().put('quest/' + questId + '/version/' + version + '/editor/add/' + email).catch(error => console.log(error.request))
   },
   /*
-   * Remove a quest
+   * Remove an editor of a quest
    * @param   {String}    questId                Quest Id
    * @param   {Number}    version             version of the quest
-   * @param   {String}    editorId               Editor Id
+   * @param   {String}    editorId            Editor Id
    */
   removeEditor (questId, version, editorId) {
     return Api().delete('quest/' + questId + '/version/' + version + '/editor/remove/' + editorId)
   },
+  
+  /*
+   * List the invitees of a quest
+   * @param   {String}    questId              questId
+   * @param   {Number}    version              version of the quest
+   */
+  listInvitees(questId, version) {
+    return Api().get('quest/' + questId + '/version/' + version + '/invitee/list').catch(error => console.log(error.request))
+  },
+  /*
+   * Add an invitee to a quest
+   * @param   {String}    questId             questId
+   * @param   {Number}    version             version of the quest
+   * @param   {String}    email               email of the invitee
+   */
+  addInvitee (questId, version, email) {
+    return Api().put('quest/' + questId + '/version/' + version + '/invitee/add/' + email).catch(error => console.log(error.request))
+  },
+  /*
+   * Remove an invitee of a quest
+   * @param   {String}    questId                Quest Id
+   * @param   {Number}    version                version of the quest
+   * @param   {String}    inviteeId              Invitee Id
+   */
+  removeInvitee (questId, version, inviteeId) {
+    return Api().delete('quest/' + questId + '/version/' + version + '/invitee/remove/' + inviteeId)
+  },
+  
   /*
    * Check if network is ok
    */

@@ -49,8 +49,8 @@
                 <q-icon name="local_bar" v-if="currentQuest.category === 12" /> <!-- Bars -->
               </span>
             </p>
-            <q-btn v-if="currentQuest && currentQuest.authorUserId !== $store.state.user._id" @click="$router.push('/quest/play/' + (currentQuest ? currentQuest.questId : ''))" color="primary">{{ $t('label.Play') }}</q-btn>
-            <q-btn v-if="currentQuest && currentQuest.authorUserId === $store.state.user._id" @click="$router.push('/quest/builder/' + (currentQuest ? currentQuest.questId : ''))" color="primary">{{ $t('label.Modify') }}</q-btn>
+            <q-btn v-if="currentQuest && currentQuest.authorUserId !== $store.state.user._id" @click="playQuest(currentQuest ? currentQuest.questId : '')" color="primary">{{ $t('label.Play') }}</q-btn>
+            <q-btn v-if="currentQuest && currentQuest.authorUserId === $store.state.user._id" @click="modifyQuest(currentQuest ? currentQuest.questId : '')" color="primary">{{ $t('label.Modify') }}</q-btn>
           </div>
           <div class="infoWindow" v-if="this.$store.state.user.story && this.$store.state.user.story.step <= 3">
             <p>{{ $t('label.ClickHereToStartDiscoveryQuest') }}</p>
@@ -79,6 +79,22 @@
         <q-icon name="add_circle" v-if="$store.state.user.coins < 200" @click.native="buyCoins()" color="primary" />
       </div>
     </div>-->
+    <div class="invitations-box" v-if="invitations.length > 0">
+      <q-expansion-item
+        expand-separator
+        icon="email"
+        :label="$t('label.YouHaveInvitations', {nb: invitations.length})"
+        header-class="text-primary bg-white"
+      >
+          <q-item clickable v-ripple class="bg-white" v-for="invitation in invitations" :key="invitation._id" @click="playQuest(invitation.questId)">
+            <q-item-section>
+              <q-item-label>{{ invitation.title.fr }}</q-item-label>
+              <q-item-label caption>{{ invitation.author }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-expansion-item>
+    </div>
     
     <!--====================== SUCCESS PAGE =================================-->
     
@@ -129,7 +145,7 @@
           </q-list>
           <q-list highlight v-if="success.quests.built.rejected && success.quests.built.rejected.length > 0">
             <q-item-label header>{{ $t('label.YourRejectedQuests') }}</q-item-label>
-            <q-item v-for="quest in success.quests.built.rejected" :key="quest._id" @click.native="$router.push('/quest/builder/' + quest.questId)">
+            <q-item v-for="quest in success.quests.built.rejected" :key="quest._id" @click.native="modifyQuest(quest.questId)">
               <q-item-section avatar>
                 <q-avatar>
                   <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
@@ -145,7 +161,7 @@
           </q-list>
           <q-list highlight v-if="success.quests.built.draft && success.quests.built.draft.length > 0">
             <q-item-label header>{{ $t('label.YourDraftQuests') }}</q-item-label>
-            <q-item v-for="quest in success.quests.built.draft" :key="quest._id" @click.native="$router.push('/quest/builder/' + quest.questId)">
+            <q-item v-for="quest in success.quests.built.draft" :key="quest._id" @click.native="modifyQuest(quest.questId)">
               <q-item-section avatar>
                 <q-avatar>
                   <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
@@ -161,7 +177,7 @@
           </q-list>
           <q-list highlight v-if="success.quests.built.published && success.quests.built.published.length > 0">
             <q-item-label header>{{ $t('label.YourPublishedQuests') }}</q-item-label>
-            <q-item v-for="quest in success.quests.built.published" :key="quest._id" @click.native="$router.push('/quest/builder/' + quest.questId)">
+            <q-item v-for="quest in success.quests.built.published" :key="quest._id" @click.native="modifyQuest(quest.questId)">
               <q-item-section avatar>
                 <q-avatar>
                   <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
@@ -188,7 +204,7 @@
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
           <q-list highlight v-if="success.quests.played && success.quests.played.length > 0">
-          <q-item v-for="quest in success.quests.played" :key="quest._id" @click.native="$router.push('/quest/play/' + quest.questId)">
+          <q-item v-for="quest in success.quests.played" :key="quest._id" @click.native="playQuest(quest.questId)">
             <q-item-section avatar>
               <q-avatar>
                 <img v-if="quest.questData && quest.questData.thumb" :src="((quest.questData.thumb && quest.questData.thumb[0] === '_') ? 'statics/images/quest/' + quest.questData.thumb : serverUrl + '/upload/quest/' + quest.questData.thumb)" />
@@ -571,7 +587,7 @@
           
           <q-tab-panel name="friendbuilt">
             <q-list highlight>
-              <q-item v-for="quest in friends.selected.built" :key="quest._id" @click.native="$router.push('/quest/play/' + quest.questId)">
+              <q-item v-for="quest in friends.selected.built" :key="quest._id" @click.native="playQuest(quest.questId)">
                 <q-item-section v-if="quest.picture" avatar><img :src="serverUrl + '/upload/quest/' + quest.picture" /></q-item-section>
                 <q-item-section v-if="!quest.picture" avatar><img src="statics/profiles/noprofile.png" /></q-item-section>
                 <q-item-section>
@@ -600,7 +616,7 @@
           
           <q-tab-panel name="friendplayed">
             <q-list highlight v-if="friends.selected.played && friends.selected.played.length > 0">
-              <q-item v-for="quest in friends.selected.played" :key="quest._id" @click.native="$router.push('/quest/play/' + quest.questId)">
+              <q-item v-for="quest in friends.selected.played" :key="quest._id" @click.native="playQuest(quest.questId)">
                 <q-item-section v-if="quest.questData && quest.questData.picture"><img :src="((quest.questData.picture && quest.questData.picture[0] === '_') ? 'statics/images/quest/' + quest.questData.picture : serverUrl + '/upload/quest/' + quest.questData.picture)" /></q-item-section>
                 <q-item-section v-if="!quest.questData || !quest.questData.picture"><img src="statics/profiles/noprofile.png" /></q-item-section>
                 <q-item-section>
@@ -965,7 +981,8 @@ export default {
       innerWidth: window.innerWidth,
       questsTab: "built",
       profileTab: "news",
-      friendsTab: "friendbuilt"
+      friendsTab: "friendbuilt",
+      invitations: []
     }
   },
   computed: {
@@ -985,10 +1002,16 @@ export default {
     async initPage () {
       // check if profile is complete
       this.checkIfProfileIsComplete()
+      // clear all running process
       utils.clearAllRunningProcesses()
+      // check if battery is enough charged to play
       window.addEventListener("batterylow", this.checkBattery, false);
+      // check if user has network
       this.checkNetwork()
+      // check if story steps need to be played
       this.startStory()
+      // check if user has received invitations to private quests
+      this.checkInvitations()
       // get current level of user
       this.profile.level = LevelCompute(this.$store.state.user.score)
     },
@@ -1182,6 +1205,16 @@ export default {
         }
       } else {
         this.warnings.noServerReponse = true
+      }
+    },
+     /*
+     * Get user invitation to private quests
+     */
+    async checkInvitations() {
+      let response = await QuestService.getInvitations()
+
+      if (response && response.data) {
+        this.invitations = response.data
       }
     },
     
@@ -1786,6 +1819,18 @@ export default {
     },
     onUserPositionError() {
       this.user.position = null
+    },
+    /*
+     * Launch a quest
+     */
+    playQuest(questId) {
+      this.$router.push('/quest/play/' + questId)
+    },
+    /*
+     * Modify a quest
+     */
+    modifyQuest(questId) {
+      this.$router.push('/quest/builder/' + questId)
     }
   },
   validations: {

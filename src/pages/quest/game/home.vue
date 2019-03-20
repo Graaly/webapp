@@ -4,10 +4,16 @@
       
       <!------------------ MAIN INFORMATION AREA ------------------------>
       
-      <div class="fit" :style="'background: url(' + ((quest.picture && quest.picture[0] === '_') ? 'statics/images/quest/' + quest.picture : serverUrl + '/upload/quest/' + quest.picture) + ' ) center center / cover no-repeat '" v-touch-swipe.horizontal="swipeMgmt">
+      <div v-if="!quest || !quest.status" class="centered q-pa-lg">
+        {{ $t('label.Loading')}}
+        <div>
+          <q-btn @click="backToTheMap()" color="primary">{{ $t('label.BackToTheMap') }}</q-btn>
+        </div>
+      </div>
+      <div v-if="quest && quest.status" class="fit" :style="'background: url(' + ((quest.picture && quest.picture[0] === '_') ? 'statics/images/quest/' + quest.picture : serverUrl + '/upload/quest/' + quest.picture) + ' ) center center / cover no-repeat '" v-touch-swipe.horizontal="swipeMgmt">
         <div class="fit">
           <div class="text-center bottom-dark-banner">
-            <div v-if="quest.version !== 'draft'" class="bg-accent centered q-pa-sm">
+            <div v-if="quest.status !== 'published'" class="bg-accent centered q-pa-sm">
               {{ $t('label.QuestDraftVersion') }}
             </div>
             <div class="title" @click="restartStory()">
@@ -17,7 +23,8 @@
             <p v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.name && quest.author.name.indexOf('Graaly') === -1">{{ $t('label.By') }} {{ quest.author.name }}</p>
             <p class="medium-icon q-pa-none q-ma-none">
               <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">{{ quest.availablePoints }} <span style="font-size: 0.5em">{{ $t('label.pointsToWin') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
-              <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAlreadyPlayedThisQuest') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
+              <span class="q-ml-sm q-mr-sm" v-show="isRunFinished && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAlreadyPlayedThisQuest') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
+              <span class="q-ml-sm q-mr-sm" v-show="isOwner && !isAdmin && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAreQuestOwnerDesc') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
               <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.reward && quest.reward > 0">{{ quest.reward }} <q-icon name="fas fa-bolt" /></span>
               <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || (isOwner && !isAdmin)) && quest.reward && quest.reward > 0">0 <q-icon name="fas fa-bolt" /></span>
             </p>
@@ -112,7 +119,7 @@
     
     <!--====================== STORY =================================-->
     
-    <div class="fixed-bottom over-map fit" v-if="story.step !== null && story.step !== 'end'">
+    <div class="fixed-bottom over-map fit" v-if="quest && story.step !== null && story.step !== 'end'">
       <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
     </div>
     

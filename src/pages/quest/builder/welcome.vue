@@ -1,56 +1,57 @@
 <template>
   <div>
     <div class="wrapper">
-      <h1 class="size-3 centered">{{ $t('label.CreateYourQuest') }}</h1>
       <div v-if="!access">
+        <h1 class="size-3 centered">{{ $t('label.CreateYourQuest') }}</h1>
         <div class="q-pa-md">
           {{ $t('label.BuilderIntro') }}
         </div>
         <div class="q-pa-md">
           <q-card class="my-card bg-primary text-white">
             <q-card-section>
-              <div class="text-h6">Enquête privée</div>
+              <div class="text-h6">{{ $t('label.PrivateQuest') }}</div>
             </q-card-section>
 
             <q-card-section>
-              Votre enquête est destiné à votre groupe d'amis ou des personnes que vous choisissez.            
+              {{ $t('label.PrivateQuestDesc1') }}
             </q-card-section>
             
-            <q-card-section>
+            <!--<q-card-section>
               Vous pouvez soit créer l'enquête à partir d'un modèle, que vous pouvez modifier, soit partir de zéro et construire votre propre enquête
-            </q-card-section>
+            </q-card-section>-->
 
             <q-separator />
 
             <q-card-actions>
-              <q-btn flat>Créer une enquête privée</q-btn>
-              <q-btn flat>Utiliser un modèle</q-btn>
+              <q-btn flat @click="changeAccess('private')">{{ $t('label.CreatePrivateQuest') }}</q-btn>
+              <!--<q-btn flat>Utiliser un modèle</q-btn>-->
             </q-card-actions>
           </q-card>
         </div>
         <div class="q-pa-md">
           <q-card class="my-card bg-secondary text-white">
             <q-card-section>
-              <div class="text-h6">Enquête publique</div>
+              <div class="text-h6">{{ $t('label.PublicQuest') }}</div>
             </q-card-section>
 
             <q-card-section>
-              Vous créez une enquête pour faire découvrir un lieu, une activité, une entreprise.
+              {{ $t('label.PublicQuestDesc1') }}
             </q-card-section>
             
             <q-card-section>
-              Une fois validée par les games masters, cette enquête sera visible sur la carte Graaly et jouable par tous
+              {{ $t('label.PublicQuestDesc2') }}
             </q-card-section>
 
             <q-separator />
 
             <q-card-actions>
-              <q-btn flat @click="changeAccess('public')">Créer une enquête publique</q-btn>
+              <q-btn flat @click="changeAccess('public')">{{ $t('label.CreatePublicQuest') }}</q-btn>
             </q-card-actions>
           </q-card>
         </div>
       </div>
       <div class="grow" v-if="access === 'public'">
+        <h1 class="size-3 centered">{{ $t('label.CreateYourPublicQuest') }}</h1>
         <!--
         <div class="centered" v-html="$t('label.andWin')"></div>
         <div class="row q-pa-md">
@@ -63,6 +64,14 @@
         </div>
         -->
         <div class="q-pa-md" v-html="$t('label.BuilderWelcomeMessage')"></div>
+        <div class="q-px-md">
+          <q-btn color="primary" class="full-width center" @click="createNewQuest()">{{ $t('label.AcceptTheRules') }}</q-btn>
+          <q-btn class="full-width center q-mt-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>
+        </div>
+      </div>
+      <div class="grow" v-if="access === 'private'">
+        <h1 class="size-3 centered">{{ $t('label.CreateYourPrivateQuest') }}</h1>
+        <div class="q-pa-md" v-html="$t('label.BuilderPrivateWelcomeMessage')"></div>
         <div class="q-px-md">
           <q-btn color="primary" class="full-width center" @click="createNewQuest()">{{ $t('label.AcceptTheRules') }}</q-btn>
           <q-btn class="full-width center q-mt-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>

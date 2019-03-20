@@ -25,13 +25,13 @@
               
         <!------------------ CHALLENGE FRIENDS AREA ------------------------>
         
-        <div class="q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.score > 0">
+        <div class="q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.score > 0 && quest && quest.access === 'public'">
           <q-btn icon="people" color="accent" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
         </div>
         
         <!------------------ REVIEW AREA ------------------------>
         
-        <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="showAddReview">
+        <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="showAddReview && quest && quest.access === 'public'">
           <h3 class="size-2">{{ $t('label.ReviewThisQuest') }} <!--(+2 <q-icon color="white" name="fas fa-bolt" />)--></h3>
           <p>{{ $t('label.Rating') + $t('label.Colon') }} <q-rating v-model="rating" :max="5" size="1.5rem" :disable="reviewSent" /></p>
           <p>{{ $t('label.CommentThisQuest') }} ({{ $t('label.Optional') }}){{ $t('label.Colon') }}</p>
@@ -218,6 +218,7 @@ export default {
         score: 0,
         stars: 1
       },
+      quest: {},
       friends: [],
       filteredFriends: [],
       invitedFriends: {
@@ -269,10 +270,10 @@ export default {
       await this.getRanking()
       
       // get quest data
-      const quest = await QuestService.getById(this.questId, this.run.version)
-      if (quest && quest.data) {
+      this.quest = await QuestService.getById(this.questId, this.run.version)
+      if (this.quest && this.quest.data) {
         // show review part only if player is not author & has not already sent a review for this quest
-        const isUserAuthor = this.$store.state.user._id === quest.data.authorUserId
+        const isUserAuthor = this.$store.state.user._id === this.quest.data.authorUserId
         const results = await ReviewService.list({ questId: this.questId, userId: this.$store.state.user._id, version: this.run.version }, { limit: 1 })
         const isReviewAlreadySent = results.data && results.data.length >= 1
         this.showAddReview = !isUserAuthor && !isReviewAlreadySent 
