@@ -236,6 +236,10 @@ form .q-item__label, .big-label {
 .multiple-btn button:first-child {
   margin-left: 0px
 }
+/* fix Quasar default purple color for notifications close buttons */
+.q-notification__actions {
+  color: #fff
+}
 
 /////////////////////////////// Menus CSS /////////////////////////////////////
 
@@ -261,9 +265,9 @@ form .q-item__label, .big-label {
 
 /////////////////////////////// Tabs CSS /////////////////////////////////////
 
-.q-tab-pane {
-  padding-bottom: 100px; /* to avoid bottom information to be hidden by menu */
+.q-tab-panel {
   border: 0px;
+  padding: 0.6rem 0.6rem 100px 0.6rem; /* Quasar default padding takes too much space + add 100px to avoid bottom information to be hidden by menu */
 }
 .step-menu .q-tabs-normal .q-tab-icon, .step-menu .q-tabs-normal .q-tab-label {
   opacity: 0.9 !important;
@@ -304,6 +308,19 @@ form .q-item__label, .big-label {
 .panel-bottom h1 {
   margin-top: 10px;
   margin-bottom: 20px;
+}
+
+/////////////////////////// Search from map CSS /////////////////////////////////
+
+.search-from-map {
+  flex-wrap: nowrap;
+  overflow-y: scroll;
+}
+.search-from-map .q-card {
+  height: 30vh;
+  min-height: 30vh;
+  max-height: 30vh;
+  overflow-y: hidden;
 }
 
 /////////////////////////////// Animation CSS /////////////////////////////////////
@@ -745,8 +762,7 @@ form .q-item__label, .big-label {
 }
 .q-list .score {
   font-size: 1rem;
-  width: 60px;
-  padding-right: 4px;
+  white-space: nowrap;
 }
 .tilt{
   /*transform: rotateY(-3deg);

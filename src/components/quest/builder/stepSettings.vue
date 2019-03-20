@@ -494,9 +494,11 @@
     <q-list bordered>
       <q-expansion-item icon="add_box" :label="$t('label.Conditions')">
         <q-list highlight v-if="selectedStep.formatedConditions.length > 0">
-          <q-item-label>{{ $t('label.ThisStepIsTriggeredWhen') }}</q-item-label>
+          <q-item-label header>{{ $t('label.ThisStepIsTriggeredWhen') }}</q-item-label>
           <q-item v-for="(condition, index) in selectedStep.formatedConditions" :key="index">
-            <q-item-label>{{ condition }}</q-item-label>
+            <q-item-section>
+              <q-item-label v-html="condition" />
+            </q-item-section>
             <q-item-section side>
               <q-icon name="delete" @click.native="deleteCondition(index)" />
             </q-item-section>

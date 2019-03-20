@@ -230,13 +230,13 @@
                 {{ $t('label.ContinueThisQuest') }}
               </q-item-label>
             </q-item-section>
-            <q-item-section side class="score" v-if="quest.status == 'finished' && (!quest.questData.type || quest.questData.type === 'quest')">
-              <q-icon color="warning" name="fas fa-award" />
-              <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="quest.stars > 1" />
-              <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="quest.stars > 2" />
-            </q-item-section>
-            <q-item-section side class="score" v-if="quest.questData.type && quest.questData.type !== 'quest'">
-              {{ quest.reward }} <q-icon name="fas fa-bolt" />
+            <q-item-section side top>
+              <q-item-label class="score" v-if="quest.status == 'finished' && (!quest.questData.type || quest.questData.type === 'quest')">
+                <q-icon color="warning" name="fas fa-award" />
+                <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="quest.stars > 1" />
+                <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="quest.stars > 2" />
+              </q-item-label>
+              <q-item-label class="score" v-if="quest.questData.type && quest.questData.type !== 'quest'">{{ quest.reward }} <q-icon name="fas fa-bolt" /></q-item-label>
             </q-item-section>
           </q-item>
           <q-item v-if="success.quests.played.length === 0 && !warnings.listPlayedQuestsMissing">
@@ -513,55 +513,50 @@
     
     <!--====================== SEARCH PAGE =================================-->
     
-    <q-dialog v-model="showSearch" class="over-map">
-      <div class="column" ref="div-column">
-        <div class="row q-pa-md">
-          <q-input 
+    <q-dialog v-model="showSearch" full-width full-height>
+      <div class="column search-from-map" ref="div-column">
+        <div>
+          <q-input
+            class="q-pa-md"
             v-model="search.text"
             debounce="500"
             :placeholder="$t('label.Search')"
-            @input="findQuests()" 
+            @input="findQuests()"
           >
             <template v-slot:append>
               <q-icon name="close" @click="closeSearch()" />
             </template>
           </q-input>
         </div>
-        <div class="row">
-          <q-list highlight>
-            <q-item v-for="item in search.quests" :key="item._id">
-              <q-card inline class="q-ma-sm" @click.native="$router.push(item.authorUserId === $store.state.user._id ? '/quest/builder/' + item.questId : '/quest/play/' + item.questId)">
-                <q-card-media class="preview" overlay-position="top">
-                  <img :src="serverUrl + '/upload/quest/' + item.picture" />
-                </q-card-media>
-                <q-card-section>
-                  {{ getQuestTitle(item, true) }}
-                  <q-rating slot="subtitle" v-if="item.rating && item.rating.rounded" v-model="item.rating.rounded" color="primary" :max="5" />
-                  <span slot="right" class="row items-center text-white" v-if="item.distance && item.distance > 0 && item.distance <= 99">
-                    <q-icon color="white" name="place" /> {{ item.distance }} {{ $t('label.km') }}
-                  </span>
-                  <span slot="right" class="row items-center text-white" v-if="item.distance === 0">
-                    <q-icon color="white" name="place" /> &lt;1 {{ $t('label.km') }}
-                  </span>
-                  <span slot="right" class="row items-center text-white" v-if="item.distance > 99">
-                    <q-icon color="white" name="place" /> &gt;99 {{ $t('label.km') }}
-                  </span>
-                </q-card-section>
-              </q-card>
-            </q-item>
-          </q-list>
-          <q-item v-show='search.quests.length == 0' @click.native="$router.push('/quest/create')">
-            <q-item-section>
-              <q-icon name="explore" size="2rem" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ $t('label.NoQuestForThisSearch') }}</q-item-label>
-              <q-item-label caption>
-                <a @click="$router.push('/quest/create')">{{ $t('label.WhyDontYouCreateAQuest') }}</a>
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-        </div>
+        
+        <q-card v-for="item in search.quests" :key="item._id" class="q-ma-sm" @click.native="$router.push(item.authorUserId === $store.state.user._id ? '/quest/builder/' + item.questId : '/quest/play/' + item.questId)">
+          <q-img :src="serverUrl + '/upload/quest/' + item.picture">
+            <div class="absolute-top text-center">
+              {{ getQuestTitle(item, true) }}
+              <q-rating slot="subtitle" v-if="item.rating && item.rating.rounded" v-model="item.rating.rounded" color="primary" :max="5" />
+              <span slot="right" class="row items-center text-white" v-if="item.distance && item.distance > 0 && item.distance <= 99">
+                <q-icon color="white" name="place" /> {{ item.distance }} {{ $t('label.km') }}
+              </span>
+              <span slot="right" class="row items-center text-white" v-if="item.distance === 0">
+                <q-icon color="white" name="place" /> &lt;1 {{ $t('label.km') }}
+              </span>
+              <span slot="right" class="row items-center text-white" v-if="item.distance > 99">
+                <q-icon color="white" name="place" /> &gt;99 {{ $t('label.km') }}
+              </span>
+            </div>
+          </q-img>
+        </q-card>
+        <q-item v-show="search.text.length > 0 && search.quests.length == 0" @click.native="$router.push('/quest/create')">
+          <q-item-section avatar>
+            <q-icon name="explore" size="2rem" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{ $t('label.NoQuestForThisSearch') }}</q-item-label>
+            <q-item-label caption>
+              <a @click="$router.push('/quest/create')">{{ $t('label.WhyDontYouCreateAQuest') }}</a>
+            </q-item-label>
+          </q-item-section>
+        </q-item>
         
       </div>
     </q-dialog>
