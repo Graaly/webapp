@@ -134,10 +134,8 @@
             <p>{{ $t('label.Picture') }} :</p>
             <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.picture" />
           </div>
-          <q-btn class="full-width" type="button" v-if="!readOnly">
-            <label for="picturefile">{{ $t('label.ModifyThePicture') }}</label>
-            <input @change="uploadImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
-          </q-btn>
+          <q-btn class="full-width" v-if="!readOnly" :label="$t('label.ModifyThePicture')" @click="$refs['picturefile'].click()" />
+          <input @change="uploadImage" ref="picturefile" type="file" accept="image/*" hidden />
           
           <q-btn v-if="!readOnly" type="submit" color="primary" class="full-width">{{ $t('label.Save') }}</q-btn>
             
