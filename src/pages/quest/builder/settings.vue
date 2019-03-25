@@ -154,6 +154,13 @@
         <div class="centered bg-warning q-pa-sm" v-if="warnings.stepsMissing" @click="refreshStepsList">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
+        <div>
+          Editeur
+          <div class="q-gutter-sm">
+            <q-radio v-model="shape" val="simple" label="Simple (jeu de piste)" />
+            <q-radio v-model="shape" val="advanced" label="avancé (escape game)" />
+          </div>
+        </div>
         <p v-if="!readOnly && (!chapters.items || chapters.items.length < 2)">{{ $t('label.AddYourSteps') }}</p>
         <!--<p class="centered" v-show="chapters.items && chapters.items.length > 6">
           <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
@@ -174,8 +181,12 @@
                 {{ $t('label.ClickOnButtonToAddStep') }}
               </div>
               <div v-for="step in chapter.steps" :key="step._id">
-                <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
-                <span v-if="!readOnly" @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                <q-icon color="grey" class="q-mr-sm" :class="{'q-ml-md': (step.level === 2)}" :name="getIconFromStepType(step.type)" />
+                <span v-if="!readOnly && !step.error" @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                <span v-if="!readOnly && step.error" @click="showStepWarnings(step.error)" class="text-primary">
+                  <q-icon name="warning" color="primary" />
+                  {{ step.title[languages.current] || step.title[quest.mainLanguage] }}
+                </span>
                 <span v-if="readOnly">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
                 <q-btn v-if="!readOnly" class="float-right" icon="delete" dense @click="removeStep(step.stepId)" />
                 <q-btn v-if="!readOnly" class="float-right" icon="mode_edit" dense @click="modifyStep(step)" />
@@ -420,7 +431,7 @@
               :icon="'fas fa-' + stepType.icon"
               :label="$t('stepType.' + stepType.title)"
             >
-              <div>
+              <div class="centered q-pa-sm">
                 {{ $t('stepType.' + stepType.description) }}
                 <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" />
               </div>
@@ -436,7 +447,7 @@
               :icon="'fas fa-' + stepType.icon"
               :label="$t('stepType.' + stepType.title)"
             >
-              <div>
+              <div class="centered q-pa-sm">
                 {{ $t('stepType.' + stepType.description) }}
                 <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" />
               </div>
@@ -779,12 +790,11 @@ export default {
         for (var j = 0; j < this.chapters.items.length; j++) {
           var hasEndOfChapterStep = false
           var stepsWithNoCondition = []
-          var order = []
-          var orderIndex = 100
+          var stepsWithNoParent = []
           var stepsOfChapter = []
           var parent = []
      
-          // Get the steps of current chapter
+          // Get the steps of current chapter & check if chapter has and end step
           for (var i = 0; i < steps.length; i++) {
             if (steps[i].chapterId.toString() === this.chapters.items[j].chapterId.toString()) {
               // create steps array
@@ -799,6 +809,83 @@ export default {
             }
           }
           
+          // create unsorted list of steps
+          var unsorted = []
+          for (i = 0; i < stepsOfChapter.length; i++) {
+            unsorted.push(stepsOfChapter[i].stepId.toString())
+          }
+          
+          // create sorted list of steps
+          var sorted = []
+          //until all the steps are treated
+          var iteration = 0
+          while (unsorted.length > 0 || iteration < 1000) {
+            iteration++
+            allSteps:
+              for (i = 0; i < stepsOfChapter.length; i++) {
+                var stepId = stepsOfChapter[i].stepId.toString()
+                // if the step does not already exists in final array
+                if (sorted.indexOf(stepId) === -1) {
+                  // if no condition => place in first position in chapter
+                  if (stepsOfChapter[i].conditions && stepsOfChapter[i].conditions.length === 0) {
+                    sorted.unshift(stepId)
+                    unsorted.splice(unsorted.indexOf(stepId), 1)
+                    stepsWithNoCondition.push(stepsOfChapter[i].title[this.languages.current])
+                  }
+                  // if one condition or more
+                  if (stepsOfChapter[i].conditions && stepsOfChapter[i].conditions.length > 0) {
+                    var maxPosition = 0
+                    // find if parents are already sorted and if so add item in sorted after
+                    for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
+                      let parentStepId = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
+                      parentStepId = parentStepId.replace("stepSuccess_", "")
+                      parentStepId = parentStepId.replace("stepFail_", "")
+                      // If parent is not sorted => do not treat the item
+                      if (sorted.indexOf(parentStepId) === -1) {
+                        // check that the parent exists at least in unsorted => else error
+                        if (unsorted.indexOf(parentStepId) === -1) {
+                          stepsWithNoParent.push(stepId)
+                          unsorted.splice(unsorted.indexOf(stepId), 1)
+                          sorted.push(stepId)
+                        }
+                        continue allSteps
+                      } else {
+                        let parentPosition = sorted.indexOf(parentStepId)
+                        if (parentPosition > maxPosition) {
+                          maxPosition = parentPosition
+                        }
+                      }
+                    }
+                    // treat the position of the new item
+                    if (sorted.length >= maxPosition) {
+                      sorted.splice(maxPosition + 1, 0, stepId)
+                    } else {                  
+                      sorted.push(stepId)
+                    }
+                    unsorted.splice(unsorted.indexOf(stepId), 1)
+                  }
+                }
+              }
+          }
+          
+          // apply sort && add extra formating properties
+          for (i = 0; i < sorted.length; i++) {
+            for (k = 0; k < stepsOfChapter.length; k++) {
+              if (sorted[i] === stepsOfChapter[k].stepId.toString()) {
+                if (stepsWithNoParent.indexOf(stepsOfChapter[k].stepId.toString()) !== -1) {
+                  stepsOfChapter[k].error = 'FollowingStepsHaveInvalidCondition'
+                }
+                if (i === 0 || stepsOfChapter[k].conditions.length === 0 || stepsOfChapter[k].conditions.length > 1 || stepsOfChapter[k].type === 'locate-marker') {
+                  stepsOfChapter[k].level = 1
+                } else {
+                  stepsOfChapter[k].level = 2
+                }
+                this.chapters.items[j].steps.push(stepsOfChapter[k])
+              }
+            }
+          }
+          
+          /*
           // first step : find the lower level steps
           for (i = 0; i < stepsOfChapter.length; i++) {
             // if no parent (stepDone), 
@@ -863,6 +950,7 @@ export default {
               }
             }
           }
+          */
           
           // Checks
           this.chapters.items[j].warnings = []
@@ -874,6 +962,9 @@ export default {
           }
           if (parent.length > 0) {
             this.chapters.items[j].warnings.push({stepsWithMissingParent: parent})
+          }
+          if (stepsWithNoParent.length > 0) {
+            this.chapters.items[j].warnings.push({stepWithNoParent: stepsWithNoParent})
           }
         }
         
@@ -905,6 +996,9 @@ export default {
         if (warnings[i].hasOwnProperty('moreThan1StepWithNoCondition')) {
           message += this.$t('label.FollowingStepsHaveNoConditionsOnlyTheFirstStepCanHaveThis') + ": " + warnings[i].moreThan1StepWithNoCondition.join(', ') + ". "
         }
+        if (warnings[i].hasOwnProperty('stepWithNoParent')) {
+          message += this.$t('label.FollowingStepsHaveInvalidCondition') + "."
+        }
         if (warnings[i].hasOwnProperty('stepsWithMissingParent')) {
           message += this.$t('label.FollowingStepsHaveNoValidParent') + ": "
           for (var child in warnings[i].stepsWithMissingParent) {
@@ -923,6 +1017,12 @@ export default {
       this.$q.dialog({
         title: this.$t('label.IssuesInYouQuest'),
         message: message
+      })      
+    },
+    showStepWarnings (warning) {
+      this.$q.dialog({
+        title: this.$t('label.IssuesInYourStep'),
+        message: this.$t('label.' + warning)
       })      
     },
     /*
@@ -1130,39 +1230,44 @@ export default {
      * Publish a quest
      */
     async publish(lang) {
-      // if quest is already published in a language, accept automatically other language
-      var action = 'unpublish'
-      // check if at least one language is published
-      for (var i = 0; i < this.form.fields.languages.length; i++) {
-        if (this.form.fields.languages[i].lang && this.form.fields.languages[i].lang === lang) {
-          if (this.form.fields.languages[i].published) {
-            action = 'publish'
+      let isPublishing = await this.checkIfTestable()
+      if (isPublishing) {
+        // if quest is already published in a language, accept automatically other language
+        var action = 'unpublish'
+        // check if at least one language is published
+        for (var i = 0; i < this.form.fields.languages.length; i++) {
+          if (this.form.fields.languages[i].lang && this.form.fields.languages[i].lang === lang) {
+            if (this.form.fields.languages[i].published) {
+              action = 'publish'
+            }
           }
         }
-      }
-      if (action === 'publish') {
-        this.$q.loading.show()
-        await QuestService.publish(this.questId, lang)
-        //TODO: manage if publishing failed
-        this.$q.loading.hide()
-        
-        if (this.quest.status === 'unpublished' || this.quest.status === 'draft') {
-          if (this.quest.access === 'public') {
-            this.quest.status = 'tovalidate'            
-          } else {
-            this.quest.status = 'published'
+        if (action === 'publish') {
+          this.$q.loading.show()
+          await QuestService.publish(this.questId, lang)
+          //TODO: manage if publishing failed
+          this.$q.loading.hide()
+          
+          if (this.quest.status === 'unpublished' || this.quest.status === 'draft') {
+            if (this.quest.access === 'public') {
+              this.quest.status = 'tovalidate'            
+            } else {
+              this.quest.status = 'published'
+            }
+            this.readOnly = true
           }
-          this.readOnly = true
+          this.tabs.progress = 3
+        } else {
+          // no language is published => unpublish the quest
+          this.$q.loading.show()
+          await QuestService.unpublish(this.questId, lang)
+          this.$q.loading.hide()
+          
+          this.quest.status = 'unpublished'
+          this.tabs.progress = 2
         }
-        this.tabs.progress = 3
       } else {
-        // no language is published => unpublish the quest
-        this.$q.loading.show()
-        await QuestService.unpublish(this.questId, lang)
-        this.$q.loading.hide()
-        
-        this.quest.status = 'unpublished'
-        this.tabs.progress = 2
+        Notification(this.$t('label.YourQuestContainsErrorsInSteps'), 'error')
       }
     },
     /*
@@ -1188,7 +1293,23 @@ export default {
      * Test the quest
      */
     async testQuest() {
-      this.$router.push('/quest/play/' + this.questId)
+      let testable = await this.checkIfTestable()
+      if (testable) {
+        this.$router.push('/quest/play/' + this.questId)
+      } else {
+        Notification(this.$t('label.YourQuestContainsErrorsInSteps'), 'error')
+      }
+    },
+    /*
+     * Test the quest
+     */
+    async checkIfTestable() {
+      for (var i = 0; i < this.chapters.items.length; i++) {
+        if (this.chapters.items[i].warnings && this.chapters.items[i].warnings.length > 0) {
+          return false
+        }
+      }
+      return true
     },
     /*
      * Remove the quest

@@ -93,7 +93,7 @@
         </div>
       </div>
       <!--<p>{{ $t('message.Or') }}</p>
-      <q-select :label="$t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
+      <q-select emit-value map-options :label="$t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
       <div v-show="form.answerItem !== null">
         {{ $t('message.SelectedObject') }} :
         <q-icon :name="getItemIcon(form.answerItem)" />
@@ -226,12 +226,12 @@
     <!------------------ STEP : COLOR CODE ------------------------>
     
     <div v-if="options.type.code == 'code-color'" class="code-color">
-      <q-select :label="$t('label.NumberOfColorsInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" />
+      <q-select emit-value map-options :label="$t('label.NumberOfColorsInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" />
       <h2>{{ $t('label.ExpectedColorCodeAnswer') }}</h2>
       <table>
       <tr>
         <td v-for="(color, index) in unformatedAnswer" :key="index">
-          <q-select :ref="'colorSelect' + index" v-model="unformatedAnswer[index]" :options="colorsForCode"  />
+          <q-select emit-value map-options :ref="'colorSelect' + index" v-model="unformatedAnswer[index]" :options="colorsForCode"  />
         </td>
       </tr>
       <tr>
@@ -263,7 +263,7 @@
       </q-btn>
       <div v-if="selectedStep.form.options.images && selectedStep.form.options.images.length > 0 && selectedStep.form.options.images[0].imagePath">
         <h2>{{ $t('label.ExpectedCode') }}</h2>
-        <q-select :label="$t('label.NumberOfImagesInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" />
+        <q-select emit-value map-options :label="$t('label.NumberOfImagesInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" />
         <table>
           <tr>
             <td v-for="(code, index) in unformatedAnswer" :key="index" class="text-center" @click="previousCodeAnswer(index)">
@@ -314,7 +314,7 @@
         </div>
       </div>
       <div>
-        <q-select :label="$t('label.Difficulty')" :options="jigsawLevels" v-model="selectedStep.form.options.level" />
+        <q-select emit-value map-options :label="$t('label.Difficulty')" :options="jigsawLevels" v-model="selectedStep.form.options.level" />
       </div>
     </div>
     
@@ -347,7 +347,7 @@
       </div>
     </div>
     <div class="inventory" v-if="options.type.code == 'use-item'">
-      <q-select
+      <q-select emit-value map-options
         :label="$t('label.ObjectToUse')"
         :options="questItemsAsOptions"
         v-model="selectedStep.form.answerItem"
@@ -396,7 +396,7 @@
           </div>
         </div>
         <div v-if="selectedStep.form.options.is3D">
-          <q-select v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
+          <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
           <p class="error-label" v-show="$v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
         </div>
       </div>
@@ -464,28 +464,30 @@
         -->
         <!--
         <div v-if="selectedStep.form.options.mode === 'touch'">
-          <q-select v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
+          <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
           <p class="error-label" v-show="$v.selectedStep.form.options && $v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
         </div>
         
-        <q-select v-if="selectedStep.form.options.mode === 'scan'" :label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
+        <q-select emit-value map-options v-if="selectedStep.form.options.mode === 'scan'" :label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
       
       </div>-->
       
       <q-dialog v-model="markerModalOpened">
-        <h2>{{ $t('label.ChooseTheMarker') }}</h2>
-        
-        <q-btn v-for="(option, key) in markersList" :key="key" color="white" class="full-width" @click="selectMarker(option)">
-          <img :src="'statics/markers/' + option + '/marker.png'" />
-          <span>{{ option }}</span>
-        </q-btn>
-        
-        <q-btn
-          color="primary"
-          class="full-width"
-          @click="closeChooseMarkerModal()"
-          :label="$t('label.Cancel')"
-        />
+        <div class="bg-white q-pa-md">
+          <h2>{{ $t('label.ChooseTheMarker') }}</h2>
+          
+          <q-btn v-for="(option, key) in markersList" :key="key" color="white" class="full-width" @click="selectMarker(option)">
+            <img :src="'statics/markers/' + option + '/marker.png'" style="width: 30%" />
+            <span class="text-black">{{ option }}</span>
+          </q-btn>
+          
+          <q-btn
+            color="primary"
+            class="full-width"
+            @click="closeChooseMarkerModal()"
+            :label="$t('label.Cancel')"
+          />
+        </div>
       </q-dialog>
     </div>
     
@@ -493,27 +495,29 @@
     
     <q-list bordered>
       <q-expansion-item icon="add_box" :label="$t('label.Conditions')">
-        <q-list highlight v-if="selectedStep.formatedConditions.length > 0">
-          <q-item-label header>{{ $t('label.ThisStepIsTriggeredWhen') }}</q-item-label>
-          <q-item v-for="(condition, index) in selectedStep.formatedConditions" :key="index">
-            <q-item-section>
-              <q-item-label v-html="condition" />
-            </q-item-section>
-            <q-item-section side>
-              <q-icon name="delete" @click.native="deleteCondition(index)" />
-            </q-item-section>
-          </q-item>
-        </q-list>
-        <div v-if="selectedStep.formatedConditions.length === 0">
-          {{ $t("label.NoCondition") }}
-        </div>
-        <q-btn color="primary" class="full-width" v-if="!selectedStep.newConditionForm" @click="selectedStep.newConditionForm = true" :label="$t('label.AddACondition')" />
-        <div v-if="selectedStep.newConditionForm">
-          <q-select :label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @change="changeNewConditionType" />
-          <q-select :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
-          <div class="centered">
-            <q-btn color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />
-            <q-btn color="primary" flat @click="selectedStep.newConditionForm = false" :label="$t('label.Cancel')" />
+        <div class="q-pa-sm">
+          <q-list highlight v-if="selectedStep.formatedConditions.length > 0">
+            <q-item-label header>{{ $t('label.ThisStepIsTriggeredWhen') }}</q-item-label>
+            <q-item v-for="(condition, index) in selectedStep.formatedConditions" :key="index">
+              <q-item-section>
+                <q-item-label v-html="condition" />
+              </q-item-section>
+              <q-item-section side>
+                <q-icon name="delete" @click.native="deleteCondition(index)" />
+              </q-item-section>
+            </q-item>
+          </q-list>
+          <div v-if="selectedStep.formatedConditions.length === 0">
+            {{ $t("label.NoCondition") }}
+          </div>
+          <q-btn color="primary" class="full-width" v-if="!selectedStep.newConditionForm" @click="selectedStep.newConditionForm = true" :label="$t('label.AddACondition')" />
+          <div v-if="selectedStep.newConditionForm">
+            <q-select emit-value map-options :label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @change="changeNewConditionType" />
+            <q-select emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
+            <div class="centered">
+              <q-btn color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />
+              <q-btn color="primary" flat @click="selectedStep.newConditionForm = false" :label="$t('label.Cancel')" />
+            </div>
           </div>
         </div>
       </q-expansion-item>
@@ -523,61 +527,67 @@
     
     <q-list v-show="options.type.hasOptions" bordered>
       <q-expansion-item icon="add_box" :label="$t('label.OtherOptions')">
-        <div v-if="options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'color-keypad' || options.type.code == 'choose' || options.type.code == 'write-text'" class="q-pb-md">
-          <q-toggle v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
-        </div>
-        <div v-if="options.type.code == 'geolocation' || options.type.code == 'locate-item-ar'" class="location-gps">
-          <q-toggle v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
-          <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
-        </div>
-        <div v-if="options.type.code === 'memory'">
-          <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
-        </div>
-        <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
-          <q-input v-model="selectedStep.form.options.initDuration" :label="$t('label.DurationBeforeTextAppearAbovePicture')" />
-        </div>
-        <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
-          <q-btn class="full-width" type="button">
-            <q-icon name="cloud_upload" /> <label for="picturefile2">{{ $t('label.UploadABackgroundImage') }}</label>
-            <input @input="uploadBackgroundImage" name="picturefile2" id="picturefile2" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
-          </q-btn>
-          <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-          <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
-          <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
-            <p>{{ $t('label.YourPicture') }} :</p>
-            <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
-            <a @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
+        <div class="q-pa-sm">
+          <div v-if="options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'color-keypad' || options.type.code == 'choose' || options.type.code == 'write-text'" class="q-pb-md">
+            <q-toggle v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
           </div>
+          <div v-if="options.type.code == 'geolocation' || options.type.code == 'locate-item-ar'" class="location-gps">
+            <q-toggle v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
+            <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
+          </div>
+          <div v-if="options.type.code === 'memory'">
+            <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
+          </div>
+          <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
+            <q-input v-model="selectedStep.form.options.initDuration" :label="$t('label.DurationBeforeTextAppearAbovePicture')" />
+          </div>
+          <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
+            <q-btn class="full-width" type="button">
+              <q-icon name="cloud_upload" /> <label for="picturefile2">{{ $t('label.UploadABackgroundImage') }}</label>
+              <input @input="uploadBackgroundImage" name="picturefile2" id="picturefile2" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+            </q-btn>
+            <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+            <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
+            <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
+              <p>{{ $t('label.YourPicture') }} :</p>
+              <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
+              <a @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
+            </div>
+          </div>
+          <q-input
+            :label="$t('label.ExtraTextFieldLabel')"
+            v-model="selectedStep.form.extraText[lang]"
+            type="textarea"
+            :max-height="100"
+            :min-rows="4"
+            class="full-width"
+          />
         </div>
-        <q-input
-          :label="$t('label.ExtraTextFieldLabel')"
-          v-model="selectedStep.form.extraText[lang]"
-          type="textarea"
-          :max-height="100"
-          :min-rows="4"
-          class="full-width"
-        />
       </q-expansion-item>
     </q-list>
     
     <!------------------ HINT ------------------------>
     
     <q-list v-show="options.type.showTrick == 'yes'" bordered>
-      <q-expansion-item icon="lightbulb outline" :label="$t('label.Hint')">
-        <q-input v-model="selectedStep.form.hint[lang]" :label="$t('label.HintText')" />
+      <q-expansion-item icon="lightbulb" :label="$t('label.Hint')">
+        <div class="q-pa-sm">
+          <q-input v-model="selectedStep.form.hint[lang]" :label="$t('label.HintText')" />
+        </div>
       </q-expansion-item>
     </q-list>
     
     <q-btn class="full-width" color="primary" @click="submitStep">{{ $t('label.SaveThisStep') }}</q-btn>
     
     <q-dialog id="save-changes-modal" v-model="saveChangesModalOpened">
-      <a class="float-right no-underline" @click="saveChangesModalOpened = false"><q-icon name="close" class="medium-icon" /></a>
-      
-      <p>{{ $t('label.ConfirmSaveChanges') }}</p>
-      
-      <div class="full-width">
-        <q-btn color="primary" @click="submitStep()" :label="$t('label.Yes')" />
-        <q-btn color="primary" @click="$emit('close')" :label="$t('label.No')" />
+      <div class="bg-white q-pa-md">
+        <a class="float-right no-underline" @click="saveChangesModalOpened = false"><q-icon name="close" class="medium-icon" /></a>
+        
+        <p>{{ $t('label.ConfirmSaveChanges') }}</p>
+        
+        <div class="full-width centered">
+          <q-btn color="primary" @click="submitStep()" :label="$t('label.Yes')" />
+          <q-btn color="primary" @click="$emit('close')" :label="$t('label.No')" />
+        </div>
       </div>
     </q-dialog>
     

@@ -57,6 +57,7 @@ module.exports = {
     'quotes': 'off',
     'eol-last': 'off',
     'vue/no-parsing-error': 'off',
-    'no-useless-escape': 'off'
+    'no-useless-escape': 'off',
+    'no-labels': 'off'
   }
 }

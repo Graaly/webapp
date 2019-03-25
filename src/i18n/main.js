@@ -622,8 +622,10 @@ module.exports = {
       By: "By",
       YourChapterMustHaveAEndOfChapterStep: "You must have a End of chapter step in each chapter to move player to next chapter",
       FollowingStepsHaveNoConditionsOnlyTheFirstStepCanHaveThis: "Following steps have no trigger. Only the introduction step of a chapter can not have triggers",
+      FollowingStepsHaveInvalidCondition: "Some steps have invalid condition (maybe step it is following is missing)",
       FollowingStepsHaveNoValidParent: "Following steps have invalid trigger",
       IssuesInYouQuest: "Issues of your quest",
+      IssuesInYourStep: "Issues of your step",
       DisplayRightAnswer: "Display right answer",
       Mode: "Mode",
       TouchA3DObjectOnTheMarker: "Touch a 3D object on the marker",
@@ -664,7 +666,8 @@ module.exports = {
       CurrentlyPlaying: "Is currently playing",
       FinalRanking: "Final ranking",
       FinalRankingIntro: "Here are the scores for this quest",
-      YourQuestIsClosedAndCanNotBePublishedAnymore: "Your quest is closed and can not be published any more"
+      YourQuestIsClosedAndCanNotBePublishedAnymore: "Your quest is closed and can not be published any more",
+      YourQuestContainsErrorsInSteps: "There are errors in the Steps tab. Please correct them and try again"
     }
   },
   fr: {
@@ -1291,8 +1294,10 @@ module.exports = {
       By: "Par",
       YourChapterMustHaveAEndOfChapterStep: "Vous devez créer une étape de type Fin de chapitre dans chaque chapitre pour que le joueur passe au chapitre suivant",
       FollowingStepsHaveNoConditionsOnlyTheFirstStepCanHaveThis: "Les étapes suivantes n'ont pas de déclencheur. Seul la première étape d'un chapitre peut ne pas avoir de déclencheur",
+      FollowingStepsHaveInvalidCondition: "Des étapes ont des conditions invalides (dépendent probablement d'étapes manquantes)",
       FollowingStepsHaveNoValidParent: "Les étapes suivantes ont un déclencheur incorrect",
       IssuesInYouQuest: "Problèmes de votre enquête",
+      IssuesInYourStep: "Problèmes de votre étape",
       DisplayRightAnswer: "Afficher la bonne réponse",
       Mode: "Mode",
       TouchA3DObjectOnTheMarker: "Toucher un objet 3D sur le marqueur",
@@ -1333,7 +1338,8 @@ module.exports = {
       CurrentlyPlaying: "Jeu en cours",
       FinalRanking: "Classement final",
       FinalRankingIntro: "Voici les scores pour cette enquête",
-      YourQuestIsClosedAndCanNotBePublishedAnymore: "Votre enquête est close, et ne peut plus être publiée"
+      YourQuestIsClosedAndCanNotBePublishedAnymore: "Votre enquête est close, et ne peut plus être publiée",
+      YourQuestContainsErrorsInSteps: "Votre enquête présente des erreurs dans l'onglet Etapes. Veuillez les corriger"
     }
   }
 }
