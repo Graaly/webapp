@@ -11,9 +11,12 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "@quasar/extras": "^1.1.0",
+    "@babel/core": "^7.4.0",
+    "@quasar/babel-preset-app": "^1.0.2",
+    "@quasar/extras": "^1.1.1",
     "@tweenjs/tween.js": "^17.2.0",
     "ajv": "^6.9.1",
+    "autoprefixer": "^9.5.0",
     "axios": "^0.18.0",
     "core-js": "^2.5.7",
     "es6-promisify": "^6.0.1",
@@ -24,11 +27,13 @@
     "sortablejs": "^1.7.0",
     "three": "^0.101.1",
     "three-gltf-loader": "^1.98.0",
+    "vue": "^2.6.10",
     "vue-i18n": "^7.8.1",
     "vue2-google-maps": "^0.10.2",
     "vuelidate": "^0.7.4",
     "vuex": "^3.0.1",
-    "vuex-persistedstate": "^2.5.4"
+    "vuex-persistedstate": "^2.5.4",
+    "webpack": "^4.29.6"
   },
   "devDependencies": {
     "@quasar/app": "^1.0.0-beta.10",
