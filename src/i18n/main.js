@@ -471,7 +471,7 @@ module.exports = {
       YouMustDefineStartLocation: "You must define the location of the starting point of the quest",
       ClickOnArrowToMoveToNextStep: "Touch the right arrow to move to next step",
       YourQuestMustContainAtLeast6Steps: "Your quest is too short, you must create at least 3 steps",
-      YourQuestMustContainLessThan50Steps: "Your quest is too long, you must create less than 60 steps",
+      YourQuestMustContainLessThan50Steps: "Your quest is too long, you must create less than 100 steps",
       WarningNoLocation: "Searching your location...",
       WarningLowBattery: "Charge your phone before starting quest",
       WarningNoNetwork: "No network...",
@@ -667,7 +667,11 @@ module.exports = {
       FinalRanking: "Final ranking",
       FinalRankingIntro: "Here are the scores for this quest",
       YourQuestIsClosedAndCanNotBePublishedAnymore: "Your quest is closed and can not be published any more",
-      YourQuestContainsErrorsInSteps: "There are errors in the Steps tab. Please correct them and try again"
+      YourQuestContainsErrorsInSteps: "There are errors in the Steps tab. Please correct them and try again",
+      QuestType: "Quest type",
+      helpQuestType: "A chain of clues quest is a list of enigmas that follows each other. An escape game quest is composed with enigmas that can be resolved in different orders, the resolution of some enigmas unlock other enigmas. For your first quest, we advise you to start with a chain of clues quest. You can change a chain of clues quest in an escape game quest, but not the opposite.",
+      basicEditor: "Chain of clues (basic editor)",
+      advancedEditor: "Escape game (advanced editor)"
     }
   },
   fr: {
@@ -1143,7 +1147,7 @@ module.exports = {
       YouMustDefineStartLocation: "Vous devez définir l'adresse du point de départ de l'enquête",
       ClickOnArrowToMoveToNextStep: "Appuyez sur la flèche en bas à droite pour passer à l'étape suivante",
       YourQuestMustContainAtLeast6Steps: "Votre enquête est trop courte, vous devez créer au moins 3 étapes",
-      YourQuestMustContainLessThan50Steps: "Votre enquête est trop longue, vous devez créer moins de 60 étapes",
+      YourQuestMustContainLessThan50Steps: "Votre enquête est trop longue, vous devez créer moins de 100 étapes",
       WarningNoLocation: "Recherche de votre localisation ...",
       WarningLowBattery: "Pensez à charger votre mobile",
       WarningNoNetwork: "Aucun réseau ...",
@@ -1339,7 +1343,11 @@ module.exports = {
       FinalRanking: "Classement final",
       FinalRankingIntro: "Voici les scores pour cette enquête",
       YourQuestIsClosedAndCanNotBePublishedAnymore: "Votre enquête est close, et ne peut plus être publiée",
-      YourQuestContainsErrorsInSteps: "Votre enquête présente des erreurs dans l'onglet Etapes. Veuillez les corriger"
+      YourQuestContainsErrorsInSteps: "Votre enquête présente des erreurs dans l'onglet Etapes. Veuillez les corriger",
+      QuestType: "Type d'enquête",
+      helpQuestType: "Une enquête de type jeu de piste comporte une liste d'énigme qui se suivent de façon linéaire. Une enquête de type Escape game propose des énigmes qui peuvent être résolue dans un ordre non défini, la résolution de plusieurs énigmes débloquent d'autres énigmes. Si vous êtes nouveau sur Graaly, nous vous conseillons de commencer par une enquête de type jeu de piste. Vous pouvez transformer une enquête jeu de piste en enquête escape game, mais pas le contraire.",
+      basicEditor: "Jeu de piste (éditeur simple)",
+      advancedEditor: "Escape game (éditeur avancé)"
     }
   }
 }

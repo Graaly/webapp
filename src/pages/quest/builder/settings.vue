@@ -97,6 +97,15 @@
             :error-message="$t('label.PleaseSelectACategory')"
             />
           
+          <div>
+            {{ $t('label.QuestType') }} 
+            <q-icon name="help" @click.native="showHelpPopup('helpQuestType')" />
+            <div class="q-gutter-sm">
+              <q-radio :disable="editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="simple" :label="$t('label.basicEditor')" @input="refreshStepsList" />
+              <q-radio :disable="editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="advanced" :label="$t('label.advancedEditor')" @input="refreshStepsList" />
+            </div>
+          </div>
+          
           <q-select
             :readonly="readOnly" :label="$t('label.Difficulty')" v-model="form.fields.level" :options="form.levels" emit-value map-options />
         
@@ -152,57 +161,68 @@
         <div class="centered bg-warning q-pa-sm" v-if="warnings.stepsMissing" @click="refreshStepsList">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
-        <div>
-          Editeur
-          <div class="q-gutter-sm">
-            <q-radio v-model="shape" val="simple" label="Simple (jeu de piste)" />
-            <q-radio v-model="shape" val="advanced" label="avancé (escape game)" />
-          </div>
+        <div v-if="form.fields.editorMode === 'simple' && chapters.items && chapters.items.length > 0">
+          <ul class="list-group" v-sortable="{ onUpdate: onStepListUpdate, handle: '.handle' }">
+            <li class="list-group-item" v-for="step in chapters.items[0].steps" :key="step._id">
+              <q-icon class="handle" name="reorder" />
+              <div>
+                  <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
+                  <span style="margin-top: 4px">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                  <q-btn class="float-right" @click="removeStep(step.stepId)"><q-icon name="delete" /></q-btn>
+                  <q-btn class="float-right" @click="modifyStep(step)"><q-icon name="mode_edit" /></q-btn>
+              </div>
+            </li>
+          </ul>
+          <p class="centered">
+            <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
+          </p>
+          <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items[0] && chapters.items[0].steps && chapters.items[0].steps.length > 1">
+            <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
+          </p>
         </div>
-        <p v-if="!readOnly && (!chapters.items || chapters.items.length < 2)">{{ $t('label.AddYourSteps') }}</p>
-        <!--<p class="centered" v-show="chapters.items && chapters.items.length > 6">
-          <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
-        </p>-->
-        <!-- using https://github.com/timruffles/ios-html5-drag-drop-shim to allow drag & drop on mobile -->
-        <ul class="list-group" v-sortable="{ onUpdate: onChapterListUpdate, handle: '.handle' }">
-          <li class="list-group-item" v-for="chapter in chapters.items" :key="chapter._id">
-            <q-icon v-if="!readOnly" class="handle" name="reorder" />
-            <div>
-              <p>
-                {{ chapter.title[languages.current] || chapter.title[quest.mainLanguage] }}
-                <q-icon v-if="!readOnly" name="add_box" class="float-right q-ml-md size-1" style="margin-top: -8px" @click.native="addStep(chapter.chapterId)" />
-                <q-icon v-if="!readOnly" name="delete" class="float-right q-ml-md a-bit-bigger" @click.native="removeChapter(chapter.chapterId)" />
-                <q-icon v-if="!readOnly" name="mode edit" class="float-right q-ml-md a-bit-bigger" @click.native="modifyChapter(chapter.chapterId)" />
-                <q-icon name="warning" color="primary" class="float-right a-bit-bigger" v-if="chapter.warnings && chapter.warnings.length > 0" @click.native="showChapterWarnings(chapter.warnings)" />
-              </p>
-              <div v-if="!chapter.steps || chapter.steps.length === 0">
-                {{ $t('label.ClickOnButtonToAddStep') }}
+        <div v-if="form.fields.editorMode === 'advanced'">
+          <p v-if="!readOnly && (!chapters.items || chapters.items.length < 2)">{{ $t('label.AddYourSteps') }}</p>
+          <!--<p class="centered" v-show="chapters.items && chapters.items.length > 6">
+            <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
+          </p>-->
+          <!-- using https://github.com/timruffles/ios-html5-drag-drop-shim to allow drag & drop on mobile -->
+          <ul class="list-group" v-sortable="{ onUpdate: onChapterListUpdate, handle: '.handle' }">
+            <li class="list-group-item" v-for="chapter in chapters.items" :key="chapter._id">
+              <q-icon v-if="!readOnly" class="handle" name="reorder" />
+              <div>
+                <p>
+                  {{ chapter.title[languages.current] || chapter.title[quest.mainLanguage] }}
+                  <q-icon v-if="!readOnly" name="add_box" class="float-right q-ml-md size-1" style="margin-top: -8px" @click.native="addStep(chapter.chapterId)" />
+                  <q-icon v-if="!readOnly" name="delete" class="float-right q-ml-md a-bit-bigger" @click.native="removeChapter(chapter.chapterId)" />
+                  <q-icon v-if="!readOnly" name="mode edit" class="float-right q-ml-md a-bit-bigger" @click.native="modifyChapter(chapter.chapterId)" />
+                  <q-icon name="warning" color="primary" class="float-right a-bit-bigger" v-if="chapter.warnings && chapter.warnings.length > 0" @click.native="showChapterWarnings(chapter.warnings)" />
+                </p>
+                <div v-if="!chapter.steps || chapter.steps.length === 0">
+                  {{ $t('label.ClickOnButtonToAddStep') }}
+                </div>
+                <div v-for="step in chapter.steps" :key="step._id">
+                  <q-icon color="grey" class="q-mr-sm" :class="{'q-ml-md': (step.level === 2)}" :name="getIconFromStepType(step.type)" />
+                  <span v-if="!readOnly && !step.error" @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                  <span v-if="!readOnly && step.error" @click="showStepWarnings(step.error)" class="text-primary">
+                    <q-icon name="warning" color="primary" />
+                    {{ step.title[languages.current] || step.title[quest.mainLanguage] }}
+                  </span>
+                  <span v-if="readOnly">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                  <q-btn v-if="!readOnly" class="float-right" icon="delete" dense @click="removeStep(step.stepId)" />
+                  <q-btn v-if="!readOnly" class="float-right" icon="mode_edit" dense @click="modifyStep(step)" />
+                </div>
               </div>
-              <div v-for="step in chapter.steps" :key="step._id">
-                <q-icon color="grey" class="q-mr-sm" :class="{'q-ml-md': (step.level === 2)}" :name="getIconFromStepType(step.type)" />
-                <span v-if="!readOnly && !step.error" @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
-                <span v-if="!readOnly && step.error" @click="showStepWarnings(step.error)" class="text-primary">
-                  <q-icon name="warning" color="primary" />
-                  {{ step.title[languages.current] || step.title[quest.mainLanguage] }}
-                </span>
-                <span v-if="readOnly">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
-                <q-btn v-if="!readOnly" class="float-right" icon="delete" dense @click="removeStep(step.stepId)" />
-                <q-btn v-if="!readOnly" class="float-right" icon="mode_edit" dense @click="modifyStep(step)" />
-              </div>
-            </div>
-          </li>
-        </ul>
+            </li>
+          </ul>
         
-        <p v-if="!readOnly" class="centered">
-          <q-btn color="primary" icon="fas fa-plus-circle" @click="addChapter()" :label="$t('label.AddASChapter')" />
-        </p>
-        <!--<p class="centered">
-          <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
-        </p>-->
-        <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items.length > 3">
-          <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
-        </p>
-      
+          <p v-if="!readOnly" class="centered">
+            <q-btn color="primary" icon="fas fa-plus-circle" @click="addChapter()" :label="$t('label.AddASChapter')" />
+          </p>
+          <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items.length > 3">
+            <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
+          </p>
+        </div>
+              
       </q-tab-panel>
       
       <!------------------ PUBLISHING TAB ------------------------>
@@ -222,10 +242,10 @@
           </q-banner>
           <!--<q-banner class="q-mb-md bg-warning" v-if="chapters.items.length < 3">
             {{ $t('label.YourQuestMustContainAtLeast6Steps') }}
-          </q-banner>
-          <q-banner class="q-mb-md bg-warning" v-if="chapters.items.length > 60">
-            {{ $t('label.YourQuestMustContainLessThan50Steps') }}
           </q-banner>-->
+          <q-banner class="q-mb-md bg-warning" v-if="chapters.items.length > 100">
+            {{ $t('label.YourQuestMustContainLessThan50Steps') }}
+          </q-banner>
           <p class="centered q-pa-md">
             <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
           </p>
@@ -428,6 +448,7 @@
               v-for="stepType in filteredStepTypes('transition')" :key="stepType.code" 
               :icon="'fas fa-' + stepType.icon"
               :label="$t('stepType.' + stepType.title)"
+              v-if="!(stepType.code === 'end-chapter' && form.fields.editorMode === 'simple')"
             >
               <div class="centered q-pa-sm">
                 {{ $t('stepType.' + stepType.description) }}
@@ -464,7 +485,7 @@
       
       <!------------------ STEP SETTINGS SELECTION ------------------------>
       
-      <stepSettings :quest="quest" :stepId="stepId" :lang="languages.current" :options="{type: chapters.newStep.type, chapterId: chapters.newStep.chapterId, previousStepId: chapters.newStep.previousStepId}" @change="trackStepChanges" @close="closeStepSettingsPage"></stepSettings>
+      <stepSettings :quest="quest" :stepId="stepId" :lang="languages.current" :options="{type: chapters.newStep.type, chapterId: chapters.newStep.chapterId, previousStepId: chapters.newStep.previousStepId, mode: form.fields.editorMode}" @change="trackStepChanges" @close="closeStepSettingsPage"></stepSettings>
       
     </q-dialog>
     
@@ -599,7 +620,8 @@ export default {
           thumb: null,
           town: "",
           country: "",
-          zipcode: ""
+          zipcode: "",
+          editorMode: 'simple'
         },
         categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }, this.$t),
         languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
@@ -647,7 +669,8 @@ export default {
         new: {
           email: '',
           isExisting: true
-        }
+        },
+        initMode: 'simple'
       },
       invitee: {
         items: [],
@@ -724,6 +747,7 @@ export default {
         if (this.quest.status !== 'draft') {
           this.readOnly = true
         }
+        this.editor.initMode = this.quest.editorMode
 
         // get languages
         if (this.quest.languages && this.quest.languages.length > 0 && this.languages.current === '') {
@@ -785,187 +809,193 @@ export default {
         this.chapters.items = response.data.chapters
         
         const steps = response.data.steps
-        for (var j = 0; j < this.chapters.items.length; j++) {
-          var hasEndOfChapterStep = false
-          var stepsWithNoCondition = []
-          var stepsWithNoParent = []
-          var stepsOfChapter = []
-          var parent = []
-     
-          // Get the steps of current chapter & check if chapter has and end step
-          for (var i = 0; i < steps.length; i++) {
-            if (steps[i].chapterId.toString() === this.chapters.items[j].chapterId.toString()) {
-              // create steps array
-              if (!this.chapters.items[j].steps) {
-                this.chapters.items[j].steps = []
+        
+        if (this.form.fields.editorMode === 'simple') {
+          // editor simple mode
+          this.chapters.items[0].steps = steps
+        } else {
+          // editor advanced mode
+          for (var j = 0; j < this.chapters.items.length; j++) {
+            var hasEndOfChapterStep = false
+            var stepsWithNoCondition = []
+            var stepsWithNoParent = []
+            var stepsOfChapter = []
+            var parent = []
+       
+            // Get the steps of current chapter & check if chapter has and end step
+            for (var i = 0; i < steps.length; i++) {
+              if (steps[i].chapterId.toString() === this.chapters.items[j].chapterId.toString()) {
+                // create steps array
+                if (!this.chapters.items[j].steps) {
+                  this.chapters.items[j].steps = []
+                }
+                // check if there is an end of chapter step
+                if (steps[i].type === 'end-chapter') {
+                  hasEndOfChapterStep = true
+                }
+                stepsOfChapter.push(steps[i])
               }
-              // check if there is an end of chapter step
-              if (steps[i].type === 'end-chapter') {
-                hasEndOfChapterStep = true
-              }
-              stepsOfChapter.push(steps[i])
             }
-          }
-          
-          // create unsorted list of steps
-          var unsorted = []
-          for (i = 0; i < stepsOfChapter.length; i++) {
-            unsorted.push(stepsOfChapter[i].stepId.toString())
-          }
-          
-          // create sorted list of steps
-          var sorted = []
-          //until all the steps are treated
-          var iteration = 0
-          while (unsorted.length > 0 || iteration < 1000) {
-            iteration++
-            allSteps:
-              for (i = 0; i < stepsOfChapter.length; i++) {
-                var stepId = stepsOfChapter[i].stepId.toString()
-                // if the step does not already exists in final array
-                if (sorted.indexOf(stepId) === -1) {
-                  // if no condition => place in first position in chapter
-                  if (stepsOfChapter[i].conditions && stepsOfChapter[i].conditions.length === 0) {
-                    sorted.unshift(stepId)
-                    unsorted.splice(unsorted.indexOf(stepId), 1)
-                    stepsWithNoCondition.push(stepsOfChapter[i].title[this.languages.current])
-                  }
-                  // if one condition or more
-                  if (stepsOfChapter[i].conditions && stepsOfChapter[i].conditions.length > 0) {
-                    var maxPosition = 0
-                    // find if parents are already sorted and if so add item in sorted after
-                    for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
-                      let parentStepId = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
-                      parentStepId = parentStepId.replace("stepSuccess_", "")
-                      parentStepId = parentStepId.replace("stepFail_", "")
-                      // If parent is not sorted => do not treat the item
-                      if (sorted.indexOf(parentStepId) === -1) {
-                        // check that the parent exists at least in unsorted => else error
-                        if (unsorted.indexOf(parentStepId) === -1) {
-                          stepsWithNoParent.push(stepId)
-                          unsorted.splice(unsorted.indexOf(stepId), 1)
-                          sorted.push(stepId)
-                        }
-                        continue allSteps
-                      } else {
-                        let parentPosition = sorted.indexOf(parentStepId)
-                        if (parentPosition > maxPosition) {
-                          maxPosition = parentPosition
+            
+            // create unsorted list of steps
+            var unsorted = []
+            for (i = 0; i < stepsOfChapter.length; i++) {
+              unsorted.push(stepsOfChapter[i].stepId.toString())
+            }
+            
+            // create sorted list of steps
+            var sorted = []
+            //until all the steps are treated
+            var iteration = 0
+            while (unsorted.length > 0 || iteration < 1000) {
+              iteration++
+              allSteps:
+                for (i = 0; i < stepsOfChapter.length; i++) {
+                  var stepId = stepsOfChapter[i].stepId.toString()
+                  // if the step does not already exists in final array
+                  if (sorted.indexOf(stepId) === -1) {
+                    // if no condition => place in first position in chapter
+                    if (stepsOfChapter[i].conditions && stepsOfChapter[i].conditions.length === 0) {
+                      sorted.unshift(stepId)
+                      unsorted.splice(unsorted.indexOf(stepId), 1)
+                      stepsWithNoCondition.push(stepsOfChapter[i].title[this.languages.current])
+                    }
+                    // if one condition or more
+                    if (stepsOfChapter[i].conditions && stepsOfChapter[i].conditions.length > 0) {
+                      var maxPosition = 0
+                      // find if parents are already sorted and if so add item in sorted after
+                      for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
+                        let parentStepId = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
+                        parentStepId = parentStepId.replace("stepSuccess_", "")
+                        parentStepId = parentStepId.replace("stepFail_", "")
+                        // If parent is not sorted => do not treat the item
+                        if (sorted.indexOf(parentStepId) === -1) {
+                          // check that the parent exists at least in unsorted => else error
+                          if (unsorted.indexOf(parentStepId) === -1) {
+                            stepsWithNoParent.push(stepId)
+                            unsorted.splice(unsorted.indexOf(stepId), 1)
+                            sorted.push(stepId)
+                          }
+                          continue allSteps
+                        } else {
+                          let parentPosition = sorted.indexOf(parentStepId)
+                          if (parentPosition > maxPosition) {
+                            maxPosition = parentPosition
+                          }
                         }
                       }
+                      // treat the position of the new item
+                      if (sorted.length >= maxPosition) {
+                        sorted.splice(maxPosition + 1, 0, stepId)
+                      } else {                  
+                        sorted.push(stepId)
+                      }
+                      unsorted.splice(unsorted.indexOf(stepId), 1)
                     }
-                    // treat the position of the new item
-                    if (sorted.length >= maxPosition) {
-                      sorted.splice(maxPosition + 1, 0, stepId)
-                    } else {                  
-                      sorted.push(stepId)
-                    }
-                    unsorted.splice(unsorted.indexOf(stepId), 1)
                   }
                 }
-              }
-          }
-          
-          // apply sort && add extra formating properties
-          for (i = 0; i < sorted.length; i++) {
-            for (k = 0; k < stepsOfChapter.length; k++) {
-              if (sorted[i] === stepsOfChapter[k].stepId.toString()) {
-                if (stepsWithNoParent.indexOf(stepsOfChapter[k].stepId.toString()) !== -1) {
-                  stepsOfChapter[k].error = 'FollowingStepsHaveInvalidCondition'
+            }
+            
+            // apply sort && add extra formating properties
+            for (i = 0; i < sorted.length; i++) {
+              for (k = 0; k < stepsOfChapter.length; k++) {
+                if (sorted[i] === stepsOfChapter[k].stepId.toString()) {
+                  if (stepsWithNoParent.indexOf(stepsOfChapter[k].stepId.toString()) !== -1) {
+                    stepsOfChapter[k].error = 'FollowingStepsHaveInvalidCondition'
+                  }
+                  if (i === 0 || stepsOfChapter[k].conditions.length === 0 || stepsOfChapter[k].conditions.length > 1 || stepsOfChapter[k].type === 'locate-marker') {
+                    stepsOfChapter[k].level = 1
+                  } else {
+                    stepsOfChapter[k].level = 2
+                  }
+                  this.chapters.items[j].steps.push(stepsOfChapter[k])
                 }
-                if (i === 0 || stepsOfChapter[k].conditions.length === 0 || stepsOfChapter[k].conditions.length > 1 || stepsOfChapter[k].type === 'locate-marker') {
-                  stepsOfChapter[k].level = 1
-                } else {
-                  stepsOfChapter[k].level = 2
-                }
-                this.chapters.items[j].steps.push(stepsOfChapter[k])
               }
             }
-          }
-          
-          /*
-          // first step : find the lower level steps
-          for (i = 0; i < stepsOfChapter.length; i++) {
-            // if no parent (stepDone), 
-            if ((stepsOfChapter[i].conditions && stepsOfChapter[i].conditions.length > 0) || stepsOfChapter[i].type === 'locate-marker') {
-              if (stepsOfChapter[i].type !== 'locate-marker') {
-                for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
-                  var noStepDone = true
-                  if (stepsOfChapter[i].conditions[k].indexOf('stepDone') !== -1) {
-                    noStepDone = false
-                    parent[stepsOfChapter[i].stepId.toString()] = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
-                  }
-                  if (stepsOfChapter[i].conditions[k].indexOf('stepSuccess') !== -1) {
-                    noStepDone = false
-                    parent[stepsOfChapter[i].stepId.toString()] = stepsOfChapter[i].conditions[k].replace("stepSuccess_", "")
-                  }
-                  if (stepsOfChapter[i].conditions[k].indexOf('stepFail') !== -1) {
-                    noStepDone = false
-                    parent[stepsOfChapter[i].stepId.toString()] = stepsOfChapter[i].conditions[k].replace("stepFail_", "")
+            
+            /*
+            // first step : find the lower level steps
+            for (i = 0; i < stepsOfChapter.length; i++) {
+              // if no parent (stepDone), 
+              if ((stepsOfChapter[i].conditions && stepsOfChapter[i].conditions.length > 0) || stepsOfChapter[i].type === 'locate-marker') {
+                if (stepsOfChapter[i].type !== 'locate-marker') {
+                  for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
+                    var noStepDone = true
+                    if (stepsOfChapter[i].conditions[k].indexOf('stepDone') !== -1) {
+                      noStepDone = false
+                      parent[stepsOfChapter[i].stepId.toString()] = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
+                    }
+                    if (stepsOfChapter[i].conditions[k].indexOf('stepSuccess') !== -1) {
+                      noStepDone = false
+                      parent[stepsOfChapter[i].stepId.toString()] = stepsOfChapter[i].conditions[k].replace("stepSuccess_", "")
+                    }
+                    if (stepsOfChapter[i].conditions[k].indexOf('stepFail') !== -1) {
+                      noStepDone = false
+                      parent[stepsOfChapter[i].stepId.toString()] = stepsOfChapter[i].conditions[k].replace("stepFail_", "")
+                    }
                   }
                 }
-              }
-              if (noStepDone || stepsOfChapter[i].type === 'locate-marker') {
-                order.push({key: orderIndex.toString(), value: stepsOfChapter[i].stepId}) 
-                orderIndex++
-              }
-            } else {
-              if (order.length === 0) {
-                order.push({key: "0", value: stepsOfChapter[i].stepId})
+                if (noStepDone || stepsOfChapter[i].type === 'locate-marker') {
+                  order.push({key: orderIndex.toString(), value: stepsOfChapter[i].stepId}) 
+                  orderIndex++
+                }
               } else {
-                order.push({key: orderIndex.toString(), value: stepsOfChapter[i].stepId}) 
-                orderIndex++
+                if (order.length === 0) {
+                  order.push({key: "0", value: stepsOfChapter[i].stepId})
+                } else {
+                  order.push({key: orderIndex.toString(), value: stepsOfChapter[i].stepId}) 
+                  orderIndex++
+                }
+                
+                stepsWithNoCondition.push(stepsOfChapter[i].title[this.languages.current])
               }
-              
-              stepsWithNoCondition.push(stepsOfChapter[i].title[this.languages.current])
             }
-          }
 
-          // get order based on parent/child hierarchy
-          var nbToTreat = Object.keys(parent).length
-          var inc = 0
-          while (Object.keys(parent).length > 0 && inc < nbToTreat) {
-            for (var child in parent) {
-              for (i = 0; i < order.length; i++) {
-                if (parent[child] === order[i].value) {
-                  order.push({key: order[i].key + "." + order[i].value, value: child})
-                  delete parent[child]
+            // get order based on parent/child hierarchy
+            var nbToTreat = Object.keys(parent).length
+            var inc = 0
+            while (Object.keys(parent).length > 0 && inc < nbToTreat) {
+              for (var child in parent) {
+                for (i = 0; i < order.length; i++) {
+                  if (parent[child] === order[i].value) {
+                    order.push({key: order[i].key + "." + order[i].value, value: child})
+                    delete parent[child]
+                  }
+                }
+              }
+              inc++
+            }
+            
+            order.sort(function(a, b) {
+              return a.key < b.key ? -1 : a.key > b.key ? 1 : 0
+            })
+            
+            // order steps
+            for (i = 0; i < order.length; i++) {
+              for (k = 0; k < stepsOfChapter.length; k++) {
+                if (order[i].value === stepsOfChapter[k].stepId.toString()) {
+                  this.chapters.items[j].steps.push(stepsOfChapter[k])
                 }
               }
             }
-            inc++
-          }
-          
-          order.sort(function(a, b) {
-            return a.key < b.key ? -1 : a.key > b.key ? 1 : 0
-          })
-          
-          // order steps
-          for (i = 0; i < order.length; i++) {
-            for (k = 0; k < stepsOfChapter.length; k++) {
-              if (order[i].value === stepsOfChapter[k].stepId.toString()) {
-                this.chapters.items[j].steps.push(stepsOfChapter[k])
-              }
+            */
+            
+            // Checks
+            this.chapters.items[j].warnings = []
+            if (!hasEndOfChapterStep) {
+              this.chapters.items[j].warnings.push({noEndOfChapter: true})
             }
-          }
-          */
-          
-          // Checks
-          this.chapters.items[j].warnings = []
-          if (!hasEndOfChapterStep) {
-            this.chapters.items[j].warnings.push({noEndOfChapter: true})
-          }
-          if (stepsWithNoCondition.length > 1) {
-            this.chapters.items[j].warnings.push({moreThan1StepWithNoCondition: stepsWithNoCondition})
-          }
-          if (parent.length > 0) {
-            this.chapters.items[j].warnings.push({stepsWithMissingParent: parent})
-          }
-          if (stepsWithNoParent.length > 0) {
-            this.chapters.items[j].warnings.push({stepWithNoParent: stepsWithNoParent})
+            if (stepsWithNoCondition.length > 1) {
+              this.chapters.items[j].warnings.push({moreThan1StepWithNoCondition: stepsWithNoCondition})
+            }
+            if (parent.length > 0) {
+              this.chapters.items[j].warnings.push({stepsWithMissingParent: parent})
+            }
+            if (stepsWithNoParent.length > 0) {
+              this.chapters.items[j].warnings.push({stepWithNoParent: stepsWithNoParent})
+            }
           }
         }
-        
         if (steps && steps.length > 0 && this.tabs.progress < 2) {
           this.tabs.progress = 2
         }
@@ -984,6 +1014,12 @@ export default {
         this.warnings.stepsMissing = true
       }
       this.$q.loading.hide()
+    },
+    showHelpPopup (message) {
+      this.$q.dialog({
+        //title: this.$t('label.IssuesInYouQuest'),
+        message: this.$t('label.' + message)
+      })
     },
     showChapterWarnings (warnings) {
       var message = ""
@@ -1222,6 +1258,16 @@ export default {
       let moveStatus = await StepService.moveChapter(this.questId, this.quest.version, event.oldIndex + 1, event.newIndex + 1)
       if (moveStatus) {
         this.chapters.items.splice(event.newIndex, 0, this.chapters.items.splice(event.oldIndex, 1)[0])
+      }
+    },
+    /*
+     * Reindex elements in the list after drag & drop
+     * @param   {Object}    event            touch event
+     */
+    async onStepListUpdate(event) {
+      let moveStatus = await StepService.move(this.questId, this.quest.version, event.oldIndex + 1, event.newIndex + 1)
+      if (moveStatus) {
+        this.chapters.items[0].steps.splice(event.newIndex, 0, this.chapters.items[0].steps.splice(event.oldIndex, 1)[0])
       }
     },
     /*
@@ -1534,6 +1580,9 @@ export default {
      * add a step
      */
     async addStep(chapterId) {
+      if (!chapterId) {
+        chapterId = this.chapters.items[0].chapterId
+      }
       this.chapters.showNewStepPage = true
       this.chapters.newStep.chapterId = chapterId
       this.chapters.newStep.scrollPosition = document.documentElement.scrollTop

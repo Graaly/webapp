@@ -476,7 +476,7 @@
     
     <!------------------ CONDITIONS ------------------------>
     
-    <q-list bordered>
+    <q-list bordered v-if="options && options.mode && options.mode === 'advanced'">
       <q-expansion-item icon="add_box" :label="$t('label.Conditions')">
         <div class="q-pa-sm">
           <q-list highlight v-if="selectedStep.formatedConditions.length > 0">
