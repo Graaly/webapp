@@ -440,12 +440,7 @@
             { label: $t('label.ScanTheMarker'), value: 'scan' }
           ]"
         />
-        -->
-        <!--
-        'Touch a 3D object on the marker' [TODO TRANSLATE]
-        'Scan the marker (two attempts) [TODO TRANSLATE]
-        -->
-        <!--
+        
         <div v-if="selectedStep.form.options.mode === 'touch'">
           <q-select v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
           <p class="error-label" v-show="$v.selectedStep.form.options && $v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
@@ -455,20 +450,28 @@
       
       </div>-->
       
-      <q-dialog v-model="markerModalOpened">
-        <h2>{{ $t('label.ChooseTheMarker') }}</h2>
+      <q-dialog id="choose-marker-modal" v-model="markerModalOpened">
+        <q-card>
+          <q-card-section>
+            <div class="text-h6">{{ $t('label.ChooseTheMarker') }}</div>
+          </q-card-section>
         
-        <q-btn v-for="(option, key) in markersList" :key="key" color="white" class="full-width" @click="selectMarker(option)">
-          <img :src="'statics/markers/' + option + '/marker.png'" />
-          <span>{{ option }}</span>
-        </q-btn>
+          <q-card-section>
+            <q-btn v-for="(option, key) in markersList" :key="key" color="white" class="full-width" @click="selectMarker(option)">
+              <img :src="'statics/markers/' + option + '/marker.png'" />
+              <span>{{ option }}</span>
+            </q-btn>
+          </q-card-section>
         
-        <q-btn
-          color="primary"
-          class="full-width"
-          @click="closeChooseMarkerModal()"
-          :label="$t('label.Cancel')"
-        />
+          <q-card-actions>
+            <q-btn
+              color="primary"
+              class="full-width"
+              @click="closeChooseMarkerModal()"
+              :label="$t('label.Cancel')"
+            />
+          </q-card-actions>
+        </q-card>
       </q-dialog>
     </div>
     
@@ -553,15 +556,19 @@
     
     <q-btn class="full-width" color="primary" @click="submitStep">{{ $t('label.SaveThisStep') }}</q-btn>
     
-    <q-dialog id="save-changes-modal" v-model="saveChangesModalOpened">
-      <a class="float-right no-underline" @click="saveChangesModalOpened = false"><q-icon name="close" class="medium-icon" /></a>
-      
-      <p>{{ $t('label.ConfirmSaveChanges') }}</p>
-      
-      <div class="full-width">
-        <q-btn color="primary" @click="submitStep()" :label="$t('label.Yes')" />
-        <q-btn color="primary" @click="$emit('close')" :label="$t('label.No')" />
-      </div>
+    <q-dialog id="save-changes-modal" class="full-width" v-model="saveChangesModalOpened">
+      <q-card class="q-pa-sm">
+        <q-btn class="absolute-top-right" icon="close" flat round dense @click="saveChangesModalOpened = false" />
+        
+        <q-card-section>
+          <div class="text-h6 q-mt-md">{{ $t('label.ConfirmSaveChanges') }}</div>
+        </q-card-section>
+
+        <q-card-actions>
+          <q-btn color="primary" @click="submitStep()" :label="$t('label.Yes')" />
+          <q-btn color="primary" @click="$emit('close')" :label="$t('label.No')" />
+        </q-card-actions>
+      </q-card>
     </q-dialog>
     
   </div>
@@ -1753,9 +1760,9 @@ p { margin-bottom: 0.5rem; }
 .error-label { color: #db2828; }
 .answer .error-label { font-size: 0.8rem; white-space: nowrap; }
 
-#save-changes-modal p { font-size: 2rem; }
-#save-changes-modal div { display: flex; flex-flow: row nowrap; width: 100%; }
-#save-changes-modal .q-btn { flex-grow: 1 }
-#save-changes-modal .q-btn:not(:last-child) { margin-right: 3vw; }
+#save-changes-modal .q-card__actions .q-btn { flex-grow: 1; }
+
+#choose-marker-modal img { width: 5rem; height: 5rem; }
+#choose-marker-modal span { flex-grow: 1; font-size:1.5rem; color: #000; }
 
 </style>
