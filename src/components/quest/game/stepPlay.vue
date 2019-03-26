@@ -1888,7 +1888,7 @@ export default {
       
       // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
       
-      if (this.step.type === 'locate-item-ar' && this.geolocation.target.scene !== null) {
+      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.geolocation.target.scene !== null) {
         let target = this.geolocation.target
         let scene = target.scene
         let object = scene.getObjectByName('targetObject')
