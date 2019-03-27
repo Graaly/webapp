@@ -856,6 +856,13 @@ export default {
           }
         } else {
           this.answerType = this.selectedStep.form.options[0].hasOwnProperty('imagePath') && this.selectedStep.form.options[0].imagePath !== null ? 'image' : 'text'
+          if (this.answerType === 'text') {
+            for (var i = 0; i < this.selectedStep.form.options.length; i++) {
+              if (this.selectedStep.form.options[i].textLanguage && this.selectedStep.form.options[i].textLanguage[this.lang]) {
+                this.selectedStep.form.options[i].text = this.selectedStep.form.options[i].textLanguage[this.lang]
+              }
+            }
+          }          
         }
         this.minNbAnswers = 2
         this.maxNbAnswers = 6
@@ -1016,6 +1023,15 @@ export default {
       // format answer based on the type of step
       if (this.options.type.code === 'choose') {
         if (this.answerType === 'text') {
+          for (var i = 0; i < this.selectedStep.form.options.length; i++) {
+            if (this.selectedStep.form.options && this.selectedStep.form.options[i] && this.selectedStep.form.options[i].textLanguage) {
+              this.selectedStep.form.options[i].textLanguage[this.lang] = this.selectedStep.form.options[i].text
+            } else {
+              let text = {}
+              text[this.lang] = this.selectedStep.form.options[i].text
+              this.selectedStep.form.options[i].textLanguage = text
+            }
+          }
           // clear all images => playStep.vue will consider that player should choose between text options
           this.selectedStep.form.options = this.selectedStep.form.options.map((option) => { option.imagePath = null; return option })
         }

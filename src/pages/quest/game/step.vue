@@ -78,7 +78,7 @@
           <q-btn round size="lg" color="primary" icon="work" :class="{'bg-secondary': inventory.isOpened}" @click="openInventory()" v-show="inventory.show" />
         </div>
         <div class="col centered q-pb-md">
-          <q-btn round size="lg" color="primary" icon="lightbulb outline" :class="{'flashing': hint.suggest, 'bg-secondary': hint.isOpened}" @click="askForHint()" v-show="hint.show" />
+          <q-btn round size="lg" color="primary" icon="lightbulb" :class="{'flashing': hint.suggest, 'bg-secondary': hint.isOpened}" @click="askForHint()" v-show="hint.show" />
         </div>
         <div class="col centered q-pb-md">
           <q-btn round size="lg" color="primary" icon="arrow_back" v-show="previousStepId !== ''" @click="previousStep()" />

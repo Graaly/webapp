@@ -63,13 +63,14 @@
         
       <!------------------ CHOOSE STEP AREA ------------------------>
       
-      <div class="choose" v-if="step.type == 'choose'">
+      <div class="choose" v-if="step.type == 'choose'" style="overflow: auto; margin-bottom: 80px;">
         <div @click="hideControlsTemporaly">
            <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="answers-text" v-if="answerType === 'text'">
           <q-btn v-for="(option, key) in step.options" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null">
-            {{ option.text }}
+            <span v-if="!option.textLanguage || !option.textLanguage[lang]">{{ option.text }}</span>
+            <span v-if="option.textLanguage && option.textLanguage[lang]">{{ option.textLanguage[lang] }}</span>
           </q-btn>
         </div>
         <div class="answers-images" v-if="answerType === 'image'">

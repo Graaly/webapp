@@ -167,7 +167,7 @@
               <q-icon class="handle" name="reorder" />
               <div>
                   <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
-                  <span style="margin-top: 4px">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                  <span style="margin-top: 4px" @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
                   <q-btn class="float-right" @click="removeStep(step.stepId)"><q-icon name="delete" /></q-btn>
                   <q-btn class="float-right" @click="modifyStep(step)"><q-icon name="mode_edit" /></q-btn>
               </div>
@@ -503,7 +503,7 @@
               <q-btn round size="lg" color="primary" icon="work" :class="{'bg-secondary': inventory.isOpened}" @click="openInventory()" />
             </div>
             <div class="col centered q-pb-md">
-              <q-btn round size="lg" color="primary" icon="lightbulb outline" :class="{'flashing': hint.suggest, 'bg-secondary': hint.isOpened}" @click="askForHint()" v-show="isHintAvailable()" />
+              <q-btn round size="lg" color="primary" icon="lightbulb" :class="{'flashing': hint.suggest, 'bg-secondary': hint.isOpened}" @click="askForHint()" v-show="isHintAvailable()" />
             </div>
             <div v-if="!readOnly" class="col centered q-pb-md">
               <q-btn round size="lg" color="primary" icon="arrow_back" @click="modifyStep()" />
