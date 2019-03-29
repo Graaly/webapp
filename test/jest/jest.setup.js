@@ -1,5 +1,10 @@
 
 import 'jest-chain'
+import loadEnvVars from './config/index'
+
+let customEnvVars = loadEnvVars('test')
+Object.keys(customEnvVars).map((key, index) => { customEnvVars[key] = JSON.parse(customEnvVars[key]) })
+Object.assign(process.env, customEnvVars)
 
 // No console.log() / setTimeout
 // console.log = jest.fn(() => { throw new Error('Do not use console.log() in production') })

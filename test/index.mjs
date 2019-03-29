@@ -4,8 +4,8 @@
  *
  * useful DB commands:
  * 
- * - dump graaly DB:
- * mongodump --archive=graaly-db.gz --db=graaly --gzip
+ * - dump graaly-test DB:
+ * mongodump --archive=graaly-db.gz --db=graaly-test --gzip
  * 
  * - import data from 'graaly' archive to 'graaly-test' DB
  * mongorestore --gzip --archive=test/graaly-db.gz --nsFrom "graaly.*" --nsTo "graaly-test.*"
