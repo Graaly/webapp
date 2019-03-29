@@ -179,6 +179,9 @@
           <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items[0] && chapters.items[0].steps && chapters.items[0].steps.length > 1">
             <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
           </p>
+          <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current" @click="showMedia()">
+            {{ getStorageUsage() }}
+          </p>
         </div>
         <div v-if="form.fields.editorMode === 'advanced'">
           <p v-if="!readOnly && (!chapters.items || chapters.items.length < 2)">{{ $t('label.AddYourSteps') }}</p>
@@ -220,6 +223,9 @@
           </p>
           <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items.length > 3">
             <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
+          </p>
+          <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current" @click="showMedia()">
+            {{ getStorageUsage() }}
           </p>
         </div>
               
@@ -520,7 +526,7 @@
     
     <transition name="slideInBottom">
       <div class="inventory panel-bottom q-pa-md" v-show="inventory.isOpened">
-        <h1>{{ $t('label.Inventory') }}</h1>
+        <h3>{{ $t('label.Inventory') }}</h3>
         <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
@@ -539,12 +545,37 @@
     
     <transition name="slideInBottom">
       <div class="hint panel-bottom q-pa-md" v-show="hint.isOpened">
-        <h1>{{ $t('label.Hint') }}</h1>
+        <h3>{{ $t('label.Hint') }}</h3>
         <p v-if="hint.label === ''">{{ $t('label.NoHintForThisStep') }}</p>
         <p v-if="hint.label !== ''">{{ hint.label[languages.current] }}</p>
         <q-btn class="q-mb-xl" color="primary" @click="askForHint()">{{ $t('label.Close') }}</q-btn>
       </div>
     </transition>
+    
+    <!------------------ MEDIA LIST AREA ------------------------>
+    
+    <transition name="slideInBottom">
+      <div class="hint panel-bottom q-pa-md" v-show="media.isOpened">
+        <h3>{{ $t('label.QuestMedia') }}</h3>
+        <q-list v-for="(item, index) in media.items" :key="item.id">
+          <q-item clickable v-ripple>
+            <q-item-section thumbnail @click="zoomMedia(index)">
+              <img :src="serverUrl + '/upload/quest/' + questId + item.type + item.file">
+            </q-item-section>
+            <q-item-section>{{ item.size }} Ko</q-item-section>
+            <q-item-section side><q-btn icon="delete" @click="removeMedia(item._id)"></q-btn></q-item-section>
+          </q-item>
+        </q-list>
+        <div v-if="media.items.length === 0">
+          {{ $t('label.YouDoNotUseAnyMediaYetInYourQuest') }}
+        </div>
+        <q-btn class="q-mb-xl" color="primary" @click="hideMedia()">{{ $t('label.Close') }}</q-btn>
+      </div>
+    </transition>
+    <q-dialog v-model="media.detail.isOpened">
+      <img v-if="media.items.length > 0" style="width: 100%" :src="serverUrl + '/upload/quest/' + questId + media.items[media.detail.index].type + media.items[media.detail.index].file">
+      <q-btn class="q-mb-xl" color="primary" @click="unzoomMedia()">{{ $t('label.Close') }}</q-btn>
+    </q-dialog>
     
     <!--====================== STORY =================================-->
     
@@ -663,6 +694,14 @@ export default {
       hint: {
         isOpened: false,
         label: ""
+      },
+      media: {
+        isOpened: false,
+        items: [],
+        detail: {
+          isOpened: false,
+          index: 0
+        }
       },
       editor: {
         items: [],
@@ -1575,6 +1614,8 @@ export default {
       this.stepId = '0'
       this.chapters.showNewStepPageSettings = false
       this.tabs.selected = 'steps'
+      // refresh quest size
+      await this.refreshMediaSize()
     }, 
     /*
      * add a step
@@ -1850,6 +1891,9 @@ export default {
       if (this.story.active && this.countSteps() === 0) {
         this.story.step = 21
       }
+      
+      // refresh quest media size
+      await this.refreshMediaSize()
     },
     /*
      * Launched when the step is played
@@ -2070,6 +2114,85 @@ export default {
      */
     moveToTop() {
       window.scrollTo(0, 0)
+    },
+    /*
+     * Get the storage usage
+     */
+    getStorageUsage() {
+      if (this.quest && this.quest.size) {
+        let usedStorage = Math.floor(this.quest.size.current / 100) / 10
+        let limitStorage = Math.floor(this.quest.size.limit / 100) / 10
+        return this.$t('label.UsedOver', {current: usedStorage, limit: limitStorage})
+      } else {
+        return ''
+      }
+    },
+    /*
+     * Show the media panel
+     */
+    async showMedia() {
+      // load quest medias
+      await this.loadMedia()
+      
+      // open the panel
+      this.media.isOpened = true
+    },
+    /*
+     * Load the quest media
+     */
+    async loadMedia() {
+      // load quest medias
+      let media = await QuestService.listMedia(this.questId, this.quest.version)
+      
+      if (media && media.data) {
+        this.media.items = media.data
+      }
+    },
+    /*
+     * refresh media size
+     */
+    async refreshMediaSize() {
+      // load quest media size
+      let media = await QuestService.getSize(this.questId, this.quest.version)
+      
+      if (media && media.data) {
+        this.quest.size = media.data.size
+      }
+    },
+    /*
+     * Remove a media
+     */
+    async removeMedia(id) {
+      // Remove the media from the server
+      let removeStatus = await QuestService.removeMedia(this.questId, this.quest.version, id)
+      
+      if (!removeStatus) {
+        this.$q.dialog({
+          message: this.$t("label.TechnicalIssue")
+        })   
+      } else {
+        // refresh media list
+        await this.loadMedia()
+      }
+    },
+    /*
+     * Zoom on a media
+     */
+    zoomMedia(index) {
+      this.media.detail = {isOpened: true, index: index}
+    },
+    /*
+     * Close zoom
+     */
+    unzoomMedia() {
+      this.media.detail = {isOpened: false, index: 0}
+    },
+    /*
+     * Hide the media panel
+     */
+    async hideMedia() {
+      await this.refreshMediaSize()
+      this.media.isOpened = false
     },
     /*
      * download PDF file containing all AR markers

@@ -10,8 +10,8 @@
           <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
           <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
           <div v-if="!$store.state.user.picture" :style="'background-image: url(statics/icons/game/profile-small.png); background-color: #fff;'"></div>
-          <label for="picturefile">{{ $t('label.Edit') }}</label>
-          <input @change="uploadImage" name="picturefile" id="picturefile" type="file" accept="image/*" hidden />
+          <label for="picturefile" @click="$refs['uploadfile'].click()">{{ $t('label.Edit') }}</label>
+          <input @change="uploadImage" ref="uploadfile" name="picturefile" id="picturefile" type="file" accept="image/*" hidden />
         </div>
       </div>
       <form @submit.prevent="submitProfileChanges()">

@@ -66,7 +66,7 @@
               <q-input type="text" label="Name" v-model="place.name" />
             </div>
             <div class="col">
-              <q-btn v-if="place.picture === ''" icon="cloud_upload" @click="$refs['placepicture' + index][0].click()" />
+              <q-btn v-if="place.picture === ''" icon="cloud_upload" @click="$refs['placepicture' + index].click()" />
               <input @change="uploadPlacePicture(index, $event)" :ref="'placepicture' + index" type="file" accept="image/*" hidden />
               <div v-if="place.picture !== ''">
                 <img :src="serverUrl + '/upload/town/place/' + place.picture" style="width: 50px" />

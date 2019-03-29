@@ -18,6 +18,14 @@ export default {
     return Api().get('quest/' + id + '/version/' + version).catch(error => console.log(error.request))
   },
   /*
+   * get a quest media size
+   * @param   {String}    id                  ID of the quest
+   * @param   {Number}    version             version of the quest
+   */
+  getSize (id, version) {
+    return Api().get('quest/' + id + '/version/' + version + '/size').catch(error => console.log(error.request))
+  },
+  /*
    * get the last version of a quest based on its ID
    * @param   {String}    id                  ID of the quest
    */
@@ -122,6 +130,23 @@ export default {
    */
   ListPlayedByAUser (id) {
     return Api().get('user/' + id + '/quests/played').catch(error => console.log(error.request))
+  },
+  /*
+   * List the quests medias
+   * @param   {String}    id                  ID of the quest
+   * @param   {Number}    version             version of the quest
+   */
+  listMedia (id, version) {
+    return Api().get('quest/' + id + '/version/' + version + '/media/list').catch(error => console.log(error.request))
+  },
+  /*
+   * Remove a media
+   * @param   {String}    id                Quest Id
+   * @param   {Number}    version           version of the quest
+   * @param   {String}    mediaId           Media Id
+   */
+  removeMedia (id, version, mediaId) {
+    return Api().delete('quest/' + id + '/version/' + version + '/media/' + mediaId + '/remove')
   },
   /*
    * list user invitations to private quests

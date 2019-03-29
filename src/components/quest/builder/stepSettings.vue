@@ -35,12 +35,12 @@
       :error="$v.selectedStep.form.text[lang].$error"
       :error-message="$t('label.KeepEnigmaQuestionsShort')"
     />
-    
+
     <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'main'">
-      <q-btn class="full-width" type="button">
+      <q-btn class="full-width" type="button" @click="$refs['backgroundfile'].click()">
         <q-icon name="cloud_upload" /> <label for="picturefile1">{{ $t('label.UploadABackgroundImage') }}</label>
-        <input @input="uploadBackgroundImage" name="picturefile1" id="picturefile1" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       </q-btn>
+      <input @change="uploadBackgroundImage" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
       <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
       <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
       <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
@@ -178,7 +178,7 @@
         
         <p v-show="answerType === 'image' && option.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && !$v.selectedStep.form.options.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="answerType === 'image' && option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + option.imagePath" /></p>
-        <q-btn v-show="answerType === 'image'" icon="cloud_upload" @click="$refs['answerImage' + key][0].click()" />
+        <q-btn v-show="answerType === 'image'" icon="cloud_upload" @click="$refs['answerImage' + key].click()" />
         <input @change="uploadAnswerImage(key, $event)" :ref="'answerImage' + key" type="file" accept="image/*" hidden />
         <q-btn @click="deleteAnswer(key)">
           <q-icon name="clear" />
@@ -244,7 +244,7 @@
         
         <p v-show="image.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && !$v.selectedStep.form.options.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="image.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/code-image/' + image.imagePath" /></p>
-        <q-btn icon="cloud_upload" @click="$refs['answerImage' + key][0].click()" />
+        <q-btn icon="cloud_upload" @click="$refs['answerImage' + key].click()" />
         <input @change="uploadCodeAnswerImage(key, $event)" :ref="'answerImage' + key" type="file" accept="image/*" hidden />
         <q-btn @click="deleteCodeAnswer(key)">
           <q-icon name="clear" />
@@ -313,7 +313,7 @@
       <div class="answer" v-for="(option, key) in memoryItems" :key="key">       
         <p v-show="option.imagePath === null" class="error-label">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/memory/' + option.imagePath" /></p>
-        <q-btn icon="cloud_upload" @click="$refs['answerImage' + key][0].click()" />
+        <q-btn icon="cloud_upload" @click="$refs['answerImage' + key].click()" />
         <input @change="uploadMemoryImage(key, $event)" :ref="'answerImage' + key" type="file" accept="image/*" hidden />
         <q-btn @click="deleteMemoryAnswer(key)">
           <q-icon name="clear" />
@@ -526,10 +526,10 @@
             <q-input v-model="selectedStep.form.options.initDuration" :label="$t('label.DurationBeforeTextAppearAbovePicture')" />
           </div>
           <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
-            <q-btn class="full-width" type="button">
+            <q-btn class="full-width" type="button" @click="$refs['backgroundfile2'].click()">
               <q-icon name="cloud_upload" /> <label for="picturefile2">{{ $t('label.UploadABackgroundImage') }}</label>
-              <input @input="uploadBackgroundImage" name="picturefile2" id="picturefile2" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
             </q-btn>
+            <input @input="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
             <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
             <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
             <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">

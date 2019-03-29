@@ -671,7 +671,10 @@ module.exports = {
       QuestType: "Quest type",
       helpQuestType: "A chain of clues quest is a list of enigmas that follows each other. An escape game quest is composed with enigmas that can be resolved in different orders, the resolution of some enigmas unlock other enigmas. For your first quest, we advise you to start with a chain of clues quest. You can change a chain of clues quest in an escape game quest, but not the opposite.",
       basicEditor: "Chain of clues (basic editor)",
-      advancedEditor: "Escape game (advanced editor)"
+      advancedEditor: "Escape game (advanced editor)",
+      UsedOver: "{current} Mo of {limit} Mo used",
+      QuestMedia: "Quest files",
+      YouDoNotUseAnyMediaYetInYourQuest: "You do not user any media yet in your quest"
     }
   },
   fr: {
@@ -1347,7 +1350,10 @@ module.exports = {
       QuestType: "Type d'enquête",
       helpQuestType: "Une enquête de type jeu de piste comporte une liste d'énigme qui se suivent de façon linéaire. Une enquête de type Escape game propose des énigmes qui peuvent être résolue dans un ordre non défini, la résolution de plusieurs énigmes débloquent d'autres énigmes. Si vous êtes nouveau sur Graaly, nous vous conseillons de commencer par une enquête de type jeu de piste. Vous pouvez transformer une enquête jeu de piste en enquête escape game, mais pas le contraire.",
       basicEditor: "Jeu de piste (éditeur simple)",
-      advancedEditor: "Escape game (éditeur avancé)"
+      advancedEditor: "Escape game (éditeur avancé)",
+      UsedOver: "{current} Mo utilisés sur {limit} Mo",
+      QuestMedia: "Fichiers de l'enquête",
+      YouDoNotUseAnyMediaYetInYourQuest: "Vous n'utilisez encore aucun media dans votre enquête"
     }
   }
 }
