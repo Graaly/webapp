@@ -5,7 +5,7 @@ axios.defaults.withCredentials = true
 
 // Note: HTTPS is mandatory here because HTTPS is required for front (geolocation)
 
-export default() => {
+export default () => {
   //var baseUrl = (window.location.hostname.indexOf("graaly.com") === -1 ? 'https://' + window.location.hostname + ':3000' : 'https://api.graaly.com')
   var baseUrl = process.env.SERVER_URL
   return axios.create({

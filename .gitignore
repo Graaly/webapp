@@ -9,6 +9,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 /config/dev.env.js
+/test/jest/coverage
 
 # Editor directories and files
 .idea
