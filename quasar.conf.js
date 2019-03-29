@@ -29,7 +29,7 @@ module.exports = function (ctx) {
     build: {
       scopeHoisting: true,
       vueRouterMode: 'hash',
-      env: loadEnvVars(ctx.dev),
+      env: loadEnvVars(ctx.dev ? 'dev' : 'prod'),
       publicPath: '',
       // vueCompiler: true,
       // gzip: true,
@@ -42,7 +42,7 @@ module.exports = function (ctx) {
           ...cfg.resolve.alias,
           //quasar: path.resolve(__dirname, './node_modules/quasar-framework/'),
           //vue: 'vue/dist/vue.js',
-          // custom
+          // custom (WARN: if you change this, please update as well jest.config.js 'moduleNameMapper' section)
           data: path.resolve(__dirname, './data'),
           services: path.resolve(__dirname, './src/services')
         }

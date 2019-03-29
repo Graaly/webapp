@@ -1,4 +1,5 @@
 import net from 'net'
+import console from './consoleColor'
 
 export default {
     checkConnection: async (host, port, timeout) => {
@@ -18,5 +19,28 @@ export default {
                 reject(new Error("socket connection error: " + err))
             })
         })
+    },
+    
+    sleep: async (ms) => {
+        return new Promise(resolve => {
+            setTimeout(resolve, ms)
+        })
+    },
+        
+    addLoggingToProcess: (process, name) => {
+        process.on('close', (code, signal) => {
+            console.log(`<${name}> process exited (code=${code}, signal=${signal})`)
+        })
+        process.on('error', (err) => {
+            console.error(`<${name}> failed to start`)
+            throw err
+        })
+        /*process.stderr.on('data', (data) => {
+            console.error(`<${name}>: ${data}`)
+        })
+        process.stdout.on('data', (data) => {
+            console.log(`<${name}>: ${data}`)
+        })*/
+        return process
     }
 }

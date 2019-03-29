@@ -1,6 +1,9 @@
+
+import 'jest-chain'
+
 // No console.log() / setTimeout
 // console.log = jest.fn(() => { throw new Error('Do not use console.log() in production') })
-jest.setTimeout(1000)
+jest.setTimeout(5000)
 
 // jest speedup when errors are part of the game
 // Error.stackTraceLimit = 0
@@ -36,7 +39,7 @@ global.expect = (actual) => {
     get() {
       originalExpect.setState({ assertionsMade: assertionsMade + 1 })
       return chai.expect(actual)
-    },
+    }
   })
 
   const combinedMatchers = Object.assign(chaiMatchers, originalMatchers)
@@ -44,7 +47,11 @@ global.expect = (actual) => {
 }
 Object.keys(originalExpect).forEach(key => (global.expect[key] = originalExpect[key]))
 
+// avoid issue with Axios & jsdom
+// see https://stackoverflow.com/a/43020260/488666
+global.XMLHttpRequest = undefined
+
 // do this to make sure we don't get multiple hits from both webpacks when running SSR
-setTimeout(()=>{
+setTimeout(() => {
   // do nothing
 }, 1)
