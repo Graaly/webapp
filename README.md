@@ -129,7 +129,21 @@ Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to ea
 
 # Testing
 
-* Use [Quasar's own testing framework](https://testing.quasar-framework.org/) which promotes:
+## Running
+
+* Run **main test script** for Graaly (runs [**unit tests**](https://fr.wikipedia.org/wiki/Test_unitaire) on API/webapp & [**E2E tests**](https://blog.testingdigital.com/quest-test-de-bout-bout-end-to-end-1288) on webapp):
+
+    `npm run test` or `yarn test`
+    
+    If you want to run only **unit tests**:
+    
+    * Import clean test DB (named `graaly-test`) in your Mongo server: run `mongorestore --drop --gzip --archive=test/graaly-db.gz` from webapp project root
+    * Launch server manually in test environment in another terminal session: `nodemon server.js --env=test`. Option `--env=test` will tell server to use `graaly-test` DB.
+    * Run `npm run test:unit` or `yarn test:unit`
+
+## Readings
+
+* [Quasar's own testing framework](https://github.com/quasarframework/quasar-testing) promotes
 
   * Jest (unit tests)
   * Cypress & WebDriver.io (UI tests for webapp & hybrid)
