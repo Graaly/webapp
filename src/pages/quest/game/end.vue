@@ -64,8 +64,11 @@
      
         <!------------------ BACK TO MAP LINK AREA ------------------------>
         
-        <div class="back centered q-pa-md bg-primary text-primary">
+        <div v-if="!isUserAuthor" class="back centered q-pa-md bg-primary text-primary">
           <q-btn class="text-primary bg-white full-width" :label="$t('label.BackToTheMap')" @click="$router.push('/map')" />
+        </div>
+        <div v-if="isUserAuthor" class="back centered q-pa-md bg-primary text-primary">
+          <q-btn class="text-primary bg-white full-width" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
         </div>
         
       </div>

@@ -101,8 +101,8 @@
             {{ $t('label.QuestType') }} 
             <q-icon name="help" @click.native="showHelpPopup('helpQuestType')" />
             <div class="q-gutter-sm">
-              <q-radio :disable="editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="simple" :label="$t('label.basicEditor')" @input="refreshStepsList" />
-              <q-radio :disable="editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="advanced" :label="$t('label.advancedEditor')" @input="refreshStepsList" />
+              <q-radio :disable="readOnly || editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="simple" :label="$t('label.basicEditor')" @input="refreshStepsList" />
+              <q-radio :disable="readOnly || editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="advanced" :label="$t('label.advancedEditor')" @input="refreshStepsList" />
             </div>
           </div>
           
@@ -190,29 +190,33 @@
           </p>-->
           <!-- using https://github.com/timruffles/ios-html5-drag-drop-shim to allow drag & drop on mobile -->
           <ul class="list-group" v-sortable="{ onUpdate: onChapterListUpdate, handle: '.handle' }">
-            <li class="list-group-item" v-for="chapter in chapters.items" :key="chapter._id">
+            <li class="step-list list-group-item" v-for="chapter in chapters.items" :key="chapter._id">
               <q-icon v-if="!readOnly" class="handle" name="reorder" />
               <div>
-                <p>
+                <p class="bigger">
                   {{ chapter.title[languages.current] || chapter.title[quest.mainLanguage] }}
                   <q-icon v-if="!readOnly" name="add_box" class="float-right q-ml-md size-1" style="margin-top: -8px" @click.native="addStep(chapter.chapterId)" />
                   <q-icon v-if="!readOnly" name="delete" class="float-right q-ml-md a-bit-bigger" @click.native="removeChapter(chapter.chapterId)" />
-                  <q-icon v-if="!readOnly" name="mode edit" class="float-right q-ml-md a-bit-bigger" @click.native="modifyChapter(chapter.chapterId)" />
+                  <q-icon v-if="!readOnly" name="mode_edit" class="float-right q-ml-md a-bit-bigger" @click.native="modifyChapter(chapter.chapterId)" />
                   <q-icon name="warning" color="primary" class="float-right a-bit-bigger" v-if="chapter.warnings && chapter.warnings.length > 0" @click.native="showChapterWarnings(chapter.warnings)" />
                 </p>
                 <div v-if="!chapter.steps || chapter.steps.length === 0">
                   {{ $t('label.ClickOnButtonToAddStep') }}
                 </div>
-                <div v-for="step in chapter.steps" :key="step._id">
-                  <q-icon color="grey" class="q-mr-sm" :class="{'q-ml-md': (step.level === 2)}" :name="getIconFromStepType(step.type)" />
-                  <span v-if="!readOnly && !step.error" @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
-                  <span v-if="!readOnly && step.error" @click="showStepWarnings(step.error)" class="text-primary">
-                    <q-icon name="warning" color="primary" />
-                    {{ step.title[languages.current] || step.title[quest.mainLanguage] }}
-                  </span>
-                  <span v-if="readOnly">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
-                  <q-btn v-if="!readOnly" class="float-right" icon="delete" dense @click="removeStep(step.stepId)" />
-                  <q-btn v-if="!readOnly" class="float-right" icon="mode_edit" dense @click="modifyStep(step)" />
+                <div v-for="step in chapter.steps" :key="step._id" style="height: 34px; overflow: hidden;display: flex;width: 100%;">
+                  <div class="step-text">
+                    <q-icon color="grey" class="q-mr-sm" :class="{'q-ml-md': (step.level === 2)}" :name="getIconFromStepType(step.type)" />
+                    <span v-if="!readOnly && !step.error" @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                    <span v-if="!readOnly && step.error" @click="showStepWarnings(step.error)" class="text-primary">
+                      <q-icon name="warning" color="primary" />
+                      {{ step.title[languages.current] || step.title[quest.mainLanguage] }}
+                    </span>
+                    <span v-if="readOnly">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                  </div>
+                  <div class="step-button">
+                    <q-btn v-if="!readOnly" icon="mode_edit" dense @click="modifyStep(step)" />
+                    <q-btn v-if="!readOnly" icon="delete" dense @click="removeStep(step.stepId)" />
+                  </div>
                 </div>
               </div>
             </li>

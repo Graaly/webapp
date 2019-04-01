@@ -18,9 +18,9 @@
   }
 }
 
-/* general default Quasar font size looks very small */
+/* general default Quasar font size looks very small 
 div, p, .q-field__native, .q-radio__label, .q-toggle__label { font-size: 1rem; }
-span, .text-caption { font-size: inherit; }
+span, .text-caption { font-size: inherit; } */
 
 /* required for backgrounds with full height in step play */
 html {
@@ -139,6 +139,9 @@ h3.size-2 {
 .a-bit-bigger {
   font-size: 1.1em;
 }
+.bigger {
+  font-size: 1.2em;
+}
 .smaller {
   font-size: 0.8em;
 }
@@ -173,10 +176,10 @@ span .q-icon {
   align-items: center;
 }
 .q-item__label--header {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
 }
 form .q-item__label, .big-label {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   margin: 0.5rem 0;
   color: #777;
 }
@@ -664,8 +667,22 @@ form .q-item__label, .big-label {
   flex-grow: 1; 
   padding: 0; 
   margin: 0; 
-  overflow-x: hidden; 
+  /*overflow-x: hidden; */
 }
+.step-list.list-group-item div {
+  overflow-x: hidden;
+}
+.step-list.list-group-item div .step-button {
+  width: 100px;
+  flex: none;
+}
+.step-list.list-group-item div .step-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .list-group-item div span { 
   margin-top: 10px;
   display: inline-block;

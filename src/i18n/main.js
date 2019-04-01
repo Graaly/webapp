@@ -21,10 +21,10 @@ module.exports = {
       white: "White"
     },
     news: {
-      newQuestWon: "Has won the quest <a href='/#/quest/play/{questId}/version/last'>{quest}</a>",
-      newQuest: "Has created the quest <a href='/#/quest/play/{questId}/version/last'>{quest}</a>",
-      questUnderValidation: "Your quest <a href='/#/quest/play/{questId}/version/last'>{quest}</a> will be published soon",
-      challenge: "You are challenged on quest <a href='/#/quest/play/{questId}/version/last'>{quest}</a>"
+      newQuestWon: "Has won the quest <a href='/#/quest/play/{questId}'>{quest}</a>",
+      newQuest: "Has created the quest <a href='/#/quest/play/{questId}'>{quest}</a>",
+      questUnderValidation: "Your quest <a href='/#/quest/play/{questId}'>{quest}</a> will be published soon",
+      challenge: "You are challenged on quest <a href='/#/quest/play/{questId}'>{quest}</a>"
     },
     bonus: {
       scorex2: "Score x 2",
@@ -679,7 +679,8 @@ module.exports = {
       Feedback: "Give feedback",
       FeedbackTitle: "Send a feedback",
       FeedbackIntroduction: "To send a feedback to this quest author, or rate this quest, please wait for the end of the quest. If you want to contact the Graaly team, to report an inappropriate content, type your message below:",
-      YourMessageHasBeenSent: "Your message has been sent"
+      YourMessageHasBeenSent: "Your message has been sent",
+      BackToBuilder: "Back to your quest builder"
     }
   },
   fr: {
@@ -704,10 +705,10 @@ module.exports = {
       white: "Blanc"
     },
     news: {
-      newQuestWon: "A réussi l'énigme <a href='/#/quest/play/{questId}/version/last'>{quest}</a>",
-      newQuest: "A créé l'énigme <a href='/#/quest/play/{questId}/version/last'>{quest}</a>",
-      questUnderValidation: "Votre enquête <a href='/#/quest/play/{questId}/version/last'>{quest}</a> est en cours de validation",
-      challenge: "Vous défie sur l'énigme <a href='/#/quest/play/{questId}/version/last'>{quest}</a>"
+      newQuestWon: "A réussi l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>",
+      newQuest: "A créé l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>",
+      questUnderValidation: "Votre enquête <a href='/#/quest/play/{questId}'>{quest}</a> est en cours de validation",
+      challenge: "Vous défie sur l'énigme <a href='/#/quest/play/{questId}'>{quest}</a>"
     },
     bonus: {
       scorex2: "Score x 2",
@@ -1363,7 +1364,8 @@ module.exports = {
       Feedback: "Vos commentaires",
       FeedbackTitle: "Envoyer un commentaire",
       FeedbackIntroduction: "Si vous souhaitez envoyer un commentaire à l'auteur de l'enquête, ou noter l'enquête, attendez la page de fin de l'enquête. Si vous souhaitez contacter l'équipe Graaly, pour par exemple signaler un contenu inapproprié dans cette enquête, veuillez taper votre commentaire ci-dessous :",
-      YourMessageHasBeenSent: "Votre message a été envoyé"
+      YourMessageHasBeenSent: "Votre message a été envoyé",
+      BackToBuilder: "Retour à la création de l'enquête"
     }
   }
 }

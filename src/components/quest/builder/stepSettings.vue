@@ -714,7 +714,7 @@ export default {
     }
   },
   async mounted() {
-    await this.initData()
+    //await this.initData() // already treated with watcher
   },
   methods: {
     /*

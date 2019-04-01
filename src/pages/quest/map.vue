@@ -415,14 +415,16 @@
           </div>
           <q-list highlight>
             <q-item v-for="friend in friends.list" :key="friend.friendId">
-              <q-item-section @click.native="openFriendCard(friend.friendId)">
+              <q-item-section avatar @click.native="openFriendCard(friend.friendId)">
                 <q-avatar>
                   <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') !== -1" :src="friend.picture" />
                   <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + friend.picture" />
                   <img v-if="!friend.picture || friend.picture === ''" src="statics/icons/game/profile-small.png" />
                 </q-avatar>
               </q-item-section>
-              <q-item-label @click.native="openFriendCard(friend.friendId)">{{ friend.name }}</q-item-label>
+              <q-item-section @click.native="openFriendCard(friend.friendId)">
+                {{ friend.name }}
+              </q-item-section>
               <q-item-section side>
                 <q-btn icon="close" @click="removeFriend(friend.friendId)" />
               </q-item-section>
