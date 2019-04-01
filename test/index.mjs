@@ -8,7 +8,7 @@
  * mongodump --archive=graaly-db.gz --db=graaly-test --gzip
  * 
  * - import data from 'graaly' archive to 'graaly-test' DB
- * mongorestore --gzip --archive=test/graaly-db.gz --nsFrom "graaly.*" --nsTo "graaly-test.*"
+ * mongorestore --drop --gzip --archive=test/graaly-db.gz --nsFrom "graaly.*" --nsTo "graaly-test.*"
  */
 
 import { execSync, spawn } from 'child_process'

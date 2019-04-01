@@ -1,10 +1,19 @@
 import axios from 'axios'
 import https from 'https'
+import fs from 'fs'
+
+https.globalAgent.options.ca = fs.readFileSync('certs/webapp-dev-fullchain.pem')
+https.globalAgent.keepAlive = true
+axios.defaults.headers.common['origin'] = 'https://localhost:8080'
+//axios.defaults.withCredentials = true // already done in Api.js
+//axios.defaults.jar = cookieJar // unfortunately, does not work
 
 import AuthService from 'services/AuthService'
 import QuestService from 'services/QuestService'
 
 describe('Server API tests', () => {
+  let testQuest
+  
   test('is launched in test environement', () => {
     expect(process.env.NODE_ENV).toBe('testing')
   })
@@ -12,7 +21,7 @@ describe('Server API tests', () => {
   test('get a reply from API server', async () => {
     let httpclient = axios.create({
       baseURL: process.env.SERVER_URL,
-      httpsAgent: new https.Agent({ rejectUnauthorized: false })
+      withCredentials: true
     })
     const result = await httpclient.get('/')
     expect(result.status).toBe(200)
@@ -27,21 +36,7 @@ describe('Server API tests', () => {
   })
   
   test('list nearest quests while not logged in', async () => {
-    let grenobleCoords = { lat: 45.2, lng: 5.7 }
-    let results = await QuestService.listNearest(grenobleCoords, 'all')
-    expect(results.status).toBe(200)
-    expect(results.data.length).toBeGreaterThan(0)
-    results.data.forEach((result) => {
-      expect(result)
-        .toHaveProperty('_id')
-        .toHaveProperty('questId')
-        .toHaveProperty('version')
-        .toHaveProperty('title')
-        .toHaveProperty('mainLanguage')
-        .toHaveProperty('authorUserId')
-        .toHaveProperty('languages')
-        .toHaveProperty('location')
-    })
+    await listNearestQuests()
   })
   
   test('login success', async () => {
@@ -61,9 +56,23 @@ describe('Server API tests', () => {
   
   // play
   
-  test.todo('can list quests once logged in')
+  test('can list quests once logged in', async () => {
+    let results = await listNearestQuests()
+    testQuest = results[0] // used for next tests
+  })
   
-  test.todo('can get quest details')
+  test('can get quest details', async () => {
+    let result = await QuestService.getById(testQuest.questId, 1)
+    
+    expect(result.status).toBe(200)
+    checkQuestProperties(result.data)
+    
+    // test "latest version" service as well
+    result = await QuestService.getLastById(testQuest.questId)
+    
+    expect(result.status).toBe(200)
+    checkQuestProperties(result.data)
+  })
   
   test.todo('can start a quest')
   
@@ -91,3 +100,35 @@ describe('Server API tests', () => {
   
   test.todo('can logout')
 })
+
+// returns nearest quests
+// used several times
+const listNearestQuests = async () => {
+  let grenobleCoords = { lat: 45.2, lng: 5.7 }
+    let results = await QuestService.listNearest(grenobleCoords, 'all')
+    expect(results.status).toBe(200)
+    expect(results.data.length).toBeGreaterThan(0)
+    results.data.forEach((result) => {
+      expect(result)
+        .toHaveProperty('_id')
+        .toHaveProperty('questId')
+        .toHaveProperty('version')
+        .toHaveProperty('title')
+        .toHaveProperty('mainLanguage')
+        .toHaveProperty('authorUserId')
+        .toHaveProperty('languages')
+        .toHaveProperty('location')
+    })
+  return results.data
+}
+
+const checkQuestProperties = (questObject) => {
+  expect(questObject)
+    .toHaveProperty('questId')
+    .toHaveProperty('version')
+    .toHaveProperty('title')
+    .toHaveProperty('picture')
+    .toHaveProperty('authorUserId')
+    .toHaveProperty('location')
+    .toHaveProperty('location.coordinates')
+}

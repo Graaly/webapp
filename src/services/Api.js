@@ -1,5 +1,10 @@
 import axios from 'axios'
-import https from 'https'
+
+// required for automated tests
+import axiosCookieJarSupport from 'axios-cookiejar-support'
+import tough from 'tough-cookie'
+const cookieJar = new tough.CookieJar()
+axiosCookieJarSupport(axios)
 
 // otherwise cookies are not sent back to server
 axios.defaults.withCredentials = true
@@ -12,8 +17,8 @@ export default () => {
   return axios.create({
     // currently for proto, API will be always available from same host as webapp
     // => localhost, 78.247.66.31, etc.
-    baseURL: baseUrl, 
-    httpsAgent: new https.Agent({ rejectUnauthorized: process.env.NODE_ENV !== 'testing' }),
+    baseURL: baseUrl,
+    jar: (process.env.NODE_ENV === 'testing' ? cookieJar : false), // required to have Axios handle cookies during unit tests
     validateStatus: function (status) {
       return true // let app also treat 500 error
       //return status < 500 //let app treat 3xx and 4xx errors
