@@ -75,7 +75,7 @@ body {
 .header {
   width: 100%;
   background-color: #ccc;
-  color: #D60B52;
+  color: #07275A;
   min-height: 80px;
   font-size: 1.3rem;
   line-height: 1.1rem;
@@ -97,6 +97,7 @@ body {
 
 a {
   text-decoration: underline;
+  color: #07275A;
 }
 .no-underline {
   text-decoration: none;
@@ -213,10 +214,10 @@ form .q-item__label, .big-label {
 }
 /*form {
   margin-top: 1rem;
-}*/
+}
 .q-btn {
   margin: 0.3rem 0; 
-}
+}*/
 .location-address { 
   display: flex; 
   flex-flow: row nowrap; 
@@ -281,6 +282,9 @@ form .q-item__label, .big-label {
 .step-menu {
   position: fixed !important;
   z-index: 2000;
+}
+.hide-img img {
+  display: none;
 }
 
 /////////////////////////////// Images CSS /////////////////////////////////////
@@ -512,6 +516,9 @@ form .q-item__label, .big-label {
 .q-dialog__inner > div {
   background: #fff; /* otherwise, default is transparent */
 }
+.q-dialog.fullscreen {
+  z-index: 7001;
+}
 
 /////////////////////////////// Other CSS /////////////////////////////////////
 
@@ -565,7 +572,7 @@ form .q-item__label, .big-label {
 }
 .big-avatar, .mid-avatar {
   border-radius: 50%;
-  border: 5px solid #D60B52;
+  border: 5px solid #07275A;
 }
 .big-avatar, .mid-avatar {
   overflow: hidden;
@@ -715,7 +722,7 @@ form .q-item__label, .big-label {
   color: rgba(0,0,0,0.46);
 }
 .image-and-text-aligned {
-  vertical-align: top;
+  vertical-align: middle;
 }
 .story .bubble-top, .story .bubble-bottom {
   font-size: 0px;

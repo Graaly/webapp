@@ -9,10 +9,10 @@
           <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.score > 0 || run.reward === 0">{{ run.score }} {{ $t('label.points') }} <!--<q-icon color="white" name="fas fa-trophy" />--></h2>
           <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.reward > 0">{{ run.reward }} <q-icon color="white" name="fas fa-bolt" /></h2>
           <!--<router-link to="/help/points" v-show="run.score > 0">{{ $t('label.WhatCanYouDoWithThesePoints') }}</router-link>-->
-          <q-icon name="fas fa-award" class="big-icon" />
-          <q-icon name="fas fa-award" class="big-icon q-ml-md" v-if="run.stars > 1" />
+          <q-icon name="fas fa-award" color="secondary" class="big-icon" />
+          <q-icon name="fas fa-award" color="secondary" class="big-icon q-ml-md" v-if="run.stars > 1" />
           <q-icon name="fas fa-award" class="big-icon q-ml-md" style="color: #ed555d" v-if="run.stars <= 1" />
-          <q-icon name="fas fa-award" class="big-icon q-ml-md" v-if="run.stars > 2" />
+          <q-icon name="fas fa-award" color="secondary" class="big-icon q-ml-md" v-if="run.stars > 2" />
           <q-icon name="fas fa-award" class="big-icon q-ml-md" style="color: #ed555d" v-if="run.stars <= 2" />
         </div>
         
@@ -20,7 +20,7 @@
         
         <div class="q-pa-md centered">
           <p class="centered">{{ $t('label.YourLevel') }} : {{ $store.state.user.level }}</p>
-          <q-linear-progress :percentage="level.progress" height="30px" color="white"></q-linear-progress>
+          <q-linear-progress :value="level.progress" stripe rounded style="height: 30px" color="secondary"></q-linear-progress>
         </div>
               
         <!------------------ CHALLENGE FRIENDS AREA ------------------------>
@@ -235,6 +235,7 @@ export default {
       showBonus: false,
       showAddReview: false,
       reviewSent: false,
+      isUserAuthor: false,
       warnings: {
         noNetwork: false
       },
@@ -273,10 +274,10 @@ export default {
       this.quest = await QuestService.getById(this.questId, this.run.version)
       if (this.quest && this.quest.data) {
         // show review part only if player is not author & has not already sent a review for this quest
-        const isUserAuthor = this.$store.state.user._id === this.quest.data.authorUserId
+        this.isUserAuthor = this.$store.state.user._id === this.quest.data.authorUserId
         const results = await ReviewService.list({ questId: this.questId, userId: this.$store.state.user._id, version: this.run.version }, { limit: 1 })
         const isReviewAlreadySent = results.data && results.data.length >= 1
-        this.showAddReview = !isUserAuthor && !isReviewAlreadySent 
+        this.showAddReview = !this.isUserAuthor && !isReviewAlreadySent 
       }
       
       // get user old score
@@ -323,10 +324,10 @@ export default {
         var newLevel = LevelCompute(this.score.new)
         // check if the user will move to a new level
         if (newLevel.level > this.level.level) {
-          this.level.progress = 100
+          this.level.progress = 1
           this.$store.state.user.level = newLevel.level
           this.level = newLevel
-          this.level.progress = 10
+          this.level.progress = 0.1
           this.level.upgraded = true
         } else {
           // get your updated score

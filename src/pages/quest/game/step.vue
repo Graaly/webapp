@@ -28,6 +28,13 @@
         </div>
       </div>
     </transition>
+    <q-dialog v-model="inventory.detail.isOpened">
+      <div class="bg-white centered q-pa-md">
+        <img style="width: 100%" :src="inventory.detail.url">
+        <div>{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>
+        <q-btn class="q-mb-xl" color="primary" @click="closeInventoryDetail()">{{ $t('label.Close') }}</q-btn>
+      </div>
+    </q-dialog>
     
     <!------------------ INFO PAGE AREA ------------------------>
     
@@ -43,6 +50,9 @@
             <p class="q-pa-md score-text" v-show="info">{{ $t('label.CurrentScore') }}: {{ info.score }} <!--<q-icon color="white" name="fas fa-trophy" />--></p>
             <p>
               <q-btn color="primary" @click="backToMap">{{ $t('label.LeaveQuest') }}</q-btn>
+            </p>
+            <p>
+              <q-btn color="primary" @click="showFeedback">{{ $t('label.Feedback') }}</q-btn>
             </p>
             <p class="q-pb-xl">
               <q-btn color="secondary" @click="openInfo">{{ $t('label.BackToQuest') }}</q-btn>
@@ -65,6 +75,29 @@
     <div class="fixed-bottom over-map" v-if="story.step !== null && story.step !== 'end'">
       <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
     </div>
+    
+    <!--====================== FEEDBACK =================================-->
+    
+    <q-dialog v-model="feedback.isOpened">
+      <div class="bg-white q-pa-md">
+        <h3>{{ $t('label.FeedbackTitle') }}</h3>
+        {{ $t('label.FeedbackIntroduction') }}
+        <form @submit.prevent="sendFeedback">
+          <q-input
+              v-model="feedback.message"
+              type="textarea"
+              :label="$t('label.Feedback')"
+              :max-height="100"
+              :min-rows="4"
+              class="full-width"
+            />
+        </form>
+        <div class="q-pa-md q-gutter-sm">
+          <q-btn type="submit" color="primary" @click="sendFeedback">{{ $t('label.Send') }}</q-btn>
+          <q-btn @click="hideFeedback">{{ $t('label.Close') }}</q-btn>
+        </div>
+      </div>
+    </q-dialog>
       
     <!------------------ FOOTER AREA ------------------------>
     
@@ -97,6 +130,7 @@
 import RunService from 'services/RunService'
 import StepService from 'services/StepService'
 import QuestService from 'services/QuestService'
+import UserService from 'services/UserService'
 //import colorsForCode from 'data/colorsForCode.json'
 //import questItems from 'data/questItems.json'
 import stepPlay from 'components/quest/game/stepPlay'
@@ -135,7 +169,11 @@ export default {
         inventory: {
           isOpened: false,
           items: [],
-          show: true
+          show: true,
+          detail: {
+            isOpened: false,
+            url: ''
+          }
         },
         hint: {
           isOpened: false,
@@ -173,6 +211,10 @@ export default {
           questDataMissing: false,
           stepDataMissing: false,
           isNetworkLow: false
+        },
+        feedback: {
+          isOpened: false,
+          message: ""
         },
         previousStepId: '',
         
@@ -606,11 +648,39 @@ export default {
      */
     selectItem(item) {
       if (this.step.type !== 'use-item') {
-        Notification(this.$t('label.YouCanNotUseAnItemInThisStep'), 'warning')
-        return
+        this.inventory.detail.isOpened = true
+        this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.serverUrl + '/upload/quest/' + this.quest.questId + '/step/new-item/' + item.picture)
+      } else {
+        this.selectedItem = item
+        this.closeAllPanels()
       }
-      this.selectedItem = item
-      this.closeAllPanels()
+    },
+    closeInventoryDetail() {
+      this.inventory.detail.isOpened = false
+    },
+    /*
+     * Show the feedback box
+     */
+    showFeedback() {
+      this.feedback.isOpened = true
+    },
+    /*
+     * Show the feedback box
+     */
+    hideFeedback() {
+      this.feedback.isOpened = false
+    },
+    /*
+     * Send a feedback
+     */
+    async sendFeedback() {
+      let sendStatus = await UserService.sendFeedback(this.feedback.message, {questId: this.quest.questId, stepId: this.step.stepId})
+      if (sendStatus) {
+        Notification(this.$t('label.YourMessageHasBeenSent'), 'info')
+        this.feedback.isOpened = false
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
     },
     isHintAvailable() {
       if (this.step && this.step.hint && this.step.hint[this.lang] && this.step.hint[this.lang] !== '') {

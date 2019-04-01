@@ -343,10 +343,21 @@ export default {
       }
     },
     async skipTutorial () {
-      this.nextStep = 17
-      await UserService.nextStoryStep(this.nextStep)
-      this.$store.state.user.story.step = this.nextStep
-      this.hideStory()
+      this.hide = true
+      this.$q.dialog({
+        title: this.$t('label.SkipTutorial'),
+        message: this.$t('label.SkipTutorialDesc'),
+        ok: this.$t('label.Ok'),
+        cancel: this.$t('label.Cancel')
+      }).onOk(() => {
+        this.nextStep = 17
+        UserService.nextStoryStep(this.nextStep)
+        this.$store.state.user.story.step = this.nextStep
+        this.hideStory()
+      }).onCancel(() => {
+        console.log("cancel")
+        this.hide = false
+      })
     },
     async closeStory() {
       await this.saveStepPassed()

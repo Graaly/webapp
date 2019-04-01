@@ -580,6 +580,7 @@ module.exports = {
       ExtremQuest: "Extreme quest",
       CulinarQuest: "Culinary quest",
       SkipTutorial: "Skip tutorial",
+      SkipTutorialDesc: "The tutorial helps you understanding how to play Graaly. You can skip tutorial now, and enable it later in your profile",
       Tutorial: "Tutorial",
       IWantToRestartTutorial: "Restart the tutorial",
       DurationBeforeTextAppearAbovePicture: "Duration before text appear above the background image (seconds)",
@@ -674,7 +675,11 @@ module.exports = {
       advancedEditor: "Escape game (advanced editor)",
       UsedOver: "{current} Mo of {limit} Mo used",
       QuestMedia: "Quest files",
-      YouDoNotUseAnyMediaYetInYourQuest: "You do not user any media yet in your quest"
+      YouDoNotUseAnyMediaYetInYourQuest: "You do not user any media yet in your quest",
+      Feedback: "Give feedback",
+      FeedbackTitle: "Send a feedback",
+      FeedbackIntroduction: "To send a feedback to this quest author, or rate this quest, please wait for the end of the quest. If you want to contact the Graaly team, to report an inappropriate content, type your message below:",
+      YourMessageHasBeenSent: "Your message has been sent"
     }
   },
   fr: {
@@ -1259,6 +1264,7 @@ module.exports = {
       ExtremQuest: "Enquête extrême",
       CulinarQuest: "Enquête culinaire",
       SkipTutorial: "Passer l'aide",
+      SkipTutorialDesc: "L'aide vous permet de mieux comprendre comment jouer avec Graaly. Vous pouvez passer l'aide et la réactiver plus tard, dans votre profil",
       Tutorial: "Aide en ligne",
       IWantToRestartTutorial: "Redémarrer l'aide",
       DurationBeforeTextAppearAbovePicture: "Durée avant que le texte ne recouvre l'image de fond (secondes)",
@@ -1353,7 +1359,11 @@ module.exports = {
       advancedEditor: "Escape game (éditeur avancé)",
       UsedOver: "{current} Mo utilisés sur {limit} Mo",
       QuestMedia: "Fichiers de l'enquête",
-      YouDoNotUseAnyMediaYetInYourQuest: "Vous n'utilisez encore aucun media dans votre enquête"
+      YouDoNotUseAnyMediaYetInYourQuest: "Vous n'utilisez encore aucun media dans votre enquête",
+      Feedback: "Vos commentaires",
+      FeedbackTitle: "Envoyer un commentaire",
+      FeedbackIntroduction: "Si vous souhaitez envoyer un commentaire à l'auteur de l'enquête, ou noter l'enquête, attendez la page de fin de l'enquête. Si vous souhaitez contacter l'équipe Graaly, pour par exemple signaler un contenu inapproprié dans cette enquête, veuillez taper votre commentaire ci-dessous :",
+      YourMessageHasBeenSent: "Votre message a été envoyé"
     }
   }
 }

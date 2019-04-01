@@ -97,6 +97,14 @@ export default {
    */
   checkContacts(contacts) {
     return Api().post('user/friends/contacts/check', {contacts: contacts}).catch(error => console.log(error.request))
+  },
+  /*
+   * send a feedback
+   * @param   {String}   message          Message
+   * @param   {Object}   context          Context of the page the feedback is sent from
+   */
+  sendFeedback(message, context) {
+    return Api().post('user/feedback/send', {message: message, context: context}).catch(error => console.log(error.request))
   }
   
 }

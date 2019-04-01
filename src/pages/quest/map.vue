@@ -103,7 +103,7 @@
       
       <!------------------ TABS AREA ------------------------>
       
-      <q-tabs v-model="questsTab" class="bg-primary text-white">
+      <q-tabs v-model="questsTab" class="bg-accent text-white">
         <q-tab name="built" icon="add_box" :label="$t('label.QuestsCreated')" />
         <q-tab name="played" icon="play_circle_filled" :label="$t('label.QuestsSuccessful')" />
       </q-tabs>
@@ -120,7 +120,7 @@
           <div class="centered q-pa-md" v-if="success.quests.built.tovalidate && success.quests.built.tovalidate.length === 0 && success.quests.built.rejected.length === 0 && success.quests.built.published.length === 0 && success.quests.built.draft.length === 0 && !warnings.listCreatedQuestsMissing">
             {{ $t('label.NoQuestCreated') }}
           </div>            
-          <q-btn link class="full-width" @click="$router.push('/quest/create/welcome')" color="accent">{{ $t('label.CreateANewQuest') }}</q-btn>
+          <q-btn link class="full-width" @click="$router.push('/quest/create/welcome')" color="secondary">{{ $t('label.CreateANewQuest') }}</q-btn>
           
           <!------------------ LIST OF QUESTS BUILT AREA ------------------------>
           
@@ -274,7 +274,7 @@
       
       <!------------------ TABS AREA ------------------------>
       
-      <q-tabs v-model="profileTab" class="bg-primary text-white">
+      <q-tabs v-model="profileTab" class="bg-accent text-white">
         <q-tab name="profile" icon="face" :label="$t('label.MyProfile')" />
         <q-tab name="friends" icon="supervised_user_circle" :label="$t('label.Friends')" />
         <q-tab name="news" icon="notifications" :label="$t('label.News')" />
@@ -408,7 +408,7 @@
         <q-tab-panel name="friends">
           
           <!------------------ ADD FRIENDS BUTTON AREA ------------------------>
-          <q-btn link class="full-width" @click="openAddFriendsModal()" color="accent">{{ $t('label.AddFriends') }}</q-btn>
+          <q-btn link class="full-width" @click="openAddFriendsModal()" color="secondary">{{ $t('label.AddFriends') }}</q-btn>
           
           <div class="centered bg-warning q-pa-sm" v-if="warnings.listFriendsMissing" @click="loadFriends">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
@@ -568,7 +568,7 @@
        <div class="panel-bottom q-pa-md">
         <a class="float-right no-underline" color="grey" @click="friends.show = false"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ friends.selected.name }}</h1>
-        <q-tabs v-model="friendsTab" class="bg-primary text-white">
+        <q-tabs v-model="friendsTab" class="bg-accent text-white">
           <!--<q-tab name="friendranking" icon="star" :label="$t('label.Ranking')" default />-->
           <q-tab name="friendbuilt" icon="add_box" :label="$t('label.QuestsCreated')" default />
           <q-tab name="friendplayed" icon="play_circle_filled" :label="$t('label.QuestsSuccessful')" />
@@ -685,10 +685,8 @@
               <q-item-section avatar><q-icon name="trending_up" color="primary" /></q-item-section>
               <q-item-section>
                 <q-item-label>{{ $t('label.MyLevel') }}: {{ $store.state.user.level }}</q-item-label>
+                <q-linear-progress class="q-my-sm" rounded :value="profile.level.progress" color="primary" style="height: 18px;" />
                 <q-item-label caption>{{ $t('label.ReachScoreOf', {score: profile.level.max}) }}</q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <q-linear-progress :percentage="profile.level.progress" color="primary" height="18px" style="width: 75px" />
               </q-item-section>
             </q-item>
           </q-list>
@@ -710,10 +708,10 @@
                 <q-icon v-if="item.playedNb < item.totalNb" name="flag" size="2rem" color="grey" />
                 <q-icon v-if="item.playedNb >= item.totalNb" name="flag" size="2rem" color="primary" />
               </q-item-section>
-              <q-item-label>{{ item.town }}</q-item-label>
-              <q-item-section side v-if="item.playedNb < item.totalNb">
-                <q-linear-progress :percentage="parseInt((item.playedNb / item.totalNb) * 100, 10)" color="primary" height="18px" style="width: 75px" />
-              </q-item-section>
+              <q-item-label>
+                {{ item.town }}
+                <q-linear-progress class="q-mt-sm" v-if="item.playedNb < item.totalNb" :value="item.playedNb / item.totalNb" color="primary" style="height: 10px;" />
+              </q-item-label>
             </q-item>
             <q-item>
             {{ $t("label.PlayAllQuestsInACityToWin") }}
@@ -948,7 +946,7 @@ export default {
       },
       profile: {
         level: {},
-        progress: 10,
+        progress: 0.1,
         form: {
           name: "--", 
           picture: "", 

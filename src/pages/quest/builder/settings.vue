@@ -14,7 +14,7 @@
     
     <!------------------ TABS ------------------------>
     
-    <q-tabs v-model="tabs.selected" class="bg-primary text-white">
+    <q-tabs v-model="tabs.selected" class="bg-accent text-white hide-img">
       <q-tab :disable="isReadOnly()" name="settings" :icon="getTabIcon(1)" :label="$t('label.Intro') + ' (' + languages.current + ')'" default />
       <q-tab :disable="tabs.progress < 1 || isReadOnly()" name="steps" :icon="getTabIcon(2)" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
       <q-tab :disable="tabs.progress < 2" name="publish" :icon="getTabIcon(3)" :label="$t('label.Publish')" />
@@ -108,7 +108,7 @@
           
           <q-select
             :readonly="readOnly" :label="$t('label.Difficulty')" v-model="form.fields.level" :options="form.levels" emit-value map-options />
-        
+            
           <q-select
             :readonly="readOnly" :label="$t('label.Duration')" v-model="form.fields.duration" :options="form.durations" emit-value map-options />
           
@@ -2278,7 +2278,7 @@ export default {
       let creationDoneIcon = 'check_circle'
       
       if (this.isEdition) {
-        return ''
+        return 'img:'
       } else {
         return number <= this.tabs.progress ? creationDoneIcon : creationTodoIcon
       }
