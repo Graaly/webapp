@@ -2,17 +2,19 @@ import axios from 'axios'
 import https from 'https'
 import fs from 'fs'
 
+import AuthService from 'services/AuthService'
+import QuestService from 'services/QuestService'
+import RunService from 'services/RunService'
+import StepService from 'services/StepService'
+
 https.globalAgent.options.ca = fs.readFileSync('certs/webapp-dev-fullchain.pem')
 https.globalAgent.keepAlive = true
 axios.defaults.headers.common['origin'] = 'https://localhost:8080'
 //axios.defaults.withCredentials = true // already done in Api.js
 //axios.defaults.jar = cookieJar // unfortunately, does not work
 
-import AuthService from 'services/AuthService'
-import QuestService from 'services/QuestService'
-
 describe('Server API tests', () => {
-  let testQuest
+  let testQuest, userId, stepId, runId
   
   test('is launched in test environement', () => {
     expect(process.env.NODE_ENV).toBe('testing')
@@ -52,6 +54,8 @@ describe('Server API tests', () => {
     expect(result.data.user.email)
       .toBeDefined()
       .toBe(userEmail)
+      
+    userId = result.data.user._id
   })
   
   // play
@@ -74,13 +78,65 @@ describe('Server API tests', () => {
     checkQuestProperties(result.data)
   })
   
-  test.todo('can start a quest')
+  test('can create a run', async () => {
+    let lang = 'fr'
+    let remotePlay = true
+    let result = await RunService.init(testQuest.questId, 1, lang, remotePlay)
+    
+    expect(result.status).toBe(200)
+    expect(result.data)
+      .toHaveProperty('_id')
+      .toHaveProperty('userId', userId)
+      .toHaveProperty('questId', testQuest.questId)
+      .toHaveProperty('currentStep')
+      .toHaveProperty('currentChapter')
+      .toHaveProperty('version', '1')
+      .toHaveProperty('language', lang)
+      .toHaveProperty('inventory', [])
+      .toHaveProperty('userData')
+      .toHaveProperty('questData')
+      .toHaveProperty('remotePlay', remotePlay)
+    
+      runId = result.data._id
+      stepId = result.data.currentStep
+  })
   
-  test.todo('can retrieve quest step')
+  test('can retrieve quest step', async () => {
+    // must call 'getNextStep' first
+    let result = await RunService.getNextStep(runId)
+    expect(result.status).toBe(200)
+    
+    result = await StepService.getById(stepId)
+    //console.log('step', result.data, result.status)
+    expect(result.status).toBe(200)
+    expect(result.data.message).not.toContain('not allowed')
+  })
+  
+  // not so simple; quest must be played entierely otherwise we get an HTTP 500 error
+  test('can stop a run', async () => {
+    let result = await RunService.endRun(runId)
+    expect(result.status).toBe(200)
+  })
   
   // creation
   
-  test.todo('can create a quest')
+  test('can create a quest', async () => {
+    let result = await QuestService.create({
+      title: {'fr': 'Créée depuis API', 'en': 'Created from API'},
+      description: {'fr': 'Desc API FR', 'en': 'Desc API EN'},
+      mainLanguage: 'fr',
+      editorsUserId: [ userId ]
+    },
+    'private')
+    
+    expect(result.status).toBe(200)
+    expect(result.data)
+      .toHaveProperty('questId')
+      .toHaveProperty('version', '1')
+      .toHaveProperty('description')
+      .toHaveProperty('access', 'private')
+      .toHaveProperty('languages', [])
+  })
   
   test.todo('can create a step')
   
@@ -88,17 +144,33 @@ describe('Server API tests', () => {
   
   // profile
   
-  test.todo('can get profile')
+  test('can get profile', async () => {
+    let result = await AuthService.getAccount()
+    
+    expect(result.status).toBe(200)
+    expect(result.data)
+      .toHaveProperty('id', userId)
+      .toHaveProperty('clientSupportedVersion')
+      .toHaveProperty('email')
+      .toHaveProperty('picture')
+      .toHaveProperty('status')
+      .toHaveProperty('isAdmin', false)
+      .toHaveProperty('statistics')
+      .toHaveProperty('story')
+  })
   
   test.todo('can update profile')
   
   test.todo('can get updated profile')
   
-  test.todo('can get updated profile')
-  
   // logout
   
-  test.todo('can logout')
+  test('can logout', async () => {
+    let result = await AuthService.logout()
+    console.log('logout', result.status, result.data)
+    expect(result.status).toBe(200)
+    expect(result.data).toContain('OK')
+  })
 })
 
 // returns nearest quests

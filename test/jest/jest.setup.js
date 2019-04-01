@@ -32,7 +32,7 @@ Object.defineProperty(chai.Assertion.prototype, 'not', {
 })
 
 // Combine both jest and chai matchers on expect
-const originalExpect = global.expect
+/*const originalExpect = global.expect
 
 global.expect = (actual) => {
   const originalMatchers = originalExpect(actual)
@@ -51,7 +51,7 @@ global.expect = (actual) => {
   return combinedMatchers
 }
 Object.keys(originalExpect).forEach(key => (global.expect[key] = originalExpect[key]))
-
+*/
 // avoid issue with Axios & jsdom
 // see https://stackoverflow.com/a/43020260/488666
 global.XMLHttpRequest = undefined
