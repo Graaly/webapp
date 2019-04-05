@@ -21,6 +21,7 @@
           bottom-slots
           :error="$v.form.name.$error"
           :error-message="$t('label.PleaseEnterYourName')"
+          test-id="name"
           />
         
         <q-select
@@ -35,6 +36,7 @@
           bottom-slots
           :error="$v.form.sex.$error"
           :error-message="$t('label.PleaseSelectYourSex')"
+          test-id="sex"
           />
         
         <q-select
@@ -49,6 +51,7 @@
           bottom-slots
           :error="$v.form.age.$error"
           :error-message="$t('label.PleaseSelectYourAge')"
+          test-id="age"
           />
           
         <q-select
@@ -63,6 +66,7 @@
           bottom-slots
           :error="$v.form.country.$error"
           :error-message="$t('label.PleaseSelectYourCountry')"
+          test-id="country"
           />
         
         <q-input
@@ -74,6 +78,7 @@
           bottom-slots
           :error="$v.form.zipCode.$error"
           :error-message="$t('label.PleaseEnterYourZipCode')"
+          test-id="zip"
           />
         
         <q-input
@@ -86,10 +91,11 @@
           bottom-slots
           :error="$v.form.password.$error"
           :error-message="!$v.form.password.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.form.password.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
+          test-id="password"
           />
           
         <div class="row" v-if="step === 'password'">
-          <div class="col-2"><q-checkbox dark color="gold" v-model="form.terms" /></div>
+          <div class="col-2"><q-checkbox dark color="gold" v-model="form.terms" test-id="terms" /></div>
           <div class="col">
             <span v-html="$t('label.IAgreeTheTermsAndConditions')" />
             <div class="q-field-bottom" v-if="$v.form.terms.$error">
@@ -99,7 +105,7 @@
         </div>
         
         <div class="row" v-if="step === 'password'">
-          <div class="col-2"><q-checkbox dark color="gold" v-model="form.privacy" /></div>
+          <div class="col-2"><q-checkbox dark color="gold" v-model="form.privacy" test-id="privacy" /></div>
           <div class="col">
             <span v-html="$t('label.IAgreeThePrivacyPolicy')" />
             <div class="q-field-bottom" v-if="$v.form.privacy.$error">
@@ -109,7 +115,7 @@
         </div>
         
         <div v-if="step === 'validation'">
-          <p>{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
+          <p test-id="enter-code">{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
           <q-input dark :label="$t('label.Code')" v-model="form.code" />
         </div>
         

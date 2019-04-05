@@ -10,5 +10,10 @@
     "harnesses": [
       "unit-jest"
     ]
+  },
+  "@quasar/testing-e2e-cypress": {
+    "options": [
+      "scripts"
+    ]
   }
 }
