@@ -23,9 +23,10 @@
             bottom-slots
             :error="$v.form.email.$error"
             :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
+            test-id="login"
             />
             
-          <q-input v-if="step === 'password'" type="password" dark color="white" v-model="form.password" :label="$t('label.YourPassword')" />
+          <q-input v-if="step === 'password'" type="password" dark color="white" v-model="form.password" :label="$t('label.YourPassword')" test-id="password" />
           
           <!------------------ FORGOTTEN PASS AREA ------------------------>
           

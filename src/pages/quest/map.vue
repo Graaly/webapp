@@ -716,13 +716,13 @@
     <div class="fixed-bottom over-map" v-if="menu.show">
       <div class="menu-background"></div>
       <div class="menu row" v-touch-swipe.horizontal="swipeMenu">
-        <div class="col-4 centered" @click="openSuccessPage()">
+        <div class="col-4 centered" @click="openSuccessPage()" test-id="btn-quest-pane">
           <q-btn icon="playlist_add_check" round color="primary" :class="{'bouncing': warnings.questButton}" />
         </div>
-        <div class="col-4 centered" @click="openBottomMenu()">
+        <div class="col-4 centered" @click="openBottomMenu()" test-id="btn-main-menu">
           <img src="statics/icons/game/menu-main.png" :class="{'bouncing': warnings.mainButton}" />
         </div>
-        <div class="col-4 centered" @click="openProfilePage()">
+        <div class="col-4 centered" @click="openProfilePage()" test-id="btn-profile-pane">
           <q-btn icon="group" round color="primary" :class="{'bouncing': warnings.networkButton}" />
           <!--<div class="mid-avatar">
             <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>

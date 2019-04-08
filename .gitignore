@@ -10,6 +10,8 @@ yarn-debug.log*
 yarn-error.log*
 /config/dev.env.js
 /test/jest/coverage
+/test/cypress/screenshots/*
+/test/cypress/videos/*
 
 # Editor directories and files
 .idea
@@ -18,3 +20,7 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+
+# always keep those files
+!.gitkeep
+!.gitignore

@@ -14,7 +14,8 @@ axios.defaults.headers.common['origin'] = 'https://localhost:8080'
 //axios.defaults.jar = cookieJar // unfortunately, does not work
 
 describe('Server API tests', () => {
-  let testQuest, userId, stepId, runId
+  let testQuest, userId, stepId, runId, result
+  let otherUserId = '5c0a8c3916de36467823623f'
   
   test('is launched in test environement', () => {
     expect(process.env.NODE_ENV).toBe('testing')
@@ -25,7 +26,7 @@ describe('Server API tests', () => {
       baseURL: process.env.SERVER_URL,
       withCredentials: true
     })
-    const result = await httpclient.get('/')
+    result = await httpclient.get('/')
     expect(result.status).toBe(200)
     expect(result.data.message)
       .toBeDefined()
@@ -33,7 +34,7 @@ describe('Server API tests', () => {
   })
   
   test('login failure', async () => {
-    let result = await AuthService.login('abcd', '1234')
+    result = await AuthService.login('abcd', '1234')
     expect(result.status).toBe(401)
   })
   
@@ -41,9 +42,23 @@ describe('Server API tests', () => {
     await listNearestQuests()
   })
   
+  test('cannot get my own profile while not logged in', async () => {
+    result = await AuthService.getAccount()
+    expect(result.status).toBe(403)
+    expect(result.data.message).toContain('authentication required')
+  })
+  
+  test('get other user profile while not logged in', async () => {
+    result = await AuthService.getAccount(otherUserId)
+    expect(result.status).toBe(200)
+    expect(result.data)
+      .not.toHaveProperty('email')
+      .not.toHaveProperty('password')
+  })
+  
   test('login success', async () => {
     let userEmail = 'maxime.pacary@gmail.com'
-    let result = await AuthService.login(userEmail, 'toto')
+    result = await AuthService.login(userEmail, 'toto')
     
     expect(result.status).toBe(200)
     expect(result.data.message)
@@ -66,7 +81,7 @@ describe('Server API tests', () => {
   })
   
   test('can get quest details', async () => {
-    let result = await QuestService.getById(testQuest.questId, 1)
+    result = await QuestService.getById(testQuest.questId, 1)
     
     expect(result.status).toBe(200)
     checkQuestProperties(result.data)
@@ -78,10 +93,11 @@ describe('Server API tests', () => {
     checkQuestProperties(result.data)
   })
   
-  test('can create a run', async () => {
+  test('can start a run', async () => {
     let lang = 'fr'
     let remotePlay = true
-    let result = await RunService.init(testQuest.questId, 1, lang, remotePlay)
+    
+    result = await RunService.init(testQuest.questId, 1, lang, remotePlay)
     
     expect(result.status).toBe(200)
     expect(result.data)
@@ -97,31 +113,42 @@ describe('Server API tests', () => {
       .toHaveProperty('questData')
       .toHaveProperty('remotePlay', remotePlay)
     
-      runId = result.data._id
-      stepId = result.data.currentStep
+    runId = result.data._id
+    stepId = result.data.currentStep
   })
   
-  test('can retrieve quest step', async () => {
-    // must call 'getNextStep' first
-    let result = await RunService.getNextStep(runId)
-    expect(result.status).toBe(200)
+  test('can retrieve a quest step', async () => {
+    result = await StepService.getById(stepId, 1)
     
-    result = await StepService.getById(stepId)
-    //console.log('step', result.data, result.status)
     expect(result.status).toBe(200)
-    expect(result.data.message).not.toContain('not allowed')
+    expect(result.data)
+      .toHaveProperty('stepId', stepId)
+      .toHaveProperty('questId', testQuest.questId)
+      .toHaveProperty('chapterId')
+      .toHaveProperty('version')
+      .toHaveProperty('title')
+      .toHaveProperty('createdBy')
+      .toHaveProperty('status')
+      .toHaveProperty('number')
   })
   
-  // not so simple; quest must be played entierely otherwise we get an HTTP 500 error
+  test('can retrieve next step', async () => {
+    result = await RunService.getNextStep(runId)
+    expect(result.status).toBe(200)
+    expect(result.data)
+      .toHaveProperty('message')
+      .toHaveProperty('next')
+  })
+  
   test('can stop a run', async () => {
-    let result = await RunService.endRun(runId)
+    result = await RunService.endRun(runId)
     expect(result.status).toBe(200)
   })
   
   // creation
   
   test('can create a quest', async () => {
-    let result = await QuestService.create({
+    result = await QuestService.create({
       title: {'fr': 'Créée depuis API', 'en': 'Created from API'},
       description: {'fr': 'Desc API FR', 'en': 'Desc API EN'},
       mainLanguage: 'fr',
@@ -159,19 +186,95 @@ describe('Server API tests', () => {
       .toHaveProperty('story')
   })
   
-  test.todo('can update profile')
+  test('can update profile', async () => {
+    // already existing email
+    let result = await AuthService.modifyAccount({
+      name: 'Maxime modifié free',
+      language: 'en',
+      email: 'maxime.pacary@free.fr'
+    })
+    
+    expect(result.status).toBe(400)
+    expect(result.data.message).toContain('already exist')
+    
+    // available email
+    result = await AuthService.modifyAccount({
+      name: 'Maxime modifié',
+      language: 'en',
+      email: 'maxime.pacary@graaly.com'
+    })
+    
+    expect(result.status).toBe(200)
+    
+    // change password (too weak)
+    result = await AuthService.modifyAccount({
+      oldPassword: 'toto',
+      newPassword: 'titi'
+    })
+    
+    expect(result.status).toBe(400)
+    expect(result.data.message).toContain('too weak')
+    
+    // change password (strong)
+    result = await AuthService.modifyAccount({
+      oldPassword: 'toto',
+      newPassword: 'a1B2$#x8z9h'
+    })
+    
+    expect(result.status).toBe(200)
+  })
   
-  test.todo('can get updated profile')
+  test('can get updated profile', async () => {
+    let result = await AuthService.getAccount('me')
+    
+    expect(result.status).toBe(200)
+    expect(result.data)
+      .toHaveProperty('id', userId)
+  })
+  
+  test('can get other users profile', async () => {
+    let result = await AuthService.getAccount(otherUserId)
+    
+    expect(result.status).toBe(200)
+    expect(result.data)
+      .toHaveProperty('_id', otherUserId)
+      .toHaveProperty('name', 'GAGAGAG')
+  })
   
   // logout
   
   test('can logout', async () => {
     let result = await AuthService.logout()
-    console.log('logout', result.status, result.data)
     expect(result.status).toBe(200)
     expect(result.data).toContain('OK')
   })
+  
+  // create account
+  
+  test('can create account', async () => {
+    // empty data => error
+    let result = await AuthService.createAccount({})
+    expect(result.status).toBe(400)
+    
+    // already existing => error
+    result = await AuthService.createAccount({
+      name: 'Maxime doublon',
+      email: 'MAXIME.PACARY@GMAIL.COM',
+      password: '12$4x6Z78€'
+    })
+    expect(result.status).toBe(400)
+    
+    // correct data => no error
+    result = await AuthService.createAccount({
+      name: 'Maxime Graaly',
+      email: 'MAXIME@grAAly.com',
+      password: '12$4x6Z78€'
+    })
+    expect(result.status).toBe(200)
+  })
 })
+
+// -------------------- custom functions ----------------------
 
 // returns nearest quests
 // used several times
