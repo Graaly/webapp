@@ -5,9 +5,9 @@
       {{ $t('label.ClickHereToCreateANewQuestVersion') }}
     </div>
     
-    <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
+    <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline close-btn" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
     
-    <h1 class="size-3 q-pl-md">
+    <h1 class="size-4 q-pl-md">
       <span v-if="tabs.progress > 0">{{ form.fields.title[languages.current] || form.fields.title[quest.mainLanguage] }}</span>
       <span v-else>{{ $t('label.NewQuest') }}</span>
     </h1>
@@ -93,6 +93,7 @@
             emit-value
             map-options
             bottom-slots
+            options-cover
             :error="$v.form.fields.category.$error"
             :error-message="$t('label.PleaseSelectACategory')"
             />
@@ -447,12 +448,12 @@
     
         <!------------------ STEP TYPE SELECTION ------------------------>
         
-        <a class="float-right no-underline" color="grey" @click="closeStepTypePage"><q-icon name="close" class="medium-icon" /></a>
+        <a class="float-right no-underline close-btn" color="grey" @click="closeStepTypePage"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ $t('label.ChooseTheStepType') }}</h1>
       
         <div class="q-pa-md">
-          <p class="caption">{{ $t('label.Transition') }}</p>
           <q-list>
+            <q-item-label header>{{ $t('label.Transition') }}</q-item-label>
             <q-expansion-item color="primary" popup
               group="steptype"
               v-for="stepType in filteredStepTypes('transition')" :key="stepType.code" 
@@ -461,15 +462,14 @@
               v-if="!(stepType.code === 'end-chapter' && form.fields.editorMode === 'simple')"
             >
               <div class="centered q-pa-sm">
-                {{ $t('stepType.' + stepType.description) }}
+                <div>{{ $t('stepType.' + stepType.description) }}</div>
                 <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" />
               </div>
             </q-expansion-item>
           </q-list> 
           
-          <p class="caption">{{ $t('label.Quest') }}</p>
-          
           <q-list>
+            <q-item-label header>{{ $t('label.Quest') }}</q-item-label>
             <q-expansion-item color="primary" popup
               group="steptype"
               v-for="stepType in filteredStepTypes('enigma')" :key="stepType.code" 
@@ -477,14 +477,14 @@
               :label="$t('stepType.' + stepType.title)"
             >
               <div class="centered q-pa-sm">
-                {{ $t('stepType.' + stepType.description) }}
+                <div>{ $t('stepType.' + stepType.description) }}</div>
                 <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" />
               </div>
             </q-expansion-item>
           </q-list>
           
           <div class="q-pa-md centered">
-            <a @click="closeStepTypePage()">{{ $t('label.Close') }}</a>
+            <q-btn color="secondary" @click="closeStepTypePage()">{{ $t('label.Close') }}</q-btn>
           </div>
         </div>
       </div>
@@ -516,7 +516,7 @@
               <q-btn round size="lg" color="primary" icon="lightbulb" :class="{'flashing': hint.suggest, 'bg-secondary': hint.isOpened}" @click="askForHint()" v-show="isHintAvailable()" />
             </div>
             <div v-if="!readOnly" class="col centered q-pb-md">
-              <q-btn round size="lg" color="primary" icon="arrow_back" @click="modifyStep()" />
+              <q-btn round size="lg" color="primary" icon="arrow_back" @click="stepId = -1; modifyStep(chapters.newStep.overviewData)" />
             </div>
             <div class="col centered q-pb-md">
               <q-btn round size="lg" color="primary" icon="arrow_forward" :class="{'flashing': canMoveNextStep}" v-show="canMoveNextStep || canPass" @click="closeOverview" />
@@ -1537,15 +1537,19 @@ export default {
      * @param   {Object}    step            Data of the step to modify
      */
     async modifyStep(step) {
+      this.chapters.showNewStepPageSettings = true
       if (step && step.stepId) {
-        this.stepId = step.stepId
-        this.chapters.newStep.type = this.getStepTypeInformations(step.type)
-        this.chapters.newStep.chapterId = step.chapterId
-        this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
+        var _this = this
+        // add timer else the watcher does not work every time
+        setTimeout(function() { 
+          _this.stepId = step.stepId
+          _this.chapters.newStep.type = _this.getStepTypeInformations(step.type)
+          _this.chapters.newStep.chapterId = step.chapterId
+          _this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
+        }, 500)
       }
       this.closeAllPanels()
       this.chapters.showNewStepOverview = false
-      this.chapters.showNewStepPageSettings = true
       this.chapters.reloadStepPlay = false
       // move to top
       this.moveToTop()

@@ -182,5 +182,14 @@ export default {
    */
   uploadItemImage(questId, stepType, data) {
     return Api().post('/quest/' + questId + '/step/' + stepType + '/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+  },
+  /*
+   * upload a picture for 'character' step
+   * @param   {String}    questId        ID of the quest
+   * @param   {String}    stepType       step type code, like 'new-item'
+   * @param   {Object}    data           upload data
+   */
+  uploadCharacterImage(questId, stepType, data) {
+    return Api().post('/quest/' + questId + '/step/character/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   }
 }

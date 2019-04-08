@@ -10,7 +10,7 @@
           <q-btn @click="backToTheMap()" color="primary">{{ $t('label.BackToTheMap') }}</q-btn>
         </div>
       </div>
-      <div v-if="quest && quest.status" class="fit" :style="'background: url(' + ((quest.picture && quest.picture[0] === '_') ? 'statics/images/quest/' + quest.picture : serverUrl + '/upload/quest/' + quest.picture) + ' ) center center / cover no-repeat '" v-touch-swipe.horizontal="swipeMgmt">
+      <div v-if="quest && quest.status" class="fit" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '" v-touch-swipe.horizontal="swipeMgmt">
         <div class="fit">
           <div class="text-center bottom-dark-banner">
             <div v-if="quest.status !== 'published'" class="bg-accent centered q-pa-sm">
@@ -62,6 +62,11 @@
               <q-btn v-if="isOwner || isAdmin" flat :label="$t('label.Modify')" @click="modifyQuest()" />
             </div>
           </div>
+          <div v-if="offline.progress > 0 && offline.progress < 1" class="bg-secondary centered fixed-bottom q-pa-md">
+            {{ $t('label.LoadingQuestDataForOfflineMode') }}
+            <q-linear-progress color="primary" stripe style="height: 10px" :value="offline.progress" />
+            <a class="text-white" @click="cancelOfflineLoading()">{{ $t('label.Cancel') }}</a>
+          </div>
         </div>
       </div>
     </div>
@@ -70,7 +75,7 @@
     
     <transition name="slideInBottom">
       <div class="panel-bottom q-pa-md" v-show="ranking.show">
-        <a class="float-right no-underline" color="grey" @click="ranking.show = false"><q-icon name="close" class="medium-icon" /></a>
+        <a class="float-right no-underline close-btn" color="grey" @click="ranking.show = false"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ $t('label.Ranking') }}</h1>
         {{ $t('label.RankingIntro') }}
         <q-list>
@@ -104,7 +109,7 @@
     <!--====================== SHOP PAGE =================================-->
     
     <q-dialog v-model="shop.show">
-      <a class="float-right no-underline q-pa-md" color="grey" @click="closeShop"><q-icon name="close" class="medium-icon" /></a>
+      <a class="float-right no-underline close-btn" color="grey" @click="closeShop"><q-icon name="close" class="medium-icon" /></a>
       <h1 class="size-3 q-pl-md">{{ $t('label.Shop') }}</h1>
       <shop></shop>
     </q-dialog>
@@ -130,10 +135,12 @@
 
 import AuthService from 'services/AuthService'
 import QuestService from 'services/QuestService'
+import StepService from 'services/StepService'
 import RunService from 'services/RunService'
 import UserService from 'services/UserService'
 import shop from 'components/shop'
 import story from 'components/story'
+import Notification from 'boot/NotifyHelper'
 
 import utils from 'src/includes/utils'
 
@@ -155,6 +162,9 @@ export default {
       story: {
         step: null,
         data: null
+      },
+      offline: {
+        progress: 0.1
       },
       serverUrl: process.env.SERVER_URL,
       isRunFinished: false,
@@ -262,29 +272,54 @@ export default {
     },
     /*
      * Get a quest information
-     * @param   {string}    id             Quest ID
+     * @param   {string}    id                    Quest ID
+     * @param   {Boolean}   forceNetworkLoading   Force the quest to be loading from graaly server
      */
-    async getQuest(id) {
-      // get the last version accessible by user depending on user access
-      let response = await QuestService.getLastById(id)
-      if (response && response.data) {
-        this.quest = response.data
-        if (typeof this.quest.authorUserId !== 'undefined') {
-          response = await AuthService.getAccount(this.quest.authorUserId)
-          if (response && response.data) {
-            this.$set(this.quest, 'author', response.data)
+    async getQuest(id, forceNetworkLoading) {
+      // check if the quest data are not already saved on device
+      let isQuestOfflineLoaded = await this.checkIfQuestIsAlreadyLoaded(id)
+
+      if (!isQuestOfflineLoaded || forceNetworkLoading) {
+        // get the last version accessible by user depending on user access
+        let response = await QuestService.getLastById(id)
+        if (response && response.data) {
+          this.quest = response.data
+          if (typeof this.quest.authorUserId !== 'undefined') {
+            response = await AuthService.getAccount(this.quest.authorUserId)
+            if (response && response.data) {
+              this.$set(this.quest, 'author', response.data)
+            }
+            this.quest.description = utils.replaceBreakByBR(this.quest.description)
+            
+            if (window.cordova) {
+              this.saveOfflineQuest()
+            }
           }
-          this.quest.description = utils.replaceBreakByBR(this.quest.description)
+        } else {
+          this.$q.dialog({
+            title: this.$t('label.TechnicalProblem'),
+            message: this.$t('label.TechnicalProblemNetworkIssue'),
+            ok: this.$t('label.BackToMap')
+          }).onOk(() => {
+            this.backToTheMap()
+          })
         }
       } else {
-        this.$q.dialog({
-          title: this.$t('label.TechnicalProblem'),
-          message: this.$t('label.TechnicalProblemNetworkIssue'),
-          ok: this.$t('label.BackToMap')
-        }).onOk(() => {
-          this.backToTheMap()
-        })
+        // get quest data from device storage
+        const quest = await utils.readFile('quest_' + id + '.json')
+
+        if (!quest) {
+          return this.getQuest(id, true)
+        } else {
+          this.quest = JSON.parse(quest)
+          const pictureUrl = await utils.readBinaryFile(this.quest.picture)
+          if (!pictureUrl) {
+            return this.getQuest(id, true)
+          }
+          this.quest.picture = pictureUrl
+        }
       }
+      return true
     },
     /*
      * Get the connected user information about previous runs for this quest
@@ -513,6 +548,116 @@ export default {
      */
     closeShop () {
       this.shop.show = false
+    },
+    /*
+     * get background image
+     */
+    getBackgroundImage () {
+      if (this.quest.picture && this.quest.picture[0] === '_') {
+        return 'statics/images/quest/' + this.quest.picture
+      } else if (this.quest.picture && this.quest.picture.indexOf('blob:') !== -1) {
+        return this.quest.picture
+      } else if (this.quest.picture) {
+        return this.serverUrl + '/upload/quest/' + this.quest.picture
+      } else {
+        return 'statics/images/quest/default-quest-picture.png'
+      }
+    },
+    
+    // ============================================ OFFLINE MANAGEMENT ========================
+    /*
+     * Load the offline content in files
+     */
+    async saveOfflineQuest() {
+      // check if quest is not already loaded
+      const isQuestOfflineLoaded = await this.checkIfQuestIsAlreadyLoaded(this.quest.questId)
+
+      if (!isQuestOfflineLoaded) {
+        await this.saveQuestData(this.quest.questId)
+      }
+    },
+    async checkIfQuestIsAlreadyLoaded(id) {
+      if (!window.cordova) {
+        return false
+      }
+
+      const isQuestOfflineFileExisting = await utils.checkIfFileExists('quest_' + id + '.json')
+
+      if (isQuestOfflineFileExisting) {
+        this.offline.progress = 1
+        return true
+      } else {
+        this.offline.progress = 0.1
+        return false
+      }
+    },
+    async saveQuestData(id) {
+      if (this.offline.progress > 0) {
+        // Create quest json file
+        const createQuestFileSuccess = await utils.writeInFile('quest_' + id + '.json', JSON.stringify(this.quest), true)
+
+        if (!createQuestFileSuccess) {
+          Notification(this.$t('label.ErrorOfflineSaving'), 'error')
+          this.offline.progress = 0
+          return false
+        }
+  
+        if (this.offline.progress > 0) {
+          // update progress bar
+          this.offline.progress = 0.2
+         
+          // Save quest picture in file
+          if (this.quest.picture && this.quest.picture !== '') {
+            const createQuestPictureSuccess = await utils.saveBinaryFile(this.serverUrl + '/upload/quest/', this.quest.picture)
+
+            if (!createQuestPictureSuccess) {
+              Notification(this.$t('label.ErrorOfflineSaving'), 'error')
+              this.offline.progress = 0
+              return false
+            }
+            this.offline.progress += 0.1
+          } else {
+            this.offline.progress += 0.1
+          }
+
+          // get steps
+          let stepsData = await StepService.listForAQuest(this.quest.questId, this.quest.version)
+          if (stepsData && stepsData.data) {
+            var steps = stepsData.data.steps
+            var chapters = stepsData.data.chapters
+            // compute progression steps for each step loading
+            var progressIncrement = Math.ceil(70 / steps.length) / 100
+            for (var i = 0; i < steps.length; i++) {
+              var step = steps[i]
+              var stepFileSuccess = await utils.writeInFile('step_' + step.stepId + '.json', JSON.stringify(step), true)
+              if (!stepFileSuccess) {
+                Notification(this.$t('label.ErrorOfflineSaving'), 'error')
+                this.offline.progress = 0
+                return false
+              }
+              // get step medias
+              if (step.backgroundImage && step.backgroundImage !== '') {
+                await utils.saveBinaryFile(this.serverUrl + '/upload/quest/' + this.quest.questId + '/step/background/', step.backgroundImage)
+              }
+              this.offline.progress += progressIncrement
+              if (this.offline.progress >= 1) {
+                return true
+              }
+            }
+            for (i = 0; i < chapters.length; i++) {
+              var chapterFileSuccess = await utils.writeInFile('chapter_' + chapters[i].chapterId + '.json', JSON.stringify(chapters[i]), true)
+              if (!chapterFileSuccess) {
+                Notification(this.$t('label.ErrorOfflineSaving'), 'error')
+                this.offline.progress = 0
+                return false
+              }
+            }
+          }
+        }
+      }      
+    },
+    cancelOfflineLoading() {
+      this.offline.progress = 0
     }
   }
 }

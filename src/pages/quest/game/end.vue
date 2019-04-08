@@ -80,7 +80,7 @@
     
     <transition name="slideInBottom">
       <div class="panel-bottom q-pa-md" v-show="ranking.show">
-        <a class="float-right no-underline" color="grey" @click="ranking.show = false"><q-icon name="close" class="medium-icon" /></a>
+        <a class="float-right no-underline close-btn" color="grey" @click="ranking.show = false"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ $t('label.Ranking') }}</h1>
         <div class="q-pl-md">{{ $t('label.RankingEndIntro') }}</div>
         <q-list>
@@ -115,7 +115,7 @@
     
     <transition name="slideInBottom">
       <div class="panel-bottom q-pa-md" v-show="showChallenge">      
-        <a class="float-right no-underline" color="grey" @click="closeChallenge"><q-icon name="close" class="medium-icon" /></a>
+        <a class="float-right no-underline close-btn" color="grey" @click="closeChallenge"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ $t('label.ChallengeYourFriends') }}</h1>
         <div v-if="filteredFriends.length === 0">
           {{ $t('label.NoFriendsLong') }}
@@ -158,7 +158,7 @@
     
     <transition name="slideInBottom">
       <div class="panel-bottom q-pa-md" v-if="showBonus">      
-        <a class="float-right no-underline" color="grey" @click="closeBonus"><q-icon name="close" class="medium-icon" /></a>
+        <a class="float-right no-underline close-btn" color="grey" @click="closeBonus"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ $t('label.YouWonABonus') }}</h1>
         <div class="q-pa-md">
           <q-card class="q-ma-sm">

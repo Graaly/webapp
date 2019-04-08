@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="page-content top-padding-middle">
       
-      <a class="float-right no-underline" color="grey" @click="$router.push('/map')"><q-icon name="close" class="medium-icon" /></a>
+      <a class="float-right no-underline close-btn" color="grey" @click="$router.push('/map')"><q-icon name="close" class="medium-icon" /></a>
       <h1 class="size-3">Administration</h1>
       
       <!------------------ TABS AREA ------------------------>

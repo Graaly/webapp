@@ -275,7 +275,7 @@ var self = {
     return temp
   },
   
-  // ------- Utils for THREE.js --------
+  // ------------------------ Utils for THREE.js -------------------------------------
   
   /*
   * detach a 3D object from its parent
@@ -296,6 +296,142 @@ var self = {
     child.applyMatrix(new THREE.Matrix4().getInverse(parent.matrixWorld))
     scene.remove(child)
     parent.add(child)
+  },
+  
+  // --------------------- Utils for OFFLINE MODE -------------------------------
+  
+  /*
+   * Init file storage for file writing / reading
+   */
+  initFileStorage: function(fileName, createFile) {
+    return new Promise((resolve, reject) => {
+      window.requestFileSystem(window.TEMPORARY, 0, function (fs) {
+        fs.root.getFile(fileName, { create: createFile, exclusive: false }, function (fileEntry) {
+          resolve(fileEntry)
+        }, function() { resolve(false) })
+      }, function() { resolve(false) })
+    })
+  },
+  
+  checkIfFileExists: function(fileName, createFile) {
+    return new Promise((resolve, reject) => {
+      window.requestFileSystem(window.TEMPORARY, 0, function (fs) {
+        fs.root.getFile(fileName, { create: createFile, exclusive: false }, function (fileEntry) {
+          resolve(true)
+        }, function() { resolve(false) })
+      }, function() { resolve(false) })
+    })
+  },
+  
+  /*
+   * Write in a text file
+   */
+  writeInFile: function(fileName, dataObj, createFile) {
+    return new Promise((resolve, reject) => {
+      window.requestFileSystem(window.TEMPORARY, 0, function (fs) {
+        fs.root.getFile(fileName, { create: createFile, exclusive: false }, function (fileEntry) {
+          fileEntry.createWriter(function (fileWriter) {
+            fileWriter.onwriteend = function() {
+              resolve(true)
+            }
+
+            fileWriter.onerror = function (e) {
+              let err = "Failed file write: " + e.toString()
+              console.log(err)
+              resolve(false)
+            }
+
+            // If data object is not passed in,
+            // create a new Blob instead.
+            if (!dataObj) {
+              dataObj = new Blob(['some file data'], { type: 'text/plain' })
+            }
+
+            fileWriter.write(dataObj)
+          })
+        }, function() { resolve(false) })
+      }, function() { resolve(false) })      
+    })
+  },
+  
+  /*
+   * Read text file
+   */
+  readFile: function(fileName) {
+    return new Promise((resolve, reject) => {
+      window.requestFileSystem(window.TEMPORARY, 0, function (fs) {
+        fs.root.getFile(fileName, { create: false, exclusive: false }, function (fileEntry) {
+          fileEntry.file(function (file) {
+            var reader = new FileReader()
+
+            reader.onloadend = function() {
+              resolve(this.result)
+            };
+
+            reader.readAsText(file)
+          }, function() { resolve(false) })
+        }, function() { resolve(false) })
+      }, function() { resolve(false) })
+    })
+  },
+  
+  /*
+   * save binary file
+   */
+  saveBinaryFile: function(path, fileName) {
+    return new Promise((resolve, reject) => {
+      // open local directory
+      window.requestFileSystem(window.TEMPORARY, 5 * 1024 * 1024, function (fs) {
+        //get picture
+        var xhr = new XMLHttpRequest()
+        xhr.open('GET', path + fileName, true)
+        xhr.responseType = 'blob'
+     
+        xhr.onload = function() {
+          if (this.status === 200) {
+            var blob = new Blob([this.response], { type: 'image/png' })
+
+            fs.root.getFile(fileName, { create: true, exclusive: false }, function (fileEntry) {
+              // Create a FileWriter object for our FileEntry (log.txt).
+              fileEntry.createWriter(function (fileWriter) {
+                fileWriter.onwriteend = function() {
+                  resolve(true)
+                };
+         
+                fileWriter.onerror = function(e) {
+                    console.log("Failed file write: " + e.toString())
+                }
+         
+                fileWriter.write(blob)
+              })
+            }, function() { resolve(false) })
+          }
+        }
+        xhr.send()
+      }, function() { resolve(false) })
+    })
+  },
+  
+  /*
+   * read binary file
+   */
+  readBinaryFile: function(fileName) {
+    return new Promise((resolve, reject) => {
+      // open local directory
+      window.requestFileSystem(window.TEMPORARY, 5 * 1024 * 1024, function (fs) {
+        fs.root.getFile(fileName, { create: false, exclusive: false }, function (fileEntry) {
+          fileEntry.file(function (file) {
+            var reader = new FileReader()
+     
+            reader.onloadend = function() {
+              var blob = new Blob([new Uint8Array(this.result)], { type: "image/png" })
+              resolve(window.URL.createObjectURL(blob))
+            }
+            reader.readAsArrayBuffer(file)
+          }, function() { resolve(false) })
+        }, function() { resolve(false) })
+      }, function() { resolve(false) })
+    })
   }
 }
 

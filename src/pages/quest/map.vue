@@ -33,21 +33,6 @@
               <span v-if="currentQuest && currentQuest.duration">{{ currentQuest.duration }} {{ $t('label.min') }}</span>
               <span v-if="currentQuest && currentQuest.duration" class="text-blue-grey-2"> | </span>
               <span v-if="currentQuest && currentQuest.availablePoints">{{ currentQuest.availablePoints }} {{ $t('label.pts') }}</span>
-              <span v-if="currentQuest && currentQuest.availablePoints && currentQuest.category" class="text-blue-grey-2"> | </span>
-              <span v-if="currentQuest && currentQuest.category">
-                <q-icon name="directions_run" v-if="currentQuest.category === 3" /> <!-- sport -->
-                <q-icon name="local_see" v-if="currentQuest.category === 2" /> <!-- discovery -->
-                <q-icon name="account_balance" v-if="currentQuest.category === 1" /> <!-- culture -->
-                <q-icon name="child_care" v-if="currentQuest.category === 4" /> <!-- children -->
-                <q-icon name="commute" v-if="currentQuest.category === 5" /> <!-- with transport -->
-                <q-icon name="favorite" v-if="currentQuest.category === 6" /> <!-- Love -->
-                <q-icon name="shopping_cart" v-if="currentQuest.category === 7" /> <!-- Shop -->
-                <q-icon name="work" v-if="currentQuest.category === 8" /> <!-- Enterprise -->
-                <q-icon name="highlight" v-if="currentQuest.category === 9" /> <!-- By night -->
-                <q-icon name="landscape" v-if="currentQuest.category === 10" /> <!-- Mountain -->
-                <q-icon name="restaurant" v-if="currentQuest.category === 11" /> <!-- Culinar -->
-                <q-icon name="local_bar" v-if="currentQuest.category === 12" /> <!-- Bars -->
-              </span>
             </p>
             <q-btn v-if="currentQuest && currentQuest.authorUserId !== $store.state.user._id" @click="playQuest(currentQuest ? currentQuest.questId : '')" color="primary">{{ $t('label.Play') }}</q-btn>
             <q-btn v-if="currentQuest && currentQuest.authorUserId === $store.state.user._id" @click="modifyQuest(currentQuest ? currentQuest.questId : '')" color="primary">{{ $t('label.Modify') }}</q-btn>
@@ -69,8 +54,8 @@
     <div class="score-box q-mr-md" @click="openRanking">
       <div class="q-px-md q-pt-md score-text centered" :class="{'bouncing': warnings.score}">{{ $store.state.user.score }}<!--<q-icon name="fas fa-trophy" />--></div>
       <div style="width: 100px">
-        <div class="centered bg-primary text-white level-box">{{ $t('label.Level') }} {{ $store.state.user.level }}</div>
-        <q-linear-progress :percentage="profile.level.progress" stripe height="10px" animate color="primary"></q-linear-progress>
+        <div class="centered bg-primary text-white level-box" style="margin-bottom: 1px">{{ $t('label.Level') }} {{ $store.state.user.level }}</div>
+        <q-linear-progress :value="profile.level.progress" stripe style="height: 6px" animate color="primary"></q-linear-progress>
       </div>
     </div>
     <!--<div class="coin-box">
@@ -568,7 +553,7 @@
     
     <q-dialog v-model="friends.show" class="over-map">
        <div class="panel-bottom q-pa-md">
-        <a class="float-right no-underline" color="grey" @click="friends.show = false"><q-icon name="close" class="medium-icon" /></a>
+        <a class="float-right no-underline close-btn" color="grey" @click="friends.show = false"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ friends.selected.name }}</h1>
         <q-tabs v-model="friendsTab" class="bg-accent text-white">
           <!--<q-tab name="friendranking" icon="star" :label="$t('label.Ranking')" default />-->
@@ -663,7 +648,7 @@
     <!--====================== SHOP PAGE =================================-->
     
     <q-dialog v-model="shop.show" class="over-map">
-      <a class="float-right no-underline q-pa-md" color="grey" @click="closeShop"><q-icon name="close" class="medium-icon" /></a>
+      <a class="float-right no-underline close-btn" color="grey" @click="closeShop"><q-icon name="close" class="medium-icon" /></a>
       <h1 class="size-3 q-pl-md">{{ $t('label.Shop') }}</h1>
       <shop @close="closeShop"></shop>
     </q-dialog>
@@ -766,14 +751,14 @@
     
     <q-dialog v-model="showBottomMenu" position="bottom">
       <q-list class="bg-white">
-        <q-item @click="centerOnUserPosition()">
+        <q-item @click.native="centerOnUserPosition()">
           <q-item-section avatar>
             <q-icon color="primary" name="gps_fixed" />
           </q-item-section>
           <q-item-section>{{ $t('label.CenterOnYourPosition') }}</q-item-section>
         </q-item>
         
-        <q-item @click="$router.push('/quest/create')">
+        <q-item @click.native="$router.push('/quest/create')">
           <q-item-section avatar>
             <q-icon color="primary" name="add_location" />
           </q-item-section>
@@ -782,35 +767,35 @@
         
         <q-separator />
         
-        <q-item @click="getQuests('all')" v-if="map.filter === 'best' || map.filter === 'easy'">
+        <q-item @click.native="getQuests('all')" v-if="map.filter === 'best' || map.filter === 'easy'">
           <q-item-section avatar>
             <q-icon color="primary" name="place" />
           </q-item-section>
           <q-item-section>{{ $t('label.DisplayAllQuests') }}</q-item-section>
         </q-item>
         
-        <q-item @click="getQuests('best')" v-if="map.filter !== 'best'">
+        <q-item @click.native="getQuests('best')" v-if="map.filter !== 'best'">
           <q-item-section avatar>
             <q-icon color="primary" name="favorite" />
           </q-item-section>
           <q-item-section>{{ $t('label.BestQuests') }}</q-item-section>
         </q-item>
         
-        <q-item @click="getQuests('easy')" v-if="map.filter !== 'easy'">
+        <q-item @click.native="getQuests('easy')" v-if="map.filter !== 'easy'">
           <q-item-section avatar>
             <q-icon color="primary" name="child_care" />
           </q-item-section>
           <q-item-section>{{ $t('label.OnlyEasy') }}</q-item-section>
         </q-item>
         
-        <q-item @click="openSearch()">
+        <q-item @click.native="openSearch()">
           <q-item-section avatar>
             <q-icon color="primary" name="search" />
           </q-item-section>
           <q-item-section>{{ $t('label.SearchForAQuest') }}</q-item-section>
         </q-item>
         
-        <q-item @click="openAdminPage()" v-if="$store.state.user.isAdmin">
+        <q-item @click.native="openAdminPage()" v-if="$store.state.user.isAdmin">
           <q-item-section avatar>
             <q-icon color="primary" name="settings" />
           </q-item-section>
@@ -1040,6 +1025,7 @@ export default {
     centerOnUserPosition() {
       this.CenterMapOnPosition(this.user.position.latitude, this.user.position.longitude)
       this.map.zoom = 15
+      this.showBottomMenu = false
     },
     /*
      * Check battery level
@@ -1172,6 +1158,7 @@ export default {
      * Get the list of quests near the location of the user
      */
     async getQuests(type) {
+      this.showBottomMenu = false
       if (!type) {
         this.map.filter = 'all'
       } else {
@@ -1588,7 +1575,7 @@ export default {
     },
     setMapIcon(quest) {
       var marker = {
-        url: 'statics/icons/game/pointer-inactive.png',
+        url: 'statics/icons/game/pointer-done-undefined.png',
         size: {width: 40, height: 40, f: 'px', b: 'px'},
         scaledSize: {width: 40, height: 40, f: 'px', b: 'px'},
         origin: {x: 0, y: 0},
@@ -1596,13 +1583,13 @@ export default {
       }
       if (quest) {
         if (quest.authorUserId === this.$store.state.user._id) {
-          marker.url = 'statics/icons/game/pointer-myquest.png'
+          marker.url = 'statics/icons/game/pointer-mine-' + quest.category + '.png'
         } else {
           if (quest.status !== 'played') {
             if (quest.type === 'quest') {
-              marker.url = 'statics/icons/game/pointer-quest.png'
+              marker.url = 'statics/icons/game/pointer-done-' + quest.category + '.png'
             } else {
-              marker.url = 'statics/icons/game/pointer-' + quest.category + '.png'
+              marker.url = 'statics/icons/game/pointer-' + quest.editorMode + '-' + quest.category + '.png'
             }
           }
         }
@@ -1628,6 +1615,7 @@ export default {
      */
     openSearch() {
       this.showSearch = true
+      this.showBottomMenu = false
     },
     /*
      * Hide search page

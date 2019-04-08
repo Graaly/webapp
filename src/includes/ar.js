@@ -1616,10 +1616,12 @@ var Qb=[Ik,Zh,_h,Qj,Qi,Pi,Ri,Ag,sg,qg,rg,yg,kh,jh,Oi,Mj];var Rb=[Jk,ki,ji,gi];va
 	function ajax(url, target, callback) {
 		var oReq = new XMLHttpRequest();
 		oReq.open('GET', url, true);
+console.log(url)
 		oReq.responseType = 'arraybuffer'; // blob arraybuffer
 
 		oReq.onload = function(oEvent) {
 			// console.log('ajax done for ', url);
+console.log("before buffer")
 			var arrayBuffer = oReq.response;
 			var byteArray = new Uint8Array(arrayBuffer);
 	// console.log('writeByteArrayToFS', target, byteArray.length, 'byte. url', url)

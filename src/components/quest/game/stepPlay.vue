@@ -56,7 +56,8 @@
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
-            <img :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
+            <img v-if="step.options.character.length === 1" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
+            <img style="max-width: 100%; max-height: 200px;" v-if="step.options.character.length > 1" :src="serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
           </div>
         </div>
       </div>
@@ -2600,6 +2601,10 @@ export default {
   audio { opacity: 0.9; }
   
   .video { flex-grow: 1; display: flex; align-items: center; }
+  
+  .character {
+    text-align: right;
+  }
   
   /* text/image choice specific */
   

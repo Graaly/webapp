@@ -71,10 +71,11 @@ module.exports = {
       LocateItemARDesc: "Player has to find an geolocated item, visible on his smartphone when he is near.",
       LocateMarker: "Locate a symbol",
       LocateMarkerDesc: "Player has to find a special symbol, printed or shown on a real screen.",
-      GraalyCharacter: "Graaly character",
-      GraalyCharacterDesc: "Make a Graaly character speak (Boss, indicator, ...)",
+      GraalyCharacter: "Character",
+      GraalyCharacterDesc: "Make a character speak",
       EndOfChapter: "End of chapter",
-      EndOfChapterDesc: "This transition send player to next chapter"
+      EndOfChapterDesc: "This transition send player to next chapter",
+      OrDownloadAFile: "Or download your own picture"
     },
     layersForMarkers: {
       Magnifier: 'Magnifier',
@@ -680,7 +681,10 @@ module.exports = {
       FeedbackTitle: "Send a feedback",
       FeedbackIntroduction: "To send a feedback to this quest author, or rate this quest, please wait for the end of the quest. If you want to contact the Graaly team, to report an inappropriate content, type your message below:",
       YourMessageHasBeenSent: "Your message has been sent",
-      BackToBuilder: "Back to your quest builder"
+      BackToBuilder: "Back to your quest builder",
+      UploadACharacter: "Upload a character",
+      LoadingQuestDataForOfflineMode: "Loading quest data for off-line mode...",
+      ErrorOfflineSaving: "Technical issue, you can not play this quest without network"
     }
   },
   fr: {
@@ -755,8 +759,8 @@ module.exports = {
       LocateItemARDesc: "Le joueur doit trouver un objet géolocalisé et visible sur l'écran de son smartphone lorsqu'il se trouve à proximité.",
       LocateMarker: "Trouver un symbole",
       LocateMarkerDesc: "Le joueur doit trouver un symbole spécial, imprimé ou affiché sur un écran.",
-      GraalyCharacter: "Personnage Graaly",
-      GraalyCharacterDesc: "Faire parler un personnage Graaly (commissaire, indic, ...)",
+      GraalyCharacter: "Personnage",
+      GraalyCharacterDesc: "Faire parler un personnage",
       EndOfChapter: "Fin de chapitre",
       EndOfChapterDesc: "Cette transition fait passer le joueur au chapitre suivant"
     },
@@ -1365,7 +1369,11 @@ module.exports = {
       FeedbackTitle: "Envoyer un commentaire",
       FeedbackIntroduction: "Si vous souhaitez envoyer un commentaire à l'auteur de l'enquête, ou noter l'enquête, attendez la page de fin de l'enquête. Si vous souhaitez contacter l'équipe Graaly, pour par exemple signaler un contenu inapproprié dans cette enquête, veuillez taper votre commentaire ci-dessous :",
       YourMessageHasBeenSent: "Votre message a été envoyé",
-      BackToBuilder: "Retour à la création de l'enquête"
+      BackToBuilder: "Retour à la création de l'enquête",
+      OrDownloadAFile: "Ou téléchargez votre image",
+      UploadACharacter: "Télécharger un personnage",
+      LoadingQuestDataForOfflineMode: "Chargement de l'enquête pour le mode sans réseau ...",
+      ErrorOfflineSaving: "Problème technique, vous ne pourrez pas jouer cette enquête sans réseau"
     }
   }
 }

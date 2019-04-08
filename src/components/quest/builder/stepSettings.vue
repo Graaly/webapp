@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md">
 
-    <a class="float-right no-underline" color="grey" @click="close"><q-icon name="close" class="medium-icon" /></a>
+    <a class="float-right no-underline close-btn" color="grey" @click="close"><q-icon name="close" class="medium-icon" /></a>
     
     <h1 class="size-3" v-if="selectedStep.type !== null">{{ $t('stepType.' + selectedStep.type.title) }}</h1>
     
@@ -103,7 +103,7 @@
           />
     </div>
     
-    <!------------------ STEP : GRAALY CHARACTER ------------------------>
+    <!------------------ STEP : CHARACTER ------------------------>
     
     <div v-if="options.type.code == 'character'">
       <h2>{{ $t('label.Character') }}</h2>
@@ -122,6 +122,18 @@
       <div class="answer">
         <q-radio v-model="selectedStep.form.options.character" val="4" />
         <p><img src="statics/icons/story/character4_attitude1.png" /></p>
+      </div>
+      <div>
+        {{selectedStep.form.options.character}}
+        <p>
+          {{ $t('label.OrDownloadAFile') }}
+          <q-btn class="full-width" type="button" :label="$t('label.UploadACharacter')" @click="$refs['characterfile'].click()" />
+          <input @change="uploadCharacterImage" ref="characterfile" type="file" accept="image/*" hidden />
+          <p v-show="$v.selectedStep.form.options.character.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+          <div class="centered" v-if="selectedStep.form.options.character && selectedStep.form.options.character.length > 1">
+            <img style="width:100%" :src="serverUrl + '/upload/quest/' + questId + '/step/character/' + selectedStep.form.options.character" />
+          </div>
+        </p>
       </div>
     </div>
     
@@ -607,7 +619,9 @@ export default {
   watch: { 
     // refresh component if stepId change
     stepId: async function(newVal, oldVal) {
-      await this.initData()
+      if (newVal !== 0 && newVal !== -1) {
+        await this.initData()
+      }
     }
   },
   data() {
@@ -1466,6 +1480,26 @@ export default {
       this.$q.loading.hide()
     },
     /*
+     * Upload a character picture
+     * @param   {Object}    e            Upload data
+     */
+    async uploadCharacterImage(e) {
+      this.$q.loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadResult = await StepService.uploadCharacterImage(this.questId, this.options.type.code, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        this.selectedStep.form.options.character = uploadResult.data.file
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    /*
      * Select an object in the list
      * @param   {Number}    key            key in the objects array
      */
@@ -1710,6 +1744,9 @@ export default {
         break
       case 'new-item':
         fieldsToValidate.options = { picture: { required }, title: { required } }
+        break
+      case 'character':
+        fieldsToValidate.options = { character: { required } }
         break
       case 'use-item':
         fieldsToValidate.backgroundImage = { required }

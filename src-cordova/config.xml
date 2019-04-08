@@ -59,7 +59,7 @@
     <allow-navigation href="http://192.168.43.151:8080/index.html" />
     <allow-navigation href="*" />
     <preference name="StatusBarOverlaysWebView" value="true" />
-    <preference name="StatusBarBackgroundColor" value="#e82a34" />
+    <preference name="StatusBarBackgroundColor" value="#D60B52" />
     <preference name="StatusBarStyle" value="lightcontent" />
     <preference name="Orientation" value="portrait" />
     <preference name="AndroidPersistentFileLocation" value="Compatibility" />
