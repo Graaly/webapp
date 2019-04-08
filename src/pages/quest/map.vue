@@ -84,7 +84,7 @@
     
     <!--====================== SUCCESS PAGE =================================-->
     
-    <q-drawer class="over-map" side="left" v-model="showSuccess" :width="innerWidth">
+    <q-drawer class="over-map" side="left" v-model="showSuccess" :width="innerWidth" test-id="quests-pane">
       
       <!------------------ TABS AREA ------------------------>
       
@@ -237,7 +237,7 @@
     
     <!--====================== PROFILE PAGE =================================-->
     
-    <q-drawer class="over-map" side="right" v-model="showProfile" :width="innerWidth">
+    <q-drawer class="over-map" side="right" v-model="showProfile" :width="innerWidth" test-id="profile-pane">
     
       <!------------------ HEADER AREA ------------------------>
         
@@ -253,7 +253,7 @@
         </div>
         <div class="col">
           <div class="title">{{ $store.state.user.name }}</div>
-          <q-btn :label="$t('label.SignOut')" icon="power_settings_new" @click.native="disconnect()" flat />
+          <q-btn :label="$t('label.SignOut')" icon="power_settings_new" @click.native="disconnect()" flat test-id="btn-signout" />
         </div>
       </div>
       
@@ -716,10 +716,10 @@
     <div class="fixed-bottom over-map" v-if="menu.show">
       <div class="menu-background"></div>
       <div class="menu row" v-touch-swipe.horizontal="swipeMenu">
-        <div class="col-4 centered" @click="openSuccessPage()" test-id="btn-quest-pane">
+        <div class="col-4 centered" @click="openSuccessPage()" test-id="btn-quests-pane">
           <q-btn icon="playlist_add_check" round color="primary" :class="{'bouncing': warnings.questButton}" />
         </div>
-        <div class="col-4 centered" @click="openBottomMenu()" test-id="btn-main-menu">
+        <div class="col-4 centered" @click="openBottomMenu()" test-id="btn-bottom-menu">
           <img src="statics/icons/game/menu-main.png" :class="{'bouncing': warnings.mainButton}" />
         </div>
         <div class="col-4 centered" @click="openProfilePage()" test-id="btn-profile-pane">
@@ -749,7 +749,7 @@
     
     <!--====================== BOTTOM MENU =================================-->
     
-    <q-dialog v-model="showBottomMenu" position="bottom">
+    <q-dialog v-model="showBottomMenu" position="bottom" test-id="bottom-menu">
       <q-list class="bg-white">
         <q-item @click.native="centerOnUserPosition()">
           <q-item-section avatar>
@@ -758,7 +758,7 @@
           <q-item-section>{{ $t('label.CenterOnYourPosition') }}</q-item-section>
         </q-item>
         
-        <q-item @click.native="$router.push('/quest/create')">
+        <q-item @click.native="$router.push('/quest/create')" test-id="btn-create-quest">
           <q-item-section avatar>
             <q-icon color="primary" name="add_location" />
           </q-item-section>

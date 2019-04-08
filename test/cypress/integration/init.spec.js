@@ -1,6 +1,6 @@
 //import * as ctx from  '../../../quasar.conf.js'
 
-describe('Sanity check', () => {
+describe('Account actions', () => {
   it('defaults to "first usage" page', () => {
     cy.visit('/')
     cy.title().should('contain', 'Graaly')
@@ -64,27 +64,59 @@ describe('Sanity check', () => {
     // we can't go further because the required code is sent by email.
   })
   
-  it('logins', () => {
-    cy.visit('/#/user/login')
-    cy.get('[test-id="login"] input').type('maxime.pacary@gmail.com')
-    cy.get('[type="submit"]').click() // next button
-    cy.url().should('contain', '#/user/login') // check that URL has not changed
-    cy.get('[test-id="password"] input').type('toto')
-    cy.get('[type="submit"]').click() // next button
+  it('logins and logouts', () => {
+    doLogin()
     cy.url().should('contain', '#/map') // map page should be displayed
+    cy.get('[test-id="btn-profile-pane"]').click()
+    cy.get('[test-id="btn-signout"]').click()
+    cy.url().should('match', /#\/(user\/login|firstusage)/)
+  })
+})
+
+describe('Map panels', () => {
+  before(() => {
+    doLogin()
   })
   
-  /*it('shows quests pane', () => {
+  it('shows quests pane', () => {
     cy.visit('/#/map')
-  })*/
+    cy.get('[test-id="btn-quests-pane"]').click()
+    cy.get('[test-id="quests-pane"] .q-drawer__content').should('be.visible')
+  })
   
-  it('shows profile pane')
+  it('shows profile pane', () => {
+    cy.visit('/#/map')
+    cy.get('[test-id="btn-profile-pane"]').click()
+    cy.get('[test-id="profile-pane"] .q-drawer__content').should('be.visible')
+  })
   
-  it('shows main menu')
+  it('shows main menu', () => {
+    cy.visit('/#/map')
+    cy.get('[test-id="btn-bottom-menu"]').click()
+    cy.get('[test-id="bottom-menu"]').should('be.visible')
+  })
+})
+
+describe.only('Quests', () => {
+  before(() => {
+    doLogin()
+  })
   
-  it('creates a quest')
+  it('creates a quest', () => {
+    cy.get('[test-id="btn-bottom-menu"]').click()
+    cy.get('[test-id="bottom-menu"]').should('be.visible')
+    cy.get('[test-id="btn-create-quest"]').click()
+  })
   
   it('plays a quest')
-  
-  it('logouts')
 })
+
+function doLogin () {
+  cy.visit('/#/user/login')
+  cy.get('[test-id="login"] input').type('maxime.pacary@gmail.com')
+  cy.get('[type="submit"]').click() // next button
+  cy.url().should('contain', '#/user/login') // check that URL has not changed
+  cy.get('[test-id="password"] input').type('toto')
+  cy.get('[type="submit"]').click() // next button
+  cy.url().should('contain', '#/map')
+}
