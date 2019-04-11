@@ -129,17 +129,25 @@ Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to ea
 
 # Testing
 
+## Installing
+
+After running `npm install` in project folder, you can install latest version of Cypress:
+
+    `npm install -D cypress@3.2.0`
+
+⚠️ You must fix manually [this bug](https://github.com/cypress-io/cypress/issues/1935) for versions 3.2 or below (fixed in 4.x) otherwise "creation quest" E2E tests will trigger an error.
+
+* For a Windows installation, open file **C:\Users\<username>\AppData\Local\Cypress\Cache\<cypress-version>\Cypress\resources\app\packages\runner\dist\cypress_runner.js** (warning, heavy file 6MB, use a suitable editor like [Sublime Text 3](https://www.sublimetext.com/3))
+* Find the line containing exactly: `testId: state("runnable").id` and change it to `testId: state("runnable") ? state("runnable").id : null`
+* Save & close the file
+
 ## Running
 
 * Run **main test script** for Graaly (runs [**unit tests**](https://fr.wikipedia.org/wiki/Test_unitaire) on API/webapp & [**E2E tests**](https://blog.testingdigital.com/quest-test-de-bout-bout-end-to-end-1288) on webapp):
 
     `npm run test` or `yarn test`
     
-    If you want to run only **unit tests**:
-    
-    * Import clean test DB (named `graaly-test`) in your Mongo server: run `mongorestore --drop --gzip --archive=test/graaly-db.gz` from webapp project root
-    * Launch server manually in test environment in another terminal session: `nodemon server.js --env=test`. Option `--env=test` will tell server to use `graaly-test` DB.
-    * Run `npm run test:unit` or `yarn test:unit`
+    If you want to run only **unit tests** or **e2e tests**, open file `test/index.mjs` and modify **config** object to your convenience.
 
 ## Readings
 
