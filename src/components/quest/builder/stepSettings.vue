@@ -17,6 +17,7 @@
       :maxlength="titleMaxLength"
       :error="$v.selectedStep.form.title[lang].$error"
       :error-message="$t('label.PleaseEnterATitle')"
+      test-id="step-title"
       />
     
     <q-input
@@ -34,13 +35,14 @@
       :maxlength="mainTextMaxLength"
       :error="$v.selectedStep.form.text[lang].$error"
       :error-message="$t('label.KeepEnigmaQuestionsShort')"
+      test-id="step-text"
     />
 
     <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'main'">
       <q-btn class="full-width" type="button" @click="$refs['backgroundfile'].click()">
         <q-icon name="cloud_upload" /> <label for="picturefile1">{{ $t('label.UploadABackgroundImage') }}</label>
       </q-btn>
-      <input @change="uploadBackgroundImage" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+      <input @change="uploadBackgroundImage" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" test-id="background-upload" />
       <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
       <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
       <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
@@ -125,7 +127,7 @@
       </div>
       <div>
         {{selectedStep.form.options.character}}
-        <p>
+        <div class="q-mb-sm">
           {{ $t('label.OrDownloadAFile') }}
           <q-btn class="full-width" type="button" :label="$t('label.UploadACharacter')" @click="$refs['characterfile'].click()" />
           <input @change="uploadCharacterImage" ref="characterfile" type="file" accept="image/*" hidden />
@@ -133,7 +135,7 @@
           <div class="centered" v-if="selectedStep.form.options.character && selectedStep.form.options.character.length > 1">
             <img style="width:100%" :src="serverUrl + '/upload/quest/' + questId + '/step/character/' + selectedStep.form.options.character" />
           </div>
-        </p>
+        </div>
       </div>
     </div>
     

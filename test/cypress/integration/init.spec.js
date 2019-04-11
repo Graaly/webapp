@@ -103,9 +103,31 @@ describe.only('Quests', () => {
   })
   
   it('creates a quest', () => {
+    cy.wait(500)
     cy.get('[test-id="btn-bottom-menu"]').click()
     cy.get('[test-id="bottom-menu"]').should('be.visible')
     cy.get('[test-id="btn-create-quest"]').click()
+    cy.get('[test-id="btn-create-public-quest"]').click()
+    cy.get('[test-id="btn-accept-rules"]').click()
+    
+    // settings - language
+    cy.url().should('contain', '#/quest/setting')
+    cy.get('[test-id="btn-save-language"]').click()
+    
+    // settings - other
+    cy.get('#startingplace').type('test')
+    cy.wait(200)
+    cy.get('.pac-container .pac-item:first-child').trigger('mouseover').click()
+    cy.wait(200)
+    cy.get('[test-id="btn-save-settings"]').click()
+    
+    // create steps
+    cy.get('[test-id="btn-add-step"]').click()
+    cy.get('[test-id="btn-select-step-typeinfo-text"]').click({force: true}) // directly force click on button to select step type (could not find an easy way to expand the "expansion item")
+    cy.get('[test-id="step-title"] input').clear().type('step 1 title')
+    cy.get('[test-id="step-text"] textarea').type('step 1 text')
+    
+    doUpload('[test-id="background-upload"]', 'crash-test.jpg', 'image/jpeg')
   })
   
   it('plays a quest')
@@ -119,4 +141,20 @@ function doLogin () {
   cy.get('[test-id="password"] input').type('toto')
   cy.get('[type="submit"]').click() // next button
   cy.url().should('contain', '#/map')
+}
+
+// found here: https://github.com/cypress-io/cypress/issues/170#issuecomment-477421775
+function doUpload(selector, fixturePath, type) {
+  cy.get(selector).then(subject => cy.window().then(win => cy
+    .fixture(fixturePath, 'base64')
+    .then(Cypress.Blob.base64StringToBlob)
+    .then((blob) => {
+      const el = subject[0]
+      const filename = fixturePath.replace(/^.*[\\\/]/, '')
+      const testFile = new win.File([blob], filename, { type })
+      const dataTransfer = new win.DataTransfer()
+      dataTransfer.items.add(testFile)
+      el.files = dataTransfer.files
+      cy.wrap(subject).trigger('change', { force: true })
+    })))
 }

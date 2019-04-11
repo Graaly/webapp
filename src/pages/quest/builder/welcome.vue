@@ -45,7 +45,7 @@
             <q-separator />
 
             <q-card-actions>
-              <q-btn flat @click="changeAccess('public')">{{ $t('label.CreatePublicQuest') }}</q-btn>
+              <q-btn flat @click="changeAccess('public')" test-id="btn-create-public-quest">{{ $t('label.CreatePublicQuest') }}</q-btn>
             </q-card-actions>
           </q-card>
         </div>
@@ -65,7 +65,7 @@
         -->
         <div class="q-pa-md" v-html="$t('label.BuilderWelcomeMessage')"></div>
         <div class="q-px-md">
-          <q-btn color="primary" class="full-width center" @click="createNewQuest()">{{ $t('label.AcceptTheRules') }}</q-btn>
+          <q-btn color="primary" class="full-width center" @click="createNewQuest()" test-id="btn-accept-rules">{{ $t('label.AcceptTheRules') }}</q-btn>
           <q-btn class="full-width center q-mt-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>
         </div>
       </div>

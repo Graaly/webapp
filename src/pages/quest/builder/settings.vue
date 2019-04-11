@@ -48,7 +48,7 @@
             </q-item-section>
           </q-item>
           
-          <q-btn big :disabled="readOnly" class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" />
+          <q-btn big :disabled="readOnly" class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" test-id="btn-save-language" />
         </div>
       
         <form @submit.prevent="submitSettings()" v-if="this.quest.languages.length > 0">
@@ -147,7 +147,7 @@
           <q-btn class="full-width" v-if="!readOnly" :label="$t('label.ModifyThePicture')" @click="$refs['picturefile'].click()" />
           <input @change="uploadImage" ref="picturefile" type="file" accept="image/*" hidden />
           
-          <q-btn v-if="!readOnly" type="submit" color="primary" class="full-width">{{ $t('label.Save') }}</q-btn>
+          <q-btn v-if="!readOnly" type="submit" color="primary" class="full-width" test-id="btn-save-settings">{{ $t('label.Save') }}</q-btn>
             
         </form>
         
@@ -175,7 +175,7 @@
             </li>
           </ul>
           <p class="centered">
-            <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
+            <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" test-id="btn-add-step" />
           </p>
           <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items[0] && chapters.items[0].steps && chapters.items[0].steps.length > 1">
             <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
@@ -460,10 +460,11 @@
               :icon="'fas fa-' + stepType.icon"
               :label="$t('stepType.' + stepType.title)"
               v-if="!(stepType.code === 'end-chapter' && form.fields.editorMode === 'simple')"
+              :test-id="'area-select-step-type' + stepType.code"
             >
               <div class="centered q-pa-sm">
                 <div>{{ $t('stepType.' + stepType.description) }}</div>
-                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" />
+                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" :test-id="'btn-select-step-type' + stepType.code" />
               </div>
             </q-expansion-item>
           </q-list> 
