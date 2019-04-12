@@ -56,12 +56,12 @@
     
     <div v-if="options.type.code == 'info-video'">
       <q-btn class="full-width" type="button" icon="cloud_upload" :label="$t('label.UploadAVideo')" @click="$refs['videofile'].click()" />
-      <input @change="uploadVideo" ref="videofile" type="file" accept="video/mp4,video/x-m4v,video/*" hidden />
+      <input @change="uploadVideo" ref="videofile" type="file" accept="video/mp4,video/x-m4v,video/*" hidden test-id="video-upload" />
       <div>
         <!-- TODO show video file infos (size on disk, width x height, etc.) -->
         <p v-show="$v.selectedStep.form.videoStream.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
         <p v-show="selectedStep.form.videoStream === null">{{ $t('label.NoVideoUploaded') }}</p>
-        <video v-if="selectedStep.form.videoStream !== null" class="full-width" controls controlsList="nodownload">
+        <video v-if="selectedStep.form.videoStream !== null" class="full-width" controls controlsList="nodownload" test-id="uploaded-video">
           <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + selectedStep.form.videoStream" type="video/mp4" />
         </video>
       </div>
@@ -70,10 +70,10 @@
     <!------------------ STEP : WIN NEW ITEM ------------------------>
     
     <div class="inventory" v-if="options.type.code == 'new-item'">
-      <q-radio v-model="imageSource" v-if="selectedStep.form.options === null || !selectedStep.form.options.picture || selectedStep.form.options.picture === null" val="list" :label="$t('label.SelectPictureInTheList')" />
+      <q-radio v-model="imageSource" v-if="selectedStep.form.options === null || !selectedStep.form.options.picture || selectedStep.form.options.picture === null" val="list" :label="$t('label.SelectPictureInTheList')" test-id="radio-select-new-item-in-list" />
       <div class="row objects-list" v-show="imageSource === 'list'">
-        <div class="col-2 q-pa-sm" v-for="(item, key) in objectsList" :key="key">
-          <img style="width: 100%" :class="{'selected': (selectedStep.form.options.picture && selectedStep.form.options.picture === 'statics/images/object/' + objectsList[key].file)}" :src="'statics/images/object/' + item.thumb" @click="selectObject(key)" />
+        <div class="col-2 q-pa-sm" v-for="(item, key) in objectsList" :key="key" @click="selectObject(key)">
+          <img style="width: 100%" :class="{'selected': (selectedStep.form.options.picture && selectedStep.form.options.picture === 'statics/images/object/' + objectsList[key].file)}" :src="'statics/images/object/' + item.thumb" />
         </div>
       </div>
       <q-radio v-model="imageSource" v-if="selectedStep.form.options === null || !selectedStep.form.options.picture || selectedStep.form.options.picture === null" val="upload" :label="$t('label.UploadTheItemPicture')" />
@@ -86,7 +86,7 @@
       <div v-if="selectedStep.form.options !== null && selectedStep.form.options.picture && selectedStep.form.options.picture !== null">
         <p>{{ $t('label.YourItemPicture') }} :</p>
         <div class="centered">
-          <img style="width:100%" :src="(selectedStep.form.options.picture.indexOf('statics/') !== -1 ? selectedStep.form.options.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.options.picture)" />
+          <img style="width:100%" :src="(selectedStep.form.options.picture.indexOf('statics/') !== -1 ? selectedStep.form.options.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.options.picture)" test-id="img-new-item" />
           <a @click="selectedStep.form.options.picture = null">{{ $t('label.SelectANewObject') }}</a>
         </div>
       </div>
@@ -114,7 +114,7 @@
         <p><img src="statics/icons/story/character1_attitude1.png" /></p>
       </div>
       <div class="answer">
-        <q-radio v-model="selectedStep.form.options.character" val="2" />
+        <q-radio v-model="selectedStep.form.options.character" val="2" test-id="radio-character-to-select" />
         <p><img src="statics/icons/story/character2_attitude1.png" /></p>
       </div>
       <div class="answer">
@@ -126,7 +126,6 @@
         <p><img src="statics/icons/story/character4_attitude1.png" /></p>
       </div>
       <div>
-        {{selectedStep.form.options.character}}
         <div class="q-mb-sm">
           {{ $t('label.OrDownloadAFile') }}
           <q-btn class="full-width" type="button" :label="$t('label.UploadACharacter')" @click="$refs['characterfile'].click()" />
@@ -574,7 +573,7 @@
       </q-expansion-item>
     </q-list>
     
-    <q-btn class="full-width" color="primary" @click="submitStep">{{ $t('label.SaveThisStep') }}</q-btn>
+    <q-btn class="full-width" color="primary" @click="submitStep" test-id="btn-save-step">{{ $t('label.SaveThisStep') }}</q-btn>
     
     <q-dialog id="save-changes-modal" class="full-width" v-model="saveChangesModalOpened">
       <q-card class="q-pa-sm">
@@ -621,7 +620,7 @@ export default {
   watch: { 
     // refresh component if stepId change
     stepId: async function(newVal, oldVal) {
-      if (newVal !== 0 && newVal !== -1) {
+      if (newVal !== -1) {
         await this.initData()
       }
     }
@@ -793,7 +792,7 @@ export default {
       // reset step data
       this.resetStep()
       // if step is not defined and step type is not choosen
-      if (this.stepId && this.stepId === '-1') {
+      if (this.stepId && this.stepId === -1) {
         return
       }
       await this.getStepId()

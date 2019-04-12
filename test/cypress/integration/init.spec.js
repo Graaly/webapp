@@ -121,13 +121,45 @@ describe.only('Quests', () => {
     cy.wait(200)
     cy.get('[test-id="btn-save-settings"]').click()
     
+    // close notification (can cover input fields & Cypress is not happy when using .type() or .clear())
+    cy.get('.q-notification button').click()
+    
     // create steps
-    cy.get('[test-id="btn-add-step"]').click()
-    cy.get('[test-id="btn-select-step-typeinfo-text"]').click({force: true}) // directly force click on button to select step type (could not find an easy way to expand the "expansion item")
+    /*cy.get('[test-id="btn-add-step"]').click()
+    cy.get('[test-id="btn-select-step-type-info-text"]').click({force: true}) // directly force click on button to select step type (could not find an easy way to expand the "expansion item")
     cy.get('[test-id="step-title"] input').clear().type('step 1 title')
     cy.get('[test-id="step-text"] textarea').type('step 1 text')
-    
     doUpload('[test-id="background-upload"]', 'crash-test.jpg', 'image/jpeg')
+    cy.get('[test-id="btn-save-step"]').click()
+    cy.get('[test-id="btn-next-step"]').click() // preview
+    
+    cy.get('[test-id="btn-add-step"]').click()
+    cy.get('[test-id="btn-select-step-type-info-video"]').click({force: true})
+    cy.get('[test-id="step-title"] input').clear().type('step 2 title')
+    cy.get('[test-id="step-text"] textarea').type('step 2 text')
+    doUpload('[test-id="video-upload"]', 'crash-test.mp4', 'video/mp4')
+    cy.get('[test-id="uploaded-video"]').should('be.visible')
+    cy.get('[test-id="btn-save-step"]').click()
+    // note: could not find a simple way to prevent video autoplay, leaving as is
+    cy.get('[test-id="btn-next-step"]').click() // preview
+    
+    cy.get('[test-id="btn-add-step"]').click()
+    cy.get('[test-id="btn-select-step-type-new-item"]').click({force: true})
+    cy.get('[test-id="step-title"] input').clear().type('step 3 title')
+    cy.get('[test-id="step-text"] textarea').type('step 3 text')
+    cy.get('[test-id="radio-select-new-item-in-list"]').click()
+    cy.get('.objects-list :nth-child(12)').click()
+    cy.get('[test-id="img-new-item"]').should('be.visible')
+    cy.get('[test-id="btn-save-step"]').click()
+    cy.get('[test-id="btn-next-step"]').click() // preview*/
+    
+    //cy.wait(200)
+    cy.get('[test-id="btn-add-step"]').click()
+    cy.get('[test-id="btn-select-step-type-character"]').click({force: true})
+    cy.get('[test-id="step-title"] input').clear().type('step 4 title')
+    cy.get('[test-id="step-text"] textarea').type('step 4 text')
+    cy.get('[test-id="radio-character-to-select"]').click()
+    cy.get('[test-id="btn-save-step"]').click()
   })
   
   it('plays a quest')

@@ -459,12 +459,10 @@
               v-for="stepType in filteredStepTypes('transition')" :key="stepType.code" 
               :icon="'fas fa-' + stepType.icon"
               :label="$t('stepType.' + stepType.title)"
-              v-if="!(stepType.code === 'end-chapter' && form.fields.editorMode === 'simple')"
-              :test-id="'area-select-step-type' + stepType.code"
             >
               <div class="centered q-pa-sm">
                 <div>{{ $t('stepType.' + stepType.description) }}</div>
-                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" :test-id="'btn-select-step-type' + stepType.code" />
+                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" :test-id="'btn-select-step-type-' + stepType.code" />
               </div>
             </q-expansion-item>
           </q-list> 
@@ -478,7 +476,7 @@
               :label="$t('stepType.' + stepType.title)"
             >
               <div class="centered q-pa-sm">
-                <div>{ $t('stepType.' + stepType.description) }}</div>
+                <div>{{ $t('stepType.' + stepType.description) }}</div>
                 <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" />
               </div>
             </q-expansion-item>
@@ -520,7 +518,7 @@
               <q-btn round size="lg" color="primary" icon="arrow_back" @click="stepId = -1; modifyStep(chapters.newStep.overviewData)" />
             </div>
             <div class="col centered q-pb-md">
-              <q-btn round size="lg" color="primary" icon="arrow_forward" :class="{'flashing': canMoveNextStep}" v-show="canMoveNextStep || canPass" @click="closeOverview" />
+              <q-btn round size="lg" color="primary" icon="arrow_forward" :class="{'flashing': canMoveNextStep}" v-show="canMoveNextStep || canPass" @click="closeOverview" test-id="btn-next-step" />
             </div>
           </div>
         </div>
@@ -626,7 +624,7 @@ export default {
   data() {
     return {
       questId: null,
-      stepId: '-1',
+      stepId: -1,
       readOnly: false,
       tabs: {
         selected: 'settings',
@@ -1604,7 +1602,7 @@ export default {
      * reset step data between 2 steps creation
      */
     resetStepData() {
-      this.stepId = '-1'
+      this.stepId = -1
       this.chapters.newStep.chaptedId = 0
       this.chapters.newStep.previousStepId = 0
       this.chapters.newStep.overviewData = {}
@@ -1641,7 +1639,10 @@ export default {
       for (var i = 0; i < this.chapters.items.length; i++) {
         if (this.chapters.items[i].chapterId.toString() === chapterId && this.chapters.items[i].steps) {
           let nbStepsInChapter = this.chapters.items[i].steps.length
-          previousStepId = this.chapters.items[i].steps[nbStepsInChapter - 1].stepId
+          if (nbStepsInChapter > 0) {
+            previousStepId = this.chapters.items[i].steps[nbStepsInChapter - 1].stepId
+          }
+          break
         }
       }
       this.chapters.newStep.previousStepId = previousStepId
@@ -1841,7 +1842,7 @@ export default {
      */
     closeStepTypePage() {
       // to trigger step type change
-      this.stepId = '-1'
+      this.stepId = -1
       this.chapters.reloadStepPlay = false // reset the overview
       this.chapters.newStep.type = {}
       this.chapters.showNewStepPage = false
@@ -1850,7 +1851,7 @@ export default {
      * Filter step types based on main category code
      */
     filteredStepTypes(categoryCode) {
-      return stepTypes.filter(stepType => (stepType.category === categoryCode && stepType.enabled))
+      return stepTypes.filter(stepType => (stepType.category === categoryCode && stepType.enabled && !(stepType.code === 'end-chapter' && this.form.fields.editorMode === 'simple')))
     },
     /*
      * Select a step type
