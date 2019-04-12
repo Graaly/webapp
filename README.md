@@ -133,7 +133,7 @@ Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to ea
 
 After running `npm install` in project folder, you can install latest version of Cypress:
 
-    `npm install -D cypress@3.2.0`
+    npm install -D cypress@3.2.0
 
 ⚠️ You must fix manually [this bug](https://github.com/cypress-io/cypress/issues/1935) for versions 3.2 or below (**fixed in 3.3+ & 4.x**) otherwise "creation quest" E2E tests will trigger an error.
 
