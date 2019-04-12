@@ -135,7 +135,7 @@ After running `npm install` in project folder, you can install latest version of
 
     `npm install -D cypress@3.2.0`
 
-⚠️ You must fix manually [this bug](https://github.com/cypress-io/cypress/issues/1935) for versions 3.2 or below (fixed in 4.x) otherwise "creation quest" E2E tests will trigger an error.
+⚠️ You must fix manually [this bug](https://github.com/cypress-io/cypress/issues/1935) for versions 3.2 or below (**fixed in 3.3+ & 4.x**) otherwise "creation quest" E2E tests will trigger an error.
 
 * For a Windows installation, open file **C:\Users\<username>\AppData\Local\Cypress\Cache\<cypress-version>\Cypress\resources\app\packages\runner\dist\cypress_runner.js** (warning, heavy file 6MB, use a suitable editor like [Sublime Text 3](https://www.sublimetext.com/3))
 * Find the line containing exactly: `testId: state("runnable").id` and change it to `testId: state("runnable") ? state("runnable").id : null`
