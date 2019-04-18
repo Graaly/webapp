@@ -145,7 +145,8 @@
       <div class="fields-group">
         <div class="location-address">
           <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-            <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" v-model="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
+            <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
+            <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value" />
           </div>
           <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
         </div>
@@ -401,7 +402,8 @@
       <div class="fields-group">
         <div class="location-address">
           <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-            <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" v-model="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
+            <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
+            <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value" />
           </div>
           <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
         </div>

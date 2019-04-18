@@ -153,13 +153,15 @@ describe.only('Quests', () => {
     cy.get('[test-id="btn-save-step"]').click()
     cy.get('[test-id="btn-next-step"]').click() // preview*/
     
-    //cy.wait(200)
     cy.get('[test-id="btn-add-step"]').click()
     cy.get('[test-id="btn-select-step-type-character"]').click({force: true})
     cy.get('[test-id="step-title"] input').clear().type('step 4 title')
     cy.get('[test-id="step-text"] textarea').type('step 4 text')
     cy.get('[test-id="radio-character-to-select"]').click()
     cy.get('[test-id="btn-save-step"]').click()
+    cy.get('[test-id="btn-next-step"]').click() // preview
+    
+    
   })
   
   it('plays a quest')
