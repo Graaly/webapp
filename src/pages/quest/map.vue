@@ -3,7 +3,7 @@
     
     <!--====================== MAP PAGE =================================-->
     
-    <div class="row fullscreen" ref="map" v-if="user.position !== null">
+    <div class="row fullscreen" ref="map" v-if="!offline.active && user.position !== null">
       
       <gmap-map
         v-if="isMounted"
@@ -36,6 +36,7 @@
             </p>
             <q-btn v-if="currentQuest && currentQuest.authorUserId !== $store.state.user._id" @click="playQuest(currentQuest ? currentQuest.questId : '')" color="primary">{{ $t('label.Play') }}</q-btn>
             <q-btn v-if="currentQuest && currentQuest.authorUserId === $store.state.user._id" @click="modifyQuest(currentQuest ? currentQuest.questId : '')" color="primary">{{ $t('label.Modify') }}</q-btn>
+            <div class="q-pa-md" v-if="offline.available && currentQuest && currentQuest.authorUserId !== $store.state.user._id && !offline.show"><a @click="downloadQuest(currentQuest)" color="primary">{{ $t('label.DownloadForOfflineUse') }}</a></div>
           </div>
           <div class="infoWindow" v-if="this.$store.state.user.story && this.$store.state.user.story.step <= 3">
             <p>{{ $t('label.ClickHereToStartDiscoveryQuest') }}</p>
@@ -44,6 +45,19 @@
         </gmap-info-window>
       </gmap-map>
     </div>
+    <div class="q-px-md" v-if="offline.active">
+      <div class="search-from-map scroll">
+        <div class="q-my-md">{{ $t('label.YouAreOfflineYourQuestsList') }}</div>
+        <q-card v-for="(item, index) in questList" :key="index" class="q-mb-md" @click.native="$router.push('/quest/play/' + item.questId)">
+          <q-img :src="item.picture">
+            <div class="absolute-top text-center">
+              {{ getQuestTitle(item, true) }}
+              <q-rating slot="subtitle" v-if="item.rating && item.rating.rounded" v-model="item.rating.rounded" color="primary" :max="5" />
+            </div>
+          </q-img>
+        </q-card>
+      </div>
+    </div>
     
     <!------------------ GEOLOCATION COMPONENT ------------------------>
     
@@ -51,7 +65,7 @@
     
     <!------------------ SCORE AREA ------------------------>
     
-    <div class="score-box q-mr-md" @click="openRanking">
+    <div class="score-box q-mr-md" v-if="$store.state.user && !offline.active" @click="openRanking">
       <div class="q-px-md q-pt-md score-text centered" :class="{'bouncing': warnings.score}">{{ $store.state.user.score }}<!--<q-icon name="fas fa-trophy" />--></div>
       <div style="width: 100px">
         <div class="centered bg-primary text-white level-box" style="margin-bottom: 1px">{{ $t('label.Level') }} {{ $store.state.user.level }}</div>
@@ -713,7 +727,7 @@
     
     <!--====================== BOTTOM BAR =================================-->
     
-    <div class="fixed-bottom over-map" v-if="menu.show">
+    <div class="fixed-bottom over-map" v-if="menu.show && !offline.active">
       <div class="menu-background"></div>
       <div class="menu row" v-touch-swipe.horizontal="swipeMenu">
         <div class="col-4 centered" @click="openSuccessPage()" test-id="btn-quest-pane">
@@ -744,6 +758,9 @@
         <div class="centered bg-warning q-pa-sm" v-if="!warnings.noNetwork && warnings.noServerReponse" @click="reloadMap">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
+      </div>
+      <div v-if="offline.show">
+        <offlineLoader :quest="offline.quest" :design="'download'" @end="offline.show = false"></offlineLoader>
       </div>
     </div>
     
@@ -822,6 +839,7 @@ import geolocation from 'components/geolocation'
 import newfriend from 'components/newfriend'
 import shop from 'components/shop'
 import story from 'components/story'
+import offlineLoader from 'components/offlineLoader'
 
 import utils from 'src/includes/utils'
 import { required, email } from 'vuelidate/lib/validators'
@@ -844,7 +862,8 @@ export default {
     geolocation,
     newfriend,
     shop,
-    story
+    story,
+    offlineLoader
   },
   data () {
     return {
@@ -954,6 +973,12 @@ export default {
         step: null,
         data: null
       },
+      offline: {
+        available: window.cordova,
+        show: false,
+        active: false,
+        quest: null
+      },
       ranking: {
         show: false
       },
@@ -973,11 +998,15 @@ export default {
     document.addEventListener("backbutton", this.trackCallBackFunction, false);
   },
   mounted() {
-    this.initPage()
+    if (!this.$store || !this.$store.state || !this.$store.state.user || !this.$store.state.user.name) {
+      this.backToLogin()
+    } else {
+      this.initPage()
     
-    this.$nextTick(() => {
-      this.isMounted = true
-    })
+      this.$nextTick(() => {
+        this.isMounted = true
+      })
+    }
   },
   methods: {
     async initPage () {
@@ -1018,7 +1047,7 @@ export default {
       this.$set(this.user, 'position', position.coords)
       
       //if (positionNeedsUpdate) {
-      if (!this.map.loaded) {
+      if (!this.map.loaded && !this.offline.active) {
         await this.reloadMap()
       }
     },
@@ -1138,21 +1167,24 @@ export default {
         this.openDiscoveryQuestSummary()
       }
       
-      // adjust zoom / pan to nearest quests, or current user location
-      if (this.questList.length > 0) {
-        // fix found on https://teunohooijer.com/tag/vue2-google-maps/ to use google library
-        this.$refs.mapRef.$mapPromise.then((map) => {
-          const bounds = new google.maps.LatLngBounds()
-          for (let q of this.questList) {
-            bounds.extend({ lng: q.location.coordinates[0], lat: q.location.coordinates[1] })
-          }
-          map.fitBounds(bounds);
-        });
-      } else {
-        this.centerOnUserPosition()
+      if (this.$refs.mapRef) {
+        // adjust zoom / pan to nearest quests, or current user location
+        if (this.questList.length > 0) {
+          // fix found on https://teunohooijer.com/tag/vue2-google-maps/ to use google library
+          this.$refs.mapRef.$mapPromise.then((map) => {
+            const bounds = new google.maps.LatLngBounds()
+            for (let q of this.questList) {
+              bounds.extend({ lng: q.location.coordinates[0], lat: q.location.coordinates[1] })
+            }
+            map.fitBounds(bounds);
+          });
+        } else {
+          this.centerOnUserPosition()
+        }
+        this.map.loaded = true
       }
+      
       this.$q.loading.hide()
-      this.map.loaded = true
     },
      /*
      * Get the list of quests near the location of the user
@@ -1170,7 +1202,7 @@ export default {
       this.$q.loading.hide()
       if (response && response.data) {
         this.questList = response.data
-      
+
         if (this.$store.state.user.story.step === 16) {
           // get the closest quest not already played
           var closestQuest = this.getClosestQuestUnplayed()
@@ -1187,7 +1219,34 @@ export default {
           this.story.step = 16
         }
       } else {
-        this.warnings.noServerReponse = true
+        // check if quests are available offline
+console.log("read quests File")
+        const offlineQuestsFile = await utils.readFile('', 'quests.json')
+        
+        if (offlineQuestsFile) {
+console.log("quests file is readable")
+          const offlineQuestsData = JSON.parse(offlineQuestsFile)
+          if (offlineQuestsData && offlineQuestsData.list) {
+console.log("found quests in quests file")
+console.log(offlineQuestsData.list)
+            var tempQuestList = offlineQuestsData.list
+            
+            // get pictures
+            for (var i = 0; i < tempQuestList.length; i++) {
+              var pictureUrl = await utils.readBinaryFile(tempQuestList[i].questId, tempQuestList[i].picture)
+              if (pictureUrl) {
+                tempQuestList[i].picture = pictureUrl
+              } else {
+                tempQuestList[i].picture = '_default-quest-picture.png'
+              }
+            }
+            this.questList = tempQuestList
+            
+            this.offline.active = true
+          }
+        } else {
+          this.warnings.noServerReponse = true
+        }
       }
     },
      /*
@@ -1558,7 +1617,7 @@ export default {
       if (!quest || !quest.title) {
         return this.$t('label.NoTitle')
       }
-      if (this.$store.state.user.language && quest.title[this.$store.state.user.language] && this.$store.state.user.language !== quest.mainLanguage) {
+      if (this.$store.state.user.language && quest.title[this.$store.state.user.language]) {
         return quest.title[this.$store.state.user.language]
       } else if (quest.title[quest.mainLanguage] && quest.title[quest.mainLanguage] !== '') {
         return quest.title[quest.mainLanguage] + (showLanguage ? ' <img class="image-and-text-aligned" src="statics/icons/game/flag-' + Object.keys(quest.title)[0] + '.png" />' : '')
@@ -1572,6 +1631,12 @@ export default {
     backToMap() {
       this.showProfile = false
       this.showSuccess = false
+    },
+    /*
+     * Back to the login page
+     */
+    backToLogin() {
+      this.$router.push('/user/login')
     },
     setMapIcon(quest) {
       var marker = {
@@ -1809,6 +1874,17 @@ export default {
      */
     playQuest(questId) {
       this.$router.push('/quest/play/' + questId)
+    },
+    /*
+     * Download a quest
+     */
+    downloadQuest(quest) {
+console.log("download quest")
+console.log(quest)
+      if (!this.offline.show) {
+        this.offline.quest = quest
+        this.offline.show = true
+      }
     },
     /*
      * Modify a quest

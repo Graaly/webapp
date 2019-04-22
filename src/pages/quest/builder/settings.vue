@@ -147,7 +147,24 @@
           <q-btn class="full-width" v-if="!readOnly" :label="$t('label.ModifyThePicture')" @click="$refs['picturefile'].click()" />
           <input @change="uploadImage" ref="picturefile" type="file" accept="image/*" hidden />
           
-          <q-btn v-if="!readOnly" type="submit" color="primary" class="full-width">{{ $t('label.Save') }}</q-btn>
+          <div v-if="form.fields.customization">
+            <q-input
+              :disable="readOnly"
+              v-model="form.fields.customization.color"
+              :label="$t('label.ButtonsColor')"
+              placeholder="#ffaa00"
+              class="full-width"
+            />
+          </div>
+          
+          <div v-if="form.fields.customization && form.fields.customization.logo && form.fields.customization.logo !== ''">
+            <p>{{ $t('label.YourLogo') }} :</p>
+            <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.customization.logo" />
+          </div>
+          <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddALogo')" @click="$refs['logofile'].click()" />
+          <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" hidden />
+          
+          <q-btn v-if="!readOnly" type="submit" color="primary" class="q-mt-lg full-width">{{ $t('label.Save') }}</q-btn>
             
         </form>
         
@@ -506,20 +523,59 @@
         <stepPlay :step="chapters.newStep.overviewData" runId="0" :itemUsed="selectedItem" :reload="chapters.reloadStepPlay" :lang="languages.current" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
         <div v-show="overview.tabSelected" class="step-menu fixed-bottom">
           <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
-          <div class="row">
+          <div class="row white-buttons">
             <div class="col centered q-pb-md">
+              <q-btn
+                round
+                size="lg"
+                class="bg-white"
+                v-if="quest.customization.logo && quest.customization.logo !== ''" >
+                <q-avatar size="60px">
+                  <img :src="serverUrl + '/upload/quest/' + quest.customization.logo">
+                </q-avatar>
+              </q-btn>
             </div>
             <div class="col centered q-pb-md">
-              <q-btn round size="lg" color="primary" icon="work" :class="{'bg-secondary': inventory.isOpened}" @click="openInventory()" />
+              <q-btn 
+                round 
+                size="lg" 
+                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
+                icon="work" 
+                :class="{'bg-secondary': (inventory.isOpened && quest.customization.color === ''), 'bg-primary': (!inventory.isOpened && quest.customization.color === '')}" 
+                @click="openInventory()" 
+              />
             </div>
             <div class="col centered q-pb-md">
-              <q-btn round size="lg" color="primary" icon="lightbulb" :class="{'flashing': hint.suggest, 'bg-secondary': hint.isOpened}" @click="askForHint()" v-show="isHintAvailable()" />
+              <q-btn 
+                round 
+                size="lg" 
+                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
+                icon="lightbulb" 
+                :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && quest.customization.color === ''), 'bg-primary': (!hint.isOpened && quest.customization.color === '')}" 
+                @click="askForHint()" 
+                v-show="isHintAvailable()" 
+              />
             </div>
             <div v-if="!readOnly" class="col centered q-pb-md">
-              <q-btn round size="lg" color="primary" icon="arrow_back" @click="stepId = -1; modifyStep(chapters.newStep.overviewData)" />
+              <q-btn 
+                round 
+                size="lg" 
+                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
+                :class="{'bg-primary': (quest.customization.color === '')}" 
+                icon="arrow_back" 
+                @click="stepId = -1; modifyStep(chapters.newStep.overviewData)" 
+              />
             </div>
             <div class="col centered q-pb-md">
-              <q-btn round size="lg" color="primary" icon="arrow_forward" :class="{'flashing': canMoveNextStep}" v-show="canMoveNextStep || canPass" @click="closeOverview" />
+              <q-btn 
+                round 
+                size="lg" 
+                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''"
+                icon="arrow_forward" 
+                :class="{'flashing': canMoveNextStep, 'bg-primary': (quest.customization.color === '')}" 
+                v-show="canMoveNextStep || canPass" 
+                @click="closeOverview" 
+              />
             </div>
           </div>
         </div>
@@ -656,7 +712,8 @@ export default {
           town: "",
           country: "",
           zipcode: "",
-          editorMode: 'simple'
+          editorMode: 'simple',
+          customization: { color: '', logo: '' }
         },
         categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }, this.$t),
         languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
@@ -1170,6 +1227,25 @@ export default {
       let uploadThumbResult = await QuestService.uploadThumb(data)
       if (uploadThumbResult && uploadThumbResult.hasOwnProperty('data')) {
         this.form.fields.thumb = uploadThumbResult.data.file
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    /*
+     * Upload a new logo for the quest
+     */
+    async uploadLogo(e) {
+      this.$q.loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadPictureResult = await QuestService.uploadLogo(data)
+      if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
+        this.form.fields.customization.logo = uploadPictureResult.data.file
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }

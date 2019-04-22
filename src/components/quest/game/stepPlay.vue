@@ -18,7 +18,7 @@
         </div>
         <div class="video" v-if="step.videoStream">
           <video class="full-width" controls controlsList="nodownload" autoplay>
-            <source :src="serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
+            <source :src="step.videoStream.indexOf('blob:') !== -1 ? step.videoStream : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
           </video>
         </div>
         <!--
@@ -35,7 +35,7 @@
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="item">
-          <img style="width: 80%" :src="(step.options.picture.indexOf('statics/') > -1 ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
+          <img style="width: 80%" :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
           <p>{{ step.options.title }}</p>
         </div>
       </div>
@@ -56,8 +56,10 @@
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
-            <img v-if="step.options.character.length === 1" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
-            <img style="max-width: 100%; max-height: 200px;" v-if="step.options.character.length > 1" :src="serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
+            <img style="vertical-align:bottom" v-if="step.options.character.length === 1" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
+            <img style="max-width: 100%; max-height: 200px; vertical-align:bottom;" v-if="step.options.character.length > 1" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
+          </div>
+          <div class="full-width bg-accent" style="height: 70px">
           </div>
         </div>
       </div>
@@ -77,7 +79,7 @@
         <div class="answers-images" v-if="answerType === 'image'">
           <div class="images-block">
             <div v-for="(option, key) in step.options" :key="key" :class="option.class" @click="checkAnswer(key)">
-              <img :src="serverUrl + '/upload/quest/' + step.questId + '/step/choose-image/' + option.imagePath" :class="option.class" />
+              <img :src="option.imagePath.indexOf('blob:') !== -1 ? option.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/choose-image/' + option.imagePath" :class="option.class" />
               <q-btn v-if="option.class !== null" round :class="option.class" :icon="option.icon" disable />
             </div>
           </div>
@@ -143,7 +145,7 @@
           </tr>
           <tr>
             <td v-for="(code, index) in playerCode" :key="index">
-              <img :id="'image-code-' + index" :src="serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
+              <img :id="'image-code-' + index" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
             </td>
           </tr>
           <tr>
@@ -167,7 +169,7 @@
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="photo">
-          <img ref="original-photo" :src="serverUrl + '/upload/quest/' + step.questId + '/step/image-recognition/' + step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
+          <img ref="original-photo" :src="(step.answers && step.answers.indexOf('blob:') !== -1) ? step.answers : serverUrl + '/upload/quest/' + step.questId + '/step/image-recognition/' + step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
           <video ref="camera-stream-for-recognition" v-show="cameraStreamEnabled"></video>
           <canvas ref="photo-buffer" class="hidden"></canvas>
           <img ref="player-photo" v-show="photoTaken" :alt="$t('label.TheScreenCaptureWillAppearInThisBox')" />
@@ -233,7 +235,7 @@
         </div>
         <ul class="memory" id="card-deck">
           <li v-for="(item, key) in memory.items" :key="key" class="card" :class="{ open: item.isClicked, show: item.isClicked, disabled: item.isFound }" @click="selectMemoryCard(key)">
-            <img :src="serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
+            <img :src="item.imagePath.indexOf('blob:') !== -1 ? item.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
           </li>
         </ul>
       </div>
@@ -244,13 +246,13 @@
         <div>
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
-        <div ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + step.questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
+        <div ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
         <q-btn round color="primary">
-          <img v-if="itemUsed" :src="(itemUsed.picture.indexOf('statics/') > -1 ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
+          <img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
         </q-btn>
         {{ $t('label.TouchWhereYouUseThisItem') }}
       </p>
@@ -261,7 +263,7 @@
         <div>
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
-        <div ref="findItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + step.questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
+        <div ref="findItemPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
@@ -389,7 +391,7 @@ export default {
    * itemUsed : item of the inventory used
    * lang : language of the step (fr, en, ...)
    */
-  props: ['step', 'runId', 'reload', 'itemUsed', 'lang'],
+  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer'],
   components: {
     geolocation,
     story
@@ -545,6 +547,18 @@ export default {
       }
     },
     /*
+     * get background image
+     */
+    getBackgroundImage () {
+      if (this.step.backgroundImage && this.step.backgroundImage[0] === "_") {
+        return 'statics/images/quest/' + this.step.backgroundImage
+      } else if (this.step.backgroundImage && this.step.backgroundImage.indexOf('blob:') !== -1) {
+        return this.step.backgroundImage
+      } else {
+        return this.serverUrl + '/upload/quest/' + this.step.questId + '/step/background/' + this.step.backgroundImage
+      }
+    },
+    /*
      * Init the component data
      */
     initData () {
@@ -563,7 +577,7 @@ export default {
             this.showControls()
           } else {
             // define if background image is a generic one or user defined one
-            let backgroundUrl = this.step.backgroundImage[0] === "_" ? 'statics/images/quest/' + this.step.backgroundImage : process.env.SERVER_URL + '/upload/quest/' + this.step.questId + '/step/background/' + this.step.backgroundImage
+            let backgroundUrl = this.getBackgroundImage()
             background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             // all background clickable for transitions
             //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
@@ -592,7 +606,7 @@ export default {
         
         if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'character' || this.step.type === 'new-item') {
           // validate steps with no enigma
-          utils.setTimeout(this.checkAnswer, 1000)
+          utils.setTimeout(this.checkAnswer, 500)
         }
         if (this.step.type === 'end-chapter') {
           this.checkAnswer()
@@ -732,7 +746,12 @@ export default {
             }
           } else {
             // 2D plane with transparent image (user uploaded picture) as texture
-            let itemImage = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/locate-item-ar/' + this.step.options.picture
+            var itemImage = ''
+            if (this.step.options.picture && this.step.options.picture.indexOf('blob:') !== -1) {
+              itemImage = this.step.options.picture
+            } else {
+              itemImage = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/locate-item-ar/' + this.step.options.picture
+            }
           
             this.$refs['item-image'].src = itemImage
             
@@ -1089,13 +1108,15 @@ export default {
      * @param   {Object}    selectedAnswerKey            Answer object
      */
     async sendAnswer(questId, stepId, runId, answerData, displaySpinner) {
+console.log("check answer")
+console.log(this.answer)
       if (displaySpinner) {
         this.$q.loading.show()
       }
       
       // alert if the network is low
       var _this = this
-      var lowNetworkTimeout = setTimeout(function () { _this.isNetworkLow = true }, 6000)
+      var lowNetworkTimeout = setTimeout(function () { _this.isNetworkLow = true }, 8000)
       
       var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData)
       
@@ -1113,8 +1134,74 @@ export default {
         if (displaySpinner) {
           this.$q.loading.hide()
         }
-        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        // check offline answer
+        //if (this.answer) {
+console.log("check offline answer")
+          let checkAnswerOfflineResult = await this.checkOfflineAnswer(answerData.answer)
+          return checkAnswerOfflineResult
+        //} else {
+        //  Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        //  return false
+        //}
       }
+    },
+    /*
+     * Check answer 
+     * @param   {Object}    answerData            Answer object
+     */
+    async checkOfflineAnswer(answer) {
+console.log("compare answers")
+console.log(answer)
+console.log(this.answer)
+      const type = this.step.type
+      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character') {
+        return { result: true, answer: true, score: 0, reward: 0, offline: true }
+      } else if (type === 'image-recognition') {
+        return { result: answer, answer: this.answer, score: (answer ? 10 : 0), reward: 0, offline: true }
+      } else if (type === 'geolocation' || type === 'locate-item-ar') {
+        //TODO: find a way to check server side
+        return { result: true, answer: this.answer, score: 10, reward: 0, offline: true }
+      } else if (type === 'use-item') {
+        let anwserPixelCoordinates = {
+          left: Math.round(this.answer.coordinates.left / 100 * 100 * answer.windowWidth),
+          top: Math.round(this.answer.coordinates.top / 100 * 133 * answer.windowWidth)
+        }
+        
+        // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
+        let solutionAreaRadius = Math.round(8 * answer.windowWidth)
+        
+        let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - answer.posX, 2) + Math.pow(anwserPixelCoordinates.top - answer.posY, 2))
+
+        if (distanceToSolution <= solutionAreaRadius && this.answer.item === answer.item) {
+          return { result: true, answer: this.answer, score: 10, reward: 0, offline: true }
+        }
+      } else if (type === 'find-item') {
+        let anwserPixelCoordinates = {
+          left: Math.round(this.answer.left / 100 * 100 * answer.windowWidth),
+          top: Math.round(this.answer.top / 100 * 133 * answer.windowWidth)
+        }
+        
+        // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
+        let solutionAreaRadius = Math.round(8 * answer.windowWidth)
+        
+        let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - answer.posX, 2) + Math.pow(anwserPixelCoordinates.top - answer.posY, 2))
+
+        if (distanceToSolution <= solutionAreaRadius) {
+          return { result: true, answer: this.answer, score: 10, reward: 0, offline: true }
+        }
+      } else if (type === 'write-text') {
+        if (utils.removeAccents(answer) === utils.removeAccents(this.answer)) {
+          return { result: true, answer: this.answer, score: 10, reward: 0, offline: true }
+        }
+      } else if (type === 'memory') {
+        return { result: true, answer: this.answer, score: 10, reward: 0, offline: true }
+      } else {
+        if (answer === this.answer) {
+          return { result: true, answer: this.answer, score: 10, reward: 0, offline: true }
+        }
+      }
+      // TODO: send answer only if all tries done
+      return { result: false, answer: this.answer, score: 0, reward: 0, offline: true }
     },
     /*
      * Check if the answer is correct
@@ -1149,7 +1236,7 @@ export default {
         case 'character':
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
-          this.submitGoodAnswer(0)
+          this.submitGoodAnswer(0, checkAnswerResult.offline)
           break
           
         case 'choose':
@@ -1159,13 +1246,13 @@ export default {
             let selectedAnswer = this.step.options[answer]
             selectedAnswer.class = 'rightorwrong'
             Vue.set(this.step.options, answer, selectedAnswer)
-            this.submitAnswer(0)
+            this.submitAnswer(0, checkAnswerResult.offline)
           } else if (checkAnswerResult.result === true) {
             let selectedAnswer = this.step.options[answer]
             selectedAnswer.icon = 'done'
             selectedAnswer.class = 'right'
             Vue.set(this.step.options, answer, selectedAnswer)
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
           } else {
             let selectedAnswer = this.step.options[answer]
             selectedAnswer.icon = 'clear' // "x" icon
@@ -1179,7 +1266,7 @@ export default {
               Vue.set(this.step.options, checkAnswerResult.answer, selectedAnswer)
             }
             this.nbTry++
-            this.submitWrongAnswer()
+            this.submitWrongAnswer(checkAnswerResult.offline)
           }
           
           break
@@ -1188,7 +1275,7 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, false)
 
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
           }
           break
           
@@ -1197,9 +1284,9 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: comparison}, true)
 
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
           } else {
-            this.submitWrongAnswer()
+            this.submitWrongAnswer(checkAnswerResult.offline)
           }
           break
           
@@ -1207,9 +1294,9 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('')}, true)
 
           if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0)
+            this.submitAnswer(0, checkAnswerResult.offline)
           } else if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
           } else {
             this.nbTry++
             if (this.nbTry < 2) {
@@ -1217,7 +1304,7 @@ export default {
               this.resetKeypadCode()
               this.submitRetry()
             } else {
-              this.submitWrongAnswer()
+              this.submitWrongAnswer(checkAnswerResult.offline)
             }
           }
           break
@@ -1227,9 +1314,9 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|')}, true)
           
           if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0)
+            this.submitAnswer(0, checkAnswerResult.offline)
           } else if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
           } else {
             this.nbTry++
             if (this.nbTry < 2) {
@@ -1237,7 +1324,7 @@ export default {
               this.resetColorCode()
               this.submitRetry()
             } else {
-              this.submitWrongAnswer()
+              this.submitWrongAnswer(checkAnswerResult.offline)
             }
           }
           break
@@ -1246,9 +1333,9 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|')}, true)
           
           if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0)
+            this.submitAnswer(0, checkAnswerResult.offline)
           } else if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
           } else {
             this.nbTry++
             if (this.nbTry < 2) {
@@ -1256,7 +1343,7 @@ export default {
               this.resetImageCode()
               this.submitRetry()
             } else {
-              this.submitWrongAnswer()
+              this.submitWrongAnswer(checkAnswerResult.offline)
             }
           }
           break
@@ -1265,7 +1352,7 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer.join('|')}, true)
           
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
           }
           break
           
@@ -1273,16 +1360,16 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
           
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
           }
           break
         
         case 'write-text':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.writetext.playerAnswer}, true)
           if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0)
+            this.submitAnswer(0, checkAnswerResult.offline)
           } else if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
           } else {
             this.nbTry++
             if (this.nbTry < 2) {
@@ -1290,7 +1377,7 @@ export default {
               this.writetext.playerAnswer = ""
               this.submitRetry()
             } else {
-              this.submitWrongAnswer()
+              this.submitWrongAnswer(checkAnswerResult.offline)
             }
           }
           
@@ -1300,10 +1387,10 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
           
           if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0)
+            this.submitAnswer(0, checkAnswerResult.offline)
           } else if (checkAnswerResult.result === true) {
             this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
           } else {
             this.nbTry++
             if (this.nbTry < 2) {
@@ -1311,7 +1398,7 @@ export default {
               Notification(this.$t('label.UseItemNothingHappens'), 'error')
             } else {
               this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
-              this.submitWrongAnswer()
+              this.submitWrongAnswer(checkAnswerResult.offline)
             }
           }
           
@@ -1321,10 +1408,10 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
           
           if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0)
+            this.submitAnswer(0, checkAnswerResult.offline)
           } else if (checkAnswerResult.result === true) {
             this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
           } else {
             this.nbTry++
             if (this.nbTry < 2) {
@@ -1332,7 +1419,7 @@ export default {
               Notification(this.$t('label.FindItemNothingHappens'), 'error')
             } else {
               this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
-              this.submitWrongAnswer()
+              this.submitWrongAnswer(checkAnswerResult.offline)
             }
           }
           
@@ -1384,7 +1471,7 @@ export default {
                     object.scale.set(0, 0, 0)
                     object.position.set(0, cameraDistance, size.z / 2)
                     object.rotation.set(0, 0, 0)
-                    this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+                    this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
                   })
                 
                 let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
@@ -1397,7 +1484,7 @@ export default {
                   
                 disappearAnimation.chain(appearAnimation, rotationAnimation).start()
               } else { // 2D image on plane
-                this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+                this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
               }
             }
           } else { // locate-marker, mode scan
@@ -1436,17 +1523,17 @@ export default {
               checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
               
               if (checkAnswerResult.result === true) {
-                this.submitGoodAnswer(checkAnswerResult.score)
+                this.submitGoodAnswer(checkAnswerResult.score, checkAnswerResult.offline)
                 this.stopMarkersSensors()
                 this.locateMarker.playerAnswer = answer // for display
               } else {
                 this.nbTry++
                 if (this.nbTry === 2) {
-                  this.submitWrongAnswer()
+                  this.submitWrongAnswer(checkAnswerResult.offline)
                   this.stopMarkersSensors()
                 } else {
                   //this.startScanQRCode()
-                  this.submitRetry()
+                  this.submitRetry(checkAnswerResult.offline)
                 }
               }
             }
@@ -1464,8 +1551,8 @@ export default {
     /*
      * Send answer without telling if it is true or false
      */
-    submitAnswer() {
-      this.$emit('played')
+    submitAnswer(offlineMode) {
+      this.$emit('played', offlineMode)
       
       this.displayReadMoreAlert()
       
@@ -1475,9 +1562,9 @@ export default {
     /*
      * Send good andwer  
      */
-    submitGoodAnswer(score) {
+    submitGoodAnswer(score, offlineMode) {
       this.playerResult = true
-      this.$emit('success', score)
+      this.$emit('success', score, offlineMode)
       this.$emit('played')
       
       this.displayReadMoreAlert()
@@ -1533,9 +1620,9 @@ export default {
     /*
      * Send wrong answer 
      */
-    submitWrongAnswer() {
+    submitWrongAnswer(offlineMode) {
       this.playerResult = false
-      this.$emit('fail')
+      this.$emit('fail', offlineMode)
       this.$emit('played')
       
       this.displayReadMoreAlert()
@@ -1638,7 +1725,11 @@ export default {
     */
     forceImageRefresh(key) {
       if (document.getElementById('image-code-' + key) !== null) {
-        document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + this.step.options.images[this.playerCode[key]].imagePath
+        if (this.step.options.images[this.playerCode[key]].imagePath && this.step.options.images[this.playerCode[key]].imagePath.indexOf('blob:') !== -1) {
+          document.getElementById('image-code-' + key).src = this.step.options.images[this.playerCode[key]].imagePath
+        } else {
+          document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + this.step.options.images[this.playerCode[key]].imagePath
+        }
       }
     },
     /*
@@ -1835,9 +1926,12 @@ export default {
       // circle
       ctx.lineWidth = Math.round(this.directionHelperSize * 1.5)
       ctx.beginPath()
-      ctx.arc(0, 0, Math.round(h / 2.5) - 10, 0, 2 * Math.PI)
+
+      if (h > 25) {
+        ctx.arc(0, 0, Math.round(h / 2.5) - 10, 0, 2 * Math.PI)
+      }
       ctx.stroke()
-      
+
       ctx.rotate(utils.degreesToRadians(this.geolocation.direction))
       
       // arrow
@@ -1974,7 +2068,7 @@ export default {
       var self = this
       utils.setInterval(function() {
         if (cross.src === crossPicture) {
-          cross.src = (self.step.answers.item.indexOf('statics/') > -1 ? self.step.answers.item : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
+          cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.step.answers.item : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
           cross.style.borderRadius = '50%'
         } else {
           cross.src = crossPicture
@@ -2040,6 +2134,7 @@ export default {
       if (result) {
         this.checkAnswer(result)
       }
+      return true
     },
     comparePuzzlePiecePositions() {
       var answer = []
@@ -2082,9 +2177,17 @@ export default {
         ordered = this.comparePuzzlePiecePositions()
       }
       
-      this.puzzle.picture = this.step.options.picture.indexOf('upload/') === -1 ? this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + this.step.options.picture : this.serverUrl + this.step.options.picture
+      if (this.step.options.picture.indexOf('blob:') !== -1) {
+        this.puzzle.picture = this.step.options.picture
+      } else if (this.step.options.picture.indexOf('upload/') === -1) {
+        this.puzzle.picture = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + this.step.options.picture
+      } else {
+        this.puzzle.picture = this.serverUrl + this.step.options.picture
+      }
 
       initJigsaw(this.puzzle.element)
+      
+      return true
     },
     shuffle(array) {
       for (var i = array.length -1; i > 0; i--) {
@@ -2114,6 +2217,7 @@ export default {
           dt.setDragImage(img, img.width / 2, img.height / 2);
         }*/
       }
+      return true
     },
     /*
      * Handle puzzle piece move over
@@ -2151,19 +2255,20 @@ export default {
       this.puzzle.dragSrcEl = null;
       var cols = document.querySelectorAll('#pieces .piece');
       [].forEach.call(cols, function (col) {
-        col.style.opacity = '';
-        col.classList.remove('over');
-      });
+        col.style.opacity = ''
+        col.classList.remove('over')
+      })
+      return true
     },
     /*
      * Handle puzzle piece drop
      * @param   {object}    e            Event when user drop puzzle piece
      */
     handleDrop(e) {
-      if (this.puzzle.dragSrcEl) {
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        e.preventDefault();
+      if (this.puzzle.dragSrcEl && e.cancelable) {
+        e.stopPropagation()
+        e.stopImmediatePropagation()
+        e.preventDefault()
         // if the target is defined & a piece is moved
         if (e.target.parentNode.id && this.puzzle.dragSrcEl.id) {
           // get id of piece moved and piece destination
@@ -2192,6 +2297,7 @@ export default {
           }
         }
       }
+      return true
     },
     /*
      * Init the memory game
@@ -2474,7 +2580,11 @@ export default {
       return new Promise((resolve, reject) => {
         let gltfLoader = new GLTFLoader()
         // loads automatically .bin and textures files if necessary
-        gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+        if (objName.indexOf('blob:') !== -1) {
+          gltfLoader.load(objName, resolve, progress, reject)
+        } else {
+          gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+        }
       })
     },
     /*

@@ -1,8 +1,17 @@
 <template>
   <div class="wrapper dark-background">
-    <div class="page-content top-padding-middle fit">
+    <div class="page-content top-padding-middle fit firstusage">
       
-      <q-carousel ref="carousel" v-model="firstUsageSlide" animated swipeable navigation class="text-white fit" transition-next="slide-left" transition-prev="slide-right">
+      <q-carousel 
+        ref="carousel" 
+        v-model="firstUsageSlide" 
+        animated 
+        swipeable 
+        navigation 
+        class="text-white fit" 
+        transition-next="slide-left" 
+        transition-prev="slide-right"
+      >
       
         <!------------------ INTRO SLIDE ------------------------>
         

@@ -1,6 +1,7 @@
 import AuthService from '../services/AuthService'
 import store from '../store/index'
 import * as Cookies from 'js-cookie'
+import { Loading } from 'quasar'
 
 export default ({ app, router, Vue }) => {
   // check if user is authenticated for specific routes
@@ -33,7 +34,9 @@ export default ({ app, router, Vue }) => {
             }
           }
         } else {
+          Loading.show()
           let response = await AuthService.getAccount()
+          Loading.hide()
 
           if (response && response.data && response.data.name) {
             if (response.data.clientSupportedVersion && response.data.clientSupportedVersion > "1.3") {
@@ -45,7 +48,7 @@ export default ({ app, router, Vue }) => {
             
               next()
             }
-          } else {            
+          } else {
             if (!store.state.user) {
               let firstusage = Cookies.get('firstusage')
 
@@ -61,7 +64,19 @@ export default ({ app, router, Vue }) => {
                 })
               }       
             } else {
-              next()
+              if (response && response.status) {
+                if (response.status === 403) {
+                  next({
+                    path: '/user/login',
+                    query: from.path === '/' ? null : { redirect: to.fullPath }
+                  })
+                } else {
+                  next()
+                }
+              } else {
+                // offline mode with store user data
+                next()
+              }
             }
           }
         }
@@ -70,6 +85,7 @@ export default ({ app, router, Vue }) => {
         next()
       }
     } catch (e) {
+      console.log(e)
       next()
     }
   })

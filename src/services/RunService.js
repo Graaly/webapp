@@ -23,11 +23,18 @@ export default {
     return Api().get('run/quest/' + questId + '/ranking').catch(error => console.log(error.request))
   },
   /*
+   * update run data from off line data
+   * @param   {Object}    data        Data of the step
+   */
+  updateFromOffline (data) {
+    return Api().put('run/' + data._id + '/quest/' + data.questId + '/update', data).catch(error => console.log(error.request))
+  },
+  /*
    * Get the next step of a run
    * @param   {String}    runId                  ID of the run
    */
-  getNextStep (runId) {
-    return Api().get('run/' + runId + '/step/next').catch(error => console.log(error.request))
+  getNextStep (questId) {
+    return Api().get('run/' + questId + '/step/next').catch(error => console.log(error.request))
   },
   /*
    * check if a market launch a new step
@@ -68,9 +75,10 @@ export default {
   /*
    * set a run as finished
    * @param   {String}    id                  ID of the run
+   * @param   {Object}    offlineRunData      Data of the offline run
    */
-  endRun (id) {
-    return Api().put('run/' + id + '/end').catch(error => console.log(error.request))
+  endRun (id, offlineRunData) {
+    return Api().put('run/' + id + '/end', offlineRunData).catch(error => console.log(error.request))
   },
   /*
    * skip a step

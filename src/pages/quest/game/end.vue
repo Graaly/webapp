@@ -1,7 +1,17 @@
 <template>
   <div>
-    <div class="dark-background" v-if="!warnings.noNetwork">
+    <!------------------ NO NETWORK AREA ------------------------>
+    <div class="dark-background" v-if="warnings.noNetwork">
       <div class="bg-primary">
+        <div class="centered q-pa-lg">    
+          <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouWin') }}</h2>
+          {{ $t('label.ToSaveYouScoreYouNeedToConnect') }}
+          <q-btn icon="refresh" class="q-mt-md" color="accent" @click="loadData" :label="$t('label.ConnectToComputeScore')" />
+        </div>
+      </div>
+    </div>
+    <div class="dark-background" v-if="!warnings.noNetwork">
+      <div class="bg-primary" v-if="run && run._id">
         <!------------------ TITLE AREA ------------------------>
         
         <div class="centered">    
@@ -256,58 +266,72 @@ export default {
     async loadData() {
       this.warnings.noNetwork = false
       var runIsInProgress = false
+      this.$q.loading.show()
+      
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.questId)
-      if (runs && runs.data && runs.data.length > 0) {
-        for (var i = 0; i < runs.data.length; i++) {
-          if (runs.data[i].status === 'finished') {
-            this.run = runs.data[i]
-          }
-          if (runs.data[i].status === 'in-progress') {
-            this.run = runs.data[i]
-            runIsInProgress = true
+      if (runs) {
+        if (runs && runs.data && runs.data.length > 0) {
+          for (var i = 0; i < runs.data.length; i++) {
+            if (runs.data[i].status === 'finished') {
+              this.run = runs.data[i]
+            }
+            if (runs.data[i].status === 'in-progress') {
+              this.run = runs.data[i]
+              runIsInProgress = true
+            }
           }
         }
-      }
-      
-      // get ranking without the user (status of run is still in-progress)
-      await this.getRanking()
-      
-      // get quest data
-      this.quest = await QuestService.getById(this.questId, this.run.version)
-      if (this.quest && this.quest.data) {
-        // show review part only if player is not author & has not already sent a review for this quest
-        this.isUserAuthor = this.$store.state.user._id === this.quest.data.authorUserId
-        const results = await ReviewService.list({ questId: this.questId, userId: this.$store.state.user._id, version: this.run.version }, { limit: 1 })
-        const isReviewAlreadySent = results.data && results.data.length >= 1
-        this.showAddReview = !this.isUserAuthor && !isReviewAlreadySent 
-      }
-      
-      // get user old score
-      this.score.old = this.$store.state.user.score
-      this.initProgression()
-    
-      let endStatus = await RunService.endRun(this.run._id)
-      if (endStatus && endStatus.data) {
-        // assign computed score
-        this.run.score = endStatus.data.score
-        this.run.reward = endStatus.data.reward
-        this.run.stars = endStatus.data.stars
-        if (endStatus.data.newBonus && endStatus.data.newBonus !== '') {
-          this.run.bonus = endStatus.data.newBonus
-          this.showBonus = true
+        
+        // get ranking without the user (status of run is still in-progress)
+        await this.getRanking()
+        
+        // get quest data
+        this.quest = await QuestService.getById(this.questId, this.run.version)
+        if (this.quest && this.quest.data) {
+          // show review part only if player is not author & has not already sent a review for this quest
+          this.isUserAuthor = this.$store.state.user._id === this.quest.data.authorUserId
+          const results = await ReviewService.list({ questId: this.questId, userId: this.$store.state.user._id, version: this.run.version }, { limit: 1 })
+          const isReviewAlreadySent = results.data && results.data.length >= 1
+          this.showAddReview = !this.isUserAuthor && !isReviewAlreadySent 
         }
+        
+        // get user old score
+        this.score.old = this.$store.state.user.score
+        this.initProgression()
+        
+        // get offline run data
+        const offlineRunData = await this.getOfflineRunData()
+      
+        let endStatus = await RunService.endRun(this.run._id, offlineRunData)
+        if (endStatus && endStatus.data) {
+          // assign computed score
+          this.run.score = endStatus.data.score
+          this.run.reward = endStatus.data.reward
+          this.run.stars = endStatus.data.stars
+          if (endStatus.data.newBonus && endStatus.data.newBonus !== '') {
+            this.run.bonus = endStatus.data.newBonus
+            this.showBonus = true
+          }
+          
+          // remove offline data
+          await this.removeOfflineData()
+        } else {
+          this.warnings.noNetwork = true
+        }
+        
+        // story management
+        this.startStory()
+        
+        // get user new score
+        //this.level.color = "secondary"
+        this.score.new = runIsInProgress ? this.score.old + this.run.score : this.score.old
+        utils.setTimeout(this.updateProgression, 3000)
       } else {
+        // no network
         this.warnings.noNetwork = true
       }
-      
-      // story management
-      this.startStory()
-      
-      // get user new score
-      //this.level.color = "secondary"
-      this.score.new = runIsInProgress ? this.score.old + this.run.score : this.score.old
-      utils.setTimeout(this.updateProgression, 3000)
+      this.$q.loading.hide()
     },
     /*
      * Init score & level
@@ -522,6 +546,59 @@ export default {
       
       this.reviewSent = true
       Notification(this.$t('label.ReviewSent'), 'success')
+    },
+    /*
+     * get offline run data
+     */
+    async getOfflineRunData() {
+console.log("load from devicd quest " + this.questId)
+      const run = await utils.readFile(this.questId, 'run_' + this.questId + '.json')
+
+      if (!run) {
+        return false
+      } else {
+        return JSON.parse(run)
+      }
+    },
+    /*
+     * Remove offline data
+     */
+    async removeOfflineData() {
+console.log("remove offline content for quest " + this.questId)
+      const success = await utils.removeDirectory(this.questId)
+      
+      await this.removeQuestFromOfflineList(this.questId)
+
+      return success
+    },
+    /*
+     * Add the quest in the offline quests list
+     */
+    async removeQuestFromOfflineList(questId) {
+      // check if quests file exists
+      const isQuestOfflineListExisting = await utils.checkIfFileExists('', 'quests.json')
+      var quests
+
+      if (isQuestOfflineListExisting) {
+        const questFileContent = await utils.readFile('', 'quests.json')
+
+        quests = JSON.parse(questFileContent)
+        
+        // check if quest is already existing in file
+        var questPosition = -1
+        for (var i = 0; i < quests.list.length; i++) {
+          if (quests.list[i].questId === questId) {
+            questPosition = i
+          }
+        }
+        
+        if (questPosition !== -1) {
+          quests.list.splice(questPosition, 1)
+        }
+        
+        // save quests list
+        await utils.writeInFile('', 'quests.json', JSON.stringify(quests), true)
+      }
     }
     /*
      * Search a friend

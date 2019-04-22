@@ -162,6 +162,13 @@ export default {
     return Api().post('/quest/picture/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   },
   /*
+   * Upload a quest logo
+   * @param   {Object}    data                picture data
+   */
+  uploadLogo(data) {
+    return Api().post('/quest/logo/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+  },
+  /*
    * Upload a quest thumb
    * @param   {Object}    data                picture data
    */

@@ -62,13 +62,13 @@
       
       <!------------------ SOCIAL LOGIN BUTTONS ------------------------>
       
-      <p class="text-center margin-size-3 q-mt-xl q-mb-lg">
+      <p class="text-center margin-size-3 q-mt-xl q-mb-lg" v-if="showSocialLogin.facebook || showSocialLogin.google">
         {{ $t('label.orSignInWith') }}
       </p>
         
       <div class="q-pl-md q-pr-md">
-        <q-btn @click="facebookLogin" class="full-width" color="facebook" icon="fab fa-facebook" label="Facebook" />
-        <!--<q-btn @click="googleLogin" class="full-width" color="google" icon="fab fa-google" label="Google" />-->
+        <q-btn v-if="showSocialLogin.facebook" @click="facebookLogin" class="full-width" color="facebook" icon="fab fa-facebook" label="Facebook" />
+        <q-btn v-if="showSocialLogin.google" @click="googleLogin" class="full-width" color="google" icon="fab fa-google" label="Google" />
       </div>
     
     </div>
@@ -92,6 +92,10 @@ export default {
         newPassword: '',
         code: ''
       },
+      showSocialLogin: {
+        facebook: false,
+        google: false
+      },
       serverUrl: process.env.SERVER_URL,
       submitting: false
     }
@@ -105,6 +109,10 @@ export default {
     // check if user is redirected to this page to confirm team invitation
     if (this.$route.query.email && this.$route.query.invitation) {
       this.validateTeamInvitation(this.$route.query.email, this.$route.query.invitation)
+    }
+    // social login buttons
+    if (window.cordova) {
+      this.showSocialLogin.facebook = true
     }
   },
   methods: {
