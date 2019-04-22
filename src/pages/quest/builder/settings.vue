@@ -1620,7 +1620,7 @@ export default {
       await this.refreshStepsList()
       this.moveToPosition(this.chapters.newStep.scrollPosition)
       this.chapters.newStep.type = {}
-      this.stepId = '0'
+      this.stepId = -1
       this.chapters.showNewStepPageSettings = false
       this.tabs.selected = 'steps'
       // refresh quest size

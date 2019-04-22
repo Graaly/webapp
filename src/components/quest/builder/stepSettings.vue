@@ -578,13 +578,12 @@
     <q-btn class="full-width" color="primary" @click="submitStep" test-id="btn-save-step">{{ $t('label.SaveThisStep') }}</q-btn>
     
     <q-dialog id="save-changes-modal" class="full-width" v-model="saveChangesModalOpened">
-      <q-card class="q-pa-sm">
-        <q-btn class="absolute-top-right" icon="close" flat round dense @click="saveChangesModalOpened = false" />
+      <q-card>
+        <q-toolbar>
+          <q-toolbar-title>{{ $t('label.ConfirmSaveChanges') }}</q-toolbar-title>
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-toolbar>
         
-        <q-card-section>
-          <div class="text-h6 q-mt-md">{{ $t('label.ConfirmSaveChanges') }}</div>
-        </q-card-section>
-
         <q-card-actions>
           <q-btn color="primary" @click="submitStep()" :label="$t('label.Yes')" />
           <q-btn color="primary" @click="$emit('close')" :label="$t('label.No')" />

@@ -132,9 +132,12 @@ module.exports = function (ctx) {
         'QTabs',
         'QTabPanel',
         'QTabPanels',
-        'QToggle'
+        'QToggle',
+        'QToolbar',
+        'QToolbarTitle'
       ],
       directives: [
+        'ClosePopup',
         'Ripple',
         'Scroll',
         'TouchPan',
