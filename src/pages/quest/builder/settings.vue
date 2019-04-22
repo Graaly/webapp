@@ -180,8 +180,9 @@
           <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items[0] && chapters.items[0].steps && chapters.items[0].steps.length > 1">
             <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
           </p>
-          <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current" @click="showMedia()">
-            {{ getStorageUsage() }}
+          <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current">
+            <a @click="showMedia()">{{ getReadableStorageUsage() }}</a>
+            <q-linear-progress rounded style="height: 15px" :value="getPercentStorageUsage()" color="secondary" class="q-mt-sm" />
           </p>
         </div>
         <div v-if="form.fields.editorMode === 'advanced'">
@@ -229,8 +230,9 @@
           <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items.length > 3">
             <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
           </p>
-          <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current" @click="showMedia()">
-            {{ getStorageUsage() }}
+          <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current">
+            <a @click="showMedia()">{{ getReadableStorageUsage() }}</a>
+            <q-linear-progress rounded style="height: 15px" :value="getPercentStorageUsage()" color="secondary" class="q-mt-sm" />
           </p>
         </div>
               
@@ -477,7 +479,7 @@
             >
               <div class="centered q-pa-sm">
                 <div>{{ $t('stepType.' + stepType.description) }}</div>
-                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" />
+                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" :test-id="'btn-select-step-type-' + stepType.code" />
               </div>
             </q-expansion-item>
           </q-list>
@@ -2128,13 +2130,20 @@ export default {
     /*
      * Get the storage usage
      */
-    getStorageUsage() {
+    getReadableStorageUsage() {
       if (this.quest && this.quest.size) {
-        let usedStorage = Math.floor(this.quest.size.current / 100) / 10
-        let limitStorage = Math.floor(this.quest.size.limit / 100) / 10
+        let usedStorage = utils.humanReadableFileSize(this.quest.size.current, true, this.$t)
+        let limitStorage = utils.humanReadableFileSize(this.quest.size.limit, true, this.$t)
         return this.$t('label.UsedOver', {current: usedStorage, limit: limitStorage})
       } else {
         return ''
+      }
+    },
+    getPercentStorageUsage() {
+      if (this.quest && this.quest.size && this.quest.size.limit && this.quest.size.limit > 0) {
+        return this.quest.size.current / this.quest.size.limit
+      } else {
+        return 0
       }
     },
     /*

@@ -376,7 +376,7 @@
       <h2>{{ $t('label.ObjectFormat') }}</h2>
       <div class="fields-group">
         <q-radio v-model="selectedStep.form.options.is3D" :val="false" :label="$t('label.2DPicture')" />
-        <q-radio v-model="selectedStep.form.options.is3D" :val="true" :label="$t('label.3DObject')" />
+        <q-radio v-model="selectedStep.form.options.is3D" :val="true" :label="$t('label.3DObject')" test-id="radio-locate-item-3d" />
       
         <div v-if="!selectedStep.form.options.is3D">
           <q-btn class="full-width" type="button" @click="$refs['item-to-find'].click()" :label="$t('label.UploadThePictureOfTheObjectToFind')" />
@@ -393,7 +393,7 @@
           </div>
         </div>
         <div v-if="selectedStep.form.options.is3D">
-          <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
+          <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" test-id="select-3d-model" />
           <p class="error-label" v-show="$v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
         </div>
       </div>

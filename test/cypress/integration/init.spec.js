@@ -151,7 +151,7 @@ describe.only('Quests', () => {
     cy.get('.objects-list :nth-child(12)').click()
     cy.get('[test-id="img-new-item"]').should('be.visible')
     cy.get('[test-id="btn-save-step"]').click()
-    cy.get('[test-id="btn-next-step"]').click() // preview*/
+    cy.get('[test-id="btn-next-step"]').click() // preview
     
     cy.get('[test-id="btn-add-step"]').click()
     cy.get('[test-id="btn-select-step-type-character"]').click({force: true})
@@ -160,6 +160,31 @@ describe.only('Quests', () => {
     cy.get('[test-id="radio-character-to-select"]').click()
     cy.get('[test-id="btn-save-step"]').click()
     cy.get('[test-id="btn-next-step"]').click() // preview
+    
+    cy.get('[test-id="btn-add-step"]').click()
+    cy.get('[test-id="btn-select-step-type-geolocation"]').click({force: true})
+    cy.get('[test-id="step-title"] input').clear().type('step 5 title')
+    cy.get('[test-id="step-text"] textarea').type('step 5 text')
+    cy.get('#destination').type('tes')
+    cy.wait(200)
+    cy.get('.pac-container .pac-item:nth-child(3)').trigger('mouseover').click()
+    cy.wait(200)
+    cy.get('[test-id="btn-save-step"]').click()
+    cy.get('[test-id="btn-next-step"]').click()
+    
+    cy.get('[test-id="btn-add-step"]').click()
+    cy.get('[test-id="btn-select-step-type-locate-item-ar"]').click({force: true})
+    cy.get('[test-id="step-title"] input').clear().type('step 6 title')
+    cy.get('[test-id="step-text"] textarea').type('step 6 text')
+    cy.get('[test-id="radio-locate-item-3d"]').click()
+    cy.get('#destination').type('cra')
+    cy.wait(200)
+    cy.get('.pac-container .pac-item:nth-child(3)').trigger('mouseover').click()
+    cy.wait(200)
+    cy.get('[test-id="select-3d-model"] .q-field__append > .fas').click()
+    cy.get('[test-id="select-3d-model"] .q-local-menu > .q-item:nth-child(4)').click() // chest
+    cy.get('[test-id="btn-save-step"]').click()
+    cy.get('[test-id="btn-next-step"]').click()*/
     
     
   })

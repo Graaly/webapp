@@ -275,6 +275,31 @@ var self = {
     return temp
   },
   
+  /**
+   * Human readable file size
+   * Adapted from https://stackoverflow.com/a/14919494/488666
+   * @param {Number}    bytes         file size in bytes
+   * @param {Boolean}   si            true => decimal, false => binary (default)
+   * @param {Function}  translateFct  translation function (this.$t() in Vue)
+   */
+  humanReadableFileSize(bytes, si, translateFct) {
+    var thresh = si ? 1000 : 1024
+    var translatedByte = translateFct('label.byteCharacter')
+    if (Math.abs(bytes) < thresh) {
+      return bytes + ' ' + translatedByte
+    }
+    var units = si
+      ? ['K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y']
+      : ['Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi', 'Yi']
+    var u = -1;
+    units = units.map((unit) => { return unit + translatedByte })
+    do {
+      bytes /= thresh
+      ++u
+    } while (Math.abs(bytes) >= thresh && u < units.length - 1)
+    return bytes.toFixed(1)+' '+units[u]
+  },
+    
   // ------------------------ Utils for THREE.js -------------------------------------
   
   /*
