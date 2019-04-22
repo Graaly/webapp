@@ -1,6 +1,6 @@
 //import * as ctx from  '../../../quasar.conf.js'
 
-describe('Sanity check', () => {
+describe('Account actions', () => {
   it('defaults to "first usage" page', () => {
     cy.visit('/')
     cy.title().should('contain', 'Graaly')
@@ -64,27 +64,156 @@ describe('Sanity check', () => {
     // we can't go further because the required code is sent by email.
   })
   
-  it('logins', () => {
-    cy.visit('/#/user/login')
-    cy.get('[test-id="login"] input').type('maxime.pacary@gmail.com')
-    cy.get('[type="submit"]').click() // next button
-    cy.url().should('contain', '#/user/login') // check that URL has not changed
-    cy.get('[test-id="password"] input').type('toto')
-    cy.get('[type="submit"]').click() // next button
+  it('logins and logouts', () => {
+    doLogin()
     cy.url().should('contain', '#/map') // map page should be displayed
+    cy.get('[test-id="btn-profile-pane"]').click()
+    cy.get('[test-id="btn-signout"]').click()
+    cy.url().should('match', /#\/(user\/login|firstusage)/)
+  })
+})
+
+describe('Map panels', () => {
+  before(() => {
+    doLogin()
   })
   
-  /*it('shows quests pane', () => {
+  it('shows quests pane', () => {
     cy.visit('/#/map')
-  })*/
+    cy.get('[test-id="btn-quests-pane"]').click()
+    cy.get('[test-id="quests-pane"] .q-drawer__content').should('be.visible')
+  })
   
-  it('shows profile pane')
+  it('shows profile pane', () => {
+    cy.visit('/#/map')
+    cy.get('[test-id="btn-profile-pane"]').click()
+    cy.get('[test-id="profile-pane"] .q-drawer__content').should('be.visible')
+  })
   
-  it('shows main menu')
+  it('shows main menu', () => {
+    cy.visit('/#/map')
+    cy.get('[test-id="btn-bottom-menu"]').click()
+    cy.get('[test-id="bottom-menu"]').should('be.visible')
+  })
+})
+
+describe.only('Quests', () => {
+  before(() => {
+    doLogin()
+  })
   
-  it('creates a quest')
+  it('creates a quest', () => {
+    cy.wait(500)
+    cy.get('[test-id="btn-bottom-menu"]').click()
+    cy.get('[test-id="bottom-menu"]').should('be.visible')
+    cy.get('[test-id="btn-create-quest"]').click()
+    cy.get('[test-id="btn-create-public-quest"]').click()
+    cy.get('[test-id="btn-accept-rules"]').click()
+    
+    // settings - language
+    cy.url().should('contain', '#/quest/setting')
+    cy.get('[test-id="btn-save-language"]').click()
+    
+    // settings - other
+    cy.get('#startingplace').type('test')
+    cy.wait(200)
+    cy.get('.pac-container .pac-item:first-child').trigger('mouseover').click()
+    cy.wait(200)
+    cy.get('[test-id="btn-save-settings"]').click()
+    
+    // close notification (can cover input fields & Cypress is not happy when using .type() or .clear())
+    cy.get('.q-notification button').click()
+    
+    // create steps
+    /*cy.get('[test-id="btn-add-step"]').click()
+    cy.get('[test-id="btn-select-step-type-info-text"]').click({force: true}) // directly force click on button to select step type (could not find an easy way to expand the "expansion item")
+    cy.get('[test-id="step-title"] input').clear().type('step 1 title')
+    cy.get('[test-id="step-text"] textarea').type('step 1 text')
+    doUpload('[test-id="background-upload"]', 'crash-test.jpg', 'image/jpeg')
+    cy.get('[test-id="btn-save-step"]').click()
+    cy.get('[test-id="btn-next-step"]').click() // preview
+    
+    cy.get('[test-id="btn-add-step"]').click()
+    cy.get('[test-id="btn-select-step-type-info-video"]').click({force: true})
+    cy.get('[test-id="step-title"] input').clear().type('step 2 title')
+    cy.get('[test-id="step-text"] textarea').type('step 2 text')
+    doUpload('[test-id="video-upload"]', 'crash-test.mp4', 'video/mp4')
+    cy.get('[test-id="uploaded-video"]').should('be.visible')
+    cy.get('[test-id="btn-save-step"]').click()
+    // note: could not find a simple way to prevent video autoplay, leaving as is
+    cy.get('[test-id="btn-next-step"]').click() // preview
+    
+    cy.get('[test-id="btn-add-step"]').click()
+    cy.get('[test-id="btn-select-step-type-new-item"]').click({force: true})
+    cy.get('[test-id="step-title"] input').clear().type('step 3 title')
+    cy.get('[test-id="step-text"] textarea').type('step 3 text')
+    cy.get('[test-id="radio-select-new-item-in-list"]').click()
+    cy.get('.objects-list :nth-child(12)').click()
+    cy.get('[test-id="img-new-item"]').should('be.visible')
+    cy.get('[test-id="btn-save-step"]').click()
+    cy.get('[test-id="btn-next-step"]').click() // preview
+    
+    cy.get('[test-id="btn-add-step"]').click()
+    cy.get('[test-id="btn-select-step-type-character"]').click({force: true})
+    cy.get('[test-id="step-title"] input').clear().type('step 4 title')
+    cy.get('[test-id="step-text"] textarea').type('step 4 text')
+    cy.get('[test-id="radio-character-to-select"]').click()
+    cy.get('[test-id="btn-save-step"]').click()
+    cy.get('[test-id="btn-next-step"]').click() // preview
+    
+    cy.get('[test-id="btn-add-step"]').click()
+    cy.get('[test-id="btn-select-step-type-geolocation"]').click({force: true})
+    cy.get('[test-id="step-title"] input').clear().type('step 5 title')
+    cy.get('[test-id="step-text"] textarea').type('step 5 text')
+    cy.get('#destination').type('tes')
+    cy.wait(200)
+    cy.get('.pac-container .pac-item:nth-child(3)').trigger('mouseover').click()
+    cy.wait(200)
+    cy.get('[test-id="btn-save-step"]').click()
+    cy.get('[test-id="btn-next-step"]').click()
+    
+    cy.get('[test-id="btn-add-step"]').click()
+    cy.get('[test-id="btn-select-step-type-locate-item-ar"]').click({force: true})
+    cy.get('[test-id="step-title"] input').clear().type('step 6 title')
+    cy.get('[test-id="step-text"] textarea').type('step 6 text')
+    cy.get('[test-id="radio-locate-item-3d"]').click()
+    cy.get('#destination').type('cra')
+    cy.wait(200)
+    cy.get('.pac-container .pac-item:nth-child(3)').trigger('mouseover').click()
+    cy.wait(200)
+    cy.get('[test-id="select-3d-model"] .q-field__append > .fas').click()
+    cy.get('[test-id="select-3d-model"] .q-local-menu > .q-item:nth-child(4)').click() // chest
+    cy.get('[test-id="btn-save-step"]').click()
+    cy.get('[test-id="btn-next-step"]').click()*/
+    
+    
+  })
   
   it('plays a quest')
-  
-  it('logouts')
 })
+
+function doLogin () {
+  cy.visit('/#/user/login')
+  cy.get('[test-id="login"] input').type('maxime.pacary@gmail.com')
+  cy.get('[type="submit"]').click() // next button
+  cy.url().should('contain', '#/user/login') // check that URL has not changed
+  cy.get('[test-id="password"] input').type('toto')
+  cy.get('[type="submit"]').click() // next button
+  cy.url().should('contain', '#/map')
+}
+
+// found here: https://github.com/cypress-io/cypress/issues/170#issuecomment-477421775
+function doUpload(selector, fixturePath, type) {
+  cy.get(selector).then(subject => cy.window().then(win => cy
+    .fixture(fixturePath, 'base64')
+    .then(Cypress.Blob.base64StringToBlob)
+    .then((blob) => {
+      const el = subject[0]
+      const filename = fixturePath.replace(/^.*[\\\/]/, '')
+      const testFile = new win.File([blob], filename, { type })
+      const dataTransfer = new win.DataTransfer()
+      dataTransfer.items.add(testFile)
+      el.files = dataTransfer.files
+      cy.wrap(subject).trigger('change', { force: true })
+    })))
+}

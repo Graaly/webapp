@@ -30,7 +30,7 @@ export default {
    * @param   {String}    id                  ID of the quest
    */
   getLastById (id) {
-    return Api().get('quest/' + id + '/version/last').catch(error => console.log(error.request))
+    return Api().get('quest/' + id + '/version/last').catch(error => console.log('getLastById(): could not retrieve quest data', error))
   },
   /*
    * Find quests based on keyword
@@ -92,7 +92,7 @@ export default {
    * @param   {String}    lang                language of the quest (en, fr, ...)
    */
   addLanguage (questId, lang) {
-    return Api().put('quest/' + questId + '/lang/add/' + lang).catch(error => console.log(error.request))
+    return Api().put('quest/' + questId + '/lang/add/' + lang).catch(error => console.log('addLanguage(): could not retrieve quest data', error))
   },
   /*
    * Publish a quest

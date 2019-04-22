@@ -48,7 +48,7 @@
             </q-item-section>
           </q-item>
           
-          <q-btn big :disabled="readOnly" class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" />
+          <q-btn big :disabled="readOnly" class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" test-id="btn-save-language" />
         </div>
       
         <form @submit.prevent="submitSettings()" v-if="this.quest.languages.length > 0">
@@ -164,7 +164,7 @@
           <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddALogo')" @click="$refs['logofile'].click()" />
           <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" hidden />
           
-          <q-btn v-if="!readOnly" type="submit" color="primary" class="q-mt-lg full-width">{{ $t('label.Save') }}</q-btn>
+          <q-btn v-if="!readOnly" type="submit" color="primary" class="full-width" test-id="btn-save-settings">{{ $t('label.Save') }}</q-btn>
             
         </form>
         
@@ -192,13 +192,14 @@
             </li>
           </ul>
           <p class="centered">
-            <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
+            <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" test-id="btn-add-step" />
           </p>
           <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items[0] && chapters.items[0].steps && chapters.items[0].steps.length > 1">
             <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
           </p>
-          <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current" @click="showMedia()">
-            {{ getStorageUsage() }}
+          <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current">
+            <a @click="showMedia()">{{ getReadableStorageUsage() }}</a>
+            <q-linear-progress rounded style="height: 15px" :value="getPercentStorageUsage()" color="secondary" class="q-mt-sm" />
           </p>
         </div>
         <div v-if="form.fields.editorMode === 'advanced'">
@@ -246,8 +247,9 @@
           <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items.length > 3">
             <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
           </p>
-          <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current" @click="showMedia()">
-            {{ getStorageUsage() }}
+          <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current">
+            <a @click="showMedia()">{{ getReadableStorageUsage() }}</a>
+            <q-linear-progress rounded style="height: 15px" :value="getPercentStorageUsage()" color="secondary" class="q-mt-sm" />
           </p>
         </div>
               
@@ -476,11 +478,10 @@
               v-for="stepType in filteredStepTypes('transition')" :key="stepType.code" 
               :icon="'fas fa-' + stepType.icon"
               :label="$t('stepType.' + stepType.title)"
-              v-if="!(stepType.code === 'end-chapter' && form.fields.editorMode === 'simple')"
             >
               <div class="centered q-pa-sm">
                 <div>{{ $t('stepType.' + stepType.description) }}</div>
-                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" />
+                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" :test-id="'btn-select-step-type-' + stepType.code" />
               </div>
             </q-expansion-item>
           </q-list> 
@@ -494,8 +495,8 @@
               :label="$t('stepType.' + stepType.title)"
             >
               <div class="centered q-pa-sm">
-                <div>{ $t('stepType.' + stepType.description) }}</div>
-                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" />
+                <div>{{ $t('stepType.' + stepType.description) }}</div>
+                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" :test-id="'btn-select-step-type-' + stepType.code" />
               </div>
             </q-expansion-item>
           </q-list>
@@ -575,6 +576,7 @@
                 :class="{'flashing': canMoveNextStep, 'bg-primary': (quest.customization.color === '')}" 
                 v-show="canMoveNextStep || canPass" 
                 @click="closeOverview" 
+                 test-id="btn-next-step"
               />
             </div>
           </div>
@@ -681,7 +683,7 @@ export default {
   data() {
     return {
       questId: null,
-      stepId: '-1',
+      stepId: -1,
       readOnly: false,
       tabs: {
         selected: 'settings',
@@ -1679,7 +1681,7 @@ export default {
      * reset step data between 2 steps creation
      */
     resetStepData() {
-      this.stepId = '-1'
+      this.stepId = -1
       this.chapters.newStep.chaptedId = 0
       this.chapters.newStep.previousStepId = 0
       this.chapters.newStep.overviewData = {}
@@ -1695,7 +1697,7 @@ export default {
       await this.refreshStepsList()
       this.moveToPosition(this.chapters.newStep.scrollPosition)
       this.chapters.newStep.type = {}
-      this.stepId = '0'
+      this.stepId = -1
       this.chapters.showNewStepPageSettings = false
       this.tabs.selected = 'steps'
       // refresh quest size
@@ -1716,7 +1718,10 @@ export default {
       for (var i = 0; i < this.chapters.items.length; i++) {
         if (this.chapters.items[i].chapterId.toString() === chapterId && this.chapters.items[i].steps) {
           let nbStepsInChapter = this.chapters.items[i].steps.length
-          previousStepId = this.chapters.items[i].steps[nbStepsInChapter - 1].stepId
+          if (nbStepsInChapter > 0) {
+            previousStepId = this.chapters.items[i].steps[nbStepsInChapter - 1].stepId
+          }
+          break
         }
       }
       this.chapters.newStep.previousStepId = previousStepId
@@ -1916,7 +1921,7 @@ export default {
      */
     closeStepTypePage() {
       // to trigger step type change
-      this.stepId = '-1'
+      this.stepId = -1
       this.chapters.reloadStepPlay = false // reset the overview
       this.chapters.newStep.type = {}
       this.chapters.showNewStepPage = false
@@ -1925,7 +1930,7 @@ export default {
      * Filter step types based on main category code
      */
     filteredStepTypes(categoryCode) {
-      return stepTypes.filter(stepType => (stepType.category === categoryCode && stepType.enabled))
+      return stepTypes.filter(stepType => (stepType.category === categoryCode && stepType.enabled && !(stepType.code === 'end-chapter' && this.form.fields.editorMode === 'simple')))
     },
     /*
      * Select a step type
@@ -2202,13 +2207,20 @@ export default {
     /*
      * Get the storage usage
      */
-    getStorageUsage() {
+    getReadableStorageUsage() {
       if (this.quest && this.quest.size) {
-        let usedStorage = Math.floor(this.quest.size.current / 100) / 10
-        let limitStorage = Math.floor(this.quest.size.limit / 100) / 10
+        let usedStorage = utils.humanReadableFileSize(this.quest.size.current, true, this.$t)
+        let limitStorage = utils.humanReadableFileSize(this.quest.size.limit, true, this.$t)
         return this.$t('label.UsedOver', {current: usedStorage, limit: limitStorage})
       } else {
         return ''
+      }
+    },
+    getPercentStorageUsage() {
+      if (this.quest && this.quest.size && this.quest.size.limit && this.quest.size.limit > 0) {
+        return this.quest.size.current / this.quest.size.limit
+      } else {
+        return 0
       }
     },
     /*

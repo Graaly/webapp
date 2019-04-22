@@ -17,11 +17,11 @@ import console from './consoleColor'
 
 const config = {
     RUN: {
-        RESTORE_DB: 0,
+        RESTORE_DB: 1,
         LAUNCH_API: 0,
         LAUNCH_WEBAPP: 0,
-        UNIT_TESTS: 0, // tests API only for the moment
-        E2E_TESTS: 1
+        UNIT_TESTS: 1, // tests API only for the moment
+        E2E_TESTS: 0
     },
     
     // settings

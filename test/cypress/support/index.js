@@ -21,3 +21,7 @@ Cypress.on('uncaught:exception', () => {
   // failing the test
   return false
 })
+
+Cypress.Cookies.defaults({
+  whitelist: ['_ga', 'cb-enabled', 'connect.sid', 'vuex']
+})

@@ -44,7 +44,7 @@ describe('Server API tests', () => {
   
   test('cannot get my own profile while not logged in', async () => {
     result = await AuthService.getAccount()
-    expect(result.status).toBe(403)
+    expect(result.status).toBe(401)
     expect(result.data.message).toContain('authentication required')
   })
   
