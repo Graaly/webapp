@@ -187,13 +187,13 @@
       <div class="answer" v-for="(option, key) in selectedStep.form.options" :key="key">
         <q-radio v-model="selectedStep.form.answers" :val="key" />
         
-        <q-input v-show="answerType === 'text'" v-model="option.text" @input="$v.selectedStep.form.options ? $v.selectedStep.form.options.$each[key].text.$touch : null" />
+        <q-input v-show="answerType === 'text'" v-model="option.text" @input="$v.selectedStep.form.options ? $v.selectedStep.form.options.$each[key].text.$touch : null" input-class="native-input-class" />
         <p class="error-label" v-if="answerType === 'text' && $v.selectedStep.form.options && !$v.selectedStep.form.options.$each[key].text.required">{{ $t('label.RequiredField') }}</p>
         
         <p v-show="answerType === 'image' && option.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && !$v.selectedStep.form.options.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="answerType === 'image' && option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + option.imagePath" /></p>
-        <q-btn v-show="answerType === 'image'" icon="cloud_upload" @click="$refs['answerImage' + key].click()" />
-        <input @change="uploadAnswerImage(key, $event)" :ref="'answerImage' + key" type="file" accept="image/*" hidden />
+        <q-btn v-show="answerType === 'image'" icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
+        <input @change="uploadAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden />
         <q-btn @click="deleteAnswer(key)">
           <q-icon name="clear" />
         </q-btn>
@@ -258,8 +258,8 @@
         
         <p v-show="image.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && !$v.selectedStep.form.options.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="image.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/code-image/' + image.imagePath" /></p>
-        <q-btn icon="cloud_upload" @click="$refs['answerImage' + key].click()" />
-        <input @change="uploadCodeAnswerImage(key, $event)" :ref="'answerImage' + key" type="file" accept="image/*" hidden />
+        <q-btn icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
+        <input @change="uploadCodeAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden />
         <q-btn @click="deleteCodeAnswer(key)">
           <q-icon name="clear" />
         </q-btn>
@@ -327,8 +327,8 @@
       <div class="answer" v-for="(option, key) in memoryItems" :key="key">       
         <p v-show="option.imagePath === null" class="error-label">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/memory/' + option.imagePath" /></p>
-        <q-btn icon="cloud_upload" @click="$refs['answerImage' + key].click()" />
-        <input @change="uploadMemoryImage(key, $event)" :ref="'answerImage' + key" type="file" accept="image/*" hidden />
+        <q-btn icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
+        <input @change="uploadMemoryImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden />
         <q-btn @click="deleteMemoryAnswer(key)">
           <q-icon name="clear" />
         </q-btn>
@@ -438,7 +438,7 @@
       <p>
         <img :src="'statics/markers/' + selectedStep.form.answers + '/marker.png'" />
         <span>{{ selectedStep.form.answers }}</span>
-        <q-btn color="primary" :label="$t('label.Choose')" @click="openChooseMarkerModal()" />
+        <q-btn color="primary" :label="$t('label.Choose')" @click="openChooseMarkerModal()" test-id="btn-open-choose-marker-modal" />
       </p>
       
       <!--
@@ -472,7 +472,7 @@
           </q-card-section>
         
           <q-card-section>
-            <q-btn v-for="(option, key) in markersList" :key="key" color="white" class="full-width" @click="selectMarker(option)">
+            <q-btn v-for="(option, key) in markersList" :key="key" color="white" class="full-width" @click="selectMarker(option)" :test-id="'btn-select-marker-' + option">
               <img :src="'statics/markers/' + option + '/marker.png'" />
               <span>{{ option }}</span>
             </q-btn>
@@ -1787,11 +1787,12 @@ p { margin-bottom: 0.5rem; }
 .q-list { padding-top: 0; }
 
 .answer { display: flex; flex-flow: row nowrap; align-items: center; }
-.answer .q-input { flex-grow: 1 }
-.answer p { flex-grow: 1; margin: auto; }
+.answer .q-input { flex-grow: 1; }
+.answer p { min-width: 1rem; margin: 0; }
 .answer img { width: 50vw; }
-.answer .q-radio { padding: 0.5rem; }
+.answer .q-radio { padding-right: 0.5rem; }
 .answer .q-btn { padding: 0.3rem; margin: 0.2rem; }
+.answer .error-label { flex-grow: 1; }
 .add-answer { margin: 0.5rem auto; }
 
 .background-upload { padding-bottom: 10px; margin-bottom: 10px; background: #efefef; text-align: center;}
@@ -1826,4 +1827,10 @@ p { margin-bottom: 0.5rem; }
 #choose-marker-modal img { width: 5rem; height: 5rem; }
 #choose-marker-modal span { flex-grow: 1; font-size:1.5rem; color: #000; }
 
+</style>
+
+<!-- not scoped -->
+<style>
+.answer .native-input-class { font-size: 1rem; }
+.answer .q-field__control { height: 2rem; }
 </style>

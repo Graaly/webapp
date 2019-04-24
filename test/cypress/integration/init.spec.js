@@ -186,7 +186,14 @@ describe.only('Quests', () => {
     cy.get('[test-id="btn-save-step"]').click()
     cy.get('[test-id="btn-next-step"]').click()*/
     
-    
+    cy.get('[test-id="btn-add-step"]').click()
+    cy.get('[test-id="btn-select-step-type-locate-marker"]').click({force: true})
+    cy.get('[test-id="step-title"] input').clear().type('step 7 title')
+    cy.get('[test-id="step-text"] textarea').type('step 7 text')
+    cy.get('[test-id="btn-open-choose-marker-modal"]').click()
+    cy.get('[test-id="btn-select-marker-007"]').click()
+    cy.get('[test-id="btn-save-step"]').click()
+    cy.get('[test-id="btn-next-step"]').click()
   })
   
   it('plays a quest')
