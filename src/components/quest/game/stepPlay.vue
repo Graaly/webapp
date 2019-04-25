@@ -71,14 +71,14 @@
            <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="answers-text" v-if="answerType === 'text'">
-          <q-btn v-for="(option, key) in step.options" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null">
+          <q-btn v-for="(option, key) in step.options" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
             <span v-if="!option.textLanguage || !option.textLanguage[lang]">{{ option.text }}</span>
             <span v-if="option.textLanguage && option.textLanguage[lang]">{{ option.textLanguage[lang] }}</span>
           </q-btn>
         </div>
         <div class="answers-images" v-if="answerType === 'image'">
           <div class="images-block">
-            <div v-for="(option, key) in step.options" :key="key" :class="option.class" @click="checkAnswer(key)">
+            <div v-for="(option, key) in step.options" :key="key" :class="option.class" @click="checkAnswer(key)" :test-id="'answer-image-' + key">
               <img :src="option.imagePath.indexOf('blob:') !== -1 ? option.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/choose-image/' + option.imagePath" :class="option.class" />
               <q-btn v-if="option.class !== null" round :class="option.class" :icon="option.icon" disable />
             </div>
@@ -102,14 +102,14 @@
         <div class="keypad">
           <div class="keypadLine">
             <div v-for="(keypadLine, rowKey) in keypad" :key="rowKey">
-              <q-btn v-for="(keypadButton, btnKey) in keypadLine" :key="btnKey" color="grey" glossy @click="addCodeChar(keypadButton)" :disable="playerResult !== null">{{ keypadButton }}</q-btn>
+              <q-btn v-for="(keypadButton, btnKey) in keypadLine" :key="btnKey" color="grey" glossy @click="addCodeChar(keypadButton)" :disable="playerResult !== null" :test-id="'btn-keypad-' + keypadButton">{{ keypadButton }}</q-btn>
             </div>
           </div>
         </div>
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
             <q-btn color="primary" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('label.Clear') }}</q-btn>
-            <q-btn color="primary" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn color="primary" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer">{{ $t('label.Confirm') }}</q-btn>
           </div>
         </div>
       </div>
@@ -121,12 +121,12 @@
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="color-bubbles">
-          <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">&nbsp;</div>
+          <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
         </div>
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
-            <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn color="primary" icon="done" @click="checkAnswer()" test-id="btn-check-color-code">{{ $t('label.Confirm') }}</q-btn>
           </div>
         </div>
       </div>
@@ -140,7 +140,7 @@
         <table>
           <tr>
             <td v-for="(code, index) in playerCode" :key="index" class="text-center">
-              <q-btn color="primary" round icon="keyboard_arrow_up" @click="previousCodeAnswer(index)" />
+              <q-btn color="primary" round icon="keyboard_arrow_up" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index" />
             </td>
           </tr>
           <tr>
@@ -150,14 +150,14 @@
           </tr>
           <tr>
             <td v-for="(code, index) in playerCode" :key="index" class="text-center">
-              <q-btn color="primary" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" />
+              <q-btn color="primary" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
             </td>
           </tr>
         </table>
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
-            <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn color="primary" icon="done" @click="checkAnswer()" test-id="btn-check-image-code">{{ $t('label.Confirm') }}</q-btn>
           </div>
         </div>
       </div>
@@ -205,7 +205,7 @@
         </div>
         <div class="answer-text">
           <input v-model="writetext.playerAnswer" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" />
-          <q-btn color="primary" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
+          <q-btn color="primary" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
         </div>
       </div>
       
@@ -242,12 +242,12 @@
       
       <!------------------ USE ITEM STEP AREA ------------------------>
       
-      <div class="use-item" v-if="step.type == 'use-item'" @click="useItem($event)">
+      <div class="use-item" v-if="step.type == 'use-item'">
         <div>
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
-        <div ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
-          <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
+        <div ref="useItemPicture" @click="useItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
+          <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" test-id="use-item-picture" />
         </div>
       </div>
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
@@ -259,11 +259,11 @@
       
       <!------------------ FIND ITEM STEP AREA ------------------------>
       
-      <div class="find-item" v-if="step.type == 'find-item'" @click="findItem($event)">
+      <div class="find-item" v-if="step.type == 'find-item'">
         <div>
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
-        <div ref="findItemPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
+        <div ref="findItemPicture" @click="findItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="find-item-picture">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
@@ -2389,6 +2389,11 @@ console.log(this.answer)
     * Animate canvas where AR markers are detected, for step type "locate-marker"
     */
     animateMarkerCanvas() {
+      if (typeof this.step === 'undefined' || typeof this.step.type === 'undefined') {
+        this.stopLatestAnimation()
+        return
+      }
+      
       let mixers = this.locateMarker.mixers
       
       if (this.locateMarker.arToolkitContext !== null) {

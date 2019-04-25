@@ -543,7 +543,8 @@
                 :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
                 icon="work" 
                 :class="{'bg-secondary': (inventory.isOpened && quest.customization.color === ''), 'bg-primary': (!inventory.isOpened && quest.customization.color === '')}" 
-                @click="openInventory()" 
+                @click="openInventory()"
+                test-id="btn-inventory"
               />
             </div>
             <div class="col centered q-pb-md">

@@ -179,26 +179,26 @@
       
       <h2>{{ $t('label.ResponseTypes') }}</h2>
       <q-radio v-model="answerType" val="text" :label="$t('label.Texts')" @click="$v.selectedStep.form.options.$touch" />
-      <q-radio v-model="answerType" val="image" :label="$t('label.Pictures')" @click="$v.selectedStep.form.options.$touch" />
+      <q-radio v-model="answerType" val="image" :label="$t('label.Pictures')" @click="$v.selectedStep.form.options.$touch" test-id="radio-choose-images" />
         
       <h2>{{ $t('label.PossibleAnswers') }}</h2>
       <p>{{ $t('label.SelectTheGoodAnswer') }}</p>
         
       <div class="answer" v-for="(option, key) in selectedStep.form.options" :key="key">
-        <q-radio v-model="selectedStep.form.answers" :val="key" />
+        <q-radio v-model="selectedStep.form.answers" :val="key" :test-id="'radio-answer-' + key" />
         
-        <q-input v-show="answerType === 'text'" v-model="option.text" @input="$v.selectedStep.form.options ? $v.selectedStep.form.options.$each[key].text.$touch : null" input-class="native-input-class" />
+        <q-input v-show="answerType === 'text'" v-model="option.text" @input="$v.selectedStep.form.options ? $v.selectedStep.form.options.$each[key].text.$touch : null" input-class="native-input-class" :test-id="'text-answer-' + key" />
         <p class="error-label" v-if="answerType === 'text' && $v.selectedStep.form.options && !$v.selectedStep.form.options.$each[key].text.required">{{ $t('label.RequiredField') }}</p>
         
         <p v-show="answerType === 'image' && option.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && !$v.selectedStep.form.options.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="answerType === 'image' && option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + option.imagePath" /></p>
         <q-btn v-show="answerType === 'image'" icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
-        <input @change="uploadAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden />
-        <q-btn @click="deleteAnswer(key)">
+        <input @change="uploadAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden :test-id="'image-answer-' + key" />
+        <q-btn @click="deleteAnswer(key)" :test-id="'delete-answer-' + key">
           <q-icon name="clear" />
         </q-btn>
       </div>
-      <q-btn @click="addAnswer()" class="full-width add-answer">
+      <q-btn @click="addAnswer()" class="full-width add-answer" color="secondary" test-id="add-answer">
         {{ $t('label.AddAnAnswer') }}
       </q-btn>
     </div>
@@ -212,6 +212,7 @@
         bottom-slots
         :error="$v.selectedStep.form.answers.$error"
         :error-message="$t('label.RequiredField')"
+        test-id="input-text-answer"
         />
     </div>
     
@@ -228,18 +229,19 @@
         bottom-slots
         :error="$v.selectedStep.form.answers.$error"
         :error-message="$t('label.CodeKeypadFormatError')"
+        test-id="input-code"
       />
     </div>
     
     <!------------------ STEP : COLOR CODE ------------------------>
     
     <div v-if="options.type.code == 'code-color'" class="code-color">
-      <q-select emit-value map-options :label="$t('label.NumberOfColorsInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" />
+      <q-select emit-value map-options :label="$t('label.NumberOfColorsInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-colors" />
       <h2>{{ $t('label.ExpectedColorCodeAnswer') }}</h2>
       <table>
       <tr>
         <td v-for="(color, index) in unformatedAnswer" :key="index">
-          <q-select emit-value map-options :ref="'colorSelect' + index" v-model="unformatedAnswer[index]" :options="colorsForCode"  />
+          <q-select emit-value map-options :ref="'colorSelect' + index" v-model="unformatedAnswer[index]" :options="colorsForCode" :test-id="'select-color-' + index" />
         </td>
       </tr>
       <tr>
@@ -259,20 +261,20 @@
         <p v-show="image.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && !$v.selectedStep.form.options.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="image.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/code-image/' + image.imagePath" /></p>
         <q-btn icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
-        <input @change="uploadCodeAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden />
+        <input @change="uploadCodeAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden :test-id="'image-code-' + key" />
         <q-btn @click="deleteCodeAnswer(key)">
           <q-icon name="clear" />
         </q-btn>
       </div>
-      <q-btn @click="addCodeAnswer()" class="full-width add-answer">
+      <q-btn @click="addCodeAnswer()" class="full-width add-answer" color="secondary">
         {{ $t('label.AddAnImage') }}
       </q-btn>
       <div v-if="selectedStep.form.options.images && selectedStep.form.options.images.length > 0 && selectedStep.form.options.images[0].imagePath">
         <h2>{{ $t('label.ExpectedCode') }}</h2>
-        <q-select emit-value map-options :label="$t('label.NumberOfImagesInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" />
+        <q-select emit-value map-options :label="$t('label.NumberOfImagesInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-images-in-code" />
         <table>
           <tr>
-            <td v-for="(code, index) in unformatedAnswer" :key="index" class="text-center" @click="previousCodeAnswer(index)">
+            <td v-for="(code, index) in unformatedAnswer" :key="index" class="text-center" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index">
               <q-icon name="keyboard_arrow_up" />
             </td>
           </tr>
@@ -282,7 +284,7 @@
             </td>
           </tr>
           <tr>
-            <td v-for="(code, index) in unformatedAnswer" :key="index" class="text-center" @click="nextCodeAnswer(index)">
+            <td v-for="(code, index) in unformatedAnswer" :key="index" class="text-center" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index">
               <q-icon name="keyboard_arrow_down" />
             </td>
           </tr>
@@ -307,7 +309,7 @@
     <div v-if="options.type.code === 'jigsaw-puzzle'">
       <div class="background-upload">
         <q-btn class="full-width" :label="$t('label.UploadThePuzzlePicture')" @click="$refs['puzzlefile'].click()" />
-        <input @change="uploadPuzzleImage" ref="puzzlefile" type="file" accept="image/*" hidden />
+        <input @change="uploadPuzzleImage" ref="puzzlefile" type="file" accept="image/*" hidden test-id="upload-puzzle-image" />
         <p v-show="$v.selectedStep.form.options.picture && $v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
         <p v-if="!selectedStep.form.options.picture">{{ $t('label.WarningImageSizeSquare') }}</p>
         <div v-if="selectedStep.form.options.picture">
@@ -328,12 +330,12 @@
         <p v-show="option.imagePath === null" class="error-label">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/memory/' + option.imagePath" /></p>
         <q-btn icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
-        <input @change="uploadMemoryImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden />
+        <input @change="uploadMemoryImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden :test-id="'memory-image-' + key" />
         <q-btn @click="deleteMemoryAnswer(key)">
           <q-icon name="clear" />
         </q-btn>
       </div>
-      <q-btn @click="addAnswer()" class="full-width add-answer">
+      <q-btn @click="addAnswer()" class="full-width add-answer" color="secondary">
         {{ $t('label.AddAnAnswer') }}
       </q-btn>
     </div>
@@ -1806,6 +1808,7 @@ p { margin-bottom: 0.5rem; }
 .code-image td { width: 20% }
 .code-image td img { width: 100% }
 .code-image td .q-icon { font-size: 2em }
+.code-image .answer p { flex-grow: 1 }
 
 .locate-item-ar .q-radio { padding:0.5rem 1rem; }
 
