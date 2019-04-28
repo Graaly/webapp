@@ -71,8 +71,6 @@ async function main () {
         console.log('Run end to end tests')
         
         if (config.RUN.LAUNCH_WEBAPP) {
-            // otherwise start-server-and-test is stuck, see 
-            //process.env.START_SERVER_AND_TEST_INSECURE = 1
             execSync('start-server-and-test start:dev ' + config.WEBAPP_URL + ' test:e2e:CI', { stdio: 'inherit' })
         } else {
             execSync('npm run test:e2e:CI', { stdio: 'inherit' })
