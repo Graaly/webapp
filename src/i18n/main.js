@@ -404,7 +404,8 @@ module.exports = {
       UseItemNothingHappens: "Nothing happens, please try another location or use another object.",
       FindItemNothingHappens: "Nothing happens, please try another location.",
       NoTitle: "No title",
-      AddYourSteps: "Create a first chapter and add first pages of your quest inside",
+      AddYourSteps: "Create a first step for your quest",
+      AddYourChapters: "Create a first chapter and add first pages of your quest inside",
       ActivateTheLanguageVisible: "Activate the languages playable for your quest",
       ActivateTheLanguageVisiblePrivate: "Activate the languages to let your invitees play your quest",
       LanguagesPublished: "Languages playable",
@@ -695,7 +696,10 @@ module.exports = {
       YouAreOfflineYourQuestsList: "We did not succeed on listing the quests around you (network issue). Here are the quests you downloaded, and that you can play offline:",
       ButtonsColor: "Buttons color (optional)",
       AddALogo: "Add your logo",
-      YourLogo: "Your logo"
+      YourLogo: "Your logo",
+      AvailableTomorrow: "Available tomorrow",
+      byteCharacter: "B",
+      MoveCloserToTheObject: "Move closer to the object to touch it"
     }
   },
   fr: {
@@ -773,8 +777,7 @@ module.exports = {
       GraalyCharacter: "Personnage",
       GraalyCharacterDesc: "Faire parler un personnage",
       EndOfChapter: "Fin de chapitre",
-      EndOfChapterDesc: "Cette transition fait passer le joueur au chapitre suivant",
-      byteCharacter: "B"
+      EndOfChapterDesc: "Cette transition fait passer le joueur au chapitre suivant"
     },
     layersForMarkers: {
       Magnifier: 'Loupe',
@@ -806,7 +809,7 @@ module.exports = {
       GeneralWarning: "<b>Pour votre sécurité</b>, ne jouez pas à Graaly en conduisant ou quand votre vélo est en mouvement, soyez toujours vigilant à ce qui se passe autour de vous, ne pénétrez pas dans des propriétés privées sans autorisation, respectez les règles de sécurité quand vous vous déplacez.",
       hint: "Salut, voici un indice :<br /><b>{hint}</b>",
       readMore: "<b>Je peux vous en dire un peu plus à ce sujet:</b><br />{readMore}",
-      DiscoveryQuest1: "Tu veux que je t'apprenne les ficelles du métier ?<br />Viens avec moi, nous allons <b>résoudre la première enquête très simple et réalisable de chez toi</b>, juste pour apprendre comment utiliser Graaly.",
+      DiscoveryQuest1: "Vous voulez que je vous apprenne les ficelles du métier ?<br />Venez avec moi, nous allons <b>résoudre la première enquête très simple et réalisable de chez vous</b>, juste pour apprendre comment utiliser Graaly.",
       //DiscoveryQuest1: "Tu veux que je t'apprenne les ficelles du métier ?<br />Vient avec moi, nous allons <b>résoudre la première enquête ensemble</b>. Elle ne te coûte aucun point d'énergie <i aria-hidden='true' style='font-size: 1.5em' class='q-icon fas fa-bolt'> </i>",
       RankingDescription1: "Le <b>Classement</b> vous permet de frimer auprès des autres détectives !",
       RankingDescription2: "Vous pouvez voir <b>votre classement mondial</b> <i aria-hidden='true' class='q-icon material-icons'>public</i>, et <b>votre classement local</b> <i aria-hidden='true' class='q-icon material-icons'>home</i>.",
@@ -1104,7 +1107,8 @@ module.exports = {
       UseItemNothingHappens: "Rien ne se produit. Essayez un autre endroit, ou utilisez un autre objet.",
       FindItemNothingHappens: "Rien ne se produit. Essayez un autre endroit.",
       NoTitle: "Aucun titre",
-      AddYourSteps: "Commencez par créer un chapitre, et ajoutez y les premières pages de votre énigme",
+      AddYourSteps: "Commencez par créer une étape pour votre enquête",
+      AddYourChapters: "Commencez par créer un chapitre, et ajoutez y les premières pages de votre énigme",
       ActivateTheLanguageVisible: "Activez les langues pour que votre enquête soit jouable",
       ActivateTheLanguageVisiblePrivate: "Activez les langues pour que vos invités puissent jouer",
       LanguagesPublished: "Langues jouables",
@@ -1395,9 +1399,11 @@ module.exports = {
       Downloading: "Téléchargement de ",
       YouAreOfflineYourQuestsList: "Nous n'avons pas réussi à récupérer la liste des enquêtes (problème réseau). Voici la liste des enquêtes que vous avez téléchargées, et auxquelles vous pouvez jouer sans réseau :",
       ButtonsColor: "Couleur des boutons (optionnel)",
-      AddALogo: "Add your logo",
+      AddALogo: "Ajoutez votre logo",
       YourLogo: "Votre logo",
-      byteCharacter: "o"
+      byteCharacter: "o",
+      AvailableTomorrow: "Disponible dès demain",
+      MoveCloserToTheObject: "Rapprochez-vous de l'objet pour le toucher"
     }
   }
 }

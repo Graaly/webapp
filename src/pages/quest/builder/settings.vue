@@ -164,7 +164,7 @@
           <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddALogo')" @click="$refs['logofile'].click()" />
           <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" hidden />
           
-          <q-btn v-if="!readOnly" type="submit" color="primary" class="full-width" test-id="btn-save-settings">{{ $t('label.Save') }}</q-btn>
+          <q-btn v-if="!readOnly" type="submit" color="primary" class="full-width q-mt-lg" test-id="btn-save-settings">{{ $t('label.Save') }}</q-btn>
             
         </form>
         
@@ -180,6 +180,7 @@
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
         <div v-if="form.fields.editorMode === 'simple' && chapters.items && chapters.items.length > 0">
+          <p v-if="!readOnly && (!chapters.items || chapters.items.length < 1 || !chapters.items[0].steps || chapters.items[0].steps.length < 1)">{{ $t('label.AddYourSteps') }}</p>
           <ul class="list-group" v-sortable="{ onUpdate: onStepListUpdate, handle: '.handle' }">
             <li class="list-group-item" v-for="step in chapters.items[0].steps" :key="step._id">
               <q-icon class="handle" name="reorder" />
@@ -203,7 +204,7 @@
           </p>
         </div>
         <div v-if="form.fields.editorMode === 'advanced'">
-          <p v-if="!readOnly && (!chapters.items || chapters.items.length < 2)">{{ $t('label.AddYourSteps') }}</p>
+          <p v-if="!readOnly && (!chapters.items || chapters.items.length < 2)">{{ $t('label.AddYourChapters') }}</p>
           <!--<p class="centered" v-show="chapters.items && chapters.items.length > 6">
             <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
           </p>-->
@@ -471,8 +472,8 @@
         <h1 class="size-3 q-pl-md">{{ $t('label.ChooseTheStepType') }}</h1>
       
         <div class="q-pa-md">
+          <div class="text-subtitle1 q-pa-md">{{ $t('label.Transition') }}</div>
           <q-list>
-            <q-item-label header>{{ $t('label.Transition') }}</q-item-label>
             <q-expansion-item color="primary" popup
               group="steptype"
               v-for="stepType in filteredStepTypes('transition')" :key="stepType.code" 
@@ -486,8 +487,8 @@
             </q-expansion-item>
           </q-list> 
           
+          <div class="text-subtitle1 q-pa-md">{{ $t('label.Quest') }}</div>
           <q-list>
-            <q-item-label header>{{ $t('label.Quest') }}</q-item-label>
             <q-expansion-item color="primary" popup
               group="steptype"
               v-for="stepType in filteredStepTypes('enigma')" :key="stepType.code" 
@@ -2188,7 +2189,7 @@ export default {
           this.hint.isOpened = true
           this.overview.tabSelected = 'hint'
         } else {
-          Notification(_this.$t('label.ErrorStandardMessage'), 'error')
+          Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
       }
     },

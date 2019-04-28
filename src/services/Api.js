@@ -8,7 +8,7 @@ axiosCookieJarSupport(axios)
 
 // otherwise cookies are not sent back to server
 axios.defaults.withCredentials = true
-axios.defaults.timeout = 7000
+axios.defaults.timeout = 15000
 
 // Note: HTTPS is mandatory here because HTTPS is required for front (geolocation)
 

@@ -600,6 +600,8 @@ import Notification from 'boot/NotifyHelper'
 import hash from 'object-hash'
 import utils from 'src/includes/utils'
 
+import Vue from 'vue'
+
 import colorsForCode from 'data/colorsForCode.json'
 import stepTypes from 'data/stepTypes.json'
 import modelsList from 'data/3DModels.json'
@@ -919,6 +921,9 @@ export default {
       } else if (this.options.type.code === 'info-text' || this.options.type.code === 'character' || this.options.type.code === 'choose' || this.options.type.code === 'write-text' || this.options.type.code === 'code-keypad') {
         if (!this.selectedStep.form.options.hasOwnProperty('initDuration')) {
           this.selectedStep.form.options = { initDuration: 1 }
+        }
+        if (this.options.type.code === 'character') {
+          Vue.set(this.selectedStep.form.options, 'character', '1')
         }
       } else if (this.options.type.code === 'image-recognition') {
         if (typeof this.selectedStep.form.answers !== 'string') {
@@ -1495,7 +1500,7 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadCharacterImage(this.questId, this.options.type.code, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.options.character = uploadResult.data.file
+        Vue.set(this.selectedStep.form.options, 'character', uploadResult.data.file)
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }

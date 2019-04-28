@@ -695,11 +695,19 @@
             <q-item-label header>{{ $t("label.Rankings") }}</q-item-label>
             <q-item>
               <q-item-section avatar><q-icon name="public" color="primary" /></q-item-section>
-              <q-item-label>{{ $t('label.YourWorldRanking') + ': ' + $store.state.user.statistics.rankings.world }}</q-item-label>
+              <q-item-label>
+                {{ $t('label.YourWorldRanking') }} : 
+                <span v-if="$store.state.user.statistics.rankings.world">{{ $store.state.user.statistics.rankings.world }}</span>
+                <span v-if="!$store.state.user.statistics.rankings.world">{{ $t('label.AvailableTomorrow') }}</span>
+              </q-item-label>
             </q-item>
             <q-item>
               <q-item-section avatar><q-icon name="home" color="primary" /></q-item-section>
-              <q-item-label>{{ $t('label.YourCityRanking') + ': ' + $store.state.user.statistics.rankings.town}}</q-item-label>
+              <q-item-label>
+                {{ $t('label.YourCityRanking') }} :
+                <span v-if="$store.state.user.statistics.rankings.town">{{ $store.state.user.statistics.rankings.town }}</span>
+                <span v-if="!$store.state.user.statistics.rankings.town">{{ $t('label.AvailableTomorrow') }}</span>
+                </q-item-label>
             </q-item>
           </q-list>
           <q-list v-if="success.ranking && success.ranking.length > 0">

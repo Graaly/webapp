@@ -7,6 +7,27 @@
           {{ $t('label.BuilderIntro') }}
         </div>
         <div class="q-pa-md">
+          <q-card class="my-card bg-secondary text-white">
+            <q-card-section>
+              <div class="text-h6">{{ $t('label.PublicQuest') }}</div>
+            </q-card-section>
+
+            <q-card-section>
+              {{ $t('label.PublicQuestDesc1') }}
+            </q-card-section>
+            
+            <q-card-section>
+              {{ $t('label.PublicQuestDesc2') }}
+            </q-card-section>
+
+            <q-separator />
+
+            <q-card-actions>
+              <q-btn flat @click="changeAccess('public')" test-id="btn-create-public-quest">{{ $t('label.CreatePublicQuest') }}</q-btn>
+            </q-card-actions>
+          </q-card>
+        </div>
+        <div class="q-pa-md">
           <q-card class="my-card bg-primary text-white">
             <q-card-section>
               <div class="text-h6">{{ $t('label.PrivateQuest') }}</div>
@@ -28,26 +49,8 @@
             </q-card-actions>
           </q-card>
         </div>
-        <div class="q-pa-md">
-          <q-card class="my-card bg-secondary text-white">
-            <q-card-section>
-              <div class="text-h6">{{ $t('label.PublicQuest') }}</div>
-            </q-card-section>
-
-            <q-card-section>
-              {{ $t('label.PublicQuestDesc1') }}
-            </q-card-section>
-            
-            <q-card-section>
-              {{ $t('label.PublicQuestDesc2') }}
-            </q-card-section>
-
-            <q-separator />
-
-            <q-card-actions>
-              <q-btn flat @click="changeAccess('public')" test-id="btn-create-public-quest">{{ $t('label.CreatePublicQuest') }}</q-btn>
-            </q-card-actions>
-          </q-card>
+        <div class="centered">
+          <q-btn flat @click="cancel">{{ $t('label.Cancel') }}</q-btn>
         </div>
       </div>
       <div class="grow" v-if="access === 'public'">

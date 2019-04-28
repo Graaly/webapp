@@ -25,7 +25,7 @@ export default (message, type, actions) => {
       customSettings = {color: 'orange', timeout: 4000}
       break
     case 'readMore':
-      customSettings = {icon: 'info', color: 'positive', timeout: 0}
+      customSettings = {icon: 'info', color: 'positive', timeout: 0, position: 'bottom'}
       break
     default:
       customSettings = {icon: 'info', color: 'info'}
