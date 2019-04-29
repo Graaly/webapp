@@ -962,8 +962,9 @@ export default {
         patternUrl: 'statics/markers/' + markerCode + '/pattern-marker.patt'
       })
       marker.code = markerCode
-
+      
       marker.addEventListener('markerFound', (ev) => {
+console.log("add marker event")
         if (this.step.options.mode === 'scan') {
           this.checkAnswer(ev.target.code)
         }

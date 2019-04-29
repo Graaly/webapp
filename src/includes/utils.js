@@ -299,6 +299,19 @@ var self = {
     } while (Math.abs(bytes) >= thresh && u < units.length - 1)
     return bytes.toFixed(1)+' '+units[u]
   },
+  /**
+   * generate a random 16 char string
+   */
+  randomId() {
+    var text = ""
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+    for (var i = 0; i < 16; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length))
+    }
+
+    return text
+  },
     
   // ------------------------ Utils for THREE.js -------------------------------------
   

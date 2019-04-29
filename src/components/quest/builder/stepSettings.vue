@@ -335,7 +335,7 @@
           <q-icon name="clear" />
         </q-btn>
       </div>
-      <q-btn @click="addAnswer()" class="full-width add-answer" color="secondary">
+      <q-btn @click="addMemoryAnswer()" class="full-width add-answer" color="secondary">
         {{ $t('label.AddAnAnswer') }}
       </q-btn>
     </div>
@@ -702,6 +702,7 @@ export default {
       
       // for 'memory' steps
       memoryItems: [],
+      maxMemoryItems: 10,
       
       unformatedAnswer: null,
       
@@ -1029,7 +1030,7 @@ export default {
       this.originalStepData = utils.clone(this.selectedStep.form)
       
       // init the conditions form
-      this.changeNewConditionType()
+      await this.changeNewConditionType()
     },
     /*
      * Submit step data
@@ -1126,6 +1127,18 @@ export default {
         this.selectedStep.form.options.push({
           isRightAnswer: false,
           text: this.$t('label.AnswerNb', { nb: (this.selectedStep.form.options.length + 1) }), // text default data
+          imagePath: null // image default data
+        })
+      }
+    },
+    /*
+     * Add an answer in the memory step
+     */
+    addMemoryAnswer: function () {
+      if (this.memoryItems.length >= this.maxMemoryItems) {
+        Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.maxMemoryItems }), 'error')
+      } else {
+        this.memoryItems.push({
           imagePath: null // image default data
         })
       }
@@ -1231,7 +1244,7 @@ export default {
         if (conditionParts[0] === 'stepDone' || conditionParts[0] === 'stepSuccess' || conditionParts[0] === 'stepFail') {
           const stepData = await StepService.getById(conditionParts[1], this.quest.version)
           if (stepData && stepData.data && stepData.data.hasOwnProperty("title")) {
-            let condStepTitle = stepData.data.title[this.lang] ? stepData.data.title[this.lang] : conditionParts[1]
+            let condStepTitle = stepData.data.title[this.lang] ? stepData.data.title[this.lang] : stepData.data.title[Object.keys(stepData.data.title)[0]]
             if (conditionParts[0] === 'stepDone') {
               this.selectedStep.formatedConditions.push(this.$t("label.FollowStep") + " <i>" + condStepTitle + "</i>")
             }
@@ -1261,7 +1274,7 @@ export default {
         if (response && response.data && response.data.length > 0) {
           for (var i = 0; i < response.data.length; i++) {
             if (response.data[i].stepId.toString() !== this.stepId.toString()) {
-              let condStepTitle = response.data[i].title[this.lang] ? response.data[i].title[this.lang] : response.data[i].stepId.toString()
+              let condStepTitle = response.data[i].title[this.lang] ? response.data[i].title[this.lang] : response.data[i].title[Object.keys(response.data[i].title)[0]]
               this.selectedStep.newCondition.values.push({label: condStepTitle, value: response.data[i].stepId})
             }
           }

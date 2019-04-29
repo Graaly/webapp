@@ -35,18 +35,18 @@
               
         <!------------------ CHALLENGE FRIENDS AREA ------------------------>
         
-        <div class="q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.score > 0 && quest && quest.access === 'public'">
-          <q-btn icon="people" color="accent" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
+        <div class="q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.score > 0 && quest && quest.data && quest.data.access === 'public'">
+          <q-btn icon="people" color="secondary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
         </div>
         
         <!------------------ REVIEW AREA ------------------------>
         
-        <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="showAddReview && quest && quest.access === 'public'">
+        <div class="q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="showAddReview && quest && quest.data && quest.data.access === 'public'">
           <h3 class="size-2">{{ $t('label.ReviewThisQuest') }} <!--(+2 <q-icon color="white" name="fas fa-bolt" />)--></h3>
           <p>{{ $t('label.Rating') + $t('label.Colon') }} <q-rating v-model="rating" :max="5" size="1.5rem" :disable="reviewSent" /></p>
           <p>{{ $t('label.CommentThisQuest') }} ({{ $t('label.Optional') }}){{ $t('label.Colon') }}</p>
           <textarea class="shadowed full-width" v-model="comment" rows="5" :disabled="reviewSent" />
-          <q-btn class="full-width" color="primary" :label="$t('label.Send')" @click="addReview()" :disabled="reviewSent" />
+          <q-btn class="full-width" color="secondary" :label="$t('label.Send')" @click="addReview()" :disabled="reviewSent" />
         </div>
         
         <!------------------ SHARE AREA ------------------------>

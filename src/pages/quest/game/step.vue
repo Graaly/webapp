@@ -13,7 +13,7 @@
     <transition name="slideInBottom">
       <div>
         <div class="inventory panel-bottom q-pa-md" v-show="inventory.isOpened">
-          <h1>{{ $t('label.Inventory') }}</h1>
+          <h4>{{ $t('label.Inventory') }}</h4>
           <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
@@ -80,7 +80,7 @@
     
     <q-dialog v-model="feedback.isOpened">
       <div class="bg-white q-pa-md">
-        <h3>{{ $t('label.FeedbackTitle') }}</h3>
+        <h4>{{ $t('label.FeedbackTitle') }}</h4>
         {{ $t('label.FeedbackIntroduction') }}
         <form @submit.prevent="sendFeedback">
           <q-input
@@ -108,17 +108,18 @@
           <q-btn 
             round 
             size="lg" 
-            :style="(info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+            :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="menu" 
-            :class="{'bg-secondary': (info.isOpened && info.quest.customization.color === ''), 'bg-primary': (!info.isOpened && info.quest.customization.color === '')}" 
+            :class="{'bg-secondary': (info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
             @click="openInfo()"
-            v-if="info.quest.customization.logo && info.quest.customization.logo !== ''"
+            v-if="!info.quest.customization || !info.quest.customization.logo || info.quest.customization.logo === ''"
           />
           <q-btn
             round
             size="lg"
             class="bg-white"
-            v-if="info.quest.customization.logo && info.quest.customization.logo !== ''" >
+            @click="openInfo()"
+            v-if="info.quest.customization && info.quest.customization.logo && info.quest.customization.logo !== ''" >
             <q-avatar size="60px">
               <img :src="serverUrl + '/upload/quest/' + info.quest.customization.logo">
             </q-avatar>
@@ -128,9 +129,9 @@
           <q-btn 
             round 
             size="lg" 
-            :style="(info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+            :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="work" 
-            :class="{'bg-secondary': inventory.isOpened}" 
+            :class="{'bg-secondary': inventory.isOpened, 'bg-primary': (!inventory.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
             @click="openInventory()" 
             v-show="inventory.show" 
           />
@@ -139,9 +140,9 @@
           <q-btn 
             round 
             size="lg" 
-            :style="(info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+            :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="lightbulb" 
-            :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && info.quest.customization.color === ''), 'bg-primary': (!hint.isOpened && info.quest.customization.color === '')}" 
+            :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!hint.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
             @click="askForHint()" 
             v-show="hint.show" 
           />
@@ -150,8 +151,8 @@
           <q-btn 
             round 
             size="lg" 
-            :style="(info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            :class="{'bg-primary': (info.quest.customization.color === '')}" 
+            :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+            :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}" 
             icon="arrow_back" 
             v-show="previousStepId !== ''" 
             @click="previousStep()"
@@ -161,8 +162,8 @@
           <q-btn 
             round 
             size="lg" 
-            :style="(info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            :class="{'flashing': canMoveNextStep, 'bg-primary': (info.quest.customization.color === '')}" 
+            :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+            :class="{'flashing': canMoveNextStep, 'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}" 
             icon="arrow_forward" 
             v-show="canMoveNextStep || canPass" 
             @click="nextStep()" 
@@ -535,7 +536,7 @@ console.log(videoUrl)
               tempStep.videoStream = videoUrl
             }
           }
-this.launchVideo = true
+
           if (tempStep.type === 'image-recognition' && tempStep.answers && tempStep.answers !== '') {
             const imageRecognitionUrl = await utils.readBinaryFile(this.questId, tempStep.answers)
             if (imageRecognitionUrl) {
@@ -775,12 +776,12 @@ console.log("fail")
     
 console.log("Move to next step ")
 console.log(this.step)
-console.log("move to : " + '/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + type + '_' + this.step.stepId + '/' + this.$route.params.lang)
+console.log("move to : " + '/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + type + '_' + this.step.stepId + '_' + utils.randomId() + '/' + this.$route.params.lang)
       //hide button
       this.canMoveNextStep = false
       this.canPass = false
       
-      this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + type + '_' + this.step.stepId + '/' + this.$route.params.lang)
+      this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + type + '_' + this.step.stepId + '_' + utils.randomId() + '/' + this.$route.params.lang)
     },
     /*
      * Return to previous step
@@ -1305,6 +1306,7 @@ console.log("markercode " + (markerCode ? 'Yes' : 'No'))
       
       // list the steps for the chapter
       var stepsofChapter = await this.listForAChapter(steps, chapter)
+      var locationMarkerFound = false
 console.log("current conditions done :")
 console.log(this.run.conditionsDone)
       if (stepsofChapter && stepsofChapter.length > 0) {
@@ -1322,6 +1324,7 @@ console.log(this.run.conditionsDone)
             }
             // if the marker is not requested, do not treat marker step
             if (stepsofChapter[i].type === 'locate-marker') {
+              locationMarkerFound = true
               continue stepListFor
             }
             // if step is end of chapter 
@@ -1343,7 +1346,7 @@ console.log("next step id : " + nextStepId)
       }
       
       // if no next step, check if the type of the quest is simple => end quest
-      if (this.info.quest && this.info.quest.editorMode === 'simple') {
+      if (this.info.quest && this.info.quest.editorMode === 'simple' && !locationMarkerFound) {
         let nextStepId = await this.moveToNextChapter()
 
         if (nextStepId !== 'end') {

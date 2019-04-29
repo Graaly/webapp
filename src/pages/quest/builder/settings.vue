@@ -1,7 +1,7 @@
 <template>
   <div id="scrollpage" :class="{'bg-white': !chapters.showNewStepOverview}">
     <!------------------ NEW RELEASE BUTTON ---------->
-    <div v-if="readOnly && (quest.status === 'published' || quest.status === 'unpublished')" class="centered bg-accent text-white q-pa-md" @click="createNewVersion()">
+    <div v-if="readOnly && (quest.status === 'published' || quest.status === 'unpublished')" class="centered bg-secondary text-white q-pa-md" @click="createNewVersion()">
       {{ $t('label.ClickHereToCreateANewQuestVersion') }}
     </div>
     
@@ -245,7 +245,7 @@
           <p v-if="!readOnly" class="centered">
             <q-btn color="primary" icon="fas fa-plus-circle" @click="addChapter()" :label="$t('label.AddASChapter')" />
           </p>
-          <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items.length > 3">
+          <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items.length > 1">
             <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
           </p>
           <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current">
@@ -588,9 +588,9 @@
     
     <!------------------ INVENTORY PAGE AREA ------------------------>
     
-    <transition name="slideInBottom">
-      <div class="inventory panel-bottom q-pa-md" v-show="inventory.isOpened">
-        <h3>{{ $t('label.Inventory') }}</h3>
+    <q-dialog maximized v-model="inventory.isOpened">
+      <div class="inventory panel-bottom q-pa-md">
+        <h4>{{ $t('label.Inventory') }}</h4>
         <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
@@ -603,24 +603,24 @@
           </div>
         </div>
       </div>
-    </transition>
+    </q-dialog>
     
     <!------------------ HINT PAGE AREA ------------------------>
     
-    <transition name="slideInBottom">
-      <div class="hint panel-bottom q-pa-md" v-show="hint.isOpened">
-        <h3>{{ $t('label.Hint') }}</h3>
+    <q-dialog maximized v-model="hint.isOpened">
+      <div class="hint panel-bottom q-pa-md">
+        <h4>{{ $t('label.Hint') }}</h4>
         <p v-if="hint.label === ''">{{ $t('label.NoHintForThisStep') }}</p>
         <p v-if="hint.label !== ''">{{ hint.label[languages.current] }}</p>
         <q-btn class="q-mb-xl" color="primary" @click="askForHint()">{{ $t('label.Close') }}</q-btn>
       </div>
-    </transition>
+    </q-dialog>
     
     <!------------------ MEDIA LIST AREA ------------------------>
     
     <transition name="slideInBottom">
       <div class="hint panel-bottom q-pa-md" v-show="media.isOpened">
-        <h3>{{ $t('label.QuestMedia') }}</h3>
+        <h4>{{ $t('label.QuestMedia') }}</h4>
         <q-list v-for="(item, index) in media.items" :key="item.id">
           <q-item clickable v-ripple>
             <q-item-section thumbnail @click="zoomMedia(index)">
