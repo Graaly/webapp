@@ -1893,8 +1893,13 @@ console.log(this.answer)
      * Draw direction arrows for geolocation
      */
     drawDirectionArrow() {
-      if (this.geolocation.direction === null || document.querySelector('.direction-helper canvas') === null || !this.geolocation.active) {
+      if (document.querySelector('.direction-helper canvas') === null || !this.geolocation.active) {
         return
+      }
+
+      // shows a static arrow even if the user is on desktop (step creation from toolbox)
+      if (this.geolocation.direction === null) {
+        this.geolocation.direction = 0
       }
       
       // refresh arrow in canvas depending on direction
