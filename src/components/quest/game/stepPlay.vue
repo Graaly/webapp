@@ -997,6 +997,7 @@ console.log("add marker event")
      * @param   {Object}    sceneCanvas            Scene canvas object
      */
     async displayMarkers(sceneCanvas) {
+console.log("test 4")  
       this.locateMarker.markerRoots = {}
       
       let renderer = new THREE.WebGLRenderer({
@@ -2395,19 +2396,19 @@ console.log(this.answer)
     /*
     * Animate canvas where AR markers are detected, for step type "locate-marker"
     */
-    animateMarkerCanvas() {
-      if (typeof this.step === 'undefined' || typeof this.step.type === 'undefined') {
+    animateMarkerCanvas() {   
+      if (typeof this.step === 'undefined' || (this.step.id !== 'sensor' && typeof this.step.type === 'undefined')) {
         this.stopLatestAnimation()
         return
       }
       
       let mixers = this.locateMarker.mixers
-      
+
       if (this.locateMarker.arToolkitContext !== null) {
         // player has not found object yet ?
         // => adjust camera orientation & object position according to detected marker position
         this.locateMarker.arToolkitContext.update(this.$refs['camera-stream-for-locate-marker'])
-        
+
         if ((this.step.type === 'locate-marker' && this.step.options.mode === 'scan') || this.step.id === 'sensor') {
           // any marker is "recognized"
           for (let markerCode in this.locateMarker.markerRoots) {
