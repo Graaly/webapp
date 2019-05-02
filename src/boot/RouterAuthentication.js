@@ -58,7 +58,8 @@ export default ({ app, router, Vue }) => {
                   query: from.path === '/' ? null : { redirect: to.fullPath }
                 })
               } else {
-                Cookies.set('firstusage', 'ok', { expires: 432000000, secure: true })
+                // cookie expiration is in days. 36500 days = 100 years
+                Cookies.set('firstusage', 'ok', { expires: 36500, secure: true })
                 next({
                   path: '/firstusage'
                 })

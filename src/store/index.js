@@ -133,7 +133,7 @@ export default new Vuex.Store({
   plugins: [
     createPersistedState({
       getState: (key) => Cookies.getJSON(key),
-      setState: (key, state) => { Cookies.set(key, state, { expires: 432000000, secure: true }) }
+      setState: (key, state) => { Cookies.set(key, state, { expires: process.env.PERSIST_STATE_COOKIE_DURATION, secure: true }) }
     })
   ]
 })
