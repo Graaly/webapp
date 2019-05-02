@@ -540,7 +540,7 @@ export default {
       }
       
       this.$q.loading.show()
-      await ReviewService.add(this.questId, this.run._id, this.comment, this.rating)
+      await ReviewService.add(this.questId, this.run.version, this.run._id, this.comment, this.rating)
       // TODO: add error tracking
       this.$q.loading.hide()
       

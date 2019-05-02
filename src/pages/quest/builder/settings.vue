@@ -14,7 +14,7 @@
     
     <!------------------ TABS ------------------------>
     
-    <q-tabs v-model="tabs.selected" class="bg-accent text-white hide-img">
+    <q-tabs v-model="tabs.selected" class="bg-accent text-white hide-img" inline-label>
       <q-tab :disable="isReadOnly()" name="settings" :icon="getTabIcon(1)" :label="$t('label.Intro') + ' (' + languages.current + ')'" default />
       <q-tab :disable="tabs.progress < 1 || isReadOnly()" name="steps" :icon="getTabIcon(2)" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
       <q-tab :disable="tabs.progress < 2" name="publish" :icon="getTabIcon(3)" :label="$t('label.Publish')" />
@@ -379,25 +379,27 @@
           <q-list highlight v-if="reviews.length > 0">
             <q-item v-for="review in reviews" :key="review._id">
               
-              <q-item-section avatar><img :src="getAvatar(review.userId.picture)" /></q-item-section>
+              <q-item-section avatar>
+                <q-avatar>
+                  <img :src="getAvatar(review.userId.picture)" />
+                </q-avatar>
+              </q-item-section>
                 
               <q-item-section>
-                <q-item-label>{{ review.userId.name }}</q-item-label>
                 <q-item-label>
-                  <q-rating readonly v-model="review.rating" />
+                  {{ review.userId.name }}
                 </q-item-label>
-                <q-item-label>
-                  {{ review.text }}
+                <q-item-label caption>
+                  <q-rating readonly v-model="review.rating" /> - {{ $options.filters.formatDate(review.created) }} (v{{ review.version }})
                 </q-item-label>
+                <q-item-label caption class="review-text">{{ review.text }}</q-item-label>
               </q-item-section>
-              
-              <q-item-section side>{{ $options.filters.formatDate(review.created) }}</q-item-section>
-              
+            </q-item>
+            <q-item v-if="reviews.length === 0">
+              <q-item-label>{{ $t('label.QuestNotReviewed') }}</q-item-label>
             </q-item>
           </q-list>
         <!--</q-infinite-scroll>-->
-        
-        <p v-if="reviews.length === 0">{{ $t('label.QuestNotReviewed') }}</p>
         
       </q-tab-panel>
     
@@ -2400,4 +2402,5 @@ export default {
 </script>
 
 <style>
+.review-text { color: black; font-size: 0.8rem; white-space: pre-line; }
 </style>
