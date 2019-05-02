@@ -2780,6 +2780,7 @@ console.log(this.answer)
   }
   #pieces .piece { 
     display: inline-block; 
+    vertical-align: top;
     margin: 0px; 
     box-shadow: inset 0 0 3px #666;
     text-align: center; 
