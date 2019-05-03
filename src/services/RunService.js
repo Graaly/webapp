@@ -30,8 +30,8 @@ export default {
     return Api().put('run/' + data._id + '/quest/' + data.questId + '/update', data).catch(error => console.log(error.request))
   },
   /*
-   * Get the next step of a run
-   * @param   {String}    runId                  ID of the run
+   * Get the next step of current run on a quest
+   * @param   {String}    questId                ID of the quest
    */
   getNextStep (questId) {
     return Api().get('run/' + questId + '/step/next').catch(error => console.log(error.request))
