@@ -108,8 +108,8 @@
         </div>
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
-            <q-btn color="primary" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('label.Clear') }}</q-btn>
-            <q-btn color="primary" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('label.Clear') }}</q-btn>
+            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer">{{ $t('label.Confirm') }}</q-btn>
           </div>
         </div>
       </div>
@@ -126,7 +126,7 @@
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
-            <q-btn color="primary" icon="done" @click="checkAnswer()" test-id="btn-check-color-code">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code">{{ $t('label.Confirm') }}</q-btn>
           </div>
         </div>
       </div>
@@ -140,7 +140,7 @@
         <table>
           <tr>
             <td v-for="(code, index) in playerCode" :key="index" class="text-center">
-              <q-btn color="primary" round icon="keyboard_arrow_up" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index" />
+              <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" round icon="keyboard_arrow_up" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index" />
             </td>
           </tr>
           <tr>
@@ -150,14 +150,14 @@
           </tr>
           <tr>
             <td v-for="(code, index) in playerCode" :key="index" class="text-center">
-              <q-btn color="primary" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
+              <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
             </td>
           </tr>
         </table>
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
-            <q-btn color="primary" icon="done" @click="checkAnswer()" test-id="btn-check-image-code">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color"" icon="done" @click="checkAnswer()" test-id="btn-check-image-code">{{ $t('label.Confirm') }}</q-btn>
           </div>
         </div>
       </div>
@@ -175,10 +175,10 @@
           <img ref="player-photo" v-show="photoTaken" :alt="$t('label.TheScreenCaptureWillAppearInThisBox')" />
         </div>
         <div class="actions q-mt-lg">
-          <q-btn @click="toggleCameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" color="primary">{{ $t('label.TakeThePicture') }}</q-btn>
+          <q-btn @click="toggleCameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color">{{ $t('label.TakeThePicture') }}</q-btn>
           <div v-show="cameraStreamEnabled">
-            <q-btn color="primary" @click="toggleCameraStream()" icon="clear">{{ $t('label.Cancel') }}</q-btn>
-            <q-btn color="primary" @click="checkAnswer()" icon="done">{{ $t('label.Check') }}</q-btn>
+            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" @click="toggleCameraStream()" icon="clear">{{ $t('label.Cancel') }}</q-btn>
+            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" @click="checkAnswer()" icon="done">{{ $t('label.Check') }}</q-btn>
           </div>
         </div>
       </div>
@@ -205,7 +205,7 @@
         </div>
         <div class="answer-text">
           <input v-model="writetext.playerAnswer" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" />
-          <q-btn color="primary" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
+          <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
         </div>
       </div>
       
@@ -234,7 +234,13 @@
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <ul class="memory" id="card-deck">
-          <li v-for="(item, key) in memory.items" :key="key" class="card" :class="{ open: item.isClicked, show: item.isClicked, disabled: item.isFound }" @click="selectMemoryCard(key)">
+          <li 
+            v-for="(item, key) in memory.items" 
+            :key="key" 
+            class="card" 
+            :class="{ open: item.isClicked, show: item.isClicked, disabled: item.isFound, match: item.isFound }" 
+            @click="selectMemoryCard(key)"
+          >
             <img :src="item.imagePath.indexOf('blob:') !== -1 ? item.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
           </li>
         </ul>
@@ -251,7 +257,7 @@
         </div>
       </div>
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
-        <q-btn round color="primary">
+        <q-btn round :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color">
           <img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
         </q-btn>
         {{ $t('label.TouchWhereYouUseThisItem') }}
@@ -307,11 +313,11 @@
         </div>
         
         <!-- HELP -->
-        <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null && !isHybrid" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
+        <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null && !isHybrid" :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
         <div v-if="locateMarker.compliant && playerResult === null && isHybrid" class="text-white centered q-mt-md">
           {{ $t('label.ScanTheMarkersLikeThat') }}
           <div><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
-          <div><q-btn color="primary" @click="startScanQRCode()">{{ $t('label.LaunchTheScanner') }}</q-btn></div>
+          <div><q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" @click="startScanQRCode()">{{ $t('label.LaunchTheScanner') }}</q-btn></div>
         </div>
         <div v-if="!locateMarker.compliant">
           {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
@@ -392,7 +398,7 @@ export default {
    * itemUsed : item of the inventory used
    * lang : language of the step (fr, en, ...)
    */
-  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer'],
+  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'color'],
   components: {
     geolocation,
     story
@@ -605,10 +611,6 @@ export default {
         
         this.resetDrawDirectionInterval()
         
-        if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'character' || this.step.type === 'new-item') {
-          // validate steps with no enigma
-          utils.setTimeout(this.checkAnswer, 500)
-        }
         if (this.step.type === 'end-chapter') {
           this.checkAnswer()
         }
@@ -978,6 +980,10 @@ console.log("add marker event")
      */
     showControls () {
       this.controlsAreDisplayed = true // !this.controlsAreDisplayed
+      // if transition step, next button is clickable when controls are displayed
+      if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'character' || this.step.type === 'new-item') {
+        this.checkAnswer()
+      }
     },
     /*
      * Switch controls display
@@ -1239,37 +1245,42 @@ console.log(this.answer)
         case 'character':
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
-          this.submitGoodAnswer(0, checkAnswerResult.offline)
+          this.submitGoodAnswer(0, checkAnswerResult.offline, true)
           break
           
         case 'choose':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
           
-          if (!this.step.displayRightAnswer) {
+          if (checkAnswerResult.result === true) {
             let selectedAnswer = this.step.options[answer]
-            selectedAnswer.class = 'rightorwrong'
-            Vue.set(this.step.options, answer, selectedAnswer)
-            this.submitAnswer(0, checkAnswerResult.offline)
-          } else if (checkAnswerResult.result === true) {
-            let selectedAnswer = this.step.options[answer]
-            selectedAnswer.icon = 'done'
-            selectedAnswer.class = 'right'
-            Vue.set(this.step.options, answer, selectedAnswer)
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
-          } else {
-            let selectedAnswer = this.step.options[answer]
-            selectedAnswer.icon = 'clear' // "x" icon
-            selectedAnswer.class = 'wrong'
-            Vue.set(this.step.options, answer, selectedAnswer)
-            // indicate the right answer
-            if (checkAnswerResult.answer || checkAnswerResult.answer === 0) {
-              let selectedAnswer = this.step.options[checkAnswerResult.answer]
+            if (this.step.displayRightAnswer === false) {
+              selectedAnswer.class = 'rightorwrong'
+            } else {
               selectedAnswer.icon = 'done'
               selectedAnswer.class = 'right'
-              Vue.set(this.step.options, checkAnswerResult.answer, selectedAnswer)
             }
+            Vue.set(this.step.options, answer, selectedAnswer)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
+          } else {
+            let selectedAnswer = this.step.options[answer]
+            if (this.step.displayRightAnswer === false) {
+              selectedAnswer.class = 'rightorwrong'
+            } else {
+              selectedAnswer.icon = 'clear' // "x" icon
+              selectedAnswer.class = 'wrong'
+              // indicate the right answer
+              if (checkAnswerResult.answer || checkAnswerResult.answer === 0) {
+                let selectedAnswer = this.step.options[checkAnswerResult.answer]
+                selectedAnswer.icon = 'done'
+                selectedAnswer.class = 'right'
+                Vue.set(this.step.options, answer, selectedAnswer)
+                Vue.set(this.step.options, checkAnswerResult.answer, selectedAnswer)
+              }
+            }
+            Vue.set(this.step.options, answer, selectedAnswer)
+            
             this.nbTry++
-            this.submitWrongAnswer(checkAnswerResult.offline)
+            this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
           }
           
           break
@@ -1278,7 +1289,7 @@ console.log(this.answer)
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, false)
 
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           }
           break
           
@@ -1287,27 +1298,25 @@ console.log(this.answer)
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: comparison}, true)
 
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           } else {
-            this.submitWrongAnswer(checkAnswerResult.offline)
+            this.submitWrongAnswer(checkAnswerResult.offline, true)
           }
           break
           
         case 'code-keypad':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('')}, true)
 
-          if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0, checkAnswerResult.offline)
-          } else if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
+          if (checkAnswerResult.result === true) {
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2) {
+            if (this.nbTry < 2 && this.step.displayRightAnswer) {
               // reset code
               this.resetKeypadCode()
               this.submitRetry()
             } else {
-              this.submitWrongAnswer(checkAnswerResult.offline)
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
           break
@@ -1316,18 +1325,16 @@ console.log(this.answer)
           this.$q.loading.show()
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|')}, true)
           
-          if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0, checkAnswerResult.offline)
-          } else if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
+          if (checkAnswerResult.result === true) {
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2) {
+            if (this.nbTry < 2 && this.step.displayRightAnswer) {
               // reset code
               this.resetColorCode()
               this.submitRetry()
             } else {
-              this.submitWrongAnswer(checkAnswerResult.offline)
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
           break
@@ -1335,18 +1342,16 @@ console.log(this.answer)
         case 'code-image':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|')}, true)
           
-          if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0, checkAnswerResult.offline)
-          } else if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
+          if (checkAnswerResult.result === true) {
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2) {
+            if (this.nbTry < 2 && this.step.displayRightAnswer) {
               // reset code
               this.resetImageCode()
               this.submitRetry()
             } else {
-              this.submitWrongAnswer(checkAnswerResult.offline)
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
           break
@@ -1355,7 +1360,7 @@ console.log(this.answer)
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer.join('|')}, true)
           
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           }
           break
           
@@ -1363,24 +1368,22 @@ console.log(this.answer)
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
           
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           }
           break
         
         case 'write-text':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.writetext.playerAnswer}, true)
-          if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0, checkAnswerResult.offline)
-          } else if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
+          if (checkAnswerResult.result === true) {
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2) {
+            if (this.nbTry < 2 && this.step.displayRightAnswer) {
               // reset field
               this.writetext.playerAnswer = ""
               this.submitRetry()
             } else {
-              this.submitWrongAnswer(checkAnswerResult.offline)
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
           
@@ -1389,19 +1392,23 @@ console.log(this.answer)
         case 'use-item':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
           
-          if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0, checkAnswerResult.offline)
-          } else if (checkAnswerResult.result === true) {
-            this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
+          if (checkAnswerResult.result === true) {
+            if (this.step.displayRightAnswer) {
+              this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
+            }
+            
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2) {
+            if (this.nbTry < 2 && this.step.displayRightAnswer) {
               // reset code
               Notification(this.$t('label.UseItemNothingHappens'), 'error')
             } else {
-              this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
-              this.submitWrongAnswer(checkAnswerResult.offline)
+              if (this.step.displayRightAnswer) {
+                this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
+              }
+              
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
           
@@ -1410,19 +1417,22 @@ console.log(this.answer)
         case 'find-item':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
           
-          if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0, checkAnswerResult.offline)
-          } else if (checkAnswerResult.result === true) {
-            this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
+          if (checkAnswerResult.result === true) {
+            if (this.step.displayRightAnswer) {
+              this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
+            }
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2) {
+            if (this.nbTry < 2 && this.step.displayRightAnswer) {
               // reset code
               Notification(this.$t('label.FindItemNothingHappens'), 'error')
             } else {
-              this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
-              this.submitWrongAnswer(checkAnswerResult.offline)
+              if (this.step.displayRightAnswer) {
+                this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
+              }
+              
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
           
@@ -1487,7 +1497,7 @@ console.log(this.answer)
                   
                 disappearAnimation.chain(appearAnimation, rotationAnimation).start()
               } else { // 2D image on plane
-                this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
+                this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
               }
             }
           } else { // locate-marker, mode scan
@@ -1526,13 +1536,13 @@ console.log(this.answer)
               checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
               
               if (checkAnswerResult.result === true) {
-                this.submitGoodAnswer(checkAnswerResult.score, checkAnswerResult.offline)
+                this.submitGoodAnswer(checkAnswerResult.score, checkAnswerResult.offline, true)
                 this.stopMarkersSensors()
                 this.locateMarker.playerAnswer = answer // for display
               } else {
                 this.nbTry++
                 if (this.nbTry === 2) {
-                  this.submitWrongAnswer(checkAnswerResult.offline)
+                  this.submitWrongAnswer(checkAnswerResult.offline, true)
                   this.stopMarkersSensors()
                 } else {
                   //this.startScanQRCode()
@@ -1555,7 +1565,7 @@ console.log(this.answer)
      * Send answer without telling if it is true or false
      */
     submitAnswer(offlineMode) {
-      this.$emit('played', offlineMode)
+      this.$emit('played', null, offlineMode)
       
       this.displayReadMoreAlert()
       
@@ -1565,45 +1575,52 @@ console.log(this.answer)
     /*
      * Send good andwer  
      */
-    submitGoodAnswer(score, offlineMode) {
-      this.playerResult = true
-      this.$emit('success', score, offlineMode)
+    submitGoodAnswer(score, offlineMode, showResult) {
+      if (showResult) {
+        this.playerResult = true
+      } else {
+        this.playerResult = null
+      }
+      
+      this.$emit('success', score, offlineMode, showResult)
       this.$emit('played')
       
       this.displayReadMoreAlert()
       
-      switch (this.step.type) {
-        case 'character': 
-        case 'new-item': 
-        case 'info-text': 
-        case 'end-chapter': 
-        case 'info-video': 
-          
-          break
-        case 'choose':
-          break
-        case 'code-keypad':
-        case 'code-color':
-        case 'code-image':
-          this.displaySuccessMessage(true, this.$t('label.GoodAnswer'))
-          break
-        case 'image-recognition':
-        case 'write-text':
-        case 'jigsaw-puzzle':
-        case 'memory':
-        case 'use-item':
-        case 'find-item':
-        case 'geolocation':
-          this.displaySuccessMessage(true, this.$t('label.YouHaveFoundThePlace'))
-          break
-        case 'locate-item-ar':
-        case 'locate-marker':
-          if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
-            this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'))
-          } else { // locate marker, mode scan
-            this.displaySuccessMessage(true, this.$t('label.WellDone'))
-          }
-          break
+      if (showResult) {
+        switch (this.step.type) {
+          case 'character': 
+          case 'new-item': 
+          case 'info-text': 
+          case 'end-chapter': 
+          case 'info-video': 
+            
+            break
+          case 'choose':
+            break
+          case 'code-keypad':
+          case 'code-color':
+          case 'code-image':
+            this.displaySuccessMessage(true, this.$t('label.GoodAnswer'))
+            break
+          case 'image-recognition':
+          case 'write-text':
+          case 'jigsaw-puzzle':
+          case 'memory':
+          case 'use-item':
+          case 'find-item':
+          case 'geolocation':
+            this.displaySuccessMessage(true, this.$t('label.YouHaveFoundThePlace'))
+            break
+          case 'locate-item-ar':
+          case 'locate-marker':
+            if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
+              this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'))
+            } else { // locate marker, mode scan
+              this.displaySuccessMessage(true, this.$t('label.WellDone'))
+            }
+            break
+        }
       }
       // advise user to move to next step
       //utils.setTimeout(this.alertToPassToNextStep, 15000)
@@ -1623,17 +1640,24 @@ console.log(this.answer)
     /*
      * Send wrong answer 
      */
-    submitWrongAnswer(offlineMode) {
-      this.playerResult = false
-      this.$emit('fail', offlineMode)
+    submitWrongAnswer(offlineMode, showResult) {
+      if (showResult) {
+        this.playerResult = false
+      } else {
+        this.playerResult = null
+      }
+      
+      this.$emit('fail', offlineMode, showResult)
       this.$emit('played')
       
       this.displayReadMoreAlert()
       
-      if (this.step.type === 'image-recognition') {
-        this.displaySuccessMessage(false, this.$t('label.PhotosDoesntMatch'))
-      } else {
-        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
+      if (showResult) {
+        if (this.step.type === 'image-recognition') {
+          this.displaySuccessMessage(false, this.$t('label.PhotosDoesntMatch'))
+        } else {
+          this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
+        }
       }
       // advise user to move to next step
       utils.setTimeout(this.alertToPassToNextStep, 15000)
@@ -2344,6 +2368,8 @@ console.log(this.answer)
             for (var i = 0; i < this.memory.items.length; i++) {
               if (!this.memory.items[i].isFound) {
                 this.memory.items[i].isClicked = true
+                _self.memory.items[_self.memory.selectedKey].isFound = true
+                _self.memory.items[key].isFound = true
                 Vue.set(this.memory.items, i, this.memory.items[i])
               }
             }
@@ -2596,7 +2622,8 @@ console.log(this.answer)
         if (objName.indexOf('blob:') !== -1) {
           gltfLoader.load(objName, resolve, progress, reject)
         } else {
-          gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+          //gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+          gltfLoader.load('statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
         }
       })
     },
@@ -2834,9 +2861,11 @@ console.log(this.answer)
     height: 15vw;
     width: 15vw;
     margin: 2vw 2vw;
-    background: #141214;
+    background: url(/statics/icons/game/card-back.png) no-repeat;
+    background-size: 100%;
     color: #ffffff;
     border-radius: 5px;
+    border: 3px solid #07275A;
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -2859,6 +2888,7 @@ console.log(this.answer)
     width: 100%;
     height: 100%;
     border-radius: 5px;
+    background: none;
   }
   .memory .card.disabled {
     pointer-events: none;
@@ -2867,7 +2897,7 @@ console.log(this.answer)
 
   .memory .card.match {
     cursor: default;
-    background: #E5F720;
+    border-color: #EC6608;
     font-size: 33px;
     -webkit-backface-visibility: visible !important;
     backface-visibility: visible !important;

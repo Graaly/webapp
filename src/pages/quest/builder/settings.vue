@@ -434,7 +434,7 @@
           </div>
         </div>
         <div v-if="quest.status === 'old'">
-          <h1 class="size-3">{{ $t('label.FinalRanking') }}</h1>
+          <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.FinalRanking') }}</div>
           <div v-if="ranking && ranking.items && ranking.items.length > 0">
             {{ $t('label.FinalRankingIntro') }}
             <q-list>
@@ -471,7 +471,7 @@
         <!------------------ STEP TYPE SELECTION ------------------------>
         
         <a class="float-right no-underline close-btn" color="grey" @click="closeStepTypePage"><q-icon name="close" class="medium-icon" /></a>
-        <h1 class="size-3 q-pl-md">{{ $t('label.ChooseTheStepType') }}</h1>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.ChooseTheStepType') }}</div>
       
         <div class="q-pa-md">
           <div class="text-subtitle1 q-pa-md">{{ $t('label.Transition') }}</div>
@@ -524,7 +524,18 @@
     
         <!------------------ STEP SIMULATION ------------------------>
 
-        <stepPlay :step="chapters.newStep.overviewData" runId="0" :itemUsed="selectedItem" :reload="chapters.reloadStepPlay" :lang="languages.current" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
+        <stepPlay 
+          :step="chapters.newStep.overviewData" 
+          runId="0" 
+          :color="(quest.customization && quest.customization.color && quest.customization.color !== '') ? quest.customization.color : 'primary'" 
+          :itemUsed="selectedItem" 
+          :reload="chapters.reloadStepPlay" 
+          :lang="languages.current" 
+          @played="trackStepPlayed" 
+          @success="trackStepSuccess" 
+          @fail="trackStepFail" 
+          @pass="trackStepPass">
+        </stepPlay>
         <div v-show="overview.tabSelected" class="step-menu fixed-bottom">
           <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
           <div class="row white-buttons">
@@ -592,7 +603,7 @@
     
     <q-dialog maximized v-model="inventory.isOpened">
       <div class="inventory panel-bottom q-pa-md">
-        <h4>{{ $t('label.Inventory') }}</h4>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Inventory') }}</div>
         <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
@@ -611,7 +622,7 @@
     
     <q-dialog maximized v-model="hint.isOpened">
       <div class="hint panel-bottom q-pa-md">
-        <h4>{{ $t('label.Hint') }}</h4>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Hint') }}</div>
         <p v-if="hint.label === ''">{{ $t('label.NoHintForThisStep') }}</p>
         <p v-if="hint.label !== ''">{{ hint.label[languages.current] }}</p>
         <q-btn class="q-mb-xl" color="primary" @click="askForHint()">{{ $t('label.Close') }}</q-btn>
@@ -622,7 +633,7 @@
     
     <transition name="slideInBottom">
       <div class="hint panel-bottom q-pa-md" v-show="media.isOpened">
-        <h4>{{ $t('label.QuestMedia') }}</h4>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.QuestMedia') }}</div>
         <q-list v-for="(item, index) in media.items" :key="item.id">
           <q-item clickable v-ripple>
             <q-item-section thumbnail @click="zoomMedia(index)">
@@ -856,7 +867,7 @@ export default {
         this.editor.initMode = this.quest.editorMode
 
         // get languages
-        if (this.quest.languages && this.quest.languages.length > 0 && this.languages.current === '') {
+        if (this.quest.languages && this.quest.languages.length > 0 && this.languages.current === 'fr') {
           this.languages.current = this.quest.languages[0].lang
           for (var i = 0; i < this.quest.languages.length; i++) {
             this.languages.available.push({label: this.$t('language.' + this.quest.languages[i].lang), value: this.quest.languages[i].lang})

@@ -1,0 +1,404 @@
+{
+    "asset": {
+        "generator": "FBX2glTF",
+        "version": "2.0"
+    },
+    "scene": 0,
+    "buffers": [
+        {
+            "byteLength": 31620,
+            "uri": "buffer.bin"
+        }
+    ],
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteLength": 4236,
+            "byteOffset": 0,
+            "target": 34963
+        },
+        {
+            "buffer": 0,
+            "byteLength": 5064,
+            "byteOffset": 4236,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteLength": 5064,
+            "byteOffset": 9300,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteLength": 3376,
+            "byteOffset": 14364,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteLength": 3768,
+            "byteOffset": 17740,
+            "target": 34963
+        },
+        {
+            "buffer": 0,
+            "byteLength": 3792,
+            "byteOffset": 21508,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteLength": 3792,
+            "byteOffset": 25300,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteLength": 2528,
+            "byteOffset": 29092,
+            "target": 34962
+        }
+    ],
+    "scenes": [
+        {
+            "name": "Root Scene",
+            "nodes": [
+                0
+            ]
+        }
+    ],
+    "accessors": [
+        {
+            "componentType": 5123,
+            "type": "SCALAR",
+            "count": 2118,
+            "bufferView": 0,
+            "byteOffset": 0
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 422,
+            "bufferView": 1,
+            "byteOffset": 0,
+            "min": [
+                -0.0004160400130786,
+                -0.0493948385119438,
+                -0.00640749977901578
+            ],
+            "max": [
+                0.0004160400130786,
+                -0.000518510001711547,
+                0.00347046996466815
+            ]
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 422,
+            "bufferView": 2,
+            "byteOffset": 0
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC2",
+            "count": 422,
+            "bufferView": 3,
+            "byteOffset": 0
+        },
+        {
+            "componentType": 5123,
+            "type": "SCALAR",
+            "count": 1884,
+            "bufferView": 4,
+            "byteOffset": 0
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 316,
+            "bufferView": 5,
+            "byteOffset": 0,
+            "min": [
+                -0.00363009003922343,
+                -0.00329812988638878,
+                -0.0100604696199298
+            ],
+            "max": [
+                0.00363009003922343,
+                0.0444228388369083,
+                0.00638470984995365
+            ]
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC3",
+            "count": 316,
+            "bufferView": 6,
+            "byteOffset": 0
+        },
+        {
+            "componentType": 5126,
+            "type": "VEC2",
+            "count": 316,
+            "bufferView": 7,
+            "byteOffset": 0
+        }
+    ],
+    "images": [
+        {
+            "name": "142martinez-albainox-knives.jpg",
+            "uri": "142martinez-albainox-knives.jpg"
+        }
+    ],
+    "samplers": [
+        {}
+    ],
+    "textures": [
+        {
+            "name": "142martinez-albainox-",
+            "sampler": 0,
+            "source": 0
+        }
+    ],
+    "materials": [
+        {
+            "name": "Knifeblade__142martinez-albainox-",
+            "alphaMode": "OPAQUE",
+            "extras": {
+                "fromFBX": {
+                    "shadingModel": "Lambert",
+                    "isTruePBR": false
+                }
+            },
+            "emissiveFactor": [
+                0.239999994635582,
+                0.239999994635582,
+                0.239999994635582
+            ],
+            "pbrMetallicRoughness": {
+                "baseColorTexture": {
+                    "index": 0,
+                    "texCoord": 0
+                },
+                "baseColorFactor": [
+                    0.800000011920929,
+                    0.800000011920929,
+                    0.800000011920929,
+                    1.0
+                ],
+                "metallicFactor": 0.200000002980232,
+                "roughnessFactor": 0.800000011920929
+            }
+        },
+        {
+            "name": "Knife__142martinez-albainox-",
+            "alphaMode": "OPAQUE",
+            "extras": {
+                "fromFBX": {
+                    "shadingModel": "Lambert",
+                    "isTruePBR": false
+                }
+            },
+            "pbrMetallicRoughness": {
+                "baseColorTexture": {
+                    "index": 0,
+                    "texCoord": 0
+                },
+                "baseColorFactor": [
+                    0.800000011920929,
+                    0.800000011920929,
+                    0.800000011920929,
+                    1.0
+                ],
+                "metallicFactor": 0.200000002980232,
+                "roughnessFactor": 0.800000011920929
+            }
+        }
+    ],
+    "meshes": [
+        {
+            "name": "Cube",
+            "primitives": [
+                {
+                    "material": 0,
+                    "mode": 4,
+                    "attributes": {
+                        "NORMAL": 2,
+                        "POSITION": 1,
+                        "TEXCOORD_0": 3
+                    },
+                    "indices": 0
+                },
+                {
+                    "material": 1,
+                    "mode": 4,
+                    "attributes": {
+                        "NORMAL": 6,
+                        "POSITION": 5,
+                        "TEXCOORD_0": 7
+                    },
+                    "indices": 4
+                }
+            ]
+        }
+    ],
+    "cameras": [
+        {
+            "name": "",
+            "type": "perspective",
+            "perspective": {
+                "znear": 0.100000001490116,
+                "zfar": 99.9999923706055,
+                "aspectRatio": 1.77777802944183,
+                "yfov": 0.0174532923847437
+            }
+        }
+    ],
+    "nodes": [
+        {
+            "name": "RootNode",
+            "translation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "children": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ]
+        },
+        {
+            "name": "Cube",
+            "translation": [
+                7.37305090297014e-05,
+                0.0131415836513042,
+                0.00519430637359619
+            ],
+            "rotation": [
+                -0.707106828689575,
+                0.0,
+                0.0,
+                0.707106709480286
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "mesh": 0
+        },
+        {
+            "name": "Lamp_003",
+            "translation": [
+                0.0028640259988606,
+                0.0253600552678108,
+                -0.188566774129868
+            ],
+            "rotation": [
+                0.169075772166252,
+                0.755880296230316,
+                -0.272171318531036,
+                0.570947587490082
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                0.999999821186066
+            ]
+        },
+        {
+            "name": "Lamp_002",
+            "translation": [
+                0.0032321447506547,
+                0.0247965846210718,
+                0.107501573860645
+            ],
+            "rotation": [
+                0.169075772166252,
+                0.755880296230316,
+                -0.272171318531036,
+                0.570947587490082
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                0.999999821186066
+            ]
+        },
+        {
+            "name": "Lamp_001",
+            "translation": [
+                -0.0818627998232841,
+                0.0497376993298531,
+                -0.0100545389577746
+            ],
+            "rotation": [
+                0.169075772166252,
+                0.755880296230316,
+                -0.272171318531036,
+                0.570947587490082
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                0.999999821186066
+            ]
+        },
+        {
+            "name": "Lamp",
+            "translation": [
+                0.0629671290516853,
+                0.059038620442152,
+                -0.0100545389577746
+            ],
+            "rotation": [
+                0.169075772166252,
+                0.755880296230316,
+                -0.272171318531036,
+                0.570947587490082
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                0.999999821186066
+            ]
+        },
+        {
+            "name": "Camera",
+            "translation": [
+                0.056775875389576,
+                0.0359357483685017,
+                -0.0238406509160995
+            ],
+            "rotation": [
+                -0.22869336605072,
+                0.973483502864838,
+                -0.00526504637673497,
+                -0.00123717589303851
+            ],
+            "scale": [
+                0.999999821186066,
+                0.999999821186066,
+                0.99999988079071
+            ],
+            "camera": 0
+        }
+    ]
+}

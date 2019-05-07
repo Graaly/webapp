@@ -187,7 +187,7 @@
                 <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
                 <q-item-label caption v-if="quest.status === 'published'">
                   <q-rating readonly v-if="quest.rating && quest.rating.rounded" v-model="quest.rating.rounded" color="primary" :max="5" size="1rem" />
-                  {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate}}
+                  {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate($store.state.user.language)}}
                 </q-item-label>
               </q-item-section>
             </q-item>
@@ -215,10 +215,10 @@
             <q-item-section>
               <q-item-label>{{ getQuestTitle(quest.questData, false) }} {{ quest.type }}</q-item-label>
               <q-item-label caption v-if="quest.dateCreated && quest.status == 'finished' && !quest.score">
-                {{ $t('label.PlayedOn') }} {{quest.dateCreated | formatDate}}
+                {{ $t('label.PlayedOn') }} {{quest.dateCreated | formatDate($store.state.user.language)}}
               </q-item-label>
               <q-item-label caption v-if="quest.dateCreated && quest.status == 'finished' && quest.score">
-                {{ $t('label.Succeeded') }} {{quest.dateCreated | formatDate}}
+                {{ $t('label.Succeeded') }} {{quest.dateCreated | formatDate($store.state.user.language)}}
               </q-item-label>
               <q-item-label caption v-if="!quest.dateCreated">
                 {{ $t('label.Succeeded') }}
@@ -462,7 +462,7 @@
                       <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="item.data.stars > 1" />
                       <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="item.data.stars > 2" />
                     </span>
-                    {{item.creation.date | formatDate}}
+                    {{item.creation.date | formatDate($store.state.user.language)}}
                     <span v-if="item.destination === 'friends'">
                       - 
                       <a style="color: #000" v-if="!isLiked(item)" v-on:click="like(index)">{{ $t('label.Like') }}</a>
@@ -591,7 +591,7 @@
                   <q-item-label>{{ getQuestTitle(quest, false) }}</q-item-label>
                   <q-item-label caption v-if="quest.status === 'published'">
                     <q-rating readonly v-if="quest.rating && quest.rating.rounded" v-model="quest.rating.rounded" color="primary" :max="5" size="1rem" />
-                    {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate}}
+                    {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate($store.state.user.language)}}
                   </q-item-label>
                   
                   <q-item-label caption v-if="quest.status == 'unpublished'">
@@ -1051,9 +1051,8 @@ export default {
     },
     async onNewUserPosition(position) {
       //let positionNeedsUpdate = (this.user.position === null || this.questList.length === 0)
-      
       this.$set(this.user, 'position', position.coords)
-      
+
       //if (positionNeedsUpdate) {
       if (!this.map.loaded && !this.offline.active) {
         await this.reloadMap()
@@ -1184,7 +1183,10 @@ export default {
             for (let q of this.questList) {
               bounds.extend({ lng: q.location.coordinates[0], lat: q.location.coordinates[1] })
             }
-            map.fitBounds(bounds);
+            // add user position
+            bounds.extend({ lng: this.user.position.longitude, lat: this.user.position.latitude })
+
+            map.fitBounds(bounds)
           });
         } else {
           this.centerOnUserPosition()
@@ -1210,6 +1212,12 @@ export default {
       this.$q.loading.hide()
       if (response && response.data) {
         this.questList = response.data
+        
+        // if no quest, enlarge to all quests
+        if (this.questList.length === 0) {
+          this.map.filter = 'world'
+          return getQuest(type)
+        }
 
         if (this.$store.state.user.story.step === 16) {
           // get the closest quest not already played

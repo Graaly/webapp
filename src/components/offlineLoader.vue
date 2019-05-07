@@ -183,14 +183,14 @@ export default {
               if (step.type === 'memory' && step.options && step.options.items) {
                 for (k = 0; k < step.options.items.length; k++) {
                   if (step.options.items[k].imagePath) {
-                    await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/choose/', step.options.items[k].imagePath)
+                    await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/memory/', step.options.items[k].imagePath)
                   }
                 }
               }
               if (step.type === 'code-image' && step.options && step.options.images) {
                 for (k = 0; k < step.options.images.length; k++) {
                   if (step.options.images[k].imagePath) {
-                    await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/choose/', step.options.images[k].imagePath)
+                    await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/code-image/', step.options.images[k].imagePath)
                   }
                 }
               }
@@ -198,18 +198,23 @@ export default {
                 await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/jigsaw-puzzle/', step.options.picture)
               }
               if (step.type === 'new-item' && step.options && step.options.picture && step.options.picture !== '') {
-                await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.picture)
+                if (step.options.picture.indexOf('statics') === -1) {
+                  await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.picture)
+                }
               }
               if (step.type === 'character' && step.options && step.options.character && step.options.character !== '') {
-                await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/character/', step.options.character)
+                if (step.options.character.length !== 1) {
+                  await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/character/', step.options.character)
+                }
               }
               if (step.type === 'locate-item-ar' && step.options && step.options.picture && step.options.picture !== '') {
                 await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/locate-item-ar/', step.options.picture)
               }
-              if (step.type === 'locate-item-ar' && step.options && step.options.model && step.options.model !== '') {
+              // TODO : download objects from server to avoid publishing a new release to add a new object
+              /*if (step.type === 'locate-item-ar' && step.options && step.options.model && step.options.model !== '') {
                 await utils.saveBinaryFile(quest.questId, this.serverUrl + '/statics/3d-models/' + step.options.model + '/', 'buffer.bin')
                 //await utils.saveFile(quest.questId, this.serverUrl + '/statics/3d-models/' + step.options.model + '/', 'scene.gltf')
-              }
+              }*/
               
               if (this.offline.progress === 0) {
                 return false

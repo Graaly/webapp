@@ -141,11 +141,27 @@ export default {
         let addFriendStatus = await UserService.addFriend({email: this.form.email, phone: this.form.phone})
 
         if (addFriendStatus) {
-          if (addFriendStatus.data && addFriendStatus.data.hasOwnProperty('status') && addFriendStatus.data.status === 'invitationsent') {
-            Notification(this.$t('label.InvitationSent'), 'success')
+          if (addFriendStatus.status === 200) {
+            if (addFriendStatus.data && addFriendStatus.data.hasOwnProperty('status') && addFriendStatus.data.status === 'invitationsent') {
+              Notification(this.$t('label.InvitationSent'), 'success')
+            } else {
+              Notification(this.$t('label.FriendsAdded'), 'success')
+              this.$emit('friendadded')
+            }
+            this.form.email = ''
+            this.form.phone = ''
           } else {
-            Notification(this.$t('label.FriendsAdded'), 'success')
-            this.$emit('friendadded')
+            if (addFriendStatus.data && addFriendStatus.data.message === 'Friend not found') {
+              Notification(this.$t('label.FriendNotFound'), 'error')
+            } else if (addFriendStatus.data && addFriendStatus.data.message === 'Too much friends') {
+              Notification(this.$t('label.TooMuchFriends'), 'error')
+            } else if (addFriendStatus.data && addFriendStatus.data.message === 'User can not be friend with him') {
+              Notification(this.$t('label.UserCanNotBeFriendWithHim'), 'error')
+            } else if (addFriendStatus.data && addFriendStatus.data.message === 'Already friends') {
+              Notification(this.$t('label.AlreadyFriends'), 'error')
+            } else {
+              Notification(this.$t('label.ErrorStandardMessage'), 'error')
+            }
           }
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')

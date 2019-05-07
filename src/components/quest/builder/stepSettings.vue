@@ -336,7 +336,7 @@
         </q-btn>
       </div>
       <q-btn @click="addMemoryAnswer()" class="full-width add-answer" color="secondary">
-        {{ $t('label.AddAnAnswer') }}
+        {{ $t('label.AddACardPair') }}
       </q-btn>
     </div>
     
@@ -513,7 +513,7 @@
           </div>
           <q-btn color="primary" class="full-width" v-if="!selectedStep.newConditionForm" @click="selectedStep.newConditionForm = true" :label="$t('label.AddACondition')" />
           <div v-if="selectedStep.newConditionForm">
-            <q-select emit-value map-options :label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @change="changeNewConditionType" />
+            <q-select emit-value map-options :label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @input="changeNewConditionType" />
             <q-select emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
             <div class="centered">
               <q-btn color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />
@@ -529,7 +529,7 @@
     <q-list v-show="options.type.hasOptions" bordered>
       <q-expansion-item icon="add_box" :label="$t('label.OtherOptions')">
         <div class="q-pa-sm">
-          <div v-if="options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'color-keypad' || options.type.code == 'choose' || options.type.code == 'write-text'" class="q-pb-md">
+          <div v-if="options && options.mode && options.mode === 'advanced' && (options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text')" class="q-pb-md">
             <q-toggle v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
           </div>
           <div v-if="options.type.code == 'geolocation' || options.type.code == 'locate-item-ar'" class="location-gps">
@@ -1081,7 +1081,15 @@ export default {
         this.selectedStep.form.answers = piecePositionArray.join('|')
       }
       if (this.options.type.code === 'memory') {
-        this.selectedStep.form.options.items = this.memoryItems
+        if (!this.selectedStep.form.options.items) {
+          this.selectedStep.form.options.items = []
+        }
+        for (i = 0; i < this.memoryItems.length; i++) {
+          if (this.memoryItems[i].imagePath !== null) {
+            this.selectedStep.form.options.items.push(this.memoryItems[i])
+          }
+        }
+        
         if (this.selectedStep.form.options.lastIsSingle && this.selectedStep.form.options.items && this.selectedStep.form.options.items.length > 0) {
           this.selectedStep.form.options.items[this.selectedStep.form.options.items.length - 1].single = true
         }
@@ -1163,7 +1171,7 @@ export default {
       if (this.selectedStep.form.options.length <= this.minNbAnswers) {
         Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.minNbAnswers }), 'error')
       } else {
-        this.selectedStep.form.options.splice(key, 1);
+        this.selectedStep.form.options.splice(key, 1)
       }
     },
     /*
@@ -1173,7 +1181,19 @@ export default {
       if (this.selectedStep.form.options.images.length <= this.minNbAnswers) {
         Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.minNbAnswers }), 'error')
       } else {
-        this.selectedStep.form.options.images.splice(key, 1);
+        // change code if the code answer is used in the code
+        for (var i  = 0; i < this.unformatedAnswer.length; i++) {
+          if (this.unformatedAnswer[i].toString() === key.toString()) {
+            if (key.toString() === '0') {
+              this.unformatedAnswer[i] = 1
+            } else {
+              this.unformatedAnswer[i] = 0
+            }
+          } else if (this.unformatedAnswer[i].toString() > key.toString()) {
+            this.unformatedAnswer[i]--
+          }
+        }
+        this.selectedStep.form.options.images.splice(key, 1)
       }
     },
     /*
@@ -1269,13 +1289,19 @@ export default {
      * update the conditions values
      */
     async changeNewConditionType() {
+      this.selectedStep.newCondition.values.length = 0
+      const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', 'image-recognition', 'jigsaw-puzzle', 'memory']
       if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail') {
         const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version)
         if (response && response.data && response.data.length > 0) {
           for (var i = 0; i < response.data.length; i++) {
             if (response.data[i].stepId.toString() !== this.stepId.toString()) {
-              let condStepTitle = response.data[i].title[this.lang] ? response.data[i].title[this.lang] : response.data[i].title[Object.keys(response.data[i].title)[0]]
-              this.selectedStep.newCondition.values.push({label: condStepTitle, value: response.data[i].stepId})
+              if (this.selectedStep.newCondition.selectedType === 'stepDone' ||
+                stepsTypesWithSuccessOrFail.indexOf(response.data[i].type) !== -1
+              ) {
+                let condStepTitle = response.data[i].title[this.lang] ? response.data[i].title[this.lang] : response.data[i].title[Object.keys(response.data[i].title)[0]]
+                this.selectedStep.newCondition.values.push({label: condStepTitle, value: response.data[i].stepId})
+              }
             }
           }
         }

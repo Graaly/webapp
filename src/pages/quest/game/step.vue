@@ -6,14 +6,26 @@
     </div>
     <div class="bg-accent text-white q-pa-md" v-if="warnings.isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     
-    <stepPlay :step="step" :runId="run._id" :itemUsed="selectedItem" :reload="loadStepData" :lang="lang" :answer="offline.answer" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
+    <stepPlay 
+      :step="step" 
+      :runId="run._id" 
+      :itemUsed="selectedItem" 
+      :reload="loadStepData" 
+      :lang="lang" 
+      :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? info.quest.customization.color : 'primary'" 
+      :answer="offline.answer" 
+      @played="trackStepPlayed" 
+      @success="trackStepSuccess" 
+      @fail="trackStepFail" 
+      @pass="trackStepPass">
+    </stepPlay>
       
     <!------------------ INVENTORY PAGE AREA ------------------------>
     
     <transition name="slideInBottom">
       <div>
         <div class="inventory panel-bottom q-pa-md" v-show="inventory.isOpened">
-          <h4>{{ $t('label.Inventory') }}</h4>
+          <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Inventory') }}</div>
           <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
@@ -49,10 +61,10 @@
             <!--<q-linear-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-linear-progress>-->
             <p class="q-pa-md score-text" v-show="info && !offline.active">{{ $t('label.CurrentScore') }}: {{ info.score }} <!--<q-icon color="white" name="fas fa-trophy" />--></p>
             <p>
-              <q-btn color="primary" @click="backToMap">{{ $t('label.LeaveQuest') }}</q-btn>
+              <q-btn :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="backToMap">{{ $t('label.LeaveQuest') }}</q-btn>
             </p>
             <p>
-              <q-btn color="primary" v-if="!offline.active" @click="showFeedback">{{ $t('label.Feedback') }}</q-btn>
+              <q-btn :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" v-if="!offline.active" @click="showFeedback">{{ $t('label.Feedback') }}</q-btn>
             </p>
             <p class="q-pb-xl">
               <q-btn color="secondary" @click="openInfo">{{ $t('label.BackToQuest') }}</q-btn>
@@ -80,7 +92,7 @@
     
     <q-dialog v-model="feedback.isOpened">
       <div class="bg-white q-pa-md">
-        <h4>{{ $t('label.FeedbackTitle') }}</h4>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.FeedbackTitle') }}</div>
         {{ $t('label.FeedbackIntroduction') }}
         <form @submit.prevent="sendFeedback">
           <q-input
@@ -93,7 +105,7 @@
             />
         </form>
         <div class="q-pa-md q-gutter-sm">
-          <q-btn type="submit" color="primary" @click="sendFeedback">{{ $t('label.Send') }}</q-btn>
+          <q-btn type="submit" color="secondary" @click="sendFeedback">{{ $t('label.Send') }}</q-btn>
           <q-btn @click="hideFeedback">{{ $t('label.Close') }}</q-btn>
         </div>
       </div>
@@ -474,6 +486,13 @@ if (this.run) {
         } else {
           // use offline content
           stepId = await this.getNextOfflineStep(this.questId)
+          if (!stepId) {
+            // if no step is triggered, display the markers sensor
+            this.step = {
+              id: "sensor"
+            }
+            return false
+          }
         }
       }
 console.log("This new step is " + stepId)
@@ -512,7 +531,7 @@ console.log("get offline step")
 
         if (!step) {
           if (forceNetworkLoading) {
-            this.warning.questDataMissing = true 
+            this.warnings.questDataMissing = true 
           } else {
             var stepLoadingStatus = await this.getStep(true)
             return stepLoadingStatus
@@ -623,10 +642,13 @@ console.log(this.step.answers)
     /*
      * Track step success
      */
-    async trackStepSuccess (score, offline) {
+    async trackStepSuccess (score, offline, showResult) {
 console.log("success")
-      // add step score to general score
-      this.info.score += score
+      if (showResult) {
+        // add step score to general score
+        this.info.score += score
+      }
+      
       // hide hint
       this.hideHint()
       
@@ -646,10 +668,6 @@ console.log("success")
         this.inventory.show = false
         this.footer.tabSelected = 'next'
       }
-      if (offline) {
-        // save offline run
-        await this.saveOfflineAnswer(true)
-      }
     },
     /*
      * Track step passing
@@ -664,13 +682,12 @@ console.log("pass")
     /*
      * Track step fail
      */
-    async trackStepFail (offline) {
+    async trackStepFail (offline, showResult) {
 console.log("fail")
       this.hideHint()
-      if (offline) {
-        // save offline run
-        await this.saveOfflineAnswer(false)
-      }
+        
+      // save offline run
+      await this.saveOfflineAnswer(false)
     },
     /*
      * Track step fail
@@ -678,8 +695,9 @@ console.log("fail")
     async getMarkerStep (answer) {
       var next
       var response
+      // get the next step after the marker
       if (!this.offline.active) {
-        response = await RunService.getMarkerNextStep(this.run._id, answer)
+        response = await RunService.getMarkerNextStep(this.questId, answer)
       }
       
       if (response && response.data) {
@@ -709,8 +727,6 @@ console.log("fail")
           this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + next + '/' + this.$route.params.lang)
           //this.stopMarkersSensors()
         }        
-      } else {
-        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
     },
     hideHint() {
@@ -864,6 +880,8 @@ console.log(this.step.hint)
         this.inventory.items = response.data
       } else {
         let offlineInventory = await this.listWonObjects()
+console.log("Inventory:")
+console.log(offlineInventory)
         if (offlineInventory) {
           this.inventory.items = offlineInventory
         } else {
@@ -952,7 +970,7 @@ console.log(this.step.hint)
 
         if (!quest) {
           if (forceNetworkLoading) {
-            this.warning.questDataMissing = true
+            this.warnings.questDataMissing = true
           } else {
             var questLoadingStatus = await this.getQuest(id, true)
             return questLoadingStatus
@@ -1152,24 +1170,55 @@ console.log(this.run.conditionsDone)
       var ended = false
       var score = 0
       var stepStatus
+      var removedStatus
       if (success) {
-        conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type)
+        // if answer is not displayed => player must be able to play again the step and the step before
+        if (this.step.displayRightAnswer === false) {
+          removedStatus = await this.removeConditionsUntilLastMarker(conditions, this.step.stepId, this.run.version)
+          if (removedStatus.found) {
+            conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, false)
+          } else {
+            conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true)
+          }
+        } else {
+          conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true)
+        }
         ended = true
         score = this.step.points
         stepStatus = 'success'
       } else {
         ended = true
         stepStatus = 'fail'
-        conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type)
+console.log("fail step")
+        if (this.step.displayRightAnswer === false) {
+          removedStatus = await this.removeConditionsUntilLastMarker(conditions, this.step.stepId, this.run.version)
+          if (removedStatus.found) {
+console.log("test1")
+            conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, false)
+          } else {
+console.log("test2")
+            conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true)
+          }
+        } else {
+console.log("test3")
+          conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true)
+        }
       }
       
       // compute nb points
       var answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: 1, ended: ended, score: score, reward: 0, status: stepStatus, useHint: false, date: new Date(), online: false} 
-
+console.log("new item ?")
       // add new item in inventory
       if (this.step.type === 'new-item') {
-        this.run.inventory.push(this.step.answers)
-        conditions.push('objectWon_' + this.step.stepId)
+        if (this.run.inventory) {
+          this.run.inventory.push(this.step.answers)
+        } else {
+          this.run.inventory = [this.step.answers]
+        }
+        if (conditions.indexOf('objectWon_' + this.step.stepId) === -1) {
+console.log("add new object")
+          conditions.push('objectWon_' + this.step.stepId)
+        }
       }
       
       if (!stepAlreadyPlayed) {
@@ -1210,7 +1259,7 @@ console.log(conditions)
      */
     async passOfflineStep(stepId) {
 console.log("pass current step " + stepId)
-      this.run.conditionsDone = this.updateConditions(this.run.conditionsDone, stepId, false, this.step.type)
+      this.run.conditionsDone = this.updateConditions(this.run.conditionsDone, stepId, false, this.step.type, true)
 console.log(this.run.conditionsDone)
       //this.run.conditionsDone.push('stepFail_' + stepId)
       await this.saveOfflineRun(this.questId, this.run)
@@ -1252,11 +1301,14 @@ console.log("get next step for the quest " + questId)
           return false
         }
       }
-console.log("markercode " + (markerCode ? 'Yes' : 'No'))
+console.log("markercode " + markerCode)
       if (markerCode) {
         // list the marker steps for the chapter
         // TODO: get only the locate-marker for answers = marker
+console.log(steps)
+console.log(chapter)        
         var markersSteps = await this.listSpecificTypeForAChapter(steps, chapter, 'locate-marker')
+console.log(markersSteps)        
         var stepsThatFit = []
         if (markersSteps && markersSteps.length > 0) {
           markerStepListFor: 
@@ -1282,6 +1334,7 @@ console.log("markercode " + (markerCode ? 'Yes' : 'No'))
             }
           }
         }
+console.log(stepsThatFit)        
         // if no condition fit, stop the process
         if (stepsThatFit.length === 0) {
           return false
@@ -1366,7 +1419,7 @@ console.log("next step id : " + nextStepId)
       var specificSteps = []
       if (steps) {
         for (var i = 0; i < steps.length; i++) {
-          if (steps[i].chapter === chapter && steps[i].type === type) {
+          if (steps[i].chapterId.toString() === chapter.toString() && steps[i].type.toString() === type.toString()) {
             specificSteps.push(steps[i])
           }
         }
@@ -1406,7 +1459,13 @@ console.log(this.info.quest.steps)
               var stepData = JSON.parse(step)
               if (stepData.options && stepData.options.picture && stepData.options.title) {
                 // get picture
-                let pictureUrl = await utils.readBinaryFile(this.questId, stepData.options.picture)
+console.log(this.questId + ' ' + stepData.options.picture)
+                var pictureUrl
+                if (stepData.options.picture.indexOf('statics') === -1) {
+                  pictureUrl = await utils.readBinaryFile(this.questId, stepData.options.picture)
+                } else {
+                  pictureUrl = stepData.options.picture
+                }
 
                 results.push({step: stepWithObjectId, picture: pictureUrl, title: stepData.options.title})
               }
@@ -1433,9 +1492,9 @@ console.log("check if user has already played this run")
      *
      * WARNING : this function is a duplicate for server function "updateConditions" of run.js controller
      */
-    updateConditions(currentConditions, stepId, isSuccess, stepType) {
+    updateConditions(currentConditions, stepId, isSuccess, stepType, addStepDone) {
 console.log("update conditions for step " + stepId)
-      if (currentConditions.indexOf('stepDone_' + stepId) === -1) {
+      if (currentConditions.indexOf('stepDone_' + stepId) === -1 && addStepDone) {
         currentConditions.push('stepDone_' + stepId)
       }
       if (currentConditions.indexOf('stepSuccess_' + stepId) !== -1) {
@@ -1457,6 +1516,74 @@ console.log("update conditions for step " + stepId)
       }
       
       return currentConditions
+    },
+    /*
+     * Remove a step from conditions Done
+     * @param   {Array}     currentConditions Current conditions array
+     * @param   {String}    stepId            ID of the step
+     */
+    removeStepFromConditions (currentConditions, stepId) {
+      var itemsToRemove = []
+      for (var i = 0; i < currentConditions.length; i++) {
+        if (currentConditions[i].indexOf('_' + stepId) !== -1) {
+          itemsToRemove.push(i)
+        }
+      }
+      
+      for (i = itemsToRemove.length - 1; i >= 0; i--) {
+        currentConditions.splice(itemsToRemove[i], 1)
+      }
+      
+      return currentConditions
+    },
+    /*
+     * If bad answer remove previous conditions done until marker
+     * @param   {Array}     currentConditions Current conditions array
+     * @param   {String}    stepId          ID of the step
+     */
+    async removeConditionsUntilLastMarker(currentConditions, stepId, version) {
+      var stepsToReset = [stepId]
+      var inc = 0
+      // get the list of previous steps
+      stepsLoop:
+      while (inc < 7) {
+        // get step data
+        var stepData
+        var step = await utils.readFile(this.questId, 'step_' + stepId + '.json')
+        if (step) {
+          stepData = JSON.parse(step)
+        }
+        // if locate-marker => exit the while
+        if (stepData.type === 'locate-marker') {
+          break stepsLoop
+        }
+        // get next step to treat = previous step of the current step
+        var stepFound = false
+        if (stepData.conditions && stepData.conditions.length > 0) {
+          for (var i = 0; i < stepData.conditions.length; i++) {
+            if (stepData.conditions[i].indexOf('stepDone_') !== -1) {
+              stepId = stepData.conditions[i].replace('stepDone_', '')
+              stepsToReset.push(stepId)
+              stepFound = true
+            }  
+          }
+        }
+        // if the step is not found => exit without removing conditions
+        if (!stepFound) {
+          return {found: false, updatedCondition: currentConditions}
+        }
+        if (inc === 6) {
+          return {found: false, updatedCondition: currentConditions}
+        }
+        inc++
+      }
+      
+      // reset steps to have the user plays again until he find the right answer
+      for (i = 0; i < stepsToReset.length; i++) {
+        currentConditions = this.removeStepFromConditions(currentConditions, stepsToReset[i])
+      }
+      
+      return {found: true, updatedCondition: currentConditions}
     },
     /*
      * Move to the next chapter

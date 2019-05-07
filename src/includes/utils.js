@@ -558,6 +558,8 @@ var self = {
                 }, function() { resolve(false) })
               }, function() { resolve(false) })
             }
+          } else {
+            resolve(false)
           }
         }
         xhr.send()

@@ -699,7 +699,13 @@ module.exports = {
       YourLogo: "Your logo",
       AvailableTomorrow: "Available tomorrow",
       byteCharacter: "B",
-      MoveCloserToTheObject: "Move closer to the object to touch it"
+      MoveCloserToTheObject: "Move closer to the object to touch it",
+      AddACardPair: "Add a pair of cards",
+      AlreadyFriends: "You are already friend with this person",
+      UserCanNotBeFriendWithHim: "You can not add yourself as friend",
+      TooMuchFriends: "You can not have more than 150 friends",
+      FriendNotFound: "This person is not yet a Graaly user",
+      YouHaveWin: "You have won!"
     }
   },
   fr: {
@@ -1403,7 +1409,13 @@ module.exports = {
       YourLogo: "Votre logo",
       byteCharacter: "o",
       AvailableTomorrow: "Disponible dès demain",
-      MoveCloserToTheObject: "Rapprochez-vous de l'objet pour le toucher"
+      MoveCloserToTheObject: "Rapprochez-vous de l'objet pour le toucher",
+      AddACardPair: "Ajouter une paire de cartes",
+      AlreadyFriends: "Vous êtes déjà ami avec cette personne",
+      UserCanNotBeFriendWithHim: "Vous ne pouvez pas être ami avec vous même",
+      TooMuchFriends: "Vous ne pouvez pas avoir plus de 150 amis",
+      FriendNotFound: "Cette personne n'est pas encore inscrite sur Graaly",
+      YouHaveWin: "Vous avez gagné !"
     }
   }
 }

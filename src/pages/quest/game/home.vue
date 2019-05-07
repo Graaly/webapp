@@ -86,7 +86,7 @@
     <transition name="slideInBottom">
       <div class="panel-bottom q-pa-md" v-show="ranking.show">
         <a class="float-right no-underline close-btn" color="grey" @click="ranking.show = false"><q-icon name="close" class="medium-icon" /></a>
-        <h1 class="size-3 q-pl-md">{{ $t('label.Ranking') }}</h1>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Ranking') }}</div>
         {{ $t('label.RankingIntro') }}
         <q-list>
           <q-item v-for="rank in ranking.items" :key="rank.position" >
@@ -120,7 +120,7 @@
     
     <q-dialog v-model="shop.show">
       <a class="float-right no-underline close-btn" color="grey" @click="closeShop"><q-icon name="close" class="medium-icon" /></a>
-      <h1 class="size-3 q-pl-md">{{ $t('label.Shop') }}</h1>
+      <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Shop') }}</div>
       <shop></shop>
     </q-dialog>
     

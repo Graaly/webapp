@@ -38,11 +38,11 @@ export default {
   },
   /*
    * check if a market launch a new step
-   * @param   {String}    runId                  ID of the run
+   * @param   {String}    questId                  ID of the quest
    * @param   {String}    markerCode             Code of the marker
    */
-  getMarkerNextStep (runId, markerCode) {
-    return Api().get('run/' + runId + '/marker/' + markerCode + '/next').catch(error => console.log(error.request))
+  getMarkerNextStep (questId, markerCode) {
+    return Api().get('run/' + questId + '/marker/' + markerCode + '/next').catch(error => console.log(error.request))
   },
   /*
    * list the objects won until a specific run
@@ -76,9 +76,12 @@ export default {
    * set a run as finished
    * @param   {String}    id                  ID of the run
    * @param   {Object}    offlineRunData      Data of the offline run
+   * @param   {String}    questId             ID of the quest
+   * @param   {Number}    version             version of the quest
+   * @param   {String}    lang                Language concerned
    */
-  endRun (id, offlineRunData) {
-    return Api().put('run/' + id + '/end', offlineRunData).catch(error => console.log(error.request))
+  endRun (id, offlineRunData, questId, version, language) {
+    return Api().put('run/' + id + '/quest/' + questId + '/version/' + version + '/lang/' + language + '/end', offlineRunData).catch(error => console.log(error.request))
   },
   /*
    * skip a step

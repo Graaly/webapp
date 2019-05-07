@@ -8,7 +8,7 @@
       <!------------------ TABS AREA ------------------------>
       
       <q-tabs v-model="adminTab" class="bg-primary text-white">
-        <q-tab name="validation" icon="check_box" label="Quests validation" />
+        <q-tab name="validation" icon="check_box" label="Quests validation" default />
         <q-tab name="rejected" icon="sentiment_very_dissatisfied" label="Quests rejected" />
         <q-tab name="minigames" icon="child_friendly" label="Mini games" />
       </q-tabs>
@@ -23,13 +23,17 @@
           
           <q-list highlight>
             <q-item v-for="quest in questsToValidate.items" :key="quest._id" @click.native="$router.push('/quest/play/' + quest.questId)">
-              <q-item-section v-if="quest.picture" avatar><img :src="serverUrl + '/upload/quest/' + quest.picture" /></q-item-section>
-              <q-item-section v-if="!quest.picture" avatar><img src="statics/profiles/noprofile.png" /></q-item-section>
+              <q-item-section avatar>
+                <q-avatar>
+                  <img v-if="quest.thumb" :src="serverUrl + '/upload/quest/' + quest.thumb" />
+                  <img v-if="!quest.thumb" src="statics/profiles/noprofile.png" />
+                </q-avatar>
+              </q-item-section>
               <q-item-section>
                 <q-item-label>{{ getQuestTitle(quest, false) }}</q-item-label>
                 <q-item-label caption v-if="quest.status === 'published'">
                   <q-rating readonly :value="(quest.rating && quest.rating.rounded) ? quest.rating.rounded : null" color="primary" :max="5" size="1rem" />
-                  {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate}}
+                  {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate($store.state.user.language)}}
                 </q-item-label>
                 <q-item-label caption v-if="quest.status == 'unpublished'">
                   {{ $t('label.Unpublished') }}
@@ -48,13 +52,17 @@
           
           <q-list highlight>
             <q-item v-for="quest in questsRejected.items" :key="quest._id" @click.native="$router.push('/quest/play/' + quest.questId)">
-              <q-item-section v-if="quest.picture"><img :src="serverUrl + '/upload/quest/' + quest.picture" /></q-item-section>
-              <q-item-section v-if="!quest.picture"><img src="'statics/profiles/noprofile.png'" /></q-item-section>
+              <q-item-section avatar>
+                <q-avatar>
+                  <img v-if="quest.thumb" :src="serverUrl + '/upload/quest/' + quest.thumb" />
+                  <img v-if="!quest.thumb" src="statics/profiles/noprofile.png" />
+                </q-avatar>
+              </q-item-section>
               <q-item-section>
                 <q-item-label>{{ getQuestTitle(quest, false) }}</q-item-label>
                 <q-item-label caption v-if="quest.status === 'published'">
                   <q-rating readonly :value="(quest.rating && quest.rating.rounded) ? quest.rating.rounded : null" color="primary" :max="5" size="1rem" />
-                  {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate}}
+                  {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate($store.state.user.language)}}
                 </q-item-label>
                 <q-item-label caption v-if="quest.status !== 'published'">
                   {{ $t('label.Unpublished') }}
@@ -112,6 +120,7 @@ export default {
       towns: {
         items: []
       },
+      adminTab: 'validation',
       serverUrl: process.env.SERVER_URL
     })
   },

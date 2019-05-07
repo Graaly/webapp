@@ -4,7 +4,7 @@
     <div class="dark-background" v-if="warnings.noNetwork">
       <div class="bg-primary">
         <div class="centered q-pa-lg">    
-          <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouWin') }}</h2>
+          <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouHaveWin') }}</h2>
           {{ $t('label.ToSaveYouScoreYouNeedToConnect') }}
           <q-btn icon="refresh" class="q-mt-md" color="accent" @click="loadData" :label="$t('label.ConnectToComputeScore')" />
         </div>
@@ -91,7 +91,7 @@
     <transition name="slideInBottom">
       <div class="panel-bottom q-pa-md" v-show="ranking.show">
         <a class="float-right no-underline close-btn" color="grey" @click="ranking.show = false"><q-icon name="close" class="medium-icon" /></a>
-        <h1 class="size-3 q-pl-md">{{ $t('label.Ranking') }}</h1>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Ranking') }}</div>
         <div class="q-pl-md">{{ $t('label.RankingEndIntro') }}</div>
         <q-list>
           <q-item v-for="rank in ranking.items" :key="rank.id" :class="rank.className" >
@@ -126,7 +126,7 @@
     <transition name="slideInBottom">
       <div class="panel-bottom q-pa-md" v-show="showChallenge">      
         <a class="float-right no-underline close-btn" color="grey" @click="closeChallenge"><q-icon name="close" class="medium-icon" /></a>
-        <h1 class="size-3 q-pl-md">{{ $t('label.ChallengeYourFriends') }}</h1>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.ChallengeYourFriends') }}</div>
         <div v-if="filteredFriends.length === 0">
           {{ $t('label.NoFriendsLong') }}
         </div>
@@ -169,7 +169,7 @@
     <transition name="slideInBottom">
       <div class="panel-bottom q-pa-md" v-if="showBonus">      
         <a class="float-right no-underline close-btn" color="grey" @click="closeBonus"><q-icon name="close" class="medium-icon" /></a>
-        <h1 class="size-3 q-pl-md">{{ $t('label.YouWonABonus') }}</h1>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.YouWonABonus') }}</div>
         <div class="q-pa-md">
           <q-card class="q-ma-sm">
             <img :src="'statics/icons/game/bonus_' + run.bonus + '.png'">
@@ -287,7 +287,12 @@ export default {
         await this.getRanking()
         
         // get quest data
-        this.quest = await QuestService.getById(this.questId, this.run.version)
+        if (this.run && this.run.version) {
+          this.quest = await QuestService.getById(this.questId, this.run.version)
+        } else {
+          this.quest = await QuestService.getLastById(this.questId)
+        }
+        
         if (this.quest && this.quest.data) {
           // show review part only if player is not author & has not already sent a review for this quest
           this.isUserAuthor = this.$store.state.user._id === this.quest.data.authorUserId
@@ -298,12 +303,13 @@ export default {
         
         // get user old score
         this.score.old = this.$store.state.user.score
+        
         this.initProgression()
         
         // get offline run data
         const offlineRunData = await this.getOfflineRunData()
       
-        let endStatus = await RunService.endRun(this.run._id, offlineRunData)
+        let endStatus = await RunService.endRun(this.run._id, offlineRunData, this.questId, this.quest.data.version, this.quest.data.mainLanguage)
         if (endStatus && endStatus.data) {
           // assign computed score
           this.run.score = endStatus.data.score
@@ -318,6 +324,14 @@ export default {
           await this.removeOfflineData()
         } else {
           this.warnings.noNetwork = true
+        }
+        
+        // if run is not loaded, load it again
+        if (!this.run._id) {
+          runs = await RunService.listForAQuest(this.questId)
+          if (runs && runs.data && runs.data.length > 0) {
+            this.run = runs.data[0]
+          }
         }
         
         // story management
