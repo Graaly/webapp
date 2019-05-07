@@ -2,6 +2,7 @@
 
 describe('Account actions', () => {
   it('defaults to "first usage" page', () => {
+    cy.clearCookies()
     cy.visit('/')
     cy.title().should('contain', 'Graaly')
     cy.url().should('contain', '/#/firstusage')
@@ -36,15 +37,15 @@ describe('Account actions', () => {
     cy.get('[test-id="name"] input').type('Test Player')
     
     cy.get('[test-id="sex"] .q-field__append > .fas').click()
-    cy.get('[test-id="sex"] .q-local-menu > .q-item:nth-child(1)').click() // man
+    cy.get('.q-menu > .q-item:nth-child(1)').click() // man
     
     cy.get('[test-id="age"] .q-field__append > .fas').click()
-    cy.get('[test-id="age"] .q-local-menu > .q-item:nth-child(3)').click() // 40-49
+    cy.get('.q-menu > .q-item:nth-child(3)').click() // 40-49
     
     cy.get('[type="submit"]').click() // next page
     
     cy.get('[test-id="country"] .q-field__append > .fas').click()
-    cy.get('[test-id="country"] .q-local-menu > .q-item:nth-child(5)').click() // note that some countries are not displayed if user does not scrolls down the list
+    cy.get('.q-menu > .q-item:nth-child(5)').click() // note that some countries are not displayed if user does not scrolls down the list
     
     cy.get('[test-id="zip"] input').type('38430')
     
@@ -97,7 +98,7 @@ describe('Map panels', () => {
   })
 })
 
-describe.only('Quests', () => {
+describe('Quests', () => {
   before(() => {
     doLogin()
   })
@@ -182,7 +183,7 @@ describe.only('Quests', () => {
     cy.get('.pac-container .pac-item:nth-child(3)').trigger('mouseover').click()
     cy.wait(200)
     cy.get('[test-id="select-3d-model"] .q-field__append > .fas').click()
-    cy.get('[test-id="select-3d-model"] .q-local-menu > .q-item:nth-child(4)').click() // chest
+    cy.get('.q-menu > .q-item:nth-child(4)').click() // chest
     cy.get('[test-id="btn-save-step"]').click()
     cy.get('[test-id="btn-next-step"]').click()
     
@@ -207,7 +208,7 @@ describe.only('Quests', () => {
     cy.get('[test-id="btn-save-step"]').click()
     cy.get('.answer-text input').type('answerxyz!?') // same test-id but for play step
     cy.get('[test-id="btn-check-text-answer"]').click()
-    cy.get('.q-notification').should('be.visible').should('contain', 'Essaye à nouveau') // wrong answer!
+    cy.get('.q-notification').should('be.visible').should('contain', 'Try again') // wrong answer!
     cy.get('.q-notification button').click() // close notification
     cy.get('.answer-text input').clear().type('answer')
     cy.get('[test-id="btn-check-text-answer"]').click()
@@ -220,10 +221,10 @@ describe.only('Quests', () => {
     cy.get('[test-id="input-code"] input').type('73*57#')
     cy.get('[test-id="btn-save-step"]').click()
     enterKeypadCode("123456")
-    cy.get('.q-notification').should('be.visible').should('contain', 'Essaye à nouveau') // wrong answer!
+    cy.get('.q-notification').should('be.visible').should('contain', 'Try again') // wrong answer!
     cy.get('.q-notification button').click() // close notification
     enterKeypadCode("73*57#")
-    cy.get('.q-notification').should('be.visible').should('contain', 'Bonne réponse') // wrong answer!
+    cy.get('.q-notification').should('be.visible').should('contain', 'Good answer') // good answer!
     cy.get('.q-notification button').click() // close notification
     cy.get('[test-id="btn-next-step"]').click()
     
@@ -233,22 +234,22 @@ describe.only('Quests', () => {
     cy.get('[test-id="step-text"] textarea').type('step 11 question')
     // 3 colors code
     cy.get('[test-id="select-nb-colors"] .q-field__append > .fas').click()
-    cy.get('[test-id="select-nb-colors"] .q-local-menu > .q-item:nth-child(3)').click()
+    cy.get('.q-menu > .q-item:nth-child(3)').click()
     // set code to "RGB"
     cy.get('[test-id="select-color-1"] .q-field__append > .fas').click()
-    cy.get('[test-id="select-color-1"] .q-local-menu > .q-item:nth-child(2)').click()
+    cy.get('.q-menu > .q-item:nth-child(2)').click()
     cy.get('[test-id="select-color-2"] .q-field__append > .fas').click()
-    cy.get('[test-id="select-color-2"] .q-local-menu > .q-item:nth-child(3)').click()
+    cy.get('.q-menu > .q-item:nth-child(3)').click()
     cy.get('[test-id="btn-save-step"]').click()
     // test play
     cy.get('[test-id="btn-check-color-code"]').click()
-    cy.get('.q-notification').should('be.visible').should('contain', 'Essaye à nouveau') // wrong answer!
+    cy.get('.q-notification').should('be.visible').should('contain', 'Try again') // wrong answer!
     cy.get('.q-notification button').click() // close notification
     cy.get('[test-id="color-code-1"]').click() // turns green
     cy.get('[test-id="color-code-2"]').click() // turns green
     cy.get('[test-id="color-code-2"]').click() // turns blue
     cy.get('[test-id="btn-check-color-code"]').click()
-    cy.get('.q-notification').should('be.visible').should('contain', 'Bonne réponse') // wrong answer!
+    cy.get('.q-notification').should('be.visible').should('contain', 'Good answer') // good answer!
     cy.get('.q-notification button').click() // close notification
     cy.get('[test-id="btn-next-step"]').click()
     
@@ -262,19 +263,19 @@ describe.only('Quests', () => {
     doUpload('[test-id="image-code-3"]', 'keyboard-testing.jpg', 'image/jpeg')
     // 3 images code
     cy.get('[test-id="select-nb-images-in-code"] .q-field__append > .fas').click()
-    cy.get('[test-id="select-nb-images-in-code"] .q-local-menu > .q-item:nth-child(3)').click()
+    cy.get('.q-menu > .q-item:nth-child(3)').click()
     // compose a code: 1=previous, 2=unchanged, 3=next
     cy.get('[test-id="previous-image-0"]').click()
     cy.get('[test-id="next-image-2"]').click()
     cy.get('[test-id="btn-save-step"]').click()
     // test play
     cy.get('[test-id="btn-check-image-code"]').click()
-    cy.get('.q-notification').should('be.visible').should('contain', 'Essaye à nouveau') // wrong answer!
+    cy.get('.q-notification').should('be.visible').should('contain', 'Try again') // wrong answer!
     cy.get('.q-notification button').click() // close notification
     cy.get('[test-id="previous-image-0"]').click()
     cy.get('[test-id="next-image-2"]').click()
     cy.get('[test-id="btn-check-image-code"]').click()
-    cy.get('.q-notification').should('be.visible').should('contain', 'Bonne réponse') // wrong answer!
+    cy.get('.q-notification').should('be.visible').should('contain', 'Good answer') // wrong answer!
     cy.get('.q-notification button').click() // close notification
     cy.get('[test-id="btn-next-step"]').click()
     
@@ -286,14 +287,14 @@ describe.only('Quests', () => {
     cy.get('[test-id="btn-save-step"]').click()
     // test play
     cy.get('[test-id="find-item-picture"]').click(100, 100)
-    cy.get('.q-notification').should('be.visible').should('contain', 'Rien ne se produit')
+    cy.get('.q-notification').should('be.visible').should('contain', 'Nothing happens')
     cy.get('.q-notification button').click() // close notification
     cy.get('.q-notification').should('not.be.visible')
     cy.get('[test-id="find-item-picture"]').click(205, 280)
-    cy.get('.q-notification').should('be.visible').should('contain', 'Bravo')
+    cy.get('.q-notification').should('be.visible').should('contain', 'Well done')
     cy.get('.q-notification button').click() // close notification
     cy.get('[test-id="btn-next-step"]').click()
-    /*
+    
     cy.get('[test-id="btn-add-step"]').click()
     cy.get('[test-id="btn-select-step-type-use-item"]').click({force: true})
     cy.get('[test-id="step-title"] input').clear().type('step 14 title')
@@ -301,20 +302,20 @@ describe.only('Quests', () => {
     doUpload('[test-id="background-upload"]', 'crash-test-2.jpg', 'image/jpeg')
     cy.get('#useItemPicture').click(120, 330)
     cy.get('.inventory .q-select .q-field__append > .fas').click()
-    cy.get('.inventory .q-select .q-local-menu > .q-item:nth-child(1)').click()
+    cy.get('.q-menu > .q-item:nth-child(1)').click()
     cy.get('[test-id="btn-save-step"]').click()
     // test play
     cy.get('[test-id="btn-inventory"]').click()
     cy.get('.inventory-items div:nth-child(1)').click()
     cy.get('[test-id="use-item-picture"]').click(100, 100)
-    cy.get('.q-notification').should('be.visible').should('contain', 'Rien ne se produit')
+    cy.get('.q-notification').should('be.visible').should('contain', 'Nothing happens')
     cy.get('.q-notification button').click() // close notification
     cy.get('.q-notification').should('not.be.visible')
-    cy.get('[test-id="find-item-picture"]').click(120, 330)
-    cy.get('.q-notification').should('be.visible').should('contain', 'Bravo')
+    cy.get('[test-id="use-item-picture"]').click(130, 350) // image is bigger when playing than when creating
+    cy.get('.q-notification').should('be.visible').should('contain', 'Well done')
     cy.get('.q-notification button').click() // close notification
     cy.get('[test-id="btn-next-step"]').click()
-    */
+    
     cy.get('[test-id="btn-add-step"]').click()
     cy.get('[test-id="btn-select-step-type-jigsaw-puzzle"]').click({force: true})
     cy.get('[test-id="step-title"] input').clear().type('step 15 title')
@@ -344,7 +345,7 @@ describe.only('Quests', () => {
  */
 function doLogin () {
   cy.visit('/#/user/login')
-  cy.get('[test-id="login"] input').type('maxime.pacary@gmail.com')
+  cy.get('[test-id="login"] input').type('maxime.pacary@free.fr')
   cy.get('[type="submit"]').click() // next button
   cy.url().should('contain', '#/user/login') // check that URL has not changed
   cy.get('[test-id="password"] input').type('toto')

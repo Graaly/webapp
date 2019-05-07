@@ -252,8 +252,8 @@
         <div>
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
-        <div ref="useItemPicture" @click="useItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
-          <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" test-id="use-item-picture" />
+        <div ref="useItemPicture" @click="useItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="use-item-picture">
+          <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >

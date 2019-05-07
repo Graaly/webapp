@@ -133,7 +133,7 @@ describe('Server API tests', () => {
   })
   
   test('can retrieve next step', async () => {
-    result = await RunService.getNextStep(runId)
+    result = await RunService.getNextStep(testQuest.questId)
     expect(result.status).toBe(200)
     expect(result.data)
       .toHaveProperty('message')

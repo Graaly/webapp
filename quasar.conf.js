@@ -72,6 +72,16 @@ module.exports = function (ctx) {
           loader: 'eslint-loader',
           exclude: /(node_modules|quasar)/
         })
+
+        // MP 2019-05-03
+        // remove HotModuleReplacementPlugin (triggers this error & breaks hot reload: https://github.com/webpack/webpack-dev-server/issues/87)
+        // if hot reload does not works, remove this
+        for (let i = 0; i < cfg.plugins.length; i++) {
+          if (cfg.plugins[i].constructor.name === 'HotModuleReplacementPlugin') {
+            cfg.plugins.splice(i, 1)
+            break
+          }
+        }
       }
     },
     devServer: {
