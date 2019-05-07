@@ -238,7 +238,6 @@ export default {
      * Start the story
      */
     async initQuest() {
-console.log("init quest")
       // get quest information
       await this.getQuest(this.$route.params.id)
       
@@ -279,9 +278,7 @@ console.log("init quest")
      * Start the story
      */
     startStory() {
-console.log("start story")
       if (this.story.step === null) {
-console.log("go")
         this.story.step = 1
         this.story.data = {
           level2: (this.quest.level === 1 ? 'grey' : 'red'),
@@ -396,9 +393,7 @@ console.log("go")
         }
       } else {
         // check if an offline run is already started
-        let checkIfRunIsAlreadyStarted = await this.checkIfQuestIsAlreadyLoaded(this.quest.questId)
-console.log("is this run already started ?")
-console.log(checkIfRunIsAlreadyStarted)        
+        let checkIfRunIsAlreadyStarted = await this.checkIfQuestIsAlreadyLoaded(this.quest.questId)   
 
         if (checkIfRunIsAlreadyStarted) {
           this.continueQuest = true
@@ -408,8 +403,8 @@ console.log(checkIfRunIsAlreadyStarted)
     /*
      * Cancel a run
      */
-    async cancelRun(rundId) {
-      await RunService.endRun(rundId)
+    async cancelRun(runId) {
+      await RunService.endRun(runId, null, this.quest.questId, this.quest.version, this.quest.mainLanguage)
     },
     /*
      * Check if user can play this quest

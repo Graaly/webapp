@@ -217,7 +217,6 @@ export default {
     return this.initialState()
   },
   mounted () {
-console.log("start step")
     utils.clearAllRunningProcesses()
     this.initData()
     this.keepScreenAwake()
@@ -351,8 +350,6 @@ console.log("start step")
       if (isRunOfflineLoaded) {
         // read the run
         var offlineRun = await this.loadOfflineRun(this.questId)
-console.log("is offline answer ok?")
-console.log(offlineRun)
       }
       
       // check if run is accessable from server
@@ -368,13 +365,8 @@ console.log(offlineRun)
             currentChapter = runs.data[i].currentChapter
             
             // update the offline run or the online depending on the last updated
-console.log("check if offline is existing")
             if (isRunOfflineLoaded) {
-console.log("check if offline is more recent")
-console.log(offlineRun.dateUpdated)
-console.log(this.run.dateUpdated)
               if (offlineRun.dateUpdated > this.run.dateUpdated) {
-console.log("get offline version")
                 this.run = offlineRun
                 
                 // save run changes in DB
@@ -392,11 +384,9 @@ console.log("get offline version")
         // init the run on the server
         if (currentChapter === 0) {
           // no 'in-progress' run => create run for current player & current quest
-console.log("create a new online run")
           let res = await RunService.init(this.questId, this.questVersion, this.$route.params.lang, remotePlay)
           if (res.status === 200 && res.data && res.data._id) {
             if (isRunOfflineLoaded) {
-console.log("update the online run with the offline data")
               // if a offline run already exists
               this.run = offlineRun
               this.run._id = res.data._id
@@ -423,17 +413,14 @@ console.log("update the online run with the offline data")
         
         // if the run is not accessable, read the offline one
         if (isRunOfflineLoaded) {
-console.log('use the offline run')
           if (offlineRun) {
             this.run = offlineRun
-console.log(offlineRun)
             // get current score
             this.info.score = this.run.tempScore
             // set chapter
             currentChapter = this.run.currentChapter
           }
         } else {
-console.log("create a new offline run")
           // if first step => init run
           await this.updateOfflineRun(this.questId)
           /*this.$q.dialog({
@@ -444,11 +431,6 @@ console.log("create a new offline run")
           })*/
         }
       }
-      
-if (this.run) {
-  console.log("RUNID :")
-  console.log(this.run._id)
-}
       
       this.$q.loading.hide()
       
@@ -495,7 +477,6 @@ if (this.run) {
           }
         }
       }
-console.log("This new step is " + stepId)
 
       // if quest is finished
       if (stepId === 'end') {
@@ -513,7 +494,6 @@ console.log("This new step is " + stepId)
       let isStepOfflineLoaded = await this.checkIfStepIsAlreadyLoaded(stepId)
       
       if (!isStepOfflineLoaded || forceNetworkLoading) {
-console.log("Get online step")
         const response2 = await StepService.getById(stepId, this.questVersion)
         if (response2 && response2.data) {
           this.step = response2.data
@@ -525,7 +505,6 @@ console.log("Get online step")
           return false
         }
       } else {
-console.log("get offline step")
         // get quest data from device storage
         const step = await utils.readFile(this.questId, 'step_' + stepId + '.json')
 
@@ -541,7 +520,6 @@ console.log("get offline step")
           
           // get offline media
           if (tempStep.backgroundImage) {
-console.log("get step background")
             const pictureUrl = await utils.readBinaryFile(this.questId, tempStep.backgroundImage)
             if (pictureUrl) {
               tempStep.backgroundImage = pictureUrl
@@ -549,8 +527,6 @@ console.log("get step background")
           }
           if (tempStep.videoStream && tempStep.videoStream !== '') {
             const videoUrl = await utils.readBinaryFile(this.questId, tempStep.videoStream)
-console.log("loaded video")
-console.log(videoUrl)
             if (videoUrl) {
               tempStep.videoStream = videoUrl
             }
@@ -616,8 +592,6 @@ console.log(videoUrl)
           this.getPreviousStep()
           
           // get answer
-console.log("pass answer to component")
-console.log(this.step.answers)
           this.offline.answer = this.step.answers
           
           return true
@@ -643,7 +617,6 @@ console.log(this.step.answers)
      * Track step success
      */
     async trackStepSuccess (score, offline, showResult) {
-console.log("success")
       if (showResult) {
         // add step score to general score
         this.info.score += score
@@ -673,7 +646,6 @@ console.log("success")
      * Track step passing
      */
     async trackStepPass () {
-console.log("pass")
       // Not possible to pass for the mini games
       //if (this.info.quest.type === 'quest') {
       this.canPass = true
@@ -683,7 +655,6 @@ console.log("pass")
      * Track step fail
      */
     async trackStepFail (offline, showResult) {
-console.log("fail")
       this.hideHint()
         
       // save offline run
@@ -790,9 +761,6 @@ console.log("fail")
       // sync offline run
       await this.saveOfflineRun(this.questId, this.run)
     
-console.log("Move to next step ")
-console.log(this.step)
-console.log("move to : " + '/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + type + '_' + this.step.stepId + '_' + utils.randomId() + '/' + this.$route.params.lang)
       //hide button
       this.canMoveNextStep = false
       this.canPass = false
@@ -845,8 +813,6 @@ console.log("move to : " + '/quest/play/' + this.questId + '/version/' + this.qu
       if (hintLabel && hintLabel.hint) {
         this.hint.label = hintLabel.hint
       } else {
-console.log("call offline hint")
-console.log(this.step.hint)
         this.hint.label = this.step.hint
       }
       this.closeAllPanels()
@@ -880,8 +846,6 @@ console.log(this.step.hint)
         this.inventory.items = response.data
       } else {
         let offlineInventory = await this.listWonObjects()
-console.log("Inventory:")
-console.log(offlineInventory)
         if (offlineInventory) {
           this.inventory.items = offlineInventory
         } else {
@@ -1050,7 +1014,6 @@ console.log(offlineInventory)
      * Check if quest is already saved in file
      */
     async checkIfQuestIsAlreadyLoaded(id) {
-console.log("check if quest already uploaded " + id)
       if (!window.cordova) {
         return false
       }
@@ -1067,7 +1030,6 @@ console.log("check if quest already uploaded " + id)
      * Check if Step is already saved in file
      */
     async checkIfStepIsAlreadyLoaded(id) {
-console.log("check if step already uploaded " + id)
       if (!window.cordova) {
         return false
       }
@@ -1083,7 +1045,6 @@ console.log("check if step already uploaded " + id)
      * Check if run is already saved in file
      */
     async checkIfRunIsAlreadyLoaded(id) {
-console.log("check if run already uploaded " +id)
       if (!window.cordova) {
         return false
       }
@@ -1100,7 +1061,6 @@ console.log("check if run already uploaded " +id)
      * Load the run from offline file
      */
     async loadOfflineRun(questId) {
-console.log("load from devicd quest " + questId)
       const run = await utils.readFile(this.questId, 'run_' + questId + '.json')
 
       if (!run) {
@@ -1113,10 +1073,8 @@ console.log("load from devicd quest " + questId)
      * init the run offline file
      */
     async updateOfflineRun(questId) {
-console.log("update offline version of the run " + questId)
       if (this.run && this.run.questId) {
         // init the offline file with the server one
-console.log(this.run)
       } else {
         this.run = {
           userId: this.$store.state.user._id,
@@ -1158,13 +1116,10 @@ console.log(this.run)
      * save the offline answer for a run
      */
     async saveOfflineAnswer(success) {
-console.log("save offline answer (success : " + (success ? "success" : "fail"))
       // check if user has already played this step in current run
       var stepAlreadyPlayed = await this.checkIfStepIsAlreadyPlayedInRun(this.step.stepId)
-console.log("check if the step is already played : " + (stepAlreadyPlayed ? "ok" : "ko"))
        
       // add conditions
-console.log(this.run.conditionsDone)
       var conditions = this.run.conditionsDone
 
       var ended = false
@@ -1189,25 +1144,20 @@ console.log(this.run.conditionsDone)
       } else {
         ended = true
         stepStatus = 'fail'
-console.log("fail step")
         if (this.step.displayRightAnswer === false) {
           removedStatus = await this.removeConditionsUntilLastMarker(conditions, this.step.stepId, this.run.version)
           if (removedStatus.found) {
-console.log("test1")
             conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, false)
           } else {
-console.log("test2")
             conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true)
           }
         } else {
-console.log("test3")
           conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true)
         }
       }
       
       // compute nb points
       var answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: 1, ended: ended, score: score, reward: 0, status: stepStatus, useHint: false, date: new Date(), online: false} 
-console.log("new item ?")
       // add new item in inventory
       if (this.step.type === 'new-item') {
         if (this.run.inventory) {
@@ -1216,7 +1166,6 @@ console.log("new item ?")
           this.run.inventory = [this.step.answers]
         }
         if (conditions.indexOf('objectWon_' + this.step.stepId) === -1) {
-console.log("add new object")
           conditions.push('objectWon_' + this.step.stepId)
         }
       }
@@ -1243,8 +1192,6 @@ console.log("add new object")
       }
       
       // update conditions done
-console.log("update conditions")
-console.log(conditions)
       this.run.conditionsDone = conditions
       
       let updateAnswer = await this.saveOfflineRun(this.questId, this.run)
@@ -1258,9 +1205,7 @@ console.log(conditions)
      * init the run offline file
      */
     async passOfflineStep(stepId) {
-console.log("pass current step " + stepId)
       this.run.conditionsDone = this.updateConditions(this.run.conditionsDone, stepId, false, this.step.type, true)
-console.log(this.run.conditionsDone)
       //this.run.conditionsDone.push('stepFail_' + stepId)
       await this.saveOfflineRun(this.questId, this.run)
     },
@@ -1268,14 +1213,11 @@ console.log(this.run.conditionsDone)
      * Save current run offline
      */
     async saveOfflineRun(questId, run) {
-console.log("write run data in file " + questId)
       run.dateUpdated = new Date()
       let status = await utils.writeInFile(this.questId, 'run_' + questId + '.json', JSON.stringify(run), true)
       if (status) {
-console.log("write ok")
         return true
       } else {
-console.log("write ko")
         return false
       }
     },
@@ -1283,7 +1225,6 @@ console.log("write ko")
      * Get the next offline step
      */
     async getNextOfflineStep(questId, markerCode) {
-console.log("get next step for the quest " + questId)
       var steps = []
       
       // read all steps
@@ -1301,14 +1242,11 @@ console.log("get next step for the quest " + questId)
           return false
         }
       }
-console.log("markercode " + markerCode)
+
       if (markerCode) {
         // list the marker steps for the chapter
         // TODO: get only the locate-marker for answers = marker
-console.log(steps)
-console.log(chapter)        
         var markersSteps = await this.listSpecificTypeForAChapter(steps, chapter, 'locate-marker')
-console.log(markersSteps)        
         var stepsThatFit = []
         if (markersSteps && markersSteps.length > 0) {
           markerStepListFor: 
@@ -1334,7 +1272,7 @@ console.log(markersSteps)
             }
           }
         }
-console.log(stepsThatFit)        
+    
         // if no condition fit, stop the process
         if (stepsThatFit.length === 0) {
           return false
@@ -1360,8 +1298,6 @@ console.log(stepsThatFit)
       // list the steps for the chapter
       var stepsofChapter = await this.listForAChapter(steps, chapter)
       var locationMarkerFound = false
-console.log("current conditions done :")
-console.log(this.run.conditionsDone)
       if (stepsofChapter && stepsofChapter.length > 0) {
         stepListFor: 
         for (i = 0; i < stepsofChapter.length; i++) {
@@ -1387,7 +1323,6 @@ console.log(this.run.conditionsDone)
               if (nextStepId !== 'end') {
                 // get next step by running the process again for new chapter
                 nextStepId = await this.getNextOfflineStep(questId, markerCode)
-console.log("next step id : " + nextStepId)
               }
               return nextStepId
             } else { // if (markerCode || stepsofChapter[i].type !== 'locate-marker') { // if locate marker, do not start the step until user flash the marker
@@ -1406,7 +1341,6 @@ console.log("next step id : " + nextStepId)
           // get next step by running the process again for new chapter
           nextStepId = await this.getNextOfflineStep(questId, markerCode)
         }
-console.log("next step id : " + nextStepId)
         return nextStepId
       }
       
@@ -1444,9 +1378,6 @@ console.log("next step id : " + nextStepId)
      * Return objects of the quest
      */
     async listWonObjects() {
-console.log("list objects won in the quest")
-console.log(this.run.conditionsDone)
-console.log(this.info.quest.steps)
       var results = []
       // get the steps with a won object
       if (this.run.conditionsDone && this.run.conditionsDone.length > 0) {
@@ -1459,7 +1390,6 @@ console.log(this.info.quest.steps)
               var stepData = JSON.parse(step)
               if (stepData.options && stepData.options.picture && stepData.options.title) {
                 // get picture
-console.log(this.questId + ' ' + stepData.options.picture)
                 var pictureUrl
                 if (stepData.options.picture.indexOf('statics') === -1) {
                   pictureUrl = await utils.readBinaryFile(this.questId, stepData.options.picture)
@@ -1479,7 +1409,6 @@ console.log(this.questId + ' ' + stepData.options.picture)
      * Check if a step is already played in the run
      */
     async checkIfStepIsAlreadyPlayedInRun(stepId) {
-console.log("check if user has already played this run")
       if (this.run && this.run.conditionsDone &&  this.run.conditionsDone.length > 0) {
         if (this.run.conditionsDone.indexOf('stepDone_' + stepId) !== -1) {
           return true
@@ -1493,7 +1422,6 @@ console.log("check if user has already played this run")
      * WARNING : this function is a duplicate for server function "updateConditions" of run.js controller
      */
     updateConditions(currentConditions, stepId, isSuccess, stepType, addStepDone) {
-console.log("update conditions for step " + stepId)
       if (currentConditions.indexOf('stepDone_' + stepId) === -1 && addStepDone) {
         currentConditions.push('stepDone_' + stepId)
       }
@@ -1589,7 +1517,6 @@ console.log("update conditions for step " + stepId)
      * Move to the next chapter
      */
     async moveToNextChapter() {
-console.log("Move to next chapter")
       var nextChapter = 0
       if (this.info.quest.chapters && this.info.quest.chapters.length > 0) {
         if (this.run.currentChapter && this.run.currentChapter !== 0) {

@@ -1,6 +1,5 @@
 <template>
   <div>
-    test
     <div v-if="offline.progress > 0 && offline.progress < 1" class="bg-secondary centered fixed-bottom q-pa-md">
       <div v-if="design === 'prepare'">{{ $t('label.LoadingQuestDataForOfflineMode') }}</div>
       <div v-if="design === 'download'">{{ $t('label.Downloading') }} {{quest.title.fr}}</div>
@@ -253,7 +252,6 @@ export default {
      * Remove offline data
      */
     async removeOfflineData(questId) {
-console.log("remove folder")
       const success = await utils.removeDirectory(questId)
       
       await this.removeQuestFromOfflineList(questId)

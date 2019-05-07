@@ -565,7 +565,6 @@ export default {
      * get offline run data
      */
     async getOfflineRunData() {
-console.log("load from devicd quest " + this.questId)
       const run = await utils.readFile(this.questId, 'run_' + this.questId + '.json')
 
       if (!run) {
@@ -578,7 +577,6 @@ console.log("load from devicd quest " + this.questId)
      * Remove offline data
      */
     async removeOfflineData() {
-console.log("remove offline content for quest " + this.questId)
       const success = await utils.removeDirectory(this.questId)
       
       await this.removeQuestFromOfflineList(this.questId)

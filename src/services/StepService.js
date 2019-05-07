@@ -55,7 +55,10 @@ export default {
    * @param   {Object}    answer          Answer to the step
    */
   async checkAnswer (questId, stepId, version, runId, answer) {
+console.log("chech answer service")
+
     let res = await Api().post('quest/' + questId + '/version/' + version + '/step/' + stepId + '/check/' + runId, answer).catch(error => console.log(error.request))
+console.log("check answer service end")
     return res
   },
   /*

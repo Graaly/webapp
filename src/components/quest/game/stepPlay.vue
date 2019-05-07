@@ -966,7 +966,6 @@ export default {
       marker.code = markerCode
       
       marker.addEventListener('markerFound', (ev) => {
-console.log("add marker event")
         if (this.step.options.mode === 'scan') {
           this.checkAnswer(ev.target.code)
         }
@@ -1003,7 +1002,6 @@ console.log("add marker event")
      * @param   {Object}    sceneCanvas            Scene canvas object
      */
     async displayMarkers(sceneCanvas) {
-console.log("test 4")  
       this.locateMarker.markerRoots = {}
       
       let renderer = new THREE.WebGLRenderer({
@@ -1117,8 +1115,6 @@ console.log("test 4")
      * @param   {Object}    selectedAnswerKey            Answer object
      */
     async sendAnswer(questId, stepId, runId, answerData, displaySpinner) {
-console.log("check answer")
-console.log(this.answer)
       if (displaySpinner) {
         this.$q.loading.show()
       }
@@ -1126,9 +1122,9 @@ console.log(this.answer)
       // alert if the network is low
       var _this = this
       var lowNetworkTimeout = setTimeout(function () { _this.isNetworkLow = true }, 8000)
-      
+console.log("check Answer")
       var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData)
-      
+console.log("answer checked")
       // clear low network alerte if displayed
       clearTimeout(lowNetworkTimeout)
       this.isNetworkLow = false
@@ -1145,7 +1141,6 @@ console.log(this.answer)
         }
         // check offline answer
         //if (this.answer) {
-console.log("check offline answer")
           let checkAnswerOfflineResult = await this.checkOfflineAnswer(answerData.answer)
           return checkAnswerOfflineResult
         //} else {
@@ -1159,9 +1154,6 @@ console.log("check offline answer")
      * @param   {Object}    answerData            Answer object
      */
     async checkOfflineAnswer(answer) {
-console.log("compare answers")
-console.log(answer)
-console.log(this.answer)
       const type = this.step.type
       if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character') {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }

@@ -1236,15 +1236,11 @@ export default {
         }
       } else {
         // check if quests are available offline
-console.log("read quests File")
         const offlineQuestsFile = await utils.readFile('', 'quests.json')
         
         if (offlineQuestsFile) {
-console.log("quests file is readable")
           const offlineQuestsData = JSON.parse(offlineQuestsFile)
           if (offlineQuestsData && offlineQuestsData.list) {
-console.log("found quests in quests file")
-console.log(offlineQuestsData.list)
             var tempQuestList = offlineQuestsData.list
             
             // get pictures
@@ -1895,8 +1891,6 @@ console.log(offlineQuestsData.list)
      * Download a quest
      */
     downloadQuest(quest) {
-console.log("download quest")
-console.log(quest)
       if (!this.offline.show) {
         this.offline.quest = quest
         this.offline.show = true
