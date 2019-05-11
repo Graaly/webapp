@@ -157,7 +157,7 @@
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
-            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color"" icon="done" @click="checkAnswer()" test-id="btn-check-image-code">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code">{{ $t('label.Confirm') }}</q-btn>
           </div>
         </div>
       </div>
@@ -453,6 +453,8 @@ export default {
       this.geolocation.absoluteOrientationSensor.stop()
     }
     
+    window.removeEventListener("devicemotion", this.handleMotionEvent, true)
+    
     utils.clearAllRunningProcesses()
     
     TWEEN.removeAll() // 3D animations
@@ -490,11 +492,14 @@ export default {
         // for step types 'geoloc' and 'locate-item-ar'
         geolocation: {
           active: false,
-          distance: null,
+          distance: null, // target distance (can be changed by accelerometer for 'locate-item-ar')
+          GPSdistance: null, // only given by GPS
           // direction
           direction: null,
-          rawDirection: null,
+          rawDirection: null, // in degrees
           waitForNextQuaternionRead: false,
+          // object position relative to device
+          position: { x: null, y: null },
           // for 'locate-item-ar'
           absoluteOrientationSensor: null, 
           target: null,
@@ -502,6 +507,20 @@ export default {
           canTouchTarget: false,
           primaryColor: colors.getBrand('primary')
         },
+        deviceMotion: {
+          // device acceleration & velocity
+          acceleration: {
+            raw: { x: 0, y: 0, z: 0 },
+            filtered: { x: 0, y: 0 },
+            avgData: { x: [], y: [], z: [] },
+            maxAvgItems: 3
+          },
+          velocity: { x: 0, y: 0 },
+          dateLatestEvent: null
+        },
+        isAccelerationIdle: false,
+        idleAccelerationCounter: 1,
+        minDistanceForGPS: 20, // in meters
         
         // for step type 'locate-marker'
         locateMarker: {
@@ -675,6 +694,9 @@ export default {
           } catch (error) {
             console.log(error)
           }
+          
+          // start accelerometer sensor
+          window.addEventListener("devicemotion", this.handleMotionEvent, true)
         }
         
         if (this.step.type === 'locate-item-ar' && !this.playerResult) {
@@ -1981,7 +2003,7 @@ export default {
      */
     async onNewUserPosition(pos) {
       this.geolocation.active = true
-      let current = pos.coords;
+      let current = pos.coords
       
       // if lat and lng are not set, compute to have the object close to the current user position
       if (this.step.options.lat === 0 && this.step.options.lng === 0) {
@@ -2003,9 +2025,19 @@ export default {
       
       // compute distance between two coordinates
       // note: current.accuracy contains the result accuracy in meters
-      this.geolocation.distance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
+      this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
+      let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
       
-      this.geolocation.rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
+      if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && this.geolocation.GPSdistance > this.minDistanceForGPS) || this.step.type !== 'locate-item-ar') {
+        this.geolocation.distance = this.geolocation.GPSdistance
+        this.geolocation.rawDirection = rawDirection
+      }
+      
+      let finalDirection = utils.degreesToRadians(rawDirection)
+      
+      // note that those properties are also needed when accelerometer is used (method 'handleMotionEvent()')
+      this.geolocation.position.x = this.geolocation.GPSdistance !== 0 ? Math.sin(finalDirection) * this.geolocation.GPSdistance : 0
+      this.geolocation.position.y = this.geolocation.GPSdistance !== 0 ? Math.cos(finalDirection) * this.geolocation.GPSdistance : 0
       
       // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
       
@@ -2016,26 +2048,22 @@ export default {
         
         // if target size is 1m, consider that it can be seen at 40m
         // target size 50cm => seen at 20m, etc.
-        this.geolocation.canSeeTarget = target.size === null || this.geolocation.distance < target.size * 40
+        this.geolocation.canSeeTarget = target.size === null || this.geolocation.GPSdistance < target.size * 40
         
         // object may not be loaded at first calls => skip part where 3D scene must be loaded
         if (typeof object === 'undefined') { return }
         object.visible = true
         
-        let finalDirection = utils.degreesToRadians(this.geolocation.rawDirection)
-        let newPositionX = this.geolocation.distance !== 0 ? Math.sin(finalDirection) * this.geolocation.distance : 0
-        let newPositionY = this.geolocation.distance !== 0 ? Math.cos(finalDirection) * this.geolocation.distance : 0
-        
-        // smooth position change
-        new TWEEN.Tween(object.position)
-          .to({ x: newPositionX, y: newPositionY }, this.geolocation.watchLocationInterval)
-          .easing(TWEEN.Easing.Quadratic.InOut)
-          .start()
-        
-        // tell player to touch object + detect touch as soon as device is below a certain distance from the object coordinates
-        if (!this.geolocation.canTouchTarget && this.geolocation.distance <= 10) {
-          this.geolocation.canTouchTarget = true
+        // if distance to object is greater than value of this.minDistanceForGPS, update target object position only given GPS position. Otherwise, accelerometer is used to track device position for better user experience (avoids object "drifts").
+        if (this.geolocation.GPSdistance > this.minDistanceForGPS) {
+          // smooth position change
+          new TWEEN.Tween(object.position)
+            .to({ x: this.geolocation.position.x, y: this.geolocation.position.y }, 1000)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .start()
         }
+        
+        this.updatePlayerCanTouchTarget()
       }
       
       if (this.step.type === 'geolocation' && this.geolocation.distance <= 20) {
@@ -2685,6 +2713,145 @@ export default {
         window.clearInterval(drawDirectionInterval)
       }
       this.$store.dispatch('setDrawDirectionInterval', null)
+    },
+    /*
+    * handle motion event (used by step 'locate-item-ar')
+    */
+    handleMotionEvent (event) {
+      let dm = this.deviceMotion
+      
+      // save resources: do nothing with device motion while user GPS position is too far
+      if (this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion) {
+        dm.acceleration.avgData = { x: [], y: [], z: [] }
+        dm.velocity = { x: 0, y: 0 }
+        return
+      }
+      
+      TWEEN.removeAll() // clears current "move" from method "onNewUserPosition()"
+      
+      let object = this.geolocation.target.scene.getObjectByName('targetObject')
+      // this means we are switching from GPS only to "accelerometer + GPS" mode (or we are in the "switching zone")
+      if (this.isUsingGPSOnly) {
+        this.geolocation.distance = this.geolocation.GPSdistance
+        object.position.x = this.geolocation.position.x
+        object.position.y = this.geolocation.position.y
+      }
+      
+      let accel = event.acceleration
+      let accelerationVector = new THREE.Vector3(accel.x, accel.y, accel.z)
+      
+      // "cancel" device rotation on acceleration vector
+      let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
+      accelerationVector.applyQuaternion(quaternion)
+      
+      dm.acceleration.raw = accelerationVector
+      
+      // save current time to calculate velocity & position at next motion event
+      let currentTime = new Date()
+      if (dm.dateLatestEvent !== null) {
+        // get time difference in milliseconds
+        let timeDiff = (currentTime.getTime() - dm.dateLatestEvent.getTime()) / 1000
+        
+        // using "moving average" for acceleration sensors noise reduction
+        // (tried kalman filters, but result is much less convincing)
+        dm.acceleration.avgData.x.push(dm.acceleration.raw.x)
+        dm.acceleration.avgData.y.push(dm.acceleration.raw.y)
+        dm.acceleration.avgData.z.push(dm.acceleration.raw.z)
+        
+        if (dm.acceleration.avgData.x.length > dm.acceleration.maxAvgItems) {
+          dm.acceleration.avgData.x.shift()
+        }
+        if (dm.acceleration.avgData.y.length > dm.acceleration.maxAvgItems) {
+          dm.acceleration.avgData.y.shift()
+        }
+        if (dm.acceleration.avgData.z.length > dm.acceleration.maxAvgItems) {
+          dm.acceleration.avgData.z.shift()
+        }
+        
+        dm.acceleration.filtered.x = utils.arrayAverage(dm.acceleration.avgData.x)
+        dm.acceleration.filtered.y = utils.arrayAverage(dm.acceleration.avgData.y)
+        dm.acceleration.filtered.z = utils.arrayAverage(dm.acceleration.avgData.z)
+        
+        this.isAccelerationIdle = (Math.pow(dm.acceleration.filtered.x, 2) + Math.pow(dm.acceleration.filtered.y, 2) + Math.pow(dm.acceleration.filtered.z, 2)) < 0.08
+        
+        // fix acceleration errors / inaccuracies:
+        let accelBoost = 1.2 // when not idle & same sign as velocity
+        let accelReduction = 0.3 // when acceleration sign & velocity sign are different (otherwise, velocity goes too much beyond the "other side" of 0)
+        if (dm.velocity.x * dm.acceleration.filtered.x < 0) {
+          dm.acceleration.filtered.x *= accelReduction
+        } else if (!dm.isAccelerationIdle) {
+          dm.acceleration.filtered.x *= accelBoost
+        }
+        if (dm.velocity.y * dm.acceleration.filtered.y < 0) {
+          dm.acceleration.filtered.y *= accelReduction
+        } else if (!dm.isAccelerationIdle) {
+          dm.acceleration.filtered.y *= accelBoost
+        }
+        
+        // get velocity from acceleration
+        dm.velocity.x += dm.acceleration.filtered.x * timeDiff
+        dm.velocity.y += dm.acceleration.filtered.y * timeDiff
+        
+        // we consider that the device is hand held by a person, so when acceleration is nearly idle, quickly decrease velocity to avoid position drifting
+        if (this.isAccelerationIdle) {
+          dm.velocity.x *= 0.99 / Math.pow(this.idleAccelerationCounter, 2)
+          dm.velocity.y *= 0.99 / Math.pow(this.idleAccelerationCounter, 2)
+          this.idleAccelerationCounter = Math.max(100, this.idleAccelerationCounter + 1) // avoid too high values for the counter
+        } else {
+          this.idleAccelerationCounter = 1
+        }
+        
+        // normalize velocity under 5km/h to avoid excessive drift when walking for a long time
+        let maxVelocity = 5 * 1000 / 3600 // in m/s
+        let velocityVectorLength = Math.sqrt(Math.pow(dm.velocity.x, 2) + Math.pow(dm.velocity.y, 2))
+        if (velocityVectorLength > maxVelocity) {
+          dm.velocity.x = dm.velocity.x * maxVelocity / velocityVectorLength
+          dm.velocity.y = dm.velocity.y * maxVelocity / velocityVectorLength
+        }
+        
+        // get object position from velocity
+        // relatively to the device, the position variations of the object to find are reversed (positive device velocity on an axis => negative position change of object on that axis, given that the objet is at a fixed position)
+        let currentObjectPosition = { x: object.position.x, y: object.position.y }
+        let deltaFromAccelerometer = {
+          x: -dm.velocity.x * timeDiff,
+          y: -dm.velocity.y * timeDiff
+        }
+        // if we are not in "idle" state, to avoid potential big object jumps in case GPS must be used again (object becomes too far), make a slight move towards the "real" GPS position at each "devicemotion" call
+        let deltaFromGeolocation
+        if (!this.isAccelerationIdle) {
+          deltaFromGeolocation = {
+            // the "/ 700" factor guarantees that the object won't move faster than about 1.5m/s if its real position is 20m away from current position.
+            x: (this.geolocation.position.x - currentObjectPosition.x) / 700,
+            y: (this.geolocation.position.y - currentObjectPosition.y) / 700
+          }
+        } else {
+          deltaFromGeolocation = { x: 0, y: 0 }
+        }
+        
+        if (this.geolocation.GPSdistance <= this.minDistanceForGPS) {
+          // update object position
+          object.position.x = currentObjectPosition.x + deltaFromAccelerometer.x + deltaFromGeolocation.x
+          object.position.y = currentObjectPosition.y + deltaFromAccelerometer.y + deltaFromGeolocation.y
+          
+          // update object distance shown to user
+          this.geolocation.distance = Math.sqrt(Math.pow(object.position.x, 2) + Math.pow(object.position.y, 2))
+          
+          // update direction arrow angle
+          this.geolocation.rawDirection = (utils.radiansToDegrees(-Math.atan2(object.position.y, object.position.x)) + 90) % 360
+          
+          this.updatePlayerCanTouchTarget()
+        }
+      }
+      dm.dateLatestEvent = currentTime
+    },
+    /*
+    * updates property this.geolocation.canTouchTarget, given this.geolocation.distance
+    */
+    updatePlayerCanTouchTarget () {
+      // tell player to touch object + detect touch as soon as device is below a certain distance from the object coordinates
+      if (!this.geolocation.canTouchTarget && this.geolocation.distance <= 10) {
+        this.geolocation.canTouchTarget = true
+      }
     }
   }
 }

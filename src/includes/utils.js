@@ -697,6 +697,15 @@ var self = {
           return (v.charCodeAt() + rotation + bound) % bound
       })
     )
+  },
+  /**
+   * Computes the average value of numbers provided in an array
+   * @param   {Array}   arr   The array of numbers
+   * @return  {Number}  The average
+   */
+  arrayAverage(arr) {
+    let sum = arr.reduce(function(a, b) { return a + b })
+    return sum / arr.length
   }
 }
 
