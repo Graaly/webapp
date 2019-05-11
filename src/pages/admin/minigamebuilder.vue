@@ -94,7 +94,7 @@
 
         <q-btn clear @click="addPlace">Add a place</q-btn>
         
-        <q-btn type="submit" color="primary" class="full-width">Save</q-btn>
+        <q-btn @click="configureTown" color="primary" class="full-width">Save</q-btn>
           
       </form>
       

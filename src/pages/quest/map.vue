@@ -119,7 +119,7 @@
           <div class="centered q-pa-md" v-if="success.quests.built.tovalidate && success.quests.built.tovalidate.length === 0 && success.quests.built.rejected.length === 0 && success.quests.built.published.length === 0 && success.quests.built.draft.length === 0 && !warnings.listCreatedQuestsMissing">
             {{ $t('label.NoQuestCreated') }}
           </div>            
-          <q-btn link class="full-width" @click="$router.push('/quest/create/welcome')" color="secondary">{{ $t('label.CreateANewQuest') }}</q-btn>
+          <q-btn link class="full-width" @click="buildQuest" color="secondary">{{ $t('label.CreateANewQuest') }}</q-btn>
           
           <!------------------ LIST OF QUESTS BUILT AREA ------------------------>
           
@@ -1886,6 +1886,9 @@ export default {
      */
     playQuest(questId) {
       this.$router.push('/quest/play/' + questId)
+    },
+    buildQuest() {
+      this.$router.push('/quest/create/welcome')
     },
     /*
      * Download a quest

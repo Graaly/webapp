@@ -342,7 +342,8 @@
     
     <!--====================== WIN POINTS ANIMATION =================================-->
     
-    <div v-show="playerResult === true && score > 0" class="fadein-message">+{{ score }} <!--<q-icon color="white" name="fas fa-trophy" />--></div>
+    <div v-show="playerResult === true && score > 1" class="fadein-message">+{{ score }} <!--<q-icon color="white" name="fas fa-trophy" />--></div>
+    <div v-show="playerResult === true && score === 1" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
     
     <!--====================== STORY =================================-->
@@ -1122,9 +1123,9 @@ export default {
       // alert if the network is low
       var _this = this
       var lowNetworkTimeout = setTimeout(function () { _this.isNetworkLow = true }, 8000)
-console.log("check Answer")
+
       var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData)
-console.log("answer checked")
+
       // clear low network alerte if displayed
       clearTimeout(lowNetworkTimeout)
       this.isNetworkLow = false
@@ -1158,10 +1159,10 @@ console.log("answer checked")
       if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character') {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }
       } else if (type === 'image-recognition') {
-        return { result: answer, answer: this.answer, score: (answer ? 10 : 0), reward: 0, offline: true }
+        return { result: answer, answer: this.answer, score: 0, reward: 0, offline: true }
       } else if (type === 'geolocation' || type === 'locate-item-ar') {
         //TODO: find a way to check server side
-        return { result: true, answer: this.answer, score: 10, reward: 0, offline: true }
+        return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
       } else if (type === 'use-item') {
         let anwserPixelCoordinates = {
           left: Math.round(this.answer.coordinates.left / 100 * 100 * answer.windowWidth),
@@ -1174,7 +1175,7 @@ console.log("answer checked")
         let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - answer.posX, 2) + Math.pow(anwserPixelCoordinates.top - answer.posY, 2))
 
         if (distanceToSolution <= solutionAreaRadius && this.answer.item === answer.item) {
-          return { result: true, answer: this.answer, score: 10, reward: 0, offline: true }
+          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       } else if (type === 'find-item') {
         let anwserPixelCoordinates = {
@@ -1188,17 +1189,17 @@ console.log("answer checked")
         let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - answer.posX, 2) + Math.pow(anwserPixelCoordinates.top - answer.posY, 2))
 
         if (distanceToSolution <= solutionAreaRadius) {
-          return { result: true, answer: this.answer, score: 10, reward: 0, offline: true }
+          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       } else if (type === 'write-text') {
         if (utils.removeAccents(answer) === utils.removeAccents(this.answer)) {
-          return { result: true, answer: this.answer, score: 10, reward: 0, offline: true }
+          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       } else if (type === 'memory') {
-        return { result: true, answer: this.answer, score: 10, reward: 0, offline: true }
+        return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
       } else {
         if (answer === this.answer) {
-          return { result: true, answer: this.answer, score: 10, reward: 0, offline: true }
+          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       }
       // TODO: send answer only if all tries done

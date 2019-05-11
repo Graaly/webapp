@@ -105,7 +105,7 @@
             />
         </form>
         <div class="q-pa-md q-gutter-sm">
-          <q-btn type="submit" color="secondary" @click="sendFeedback">{{ $t('label.Send') }}</q-btn>
+          <q-btn color="secondary" @click="sendFeedback">{{ $t('label.Send') }}</q-btn>
           <q-btn @click="hideFeedback">{{ $t('label.Close') }}</q-btn>
         </div>
       </div>
@@ -241,7 +241,8 @@ export default {
           isOpened: false,
           label: "",
           suggest: false,
-          show: false
+          show: false,
+          used: false
         },
         info: {
           isOpened: false,
@@ -523,12 +524,16 @@ export default {
             const pictureUrl = await utils.readBinaryFile(this.questId, tempStep.backgroundImage)
             if (pictureUrl) {
               tempStep.backgroundImage = pictureUrl
+            } else {
+              this.warnings.stepDataMissing = true
             }
           }
           if (tempStep.videoStream && tempStep.videoStream !== '') {
             const videoUrl = await utils.readBinaryFile(this.questId, tempStep.videoStream)
             if (videoUrl) {
               tempStep.videoStream = videoUrl
+            } else {
+              this.warnings.stepDataMissing = true
             }
           }
 
@@ -536,6 +541,8 @@ export default {
             const imageRecognitionUrl = await utils.readBinaryFile(this.questId, tempStep.answers)
             if (imageRecognitionUrl) {
               tempStep.answers = imageRecognitionUrl
+            } else {
+              this.warnings.stepDataMissing = true
             }
           }
           if (tempStep.type === 'choose' && tempStep.options) {
@@ -544,6 +551,8 @@ export default {
                 var chooseImageUrl = await utils.readBinaryFile(this.questId, tempStep.options[k].imagePath)
                 if (chooseImageUrl) {
                   tempStep.options[k].imagePath = chooseImageUrl
+                } else {
+                  this.warnings.stepDataMissing = true
                 }
               }
             }
@@ -554,6 +563,8 @@ export default {
                 var memoryCardUrl = await utils.readBinaryFile(this.questId, tempStep.options.items[k].imagePath)
                 if (memoryCardUrl) {
                   tempStep.options.items[k].imagePath = memoryCardUrl
+                } else {
+                  this.warnings.stepDataMissing = true
                 }
               }
             }
@@ -564,6 +575,8 @@ export default {
                 var codeImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.images[k].imagePath)
                 if (codeImageUrl) {
                   tempStep.options.images[k].imagePath = codeImageUrl
+                } else {
+                  this.warnings.stepDataMissing = true
                 }
               }
             }
@@ -572,18 +585,24 @@ export default {
             const jigsawPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
             if (jigsawPictureUrl) {
               tempStep.options.picture = jigsawPictureUrl
+            } else {
+              this.warnings.stepDataMissing = true
             }
           }
           if (tempStep.type === 'new-item' && tempStep.options && tempStep.options.picture && tempStep.options.picture !== '') {
             const itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
             if (itemImageUrl) {
               tempStep.options.picture = itemImageUrl
+            } else {
+              this.warnings.stepDataMissing = true
             }
           }
           if (tempStep.type === 'character' && tempStep.options && tempStep.options.character && tempStep.options.character !== '') {
             const characterPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.character)
             if (characterPictureUrl) {
               tempStep.options.character = characterPictureUrl
+            } else {
+              this.warnings.stepDataMissing = true
             }
           }
           this.step = tempStep
@@ -815,6 +834,7 @@ export default {
       } else {
         this.hint.label = this.step.hint
       }
+      this.hint.used = true
       this.closeAllPanels()
       this.hint.isOpened = true
       this.footer.tabSelected = 'hint'
@@ -1139,7 +1159,11 @@ export default {
           conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true)
         }
         ended = true
-        score = this.step.points
+        if (this.hint.used || this.nbTry > 1) {
+          score = this.step.points / 2
+        } else {
+          score = this.step.points
+        }
         stepStatus = 'success'
       } else {
         ended = true

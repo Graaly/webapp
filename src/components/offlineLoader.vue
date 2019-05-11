@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="offline.progress > 0 && offline.progress < 1" class="bg-secondary centered fixed-bottom q-pa-md">
+    <div v-if="offline.progress > 0 && offline.progress < 1" class="bg-secondary centered fixed-bottom q-pa-md q-pb-lg q-pt-lg">
       <div v-if="design === 'prepare'">{{ $t('label.LoadingQuestDataForOfflineMode') }}</div>
       <div v-if="design === 'download'">{{ $t('label.Downloading') }} {{quest.title.fr}}</div>
       <q-linear-progress color="primary" stripe style="height: 10px" :value="offline.progress" />
@@ -46,6 +46,7 @@ export default {
       if (!isQuestOfflineLoaded) {
         await this.saveQuestData(quest)
       }
+      
       this.$emit('end')
     },
     /*

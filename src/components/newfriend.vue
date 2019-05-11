@@ -45,7 +45,7 @@
                 </div>
               </div>
               <div class="col-4 centered">
-                <q-btn :label="$t('label.Add')" type="submit" />
+                <q-btn :label="$t('label.Add')" @click="formSubmit" />
               </div>
             </div>
             {{ $t('label.FindWithPhone') }}
@@ -57,7 +57,7 @@
                 </div>
               </div>
               <div class="col-4 centered">
-                <q-btn :label="$t('label.Add')" type="submit" />
+                <q-btn :label="$t('label.Add')" @click="formSubmit" />
               </div>
             </div>
           </form>
@@ -77,7 +77,7 @@
             </div>
           </div>
           <div class="col-4 centered">
-            <q-btn :label="$t('label.Add')" type="submit" />
+            <q-btn :label="$t('label.Add')" @click="formSubmit" />
           </div>
         </div>
         {{ $t('label.FindWithPhone') }}
@@ -89,7 +89,7 @@
             </div>
           </div>
           <div class="col-4 centered">
-            <q-btn :label="$t('label.Add')" type="submit" />
+            <q-btn :label="$t('label.Add')" @click="formSubmit" />
           </div>
         </div>
       </form>

@@ -58,6 +58,8 @@ Create a new version by uploading the apk signed file
 
 Open console / terminal in the *webapp* folder
 
+Pull last modification (! in /src-cordova/config.xml, replace graaly.app by com.graaly.app)
+
 quasar build -m cordova -T ios
 
 Open the xproj file

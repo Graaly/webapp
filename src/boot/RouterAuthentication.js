@@ -33,6 +33,8 @@ export default ({ app, router, Vue }) => {
               "story": { "step": 17, "status": "new" } 
             }
           }
+          
+          next()
         } else {
           Loading.show()
           let response = await AuthService.getAccount()

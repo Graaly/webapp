@@ -164,7 +164,7 @@
           <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddALogo')" @click="$refs['logofile'].click()" />
           <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" hidden />
           
-          <q-btn v-if="!readOnly" type="submit" color="primary" class="full-width q-mt-lg" test-id="btn-save-settings">{{ $t('label.Save') }}</q-btn>
+          <q-btn v-if="!readOnly" @click="submitSettings" color="primary" class="full-width q-mt-lg" test-id="btn-save-settings">{{ $t('label.Save') }}</q-btn>
             
         </form>
         
