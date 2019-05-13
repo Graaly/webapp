@@ -898,7 +898,8 @@ export default {
         text: ''
       },
       user: {
-        position: null
+        position: null,
+        proposeAQuest: true
       },
       friends: {
         list: [],
@@ -1217,7 +1218,7 @@ export default {
           return getQuest(type)
         }
 
-        if (this.$store.state.user.story.step === 16) {
+        if (this.$store.state.user.story.step === 16 && this.user.proposeAQuest) {
           // get the closest quest not already played
           var closestQuest = this.getClosestQuestUnplayed()
 
@@ -1231,6 +1232,8 @@ export default {
           }
           
           this.story.step = 16
+          // avoid the notification to appear when user filter on quests
+          this.user.proposeAQuest = false
         }
       } else {
         // check if quests are available offline

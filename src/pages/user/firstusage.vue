@@ -45,7 +45,7 @@
           </div>
         </q-carousel-slide>
         
-        <!------------------ EARN SLIDE ------------------------>
+        <!------------------ EARN SLIDE ------------------------
         
         <q-carousel-slide name="earn" class="bg-primary">
           <div class="row fit">
@@ -103,7 +103,8 @@ export default {
      */
     nextSlide() {
       let carousel = this.$refs['carousel']
-      if (carousel.value === 'earn') {
+      //if (carousel.value === 'earn') {
+      if (carousel.value === 'points') {
         this.$router.push('/user/login')
       } else {
         carousel.next()
