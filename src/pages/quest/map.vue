@@ -611,7 +611,6 @@
               </q-item>
             </q-list>
           </q-tab-panel>
-          
           <q-tab-panel name="friendplayed">
             <q-list v-if="friends.selected.played && friends.selected.played.length > 0">
               <q-item v-for="quest in friends.selected.played" :key="quest._id" @click.native="playQuest(quest.questId)">
