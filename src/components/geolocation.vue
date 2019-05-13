@@ -145,7 +145,7 @@ export default {
       this.isActive = false
       this.nbFails++
       this.userDeniedGeolocation = (err.code === 1) // corresponding to PositionError.PERMISSION_DENIED. works only for webapp mode.
-      this.$emit('error', {alreadyWorked: this.alreadyWorked})
+      this.$emit('error', !this.alreadyWorked)
       
       if (this.method === 'watchPosition') {
         this.stopTracking()

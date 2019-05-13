@@ -121,8 +121,8 @@
           <div class="centered bg-warning q-pa-sm" v-if="warnings.listCreatedQuestsMissing" @click="listCreatedQuests($store.state.user._id)">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
-          <q-expansion-item :label="$t('label.YourUnderValidationQuests')" default-opened>
-            <q-list highlight v-if="success.quests.built.tovalidate && success.quests.built.tovalidate.length > 0">
+          <q-expansion-item :label="$t('label.YourUnderValidationQuests')" default-opened v-if="success.quests.built.tovalidate && success.quests.built.tovalidate.length > 0">
+            <q-list>
               <q-item v-for="quest in success.quests.built.tovalidate" :key="quest._id">
                 <q-item-section avatar>
                   <q-avatar>
@@ -138,8 +138,8 @@
               </q-item>
             </q-list>
           </q-expansion-item>
-          <q-expansion-item :label="$t('label.YourRejectedQuests')" default-opened>
-            <q-list highlight v-if="success.quests.built.rejected && success.quests.built.rejected.length > 0">
+          <q-expansion-item :label="$t('label.YourRejectedQuests')" default-opened v-if="success.quests.built.rejected && success.quests.built.rejected.length > 0">
+            <q-list>
               <q-item v-for="quest in success.quests.built.rejected" :key="quest._id" @click.native="modifyQuest(quest.questId)">
                 <q-item-section avatar>
                   <q-avatar>
@@ -155,8 +155,8 @@
               </q-item>
             </q-list>
           </q-expansion-item>
-          <q-expansion-item :label="$t('label.YourDraftQuests')" default-opened>
-            <q-list highlight v-if="success.quests.built.draft && success.quests.built.draft.length > 0">
+          <q-expansion-item :label="$t('label.YourDraftQuests')" default-opened v-if="success.quests.built.draft && success.quests.built.draft.length > 0">
+            <q-list>
               <q-item v-for="quest in success.quests.built.draft" :key="quest._id" @click.native="modifyQuest(quest.questId)">
                 <q-item-section avatar>
                   <q-avatar>
@@ -172,8 +172,8 @@
               </q-item>
             </q-list>
           </q-expansion-item>
-          <q-expansion-item :label="$t('label.YourPublishedQuests')" default-opened>
-            <q-list highlight v-if="success.quests.built.published && success.quests.built.published.length > 0">
+          <q-expansion-item :label="$t('label.YourPublishedQuests')" default-opened v-if="success.quests.built.published && success.quests.built.published.length > 0">
+            <q-list>
               <q-item v-for="quest in success.quests.built.published" :key="quest._id" @click.native="modifyQuest(quest.questId)">
                 <q-item-section avatar>
                   <q-avatar>
@@ -201,7 +201,7 @@
           <div class="centered bg-warning q-pa-sm" v-if="warnings.listPlayedQuestsMissing" @click="listPlayedQuests($store.state.user._id)">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
-          <q-list highlight v-if="success.quests.played && success.quests.played.length > 0">
+          <q-list v-if="success.quests.played && success.quests.played.length > 0">
           <q-item v-for="quest in success.quests.played" :key="quest._id" @click.native="playQuest(quest.questId)">
             <q-item-section avatar>
               <q-avatar>
@@ -410,7 +410,7 @@
           <div class="centered bg-warning q-pa-sm" v-if="warnings.listFriendsMissing" @click="loadFriends">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
-          <q-list highlight>
+          <q-list>
             <q-item v-for="friend in friends.list" :key="friend.friendId">
               <q-item-section avatar @click.native="openFriendCard(friend.friendId)">
                 <q-avatar>
@@ -436,7 +436,7 @@
         
         <q-tab-panel name="news">
           <q-infinite-scroll @load="loadNews">
-            <q-list highlight>
+            <q-list>
               <q-item v-for="(item, index) in friends.news.items" :key="item._id">
                 <q-item-section avatar>
                   <q-avatar>
@@ -577,14 +577,17 @@
         
         <q-tab-panels v-model="friendsTab" animated>
         
-          <q-tab-panel name="friendranking">  
-          </q-tab-panel>
+          <!--<q-tab-panel name="friendranking">  
+          </q-tab-panel>-->
           
           <q-tab-panel name="friendbuilt">
-            <q-list highlight>
+            <q-list>
               <q-item v-for="quest in friends.selected.built" :key="quest._id" @click.native="playQuest(quest.questId)">
-                <q-item-section v-if="quest.picture" avatar><img :src="serverUrl + '/upload/quest/' + quest.picture" /></q-item-section>
-                <q-item-section v-if="!quest.picture" avatar><img src="statics/profiles/noprofile.png" /></q-item-section>
+                <q-item-section avatar>
+                  <q-avatar>
+                    <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
+                  </q-avatar>
+                </q-item-section>
                 <q-item-section>
                   <q-item-label>{{ getQuestTitle(quest, false) }}</q-item-label>
                   <q-item-label caption v-if="quest.status === 'published'">
@@ -610,10 +613,15 @@
           </q-tab-panel>
           
           <q-tab-panel name="friendplayed">
-            <q-list highlight v-if="friends.selected.played && friends.selected.played.length > 0">
+            <q-list v-if="friends.selected.played && friends.selected.played.length > 0">
               <q-item v-for="quest in friends.selected.played" :key="quest._id" @click.native="playQuest(quest.questId)">
-                <q-item-section v-if="quest.questData && quest.questData.picture"><img :src="((quest.questData.picture && quest.questData.picture[0] === '_') ? 'statics/images/quest/' + quest.questData.picture : serverUrl + '/upload/quest/' + quest.questData.picture)" /></q-item-section>
-                <q-item-section v-if="!quest.questData || !quest.questData.picture"><img src="statics/profiles/noprofile.png" /></q-item-section>
+                <q-item-section avatar>
+                  <q-avatar>
+                    <img v-if="quest.questData && quest.questData.thumb" :src="((quest.questData.thumb && quest.questData.thumb[0] === '_') ? 'statics/images/quest/' + quest.questData.thumb : serverUrl + '/upload/quest/' + quest.questData.thumb)" />
+                    <img v-if="quest.questData && !quest.questData.thumb && quest.questData.picture" :src="((quest.questData.picture && quest.questData.picture[0] === '_') ? 'statics/images/quest/' + quest.questData.picture : serverUrl + '/upload/quest/' + quest.questData.picture)" />
+                    <img v-if="!quest.questData || (!quest.questData.picture && !quest.questData.thumb)" src="statics/profiles/noprofile.png" />
+                  </q-avatar>
+                </q-item-section>
                 <q-item-section>
                   <q-item-label>{{ getQuestTitle(quest.questData, false) }} {{ quest.type }}</q-item-label>
                   <q-item-label caption v-if="!quest.dateCreated">
@@ -683,7 +691,7 @@
             <q-item multiline>
               <q-item-section avatar><q-icon name="trending_up" color="primary" /></q-item-section>
               <q-item-section>
-                <q-item-label>{{ $t('label.MyLevel') }}: {{ $store.state.user.level }}</q-item-label>
+                <q-item-label>{{ $t('label.MyLevel') }}: {{ $store.state.user.level }} ({{ $store.state.user.score}} {{ $t('label.points') }})</q-item-label>
                 <q-linear-progress class="q-my-sm" rounded :value="profile.level.progress" color="primary" style="height: 18px;" />
                 <q-item-label caption>{{ $t('label.ReachScoreOf', {score: profile.level.max}) }}</q-item-label>
               </q-item-section>
@@ -1890,7 +1898,7 @@ export default {
     },
     onUserPositionError(ret) {
       // reset position only if localization never worked, else keep current location
-      if (!ret || !ret.alreadyWorked) {
+      if (ret) {
         this.user.position = null
       }
     },

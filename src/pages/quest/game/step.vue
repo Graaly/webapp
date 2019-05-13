@@ -593,8 +593,6 @@ export default {
             const itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
             if (itemImageUrl) {
               tempStep.options.picture = itemImageUrl
-            } else {
-              this.warnings.stepDataMissing = true
             }
           }
           if (tempStep.type === 'character' && tempStep.options && tempStep.options.character && tempStep.options.character !== '') {
