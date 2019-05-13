@@ -114,84 +114,82 @@
         <!------------------ LIST OF QUESTS BUILT TAB ------------------------>
         
         <q-tab-panel name="built">
-        
-          <!------------------ ADD A QUEST BUTTON AREA ------------------------>
           <div class="centered q-pa-md" v-if="success.quests.built.tovalidate && success.quests.built.tovalidate.length === 0 && success.quests.built.rejected.length === 0 && success.quests.built.published.length === 0 && success.quests.built.draft.length === 0 && !warnings.listCreatedQuestsMissing">
             {{ $t('label.NoQuestCreated') }}
           </div>            
           <q-btn link class="full-width" @click="buildQuest" color="secondary">{{ $t('label.CreateANewQuest') }}</q-btn>
-          
-          <!------------------ LIST OF QUESTS BUILT AREA ------------------------>
-          
           <div class="centered bg-warning q-pa-sm" v-if="warnings.listCreatedQuestsMissing" @click="listCreatedQuests($store.state.user._id)">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
-
-          <q-list highlight v-if="success.quests.built.tovalidate && success.quests.built.tovalidate.length > 0">
-            <q-item-label header>{{ $t('label.YourUnderValidationQuests') }}</q-item-label>
-            <q-item v-for="quest in success.quests.built.tovalidate" :key="quest._id">
-              <q-item-section avatar>
-                <q-avatar>
-                  <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
-                </q-avatar>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
-                <q-item-label caption>
-                  {{ $t('label.PublicationRequested') }} ...
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-          <q-list highlight v-if="success.quests.built.rejected && success.quests.built.rejected.length > 0">
-            <q-item-label header>{{ $t('label.YourRejectedQuests') }}</q-item-label>
-            <q-item v-for="quest in success.quests.built.rejected" :key="quest._id" @click.native="modifyQuest(quest.questId)">
-              <q-item-section avatar>
-                <q-avatar>
-                  <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
-                </q-avatar>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
-                <q-item-label caption style="color: #f00">
-                  {{ $t('label.PublicationRejected') }}
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-          <q-list highlight v-if="success.quests.built.draft && success.quests.built.draft.length > 0">
-            <q-item-label header>{{ $t('label.YourDraftQuests') }}</q-item-label>
-            <q-item v-for="quest in success.quests.built.draft" :key="quest._id" @click.native="modifyQuest(quest.questId)">
-              <q-item-section avatar>
-                <q-avatar>
-                  <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
-                </q-avatar>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
-                <q-item-label caption>
-                  {{ $t('label.Unpublished') }}
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-          <q-list highlight v-if="success.quests.built.published && success.quests.built.published.length > 0">
-            <q-item-label header>{{ $t('label.YourPublishedQuests') }}</q-item-label>
-            <q-item v-for="quest in success.quests.built.published" :key="quest._id" @click.native="modifyQuest(quest.questId)">
-              <q-item-section avatar>
-                <q-avatar>
-                  <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
-                </q-avatar>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
-                <q-item-label caption v-if="quest.status === 'published'">
-                  <q-rating readonly v-if="quest.rating && quest.rating.rounded" v-model="quest.rating.rounded" color="primary" :max="5" size="1rem" />
-                  {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate($store.state.user.language)}}
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
+          <q-expansion-item :label="$t('label.YourUnderValidationQuests')" default-opened>
+            <q-list highlight v-if="success.quests.built.tovalidate && success.quests.built.tovalidate.length > 0">
+              <q-item v-for="quest in success.quests.built.tovalidate" :key="quest._id">
+                <q-item-section avatar>
+                  <q-avatar>
+                    <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
+                  </q-avatar>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
+                  <q-item-label caption>
+                    {{ $t('label.PublicationRequested') }} ...
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-expansion-item>
+          <q-expansion-item :label="$t('label.YourRejectedQuests')" default-opened>
+            <q-list highlight v-if="success.quests.built.rejected && success.quests.built.rejected.length > 0">
+              <q-item v-for="quest in success.quests.built.rejected" :key="quest._id" @click.native="modifyQuest(quest.questId)">
+                <q-item-section avatar>
+                  <q-avatar>
+                    <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
+                  </q-avatar>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
+                  <q-item-label caption style="color: #f00">
+                    {{ $t('label.PublicationRejected') }}
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-expansion-item>
+          <q-expansion-item :label="$t('label.YourDraftQuests')" default-opened>
+            <q-list highlight v-if="success.quests.built.draft && success.quests.built.draft.length > 0">
+              <q-item v-for="quest in success.quests.built.draft" :key="quest._id" @click.native="modifyQuest(quest.questId)">
+                <q-item-section avatar>
+                  <q-avatar>
+                    <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
+                  </q-avatar>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
+                  <q-item-label caption>
+                    {{ $t('label.Unpublished') }}
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-expansion-item>
+          <q-expansion-item :label="$t('label.YourPublishedQuests')" default-opened>
+            <q-list highlight v-if="success.quests.built.published && success.quests.built.published.length > 0">
+              <q-item v-for="quest in success.quests.built.published" :key="quest._id" @click.native="modifyQuest(quest.questId)">
+                <q-item-section avatar>
+                  <q-avatar>
+                    <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
+                  </q-avatar>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
+                  <q-item-label caption v-if="quest.status === 'published'">
+                    <q-rating readonly v-if="quest.rating && quest.rating.rounded" v-model="quest.rating.rounded" color="primary" :max="5" size="1rem" />
+                    {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate($store.state.user.language)}}
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-expansion-item>
           <div v-if="!success.quests.built.tovalidate && !warnings.listCreatedQuestsMissing">
             {{ $t('label.Loading') }}
           </div>
