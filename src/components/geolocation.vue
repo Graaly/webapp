@@ -54,6 +54,7 @@ export default {
       timeoutBetweenFailedAttempts: 10000,
       nbFails: 0,
       disabled: false,
+      alreadyWorked: false,
       method: 'watchPosition', // 'watchPosition' or 'getCurrentPosition'
       // specific to method 'watchPosition'
       geolocationWatchId: null,
@@ -95,7 +96,7 @@ export default {
         return false;
       }
     },
-    askUserToEnableGeolocation() { return this.nbFails >= 1 || this.userDeniedGeolocation }
+    askUserToEnableGeolocation() { return (this.nbFails >= 1 && !this.alreadyWorked) || this.userDeniedGeolocation }
   },
   mounted() {
     if (!navigator || !navigator.geolocation) {
@@ -144,7 +145,7 @@ export default {
       this.isActive = false
       this.nbFails++
       this.userDeniedGeolocation = (err.code === 1) // corresponding to PositionError.PERMISSION_DENIED. works only for webapp mode.
-      this.$emit('error')
+      this.$emit('error', {alreadyWorked: this.alreadyWorked})
       
       if (this.method === 'watchPosition') {
         this.stopTracking()
@@ -169,6 +170,7 @@ export default {
       }
       
       this.isSupported = true
+      this.alreadyWorked = true
       this.isActive = true
       this.nbFails = 0
       this.userDeniedGeolocation = false

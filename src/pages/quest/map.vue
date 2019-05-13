@@ -1888,8 +1888,11 @@ export default {
     trackCallBackFunction() {
       return false
     },
-    onUserPositionError() {
-      this.user.position = null
+    onUserPositionError(ret) {
+      // reset position only if localization never worked, else keep current location
+      if (!ret || !ret.alreadyWorked) {
+        this.user.position = null
+      }
     },
     /*
      * Launch a quest
