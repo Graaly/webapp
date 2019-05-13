@@ -1057,9 +1057,13 @@ export default {
       }
     },
     centerOnUserPosition() {
+      this.showBottomMenu = false
+      if (this.user.position === null) {
+        Notification(this.$t('label.LocationSearching'), 'warning')
+        return
+      }
       this.CenterMapOnPosition(this.user.position.latitude, this.user.position.longitude)
       this.map.zoom = 15
-      this.showBottomMenu = false
     },
     /*
      * Check battery level
@@ -1199,6 +1203,12 @@ export default {
      */
     async getQuests(type) {
       this.showBottomMenu = false
+      
+      if (this.user.position === null) {
+        Notification(this.$t('label.LocationSearching'), 'warning')
+        return
+      }
+      
       if (!type) {
         this.map.filter = 'all'
       } else {
@@ -1212,9 +1222,8 @@ export default {
         this.questList = response.data
         
         // if no quest, enlarge to all quests
-        if (this.questList.length === 0) {
-          this.map.filter = 'world'
-          return getQuest(type)
+        if (this.questList.length === 0 && this.map.filter !== 'world') {
+          return this.getQuests('world')
         }
 
         if (this.$store.state.user.story.step === 16) {
