@@ -1260,20 +1260,26 @@ export default {
           if (offlineQuestsData && offlineQuestsData.list) {
             var tempQuestList = offlineQuestsData.list
             
-            // get pictures
-            for (var i = 0; i < tempQuestList.length; i++) {
-              var pictureUrl = await utils.readBinaryFile(tempQuestList[i].questId, tempQuestList[i].picture)
-              if (pictureUrl) {
-                tempQuestList[i].picture = pictureUrl
-              } else {
-                tempQuestList[i].picture = '_default-quest-picture.png'
+            if (tempQuestList.length > 0) {
+              // get pictures
+              for (var i = 0; i < tempQuestList.length; i++) {
+                var pictureUrl = await utils.readBinaryFile(tempQuestList[i].questId, tempQuestList[i].picture)
+                if (pictureUrl) {
+                  tempQuestList[i].picture = pictureUrl
+                } else {
+                  tempQuestList[i].picture = '_default-quest-picture.png'
+                }
               }
+              this.questList = tempQuestList
+              
+              this.offline.active = true
+            } else {
+              // if no quest available in quests.json
+              this.warnings.noServerReponse = true
             }
-            this.questList = tempQuestList
-            
-            this.offline.active = true
           }
         } else {
+          // if quests.json is not accessable
           this.warnings.noServerReponse = true
         }
       }

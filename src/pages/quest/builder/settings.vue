@@ -102,8 +102,8 @@
             {{ $t('label.QuestType') }} 
             <q-icon name="help" @click.native="showHelpPopup('helpQuestType')" />
             <div class="q-gutter-sm">
-              <q-radio :disable="readOnly || editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="simple" :label="$t('label.basicEditor')" @input="refreshStepsList" />
-              <q-radio :disable="readOnly || editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="advanced" :label="$t('label.advancedEditor')" @input="refreshStepsList" />
+              <q-radio :disable="readOnly || editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="simple" :label="$t('label.basicEditor')" @input="changeEditorMode" />
+              <q-radio :disable="readOnly || editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="advanced" :label="$t('label.advancedEditor')" @input="changeEditorMode" />
             </div>
           </div>
           
@@ -912,6 +912,21 @@ export default {
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+    },
+    async changeEditorMode() {
+      if (this.form.fields.editorMode === 'advanced') {
+        this.$q.dialog({
+          message: this.$t('label.AreYouSureYouWantToMoveToAdvancedMode'),
+          ok: true,
+          cancel: true
+        }).onOk(async () => {
+          await this.refreshStepsList()
+        }).onCancel(async () => {
+          this.form.fields.editorMode = 'simple'
+        })
+      } else {
+        await this.refreshStepsList()
       }
     },
     /*

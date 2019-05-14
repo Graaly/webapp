@@ -925,7 +925,7 @@ export default {
         if (!this.selectedStep.form.options.hasOwnProperty('initDuration')) {
           this.selectedStep.form.options = { initDuration: 1 }
         }
-        if (this.options.type.code === 'character') {
+        if (this.options.type.code === 'character' && !this.selectedStep.form.options.character) {
           Vue.set(this.selectedStep.form.options, 'character', '1')
         }
       } else if (this.options.type.code === 'image-recognition') {

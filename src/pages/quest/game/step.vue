@@ -599,8 +599,6 @@ export default {
             const characterPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.character)
             if (characterPictureUrl) {
               tempStep.options.character = characterPictureUrl
-            } else {
-              this.warnings.stepDataMissing = true
             }
           }
           this.step = tempStep

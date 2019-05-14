@@ -705,7 +705,8 @@ module.exports = {
       UserCanNotBeFriendWithHim: "You can not add yourself as friend",
       TooMuchFriends: "You can not have more than 150 friends",
       FriendNotFound: "This person is not yet a Graaly user",
-      YouHaveWin: "You have won!"
+      YouHaveWin: "You have won!",
+      AreYouSureYouWantToMoveToAdvancedMode: "Are you sure to move to advanced mode? You will not be allowed to return to simple mode later"
     }
   },
   fr: {
@@ -1415,7 +1416,8 @@ module.exports = {
       UserCanNotBeFriendWithHim: "Vous ne pouvez pas être ami avec vous même",
       TooMuchFriends: "Vous ne pouvez pas avoir plus de 150 amis",
       FriendNotFound: "Cette personne n'est pas encore inscrite sur Graaly",
-      YouHaveWin: "Vous avez gagné !"
+      YouHaveWin: "Vous avez gagné !",
+      AreYouSureYouWantToMoveToAdvancedMode: "Etes-vous certain(e) de passer en mode avancé. Vous ne pourrez pas revenir en mode simple."
     }
   }
 }
