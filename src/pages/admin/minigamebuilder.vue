@@ -66,8 +66,14 @@
               <q-input type="text" label="Name" v-model="place.name" />
             </div>
             <div class="col">
-              <q-btn v-if="place.picture === ''" icon="cloud_upload" @click="$refs['placepicture' + index].click()" />
-              <input @change="uploadPlacePicture(index, $event)" :ref="'placepicture' + index" type="file" accept="image/*" hidden />
+              <div v-if="!isIOs">
+                <q-btn v-if="place.picture === ''" icon="cloud_upload" @click="$refs['placepicture' + index].click()" />
+                <input @change="uploadPlacePicture(index, $event)" :ref="'placepicture' + index" type="file" accept="image/*" hidden />
+              </div>
+              <div v-if="isIOs">
+                <q-icon name="cloud_upload" />
+                <input @change="uploadPlacePicture(index, $event)" :ref="'placepicture' + index" type="file" accept="image/*" />
+              </div>
               <div v-if="place.picture !== ''">
                 <img :src="serverUrl + '/upload/town/place/' + place.picture" style="width: 50px" />
               </div>
@@ -119,6 +125,7 @@ export default {
           places: []
         }
       },
+      isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
       serverUrl: process.env.SERVER_URL
     }
   },

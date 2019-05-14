@@ -45,6 +45,13 @@
         <icon height="114" src="res/icon/ios/icon-57-2x.png" width="114" />
         <icon height="72" src="res/icon/ios/icon-72.png" width="72" />
         <icon height="144" src="res/icon/ios/icon-72-2x.png" width="144" />
+        <icon height="20" src="res/icon/ios/icon-20-1x.png" width="20" />
+        <icon height="29" src="res/icon/ios/icon-29-1x.png" width="29" />
+        <icon height="50" src="res/icon/ios/icon-50-1x.png" width="50" />
+        <icon height="58" src="res/icon/ios/icon-29-2x.png" width="58" />
+        <icon height="87" src="res/icon/ios/icon-29-3x.png" width="87" />
+        <icon height="100" src="res/icon/ios/icon-50-2x.png" width="100" />
+        <icon height="167" src="res/icon/ios/icon-83.5-2x.png" width="167" />
         <splash height="480" src="res/screen/ios/Default~iphone.png" width="320" />
         <splash height="960" src="res/screen/ios/Default@2x~iphone.png" width="640" />
         <splash height="1024" src="res/screen/ios/Default-Portrait~ipad.png" width="768" />
@@ -55,6 +62,8 @@
         <splash height="1334" src="res/screen/ios/Default-667h.png" width="750" />
         <splash height="2208" src="res/screen/ios/Default-736h.png" width="1242" />
         <splash height="1242" src="res/screen/ios/Default-Landscape-736h.png" width="2208" />
+        <splash height="2436" src="res/screen/ios/iphoneX-portrait.png" width="1125" />
+        <splash height="1125" src="res/screen/ios/iphoneX-landscape.png" width="2436" />
     </platform>
     <allow-navigation href="http://192.168.43.151:8080/index.html" />
     <allow-navigation href="*" />

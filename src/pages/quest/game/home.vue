@@ -405,6 +405,8 @@ export default {
      */
     async cancelRun(runId) {
       await RunService.endRun(runId, null, this.quest.questId, this.quest.version, this.quest.mainLanguage)
+      // remove run offline data
+      await utils.writeInFile(this.quest.questId, 'run_' + this.quest.questId + '.json', JSON.stringify({}), false)
     },
     /*
      * Check if user can play this quest

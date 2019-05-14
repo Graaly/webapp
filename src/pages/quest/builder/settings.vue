@@ -144,8 +144,14 @@
             <p>{{ $t('label.Picture') }} :</p>
             <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.picture" />
           </div>
-          <q-btn class="full-width" v-if="!readOnly" :label="$t('label.ModifyThePicture')" @click="$refs['picturefile'].click()" />
-          <input @change="uploadImage" ref="picturefile" type="file" accept="image/*" hidden />
+          <div v-if="!isIOs">
+            <q-btn class="full-width" v-if="!readOnly" :label="$t('label.ModifyThePicture')" @click="$refs['picturefile'].click()" />
+            <input @change="uploadImage" ref="picturefile" type="file" accept="image/*" hidden />
+          </div>
+          <div v-if="isIOs">
+            {{ $t('label.ModifyThePicture') }}:
+            <input @change="uploadImage" ref="picturefile" type="file" accept="image/*" />
+          </div>
           
           <div v-if="form.fields.customization">
             <q-input
@@ -161,8 +167,14 @@
             <p>{{ $t('label.YourLogo') }} :</p>
             <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.customization.logo" />
           </div>
-          <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddALogo')" @click="$refs['logofile'].click()" />
-          <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" hidden />
+          <div v-if="!isIOs">
+            <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddALogo')" @click="$refs['logofile'].click()" />
+            <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" hidden />
+          </div>
+          <div v-if="isIOs">
+            {{ $t('label.AddALogo') }}:
+            <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" />
+          </div>
           
           <q-btn v-if="!readOnly" @click="submitSettings" color="primary" class="full-width q-mt-lg" test-id="btn-save-settings">{{ $t('label.Save') }}</q-btn>
             
@@ -805,6 +817,7 @@ export default {
       canMoveNextStep: false,
       canPass: false,
       itemUsed: null,
+      isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
       serverUrl: process.env.SERVER_URL,
       pictureUploadURL: this.serverUrl + '/quest/picture/upload',
       titleMaxLength: 50,
