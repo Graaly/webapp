@@ -280,7 +280,7 @@
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && geolocation.active"></video>
         </transition>
-        <div v-show="playerResult === null">
+        <div v-show="playerResult === null && this.geolocation.active">
           <div class="text">
             <p>{{ getTranslatedText() }}</p>
             <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
@@ -516,10 +516,11 @@ export default {
             maxAvgItems: 3
           },
           velocity: { x: 0, y: 0 },
-          dateLatestEvent: null
+          dateLatestEvent: null,
+          isTargetPositionUndefined: true,
+          isAccelerationIdle: false,
+          idleAccelerationCounter: 1
         },
-        isAccelerationIdle: false,
-        idleAccelerationCounter: 1,
         minDistanceForGPS: 20, // in meters
         
         // for step type 'locate-marker'
@@ -1499,7 +1500,7 @@ export default {
                     object.scale.set(0, 0, 0)
                     object.position.set(0, cameraDistance, size.z / 2)
                     object.rotation.set(0, 0, 0)
-                    this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline)
+                    this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
                   })
                 
                 let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
@@ -2019,7 +2020,7 @@ export default {
       let options = this.step.options
       
       if (typeof options === 'undefined') {
-        console.warn("watchLocationSuccess: variable 'options' is undefined. Could not get latitude & longitude of the target.")
+        console.warn("variable 'options' is undefined. Could not get latitude & longitude of the target.")
         return
       }
       
@@ -2035,11 +2036,10 @@ export default {
       
       let finalDirection = utils.degreesToRadians(rawDirection)
       
+      // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
       // note that those properties are also needed when accelerometer is used (method 'handleMotionEvent()')
       this.geolocation.position.x = this.geolocation.GPSdistance !== 0 ? Math.sin(finalDirection) * this.geolocation.GPSdistance : 0
       this.geolocation.position.y = this.geolocation.GPSdistance !== 0 ? Math.cos(finalDirection) * this.geolocation.GPSdistance : 0
-      
-      // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
       
       if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.geolocation.target.scene !== null) {
         let target = this.geolocation.target
@@ -2719,22 +2719,30 @@ export default {
     */
     handleMotionEvent (event) {
       let dm = this.deviceMotion
+      let object
+      let canProcess = true // can this method be entierely run? is all required data available?
       
-      // save resources: do nothing with device motion while user GPS position is too far
-      if (this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion) {
+      // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
+      if (this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion || !this.geolocation.target || !this.geolocation.target.scene) {
+        canProcess = false
+      }
+      
+      object = this.geolocation.target.scene.getObjectByName('targetObject')
+      
+      canProcess = canProcess && typeof object !== 'undefined'
+      
+      if (!canProcess) {
         dm.acceleration.avgData = { x: [], y: [], z: [] }
         dm.velocity = { x: 0, y: 0 }
         return
       }
       
-      TWEEN.removeAll() // clears current "move" from method "onNewUserPosition()"
-      
-      let object = this.geolocation.target.scene.getObjectByName('targetObject')
-      // this means we are switching from GPS only to "accelerometer + GPS" mode (or we are in the "switching zone")
-      if (this.isUsingGPSOnly) {
+      // this means we are switching from GPS only to "accelerometer + GPS" mode (or we are in the "switching zone"), or it's the first time we handle motion event
+      if (this.isUsingGPSOnly || dm.isTargetPositionUndefined) {
         this.geolocation.distance = this.geolocation.GPSdistance
         object.position.x = this.geolocation.position.x
         object.position.y = this.geolocation.position.y
+        dm.isTargetPositionUndefined = false
       }
       
       let accel = event.acceleration
@@ -2772,10 +2780,10 @@ export default {
         dm.acceleration.filtered.y = utils.arrayAverage(dm.acceleration.avgData.y)
         dm.acceleration.filtered.z = utils.arrayAverage(dm.acceleration.avgData.z)
         
-        this.isAccelerationIdle = (Math.pow(dm.acceleration.filtered.x, 2) + Math.pow(dm.acceleration.filtered.y, 2) + Math.pow(dm.acceleration.filtered.z, 2)) < 0.08
+        dm.isAccelerationIdle = (Math.pow(dm.acceleration.filtered.x, 2) + Math.pow(dm.acceleration.filtered.y, 2) + Math.pow(dm.acceleration.filtered.z, 2)) < 0.08
         
         // fix acceleration errors / inaccuracies:
-        let accelBoost = 1.2 // when not idle & same sign as velocity
+        let accelBoost = 1.4 // when not idle & same sign as velocity
         let accelReduction = 0.3 // when acceleration sign & velocity sign are different (otherwise, velocity goes too much beyond the "other side" of 0)
         if (dm.velocity.x * dm.acceleration.filtered.x < 0) {
           dm.acceleration.filtered.x *= accelReduction
@@ -2793,12 +2801,12 @@ export default {
         dm.velocity.y += dm.acceleration.filtered.y * timeDiff
         
         // we consider that the device is hand held by a person, so when acceleration is nearly idle, quickly decrease velocity to avoid position drifting
-        if (this.isAccelerationIdle) {
-          dm.velocity.x *= 0.99 / Math.pow(this.idleAccelerationCounter, 2)
-          dm.velocity.y *= 0.99 / Math.pow(this.idleAccelerationCounter, 2)
-          this.idleAccelerationCounter = Math.max(100, this.idleAccelerationCounter + 1) // avoid too high values for the counter
+        if (dm.isAccelerationIdle) {
+          dm.velocity.x *= 0.99 / Math.pow(dm.idleAccelerationCounter, 2)
+          dm.velocity.y *= 0.99 / Math.pow(dm.idleAccelerationCounter, 2)
+          dm.idleAccelerationCounter = Math.max(100, dm.idleAccelerationCounter + 1) // avoid too high values for the counter
         } else {
-          this.idleAccelerationCounter = 1
+          dm.idleAccelerationCounter = 1
         }
         
         // normalize velocity under 5km/h to avoid excessive drift when walking for a long time
@@ -2818,7 +2826,7 @@ export default {
         }
         // if we are not in "idle" state, to avoid potential big object jumps in case GPS must be used again (object becomes too far), make a slight move towards the "real" GPS position at each "devicemotion" call
         let deltaFromGeolocation
-        if (!this.isAccelerationIdle) {
+        if (!dm.isAccelerationIdle) {
           deltaFromGeolocation = {
             // the "/ 700" factor guarantees that the object won't move faster than about 1.5m/s if its real position is 20m away from current position.
             x: (this.geolocation.position.x - currentObjectPosition.x) / 700,
@@ -2829,6 +2837,8 @@ export default {
         }
         
         if (this.geolocation.GPSdistance <= this.minDistanceForGPS) {
+          TWEEN.removeAll() // clears current "move" from method "onNewUserPosition()"
+          
           // update object position
           object.position.x = currentObjectPosition.x + deltaFromAccelerometer.x + deltaFromGeolocation.x
           object.position.y = currentObjectPosition.y + deltaFromAccelerometer.y + deltaFromGeolocation.y
@@ -2987,6 +2997,7 @@ export default {
   
   /* locate-item-ar specific */
   
+  .locate-item-ar { background: linear-gradient(gray, black); }
   .locate-item-ar video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .locate-item-ar .target-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
   .locate-item-ar #target-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }

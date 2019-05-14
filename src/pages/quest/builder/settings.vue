@@ -556,7 +556,7 @@
                 size="lg" 
                 :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
                 icon="work" 
-                :class="{'bg-secondary': (inventory.isOpened && quest.customization.color === ''), 'bg-primary': (!inventory.isOpened && quest.customization.color === '')}" 
+                :class="{'bg-secondary': (inventory.isOpened && !quest.customization.color), 'bg-primary': (!inventory.isOpened && !quest.customization.color)}" 
                 @click="openInventory()"
                 test-id="btn-inventory"
               />
@@ -567,7 +567,7 @@
                 size="lg" 
                 :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
                 icon="lightbulb" 
-                :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && quest.customization.color === ''), 'bg-primary': (!hint.isOpened && quest.customization.color === '')}" 
+                :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && !quest.customization.color), 'bg-primary': (!hint.isOpened && !quest.customization.color)}" 
                 @click="askForHint()" 
                 v-show="isHintAvailable()" 
               />
@@ -576,8 +576,8 @@
               <q-btn 
                 round 
                 size="lg" 
-                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
-                :class="{'bg-primary': (quest.customization.color === '')}" 
+                :style="quest.customization.color ? 'background-color: ' + quest.customization.color : ''" 
+                :class="{'bg-primary': !quest.customization.color}" 
                 icon="arrow_back" 
                 @click="stepId = -1; modifyStep(chapters.newStep.overviewData)" 
               />
@@ -586,9 +586,9 @@
               <q-btn 
                 round 
                 size="lg" 
-                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''"
+                :style="quest.customization.color ? 'background-color: ' + quest.customization.color : ''"
                 icon="arrow_forward" 
-                :class="{'flashing': canMoveNextStep, 'bg-primary': (quest.customization.color === '')}" 
+                :class="{'flashing': canMoveNextStep, 'bg-primary': !quest.customization.color}" 
                 v-show="canMoveNextStep || canPass" 
                 @click="closeOverview" 
                  test-id="btn-next-step"
