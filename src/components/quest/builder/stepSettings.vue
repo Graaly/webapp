@@ -1738,6 +1738,7 @@ export default {
       navigator.geolocation.getCurrentPosition(this.fillLocation, this.getLocationError, {timeout: 5000, maximumAge: 10000});
     },
     getLocationError(err) {
+      this.$q.loading.hide()
       console.log(err)
       this.$q.dialog({
         title: this.$t('label.GeolocationFailed'),
@@ -1772,12 +1773,13 @@ export default {
      */
     async getMyGPSLocation() {
       this.$q.loading.show()
-      navigator.geolocation.getCurrentPosition(async (position) => {
-        this.selectedStep.form.options.lat = position.coords.latitude
-        this.selectedStep.form.options.lng = position.coords.longitude
-        this.$v.selectedStep.form.options.lat.$touch()
-        this.$v.selectedStep.form.options.lng.$touch()
-        this.$q.loading.hide()
+      var _this = this
+      navigator.geolocation.getCurrentPosition(function (position) {
+        _this.selectedStep.form.options.lat = position.coords.latitude
+        _this.selectedStep.form.options.lng = position.coords.longitude
+        _this.$v.selectedStep.form.options.lat.$touch()
+        _this.$v.selectedStep.form.options.lng.$touch()
+        _this.$q.loading.hide()
       }, 
       this.getLocationError, 
       { 
