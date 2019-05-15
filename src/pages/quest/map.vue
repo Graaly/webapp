@@ -45,11 +45,11 @@
         </gmap-info-window>
       </gmap-map>
     </div>
-    <div class="q-px-md" v-if="offline.active">
-      <div class="scroll image-list" style="width: 100%">
+    <div class="fullscreen scroll q-px-md" v-if="offline.active">
+      <div class="image-list" style="width: 100%">
         <div class="q-my-md">{{ $t('label.YouAreOfflineYourQuestsList') }}</div>
         <q-card v-for="(item, index) in questList" :key="index" class="q-mb-md" @click.native="$router.push('/quest/play/' + item.questId)">
-          <q-img :src="item.picture">
+          <q-img :src="item.picture" basic>
             <div class="absolute-top text-center">
               {{ getQuestTitle(item, true) }}
               <q-rating slot="subtitle" v-if="item.rating && item.rating.rounded" v-model="item.rating.rounded" color="primary" :max="5" />

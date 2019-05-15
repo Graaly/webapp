@@ -71,14 +71,14 @@
            <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="answers-text" v-if="answerType === 'text'">
-          <q-btn v-for="(option, key) in step.options" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
+          <q-btn v-for="(option, key) in step.options.items" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
             <span v-if="!option.textLanguage || !option.textLanguage[lang]">{{ option.text }}</span>
             <span v-if="option.textLanguage && option.textLanguage[lang]">{{ option.textLanguage[lang] }}</span>
           </q-btn>
         </div>
         <div class="answers-images" v-if="answerType === 'image'">
           <div class="images-block">
-            <div v-for="(option, key) in step.options" :key="key" :class="option.class" @click="checkAnswer(key)" :test-id="'answer-image-' + key">
+            <div v-for="(option, key) in step.options.items" :key="key" :class="option.class" @click="checkAnswer(key)" :test-id="'answer-image-' + key">
               <img :src="option.imagePath.indexOf('blob:') !== -1 ? option.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/choose-image/' + option.imagePath" :class="option.class" />
               <q-btn v-if="option.class !== null" round :class="option.class" :icon="option.icon" disable />
             </div>
@@ -637,7 +637,7 @@ export default {
         }
         
         if (this.step.type === 'choose') {
-          this.answerType = Array.isArray(this.step.options) && this.step.options[0].hasOwnProperty('imagePath') && this.step.options[0].imagePath !== null ? 'image' : 'text'
+          this.answerType = Array.isArray(this.step.options.items) && this.step.options.items[0].hasOwnProperty('imagePath') && this.step.options.items[0].imagePath !== null ? 'image' : 'text'
         }
         
         if (this.step.type === 'code-keypad') {
@@ -1268,17 +1268,17 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
           
           if (checkAnswerResult.result === true) {
-            let selectedAnswer = this.step.options[answer]
+            let selectedAnswer = this.step.options.items[answer]
             if (this.step.displayRightAnswer === false) {
               selectedAnswer.class = 'rightorwrong'
             } else {
               selectedAnswer.icon = 'done'
               selectedAnswer.class = 'right'
             }
-            Vue.set(this.step.options, answer, selectedAnswer)
+            Vue.set(this.step.options.items, answer, selectedAnswer)
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
-            let selectedAnswer = this.step.options[answer]
+            let selectedAnswer = this.step.options.items[answer]
             if (this.step.displayRightAnswer === false) {
               selectedAnswer.class = 'rightorwrong'
             } else {
@@ -1286,14 +1286,14 @@ export default {
               selectedAnswer.class = 'wrong'
               // indicate the right answer
               if (checkAnswerResult.answer || checkAnswerResult.answer === 0) {
-                let selectedAnswer = this.step.options[checkAnswerResult.answer]
+                let selectedAnswer = this.step.options.items[checkAnswerResult.answer]
                 selectedAnswer.icon = 'done'
                 selectedAnswer.class = 'right'
-                Vue.set(this.step.options, answer, selectedAnswer)
-                Vue.set(this.step.options, checkAnswerResult.answer, selectedAnswer)
+                Vue.set(this.step.options.items, answer, selectedAnswer)
+                Vue.set(this.step.options.items, checkAnswerResult.answer, selectedAnswer)
               }
             }
-            Vue.set(this.step.options, answer, selectedAnswer)
+            Vue.set(this.step.options.items, answer, selectedAnswer)
             
             this.nbTry++
             this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)

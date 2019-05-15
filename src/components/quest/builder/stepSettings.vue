@@ -221,19 +221,19 @@
     <div v-if="options.type.code == 'choose'">
       
       <h2>{{ $t('label.ResponseTypes') }}</h2>
-      <q-radio v-model="answerType" val="text" :label="$t('label.Texts')" @click="$v.selectedStep.form.options.$touch" />
-      <q-radio v-model="answerType" val="image" :label="$t('label.Pictures')" @click="$v.selectedStep.form.options.$touch" test-id="radio-choose-images" />
+      <q-radio v-model="answerType" val="text" :label="$t('label.Texts')" @click="$v.selectedStep.form.options.items.$touch" />
+      <q-radio v-model="answerType" val="image" :label="$t('label.Pictures')" @click="$v.selectedStep.form.options.items.$touch" test-id="radio-choose-images" />
         
       <h2>{{ $t('label.PossibleAnswers') }}</h2>
       <p>{{ $t('label.SelectTheGoodAnswer') }}</p>
         
-      <div class="answer" v-for="(option, key) in selectedStep.form.options" :key="key">
+      <div class="answer" v-for="(option, key) in selectedStep.form.options.items" :key="key">
         <q-radio v-model="selectedStep.form.answers" :val="key" :test-id="'radio-answer-' + key" />
         
-        <q-input v-show="answerType === 'text'" v-model="option.text" @input="$v.selectedStep.form.options ? $v.selectedStep.form.options.$each[key].text.$touch : null" input-class="native-input-class" :test-id="'text-answer-' + key" />
-        <p class="error-label" v-if="answerType === 'text' && $v.selectedStep.form.options && !$v.selectedStep.form.options.$each[key].text.required">{{ $t('label.RequiredField') }}</p>
+        <q-input v-show="answerType === 'text'" v-model="option.text" @input="$v.selectedStep.form.options.items ? $v.selectedStep.form.options.items.$each[key].text.$touch : null" input-class="native-input-class" :test-id="'text-answer-' + key" />
+        <p class="error-label" v-if="answerType === 'text' && $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].text.required">{{ $t('label.RequiredField') }}</p>
         
-        <p v-show="answerType === 'image' && option.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && !$v.selectedStep.form.options.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
+        <p v-show="answerType === 'image' && option.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="answerType === 'image' && option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + option.imagePath" /></p>
         <span v-if="!isIOs">
           <q-btn v-show="answerType === 'image'" icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
@@ -949,19 +949,19 @@ export default {
       
       // initialize specific steps
       if (this.options.type.code === 'choose') {
-        if (!Array.isArray(this.selectedStep.form.options)) {
+        if (!this.selectedStep.form.options || !this.selectedStep.form.options.items || !Array.isArray(this.selectedStep.form.options.items)) {
           this.answerType = 'text'
-          this.selectedStep.form.options = []
+          this.selectedStep.form.options = {items: []}
           this.selectedStep.form.answers = 0
           for (let i = 0; i < this.defaultNbAnswers; i++) {
-            this.selectedStep.form.options.push({ text: this.$t('label.AnswerNb', { nb: (i + 1) }), imagePath: null })
+            this.selectedStep.form.options.items.push({ text: this.$t('label.AnswerNb', { nb: (i + 1) }), imagePath: null })
           }
         } else {
-          this.answerType = this.selectedStep.form.options[0].hasOwnProperty('imagePath') && this.selectedStep.form.options[0].imagePath !== null ? 'image' : 'text'
+          this.answerType = this.selectedStep.form.options.items[0].hasOwnProperty('imagePath') && this.selectedStep.form.options.items[0].imagePath !== null ? 'image' : 'text'
           if (this.answerType === 'text') {
-            for (var i = 0; i < this.selectedStep.form.options.length; i++) {
-              if (this.selectedStep.form.options[i].textLanguage && this.selectedStep.form.options[i].textLanguage[this.lang]) {
-                this.selectedStep.form.options[i].text = this.selectedStep.form.options[i].textLanguage[this.lang]
+            for (var i = 0; i < this.selectedStep.form.options.items.length; i++) {
+              if (this.selectedStep.form.options.items[i].textLanguage && this.selectedStep.form.options.items[i].textLanguage[this.lang]) {
+                this.selectedStep.form.options.items[i].text = this.selectedStep.form.options.items[i].textLanguage[this.lang]
               }
             }
           }          
@@ -1004,7 +1004,7 @@ export default {
         }
       } else if (this.options.type.code === 'info-text' || this.options.type.code === 'character' || this.options.type.code === 'choose' || this.options.type.code === 'write-text' || this.options.type.code === 'code-keypad') {
         if (!this.selectedStep.form.options.hasOwnProperty('initDuration')) {
-          this.selectedStep.form.options = { initDuration: 1 }
+          this.selectedStep.form.options.initDuration = 1
         }
         if (this.options.type.code === 'character' && !this.selectedStep.form.options.character) {
           Vue.set(this.selectedStep.form.options, 'character', '1')
@@ -1120,7 +1120,7 @@ export default {
       this.$v.selectedStep.form.$touch()
       
       // treat form errors (based on validation rules)
-      if (this.$v.selectedStep.form.$error) {
+      if (this.$v.selectedStep.form.$error) {    
         Notification(this.$t('label.StepSettingsFormError'), 'error')
         return
       }
@@ -1128,17 +1128,17 @@ export default {
       // format answer based on the type of step
       if (this.options.type.code === 'choose') {
         if (this.answerType === 'text') {
-          for (var i = 0; i < this.selectedStep.form.options.length; i++) {
-            if (this.selectedStep.form.options && this.selectedStep.form.options[i] && this.selectedStep.form.options[i].textLanguage) {
-              this.selectedStep.form.options[i].textLanguage[this.lang] = this.selectedStep.form.options[i].text
+          for (var i = 0; i < this.selectedStep.form.options.items.length; i++) {
+            if (this.selectedStep.form.options && this.selectedStep.form.options.items && this.selectedStep.form.options.items[i] && this.selectedStep.form.options.items[i].textLanguage) {
+              this.selectedStep.form.options.items[i].textLanguage[this.lang] = this.selectedStep.form.options.items[i].text
             } else {
               let text = {}
-              text[this.lang] = this.selectedStep.form.options[i].text
-              this.selectedStep.form.options[i].textLanguage = text
+              text[this.lang] = this.selectedStep.form.options.items[i].text
+              this.selectedStep.form.options.items[i].textLanguage = text
             }
           }
           // clear all images => playStep.vue will consider that player should choose between text options
-          this.selectedStep.form.options = this.selectedStep.form.options.map((option) => { option.imagePath = null; return option })
+          this.selectedStep.form.options.items = this.selectedStep.form.options.items.map((option) => { option.imagePath = null; return option })
         }
       }
       if (this.options.type.code === 'character') {
@@ -1210,12 +1210,12 @@ export default {
      * Add an answer in the multiple choice step
      */
     addAnswer: function () {
-      if (this.selectedStep.form.options.length >= this.maxNbAnswers) {
+      if (this.selectedStep.form.options.items.length >= this.maxNbAnswers) {
         Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.maxNbAnswers }), 'error')
       } else {
-        this.selectedStep.form.options.push({
+        this.selectedStep.form.options.items.push({
           isRightAnswer: false,
-          text: this.$t('label.AnswerNb', { nb: (this.selectedStep.form.options.length + 1) }), // text default data
+          text: this.$t('label.AnswerNb', { nb: (this.selectedStep.form.options.items.length + 1) }), // text default data
           imagePath: null // image default data
         })
       }
@@ -1249,10 +1249,10 @@ export default {
      * Delete an answer in the multiple choice step
      */
     deleteAnswer: function (key) {
-      if (this.selectedStep.form.options.length <= this.minNbAnswers) {
+      if (this.selectedStep.form.options.items.length <= this.minNbAnswers) {
         Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.minNbAnswers }), 'error')
       } else {
-        this.selectedStep.form.options.splice(key, 1)
+        this.selectedStep.form.options.items.splice(key, 1)
       }
     },
     /*
@@ -1512,7 +1512,7 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadAnswerImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.options[key].imagePath = uploadResult.data.file
+        this.selectedStep.form.options.items[key].imagePath = uploadResult.data.file
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1847,7 +1847,9 @@ export default {
     switch (this.options.type.code) {
       case 'choose':
         fieldsToValidate.options = {
-          $each: this.answerType === 'text' ? { text: { required }, imagePath: {} } : { text: {}, imagePath: { required } }
+          items: {
+            $each: this.answerType === 'text' ? { text: { required }, imagePath: {} } : { text: {}, imagePath: { required } }
+          }
         }
         break
       case 'code-keypad':
