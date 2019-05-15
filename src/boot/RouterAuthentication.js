@@ -41,7 +41,7 @@ export default ({ app, router, Vue }) => {
           Loading.hide()
 
           if (response && response.data && response.data.name) {
-            if (response.data.clientSupportedVersion && response.data.clientSupportedVersion > "1.5") {
+            if (response.data.clientSupportedVersion && response.data.clientSupportedVersion > "1.6") {
               next({
                 path: '/error/upgraderequired'
               })
