@@ -754,15 +754,14 @@ export default {
           ok: this.$t('label.Ok'),
           cancel: this.$t('label.Cancel')
         }).onOk(async () => {          
-          var passSuccess
           if (!this.offline.active) {
-            passSuccess = await RunService.passStep(this.run._id, this.step.id)
+            await RunService.passStep(this.run._id, this.step.id)
           }
           
-          if (!passSuccess) {
+          //if (!passSuccess) {
             // offline treatment
-            await this.passOfflineStep(this.step.id)
-          }
+          await this.passOfflineStep(this.step.id)
+          //}
           
           // TODO: manage if pass failed
           await this.moveToNextStep('pass')
