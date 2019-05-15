@@ -1,20 +1,22 @@
 <template>
   <div id="scrollpage" :class="{'bg-white': !chapters.showNewStepOverview}">
     <!------------------ NEW RELEASE BUTTON ---------->
-    <div v-if="readOnly && (quest.status === 'published' || quest.status === 'unpublished')" class="centered bg-secondary text-white q-pa-md" @click="createNewVersion()">
-      {{ $t('label.ClickHereToCreateANewQuestVersion') }}
+    <div v-if="!chapters.showNewStepOverview">
+      <div v-if="readOnly && (quest.status === 'published' || quest.status === 'unpublished')" class="centered bg-secondary text-white q-pa-md" @click="createNewVersion()">
+        {{ $t('label.ClickHereToCreateANewQuestVersion') }}
+      </div>
+      
+      <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline close-btn" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
+      
+      <h1 class="size-4 q-pl-md">
+        <span v-if="tabs.progress > 0">{{ form.fields.title[languages.current] || form.fields.title[quest.mainLanguage] }}</span>
+        <span v-else>{{ $t('label.NewQuest') }}</span>
+      </h1>
     </div>
-    
-    <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline close-btn" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
-    
-    <h1 class="size-4 q-pl-md">
-      <span v-if="tabs.progress > 0">{{ form.fields.title[languages.current] || form.fields.title[quest.mainLanguage] }}</span>
-      <span v-else>{{ $t('label.NewQuest') }}</span>
-    </h1>
     
     <!------------------ TABS ------------------------>
     
-    <q-tabs v-model="tabs.selected" class="bg-accent text-white hide-img" inline-label>
+    <q-tabs v-model="tabs.selected" class="bg-accent text-white hide-img" inline-label v-if="!chapters.showNewStepOverview">
       <q-tab :disable="isReadOnly()" name="settings" :icon="getTabIcon(1)" :label="$t('label.Intro') + ' (' + languages.current + ')'" default />
       <q-tab :disable="tabs.progress < 1 || isReadOnly()" name="steps" :icon="getTabIcon(2)" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
       <q-tab :disable="tabs.progress < 2" name="publish" :icon="getTabIcon(3)" :label="$t('label.Publish')" />
@@ -24,7 +26,7 @@
 
     <q-separator />
     
-    <q-tab-panels v-model="tabs.selected" animated>
+    <q-tab-panels v-model="tabs.selected" animated v-if="!chapters.showNewStepOverview">
       
       <!------------------ SETTINGS TAB ------------------------>
         

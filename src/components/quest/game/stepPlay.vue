@@ -2997,7 +2997,7 @@ export default {
   
   /* locate-item-ar specific */
   
-  .locate-item-ar { background: linear-gradient(gray, black); }
+  .locate-item-ar { background: transparent; }
   .locate-item-ar video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .locate-item-ar .target-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
   .locate-item-ar #target-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }
