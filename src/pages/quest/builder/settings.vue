@@ -125,19 +125,31 @@
             />
           </div>
           
-          <div class="location-gps" style="display: none">
-            <input :readonly="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" step="any" />
-            <input :readonly="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" step="any" />
-            <input :readonly="readOnly" type="text" v-model="form.fields.zipcode" />
-            <input :readonly="readOnly" type="text" v-model="form.fields.town" />
-            <input :readonly="readOnly" type="text" v-model="form.fields.country" />
-          </div>
-          
-          <div v-if="!readOnly" class="location-address">
-            <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-              <gmap-autocomplete v-if="tabs.selected === 'settings'" id="startingplace" :placeholder="$t('label.StartingPointOfTheQuest')" v-model="form.fields.startingPlace" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
+          <div v-if="!isIOs">
+            <div class="location-gps" style="display: none">
+              <input :readonly="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" step="any" />
+              <input :readonly="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" step="any" />
+              <input :readonly="readOnly" type="text" v-model="form.fields.zipcode" />
+              <input :readonly="readOnly" type="text" v-model="form.fields.town" />
+              <input :readonly="readOnly" type="text" v-model="form.fields.country" />
             </div>
-            <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
+            
+            <div v-if="!readOnly" class="location-address">
+              <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
+                <gmap-autocomplete v-if="tabs.selected === 'settings'" id="startingplace" :placeholder="$t('label.StartingPointOfTheQuest')" v-model="form.fields.startingPlace" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
+              </div>
+              <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
+            </div>
+          </div>
+          <div v-if="isIOs">
+            <div class="location-gps">
+              <input :label="$t('label.StartingPointOfTheQuest')" :readonly="readOnly" type="text" v-model="form.fields.startingPlace" />
+              <input :label="$t('label.Latitude')" :readonly="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" step="any" />
+              <input :label="$t('label.Longitude')" :readonly="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" step="any" />
+              <input :label="$t('label.ZipCode')" :readonly="readOnly" type="text" v-model="form.fields.zipcode" />
+              <input :label="$t('label.Town')" :readonly="readOnly" type="text" v-model="form.fields.town" />
+              <input :label="$t('label.Country')" :readonly="readOnly" type="text" v-model="form.fields.country" />
+            </div>
           </div>
           
           <div v-if="form.fields.picture !== null">

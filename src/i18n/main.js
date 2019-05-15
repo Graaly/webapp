@@ -441,6 +441,7 @@ module.exports = {
       AddressToFind: "Address of the location to find",
       Address: "Address",
       OrDefineGPSLocation: "Or define GPS location",
+      DefineGPSLocation: "Define GPS location",
       Latitude: "Latitude",
       Longitude: "Longitude",
       PleaseUploadAFileInPNGFormat: "Please upload a file in PNG format with alpha transparency.",
@@ -706,7 +707,10 @@ module.exports = {
       TooMuchFriends: "You can not have more than 150 friends",
       FriendNotFound: "This person is not yet a Graaly user",
       YouHaveWin: "You have won!",
-      AreYouSureYouWantToMoveToAdvancedMode: "Are you sure to move to advanced mode? You will not be allowed to return to simple mode later"
+      AreYouSureYouWantToMoveToAdvancedMode: "Are you sure to move to advanced mode? You will not be allowed to return to simple mode later",
+      Country: "Country",
+      Town: "City",
+      ZipCode: "Zip code"
     }
   },
   fr: {
@@ -1151,6 +1155,7 @@ module.exports = {
       AddressToFind: "Adresse du lieu à trouver",
       Address: "Adresse",
       OrDefineGPSLocation: "Ou tapez les coordonnées GPS",
+      DefineGPSLocation: "Tapez les coordonnées GPS",
       Latitude: "Latitude",
       Longitude: "Longitude",
       PleaseUploadAFileInPNGFormat: "Veuillez télécharger une image avec transparence au format PNG",
@@ -1417,7 +1422,10 @@ module.exports = {
       TooMuchFriends: "Vous ne pouvez pas avoir plus de 150 amis",
       FriendNotFound: "Cette personne n'est pas encore inscrite sur Graaly",
       YouHaveWin: "Vous avez gagné !",
-      AreYouSureYouWantToMoveToAdvancedMode: "Etes-vous certain(e) de passer en mode avancé. Vous ne pourrez pas revenir en mode simple."
+      AreYouSureYouWantToMoveToAdvancedMode: "Etes-vous certain(e) de passer en mode avancé. Vous ne pourrez pas revenir en mode simple.",
+      Country: "Pays",
+      Town: "Ville",
+      ZipCode: "Code postal"
     }
   }
 }

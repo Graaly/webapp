@@ -1,5 +1,5 @@
 <template>
-  <div class="story fit" v-if="currentStep.id !== null" :class="{fadeout: hide}" style="background: rgba(0,0,0,0.4); height: 100%;">
+  <div class="story fit" v-if="currentStep.id !== null" :class="{fadeout: hide}" style="background: rgba(0,0,0,0.5); height: 100%;">
     <div :style="'position: fixed; width: 100%; bottom: ' + steps[currentStep.id].bottom + 'px;'">
       <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" style="min-height: 5vh" /></div>
       <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh">
