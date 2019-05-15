@@ -46,7 +46,7 @@
       </gmap-map>
     </div>
     <div class="q-px-md" v-if="offline.active">
-      <div class="scroll" style="width: 100%">
+      <div class="scroll image-list" style="width: 100%">
         <div class="q-my-md">{{ $t('label.YouAreOfflineYourQuestsList') }}</div>
         <q-card v-for="(item, index) in questList" :key="index" class="q-mb-md" @click.native="$router.push('/quest/play/' + item.questId)">
           <q-img :src="item.picture">
