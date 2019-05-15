@@ -142,14 +142,12 @@
             </div>
           </div>
           <div v-if="isIOs">
-            <div class="location-gps">
-              <q-input :label="$t('label.StartingPointOfTheQuest')" :readonly="readOnly" type="text" v-model="form.fields.startingPlace" />
-              <q-input :label="$t('label.Latitude')" :readonly="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" step="any" />
-              <q-input :label="$t('label.Longitude')" :readonly="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" step="any" />
-              <q-input :label="$t('label.ZipCode')" :readonly="readOnly" type="text" v-model="form.fields.zipcode" />
-              <q-input :label="$t('label.Town')" :readonly="readOnly" type="text" v-model="form.fields.town" />
-              <q-input :label="$t('label.Country')" :readonly="readOnly" type="text" v-model="form.fields.country" />
-            </div>
+            <q-input :label="$t('label.StartingPointOfTheQuest')" :disable="readOnly" type="text" v-model="form.fields.startingPlace" class="full-width" />
+            <q-input :label="$t('label.Latitude')" :disable="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" class="full-width" />
+            <q-input :label="$t('label.Longitude')" :disable="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" class="full-width" />
+            <q-input :label="$t('label.ZipCode')" :disable="readOnly" type="text" v-model="form.fields.zipcode" class="full-width" />
+            <q-input :label="$t('label.Town')" :disable="readOnly" type="text" v-model="form.fields.town" class="full-width" />
+            <q-input :label="$t('label.Country')" :disable="readOnly" type="text" v-model="form.fields.country" class="full-width" />
           </div>
           
           <div v-if="form.fields.picture !== null">
