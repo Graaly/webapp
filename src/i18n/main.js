@@ -1,3 +1,16 @@
+const websiteBaseURL = "https://graaly.com" 
+const salesEmail = "sales@graaly.com"
+const URLs = {
+  privacy: {
+    en: websiteBaseURL + "/privacy-policy/",
+    fr: websiteBaseURL + "/fr/confidentialite/"
+  },
+  terms: {
+    en: websiteBaseURL + "/terms/",
+    fr: websiteBaseURL + "/fr/cgu/"
+  }
+}
+
 module.exports = {
   en: {
     challenge: {
@@ -563,7 +576,7 @@ module.exports = {
       PleaseRateTheQuest: "Please rate the quest before sending your review",
       QuestNotReviewed: "This quest has not been reviewed yet.",
       ClickHereToStartDiscoveryQuest: "Press here to start the discovery quest",
-      contactUsPro: "You can find our professional services on <a href='https://graaly.com' target='_blank'>https://graaly.com</a> or contact us at sales@graaly.com.",
+      contactUsPro: `You can find our professional services on <a href="${websiteBaseURL}" target="_blank">${websiteBaseURL}</a> or contact us at <a href="mailto:${salesEmail}">${salesEmail}</a>.`,
       GeolocationNotSupported: "Sorry, geolocation is not supported by your device.",
       TechnicalErrorReloadPage: "Technical issue, press to refresh",
       TechnicalProblemNetworkIssue: "Please check your network or try again later",
@@ -600,12 +613,12 @@ module.exports = {
       RankingEndIntro: "Here is your ranking among your friends",
       CloseEndRanking: "Back to end of the quest",
       NoFriendsLong: "You do not have friends yet. To add friends, go back to map, open your profile, and select the friends tab",
-      IAgreeTheTermsAndConditions: "I agree the <a target='_blank' href='http://graaly.com/terms'>terms & conditions</a>",
-      PleaseAgreeTheTermsAndConditions: "Please agree the terms & conditions to user Graaly",
-      IAgreeThePrivacyPolicy: "I agree the <a target='_blank' href='http://graaly.com/privacy-policy'>privacy policy</a>",
+      IAgreeTheTermsAndConditions: `I agree with the <a target="_blank" href="${URLs.terms.en}">terms & conditions</a>`,
+      PleaseAgreeTheTermsAndConditions: "Please agree with the terms & conditions applicable to Graaly users",
+      IAgreeThePrivacyPolicy: `I agree with the <a target="_blank" href="${URLs.privacy.en}">privacy policy</a>`,
       PleaseAgreeThePrivacyPolicy: "Please agree the privacy policy to use Graaly",
-      TermsAndConditionsLink: "<a target='_blank' href='https://graaly.com/termsandconditions.html'>Terms & conditions</a>",
-      PrivacyPolicyLink: "<a target='_blank' href='https://graaly.com/privacy.html'>Privacy policy</a>",
+      TermsAndConditionsLink: `<a target="_blank" href="${URLs.terms.en}">Terms & conditions</a>`,
+      PrivacyPolicyLink: `<a target="_blank" href="${URLs.privacy.en}">Privacy policy</a>`,
       YourPhoneIsNotCompliantWithThisStepType: "Your device is currently not compliant with this step type. Please apologize for the inconvenience, please move to next step",
       DoYouWantToRemoveThisChapter: "Are you sure to remove this chapter? It must not contain any step",
       FollowStep: "Follow step",
@@ -1277,7 +1290,7 @@ module.exports = {
       PleaseRateTheQuest: "Veuillez mettre une note à l'enquête avant d'envoyer votre avis.",
       QuestNotReviewed: "Cette enquête n'a pas encore reçu d'avis.",
       ClickHereToStartDiscoveryQuest: "Appuyez ici pour démarrer l'enquête de découverte",
-      contactUsPro: "Vous pouvez retrouver nos offres professionnelles sur <a href='https://graaly.com' target='_blank'>https://graaly.com</a> ou nous contacter à sales@graaly.com.",
+      contactUsPro: `Vous pouvez retrouver nos offres professionnelles sur <a href="${websiteBaseURL}" target="_blank">${websiteBaseURL}</a> ou nous contacter à <a href="mailto:${salesEmail}">${salesEmail}</a>.`,
       GeolocationNotSupported: "Désolé, votre appareil ne permet pas la géolocalisation.",
       TechnicalErrorReloadPage: "Problème technique, appuyez pour relancer",
       TechnicalProblemNetworkIssue: "Veuillez vérifier que vous avez du réseau mobile ou retestez plus tard",
@@ -1314,12 +1327,12 @@ module.exports = {
       RankingEndIntro: "Voici votre classement parmis vos amis",
       CloseEndRanking: "Retour à l'enquête",
       NoFriendsLong: "Vous n'avez encore ajouté aucun ami. Pour ajouter des amis, retournez à la carte, puis ouvrez votre profil, et sélectionnez l'onglet Amis",
-      IAgreeTheTermsAndConditions: "Je suis d'accord avec les <a target='_blank' href='http://graaly.com/fr/cgu/'>conditions d'utilisation</a>",
+      IAgreeTheTermsAndConditions: `Je suis d'accord avec les <a target="_blank" href="${URLs.terms.fr}">conditions d'utilisation</a>`,
       PleaseAgreeTheTermsAndConditions: "Veuillez accepter les conditions d'utilisation pour utiliser Graaly",
-      IAgreeThePrivacyPolicy: "Je suis d'accord avec la <a target='_blank' href='http://graaly.com/fr/confidentialite'>politique de confidentialité</a>",
+      IAgreeThePrivacyPolicy: `Je suis d'accord avec la <a target="_blank" href="${URLs.privacy.fr}">politique de confidentialité</a>`,
       PleaseAgreeThePrivacyPolicy: "Veuillez accepter la politique de confidentialité pour utiliser Graaly",
-      TermsAndConditionsLink: "<a target='_blank' href='https://graaly.com/cgu.html'>Conditions d'utilisation</a>",
-      PrivacyPolicyLink: "<a target='_blank' href='https://graaly.com/confidentialite.html'>Politique de confidentialité</a>",
+      TermsAndConditionsLink: `<a target="_blank" href="${URLs.terms.fr}">Conditions d'utilisation</a>`,
+      PrivacyPolicyLink: `<a target="_blank" href="${URLs.privacy.fr}">Politique de confidentialité</a>`,
       YourPhoneIsNotCompliantWithThisStepType: "Votre appareil n'est pour le moment pas compatible avec ce type d'étape. Nous sommes désolé pour ce désagréement, veuillez passer à l'étape suivante",
       DoYouWantToRemoveThisChapter: "Etes-vous sur de supprimer ce chapitre, il ne doit contenir aucune étape ?",
       FollowStep: "Suit l'étape",
