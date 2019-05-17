@@ -1,6 +1,7 @@
 import store from '../store'
 import router from '../router'
 import * as THREE from 'three'
+import * as CryptoJS from 'crypto-js'
 
 var self = {
   notificationsArr: [],
@@ -678,25 +679,11 @@ var self = {
     return mimeType
   },
   gcrypt(text, key, reverse) {
-    // Surrogate pair limit
-    var bound = 0x10000
-
-    // Create string from character codes
-    return String.fromCharCode.apply(null,
-      // Turn string to character codes
-      text.split('').map(function(v, i) {
-          // Get rotation from key
-          var rotation = key[i % key.length].charCodeAt()
-
-          // Are we decrypting?
-          if (reverse) {
-            rotation = -rotation
-          }
-
-          // Return current character code + rotation
-          return (v.charCodeAt() + rotation + bound) % bound
-      })
-    )
+    if (reverse) {
+      return CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8)
+    } else {
+      return CryptoJS.AES.encrypt(text, key).toString()
+    }
   },
   /**
    * Computes the average value of numbers provided in an array
