@@ -207,16 +207,16 @@
           <p v-if="!readOnly && (!chapters.items || chapters.items.length < 1 || !chapters.items[0].steps || chapters.items[0].steps.length < 1)">{{ $t('label.AddYourSteps') }}</p>
           <ul class="list-group" v-sortable="{ onUpdate: onStepListUpdate, handle: '.handle' }">
             <li class="list-group-item" v-for="step in chapters.items[0].steps" :key="step._id">
-              <q-icon class="handle" name="reorder" />
+              <q-icon v-if="!readOnly" class="handle" name="reorder" />
               <div>
                   <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
                   <span style="margin-top: 4px" @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
-                  <q-btn class="float-right" @click="removeStep(step.stepId)"><q-icon name="delete" /></q-btn>
-                  <q-btn class="float-right" @click="modifyStep(step)"><q-icon name="mode_edit" /></q-btn>
+                  <q-btn v-if="!readOnly" class="float-right" @click="removeStep(step.stepId)"><q-icon name="delete" /></q-btn>
+                  <q-btn v-if="!readOnly" class="float-right" @click="modifyStep(step)"><q-icon name="mode_edit" /></q-btn>
               </div>
             </li>
           </ul>
-          <p class="centered">
+          <p v-if="!readOnly" class="centered">
             <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" test-id="btn-add-step" />
           </p>
           <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items[0] && chapters.items[0].steps && chapters.items[0].steps.length > 1">

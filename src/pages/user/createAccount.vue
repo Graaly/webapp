@@ -226,7 +226,8 @@ export default {
             let creationStatus = await AuthService.createAccount(newAccount)
 
             if (creationStatus.status && creationStatus.status === 200) {
-              this.step = 'validation'
+              //this.step = 'validation' // EMA : remove code validation step
+              this.openHome()
             } else {
               Notification(this.$t('label.ErrorStandardMessage'), 'error')
             }

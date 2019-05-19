@@ -1044,6 +1044,7 @@ export default {
      */
     checkIfProfileIsComplete() {
       if (!this.$store.state.user.name || this.$store.state.user.name === '' || 
+        this.$store.state.user.email === 'providersignin' || 
         //!this.$store.state.user.sex || this.$store.state.user.sex === '' || 
         //!this.$store.state.user.age || this.$store.state.user.age === '' || 
         !this.$store.state.user.location || 

@@ -25,8 +25,18 @@
           :error="$v.profile.form.name.$error"
           :error-message="$t('label.PleaseEnterYourName')"
           />
+          
+        <q-input
+          v-model="profile.form.email"
+          :label="$t('label.YourEmail')"
+          placeholder="john.doe@gmail.com"
+          @blur="$v.profile.form.email.$touch"
+          bottom-slots
+          :error="$v.profile.form.email.$error"
+          :error-message="$t('label.PleaseEnterAValidEmailAddress')"
+          />
                   
-        {{ $t('label.ToDisplayRelevantQuests') }}
+        <div class="q-pt-lg q-pb-md">{{ $t('label.ToDisplayRelevantQuests') }}</div>
         
         <q-select
           :label="$t('label.YourCountry')"
@@ -50,14 +60,14 @@
           
         <q-select :label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" emit-value map-options @input="changeLanguage" />
         
-        {{ $t('label.ToHelpYouFindYourFriends') }}
-        
-        <q-input v-model="profile.form.phone" :label="$t('label.YourPhoneNumber')" :placeholder="$t('label.phoneExample')" />
-        
-        {{ $t('label.ToAvoidSendingYourToUnrelevantQuests') }}
+        <div class="q-pt-lg q-pb-md">{{ $t('label.ToAvoidSendingYourToUnrelevantQuests') }}</div>
         
         <q-select dark :label="$t('label.YourSex')" v-model="profile.form.sex" :options="sexes" emit-value map-options />
         <q-select dark :label="$t('label.YourAge')" v-model="profile.form.age" :options="ages" emit-value map-options />
+        
+        <div class="q-pt-lg q-pb-md">{{ $t('label.ToHelpYouFindYourFriends') }}</div>
+        
+        <q-input v-model="profile.form.phone" :label="$t('label.YourPhoneNumber')" :placeholder="$t('label.phoneExample')" />
         
         <q-btn class="text-primary bg-white full-width" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
       </form>
@@ -68,7 +78,7 @@
 
 <script>
 import AuthService from 'services/AuthService'
-import { required } from 'vuelidate/lib/validators'
+import { required, email } from 'vuelidate/lib/validators'
 import Notification from 'boot/NotifyHelper'
 import languages from 'data/languages.json'
 import utils from 'src/includes/utils'
@@ -101,6 +111,7 @@ export default {
   mounted() {
     this.profile.form = {
       name: this.$store.state.user.name ? this.$store.state.user.name : '?',
+      email: (this.$store.state.user.email && this.$store.state.user.email !== 'providersignin') ? this.$store.state.user.email : '',
       phone: this.$store.state.user.phone ? this.$store.state.user.phone : '',
       picture: this.$store.state.user.picture ? this.$store.state.user.picture : '',
       zipCode: this.$store.state.user.location.postalCode ? this.$store.state.user.location.postalCode : '',
@@ -120,6 +131,7 @@ export default {
         // & redirect user to it when he clicks on the 'verify' link in email
         let modifications = {
           name: this.profile.form.name,
+          email: this.profile.form.email,
           phone: this.profile.form.phone ? this.profile.form.phone : "",
           zipCode: this.profile.form.zipCode,
           country: this.profile.form.country,
@@ -177,6 +189,7 @@ export default {
   validations: {
     profile: {
       form: {
+        email: { required, email },
         name: { required },
         country: { required },
         zipCode: { required }
