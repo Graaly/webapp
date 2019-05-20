@@ -1,6 +1,7 @@
 import store from '../store'
 import router from '../router'
 import * as THREE from 'three'
+import * as CryptoJS from 'crypto-js'
 
 var self = {
   notificationsArr: [],
@@ -275,7 +276,45 @@ var self = {
     return temp
   },
   
-  // ------- Utils for THREE.js --------
+  /**
+   * Human readable file size
+   * Adapted from https://stackoverflow.com/a/14919494/488666
+   * @param {Number}    bytes         file size in bytes
+   * @param {Boolean}   si            true => decimal, false => binary (default)
+   * @param {Function}  translateFct  translation function (this.$t() in Vue)
+   */
+  humanReadableFileSize(bytes, si, translateFct) {
+    var thresh = si ? 1000 : 1024
+    var translatedByte = translateFct('label.byteCharacter')
+    if (Math.abs(bytes) < thresh) {
+      return bytes + ' ' + translatedByte
+    }
+    var units = si
+      ? ['K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y']
+      : ['Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi', 'Yi']
+    var u = -1;
+    units = units.map((unit) => { return unit + translatedByte })
+    do {
+      bytes /= thresh
+      ++u
+    } while (Math.abs(bytes) >= thresh && u < units.length - 1)
+    return bytes.toFixed(1)+' '+units[u]
+  },
+  /**
+   * generate a random 16 char string
+   */
+  randomId() {
+    var text = ""
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+    for (var i = 0; i < 16; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length))
+    }
+
+    return text
+  },
+    
+  // ------------------------ Utils for THREE.js -------------------------------------
   
   /*
   * detach a 3D object from its parent
@@ -296,6 +335,364 @@ var self = {
     child.applyMatrix(new THREE.Matrix4().getInverse(parent.matrixWorld))
     scene.remove(child)
     parent.add(child)
+  },
+  
+  // --------------------- Utils for OFFLINE MODE -------------------------------
+  
+  /*
+   * Init file storage for file writing / reading
+   */
+  initFileStorage: function(directory, fileName, createFile) {
+    return new Promise((resolve, reject) => {
+      if (!window.cordova) {
+        resolve(false)
+      }
+      window.requestFileSystem(window.TEMPORARY, 0, function (fs) {
+        if (!directory || directory === '') {
+          fs.root.getFile(fileName, { create: createFile, exclusive: false }, function (fileEntry) {
+            resolve(fileEntry)
+          }, function() { resolve(false) })
+        } else {
+          fs.root.getDirectory(directory, {create: true}, function (dirEntry) {
+            dirEntry.getFile(fileName, { create: createFile, exclusive: false }, function (fileEntry) {
+              resolve(fileEntry)
+            }, function() { resolve(false) })
+          }, function() { resolve(false) })
+        }
+      }, function() { resolve(false) })
+    })
+  },
+  
+  checkIfFileExists: function(directory, fileName, createFile) {
+    return new Promise((resolve, reject) => {
+      if (!window.cordova) {
+        resolve(false)
+      }
+      window.requestFileSystem(window.TEMPORARY, 0, function (fs) {
+        if (!directory || directory === '') {
+          fs.root.getFile(fileName, { create: createFile, exclusive: false }, function (fileEntry) {
+            resolve(true)
+          }, function() { resolve(false) })
+        } else {
+          fs.root.getDirectory(directory, {create: true}, function (dirEntry) {
+            dirEntry.getFile(fileName, { create: createFile, exclusive: false }, function (fileEntry) {
+              resolve(true)
+            }, function() { resolve(false) })
+          }, function() { resolve(false) })
+        }
+      }, function() { resolve(false) })
+    })
+  },
+  
+  /*
+   * Write in a text file
+   */
+  writeInFile: function(directory, fileName, dataObj, createFile) {
+    var _this = this
+    return new Promise((resolve, reject) => {
+      if (!window.cordova) {
+        resolve(false)
+      }
+      window.requestFileSystem(window.TEMPORARY, 0, function (fs) {
+        if (!directory || directory === '') {
+          fs.root.getFile(fileName, { create: createFile, exclusive: false }, function (fileEntry) {
+            fileEntry.createWriter(function (fileWriter) {
+              fileWriter.onwriteend = function() {
+                resolve(true)
+              }
+
+              fileWriter.onerror = function (e) {
+                let err = "Failed file write: " + e.toString()
+                console.log(err)
+                resolve(false)
+              }
+
+              // If data object is not passed in,
+              // create a new Blob instead.
+              if (!dataObj) {
+                dataObj = new Blob(['some file data'], { type: 'text/plain' })
+              }
+              
+              const encryptedContent = _this.gcrypt(dataObj, 'Gr44lyCryp7')
+              fileWriter.write(encryptedContent)
+            })
+          }, function() { resolve(false) })
+        } else {
+          fs.root.getDirectory(directory, {create: true}, function (dirEntry) {
+            dirEntry.getFile(fileName, { create: createFile, exclusive: false }, function (fileEntry) {
+              fileEntry.createWriter(function (fileWriter) {
+                fileWriter.onwriteend = function() {
+                  resolve(true)
+                }
+
+                fileWriter.onerror = function (e) {
+                  let err = "Failed file write: " + e.toString()
+                  console.log(err)
+                  resolve(false)
+                }
+
+                // If data object is not passed in,
+                // create a new Blob instead.
+                if (!dataObj) {
+                  dataObj = new Blob(['some file data'], { type: 'text/plain' })
+                }
+
+              const encryptedContent = _this.gcrypt(dataObj, 'Gr44lyCryp7')
+              fileWriter.write(encryptedContent)
+              })
+            }, function() { resolve(false) })
+          }, function() { resolve(false) })
+        }
+      }, function() { resolve(false) })      
+    })
+  },
+  
+  /*
+   * Read text file
+   */
+  readFile: function(directory, fileName) {
+    var _this = this
+    return new Promise((resolve, reject) => {
+      if (!fileName) {
+        resolve(false)
+      }
+      if (!window.cordova) {
+        resolve(false)
+      }
+      window.requestFileSystem(window.TEMPORARY, 0, function (fs) {
+        if (!fs) {
+          resolve(false)
+        }
+        if (!directory || directory === '') {
+          fs.root.getFile(fileName, { create: false, exclusive: false }, function (fileEntry) {
+            if (!fileEntry) {
+              resolve(false)
+            }
+            fileEntry.file(function (file) {
+              if (!file) {
+                resolve(false)
+              }
+              var reader = new FileReader()
+
+              reader.onloadend = function() {
+                const decryptedContent = _this.gcrypt(this.result, 'Gr44lyCryp7', true)
+                resolve(decryptedContent)
+              };
+
+              reader.readAsText(file)
+            }, function() { resolve(false) })
+          }, function() { resolve(false) })
+        } else {
+          fs.root.getDirectory(directory, {create: true}, function (dirEntry) {
+            dirEntry.getFile(fileName, { create: false, exclusive: false }, function (fileEntry) {
+              if (!fileEntry) {
+                resolve(false)
+              }
+              fileEntry.file(function (file) {
+                if (!file) {
+                  resolve(false)
+                }
+                var reader = new FileReader()
+
+                reader.onloadend = function() {
+                  const decryptedContent = _this.gcrypt(this.result, 'Gr44lyCryp7', true)
+                  resolve(decryptedContent)
+                };
+
+                reader.readAsText(file)
+              }, function() { resolve(false) })
+            }, function() { resolve(false) })
+          }, function() { resolve(false) })
+        }
+      }, function() { resolve(false) })
+    })
+  },
+  
+  /*
+   * save binary file
+   */
+  saveBinaryFile: function(directory, path, fileName) {
+    return new Promise((resolve, reject) => {
+      if (!window.cordova) {
+        resolve(false)
+      }
+      // open local directory
+      window.requestFileSystem(window.TEMPORARY, 5 * 1024 * 1024, function (fs) {
+        //get picture
+        var xhr = new XMLHttpRequest()
+        xhr.open('GET', path + fileName, true)
+        xhr.responseType = 'blob'
+     
+        xhr.onload = function() {
+          if (this.status === 200) {
+            var blob = new Blob([this.response], { type: 'image/png' })
+            if (!directory || directory === '') {
+              fs.root.getFile(fileName, { create: true, exclusive: false }, function (fileEntry) {
+                // Create a FileWriter object for our FileEntry (log.txt).
+                fileEntry.createWriter(function (fileWriter) {
+                  fileWriter.onwriteend = function() {
+                    resolve(true)
+                  }
+           
+                  fileWriter.onerror = function(e) {
+                      console.log("Failed file write: " + e.toString())
+                  }
+           
+                  fileWriter.write(blob)
+                })
+              }, function() { resolve(false) })
+            } else {
+              fs.root.getDirectory(directory, {create: true}, function (dirEntry) {
+                dirEntry.getFile(fileName, { create: true, exclusive: false }, function (fileEntry) {
+                  // Create a FileWriter object for our FileEntry (log.txt).
+                  fileEntry.createWriter(function (fileWriter) {
+                    fileWriter.onwriteend = function() {
+                      resolve(true)
+                    }
+             
+                    fileWriter.onerror = function(e) {
+                        console.log("Failed file write: " + e.toString())
+                    }
+             
+                    fileWriter.write(blob)
+                  })
+                }, function() { resolve(false) })
+              }, function() { resolve(false) })
+            }
+          } else {
+            resolve(false)
+          }
+        }
+        xhr.send()
+      }, function() { resolve(false) })
+    })
+  },
+  
+  /*
+   * read binary file
+   */
+  readBinaryFile: function(directory, fileName) {
+    var _this = this
+    return new Promise((resolve, reject) => {
+      if (!fileName) {
+        resolve(false)
+      }
+      if (!window.cordova) {
+        resolve(false)
+      }
+      // open local directory
+      window.requestFileSystem(window.TEMPORARY, 20 * 1024 * 1024, function (fs) {
+        if (!fs) {
+          resolve(false)
+        }
+        if (!directory || directory === '') {
+          fs.root.getFile(fileName, { create: false, exclusive: false }, function (fileEntry) {
+            if (!fileEntry) {
+              resolve(false)
+            }
+            fileEntry.file(function (file) {
+              if (!file) {
+                resolve(false)
+              }
+              var reader = new FileReader()
+       
+              reader.onloadend = function() {
+                const mimeType = _this.getMimeType(fileName)
+                var blob = new Blob([new Uint8Array(this.result)], { type: mimeType })
+                resolve(window.URL.createObjectURL(blob))
+              }
+              reader.readAsArrayBuffer(file)
+            }, function() { resolve(false) })
+          }, function() { resolve(false) })
+        } else {
+          fs.root.getDirectory(directory, {create: true}, function (dirEntry) {
+            dirEntry.getFile(fileName, { create: false, exclusive: false }, function (fileEntry) {
+              if (!fileEntry) {
+                resolve(false)
+              }
+              fileEntry.file(function (file) {
+                if (!file) {
+                  resolve(false)
+                }
+                var reader = new FileReader()
+         
+                reader.onloadend = function() {
+                  const mimeType = _this.getMimeType(fileName)
+                  var blob = new Blob([new Uint8Array(this.result)], { type: mimeType })
+                  resolve(window.URL.createObjectURL(blob))
+                }
+                reader.readAsArrayBuffer(file)
+              }, function() { resolve(false) })
+            }, function() { resolve(false) })
+          }, function() { resolve(false) })
+        }
+      }, function() { resolve(false) })
+    })
+  },
+  /*
+   * Remove a directory
+   */
+  removeDirectory: function(directory) {
+    return new Promise((resolve, reject) => {
+      if (!window.cordova) {
+        resolve(false)
+      }
+      window.requestFileSystem(window.TEMPORARY, 0, function (fs) {
+        if (!fs) {
+          resolve(false)
+        }
+        fs.root.getDirectory(directory, {create: false}, function (dirEntry) {
+          dirEntry.removeRecursively(function () {
+            resolve(true)
+          }, function() { resolve(false) })
+        }, function() { resolve(false) })
+      }, function() { resolve(false) })
+    })
+  }, 
+  getMimeType(fileName) {
+    var mimeType = 'image/png'
+    const ext = fileName.substr(-4)
+    switch (ext) {
+      case '.avi':
+        mimeType = 'video/x-msvideo'
+        break
+      case '.gif':
+        mimeType = 'image/gif'
+        break
+      case '.jpg':
+      case 'jpeg':
+        mimeType = 'image/jpeg'
+        break
+      case 'mpeg':
+        mimeType = 'video/mpeg'
+        break
+      case '.mp4':
+        mimeType = 'video/mp4'
+        break
+      case '.svg':
+        mimeType = 'image/svg+xml'
+        break
+      case 'webm':
+        mimeType = 'video/webm'
+        break
+    }
+    return mimeType
+  },
+  gcrypt(text, key, reverse) {
+    if (reverse) {
+      return CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8)
+    } else {
+      return CryptoJS.AES.encrypt(text, key).toString()
+    }
+  },
+  /**
+   * Computes the average value of numbers provided in an array
+   * @param   {Array}   arr   The array of numbers
+   * @return  {Number}  The average
+   */
+  arrayAverage(arr) {
+    let sum = arr.reduce(function(a, b) { return a + b })
+    return sum / arr.length
   }
 }
 

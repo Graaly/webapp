@@ -1,323 +1,622 @@
 <template>
   <div id="scrollpage" :class="{'bg-white': !chapters.showNewStepOverview}">
-    <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
+    <!------------------ NEW RELEASE BUTTON ---------->
+    <div v-if="!chapters.showNewStepOverview">
+      <div v-if="readOnly && (quest.status === 'published' || quest.status === 'unpublished')" class="centered bg-secondary text-white q-pa-md" @click="createNewVersion()">
+        {{ $t('label.ClickHereToCreateANewQuestVersion') }}
+      </div>
+      
+      <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline close-btn" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
+      
+      <h1 class="size-4 q-pl-md">
+        <span v-if="tabs.progress > 0">{{ form.fields.title[languages.current] || form.fields.title[quest.mainLanguage] }}</span>
+        <span v-else>{{ $t('label.NewQuest') }}</span>
+      </h1>
+    </div>
     
-    <h1 class="size-3 q-pl-md" v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings">
-      <span v-if="tabs.progress >= 2">{{ form.fields.title[languages.current] || form.fields.title[quest.mainLanguage] }}</span>
-      <span v-else>{{ $t('label.NewQuest') }}</span>
-    </h1>
-
     <!------------------ TABS ------------------------>
     
-    <q-tabs v-model="tabs.selected" v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings">
-      <q-tab slot="title" :disable="isReadOnly()" name="languages" :icon="getTabIcon(1)" :label="$t('label.Languages')" default />
-      <q-tab slot="title" :disable="tabs.progress < 1 || isReadOnly()" name="settings" :icon="getTabIcon(2)" :label="$t('label.Intro') + ' (' + languages.current + ')'" />
-      <q-tab slot="title" :disable="tabs.progress < 2 || isReadOnly()" name="steps" :icon="getTabIcon(3)" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
-      <q-tab slot="title" :disable="tabs.progress < 3" name="publish" :icon="getTabIcon(4)" :label="$t('label.Publish')" />
-      <q-tab slot="title" name="reviews" :label="$t('label.Reviews')" v-if="this.isEdition" />
-      
-      <!------------------ LANGUAGES TAB ------------------------>
-        
-      <q-tab-pane name="languages" class="q-pa-md">
-        <q-field
-          icon="language"
-          :helper="$t('label.SelectTheLanguageAndClickOnNextButton')"
-          :label="$t('label.SelectedLanguage')"
-        >
-          <q-option-group
-            type="radio"
-            color="primary"
-            v-model="languages.current"
-            :options="form.languages"
-          />
-          <!-- @input="setOtherLanguage" -->
-        </q-field>
-        <q-btn big class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" />
-        <p class="centered q-pa-md" v-if="quest.status !== 'published'">
-          <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
-        </p>
-      </q-tab-pane>
+    <q-tabs v-model="tabs.selected" class="bg-accent text-white hide-img" inline-label v-if="!chapters.showNewStepOverview">
+      <q-tab :disable="isReadOnly()" name="settings" :icon="getTabIcon(1)" :label="$t('label.Intro') + ' (' + languages.current + ')'" default />
+      <q-tab :disable="tabs.progress < 1 || isReadOnly()" name="steps" :icon="getTabIcon(2)" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
+      <q-tab :disable="tabs.progress < 2" name="publish" :icon="getTabIcon(3)" :label="$t('label.Publish')" />
+      <q-tab name="reviews" :icon="getTabIcon(4)" :label="$t('label.Reviews')" v-if="isEdition && quest.access === 'public'" />
+      <q-tab name="results" :icon="getTabIcon(5)" :label="$t('label.Results')" v-if="quest.status !== 'draft' && quest.access === 'private'" />
+    </q-tabs>
+
+    <q-separator />
+    
+    <q-tab-panels v-model="tabs.selected" animated v-if="!chapters.showNewStepOverview">
       
       <!------------------ SETTINGS TAB ------------------------>
         
-      <q-tab-pane name="settings">
-    
-        <form @submit.prevent="submitSettings()">
+      <q-tab-panel name="settings">
         
-          <q-field :error="$v.form.fields.title.$error" :count="titleMaxLength">
-            <q-input type="text" :float-label="$t('label.Title') + ' ' + currentLanguageForLabels" v-model="form.fields.title[languages.current]" @blur="$v.form.fields.title.$touch" maxlength="titleMaxLength" />
-            <div class="q-field-bottom" v-if="$v.form.fields.title.$error">
-              <div class="q-field-error" v-if="!$v.form.fields.title.required">{{ $t('label.PleaseEnterATitle') }}</div>
+        <div v-if="!this.quest.languages || this.quest.languages.length === 0">
+          <q-item>
+            <q-item-section side top>
+              <q-icon name="language" class="left-icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="big-label">{{ $t('label.SelectedLanguage') }}</q-item-label>
+              <q-option-group
+                type="radio"
+                color="primary"
+                v-model="languages.current"
+                :options="form.languages"
+                :disable="readOnly"
+              />
+              <q-item-label caption>{{ $t('label.SelectTheLanguageAndClickOnNextButton') }}</q-item-label>
+            </q-item-section>
+          </q-item>
+          
+          <q-btn big :disabled="readOnly" class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" test-id="btn-save-language" />
+        </div>
+      
+        <form @submit.prevent="submitSettings()" v-if="this.quest.languages.length > 0">
+          
+          <div v-if="this.quest.access === 'private'">
+            <q-chip color="primary" text-color="white" icon="lock">
+              {{ $t('label.PrivateQuest') }}
+            </q-chip>
+          </div>
+          
+          <div v-if="this.quest.access === 'public'">
+            <q-chip color="primary" text-color="white" icon="public">
+              {{ $t('label.PublicQuest') }}
+            </q-chip>
+          </div>
+          
+          <q-select outlined :readonly="readOnly" emit-value map-options v-model="languages.current" :label="$t('label.Language')" :options="form.languages" :dense="true" @input="changeLanguage">
+            <template v-slot:prepend>
+              <q-icon name="language" />
+            </template>
+          </q-select>
+          
+          <q-input
+            :readonly="readOnly"
+            type="text"
+            :label="$t('label.Title') + ' ' + currentLanguageForLabels"
+            v-model="form.fields.title[languages.current]"
+            @blur="$v.form.fields.title.$touch"
+            bottom-slots
+            counter
+            :maxlength="titleMaxLength"
+            :error="$v.form.fields.title.$error"
+            :error-message="$t('label.PleaseEnterATitle')"
+            />
+          
+          <q-select
+            :readonly="readOnly"
+            :label="$t('label.Category')"
+            v-model="form.fields.category"
+            @blur="$v.form.fields.category.$touch"
+            :options="form.categories"
+            emit-value
+            map-options
+            bottom-slots
+            options-cover
+            :error="$v.form.fields.category.$error"
+            :error-message="$t('label.PleaseSelectACategory')"
+            />
+          
+          <div>
+            {{ $t('label.QuestType') }} 
+            <q-icon name="help" @click.native="showHelpPopup('helpQuestType')" />
+            <div class="q-gutter-sm">
+              <q-radio :disable="readOnly || editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="simple" :label="$t('label.basicEditor')" @input="changeEditorMode" />
+              <q-radio :disable="readOnly || editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="advanced" :label="$t('label.advancedEditor')" @input="changeEditorMode" />
             </div>
-          </q-field>
+          </div>
           
-          <q-field :error="$v.form.fields.category.$error">
-            <q-select :float-label="$t('label.Category')" v-model="form.fields.category" @blur="$v.form.fields.category.$touch" :options="form.categories" />
-            <div class="q-field-bottom" v-if="$v.form.fields.category.$error">
-              <div class="q-field-error" v-if="!$v.form.fields.category.required">{{ $t('label.PleaseSelectACategory') }}</div>
-            </div>
-          </q-field>
-          
-          <q-field>
-            <q-select :float-label="$t('label.Difficulty')" v-model="form.fields.level" :options="form.levels" />
-          </q-field>
-          
-          <q-field>
-            <q-select :float-label="$t('label.Duration')" v-model="form.fields.duration" :options="form.durations" />
-          </q-field>
+          <q-select
+            :readonly="readOnly" :label="$t('label.Difficulty')" v-model="form.fields.level" :options="form.levels" emit-value map-options />
+            
+          <q-select
+            :readonly="readOnly" :label="$t('label.Duration')" v-model="form.fields.duration" :options="form.durations" emit-value map-options />
           
           <div class="description">
             <q-input
+              :disable="readOnly"
               v-model="form.fields.description[languages.current]"
               type="textarea"
-              :float-label="$t('label.Description') + ' ' + currentLanguageForLabels"
+              :label="$t('label.Description') + ' ' + currentLanguageForLabels"
               :max-height="100"
               :min-rows="4"
               class="full-width"
             />
           </div>
           
-          <div class="location-gps" style="display: none">
-            <input type="number" id="latitude" v-model.number="form.fields.location.lat" step="any" />
-            <input type="number" id="longitude" v-model.number="form.fields.location.lng" step="any" />
-            <input type="text" v-model="form.fields.zipcode" />
-            <input type="text" v-model="form.fields.town" />
-            <input type="text" v-model="form.fields.country" />
-          </div>
-          
-          <div class="location-address">
-            <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-              <gmap-autocomplete v-if="tabs.selected === 'settings'" id="startingplace" :placeholder="$t('label.StartingPointOfTheQuest')" v-model="form.fields.startingPlace" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
+          <div v-if="!isIOs">
+            <div class="location-gps" style="display: none">
+              <input :readonly="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" step="any" />
+              <input :readonly="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" step="any" />
+              <input :readonly="readOnly" type="text" v-model="form.fields.zipcode" />
+              <input :readonly="readOnly" type="text" v-model="form.fields.town" />
+              <input :readonly="readOnly" type="text" v-model="form.fields.country" />
             </div>
-            <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
+            
+            <div v-if="!readOnly" class="location-address">
+              <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
+                <gmap-autocomplete v-if="tabs.selected === 'settings'" id="startingplace" :placeholder="$t('label.StartingPointOfTheQuest')" v-model="form.fields.startingPlace" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
+              </div>
+              <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
+            </div>
+          </div>
+          <div v-if="isIOs">
+            <q-input :label="$t('label.StartingPointOfTheQuest')" :disable="readOnly" type="text" v-model="form.fields.startingPlace" class="full-width" />
+            <q-input :label="$t('label.Latitude')" :disable="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" class="full-width" />
+            <q-input :label="$t('label.Longitude')" :disable="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" class="full-width" />
+            <q-input :label="$t('label.ZipCode')" :disable="readOnly" type="text" v-model="form.fields.zipcode" class="full-width" />
+            <q-input :label="$t('label.Town')" :disable="readOnly" type="text" v-model="form.fields.town" class="full-width" />
+            <q-input :label="$t('label.Country')" :disable="readOnly" type="text" v-model="form.fields.country" class="full-width" />
           </div>
           
           <div v-if="form.fields.picture !== null">
             <p>{{ $t('label.Picture') }} :</p>
             <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.picture" />
           </div>
-          <q-btn class="full-width" type="button">
-            <label for="picturefile">{{ $t('label.ModifyThePicture') }}</label>
-            <input @change="uploadImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
-          </q-btn>
+          <div v-if="!isIOs">
+            <q-btn class="full-width" v-if="!readOnly" :label="$t('label.ModifyThePicture')" @click="$refs['picturefile'].click()" />
+            <input @change="uploadImage" ref="picturefile" type="file" accept="image/*" hidden />
+          </div>
+          <div v-if="isIOs">
+            {{ $t('label.ModifyThePicture') }}:
+            <input @change="uploadImage" ref="picturefile" type="file" accept="image/*" />
+          </div>
           
-          <q-btn type="submit" color="primary" class="full-width">{{ $t('label.Save') }}</q-btn>
+          <div v-if="form.fields.customization">
+            <q-input
+              :disable="readOnly"
+              v-model="form.fields.customization.color"
+              :label="$t('label.ButtonsColor')"
+              placeholder="#ffaa00"
+              class="full-width"
+            />
+          </div>
+          
+          <div v-if="form.fields.customization && form.fields.customization.logo && form.fields.customization.logo !== ''">
+            <p>{{ $t('label.YourLogo') }} :</p>
+            <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.customization.logo" />
+          </div>
+          <div v-if="!isIOs">
+            <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddALogo')" @click="$refs['logofile'].click()" />
+            <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" hidden />
+          </div>
+          <div v-if="isIOs">
+            {{ $t('label.AddALogo') }}:
+            <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" />
+          </div>
+          
+          <q-btn v-if="!readOnly" @click="submitSettings" color="primary" class="full-width q-mt-lg" test-id="btn-save-settings">{{ $t('label.Save') }}</q-btn>
             
         </form>
-      </q-tab-pane>
-      
-      <!------------------ STEPS TAB ------------------------>
-        
-      <q-tab-pane name="steps">
-        <div class="centered bg-warning q-pa-sm" v-if="warnings.stepsMissing" @click="refreshStepsList">
-          <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
-        </div>
-        <p>{{ $t('label.AddYourSteps') }}</p>
-        <!--<p class="centered" v-show="chapters.items && chapters.items.length > 6">
-          <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
-        </p>-->
-        <!-- using https://github.com/timruffles/ios-html5-drag-drop-shim to allow drag & drop on mobile -->
-        <ul class="list-group" v-sortable="{ onUpdate: onChapterListUpdate, handle: '.handle' }">
-          <li class="list-group-item" v-for="chapter in chapters.items" :key="chapter._id">
-            <q-icon class="handle" name="reorder" />
-            <div>
-              <p>
-                {{ chapter.title[languages.current] || chapter.title[quest.mainLanguage] }}
-                <q-icon name="add_box" class="float-right q-ml-md size-1" style="margin-top: -8px" @click.native="addStep(chapter._id)" />
-                <q-icon name="delete" class="float-right q-ml-md a-bit-bigger" @click.native="removeChapter(chapter._id)" />
-                <q-icon name="mode edit" class="float-right q-ml-md a-bit-bigger" @click.native="modifyChapter(chapter._id)" />
-                <q-icon name="warning" color="primary" class="float-right a-bit-bigger" v-if="chapter.warnings && chapter.warnings.length > 0" @click.native="showChapterWarnings(chapter.warnings)" />
-              </p>
-              <div v-if="!chapter.steps || chapter.steps.length === 0">
-                {{ $t('label.ClickOnButtonToAddStep') }}
-              </div>
-              <div v-for="step in chapter.steps" :key="step._id">
-                <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
-                <span @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
-                <q-btn class="float-right" @click="removeStep(step._id)"><q-icon name="delete" /></q-btn>
-                <q-btn class="float-right" @click="modifyStep(step)"><q-icon name="mode edit" /></q-btn>
-              </div>
-            </div>
-          </li>
-        </ul>
-        
-        <p class="centered">
-          <q-btn color="primary" icon="fas fa-plus-circle" @click="addChapter()" :label="$t('label.AddASChapter')" />
-        </p>
-        <!--<p class="centered">
-          <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
-        </p>-->
-        <p class="centered q-pa-md" v-if="chapters.items && chapters.items.length > 3">
-          <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
-        </p>
-      
-      </q-tab-pane>
-      
-      <!------------------ PUBLISHING TAB ------------------------>
-        
-      <q-tab-pane name="publish">
-        <q-alert type="warning" class="q-mb-md" v-if="quest.status === 'tovalidate'">
-          {{ $t('label.QuestUnderValidation') }}
-        </q-alert>
-        <q-alert type="warning" class="q-mb-md" v-if="quest.status === 'rejected'">
-          {{ $t('label.QuestPublicationRejected') }}
-        </q-alert>
-        <!--<q-alert type="warning" class="q-mb-md" v-if="chapters.items.length < 6">
-          {{ $t('label.YourQuestMustContainAtLeast6Steps') }}
-        </q-alert>
-        <q-alert type="warning" class="q-mb-md" v-if="chapters.items.length > 50">
-          {{ $t('label.YourQuestMustContainLessThan50Steps') }}
-        </q-alert>-->
-        <p class="centered q-pa-md">
-          <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
-        </p>
-        
-        <q-field
-          icon="visibility"
-          :helper="$t('label.ActivateTheLanguageVisible')"
-          :label="$t('label.LanguagesPublished')"
-        >
-          <p v-for="lang in form.fields.languages" :key="lang.lang">
-            <q-toggle v-model="lang.published" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
-          </p>
-        </q-field>
-        
-        <q-field
-          icon="people"
-          :helper="$t('label.InviteEditorsHelp')"
-          :label="$t('label.Editors')"
-        >
-          <p v-for="item in editor.items" :key="item.id">
-            <q-toggle v-model="item.checked" :label="item.name" @input="removeEditor(item.id)" />
-          </p>
-          <p v-if="warnings.editorsMissing">{{ $t('label.TechnicalIssue') }}</p>
-          <q-input type="text" :float-label="$t('label.InviteEditors')" v-model="editor.new.email" :after="[{icon: 'add_circle', handler () {addEditor()}}]" />
-          <div class="q-field-bottom" v-if="!editor.new.isExisting">
-            <div class="q-field-error">{{ $t('label.UserIsNotAGraalyUser') }}</div>
-          </div>
-        </q-field>
-        
-        <q-field v-if="quest.hasLocateMarkerSteps" icon="fa fa-qrcode" :label="$t('label.MarkersFile')">
-          <!-- for webapp mode -->
-          <q-btn v-if="!isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" type="a" href="statics/markers/all.pdf" download />
-          <!-- for hybrid mode -->
-          <q-btn v-if="isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" @click="downloadMarkers()" />
-        </q-field>
         
         <p class="centered q-pa-md" v-if="quest.status !== 'published'">
           <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
         </p>
-        
-      </q-tab-pane>
+      </q-tab-panel>
       
+      <!------------------ STEPS TAB ------------------------>
+        
+      <q-tab-panel name="steps">
+        <div class="centered bg-warning q-pa-sm" v-if="warnings.stepsMissing" @click="refreshStepsList">
+          <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+        </div>
+        <div v-if="form.fields.editorMode === 'simple' && chapters.items && chapters.items.length > 0">
+          <p v-if="!readOnly && (!chapters.items || chapters.items.length < 1 || !chapters.items[0].steps || chapters.items[0].steps.length < 1)">{{ $t('label.AddYourSteps') }}</p>
+          <ul class="list-group" v-sortable="{ onUpdate: onStepListUpdate, handle: '.handle' }">
+            <li class="list-group-item" v-for="step in chapters.items[0].steps" :key="step._id">
+              <q-icon v-if="!readOnly" class="handle" name="reorder" />
+              <div>
+                  <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
+                  <span style="margin-top: 4px" @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                  <q-btn v-if="!readOnly" class="float-right" @click="removeStep(step.stepId)"><q-icon name="delete" /></q-btn>
+                  <q-btn v-if="!readOnly" class="float-right" @click="modifyStep(step)"><q-icon name="mode_edit" /></q-btn>
+              </div>
+            </li>
+          </ul>
+          <p v-if="!readOnly" class="centered">
+            <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" test-id="btn-add-step" />
+          </p>
+          <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items[0] && chapters.items[0].steps && chapters.items[0].steps.length > 1">
+            <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
+          </p>
+          <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current">
+            <a @click="showMedia()">{{ getReadableStorageUsage() }}</a>
+            <q-linear-progress rounded style="height: 15px" :value="getPercentStorageUsage()" color="secondary" class="q-mt-sm" />
+          </p>
+        </div>
+        <div v-if="form.fields.editorMode === 'advanced'">
+          <p v-if="!readOnly && (!chapters.items || chapters.items.length < 2)">{{ $t('label.AddYourChapters') }}</p>
+          <!--<p class="centered" v-show="chapters.items && chapters.items.length > 6">
+            <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
+          </p>-->
+          <!-- using https://github.com/timruffles/ios-html5-drag-drop-shim to allow drag & drop on mobile -->
+          <ul class="list-group" v-sortable="{ onUpdate: onChapterListUpdate, handle: '.handle' }">
+            <li class="step-list list-group-item" v-for="chapter in chapters.items" :key="chapter._id">
+              <q-icon v-if="!readOnly" class="handle" name="reorder" />
+              <div>
+                <p class="bigger">
+                  {{ chapter.title[languages.current] || chapter.title[quest.mainLanguage] }}
+                  <q-icon v-if="!readOnly" name="add_box" class="float-right q-ml-md size-1" style="margin-top: -8px" @click.native="addStep(chapter.chapterId)" />
+                  <q-icon v-if="!readOnly" name="delete" class="float-right q-ml-md a-bit-bigger" @click.native="removeChapter(chapter.chapterId)" />
+                  <q-icon v-if="!readOnly" name="mode_edit" class="float-right q-ml-md a-bit-bigger" @click.native="modifyChapter(chapter.chapterId)" />
+                  <q-icon name="warning" color="primary" class="float-right a-bit-bigger" v-if="chapter.warnings && chapter.warnings.length > 0" @click.native="showChapterWarnings(chapter.warnings)" />
+                </p>
+                <div v-if="!chapter.steps || chapter.steps.length === 0">
+                  {{ $t('label.ClickOnButtonToAddStep') }}
+                </div>
+                <div v-for="step in chapter.steps" :key="step._id" style="height: 34px; overflow: hidden;display: flex;width: 100%;">
+                  <div class="step-text">
+                    <q-icon color="grey" class="q-mr-sm" :class="{'q-ml-md': (step.level === 2)}" :name="getIconFromStepType(step.type)" />
+                    <span v-if="!readOnly && !step.error" @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                    <span v-if="!readOnly && step.error" @click="showStepWarnings(step.error)" class="text-primary">
+                      <q-icon name="warning" color="primary" />
+                      {{ step.title[languages.current] || step.title[quest.mainLanguage] }}
+                    </span>
+                    <span v-if="readOnly">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                  </div>
+                  <div class="step-button">
+                    <q-btn v-if="!readOnly" icon="mode_edit" dense @click="modifyStep(step)" />
+                    <q-btn v-if="!readOnly" icon="delete" dense @click="removeStep(step.stepId)" />
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        
+          <p v-if="!readOnly" class="centered">
+            <q-btn color="primary" icon="fas fa-plus-circle" @click="addChapter()" :label="$t('label.AddASChapter')" />
+          </p>
+          <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items.length > 1">
+            <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
+          </p>
+          <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current">
+            <a @click="showMedia()">{{ getReadableStorageUsage() }}</a>
+            <q-linear-progress rounded style="height: 15px" :value="getPercentStorageUsage()" color="secondary" class="q-mt-sm" />
+          </p>
+        </div>
+              
+      </q-tab-panel>
+      
+      <!------------------ PUBLISHING TAB ------------------------>
+        
+      <q-tab-panel name="publish">
+        <div v-if="quest.status === 'old'">
+          <q-banner class="q-mb-md bg-warning">
+            {{ $t('label.YourQuestIsClosedAndCanNotBePublishedAnymore') }}
+          </q-banner>
+        </div>
+        <div v-if="quest.access === 'public' || (quest.access === 'private' && quest.status !== 'old')">
+          <q-banner class="q-mb-md bg-warning" v-if="quest.status === 'tovalidate'">
+            {{ $t('label.QuestUnderValidation') }}
+          </q-banner>
+          <q-banner class="q-mb-md bg-warning" v-if="quest.status === 'rejected'">
+            {{ $t('label.QuestPublicationRejected') }}
+          </q-banner>
+          <!--<q-banner class="q-mb-md bg-warning" v-if="chapters.items.length < 3">
+            {{ $t('label.YourQuestMustContainAtLeast6Steps') }}
+          </q-banner>-->
+          <q-banner class="q-mb-md bg-warning" v-if="chapters.items.length > 100">
+            {{ $t('label.YourQuestMustContainLessThan50Steps') }}
+          </q-banner>
+          <p class="centered q-pa-md">
+            <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
+          </p>
+          
+          <q-item v-if="quest.access === 'private'">
+            <q-item-section side top>
+              <q-icon name="people" class="left-icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="big-label">{{ $t('label.Invitees') }} <span v-if="quest.limitations && quest.limitations.nbInvitees">({{ invitee.items.length }}/{{ quest.limitations.nbInvitees }})</span></q-item-label>
+              <p v-for="item in invitee.items" :key="item.id">
+                <q-toggle v-model="item.checked" :label="item.name" @input="removeInvitee(item.id)" />
+              </p>
+              <p v-if="warnings.inviteeMissing">{{ $t('label.TechnicalIssue') }}</p>
+              <q-input
+                type="text"
+                :label="$t('label.InvitePeople')"
+                v-model="invitee.new.email"
+                bottom-slots
+                :error="!invitee.new.isExisting"
+                :error-message="$t('label.UserIsNotAGraalyUser')"
+                >
+                <template v-slot:after>
+                  <q-btn icon="add_circle" color="primary" flat round dense @click="addInvitee()" />
+                </template>
+                <template v-slot:hint>
+                  {{ $t('label.InviteInviteesHelp') }}
+                </template>
+              </q-input>
+            </q-item-section>
+          </q-item>
+          
+          <q-item>
+            <q-item-section side top>
+              <q-icon name="visibility" class="left-icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="big-label">{{ $t('label.LanguagesPublished') }}</q-item-label>
+              <p v-for="lang in form.fields.languages" :key="lang.lang">
+                <q-toggle :disable="quest.status === 'tovalidate'" v-model="lang.published" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
+              </p>
+              <q-item-label caption v-if="quest.access === 'public'">{{ $t('label.ActivateTheLanguageVisible') }}</q-item-label>
+              <q-item-label caption v-if="quest.access === 'private'">{{ $t('label.ActivateTheLanguageVisiblePrivate') }}</q-item-label>
+            </q-item-section>
+          </q-item>
+          
+          <q-item>
+            <q-item-section side top>
+              <q-icon name="edit" class="left-icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="big-label">{{ $t('label.Editors') }} <span v-if="quest.limitations && quest.limitations.nbEditors">({{ editor.items.length }}/{{ quest.limitations.nbEditors }})</span></q-item-label>
+              <p v-for="item in editor.items" :key="item.id">
+                <q-toggle v-model="item.checked" :label="item.name" @input="removeEditor(item.id)" />
+              </p>
+              <p v-if="warnings.editorsMissing">{{ $t('label.TechnicalIssue') }}</p>
+              <q-input
+                type="text"
+                :label="$t('label.InviteEditors')"
+                v-model="editor.new.email"
+                bottom-slots
+                :error="!editor.new.isExisting"
+                :error-message="$t('label.UserIsNotAGraalyUser')"
+                >
+                <template v-slot:after>
+                  <q-btn icon="add_circle" color="primary" flat round dense @click="addEditor()" />
+                </template>
+                <template v-slot:hint>
+                  {{ $t('label.InviteEditorsHelp') }}
+                </template>
+              </q-input>
+            </q-item-section>
+          </q-item>
+          
+          <q-item>
+            <q-item-section side top>
+              <q-icon name="fa fa-qrcode" class="left-icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="big-label">{{ $t('label.MarkersFile') }}</q-item-label>
+              <!-- for webapp mode -->
+              <q-btn v-if="!isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" type="a" href="statics/markers/all.pdf" download />
+              <!-- for hybrid mode -->
+              <q-btn v-if="isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" @click="downloadMarkers()" />
+            </q-item-section>
+          </q-item>
+          
+          <p class="centered q-pa-md" v-if="quest.status !== 'published'">
+            <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
+          </p>
+          
+        </div>
+        
+      </q-tab-panel>
+        
       <!------------------ REVIEWS TAB ------------------------>
         
-      <q-tab-pane name="reviews" v-if="this.isEdition">
+      <q-tab-panel name="reviews" v-if="isEdition && quest.access === 'public'">
         <!--<q-infinite-scroll :handler="getReviews">-->
           <q-list highlight v-if="reviews.length > 0">
             <q-item v-for="review in reviews" :key="review._id">
               
-              <q-item-side :avatar="getAvatar(review.userId.picture)" />
+              <q-item-section avatar>
+                <q-avatar>
+                  <img :src="getAvatar(review.userId.picture)" />
+                </q-avatar>
+              </q-item-section>
                 
-              <q-item-main>
-                <q-item-tile>{{ review.userId.name }}</q-item-tile>
-                <q-item-tile>
-                  <q-rating readonly v-model="review.rating" />
-                </q-item-tile>
-                <q-item-tile>
-                  {{ review.text }}
-                </q-item-tile>
-              </q-item-main>
-              
-              <q-item-side right :stamp="$options.filters.formatDate(review.created)" />
-              
+              <q-item-section>
+                <q-item-label>
+                  {{ review.userId.name }}
+                </q-item-label>
+                <q-item-label caption>
+                  <q-rating readonly v-model="review.rating" /> - {{ $options.filters.formatDate(review.created) }} (v{{ review.version }})
+                </q-item-label>
+                <q-item-label caption class="review-text">{{ review.text }}</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item v-if="reviews.length === 0">
+              <q-item-label>{{ $t('label.QuestNotReviewed') }}</q-item-label>
             </q-item>
           </q-list>
         <!--</q-infinite-scroll>-->
         
-        <p v-if="reviews.length === 0">{{ $t('label.QuestNotReviewed') }}</p>
-        
-      </q-tab-pane>
-      
-    </q-tabs>
+      </q-tab-panel>
     
-    <q-modal v-model="chapters.showNewStepPage">
+    <!------------------ RESULTS TAB ------------------------>
+        
+      <q-tab-panel name="results" v-if="isEdition && quest.access === 'private'">
+        <div v-if="quest.status === 'published'">
+          <div v-if="ranking && ranking.items && ranking.items.length > 0">
+            <q-list>
+              <q-item v-for="(rank, index) in ranking.items" :key="index" >
+                <q-item-section top avatar>
+                  <q-avatar>
+                    <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
+                    <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
+                    <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
+                  </q-avatar>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ rank.name }}</q-item-label>
+                  <q-item-label caption v-if="rank.status === 'finished'">{{ $t('label.Succeeded') }}</q-item-label>
+                  <q-item-label caption v-if="rank.status !== 'finished'">{{ $t('label.CurrentlyPlaying') }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+          <div class="centered" v-if="ranking && ranking.items && ranking.items.length === 0">
+            {{ $t('label.NoPlayersYetForThisQuest') }}
+          </div>
+          <div class="centered">
+            <q-btn color="primary" @click="closePrivateQuest">{{ $t('label.ClosePrivateQuest') }}</q-btn>
+            <div>{{ $t('label.ClosePrivateQuestDesc') }}</div>
+          </div>
+        </div>
+        <div v-if="quest.status === 'old'">
+          <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.FinalRanking') }}</div>
+          <div v-if="ranking && ranking.items && ranking.items.length > 0">
+            {{ $t('label.FinalRankingIntro') }}
+            <q-list>
+              <q-item v-for="(rank, index) in ranking.items" :key="index" >
+                <q-item-section avatar>
+                  <img v-if="rank.position <= 10" :src="'statics/icons/game/medal-' + rank.position + '.png'">
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ rank.name }}</q-item-label>
+                  <q-item-label caption>{{ rank.score}} {{ $t('label.points') }}<!--<q-icon name="fas fa-trophy" />--></q-item-label>
+                </q-item-section>
+                <q-item-section side top avatar>
+                  <q-avatar>
+                    <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
+                    <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
+                    <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
+                  </q-avatar>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+          <div class="centered" v-if="ranking && ranking.items && ranking.items.length === 0">
+            {{ $t('label.NoPlayerForThisQuest') }}
+          </div>
+        </div>
+        
+      </q-tab-panel>
+      
+    </q-tab-panels>
+    
+    <q-dialog v-model="chapters.showNewStepPage" maximized>
       <div>
     
         <!------------------ STEP TYPE SELECTION ------------------------>
         
-        <a class="float-right no-underline" color="grey" @click="closeStepTypePage"><q-icon name="close" class="medium-icon" /></a>
-        <h1 class="size-3 q-pl-md">{{ $t('label.ChooseTheStepType') }}</h1>
+        <a class="float-right no-underline close-btn" color="grey" @click="closeStepTypePage"><q-icon name="close" class="medium-icon" /></a>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.ChooseTheStepType') }}</div>
       
         <div class="q-pa-md">
-          <p class="caption">{{ $t('label.Transition') }}</p>
+          <div class="text-subtitle1 q-pa-md">{{ $t('label.Transition') }}</div>
           <q-list>
-            <q-collapsible color="primary" popup
+            <q-expansion-item color="primary" popup
               group="steptype"
               v-for="stepType in filteredStepTypes('transition')" :key="stepType.code" 
               :icon="'fas fa-' + stepType.icon"
               :label="$t('stepType.' + stepType.title)"
             >
-              <div>
-                {{ $t('stepType.' + stepType.description) }}
-                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" />
+              <div class="centered q-pa-sm">
+                <div>{{ $t('stepType.' + stepType.description) }}</div>
+                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" :test-id="'btn-select-step-type-' + stepType.code" />
               </div>
-            </q-collapsible>
+            </q-expansion-item>
           </q-list> 
           
-          <p class="caption">{{ $t('label.Quest') }}</p>
-          
+          <div class="text-subtitle1 q-pa-md">{{ $t('label.Quest') }}</div>
           <q-list>
-            <q-collapsible color="primary" popup
+            <q-expansion-item color="primary" popup
               group="steptype"
               v-for="stepType in filteredStepTypes('enigma')" :key="stepType.code" 
               :icon="'fas fa-' + stepType.icon"
               :label="$t('stepType.' + stepType.title)"
             >
-              <div>
-                {{ $t('stepType.' + stepType.description) }}
-                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" />
+              <div class="centered q-pa-sm">
+                <div>{{ $t('stepType.' + stepType.description) }}</div>
+                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" :test-id="'btn-select-step-type-' + stepType.code" />
               </div>
-            </q-collapsible>
+            </q-expansion-item>
           </q-list>
           
           <div class="q-pa-md centered">
-            <a @click="closeStepTypePage()">{{ $t('label.Close') }}</a>
+            <q-btn color="secondary" @click="closeStepTypePage()">{{ $t('label.Close') }}</q-btn>
           </div>
         </div>
       </div>
       
-    </q-modal>
+    </q-dialog>
     
-    <div id="overview" v-if="chapters.showNewStepPageSettings" class="fit">
+    <q-dialog maximized v-model="chapters.showNewStepPageSettings">
       
       <!------------------ STEP SETTINGS SELECTION ------------------------>
       
-      <stepSettings :quest="quest" :stepId="stepId" :lang="languages.current" :options="{type: chapters.newStep.type, chapterId: chapters.newStep.chapterId, previousStepId: chapters.newStep.previousStepId}" @change="trackStepChanges" @close="closeStepSettingsPage"></stepSettings>
+      <stepSettings :quest="quest" :stepId="stepId" :lang="languages.current" :options="{type: chapters.newStep.type, chapterId: chapters.newStep.chapterId, previousStepId: chapters.newStep.previousStepId, mode: form.fields.editorMode}" @change="trackStepChanges" @close="closeStepSettingsPage"></stepSettings>
       
-    </div>  
+    </q-dialog>
     
-    <div id="overview" v-if="chapters.showNewStepOverview" class="fit">
+    <div v-if="chapters.showNewStepOverview" class="fullscreen">
     
         <!------------------ STEP SIMULATION ------------------------>
 
-        <stepPlay :step="chapters.newStep.overviewData" runId="0" :itemUsed="selectedItem" :reload="chapters.reloadStepPlay" :lang="languages.current" @played="trackStepPlayed" @success="trackStepSuccess" @fail="trackStepFail" @pass="trackStepPass"></stepPlay>
+        <stepPlay 
+          :step="chapters.newStep.overviewData" 
+          runId="0" 
+          :color="(quest.customization && quest.customization.color && quest.customization.color !== '') ? quest.customization.color : 'primary'" 
+          :itemUsed="selectedItem" 
+          :reload="chapters.reloadStepPlay" 
+          :lang="languages.current" 
+          @played="trackStepPlayed" 
+          @success="trackStepSuccess" 
+          @fail="trackStepFail" 
+          @pass="trackStepPass">
+        </stepPlay>
         <div v-show="overview.tabSelected" class="step-menu fixed-bottom">
-          <!--<q-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-progress>-->
-          <div class="row">
+          <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
+          <div class="row white-buttons">
             <div class="col centered q-pb-md">
+              <q-btn
+                round
+                size="lg"
+                class="bg-white"
+                v-if="quest.customization.logo && quest.customization.logo !== ''" >
+                <q-avatar size="60px">
+                  <img :src="serverUrl + '/upload/quest/' + quest.customization.logo">
+                </q-avatar>
+              </q-btn>
             </div>
             <div class="col centered q-pb-md">
-              <q-btn round size="lg" color="primary" icon="work" :class="{'bg-secondary': inventory.isOpened}" @click="openInventory()" />
+              <q-btn 
+                round 
+                size="lg" 
+                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
+                icon="work" 
+                :class="{'bg-secondary': (inventory.isOpened && !quest.customization.color), 'bg-primary': (!inventory.isOpened && !quest.customization.color)}" 
+                @click="openInventory()"
+                test-id="btn-inventory"
+              />
             </div>
             <div class="col centered q-pb-md">
-              <q-btn round size="lg" color="primary" icon="lightbulb outline" :class="{'flashing': hint.suggest, 'bg-secondary': hint.isOpened}" @click="askForHint()" v-show="isHintAvailable()" />
+              <q-btn 
+                round 
+                size="lg" 
+                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
+                icon="lightbulb" 
+                :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && !quest.customization.color), 'bg-primary': (!hint.isOpened && !quest.customization.color)}" 
+                @click="askForHint()" 
+                v-show="isHintAvailable()" 
+              />
+            </div>
+            <div v-if="!readOnly" class="col centered q-pb-md">
+              <q-btn 
+                round 
+                size="lg" 
+                :style="quest.customization.color ? 'background-color: ' + quest.customization.color : ''" 
+                :class="{'bg-primary': !quest.customization.color}" 
+                icon="arrow_back" 
+                @click="stepId = -1; modifyStep(chapters.newStep.overviewData)" 
+              />
             </div>
             <div class="col centered q-pb-md">
-              <q-btn round size="lg" color="primary" icon="arrow_back" @click="modifyStep()" />
-            </div>
-            <div class="col centered q-pb-md">
-              <q-btn round size="lg" color="primary" icon="arrow_forward" :class="{'flashing': canMoveNextStep}" v-show="canMoveNextStep || canPass" @click="closeOverview" />
+              <q-btn 
+                round 
+                size="lg" 
+                :style="quest.customization.color ? 'background-color: ' + quest.customization.color : ''"
+                icon="arrow_forward" 
+                :class="{'flashing': canMoveNextStep, 'bg-primary': !quest.customization.color}" 
+                v-show="canMoveNextStep || canPass" 
+                @click="closeOverview" 
+                 test-id="btn-next-step"
+              />
             </div>
           </div>
         </div>
@@ -326,9 +625,10 @@
     
     <!------------------ INVENTORY PAGE AREA ------------------------>
     
-    <transition name="slideInBottom">
-      <div class="inventory panel-bottom q-pa-md" v-show="inventory.isOpened">
-        <h1>{{ $t('label.Inventory') }}</h1>
+    <q-dialog maximized v-model="inventory.isOpened">
+      <div class="inventory panel-bottom q-pa-md">
+        <a class="float-right no-underline close-btn" color="grey" @click="inventory.isOpened = false"><q-icon name="close" class="medium-icon" /></a>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Inventory') }}</div>
         <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
@@ -341,18 +641,43 @@
           </div>
         </div>
       </div>
-    </transition>
+    </q-dialog>
     
     <!------------------ HINT PAGE AREA ------------------------>
     
-    <transition name="slideInBottom">
-      <div class="hint panel-bottom q-pa-md" v-show="hint.isOpened">
-        <h1>{{ $t('label.Hint') }}</h1>
+    <q-dialog maximized v-model="hint.isOpened">
+      <div class="hint panel-bottom q-pa-md">
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Hint') }}</div>
         <p v-if="hint.label === ''">{{ $t('label.NoHintForThisStep') }}</p>
         <p v-if="hint.label !== ''">{{ hint.label[languages.current] }}</p>
         <q-btn class="q-mb-xl" color="primary" @click="askForHint()">{{ $t('label.Close') }}</q-btn>
       </div>
+    </q-dialog>
+    
+    <!------------------ MEDIA LIST AREA ------------------------>
+    
+    <transition name="slideInBottom">
+      <div class="hint panel-bottom q-pa-md" v-show="media.isOpened">
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.QuestMedia') }}</div>
+        <q-list v-for="(item, index) in media.items" :key="item.id">
+          <q-item clickable v-ripple>
+            <q-item-section thumbnail @click="zoomMedia(index)">
+              <img :src="serverUrl + '/upload/quest/' + questId + item.type + item.file">
+            </q-item-section>
+            <q-item-section>{{ item.size }} Ko</q-item-section>
+            <q-item-section side><q-btn icon="delete" @click="removeMedia(item._id)"></q-btn></q-item-section>
+          </q-item>
+        </q-list>
+        <div v-if="media.items.length === 0">
+          {{ $t('label.YouDoNotUseAnyMediaYetInYourQuest') }}
+        </div>
+        <q-btn class="q-mb-xl" color="primary" @click="hideMedia()">{{ $t('label.Close') }}</q-btn>
+      </div>
     </transition>
+    <q-dialog v-model="media.detail.isOpened">
+      <img v-if="media.items.length > 0" style="width: 100%" :src="serverUrl + '/upload/quest/' + questId + media.items[media.detail.index].type + media.items[media.detail.index].file">
+      <q-btn class="q-mb-xl" color="primary" @click="unzoomMedia()">{{ $t('label.Close') }}</q-btn>
+    </q-dialog>
     
     <!--====================== STORY =================================-->
     
@@ -366,7 +691,7 @@
 
 <script>
 import { required } from 'vuelidate/lib/validators'
-import Notification from 'plugins/NotifyHelper'
+import Notification from 'boot/NotifyHelper'
 import QuestService from 'services/QuestService'
 import ReviewService from 'services/ReviewService'
 import RunService from 'services/RunService'
@@ -398,11 +723,12 @@ export default {
   data() {
     return {
       questId: null,
-      stepId: '-1',
+      stepId: -1,
+      readOnly: false,
       tabs: {
-        selected: 'languages',
+        selected: 'settings',
         progress: 0,
-        list: ['languages', 'settings', 'steps', 'publish'],
+        list: ['settings', 'steps', 'publish'],
         icons: ['looks_one', 'looks_two', 'looks_3', 'looks_4']
       },
       overview: {
@@ -427,7 +753,9 @@ export default {
           thumb: null,
           town: "",
           country: "",
-          zipcode: ""
+          zipcode: "",
+          editorMode: 'simple',
+          customization: { color: '', logo: '' }
         },
         categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }, this.$t),
         languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
@@ -459,6 +787,7 @@ export default {
           overviewData: {}
         }
       },
+      ranking: [],
       inventory: {
         isOpened: false,
         items: []
@@ -469,7 +798,23 @@ export default {
         isOpened: false,
         label: ""
       },
+      media: {
+        isOpened: false,
+        items: [],
+        detail: {
+          isOpened: false,
+          index: 0
+        }
+      },
       editor: {
+        items: [],
+        new: {
+          email: '',
+          isExisting: true
+        },
+        initMode: 'simple'
+      },
+      invitee: {
         items: [],
         new: {
           email: '',
@@ -485,6 +830,7 @@ export default {
       canMoveNextStep: false,
       canPass: false,
       itemUsed: null,
+      isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
       serverUrl: process.env.SERVER_URL,
       pictureUploadURL: this.serverUrl + '/quest/picture/upload',
       titleMaxLength: 50,
@@ -492,6 +838,7 @@ export default {
       warnings: {
         stepsMissing: false,
         editorsMissing: false,
+        inviteeMissing: false,
         inventoryMissing: false
       }
     }
@@ -501,7 +848,7 @@ export default {
       return this.quest.languages.length > 1 ? '[' + this.languages.current.toUpperCase() + ']' : ''
     },
     isCreation() {
-      return this.tabs.progress < 4
+      return this.tabs.progress < 3
     },
     isEdition() {
       return !this.isCreation
@@ -534,13 +881,19 @@ export default {
       this.questId = this.$route.params.questId
       
       // fill quest settings form
-      let res = await QuestService.getById(this.questId)
+      let res = await QuestService.getLastById(this.questId)
       
       if (res && res.data) {
         this.quest = res.data
+        
+        // if not draft => read only
+        if (this.quest.status !== 'draft') {
+          this.readOnly = true
+        }
+        this.editor.initMode = this.quest.editorMode
 
         // get languages
-        if (this.quest.languages && this.quest.languages.length > 0 && this.languages.current === '') {
+        if (this.quest.languages && this.quest.languages.length > 0 && this.languages.current === 'fr') {
           this.languages.current = this.quest.languages[0].lang
           for (var i = 0; i < this.quest.languages.length; i++) {
             this.languages.available.push({label: this.$t('language.' + this.quest.languages[i].lang), value: this.quest.languages[i].lang})
@@ -568,17 +921,38 @@ export default {
         // define tabs status
         this.tabs.progress = this.quest.creationStep
         // creation in progress => get creator back to the tab where he was
-        if (this.tabs.progress <= 4) {
-          this.tabs.selected = this.tabs.list[Math.min(this.tabs.progress, 3)]
+        if (this.tabs.progress <= 3) {
+          this.tabs.selected = this.tabs.list[Math.min(this.tabs.progress, 2)]
         }
-        
+
         await this.refreshStepsList()
         
         await this.listEditors()
         
+        await this.listInvitees()
+        
         await this.listReviews()
+        
+        if (this.quest.access && this.quest.access === 'private') {
+          this.getPrivateRanking()
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+    },
+    async changeEditorMode() {
+      if (this.form.fields.editorMode === 'advanced') {
+        this.$q.dialog({
+          message: this.$t('label.AreYouSureYouWantToMoveToAdvancedMode'),
+          ok: true,
+          cancel: true
+        }).onOk(async () => {
+          await this.refreshStepsList()
+        }).onCancel(async () => {
+          this.form.fields.editorMode = 'simple'
+        })
+      } else {
+        await this.refreshStepsList()
       }
     },
     /*
@@ -588,114 +962,200 @@ export default {
       this.warnings.stepsMissing = false
       // list steps
       this.$q.loading.show()
-      var response = await StepService.listForAQuest(this.questId)
+      var response = await StepService.listForAQuest(this.questId, this.quest.version)
       if (response && response.data) {
         this.chapters.items = response.data.chapters
         
         const steps = response.data.steps
-        for (var j = 0; j < this.chapters.items.length; j++) {
-          var hasEndOfChapterStep = false
-          var stepsWithNoCondition = []
-          var order = []
-          var orderIndex = 100
-          var stepsOfChapter = []
-          var parent = []
-     
-          // Get the steps of current chapter
-          for (var i = 0; i < steps.length; i++) {
-            if (steps[i].chapterId.toString() === this.chapters.items[j]._id.toString()) {
-              // create steps array
-              if (!this.chapters.items[j].steps) {
-                this.chapters.items[j].steps = []
+        
+        if (this.form.fields.editorMode === 'simple') {
+          // editor simple mode
+          this.chapters.items[0].steps = steps
+        } else {
+          // editor advanced mode
+          for (var j = 0; j < this.chapters.items.length; j++) {
+            var hasEndOfChapterStep = false
+            var stepsWithNoCondition = []
+            var stepsWithNoParent = []
+            var stepsOfChapter = []
+            var parent = []
+       
+            // Get the steps of current chapter & check if chapter has and end step
+            for (var i = 0; i < steps.length; i++) {
+              if (steps[i].chapterId.toString() === this.chapters.items[j].chapterId.toString()) {
+                // create steps array
+                if (!this.chapters.items[j].steps) {
+                  this.chapters.items[j].steps = []
+                }
+                // check if there is an end of chapter step
+                if (steps[i].type === 'end-chapter') {
+                  hasEndOfChapterStep = true
+                }
+                stepsOfChapter.push(steps[i])
               }
-              // check if there is an end of chapter step
-              if (steps[i].type === 'end-chapter') {
-                hasEndOfChapterStep = true
-              }
-              stepsOfChapter.push(steps[i])
             }
-          }
-          
-          // first step : find the lower level steps
-          for (i = 0; i < stepsOfChapter.length; i++) {
-            // if no parent (stepDone), 
-            if ((stepsOfChapter[i].conditions && stepsOfChapter[i].conditions.length > 0) || stepsOfChapter[i].type === 'locate-marker') {
-              if (stepsOfChapter[i].type !== 'locate-marker') {
-                for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
-                  var noStepDone = true
-                  if (stepsOfChapter[i].conditions[k].indexOf('stepDone') !== -1) {
-                    noStepDone = false
-                    parent[stepsOfChapter[i]._id.toString()] = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
-                  }
-                  if (stepsOfChapter[i].conditions[k].indexOf('stepSuccess') !== -1) {
-                    noStepDone = false
-                    parent[stepsOfChapter[i]._id.toString()] = stepsOfChapter[i].conditions[k].replace("stepSuccess_", "")
-                  }
-                  if (stepsOfChapter[i].conditions[k].indexOf('stepFail') !== -1) {
-                    noStepDone = false
-                    parent[stepsOfChapter[i]._id.toString()] = stepsOfChapter[i].conditions[k].replace("stepFail_", "")
+            
+            // create unsorted list of steps
+            var unsorted = []
+            for (i = 0; i < stepsOfChapter.length; i++) {
+              unsorted.push(stepsOfChapter[i].stepId.toString())
+            }
+            
+            // create sorted list of steps
+            var sorted = []
+            //until all the steps are treated
+            var iteration = 0
+            while (unsorted.length > 0 || iteration < 1000) {
+              iteration++
+              allSteps:
+                for (i = 0; i < stepsOfChapter.length; i++) {
+                  var stepId = stepsOfChapter[i].stepId.toString()
+                  // if the step does not already exists in final array
+                  if (sorted.indexOf(stepId) === -1) {
+                    // if no condition => place in first position in chapter
+                    if (stepsOfChapter[i].conditions && stepsOfChapter[i].conditions.length === 0) {
+                      sorted.unshift(stepId)
+                      unsorted.splice(unsorted.indexOf(stepId), 1)
+                      stepsWithNoCondition.push(stepsOfChapter[i].title[this.languages.current])
+                    }
+                    // if one condition or more
+                    if (stepsOfChapter[i].conditions && stepsOfChapter[i].conditions.length > 0) {
+                      var maxPosition = 0
+                      // find if parents are already sorted and if so add item in sorted after
+                      for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
+                        let parentStepId = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
+                        parentStepId = parentStepId.replace("stepSuccess_", "")
+                        parentStepId = parentStepId.replace("stepFail_", "")
+                        // If parent is not sorted => do not treat the item
+                        if (sorted.indexOf(parentStepId) === -1) {
+                          // check that the parent exists at least in unsorted => else error
+                          if (unsorted.indexOf(parentStepId) === -1) {
+                            stepsWithNoParent.push(stepId)
+                            unsorted.splice(unsorted.indexOf(stepId), 1)
+                            sorted.push(stepId)
+                          }
+                          continue allSteps
+                        } else {
+                          let parentPosition = sorted.indexOf(parentStepId)
+                          if (parentPosition > maxPosition) {
+                            maxPosition = parentPosition
+                          }
+                        }
+                      }
+                      // treat the position of the new item
+                      if (sorted.length >= maxPosition) {
+                        sorted.splice(maxPosition + 1, 0, stepId)
+                      } else {                  
+                        sorted.push(stepId)
+                      }
+                      unsorted.splice(unsorted.indexOf(stepId), 1)
+                    }
                   }
                 }
+            }
+            
+            // apply sort && add extra formating properties
+            for (i = 0; i < sorted.length; i++) {
+              for (k = 0; k < stepsOfChapter.length; k++) {
+                if (sorted[i] === stepsOfChapter[k].stepId.toString()) {
+                  if (stepsWithNoParent.indexOf(stepsOfChapter[k].stepId.toString()) !== -1) {
+                    stepsOfChapter[k].error = 'FollowingStepsHaveInvalidCondition'
+                  }
+                  if (i === 0 || stepsOfChapter[k].conditions.length === 0 || stepsOfChapter[k].conditions.length > 1 || stepsOfChapter[k].type === 'locate-marker') {
+                    stepsOfChapter[k].level = 1
+                  } else {
+                    stepsOfChapter[k].level = 2
+                  }
+                  this.chapters.items[j].steps.push(stepsOfChapter[k])
+                }
               }
-              if (noStepDone || stepsOfChapter[i].type === 'locate-marker') {
-                order.push({key: orderIndex.toString(), value: stepsOfChapter[i]._id}) 
-                orderIndex++
-              }
-            } else {
-              if (order.length === 0) {
-                order.push({key: "0", value: stepsOfChapter[i]._id})
+            }
+            
+            /*
+            // first step : find the lower level steps
+            for (i = 0; i < stepsOfChapter.length; i++) {
+              // if no parent (stepDone), 
+              if ((stepsOfChapter[i].conditions && stepsOfChapter[i].conditions.length > 0) || stepsOfChapter[i].type === 'locate-marker') {
+                if (stepsOfChapter[i].type !== 'locate-marker') {
+                  for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
+                    var noStepDone = true
+                    if (stepsOfChapter[i].conditions[k].indexOf('stepDone') !== -1) {
+                      noStepDone = false
+                      parent[stepsOfChapter[i].stepId.toString()] = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
+                    }
+                    if (stepsOfChapter[i].conditions[k].indexOf('stepSuccess') !== -1) {
+                      noStepDone = false
+                      parent[stepsOfChapter[i].stepId.toString()] = stepsOfChapter[i].conditions[k].replace("stepSuccess_", "")
+                    }
+                    if (stepsOfChapter[i].conditions[k].indexOf('stepFail') !== -1) {
+                      noStepDone = false
+                      parent[stepsOfChapter[i].stepId.toString()] = stepsOfChapter[i].conditions[k].replace("stepFail_", "")
+                    }
+                  }
+                }
+                if (noStepDone || stepsOfChapter[i].type === 'locate-marker') {
+                  order.push({key: orderIndex.toString(), value: stepsOfChapter[i].stepId}) 
+                  orderIndex++
+                }
               } else {
-                order.push({key: orderIndex.toString(), value: stepsOfChapter[i]._id}) 
-                orderIndex++
+                if (order.length === 0) {
+                  order.push({key: "0", value: stepsOfChapter[i].stepId})
+                } else {
+                  order.push({key: orderIndex.toString(), value: stepsOfChapter[i].stepId}) 
+                  orderIndex++
+                }
+                
+                stepsWithNoCondition.push(stepsOfChapter[i].title[this.languages.current])
               }
-              
-              stepsWithNoCondition.push(stepsOfChapter[i].title[this.languages.current])
             }
-          }
 
-          // get order based on parent/child hierarchy
-          var nbToTreat = Object.keys(parent).length
-          var inc = 0
-          while (Object.keys(parent).length > 0 && inc < nbToTreat) {
-            for (var child in parent) {
-              for (i = 0; i < order.length; i++) {
-                if (parent[child] === order[i].value) {
-                  order.push({key: order[i].key + "." + order[i].value, value: child})
-                  delete parent[child]
+            // get order based on parent/child hierarchy
+            var nbToTreat = Object.keys(parent).length
+            var inc = 0
+            while (Object.keys(parent).length > 0 && inc < nbToTreat) {
+              for (var child in parent) {
+                for (i = 0; i < order.length; i++) {
+                  if (parent[child] === order[i].value) {
+                    order.push({key: order[i].key + "." + order[i].value, value: child})
+                    delete parent[child]
+                  }
+                }
+              }
+              inc++
+            }
+            
+            order.sort(function(a, b) {
+              return a.key < b.key ? -1 : a.key > b.key ? 1 : 0
+            })
+            
+            // order steps
+            for (i = 0; i < order.length; i++) {
+              for (k = 0; k < stepsOfChapter.length; k++) {
+                if (order[i].value === stepsOfChapter[k].stepId.toString()) {
+                  this.chapters.items[j].steps.push(stepsOfChapter[k])
                 }
               }
             }
-            inc++
-          }
-          
-          order.sort(function(a, b) {
-            return a.key < b.key ? -1 : a.key > b.key ? 1 : 0
-          })
-          
-          // order steps
-          for (i = 0; i < order.length; i++) {
-            for (k = 0; k < stepsOfChapter.length; k++) {
-              if (order[i].value === stepsOfChapter[k]._id.toString()) {
-                this.chapters.items[j].steps.push(stepsOfChapter[k])
-              }
+            */
+            
+            // Checks
+            this.chapters.items[j].warnings = []
+            if (!hasEndOfChapterStep) {
+              this.chapters.items[j].warnings.push({noEndOfChapter: true})
             }
-          }
-          
-          // Checks
-          this.chapters.items[j].warnings = []
-          if (!hasEndOfChapterStep) {
-            this.chapters.items[j].warnings.push({noEndOfChapter: true})
-          }
-          if (stepsWithNoCondition.length > 1) {
-            this.chapters.items[j].warnings.push({moreThan1StepWithNoCondition: stepsWithNoCondition})
-          }
-          if (parent.length > 0) {
-            this.chapters.items[j].warnings.push({stepsWithMissingParent: parent})
+            if (stepsWithNoCondition.length > 1) {
+              this.chapters.items[j].warnings.push({moreThan1StepWithNoCondition: stepsWithNoCondition})
+            }
+            if (parent.length > 0) {
+              this.chapters.items[j].warnings.push({stepsWithMissingParent: parent})
+            }
+            if (stepsWithNoParent.length > 0) {
+              this.chapters.items[j].warnings.push({stepWithNoParent: stepsWithNoParent})
+            }
           }
         }
-        
-        if (steps && steps.length > 0 && this.tabs.progress < 3) {
-          this.tabs.progress = 3
+        if (steps && steps.length > 0 && this.tabs.progress < 2) {
+          this.tabs.progress = 2
         }
         
         // update property this.quest.hasLocateMarkerSteps
@@ -713,6 +1173,12 @@ export default {
       }
       this.$q.loading.hide()
     },
+    showHelpPopup (message) {
+      this.$q.dialog({
+        //title: this.$t('label.IssuesInYouQuest'),
+        message: this.$t('label.' + message)
+      })
+    },
     showChapterWarnings (warnings) {
       var message = ""
       for (var i = 0; i < warnings.length; i++) {
@@ -722,13 +1188,16 @@ export default {
         if (warnings[i].hasOwnProperty('moreThan1StepWithNoCondition')) {
           message += this.$t('label.FollowingStepsHaveNoConditionsOnlyTheFirstStepCanHaveThis') + ": " + warnings[i].moreThan1StepWithNoCondition.join(', ') + ". "
         }
+        if (warnings[i].hasOwnProperty('stepWithNoParent')) {
+          message += this.$t('label.FollowingStepsHaveInvalidCondition') + "."
+        }
         if (warnings[i].hasOwnProperty('stepsWithMissingParent')) {
           message += this.$t('label.FollowingStepsHaveNoValidParent') + ": "
           for (var child in warnings[i].stepsWithMissingParent) {
             for (var j = 0; j < this.chapters.items.length; j++) {
               // Get the steps of current chapter
               for (var k = 0; k < this.chapters.items[j].steps.length; k++) {
-                if (this.chapters.items[j].steps[k]._id.toString() === child) {
+                if (this.chapters.items[j].steps[k].stepId.toString() === child) {
                   message += this.chapters.items[j].steps[k].title[this.languages.current]
                 }
               }
@@ -740,6 +1209,12 @@ export default {
       this.$q.dialog({
         title: this.$t('label.IssuesInYouQuest'),
         message: message
+      })      
+    },
+    showStepWarnings (warning) {
+      this.$q.dialog({
+        title: this.$t('label.IssuesInYourStep'),
+        message: this.$t('label.' + warning)
       })      
     },
     /*
@@ -755,6 +1230,7 @@ export default {
       if (!this.$v.form.fields.$error) {
         let commonProperties = {
           'languages': [this.form.fields.mainLanguage],
+          'version': this.quest.version,
           'location': { 
             type: 'Point', 
             coordinates: [this.form.fields.location.lng, this.form.fields.location.lat],
@@ -774,8 +1250,8 @@ export default {
         
         if (res && res.data) {
           // update progression in stepper
-          if (this.tabs.progress < 2) {
-            this.tabs.progress = 2
+          if (this.tabs.progress < 1) {
+            this.tabs.progress = 1
             this.tabs.selected = 'steps'
             // start configuration story
             if (this.story.active) {
@@ -815,6 +1291,25 @@ export default {
       this.$q.loading.hide()
     },
     /*
+     * Upload a new logo for the quest
+     */
+    async uploadLogo(e) {
+      this.$q.loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadPictureResult = await QuestService.uploadLogo(data)
+      if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
+        this.form.fields.customization.logo = uploadPictureResult.data.file
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    /*
      * Start the tutorial
      */
     async startStory() {
@@ -823,7 +1318,7 @@ export default {
       
       if (questCreatedNb.data && questCreatedNb.data < 2) {
         this.story.active = true
-        if (this.story.step === null && this.tabs.selected === 'languages') {
+        if (this.story.step === null && this.tabs.selected === 'settings') {
           this.story.step = 17
         }
       }
@@ -842,6 +1337,7 @@ export default {
         title: this.$t('label.GeolocationFailed'),
         message: this.$t('label.GeolocationFailedDesc')
       })
+      this.$q.loading.hide()
     },
     /*
      * Get the address based on the position
@@ -861,6 +1357,7 @@ export default {
           // force field to be refreshed
           document.getElementById("startingplace").value = this.form.fields.startingPlace
         } else {
+          this.$q.loading.hide()
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
       });
@@ -935,43 +1432,63 @@ export default {
      * @param   {Object}    event            touch event
      */
     async onChapterListUpdate(event) {
-      let moveStatus = await StepService.moveChapter(this.questId, event.oldIndex + 1, event.newIndex + 1)
+      let moveStatus = await StepService.moveChapter(this.questId, this.quest.version, event.oldIndex + 1, event.newIndex + 1)
       if (moveStatus) {
         this.chapters.items.splice(event.newIndex, 0, this.chapters.items.splice(event.oldIndex, 1)[0])
+      }
+    },
+    /*
+     * Reindex elements in the list after drag & drop
+     * @param   {Object}    event            touch event
+     */
+    async onStepListUpdate(event) {
+      let moveStatus = await StepService.move(this.questId, this.quest.version, event.oldIndex + 1, event.newIndex + 1)
+      if (moveStatus) {
+        this.chapters.items[0].steps.splice(event.newIndex, 0, this.chapters.items[0].steps.splice(event.oldIndex, 1)[0])
       }
     },
     /*
      * Publish a quest
      */
     async publish(lang) {
-      // if quest is already published in a language, accept automatically other language
-      var action = 'unpublish'
-      // check if at least one language is published
-      for (var i = 0; i < this.form.fields.languages.length; i++) {
-        if (this.form.fields.languages[i].lang && this.form.fields.languages[i].lang === lang) {
-          if (this.form.fields.languages[i].published) {
-            action = 'publish'
+      let isPublishing = await this.checkIfTestable()
+      if (isPublishing) {
+        // if quest is already published in a language, accept automatically other language
+        var action = 'unpublish'
+        // check if at least one language is published
+        for (var i = 0; i < this.form.fields.languages.length; i++) {
+          if (this.form.fields.languages[i].lang && this.form.fields.languages[i].lang === lang) {
+            if (this.form.fields.languages[i].published) {
+              action = 'publish'
+            }
           }
         }
-      }
-      if (action === 'publish') {
-        this.$q.loading.show()
-        await QuestService.publish(this.questId, lang)
-        //TODO: manage if publishing failed
-        this.$q.loading.hide()
-        
-        if (this.quest.status === 'unpublished') {
-          this.quest.status = 'tovalidate'
+        if (action === 'publish') {
+          this.$q.loading.show()
+          await QuestService.publish(this.questId, lang)
+          //TODO: manage if publishing failed
+          this.$q.loading.hide()
+          
+          if (this.quest.status === 'unpublished' || this.quest.status === 'draft') {
+            if (this.quest.access === 'public') {
+              this.quest.status = 'tovalidate'            
+            } else {
+              this.quest.status = 'published'
+            }
+            this.readOnly = true
+          }
+          this.tabs.progress = 3
+        } else {
+          // no language is published => unpublish the quest
+          this.$q.loading.show()
+          await QuestService.unpublish(this.questId, lang)
+          this.$q.loading.hide()
+          
+          this.quest.status = 'unpublished'
+          this.tabs.progress = 2
         }
-        this.tabs.progress = 4
       } else {
-        // no language is published => unpublish the quest
-        this.$q.loading.show()
-        await QuestService.unpublish(this.questId, lang)
-        this.$q.loading.hide()
-        
-        this.quest.status = 'unpublished'
-        this.tabs.progress = 3
+        Notification(this.$t('label.YourQuestContainsErrorsInSteps'), 'error')
       }
     },
     /*
@@ -997,7 +1514,23 @@ export default {
      * Test the quest
      */
     async testQuest() {
-      this.$router.push('/quest/play/' + this.questId)
+      let testable = await this.checkIfTestable()
+      if (testable) {
+        this.$router.push('/quest/play/' + this.questId)
+      } else {
+        Notification(this.$t('label.YourQuestContainsErrorsInSteps'), 'error')
+      }
+    },
+    /*
+     * Test the quest
+     */
+    async checkIfTestable() {
+      for (var i = 0; i < this.chapters.items.length; i++) {
+        if (this.chapters.items[i].warnings && this.chapters.items[i].warnings.length > 0) {
+          return false
+        }
+      }
+      return true
     },
     /*
      * Remove the quest
@@ -1009,8 +1542,8 @@ export default {
         message: this.$t('label.AreYouSureYouWantToRemoveThisQuest'),
         ok: true,
         cancel: true
-      }).then(async () => {
-        await QuestService.remove(_this.questId)
+      }).onOk(async () => {
+        await QuestService.remove(_this.questId, _this.quest.version)
         // TODO: manage when remove failed
         this.$router.push('/map')
       })
@@ -1026,11 +1559,27 @@ export default {
         message: this.$t('label.DoYouWantToRemoveThisStep'),
         ok: true,
         cancel: true
-      }).then(async () => {
-        await StepService.remove(_this.questId, stepId)
+      }).onOk(async () => {
+        await StepService.remove(_this.questId, stepId, _this.quest.version)
         // refresh steps list
         await _this.refreshStepsList()
-      }).catch((e) => { console.log(e) })
+      }).onCancel((e) => { console.log(e) })
+    },
+    /*
+     * Create a new draft version for this quest
+     */
+    async createNewVersion() {
+      var _this = this; // workaround for closure scope quirks
+
+      this.$q.dialog({
+        message: this.$t('label.CreateNewVersionDescription'),
+        ok: true,
+        cancel: true
+      }).onOk(async () => {
+        await QuestService.createNewVersion(_this.questId)
+        // reload quest data with new version
+        this.$router.push('/quest/builder/' + _this.questId)
+      })
     },
     /*
      * Remove a chapter
@@ -1041,7 +1590,7 @@ export default {
       
       // check that there are no steps in this chapter
       for (var i = 0; i < this.chapters.items.length; i++) {
-        if (this.chapters.items[i]._id.toString() === chapterId) {
+        if (this.chapters.items[i].chapterId.toString() === chapterId) {
           if (this.chapters.items[i].steps && this.chapters.items[i].steps.length > 0) {
             Notification(this.$t('label.YouCanNotRemoveAChapterWithSteps'), 'warning')
             return false
@@ -1053,15 +1602,15 @@ export default {
         message: this.$t('label.DoYouWantToRemoveThisChapter'),
         ok: true,
         cancel: true
-      }).then(async () => {
-        await StepService.removeChapter(_this.questId, chapterId)
+      }).onOk(async () => {
+        await StepService.removeChapter(_this.questId, chapterId, _this.quest.version)
         // TODO: manage when remove failed
         // reassign a number (1, 2, 3, ...) to remaining steps
-        let removedChapterIndex = _this.chapters.items.map(function(e) { return e._id; }).indexOf(chapterId)
+        let removedChapterIndex = _this.chapters.items.map(function(e) { return e.chapterId; }).indexOf(chapterId)
         _this.chapters.items.splice(removedChapterIndex, 1)
         // refresh steps list
         await this.refreshStepsList()
-      }).catch((e) => { console.log(e) })
+      }).onCancel((e) => { console.log(e) })
     },
     /*
      * Modify a chapter
@@ -1073,7 +1622,7 @@ export default {
       
       // Get chapter position and title
       for (var i = 0; i < this.chapters.items.length; i++) {
-        if (this.chapters.items[i]._id.toString() === chapterId) {
+        if (this.chapters.items[i].chapterId.toString() === chapterId) {
           chapterData.name = this.chapters.items[i].title[this.languages.current] ? this.chapters.items[i].title[this.languages.current] : ''
           chapterData.position = i
         }
@@ -1086,14 +1635,14 @@ export default {
           type: 'text'
         },
         cancel: true
-      }).then(async (data) => {
+      }).onOk(async (data) => {
         var title = {}
         title[_this.languages.current] = data
         
-        await StepService.modifyChapter({questId: _this.questId, _id: chapterId, title: title})
+        await StepService.modifyChapter({questId: _this.questId, version: _this.quest.version, chapterId: chapterId, title: title})
         
         _this.chapters.items[chapterData.position].title[_this.languages.current] = data
-      }).catch(() => {})
+      }).onCancel(() => {})
     },
     /*
      * Create a chapter
@@ -1108,29 +1657,33 @@ export default {
           type: 'text'
         },
         cancel: true
-      }).then(async (data) => {
+      }).onOk(async (data) => {
         var title = {}
         title[_this.languages.current] = data
         
-        await StepService.modifyChapter({questId: _this.questId, _id: '0', title: title})
+        await StepService.modifyChapter({questId: _this.questId, version: _this.quest.version, chapterId: '0', title: title})
         
         await this.refreshStepsList()
-      }).catch(() => {})
+      }).onCancel(() => {})
     },
     /*
      * modify a step
      * @param   {Object}    step            Data of the step to modify
      */
     async modifyStep(step) {
-      if (step && step._id) {
-        this.stepId = step._id
-        this.chapters.newStep.type = this.getStepTypeInformations(step.type)
-        this.chapters.newStep.chapterId = step.chapterId
-        this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
+      this.chapters.showNewStepPageSettings = true
+      if (step && step.stepId) {
+        var _this = this
+        // add timer else the watcher does not work every time
+        setTimeout(function() { 
+          _this.stepId = step.stepId
+          _this.chapters.newStep.type = _this.getStepTypeInformations(step.type)
+          _this.chapters.newStep.chapterId = step.chapterId
+          _this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
+        }, 500)
       }
       this.closeAllPanels()
       this.chapters.showNewStepOverview = false
-      this.chapters.showNewStepPageSettings = true
       this.chapters.reloadStepPlay = false
       // move to top
       this.moveToTop()
@@ -1141,9 +1694,9 @@ export default {
      */
     async playStep(step) {
       this.chapters.reloadStepPlay = false
-      if (step && step._id) {
-        this.stepId = step._id
-        step.id = step._id
+      if (step && step.stepId) {
+        this.stepId = step.stepId
+        step.id = step.stepId
         this.chapters.newStep.type = this.getStepTypeInformations(step.type)
         this.chapters.newStep.chapterId = step.chapterId
         this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
@@ -1184,7 +1737,7 @@ export default {
      * reset step data between 2 steps creation
      */
     resetStepData() {
-      this.stepId = '-1'
+      this.stepId = -1
       this.chapters.newStep.chaptedId = 0
       this.chapters.newStep.previousStepId = 0
       this.chapters.newStep.overviewData = {}
@@ -1200,23 +1753,31 @@ export default {
       await this.refreshStepsList()
       this.moveToPosition(this.chapters.newStep.scrollPosition)
       this.chapters.newStep.type = {}
-      this.stepId = '0'
+      this.stepId = -1
       this.chapters.showNewStepPageSettings = false
       this.tabs.selected = 'steps'
+      // refresh quest size
+      await this.refreshMediaSize()
     }, 
     /*
      * add a step
      */
     async addStep(chapterId) {
+      if (!chapterId) {
+        chapterId = this.chapters.items[0].chapterId
+      }
       this.chapters.showNewStepPage = true
       this.chapters.newStep.chapterId = chapterId
       this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
       var previousStepId = 0
       // get last step id of this chapter, to build the default condition
       for (var i = 0; i < this.chapters.items.length; i++) {
-        if (this.chapters.items[i]._id.toString() === chapterId && this.chapters.items[i].steps) {
+        if (this.chapters.items[i].chapterId.toString() === chapterId && this.chapters.items[i].steps) {
           let nbStepsInChapter = this.chapters.items[i].steps.length
-          previousStepId = this.chapters.items[i].steps[nbStepsInChapter - 1]._id
+          if (nbStepsInChapter > 0) {
+            previousStepId = this.chapters.items[i].steps[nbStepsInChapter - 1].stepId
+          }
+          break
         }
       }
       this.chapters.newStep.previousStepId = previousStepId
@@ -1228,7 +1789,7 @@ export default {
     async reindexChapters() {
       for (let i = 0; i < this.chapters.items.length; i++) {
         let chapter = this.chapters.items[i]
-        await StepService.saveChapter({ _id: chapter._id, questId: this.questId, order: i + 1 })
+        await StepService.modifyChapter({ chapterId: chapter.chapterId, questId: this.questId, order: i + 1 })
       }
     },
     /*
@@ -1289,14 +1850,126 @@ export default {
         }
       }
       
-      if (this.tabs.progress < 1) {
-        this.tabs.progress = 1
-      }
-      this.tabs.selected = 'settings'
-      
       if (this.story.active) {
         // start configuration story
         this.story.step = 18
+      }
+    },
+    /*
+    * Quest author change the language
+    */
+    async changeLanguage(language) {
+      // check if quest is already available for this lang
+      let questConfiguredForThisLanguage = false
+      if (this.quest.languages) {
+        for (var i = 0; i < this.quest.languages.length; i++) {
+          if (this.quest.languages[i].lang === language) {
+            questConfiguredForThisLanguage = true
+          }
+        }
+      }
+      
+      if (!questConfiguredForThisLanguage) {
+        // ask the user if he want to create the language
+        var _this = this;
+      
+        this.$q.dialog({
+          message: this.$t('label.AreYouSureToAddThisNewLanguage'),
+            ok: true,
+            cancel: true
+          }).onOk(async () => {
+            // raises blocking exception if any problem occurs
+            await QuestService.addLanguage(_this.questId, language)
+            
+            // if quest title is empty, autofill it with a default value
+            if (!this.quest.title[language] || this.quest.title[language] === '') {
+              if (language === this.quest.mainLanguage) {
+                // if current language is main language, get title default value (label.NewQuest)
+                this.quest.title[language] = this.$t('label.NewQuest', language)
+              } else {
+                // copy value from main language
+                this.quest.title[language] = this.quest.title[this.quest.mainLanguage]
+              }
+            }            
+          }).onCancel(async () => {
+            _this.languages.current = _this.quest.languages[0].lang
+          })
+      } else {
+        // refresh quest data
+        await this.loadQuestData()
+            
+        // if quest title is empty, autofill it with a default value
+        if (!this.quest.title[language] || this.quest.title[language] === '') {
+          if (language === this.quest.mainLanguage) {
+            // if current language is main language, get title default value (label.NewQuest)
+            this.quest.title[language] = this.$t('label.NewQuest', language)
+          } else {
+            // copy value from main language
+            this.quest.title[language] = this.quest.title[this.quest.mainLanguage]
+          }
+        }
+      }
+    },
+    /*
+     * Close a private quest
+     */
+    async closePrivateQuest() {
+      var _this = this; // workaround for closure scope quirks
+
+      this.$q.dialog({
+        message: this.$t('label.ClosePrivateQuestAlert'),
+        ok: true,
+        cancel: true
+      }).onOk(async () => {
+        await QuestService.closePrivate(_this.questId, _this.quest.version)
+        _this.quest.status = 'old'
+        // refresh steps list
+        await _this.getPrivateRanking()
+      }).onCancel((e) => { console.log(e) })
+    },
+    /*
+     * list the scores
+     */
+    async getPrivateRanking () {
+      var results = await RunService.listPlayersForThisQuest(this.questId)
+      if (results && results.data) {
+        this.ranking.items = results.data
+        this.ranking.items.sort(this.compareScore)
+        // compute position
+        this.refreshPosition()
+      }
+    },
+    /*
+     * Sort based on the score
+     */
+    compareScore(a, b) {
+      if (a.score > b.score) {
+        return -1
+      }
+      if (a.score < b.score) {
+        return 1
+      }
+      return 0
+    },
+    /*
+     * Update the position in the ranking
+     */
+    refreshPosition() {
+      var position = 0
+      for (var i = 0; i < this.ranking.items.length; i++) {
+        if (i === 0 || this.ranking.items[i].score !== this.ranking.items[i - 1].score) {
+          position = i + 1
+          if (!this.ranking.items[i].position || this.ranking.items[i].position !== position) {
+            this.ranking.items[i].position = position
+            this.$set(this.ranking.items, i, this.ranking.items[i]) // refresh display
+          }
+        } else {
+          position = this.ranking.items[i - 1].position
+          if (!this.ranking.items[i].position || this.ranking.items[i].position !== position) {
+            this.ranking.items[i].position = position
+            this.$set(this.ranking.items, i, this.ranking.items[i]) // refresh display
+          }
+        }
       }
     },
     /*
@@ -1304,7 +1977,7 @@ export default {
      */
     closeStepTypePage() {
       // to trigger step type change
-      this.stepId = '-1'
+      this.stepId = -1
       this.chapters.reloadStepPlay = false // reset the overview
       this.chapters.newStep.type = {}
       this.chapters.showNewStepPage = false
@@ -1313,7 +1986,7 @@ export default {
      * Filter step types based on main category code
      */
     filteredStepTypes(categoryCode) {
-      return stepTypes.filter(stepType => (stepType.category === categoryCode && stepType.enabled))
+      return stepTypes.filter(stepType => (stepType.category === categoryCode && stepType.enabled && !(stepType.code === 'end-chapter' && this.form.fields.editorMode === 'simple')))
     },
     /*
      * Select a step type
@@ -1363,6 +2036,9 @@ export default {
       if (this.story.active && this.countSteps() === 0) {
         this.story.step = 21
       }
+      
+      // refresh quest media size
+      await this.refreshMediaSize()
     },
     /*
      * Launched when the step is played
@@ -1396,7 +2072,7 @@ export default {
      */
     async addEditor () {
       this.$q.loading.show()
-      let addStatus = await QuestService.addEditor(this.questId, this.editor.new.email)
+      let addStatus = await QuestService.addEditor(this.questId, this.quest.version, this.editor.new.email)
       this.$q.loading.hide()
 
       if (addStatus && addStatus.status !== 403) {
@@ -1412,7 +2088,7 @@ export default {
      */
     async listEditors () {
       this.warnings.editorsMissing = false
-      var results = await QuestService.listEditors(this.questId)
+      var results = await QuestService.listEditors(this.questId, this.quest.version)
       if (results && results.data) {
         this.editor.items = results.data
         for (var i = 0; i < this.editor.items.length; i++) {
@@ -1427,10 +2103,51 @@ export default {
      */
     async removeEditor (id) {
       this.$q.loading.show()
-      await QuestService.removeEditor(this.questId, id)
+      await QuestService.removeEditor(this.questId, this.quest.version, id)
       // TODO: manage editor removal
       this.$q.loading.hide()
       await this.listEditors()
+    },
+    /*
+     * add an invitee
+     */
+    async addInvitee () {
+      this.$q.loading.show()
+      let addStatus = await QuestService.addInvitee(this.questId, this.quest.version, this.invitee.new.email)
+      this.$q.loading.hide()
+
+      if (addStatus && addStatus.status !== 403) {
+        await this.listInvitees()
+        this.invitee.new.email = ''
+        this.invitee.new.isExisting = true
+      } else {
+        this.invitee.new.isExisting = false
+      }
+    },
+    /*
+     * list the invitees
+     */
+    async listInvitees () {
+      this.warnings.inviteeMissing = false
+      var results = await QuestService.listInvitees(this.questId, this.quest.version)
+      if (results && results.data) {
+        this.invitee.items = results.data
+        for (var i = 0; i < this.invitee.items.length; i++) {
+          this.invitee.items[i].checked = true
+        }
+      } else {
+        this.warnings.inviteeMissing = true
+      }
+    },
+    /*
+     * Remove an invitee
+     */
+    async removeInvitee (id) {
+      this.$q.loading.show()
+      await QuestService.removeInvitee(this.questId, this.quest.version, id)
+      // TODO: manage invitee removal
+      this.$q.loading.hide()
+      await this.listInvitees()
     },
     hideHint() {
       this.chapters.newStep.overviewData.hint = {}
@@ -1464,7 +2181,7 @@ export default {
       this.warnings.inventoryMissing = false
       // load items won on previous steps
       this.$q.loading.show()
-      var response = await StepService.listWonObjects(this.questId, this.stepId)
+      var response = await StepService.listWonObjects(this.questId, this.stepId, this.quest.version)
       if (response && response.data) {
         this.inventory.items = response.data
       } else {
@@ -1519,7 +2236,7 @@ export default {
       if (this.hint.isOpened) {
         this.closeAllPanels()
       } else {
-        let hintLabel = await RunService.getHint(0, this.stepId)
+        let hintLabel = await RunService.getHint(0, this.stepId, this.quest.version)
 
         if (hintLabel && hintLabel.hint) {
           this.hint.label = hintLabel.hint
@@ -1527,7 +2244,7 @@ export default {
           this.hint.isOpened = true
           this.overview.tabSelected = 'hint'
         } else {
-          Notification(_this.$t('label.ErrorStandardMessage'), 'error')
+          Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
       }
     },
@@ -1542,6 +2259,92 @@ export default {
      */
     moveToTop() {
       window.scrollTo(0, 0)
+    },
+    /*
+     * Get the storage usage
+     */
+    getReadableStorageUsage() {
+      if (this.quest && this.quest.size) {
+        let usedStorage = utils.humanReadableFileSize(this.quest.size.current, true, this.$t)
+        let limitStorage = utils.humanReadableFileSize(this.quest.size.limit, true, this.$t)
+        return this.$t('label.UsedOver', {current: usedStorage, limit: limitStorage})
+      } else {
+        return ''
+      }
+    },
+    getPercentStorageUsage() {
+      if (this.quest && this.quest.size && this.quest.size.limit && this.quest.size.limit > 0) {
+        return this.quest.size.current / this.quest.size.limit
+      } else {
+        return 0
+      }
+    },
+    /*
+     * Show the media panel
+     */
+    async showMedia() {
+      // load quest medias
+      await this.loadMedia()
+      
+      // open the panel
+      this.media.isOpened = true
+    },
+    /*
+     * Load the quest media
+     */
+    async loadMedia() {
+      // load quest medias
+      let media = await QuestService.listMedia(this.questId, this.quest.version)
+      
+      if (media && media.data) {
+        this.media.items = media.data
+      }
+    },
+    /*
+     * refresh media size
+     */
+    async refreshMediaSize() {
+      // load quest media size
+      let media = await QuestService.getSize(this.questId, this.quest.version)
+      
+      if (media && media.data) {
+        this.quest.size = media.data.size
+      }
+    },
+    /*
+     * Remove a media
+     */
+    async removeMedia(id) {
+      // Remove the media from the server
+      let removeStatus = await QuestService.removeMedia(this.questId, this.quest.version, id)
+      
+      if (!removeStatus) {
+        this.$q.dialog({
+          message: this.$t("label.TechnicalIssue")
+        })   
+      } else {
+        // refresh media list
+        await this.loadMedia()
+      }
+    },
+    /*
+     * Zoom on a media
+     */
+    zoomMedia(index) {
+      this.media.detail = {isOpened: true, index: index}
+    },
+    /*
+     * Close zoom
+     */
+    unzoomMedia() {
+      this.media.detail = {isOpened: false, index: 0}
+    },
+    /*
+     * Hide the media panel
+     */
+    async hideMedia() {
+      await this.refreshMediaSize()
+      this.media.isOpened = false
     },
     /*
      * download PDF file containing all AR markers
@@ -1599,7 +2402,7 @@ export default {
       })
     },
     async listReviews () {
-      let results = await ReviewService.list({ questId: this.questId })
+      let results = await ReviewService.list({ questId: this.questId, version: this.quest.version })
       this.reviews = results.data
     },
     /*
@@ -1627,7 +2430,7 @@ export default {
       let creationDoneIcon = 'check_circle'
       
       if (this.isEdition) {
-        return ''
+        return 'img:'
       } else {
         return number <= this.tabs.progress ? creationDoneIcon : creationTodoIcon
       }
@@ -1651,6 +2454,5 @@ export default {
 </script>
 
 <style>
-  .step-simulation-bar { position: absolute; top: 0; left: 0; width: 100%; z-index: 100; }
-  .step-simulation-bar .q-btn-group { background: white; }
+.review-text { color: black; font-size: 0.8rem; white-space: pre-line; }
 </style>

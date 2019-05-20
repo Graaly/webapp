@@ -1,7 +1,7 @@
-module.exports = function (isDev) {
-  var vars = require('./' + (isDev ? 'dev' : 'prod') + '.env.js')
+module.exports = function (envCode) {
+  var vars = require('./' + envCode + '.env.js')
   // stringify environment variables (required by Quasar conf)
-  for (key in vars) {
+  for (let key in vars) {
     vars[key] = JSON.stringify(vars[key])
   }
   return vars

@@ -1,25 +1,34 @@
 <template>
   <div class="wrapper dark-background">
-    <div class="page-content top-padding-middle fit">
+    <div class="page-content top-padding-middle fit firstusage">
       
-      <q-carousel quick-nav class="text-white fit">
+      <q-carousel 
+        ref="carousel" 
+        v-model="firstUsageSlide" 
+        animated 
+        swipeable 
+        navigation 
+        class="text-white fit" 
+        transition-next="slide-left" 
+        transition-prev="slide-right"
+      >
       
         <!------------------ INTRO SLIDE ------------------------>
         
-        <q-carousel-slide class="bg-primary">
+        <q-carousel-slide name="intro" class="bg-primary">
           <div class="row fit">
             <div class="col centered">
-              <h1 class="vertical-middle size1">{{ $t('label.WelcomeInGraalyWorld') }}</h1>
+              <h3 class="vertical-middle">{{ $t('label.WelcomeInGraalyWorld') }}</h3>
             </div>
           </div>
         </q-carousel-slide>
         
         <!------------------ DISCOVER SLIDE ------------------------>
         
-        <q-carousel-slide class="bg-primary">
+        <q-carousel-slide name="discover" class="bg-primary">
           <div class="row fit">
             <div class="col centered">
-              <h2 class="vertical-middle">{{ $t('label.DiscoverPlacesAroundYou') }}</h2>
+              <h3 class="vertical-middle">{{ $t('label.DiscoverPlacesAroundYou') }}</h3>
               <img src="statics/images/firstusage1.png" />
             </div>
           </div>
@@ -27,21 +36,21 @@
         
         <!------------------ POINTS SLIDE ------------------------>
         
-        <q-carousel-slide class="bg-primary">
+        <q-carousel-slide name="points" class="bg-primary">
           <div class="row fit">
             <div class="col centered">
-              <h2 class="vertical-middle">{{ $t('label.WinPointsAndUnlockQuests') }}</h2>
+              <h3 class="vertical-middle">{{ $t('label.WinPointsAndUnlockQuests') }}</h3>
               <img src="statics/images/firstusage2.png" />
             </div>
           </div>
         </q-carousel-slide>
         
-        <!------------------ EARN SLIDE ------------------------>
+        <!------------------ EARN SLIDE ------------------------
         
-        <q-carousel-slide class="bg-primary">
+        <q-carousel-slide name="earn" class="bg-primary">
           <div class="row fit">
             <div class="col centered">
-              <h2 class="vertical-middle">{{ $t('label.CreateYourQuestsAndWinMoney') }}</h2>
+              <h3 class="vertical-middle">{{ $t('label.CreateYourQuestsAndWinMoney') }}</h3>
               <img src="statics/images/firstusage3.png" />
             </div>
           </div>
@@ -49,22 +58,23 @@
         
         <!------------------ CUSTOM NAVIGATION BUTTONS ------------------------>
         
-        <q-carousel-control slot="control-nav" slot-scope="carousel" class="fit" :offset="[0, 0]">
-          <q-btn class="q-carousel-left-arrow absolute"
-            @click="carousel.previous"
-            :disable="!carousel.canGoToPrevious"
-            color="white" text-color="primary"
-            icon="fas fa-chevron-left"
-            round size="lg"
-          />
-          <q-btn class="q-carousel-right-arrow absolute"
-            @click="nextSlide(carousel)"
-            :disable="hideRightButton"
-            color="white" text-color="primary"
-            icon="fas fa-chevron-right"
-            round size="lg"
-          />
-        </q-carousel-control>
+        <template v-slot:control>
+          <q-carousel-control class="fit" :offset="[0, 0]">
+            <q-btn class="q-carousel-left-arrow"
+              @click="$refs.carousel.previous()"
+              :disable="!canGoToPrevious"
+              color="white" text-color="primary"
+              icon="fas fa-chevron-left"
+              round size="lg"
+            />
+            <q-btn class="q-carousel-right-arrow"
+              @click="nextSlide()"
+              color="white" text-color="primary"
+              icon="fas fa-chevron-right"
+              round size="lg"
+            />
+          </q-carousel-control>
+        </template>
      
       </q-carousel>
       
@@ -77,7 +87,13 @@
 export default {
   data () {
     return {
-      hideRightButton: false
+      firstUsageSlide: "intro"
+    }
+  },
+  computed: {
+    canGoToPrevious: function() {
+      console.log(this.firstUsageSlide, this.firstUsageSlide !== "intro")
+      return this.firstUsageSlide !== "intro"
     }
   },
   methods: {
@@ -85,8 +101,10 @@ export default {
      * Get a quest information
      * @param   {string}    id             Quest ID
      */
-    nextSlide(carousel) {
-      if (carousel.slide === 3) {
+    nextSlide() {
+      let carousel = this.$refs['carousel']
+      //if (carousel.value === 'earn') {
+      if (carousel.value === 'points') {
         this.$router.push('/user/login')
       } else {
         carousel.next()

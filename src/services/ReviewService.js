@@ -4,12 +4,13 @@ export default {
   /*
    * Add a review for the quest author
    * @param   {String}    questId                Quest Id
+   * @param   {String}    version                Quest version
    * @param   {String}    runId                  Run Id
    * @param   {String}    text                   comment
    * @param   {Number}    rating                 rating between 1 and 5
    */
-  add (questId, runId, text, rating) {
-    return Api().put('review/add', { questId, runId, text, rating }).catch(error => console.log(error.request))
+  add (questId, version, runId, text, rating) {
+    return Api().put('review/add', { questId, version, runId, text, rating }).catch(error => console.log(error.request))
   },
   /*
    * List reviews

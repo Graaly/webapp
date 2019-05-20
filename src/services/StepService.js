@@ -4,46 +4,49 @@ export default {
   /*
    * list the steps of a quest
    * @param   {String}    questId        ID of the quest
+   * @param   {Number}    version        version of the quest
    */
-  async listForAQuest (questId) {
-    let res = await Api().get('quest/' + questId + '/steps').catch(error => console.log(error.request))
+  async listForAQuest (questId, version) {
+    let res = await Api().get('quest/' + questId + '/version/' + version + '/steps').catch(error => console.log(error.request))
     return res
   },
   /*
    * list the steps of a chapter
    * @param   {String}    questId        ID of the quest
    * @param   {String}    chapterId      ID of the chapter
+   * @param   {Number}    version        version of the quest
    */
-  async listForAChapter (questId, chapterId) {
-    let res = await Api().get('quest/' + questId + '/chapter/' + chapterId + '/steps').catch(error => console.log(error.request))
+  async listForAChapter (questId, chapterId, version) {
+    let res = await Api().get('quest/' + questId + '/version/' + version + '/chapter/' + chapterId + '/steps').catch(error => console.log(error.request))
     return res
   },
   /*
    * list the objects won until a specific step of a quest
    * @param   {String}    questId        ID of the quest
    * @param   {String}    stepId         ID of the step
+   * @param   {Number}    version        version of the quest
    */
-  async listWonObjects (questId, stepId) {
-    let res = await Api().get('quest/' + questId + '/steps/' + stepId + '/objectswon').catch(error => console.log(error.request))
+  async listWonObjects (questId, stepId, version) {
+    let res = await Api().get('quest/' + questId + '/version/' + version + '/steps/' + stepId + '/objectswon').catch(error => console.log(error.request))
     return res
   },
   /*
    * get a step by its ID
    * @param   {String}    stepId         ID of the step
    */
-  async getById (stepId) {
-    let res = await Api().get('step/' + stepId).catch(error => console.log(error.request))
+  async getById (stepId, version) {
+    let res = await Api().get('step/' + stepId + '/version/' + version).catch(error => console.log(error.request))
     return res
   },
   /*
    * get a step by its number
    * @param   {String}    questId        ID of the quest
    * @param   {String}    number         Number of the step
-   */
+   *
   async getByNumber (questId, number) {
     let res = await Api().get('quest/' + questId + '/step/number/' + number).catch(error => console.log(error.request))
     return res
-  },
+  },*/
   /*
    * check an answer
    * @param   {String}    questId        ID of the quest
@@ -51,16 +54,17 @@ export default {
    * @param   {String}    runId           ID of the run
    * @param   {Object}    answer          Answer to the step
    */
-  async checkAnswer (questId, stepId, runId, answer) {
-    let res = await Api().post('quest/' + questId + '/step/' + stepId + '/check/' + runId, answer).catch(error => console.log(error.request))
+  async checkAnswer (questId, stepId, version, runId, answer) {
+    let res = await Api().post('quest/' + questId + '/version/' + version + '/step/' + stepId + '/check/' + runId, answer).catch(error => console.log(error.request))
     return res
   },
   /*
    * count the steps for a quest
    * @param   {String}    questId        ID of the quest
+   * @param   {Number}    version        version of the quest
    */
-  async countForAQuest(questId) {
-    let res = await Api().get('quest/' + questId + '/steps/count').catch(error => console.log(error.request))
+  async countForAQuest(questId, version) {
+    let res = await Api().get('quest/' + questId + '/version/' + version + '/steps/count').catch(error => console.log(error.request))
     return res
   },
   /*
@@ -68,48 +72,51 @@ export default {
    * @param   {Object}    data        Data of the step
    */
   save (data) {
-    return Api().put('quest/' + data.questId + '/step/' + data._id + '/update', data).catch(error => console.log(error.request))
+    return Api().put('quest/' + data.questId + '/version/' + data.version + '/step/' + data.stepId + '/update', data).catch(error => console.log(error.request))
   },
   /*
    * Save a chapter settings (or create if the channel is not existing)
    * @param   {Object}    data        Data of the step
    */
   modifyChapter (data) {
-    return Api().put('quest/' + data.questId + '/chapter/' + data._id + '/update', data).catch(error => console.log(error.request))
+    return Api().put('quest/' + data.questId + '/version/' + data.version + '/chapter/' + data.chapterId + '/update', data).catch(error => console.log(error.request))
   },
   /*
    * Remove a step
    * @param   {String}    questId        ID of the quest
    * @param   {String}    stepId         ID of the step
    */
-  remove(questId, stepId) {
-    return Api().delete('quest/' + questId + '/step/' + stepId + '/remove')
+  remove(questId, stepId, version) {
+    return Api().delete('quest/' + questId + '/version/' + version + '/step/' + stepId + '/remove')
   },
   /*
    * Remove a chapter
    * @param   {String}    questId        ID of the quest
    * @param   {String}    chapterId      ID of the chapter
+   * @param   {Number}    version        version of the quest
    */
-  removeChapter(questId, chapterId) {
-    return Api().delete('quest/' + questId + '/chapter/' + chapterId + '/remove')
+  removeChapter(questId, chapterId, version) {
+    return Api().delete('quest/' + questId + '/version/' + version +'/chapter/' + chapterId + '/remove')
   },
   /*
    * Move a step
    * @param   {String}    questId        ID of the quest
    * @param   {Number}    oldPosition    Old position of the step
    * @param   {Number}    newPosition    New position of the step
+   * @param   {Number}    version        version of the quest
    */
-  move(questId, oldPosition, newPosition) {
-    return Api().put('quest/' + questId + '/step/' + oldPosition + '/move/' + newPosition).catch(error => console.log(error.request))
+  move(questId, version, oldPosition, newPosition) {
+    return Api().put('quest/' + questId + '/version/' + version + '/step/' + oldPosition + '/move/' + newPosition).catch(error => console.log(error.request))
   },
   /*
    * Move a chapter
    * @param   {String}    questId        ID of the quest
    * @param   {Number}    oldPosition    Old position of the chapter
    * @param   {Number}    newPosition    New position of the chapter
+   * @param   {Number}    version        version of the quest
    */
-  moveChapter(questId, oldPosition, newPosition) {
-    return Api().put('quest/' + questId + '/chapter/' + oldPosition + '/move/' + newPosition).catch(error => console.log(error.request))
+  moveChapter(questId, version, oldPosition, newPosition) {
+    return Api().put('quest/' + questId + '/version/' + version + '/chapter/' + oldPosition + '/move/' + newPosition).catch(error => console.log(error.request))
   },
   /*
    * upload a background image for step
@@ -175,5 +182,14 @@ export default {
    */
   uploadItemImage(questId, stepType, data) {
     return Api().post('/quest/' + questId + '/step/' + stepType + '/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+  },
+  /*
+   * upload a picture for 'character' step
+   * @param   {String}    questId        ID of the quest
+   * @param   {String}    stepType       step type code, like 'new-item'
+   * @param   {Object}    data           upload data
+   */
+  uploadCharacterImage(questId, stepType, data) {
+    return Api().post('/quest/' + questId + '/step/character/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   }
 }

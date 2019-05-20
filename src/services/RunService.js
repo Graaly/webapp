@@ -23,19 +23,26 @@ export default {
     return Api().get('run/quest/' + questId + '/ranking').catch(error => console.log(error.request))
   },
   /*
-   * Get the next step of a run
-   * @param   {String}    runId                  ID of the run
+   * update run data from off line data
+   * @param   {Object}    data        Data of the step
    */
-  getNextStep (runId) {
-    return Api().get('run/' + runId + '/step/next').catch(error => console.log(error.request))
+  updateFromOffline (data) {
+    return Api().put('run/' + data._id + '/quest/' + data.questId + '/update', data).catch(error => console.log(error.request))
+  },
+  /*
+   * Get the next step of current run on a quest
+   * @param   {String}    questId                ID of the quest
+   */
+  getNextStep (questId) {
+    return Api().get('run/' + questId + '/step/next').catch(error => console.log(error.request))
   },
   /*
    * check if a market launch a new step
-   * @param   {String}    runId                  ID of the run
+   * @param   {String}    questId                  ID of the quest
    * @param   {String}    markerCode             Code of the marker
    */
-  getMarkerNextStep (runId, markerCode) {
-    return Api().get('run/' + runId + '/marker/' + markerCode + '/next').catch(error => console.log(error.request))
+  getMarkerNextStep (questId, markerCode) {
+    return Api().get('run/' + questId + '/marker/' + markerCode + '/next').catch(error => console.log(error.request))
   },
   /*
    * list the objects won until a specific run
@@ -51,25 +58,30 @@ export default {
    * @param   {String}    runId                 ID of the run
    * @param   {String}    stepId                ID of the step
    */
-  async getHint (runId, stepId) {
-    let res = await Api().get('run/' + runId + '/step/' + stepId + '/hint')
+  async getHint (runId, stepId, version) {
+    let res = await Api().get('run/' + runId + '/step/' + stepId + '/version/' + version + '/hint')
     return res.data
   },
   /*
    * init a new run for current user for a quest
    * @param   {String}    questId             ID of the quest
+   * @param   {Number}    version             version of the quest
    * @param   {String}    lang                Language concerned
    * @param   {Boolean}   remotePlay          is the player playing remotely
    */
-  init(questId, lang, remotePlay) {
-    return Api().post('run/quest/' + questId + '/init/' + lang + '/remote/' + remotePlay).catch(error => console.log(error.request))
+  init(questId, version, lang, remotePlay) {
+    return Api().post('run/quest/' + questId + '/version/' + version + '/init/' + lang + '/remote/' + remotePlay).catch(error => console.log(error.request))
   },
   /*
    * set a run as finished
    * @param   {String}    id                  ID of the run
+   * @param   {Object}    offlineRunData      Data of the offline run
+   * @param   {String}    questId             ID of the quest
+   * @param   {Number}    version             version of the quest
+   * @param   {String}    lang                Language concerned
    */
-  endRun (id) {
-    return Api().put('run/' + id + '/end').catch(error => console.log(error.request))
+  endRun (id, offlineRunData, questId, version, language) {
+    return Api().put('run/' + id + '/quest/' + questId + '/version/' + version + '/lang/' + language + '/end', offlineRunData).catch(error => console.log(error.request))
   },
   /*
    * skip a step

@@ -11,17 +11,22 @@
       <form @submit.prevent="formSubmit()">
         
         <div class="q-pa-lg">
-          <q-field :error="$v.form.email.$error" v-if="step === 'email'">
-            <q-input type="email" dark color="white" :float-label="$t('label.YourEmail')" v-model="form.email" @blur="$v.form.email.$touch" />
-            <div class="q-field-bottom" v-if="$v.form.email.$error">
-              <div class="q-field-error" v-if="!$v.form.email.required">{{ $t('label.PleaseEnterYourEmailAddress') }}</div>
-              <div class="q-field-error" v-if="!$v.form.email.email">{{ $t('label.PleaseEnterAValidEmailAddress') }}</div>
-            </div>
-          </q-field>
-        
-          <q-field v-if="step === 'password'">
-            <q-input type="password" dark color="white" v-model="form.password" :float-label="$t('label.YourPassword')" />
-          </q-field>
+          
+          <q-input
+            v-if="step === 'email'"
+            type="email"
+            dark
+            color="white"
+            :label="$t('label.YourEmail')"
+            v-model="form.email"
+            @blur="$v.form.email.$touch"
+            bottom-slots
+            :error="$v.form.email.$error"
+            :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
+            test-id="login"
+            />
+            
+          <q-input v-if="step === 'password'" type="password" dark color="white" v-model="form.password" :label="$t('label.YourPassword')" test-id="password" />
           
           <!------------------ FORGOTTEN PASS AREA ------------------------>
           
@@ -29,37 +34,41 @@
             <a @click="sendForgottenPasswordCode()">{{ $t('label.ForgottenPassword') }}</a>
           </p>
           
-          <q-field v-if="step === 'forgottenpassword'">
-            {{ $t('label.EnterTheCodeYouReceivedByEmail') }}
-            <q-input :float-label="$t('label.Code')" v-model="form.code" />
-          </q-field>
+          <div v-if="step === 'forgottenpassword'">
+            <p>{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
+            <q-input :label="$t('label.Code')" v-model="form.code" />
+          </div>
           
-          <q-field v-if="step === 'forgottenpassword'">
-            <q-input type="password" dark color="white" v-model="form.newPassword" :float-label="$t('label.YourNewPassword')" @blur="$v.form.newPassword.$touch" />
-            <div class="q-field-bottom" v-if="$v.form.newPassword.$error">
-              <div class="q-field-error" v-if="!$v.form.newPassword.required">{{ $t('label.PleaseEnterYourPassword') }}</div>
-              <div class="q-field-error" v-if="!$v.form.newPassword.minLength">{{ $t('label.YourPasswordMustBe8digitsLength') }}</div>
-              <div class="q-field-error" v-if="!$v.form.newPassword.checkPasswordComplexity">{{ $t('label.PasswordComplexityRule') }}</div>
-            </div>
-          </q-field>
+          <div v-if="step === 'forgottenpassword'">
+            <q-input
+              type="password"
+              dark color="white"
+              v-model="form.newPassword"
+              :label="$t('label.YourNewPassword')"
+              @blur="$v.form.newPassword.$touch"
+              bottom-slots
+              :error="$v.form.newPassword.$error"
+              :error-message="!$v.form.newPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.form.newPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
+              />
+          </div>
         </div>
         
         <p class="text-center multiple-btn margin-size-3 q-mt-lg q-mb-xl">
           <q-btn v-if="step !== 'email'" round color="white" text-color="primary" icon="fas fa-chevron-left" :loading="submitting" @click="backAction()" />
-          <q-btn round color="white" text-color="primary" icon="fas fa-chevron-right" :loading="submitting" type="submit" />
+          <q-btn round color="white" text-color="primary" icon="fas fa-chevron-right" :loading="submitting" @click="formSubmit" />
         </p>
         
       </form>
       
       <!------------------ SOCIAL LOGIN BUTTONS ------------------------>
       
-      <p class="text-center margin-size-3 q-mt-xl q-mb-lg">
+      <p class="text-center margin-size-3 q-mt-xl q-mb-lg" v-if="showSocialLogin.facebook || showSocialLogin.google">
         {{ $t('label.orSignInWith') }}
       </p>
         
       <div class="q-pl-md q-pr-md">
-        <q-btn @click="facebookLogin" class="full-width" color="facebook" icon="fab fa-facebook" label="Facebook" />
-        <!--<q-btn @click="googleLogin" class="full-width" color="google" icon="fab fa-google" label="Google" />-->
+        <q-btn v-if="showSocialLogin.facebook" @click="facebookLogin" class="full-width" color="facebook" icon="fab fa-facebook" label="Facebook" />
+        <q-btn v-if="showSocialLogin.google" @click="googleLogin" class="full-width" color="google" icon="fab fa-google" label="Google" />
       </div>
     
     </div>
@@ -69,8 +78,8 @@
 <script>
 import AuthService from 'services/AuthService'
 import { required, minLength, email } from 'vuelidate/lib/validators'
-import checkPasswordComplexity from 'plugins/PasswordComplexity'
-import Notification from 'plugins/NotifyHelper'
+import checkPasswordComplexity from 'boot/PasswordComplexity'
+import Notification from 'boot/NotifyHelper'
 import utils from 'src/includes/utils'
 
 export default {
@@ -82,6 +91,10 @@ export default {
         password: '',
         newPassword: '',
         code: ''
+      },
+      showSocialLogin: {
+        facebook: false,
+        google: false
       },
       serverUrl: process.env.SERVER_URL,
       submitting: false
@@ -96,6 +109,10 @@ export default {
     // check if user is redirected to this page to confirm team invitation
     if (this.$route.query.email && this.$route.query.invitation) {
       this.validateTeamInvitation(this.$route.query.email, this.$route.query.invitation)
+    }
+    // social login buttons
+    if (window.cordova) {
+      this.showSocialLogin.facebook = true
     }
   },
   methods: {
@@ -241,13 +258,18 @@ export default {
     fbLoginSuccess(userData) {
       var _this = this
       facebookConnectPlugin.getAccessToken(function(token) {
+console.log("test2")
         AuthService.checkFacebookToken(userData.authResponse.userID, token, function(err, response) {
+console.log("test3")
           if (err) {
+console.log(err)
             Notification(_this.$t('label.TechnicalIssue'), 'error')
           }
+console.log("test4")
           if (response && (response.message === 'login successful' || (response.data && response.data.message === 'login successful'))) {
             return _this.$router.push('/map')
           } else {
+console.log("test5")
             Notification(_this.$t('label.TechnicalIssue'), 'error')
           }
         });
@@ -257,11 +279,14 @@ export default {
      * manage facebook login
      */
     facebookLogin() {
+      var _this = this
       // check if hybrid app and if cordova plugin is installed
       if (window.cordova && facebookConnectPlugin) {
+console.log("test1")
         facebookConnectPlugin.login(["public_profile"], this.fbLoginSuccess,
-          function loginError () {
-            Notification(this.$t('label.TechnicalIssue'), 'error')
+          function loginError (err) {
+console.log(err)
+            Notification(_this.$t('label.TechnicalIssue'), 'error')
           }
         )
       } else {

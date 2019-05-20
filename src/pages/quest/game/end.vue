@@ -1,7 +1,17 @@
 <template>
   <div>
-    <div class="dark-background" v-if="!warnings.noNetwork">
+    <!------------------ NO NETWORK AREA ------------------------>
+    <div class="dark-background" v-if="warnings.noNetwork">
       <div class="bg-primary">
+        <div class="centered q-pa-lg">    
+          <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouHaveWin') }}</h2>
+          {{ $t('label.ToSaveYouScoreYouNeedToConnect') }}
+          <q-btn icon="refresh" class="q-mt-md" color="accent" @click="loadData" :label="$t('label.ConnectToComputeScore')" />
+        </div>
+      </div>
+    </div>
+    <div class="dark-background" v-if="!warnings.noNetwork">
+      <div class="bg-primary" v-if="run && run._id">
         <!------------------ TITLE AREA ------------------------>
         
         <div class="centered">    
@@ -9,10 +19,10 @@
           <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.score > 0 || run.reward === 0">{{ run.score }} {{ $t('label.points') }} <!--<q-icon color="white" name="fas fa-trophy" />--></h2>
           <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.reward > 0">{{ run.reward }} <q-icon color="white" name="fas fa-bolt" /></h2>
           <!--<router-link to="/help/points" v-show="run.score > 0">{{ $t('label.WhatCanYouDoWithThesePoints') }}</router-link>-->
-          <q-icon name="fas fa-award" class="big-icon" />
-          <q-icon name="fas fa-award" class="big-icon q-ml-md" v-if="run.stars > 1" />
+          <q-icon name="fas fa-award" color="secondary" class="big-icon" />
+          <q-icon name="fas fa-award" color="secondary" class="big-icon q-ml-md" v-if="run.stars > 1" />
           <q-icon name="fas fa-award" class="big-icon q-ml-md" style="color: #ed555d" v-if="run.stars <= 1" />
-          <q-icon name="fas fa-award" class="big-icon q-ml-md" v-if="run.stars > 2" />
+          <q-icon name="fas fa-award" color="secondary" class="big-icon q-ml-md" v-if="run.stars > 2" />
           <q-icon name="fas fa-award" class="big-icon q-ml-md" style="color: #ed555d" v-if="run.stars <= 2" />
         </div>
         
@@ -20,23 +30,23 @@
         
         <div class="q-pa-md centered">
           <p class="centered">{{ $t('label.YourLevel') }} : {{ $store.state.user.level }}</p>
-          <q-progress :percentage="level.progress" height="30px" color="white"></q-progress>
+          <q-linear-progress :value="level.progress" stripe rounded style="height: 30px" color="secondary"></q-linear-progress>
         </div>
               
         <!------------------ CHALLENGE FRIENDS AREA ------------------------>
         
-        <div class="q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.score > 0">
-          <q-btn icon="people" color="tertiary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
+        <div class="q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.score > 0 && quest && quest.data && quest.data.access === 'public'">
+          <q-btn icon="people" color="secondary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
         </div>
         
         <!------------------ REVIEW AREA ------------------------>
         
-        <div class="bg-secondary q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="showAddReview">
+        <div class="q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="showAddReview && quest && quest.data && quest.data.access === 'public'">
           <h3 class="size-2">{{ $t('label.ReviewThisQuest') }} <!--(+2 <q-icon color="white" name="fas fa-bolt" />)--></h3>
           <p>{{ $t('label.Rating') + $t('label.Colon') }} <q-rating v-model="rating" :max="5" size="1.5rem" :disable="reviewSent" /></p>
           <p>{{ $t('label.CommentThisQuest') }} ({{ $t('label.Optional') }}){{ $t('label.Colon') }}</p>
           <textarea class="shadowed full-width" v-model="comment" rows="5" :disabled="reviewSent" />
-          <q-btn class="full-width" color="primary" :label="$t('label.Send')" @click="addReview()" :disabled="reviewSent" />
+          <q-btn class="full-width" color="secondary" :label="$t('label.Send')" @click="addReview()" :disabled="reviewSent" />
         </div>
         
         <!------------------ SHARE AREA ------------------------>
@@ -64,8 +74,11 @@
      
         <!------------------ BACK TO MAP LINK AREA ------------------------>
         
-        <div class="back centered q-pa-md bg-primary text-primary">
+        <div v-if="!isUserAuthor" class="back centered q-pa-md bg-primary text-primary">
           <q-btn class="text-primary bg-white full-width" :label="$t('label.BackToTheMap')" @click="$router.push('/map')" />
+        </div>
+        <div v-if="isUserAuthor" class="back centered q-pa-md bg-primary text-primary">
+          <q-btn class="text-primary bg-white full-width" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
         </div>
         
       </div>
@@ -77,31 +90,29 @@
     
     <transition name="slideInBottom">
       <div class="panel-bottom q-pa-md" v-show="ranking.show">
-        <a class="float-right no-underline" color="grey" @click="ranking.show = false"><q-icon name="close" class="medium-icon" /></a>
-        <h1 class="size-3 q-pl-md">{{ $t('label.Ranking') }}</h1>
+        <a class="float-right no-underline close-btn" color="grey" @click="ranking.show = false"><q-icon name="close" class="medium-icon" /></a>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Ranking') }}</div>
         <div class="q-pl-md">{{ $t('label.RankingEndIntro') }}</div>
         <q-list>
           <q-item v-for="rank in ranking.items" :key="rank.id" :class="rank.className" >
-            <q-item-side>
-              <q-item-tile avatar>
-                <img :src="'statics/icons/game/medal-' + rank.position + '.png'">
-              </q-item-tile>
-            </q-item-side>
-            <q-item-main>
-              <q-item-tile label>{{ rank.name }}</q-item-tile>
-              <q-item-tile sublabel>{{ rank.score}} {{ $t('label.points') }}<!--<q-icon name="fas fa-trophy" />--></q-item-tile>
-            </q-item-main>
-            <q-item-side right>
-              <q-item-tile avatar>
+            <q-item-section avatar>
+              <img :src="'statics/icons/game/medal-' + rank.position + '.png'">
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>{{ rank.name }}</q-item-label>
+              <q-item-label caption>{{ rank.score}} {{ $t('label.points') }}<!--<q-icon name="fas fa-trophy" />--></q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-avatar>
                 <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
                 <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
                 <img v-if="!rank.picture || rank.picture === ''" src="statics/icons/game/profile-small.png" />
-              </q-item-tile>
-            </q-item-side>
-            <q-item-side right v-if="!rank.isFriend && rank.id !== $store.state.user._id" @click.native="addFriend(rank.id)">
-              <q-item-tile icon="person_add" color="primary" />
-            </q-item-side>
-            <q-item-side right v-if="rank.isFriend"></q-item-side>
+              </q-avatar>
+            </q-item-section>
+            <q-item-section side v-if="!rank.isFriend && rank.id !== $store.state.user._id" @click.native="addFriend(rank.id)">
+              <q-icon name="person_add" color="primary" />
+            </q-item-section>
+            <q-item-section side v-if="rank.isFriend"></q-item-section>
           </q-item>
         </q-list>
         <div class="centered">
@@ -114,8 +125,8 @@
     
     <transition name="slideInBottom">
       <div class="panel-bottom q-pa-md" v-show="showChallenge">      
-        <a class="float-right no-underline" color="grey" @click="closeChallenge"><q-icon name="close" class="medium-icon" /></a>
-        <h1 class="size-3 q-pl-md">{{ $t('label.ChallengeYourFriends') }}</h1>
+        <a class="float-right no-underline close-btn" color="grey" @click="closeChallenge"><q-icon name="close" class="medium-icon" /></a>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.ChallengeYourFriends') }}</div>
         <div v-if="filteredFriends.length === 0">
           {{ $t('label.NoFriendsLong') }}
         </div>
@@ -135,19 +146,17 @@
           <div v-if="friends && friends.length !== 0">
             <q-list highlight>
               <q-item v-for="friend in filteredFriends" :key="friend.friendId">
-                <q-item-side>
-                  <q-item-tile avatar>
+                <q-item-section>
+                  <q-avatar>
                     <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') !== -1" :src="friend.picture" />
                     <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + friend.picture" />
                     <img v-if="!friend.picture || friend.picture === ''" src="statics/icons/game/profile-small.png" />
-                  </q-item-tile>
-                </q-item-side>
-                <q-item-main>
-                  <q-item-tile>{{ friend.name }}</q-item-tile>
-                </q-item-main>
-                <q-item-side right>
+                  </q-avatar>
+                </q-item-section>
+                <q-item-label>{{ friend.name }}</q-item-label>
+                <q-item-section side>
                   <q-btn v-show="!friend.isChallenged" color="primary" :label="$t('label.Challenge')" @click="challenge(friend)" />
-                </q-item-side>
+                </q-item-section>
               </q-item>
             </q-list>
           </div>
@@ -159,19 +168,17 @@
     
     <transition name="slideInBottom">
       <div class="panel-bottom q-pa-md" v-if="showBonus">      
-        <a class="float-right no-underline" color="grey" @click="closeBonus"><q-icon name="close" class="medium-icon" /></a>
-        <h1 class="size-3 q-pl-md">{{ $t('label.YouWonABonus') }}</h1>
+        <a class="float-right no-underline close-btn" color="grey" @click="closeBonus"><q-icon name="close" class="medium-icon" /></a>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.YouWonABonus') }}</div>
         <div class="q-pa-md">
-          <q-card inline class="q-ma-sm">
-            <q-card-media>
-              <img :src="'statics/icons/game/bonus_' + run.bonus + '.png'">
-            </q-card-media>
-            <q-card-title>
-              {{ $t('bonus.' + run.bonus) }}
-            </q-card-title>
-            <q-card-main>
+          <q-card class="q-ma-sm">
+            <img :src="'statics/icons/game/bonus_' + run.bonus + '.png'">
+            <q-card-section>
+              <div class="text-h6">{{ $t('bonus.' + run.bonus) }}</div>
+            </q-card-section>
+            <q-card-section>
               {{ $t('bonus.' + run.bonus + 'Desc') }}
-            </q-card-main>
+            </q-card-section>
           </q-card>
         </div>
       </div>
@@ -195,8 +202,8 @@ import QuestService from 'services/QuestService'
 import ReviewService from 'services/ReviewService'
 import RunService from 'services/RunService'
 import UserService from 'services/UserService'
-import LevelCompute from 'plugins/LevelCompute'
-import Notification from 'plugins/NotifyHelper'
+import LevelCompute from 'boot/LevelCompute'
+import Notification from 'boot/NotifyHelper'
 //import { filter } from 'quasar'
 import Vue from 'vue'
 import story from 'components/story'
@@ -224,6 +231,7 @@ export default {
         score: 0,
         stars: 1
       },
+      quest: {},
       friends: [],
       filteredFriends: [],
       invitedFriends: {
@@ -240,6 +248,7 @@ export default {
       showBonus: false,
       showAddReview: false,
       reviewSent: false,
+      isUserAuthor: false,
       warnings: {
         noNetwork: false
       },
@@ -257,58 +266,86 @@ export default {
     async loadData() {
       this.warnings.noNetwork = false
       var runIsInProgress = false
+      this.$q.loading.show()
+      
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.questId)
-      if (runs && runs.data && runs.data.length > 0) {
-        for (var i = 0; i < runs.data.length; i++) {
-          if (runs.data[i].status === 'finished') {
-            this.run = runs.data[i]
-          }
-          if (runs.data[i].status === 'in-progress') {
-            this.run = runs.data[i]
-            runIsInProgress = true
+      if (runs) {
+        if (runs && runs.data && runs.data.length > 0) {
+          for (var i = 0; i < runs.data.length; i++) {
+            if (runs.data[i].status === 'finished') {
+              this.run = runs.data[i]
+            }
+            if (runs.data[i].status === 'in-progress') {
+              this.run = runs.data[i]
+              runIsInProgress = true
+            }
           }
         }
-      }
-      
-      // get ranking without the user (status of run is still in-progress)
-      await this.getRanking()
-      
-      // get quest data
-      const quest = await QuestService.getById(this.questId)
-      if (quest && quest.data) {
-        // show review part only if player is not author & has not already sent a review for this quest
-        const isUserAuthor = this.$store.state.user._id === quest.data.authorUserId
-        const results = await ReviewService.list({ questId: this.questId, userId: this.$store.state.user._id }, { limit: 1 })
-        const isReviewAlreadySent = results.data && results.data.length >= 1
-        this.showAddReview = !isUserAuthor && !isReviewAlreadySent 
-      }
-      
-      // get user old score
-      this.score.old = this.$store.state.user.score
-      this.initProgression()
-    
-      let endStatus = await RunService.endRun(this.run._id)
-      if (endStatus && endStatus.data) {
-        // assign computed score
-        this.run.score = endStatus.data.score
-        this.run.reward = endStatus.data.reward
-        this.run.stars = endStatus.data.stars
-        if (endStatus.data.newBonus && endStatus.data.newBonus !== '') {
-          this.run.bonus = endStatus.data.newBonus
-          this.showBonus = true
+        
+        // get ranking without the user (status of run is still in-progress)
+        await this.getRanking()
+        
+        // get quest data
+        if (this.run && this.run.version) {
+          this.quest = await QuestService.getById(this.questId, this.run.version)
+        } else {
+          this.quest = await QuestService.getLastById(this.questId)
         }
+        
+        if (this.quest && this.quest.data) {
+          // show review part only if player is not author & has not already sent a review for this quest
+          this.isUserAuthor = this.$store.state.user._id === this.quest.data.authorUserId
+          const results = await ReviewService.list({ questId: this.questId, userId: this.$store.state.user._id, version: this.run.version }, { limit: 1 })
+          const isReviewAlreadySent = results.data && results.data.length >= 1
+          this.showAddReview = !this.isUserAuthor && !isReviewAlreadySent 
+        }
+        
+        // get user old score
+        this.score.old = this.$store.state.user.score
+        
+        this.initProgression()
+        
+        // get offline run data
+        const offlineRunData = await this.getOfflineRunData()
+      
+        let endStatus = await RunService.endRun(this.run._id, offlineRunData, this.questId, this.quest.data.version, this.quest.data.mainLanguage)
+        if (endStatus && endStatus.data) {
+          // assign computed score
+          this.run.score = endStatus.data.score
+          this.run.reward = endStatus.data.reward
+          this.run.stars = endStatus.data.stars
+          if (endStatus.data.newBonus && endStatus.data.newBonus !== '') {
+            this.run.bonus = endStatus.data.newBonus
+            this.showBonus = true
+          }
+          
+          // remove offline data
+          await this.removeOfflineData()
+        } else {
+          this.warnings.noNetwork = true
+        }
+        
+        // if run is not loaded, load it again
+        if (!this.run._id) {
+          runs = await RunService.listForAQuest(this.questId)
+          if (runs && runs.data && runs.data.length > 0) {
+            this.run = runs.data[0]
+          }
+        }
+        
+        // story management
+        this.startStory()
+        
+        // get user new score
+        //this.level.color = "secondary"
+        this.score.new = runIsInProgress ? this.score.old + this.run.score : this.score.old
+        utils.setTimeout(this.updateProgression, 3000)
       } else {
+        // no network
         this.warnings.noNetwork = true
       }
-      
-      // story management
-      this.startStory()
-      
-      // get user new score
-      //this.level.color = "secondary"
-      this.score.new = runIsInProgress ? this.score.old + this.run.score : this.score.old
-      utils.setTimeout(this.updateProgression, 3000)
+      this.$q.loading.hide()
     },
     /*
      * Init score & level
@@ -328,10 +365,10 @@ export default {
         var newLevel = LevelCompute(this.score.new)
         // check if the user will move to a new level
         if (newLevel.level > this.level.level) {
-          this.level.progress = 100
+          this.level.progress = 1
           this.$store.state.user.level = newLevel.level
           this.level = newLevel
-          this.level.progress = 10
+          this.level.progress = 0.1
           this.level.upgraded = true
         } else {
           // get your updated score
@@ -517,12 +554,63 @@ export default {
       }
       
       this.$q.loading.show()
-      await ReviewService.add(this.questId, this.run._id, this.comment, this.rating)
+      await ReviewService.add(this.questId, this.run.version, this.run._id, this.comment, this.rating)
       // TODO: add error tracking
       this.$q.loading.hide()
       
       this.reviewSent = true
       Notification(this.$t('label.ReviewSent'), 'success')
+    },
+    /*
+     * get offline run data
+     */
+    async getOfflineRunData() {
+      const run = await utils.readFile(this.questId, 'run_' + this.questId + '.json')
+
+      if (!run) {
+        return false
+      } else {
+        return JSON.parse(run)
+      }
+    },
+    /*
+     * Remove offline data
+     */
+    async removeOfflineData() {
+      const success = await utils.removeDirectory(this.questId)
+      
+      await this.removeQuestFromOfflineList(this.questId)
+
+      return success
+    },
+    /*
+     * Add the quest in the offline quests list
+     */
+    async removeQuestFromOfflineList(questId) {
+      // check if quests file exists
+      const isQuestOfflineListExisting = await utils.checkIfFileExists('', 'quests.json')
+      var quests
+
+      if (isQuestOfflineListExisting) {
+        const questFileContent = await utils.readFile('', 'quests.json')
+
+        quests = JSON.parse(questFileContent)
+        
+        // check if quest is already existing in file
+        var questPosition = -1
+        for (var i = 0; i < quests.list.length; i++) {
+          if (quests.list[i].questId === questId) {
+            questPosition = i
+          }
+        }
+        
+        if (questPosition !== -1) {
+          quests.list.splice(questPosition, 1)
+        }
+        
+        // save quests list
+        await utils.writeInFile('', 'quests.json', JSON.stringify(quests), true)
+      }
     }
     /*
      * Search a friend

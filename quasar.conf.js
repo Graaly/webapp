@@ -6,8 +6,8 @@ var fs = require('fs')
 
 module.exports = function (ctx) {
   return {
-    // app plugins (/src/plugins)
-    plugins: [
+    // app boot (/src/boot)
+    boot: [
       'DateFormatFilter',
       'RouterAuthentication',
       'VueGoogleMaps',
@@ -19,17 +19,17 @@ module.exports = function (ctx) {
       'app.styl'
     ],
     extras: [
-      ctx.theme.mat ? 'roboto-font' : null,
+      'roboto-font',
       'material-icons', // optional, you are not bound to it
-      // 'ionicons',
-      // 'mdi',
-      'fontawesome'
+      // 'ionicons-v4',
+      // 'mdi-v3',
+      'fontawesome-v5'
     ],
     supportIE: false,
     build: {
       scopeHoisting: true,
       vueRouterMode: 'hash',
-      env: loadEnvVars(ctx.dev),
+      env: loadEnvVars(ctx.dev ? 'dev' : 'prod'),
       publicPath: '',
       // vueCompiler: true,
       // gzip: true,
@@ -42,7 +42,7 @@ module.exports = function (ctx) {
           ...cfg.resolve.alias,
           //quasar: path.resolve(__dirname, './node_modules/quasar-framework/'),
           //vue: 'vue/dist/vue.js',
-          // custom
+          // custom (WARN: if you change this, please update as well jest.config.js 'moduleNameMapper' section)
           data: path.resolve(__dirname, './data'),
           services: path.resolve(__dirname, './src/services')
         }
@@ -72,6 +72,16 @@ module.exports = function (ctx) {
           loader: 'eslint-loader',
           exclude: /(node_modules|quasar)/
         })
+
+        // MP 2019-05-03
+        // remove HotModuleReplacementPlugin (triggers this error & breaks hot reload: https://github.com/webpack/webpack-dev-server/issues/87)
+        // if hot reload does not works, remove this
+        for (let i = 0; i < cfg.plugins.length; i++) {
+          if (cfg.plugins[i].constructor.name === 'HotModuleReplacementPlugin') {
+            cfg.plugins.splice(i, 1)
+            break
+          }
+        }
       }
     },
     devServer: {
@@ -86,64 +96,58 @@ module.exports = function (ctx) {
     // framework: 'all' --- includes everything; for dev only!
     framework: {
       components: [
-        'QAlert',
-        'QAutocomplete',
+        //'QAutocomplete',
+        'QAvatar',
+        'QBanner',
         'QBtn',
         'QBtnDropdown',
         'QBtnGroup',
         'QCard',
-        'QCardMain',
-        'QCardMedia',
-        'QCardTitle',
+        'QCardActions',
+        'QCardSection',
         'QCarousel',
-        'QCarouselSlide',
         'QCarouselControl',
+        'QCarouselSlide',
         'QCheckbox',
         'QChip',
-        'QChipsInput',
-        'QCollapsible',
-        'QField', 
+        //'QChipsInput',
+        'QDialog',
+        'QDrawer',
+        'QExpansionItem',
         'QIcon',
+        'QImg',
         'QInfiniteScroll',
         'QInput', 
         'QItem',
-        'QItemMain',
-        'QItemSide',
-        'QItemSeparator',
-        'QItemTile',
+        'QItemLabel',
+        'QItemSection',
         'QLayout',
-        'QLayoutDrawer',
-        'QLayoutFooter',
-        'QLayoutHeader',
         'QList',
-        'QListHeader',
-        'QModal',
         'QOptionGroup',
         'QPageContainer',
         'QPage',
         'QParallax',
-        'QPopover',
-        'QProgress',
+        'QLinearProgress',
         'QRadio',
         'QRating',
-        'QRouteTab',
-        'QSearch',
         'QSelect',
+        'QSeparator',
         'QSlider',
+        'QSpace',
         'QSpinner',
         'QSpinnerDots',
         'QSpinnerPuff',
         'QSpinnerRadio',
-        'QTabs',
         'QTab',
-        'QTabPane',
+        'QTabs',
+        'QTabPanel',
+        'QTabPanels',
         'QToggle',
         'QToolbar',
-        'QToolbarTitle',
-        'QTooltip',
-        'QUploader',
+        'QToolbarTitle'
       ],
       directives: [
+        'ClosePopup',
         'Ripple',
         'Scroll',
         'TouchPan',
@@ -151,14 +155,12 @@ module.exports = function (ctx) {
       ],
       // Quasar plugins
       plugins: [
-        'ActionSheet',
         'Dialog',
         'Loading',
         'Notify'
       ],
-      iconSet: 'fontawesome',
-      // iconSet: ctx.theme.mat ? 'material-icons' : 'ionicons'
-      // i18n: 'de' // Quasar language
+      iconSet: 'fontawesome-v5',
+      // lang: 'de' // Quasar language
       config: {
         cordova: {
           backButtonExit: false // prevent user to exit if back button on home page
@@ -212,7 +214,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: '1.3.2'
+      version: '1.6.2'
       // id: 'org.cordova.quasar.app'
     },
     electron: {

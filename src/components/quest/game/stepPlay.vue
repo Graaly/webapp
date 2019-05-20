@@ -7,6 +7,8 @@
         <source src="statics/videos/empty.mp4" type="video/mp4" />
       </video>
       -->
+      
+      <div class="bg-accent text-white q-pa-md" v-if="isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     
       <!------------------ TRANSITION AREA ------------------------>
       
@@ -16,7 +18,7 @@
         </div>
         <div class="video" v-if="step.videoStream">
           <video class="full-width" controls controlsList="nodownload" autoplay>
-            <source :src="serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
+            <source :src="step.videoStream.indexOf('blob:') !== -1 ? step.videoStream : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
           </video>
         </div>
         <!--
@@ -33,7 +35,7 @@
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="item">
-          <img style="width: 80%" :src="(step.options.picture.indexOf('statics/') > -1 ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
+          <img style="width: 80%" :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
           <p>{{ step.options.title }}</p>
         </div>
       </div>
@@ -47,33 +49,37 @@
       <!------------------ CHARACTER STEP AREA ------------------------>
       
       <div class="character" v-if="step.type == 'character'">
-        <div class="fixed-bottom story" style="bottom: 50px">
+        <div class="fixed-bottom story">
           <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
           <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
             <p class="carrier-return">{{ getTranslatedText() }}</p>
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
-            <img :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
+            <img style="vertical-align:bottom" v-if="step.options.character.length === 1" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
+            <img style="max-width: 100%; max-height: 200px; vertical-align:bottom;" v-if="step.options.character.length > 1" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
+          </div>
+          <div class="full-width bg-accent" style="height: 70px">
           </div>
         </div>
       </div>
         
       <!------------------ CHOOSE STEP AREA ------------------------>
       
-      <div class="choose" v-if="step.type == 'choose'">
+      <div class="choose" v-if="step.type == 'choose'" style="overflow: auto; margin-bottom: 80px;">
         <div @click="hideControlsTemporaly">
            <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="answers-text" v-if="answerType === 'text'">
-          <q-btn v-for="(option, key) in step.options" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null">
-            {{ option.text }}
+          <q-btn v-for="(option, key) in step.options.items" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
+            <span v-if="!option.textLanguage || !option.textLanguage[lang]">{{ option.text }}</span>
+            <span v-if="option.textLanguage && option.textLanguage[lang]">{{ option.textLanguage[lang] }}</span>
           </q-btn>
         </div>
         <div class="answers-images" v-if="answerType === 'image'">
           <div class="images-block">
-            <div v-for="(option, key) in step.options" :key="key" :class="option.class" @click="checkAnswer(key)">
-              <img :src="serverUrl + '/upload/quest/' + step.questId + '/step/choose-image/' + option.imagePath" :class="option.class" />
+            <div v-for="(option, key) in step.options.items" :key="key" :class="option.class" @click="checkAnswer(key)" :test-id="'answer-image-' + key">
+              <img :src="option.imagePath.indexOf('blob:') !== -1 ? option.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/choose-image/' + option.imagePath" :class="option.class" />
               <q-btn v-if="option.class !== null" round :class="option.class" :icon="option.icon" disable />
             </div>
           </div>
@@ -89,21 +95,21 @@
         <div class="typed-code">
           <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
           <tr>
-            <td v-for="(sign, key) in playerCode":key="key" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
+            <td v-for="(sign, key) in playerCode" :key="key" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
           </tr>
           </table>
         </div>
         <div class="keypad">
           <div class="keypadLine">
             <div v-for="(keypadLine, rowKey) in keypad" :key="rowKey">
-              <q-btn v-for="(keypadButton, btnKey) in keypadLine" :key="btnKey" color="grey" glossy @click="addCodeChar(keypadButton)" :disable="playerResult !== null">{{ keypadButton }}</q-btn>
+              <q-btn v-for="(keypadButton, btnKey) in keypadLine" :key="btnKey" color="grey" glossy @click="addCodeChar(keypadButton)" :disable="playerResult !== null" :test-id="'btn-keypad-' + keypadButton">{{ keypadButton }}</q-btn>
             </div>
           </div>
         </div>
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
-            <q-btn color="primary" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('label.Clear') }}</q-btn>
-            <q-btn color="primary" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('label.Clear') }}</q-btn>
+            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer">{{ $t('label.Confirm') }}</q-btn>
           </div>
         </div>
       </div>
@@ -115,12 +121,12 @@
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="color-bubbles">
-          <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">&nbsp;</div>
+          <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
         </div>
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
-            <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code">{{ $t('label.Confirm') }}</q-btn>
           </div>
         </div>
       </div>
@@ -134,24 +140,24 @@
         <table>
           <tr>
             <td v-for="(code, index) in playerCode" :key="index" class="text-center">
-              <q-btn color="primary" round icon="keyboard_arrow_up" @click="previousCodeAnswer(index)" />
+              <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" round icon="keyboard_arrow_up" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index" />
             </td>
           </tr>
           <tr>
             <td v-for="(code, index) in playerCode" :key="index">
-              <img :id="'image-code-' + index" :src="serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
+              <img :id="'image-code-' + index" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
             </td>
           </tr>
           <tr>
             <td v-for="(code, index) in playerCode" :key="index" class="text-center">
-              <q-btn color="primary" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" />
+              <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
             </td>
           </tr>
         </table>
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
-            <q-btn color="primary" icon="done" @click="checkAnswer()">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code">{{ $t('label.Confirm') }}</q-btn>
           </div>
         </div>
       </div>
@@ -163,16 +169,16 @@
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="photo">
-          <img ref="original-photo" :src="serverUrl + '/upload/quest/' + step.questId + '/step/image-recognition/' + step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
+          <img ref="original-photo" :src="(step.answers && step.answers.indexOf('blob:') !== -1) ? step.answers : serverUrl + '/upload/quest/' + step.questId + '/step/image-recognition/' + step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
           <video ref="camera-stream-for-recognition" v-show="cameraStreamEnabled"></video>
           <canvas ref="photo-buffer" class="hidden"></canvas>
           <img ref="player-photo" v-show="photoTaken" :alt="$t('label.TheScreenCaptureWillAppearInThisBox')" />
         </div>
         <div class="actions q-mt-lg">
-          <q-btn @click="toggleCameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" color="primary">{{ $t('label.TakeThePicture') }}</q-btn>
+          <q-btn @click="toggleCameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color">{{ $t('label.TakeThePicture') }}</q-btn>
           <div v-show="cameraStreamEnabled">
-            <q-btn color="primary" @click="toggleCameraStream()" icon="clear">{{ $t('label.Cancel') }}</q-btn>
-            <q-btn color="primary" @click="checkAnswer()" icon="done">{{ $t('label.Check') }}</q-btn>
+            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" @click="toggleCameraStream()" icon="clear">{{ $t('label.Cancel') }}</q-btn>
+            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" @click="checkAnswer()" icon="done">{{ $t('label.Check') }}</q-btn>
           </div>
         </div>
       </div>
@@ -199,7 +205,7 @@
         </div>
         <div class="answer-text">
           <input v-model="writetext.playerAnswer" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" />
-          <q-btn color="primary" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
+          <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
         </div>
       </div>
       
@@ -228,36 +234,42 @@
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <ul class="memory" id="card-deck">
-          <li v-for="(item, key) in memory.items" :key="key" class="card" :class="{ open: item.isClicked, show: item.isClicked, disabled: item.isFound }" @click="selectMemoryCard(key)">
-            <img :src="serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
+          <li 
+            v-for="(item, key) in memory.items" 
+            :key="key" 
+            class="card" 
+            :class="{ open: item.isClicked, show: item.isClicked, disabled: item.isFound, match: item.isFound }" 
+            @click="selectMemoryCard(key)"
+          >
+            <img :src="item.imagePath.indexOf('blob:') !== -1 ? item.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
           </li>
         </ul>
       </div>
       
       <!------------------ USE ITEM STEP AREA ------------------------>
       
-      <div class="use-item" v-if="step.type == 'use-item'" @click="useItem($event)">
+      <div class="use-item" v-if="step.type == 'use-item'">
         <div>
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
-        <div ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + step.questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
+        <div ref="useItemPicture" @click="useItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="use-item-picture">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
-        <q-btn round color="primary">
-          <img v-if="itemUsed" :src="(itemUsed.picture.indexOf('statics/') > -1 ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
+        <q-btn round :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color">
+          <img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
         </q-btn>
         {{ $t('label.TouchWhereYouUseThisItem') }}
       </p>
       
       <!------------------ FIND ITEM STEP AREA ------------------------>
       
-      <div class="find-item" v-if="step.type == 'find-item'" @click="findItem($event)">
+      <div class="find-item" v-if="step.type == 'find-item'">
         <div>
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
-        <div ref="findItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + step.questId + '/step/background/' + step.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
+        <div ref="findItemPicture" @click="findItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="find-item-picture">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
@@ -268,12 +280,13 @@
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && geolocation.active"></video>
         </transition>
-        <div v-show="playerResult === null">
+        <div v-show="playerResult === null && this.geolocation.active">
           <div class="text">
             <p>{{ getTranslatedText() }}</p>
             <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
             <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
             <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
+            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
           </div>
         </div>
         <div class="target-view" v-show="playerResult === null || (playerResult && step.options.is3D)">
@@ -300,11 +313,11 @@
         </div>
         
         <!-- HELP -->
-        <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null && !isHybrid" color="primary" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
+        <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null && !isHybrid" :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
         <div v-if="locateMarker.compliant && playerResult === null && isHybrid" class="text-white centered q-mt-md">
           {{ $t('label.ScanTheMarkersLikeThat') }}
           <div><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
-          <div><q-btn color="primary" @click="startScanQRCode()">{{ $t('label.LaunchTheScanner') }}</q-btn></div>
+          <div><q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" @click="startScanQRCode()">{{ $t('label.LaunchTheScanner') }}</q-btn></div>
         </div>
         <div v-if="!locateMarker.compliant">
           {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
@@ -329,7 +342,8 @@
     
     <!--====================== WIN POINTS ANIMATION =================================-->
     
-    <div v-show="playerResult === true && score > 0" class="fadein-message">+{{ score }} <!--<q-icon color="white" name="fas fa-trophy" />--></div>
+    <div v-show="playerResult === true && score > 1" class="fadein-message">+{{ score }} <!--<q-icon color="white" name="fas fa-trophy" />--></div>
+    <div v-show="playerResult === true && score === 1" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
     
     <!--====================== STORY =================================-->
@@ -354,7 +368,7 @@ import modelsList from 'data/3DModels.json'
 import markersList from 'data/markers.json'
 import layersForMarkers from 'data/layersForMarkers.json'
 
-import Notification from 'plugins/NotifyHelper'
+import Notification from 'boot/NotifyHelper'
 
 import geolocation from 'components/geolocation'
 import story from 'components/story'
@@ -385,7 +399,7 @@ export default {
    * itemUsed : item of the inventory used
    * lang : language of the step (fr, en, ...)
    */
-  props: ['step', 'runId', 'reload', 'itemUsed', 'lang'],
+  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'color'],
   components: {
     geolocation,
     story
@@ -439,6 +453,8 @@ export default {
       this.geolocation.absoluteOrientationSensor.stop()
     }
     
+    window.removeEventListener("devicemotion", this.handleMotionEvent, true)
+    
     utils.clearAllRunningProcesses()
     
     TWEEN.removeAll() // 3D animations
@@ -455,6 +471,7 @@ export default {
         controlsAreDisplayed: false,
         isHybrid: window.cordova,
         isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
+        isNetworkLow: false,
         
         // for step 'choose'
         answerType: 'text', // 'text' or 'image'
@@ -475,11 +492,14 @@ export default {
         // for step types 'geoloc' and 'locate-item-ar'
         geolocation: {
           active: false,
-          distance: null,
+          distance: null, // target distance (can be changed by accelerometer for 'locate-item-ar')
+          GPSdistance: null, // only given by GPS
           // direction
           direction: null,
-          rawDirection: null,
+          rawDirection: null, // in degrees
           waitForNextQuaternionRead: false,
+          // object position relative to device
+          position: { x: null, y: null },
           // for 'locate-item-ar'
           absoluteOrientationSensor: null, 
           target: null,
@@ -487,6 +507,21 @@ export default {
           canTouchTarget: false,
           primaryColor: colors.getBrand('primary')
         },
+        deviceMotion: {
+          // device acceleration & velocity
+          acceleration: {
+            raw: { x: 0, y: 0, z: 0 },
+            filtered: { x: 0, y: 0 },
+            avgData: { x: [], y: [], z: [] },
+            maxAvgItems: 3
+          },
+          velocity: { x: 0, y: 0 },
+          dateLatestEvent: null,
+          isTargetPositionUndefined: true,
+          isAccelerationIdle: false,
+          idleAccelerationCounter: 1
+        },
+        minDistanceForGPS: 20, // in meters
         
         // for step type 'locate-marker'
         locateMarker: {
@@ -540,6 +575,18 @@ export default {
       }
     },
     /*
+     * get background image
+     */
+    getBackgroundImage () {
+      if (this.step.backgroundImage && this.step.backgroundImage[0] === "_") {
+        return 'statics/images/quest/' + this.step.backgroundImage
+      } else if (this.step.backgroundImage && this.step.backgroundImage.indexOf('blob:') !== -1) {
+        return this.step.backgroundImage
+      } else {
+        return this.serverUrl + '/upload/quest/' + this.step.questId + '/step/background/' + this.step.backgroundImage
+      }
+    },
+    /*
      * Init the component data
      */
     initData () {
@@ -558,7 +605,7 @@ export default {
             this.showControls()
           } else {
             // define if background image is a generic one or user defined one
-            let backgroundUrl = this.step.backgroundImage[0] === "_" ? 'statics/images/quest/' + this.step.backgroundImage : process.env.SERVER_URL + '/upload/quest/' + this.step.questId + '/step/background/' + this.step.backgroundImage
+            let backgroundUrl = this.getBackgroundImage()
             background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             // all background clickable for transitions
             //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
@@ -575,7 +622,6 @@ export default {
             }
           }
         } else {
-console.log("No duration 2")
           // no background on some steps to display camera stream
           if (this.step.type && this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker' && this.step.id !== 'sensor') {        
             background.style.background = 'none'
@@ -586,16 +632,12 @@ console.log("No duration 2")
         
         this.resetDrawDirectionInterval()
         
-        if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'character' || this.step.type === 'new-item') {
-          // validate steps with no enigma
-          utils.setTimeout(this.checkAnswer, 1000)
-        }
         if (this.step.type === 'end-chapter') {
           this.checkAnswer()
         }
         
         if (this.step.type === 'choose') {
-          this.answerType = Array.isArray(this.step.options) && this.step.options[0].hasOwnProperty('imagePath') && this.step.options[0].imagePath !== null ? 'image' : 'text'
+          this.answerType = Array.isArray(this.step.options.items) && this.step.options.items[0].hasOwnProperty('imagePath') && this.step.options.items[0].imagePath !== null ? 'image' : 'text'
         }
         
         if (this.step.type === 'code-keypad') {
@@ -653,6 +695,9 @@ console.log("No duration 2")
           } catch (error) {
             console.log(error)
           }
+          
+          // start accelerometer sensor
+          window.addEventListener("devicemotion", this.handleMotionEvent, true)
         }
         
         if (this.step.type === 'locate-item-ar' && !this.playerResult) {
@@ -728,7 +773,12 @@ console.log("No duration 2")
             }
           } else {
             // 2D plane with transparent image (user uploaded picture) as texture
-            let itemImage = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/locate-item-ar/' + this.step.options.picture
+            var itemImage = ''
+            if (this.step.options.picture && this.step.options.picture.indexOf('blob:') !== -1) {
+              itemImage = this.step.options.picture
+            } else {
+              itemImage = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/locate-item-ar/' + this.step.options.picture
+            }
           
             this.$refs['item-image'].src = itemImage
             
@@ -938,7 +988,7 @@ console.log("No duration 2")
         patternUrl: 'statics/markers/' + markerCode + '/pattern-marker.patt'
       })
       marker.code = markerCode
-
+      
       marker.addEventListener('markerFound', (ev) => {
         if (this.step.options.mode === 'scan') {
           this.checkAnswer(ev.target.code)
@@ -953,6 +1003,10 @@ console.log("No duration 2")
      */
     showControls () {
       this.controlsAreDisplayed = true // !this.controlsAreDisplayed
+      // if transition step, next button is clickable when controls are displayed
+      if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'character' || this.step.type === 'new-item') {
+        this.checkAnswer()
+      }
     },
     /*
      * Switch controls display
@@ -1088,7 +1142,17 @@ console.log("No duration 2")
       if (displaySpinner) {
         this.$q.loading.show()
       }
-      var response = await StepService.checkAnswer(questId, stepId, runId, answerData)
+      
+      // alert if the network is low
+      var _this = this
+      var lowNetworkTimeout = setTimeout(function () { _this.isNetworkLow = true }, 8000)
+
+      var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData)
+
+      // clear low network alerte if displayed
+      clearTimeout(lowNetworkTimeout)
+      this.isNetworkLow = false
+      
       if (response && response.data) {
         if (displaySpinner) {
           this.$q.loading.hide()
@@ -1099,8 +1163,70 @@ console.log("No duration 2")
         if (displaySpinner) {
           this.$q.loading.hide()
         }
-        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        // check offline answer
+        //if (this.answer) {
+          let checkAnswerOfflineResult = await this.checkOfflineAnswer(answerData.answer)
+          return checkAnswerOfflineResult
+        //} else {
+        //  Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        //  return false
+        //}
       }
+    },
+    /*
+     * Check answer 
+     * @param   {Object}    answerData            Answer object
+     */
+    async checkOfflineAnswer(answer) {
+      const type = this.step.type
+      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character') {
+        return { result: true, answer: true, score: 0, reward: 0, offline: true }
+      } else if (type === 'image-recognition') {
+        return { result: answer, answer: this.answer, score: 0, reward: 0, offline: true }
+      } else if (type === 'geolocation' || type === 'locate-item-ar') {
+        //TODO: find a way to check server side
+        return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+      } else if (type === 'use-item') {
+        let anwserPixelCoordinates = {
+          left: Math.round(this.answer.coordinates.left / 100 * 100 * answer.windowWidth),
+          top: Math.round(this.answer.coordinates.top / 100 * 133 * answer.windowWidth)
+        }
+        
+        // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
+        let solutionAreaRadius = Math.round(8 * answer.windowWidth)
+        
+        let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - answer.posX, 2) + Math.pow(anwserPixelCoordinates.top - answer.posY, 2))
+
+        if (distanceToSolution <= solutionAreaRadius && this.answer.item === answer.item) {
+          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+        }
+      } else if (type === 'find-item') {
+        let anwserPixelCoordinates = {
+          left: Math.round(this.answer.left / 100 * 100 * answer.windowWidth),
+          top: Math.round(this.answer.top / 100 * 133 * answer.windowWidth)
+        }
+        
+        // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
+        let solutionAreaRadius = Math.round(8 * answer.windowWidth)
+        
+        let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - answer.posX, 2) + Math.pow(anwserPixelCoordinates.top - answer.posY, 2))
+
+        if (distanceToSolution <= solutionAreaRadius) {
+          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+        }
+      } else if (type === 'write-text') {
+        if (utils.removeAccents(answer) === utils.removeAccents(this.answer)) {
+          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+        }
+      } else if (type === 'memory') {
+        return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+      } else {
+        if (answer === this.answer) {
+          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+        }
+      }
+      // TODO: send answer only if all tries done
+      return { result: false, answer: this.answer, score: 0, reward: 0, offline: true }
     },
     /*
      * Check if the answer is correct
@@ -1134,191 +1260,195 @@ console.log("No duration 2")
         case 'end-chapter':
         case 'character':
           // save step automatic success
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {}, false)
-          this.submitGoodAnswer(0)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
+          this.submitGoodAnswer(0, checkAnswerResult.offline, true)
           break
           
         case 'choose':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
           
-          if (!this.step.displayRightAnswer) {
-            let selectedAnswer = this.step.options[answer]
-            selectedAnswer.class = 'rightorwrong'
-            Vue.set(this.step.options, answer, selectedAnswer)
-            this.submitAnswer(0)
-          } else if (checkAnswerResult.result === true) {
-            let selectedAnswer = this.step.options[answer]
-            selectedAnswer.icon = 'done'
-            selectedAnswer.class = 'right'
-            Vue.set(this.step.options, answer, selectedAnswer)
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
-          } else {
-            let selectedAnswer = this.step.options[answer]
-            selectedAnswer.icon = 'clear' // "x" icon
-            selectedAnswer.class = 'wrong'
-            Vue.set(this.step.options, answer, selectedAnswer)
-            // indicate the right answer
-            if (checkAnswerResult.answer || checkAnswerResult.answer === 0) {
-              let selectedAnswer = this.step.options[checkAnswerResult.answer]
+          if (checkAnswerResult.result === true) {
+            let selectedAnswer = this.step.options.items[answer]
+            if (this.step.displayRightAnswer === false) {
+              selectedAnswer.class = 'rightorwrong'
+            } else {
               selectedAnswer.icon = 'done'
               selectedAnswer.class = 'right'
-              Vue.set(this.step.options, checkAnswerResult.answer, selectedAnswer)
             }
+            Vue.set(this.step.options.items, answer, selectedAnswer)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
+          } else {
+            let selectedAnswer = this.step.options.items[answer]
+            if (this.step.displayRightAnswer === false) {
+              selectedAnswer.class = 'rightorwrong'
+            } else {
+              selectedAnswer.icon = 'clear' // "x" icon
+              selectedAnswer.class = 'wrong'
+              // indicate the right answer
+              if (checkAnswerResult.answer || checkAnswerResult.answer === 0) {
+                let selectedAnswer = this.step.options.items[checkAnswerResult.answer]
+                selectedAnswer.icon = 'done'
+                selectedAnswer.class = 'right'
+                Vue.set(this.step.options.items, answer, selectedAnswer)
+                Vue.set(this.step.options.items, checkAnswerResult.answer, selectedAnswer)
+              }
+            }
+            Vue.set(this.step.options.items, answer, selectedAnswer)
+            
             this.nbTry++
-            this.submitWrongAnswer()
+            this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
           }
           
           break
         
         case 'geolocation':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, false)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, false)
 
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           }
           break
           
         case 'image-recognition':
           const comparison = this.checkPhoto()
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: comparison}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: comparison}, true)
 
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           } else {
-            this.submitWrongAnswer()
+            this.submitWrongAnswer(checkAnswerResult.offline, true)
           }
           break
           
         case 'code-keypad':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('')}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('')}, true)
 
-          if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0)
-          } else if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+          if (checkAnswerResult.result === true) {
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2) {
+            if (this.nbTry < 2 && this.step.displayRightAnswer) {
               // reset code
               this.resetKeypadCode()
               this.submitRetry()
             } else {
-              this.submitWrongAnswer()
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
           break
         
         case 'code-color':
           this.$q.loading.show()
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|')}, true)
           
-          if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0)
-          } else if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+          if (checkAnswerResult.result === true) {
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2) {
+            if (this.nbTry < 2 && this.step.displayRightAnswer) {
               // reset code
               this.resetColorCode()
               this.submitRetry()
             } else {
-              this.submitWrongAnswer()
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
           break
           
         case 'code-image':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.playerCode.join('|')}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|')}, true)
           
-          if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0)
-          } else if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+          if (checkAnswerResult.result === true) {
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2) {
+            if (this.nbTry < 2 && this.step.displayRightAnswer) {
               // reset code
               this.resetImageCode()
               this.submitRetry()
             } else {
-              this.submitWrongAnswer()
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
           break
         
         case 'jigsaw-puzzle':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer.join('|')}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer.join('|')}, true)
           
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           }
           break
           
         case 'memory':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {}, false)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
           
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           }
           break
         
         case 'write-text':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: this.writetext.playerAnswer}, true)
-          if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0)
-          } else if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.writetext.playerAnswer}, true)
+          if (checkAnswerResult.result === true) {
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2) {
+            if (this.nbTry < 2 && this.step.displayRightAnswer) {
               // reset field
               this.writetext.playerAnswer = ""
               this.submitRetry()
             } else {
-              this.submitWrongAnswer()
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
           
           break
         
         case 'use-item':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
           
-          if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0)
-          } else if (checkAnswerResult.result === true) {
-            this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+          if (checkAnswerResult.result === true) {
+            if (this.step.displayRightAnswer) {
+              this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
+            }
+            
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2) {
+            if (this.nbTry < 2 && this.step.displayRightAnswer) {
               // reset code
               Notification(this.$t('label.UseItemNothingHappens'), 'error')
             } else {
-              this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
-              this.submitWrongAnswer()
+              if (this.step.displayRightAnswer) {
+                this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
+              }
+              
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
           
           break
           
         case 'find-item':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
           
-          if (!this.step.displayRightAnswer) {
-            this.submitAnswer(0)
-          } else if (checkAnswerResult.result === true) {
-            this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+          if (checkAnswerResult.result === true) {
+            if (this.step.displayRightAnswer) {
+              this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
+            }
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2) {
+            if (this.nbTry < 2 && this.step.displayRightAnswer) {
               // reset code
               Notification(this.$t('label.FindItemNothingHappens'), 'error')
             } else {
-              this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
-              this.submitWrongAnswer()
+              if (this.step.displayRightAnswer) {
+                this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
+              }
+              
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
           
@@ -1327,7 +1457,7 @@ console.log("No duration 2")
         case 'locate-item-ar':
         case 'locate-marker':
           if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
-            checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, false)
+            checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, false)
             if (checkAnswerResult.result === true) {
               if (this.step.type === 'locate-item-ar') {
                 this.geolocation.absoluteOrientationSensor.stop() // stop moving camera when device moves
@@ -1370,7 +1500,7 @@ console.log("No duration 2")
                     object.scale.set(0, 0, 0)
                     object.position.set(0, cameraDistance, size.z / 2)
                     object.rotation.set(0, 0, 0)
-                    this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+                    this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
                   })
                 
                 let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
@@ -1383,7 +1513,7 @@ console.log("No duration 2")
                   
                 disappearAnimation.chain(appearAnimation, rotationAnimation).start()
               } else { // 2D image on plane
-                this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0)
+                this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
               }
             }
           } else { // locate-marker, mode scan
@@ -1419,20 +1549,20 @@ console.log("No duration 2")
             }
             
             if (markerDetected) {
-              checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.id, this.runId, {answer: answer}, true)
+              checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
               
               if (checkAnswerResult.result === true) {
-                this.submitGoodAnswer(checkAnswerResult.score)
+                this.submitGoodAnswer(checkAnswerResult.score, checkAnswerResult.offline, true)
                 this.stopMarkersSensors()
                 this.locateMarker.playerAnswer = answer // for display
               } else {
                 this.nbTry++
                 if (this.nbTry === 2) {
-                  this.submitWrongAnswer()
+                  this.submitWrongAnswer(checkAnswerResult.offline, true)
                   this.stopMarkersSensors()
                 } else {
                   //this.startScanQRCode()
-                  this.submitRetry()
+                  this.submitRetry(checkAnswerResult.offline)
                 }
               }
             }
@@ -1450,8 +1580,8 @@ console.log("No duration 2")
     /*
      * Send answer without telling if it is true or false
      */
-    submitAnswer() {
-      this.$emit('played')
+    submitAnswer(offlineMode) {
+      this.$emit('played', null, offlineMode)
       
       this.displayReadMoreAlert()
       
@@ -1461,45 +1591,52 @@ console.log("No duration 2")
     /*
      * Send good andwer  
      */
-    submitGoodAnswer(score) {
-      this.playerResult = true
-      this.$emit('success', score)
+    submitGoodAnswer(score, offlineMode, showResult) {
+      if (showResult) {
+        this.playerResult = true
+      } else {
+        this.playerResult = null
+      }
+      
+      this.$emit('success', score, offlineMode, showResult)
       this.$emit('played')
       
       this.displayReadMoreAlert()
       
-      switch (this.step.type) {
-        case 'character': 
-        case 'new-item': 
-        case 'info-text': 
-        case 'end-chapter': 
-        case 'info-video': 
-          
-          break
-        case 'choose':
-          break
-        case 'code-keypad':
-        case 'code-color':
-        case 'code-image':
-          this.displaySuccessMessage(true, this.$t('label.GoodAnswer'))
-          break
-        case 'image-recognition':
-        case 'write-text':
-        case 'jigsaw-puzzle':
-        case 'memory':
-        case 'use-item':
-        case 'find-item':
-        case 'geolocation':
-          this.displaySuccessMessage(true, this.$t('label.YouHaveFoundThePlace'))
-          break
-        case 'locate-item-ar':
-        case 'locate-marker':
-          if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
-            this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'))
-          } else { // locate marker, mode scan
-            this.displaySuccessMessage(true, this.$t('label.WellDone'))
-          }
-          break
+      if (showResult) {
+        switch (this.step.type) {
+          case 'character': 
+          case 'new-item': 
+          case 'info-text': 
+          case 'end-chapter': 
+          case 'info-video': 
+            
+            break
+          case 'choose':
+            break
+          case 'code-keypad':
+          case 'code-color':
+          case 'code-image':
+            this.displaySuccessMessage(true, this.$t('label.GoodAnswer'))
+            break
+          case 'image-recognition':
+          case 'write-text':
+          case 'jigsaw-puzzle':
+          case 'memory':
+          case 'use-item':
+          case 'find-item':
+          case 'geolocation':
+            this.displaySuccessMessage(true, this.$t('label.YouHaveFoundThePlace'))
+            break
+          case 'locate-item-ar':
+          case 'locate-marker':
+            if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
+              this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'))
+            } else { // locate marker, mode scan
+              this.displaySuccessMessage(true, this.$t('label.WellDone'))
+            }
+            break
+        }
       }
       // advise user to move to next step
       //utils.setTimeout(this.alertToPassToNextStep, 15000)
@@ -1519,17 +1656,24 @@ console.log("No duration 2")
     /*
      * Send wrong answer 
      */
-    submitWrongAnswer() {
-      this.playerResult = false
-      this.$emit('fail')
+    submitWrongAnswer(offlineMode, showResult) {
+      if (showResult) {
+        this.playerResult = false
+      } else {
+        this.playerResult = null
+      }
+      
+      this.$emit('fail', offlineMode, showResult)
       this.$emit('played')
       
       this.displayReadMoreAlert()
       
-      if (this.step.type === 'image-recognition') {
-        this.displaySuccessMessage(false, this.$t('label.PhotosDoesntMatch'))
-      } else {
-        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
+      if (showResult) {
+        if (this.step.type === 'image-recognition') {
+          this.displaySuccessMessage(false, this.$t('label.PhotosDoesntMatch'))
+        } else {
+          this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
+        }
       }
       // advise user to move to next step
       utils.setTimeout(this.alertToPassToNextStep, 15000)
@@ -1624,7 +1768,11 @@ console.log("No duration 2")
     */
     forceImageRefresh(key) {
       if (document.getElementById('image-code-' + key) !== null) {
-        document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + this.step.options.images[this.playerCode[key]].imagePath
+        if (this.step.options.images[this.playerCode[key]].imagePath && this.step.options.images[this.playerCode[key]].imagePath.indexOf('blob:') !== -1) {
+          document.getElementById('image-code-' + key).src = this.step.options.images[this.playerCode[key]].imagePath
+        } else {
+          document.getElementById('image-code-' + key).src = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + this.step.options.images[this.playerCode[key]].imagePath
+        }
       }
     },
     /*
@@ -1786,8 +1934,13 @@ console.log("No duration 2")
      * Draw direction arrows for geolocation
      */
     drawDirectionArrow() {
-      if (this.geolocation.direction === null || document.querySelector('.direction-helper canvas') === null || !this.geolocation.active) {
+      if (document.querySelector('.direction-helper canvas') === null || !this.geolocation.active) {
         return
+      }
+
+      // shows a static arrow even if the user is on desktop (step creation from toolbox)
+      if (this.geolocation.direction === null) {
+        this.geolocation.direction = 0
       }
       
       // refresh arrow in canvas depending on direction
@@ -1821,9 +1974,12 @@ console.log("No duration 2")
       // circle
       ctx.lineWidth = Math.round(this.directionHelperSize * 1.5)
       ctx.beginPath()
-      ctx.arc(0, 0, Math.round(h / 2.5) - 10, 0, 2 * Math.PI)
+
+      if (h > 25) {
+        ctx.arc(0, 0, Math.round(h / 2.5) - 10, 0, 2 * Math.PI)
+      }
       ctx.stroke()
-      
+
       ctx.rotate(utils.degreesToRadians(this.geolocation.direction))
       
       // arrow
@@ -1848,7 +2004,7 @@ console.log("No duration 2")
      */
     async onNewUserPosition(pos) {
       this.geolocation.active = true
-      let current = pos.coords;
+      let current = pos.coords
       
       // if lat and lng are not set, compute to have the object close to the current user position
       if (this.step.options.lat === 0 && this.step.options.lng === 0) {
@@ -1864,45 +2020,50 @@ console.log("No duration 2")
       let options = this.step.options
       
       if (typeof options === 'undefined') {
-        console.warn("watchLocationSuccess: variable 'options' is undefined. Could not get latitude & longitude of the target.")
+        console.warn("variable 'options' is undefined. Could not get latitude & longitude of the target.")
         return
       }
       
       // compute distance between two coordinates
       // note: current.accuracy contains the result accuracy in meters
-      this.geolocation.distance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
+      this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
+      let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
       
-      this.geolocation.rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
+      if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && this.geolocation.GPSdistance > this.minDistanceForGPS) || this.step.type !== 'locate-item-ar') {
+        this.geolocation.distance = this.geolocation.GPSdistance
+        this.geolocation.rawDirection = rawDirection
+      }
+      
+      let finalDirection = utils.degreesToRadians(rawDirection)
       
       // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
+      // note that those properties are also needed when accelerometer is used (method 'handleMotionEvent()')
+      this.geolocation.position.x = this.geolocation.GPSdistance !== 0 ? Math.sin(finalDirection) * this.geolocation.GPSdistance : 0
+      this.geolocation.position.y = this.geolocation.GPSdistance !== 0 ? Math.cos(finalDirection) * this.geolocation.GPSdistance : 0
       
-      if (this.step.type === 'locate-item-ar' && this.geolocation.target.scene !== null) {
+      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.geolocation.target.scene !== null) {
         let target = this.geolocation.target
         let scene = target.scene
         let object = scene.getObjectByName('targetObject')
         
         // if target size is 1m, consider that it can be seen at 40m
         // target size 50cm => seen at 20m, etc.
-        this.geolocation.canSeeTarget = target.size === null || this.geolocation.distance < target.size * 40
+        this.geolocation.canSeeTarget = target.size === null || this.geolocation.GPSdistance < target.size * 40
         
         // object may not be loaded at first calls => skip part where 3D scene must be loaded
         if (typeof object === 'undefined') { return }
         object.visible = true
         
-        let finalDirection = utils.degreesToRadians(this.geolocation.rawDirection)
-        let newPositionX = this.geolocation.distance !== 0 ? Math.sin(finalDirection) * this.geolocation.distance : 0
-        let newPositionY = this.geolocation.distance !== 0 ? Math.cos(finalDirection) * this.geolocation.distance : 0
-        
-        // smooth position change
-        new TWEEN.Tween(object.position)
-          .to({ x: newPositionX, y: newPositionY }, this.geolocation.watchLocationInterval)
-          .easing(TWEEN.Easing.Quadratic.InOut)
-          .start()
-        
-        // tell player to touch object + detect touch as soon as device is below a certain distance from the object coordinates
-        if (!this.geolocation.canTouchTarget && this.geolocation.distance <= 10) {
-          this.geolocation.canTouchTarget = true
+        // if distance to object is greater than value of this.minDistanceForGPS, update target object position only given GPS position. Otherwise, accelerometer is used to track device position for better user experience (avoids object "drifts").
+        if (this.geolocation.GPSdistance > this.minDistanceForGPS) {
+          // smooth position change
+          new TWEEN.Tween(object.position)
+            .to({ x: this.geolocation.position.x, y: this.geolocation.position.y }, 1000)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .start()
         }
+        
+        this.updatePlayerCanTouchTarget()
       }
       
       if (this.step.type === 'geolocation' && this.geolocation.distance <= 20) {
@@ -1934,7 +2095,7 @@ console.log("No duration 2")
         windowWidth: vw,
         posX: ev.offsetX,
         posY: ev.offsetY,
-        item: this.itemUsed.picture
+        item: this.itemUsed.originalPicture ? this.itemUsed.originalPicture : this.itemUsed.picture
       }
       
       await this.checkAnswer(data)
@@ -1960,7 +2121,7 @@ console.log("No duration 2")
       var self = this
       utils.setInterval(function() {
         if (cross.src === crossPicture) {
-          cross.src = (self.step.answers.item.indexOf('statics/') > -1 ? self.step.answers.item : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
+          cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.step.answers.item : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
           cross.style.borderRadius = '50%'
         } else {
           cross.src = crossPicture
@@ -2026,6 +2187,7 @@ console.log("No duration 2")
       if (result) {
         this.checkAnswer(result)
       }
+      return true
     },
     comparePuzzlePiecePositions() {
       var answer = []
@@ -2068,9 +2230,17 @@ console.log("No duration 2")
         ordered = this.comparePuzzlePiecePositions()
       }
       
-      this.puzzle.picture = this.step.options.picture.indexOf('upload/') === -1 ? this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + this.step.options.picture : this.serverUrl + this.step.options.picture
+      if (this.step.options.picture.indexOf('blob:') !== -1) {
+        this.puzzle.picture = this.step.options.picture
+      } else if (this.step.options.picture.indexOf('upload/') === -1) {
+        this.puzzle.picture = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + this.step.options.picture
+      } else {
+        this.puzzle.picture = this.serverUrl + this.step.options.picture
+      }
 
       initJigsaw(this.puzzle.element)
+      
+      return true
     },
     shuffle(array) {
       for (var i = array.length -1; i > 0; i--) {
@@ -2100,6 +2270,7 @@ console.log("No duration 2")
           dt.setDragImage(img, img.width / 2, img.height / 2);
         }*/
       }
+      return true
     },
     /*
      * Handle puzzle piece move over
@@ -2137,19 +2308,20 @@ console.log("No duration 2")
       this.puzzle.dragSrcEl = null;
       var cols = document.querySelectorAll('#pieces .piece');
       [].forEach.call(cols, function (col) {
-        col.style.opacity = '';
-        col.classList.remove('over');
-      });
+        col.style.opacity = ''
+        col.classList.remove('over')
+      })
+      return true
     },
     /*
      * Handle puzzle piece drop
      * @param   {object}    e            Event when user drop puzzle piece
      */
     handleDrop(e) {
-      if (this.puzzle.dragSrcEl) {
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        e.preventDefault();
+      if (this.puzzle.dragSrcEl && e.cancelable) {
+        e.stopPropagation()
+        e.stopImmediatePropagation()
+        e.preventDefault()
         // if the target is defined & a piece is moved
         if (e.target.parentNode.id && this.puzzle.dragSrcEl.id) {
           // get id of piece moved and piece destination
@@ -2178,6 +2350,7 @@ console.log("No duration 2")
           }
         }
       }
+      return true
     },
     /*
      * Init the memory game
@@ -2216,6 +2389,8 @@ console.log("No duration 2")
             for (var i = 0; i < this.memory.items.length; i++) {
               if (!this.memory.items[i].isFound) {
                 this.memory.items[i].isClicked = true
+                _self.memory.items[_self.memory.selectedKey].isFound = true
+                _self.memory.items[key].isFound = true
                 Vue.set(this.memory.items, i, this.memory.items[i])
               }
             }
@@ -2268,14 +2443,19 @@ console.log("No duration 2")
     /*
     * Animate canvas where AR markers are detected, for step type "locate-marker"
     */
-    animateMarkerCanvas() {
-      let mixers = this.locateMarker.mixers
+    animateMarkerCanvas() {   
+      if (typeof this.step === 'undefined' || (this.step.id !== 'sensor' && typeof this.step.type === 'undefined')) {
+        this.stopLatestAnimation()
+        return
+      }
       
+      let mixers = this.locateMarker.mixers
+
       if (this.locateMarker.arToolkitContext !== null) {
         // player has not found object yet ?
         // => adjust camera orientation & object position according to detected marker position
         this.locateMarker.arToolkitContext.update(this.$refs['camera-stream-for-locate-marker'])
-        
+
         if ((this.step.type === 'locate-marker' && this.step.options.mode === 'scan') || this.step.id === 'sensor') {
           // any marker is "recognized"
           for (let markerCode in this.locateMarker.markerRoots) {
@@ -2460,7 +2640,12 @@ console.log("No duration 2")
       return new Promise((resolve, reject) => {
         let gltfLoader = new GLTFLoader()
         // loads automatically .bin and textures files if necessary
-        gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+        if (objName.indexOf('blob:') !== -1) {
+          gltfLoader.load(objName, resolve, progress, reject)
+        } else {
+          //gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+          gltfLoader.load('statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+        }
       })
     },
     /*
@@ -2528,6 +2713,155 @@ console.log("No duration 2")
         window.clearInterval(drawDirectionInterval)
       }
       this.$store.dispatch('setDrawDirectionInterval', null)
+    },
+    /*
+    * handle motion event (used by step 'locate-item-ar')
+    */
+    handleMotionEvent (event) {
+      let dm = this.deviceMotion
+      let object
+      let canProcess = true // can this method be entierely run? is all required data available?
+      
+      // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
+      if (this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion || !this.geolocation.target || !this.geolocation.target.scene) {
+        canProcess = false
+      }
+      
+      object = this.geolocation.target.scene.getObjectByName('targetObject')
+      
+      canProcess = canProcess && typeof object !== 'undefined'
+      
+      if (!canProcess) {
+        dm.acceleration.avgData = { x: [], y: [], z: [] }
+        dm.velocity = { x: 0, y: 0 }
+        return
+      }
+      
+      // this means we are switching from GPS only to "accelerometer + GPS" mode (or we are in the "switching zone"), or it's the first time we handle motion event
+      if (this.isUsingGPSOnly || dm.isTargetPositionUndefined) {
+        this.geolocation.distance = this.geolocation.GPSdistance
+        object.position.x = this.geolocation.position.x
+        object.position.y = this.geolocation.position.y
+        dm.isTargetPositionUndefined = false
+      }
+      
+      let accel = event.acceleration
+      let accelerationVector = new THREE.Vector3(accel.x, accel.y, accel.z)
+      
+      // "cancel" device rotation on acceleration vector
+      let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
+      accelerationVector.applyQuaternion(quaternion)
+      
+      dm.acceleration.raw = accelerationVector
+      
+      // save current time to calculate velocity & position at next motion event
+      let currentTime = new Date()
+      if (dm.dateLatestEvent !== null) {
+        // get time difference in milliseconds
+        let timeDiff = (currentTime.getTime() - dm.dateLatestEvent.getTime()) / 1000
+        
+        // using "moving average" for acceleration sensors noise reduction
+        // (tried kalman filters, but result is much less convincing)
+        dm.acceleration.avgData.x.push(dm.acceleration.raw.x)
+        dm.acceleration.avgData.y.push(dm.acceleration.raw.y)
+        dm.acceleration.avgData.z.push(dm.acceleration.raw.z)
+        
+        if (dm.acceleration.avgData.x.length > dm.acceleration.maxAvgItems) {
+          dm.acceleration.avgData.x.shift()
+        }
+        if (dm.acceleration.avgData.y.length > dm.acceleration.maxAvgItems) {
+          dm.acceleration.avgData.y.shift()
+        }
+        if (dm.acceleration.avgData.z.length > dm.acceleration.maxAvgItems) {
+          dm.acceleration.avgData.z.shift()
+        }
+        
+        dm.acceleration.filtered.x = utils.arrayAverage(dm.acceleration.avgData.x)
+        dm.acceleration.filtered.y = utils.arrayAverage(dm.acceleration.avgData.y)
+        dm.acceleration.filtered.z = utils.arrayAverage(dm.acceleration.avgData.z)
+        
+        dm.isAccelerationIdle = (Math.pow(dm.acceleration.filtered.x, 2) + Math.pow(dm.acceleration.filtered.y, 2) + Math.pow(dm.acceleration.filtered.z, 2)) < 0.08
+        
+        // fix acceleration errors / inaccuracies:
+        let accelBoost = 1.4 // when not idle & same sign as velocity
+        let accelReduction = 0.3 // when acceleration sign & velocity sign are different (otherwise, velocity goes too much beyond the "other side" of 0)
+        if (dm.velocity.x * dm.acceleration.filtered.x < 0) {
+          dm.acceleration.filtered.x *= accelReduction
+        } else if (!dm.isAccelerationIdle) {
+          dm.acceleration.filtered.x *= accelBoost
+        }
+        if (dm.velocity.y * dm.acceleration.filtered.y < 0) {
+          dm.acceleration.filtered.y *= accelReduction
+        } else if (!dm.isAccelerationIdle) {
+          dm.acceleration.filtered.y *= accelBoost
+        }
+        
+        // get velocity from acceleration
+        dm.velocity.x += dm.acceleration.filtered.x * timeDiff
+        dm.velocity.y += dm.acceleration.filtered.y * timeDiff
+        
+        // we consider that the device is hand held by a person, so when acceleration is nearly idle, quickly decrease velocity to avoid position drifting
+        if (dm.isAccelerationIdle) {
+          dm.velocity.x *= 0.99 / Math.pow(dm.idleAccelerationCounter, 2)
+          dm.velocity.y *= 0.99 / Math.pow(dm.idleAccelerationCounter, 2)
+          dm.idleAccelerationCounter = Math.max(100, dm.idleAccelerationCounter + 1) // avoid too high values for the counter
+        } else {
+          dm.idleAccelerationCounter = 1
+        }
+        
+        // normalize velocity under 5km/h to avoid excessive drift when walking for a long time
+        let maxVelocity = 5 * 1000 / 3600 // in m/s
+        let velocityVectorLength = Math.sqrt(Math.pow(dm.velocity.x, 2) + Math.pow(dm.velocity.y, 2))
+        if (velocityVectorLength > maxVelocity) {
+          dm.velocity.x = dm.velocity.x * maxVelocity / velocityVectorLength
+          dm.velocity.y = dm.velocity.y * maxVelocity / velocityVectorLength
+        }
+        
+        // get object position from velocity
+        // relatively to the device, the position variations of the object to find are reversed (positive device velocity on an axis => negative position change of object on that axis, given that the objet is at a fixed position)
+        let currentObjectPosition = { x: object.position.x, y: object.position.y }
+        let deltaFromAccelerometer = {
+          x: -dm.velocity.x * timeDiff,
+          y: -dm.velocity.y * timeDiff
+        }
+        // if we are not in "idle" state, to avoid potential big object jumps in case GPS must be used again (object becomes too far), make a slight move towards the "real" GPS position at each "devicemotion" call
+        let deltaFromGeolocation
+        if (!dm.isAccelerationIdle) {
+          deltaFromGeolocation = {
+            // the "/ 700" factor guarantees that the object won't move faster than about 1.5m/s if its real position is 20m away from current position.
+            x: (this.geolocation.position.x - currentObjectPosition.x) / 700,
+            y: (this.geolocation.position.y - currentObjectPosition.y) / 700
+          }
+        } else {
+          deltaFromGeolocation = { x: 0, y: 0 }
+        }
+        
+        if (this.geolocation.GPSdistance <= this.minDistanceForGPS) {
+          TWEEN.removeAll() // clears current "move" from method "onNewUserPosition()"
+          
+          // update object position
+          object.position.x = currentObjectPosition.x + deltaFromAccelerometer.x + deltaFromGeolocation.x
+          object.position.y = currentObjectPosition.y + deltaFromAccelerometer.y + deltaFromGeolocation.y
+          
+          // update object distance shown to user
+          this.geolocation.distance = Math.sqrt(Math.pow(object.position.x, 2) + Math.pow(object.position.y, 2))
+          
+          // update direction arrow angle
+          this.geolocation.rawDirection = (utils.radiansToDegrees(-Math.atan2(object.position.y, object.position.x)) + 90) % 360
+          
+          this.updatePlayerCanTouchTarget()
+        }
+      }
+      dm.dateLatestEvent = currentTime
+    },
+    /*
+    * updates property this.geolocation.canTouchTarget, given this.geolocation.distance
+    */
+    updatePlayerCanTouchTarget () {
+      // tell player to touch object + detect touch as soon as device is below a certain distance from the object coordinates
+      if (!this.geolocation.canTouchTarget && this.geolocation.distance <= 10) {
+        this.geolocation.canTouchTarget = true
+      }
     }
   }
 }
@@ -2588,6 +2922,10 @@ console.log("No duration 2")
   
   .video { flex-grow: 1; display: flex; align-items: center; }
   
+  .character {
+    text-align: right;
+  }
+  
   /* text/image choice specific */
   
   .answers-text { flex-grow: 1; display: flex; flex-flow: column nowrap; justify-content: center; padding: 0 1rem; }
@@ -2639,13 +2977,13 @@ console.log("No duration 2")
   }
   #pieces .piece { 
     display: inline-block; 
+    vertical-align: top;
     margin: 0px; 
-    padding: 0px; 
-    /*box-shadow: inset 0 0 1px #000; */
+    box-shadow: inset 0 0 3px #666;
     text-align: center; 
     cursor: move; 
     background-repeat: none; 
-  }
+  }  
   
   /* write-text specific */
   
@@ -2659,6 +2997,7 @@ console.log("No duration 2")
   
   /* locate-item-ar specific */
   
+  .locate-item-ar { background: transparent; }
   .locate-item-ar video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .locate-item-ar .target-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
   .locate-item-ar #target-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }
@@ -2693,9 +3032,11 @@ console.log("No duration 2")
     height: 15vw;
     width: 15vw;
     margin: 2vw 2vw;
-    background: #141214;
+    background: url(/statics/icons/game/card-back.png) no-repeat;
+    background-size: 100%;
     color: #ffffff;
     border-radius: 5px;
+    border: 3px solid #07275A;
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -2718,6 +3059,7 @@ console.log("No duration 2")
     width: 100%;
     height: 100%;
     border-radius: 5px;
+    background: none;
   }
   .memory .card.disabled {
     pointer-events: none;
@@ -2726,7 +3068,7 @@ console.log("No duration 2")
 
   .memory .card.match {
     cursor: default;
-    background: #E5F720;
+    border-color: #EC6608;
     font-size: 33px;
     -webkit-backface-visibility: visible !important;
     backface-visibility: visible !important;

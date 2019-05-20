@@ -11,12 +11,17 @@
   #screen-too-large {
     display: none
   }
-  .q-layout, .q-layout-page-container {
+  .q-layout, .q-page-container {
     height: 100%;
     min-height: 100%;
     overflow-y: scroll;
   }
 }
+
+/* general default Quasar font size looks very small 
+div, p, .q-field__native, .q-radio__label, .q-toggle__label { font-size: 1rem; }
+span, .text-caption { font-size: inherit; } */
+
 /* required for backgrounds with full height in step play */
 html {
   height: 100%;
@@ -50,7 +55,7 @@ body {
   flex-flow: column nowrap;
 }  
 .dark-background {
-  background: #e82a34;
+  background: #D60B52;/*#e82a34;*/
   color: #fff;
   min-height: 100%;
 }
@@ -67,23 +72,10 @@ body {
   text-align: center;
   padding: 3px;
 }
-.column {
-  display: flex;
-  flex-flow: column nowrap;
-  /* MP 2018-10-12 causes problem with <q-tab> on Quasar 0.17, icons get aligned to left instead of being centered */
-  /*align-items: stretch;*/
-}
-/* MP 2018-10-12 does not seem to be used, maybe remove in a few weeks */
-/*.column .row {
-  flex: 1;
-}
-.column .row, .column .row-auto {
-  width: 100%;
-}*/
 .header {
   width: 100%;
   background-color: #ccc;
-  color: #e82a34;
+  color: #07275A;
   min-height: 80px;
   font-size: 1.3rem;
   line-height: 1.1rem;
@@ -105,22 +97,17 @@ body {
 
 a {
   text-decoration: underline;
+  color: #07275A;
 }
 .no-underline {
   text-decoration: none;
 }
 
-/////////////////////////////// Panels CSS /////////////////////////////////////
-/* MP 2018-11-12 for quasar 0.17, a width parameter has to be set directly on <q-layout-drawer> tag */
-/*
-.q-layout-drawer-left {
-    width: 100%;
-}
-.q-layout-drawer-right {
-    width: 100%;
-}
-*/
 /////////////////////////////// Labels CSS /////////////////////////////////////
+h1 {
+  line-height: 3rem;
+  margin: 0;
+}
 h1.size-1 {
   font-size: 3.5em;
 }
@@ -129,6 +116,10 @@ h1.size-2 {
 }
 h1.size-3 {
   font-size: 2rem;
+  font-weight: normal;
+}
+h1.size-4 {
+  font-size: 1.4rem;
   font-weight: normal;
 }
 h2.size-1 {
@@ -151,6 +142,12 @@ h3.size-2 {
 }
 .a-bit-bigger {
   font-size: 1.1em;
+}
+.bigger {
+  font-size: 1.2em;
+}
+.smaller {
+  font-size: 0.8em;
 }
 .align-right {
   text-align: right;
@@ -179,7 +176,29 @@ span .q-icon {
 
 /////////////////////////////// Forms CSS /////////////////////////////////////
 
-.dark-background .q-if-label {
+.q-item .row {
+  align-items: center;
+}
+.q-item__label--header {
+  font-size: 1.2rem;
+}
+form .q-item__label, .big-label {
+  font-size: 1.2rem;
+  margin: 0.5rem 0;
+  color: #777;
+}
+.left-icon {
+  font-size: 2.5rem !important;
+}
+/* for Quasar v1.0.0, login page */
+.dark-background .q-field, .dark-background .q-field__label {
+  color: #fff;
+}
+.dark-background .q-field--error .q-field__bottom, .dark-background .q-field  .q-icon.text-negative {
+  color: #ef3 !important;
+}
+/* for Quasar v0.17 */
+/*.dark-background .q-if-label {
   color: #fff;
 }
 .dark-background .q-input-target, .dark-background .q-input-shadow {
@@ -190,22 +209,23 @@ span .q-icon {
 }
 .dark-background .q-if-error:before, .dark-background .q-if-error:after, .dark-background .q-if-error:not(.q-if-inverted) .q-if-label {
   color: #fff;
-}
+}*/
+/* MP 2019-04-24 on toolbox, step "choose answer text/image", the following rule breaks vertical aligment of options
 .q-field {
   margin: 0 0 5vw 0;
-}
+}*/
 .q-field-dark .q-field-label, .q-field-dark .q-field-icon, .q-field-dark .q-field-counter, .q-field-dark .q-field-bottom, .q-field-with-error .q-field-bottom {
   color: #ef3;
 }
 .dark-background .q-if-focused .q-if-label {
   color: #eee !important;
 }
-form {
+/*form {
   margin-top: 1rem;
 }
 .q-btn {
   margin: 0.3rem 0; 
-}
+}*/
 .location-address { 
   display: flex; 
   flex-flow: row nowrap; 
@@ -227,6 +247,16 @@ form {
 }
 .multiple-btn button:first-child {
   margin-left: 0px
+}
+/* fix Quasar default purple color for notifications close buttons */
+.q-notification__actions {
+  color: #fff
+}
+.white-buttons {
+  color: #fff
+}
+.q-notifications__list--bottom {
+    bottom: 70px !important;
 }
 
 /////////////////////////////// Menus CSS /////////////////////////////////////
@@ -253,9 +283,9 @@ form {
 
 /////////////////////////////// Tabs CSS /////////////////////////////////////
 
-.q-tab-pane {
-  padding-bottom: 100px; /* to avoid bottom information to be hidden by menu */
+.q-tab-panel {
   border: 0px;
+  padding: 0.6rem 0.6rem 100px 0.6rem; /* Quasar default padding takes too much space + add 100px to avoid bottom information to be hidden by menu */
 }
 .step-menu .q-tabs-normal .q-tab-icon, .step-menu .q-tabs-normal .q-tab-label {
   opacity: 0.9 !important;
@@ -266,6 +296,9 @@ form {
 .step-menu {
   position: fixed !important;
   z-index: 2000;
+}
+.hide-img img {
+  display: none;
 }
 
 /////////////////////////////// Images CSS /////////////////////////////////////
@@ -296,6 +329,19 @@ form {
 .panel-bottom h1 {
   margin-top: 10px;
   margin-bottom: 20px;
+}
+
+/////////////////////////// Search from map CSS /////////////////////////////////
+
+.search-from-map {
+  flex-wrap: nowrap;
+  overflow-y: scroll;
+}
+.search-from-map .q-card {
+  height: 30vh;
+  min-height: 30vh;
+  max-height: 30vh;
+  overflow-y: hidden;
 }
 
 /////////////////////////////// Animation CSS /////////////////////////////////////
@@ -479,8 +525,24 @@ form {
   user-select: none;
 }
 
+/////////////////////////////// Dialog /////////////////////////////////////
+
+.q-dialog__inner > div {
+  background: #fff; /* otherwise, default is transparent */
+}
+.q-dialog.fullscreen {
+  z-index: 7001;
+}
+
 /////////////////////////////// Other CSS /////////////////////////////////////
 
+.image-list .q-card {
+  height: 30vh;
+  min-height: 30vh;
+  max-height: 30vh;
+  overflow-y: hidden;
+  width: 100%;
+}
 .score-box {
   position: fixed;
   top: 0px;
@@ -491,6 +553,13 @@ form {
 .coin-box {
   position: fixed;
   top: 0px;
+  left: 0px;
+  z-index: 6000;
+  text-shadow: #fff 1px 1px, #fff -1px 1px, #fff -1px -1px, #fff 1px -1px;
+}
+.invitations-box {
+  position: fixed;
+  top: 15px;
   left: 0px;
   z-index: 6000;
   text-shadow: #fff 1px 1px, #fff -1px 1px, #fff -1px -1px, #fff 1px -1px;
@@ -524,7 +593,7 @@ form {
 }
 .big-avatar, .mid-avatar {
   border-radius: 50%;
-  border: 5px solid #f00;
+  border: 5px solid #07275A;
 }
 .big-avatar, .mid-avatar {
   overflow: hidden;
@@ -580,14 +649,21 @@ form {
 .q-pb-xxxl {
   padding-bottom: 200px;
 }
-.q-carousel-quick-nav {
-  background: transparent;
-}
-.q-carousel-quick-nav>.text-primary {
-  color: white !important;
+.q-carousel__slides-container {
+  height: inherit;
+  min-height: inherit;
 }
 .q-carousel .q-btn.disabled {
-  display: none;
+  visibility: hidden;
+}
+.q-carousel__control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2vw;
+}
+.q-carousel__navigation {
+  z-index: 1; /* otherwise bottom navigation "dots" are not clickable (under the layer containing the left & right arrows) */
 }
 .list-group { 
   list-style-type: none; 
@@ -597,20 +673,34 @@ form {
 .list-group-item { 
   display: flex; 
   flex-flow: row nowrap; 
-  align-items: start; 
+  align-items: flex-start; 
   padding: 0rem 0.2rem 0.4rem 0; 
 }
 .list-group-item p {
   height: 30px;
   padding: 7px;
-  background-color: #ddd;
+  /*background-color: #ddd;*/
 }
 .list-group-item div { 
   flex-grow: 1; 
   padding: 0; 
   margin: 0; 
-  overflow-x: hidden; 
+  /*overflow-x: hidden; */
 }
+.step-list.list-group-item div {
+  overflow-x: hidden;
+}
+.step-list.list-group-item div .step-button {
+  width: 100px;
+  flex: none;
+}
+.step-list.list-group-item div .step-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .list-group-item div span { 
   margin-top: 10px;
   display: inline-block;
@@ -643,9 +733,6 @@ form {
   background: #eee;
   border: 1px solid #ccc !important;
 }
-.q-list {
-  border: 0px !important;
-}
 .q-list-separator {
   margin-top: 10px;
   border: 1px solid #e0e0e0 !important;
@@ -670,7 +757,7 @@ form {
   color: rgba(0,0,0,0.46);
 }
 .image-and-text-aligned {
-  vertical-align: top;
+  vertical-align: middle;
 }
 .story .bubble-top, .story .bubble-bottom {
   font-size: 0px;
@@ -690,10 +777,10 @@ form {
   margin: 0;
 }
 .story .character img {
-  width: 100%
+  min-width: 30%
 }
 .story-container {
-  z-index: 7000
+  z-index: 7002
 }
 #q-app .bg-facebook {
   background: #4267B2;
@@ -720,8 +807,7 @@ form {
 }
 .q-list .score {
   font-size: 1rem;
-  width: 60px;
-  padding-right: 4px;
+  white-space: nowrap;
 }
 .tilt{
   /*transform: rotateY(-3deg);
@@ -733,4 +819,15 @@ form {
   position: absolute;
   margin-top: 170px;
   opacity: 0.5;
+}
+.close-btn {
+  margin-top: 5px;
+}
+.firstusage .q-carousel .q-carousel-left-arrow {
+  visibility: hidden;
+}
+/* fix for component <gmap-autocomplete> (vue2-google-maps) */
+.pac-container {
+  display: block;
+  z-index: 7500;
 }

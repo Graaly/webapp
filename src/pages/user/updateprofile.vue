@@ -10,49 +10,64 @@
           <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
           <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
           <div v-if="!$store.state.user.picture" :style="'background-image: url(statics/icons/game/profile-small.png); background-color: #fff;'"></div>
-          <label for="picturefile">{{ $t('label.Edit') }}</label>
-          <input @change="uploadImage" name="picturefile" id="picturefile" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;">
+          <label for="picturefile" @click="$refs['uploadfile'].click()">{{ $t('label.Edit') }}</label>
+          <input @change="uploadImage" ref="uploadfile" name="picturefile" id="picturefile" type="file" accept="image/*" hidden />
         </div>
       </div>
       <form @submit.prevent="submitProfileChanges()">
-        <q-field :error="$v.profile.form.name.$error">
-          <q-input v-model="profile.form.name" :stack-label="$t('label.YourName')" placeholder="John Doe" @blur="$v.profile.form.name.$touch" />
-          <div class="q-field-bottom" v-if="profile.form.name.$error">
-            <div class="q-field-error" v-if="!profile.form.name.required">{{ $t('label.PleaseEnterYourName') }}</div>
-          </div>
-        </q-field>
         
-        {{ $t('label.ToDisplayRelevantQuests') }}
-        <q-field :error="$v.profile.form.country.$error">
-          <q-select :stack-label="$t('label.YourCountry')" v-model="profile.form.country" :options="countries" />
-          <div class="q-field-bottom" v-if="profile.form.country.$error">
-             <div class="q-field-error" v-if="!profile.form.country.required">{{ $t('label.PleaseSelectYourCountry') }}</div>
-          </div>
-        </q-field>
+        <q-input
+          v-model="profile.form.name"
+          :label="$t('label.YourName')"
+          placeholder="John Doe"
+          @blur="$v.profile.form.name.$touch"
+          bottom-slots
+          :error="$v.profile.form.name.$error"
+          :error-message="$t('label.PleaseEnterYourName')"
+          />
+          
+        <q-input
+          v-model="profile.form.email"
+          :label="$t('label.YourEmail')"
+          placeholder="john.doe@gmail.com"
+          @blur="$v.profile.form.email.$touch"
+          bottom-slots
+          :error="$v.profile.form.email.$error"
+          :error-message="$t('label.PleaseEnterAValidEmailAddress')"
+          />
+                  
+        <div class="q-pt-lg q-pb-md">{{ $t('label.ToDisplayRelevantQuests') }}</div>
         
-        <q-field :error="$v.profile.form.zipCode.$error">
-          <q-input v-model="profile.form.zipCode" :stack-label="$t('label.YourZipCode')" placeholder="38500"  />
-          <div class="q-field-bottom" v-if="profile.form.zipCode.$error">
-            <div class="q-field-error" v-if="!profile.form.zipCode.required">{{ $t('label.PleaseEnterYourZipCode') }}</div>
-          </div>
-        </q-field> 
+        <q-select
+          :label="$t('label.YourCountry')"
+          v-model="profile.form.country"
+          :options="countries"
+          emit-value
+          map-options
+          bottom-slots
+          :error="$v.profile.form.country.$error"
+          :error-message="$t('label.PleaseSelectYourCountry')"
+          />
+          
+        <q-input
+          v-model="profile.form.zipCode"
+          :label="$t('label.YourZipCode')"
+          placeholder="38500"
+          bottom-slots
+          :error="$v.profile.form.zipCode.$error"
+          :error-message="$t('label.PleaseEnterYourZipCode')"
+          />
+          
+        <q-select :label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" emit-value map-options @input="changeLanguage" />
         
-        <q-field>
-          <q-select :stack-label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" @input="changeLanguage" />
-        </q-field>
+        <div class="q-pt-lg q-pb-md">{{ $t('label.ToAvoidSendingYourToUnrelevantQuests') }}</div>
         
-        {{ $t('label.ToHelpYouFindYourFriends') }}
-        <q-field>
-          <q-input v-model="profile.form.phone" :stack-label="$t('label.YourPhoneNumber')" :placeholder="$t('label.phoneExample')" />
-        </q-field>
+        <q-select dark :label="$t('label.YourSex')" v-model="profile.form.sex" :options="sexes" emit-value map-options />
+        <q-select dark :label="$t('label.YourAge')" v-model="profile.form.age" :options="ages" emit-value map-options />
         
-        {{ $t('label.ToAvoidSendingYourToUnrelevantQuests') }}
-        <q-field>
-          <q-select dark :float-label="$t('label.YourSex')" v-model="profile.form.sex" :options="sexes" />
-        </q-field>
-        <q-field>
-          <q-select dark :float-label="$t('label.YourAge')" v-model="profile.form.age" :options="ages" />
-        </q-field>
+        <div class="q-pt-lg q-pb-md">{{ $t('label.ToHelpYouFindYourFriends') }}</div>
+        
+        <q-input v-model="profile.form.phone" :label="$t('label.YourPhoneNumber')" :placeholder="$t('label.phoneExample')" />
         
         <q-btn class="text-primary bg-white full-width" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
       </form>
@@ -63,8 +78,8 @@
 
 <script>
 import AuthService from 'services/AuthService'
-import { required } from 'vuelidate/lib/validators'
-import Notification from 'plugins/NotifyHelper'
+import { required, email } from 'vuelidate/lib/validators'
+import Notification from 'boot/NotifyHelper'
 import languages from 'data/languages.json'
 import utils from 'src/includes/utils'
 
@@ -96,6 +111,7 @@ export default {
   mounted() {
     this.profile.form = {
       name: this.$store.state.user.name ? this.$store.state.user.name : '?',
+      email: (this.$store.state.user.email && this.$store.state.user.email !== 'providersignin') ? this.$store.state.user.email : '',
       phone: this.$store.state.user.phone ? this.$store.state.user.phone : '',
       picture: this.$store.state.user.picture ? this.$store.state.user.picture : '',
       zipCode: this.$store.state.user.location.postalCode ? this.$store.state.user.location.postalCode : '',
@@ -115,6 +131,7 @@ export default {
         // & redirect user to it when he clicks on the 'verify' link in email
         let modifications = {
           name: this.profile.form.name,
+          email: this.profile.form.email,
           phone: this.profile.form.phone ? this.profile.form.phone : "",
           zipCode: this.profile.form.zipCode,
           country: this.profile.form.country,
@@ -172,6 +189,7 @@ export default {
   validations: {
     profile: {
       form: {
+        email: { required, email },
         name: { required },
         country: { required },
         zipCode: { required }

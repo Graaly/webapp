@@ -1,6 +1,6 @@
 <template>
-  <div class="story fit" v-if="currentStep.id !== null" :class="{fadeout: hide}" style="background: rgba(0,0,0,0.4); height: 100%;">
-    <div :style="'position: fixed; bottom: ' + steps[currentStep.id].bottom + 'px;'">
+  <div class="story fit" v-if="currentStep.id !== null" :class="{fadeout: hide}" style="background: rgba(0,0,0,0.5); height: 100%;">
+    <div :style="'position: fixed; width: 100%; bottom: ' + steps[currentStep.id].bottom + 'px;'">
       <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" style="min-height: 5vh" /></div>
       <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh">
         <div v-if="needToScroll" class="scroll-indicator">
@@ -343,10 +343,21 @@ export default {
       }
     },
     async skipTutorial () {
-      this.nextStep = 17
-      await UserService.nextStoryStep(this.nextStep)
-      this.$store.state.user.story.step = this.nextStep
-      this.hideStory()
+      this.hide = true
+      this.$q.dialog({
+        title: this.$t('label.SkipTutorial'),
+        message: this.$t('label.SkipTutorialDesc'),
+        ok: this.$t('label.Ok'),
+        cancel: this.$t('label.Cancel')
+      }).onOk(() => {
+        this.nextStep = 17
+        UserService.nextStoryStep(this.nextStep)
+        this.$store.state.user.story.step = this.nextStep
+        this.hideStory()
+      }).onCancel(() => {
+        console.log("cancel")
+        this.hide = false
+      })
     },
     async closeStory() {
       await this.saveStepPassed()

@@ -4,84 +4,103 @@
     
       <form @submit.prevent="configureTown()">
         
-        <q-field :error="$v.form.fields.name.$error">
-          <q-input type="text" float-label="Name" v-model="form.fields.name" @blur="$v.form.fields.name.$touch" />
-          <div class="q-field-bottom" v-if="$v.form.fields.name.$error">
-            <div class="q-field-error" v-if="!$v.form.fields.name.required">Please enter a name</div>
-          </div>
-        </q-field>
-        
-        <q-field :error="$v.form.fields.zipcode.$error">
-          <q-input type="text" float-label="Zip Code" v-model="form.fields.zipcode" @blur="$v.form.fields.zipcode.$touch" />
-          <div class="q-field-bottom" v-if="$v.form.fields.zipcode.$error">
-            <div class="q-field-error" v-if="!$v.form.fields.zipcode.required">Please enter a zip code</div>
-          </div>
-        </q-field>
-        
-        <q-field>
-          <q-select float-label="Country" v-model="form.fields.country"
-            :options="[
-              {label: 'France', value: 'fr'}
-            ]"
+        <q-input
+          type="text"
+          label="Name"
+          v-model="form.fields.name"
+          @blur="$v.form.fields.name.$touch"
+          bottom-slots
+          :error="$v.form.fields.name.$error"
+          error-message="Please enter a name"
           />
-        </q-field>
         
-        <q-field icon="explore" label="GPS location bottom left">
+        <q-input
+          type="text"
+          label="Zip Code"
+          v-model="form.fields.zipcode"
+          @blur="$v.form.fields.zipcode.$touch"
+          bottom-slots
+          :error="$v.form.fields.zipcode.$error"
+          error-message="Please enter a zip code"
+          />
+        
+        <q-select label="Country" v-model="form.fields.country"
+          :options="[
+            {label: 'France', value: 'fr'}
+          ]"
+          emit-value
+          map-options
+        />
+        
+        <div>
+          <q-icon name="explore" />
+          <p>GPS location bottom left</p>
           <div class="row">
             <div class="col-6">
-              <q-input type="text" float-label="Longitude" v-model="form.fields.location1.lng" />
+              <q-input type="text" label="Longitude" v-model="form.fields.location1.lng" />
             </div>
             <div class="col">
-              <q-input type="text" float-label="Latitude" v-model="form.fields.location1.lat" />
+              <q-input type="text" label="Latitude" v-model="form.fields.location1.lat" />
             </div>
           </div>
-        </q-field>
+        </div>
         
-        <q-field icon="explore" label="GPS location top right">
+        <div>
+          <q-icon name="explore" />
+          <p>GPS location top right</p>
           <div class="row">
             <div class="col-6">
-              <q-input type="text" float-label="Longitude" v-model="form.fields.location2.lng" />
+              <q-input type="text" label="Longitude" v-model="form.fields.location2.lng" />
             </div>
             <div class="col">
-              <q-input type="text" float-label="Latitude" v-model="form.fields.location2.lat" />
+              <q-input type="text" label="Latitude" v-model="form.fields.location2.lat" />
             </div>
           </div>
-        </q-field>
+        </div>
         
-        <q-field icon="place" label="Place" v-for="(place, index) in form.fields.places" :key="index">
+        <div v-for="(place, index) in form.fields.places" :key="index">
+          <q-icon name="place" />
+          <p>Place</p>
           <div class="row">
             <div class="col-9">
-              <q-input type="text" float-label="Name" v-model="place.name" />
+              <q-input type="text" label="Name" v-model="place.name" />
             </div>
             <div class="col">
-              <q-btn type="button" v-if="place.picture === ''">
-                <label :for="'placepicture' + index"><q-icon name="file upload" /></label>
-                <input @change="uploadPlacePicture(index, $event)" :name="'placepicture' + index" :id="'placepicture' + index" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
-              </q-btn>
+              <div v-if="!isIOs">
+                <q-btn v-if="place.picture === ''" icon="cloud_upload" @click="$refs['placepicture' + index].click()" />
+                <input @change="uploadPlacePicture(index, $event)" :ref="'placepicture' + index" type="file" accept="image/*" hidden />
+              </div>
+              <div v-if="isIOs">
+                <q-icon name="cloud_upload" />
+                <input @change="uploadPlacePicture(index, $event)" :ref="'placepicture' + index" type="file" accept="image/*" />
+              </div>
               <div v-if="place.picture !== ''">
                 <img :src="serverUrl + '/upload/town/place/' + place.picture" style="width: 50px" />
               </div>
             </div>
           </div>
-          <q-select float-label="Select" v-model="place.type"
+          <q-select label="Select" v-model="place.type"
             :options="[
               {label: 'Remarkable place', value: 'remarkable'},
               {label: 'Cimetery', value: 'cimetary'},
               {label: 'Shop', value: 'shop'},
             ]"
+            emit-value
+            map-options
           />
           <div class="row">
             <div class="col-6">
-              <q-input type="text" float-label="Longitude" v-model="place.location.lng" />
+              <q-input type="text" label="Longitude" v-model="place.location.lng" />
             </div>
             <div class="col">
-              <q-input type="text" float-label="Latitude" v-model="place.location.lat" />
+              <q-input type="text" label="Latitude" v-model="place.location.lat" />
             </div>
           </div>
-        </q-field>
+        </div>
+
         <q-btn clear @click="addPlace">Add a place</q-btn>
         
-        <q-btn type="submit" color="primary" class="full-width">Save</q-btn>
+        <q-btn @click="configureTown" color="primary" class="full-width">Save</q-btn>
           
       </form>
       
@@ -106,6 +125,7 @@ export default {
           places: []
         }
       },
+      isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
       serverUrl: process.env.SERVER_URL
     }
   },
