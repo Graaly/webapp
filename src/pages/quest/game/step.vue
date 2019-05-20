@@ -1419,7 +1419,7 @@ export default {
                   pictureUrl = stepData.options.picture
                 }
 
-                results.push({step: stepWithObjectId, picture: pictureUrl, originalPicture: stepData.options.picture,title: stepData.options.title})
+                results.push({step: stepWithObjectId, picture: pictureUrl, originalPicture: stepData.options.picture, title: stepData.options.title})
               }
             }
           }
