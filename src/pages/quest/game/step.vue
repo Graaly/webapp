@@ -860,6 +860,8 @@ export default {
       
       if (response && response.data) {
         this.inventory.items = response.data
+        // to have it compliant with offline mode :
+        this.inventory.items.originalPicture = this.inventory.items.picture
       } else {
         let offlineInventory = await this.listWonObjects()
         if (offlineInventory) {
@@ -1417,7 +1419,7 @@ export default {
                   pictureUrl = stepData.options.picture
                 }
 
-                results.push({step: stepWithObjectId, picture: pictureUrl, title: stepData.options.title})
+                results.push({step: stepWithObjectId, picture: pictureUrl, originalPicture: stepData.options.picture,title: stepData.options.title})
               }
             }
           }

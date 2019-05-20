@@ -2095,7 +2095,7 @@ export default {
         windowWidth: vw,
         posX: ev.offsetX,
         posY: ev.offsetY,
-        item: this.itemUsed.picture
+        item: this.itemUsed.originalPicture ? this.itemUsed.originalPicture : this.itemUsed.picture
       }
       
       await this.checkAnswer(data)
