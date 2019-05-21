@@ -773,7 +773,7 @@
         </div>
       </div>
       <div v-if="offline.show">
-        <offlineLoader :quest="offline.quest" :design="'download'" @end="offline.show = false"></offlineLoader>
+        <offlineLoader :quest="offline.quest" :design="'download'" @end="questLoadedInCache()"></offlineLoader>
       </div>
     </div>
     
@@ -1125,15 +1125,9 @@ export default {
      * Check network
      */
     checkNetwork() {
-      if (navigator.connection && navigator.connection.type && typeof Connection !== 'undefined') {
-        if (navigator.connection.type === Connection.NONE) {
-          this.warnings.noNetwork = true
-        } else {
-          this.warnings.noNetwork = false
-        }
-      } else {
-        this.warnings.noNetwork = false
-      }
+      // TODO on hybrid, maybe use events "offline" and "online" to get realtime network status
+      // see https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-network-information/#offline
+      this.warnings.noNetwork = !utils.isNetworkAvailable()
       utils.setTimeout(this.checkNetwork, 20000)
     },
     CenterMapOnPosition(lat, lng) {
@@ -1925,6 +1919,13 @@ export default {
         this.offline.quest = quest
         this.offline.show = true
       }
+    },
+    /**
+     * Handle 'quest loaded in cache' event ("@end" event from <offlineLoader> component)
+     */
+    questLoadedInCache() {
+      Notification(this.$t('label.QuestDownloadFinished'), 'positive')
+      this.offline.show = false
     },
     /*
      * Modify a quest

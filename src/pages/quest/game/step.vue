@@ -937,7 +937,7 @@ export default {
       this.warnings.questDataMissing = false
 
       // check if the quest data are not already saved on device
-      let isQuestOfflineLoaded = await this.checkIfQuestIsAlreadyLoaded(id)
+      let isQuestOfflineLoaded = await QuestService.isCached(id)
       
       if (!isQuestOfflineLoaded || forceNetworkLoading) {
         let response = await QuestService.getLastById(id)
@@ -1028,22 +1028,6 @@ export default {
       this.hint.suggest = true
     },
     // ============================================ OFFLINE MANAGEMENT ========================
-    /*
-     * Check if quest is already saved in file
-     */
-    async checkIfQuestIsAlreadyLoaded(id) {
-      if (!window.cordova) {
-        return false
-      }
-
-      const isQuestOfflineFileExisting = await utils.checkIfFileExists(id, 'quest_' + id + '.json')
-
-      if (isQuestOfflineFileExisting) {
-        return true
-      } else {
-        return false
-      }
-    },
     /*
      * Check if Step is already saved in file
      */

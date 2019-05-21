@@ -1,4 +1,5 @@
 import Api from 'services/Api'
+import QuestService from 'services/QuestService'
 
 export default {
   /*
@@ -71,23 +72,40 @@ export default {
    * Save a step settings (or create if the step is not existing)
    * @param   {Object}    data        Data of the step
    */
-  save (data) {
-    return Api().put('quest/' + data.questId + '/version/' + data.version + '/step/' + data.stepId + '/update', data).catch(error => console.log(error.request))
+  async save (data) {
+    let res = await Api().put('quest/' + data.questId + '/version/' + data.version + '/step/' + data.stepId + '/update', data).catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    // TODO: clear + store new data only for current step
+    await QuestService.removeFromCache(data.questId)
+    
+    return res
   },
   /*
    * Save a chapter settings (or create if the channel is not existing)
    * @param   {Object}    data        Data of the step
    */
-  modifyChapter (data) {
-    return Api().put('quest/' + data.questId + '/version/' + data.version + '/chapter/' + data.chapterId + '/update', data).catch(error => console.log(error.request))
+  async modifyChapter (data) {
+    let res = await Api().put('quest/' + data.questId + '/version/' + data.version + '/chapter/' + data.chapterId + '/update', data).catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    // TODO: clear + store new data only for current chapter
+    await QuestService.removeFromCache(data.questId)
+    
+    return res
   },
   /*
    * Remove a step
    * @param   {String}    questId        ID of the quest
    * @param   {String}    stepId         ID of the step
    */
-  remove(questId, stepId, version) {
-    return Api().delete('quest/' + questId + '/version/' + version + '/step/' + stepId + '/remove')
+  async remove (questId, stepId, version) {
+    let res = await Api().delete('quest/' + questId + '/version/' + version + '/step/' + stepId + '/remove')
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
   },
   /*
    * Remove a chapter
@@ -95,8 +113,13 @@ export default {
    * @param   {String}    chapterId      ID of the chapter
    * @param   {Number}    version        version of the quest
    */
-  removeChapter(questId, chapterId, version) {
-    return Api().delete('quest/' + questId + '/version/' + version +'/chapter/' + chapterId + '/remove')
+  async removeChapter (questId, chapterId, version) {
+    let res = await Api().delete('quest/' + questId + '/version/' + version +'/chapter/' + chapterId + '/remove')
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
   },
   /*
    * Move a step
@@ -105,8 +128,13 @@ export default {
    * @param   {Number}    newPosition    New position of the step
    * @param   {Number}    version        version of the quest
    */
-  move(questId, version, oldPosition, newPosition) {
-    return Api().put('quest/' + questId + '/version/' + version + '/step/' + oldPosition + '/move/' + newPosition).catch(error => console.log(error.request))
+  async move (questId, version, oldPosition, newPosition) {
+    let res = await Api().put('quest/' + questId + '/version/' + version + '/step/' + oldPosition + '/move/' + newPosition).catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
   },
   /*
    * Move a chapter
@@ -115,64 +143,104 @@ export default {
    * @param   {Number}    newPosition    New position of the chapter
    * @param   {Number}    version        version of the quest
    */
-  moveChapter(questId, version, oldPosition, newPosition) {
-    return Api().put('quest/' + questId + '/version/' + version + '/chapter/' + oldPosition + '/move/' + newPosition).catch(error => console.log(error.request))
+  async moveChapter (questId, version, oldPosition, newPosition) {
+    let res = await Api().put('quest/' + questId + '/version/' + version + '/chapter/' + oldPosition + '/move/' + newPosition).catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
   },
   /*
    * upload a background image for step
    * @param   {String}    questId        ID of the quest
    * @param   {Object}    data           upload data
    */
-  uploadBackgroundImage(questId, data) {
-    return Api().post('/quest/' + questId + '/step/background/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+  async uploadBackgroundImage (questId, data) {
+    let res = await Api().post('/quest/' + questId + '/step/background/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
   },
   /*
    * upload an image to recognize (for steps 'image-recognition')
    * @param   {String}    questId        ID of the quest
    * @param   {Object}    data           upload data
    */
-  uploadImageToRecognize(questId, data) {
-    return Api().post('/quest/' + questId + '/step/image-recognition/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request)) 
+  async uploadImageToRecognize (questId, data) {
+    let res = await Api().post('/quest/' + questId + '/step/image-recognition/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
   },
   /*
    * upload an "answer image" (for step 'choose') 
    * @param   {String}    questId        ID of the quest
    * @param   {Object}    data           upload data
    */
-  uploadAnswerImage(questId, data) {
-    return Api().post('/quest/' + questId + '/step/choose-image/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+  async uploadAnswerImage(questId, data) {
+    let res = await Api().post('/quest/' + questId + '/step/choose-image/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
   },
   /*
    * upload an "image" (for step 'memory') 
    * @param   {String}    questId        ID of the quest
    * @param   {Object}    data           upload data
    */
-  uploadMemoryImage(questId, data) {
-    return Api().post('/quest/' + questId + '/step/memory/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request)) 
+  async uploadMemoryImage(questId, data) {
+    let res = await Api().post('/quest/' + questId + '/step/memory/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
   },
   /*
    * upload an "answer image" (for step 'code-image') 
    * @param   {String}    questId        ID of the quest
    * @param   {Object}    data           upload data
    */
-  uploadCodeAnswerImage(questId, data) {
-    return Api().post('/quest/' + questId + '/step/code-image/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request)) 
+  async uploadCodeAnswerImage(questId, data) {
+    let res = await Api().post('/quest/' + questId + '/step/code-image/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
   },
   /*
    * upload a video for 'info-video' step
    * @param   {String}    questId        ID of the quest
    * @param   {Object}    data           upload data
    */
-  uploadVideo(questId, data) {
-    return Api().post('/quest/' + questId + '/step/video/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request)) 
+  async uploadVideo(questId, data) {
+    let res = await Api().post('/quest/' + questId + '/step/video/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
   },
   /*
    * upload a jigsaw picture 'jigsaw puzzle' step
    * @param   {String}    questId        ID of the quest
    * @param   {Object}    data           upload data
    */
-  uploadPuzzleImage(questId, data) {
-    return Api().post('/quest/' + questId + '/step/jigsaw-puzzle/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request)) 
+  async uploadPuzzleImage(questId, data) {
+    let res = await Api().post('/quest/' + questId + '/step/jigsaw-puzzle/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
   },
   /*
    * upload a item picture for 'new item' step
@@ -180,8 +248,13 @@ export default {
    * @param   {String}    stepType       step type code, like 'new-item'
    * @param   {Object}    data           upload data
    */
-  uploadItemImage(questId, stepType, data) {
-    return Api().post('/quest/' + questId + '/step/' + stepType + '/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+  async uploadItemImage(questId, stepType, data) {
+    let res = await Api().post('/quest/' + questId + '/step/' + stepType + '/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
   },
   /*
    * upload a picture for 'character' step
@@ -189,7 +262,12 @@ export default {
    * @param   {String}    stepType       step type code, like 'new-item'
    * @param   {Object}    data           upload data
    */
-  uploadCharacterImage(questId, stepType, data) {
-    return Api().post('/quest/' + questId + '/step/character/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+  async uploadCharacterImage(questId, stepType, data) {
+    let res = await Api().post('/quest/' + questId + '/step/character/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
   }
 }
