@@ -10,6 +10,7 @@
 </template>
 
 <script>
+import QuestService from 'services/QuestService'
 import StepService from 'services/StepService'
 import Notification from 'boot/NotifyHelper'
 import utils from 'src/includes/utils'
@@ -17,7 +18,7 @@ import utils from 'src/includes/utils'
 export default {
   props: ['quest', 'design'],
   watch: { 
-    // refresh component if stepId change
+    // refresh component if questId change
     quest: async function(newVal, oldVal) {
       if (newVal) {
         await this.saveOfflineQuest(newVal)
@@ -33,6 +34,7 @@ export default {
     }
   },
   async mounted() {
+    if (!window.cordova) { return }
     await this.saveOfflineQuest(this.quest)
   },
   methods: {
@@ -41,31 +43,16 @@ export default {
      */
     async saveOfflineQuest(quest) {
       // check if quest is not already loaded
-      const isQuestOfflineLoaded = await this.checkIfQuestIsAlreadyLoaded(quest.questId)
-
+      const isQuestOfflineLoaded = await QuestService.isCached(quest.questId)
+      
       if (!isQuestOfflineLoaded) {
         await this.saveQuestData(quest)
+        this.offline.progress = 0.1
+      } else {
+        this.offline.progress = 1
       }
       
       this.$emit('end')
-    },
-    /*
-     * Check if quest is already saved in file
-     */
-    async checkIfQuestIsAlreadyLoaded(id) {
-      if (!window.cordova) {
-        return false
-      }
-
-      const isQuestOfflineFileExisting = await utils.checkIfFileExists(id, 'quest_' + id + '.json')
-
-      if (isQuestOfflineFileExisting) {
-        this.offline.progress = 1
-        return true
-      } else {
-        this.offline.progress = 0.1
-        return false
-      }
     },
     /*
      * Add the quest in the offline quests list

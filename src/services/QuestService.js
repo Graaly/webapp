@@ -1,4 +1,5 @@
 import Api from 'services/Api'
+import utils from 'src/includes/utils'
 
 export default {
   /*
@@ -230,10 +231,50 @@ export default {
     return Api().delete('quest/' + questId + '/version/' + version + '/invitee/remove/' + inviteeId)
   },
   
+  /**
+   * Checks if questId is in cache.
+   * If network is available, checks as well that the latest version is in cache.
+   * @param   {String}  questId
+   * @return  {Boolean} true if latest known version of the quest is stored in cache, false otherwise
+   */
+  async isCached (questId) {
+    if (!window.cordova) {
+      return false
+    }
+    
+    let questFileExists = await utils.checkIfFileExists(questId, 'quest_' + questId + '.json')
+    
+    if (!questFileExists) {
+      return false
+    }
+    
+    // file exists, no network: it means that we have the most recent known version of the quest => we can use it
+    if (!utils.isNetworkAvailable()) {
+      return true
+    }
+    
+    // file exists, network is available: compare version from cache & version from server
+    let questFromCache = JSON.parse(await utils.readFile(questId, 'quest_' + questId + '.json'))
+    
+    let questFromServer = await this.getLastById(questId)
+    questFromServer = questFromServer.data
+    
+    return (questFromServer.version === questFromCache.version)
+  },
+  
+  /**
+   * Removes quest data from cache corresponding to a questId
+   * @param   {String}  questId 
+   */
+  async removeFromCache (questId) {
+    await utils.removeDirectory(questId)
+  }
+  
   /*
    * Check if network is ok
+   * MP 2019-05-21 seems not used, maybe remove after a few weeks?
    */
-  checkNetwork () {
+  /*checkNetwork () {
     return Api().get('check').catch(error => console.log(error.request))
-  }
+  }*/
 }

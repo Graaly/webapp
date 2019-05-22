@@ -693,6 +693,17 @@ var self = {
   arrayAverage(arr) {
     let sum = arr.reduce(function(a, b) { return a + b })
     return sum / arr.length
+  },
+  /**
+   * Allows to check if is network available
+   * @return  {Boolean}  on hybrid: true if network is available, false otherwise.
+   *                     other contexts (desktop, PWA...): returns always true (cannot use Cordova plugin "cordova-plugin-network-information")
+   */
+  isNetworkAvailable() {
+    if (typeof navigator.connection === 'undefined' || typeof navigator.connection.type === 'undefined') {
+      return true
+    }
+    return navigator.connection.type !== Connection.NONE
   }
 }
 

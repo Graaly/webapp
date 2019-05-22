@@ -1786,12 +1786,13 @@ export default {
      * Save steps order
      */
     // TODO : do the same with only one query
-    async reindexChapters() {
+    // MP 2019-05-21 seems not used, remove after a few weeks?
+    /*async reindexChapters() {
       for (let i = 0; i < this.chapters.items.length; i++) {
         let chapter = this.chapters.items[i]
         await StepService.modifyChapter({ chapterId: chapter.chapterId, questId: this.questId, order: i + 1 })
       }
-    },
+    },*/
     /*
      * Update the list of the languages available for the quest
      */

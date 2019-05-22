@@ -723,7 +723,8 @@ module.exports = {
       AreYouSureYouWantToMoveToAdvancedMode: "Are you sure to move to advanced mode? You will not be allowed to return to simple mode later",
       Country: "Country",
       Town: "City",
-      ZipCode: "Zip code"
+      ZipCode: "Zip code",
+      QuestDownloadFinished: "Download finished. You can now play this quest without network."
     }
   },
   fr: {
@@ -1438,7 +1439,8 @@ module.exports = {
       AreYouSureYouWantToMoveToAdvancedMode: "Etes-vous certain(e) de passer en mode avancé. Vous ne pourrez pas revenir en mode simple.",
       Country: "Pays",
       Town: "Ville",
-      ZipCode: "Code postal"
+      ZipCode: "Code postal",
+      QuestDownloadFinished: "Téléchargement terminé. Vous pouvez désormais jouer cette enquête sans réseau."
     }
   }
 }

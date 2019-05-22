@@ -304,7 +304,7 @@ export default {
      */
     async getQuest(id, forceNetworkLoading) {
       // check if the quest data are not already saved on device
-      let isQuestOfflineLoaded = await this.checkIfQuestIsAlreadyLoaded(id)
+      let isQuestOfflineLoaded = await QuestService.isCached(id)
 
       if (!isQuestOfflineLoaded || forceNetworkLoading) {
         this.offline.active = false
@@ -393,7 +393,7 @@ export default {
         }
       } else {
         // check if an offline run is already started
-        let checkIfRunIsAlreadyStarted = await this.checkIfQuestIsAlreadyLoaded(this.quest.questId)   
+        let checkIfRunIsAlreadyStarted = await QuestService.isCached(this.quest.questId)   
 
         if (checkIfRunIsAlreadyStarted) {
           this.continueQuest = true
@@ -608,23 +608,6 @@ export default {
         return this.serverUrl + '/upload/quest/' + this.quest.picture
       } else {
         return 'statics/images/quest/default-quest-picture.png'
-      }
-    },
-    
-    /*
-     * Check if quest is already saved in file
-     */
-    async checkIfQuestIsAlreadyLoaded(id) {
-      if (!window.cordova) {
-        return false
-      }
-
-      const isQuestOfflineFileExisting = await utils.checkIfFileExists(id, 'quest_' + id + '.json')
-
-      if (isQuestOfflineFileExisting) {
-        return true
-      } else {
-        return false
       }
     }
   }
