@@ -76,7 +76,7 @@
             <span v-if="option.textLanguage && option.textLanguage[lang]">{{ option.textLanguage[lang] }}</span>
           </q-btn>
         </div>
-        <div class="answers-images" v-if="answerType === 'image'">
+        <div class="answers-images" style="padding-bottom: 100px" v-if="answerType === 'image'">
           <div class="images-block">
             <div v-for="(option, key) in step.options.items" :key="key" :class="option.class" @click="checkAnswer(key)" :test-id="'answer-image-' + key">
               <img :src="option.imagePath.indexOf('blob:') !== -1 ? option.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/choose-image/' + option.imagePath" :class="option.class" />
@@ -106,7 +106,7 @@
             </div>
           </div>
         </div>
-        <div class="actions q-mt-lg" v-show="playerResult === null">
+        <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
             <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('label.Clear') }}</q-btn>
             <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer">{{ $t('label.Confirm') }}</q-btn>
