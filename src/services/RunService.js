@@ -90,5 +90,12 @@ export default {
    */
   passStep(id, stepId) {
     return Api().put('run/' + id + '/passstep/' + stepId).catch(error => console.log(error.request))
+  },
+  /**
+   * Updates run history index to go one step back
+   * @param   {String}    id                  ID of the run
+   */
+  setHistoryOneStepBack(id) {
+    return Api().get('run/' + id + '/historyonestepback').catch(error => console.log(error.request))
   }
 }
