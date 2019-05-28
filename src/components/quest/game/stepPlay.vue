@@ -2675,7 +2675,7 @@ export default {
       if (this.step.extraText && typeof this.step.extraText === 'object' && this.step.extraText[this.lang]) {
         this.story.step = 6
         this.story.data = {
-          readMore: this.step.extraText[this.lang]
+          readMore: utils.replaceBreakByBR(this.step.extraText[this.lang])
         }
       }
     },
@@ -2875,7 +2875,7 @@ export default {
   #play-view { padding: 0rem; height: inherit; min-height: inherit; }
   
   #play-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; /*padding-bottom: 4rem;*/ }
-  #play-view > div > div { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; /*padding-bottom: 8rem;*/ }
+  #play-view > div > div:not(.story) { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; /*padding-bottom: 8rem;*/ }
   #play-view > div > div.find-item, #play-view > div > div.use-item { padding: 0px }
   #play-view > div > div.locate-item-ar { padding-bottom: 1rem; }
   
