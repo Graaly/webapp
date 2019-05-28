@@ -131,7 +131,29 @@ Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to ea
 
 # Testing
 
-* Use [Quasar's own testing framework](https://testing.quasar-framework.org/) which promotes:
+## Installing
+
+After running `npm install` in project folder, you can install latest version of Cypress:
+
+    npm install -D cypress@3.2.0
+
+⚠️ You must fix manually [this bug](https://github.com/cypress-io/cypress/issues/1935) for versions 3.2 or below (**fixed in 3.3+ & 4.x**) otherwise "creation quest" E2E tests will trigger an error.
+
+* For a Windows installation, open file **C:\Users\<username>\AppData\Local\Cypress\Cache\<cypress-version>\Cypress\resources\app\packages\runner\dist\cypress_runner.js** (warning, heavy file 6MB, use a suitable editor like [Sublime Text 3](https://www.sublimetext.com/3))
+* Find the line containing exactly: `testId: state("runnable").id` and change it to `testId: state("runnable") ? state("runnable").id : null`
+* Save & close the file
+
+## Running
+
+* Run **main test script** for Graaly (runs [**unit tests**](https://fr.wikipedia.org/wiki/Test_unitaire) on API/webapp & [**E2E tests**](https://blog.testingdigital.com/quest-test-de-bout-bout-end-to-end-1288) on webapp):
+
+    `npm run test` or `yarn test`
+    
+    If you want to run only **unit tests** or **e2e tests**, open file `test/index.mjs` and modify **config** object to your convenience.
+
+## Readings
+
+* [Quasar's own testing framework](https://github.com/quasarframework/quasar-testing) promotes
 
   * Jest (unit tests)
   * Cypress & WebDriver.io (UI tests for webapp & hybrid)
@@ -170,7 +192,9 @@ Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to ea
 
 # COMMON ISSUES
 
-## Build unsuccessfull . Error message `Failed to execute aapt` 
+## Cordova Android Build unsuccessful
+
+### Error message `Failed to execute aapt` 
 
 Add in the `allprojects` section of the `/src-cordova/platforms/android/build.gradle` file : 
 
@@ -179,3 +203,15 @@ Add in the `allprojects` section of the `/src-cordova/platforms/android/build.gr
             force 'com.android.support:support-v4:27.1.0'
         }
     }
+
+### Error "Element ... at  AndroidManifest.xml:... duplicated with element declared at  AndroidManifest.xml:..."
+`Element uses-feature#android.hardware.camera at AndroidManifest.xml:39:5-60 duplicated with element declared at AndroidManifest.xml:36:5-84`
+`C:\...\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml Error: Validation failed, exiting`
+
+See https://stackoverflow.com/a/51788464/488666
+
+### Error `Unable to merge dex`
+`Execution failed for task ':app:transformDexArchiveWithExternalLibsDexMergerForDebug'.`
+`> java.lang.RuntimeException: java.lang.RuntimeException: com.android.builder.dexing.DexArchiveMergerException: Unable to merge dex`
+
+Check this [solution](https://stackoverflow.com/a/55120122/488666)
