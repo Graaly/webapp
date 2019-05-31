@@ -724,7 +724,8 @@ module.exports = {
       Country: "Country",
       Town: "City",
       ZipCode: "Zip code",
-      QuestDownloadFinished: "Download finished. You can now play this quest without network."
+      QuestDownloadFinished: "Download finished. You can now play this quest without network.",
+      GoToQuestValidation: "Go to validation"
     }
   },
   fr: {
@@ -1440,7 +1441,8 @@ module.exports = {
       Country: "Pays",
       Town: "Ville",
       ZipCode: "Code postal",
-      QuestDownloadFinished: "Téléchargement terminé. Vous pouvez désormais jouer cette enquête sans réseau."
+      QuestDownloadFinished: "Téléchargement terminé. Vous pouvez désormais jouer cette enquête sans réseau.",
+      GoToQuestValidation: "Aller à la validation"
     }
   }
 }

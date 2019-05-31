@@ -74,11 +74,14 @@
      
         <!------------------ BACK TO MAP LINK AREA ------------------------>
         
-        <div v-if="!isUserAuthor" class="back centered q-pa-md bg-primary text-primary">
+        <div v-if="!isUserAuthor && !isUserAdmin" class="back centered q-pa-md bg-primary text-primary">
           <q-btn class="text-primary bg-white full-width" :label="$t('label.BackToTheMap')" @click="$router.push('/map')" />
         </div>
         <div v-if="isUserAuthor" class="back centered q-pa-md bg-primary text-primary">
           <q-btn class="text-primary bg-white full-width" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
+        </div>
+        <div v-if="isUserAdmin" class="back centered q-pa-md bg-primary text-primary">
+          <q-btn class="text-primary bg-white full-width" :label="$t('label.GoToQuestValidation')" @click="$router.push('/admin/validate/' + questId + '/version/' + quest.data.version)" />
         </div>
         
       </div>
@@ -249,6 +252,7 @@ export default {
       showAddReview: false,
       reviewSent: false,
       isUserAuthor: false,
+      isUserAdmin: this.$store.state.user.isAdmin,
       warnings: {
         noNetwork: false
       },

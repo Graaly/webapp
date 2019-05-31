@@ -29,8 +29,8 @@
             <p v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.name && quest.author.name.indexOf('Graaly') === -1">{{ $t('label.By') }} {{ quest.author.name }}</p>
             <p class="medium-icon q-pa-none q-ma-none">
               <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">{{ quest.availablePoints }} <span style="font-size: 0.5em">{{ $t('label.pointsToWin') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
-              <span class="q-ml-sm q-mr-sm" v-show="!isOwner && isRunFinished && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAlreadyPlayedThisQuest') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
-              <span class="q-ml-sm q-mr-sm" v-show="isOwner && !isAdmin && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAreQuestOwnerDesc') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
+              <span class="q-ml-sm q-mr-sm" v-show="!isOwner && isRunFinished && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAlreadyPlayedThisQuest') }}</span></span>
+              <span class="q-ml-sm q-mr-sm" v-show="isOwner && !isAdmin && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAreQuestOwnerDesc') }}</span></span>
               <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.reward && quest.reward > 0">{{ quest.reward }} <q-icon name="fas fa-bolt" /></span>
               <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || (isOwner && !isAdmin)) && quest.reward && quest.reward > 0">0 <q-icon name="fas fa-bolt" /></span>
             </p>
@@ -39,12 +39,10 @@
             </p> &nbsp;
             <div class="text-center">
               <p>
-                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && !isRunFinished && (isOwner || isAdmin || isRunStarted) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
-                  <span v-if="!continueQuest">{{ $t('label.SolveThisQuest') }}</span>
+                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && (isOwner || isAdmin || isRunStarted) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
                   <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
-                </q-btn>
-                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && isRunFinished && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
-                  {{ $t('label.SolveAgainThisQuest') }}
+                  <span v-if="!continueQuest && isRunFinished">{{ $t('label.SolveAgainThisQuest') }}</span>
+                  <span v-if="!continueQuest && !isRunFinished">{{ $t('label.SolveThisQuest') }}</span>
                 </q-btn>
                 <q-btn-dropdown v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
                   <q-list link>

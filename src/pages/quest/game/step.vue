@@ -479,17 +479,9 @@ export default {
           }
         }
       }
-
-      // if quest is finished
+      
       if (stepId === 'end') {
-        // if user is owner of the quest, redirect to toolbox
-        if (this.$store.state.user.isAdmin) {
-          return this.$router.push('/admin/validate/' + this.questId + '/version/' + this.questVersion)
-        } else if (this.$store.state.user._id === this.info.quest.authorUserId) {
-          return this.$router.push('/quest/builder/' + this.questId)
-        } else {
-          return this.$router.push('/quest/' + this.questId + '/end')
-        }
+        return this.$router.push('/quest/' + this.questId + '/end')
       }
 
       // check if the quest data are not already saved on device
