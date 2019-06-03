@@ -302,7 +302,7 @@ export default {
           this.isUserAuthor = this.$store.state.user._id === this.quest.data.authorUserId
           const results = await ReviewService.list({ questId: this.questId, userId: this.$store.state.user._id, version: this.run.version }, { limit: 1 })
           const isReviewAlreadySent = results.data && results.data.length >= 1
-          this.showAddReview = !this.isUserAuthor && !isReviewAlreadySent 
+          this.showAddReview = !this.isUserAdmin && !this.isUserAuthor && !isReviewAlreadySent
         }
         
         // get user old score
@@ -553,7 +553,7 @@ export default {
      */
     async addReview() {
       if (this.rating === 0) {
-        Notification(this.$t('label.PleaseRateTheQuest'), 'success')
+        Notification(this.$t('label.PleaseRateTheQuest'), 'warning')
         return false
       }
       
@@ -563,7 +563,7 @@ export default {
       this.$q.loading.hide()
       
       this.reviewSent = true
-      Notification(this.$t('label.ReviewSent'), 'success')
+      Notification(this.$t('label.ReviewSent'), 'positive')
     },
     /*
      * get offline run data

@@ -39,11 +39,7 @@
             </p> &nbsp;
             <div class="text-center">
               <p>
-                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && (isOwner || isAdmin || isRunStarted) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
-                  <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
-                  <span v-if="!continueQuest && isRunFinished">{{ $t('label.SolveAgainThisQuest') }}</span>
-                  <span v-if="!continueQuest && !isRunFinished">{{ $t('label.SolveThisQuest') }}</span>
-                </q-btn>
+                
                 <q-btn-dropdown v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
                   <q-list link>
                     <q-item 
@@ -58,11 +54,18 @@
                     </q-item>
                   </q-list>
                 </q-btn-dropdown>
+                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
+                  <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
+                  <span v-if="!continueQuest && isRunFinished">{{ $t('label.SolveAgainThisQuest') }}</span>
+                  <span v-if="!continueQuest && !isRunFinished">{{ $t('label.SolveThisQuest') }}</span>
+                </q-btn>
+                <!--
                 <button class="q-btn q-btn-item q-btn-rectange bg-primary" v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && !(isOwner || isAdmin || isRunStarted || isRunFinished) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
                   <span v-if="!continueQuest">{{ $t('label.SolveThisQuest') }}</span>
                   <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
-                  <!--<br /><span v-if="quest.price && quest.price > 0">{{ quest.price }} <q-icon name="fas fa-bolt" /></span>-->
+                  <br /><span v-if="quest.price && quest.price > 0">{{ quest.price }} <q-icon name="fas fa-bolt" /></span>
                 </button>
+                -->
                 <q-btn v-if="!isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary">{{ $t('label.BuyCoinsToPlay') }}</q-btn>
                 <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary">{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</q-btn>
               </p>
@@ -308,7 +311,7 @@ export default {
         this.offline.active = false
         // get the last version accessible by user depending on user access
         let response = await QuestService.getLastById(id)
-        if (response && response.data) {
+        if (response && response.data && response.status === 200) {
           this.quest = response.data
           if (typeof this.quest.authorUserId !== 'undefined') {
             response = await AuthService.getAccount(this.quest.authorUserId)
@@ -329,6 +332,7 @@ export default {
           }).onOk(() => {
             this.backToTheMap()
           })
+          throw new Error("Could not load quest with questId = '" + id + "'")
         }
       } else {
         this.offline.active = true

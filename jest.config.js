@@ -51,6 +51,10 @@ module.exports = {
     // custom (to match quasar.conf.js)
     '^data/(.*)$': '<rootDir>/data/$1',
     '^services/(.*)$': '<rootDir>/src/services/$1',
+    '^layouts/(.*)$': '<rootDir>/src/layouts/$1',
+    '^pages/(.*)$': '<rootDir>/src/pages/$1',
+    '^components/(.*)$': '<rootDir>/src/components/$1',
+    '^boot/(.*)$': '<rootDir>/src/boot/$1',
     '^\\./config/(.*)$': '<rootDir>/config/$1'
   },
   transform: {

@@ -824,7 +824,7 @@ module.exports = {
       MapExplaination1: "Vous allez pouvoir commencer une enquête.<br />Les enquêtes sont représentées par les icônes <i aria-hidden='true' style='font-size: 1.5em' class='q-icon fas fa-map-marker'> </i> sur la carte ci-dessous.",
       MapExplaination2: "Pour commencer une enquête, il vous faut <b>assez d'énergie</b>.<br />Votre énergie est représentée par <i aria-hidden='true' style='font-size: 1.5em' class='q-icon fas fa-bolt'> </i>, en haut à gauche",
       MapExplaination3: "Chaque enquête vous rapporte des points<br />Vos points sont affichés en haut à droite",
-      StartPlaying: "Ne perdons pas plus de temps, Je vous emmène sur une petite enquête de découverte (que vous pouvez jouer de chez vous), appuyez sur votre position représentée sur la carte par l'icône <img src='statics/icons/game/pointer-me.png' />",
+      StartPlaying: "Ne perdons pas plus de temps, Je vous emmène sur une petite enquête de découverte (que vous pouvez jouer de chez vous), appuyez sur votre position représentée sur la carte par l'icône <img src='statics/icons/game/pointer-me.svg' width='30' height='30' />",
       WelcomeToQuest1: "Bonjour, ravie de collaborer avec vous sur cette nouvelle enquête",
       WelcomeToQuest2: "Rendez-vous à l'adresse suivante pour commencer : <br /><b>{startingPlace}</b>",
       QuestParams: "Cette enquête peut rapporter jusqu'à <b>{score}</b> points.<br />Elle est de <b>difficulté</b> <img class='image-and-text-aligned' src='statics/icons/game/magnifying-red.png' /><img class='image-and-text-aligned' src='statics/icons/game/magnifying-{level2}.png' /><img class='image-and-text-aligned' src='statics/icons/game/magnifying-{level3}.png' />, la <b>durée</b> est estimée à {duration} minutes.",
