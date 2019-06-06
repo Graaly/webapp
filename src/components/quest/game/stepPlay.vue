@@ -787,12 +787,16 @@ export default {
             let texture
             try {
               texture = new THREE.TextureLoader().load(itemImage)
+              texture.anisotropy = 0
+              texture.magFilter = THREE.NearestFilter
+              texture.minFilter = THREE.NearestFilter
             } catch (err) {
               console.error("Error while loading image:", err)
               Notification(this.$t('label.CouldNotDisplayObject'), 'error')
               return
             }
             let material = new THREE.MeshBasicMaterial({map: texture})
+            material.transparent = true
             object = new THREE.Mesh(geometry, material)
             object.position.y = 0
           }
