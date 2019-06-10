@@ -216,3 +216,9 @@ See https://stackoverflow.com/a/51788464/488666
 `> java.lang.RuntimeException: java.lang.RuntimeException: com.android.builder.dexing.DexArchiveMergerException: Unable to merge dex`
 
 Check this [solution](https://stackoverflow.com/a/55120122/488666)
+
+### Error message `No target specified and no devices found`
+
+Open the platform tools folder of your android SDK (e.g. : cd E:\logiciels\Android\sdk\platform-tools)
+
+adb devices (unplug the device, run "adb kill-server" if device is offline)
