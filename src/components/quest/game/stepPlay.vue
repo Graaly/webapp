@@ -317,6 +317,7 @@
         <div v-if="locateMarker.compliant && playerResult === null && isHybrid" class="text-white centered q-mt-md">
           {{ $t('label.ScanTheMarkersLikeThat') }}
           <div><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
+          {{ $t('label.ScanTheMarkersLikeThat2') }}
           <div><q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" @click="startScanQRCode()">{{ $t('label.LaunchTheScanner') }}</q-btn></div>
         </div>
         <div v-if="!locateMarker.compliant">
