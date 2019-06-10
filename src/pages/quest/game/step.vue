@@ -479,17 +479,9 @@ export default {
           }
         }
       }
-
-      // if quest is finished
+      
       if (stepId === 'end') {
-        // if user is owner of the quest, redirect to toolbox
-        if (this.$store.state.user.isAdmin) {
-          return this.$router.push('/admin/validate/' + this.questId + '/version/' + this.questVersion)
-        } else if (this.$store.state.user._id === this.info.quest.authorUserId) {
-          return this.$router.push('/quest/builder/' + this.questId)
-        } else {
-          return this.$router.push('/quest/' + this.questId + '/end')
-        }
+        return this.$router.push('/quest/' + this.questId + '/end')
       }
 
       // check if the quest data are not already saved on device
@@ -787,6 +779,17 @@ export default {
      */
     async previousStep() {
       if (this.previousStepId !== '') {
+        if (this.offline.active) {
+          this.run.historyIndex--
+          if (this.run.historyIndex < 1) {
+            this.run.historyIndex = 1
+          } else if (this.run.historyIndex > this.run.history.length) {
+            this.run.historyIndex = this.run.history.length
+          }
+          await this.saveOfflineRun(this.questId, this.run)
+        } else {
+          await RunService.setHistoryOneStepBack(this.run._id)
+        }
         this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.previousStepId + '/' + this.$route.params.lang)
       }
     },
@@ -937,7 +940,7 @@ export default {
       this.warnings.questDataMissing = false
 
       // check if the quest data are not already saved on device
-      let isQuestOfflineLoaded = await this.checkIfQuestIsAlreadyLoaded(id)
+      let isQuestOfflineLoaded = await QuestService.isCached(id)
       
       if (!isQuestOfflineLoaded || forceNetworkLoading) {
         let response = await QuestService.getLastById(id)
@@ -1029,22 +1032,6 @@ export default {
     },
     // ============================================ OFFLINE MANAGEMENT ========================
     /*
-     * Check if quest is already saved in file
-     */
-    async checkIfQuestIsAlreadyLoaded(id) {
-      if (!window.cordova) {
-        return false
-      }
-
-      const isQuestOfflineFileExisting = await utils.checkIfFileExists(id, 'quest_' + id + '.json')
-
-      if (isQuestOfflineFileExisting) {
-        return true
-      } else {
-        return false
-      }
-    },
-    /*
      * Check if Step is already saved in file
      */
     async checkIfStepIsAlreadyLoaded(id) {
@@ -1125,7 +1112,9 @@ export default {
             name: this.$store.state.user.name,
             picture: this.$store.state.user.picture,
             location: this.$store.state.user.location
-          }
+          },
+          history: [],
+          historyIndex: 0
         }
       }
       await this.saveOfflineRun(questId, this.run)
@@ -1243,11 +1232,30 @@ export default {
         return false
       }
     },
+    /**
+     * Adds step with <StepId> to run object <run> history and saves it to offline file
+     * /!\ WARNING /!\ copied & adapted from server side file controller/run.js to handle online mode
+     * @param {String} stepId 
+     */
+    async addStepToHistory (stepId) {
+      this.run.history.push(stepId)
+      this.run.historyIndex = this.run.history.length
+      await this.saveOfflineRun(this.questId, this.run)
+    },
     /*
      * Get the next offline step
+     * /!\ WARNING /!\ copied & adapted from server side file controller/run.js to handle online mode
      */
     async getNextOfflineStep(questId, markerCode) {
       var steps = []
+      
+      // check if user is currently navigating in quest history
+      await this.updateOfflineRun(questId)
+      if (this.run.historyIndex < this.run.history.length) {
+        this.run.historyIndex++
+        await this.saveOfflineRun(questId, this.run)
+        return this.run.history[this.run.historyIndex - 1]
+      }
       
       // read all steps
       for (var i = 0; i < this.info.quest.steps.length; i++) {
@@ -1346,10 +1354,13 @@ export default {
                 // get next step by running the process again for new chapter
                 nextStepId = await this.getNextOfflineStep(questId, markerCode)
               }
+              await this.addStepToHistory(nextStepId)
               return nextStepId
             } else { // if (markerCode || stepsofChapter[i].type !== 'locate-marker') { // if locate marker, do not start the step until user flash the marker
               // return step if no condition or all conditions met
-              return stepsofChapter[i].stepId
+              let nextStepId = stepsofChapter[i].stepId
+              await this.addStepToHistory(nextStepId)
+              return nextStepId
             }
           }
         }
@@ -1362,6 +1373,7 @@ export default {
         if (nextStepId !== 'end') {
           // get next step by running the process again for new chapter
           nextStepId = await this.getNextOfflineStep(questId, markerCode)
+          await this.addStepToHistory(nextStepId)
         }
         return nextStepId
       }

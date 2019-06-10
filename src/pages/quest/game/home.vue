@@ -29,8 +29,8 @@
             <p v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.name && quest.author.name.indexOf('Graaly') === -1">{{ $t('label.By') }} {{ quest.author.name }}</p>
             <p class="medium-icon q-pa-none q-ma-none">
               <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">{{ quest.availablePoints }} <span style="font-size: 0.5em">{{ $t('label.pointsToWin') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
-              <span class="q-ml-sm q-mr-sm" v-show="!isOwner && isRunFinished && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAlreadyPlayedThisQuest') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
-              <span class="q-ml-sm q-mr-sm" v-show="isOwner && !isAdmin && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAreQuestOwnerDesc') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
+              <span class="q-ml-sm q-mr-sm" v-show="!isOwner && isRunFinished && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAlreadyPlayedThisQuest') }}</span></span>
+              <span class="q-ml-sm q-mr-sm" v-show="isOwner && !isAdmin && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAreQuestOwnerDesc') }}</span></span>
               <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.reward && quest.reward > 0">{{ quest.reward }} <q-icon name="fas fa-bolt" /></span>
               <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || (isOwner && !isAdmin)) && quest.reward && quest.reward > 0">0 <q-icon name="fas fa-bolt" /></span>
             </p>
@@ -39,13 +39,7 @@
             </p> &nbsp;
             <div class="text-center">
               <p>
-                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && !isRunFinished && (isOwner || isAdmin || isRunStarted) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
-                  <span v-if="!continueQuest">{{ $t('label.SolveThisQuest') }}</span>
-                  <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
-                </q-btn>
-                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && isRunFinished && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
-                  {{ $t('label.SolveAgainThisQuest') }}
-                </q-btn>
+                
                 <q-btn-dropdown v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
                   <q-list link>
                     <q-item 
@@ -60,11 +54,18 @@
                     </q-item>
                   </q-list>
                 </q-btn-dropdown>
+                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
+                  <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
+                  <span v-if="!continueQuest && isRunFinished">{{ $t('label.SolveAgainThisQuest') }}</span>
+                  <span v-if="!continueQuest && !isRunFinished">{{ $t('label.SolveThisQuest') }}</span>
+                </q-btn>
+                <!--
                 <button class="q-btn q-btn-item q-btn-rectange bg-primary" v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && !(isOwner || isAdmin || isRunStarted || isRunFinished) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
                   <span v-if="!continueQuest">{{ $t('label.SolveThisQuest') }}</span>
                   <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
-                  <!--<br /><span v-if="quest.price && quest.price > 0">{{ quest.price }} <q-icon name="fas fa-bolt" /></span>-->
+                  <br /><span v-if="quest.price && quest.price > 0">{{ quest.price }} <q-icon name="fas fa-bolt" /></span>
                 </button>
+                -->
                 <q-btn v-if="!isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary">{{ $t('label.BuyCoinsToPlay') }}</q-btn>
                 <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary">{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</q-btn>
               </p>
@@ -304,13 +305,13 @@ export default {
      */
     async getQuest(id, forceNetworkLoading) {
       // check if the quest data are not already saved on device
-      let isQuestOfflineLoaded = await this.checkIfQuestIsAlreadyLoaded(id)
+      let isQuestOfflineLoaded = await QuestService.isCached(id)
 
       if (!isQuestOfflineLoaded || forceNetworkLoading) {
         this.offline.active = false
         // get the last version accessible by user depending on user access
         let response = await QuestService.getLastById(id)
-        if (response && response.data) {
+        if (response && response.data && response.status === 200) {
           this.quest = response.data
           if (typeof this.quest.authorUserId !== 'undefined') {
             response = await AuthService.getAccount(this.quest.authorUserId)
@@ -331,6 +332,7 @@ export default {
           }).onOk(() => {
             this.backToTheMap()
           })
+          throw new Error("Could not load quest with questId = '" + id + "'")
         }
       } else {
         this.offline.active = true
@@ -393,7 +395,7 @@ export default {
         }
       } else {
         // check if an offline run is already started
-        let checkIfRunIsAlreadyStarted = await this.checkIfQuestIsAlreadyLoaded(this.quest.questId)   
+        let checkIfRunIsAlreadyStarted = await QuestService.isCached(this.quest.questId)   
 
         if (checkIfRunIsAlreadyStarted) {
           this.continueQuest = true
@@ -608,23 +610,6 @@ export default {
         return this.serverUrl + '/upload/quest/' + this.quest.picture
       } else {
         return 'statics/images/quest/default-quest-picture.png'
-      }
-    },
-    
-    /*
-     * Check if quest is already saved in file
-     */
-    async checkIfQuestIsAlreadyLoaded(id) {
-      if (!window.cordova) {
-        return false
-      }
-
-      const isQuestOfflineFileExisting = await utils.checkIfFileExists(id, 'quest_' + id + '.json')
-
-      if (isQuestOfflineFileExisting) {
-        return true
-      } else {
-        return false
       }
     }
   }

@@ -23,28 +23,35 @@ $ quasar lint
 
 If no data from server is shown on webapp on Chrome (desktop or mobile), try to load `https://<server-address>:3000` on a new browser tab, bypass the warning by clicking on "advanced settings", then "continue to site (dangerous)". Then, data from server should be loaded when accessing `https://<server-address>:8081`.
 
-# Build native app
+# Build hybrid app
 
 ## Android app
 
 Open console / terminal in the *webapp* folder
 
-/!!!!!!!\ 
-  Change the version in the quasar.conf.js file
-  If needed change the client required version in /server/routes/main.js & webapp/src/plugins/RouterAuthentication.js
+:warning: npm package **ip-regex** is not compatible with Android 4.4 webview "as is". Quasar configuration (in version 1.0.0 beta 23) does not works for transpiling **ip-regex** using Babel. We have to do it manually for the moment.
+
+Procedure :
+
+    babel node_modules\ip-regex\index.js --out-file node_modules\ip-regex\index.js-es5
+    cd node_modules\ip-regex && mv index.js index.js-es6 && mv index.js-es5 index.js && cd ../..
+
+:warning: Change the version in the **quasar.conf.js** file
+  If needed change the client required version in **/server/routes/main.js** & **webapp/src/plugins/RouterAuthentication.js**
 
 `$ quasar build -m cordova -T android`
 
 Sign the apk
 ```
 $ cd src-cordova\platforms\android\app\build\outputs\apk\release
-  $ keytool -genkey -v -keystore graaly-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-alias
+$ keytool -genkey -v -keystore graaly-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-alias
 $ jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore graaly-key.jks app-release-unsigned.apk my-alias
 $ rm graaly.apk
 $ E:\logiciels\Android\sdk\build-tools\26.0.2\zipalign -v 4 app-release-unsigned.apk graaly.apk
 ```
-
-Attention: the keystore (jks file) needs to be saved in a secure location. It can not be built again.
+Attention:
+* The keystore (jks file) needs to be saved in a secure location. It can not be built again.
+* In the last command, `E:\logiciels\Android\sdk` is the Android SDK base bath and may be different on your build environment. 
 
 # Publish the app
 

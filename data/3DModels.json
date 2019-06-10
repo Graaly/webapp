@@ -54,7 +54,7 @@
     "license": "Sketchfab standard, see https://sketchfab.com/licenses",
     "scale": 100,
     "translation": {
-      "z": 1
+      "z": 0.5
     }
   },
   "griffin": {
@@ -118,6 +118,15 @@
     "rotation": {
       "y": 135
     }
+  },
+  "lynx": {
+    "name": {
+      "fr": "Lynx",
+      "en": "Lynx" 
+    },
+    "author": "Victor Tero Vescan",
+    "url": "https://www.turbosquid.com/3d-models/lynx-3d-max/844204",
+    "scale": 0.7
   },
   "phone-booth": {
     "name": {

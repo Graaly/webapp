@@ -493,7 +493,7 @@ module.exports = {
       WarningLowBattery: "Charge your phone before starting quest",
       WarningNoNetwork: "No network...",
       WarningLowNetwork: "Low network, please wait...",
-      CouldNotDisplayObject: "The object to find cannot be displayed. To succeed finding the object, try to get very close using the distance indicator.",
+      CouldNotDisplayObject: "Sorry, an error has occured while loading the objet to find, therefore it cannot be displayed. Restart the application, if the problem persists skip this step.",
       Step: "Step",
       EasyLongDesc: "Easy, for everyone, even a child",
       NormalLongDesc: "Normal, no huge difficulties",
@@ -723,7 +723,9 @@ module.exports = {
       AreYouSureYouWantToMoveToAdvancedMode: "Are you sure to move to advanced mode? You will not be allowed to return to simple mode later",
       Country: "Country",
       Town: "City",
-      ZipCode: "Zip code"
+      ZipCode: "Zip code",
+      QuestDownloadFinished: "Download finished. You can now play this quest without network.",
+      GoToQuestValidation: "Go to validation"
     }
   },
   fr: {
@@ -822,7 +824,7 @@ module.exports = {
       MapExplaination1: "Vous allez pouvoir commencer une enquête.<br />Les enquêtes sont représentées par les icônes <i aria-hidden='true' style='font-size: 1.5em' class='q-icon fas fa-map-marker'> </i> sur la carte ci-dessous.",
       MapExplaination2: "Pour commencer une enquête, il vous faut <b>assez d'énergie</b>.<br />Votre énergie est représentée par <i aria-hidden='true' style='font-size: 1.5em' class='q-icon fas fa-bolt'> </i>, en haut à gauche",
       MapExplaination3: "Chaque enquête vous rapporte des points<br />Vos points sont affichés en haut à droite",
-      StartPlaying: "Ne perdons pas plus de temps, Je vous emmène sur une petite enquête de découverte (que vous pouvez jouer de chez vous), appuyez sur votre position représentée sur la carte par l'icône <img src='statics/icons/game/pointer-me.png' />",
+      StartPlaying: "Ne perdons pas plus de temps, Je vous emmène sur une petite enquête de découverte (que vous pouvez jouer de chez vous), appuyez sur votre position représentée sur la carte par l'icône <img src='statics/icons/game/pointer-me.svg' width='30' height='30' />",
       WelcomeToQuest1: "Bonjour, ravie de collaborer avec vous sur cette nouvelle enquête",
       WelcomeToQuest2: "Rendez-vous à l'adresse suivante pour commencer : <br /><b>{startingPlace}</b>",
       QuestParams: "Cette enquête peut rapporter jusqu'à <b>{score}</b> points.<br />Elle est de <b>difficulté</b> <img class='image-and-text-aligned' src='statics/icons/game/magnifying-red.png' /><img class='image-and-text-aligned' src='statics/icons/game/magnifying-{level2}.png' /><img class='image-and-text-aligned' src='statics/icons/game/magnifying-{level3}.png' />, la <b>durée</b> est estimée à {duration} minutes.",
@@ -1207,7 +1209,7 @@ module.exports = {
       WarningLowBattery: "Pensez à charger votre mobile",
       WarningNoNetwork: "Aucun réseau ...",
       WarningLowNetwork: "Réseau faible, veuillez patienter ...",
-      CouldNotDisplayObject: "L'objet à trouver ne peut pas être affiché. Pour réussir, essayez de vous approcher le plus possible à l'aide de l'indicateur de distance.",
+      CouldNotDisplayObject: "Désolé, une erreur est survenue au chargement de l'objet à trouver, il ne peut donc pas être affiché. Redémarrez l'application ; si le problème persiste, passez cette étape.",
       Step: "Etape",
       EasyLongDesc: "Facile, tout public même jeune (> 6 ans)",
       NormalLongDesc: "Normal, sans grosses difficultés",
@@ -1438,7 +1440,9 @@ module.exports = {
       AreYouSureYouWantToMoveToAdvancedMode: "Etes-vous certain(e) de passer en mode avancé. Vous ne pourrez pas revenir en mode simple.",
       Country: "Pays",
       Town: "Ville",
-      ZipCode: "Code postal"
+      ZipCode: "Code postal",
+      QuestDownloadFinished: "Téléchargement terminé. Vous pouvez désormais jouer cette enquête sans réseau.",
+      GoToQuestValidation: "Aller à la validation"
     }
   }
 }

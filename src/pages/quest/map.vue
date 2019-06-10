@@ -18,7 +18,7 @@
         @click="closeInfoWindows()"
       >
         <!-- quest markers -->
-        <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="setMapIcon(quest)" @click="openQuestSummary(quest, index)" />
+        <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="setMapIcon(quest)" @click="openQuestSummary(quest, index)" ref="questMarkers" />
         <!-- user markers -->
         <gmap-marker v-if="map.loaded" :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()" @click="openDiscoveryQuest()" />
         <!-- markers tooltips -->
@@ -773,7 +773,7 @@
         </div>
       </div>
       <div v-if="offline.show">
-        <offlineLoader :quest="offline.quest" :design="'download'" @end="offline.show = false"></offlineLoader>
+        <offlineLoader :quest="offline.quest" :design="'download'" @end="questLoadedInCache()"></offlineLoader>
       </div>
     </div>
     
@@ -896,7 +896,7 @@ export default {
           content: '',
           location: { lat: 0, lng: 0 },
           isOpen: false,
-          options: { pixelOffset: { width: 0, height: -35 } }
+          options: { pixelOffset: { width: 0, height: -47 } }
         },
         loaded: false
       },
@@ -1125,15 +1125,9 @@ export default {
      * Check network
      */
     checkNetwork() {
-      if (navigator.connection && navigator.connection.type && typeof Connection !== 'undefined') {
-        if (navigator.connection.type === Connection.NONE) {
-          this.warnings.noNetwork = true
-        } else {
-          this.warnings.noNetwork = false
-        }
-      } else {
-        this.warnings.noNetwork = false
-      }
+      // TODO on hybrid, maybe use events "offline" and "online" to get realtime network status
+      // see https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-network-information/#offline
+      this.warnings.noNetwork = !utils.isNetworkAvailable()
       utils.setTimeout(this.checkNetwork, 20000)
     },
     CenterMapOnPosition(lat, lng) {
@@ -1149,6 +1143,13 @@ export default {
       let infoWindow = this.map.infoWindow
       let questCoordinates = { lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }
       this.map.infoWindow.location = questCoordinates
+      
+      if (!(this.currentQuestIndex === idx && infoWindow.isOpen)) {
+        // bounce marker animation
+        let markerObject = this.$refs.questMarkers[idx].$markerObject
+        markerObject.setAnimation(google.maps.Animation.BOUNCE)
+        utils.setTimeout(() => { markerObject.setAnimation(null) }, 700) // found at https://stackoverflow.com/a/18411125/488666
+      }
       
       //check if its the same marker that was selected if yes toggle
       if (this.currentQuestIndex === idx) {
@@ -1675,9 +1676,9 @@ export default {
       this.$router.push('/user/login')
     },
     setMapIcon(quest) {
-      var marker = {
+      let marker = {
         url: 'statics/icons/game/pointer-done-undefined.png',
-        size: {width: 40, height: 40, f: 'px', b: 'px'},
+        size: {width: 64, height: 64, f: 'px', b: 'px'},
         scaledSize: {width: 40, height: 40, f: 'px', b: 'px'},
         origin: {x: 0, y: 0},
         anchor: {x: 20, y: 40}
@@ -1694,11 +1695,16 @@ export default {
             }
           }
         }
+        return marker
       } else {
-        marker.url = 'statics/icons/game/pointer-me.png'
+        return {
+          url: 'statics/icons/game/pointer-me.svg',
+          size: {width: 60, height: 60, f: 'px', b: 'px'},
+          scaledSize: {width: 30, height: 30, f: 'px', b: 'px'},
+          origin: {x: 0, y: 0},
+          anchor: {x: 15, y: 15}
+        }
       }
-      
-      return marker
     },
     /*
      * Menu swipe tracking
@@ -1925,6 +1931,13 @@ export default {
         this.offline.quest = quest
         this.offline.show = true
       }
+    },
+    /**
+     * Handle 'quest loaded in cache' event ("@end" event from <offlineLoader> component)
+     */
+    questLoadedInCache() {
+      Notification(this.$t('label.QuestDownloadFinished'), 'positive')
+      this.offline.show = false
     },
     /*
      * Modify a quest
