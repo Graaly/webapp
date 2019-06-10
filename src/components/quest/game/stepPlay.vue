@@ -145,7 +145,7 @@
           </tr>
           <tr>
             <td v-for="(code, index) in playerCode" :key="index">
-              <img :id="'image-code-' + index" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
+              <img :id="'image-code-' + index" @click="enlargeThePicture(index)" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
             </td>
           </tr>
           <tr>
@@ -351,6 +351,15 @@
     <div class="fixed-bottom over-map" v-if="story.step !== null && story.step !== 'end'">
       <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
     </div>
+    
+    <!--====================== ENLARGE PICTURE =================================-->
+    
+    <q-dialog v-model="enlargePicture.show">
+      <div class="bg-white centered q-pa-md">
+        <img style="width: 100%" :src="enlargePicture.url">
+        <q-btn class="q-mb-xl" color="primary" @click="enlargePicture.show = false">{{ $t('label.Close') }}</q-btn>
+      </div>
+    </q-dialog>
     
   </div>
   
@@ -569,6 +578,10 @@ export default {
         story: {
           step: null,
           data: null
+        },
+        enlargePicture: {
+          show: false,
+          url: ''
         },
         // for cleanup
         latestRequestAnimationId: null
@@ -2866,6 +2879,15 @@ export default {
       if (!this.geolocation.canTouchTarget && this.geolocation.distance <= 10) {
         this.geolocation.canTouchTarget = true
       }
+    },
+    /*
+     * Enlarge the picture
+     * @param   {string}    pictureUrl            picture URL
+     */
+    enlargeThePicture (index) {
+      this.enlargePicture.show = true
+      var pictureUrl = this.step.options.images[this.playerCode[index]].imagePath
+      this.enlargePicture.url = pictureUrl.indexOf('blob:') !== -1 ? pictureUrl : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + pictureUrl
     }
   }
 }
