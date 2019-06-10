@@ -2,6 +2,7 @@
 * MP 2019-03-04
 * Adapted version of motion-sensors.js of https://github.com/kenchris/sensor-polyfills
 * with better orientation stability on Safari iOS when iPhone is held vertically.
+* This file is used by motion-sensors.js
 */
 
 /* eslint-disable */

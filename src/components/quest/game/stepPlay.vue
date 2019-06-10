@@ -785,6 +785,9 @@ export default {
               mixer.clipAction(animations[0]).play()
               this.geolocation.target.mixers.push(mixer)
             }
+            
+            // accurate colors for GLTF models, see https://stackoverflow.com/q/50331480/488666
+            this.geolocation.target.renderer.gammaOutput = true
           } else {
             // 2D plane with transparent image (user uploaded picture) as texture
             var itemImage = ''
