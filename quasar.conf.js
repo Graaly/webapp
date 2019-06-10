@@ -54,15 +54,24 @@ module.exports = function (ctx) {
         // => erase "include" property (default being: '/src', '/.quasar')
         cfg.module.rules[1].include = [
           path.resolve(__dirname, "src/i18n"),
+          
+          // DO NOT INCLUDE "src/includes/ar.js" BUT INCLUDE ALL OTHER FILES IN "src/includes"
           path.resolve(__dirname, "src/includes/simi.js"),
           path.resolve(__dirname, "src/includes/utils.js"),
-          // DO NOT INCLUDE "src/includes/ar.js
-          path.resolve(__dirname, "src/plugins"),
+          path.resolve(__dirname, "src/includes/motion-sensors.js"),
+          path.resolve(__dirname, "src/includes/sensor.js"),
+          
+          path.resolve(__dirname, "src/boot"),
+          path.resolve(__dirname, "src/components"),
+          path.resolve(__dirname, "src/i18n"),
+          path.resolve(__dirname, "src/layouts"),
+          path.resolve(__dirname, "src/pages"),
           path.resolve(__dirname, "src/router"),
           path.resolve(__dirname, "src/services"),
           path.resolve(__dirname, "src/store"),
           path.resolve(__dirname, ".quasar"),
-          path.resolve(__dirname, "node_modules/quasar-framework") // otherwise src/plugins/platform.js is not transpiled and contains ES6 specific code 
+          //path.resolve(__dirname, "node_modules/ip-regex"), // otherwise not compatible with Android 4.4 webview
+          path.resolve(__dirname, "node_modules/quasar") // otherwise src/plugins/platform.js is not transpiled and contains ES6 specific code 
         ]
         
         // linter
@@ -83,6 +92,7 @@ module.exports = function (ctx) {
           }
         }
       }
+      //transpileDependencies: [/ip-regex/]
     },
     devServer: {
       //https: true,
