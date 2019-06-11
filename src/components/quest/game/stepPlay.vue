@@ -2743,13 +2743,16 @@ export default {
       let canProcess = true // can this method be entierely run? is all required data available?
       
       // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
-      if (this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion || !this.geolocation.target || !this.geolocation.target.scene) {
+      if (this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion) {
         canProcess = false
       }
       
-      object = this.geolocation.target.scene.getObjectByName('targetObject')
-      
-      canProcess = canProcess && typeof object !== 'undefined'
+      if (this.geolocation.target  && this.geolocation.target.scene) {
+        object = this.geolocation.target.scene.getObjectByName('targetObject')
+        canProcess = canProcess && typeof object !== 'undefined'
+      } else {
+        canProcess = false
+      }
       
       if (!canProcess) {
         dm.acceleration.avgData = { x: [], y: [], z: [] }
