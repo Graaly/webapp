@@ -1,5 +1,3 @@
-console.log('hello ! I am the polyfill for Object.entries')
-
 if (!Object.entries) {
     console.log('Polyfill on object.entries RUN !!!')
     Object.entries = function (obj) {
