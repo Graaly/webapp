@@ -203,6 +203,7 @@
         <div class="centered bg-warning q-pa-sm" v-if="warnings.stepsMissing" @click="refreshStepsList">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
+        
         <div v-if="form.fields.editorMode === 'simple' && chapters.items && chapters.items.length > 0">
           <p v-if="!readOnly && (!chapters.items || chapters.items.length < 1 || !chapters.items[0].steps || chapters.items[0].steps.length < 1)">{{ $t('label.AddYourSteps') }}</p>
           <ul class="list-group" v-sortable="{ onUpdate: onStepListUpdate, handle: '.handle' }">
@@ -227,6 +228,7 @@
             <q-linear-progress rounded style="height: 15px" :value="getPercentStorageUsage()" color="secondary" class="q-mt-sm" />
           </p>
         </div>
+        
         <div v-if="form.fields.editorMode === 'advanced'">
           <p v-if="!readOnly && (!chapters.items || chapters.items.length < 2)">{{ $t('label.AddYourChapters') }}</p>
           <!--<p class="centered" v-show="chapters.items && chapters.items.length > 6">
@@ -260,6 +262,7 @@
                   <div class="step-button">
                     <q-btn v-if="!readOnly" icon="mode_edit" dense @click="modifyStep(step)" />
                     <q-btn v-if="!readOnly" icon="delete" dense @click="removeStep(step.stepId)" />
+                    <q-btn v-if="!readOnly" icon="subdirectory_arrow_left" dense @click="insertStep(chapter.chapterId, step.stepId)" />
                   </div>
                 </div>
               </div>
@@ -1781,6 +1784,17 @@ export default {
         }
       }
       this.chapters.newStep.previousStepId = previousStepId
+    },
+    /*
+     * insert a step
+     */
+    async insertStep(chapterId, stepId) {
+      if (!chapterId) {
+        chapterId = this.chapters.items[0].chapterId
+      }
+      this.chapters.showNewStepPage = true
+      this.chapters.newStep.chapterId = chapterId
+      this.chapters.newStep.previousStepId = stepId
     },
     /*
      * Save steps order
