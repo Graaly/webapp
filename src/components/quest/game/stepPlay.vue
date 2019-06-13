@@ -754,7 +754,7 @@ export default {
           
           this.geolocation.target = {
             scene: new THREE.Scene(),
-            camera: new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000),
+            camera: new THREE.PerspectiveCamera(67, window.innerWidth / window.innerHeight, 0.001, 1000),
             renderer: new THREE.WebGLRenderer({ canvas: sceneCanvas, alpha: true, antialias: true }),
             size: null, // in meters
             // for animation
@@ -2925,7 +2925,6 @@ export default {
       let self = this
       return new Promise((resolve, reject) => {
         if (this.deviceHasGyroscope !== null) {
-          console.log('GYRO detection OK', this.deviceHasGyroscope)
           resolve()
         }
         else {
