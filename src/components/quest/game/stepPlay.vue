@@ -522,7 +522,7 @@ export default {
             raw: { x: 0, y: 0, z: 0 },
             filtered: { x: 0, y: 0 },
             avgData: { x: [], y: [], z: [] },
-            maxAvgItems: 3
+            maxAvgItems: 4
           },
           velocity: { x: 0, y: 0 },
           dateLatestEvent: null,
@@ -2881,9 +2881,9 @@ export default {
         let deltaFromGeolocation
         if (!dm.isAccelerationIdle) {
           deltaFromGeolocation = {
-            // the "/ 700" factor guarantees that the object won't move faster than about 1.5m/s if its real position is 20m away from current position.
-            x: (this.geolocation.position.x - currentObjectPosition.x) / 700,
-            y: (this.geolocation.position.y - currentObjectPosition.y) / 700
+            // the "/ 600" factor guarantees that the object won't move faster than about 1.5m/s if its real position is 20m away from current position.
+            x: (this.geolocation.position.x - currentObjectPosition.x) / 600,
+            y: (this.geolocation.position.y - currentObjectPosition.y) / 600
           }
         } else {
           deltaFromGeolocation = { x: 0, y: 0 }
