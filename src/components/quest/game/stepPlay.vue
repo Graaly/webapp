@@ -205,8 +205,8 @@
         </div>
         <div class="answer-text">
           <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
-          <input v-bind:value="writetext.playerAnswer" v-on:input="writetext.playerAnswer = $event.target.value" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" />
-          <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" class="full-width" :disabled="playerResult !== null || writetext.playerAnswer === ''" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
+          <input v-bind:value="writetext.playerAnswer" v-on:input="writetext.playerAnswer = $event.target.value" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" :disabled="stepPlayed" />
+          <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" class="full-width" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
         </div>
       </div>
       
@@ -293,7 +293,7 @@
         <div class="target-view" v-show="playerResult === null || (playerResult && step.options && step.options.is3D)">
           <canvas id="target-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
-        <img ref="item-image" v-show="playerResult && !step.options.is3D" />
+        <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
       </div>
       
       <!------------------ LOCATE A 2D MARKER / TOUCH OBJECT ON MARKER ------------------------>
@@ -472,7 +472,8 @@ export default {
   methods: {
     initialState () {
       return {
-        playerResult: null,
+        playerResult: null, // can be null even if step is played (answered)
+        stepPlayed: false, // changes to true when step is played
         cameraStreamEnabled: false,
         serverUrl: process.env.SERVER_URL,
         nbTry: 0,
@@ -1225,7 +1226,7 @@ export default {
         //TODO: find a way to check server side
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
       } else if (type === 'use-item') {
-        let anwserPixelCoordinates = {
+        let answerPixelCoordinates = {
           left: Math.round(this.answer.coordinates.left / 100 * 100 * answer.windowWidth),
           top: Math.round(this.answer.coordinates.top / 100 * 133 * answer.windowWidth)
         }
@@ -1233,13 +1234,13 @@ export default {
         // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
         let solutionAreaRadius = Math.round(8 * answer.windowWidth)
         
-        let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - answer.posX, 2) + Math.pow(anwserPixelCoordinates.top - answer.posY, 2))
+        let distanceToSolution = Math.sqrt(Math.pow(answerPixelCoordinates.left - answer.posX, 2) + Math.pow(answerPixelCoordinates.top - answer.posY, 2))
 
         if (distanceToSolution <= solutionAreaRadius && this.answer.item === answer.item) {
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       } else if (type === 'find-item') {
-        let anwserPixelCoordinates = {
+        let answerPixelCoordinates = {
           left: Math.round(this.answer.left / 100 * 100 * answer.windowWidth),
           top: Math.round(this.answer.top / 100 * 133 * answer.windowWidth)
         }
@@ -1247,7 +1248,7 @@ export default {
         // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
         let solutionAreaRadius = Math.round(8 * answer.windowWidth)
         
-        let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - answer.posX, 2) + Math.pow(anwserPixelCoordinates.top - answer.posY, 2))
+        let distanceToSolution = Math.sqrt(Math.pow(answerPixelCoordinates.left - answer.posX, 2) + Math.pow(answerPixelCoordinates.top - answer.posY, 2))
 
         if (distanceToSolution <= solutionAreaRadius) {
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
@@ -1624,6 +1625,7 @@ export default {
      * Send answer without telling if it is true or false
      */
     submitAnswer(offlineMode) {
+      this.stepPlayed = true
       this.$emit('played', null, offlineMode)
       
       this.displayReadMoreAlert()
@@ -1640,6 +1642,7 @@ export default {
       } else {
         this.playerResult = null
       }
+      this.stepPlayed = true
       
       this.$emit('success', score, offlineMode, showResult)
       this.$emit('played')
@@ -1705,6 +1708,7 @@ export default {
       } else {
         this.playerResult = null
       }
+      this.stepPlayed = true
       
       this.$emit('fail', offlineMode, showResult)
       this.$emit('played')
