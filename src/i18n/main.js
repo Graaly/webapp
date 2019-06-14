@@ -726,7 +726,9 @@ module.exports = {
       Town: "City",
       ZipCode: "Zip code",
       QuestDownloadFinished: "Download finished. You can now play this quest without network.",
-      GoToQuestValidation: "Go to validation"
+      GoToQuestValidation: "Go to validation",
+      SessionExpired: "Your session has expired, please login.",
+      AuthCheckError: "An error has occurred, please contact support."
     }
   },
   fr: {
@@ -1444,7 +1446,9 @@ module.exports = {
       Town: "Ville",
       ZipCode: "Code postal",
       QuestDownloadFinished: "Téléchargement terminé. Vous pouvez désormais jouer cette enquête sans réseau.",
-      GoToQuestValidation: "Aller à la validation"
+      GoToQuestValidation: "Aller à la validation",
+      SessionExpired: "Votre session a expiré, merci de vous reconnecter.",
+      AuthCheckError: "Une erreur est survenue, merci de contacter le support."
     }
   }
 }
