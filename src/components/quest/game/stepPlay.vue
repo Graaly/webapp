@@ -204,8 +204,9 @@
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="answer-text">
-          <input v-model="writetext.playerAnswer" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" />
-          <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
+          <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
+          <input v-bind:value="writetext.playerAnswer" and v-on:input="writetext.playerAnswer = $event.target.value" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" />
+          <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" class="full-width" :disabled="playerResult !== null || writetext.playerAnswer === ''" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
         </div>
       </div>
       
@@ -553,7 +554,7 @@ export default {
         
         // for step type 'write-text'
         writetext: {
-          playerAnswer: null
+          playerAnswer: ""
         },
         
         // for step type 'jigsaw puzzle'
