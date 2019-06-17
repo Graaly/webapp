@@ -185,7 +185,7 @@
       
       <!------------------ GEOLOCALISATION STEP AREA ------------------------>
       
-      <div class="geolocation" v-if="step.type == 'geolocation' || (step.type == 'locate-item-ar' && !deviceHasGyroscope && playerResult === null)">
+      <div class="geolocation" v-if="step.type == 'geolocation'">
         <div>
           <p class="text">{{ getTranslatedText() }}</p>
           <p class="text" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
@@ -277,7 +277,7 @@
       
       <!------------------ LOCATE ITEM IN AUGMENTED REALITY STEP AREA ------------------------>
       
-      <div class="locate-item-ar" v-show="step.type == 'locate-item-ar' && (deviceHasGyroscope || playerResult)">
+      <div class="locate-item-ar" v-show="step.type == 'locate-item-ar'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && geolocation.active"></video>
         </transition>
@@ -285,12 +285,12 @@
           <div class="text">
             <p>{{ getTranslatedText() }}</p>
             <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
-            <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
-            <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
-            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
+            <p v-if="!geolocation.canSeeTarget && geolocation.active && deviceHasGyroscope">{{ $t('label.ObjectIsTooFar') }}</p>
+            <p v-if="geolocation.canTouchTarget && geolocation.active && deviceHasGyroscope">{{ $t('label.TouchTheObject') }}</p>
+            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active && deviceHasGyroscope">{{ $t('label.MoveCloserToTheObject') }}</p>
           </div>
         </div>
-        <div class="target-view" v-show="playerResult === null || (playerResult && step.options && step.options.is3D)">
+        <div class="target-view" v-show="(playerResult === null && deviceHasGyroscope) || (playerResult && step.options && step.options.is3D)">
           <canvas id="target-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
         <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
@@ -721,32 +721,29 @@ export default {
         }
         
         if (this.step.type === 'locate-item-ar'  && !this.playerResult) {
-          // no gyro => behavior similar to step type 'geolocation' => no camera stream in background
-          if (this.deviceHasGyroscope) {
-            if (this.isIOs) {
-              let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
-              CameraPreview.startCamera(options)
-              CameraPreview.show()
-            } else {
-              var cameraStream = this.$refs['camera-stream-for-locate-item-ar']
-              // enable rear camera stream
-              // -------------------------
-              navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-                .then((stream) => {
-                  // Hacks for Safari iOS
-                  cameraStream.setAttribute("muted", true)
-                  cameraStream.setAttribute("playsinline", true)
-                  
-                  cameraStream.srcObject = stream
-                  cameraStream.play()
-                  this.cameraStreamEnabled = true
-                })
-                .catch((err) => {
-                  // TODO friendly behavior/message for user
-                  console.warn("No camera stream available")
-                  console.log(err)
-                });
-            }
+          if (this.isIOs) {
+            let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
+            CameraPreview.startCamera(options)
+            CameraPreview.show()
+          } else {
+            var cameraStream = this.$refs['camera-stream-for-locate-item-ar']
+            // enable rear camera stream
+            // -------------------------
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+              .then((stream) => {
+                // Hacks for Safari iOS
+                cameraStream.setAttribute("muted", true)
+                cameraStream.setAttribute("playsinline", true)
+                
+                cameraStream.srcObject = stream
+                cameraStream.play()
+                this.cameraStreamEnabled = true
+              })
+              .catch((err) => {
+                // TODO friendly behavior/message for user
+                console.warn("No camera stream available")
+                console.log(err)
+              });
           }
           
           // Prepare scene to render
@@ -2076,7 +2073,7 @@ export default {
       this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
       let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
       
-      if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && this.geolocation.GPSdistance > this.minDistanceForGPS) || this.step.type !== 'locate-item-ar') {
+      if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && (this.geolocation.GPSdistance > this.minDistanceForGPS || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
         this.geolocation.distance = this.geolocation.GPSdistance
         this.geolocation.rawDirection = rawDirection
       }
@@ -2778,7 +2775,7 @@ export default {
       }
       
       // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
-      if (this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion) {
+      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion) {
         canProcess = false
       }
       
