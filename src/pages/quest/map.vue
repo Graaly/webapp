@@ -46,12 +46,17 @@
       </gmap-map>
     </div>
     <div class="fullscreen scroll q-px-md" v-if="offline.active">
-      <div class="image-list" style="width: 100%">
+      <div class="no-internet-connection">
+        <q-icon name="cloud_off" />
+        <p>{{ $t('label.NoInternetConnection') }}</p>
+      </div>
+      <div v-if="!questList.length" class="q-my-md">{{ $t('label.YouAreOfflineNoQuestsAvailable') }}</div>
+      <div class="image-list" style="width: 100%" v-if="questList.length">
         <div class="q-my-md">{{ $t('label.YouAreOfflineYourQuestsList') }}</div>
         <q-card v-for="(item, index) in questList" :key="index" class="q-mb-md" @click.native="$router.push('/quest/play/' + item.questId)">
-          <q-img :src="item.picture" basic>
+          <q-img :src="QuestService.getBackgroundImage(item)" basic>
             <div class="absolute-top text-center">
-              {{ getQuestTitle(item, true) }}
+              <span v-html="getQuestTitle(item, true)"></span>
               <q-rating slot="subtitle" v-if="item.rating && item.rating.rounded" v-model="item.rating.rounded" color="primary" :max="5" />
             </div>
           </q-img>
@@ -1002,7 +1007,8 @@ export default {
       questsTab: "built",
       profileTab: "news",
       friendsTab: "friendbuilt",
-      invitations: []
+      invitations: [],
+      QuestService // to have getBackgroundImage() method available in template
     }
   },
   computed: {
@@ -1031,7 +1037,7 @@ export default {
       // check if battery is enough charged to play
       window.addEventListener("batterylow", this.checkBattery, false);
       // check if user has network
-      this.checkNetwork()
+      await this.checkNetwork()
       // check if story steps need to be played
       this.startStory()
       // check if user has received invitations to private quests
@@ -1124,11 +1130,19 @@ export default {
     /*
      * Check network
      */
-    checkNetwork() {
+    async checkNetwork() {
       // TODO on hybrid, maybe use events "offline" and "online" to get realtime network status
       // see https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-network-information/#offline
-      this.warnings.noNetwork = !utils.isNetworkAvailable()
-      utils.setTimeout(this.checkNetwork, 20000)
+      let previousOfflineValue = this.offline.active
+      let isNetworkAvailable = utils.isNetworkAvailable()
+      this.warnings.noNetwork = !isNetworkAvailable
+      this.offline.active = !isNetworkAvailable
+      if (previousOfflineValue !== this.offline.active) {
+        this.questList = []
+        await this.reloadMap()
+      }
+      
+      utils.setTimeout(this.checkNetwork, 5000)
     },
     CenterMapOnPosition(lat, lng) {
       this.$data.map.center = {lat: lat, lng: lng}
@@ -1214,21 +1228,27 @@ export default {
     async getQuests(type) {
       this.showBottomMenu = false
       
-      if (this.user.position === null) {
-        Notification(this.$t('label.LocationSearching'), 'warning')
-        return
-      }
-      
-      if (!type) {
-        this.map.filter = 'all'
-      } else {
-        this.map.filter = type
-      }
-      
-      this.$q.loading.show()
-      let response = await QuestService.listNearest({ lng: this.user.position.longitude, lat: this.user.position.latitude }, this.map.filter)
-      this.$q.loading.hide()
-      if (response && response.data) {
+      if (!this.offline.active) {
+        if (this.user.position === null) {
+          Notification(this.$t('label.LocationSearching'), 'warning')
+          return
+        }
+        
+        if (!type) {
+          this.map.filter = 'all'
+        } else {
+          this.map.filter = type
+        }
+        
+        this.$q.loading.show()
+        let response = await QuestService.listNearest({ lng: this.user.position.longitude, lat: this.user.position.latitude }, this.map.filter)
+        this.$q.loading.hide()
+        
+        if (!response || !response.data) {
+          Notification(this.$t('label.TechnicalIssue'), 'error')
+          return
+        }
+        
         this.questList = response.data
         
         // if no quest, enlarge to all quests
@@ -1778,12 +1798,12 @@ export default {
     /*
      * End a story step
      */
-    endStory (nextStep) {
+    async endStory (nextStep) {
       this.story.step = null
       this.$store.state.user.story.step = nextStep
       // if skip tutorial
       if (nextStep === 17) {
-        this.reloadMap()
+        await this.reloadMap()
       }
     },
     /*
@@ -1962,4 +1982,19 @@ export default {
 
 <style>
 .q-item-label > p { padding: 0; margin: 0; }
+
+.no-internet-connection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+}
+.no-internet-connection .q-icon {
+  font-size: 3rem;
+  margin-right: 1rem;
+}
+.no-internet-connection p {
+  font-size: 1.5rem;
+  margin: 0;
+}
 </style>

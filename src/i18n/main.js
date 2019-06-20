@@ -709,6 +709,7 @@ module.exports = {
       DownloadForOfflineUse: "Play offline",
       Downloading: "Downloading ",
       YouAreOfflineYourQuestsList: "We did not succeed on listing the quests around you (network issue). Here are the quests you downloaded, and that you can play offline:",
+      YouAreOfflineNoQuestsAvailable: "Sorry, we could not find any quests playable offline. The next time you have an internet connection, please download quests from the map screen by touching a quest, then the link \"play offline\". This will allow you to play those quests without internet connection.",
       ButtonsColor: "Buttons color (optional)",
       AddALogo: "Add your logo",
       YourLogo: "Your logo",
@@ -728,7 +729,8 @@ module.exports = {
       QuestDownloadFinished: "Download finished. You can now play this quest without network.",
       GoToQuestValidation: "Go to validation",
       SessionExpired: "Your session has expired, please login.",
-      AuthCheckError: "An error has occurred, please contact support."
+      AuthCheckError: "An error has occurred, please contact support.",
+      NoInternetConnection: "No internet connection"
     }
   },
   fr: {
@@ -1429,6 +1431,7 @@ module.exports = {
       DownloadForOfflineUse: "Jouer sans réseau",
       Downloading: "Téléchargement de ",
       YouAreOfflineYourQuestsList: "Nous n'avons pas réussi à récupérer la liste des enquêtes (problème réseau). Voici la liste des enquêtes que vous avez téléchargées, et auxquelles vous pouvez jouer sans réseau :",
+      YouAreOfflineNoQuestsAvailable: "Désolé, il n'y a pas d'enquête disponible pour être jouée hors ligne. La prochaine fois que vous serez connecté à Internet, téléchargez des enquêtes depuis la carte en touchant une enquête, puis le lien \"jouer sans réseau\". Vous pourrez alors jouer ces enquêtes sans connection internet.",
       ButtonsColor: "Couleur des boutons (optionnel)",
       AddALogo: "Ajoutez votre logo",
       YourLogo: "Votre logo",
@@ -1448,7 +1451,8 @@ module.exports = {
       QuestDownloadFinished: "Téléchargement terminé. Vous pouvez désormais jouer cette enquête sans réseau.",
       GoToQuestValidation: "Aller à la validation",
       SessionExpired: "Votre session a expiré, merci de vous reconnecter.",
-      AuthCheckError: "Une erreur est survenue, merci de contacter le support."
+      AuthCheckError: "Une erreur est survenue, merci de contacter le support.",
+      NoInternetConnection: "Pas de connexion internet"
     }
   }
 }
