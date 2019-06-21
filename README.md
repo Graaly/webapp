@@ -53,6 +53,15 @@ Attention:
 * The keystore (jks file) needs to be saved in a secure location. It can not be built again.
 * In the last command, `E:\logiciels\Android\sdk` is the Android SDK base bath and may be different on your build environment. 
 
+## iOS app
+
+Warnings
+
+* Global Cordova installation must be at version 8.1.2 `npm i -g cordova@8.1.2` [see here](https://github.com/mapsplugin/cordova-plugin-googlemaps/issues/2581#issuecomment-483077530)
+* Enable XCode command line: XCode > Preferences > Locations > select XCode cli in the dropdown list, [see here](https://github.com/nodejs/node-gyp/issues/569#issuecomment-486049757)
+* Try this one too: `npm explore npm -g -- npm install node-gyp@latest` (same github issue)
+* Follow [this procedure](https://stackoverflow.com/a/39591319/488666)
+
 # Publish the app
 
 ## Android app
