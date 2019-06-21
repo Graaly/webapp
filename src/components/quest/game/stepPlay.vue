@@ -185,7 +185,7 @@
       
       <!------------------ GEOLOCALISATION STEP AREA ------------------------>
       
-      <div class="geolocation" v-if="step.type == 'geolocation' || (step.type == 'locate-item-ar' && !deviceHasGyroscope && playerResult === null)">
+      <div class="geolocation" v-if="step.type == 'geolocation'">
         <div>
           <p class="text">{{ getTranslatedText() }}</p>
           <p class="text" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
@@ -204,8 +204,9 @@
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="answer-text">
-          <input v-model="writetext.playerAnswer" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" />
-          <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
+          <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
+          <input v-bind:value="writetext.playerAnswer" v-on:input="writetext.playerAnswer = $event.target.value" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" :disabled="stepPlayed" />
+          <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" class="full-width" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
         </div>
       </div>
       
@@ -276,7 +277,7 @@
       
       <!------------------ LOCATE ITEM IN AUGMENTED REALITY STEP AREA ------------------------>
       
-      <div class="locate-item-ar" v-show="step.type == 'locate-item-ar' && (deviceHasGyroscope || playerResult)">
+      <div class="locate-item-ar" v-show="step.type == 'locate-item-ar'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && geolocation.active"></video>
         </transition>
@@ -284,15 +285,15 @@
           <div class="text">
             <p>{{ getTranslatedText() }}</p>
             <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
-            <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
-            <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
-            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
+            <p v-if="!geolocation.canSeeTarget && geolocation.active && deviceHasGyroscope">{{ $t('label.ObjectIsTooFar') }}</p>
+            <p v-if="geolocation.canTouchTarget && geolocation.active && deviceHasGyroscope">{{ $t('label.TouchTheObject') }}</p>
+            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active && deviceHasGyroscope">{{ $t('label.MoveCloserToTheObject') }}</p>
           </div>
         </div>
-        <div class="target-view" v-show="playerResult === null || (playerResult && step.options && step.options.is3D)">
+        <div class="target-view" v-show="(playerResult === null && deviceHasGyroscope) || (playerResult && step.options && step.options.is3D)">
           <canvas id="target-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
-        <img ref="item-image" v-show="playerResult && !step.options.is3D" />
+        <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
       </div>
       
       <!------------------ LOCATE A 2D MARKER / TOUCH OBJECT ON MARKER ------------------------>
@@ -472,7 +473,8 @@ export default {
   methods: {
     initialState () {
       return {
-        playerResult: null,
+        playerResult: null, // can be null even if step is played (answered)
+        stepPlayed: false, // changes to true when step is played
         cameraStreamEnabled: false,
         serverUrl: process.env.SERVER_URL,
         nbTry: 0,
@@ -523,7 +525,7 @@ export default {
             raw: { x: 0, y: 0, z: 0 },
             filtered: { x: 0, y: 0 },
             avgData: { x: [], y: [], z: [] },
-            maxAvgItems: 3
+            maxAvgItems: 4
           },
           velocity: { x: 0, y: 0 },
           dateLatestEvent: null,
@@ -554,7 +556,7 @@ export default {
         
         // for step type 'write-text'
         writetext: {
-          playerAnswer: null
+          playerAnswer: ""
         },
         
         // for step type 'jigsaw puzzle'
@@ -721,32 +723,29 @@ export default {
         }
         
         if (this.step.type === 'locate-item-ar'  && !this.playerResult) {
-          // no gyro => behavior similar to step type 'geolocation' => no camera stream in background
-          if (this.deviceHasGyroscope) {
-            if (this.isIOs) {
-              let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
-              CameraPreview.startCamera(options)
-              CameraPreview.show()
-            } else {
-              var cameraStream = this.$refs['camera-stream-for-locate-item-ar']
-              // enable rear camera stream
-              // -------------------------
-              navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-                .then((stream) => {
-                  // Hacks for Safari iOS
-                  cameraStream.setAttribute("muted", true)
-                  cameraStream.setAttribute("playsinline", true)
-                  
-                  cameraStream.srcObject = stream
-                  cameraStream.play()
-                  this.cameraStreamEnabled = true
-                })
-                .catch((err) => {
-                  // TODO friendly behavior/message for user
-                  console.warn("No camera stream available")
-                  console.log(err)
-                });
-            }
+          if (this.isIOs) {
+            let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
+            CameraPreview.startCamera(options)
+            CameraPreview.show()
+          } else {
+            var cameraStream = this.$refs['camera-stream-for-locate-item-ar']
+            // enable rear camera stream
+            // -------------------------
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+              .then((stream) => {
+                // Hacks for Safari iOS
+                cameraStream.setAttribute("muted", true)
+                cameraStream.setAttribute("playsinline", true)
+                
+                cameraStream.srcObject = stream
+                cameraStream.play()
+                this.cameraStreamEnabled = true
+              })
+              .catch((err) => {
+                // TODO friendly behavior/message for user
+                console.warn("No camera stream available")
+                console.log(err)
+              });
           }
           
           // Prepare scene to render
@@ -756,7 +755,7 @@ export default {
           
           this.geolocation.target = {
             scene: new THREE.Scene(),
-            camera: new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000),
+            camera: new THREE.PerspectiveCamera(67, window.innerWidth / window.innerHeight, 0.001, 1000),
             renderer: new THREE.WebGLRenderer({ canvas: sceneCanvas, alpha: true, antialias: true }),
             size: null, // in meters
             // for animation
@@ -1226,7 +1225,7 @@ export default {
         //TODO: find a way to check server side
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
       } else if (type === 'use-item') {
-        let anwserPixelCoordinates = {
+        let answerPixelCoordinates = {
           left: Math.round(this.answer.coordinates.left / 100 * 100 * answer.windowWidth),
           top: Math.round(this.answer.coordinates.top / 100 * 133 * answer.windowWidth)
         }
@@ -1234,13 +1233,13 @@ export default {
         // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
         let solutionAreaRadius = Math.round(8 * answer.windowWidth)
         
-        let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - answer.posX, 2) + Math.pow(anwserPixelCoordinates.top - answer.posY, 2))
+        let distanceToSolution = Math.sqrt(Math.pow(answerPixelCoordinates.left - answer.posX, 2) + Math.pow(answerPixelCoordinates.top - answer.posY, 2))
 
         if (distanceToSolution <= solutionAreaRadius && this.answer.item === answer.item) {
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       } else if (type === 'find-item') {
-        let anwserPixelCoordinates = {
+        let answerPixelCoordinates = {
           left: Math.round(this.answer.left / 100 * 100 * answer.windowWidth),
           top: Math.round(this.answer.top / 100 * 133 * answer.windowWidth)
         }
@@ -1248,7 +1247,7 @@ export default {
         // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
         let solutionAreaRadius = Math.round(8 * answer.windowWidth)
         
-        let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - answer.posX, 2) + Math.pow(anwserPixelCoordinates.top - answer.posY, 2))
+        let distanceToSolution = Math.sqrt(Math.pow(answerPixelCoordinates.left - answer.posX, 2) + Math.pow(answerPixelCoordinates.top - answer.posY, 2))
 
         if (distanceToSolution <= solutionAreaRadius) {
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
@@ -1625,6 +1624,7 @@ export default {
      * Send answer without telling if it is true or false
      */
     submitAnswer(offlineMode) {
+      this.stepPlayed = true
       this.$emit('played', null, offlineMode)
       
       this.displayReadMoreAlert()
@@ -1641,6 +1641,7 @@ export default {
       } else {
         this.playerResult = null
       }
+      this.stepPlayed = true
       
       this.$emit('success', score, offlineMode, showResult)
       this.$emit('played')
@@ -1706,6 +1707,7 @@ export default {
       } else {
         this.playerResult = null
       }
+      this.stepPlayed = true
       
       this.$emit('fail', offlineMode, showResult)
       this.$emit('played')
@@ -2073,7 +2075,7 @@ export default {
       this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
       let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
       
-      if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && this.geolocation.GPSdistance > this.minDistanceForGPS) || this.step.type !== 'locate-item-ar') {
+      if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && (this.geolocation.GPSdistance > this.minDistanceForGPS || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
         this.geolocation.distance = this.geolocation.GPSdistance
         this.geolocation.rawDirection = rawDirection
       }
@@ -2775,7 +2777,7 @@ export default {
       }
       
       // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
-      if (this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion) {
+      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion) {
         canProcess = false
       }
       
@@ -2883,9 +2885,9 @@ export default {
         let deltaFromGeolocation
         if (!dm.isAccelerationIdle) {
           deltaFromGeolocation = {
-            // the "/ 700" factor guarantees that the object won't move faster than about 1.5m/s if its real position is 20m away from current position.
-            x: (this.geolocation.position.x - currentObjectPosition.x) / 700,
-            y: (this.geolocation.position.y - currentObjectPosition.y) / 700
+            // the "/ 600" factor guarantees that the object won't move faster than about 1.5m/s if its real position is 20m away from current position.
+            x: (this.geolocation.position.x - currentObjectPosition.x) / 600,
+            y: (this.geolocation.position.y - currentObjectPosition.y) / 600
           }
         } else {
           deltaFromGeolocation = { x: 0, y: 0 }
@@ -2927,7 +2929,6 @@ export default {
       let self = this
       return new Promise((resolve, reject) => {
         if (this.deviceHasGyroscope !== null) {
-          console.log('GYRO detection OK', this.deviceHasGyroscope)
           resolve()
         }
         else {

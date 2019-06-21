@@ -268,6 +268,21 @@ export default {
    */
   async removeFromCache (questId) {
     await utils.removeDirectory(questId)
+  },
+  
+  /**
+   * get background image given quest object
+   */
+  getBackgroundImage (quest) {
+    if (quest.picture && quest.picture[0] === '_') {
+      return 'statics/images/quest/' + quest.picture
+    } else if (quest.picture && quest.picture.indexOf('blob:') !== -1) {
+      return quest.picture
+    } else if (quest.picture) {
+      return process.env.SERVER_URL + '/upload/quest/' + quest.picture
+    } else {
+      return 'statics/images/quest/default-quest-picture.png'
+    }
   }
   
   /*

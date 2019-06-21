@@ -227,4 +227,8 @@ Check this [solution](https://stackoverflow.com/a/55120122/488666)
 
 Open the platform tools folder of your android SDK (e.g. : cd E:\logiciels\Android\sdk\platform-tools)
 
-adb devices (unplug the device, run "adb kill-server" if device is offline)
+`adb devices` (unplug the device, run "adb kill-server" if device is offline)
+
+### Error message `Failed to execute tools\android.bat`
+
+Check the solutions [here](https://stackoverflow.com/questions/19015587/failed-to-execute-tools-android-bat-solution), and particularly [this one](https://stackoverflow.com/a/56633566/488666)
