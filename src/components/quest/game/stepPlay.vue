@@ -562,7 +562,8 @@ export default {
           pieces: [],
           picture: 'statics/icons/game/medal.png',
           dragSrcEl: null,
-          element: {}
+          element: {},
+          colsByLevel: [1, 3, 4, 6, 5]
         },
         
         // for step type 'memory'
@@ -2250,8 +2251,8 @@ export default {
      */
     initPuzzle() {
       // Puzzle sizes
-      var level = parseInt((this.step.options.level || 2), 10) // 1=easy, 2=medium, 3=hard
-      var puzzleSize = level * 2
+      var level = parseInt((this.step.options.level || 2), 10) // 1=easy, 2=medium, 3=very hard, 4=hard
+      var puzzleSize = this.puzzle.colsByLevel[level]
       var puzzleWidth = document.getElementById('pieces').clientWidth
       var puzzleHeight = puzzleWidth
       //document.getElementById('pieces').style.height = puzzleHeight + "px"

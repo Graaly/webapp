@@ -754,8 +754,10 @@ export default {
       jigsawLevels: [
         { value: 1, label: this.$t('label.Easy') },
         { value: 2, label: this.$t('label.Medium') },
-        { value: 3, label: this.$t('label.Hard') }
+        { value: 4, label: this.$t('label.Hard') },
+        { value: 3, label: this.$t('label.VeryHard') }
       ],
+      jigsawNbPieceByLevel: [0, 3, 4, 6, 5],
             
       answerType: 'text',
       numberOfDigitsOptions: [
@@ -1157,7 +1159,9 @@ export default {
       }
       if (this.options.type.code === 'jigsaw-puzzle') {
         // build random order for jigsaw puzzle pieces.
-        let piecePositionArray = utils.buildIncrementalArray(Math.pow(parseInt(this.selectedStep.form.options.level, 10) * 2, 2))
+        var level = parseInt(this.selectedStep.form.options.level, 10)
+        var nbPieceByRow = this.jigsawNbPieceByLevel[level]
+        let piecePositionArray = utils.buildIncrementalArray(Math.pow(nbPieceByRow, 2))
         piecePositionArray = utils.shuffle(piecePositionArray)
         this.selectedStep.form.answers = piecePositionArray.join('|')
       }

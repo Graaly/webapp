@@ -44,7 +44,7 @@ Procedure :
 Sign the apk
 ```
 $ cd src-cordova\platforms\android\app\build\outputs\apk\release
-$ keytool -genkey -v -keystore graaly-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-alias
+This only needs to be launched if a key has not been generated : $ keytool -genkey -v -keystore graaly-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-alias
 $ jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore graaly-key.jks app-release-unsigned.apk my-alias
 $ rm graaly.apk
 $ E:\logiciels\Android\sdk\build-tools\26.0.2\zipalign -v 4 app-release-unsigned.apk graaly.apk
