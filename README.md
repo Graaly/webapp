@@ -44,7 +44,7 @@ Warnings
 * Enable XCode command line: XCode > Preferences > Locations > select XCode cli in the dropdown list, [see here](https://github.com/nodejs/node-gyp/issues/569#issuecomment-486049757)
 * Try this one too: `npm explore npm -g -- npm install node-gyp@latest` (same github issue)
 * Follow [this procedure](https://stackoverflow.com/a/39591319/488666)
-* **Keep any device disconnected during build** to avoid unexpected "Code Signing" build errors, see here and here
+* **Keep any device disconnected during build** to avoid unexpected "Code Signing" build errors, see [here](https://stackoverflow.com/a/48683840/488666) and [here](https://stackoverflow.com/a/50457679/488666)
 
 # Debug the app
 
