@@ -36,6 +36,8 @@ Procedure :
     babel node_modules\ip-regex\index.js --out-file node_modules\ip-regex\index.js-es5
     cd node_modules\ip-regex && mv index.js index.js-es6 && mv index.js-es5 index.js && cd ../..
 
+:warning: use only Cordova version 8 (`npm i -g cordova@8.1.2`) otherwise with Cordova 9+ you may get blocking error `Using "requireCordovaModule" to load non-cordova module "fs" is not supported` during build process. 
+
 ## iPhone app
 
 Warnings
