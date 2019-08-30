@@ -289,12 +289,12 @@
           <div class="text">
             <p>{{ getTranslatedText() }}</p>
             <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
-            <p v-if="!geolocation.canSeeTarget && geolocation.active && deviceHasGyroscope">{{ $t('label.ObjectIsTooFar') }}</p>
-            <p v-if="geolocation.canTouchTarget && geolocation.active && deviceHasGyroscope">{{ $t('label.TouchTheObject') }}</p>
-            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active && deviceHasGyroscope">{{ $t('label.MoveCloserToTheObject') }}</p>
+            <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
+            <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
+            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
           </div>
         </div>
-        <div class="target-view" v-show="(playerResult === null && deviceHasGyroscope) || (playerResult && step.options && step.options.is3D)">
+        <div class="target-view" v-show="(playerResult === null) || (playerResult && step.options && step.options.is3D)">
           <canvas id="target-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
         <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
@@ -722,34 +722,38 @@ export default {
           await this.waitForGyroscopeDetection()
           
           if (this.step.type === 'locate-item-ar' && !this.deviceHasGyroscope) {
-            Notification(this.$t('label.CouldNotPlayARStep'), 'warning')
+            Notification(this.$t('label.CouldNotEnableAR'), 'warning')
           }
         }
         
         if (this.step.type === 'locate-item-ar'  && !this.playerResult) {
-          if (this.isIOs) {
-            let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
-            CameraPreview.startCamera(options)
-            CameraPreview.show()
-          } else {
-            var cameraStream = this.$refs['camera-stream-for-locate-item-ar']
-            // enable rear camera stream
-            // -------------------------
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-              .then((stream) => {
-                // Hacks for Safari iOS
-                cameraStream.setAttribute("muted", true)
-                cameraStream.setAttribute("playsinline", true)
-                
-                cameraStream.srcObject = stream
-                cameraStream.play()
-                this.cameraStreamEnabled = true
-              })
-              .catch((err) => {
-                // TODO friendly behavior/message for user
-                console.warn("No camera stream available")
-                console.log(err)
-              });
+          if (this.deviceHasGyroscope || !this.step.backgroundImage) {
+            // video stream for AR background
+            if (this.isIOs) {
+              let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
+              CameraPreview.startCamera(options)
+              CameraPreview.show()
+            } else {
+              var cameraStream = this.$refs['camera-stream-for-locate-item-ar']
+              // enable rear camera stream
+              // -------------------------
+              navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+              
+                .then((stream) => {
+                  // Hacks for Safari iOS
+                  cameraStream.setAttribute("muted", true)
+                  cameraStream.setAttribute("playsinline", true)
+                                  
+                  cameraStream.srcObject = stream
+                  cameraStream.play()
+                  this.cameraStreamEnabled = true
+                })
+                .catch((err) => {
+                  // TODO friendly behavior/message for user
+                  console.warn("No camera stream available")
+                  console.log(err)
+                });
+            }
           }
           
           // Prepare scene to render
@@ -843,10 +847,7 @@ export default {
           this.geolocation.target.camera.position.z = 1.5
           
           // animate & render
-          // if no gyro => animate 3D objects only at the end
-          if (this.deviceHasGyroscope) {
-            this.animateTargetCanvas()
-          }
+          this.animateTargetCanvas()
         }
         
         // enable geoloc only when 3D scene is fully loaded
@@ -1510,10 +1511,6 @@ export default {
           if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
             checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, false)
             if (checkAnswerResult.result === true) {
-              if (!this.deviceHasGyroscope) {
-                this.animateTargetCanvas()
-              }
-              
               if (this.step.type === 'locate-item-ar') {
                 this.geolocation.absoluteOrientationSensor.stop() // stop moving camera when device moves
               }
@@ -2093,14 +2090,15 @@ export default {
         this.geolocation.rawDirection = rawDirection
       }
       
-      let finalDirection = utils.degreesToRadians(rawDirection)
+      // no gyro => consider that the object to find is always in front of the device 
+      let finalDirection = this.deviceHasGyroscope ? utils.degreesToRadians(rawDirection) : 0
       
       // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
       // note that those properties are also needed when accelerometer is used (method 'handleMotionEvent()')
       this.geolocation.position.x = this.geolocation.GPSdistance !== 0 ? Math.sin(finalDirection) * this.geolocation.GPSdistance : 0
       this.geolocation.position.y = this.geolocation.GPSdistance !== 0 ? Math.cos(finalDirection) * this.geolocation.GPSdistance : 0
       
-      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.geolocation.target.scene !== null && this.deviceHasGyroscope) {
+      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.geolocation.target.scene !== null) {
         let target = this.geolocation.target
         let scene = target.scene
         let object = scene.getObjectByName('targetObject')
@@ -2114,7 +2112,7 @@ export default {
         object.visible = true
         
         // if distance to object is greater than value of this.minDistanceForGPS, update target object position only given GPS position. Otherwise, accelerometer is used to track device position for better user experience (avoids object "drifts").
-        if (this.geolocation.GPSdistance > this.minDistanceForGPS) {
+        if (this.geolocation.GPSdistance > this.minDistanceForGPS || this.deviceHasGyroscope === false) {
           // smooth position change
           new TWEEN.Tween(object.position)
             .to({ x: this.geolocation.position.x, y: this.geolocation.position.y }, 1000)
@@ -2125,9 +2123,7 @@ export default {
         this.updatePlayerCanTouchTarget()
       }
       
-      let playerIsFindingLocation = (this.step.type === 'geolocation' || (this.step.type === 'locate-item-ar' && !this.deviceHasGyroscope && this.geolocation.target !== null && this.geolocation.target.scene !== null))
-      
-      if (playerIsFindingLocation && this.geolocation.distance <= 20) {
+      if (this.step.type === 'geolocation' && this.geolocation.distance <= 20) {
         this.$refs['geolocation-component'].disabled = true
         this.geolocation.active = false
         this.resetDrawDirectionInterval()
@@ -2485,17 +2481,20 @@ export default {
     animateTargetCanvas() {
       let target = this.geolocation.target
       let mixers = target.mixers
+      let targetObject = target.scene.getObjectByName('targetObject')
       
       // 2D object: plane must always face camera
       if (this.step.options && !this.step.options.is3D) {
-        let plane = target.scene.getObjectByName('targetObject')
-        plane.lookAt(target.camera.position)
+        targetObject.lookAt(target.camera.position)
       }
       // animation
       if (mixers.length > 0) {
         for (var i = 0; i < mixers.length; i++) {
           mixers[i].update(target.clock.getDelta());
         }
+      }
+      if (this.deviceHasGyroscope === false) {
+        target.camera.lookAt(targetObject.position)
       }
       target.renderer.render(target.scene, target.camera)
       TWEEN.update()
@@ -2560,7 +2559,7 @@ export default {
       
       let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
       
-      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null) {
+      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.deviceHasGyroscope) {
         this.geolocation.target.camera.quaternion = quaternion
       }
       

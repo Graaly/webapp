@@ -36,6 +36,35 @@ Procedure :
     babel node_modules\ip-regex\index.js --out-file node_modules\ip-regex\index.js-es5
     cd node_modules\ip-regex && mv index.js index.js-es6 && mv index.js-es5 index.js && cd ../..
 
+:warning: use only Cordova version 8 (`npm i -g cordova@8.1.2`) otherwise with Cordova 9+ you may get blocking error `Using "requireCordovaModule" to load non-cordova module "fs" is not supported` during build process. 
+
+## iPhone app
+
+Warnings
+
+* Global Cordova installation must be at version 8.1.2 `npm i -g cordova@8.1.2` [see here](https://github.com/mapsplugin/cordova-plugin-googlemaps/issues/2581#issuecomment-483077530)
+* Enable XCode command line: XCode > Preferences > Locations > select XCode cli in the dropdown list, [see here](https://github.com/nodejs/node-gyp/issues/569#issuecomment-486049757)
+* Try this one too: `npm explore npm -g -- npm install node-gyp@latest` (same github issue)
+* Follow [this procedure](https://stackoverflow.com/a/39591319/488666)
+* **Keep any device disconnected during build** to avoid unexpected "Code Signing" build errors, see [here](https://stackoverflow.com/a/48683840/488666) and [here](https://stackoverflow.com/a/50457679/488666)
+
+# Debug the app
+
+## Android app
+
+* Enable developer options on your Android device
+* Connect your build computer your Android device through USB, allow remote debug from your device
+* On your build computer, run `quasar dev -m cordova -T android`
+
+## iPhone app
+
+* To debug on physical device: follow [this procedure](http://maxprog.net.pl/best-practice/quasar-framework-how-deploy-and-debug-mobile-application-on-physical-device-ios-e-g-iphone/) 
+* To debug on simulator: `quasar dev -m cordova -T ios`
+
+# Publish the app
+
+## Android app
+
 :warning: Change the version in the **quasar.conf.js** file
   If needed change the client required version in **/server/routes/main.js** & **webapp/src/plugins/RouterAuthentication.js**
 
@@ -52,10 +81,6 @@ $ E:\logiciels\Android\sdk\build-tools\26.0.2\zipalign -v 4 app-release-unsigned
 Attention:
 * The keystore (jks file) needs to be saved in a secure location. It can not be built again.
 * In the last command, `E:\logiciels\Android\sdk` is the Android SDK base bath and may be different on your build environment. 
-
-# Publish the app
-
-## Android app
 
 Open https://play.google.com/apps/publish/?account=5104428642488176820#ManageReleaseTrackPlace:p=com.graaly.app&appid=4972151247150188990&releaseTrackId=4700787750850651322
 
