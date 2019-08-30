@@ -16,11 +16,11 @@
     
     <!------------------ TABS ------------------------>
     
-    <q-tabs v-model="tabs.selected" class="bg-accent text-white hide-img" inline-label v-if="!chapters.showNewStepOverview">
+    <q-tabs v-model="tabs.selected" class="bg-accent text-white hide-img two-lines" v-if="!chapters.showNewStepOverview">
       <q-tab :disable="isReadOnly()" name="settings" :icon="getTabIcon(1)" :label="$t('label.Intro') + ' (' + languages.current + ')'" default />
       <q-tab :disable="tabs.progress < 1 || isReadOnly()" name="steps" :icon="getTabIcon(2)" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
       <q-tab :disable="tabs.progress < 2" name="publish" :icon="getTabIcon(3)" :label="$t('label.Publish')" />
-      <q-tab name="reviews" :icon="getTabIcon(4)" :label="$t('label.Reviews')" v-if="isEdition && quest.access === 'public'" />
+      <q-tab name="reviews" :icon="getTabIcon(4)" :label="$t('label.ReviewsAndStats')" v-if="isEdition && quest.access === 'public'" />
       <q-tab name="results" :icon="getTabIcon(5)" :label="$t('label.Results')" v-if="quest.status !== 'draft' && quest.access === 'private'" />
     </q-tabs>
 
@@ -64,6 +64,12 @@
           <div v-if="this.quest.access === 'public'">
             <q-chip color="primary" text-color="white" icon="public">
               {{ $t('label.PublicQuest') }}
+            </q-chip>
+          </div>
+          
+          <div v-if="this.quest.isPremium">
+            <q-chip color="secondary" text-color="white" icon="star">
+              {{ $t('label.PremiumQuest') }}
             </q-chip>
           </div>
           
@@ -165,29 +171,43 @@
             <input @change="uploadImage" ref="picturefile" type="file" accept="image/*" />
           </div>
           
-          <div v-if="form.fields.customization">
-            <q-input
-              :disable="readOnly"
-              v-model="form.fields.customization.color"
-              :label="$t('label.ButtonsColor')"
-              placeholder="#ffaa00"
-              class="full-width"
-            />
+          <div v-if="this.quest.isPremium">
+            <q-select
+              :readonly="readOnly"
+              :label="$t('label.PriceForPlayer')"
+              v-model="form.fields.priceForPlayer"
+              :options="form.prices"
+              emit-value
+              map-options
+              bottom-slots
+              options-cover
+              />
+            <div v-if="form.fields.customization">
+              <q-input
+                :disable="readOnly"
+                v-model="form.fields.customization.color"
+                :label="$t('label.ButtonsColor')"
+                placeholder="#ffaa00"
+                class="full-width"
+              />
+            </div>
+            <div v-if="form.fields.customization && form.fields.customization.logo && form.fields.customization.logo !== ''">
+              <p>{{ $t('label.YourLogo') }} :</p>
+              <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.customization.logo" />
+            </div>
+            <div v-if="!isIOs">
+              <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddALogo')" @click="$refs['logofile'].click()" />
+              <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" hidden />
+            </div>
+            <div v-if="isIOs">
+              {{ $t('label.AddALogo') }}:
+              <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" />
+            </div>
           </div>
           
-          <div v-if="form.fields.customization && form.fields.customization.logo && form.fields.customization.logo !== ''">
-            <p>{{ $t('label.YourLogo') }} :</p>
-            <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.customization.logo" />
+          <div v-if="!this.quest.isPremium">
+            <q-btn color="secondary" class="full-width q-mt-lg" @click="openPremiumBox()" icon="star" :label="$t('label.MovePremium')" />
           </div>
-          <div v-if="!isIOs">
-            <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddALogo')" @click="$refs['logofile'].click()" />
-            <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" hidden />
-          </div>
-          <div v-if="isIOs">
-            {{ $t('label.AddALogo') }}:
-            <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" />
-          </div>
-          
           <q-btn v-if="!readOnly" @click="submitSettings" color="primary" class="full-width q-mt-lg" test-id="btn-save-settings">{{ $t('label.Save') }}</q-btn>
             
         </form>
@@ -402,31 +422,66 @@
       <!------------------ REVIEWS TAB ------------------------>
         
       <q-tab-panel name="reviews" v-if="isEdition && quest.access === 'public'">
-        <!--<q-infinite-scroll :handler="getReviews">-->
-          <q-list highlight v-if="reviews.length > 0">
-            <q-item v-for="review in reviews" :key="review._id">
-              
-              <q-item-section avatar>
-                <q-avatar>
-                  <img :src="getAvatar(review.userId.picture)" />
-                </q-avatar>
-              </q-item-section>
-                
-              <q-item-section>
-                <q-item-label>
-                  {{ review.userId.name }}
-                </q-item-label>
-                <q-item-label caption>
-                  <q-rating readonly v-model="review.rating" /> - {{ $options.filters.formatDate(review.created) }} (v{{ review.version }})
-                </q-item-label>
-                <q-item-label caption class="review-text">{{ review.text }}</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item v-if="reviews.length === 0">
-              <q-item-label>{{ $t('label.QuestNotReviewed') }}</q-item-label>
-            </q-item>
-          </q-list>
-        <!--</q-infinite-scroll>-->
+        <q-item>
+          <q-item-section side top>
+            <q-icon name="timeline" class="left-icon" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="big-label">{{ $t('label.Statistics') }}</q-item-label>
+            <p>{{ $t('label.TotalNumberOfPlayers') }}{{ $t('label.colons') }}{{ statistics.statistics.nbPlayers }}</p>
+            <p>{{ $t('label.NumberOfPlayersYesterday') }}{{ $t('label.colons') }}{{ statistics.statistics.dailyNbPlayers }}</p>
+            <p v-if="statistics && statistics.statistics && statistics.statistics.ageRepartition && statistics.statistics.ageRepartition.length > 0">
+              {{ $t('label.NumberOfPlayersByAge') }}
+                <q-list class="shadow-2 rounded-borders">
+                  <q-item v-for="statistic in statistics.statistics.ageRepartition" :key="statistic._id">
+                    <q-item-section>{{ $t('label.Age' + (statistic._id.replace('-', '').replace('+', ''))) }}{{ $t('label.colons') }}{{ statistic.nb }}</q-item-section>
+                  </q-item>
+                </q-list>
+            </p>
+            <p v-if="statistics && statistics.statistics && statistics.statistics.sexRepartition && statistics.statistics.sexRepartition.length > 0">
+              {{ $t('label.NumberOfPlayersBySex') }}
+                <q-list class="shadow-2 rounded-borders">
+                  <q-item v-for="statistic in statistics.statistics.sexRepartition" :key="statistic._id">
+                    <q-item-section>{{ $t('label.' + statistic._id) }}{{ $t('label.colons') }}{{ statistic.nb }}</q-item-section>
+                  </q-item>
+                </q-list>
+            </p>
+            <p>{{ $t('label.AverageScore') }}{{ $t('label.colons') }}{{ statistics.statistics.averageScore }}</p>
+          </q-item-section>
+        </q-item>
+        <q-item v-if="reviews.length > 0">
+          <q-item-section side top>
+            <q-icon name="chat_bubble_outline" class="left-icon" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="big-label">{{ $t('label.Reviews') }}</q-item-label>
+            <!--<q-infinite-scroll :handler="getReviews">-->
+              <q-list highlight>
+                <q-item v-for="review in reviews" :key="review._id">
+                  
+                  <q-item-section avatar>
+                    <q-avatar>
+                      <img :src="getAvatar(review.userId.picture)" />
+                    </q-avatar>
+                  </q-item-section>
+                    
+                  <q-item-section>
+                    <q-item-label>
+                      {{ review.userId.name }}
+                    </q-item-label>
+                    <q-item-label caption>
+                      <q-rating readonly v-model="review.rating" /> - {{ $options.filters.formatDate(review.created) }} (v{{ review.version }})
+                    </q-item-label>
+                    <q-item-label caption class="review-text">{{ review.text }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item v-if="reviews.length === 0">
+                  <q-item-label>{{ $t('label.QuestNotReviewed') }}</q-item-label>
+                </q-item>
+              </q-list>
+            <!--</q-infinite-scroll>-->
+          </q-item-section>
+        </q-item>
         
       </q-tab-panel>
     
@@ -682,6 +737,24 @@
       <q-btn class="q-mb-xl" color="primary" @click="unzoomMedia()">{{ $t('label.Close') }}</q-btn>
     </q-dialog>
     
+    <!------------------ PREMIUM POPIN ------------------------>
+    
+    <q-dialog v-model="premium.isOpened">
+      <div class="q-pa-md">
+        <img src="statics/icons/game/premium-header.png" style="width: 100%" />
+        <div class="text-h6 text-primary">{{ $t('label.PremiumDefinition1') }}</div>
+        <div v-html="$t('label.PremiumDefinition2')" />
+        <div v-if="!premium.canMovePremium" class="centered">
+          <p>{{ $t('label.PremiumDefinition3') }}</p>
+          <q-btn class="q-mb-xl" color="primary" @click="premium.isOpened = false">{{ $t('label.Close') }}</q-btn>
+        </div>
+        <div v-if="premium.canMovePremium" class="centered">
+          <q-btn class="q-mb-sm" color="primary" @click="movePremium()">{{ $t('label.MovePremium') }}</q-btn>
+          <q-btn class="q-mb-xl" flat color="primary"  @click="premium.isOpened = false">{{ $t('label.Cancel') }}</q-btn>
+        </div>
+      </div>
+    </q-dialog>
+    
     <!--====================== STORY =================================-->
     
     <div class="fixed-bottom over-map fit" v-if="story.step !== null && story.step !== 'end'">
@@ -745,6 +818,7 @@ export default {
         fields: {
           title: {},
           category: '',
+          priceForPlayer: 'free',
           description: {},
           location: { lat: '', lng: '' },
           startingPlace: '',
@@ -763,6 +837,15 @@ export default {
         categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }, this.$t),
         languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
         levels: utils.buildOptionsForSelect(questLevels, { valueField: 'id', labelField: 'name' }, this.$t),
+        prices: [
+          { label: this.$t('label.Free'), value: 'free' },
+          { label: "0,99 €", value: 'premiumprice1' },
+          { label: "1,99 €", value: 'premiumprice2' },
+          { label: "2,99 €", value: 'premiumprice3' },
+          { label: "4,99 €", value: 'premiumprice5' },
+          { label: "9,99 €", value: 'premiumprice10' },
+          { label: "19,99 €", value: 'premiumprice20' }
+        ],
         durations: [
           { label: '15 ' + this.$t('label.minutes'), value: 15 },
           { label: '30 ' + this.$t('label.minutes'), value: 30 },
@@ -829,7 +912,12 @@ export default {
         data: null,
         active: false
       },
+      premium: {
+        isOpened: false,
+        canMovePremium: false
+      },
       reviews: [],
+      statistics: [],
       canMoveNextStep: false,
       canPass: false,
       itemUsed: null,
@@ -873,6 +961,7 @@ export default {
       // if quest Id is not set, redirect to quest creation page
       this.$router.push('/quest/create/welcome')
     }
+    
     // start tutorial 
     this.startStory()
   },
@@ -915,6 +1004,11 @@ export default {
         this.form.fields.town = (this.form.fields.location && this.form.fields.location.town) ? this.form.fields.location.town : ""
         this.form.fields.country = (this.form.fields.location && this.form.fields.location.country) ? this.form.fields.location.country : ""
         
+        // prices
+        if (this.quest.premiumPrice && this.quest.premiumPrice.androidId) {
+          this.form.fields.priceForPlayer = this.quest.premiumPrice.androidId
+        }
+        
         // adapt data from DB to match form data structure
         if (this.form.fields.location.hasOwnProperty('coordinates') && this.form.fields.location.coordinates.length === 2) {
           let coordinates = this.form.fields.location.coordinates
@@ -936,11 +1030,51 @@ export default {
         
         await this.listReviews()
         
+        await this.getStatistics()
+        
         if (this.quest.access && this.quest.access === 'private') {
           this.getPrivateRanking()
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+    },
+    /*
+     * move the quest to Premium
+     */
+    async movePremium() {
+      // if quest is not already premium
+      if (!this.quest.isPremium) {
+        // if user is in an organization
+        if (this.$store.state.user && this.$store.state.user.organizationId) {
+          const canThisQuestBePremium = await QuestService.CheckIfCanBeMovedPremium(this.questId)
+          
+          if (canThisQuestBePremium && canThisQuestBePremium.data && canThisQuestBePremium.data.canBePremium) {
+            const movePremiumStatus = await QuestService.MoveToPremium(this.questId)
+
+            if (movePremiumStatus && movePremiumStatus.data && movePremiumStatus.data.status && movePremiumStatus.data.status === 'ok') {
+              this.quest.isPremium = true
+              this.quest.size.limit = 600000000
+            } else {
+              Notification(this.$t('label.ErrorStandardMessage'), 'error')
+            }
+          }
+          this.premium.isOpened = false
+        }
+      }
+    },
+    async openPremiumBox() {
+      // if quest is not already premium
+      if (!this.quest.isPremium) {
+        // if user is in an organization
+        if (this.$store.state.user && this.$store.state.user.organizationId) {
+          const canThisQuestBePremium = await QuestService.CheckIfCanBeMovedPremium(this.questId)
+          
+          if (canThisQuestBePremium && canThisQuestBePremium.data && canThisQuestBePremium.data.canBePremium) {
+            this.premium.canMovePremium = true
+          }
+        }
+        this.premium.isOpened = true
       }
     },
     async changeEditorMode() {
@@ -972,8 +1106,10 @@ export default {
         const steps = response.data.steps
         
         if (this.form.fields.editorMode === 'simple') {
-          // editor simple mode
-          this.chapters.items[0].steps = steps
+          if (this.chapters.items && this.chapters.items.length > 0) {
+            // editor simple mode
+            this.chapters.items[0].steps = steps
+          }
         } else {
           // editor advanced mode
           for (var j = 0; j < this.chapters.items.length; j++) {
@@ -1281,13 +1417,21 @@ export default {
       data.append('image', files[0])
       let uploadPictureResult = await QuestService.uploadPicture(data)
       if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
-        this.form.fields.picture = uploadPictureResult.data.file
+        if (uploadPictureResult.data.file) {
+          this.form.fields.picture = uploadPictureResult.data.file
+        } else if (uploadPictureResult.data.message && uploadPictureResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
       let uploadThumbResult = await QuestService.uploadThumb(data)
       if (uploadThumbResult && uploadThumbResult.hasOwnProperty('data')) {
-        this.form.fields.thumb = uploadThumbResult.data.file
+        if (uploadThumbResult.data.file) {
+          this.form.fields.thumb = uploadThumbResult.data.file
+        } else if (uploadThumbResult.data.message && uploadThumbResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1306,7 +1450,11 @@ export default {
       data.append('image', files[0])
       let uploadPictureResult = await QuestService.uploadLogo(data)
       if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
-        this.form.fields.customization.logo = uploadPictureResult.data.file
+        if (uploadPictureResult.data.file) {
+          this.form.fields.customization.logo = uploadPictureResult.data.file
+        } else if (uploadPictureResult.data.message && uploadPictureResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -2419,6 +2567,14 @@ export default {
     async listReviews () {
       let results = await ReviewService.list({ questId: this.questId, version: this.quest.version })
       this.reviews = results.data
+    },
+    /*
+     * Get quest statistics
+     */
+    async getStatistics () {
+      const date = new Date()
+      let results = await QuestService.getStatistics(this.questId, this.quest.version, date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate())
+      this.statistics = results.data
     },
     /*
      * Get avatar URL given file name (may be already an URL)

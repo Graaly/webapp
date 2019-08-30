@@ -144,7 +144,7 @@
         <p><img src="statics/icons/story/character4_attitude1.png" /></p>
       </div>
       <div>
-        <div class="q-mb-sm">
+        <div class="q-mb-sm" v-if="quest.isPremium">
           {{ $t('label.OrDownloadAFile') }}
           <div v-if="!isIOs">
             <q-btn class="full-width" type="button" :label="$t('label.UploadACharacter')" @click="$refs['characterfile'].click()" />
@@ -158,6 +158,9 @@
           <div class="centered" v-if="selectedStep.form.options.character && selectedStep.form.options.character.length > 1">
             <img style="width:100%" :src="serverUrl + '/upload/quest/' + questId + '/step/character/' + selectedStep.form.options.character" />
           </div>
+        </div>
+        <div class="q-mb-sm" v-if="!quest.isPremium">
+          <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadACharacter')" @click="premium.show = true" />
         </div>
       </div>
     </div>
@@ -448,7 +451,7 @@
       <h2>{{ $t('label.ObjectFormat') }}</h2>
       <div class="fields-group">
         <q-radio v-model="selectedStep.form.options.is3D" :val="false" :label="$t('label.2DPicture')" />
-        <q-radio v-model="selectedStep.form.options.is3D" :val="true" :label="$t('label.3DObject')" test-id="radio-locate-item-3d" />
+        <q-radio v-model="selectedStep.form.options.is3D" :val="true" :label="$t('label.3DObject')" test-id="radio-locate-item-3d" @input="change2D3DObject" />
       
         <div v-if="!selectedStep.form.options.is3D">
           <div v-if="!isIOs">
@@ -471,8 +474,23 @@
           </div>
         </div>
         <div v-if="selectedStep.form.options.is3D">
-          <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" test-id="select-3d-model" />
+          <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" test-id="select-3d-model" @input="changeObjectInList" />
           <p class="error-label" v-show="$v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
+          <div class="centered">{{ $t('label.Or') }}</div>
+          <div v-if="quest.isPremium">
+            <div v-if="!isIOs">
+              <q-btn class="full-width" type="button" @click="$refs['object-to-find'].click()" :label="$t('label.UploadTheObjectToFind')" />
+              <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".zip" hidden />
+            </div>
+            <div v-if="isIOs">
+              {{ $t('label.UploadTheObjectToFind') }}:
+              <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".zip" />
+            </div>
+            <div style="width: 200px; height: 200px;" id="target-canvas"></div>
+          </div>
+          <div v-if="!quest.isPremium">
+            <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadTheObjectToFind')" @click="premium.show = true" />
+          </div>
         </div>
       </div>
       
@@ -673,6 +691,15 @@
       </q-card>
     </q-dialog>
     
+    <!------------------ PREMIUM POPIN ------------------------>
+    
+    <q-dialog v-model="premium.show">
+      <div class="q-pa-md">
+        <div v-html="$t('label.PremiumDefinition1')" />
+        <q-btn class="q-mb-xl" color="primary" @click="premium.show = false">{{ $t('label.Close') }}</q-btn>
+      </div>
+    </q-dialog>
+    
   </div>
 </template>
 
@@ -692,6 +719,10 @@ import markersList from 'data/markers.json'
 import layersForMarkers from 'data/layersForMarkers.json'
 
 import StepService from 'services/StepService'
+
+import * as THREE from 'three'
+//import * as TWEEN from '@tweenjs/tween.js'
+import GLTFLoader from 'three-gltf-loader'
 
 export default {
   /*
@@ -794,7 +825,11 @@ export default {
       
       // for 'locate-marker'
       markerModalOpened: false,
-      layersForMarkersOptions: [] // for 'locate-marker' only
+      layersForMarkersOptions: [], // for 'locate-marker' only
+      
+      premium: {
+        show: false
+      }
     }
   },
   computed: {
@@ -1076,6 +1111,8 @@ export default {
         if (!this.selectedStep.form.options.hasOwnProperty('model')) {
           this.$set(this.selectedStep.form.options, 'model', this.selectModel3DOptions[0].value)
         }
+        // display 3D model selected by default
+        await this.displayARObject(this.selectedStep.form.options.model)
       } else if (this.options.type.code === 'locate-marker') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.$set(this.selectedStep.form, 'answers', markersList[0])
@@ -1120,13 +1157,13 @@ export default {
      */
     async submitStep() {
       this.$v.selectedStep.form.$touch()
-      
+
       // treat form errors (based on validation rules)
       if (this.$v.selectedStep.form.$error) {    
         Notification(this.$t('label.StepSettingsFormError'), 'error')
         return
       }
-      
+
       // format answer based on the type of step
       if (this.options.type.code === 'choose') {
         if (this.answerType === 'text') {
@@ -1169,12 +1206,11 @@ export default {
         if (!this.selectedStep.form.options.items) {
           this.selectedStep.form.options.items = []
         }
-        for (i = 0; i < this.memoryItems.length; i++) {
-          if (this.memoryItems[i].imagePath !== null) {
-            this.selectedStep.form.options.items.push(this.memoryItems[i])
+        for (var j = 0; i < this.memoryItems.length; i++) {
+          if (this.memoryItems[j].imagePath !== null) {
+            this.selectedStep.form.options.items.push(this.memoryItems[j])
           }
         }
-        
         if (this.selectedStep.form.options.lastIsSingle && this.selectedStep.form.options.items && this.selectedStep.form.options.items.length > 0) {
           this.selectedStep.form.options.items[this.selectedStep.form.options.items.length - 1].single = true
         }
@@ -1188,7 +1224,6 @@ export default {
       if (this.options.type.code === 'new-item') {
         //this.selectedStep.form.answers = this.selectedStep.form.answerItem
       }
-      
       // save step data
       let newStepData = Object.assign(this.selectedStep.form, {
         questId: this.questId,
@@ -1199,7 +1234,6 @@ export default {
       this.$q.loading.show()
       let stepData = await StepService.save(newStepData)
       this.$q.loading.hide()
-
       if (stepData && stepData.data && stepData.data.stepId) {
         // send change event to parent, with stepId information
         newStepData.id = stepData.data.stepId
@@ -1232,7 +1266,8 @@ export default {
         Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.maxMemoryItems }), 'error')
       } else {
         this.memoryItems.push({
-          imagePath: null // image default data
+          imagePath: null, // image default data
+          single: false
         })
       }
     },
@@ -1443,7 +1478,11 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadBackgroundImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.backgroundImage = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.selectedStep.form.backgroundImage = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1476,7 +1515,11 @@ export default {
       data.append('video', files[0])
       let uploadResult = await StepService.uploadVideo(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.videoStream = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.selectedStep.form.videoStream = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1496,7 +1539,11 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadImageToRecognize(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.answers = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.selectedStep.form.answers = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1516,7 +1563,11 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadAnswerImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.options.items[key].imagePath = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.selectedStep.form.options.items[key].imagePath = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1534,9 +1585,14 @@ export default {
       }
       var data = new FormData()
       data.append('image', files[0])
+
       let uploadResult = await StepService.uploadMemoryImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.memoryItems[key].imagePath = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.memoryItems[key].imagePath = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1566,7 +1622,11 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadCodeAnswerImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.options.images[key].imagePath = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.selectedStep.form.options.images[key].imagePath = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1586,7 +1646,11 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadPuzzleImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.options.picture = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.selectedStep.form.options.picture = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1606,11 +1670,47 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadItemImage(this.questId, this.options.type.code, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.options.picture = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.selectedStep.form.options.picture = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
       this.$q.loading.hide()
+    },
+    /*
+     * Upload a 3D object
+     * @param   {Object}    e            Upload data
+     */
+    async uploadItemObject(e) {
+      this.$q.loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadResult = await StepService.uploadItemObject(this.questId, this.options.type.code, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        if (uploadResult.data.file) {
+          this.selectedStep.form.options.customModel = uploadResult.data.file
+          
+          await this.displayARObject(this.selectedStep.form.options.customModel, this.questId)
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    /*
+     * Change the object selected in the 3D object list
+     */
+    async changeObjectInList() {
+      await this.displayARObject(this.selectedStep.form.options.model)
     },
     /*
      * Upload a character picture
@@ -1626,11 +1726,119 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadCharacterImage(this.questId, this.options.type.code, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        Vue.set(this.selectedStep.form.options, 'character', uploadResult.data.file)
+        if (uploadResult.data.file) {
+          Vue.set(this.selectedStep.form.options, 'character', uploadResult.data.file)
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
       this.$q.loading.hide()
+    },
+    
+    /*
+    * loads GLTF data, puts object origin at center, sets position of 3D model according to its settings in 3DModels.json
+    * @param     modelCode     code of the 3D model, for example "lamp"
+    * @return    object        { object: <3D object>, animations: <animations from GLTF data> }
+    */
+    async loadAndPrepare3DModel(modelCode, questId) {
+      let gltfData
+      try {
+        this.$q.loading.show()
+        gltfData = await this.ModelLoaderAsync(modelCode, questId)
+        this.$q.loading.hide()
+      } catch (err) {
+        console.error("Error while loading 3D model:", err)
+        Notification(this.$t('label.CouldNotDisplayObject'), 'error')
+        return
+      }
+      
+      let object = gltfData.scene
+      
+      return { object, animations: gltfData.animations }
+    },
+    /*
+    * Loads material file and object file into a 3D Model for Three.js
+    * Supports only GLTF format
+    * Returns a Promise, usable with async/await
+    */
+    async ModelLoaderAsync(objName, questId) {
+      let progress = console.log
+      
+      return new Promise((resolve, reject) => {
+        let gltfLoader = new GLTFLoader()
+        // loads automatically .bin and textures files if necessary
+        if (objName.indexOf('blob:') !== -1) {
+          gltfLoader.load(objName, resolve, progress, reject)
+        } else {
+          if (questId) {
+            gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '/scene.gltf', resolve, progress, reject)
+          } else {
+            gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+          }
+        }
+      })
+    },
+    /*
+    * Display a 3D Model for Three.js
+    */
+    async displayARObject(model, questId) {
+      var ObjectData = await this.loadAndPrepare3DModel(model, questId)
+      var object = ObjectData.object
+      object.up = new THREE.Vector3(0, 0, 1)
+      object.visible = true
+      
+      // Create an empty scene
+      var scene = new THREE.Scene()
+
+      // Create a basic perspective camera
+      var camera = new THREE.PerspectiveCamera(67, 1, 0.001, 1000)
+      camera.position.z = 1.5
+
+      // Create a renderer with Antialiasing
+      var renderer = new THREE.WebGLRenderer({ antialias: true })
+
+      // Configure renderer size
+      renderer.setSize(200, 200)
+      renderer.gammaOutput = true
+
+      // Append Renderer to DOM
+      var convasItem = document.getElementById('target-canvas')
+      if (convasItem) {
+        // remove old objects
+        while ((convasItem && convasItem.firstChild)) {
+            convasItem.removeChild(convasItem.firstChild)
+        }
+        convasItem.appendChild(renderer.domElement)
+
+        scene.add(object)
+        let light = new THREE.DirectionalLight(0xdddddd)
+        light.position.set(0, 1, 1).normalize()
+        scene.add(light)
+
+        // soft ambient light
+        scene.add(new THREE.AmbientLight(0xb0b0b0))
+
+        // Render Loop
+        var render = function () {
+          requestAnimationFrame(render)
+
+          object.rotation.x += 0.01
+          object.rotation.y += 0.01
+
+          // Render the scene
+          renderer.render(scene, camera)
+        }
+
+        render()
+      }
+    },
+    /*
+     * Change 2D / 3D mode
+     */
+    async change2D3DObject() {
+      await this.changeObjectInList()
     },
     /*
      * Select an object in the list
@@ -1962,6 +2170,8 @@ p { margin-bottom: 0.5rem; }
 
 #choose-marker-modal img { width: 5rem; height: 5rem; }
 #choose-marker-modal span { flex-grow: 1; font-size:1.5rem; color: #000; }
+
+#target-canvas { margin: auto; width: 200px; height: 200px }
 
 </style>
 

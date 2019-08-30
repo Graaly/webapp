@@ -58,6 +58,12 @@ export default {
     return Api().get('user/bestfriends').catch(error => console.log(error.request))
   },
   /*
+   * Get organization data
+   */
+  getOrganization () {
+    return Api().get('user/organization').catch(error => console.log(error.request))
+  },
+  /*
    * buy coins
    * @param   {String}    offer                  ID of the offer
    */

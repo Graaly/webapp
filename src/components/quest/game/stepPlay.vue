@@ -154,6 +154,7 @@
             </td>
           </tr>
         </table>
+        <div class="centered text-grey q-py-md">{{ $t('label.ClickToEnlargePictures') }}</div>
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
@@ -226,6 +227,9 @@
             ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'"></header></div>
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
+        <div class="centered text-grey q-pt-xl">
+          <a color="grey" @click="reloadPage">{{ $t('label.ReloadPuzzle') }}</a>
+        </div>
       </div>
       
       <!------------------ MEMORY STEP AREA ------------------------>
@@ -775,7 +779,7 @@ export default {
           // --- specific parts for 2D/3D ---
           let object, animations
           if (this.step.options.is3D) {
-            let data = await this.loadAndPrepare3DModel(this.step.options.model)
+            let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.options.customModel ? this.step.questId : null)
             object = data.object
             animations = data.animations
             
@@ -913,6 +917,14 @@ export default {
               })
           }
         }
+      })
+    },
+    reloadPage() {
+      this.$router.go({
+          path: this.$router.path,
+          query: {
+              t: new Date()
+          }
       })
     },
     /*
@@ -1146,7 +1158,8 @@ export default {
       
       if (this.step.options.mode === 'touch') {
         let object, animations
-        let data = await this.loadAndPrepare3DModel(this.step.options.model)
+        //let data = await this.loadAndPrepare3DModel(this.step.options.model)
+        let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.options.customModel ? this.step.questId : null)
         object = data.object
         animations = data.animations
         
@@ -2628,13 +2641,13 @@ export default {
     * @param     modelCode     code of the 3D model, for example "lamp"
     * @return    object        { object: <3D object>, animations: <animations from GLTF data> }
     */
-    async loadAndPrepare3DModel(modelCode) {
+    async loadAndPrepare3DModel(modelCode, questId) {
       let scaleFactor = 4 // make objects four times bigger than their "real" size, for better usability
       let objectInit = modelsList[modelCode]
       let gltfData
       try {
         this.$q.loading.show()
-        gltfData = await this.ModelLoaderAsync(modelCode)
+        gltfData = await this.ModelLoaderAsync(modelCode, questId)
         this.$q.loading.hide()
       } catch (err) {
         console.error("Error while loading 3D model:", err)
@@ -2644,35 +2657,37 @@ export default {
       
       let object = gltfData.scene
       
-      // apply user-defined rotation
-      objectInit.rotation = objectInit.rotation || {}
-      if (objectInit.rotation.hasOwnProperty('x')) { object.rotateX(utils.degreesToRadians(objectInit.rotation.x)) } else {
-        object.rotateX(Math.PI / 2)
-      }
-      if (objectInit.rotation.hasOwnProperty('y')) { object.rotateY(utils.degreesToRadians(objectInit.rotation.y)) }
-      if (objectInit.rotation.hasOwnProperty('z')) { object.rotateZ(utils.degreesToRadians(objectInit.rotation.z)) }
-      
-      // apply user-defined scaling
-      let scale = (objectInit.scale || 1) * scaleFactor
-      object.scale.set(scale, scale, scale)
-      
-      // set object origin at center
-      let objBbox = new THREE.Box3().setFromObject(object)
-      
-      let pivot = objBbox.getCenter(new THREE.Vector3())
-      pivot.multiplyScalar(-1)
-      
-      let pivotObj = new THREE.Object3D();
-      object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
-      pivotObj.add(object)
-      pivotObj.up = new THREE.Vector3(0, 0, 1)
-      object = pivotObj
-      
-      // apply user-defined translation
-      if (objectInit.translation && this.step.type === 'locate-item-ar') {
-        if (objectInit.translation.hasOwnProperty('x')) { object.position.x += objectInit.translation.x * scaleFactor }
-        if (objectInit.translation.hasOwnProperty('y')) { object.position.y += objectInit.translation.y * scaleFactor }
-        if (objectInit.translation.hasOwnProperty('z')) { object.position.z += objectInit.translation.z * scaleFactor }
+      if (objectInit) {
+        // apply user-defined rotation
+        objectInit.rotation = objectInit.rotation || {}
+        if (objectInit.rotation.hasOwnProperty('x')) { object.rotateX(utils.degreesToRadians(objectInit.rotation.x)) } else {
+          object.rotateX(Math.PI / 2)
+        }
+        if (objectInit.rotation.hasOwnProperty('y')) { object.rotateY(utils.degreesToRadians(objectInit.rotation.y)) }
+        if (objectInit.rotation.hasOwnProperty('z')) { object.rotateZ(utils.degreesToRadians(objectInit.rotation.z)) }
+        
+        // apply user-defined scaling
+        let scale = (objectInit.scale || 1) * scaleFactor
+        object.scale.set(scale, scale, scale)
+        
+        // set object origin at center
+        let objBbox = new THREE.Box3().setFromObject(object)
+        
+        let pivot = objBbox.getCenter(new THREE.Vector3())
+        pivot.multiplyScalar(-1)
+        
+        let pivotObj = new THREE.Object3D();
+        object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
+        pivotObj.add(object)
+        pivotObj.up = new THREE.Vector3(0, 0, 1)
+        object = pivotObj
+        
+        // apply user-defined translation
+        if (objectInit.translation && this.step.type === 'locate-item-ar') {
+          if (objectInit.translation.hasOwnProperty('x')) { object.position.x += objectInit.translation.x * scaleFactor }
+          if (objectInit.translation.hasOwnProperty('y')) { object.position.y += objectInit.translation.y * scaleFactor }
+          if (objectInit.translation.hasOwnProperty('z')) { object.position.z += objectInit.translation.z * scaleFactor }
+        }
       }
       
       return { object, animations: gltfData.animations }
@@ -2682,17 +2697,31 @@ export default {
     * Supports only GLTF format
     * Returns a Promise, usable with async/await
     */
-    async ModelLoaderAsync(objName) {
+    async ModelLoaderAsync(objName, questId) {
       let progress = console.log
       
+      // Load GLTF packed as binary (blob)
+      //const offlineObject = await utils.readFile(questId + '/' + objName, 'scene.gltf')
+      const offlineObject = await utils.readBinaryFile(questId + '/' + objName, 'object.glb')
+console.log(offlineObject)
       return new Promise((resolve, reject) => {
         let gltfLoader = new GLTFLoader()
         // loads automatically .bin and textures files if necessary
         if (objName.indexOf('blob:') !== -1) {
           gltfLoader.load(objName, resolve, progress, reject)
         } else {
-          //gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
-          gltfLoader.load('statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+          if (offlineObject) {
+console.log("tst1")
+            gltfLoader.load(offlineObject, resolve, progress, reject)
+          } else {
+console.log("tst2")
+            //gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+            if (questId) {
+              gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '/scene.gltf', resolve, progress, reject)
+            } else {
+              gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+            }
+          }
         }
       })
     },

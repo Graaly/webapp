@@ -232,3 +232,15 @@ Open the platform tools folder of your android SDK (e.g. : cd E:\logiciels\Andro
 ### Error message `Failed to execute tools\android.bat`
 
 Check the solutions [here](https://stackoverflow.com/questions/19015587/failed-to-execute-tools-android-bat-solution), and particularly [this one](https://stackoverflow.com/a/56633566/488666)
+
+### Error "Can not find symbol"
+
+Replace in the file 
+
+webapp\src-cordova\platforms\android\app\src\main\java\com\smartmobilesoftware\util\IabHelper.java 
+
+buyIntentBundle = mService.getBuyIntentToReplaceSkus(5, mContext.getPackageName(), oldPurchasedSkus, sku, itemType, extraData)
+
+by 
+
+buyIntentBundle = mService.getBuyIntent(3, mContext.getPackageName(), sku, itemType, extraData)

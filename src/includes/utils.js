@@ -675,6 +675,9 @@ var self = {
       case 'webm':
         mimeType = 'video/webm'
         break
+      case '.glb':
+        mimeType = 'model/gltf-binary'
+        break
     }
     return mimeType
   },
