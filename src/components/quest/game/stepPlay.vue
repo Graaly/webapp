@@ -154,6 +154,7 @@
             </td>
           </tr>
         </table>
+        <div class="centered text-grey q-py-md">{{ $t('label.ClickToEnlargePictures') }}</div>
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
@@ -185,7 +186,7 @@
       
       <!------------------ GEOLOCALISATION STEP AREA ------------------------>
       
-      <div class="geolocation" v-if="step.type == 'geolocation' || (step.type == 'locate-item-ar' && !deviceHasGyroscope && playerResult === null)">
+      <div class="geolocation" v-if="step.type == 'geolocation'">
         <div>
           <p class="text">{{ getTranslatedText() }}</p>
           <p class="text" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
@@ -204,8 +205,9 @@
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="answer-text">
-          <input v-model="writetext.playerAnswer" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" />
-          <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
+          <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
+          <input v-bind:value="writetext.playerAnswer" v-on:input="writetext.playerAnswer = $event.target.value" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" :disabled="stepPlayed" />
+          <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" class="full-width" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
         </div>
       </div>
       
@@ -225,6 +227,9 @@
             ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'"></header></div>
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
+        <div class="centered text-grey q-pt-xl">
+          <a color="grey" @click="reloadPage">{{ $t('label.ReloadPuzzle') }}</a>
+        </div>
       </div>
       
       <!------------------ MEMORY STEP AREA ------------------------>
@@ -276,7 +281,7 @@
       
       <!------------------ LOCATE ITEM IN AUGMENTED REALITY STEP AREA ------------------------>
       
-      <div class="locate-item-ar" v-show="step.type == 'locate-item-ar' && (deviceHasGyroscope || playerResult)">
+      <div class="locate-item-ar" v-show="step.type == 'locate-item-ar'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && geolocation.active"></video>
         </transition>
@@ -289,10 +294,10 @@
             <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
           </div>
         </div>
-        <div class="target-view" v-show="playerResult === null || (playerResult && step.options && step.options.is3D)">
+        <div class="target-view" v-show="(playerResult === null) || (playerResult && step.options && step.options.is3D)">
           <canvas id="target-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
-        <img ref="item-image" v-show="playerResult && !step.options.is3D" />
+        <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
       </div>
       
       <!------------------ LOCATE A 2D MARKER / TOUCH OBJECT ON MARKER ------------------------>
@@ -317,6 +322,7 @@
         <div v-if="locateMarker.compliant && playerResult === null && isHybrid" class="text-white centered q-mt-md">
           {{ $t('label.ScanTheMarkersLikeThat') }}
           <div><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
+          {{ $t('label.ScanTheMarkersLikeThat2') }}
           <div><q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" @click="startScanQRCode()">{{ $t('label.LaunchTheScanner') }}</q-btn></div>
         </div>
         <div v-if="!locateMarker.compliant">
@@ -471,7 +477,8 @@ export default {
   methods: {
     initialState () {
       return {
-        playerResult: null,
+        playerResult: null, // can be null even if step is played (answered)
+        stepPlayed: false, // changes to true when step is played
         cameraStreamEnabled: false,
         serverUrl: process.env.SERVER_URL,
         nbTry: 0,
@@ -522,7 +529,7 @@ export default {
             raw: { x: 0, y: 0, z: 0 },
             filtered: { x: 0, y: 0 },
             avgData: { x: [], y: [], z: [] },
-            maxAvgItems: 3
+            maxAvgItems: 4
           },
           velocity: { x: 0, y: 0 },
           dateLatestEvent: null,
@@ -553,7 +560,7 @@ export default {
         
         // for step type 'write-text'
         writetext: {
-          playerAnswer: null
+          playerAnswer: ""
         },
         
         // for step type 'jigsaw puzzle'
@@ -561,7 +568,8 @@ export default {
           pieces: [],
           picture: 'statics/icons/game/medal.png',
           dragSrcEl: null,
-          element: {}
+          element: {},
+          colsByLevel: [1, 3, 4, 6, 5]
         },
         
         // for step type 'memory'
@@ -714,13 +722,13 @@ export default {
           await this.waitForGyroscopeDetection()
           
           if (this.step.type === 'locate-item-ar' && !this.deviceHasGyroscope) {
-            Notification(this.$t('label.CouldNotPlayARStep'), 'warning')
+            Notification(this.$t('label.CouldNotEnableAR'), 'warning')
           }
         }
         
         if (this.step.type === 'locate-item-ar'  && !this.playerResult) {
-          // no gyro => behavior similar to step type 'geolocation' => no camera stream in background
-          if (this.deviceHasGyroscope) {
+          if (this.deviceHasGyroscope || !this.step.backgroundImage) {
+            // video stream for AR background
             if (this.isIOs) {
               let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
               CameraPreview.startCamera(options)
@@ -730,11 +738,12 @@ export default {
               // enable rear camera stream
               // -------------------------
               navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+              
                 .then((stream) => {
                   // Hacks for Safari iOS
                   cameraStream.setAttribute("muted", true)
                   cameraStream.setAttribute("playsinline", true)
-                  
+                                  
                   cameraStream.srcObject = stream
                   cameraStream.play()
                   this.cameraStreamEnabled = true
@@ -754,7 +763,7 @@ export default {
           
           this.geolocation.target = {
             scene: new THREE.Scene(),
-            camera: new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000),
+            camera: new THREE.PerspectiveCamera(67, window.innerWidth / window.innerHeight, 0.001, 1000),
             renderer: new THREE.WebGLRenderer({ canvas: sceneCanvas, alpha: true, antialias: true }),
             size: null, // in meters
             // for animation
@@ -774,7 +783,7 @@ export default {
           // --- specific parts for 2D/3D ---
           let object, animations
           if (this.step.options.is3D) {
-            let data = await this.loadAndPrepare3DModel(this.step.options.model)
+            let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.options.customModel ? this.step.questId : null)
             object = data.object
             animations = data.animations
             
@@ -838,10 +847,7 @@ export default {
           this.geolocation.target.camera.position.z = 1.5
           
           // animate & render
-          // if no gyro => animate 3D objects only at the end
-          if (this.deviceHasGyroscope) {
-            this.animateTargetCanvas()
-          }
+          this.animateTargetCanvas()
         }
         
         // enable geoloc only when 3D scene is fully loaded
@@ -912,6 +918,14 @@ export default {
               })
           }
         }
+      })
+    },
+    reloadPage() {
+      this.$router.go({
+          path: this.$router.path,
+          query: {
+              t: new Date()
+          }
       })
     },
     /*
@@ -1145,7 +1159,8 @@ export default {
       
       if (this.step.options.mode === 'touch') {
         let object, animations
-        let data = await this.loadAndPrepare3DModel(this.step.options.model)
+        //let data = await this.loadAndPrepare3DModel(this.step.options.model)
+        let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.options.customModel ? this.step.questId : null)
         object = data.object
         animations = data.animations
         
@@ -1224,7 +1239,7 @@ export default {
         //TODO: find a way to check server side
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
       } else if (type === 'use-item') {
-        let anwserPixelCoordinates = {
+        let answerPixelCoordinates = {
           left: Math.round(this.answer.coordinates.left / 100 * 100 * answer.windowWidth),
           top: Math.round(this.answer.coordinates.top / 100 * 133 * answer.windowWidth)
         }
@@ -1232,13 +1247,13 @@ export default {
         // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
         let solutionAreaRadius = Math.round(8 * answer.windowWidth)
         
-        let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - answer.posX, 2) + Math.pow(anwserPixelCoordinates.top - answer.posY, 2))
+        let distanceToSolution = Math.sqrt(Math.pow(answerPixelCoordinates.left - answer.posX, 2) + Math.pow(answerPixelCoordinates.top - answer.posY, 2))
 
         if (distanceToSolution <= solutionAreaRadius && this.answer.item === answer.item) {
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       } else if (type === 'find-item') {
-        let anwserPixelCoordinates = {
+        let answerPixelCoordinates = {
           left: Math.round(this.answer.left / 100 * 100 * answer.windowWidth),
           top: Math.round(this.answer.top / 100 * 133 * answer.windowWidth)
         }
@@ -1246,7 +1261,7 @@ export default {
         // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
         let solutionAreaRadius = Math.round(8 * answer.windowWidth)
         
-        let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - answer.posX, 2) + Math.pow(anwserPixelCoordinates.top - answer.posY, 2))
+        let distanceToSolution = Math.sqrt(Math.pow(answerPixelCoordinates.left - answer.posX, 2) + Math.pow(answerPixelCoordinates.top - answer.posY, 2))
 
         if (distanceToSolution <= solutionAreaRadius) {
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
@@ -1496,10 +1511,6 @@ export default {
           if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
             checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, false)
             if (checkAnswerResult.result === true) {
-              if (!this.deviceHasGyroscope) {
-                this.animateTargetCanvas()
-              }
-              
               if (this.step.type === 'locate-item-ar') {
                 this.geolocation.absoluteOrientationSensor.stop() // stop moving camera when device moves
               }
@@ -1623,6 +1634,7 @@ export default {
      * Send answer without telling if it is true or false
      */
     submitAnswer(offlineMode) {
+      this.stepPlayed = true
       this.$emit('played', null, offlineMode)
       
       this.displayReadMoreAlert()
@@ -1639,6 +1651,7 @@ export default {
       } else {
         this.playerResult = null
       }
+      this.stepPlayed = true
       
       this.$emit('success', score, offlineMode, showResult)
       this.$emit('played')
@@ -1704,6 +1717,7 @@ export default {
       } else {
         this.playerResult = null
       }
+      this.stepPlayed = true
       
       this.$emit('fail', offlineMode, showResult)
       this.$emit('played')
@@ -2071,19 +2085,20 @@ export default {
       this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
       let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
       
-      if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && this.geolocation.GPSdistance > this.minDistanceForGPS) || this.step.type !== 'locate-item-ar') {
+      if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && (this.geolocation.GPSdistance > this.minDistanceForGPS || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
         this.geolocation.distance = this.geolocation.GPSdistance
         this.geolocation.rawDirection = rawDirection
       }
       
-      let finalDirection = utils.degreesToRadians(rawDirection)
+      // no gyro => consider that the object to find is always in front of the device 
+      let finalDirection = this.deviceHasGyroscope ? utils.degreesToRadians(rawDirection) : 0
       
       // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
       // note that those properties are also needed when accelerometer is used (method 'handleMotionEvent()')
       this.geolocation.position.x = this.geolocation.GPSdistance !== 0 ? Math.sin(finalDirection) * this.geolocation.GPSdistance : 0
       this.geolocation.position.y = this.geolocation.GPSdistance !== 0 ? Math.cos(finalDirection) * this.geolocation.GPSdistance : 0
       
-      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.geolocation.target.scene !== null && this.deviceHasGyroscope) {
+      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.geolocation.target.scene !== null) {
         let target = this.geolocation.target
         let scene = target.scene
         let object = scene.getObjectByName('targetObject')
@@ -2097,7 +2112,7 @@ export default {
         object.visible = true
         
         // if distance to object is greater than value of this.minDistanceForGPS, update target object position only given GPS position. Otherwise, accelerometer is used to track device position for better user experience (avoids object "drifts").
-        if (this.geolocation.GPSdistance > this.minDistanceForGPS) {
+        if (this.geolocation.GPSdistance > this.minDistanceForGPS || this.deviceHasGyroscope === false) {
           // smooth position change
           new TWEEN.Tween(object.position)
             .to({ x: this.geolocation.position.x, y: this.geolocation.position.y }, 1000)
@@ -2108,9 +2123,7 @@ export default {
         this.updatePlayerCanTouchTarget()
       }
       
-      let playerIsFindingLocation = (this.step.type === 'geolocation' || (this.step.type === 'locate-item-ar' && !this.deviceHasGyroscope && this.geolocation.target !== null && this.geolocation.target.scene !== null))
-      
-      if (playerIsFindingLocation && this.geolocation.distance <= 20) {
+      if (this.step.type === 'geolocation' && this.geolocation.distance <= 20) {
         this.$refs['geolocation-component'].disabled = true
         this.geolocation.active = false
         this.resetDrawDirectionInterval()
@@ -2249,8 +2262,8 @@ export default {
      */
     initPuzzle() {
       // Puzzle sizes
-      var level = parseInt((this.step.options.level || 2), 10) // 1=easy, 2=medium, 3=hard
-      var puzzleSize = level * 2
+      var level = parseInt((this.step.options.level || 2), 10) // 1=easy, 2=medium, 3=very hard, 4=hard
+      var puzzleSize = this.puzzle.colsByLevel[level]
       var puzzleWidth = document.getElementById('pieces').clientWidth
       var puzzleHeight = puzzleWidth
       //document.getElementById('pieces').style.height = puzzleHeight + "px"
@@ -2468,17 +2481,20 @@ export default {
     animateTargetCanvas() {
       let target = this.geolocation.target
       let mixers = target.mixers
+      let targetObject = target.scene.getObjectByName('targetObject')
       
       // 2D object: plane must always face camera
       if (this.step.options && !this.step.options.is3D) {
-        let plane = target.scene.getObjectByName('targetObject')
-        plane.lookAt(target.camera.position)
+        targetObject.lookAt(target.camera.position)
       }
       // animation
       if (mixers.length > 0) {
         for (var i = 0; i < mixers.length; i++) {
           mixers[i].update(target.clock.getDelta());
         }
+      }
+      if (this.deviceHasGyroscope === false) {
+        target.camera.lookAt(targetObject.position)
       }
       target.renderer.render(target.scene, target.camera)
       TWEEN.update()
@@ -2543,7 +2559,7 @@ export default {
       
       let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
       
-      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null) {
+      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.deviceHasGyroscope) {
         this.geolocation.target.camera.quaternion = quaternion
       }
       
@@ -2624,13 +2640,13 @@ export default {
     * @param     modelCode     code of the 3D model, for example "lamp"
     * @return    object        { object: <3D object>, animations: <animations from GLTF data> }
     */
-    async loadAndPrepare3DModel(modelCode) {
+    async loadAndPrepare3DModel(modelCode, questId) {
       let scaleFactor = 4 // make objects four times bigger than their "real" size, for better usability
       let objectInit = modelsList[modelCode]
       let gltfData
       try {
         this.$q.loading.show()
-        gltfData = await this.ModelLoaderAsync(modelCode)
+        gltfData = await this.ModelLoaderAsync(modelCode, questId)
         this.$q.loading.hide()
       } catch (err) {
         console.error("Error while loading 3D model:", err)
@@ -2640,35 +2656,37 @@ export default {
       
       let object = gltfData.scene
       
-      // apply user-defined rotation
-      objectInit.rotation = objectInit.rotation || {}
-      if (objectInit.rotation.hasOwnProperty('x')) { object.rotateX(utils.degreesToRadians(objectInit.rotation.x)) } else {
-        object.rotateX(Math.PI / 2)
-      }
-      if (objectInit.rotation.hasOwnProperty('y')) { object.rotateY(utils.degreesToRadians(objectInit.rotation.y)) }
-      if (objectInit.rotation.hasOwnProperty('z')) { object.rotateZ(utils.degreesToRadians(objectInit.rotation.z)) }
-      
-      // apply user-defined scaling
-      let scale = (objectInit.scale || 1) * scaleFactor
-      object.scale.set(scale, scale, scale)
-      
-      // set object origin at center
-      let objBbox = new THREE.Box3().setFromObject(object)
-      
-      let pivot = objBbox.getCenter(new THREE.Vector3())
-      pivot.multiplyScalar(-1)
-      
-      let pivotObj = new THREE.Object3D();
-      object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
-      pivotObj.add(object)
-      pivotObj.up = new THREE.Vector3(0, 0, 1)
-      object = pivotObj
-      
-      // apply user-defined translation
-      if (objectInit.translation && this.step.type === 'locate-item-ar') {
-        if (objectInit.translation.hasOwnProperty('x')) { object.position.x += objectInit.translation.x * scaleFactor }
-        if (objectInit.translation.hasOwnProperty('y')) { object.position.y += objectInit.translation.y * scaleFactor }
-        if (objectInit.translation.hasOwnProperty('z')) { object.position.z += objectInit.translation.z * scaleFactor }
+      if (objectInit) {
+        // apply user-defined rotation
+        objectInit.rotation = objectInit.rotation || {}
+        if (objectInit.rotation.hasOwnProperty('x')) { object.rotateX(utils.degreesToRadians(objectInit.rotation.x)) } else {
+          object.rotateX(Math.PI / 2)
+        }
+        if (objectInit.rotation.hasOwnProperty('y')) { object.rotateY(utils.degreesToRadians(objectInit.rotation.y)) }
+        if (objectInit.rotation.hasOwnProperty('z')) { object.rotateZ(utils.degreesToRadians(objectInit.rotation.z)) }
+        
+        // apply user-defined scaling
+        let scale = (objectInit.scale || 1) * scaleFactor
+        object.scale.set(scale, scale, scale)
+        
+        // set object origin at center
+        let objBbox = new THREE.Box3().setFromObject(object)
+        
+        let pivot = objBbox.getCenter(new THREE.Vector3())
+        pivot.multiplyScalar(-1)
+        
+        let pivotObj = new THREE.Object3D();
+        object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
+        pivotObj.add(object)
+        pivotObj.up = new THREE.Vector3(0, 0, 1)
+        object = pivotObj
+        
+        // apply user-defined translation
+        if (objectInit.translation && this.step.type === 'locate-item-ar') {
+          if (objectInit.translation.hasOwnProperty('x')) { object.position.x += objectInit.translation.x * scaleFactor }
+          if (objectInit.translation.hasOwnProperty('y')) { object.position.y += objectInit.translation.y * scaleFactor }
+          if (objectInit.translation.hasOwnProperty('z')) { object.position.z += objectInit.translation.z * scaleFactor }
+        }
       }
       
       return { object, animations: gltfData.animations }
@@ -2678,17 +2696,31 @@ export default {
     * Supports only GLTF format
     * Returns a Promise, usable with async/await
     */
-    async ModelLoaderAsync(objName) {
+    async ModelLoaderAsync(objName, questId) {
       let progress = console.log
       
+      // Load GLTF packed as binary (blob)
+      //const offlineObject = await utils.readFile(questId + '/' + objName, 'scene.gltf')
+      const offlineObject = await utils.readBinaryFile(questId + '/' + objName, 'object.glb')
+console.log(offlineObject)
       return new Promise((resolve, reject) => {
         let gltfLoader = new GLTFLoader()
         // loads automatically .bin and textures files if necessary
         if (objName.indexOf('blob:') !== -1) {
           gltfLoader.load(objName, resolve, progress, reject)
         } else {
-          //gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
-          gltfLoader.load('statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+          if (offlineObject) {
+console.log("tst1")
+            gltfLoader.load(offlineObject, resolve, progress, reject)
+          } else {
+console.log("tst2")
+            //gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+            if (questId) {
+              gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '/scene.gltf', resolve, progress, reject)
+            } else {
+              gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+            }
+          }
         }
       })
     },
@@ -2773,7 +2805,7 @@ export default {
       }
       
       // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
-      if (this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion) {
+      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion) {
         canProcess = false
       }
       
@@ -2881,9 +2913,9 @@ export default {
         let deltaFromGeolocation
         if (!dm.isAccelerationIdle) {
           deltaFromGeolocation = {
-            // the "/ 700" factor guarantees that the object won't move faster than about 1.5m/s if its real position is 20m away from current position.
-            x: (this.geolocation.position.x - currentObjectPosition.x) / 700,
-            y: (this.geolocation.position.y - currentObjectPosition.y) / 700
+            // the "/ 600" factor guarantees that the object won't move faster than about 1.5m/s if its real position is 20m away from current position.
+            x: (this.geolocation.position.x - currentObjectPosition.x) / 600,
+            y: (this.geolocation.position.y - currentObjectPosition.y) / 600
           }
         } else {
           deltaFromGeolocation = { x: 0, y: 0 }
@@ -2925,7 +2957,6 @@ export default {
       let self = this
       return new Promise((resolve, reject) => {
         if (this.deviceHasGyroscope !== null) {
-          console.log('GYRO detection OK', this.deviceHasGyroscope)
           resolve()
         }
         else {

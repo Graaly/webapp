@@ -58,6 +58,7 @@ module.exports = {
     'eol-last': 'off',
     'vue/no-parsing-error': 'off',
     'no-useless-escape': 'off',
-    'no-labels': 'off'
+    'no-labels': 'off',
+    'no-unmodified-loop-condition': 'off'
   }
 }

@@ -68,7 +68,7 @@ export default {
    * @param   {Object}    data          Upload data
    */
   uploadAccountPicture(data) {
-    return Api().post('/user/picture/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    return Api().post('/user/picture/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   },
   /*
    * Validate a user account

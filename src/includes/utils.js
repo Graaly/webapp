@@ -675,6 +675,9 @@ var self = {
       case 'webm':
         mimeType = 'video/webm'
         break
+      case '.glb':
+        mimeType = 'model/gltf-binary'
+        break
     }
     return mimeType
   },
@@ -695,7 +698,7 @@ var self = {
     return sum / arr.length
   },
   /**
-   * Allows to check if is network available
+   * Checks if network is available
    * @return  {Boolean}  on hybrid: true if network is available, false otherwise.
    *                     other contexts (desktop, PWA...): returns always true (cannot use Cordova plugin "cordova-plugin-network-information")
    */

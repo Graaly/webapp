@@ -128,6 +128,7 @@ function initJigsaw (DragDropTouch_1) {
      * https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Drag_operations.
      */
     var DragDropTouch = (function () {
+console.log("init drop touch")
         /**
          * Initializes the single instance of the @see:DragDropTouch class.
          */

@@ -1,3 +1,5 @@
+import Notification from '../boot/NotifyHelper'
+import { i18n } from '../boot/VueI18n'
 import AuthService from '../services/AuthService'
 import store from '../store/index'
 import * as Cookies from 'js-cookie'
@@ -41,7 +43,7 @@ export default ({ app, router, Vue }) => {
           Loading.hide()
 
           if (response && response.data && response.data.name) {
-            if (response.data.clientSupportedVersion && response.data.clientSupportedVersion > "1.6.2") {
+            if (response.data.clientSupportedVersion && response.data.clientSupportedVersion > "1.7.0") {
               next({
                 path: '/error/upgraderequired'
               })
@@ -68,7 +70,13 @@ export default ({ app, router, Vue }) => {
               }       
             } else {
               if (response && response.status) {
-                if (response.status === 403) {
+                if (response.status !== 200) {
+                  if (response.status === 401) {
+                    Notification(i18n.t('label.SessionExpired'), 'error')
+                  } else {
+                    Notification(i18n.t('label.AuthCheckError'), 'error')
+                  }
+                  
                   next({
                     path: '/user/login',
                     query: from.path === '/' ? null : { redirect: to.fullPath }

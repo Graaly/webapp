@@ -55,7 +55,7 @@
         
         <p class="text-center multiple-btn margin-size-3 q-mt-lg q-mb-xl">
           <q-btn v-if="step !== 'email'" round color="white" text-color="primary" icon="fas fa-chevron-left" :loading="submitting" @click="backAction()" />
-          <q-btn round color="white" text-color="primary" icon="fas fa-chevron-right" :loading="submitting" @click="formSubmit" />
+          <q-btn round color="white" text-color="primary" icon="fas fa-chevron-right" :loading="submitting" @click="formSubmit" :disabled="(step === 'email' && !form.email) || (step === 'password' && !form.password)" />
         </p>
         
       </form>
@@ -120,6 +120,7 @@ export default {
      * Manage login
      */
     async formSubmit() {
+      this.$v.$touch()
       this.submitting = true
       //if (!this.$v.form.$error) {
       switch (this.step) {

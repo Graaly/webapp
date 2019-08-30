@@ -194,9 +194,35 @@ export default {
                   await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/character/', step.options.character)
                 }
               }
-              if (step.type === 'locate-item-ar' && step.options && step.options.picture && step.options.picture !== '') {
-                await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/locate-item-ar/', step.options.picture)
-              }
+              if (step.type === 'locate-item-ar' && step.options) {
+                if (step.options.picture && step.options.picture !== '') {
+                  await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/locate-item-ar/', step.options.picture)
+                }
+                if (step.options.is3D) {
+                  if (step.options.customModel) {
+                    await utils.saveBinaryFile(quest.questId + '/' + step.options.customModel, this.serverUrl + '/upload/quest/' + quest.questId + '/step/3dobject/' + step.options.customModel + '/', 'object.glb')
+                  } else {
+                    await utils.saveBinaryFile(quest.questId + '/' + step.options.customModel, '/statics/3d-models/' + step.options.model + '/', 'object.glb')
+                  }
+                  /*
+                  // get list of files of 3D object from server
+                  const listOfObjectFile = await QuestService.listObjectFiles(step.options.customModel ? step.options.customModel : step.options.model, step.options.customModel ? quest.questId : null)
+                  
+                  if (listOfObjectFile.data && listOfObjectFile.data.files) {
+                    for (var j = 0; j < listOfObjectFile.data.files.length; j++) {
+                      let filename = listOfObjectFile.data.files[j]
+                      let extraPath = ''
+                      let serverPath = step.options.customModel ? '/upload/quest/' + quest.questId + '/step/3dobject/' + step.options.customModel + '/' : '/statics/3d-models/' + step.options.model + '/'
+                      if (filename.indexOf('/') !== -1) {
+                        filename = listOfObjectFile.data.files[j].substring(listOfObjectFile.data.files[j].lastIndexOf('/') + 1)
+                        extraPath = '/' + listOfObjectFile.data.files[j].replace(filename, '')
+                      }
+                      await utils.saveBinaryFile(quest.questId + '/3dobject' + extraPath, this.serverUrl + serverPath, filename)
+                    }
+                  }
+                  */
+                }
+              } 
               // TODO : download objects from server to avoid publishing a new release to add a new object
               /*if (step.type === 'locate-item-ar' && step.options && step.options.model && step.options.model !== '') {
                 await utils.saveBinaryFile(quest.questId, this.serverUrl + '/statics/3d-models/' + step.options.model + '/', 'buffer.bin')

@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "c14b6d5d90ed4aa1b6d6",
-    "url": "css/app.b3c36d65.css"
+    "revision": "2da40e30339658d2e940",
+    "url": "css/app.e7813f3c.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -60,7 +60,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.0509ab09.woff2"
   },
   {
-    "revision": "a8c24cfb3f49753af0dd6d04d3aa7d61",
+    "revision": "64add2bfc6cb00d687198efdb2ad3872",
     "url": "index.html"
   },
   {
@@ -68,12 +68,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2d230c65.2db80d9d.js"
   },
   {
-    "revision": "c14b6d5d90ed4aa1b6d6",
-    "url": "js/app.23a7396e.js"
+    "revision": "2da40e30339658d2e940",
+    "url": "js/app.68cf18d0.js"
   },
   {
-    "revision": "6b2292a59cea617ed12e",
-    "url": "js/vendor.394e462c.js"
+    "revision": "675c08ec91f67a44e23f",
+    "url": "js/vendor.cf0b9b0b.js"
   },
   {
     "revision": "adc74bb87d3dbadf0b3dd2c32e2e8cb9",
@@ -132,7 +132,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics\\3d-models\\ghost\\scene.gltf"
   },
   {
-    "revision": "57f41a3cbc786823263ad31c05c6bf97",
+    "revision": "d466ac7c6673015467c8591c6adf118a",
     "url": "statics\\3d-models\\ghost\\texture.png"
   },
   {
@@ -190,6 +190,18 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "55f3cca1fd62f6bcbf3067ab9ba7439d",
     "url": "statics\\3d-models\\lamp\\scene.gltf"
+  },
+  {
+    "revision": "6b1f49e053ff5f4dd3feee813aac925f",
+    "url": "statics\\3d-models\\lynx\\lynx_brown2.jpg"
+  },
+  {
+    "revision": "eb1d05541fc23b4fc01b61fb26392963",
+    "url": "statics\\3d-models\\lynx\\scene.gltf"
+  },
+  {
+    "revision": "3acf75a00db93469dcea38d20972eecb",
+    "url": "statics\\3d-models\\lynx\\untitled.bin"
   },
   {
     "revision": "ca05a009809ff2233f76f0a479e15fc8",
@@ -256,43 +268,43 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics\\css\\addtohomescreen.css"
   },
   {
-    "revision": "9386081987740210ba4cd07ca8fab747",
+    "revision": "f4c4bda7af58edd75c5db41d9fb381db",
     "url": "statics\\icons\\app-logo\\favicon-16x16.png"
   },
   {
-    "revision": "051d184a79c233d06ccb73baad473c08",
+    "revision": "01b7764ad795fd52be02f4e6f2cbce8b",
     "url": "statics\\icons\\app-logo\\favicon-32x32.png"
   },
   {
-    "revision": "0f3ee0e6f8de2426e940f7c8f4ab9d2e",
+    "revision": "4bd611ac11b412ec86e4e1e02c282d5f",
     "url": "statics\\icons\\app-logo\\icon-192x192.png"
   },
   {
-    "revision": "ca117d679dbe475f74f8bf40eb671862",
+    "revision": "7c483813983db306f459de2e631c64ed",
     "url": "statics\\icons\\app-logo\\icon-48x48.png"
   },
   {
-    "revision": "15989569d56c902573d116ab3a4d9eb2",
+    "revision": "651c383d7a4bb0151958f8942f36b0cb",
     "url": "statics\\icons\\app-logo\\icon-96x96.png"
   },
   {
-    "revision": "61b1bc6ff7f43e8514eeaa9aead67ebc",
+    "revision": "138aceb5352bea88505d5ca48cdf2159",
     "url": "statics\\icons\\app-logo\\ms-icon-144x144.png"
   },
   {
-    "revision": "244032175f31e6fd310a1bb65ee9ab98",
+    "revision": "da6b206c41952ac6f5051df782f1cfb6",
     "url": "statics\\icons\\app-logo\\touch-icon-ipad-retina.png"
   },
   {
-    "revision": "e245188516a13a03ec95b5a783352120",
+    "revision": "24fa5551038ffab33e0076a22f1cfa1b",
     "url": "statics\\icons\\app-logo\\touch-icon-ipad.png"
   },
   {
-    "revision": "9da124c125b2f76f32f1dbcfcfdcb8a7",
+    "revision": "7a95545bbdf6e40e2d29f32b7436d0da",
     "url": "statics\\icons\\app-logo\\touch-icon-iphone-retina.png"
   },
   {
-    "revision": "b1fe133ba786e73c0f353d28ee2f2724",
+    "revision": "f1a7c96662be4ed7e3297c2d727c18d3",
     "url": "statics\\icons\\app-logo\\touch-icon-iphone.png"
   },
   {
@@ -517,7 +529,11 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   },
   {
     "revision": "77dcb69a0949118e4876d8df4e5e10dc",
-    "url": "statics\\icons\\game\\pointer-me.png"
+    "url": "statics\\icons\\game\\pointer-me.png.old"
+  },
+  {
+    "revision": "116cd5d424f456c20b690803761104e4",
+    "url": "statics\\icons\\game\\pointer-me.svg"
   },
   {
     "revision": "0fdbc46985de16137dbf68b4fb5276d5",
@@ -606,6 +622,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "e6f71ef7ff29fa6a9b62aeac3a7cb61f",
     "url": "statics\\icons\\game\\pointer-treasure.png"
+  },
+  {
+    "revision": "cd1d156650fecb45307b5e205b4d1dca",
+    "url": "statics\\icons\\game\\premium-header.png"
   },
   {
     "revision": "7e9b904d6d3a16c558fbb48a4bc59eab",
@@ -1428,8 +1448,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics\\scripts\\analytics.js"
   },
   {
-    "revision": "493a8aa9dca50a032223145dfc3a716b",
+    "revision": "b1664f60d20730f39d735f676df4b8cd",
     "url": "statics\\scripts\\dragdroptouch.js"
+  },
+  {
+    "revision": "85b6bc57918f4882292f2bd8f0b15c12",
+    "url": "statics\\scripts\\polyfills.js"
   },
   {
     "revision": "453032fe973d30c1c903ae54b0111f98",

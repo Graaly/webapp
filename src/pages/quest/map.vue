@@ -34,6 +34,9 @@
               <span v-if="currentQuest && currentQuest.duration" class="text-blue-grey-2"> | </span>
               <span v-if="currentQuest && currentQuest.availablePoints">{{ currentQuest.availablePoints }} {{ $t('label.pts') }}</span>
             </p>
+            <p v-if="currentQuest && currentQuest.displayPrice">
+              {{ currentQuest.displayPrice }}
+            </p>
             <q-btn v-if="currentQuest && currentQuest.authorUserId !== $store.state.user._id" @click="playQuest(currentQuest ? currentQuest.questId : '')" color="primary">{{ $t('label.Play') }}</q-btn>
             <q-btn v-if="currentQuest && currentQuest.authorUserId === $store.state.user._id" @click="modifyQuest(currentQuest ? currentQuest.questId : '')" color="primary">{{ $t('label.Modify') }}</q-btn>
             <div class="q-pa-md" v-if="offline.available && currentQuest && currentQuest.authorUserId !== $store.state.user._id && !offline.show"><a @click="downloadQuest(currentQuest)" color="primary">{{ $t('label.DownloadForOfflineUse') }}</a></div>
@@ -46,12 +49,17 @@
       </gmap-map>
     </div>
     <div class="fullscreen scroll q-px-md" v-if="offline.active">
-      <div class="image-list" style="width: 100%">
+      <div class="no-internet-connection">
+        <q-icon name="cloud_off" />
+        <p>{{ $t('label.NoInternetConnection') }}</p>
+      </div>
+      <div v-if="!questList.length" class="q-my-md">{{ $t('label.YouAreOfflineNoQuestsAvailable') }}</div>
+      <div class="image-list" style="width: 100%" v-if="questList.length">
         <div class="q-my-md">{{ $t('label.YouAreOfflineYourQuestsList') }}</div>
         <q-card v-for="(item, index) in questList" :key="index" class="q-mb-md" @click.native="$router.push('/quest/play/' + item.questId)">
-          <q-img :src="item.picture" basic>
+          <q-img :src="QuestService.getBackgroundImage(item)" basic>
             <div class="absolute-top text-center">
-              {{ getQuestTitle(item, true) }}
+              <span v-html="getQuestTitle(item, true)"></span>
               <q-rating slot="subtitle" v-if="item.rating && item.rating.rounded" v-model="item.rating.rounded" color="primary" :max="5" />
             </div>
           </q-img>
@@ -483,27 +491,33 @@
         <!------------------ PRO TAB ------------------------>
         
         <q-tab-panel name="pro">
-          <div v-if="!pro.showContact">
-            <q-card class="q-mb-md" @click.native="pro.showContact = true">
-              <q-img src="statics/icons/game/storekeeper.jpg">
-                <div class="absolute-bottom">
-                  <div class="text-h6">{{ $t('label.Storekeeper') }}</div>
-                  <div class="text-subtitle2">{{ $t('label.StorekeeperDesc') }}</div>
-                </div>
-              </q-img>
-            </q-card>
-            
-            <q-card @click.native="pro.showContact = true">
-              <q-img src="statics/icons/game/tourism.jpg">
-                <div class="absolute-bottom">
-                  <div class="text-h6">{{ $t('label.TourismProfessional') }}</div>
-                  <div class="text-subtitle2">{{ $t('label.TourismProfessionalDesc') }}</div>
-                </div>
-              </q-img>
-            </q-card>
+          <div v-if="!$store.state.user.organizationId">
+            <div>
+              <q-card class="q-mb-md">
+                <q-img src="statics/icons/game/storekeeper.jpg">
+                  <div class="absolute-bottom">
+                    <div class="text-h6">{{ $t('label.Storekeeper') }}</div>
+                    <div class="text-subtitle2">{{ $t('label.StorekeeperDesc') }}</div>
+                  </div>
+                </q-img>
+              </q-card>
+            </div>
+            <div>
+              <span v-html="$t('label.contactUsPro')" />
+            </div>
           </div>
-          <div v-if="pro.showContact">
-            <span v-html="$t('label.contactUsPro')" />
+          <div v-if="$store.state.user.organizationId && profile.organization.organization">
+            <p class="text-weight-bold">{{ $t('label.YourOrganizationSubscribeAProAccount', {name: profile.organization.organization.name}) }}</p>
+            <p v-if="profile.organization.quests && profile.organization.quests.length > 0">
+              {{ $t('label.MembersOfYourOrganizationCreatedPremiumQuests') }}
+              <q-list class="shadow-2 rounded-borders">
+                <q-item v-for="premiumQuest in profile.organization.quests" :key="premiumQuest.questId" @click.native="playQuest(premiumQuest.questId)">
+                  <q-item-section>{{ getQuestTitle(premiumQuest) }} (statut{{ $t('label.colons') }}{{ $t('status.' + premiumQuest.status) }})</q-item-section>
+                </q-item>
+              </q-list>
+            </p>
+            <p v-if="profile.organization.organization.premiumQuestsNb && profile.organization.organization.premiumQuestsNb > 0">{{ $t('label.YouCanCreateNbPremiumQuests', {nb: profile.organization.organization.premiumQuestsNb}) }}</p>
+            <p v-if="!profile.organization.organization.premiumQuestsNb || profile.organization.organization.premiumQuestsNb === 0"><span v-html="$t('label.YouCanNotCreateNewQuests')" /></p>
           </div>
         </q-tab-panel>
         
@@ -928,9 +942,6 @@ export default {
       shop: {
         show: false
       },
-      pro: {
-        showContact: false
-      },
       currentQuestIndex: null,
       currentQuest: null,
       searchText: '',
@@ -966,6 +977,7 @@ export default {
       },
       profile: {
         level: {},
+        organization: {},
         progress: 0.1,
         form: {
           name: "--", 
@@ -1002,7 +1014,8 @@ export default {
       questsTab: "built",
       profileTab: "news",
       friendsTab: "friendbuilt",
-      invitations: []
+      invitations: [],
+      QuestService // to have getBackgroundImage() method available in template
     }
   },
   computed: {
@@ -1031,7 +1044,7 @@ export default {
       // check if battery is enough charged to play
       window.addEventListener("batterylow", this.checkBattery, false);
       // check if user has network
-      this.checkNetwork()
+      await this.checkNetwork()
       // check if story steps need to be played
       this.startStory()
       // check if user has received invitations to private quests
@@ -1124,11 +1137,19 @@ export default {
     /*
      * Check network
      */
-    checkNetwork() {
+    async checkNetwork() {
       // TODO on hybrid, maybe use events "offline" and "online" to get realtime network status
       // see https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-network-information/#offline
-      this.warnings.noNetwork = !utils.isNetworkAvailable()
-      utils.setTimeout(this.checkNetwork, 20000)
+      let previousOfflineValue = this.offline.active
+      let isNetworkAvailable = utils.isNetworkAvailable()
+      this.warnings.noNetwork = !isNetworkAvailable
+      this.offline.active = !isNetworkAvailable
+      if (previousOfflineValue !== this.offline.active) {
+        this.questList = []
+        await this.reloadMap()
+      }
+      
+      utils.setTimeout(this.checkNetwork, 5000)
     },
     CenterMapOnPosition(lat, lng) {
       this.$data.map.center = {lat: lat, lng: lng}
@@ -1159,9 +1180,29 @@ export default {
       else {
         this.currentQuestIndex = idx
         this.currentQuest = this.questList[idx]
+        this.currentQuest.displayPrice = ''
         infoWindow.isOpen = true
         // center map on last clicked quest
         this.panTo(questCoordinates)
+      }
+      
+      // get Quest price from store
+      if (!quest.premiumPrice || !quest.premiumPrice.androidId || quest.premiumPrice.androidId === 'free') {
+        this.currentQuest.displayPrice = this.$t('label.Free')
+      } else {
+        if (!window.store) {
+          this.currentQuest.displayPrice = this.$t('label.QuestPlayableOnMobile')
+        } else {
+          store.register({
+            id: quest.premiumPrice.androidId,
+            alias: quest.premiumPrice.androidId,
+            type: store.CONSUMABLE
+          })
+          var _this = this
+          store.when(quest.premiumPrice.androidId).updated(function(product) {
+            _this.currentQuest.displayPrice = product.price
+          })
+        }
       }
     },
     /*
@@ -1214,21 +1255,27 @@ export default {
     async getQuests(type) {
       this.showBottomMenu = false
       
-      if (this.user.position === null) {
-        Notification(this.$t('label.LocationSearching'), 'warning')
-        return
-      }
-      
-      if (!type) {
-        this.map.filter = 'all'
-      } else {
-        this.map.filter = type
-      }
-      
-      this.$q.loading.show()
-      let response = await QuestService.listNearest({ lng: this.user.position.longitude, lat: this.user.position.latitude }, this.map.filter)
-      this.$q.loading.hide()
-      if (response && response.data) {
+      if (!this.offline.active) {
+        if (this.user.position === null) {
+          Notification(this.$t('label.LocationSearching'), 'warning')
+          return
+        }
+        
+        if (!type) {
+          this.map.filter = 'all'
+        } else {
+          this.map.filter = type
+        }
+        
+        this.$q.loading.show()
+        let response = await QuestService.listNearest({ lng: this.user.position.longitude, lat: this.user.position.latitude }, this.map.filter)
+        this.$q.loading.hide()
+        
+        if (!response || !response.data) {
+          Notification(this.$t('label.TechnicalIssue'), 'error')
+          return
+        }
+        
         this.questList = response.data
         
         // if no quest, enlarge to all quests
@@ -1432,6 +1479,8 @@ export default {
       //await this.loadNews()
       this.$q.loading.hide()
       
+      await this.loadOrganization()
+      
       if (this.$store.state.user.story.step === 14) {
         this.story.step = 14
       }
@@ -1465,7 +1514,19 @@ export default {
           done()
         }
       })
-    },  
+    },     
+    /*
+     * Load organization data
+     */
+    async loadOrganization() {
+      if (this.$store.state.user.organizationId) {
+        const organizationData = await UserService.getOrganization()
+        if (organizationData) {
+          this.profile.organization = organizationData.data
+        }
+      }
+    }, 
+    
     /*
      * Like news
      */
@@ -1619,8 +1680,12 @@ export default {
       };*/
       this.$q.loading.show()
       let uploadPicture = await AuthService.uploadAccountPicture(data)
-      if (uploadPicture) {
-        this.$store.state.user.picture = uploadPicture.data.file
+      if (uploadPicture && uploadPicture.data) {
+        if (uploadPicture.data.file) {
+          this.$store.state.user.picture = uploadPicture.data.file
+        } else if (uploadPicture.data.message && uploadPicture.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
       } else {
         this.displayNetworkIssueMessage()
       }
@@ -1778,12 +1843,12 @@ export default {
     /*
      * End a story step
      */
-    endStory (nextStep) {
+    async endStory (nextStep) {
       this.story.step = null
       this.$store.state.user.story.step = nextStep
       // if skip tutorial
       if (nextStep === 17) {
-        this.reloadMap()
+        await this.reloadMap()
       }
     },
     /*
@@ -1962,4 +2027,19 @@ export default {
 
 <style>
 .q-item-label > p { padding: 0; margin: 0; }
+
+.no-internet-connection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+}
+.no-internet-connection .q-icon {
+  font-size: 3rem;
+  margin-right: 1rem;
+}
+.no-internet-connection p {
+  font-size: 1.5rem;
+  margin: 0;
+}
 </style>
