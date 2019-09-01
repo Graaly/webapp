@@ -215,6 +215,13 @@ export default {
   purchasePremium(questId, product) {
     return Api().post('quest/' + questId + '/premium/buy', product).catch(error => console.log(error.request))
   },
+  /*
+   * Check if the user has payed for a quest
+   * @param   {String}    questId              questId
+   */
+  hasPayed(questId) {
+    return Api().get('quest/' + questId + '/premium/ispayed').catch(error => console.log(error.request))
+  },
   
   /*
    * List the editors of a quest
