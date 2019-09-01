@@ -472,6 +472,16 @@ console.log('initpay6')
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
         return
       }
+      
+      // check if player has already paied
+      const isPayed = await QuestService.hasPayed(this.quest.questId)
+      if (isPayed && isPayed.data && isPayed.data.status && isPayed.data.status === 'paied') {
+        this.shop.premiumQuest.priceCode = 'free'
+        if (window.cordova) {
+          this.offline.show = true
+        }
+        return "free"
+      }
 console.log('initpay7')
       this.shop.premiumQuest.priceCode = this.quest.premiumPrice.androidId
       var _this = this
@@ -530,6 +540,8 @@ console.log(product)
         if (window.cordova) {
           this.offline.show = true
         }
+        // activate play button
+        this.shop.premiumQuest.priceCode = 'free'
         return true
       }
       return false
