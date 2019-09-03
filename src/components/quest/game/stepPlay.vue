@@ -2090,8 +2090,15 @@ export default {
         this.geolocation.rawDirection = rawDirection
       }
       
-      // no gyro => consider that the object to find is always in front of the device 
-      let finalDirection = this.deviceHasGyroscope ? utils.degreesToRadians(rawDirection) : 0
+      let finalDirection = utils.degreesToRadians(rawDirection)
+      
+      if (!this.deviceHasGyroscope) {
+        // consider that the object to find is always in front of the device 
+        finalDirection = 0
+        // avoid to be too close from the object, set minimal distance
+        const minDistanceFromObject = 3 // in meters
+        this.geolocation.GPSdistance = Math.max(minDistanceFromObject, this.geolocation.GPSDistance)
+      }
       
       let previousPosition = utils.clone(this.geolocation.position)
       
@@ -2732,7 +2739,6 @@ export default {
       // Load GLTF packed as binary (blob)
       //const offlineObject = await utils.readFile(questId + '/' + objName, 'scene.gltf')
       const offlineObject = await utils.readBinaryFile(questId + '/' + objName, 'object.glb')
-console.log(offlineObject)
       return new Promise((resolve, reject) => {
         let gltfLoader = new GLTFLoader()
         // loads automatically .bin and textures files if necessary
@@ -2740,10 +2746,8 @@ console.log(offlineObject)
           gltfLoader.load(objName, resolve, progress, reject)
         } else {
           if (offlineObject) {
-console.log("tst1")
             gltfLoader.load(offlineObject, resolve, progress, reject)
           } else {
-console.log("tst2")
             //gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
             if (questId) {
               gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '/scene.gltf', resolve, progress, reject)
@@ -2853,7 +2857,7 @@ console.log("tst2")
       }
       
       // this means we are switching from GPS only to "accelerometer + GPS" mode (or we are in the "switching zone"), or it's the first time we handle motion event
-      if (this.isUsingGPSOnly || dm.isTargetPositionUndefined) {
+      if ((this.isUsingGPSOnly || dm.isTargetPositionUndefined) && this.geolocation.GPSDistance !== null) {
         this.geolocation.distance = this.geolocation.GPSdistance
         object.position.x = this.geolocation.position.x
         object.position.y = this.geolocation.position.y
