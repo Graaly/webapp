@@ -367,6 +367,21 @@
       </div>
     </q-dialog>
     
+    <!--====================== GPS CALIBRATION =================================-->
+    
+    <q-dialog v-model="geolocation.showCalibration">
+      <div class="bg-black centered q-pa-md">
+        <img style="width: 100%" src="statics/icons/game/wave-phone.gif">
+        <span class="text-white">{{ $t('label.WaveThePhoneForGPSPrecision') }}</span>
+      </div>
+    </q-dialog>
+    <q-dialog v-model="geolocation.takeMobileVertically">
+      <div class="bg-black centered q-pa-md">
+        <img style="width: 100%" src="statics/icons/game/take-mobile-vertically.gif">
+        <span class="text-white">{{ $t('label.TakeMobileVertically') }}</span>
+      </div>
+    </q-dialog>
+    
   </div>
   
 </template>
@@ -521,7 +536,9 @@ export default {
           target: null,
           canSeeTarget: false,
           canTouchTarget: false,
-          primaryColor: colors.getBrand('primary')
+          primaryColor: colors.getBrand('primary'),
+          showCalibration: false,
+          takeMobileVertically: false
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -696,6 +713,9 @@ export default {
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
           // user can pass
           this.$emit('pass')
+          
+          // ask user to calibrate gps
+          this.askUserToCalibrateGPS()
           
           // Start absolute orientation sensor
           // ---------------------------------
@@ -927,6 +947,29 @@ export default {
               t: new Date()
           }
       })
+    },
+    /*
+    * Open GPS calibration popin
+    */
+    askUserToCalibrateGPS() {
+      this.geolocation.showCalibration = true
+      utils.setTimeout(this.closeGPSCalibration, 7000)
+    },
+    closeGPSCalibration() {
+      this.geolocation.showCalibration = false
+      if (this.step.type === 'locate-item-ar') {
+        this.askUserToHandleMobileVertically()
+      }
+    },
+    /*
+    * Show the user that he needs to take his mobile vertically
+    */
+    askUserToHandleMobileVertically() {
+      this.geolocation.takeMobileVertically = true
+      utils.setTimeout(this.closeHandleMobileVertically, 7000)
+    },
+    closeHandleMobileVertically() {
+      this.geolocation.takeMobileVertically = false
     },
     /*
     * Init QR Codes

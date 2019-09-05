@@ -39,7 +39,7 @@
             </p>
             <q-btn v-if="currentQuest && currentQuest.authorUserId !== $store.state.user._id" @click="playQuest(currentQuest ? currentQuest.questId : '')" color="primary">{{ $t('label.Play') }}</q-btn>
             <q-btn v-if="currentQuest && currentQuest.authorUserId === $store.state.user._id" @click="modifyQuest(currentQuest ? currentQuest.questId : '')" color="primary">{{ $t('label.Modify') }}</q-btn>
-            <div class="q-pa-md" v-if="offline.available && currentQuest && currentQuest.authorUserId !== $store.state.user._id && !offline.show"><a @click="downloadQuest(currentQuest)" color="primary">{{ $t('label.DownloadForOfflineUse') }}</a></div>
+            <div class="q-pa-md" v-if="offline.available && currentQuest && (!currentQuest.premiumPrice || !currentQuest.premiumPrice.androidId || currentQuest.premiumPrice.androidId === 'free') && currentQuest.authorUserId !== $store.state.user._id && !offline.show"><a @click="downloadQuest(currentQuest)" color="primary">{{ $t('label.DownloadForOfflineUse') }}</a></div>
           </div>
           <div class="infoWindow" v-if="this.$store.state.user.story && this.$store.state.user.story.step <= 3">
             <p>{{ $t('label.ClickHereToStartDiscoveryQuest') }}</p>
@@ -1199,6 +1199,7 @@ export default {
             type: store.CONSUMABLE
           })
           var _this = this
+console.log(quest.premiumPrice.androidId)
           store.when(quest.premiumPrice.androidId).updated(function(product) {
             _this.currentQuest.displayPrice = product.price
           })
