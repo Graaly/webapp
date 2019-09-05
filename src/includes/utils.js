@@ -700,11 +700,24 @@ var self = {
   /**
    * Checks if network is available
    * @return  {Boolean}  on hybrid: true if network is available, false otherwise.
-   *                     other contexts (desktop, PWA...): returns always true (cannot use Cordova plugin "cordova-plugin-network-information")
+   *                     desktop: returns always true (cannot use Cordova plugin "cordova-plugin-network-information")
    */
   isNetworkAvailable() {
     if (typeof navigator.connection === 'undefined' || typeof navigator.connection.type === 'undefined') {
       return true
+    }
+    if (typeof Connection === 'undefined') {
+      // Connection object polyfill from Chrome Mobile (PWA mode), see https://moodle.org/mod/forum/discuss.php?d=348679#p1448862
+      window.Connection = {
+        UNKNOWN: 'unknown',
+        ETHERNET: 'ethernet',
+        WIFI: 'wifi',
+        CELL_2G: '2g',
+        CELL_3G: '3g',
+        CELL_4G: '4g',
+        CELL: 'cellular',
+        NONE: 'none'
+      }
     }
     return navigator.connection.type !== Connection.NONE
   }
