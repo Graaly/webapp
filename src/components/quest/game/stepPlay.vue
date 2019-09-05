@@ -2096,44 +2096,14 @@ export default {
         // consider that the object to find is always in front of the device 
         finalDirection = 0
         // avoid to be too close from the object, set minimal distance
-        const minDistanceFromObject = 3 // in meters
-        this.geolocation.GPSdistance = Math.max(minDistanceFromObject, this.geolocation.GPSDistance)
+        const minDistanceFromObject = 2 + (this.geolocation.target !== null ? this.geolocation.target.size : 0) // in meters
+        this.geolocation.GPSdistance = Math.max(minDistanceFromObject, this.geolocation.GPSdistance)
       }
-      
-      let previousPosition = utils.clone(this.geolocation.position)
       
       // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
       // note that those properties are also needed when accelerometer is used (method 'handleMotionEvent()')
-      this.geolocation.position.x = this.geolocation.GPSdistance !== 0 ? Math.sin(finalDirection) * this.geolocation.GPSdistance : 0
-      this.geolocation.position.y = this.geolocation.GPSdistance !== 0 ? Math.cos(finalDirection) * this.geolocation.GPSdistance : 0
-      
-      if (previousPosition.x !== null) {
-        // reduce the risk of object "jumping" across long distances due to GPS inaccuracies
-        // => measure distance between previous detected position (1 second ago) & the current one.
-        // if distance <= 20m, reduce the distance so that it corresponds to a maximum speed of a walking persion (2.5m/s according to https://en.wikipedia.org/wiki/Preferred_walking_speed)
-        // if distance > 20m, previous measure was really too far, leave it "as is"
-        let positionDiff = {
-          x: this.geolocation.position.x - previousPosition.x,
-          y: this.geolocation.position.y - previousPosition.y
-        }
-        
-        let distanceWithPreviousPosition = Math.sqrt(Math.pow(positionDiff.x, 2) + Math.pow(positionDiff.y, 2))
-        
-        let maxPositionDiffToFix = 20 // in meters
-        let maxWalkingPersonSpeed = 2.5 // in meters per second
-        
-        if (distanceWithPreviousPosition <= maxPositionDiffToFix) {
-          // reduce position change using a "rule of three"
-          let coef = maxWalkingPersonSpeed / distanceWithPreviousPosition
-          let fixedDistanceWithPreviousPosition = {
-            x: positionDiff.x * coef,
-            y: positionDiff.y * coef
-          }
-          
-          this.geolocation.position.x = previousPosition.x + fixedDistanceWithPreviousPosition.x
-          this.geolocation.position.y = previousPosition.y + fixedDistanceWithPreviousPosition.y
-        }
-      }
+      this.geolocation.position.x = Math.sin(finalDirection) * this.geolocation.GPSdistance
+      this.geolocation.position.y = Math.cos(finalDirection) * this.geolocation.GPSdistance
       
       if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.geolocation.target.scene !== null) {
         let target = this.geolocation.target
@@ -2839,7 +2809,7 @@ export default {
       }
       
       // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
-      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion) {
+      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion || isNaN(this.geolocation.position.x) || isNaN(this.geolocation.position.y)) {
         canProcess = false
       }
       
@@ -2857,7 +2827,7 @@ export default {
       }
       
       // this means we are switching from GPS only to "accelerometer + GPS" mode (or we are in the "switching zone"), or it's the first time we handle motion event
-      if ((this.isUsingGPSOnly || dm.isTargetPositionUndefined) && this.geolocation.GPSDistance !== null) {
+      if (this.geolocation.GPSdistance !== null && (dm.isTargetPositionUndefined || this.geolocation.GPSdistance >= this.minDistanceForGPS)) {
         this.geolocation.distance = this.geolocation.GPSdistance
         object.position.x = this.geolocation.position.x
         object.position.y = this.geolocation.position.y
