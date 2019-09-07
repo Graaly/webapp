@@ -462,7 +462,8 @@ console.log('initpay4')
       }
 console.log('initpay5')
       // init Store pay
-      if (!window.store) {
+      //if (!window.store) {
+      if (!window.cordova) {
         Notification(this.$t('label.YouMustPlayThisKindOfQuestOnAMobileDevice'), 'error')
         this.shop.premiumQuest.priceCode = 'notplayableonweb'
         return
