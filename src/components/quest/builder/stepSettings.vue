@@ -486,22 +486,22 @@
               {{ $t('label.UploadTheObjectToFind') }}:
               <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".zip" />
             </div>
-            <div style="width: 180px; height: 300px;" id="target-canvas"></div>
-            <div style="width: 180px; margin: auto; centered">
-              <q-btn icon="zoom_in" @click="objectZoom"></q-btn>
-              <q-btn icon="zoom_out" @click="objectUnZoom"></q-btn>
-              <q-btn icon="expand_less" @click="objectRotateMoreX"></q-btn>
-              <q-btn icon="expand_more" @click="objectRotateLessX"></q-btn>
-              <q-btn icon="redo" @click="objectRotateMoreY"></q-btn>
-              <q-btn icon="undo" @click="objectRotateLessY"></q-btn>
-              <q-btn icon="arrow_upward" @click="objectMoveUp"></q-btn>
-              <q-btn icon="arrow_downward" @click="objectMoveDown"></q-btn>
-              <q-btn icon="arrow_back" @click="objectMoveLeft"></q-btn>
-              <q-btn icon="arrow_forward" @click="objectMoveRight"></q-btn>
-            </div>
           </div>
           <div v-if="!quest.isPremium">
             <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadTheObjectToFind')" @click="premium.show = true" />
+          </div>
+          <div style="width: 180px; height: 300px;" id="target-canvas"></div>
+          <div style="width: 180px; margin: auto; centered">
+            <q-btn icon="zoom_in" @click="objectZoom"></q-btn>
+            <q-btn icon="zoom_out" @click="objectUnZoom"></q-btn>
+            <q-btn icon="expand_less" @click="objectRotateMoreX"></q-btn>
+            <q-btn icon="expand_more" @click="objectRotateLessX"></q-btn>
+            <q-btn icon="redo" @click="objectRotateMoreY"></q-btn>
+            <q-btn icon="undo" @click="objectRotateLessY"></q-btn>
+            <q-btn icon="arrow_upward" @click="objectMoveUp"></q-btn>
+            <q-btn icon="arrow_downward" @click="objectMoveDown"></q-btn>
+            <q-btn icon="arrow_back" @click="objectMoveLeft"></q-btn>
+            <q-btn icon="arrow_forward" @click="objectMoveRight"></q-btn>
           </div>
         </div>
       </div>
@@ -1796,7 +1796,7 @@ export default {
           if (questId) {
             gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '/scene.gltf', resolve, progress, reject)
           } else {
-            gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+            gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '.glb', resolve, progress, reject)
           }
         }
       })
