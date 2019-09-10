@@ -490,18 +490,9 @@
           <div v-if="!quest.isPremium">
             <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadTheObjectToFind')" @click="premium.show = true" />
           </div>
-          <div style="width: 180px; height: 300px;" id="target-canvas"></div>
-          <div style="width: 180px; margin: auto; centered">
-            <q-btn icon="zoom_in" @click="objectZoom"></q-btn>
-            <q-btn icon="zoom_out" @click="objectUnZoom"></q-btn>
-            <q-btn icon="expand_less" @click="objectRotateMoreX"></q-btn>
-            <q-btn icon="expand_more" @click="objectRotateLessX"></q-btn>
-            <q-btn icon="redo" @click="objectRotateMoreY"></q-btn>
-            <q-btn icon="undo" @click="objectRotateLessY"></q-btn>
-            <q-btn icon="arrow_upward" @click="objectMoveUp"></q-btn>
-            <q-btn icon="arrow_downward" @click="objectMoveDown"></q-btn>
-            <q-btn icon="arrow_back" @click="objectMoveLeft"></q-btn>
-            <q-btn icon="arrow_forward" @click="objectMoveRight"></q-btn>
+          <div id="target-canvas"></div>
+          <div>
+            {{ $t('label.TouchAndDragObject') }}
           </div>
         </div>
       </div>
@@ -735,6 +726,9 @@ import StepService from 'services/StepService'
 import * as THREE from 'three'
 //import * as TWEEN from '@tweenjs/tween.js'
 import GLTFLoader from 'three-gltf-loader'
+import OrbitControls from 'three-orbitcontrols'
+
+const DEMO_OBJECT_NAME = 'demoObject'
 
 export default {
   /*
@@ -837,9 +831,8 @@ export default {
         locateItem: {
           selectModel3DOptions: [],
           zoom: 60,
-          rotation: {
-            
-          }
+          rotation: {},
+          object: null
         },
         locateMarker: {
           markerModalOpened: false,
@@ -1777,6 +1770,20 @@ export default {
       
       let object = gltfData.scene
       
+      // set object origin at center
+      let objBbox = new THREE.Box3().setFromObject(object)
+      
+      let pivot = objBbox.getCenter(new THREE.Vector3())
+      pivot.multiplyScalar(-1)
+      
+      let pivotObj = new THREE.Object3D();
+      object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
+      pivotObj.add(object)
+      pivotObj.up = new THREE.Vector3(0, 1, 0)
+      object = pivotObj
+      
+      object.rotation.y = Math.PI / 4
+      
       return { object, animations: gltfData.animations }
     },
     /*
@@ -1805,103 +1812,84 @@ export default {
     * Display a 3D Model for Three.js
     */
     async displayARObject(model, questId) {
-      var ObjectData = await this.loadAndPrepare3DModel(model, questId)
-      this.config.locateItem.object = ObjectData.object
-      this.config.locateItem.object.up = new THREE.Vector3(0, 1, 0)
-      this.config.locateItem.object.visible = true
-      
-      // Create an empty scene
-      this.config.locateItem.scene = new THREE.Scene()
+      if (this.config.locateItem.object === null) {
+        // first execution: append renderer to DOM
+        // wait for DOM <div> canvas to be ready/available
+        let _this = this
+        this.$nextTick(async () => {
+          let canvasItem = document.getElementById('target-canvas')
+          if (!canvasItem) {
+            throw new Error('missing 3D canvas')
+          }
+          // Create an empty scene
+          _this.config.locateItem.scene = new THREE.Scene()
 
-      // Create a basic perspective camera
-      this.config.locateItem.camera = new THREE.PerspectiveCamera(70, 1, 1, 1000)
-      // distance with object
-      this.config.locateItem.camera.position.z = this.config.locateItem.zoom
+          // Create a basic perspective camera
+          let camera = new THREE.PerspectiveCamera(70, 1.333, 0.001, 1000)
+          _this.config.locateItem.camera = camera
+          
+          // Create a renderer with Antialiasing
+          let renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
+          canvasItem.appendChild(renderer.domElement)
+          _this.config.locateItem.renderer = renderer
+          
+          // Configure renderer size
+          _this.config.locateItem.renderer.setSize(Math.round(window.innerWidth * 0.8), Math.round(window.innerWidth * 0.6))
+          _this.config.locateItem.renderer.gammaOutput = true
+          
+          // Add "orbit controls"
+          _this.config.locateItem.controls = new OrbitControls(camera, renderer.domElement)
+          
+          let light = new THREE.DirectionalLight(0xdddddd)
+          light.position.set(0, 1, 1).normalize()
+          _this.config.locateItem.scene.add(light)
 
-      // Create a renderer with Antialiasing
-      this.config.locateItem.renderer = new THREE.WebGLRenderer({ antialias: true })
-
-      // Configure renderer size
-      this.config.locateItem.renderer.setSize(180, 300)
-      this.config.locateItem.renderer.gammaOutput = true
-
-      // Append Renderer to DOM
-      var convasItem = document.getElementById('target-canvas')
-      if (convasItem) {
-        // remove old objects
-        while ((convasItem && convasItem.firstChild)) {
-            convasItem.removeChild(convasItem.firstChild)
-        }
-        convasItem.appendChild(this.config.locateItem.renderer.domElement)
-
-        this.config.locateItem.scene.add(this.config.locateItem.object)
-        let light = new THREE.DirectionalLight(0xdddddd)
-        light.position.set(0, 1, 1).normalize()
-        this.config.locateItem.scene.add(light)
-
-        // soft ambient light
-        this.config.locateItem.scene.add(new THREE.AmbientLight(0xb0b0b0))
+          // soft ambient light
+          _this.config.locateItem.scene.add(new THREE.AmbientLight(0xb0b0b0))
+          
+          await _this.displayARObjectEnd(model, questId)
+          
+          _this.animateModelPreview()
+        })
+      } else {
+        // renderer already defined => only replace 3D models
+        let objectToRemove = this.config.locateItem.scene.getObjectByName(DEMO_OBJECT_NAME)
         
-        this.objectRender()
+        // clean previously loaded object
+        this.config.locateItem.scene.remove(objectToRemove)
         
-        /*var _this = this
-        // Render Loop
-        var render = function () {
-          requestAnimationFrame(render)
-
-          _this.config.locateItem.object.rotation.x += 0.01
-          _this.config.locateItem.object.rotation.y += 0.01
-
-          // Render the scene
-          renderer.render(scene, _this.config.locateItem.camera)
-        }
-        */
-
-        //render()
+        await this.displayARObjectEnd(model, questId)
       }
     },
-    objectZoom() {
-      this.config.locateItem.camera.position.z -= 10
-      this.objectRender()
+    async displayARObjectEnd(model, questId) {
+      let ObjectData = await this.loadAndPrepare3DModel(model, questId)
+      
+      let object = ObjectData.object
+      object.up = new THREE.Vector3(0, 1, 0)
+      object.visible = true
+      object.name = DEMO_OBJECT_NAME
+      
+      this.config.locateItem.scene.add(object)
+      
+      // detect object size and adjust default zoom accordingly
+      let box = new THREE.Box3().setFromObject(object)
+      let size = new THREE.Vector3()
+      box.getSize(size)
+      
+      this.config.locateItem.zoom = Math.max(size.x, size.y, size.z) * 1.5
+      
+      // distance with object
+      this.config.locateItem.camera.position.set(0, 0, this.config.locateItem.zoom)
+      this.config.locateItem.camera.up = new THREE.Vector3(0, 1, 0)
+      this.config.locateItem.camera.lookAt(new THREE.Vector3(0, 0, 0))
+      this.config.locateItem.controls.update() // orbit controls update is required when camera position changes
+      
+      this.config.locateItem.object = object
     },
-    objectUnZoom() {
-      this.config.locateItem.camera.position.z += 10
-      this.objectRender()
-    },
-    objectRotateMoreX() {
-      this.config.locateItem.object.rotation.x += 0.1
-      this.objectRender()
-    },
-    objectRotateLessX() {
-      this.config.locateItem.object.rotation.x -= 0.1
-      this.objectRender()
-    },
-    objectRotateMoreY() {
-      this.config.locateItem.object.rotation.y += 0.1
-      this.objectRender()
-    },
-    objectRotateLessY() {
-      this.config.locateItem.object.rotation.y -= 0.1
-      this.objectRender()
-    },
-    objectMoveUp() {
-      this.config.locateItem.object.position.y += 0.3
-      this.objectRender()
-    },
-    objectMoveDown() {
-      this.config.locateItem.object.position.y -= 0.3
-      this.objectRender()
-    },
-    objectMoveLeft() {
-      this.config.locateItem.object.position.x -= 0.3
-      this.objectRender()
-    },
-    objectMoveRight() {
-      this.config.locateItem.object.position.x += 0.3
-      this.objectRender()
-    },
-    objectRender() {
+    animateModelPreview() {
+      requestAnimationFrame(this.animateModelPreview)
       this.config.locateItem.renderer.render(this.config.locateItem.scene, this.config.locateItem.camera)
+      this.config.locateItem.controls.update()
     },
     /*
      * Change 2D / 3D mode
@@ -2240,7 +2228,7 @@ p { margin-bottom: 0.5rem; }
 #choose-marker-modal img { width: 5rem; height: 5rem; }
 #choose-marker-modal span { flex-grow: 1; font-size:1.5rem; color: #000; }
 
-#target-canvas { margin: auto; width: 200px; height: 200px }
+#target-canvas { margin: 1rem auto 0 auto; background: linear-gradient(#aab, #657); }
 
 </style>
 

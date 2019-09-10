@@ -775,7 +775,8 @@ module.exports = {
       ReloadPuzzle: "Piece are not moving ? Press here",
       ClickToEnlargePictures: "Press pictures to enlarge",
       WaveThePhoneForGPSPrecision: "Wave the phone in a figure 8 motion during 3 seconds for a better GPS precision",
-      TakeMobileVertically: "Handle your mobile vertically and search"
+      TakeMobileVertically: "Handle your mobile vertically and search",
+      TouchAndDragObject: "Touch and drag the object to rotate it. Use two fingers to zoom."
     }
   },
   fr: {
@@ -1542,7 +1543,8 @@ module.exports = {
       ReloadPuzzle: "Les pièce ne bougent pas ? Appuyez ici",
       ClickToEnlargePictures: "Appuyez sur les images pour les élargir",
       WaveThePhoneForGPSPrecision: "Faites des 8 avec votre tépéphone pendant 3 secondes pour une meilleure précision GPS",
-      TakeMobileVertically: "Tenez votre téléphone verticalement et recherchez"
+      TakeMobileVertically: "Tenez votre téléphone verticalement et recherchez",
+      TouchAndDragObject: "Touch and drag the object to rotate it. Use two fingers to zoom."
     }
   }
 }
