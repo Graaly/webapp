@@ -367,6 +367,21 @@
       </div>
     </q-dialog>
     
+    <!--====================== GPS CALIBRATION =================================-->
+    
+    <q-dialog v-model="geolocation.showCalibration">
+      <div class="bg-black centered q-pa-md">
+        <img style="width: 100%" src="statics/icons/game/wave-phone.gif">
+        <span class="text-white">{{ $t('label.WaveThePhoneForGPSPrecision') }}</span>
+      </div>
+    </q-dialog>
+    <q-dialog v-model="geolocation.takeMobileVertically">
+      <div class="bg-black centered q-pa-md">
+        <img style="width: 100%" src="statics/icons/game/take-mobile-vertically.gif">
+        <span class="text-white">{{ $t('label.TakeMobileVertically') }}</span>
+      </div>
+    </q-dialog>
+    
   </div>
   
 </template>
@@ -521,7 +536,9 @@ export default {
           target: null,
           canSeeTarget: false,
           canTouchTarget: false,
-          primaryColor: colors.getBrand('primary')
+          primaryColor: colors.getBrand('primary'),
+          showCalibration: false,
+          takeMobileVertically: false
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -696,6 +713,9 @@ export default {
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
           // user can pass
           this.$emit('pass')
+          
+          // ask user to calibrate gps
+          this.askUserToCalibrateGPS()
           
           // Start absolute orientation sensor
           // ---------------------------------
@@ -927,6 +947,29 @@ export default {
               t: new Date()
           }
       })
+    },
+    /*
+    * Open GPS calibration popin
+    */
+    askUserToCalibrateGPS() {
+      this.geolocation.showCalibration = true
+      utils.setTimeout(this.closeGPSCalibration, 7000)
+    },
+    closeGPSCalibration() {
+      this.geolocation.showCalibration = false
+      if (this.step.type === 'locate-item-ar') {
+        this.askUserToHandleMobileVertically()
+      }
+    },
+    /*
+    * Show the user that he needs to take his mobile vertically
+    */
+    askUserToHandleMobileVertically() {
+      this.geolocation.takeMobileVertically = true
+      utils.setTimeout(this.closeHandleMobileVertically, 7000)
+    },
+    closeHandleMobileVertically() {
+      this.geolocation.takeMobileVertically = false
     },
     /*
     * Init QR Codes
@@ -2090,13 +2133,20 @@ export default {
         this.geolocation.rawDirection = rawDirection
       }
       
-      // no gyro => consider that the object to find is always in front of the device 
-      let finalDirection = this.deviceHasGyroscope ? utils.degreesToRadians(rawDirection) : 0
+      let finalDirection = utils.degreesToRadians(rawDirection)
+      
+      if (!this.deviceHasGyroscope) {
+        // consider that the object to find is always in front of the device 
+        finalDirection = 0
+        // avoid to be too close from the object, set minimal distance
+        const minDistanceFromObject = 2 + (this.geolocation.target !== null ? this.geolocation.target.size : 0) // in meters
+        this.geolocation.GPSdistance = Math.max(minDistanceFromObject, this.geolocation.GPSdistance)
+      }
       
       // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
       // note that those properties are also needed when accelerometer is used (method 'handleMotionEvent()')
-      this.geolocation.position.x = this.geolocation.GPSdistance !== 0 ? Math.sin(finalDirection) * this.geolocation.GPSdistance : 0
-      this.geolocation.position.y = this.geolocation.GPSdistance !== 0 ? Math.cos(finalDirection) * this.geolocation.GPSdistance : 0
+      this.geolocation.position.x = Math.sin(finalDirection) * this.geolocation.GPSdistance
+      this.geolocation.position.y = Math.cos(finalDirection) * this.geolocation.GPSdistance
       
       if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.geolocation.target.scene !== null) {
         let target = this.geolocation.target
@@ -2702,7 +2752,6 @@ export default {
       // Load GLTF packed as binary (blob)
       //const offlineObject = await utils.readFile(questId + '/' + objName, 'scene.gltf')
       const offlineObject = await utils.readBinaryFile(questId + '/' + objName, 'object.glb')
-console.log(offlineObject)
       return new Promise((resolve, reject) => {
         let gltfLoader = new GLTFLoader()
         // loads automatically .bin and textures files if necessary
@@ -2710,15 +2759,12 @@ console.log(offlineObject)
           gltfLoader.load(objName, resolve, progress, reject)
         } else {
           if (offlineObject) {
-console.log("tst1")
             gltfLoader.load(offlineObject, resolve, progress, reject)
           } else {
-console.log("tst2")
-            //gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
             if (questId) {
               gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '/scene.gltf', resolve, progress, reject)
             } else {
-              gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+              gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '.glb', resolve, progress, reject)
             }
           }
         }
@@ -2805,7 +2851,7 @@ console.log("tst2")
       }
       
       // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
-      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion) {
+      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion || isNaN(this.geolocation.position.x) || isNaN(this.geolocation.position.y)) {
         canProcess = false
       }
       
@@ -2823,7 +2869,7 @@ console.log("tst2")
       }
       
       // this means we are switching from GPS only to "accelerometer + GPS" mode (or we are in the "switching zone"), or it's the first time we handle motion event
-      if (this.isUsingGPSOnly || dm.isTargetPositionUndefined) {
+      if (this.geolocation.GPSdistance !== null && (dm.isTargetPositionUndefined || this.geolocation.GPSdistance >= this.minDistanceForGPS)) {
         this.geolocation.distance = this.geolocation.GPSdistance
         object.position.x = this.geolocation.position.x
         object.position.y = this.geolocation.position.y

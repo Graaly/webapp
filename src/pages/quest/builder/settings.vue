@@ -426,7 +426,7 @@
           <q-item-section side top>
             <q-icon name="timeline" class="left-icon" />
           </q-item-section>
-          <q-item-section>
+          <q-item-section v-if="statistics && statistics.statistics">
             <q-item-label class="big-label">{{ $t('label.Statistics') }}</q-item-label>
             <p>{{ $t('label.TotalNumberOfPlayers') }}{{ $t('label.colons') }}{{ statistics.statistics.nbPlayers }}</p>
             <p>{{ $t('label.NumberOfPlayersYesterday') }}{{ $t('label.colons') }}{{ statistics.statistics.dailyNbPlayers }}</p>
@@ -434,7 +434,8 @@
               {{ $t('label.NumberOfPlayersByAge') }}
                 <q-list class="shadow-2 rounded-borders">
                   <q-item v-for="statistic in statistics.statistics.ageRepartition" :key="statistic._id">
-                    <q-item-section>{{ $t('label.Age' + (statistic._id.replace('-', '').replace('+', ''))) }}{{ $t('label.colons') }}{{ statistic.nb }}</q-item-section>
+                    <q-item-section v-if="statistic && !statistic._id">{{ $t('label.null') }}{{ $t('label.colons') }}{{ statistic.nb }}</q-item-section>
+                    <q-item-section v-if="statistic && statistic._id">{{ $t('label.Age' + (statistic._id.replace('-', '').replace('+', ''))) }}{{ $t('label.colons') }}{{ statistic.nb }}</q-item-section>
                   </q-item>
                 </q-list>
             </p>

@@ -39,7 +39,8 @@
             </p>
             <q-btn v-if="currentQuest && currentQuest.authorUserId !== $store.state.user._id" @click="playQuest(currentQuest ? currentQuest.questId : '')" color="primary">{{ $t('label.Play') }}</q-btn>
             <q-btn v-if="currentQuest && currentQuest.authorUserId === $store.state.user._id" @click="modifyQuest(currentQuest ? currentQuest.questId : '')" color="primary">{{ $t('label.Modify') }}</q-btn>
-            <div class="q-pa-md" v-if="offline.available && currentQuest && currentQuest.authorUserId !== $store.state.user._id && !offline.show"><a @click="downloadQuest(currentQuest)" color="primary">{{ $t('label.DownloadForOfflineUse') }}</a></div>
+            <q-btn v-if="currentQuest && currentQuest.authorUserId === $store.state.user._id" @click="playQuest(currentQuest ? currentQuest.questId : '')" color="primary" class="q-mt-sm">{{ $t('label.TestYourQuest') }}</q-btn>
+            <div class="q-pa-md" v-if="offline.available && currentQuest && (!currentQuest.premiumPrice || !currentQuest.premiumPrice.androidId || currentQuest.premiumPrice.androidId === 'free') && currentQuest.authorUserId !== $store.state.user._id && !offline.show"><a @click="downloadQuest(currentQuest)" color="primary">{{ $t('label.DownloadForOfflineUse') }}</a></div>
           </div>
           <div class="infoWindow" v-if="this.$store.state.user.story && this.$store.state.user.story.step <= 3">
             <p>{{ $t('label.ClickHereToStartDiscoveryQuest') }}</p>
@@ -845,6 +846,19 @@
           </q-item-section>
           <q-item-section>{{ $t('label.Administrate') }}</q-item-section>
         </q-item>
+        
+        <q-item v-if="$store.state.user.isAdmin && shop.inAppPurchase.activated">
+          <q-item-section avatar>
+            <q-icon color="green" name="check" />
+          </q-item-section>
+          <q-item-section>In-app purchase</q-item-section>
+        </q-item>
+        <q-item v-if="$store.state.user.isAdmin && !shop.inAppPurchase.activated">
+          <q-item-section avatar>
+            <q-icon color="red" name="close" />
+          </q-item-section>
+          <q-item-section>In-app purchase</q-item-section>
+        </q-item>
       </q-list>
     </q-dialog>
     
@@ -940,7 +954,10 @@ export default {
         }
       },
       shop: {
-        show: false
+        show: false,
+        inAppPurchase: {
+          activated: window.store
+        }
       },
       currentQuestIndex: null,
       currentQuest: null,
@@ -1199,6 +1216,7 @@ export default {
             type: store.CONSUMABLE
           })
           var _this = this
+console.log(quest.premiumPrice.androidId)
           store.when(quest.premiumPrice.androidId).updated(function(product) {
             _this.currentQuest.displayPrice = product.price
           })

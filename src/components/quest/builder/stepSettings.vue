@@ -224,8 +224,8 @@
     <div v-if="options.type.code == 'choose'">
       
       <h2>{{ $t('label.ResponseTypes') }}</h2>
-      <q-radio v-model="answerType" val="text" :label="$t('label.Texts')" @click="$v.selectedStep.form.options.items.$touch" />
-      <q-radio v-model="answerType" val="image" :label="$t('label.Pictures')" @click="$v.selectedStep.form.options.items.$touch" test-id="radio-choose-images" />
+      <q-radio v-model="config.choose.answerType" val="text" :label="$t('label.Texts')" @click="$v.selectedStep.form.options.items.$touch" />
+      <q-radio v-model="config.choose.answerType" val="image" :label="$t('label.Pictures')" @click="$v.selectedStep.form.options.items.$touch" test-id="radio-choose-images" />
         
       <h2>{{ $t('label.PossibleAnswers') }}</h2>
       <p>{{ $t('label.SelectTheGoodAnswer') }}</p>
@@ -233,13 +233,13 @@
       <div class="answer" v-for="(option, key) in selectedStep.form.options.items" :key="key">
         <q-radio v-model="selectedStep.form.answers" :val="key" :test-id="'radio-answer-' + key" />
         
-        <q-input v-show="answerType === 'text'" v-model="option.text" @input="$v.selectedStep.form.options.items ? $v.selectedStep.form.options.items.$each[key].text.$touch : null" input-class="native-input-class" :test-id="'text-answer-' + key" />
-        <p class="error-label" v-if="answerType === 'text' && $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].text.required">{{ $t('label.RequiredField') }}</p>
+        <q-input v-show="config.choose.answerType === 'text'" v-model="option.text" @input="$v.selectedStep.form.options.items ? $v.selectedStep.form.options.items.$each[key].text.$touch : null" input-class="native-input-class" :test-id="'text-answer-' + key" />
+        <p class="error-label" v-if="config.choose.answerType === 'text' && $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].text.required">{{ $t('label.RequiredField') }}</p>
         
-        <p v-show="answerType === 'image' && option.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
-        <p><img v-if="answerType === 'image' && option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + option.imagePath" /></p>
+        <p v-show="config.choose.answerType === 'image' && option.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
+        <p><img v-if="config.choose.answerType === 'image' && option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + option.imagePath" /></p>
         <span v-if="!isIOs">
-          <q-btn v-show="answerType === 'image'" icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
+          <q-btn v-show="config.choose.answerType === 'image'" icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
           <input @change="uploadAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden :test-id="'image-answer-' + key" />
         </span>
         <span v-if="isIOs">
@@ -287,12 +287,12 @@
     <!------------------ STEP : COLOR CODE ------------------------>
     
     <div v-if="options.type.code == 'code-color'" class="code-color">
-      <q-select emit-value map-options :label="$t('label.NumberOfColorsInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-colors" />
+      <q-select emit-value map-options :label="$t('label.NumberOfColorsInTheCode')" :options="config.colorCode.numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-colors" />
       <h2>{{ $t('label.ExpectedColorCodeAnswer') }}</h2>
       <table>
       <tr>
         <td v-for="(color, index) in unformatedAnswer" :key="index">
-          <q-select emit-value map-options :ref="'colorSelect' + index" v-model="unformatedAnswer[index]" :options="colorsForCode" :test-id="'select-color-' + index" />
+          <q-select emit-value map-options :ref="'colorSelect' + index" v-model="unformatedAnswer[index]" :options="config.colorCode.colorsForCode" :test-id="'select-color-' + index" />
         </td>
       </tr>
       <tr>
@@ -327,7 +327,7 @@
       </q-btn>
       <div v-if="selectedStep.form.options.images && selectedStep.form.options.images.length > 0 && selectedStep.form.options.images[0].imagePath">
         <h2>{{ $t('label.ExpectedCode') }}</h2>
-        <q-select emit-value map-options :label="$t('label.NumberOfImagesInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-images-in-code" />
+        <q-select emit-value map-options :label="$t('label.NumberOfImagesInTheCode')" :options="config.imageCode.numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-images-in-code" />
         <table>
           <tr>
             <td v-for="(code, index) in unformatedAnswer" :key="index" class="text-center" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index">
@@ -386,7 +386,7 @@
         </div>
       </div>
       <div>
-        <q-select emit-value map-options :label="$t('label.Difficulty')" :options="jigsawLevels" v-model="selectedStep.form.options.level" />
+        <q-select emit-value map-options :label="$t('label.Difficulty')" :options="config.jigsaw.levels" v-model="selectedStep.form.options.level" />
       </div>
     </div>
     
@@ -394,7 +394,7 @@
     
     <div v-if="options.type.code === 'memory'">
       <h2>{{ $t('label.ImagesUsedForCards') }}</h2>
-      <div class="answer" v-for="(option, key) in memoryItems" :key="key">       
+      <div class="answer" v-for="(option, key) in config.memory.items" :key="key">       
         <p v-show="option.imagePath === null" class="error-label">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/memory/' + option.imagePath" /></p>
         <span v-if="!isIOs">
@@ -424,7 +424,7 @@
     <div class="inventory" v-if="options.type.code == 'use-item'">
       <q-select emit-value map-options
         :label="$t('label.ObjectToUse')"
-        :options="questItemsAsOptions"
+        :options="config.useItem.questItemsAsOptions"
         v-model="selectedStep.form.answerItem"
         @change="$v.selectedStep.form.answerItem.$touch"
         bottom-slots
@@ -474,7 +474,7 @@
           </div>
         </div>
         <div v-if="selectedStep.form.options.is3D">
-          <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" test-id="select-3d-model" @input="changeObjectInList" />
+          <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="config.locateItem.selectModel3DOptions" test-id="select-3d-model" @input="changeObjectInList" />
           <p class="error-label" v-show="$v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
           <div class="centered">{{ $t('label.Or') }}</div>
           <div v-if="quest.isPremium">
@@ -486,10 +486,13 @@
               {{ $t('label.UploadTheObjectToFind') }}:
               <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".zip" />
             </div>
-            <div style="width: 200px; height: 200px;" id="target-canvas"></div>
           </div>
           <div v-if="!quest.isPremium">
             <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadTheObjectToFind')" @click="premium.show = true" />
+          </div>
+          <div id="target-canvas"></div>
+          <div>
+            {{ $t('label.TouchAndDragObject') }}
           </div>
         </div>
       </div>
@@ -561,7 +564,7 @@
       
       </div>-->
       
-      <q-dialog id="choose-marker-modal" v-model="markerModalOpened">
+      <q-dialog id="choose-marker-modal" v-model="config.locateMarker.markerModalOpened">
         <q-card>
           <q-card-section>
             <div class="text-h6">{{ $t('label.ChooseTheMarker') }}</div>
@@ -723,6 +726,9 @@ import StepService from 'services/StepService'
 import * as THREE from 'three'
 //import * as TWEEN from '@tweenjs/tween.js'
 import GLTFLoader from 'three-gltf-loader'
+import OrbitControls from 'three-orbitcontrols'
+
+const DEMO_OBJECT_NAME = 'demoObject'
 
 export default {
   /*
@@ -779,54 +785,66 @@ export default {
       originalStepData: {}, // helps to detect if step has been modified
       saveChangesModalOpened: false,
 
-      /*
-       * List of the levels for the jigsaw step
-       */
-      jigsawLevels: [
-        { value: 1, label: this.$t('label.Easy') },
-        { value: 2, label: this.$t('label.Medium') },
-        { value: 4, label: this.$t('label.Hard') },
-        { value: 3, label: this.$t('label.VeryHard') }
-      ],
-      jigsawNbPieceByLevel: [0, 3, 4, 6, 5],
-            
-      answerType: 'text',
-      numberOfDigitsOptions: [
-        { value: 1, label: "1" },
-        { value: 2, label: "2" },
-        { value: 3, label: "3" },
-        { value: 4, label: "4" }
-      ],
-      defaultNbAnswers: 4,
-      minNbAnswers: 2,
-      maxNbAnswers: 6,
-      rightAnswerIndex: 0,
+      config: {
+        jigsaw: {
+          levels: [
+            { value: 1, label: this.$t('label.Easy') },
+            { value: 2, label: this.$t('label.Medium') },
+            { value: 4, label: this.$t('label.Hard') },
+            { value: 3, label: this.$t('label.VeryHard') }
+          ],
+          nbPiecesByLevel: [0, 3, 4, 6, 5]
+        },
+        choose: {
+          answerType: 'text',
+          defaultNbAnswers: 4,
+          minNbAnswers: 2,
+          maxNbAnswers: 6
+        },
+        colorCode: {
+          numberOfDigitsOptions: [
+            { value: 1, label: "1" },
+            { value: 2, label: "2" },
+            { value: 3, label: "3" },
+            { value: 4, label: "4" }
+          ],
+          colorsForCode: this.getColorsForCodeOptions()
+        },
+        imageCode: {
+          numberOfDigitsOptions: [
+            { value: 1, label: "1" },
+            { value: 2, label: "2" },
+            { value: 3, label: "3" },
+            { value: 4, label: "4" }
+          ],
+          defaultNbAnswers: 4,
+          imagesForCode: this.getImagesForCodeOptions()
+        },
+        memory: {
+          minNbAnswers: 3,
+          maxNbAnswers: 10,
+          items: []
+        },
+        useItem: {
+          questItemsAsOptions: []
+        },
+        locateItem: {
+          selectModel3DOptions: [],
+          zoom: 60,
+          rotation: {},
+          object: null
+        },
+        locateMarker: {
+          markerModalOpened: false,
+          layersForMarkersOptions: []
+        }
+      },
+      questItems: [],
       isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
       serverUrl: process.env.SERVER_URL,
       
-      // for 'code-color' steps
-      colorsForCode: this.getColorsForCodeOptions(),
-      
-      // for 'code-image' steps
-      imagesForCode: this.getImagesForCodeOptions(),
-      
-      // for 'new-item' & 'use-item' steps
-      questItemsAsOptions: [],
-      questItems: [],
-      
-      // for 'memory' steps
-      memoryItems: [],
-      maxMemoryItems: 10,
-      
       unformatedAnswer: null,
-      
-      // for 'locate-item-ar' and 'locate-marker'
-      selectModel3DOptions: [],
-      
-      // for 'locate-marker'
-      markerModalOpened: false,
-      layersForMarkersOptions: [], // for 'locate-marker' only
-      
+
       premium: {
         show: false
       }
@@ -987,15 +1005,15 @@ export default {
       // initialize specific steps
       if (this.options.type.code === 'choose') {
         if (!this.selectedStep.form.options || !this.selectedStep.form.options.items || !Array.isArray(this.selectedStep.form.options.items)) {
-          this.answerType = 'text'
+          this.config.choose.answerType = 'text'
           this.selectedStep.form.options = {items: []}
           this.selectedStep.form.answers = 0
-          for (let i = 0; i < this.defaultNbAnswers; i++) {
+          for (let i = 0; i < this.config.choose.defaultNbAnswers; i++) {
             this.selectedStep.form.options.items.push({ text: this.$t('label.AnswerNb', { nb: (i + 1) }), imagePath: null })
           }
         } else {
-          this.answerType = this.selectedStep.form.options.items[0].hasOwnProperty('imagePath') && this.selectedStep.form.options.items[0].imagePath !== null ? 'image' : 'text'
-          if (this.answerType === 'text') {
+          this.config.choose.answerType = this.selectedStep.form.options.items[0].hasOwnProperty('imagePath') && this.selectedStep.form.options.items[0].imagePath !== null ? 'image' : 'text'
+          if (this.config.choose.answerType === 'text') {
             for (var i = 0; i < this.selectedStep.form.options.items.length; i++) {
               if (this.selectedStep.form.options.items[i].textLanguage && this.selectedStep.form.options.items[i].textLanguage[this.lang]) {
                 this.selectedStep.form.options.items[i].text = this.selectedStep.form.options.items[i].textLanguage[this.lang]
@@ -1003,8 +1021,6 @@ export default {
             }
           }          
         }
-        this.minNbAnswers = 2
-        this.maxNbAnswers = 6
       } else if (this.options.type.code === 'code-color') {
         if (this.selectedStep.form.answers && typeof this.selectedStep.form.answers === 'string' && this.selectedStep.form.answers.indexOf('|') !== -1) {
           this.unformatedAnswer = this.selectedStep.form.answers.split("|")
@@ -1018,7 +1034,7 @@ export default {
         // init images list
         if (!this.selectedStep.form.options || !this.selectedStep.form.options.images) {
           this.selectedStep.form.options = {images: []}
-          for (let i = 0; i < this.defaultNbAnswers; i++) {
+          for (let i = 0; i < this.config.imageCode.defaultNbAnswers; i++) {
             this.selectedStep.form.options.images.push({ imagePath: null })
           }
         }
@@ -1081,15 +1097,13 @@ export default {
       } else if (this.options.type.code === 'memory') {
         if (!this.selectedStep.form.options.items) {
           this.selectedStep.form.options = {lastIsSingle: false}
-          this.memoryItems = []
+          this.config.memory.items = []
           for (let i = 0; i < 8; i++) {
-            this.memoryItems.push({ imagePath: null, single: false })
+            this.config.memory.items.push({ imagePath: null, single: false })
           }
         } else {
-          this.memoryItems = this.selectedStep.form.options.items
+          this.config.memory.items = this.selectedStep.form.options.items
         }
-        this.minNbAnswers = 3
-        this.maxNbAnswers = 12
       } else if (this.options.type.code === 'locate-item-ar') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
           this.$set(this.selectedStep.form.options, 'picture', null)
@@ -1102,14 +1116,14 @@ export default {
         }
         // create options for 3D Model selection
         for (let key in modelsList) {
-          this.selectModel3DOptions.push({ label: modelsList[key].name[this.$store.state.user.language], value: key })
+          this.config.locateItem.selectModel3DOptions.push({ label: modelsList[key].name[this.$store.state.user.language], value: key })
         }
         // sort options in alphabetical order
-        this.selectModel3DOptions = this.selectModel3DOptions.sort((a, b) => {
+        this.config.locateItem.selectModel3DOptions = this.config.locateItem.selectModel3DOptions.sort((a, b) => {
           return a.label.localeCompare(b.label)
         })
         if (!this.selectedStep.form.options.hasOwnProperty('model')) {
-          this.$set(this.selectedStep.form.options, 'model', this.selectModel3DOptions[0].value)
+          this.$set(this.selectedStep.form.options, 'model', this.config.locateItem.selectModel3DOptions[0].value)
         }
         // display 3D model selected by default
         await this.displayARObject(this.selectedStep.form.options.model)
@@ -1119,10 +1133,10 @@ export default {
         }
         // create options for layer above camera stream selection
         for (let layer of layersForMarkers) {
-          this.layersForMarkersOptions.push({ label: this.$t('layersForMarkers.' + layer.label), value: layer.code })
+          this.config.locateMarker.layersForMarkersOptions.push({ label: this.$t('layersForMarkers.' + layer.label), value: layer.code })
         }
         // sort options in alphabetical order
-        this.layersForMarkersOptions = this.layersForMarkersOptions.sort((a, b) => {
+        this.config.locateMarker.layersForMarkersOptions = this.config.locateMarker.layersForMarkersOptions.sort((a, b) => {
           return a.label.localeCompare(b.label)
         })
         // default layer = first
@@ -1132,14 +1146,14 @@ export default {
         
         // create options for 3D Model selection
         for (let key in modelsList) {
-          this.selectModel3DOptions.push({ label: modelsList[key].name[this.$store.state.user.language], value: key })
+          this.config.locateItem.selectModel3DOptions.push({ label: modelsList[key].name[this.$store.state.user.language], value: key })
         }
         // sort options in alphabetical order
-        this.selectModel3DOptions = this.selectModel3DOptions.sort((a, b) => {
+        this.config.locateItem.selectModel3DOptions = this.config.locateItem.selectModel3DOptions.sort((a, b) => {
           return a.label.localeCompare(b.label)
         })
         if (!this.selectedStep.form.options.hasOwnProperty('model')) {
-          this.$set(this.selectedStep.form.options, 'model', this.selectModel3DOptions[0].value)
+          this.$set(this.selectedStep.form.options, 'model', this.config.locateItem.selectModel3DOptions[0].value)
         }
         // default mode: scan code
         if (!this.selectedStep.form.options.hasOwnProperty('mode')) {
@@ -1166,7 +1180,7 @@ export default {
 
       // format answer based on the type of step
       if (this.options.type.code === 'choose') {
-        if (this.answerType === 'text') {
+        if (this.config.choose.answerType === 'text') {
           for (var i = 0; i < this.selectedStep.form.options.items.length; i++) {
             if (this.selectedStep.form.options && this.selectedStep.form.options.items && this.selectedStep.form.options.items[i] && this.selectedStep.form.options.items[i].textLanguage) {
               this.selectedStep.form.options.items[i].textLanguage[this.lang] = this.selectedStep.form.options.items[i].text
@@ -1197,7 +1211,7 @@ export default {
       if (this.options.type.code === 'jigsaw-puzzle') {
         // build random order for jigsaw puzzle pieces.
         var level = parseInt(this.selectedStep.form.options.level, 10)
-        var nbPieceByRow = this.jigsawNbPieceByLevel[level]
+        var nbPieceByRow = this.config.jigsaw.nbPiecesByLevel[level]
         let piecePositionArray = utils.buildIncrementalArray(Math.pow(nbPieceByRow, 2))
         piecePositionArray = utils.shuffle(piecePositionArray)
         this.selectedStep.form.answers = piecePositionArray.join('|')
@@ -1206,9 +1220,9 @@ export default {
         if (!this.selectedStep.form.options.items) {
           this.selectedStep.form.options.items = []
         }
-        for (var j = 0; i < this.memoryItems.length; i++) {
-          if (this.memoryItems[j].imagePath !== null) {
-            this.selectedStep.form.options.items.push(this.memoryItems[j])
+        for (var j = 0; i < this.config.memory.items.length; i++) {
+          if (this.config.memory.items[j].imagePath !== null) {
+            this.selectedStep.form.options.items.push(this.config.memory.items[j])
           }
         }
         if (this.selectedStep.form.options.lastIsSingle && this.selectedStep.form.options.items && this.selectedStep.form.options.items.length > 0) {
@@ -1248,8 +1262,8 @@ export default {
      * Add an answer in the multiple choice step
      */
     addAnswer: function () {
-      if (this.selectedStep.form.options.items.length >= this.maxNbAnswers) {
-        Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.maxNbAnswers }), 'error')
+      if (this.selectedStep.form.options.items.length >= this.config.choose.maxNbAnswers) {
+        Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.config.choose.maxNbAnswers }), 'error')
       } else {
         this.selectedStep.form.options.items.push({
           isRightAnswer: false,
@@ -1262,10 +1276,10 @@ export default {
      * Add an answer in the memory step
      */
     addMemoryAnswer: function () {
-      if (this.memoryItems.length >= this.maxMemoryItems) {
-        Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.maxMemoryItems }), 'error')
+      if (this.config.memory.items.length >= this.config.memory.maxNbAnswers) {
+        Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.config.memory.maxNbAnswers }), 'error')
       } else {
-        this.memoryItems.push({
+        this.config.memory.items.push({
           imagePath: null, // image default data
           single: false
         })
@@ -1275,8 +1289,8 @@ export default {
      * Add a picture answer in the multiple choice step
      */
     addCodeAnswer: function () {
-      if (this.selectedStep.form.options.images.length >= this.maxNbAnswers) {
-        Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.maxNbAnswers }), 'error')
+      if (this.selectedStep.form.options.images.length >= this.config.choose.maxNbAnswers) {
+        Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.config.choose.maxNbAnswers }), 'error')
       } else {
         this.selectedStep.form.options.images.push({
           imagePath: null // image default data
@@ -1288,8 +1302,8 @@ export default {
      * Delete an answer in the multiple choice step
      */
     deleteAnswer: function (key) {
-      if (this.selectedStep.form.options.items.length <= this.minNbAnswers) {
-        Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.minNbAnswers }), 'error')
+      if (this.selectedStep.form.options.items.length <= this.config.choose.minNbAnswers) {
+        Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.config.choose.minNbAnswers }), 'error')
       } else {
         this.selectedStep.form.options.items.splice(key, 1)
       }
@@ -1298,8 +1312,8 @@ export default {
      * Add a picture answer in the multiple choice step
      */
     deleteCodeAnswer: function (key) {
-      if (this.selectedStep.form.options.images.length <= this.minNbAnswers) {
-        Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.minNbAnswers }), 'error')
+      if (this.selectedStep.form.options.images.length <= this.config.choose.minNbAnswers) {
+        Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.config.choose.minNbAnswers }), 'error')
       } else {
         // change code if the code answer is used in the code
         for (var i  = 0; i < this.unformatedAnswer.length; i++) {
@@ -1589,7 +1603,7 @@ export default {
       let uploadResult = await StepService.uploadMemoryImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
-          this.memoryItems[key].imagePath = uploadResult.data.file
+          this.config.memory.items[key].imagePath = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         }
@@ -1602,10 +1616,10 @@ export default {
      * Delete an answer in the memory game
      */
     deleteMemoryAnswer: function (key) {
-      if (this.memoryItems.length <= this.minNbAnswers) {
-        Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.minNbAnswers }), 'error')
+      if (this.config.memory.items.length <= this.config.memory.minNbAnswers) {
+        Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.config.memory.minNbAnswers }), 'error')
       } else {
-        this.memoryItems.splice(key, 1);
+        this.config.memory.items.splice(key, 1);
       }
     },
     /*
@@ -1756,6 +1770,20 @@ export default {
       
       let object = gltfData.scene
       
+      // set object origin at center
+      let objBbox = new THREE.Box3().setFromObject(object)
+      
+      let pivot = objBbox.getCenter(new THREE.Vector3())
+      pivot.multiplyScalar(-1)
+      
+      let pivotObj = new THREE.Object3D();
+      object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
+      pivotObj.add(object)
+      pivotObj.up = new THREE.Vector3(0, 1, 0)
+      object = pivotObj
+      
+      object.rotation.y = Math.PI / 4
+      
       return { object, animations: gltfData.animations }
     },
     /*
@@ -1775,7 +1803,7 @@ export default {
           if (questId) {
             gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '/scene.gltf', resolve, progress, reject)
           } else {
-            gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+            gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '.glb', resolve, progress, reject)
           }
         }
       })
@@ -1784,55 +1812,84 @@ export default {
     * Display a 3D Model for Three.js
     */
     async displayARObject(model, questId) {
-      var ObjectData = await this.loadAndPrepare3DModel(model, questId)
-      var object = ObjectData.object
-      object.up = new THREE.Vector3(0, 0, 1)
-      object.visible = true
-      
-      // Create an empty scene
-      var scene = new THREE.Scene()
+      if (this.config.locateItem.object === null) {
+        // first execution: append renderer to DOM
+        // wait for DOM <div> canvas to be ready/available
+        let _this = this
+        this.$nextTick(async () => {
+          let canvasItem = document.getElementById('target-canvas')
+          if (!canvasItem) {
+            throw new Error('missing 3D canvas')
+          }
+          // Create an empty scene
+          _this.config.locateItem.scene = new THREE.Scene()
 
-      // Create a basic perspective camera
-      var camera = new THREE.PerspectiveCamera(67, 1, 0.001, 1000)
-      camera.position.z = 1.5
+          // Create a basic perspective camera
+          let camera = new THREE.PerspectiveCamera(70, 1.333, 0.001, 1000)
+          _this.config.locateItem.camera = camera
+          
+          // Create a renderer with Antialiasing
+          let renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
+          canvasItem.appendChild(renderer.domElement)
+          _this.config.locateItem.renderer = renderer
+          
+          // Configure renderer size
+          _this.config.locateItem.renderer.setSize(Math.round(window.innerWidth * 0.8), Math.round(window.innerWidth * 0.6))
+          _this.config.locateItem.renderer.gammaOutput = true
+          
+          // Add "orbit controls"
+          _this.config.locateItem.controls = new OrbitControls(camera, renderer.domElement)
+          
+          let light = new THREE.DirectionalLight(0xdddddd)
+          light.position.set(0, 1, 1).normalize()
+          _this.config.locateItem.scene.add(light)
 
-      // Create a renderer with Antialiasing
-      var renderer = new THREE.WebGLRenderer({ antialias: true })
-
-      // Configure renderer size
-      renderer.setSize(200, 200)
-      renderer.gammaOutput = true
-
-      // Append Renderer to DOM
-      var convasItem = document.getElementById('target-canvas')
-      if (convasItem) {
-        // remove old objects
-        while ((convasItem && convasItem.firstChild)) {
-            convasItem.removeChild(convasItem.firstChild)
-        }
-        convasItem.appendChild(renderer.domElement)
-
-        scene.add(object)
-        let light = new THREE.DirectionalLight(0xdddddd)
-        light.position.set(0, 1, 1).normalize()
-        scene.add(light)
-
-        // soft ambient light
-        scene.add(new THREE.AmbientLight(0xb0b0b0))
-
-        // Render Loop
-        var render = function () {
-          requestAnimationFrame(render)
-
-          object.rotation.x += 0.01
-          object.rotation.y += 0.01
-
-          // Render the scene
-          renderer.render(scene, camera)
-        }
-
-        render()
+          // soft ambient light
+          _this.config.locateItem.scene.add(new THREE.AmbientLight(0xb0b0b0))
+          
+          await _this.displayARObjectEnd(model, questId)
+          
+          _this.animateModelPreview()
+        })
+      } else {
+        // renderer already defined => only replace 3D models
+        let objectToRemove = this.config.locateItem.scene.getObjectByName(DEMO_OBJECT_NAME)
+        
+        // clean previously loaded object
+        this.config.locateItem.scene.remove(objectToRemove)
+        
+        await this.displayARObjectEnd(model, questId)
       }
+    },
+    async displayARObjectEnd(model, questId) {
+      let ObjectData = await this.loadAndPrepare3DModel(model, questId)
+      
+      let object = ObjectData.object
+      object.up = new THREE.Vector3(0, 1, 0)
+      object.visible = true
+      object.name = DEMO_OBJECT_NAME
+      
+      this.config.locateItem.scene.add(object)
+      
+      // detect object size and adjust default zoom accordingly
+      let box = new THREE.Box3().setFromObject(object)
+      let size = new THREE.Vector3()
+      box.getSize(size)
+      
+      this.config.locateItem.zoom = Math.max(size.x, size.y, size.z) * 1.5
+      
+      // distance with object
+      this.config.locateItem.camera.position.set(0, 0, this.config.locateItem.zoom)
+      this.config.locateItem.camera.up = new THREE.Vector3(0, 1, 0)
+      this.config.locateItem.camera.lookAt(new THREE.Vector3(0, 0, 0))
+      this.config.locateItem.controls.update() // orbit controls update is required when camera position changes
+      
+      this.config.locateItem.object = object
+    },
+    animateModelPreview() {
+      requestAnimationFrame(this.animateModelPreview)
+      this.config.locateItem.renderer.render(this.config.locateItem.scene, this.config.locateItem.camera)
+      this.config.locateItem.controls.update()
     },
     /*
      * Change 2D / 3D mode
@@ -1888,7 +1945,7 @@ export default {
           })
         })
         options.sort((a, b) => { return a.label > b.label ? 1 : -1 })
-        this.questItemsAsOptions = options
+        this.config.useItem.questItemsAsOptions = options
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -2020,10 +2077,10 @@ export default {
       return value.length <= maxNbChars && (value.match(/\n/g) || []).length <= maxNbCarriageReturns
     },
     openChooseMarkerModal() {
-      this.markerModalOpened = true
+      this.config.locateMarker.markerModalOpened = true
     },
     closeChooseMarkerModal() {
-      this.markerModalOpened = false
+      this.config.locateMarker.markerModalOpened = false
     },
     selectMarker(code) {
       this.selectedStep.form.answers = code
@@ -2060,7 +2117,7 @@ export default {
       case 'choose':
         fieldsToValidate.options = {
           items: {
-            $each: this.answerType === 'text' ? { text: { required }, imagePath: {} } : { text: {}, imagePath: { required } }
+            $each: this.config.choose.answerType === 'text' ? { text: { required }, imagePath: {} } : { text: {}, imagePath: { required } }
           }
         }
         break
@@ -2171,7 +2228,7 @@ p { margin-bottom: 0.5rem; }
 #choose-marker-modal img { width: 5rem; height: 5rem; }
 #choose-marker-modal span { flex-grow: 1; font-size:1.5rem; color: #000; }
 
-#target-canvas { margin: auto; width: 200px; height: 200px }
+#target-canvas { margin: 1rem auto 0 auto; background: linear-gradient(#aab, #657); }
 
 </style>
 
