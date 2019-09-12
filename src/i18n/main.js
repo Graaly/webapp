@@ -775,7 +775,10 @@ module.exports = {
       ReloadPuzzle: "Piece are not moving ? Press here",
       ClickToEnlargePictures: "Press pictures to enlarge",
       WaveThePhoneForGPSPrecision: "Wave the phone in a figure 8 motion during 3 seconds for a better GPS precision",
-      TakeMobileVertically: "Handle your mobile vertically and search"
+      TakeMobileVertically: "Handle your mobile vertically and search",
+      null: "Undefined",
+      TooMuchOfflineLoadingErrors: "Quest loading failed. You can play the quest online if you always have network. Press here to close",
+      CancelOfflineWarning: "You have canceled the loading of the quest. It will not work if you loose network"
     }
   },
   fr: {
@@ -1539,10 +1542,13 @@ module.exports = {
       Error: "Erreur",
       YouMustPlayThisKindOfQuestOnAMobileDevice: "Vous devez jouer cette enquête sur un appareil mobile",
       QuestPlayableOnMobile: "Cette enquête se joue sur mobile",
-      ReloadPuzzle: "Les pièce ne bougent pas ? Appuyez ici",
+      ReloadPuzzle: "Les pièces ne bougent pas ? Appuyez ici",
       ClickToEnlargePictures: "Appuyez sur les images pour les élargir",
       WaveThePhoneForGPSPrecision: "Faites des 8 avec votre tépéphone pendant 3 secondes pour une meilleure précision GPS",
-      TakeMobileVertically: "Tenez votre téléphone verticalement et recherchez"
+      TakeMobileVertically: "Tenez votre téléphone verticalement et recherchez",
+      null: "Indéfini",
+      TooMuchOfflineLoadingErrors: "Le chargement de l'enquête n'a pas fonctionné. Vous pouvez jouer l'enquête si le réseau mobile fonctionne tout le long. Pressez ici pour fermer ce message",
+      CancelOfflineWarning: "Vous avez annulé le chargement de l'enquête, l'enquête ne fonctionnera pas si vous perdez le réseau mobile"
     }
   }
 }

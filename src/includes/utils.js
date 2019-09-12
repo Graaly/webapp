@@ -437,8 +437,8 @@ var self = {
                   dataObj = new Blob(['some file data'], { type: 'text/plain' })
                 }
 
-              const encryptedContent = _this.gcrypt(dataObj, 'Gr44lyCryp7')
-              fileWriter.write(encryptedContent)
+                const encryptedContent = _this.gcrypt(dataObj, 'Gr44lyCryp7')
+                fileWriter.write(encryptedContent)
               })
             }, function() { resolve(false) })
           }, function() { resolve(false) })
@@ -535,7 +535,8 @@ var self = {
                   }
            
                   fileWriter.onerror = function(e) {
-                      console.log("Failed file write: " + e.toString())
+                    console.log("Failed file write: " + e.toString())
+                    resolve(false)
                   }
            
                   fileWriter.write(blob)
@@ -551,7 +552,8 @@ var self = {
                     }
              
                     fileWriter.onerror = function(e) {
-                        console.log("Failed file write: " + e.toString())
+                      console.log("Failed file write: " + e.toString())
+                      resolve(false)
                     }
              
                     fileWriter.write(blob)
