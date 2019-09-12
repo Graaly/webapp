@@ -259,13 +259,13 @@ export default {
                 }
                 if (step.options.is3D) {
                   if (step.options.customModel) {
-                    const customModelObjectSuccess = await utils.saveBinaryFile(quest.questId + '/' + step.options.customModel, this.serverUrl + '/upload/quest/' + quest.questId + '/step/3dobject/' + step.options.customModel + '/', 'object.glb')
+                    const customModelObjectSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/3dobject/', step.options.customModel + '.glb')
                     if (!customModelObjectSuccess) {
                       this.throwSaveError()
                       return false
                     }
                   } else {
-                    const standardModelObjectSuccess = await utils.saveBinaryFile(quest.questId + '/' + step.options.customModel, '/statics/3d-models/' + step.options.model + '/', 'object.glb')
+                    const standardModelObjectSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/statics/3d-models/', step.options.model + '.glb')
                     if (!standardModelObjectSuccess) {
                       this.throwSaveError()
                       return false
