@@ -2761,11 +2761,10 @@ export default {
           if (offlineObject) {
             gltfLoader.load(offlineObject, resolve, progress, reject)
           } else {
-            //gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
             if (questId) {
               gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '/scene.gltf', resolve, progress, reject)
             } else {
-              gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+              gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '.glb', resolve, progress, reject)
             }
           }
         }

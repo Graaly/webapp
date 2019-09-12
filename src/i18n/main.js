@@ -778,7 +778,8 @@ module.exports = {
       TakeMobileVertically: "Handle your mobile vertically and search",
       null: "Undefined",
       TooMuchOfflineLoadingErrors: "Quest loading failed. You can play the quest online if you always have network. Press here to close",
-      CancelOfflineWarning: "You have canceled the loading of the quest. It will not work if you loose network"
+      CancelOfflineWarning: "You have canceled the loading of the quest. It will not work if you loose network",
+      TouchAndDragObject: "Touch and drag the object to rotate it. Use two fingers to zoom."
     }
   },
   fr: {
@@ -1548,7 +1549,8 @@ module.exports = {
       TakeMobileVertically: "Tenez votre téléphone verticalement et recherchez",
       null: "Indéfini",
       TooMuchOfflineLoadingErrors: "Le chargement de l'enquête n'a pas fonctionné. Vous pouvez jouer l'enquête si le réseau mobile fonctionne tout le long. Pressez ici pour fermer ce message",
-      CancelOfflineWarning: "Vous avez annulé le chargement de l'enquête, l'enquête ne fonctionnera pas si vous perdez le réseau mobile"
+      CancelOfflineWarning: "Vous avez annulé le chargement de l'enquête, l'enquête ne fonctionnera pas si vous perdez le réseau mobile",
+      TouchAndDragObject: "Touch and drag the object to rotate it. Use two fingers to zoom."
     }
   }
 }
