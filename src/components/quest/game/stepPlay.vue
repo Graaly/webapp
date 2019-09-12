@@ -2750,7 +2750,7 @@ export default {
       let progress = console.log
       
       // Load GLTF packed as binary (blob)
-      const offlineObject = await utils.readBinaryFile(questId + '/' + objName, 'object.glb')
+      const offlineObject = await utils.readBinaryFile(questId, objName + '.glb')
       return new Promise((resolve, reject) => {
         let gltfLoader = new GLTFLoader()
         // loads automatically .bin and textures files if necessary
