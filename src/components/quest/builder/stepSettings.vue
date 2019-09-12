@@ -480,11 +480,11 @@
           <div v-if="quest.isPremium">
             <div v-if="!isIOs">
               <q-btn class="full-width" type="button" @click="$refs['object-to-find'].click()" :label="$t('label.UploadTheObjectToFind')" />
-              <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".zip" hidden />
+              <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".glb" hidden />
             </div>
             <div v-if="isIOs">
               {{ $t('label.UploadTheObjectToFind') }}:
-              <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".zip" />
+              <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".glb" />
             </div>
           </div>
           <div v-if="!quest.isPremium">
@@ -1788,7 +1788,7 @@ export default {
     },
     /*
     * Loads material file and object file into a 3D Model for Three.js
-    * Supports only GLTF format
+    * Supports only GLB format
     * Returns a Promise, usable with async/await
     */
     async ModelLoaderAsync(objName, questId) {
@@ -1801,7 +1801,7 @@ export default {
           gltfLoader.load(objName, resolve, progress, reject)
         } else {
           if (questId) {
-            gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '/scene.gltf', resolve, progress, reject)
+            gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '.glb', resolve, progress, reject)
           } else {
             gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '.glb', resolve, progress, reject)
           }

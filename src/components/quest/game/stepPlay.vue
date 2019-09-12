@@ -2743,14 +2743,13 @@ export default {
     },
     /*
     * Loads material file and object file into a 3D Model for Three.js
-    * Supports only GLTF format
+    * Supports only GLB format
     * Returns a Promise, usable with async/await
     */
     async ModelLoaderAsync(objName, questId) {
       let progress = console.log
       
       // Load GLTF packed as binary (blob)
-      //const offlineObject = await utils.readFile(questId + '/' + objName, 'scene.gltf')
       const offlineObject = await utils.readBinaryFile(questId + '/' + objName, 'object.glb')
       return new Promise((resolve, reject) => {
         let gltfLoader = new GLTFLoader()
@@ -2762,7 +2761,7 @@ export default {
             gltfLoader.load(offlineObject, resolve, progress, reject)
           } else {
             if (questId) {
-              gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '/scene.gltf', resolve, progress, reject)
+              gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '.glb', resolve, progress, reject)
             } else {
               gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '.glb', resolve, progress, reject)
             }
