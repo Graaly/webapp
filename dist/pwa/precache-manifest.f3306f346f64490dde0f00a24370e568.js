@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "2da40e30339658d2e940",
-    "url": "css/app.e7813f3c.css"
+    "revision": "b69f21b0092b76b4a257",
+    "url": "css/app.2e4d8293.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -60,7 +60,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.0509ab09.woff2"
   },
   {
-    "revision": "64add2bfc6cb00d687198efdb2ad3872",
+    "revision": "f05d4fc09a1810d03d16c670bc3b4f5d",
     "url": "index.html"
   },
   {
@@ -68,12 +68,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2d230c65.2db80d9d.js"
   },
   {
-    "revision": "2da40e30339658d2e940",
-    "url": "js/app.68cf18d0.js"
+    "revision": "b69f21b0092b76b4a257",
+    "url": "js/app.49926398.js"
   },
   {
-    "revision": "675c08ec91f67a44e23f",
-    "url": "js/vendor.cf0b9b0b.js"
+    "revision": "af748f48c70b033d8504",
+    "url": "js/vendor.080bfb86.js"
   },
   {
     "revision": "adc74bb87d3dbadf0b3dd2c32e2e8cb9",
@@ -676,12 +676,20 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics\\icons\\game\\storekeeper.jpg"
   },
   {
+    "revision": "9d347758fc296c2afaf832364eb93476",
+    "url": "statics\\icons\\game\\take-mobile-vertically.gif"
+  },
+  {
     "revision": "4f4ef1c9ff27e32a8bdc10aedf878620",
     "url": "statics\\icons\\game\\tourism.jpg"
   },
   {
     "revision": "3a467a26d6a76204b285e4b35908d450",
     "url": "statics\\icons\\game\\trophy-small.png"
+  },
+  {
+    "revision": "4e56bc4ab648765806be15d35a2c440f",
+    "url": "statics\\icons\\game\\wave-phone.gif"
   },
   {
     "revision": "08c8603c3f0784392b6990ed9e9d1d61",
