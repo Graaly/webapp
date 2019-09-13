@@ -1126,7 +1126,13 @@ export default {
           this.$set(this.selectedStep.form.options, 'model', this.config.locateItem.selectModel3DOptions[0].value)
         }
         // display 3D model selected by default
-        await this.displayARObject(this.selectedStep.form.options.model)
+        if (this.selectedStep.form.options.is3D) {
+          if (this.selectedStep.form.options.customModel) {
+            await this.displayARObject(this.selectedStep.form.options.customModel, this.questId)
+          } else {
+            await this.displayARObject(this.selectedStep.form.options.model)
+          }
+        }
       } else if (this.options.type.code === 'locate-marker') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.$set(this.selectedStep.form, 'answers', markersList[0])
@@ -1724,6 +1730,7 @@ export default {
      * Change the object selected in the 3D object list
      */
     async changeObjectInList() {
+      this.selectedStep.form.options.customModel = null
       await this.displayARObject(this.selectedStep.form.options.model)
     },
     /*
@@ -1779,10 +1786,10 @@ export default {
       let pivotObj = new THREE.Object3D();
       object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
       pivotObj.add(object)
-      pivotObj.up = new THREE.Vector3(0, 1, 0)
+      pivotObj.up = new THREE.Vector3(0, 0, 1)
       object = pivotObj
       
-      object.rotation.y = Math.PI / 4
+      object.rotation.z = Math.PI / 4
       
       return { object, animations: gltfData.animations }
     },
@@ -1826,6 +1833,9 @@ export default {
 
           // Create a basic perspective camera
           let camera = new THREE.PerspectiveCamera(70, 1.333, 0.001, 1000)
+          camera.up = new THREE.Vector3(0, 0, 1)
+          camera.rotation.x = Math.PI / 2
+          camera.lookAt(new THREE.Vector3(0, 0, 0))
           _this.config.locateItem.camera = camera
           
           // Create a renderer with Antialiasing
@@ -1865,7 +1875,7 @@ export default {
       let ObjectData = await this.loadAndPrepare3DModel(model, questId)
       
       let object = ObjectData.object
-      object.up = new THREE.Vector3(0, 1, 0)
+      object.up = new THREE.Vector3(0, 0, 1)
       object.visible = true
       object.name = DEMO_OBJECT_NAME
       
@@ -1879,9 +1889,7 @@ export default {
       this.config.locateItem.zoom = Math.max(size.x, size.y, size.z) * 1.5
       
       // distance with object
-      this.config.locateItem.camera.position.set(0, 0, this.config.locateItem.zoom)
-      this.config.locateItem.camera.up = new THREE.Vector3(0, 1, 0)
-      this.config.locateItem.camera.lookAt(new THREE.Vector3(0, 0, 0))
+      this.config.locateItem.camera.position.set(0, -this.config.locateItem.zoom, 0)
       this.config.locateItem.controls.update() // orbit controls update is required when camera position changes
       
       this.config.locateItem.object = object

@@ -2709,28 +2709,29 @@ export default {
       if (objectInit) {
         // apply user-defined rotation
         objectInit.rotation = objectInit.rotation || {}
-        if (objectInit.rotation.hasOwnProperty('x')) { object.rotateX(utils.degreesToRadians(objectInit.rotation.x)) } else {
-          object.rotateX(Math.PI / 2)
-        }
+        if (objectInit.rotation.hasOwnProperty('x')) { object.rotateX(utils.degreesToRadians(objectInit.rotation.x)) }
         if (objectInit.rotation.hasOwnProperty('y')) { object.rotateY(utils.degreesToRadians(objectInit.rotation.y)) }
         if (objectInit.rotation.hasOwnProperty('z')) { object.rotateZ(utils.degreesToRadians(objectInit.rotation.z)) }
         
         // apply user-defined scaling
         let scale = (objectInit.scale || 1) * scaleFactor
         object.scale.set(scale, scale, scale)
+      }
         
-        // set object origin at center
-        let objBbox = new THREE.Box3().setFromObject(object)
+      // set object origin at center
+      let objBbox = new THREE.Box3().setFromObject(object)
+      
+      let pivot = objBbox.getCenter(new THREE.Vector3())
+      pivot.multiplyScalar(-1)
+      
+      let pivotObj = new THREE.Object3D();
+      object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
+      pivotObj.add(object)
+      pivotObj.up = new THREE.Vector3(0, 0, 1)
+      object = pivotObj
         
-        let pivot = objBbox.getCenter(new THREE.Vector3())
-        pivot.multiplyScalar(-1)
-        
-        let pivotObj = new THREE.Object3D();
-        object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
-        pivotObj.add(object)
-        pivotObj.up = new THREE.Vector3(0, 0, 1)
-        object = pivotObj
-        
+      if (objectInit)
+      {
         // apply user-defined translation
         if (objectInit.translation && this.step.type === 'locate-item-ar') {
           if (objectInit.translation.hasOwnProperty('x')) { object.position.x += objectInit.translation.x * scaleFactor }
