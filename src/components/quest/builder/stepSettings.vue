@@ -488,7 +488,7 @@
             </div>
           </div>
           <div v-if="!quest.isPremium">
-            <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadTheObjectToFind')" @click="premium.show = true" />
+            <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadTheObjectToFind')" @click="$emit('openPremiumBox')" />
           </div>
           <div id="target-canvas"></div>
           <div>

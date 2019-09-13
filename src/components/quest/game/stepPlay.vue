@@ -2159,7 +2159,13 @@ export default {
         
         // object may not be loaded at first calls => skip part where 3D scene must be loaded
         if (typeof object === 'undefined') { return }
-        object.visible = true
+        
+        if (!object.visible) {
+          // initialize object position
+          object.position.x = this.geolocation.position.x
+          object.position.y = this.geolocation.position.y
+          object.visible = true
+        }
         
         // if distance to object is greater than value of this.minDistanceForGPS, update target object position only given GPS position. Otherwise, accelerometer is used to track device position for better user experience (avoids object "drifts").
         if (this.geolocation.GPSdistance > this.minDistanceForGPS || this.deviceHasGyroscope === false) {

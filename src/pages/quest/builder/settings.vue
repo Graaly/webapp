@@ -599,7 +599,7 @@
       
       <!------------------ STEP SETTINGS SELECTION ------------------------>
       
-      <stepSettings :quest="quest" :stepId="stepId" :lang="languages.current" :options="{type: chapters.newStep.type, chapterId: chapters.newStep.chapterId, previousStepId: chapters.newStep.previousStepId, mode: form.fields.editorMode}" @change="trackStepChanges" @close="closeStepSettingsPage"></stepSettings>
+      <stepSettings :quest="quest" :stepId="stepId" :lang="languages.current" :options="{type: chapters.newStep.type, chapterId: chapters.newStep.chapterId, previousStepId: chapters.newStep.previousStepId, mode: form.fields.editorMode}" @change="trackStepChanges" @close="closeStepSettingsPage" @openPremiumBox="openPremiumBox"></stepSettings>
       
     </q-dialog>
     
