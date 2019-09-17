@@ -190,11 +190,6 @@
         <div>
           <p class="text">{{ getTranslatedText() }}</p>
           <p class="text" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
-          <!--
-          <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
-          <p class="text">Alpha: {{ Math.round(geolocation.alpha) }}°</p>
-          <p class="text">Difference direction: {{ geolocation.direction }}°</p>
-          -->
         </div>
       </div>
       
@@ -609,6 +604,7 @@ export default {
           show: false,
           url: ''
         },
+        
         // for cleanup
         latestRequestAnimationId: null
       }
@@ -728,13 +724,16 @@ export default {
             sensor.onreading = this.onAbsoluteOrientationSensorReading
             sensor.start()
             this.geolocation.absoluteOrientationSensor = sensor
-            
-            // must store object returned by setInterval() in Vue store instead of component properties,
-            // otherwise it is reset when route changes & component is reloaded
-            this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
           } catch (error) {
             console.log(error)
+            this.geolocation.absoluteOrientationSensor = {
+              stop: this.stopAlternateAbsoluteOrientationSensor
+            }
+            this.alternateAbsoluteOrientationSensor()
           }
+          // must store object returned by setInterval() in Vue store instead of component properties,
+          // otherwise it is reset when route changes & component is reloaded
+          this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
           
           // start accelerometer sensor
           window.addEventListener("devicemotion", this.handleMotionEvent, true)
@@ -939,6 +938,56 @@ export default {
           }
         }
       })
+    },
+    alternateAbsoluteOrientationSensor() {
+      var _this = this
+      const degtorad = Math.PI / 180
+      window.addEventListener('deviceorientation', function eventAlternateAbsoluteOrientationSensor(e) {
+        const alpha    = e.webkitCompassHeading !== null ? 360 - e.webkitCompassHeading : e.alpha
+        const beta     = e.beta
+        const gamma    = e.gamma
+        
+        var _x = beta  ? beta  * degtorad : 0 // beta value
+        var _y = gamma ? gamma * degtorad : 0 // gamma value
+        var _z = alpha ? alpha * degtorad : 0 // alpha value
+        var cX = Math.cos(_x/2)
+        var cY = Math.cos(_y/2)
+        var cZ = Math.cos(_z/2)
+        var sX = Math.sin(_x/2)
+        var sY = Math.sin(_y/2)
+        var sZ = Math.sin(_z/2)
+
+        // ZXY quaternion construction.
+        var w = cX * cY * cZ - sX * sY * sZ
+        var x = sX * cY * cZ - cX * sY * sZ
+        var y = cX * sY * cZ + sX * cY * sZ
+        var z = cX * cY * sZ + sX * sY * cZ
+      
+        _this.geolocation.absoluteOrientationSensor.quaternion = [ y, -x, -w, z ]
+
+        let quaternion = new THREE.Quaternion().fromArray(_this.geolocation.absoluteOrientationSensor.quaternion)
+  
+        if (_this.step.type === 'locate-item-ar' && _this.geolocation.target !== null && _this.deviceHasGyroscope) {
+          _this.geolocation.target.camera.quaternion = quaternion
+        }
+  
+        // every 100ms, update geolocation direction
+        if (!this.waitForNextQuaternionRead) {
+          let rotationZXY = new THREE.Euler().setFromQuaternion(quaternion, 'ZXY')
+          let rotationXZY = new THREE.Euler().setFromQuaternion(quaternion, 'XZY')
+  
+          let tmpAlpha = (rotationZXY.x < Math.PI / 4 ? rotationZXY.z : rotationXZY.y)
+          let newAlpha = JSON.stringify((360 - utils.radiansToDegrees(tmpAlpha)) % 360)
+  
+          _this.geolocation.direction = (_this.geolocation.rawDirection - newAlpha + 360) % 360
+  
+          this.waitForNextQuaternionRead = true
+          utils.setTimeout(() => { this.waitForNextQuaternionRead = false }, 100)
+        }
+      }, false)
+    },
+    stopAlternateAbsoluteOrientationSensor() {
+      window.removeEventListener('deviceorientation', eventAlternateAbsoluteOrientationSensor, false)
     },
     reloadPage() {
       this.$router.go({
@@ -1556,6 +1605,11 @@ export default {
             if (checkAnswerResult.result === true) {
               if (this.step.type === 'locate-item-ar') {
                 this.geolocation.absoluteOrientationSensor.stop() // stop moving camera when device moves
+                
+                // stop camera flow
+                if (this.isIOs) {
+                  CameraPreview.hide()
+                }
               }
               
               TWEEN.removeAll() // clear all running animations
@@ -1794,7 +1848,7 @@ export default {
           }
         ]
         if (this.readMoreNotif === null) {
-          this.readMoreNotif = Notification(this.$t('label.ClickHereToKnowMore'), 'readMore', actions)
+          this.readMoreNotif = Notification('', 'readMore', actions)
         }
       }
     },
@@ -2159,7 +2213,13 @@ export default {
         
         // object may not be loaded at first calls => skip part where 3D scene must be loaded
         if (typeof object === 'undefined') { return }
-        object.visible = true
+        
+        if (!object.visible) {
+          // initialize object position
+          object.position.x = this.geolocation.position.x
+          object.position.y = this.geolocation.position.y
+          object.visible = true
+        }
         
         // if distance to object is greater than value of this.minDistanceForGPS, update target object position only given GPS position. Otherwise, accelerometer is used to track device position for better user experience (avoids object "drifts").
         if (this.geolocation.GPSdistance > this.minDistanceForGPS || this.deviceHasGyroscope === false) {
@@ -2608,7 +2668,7 @@ export default {
       }
       
       let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
-      
+
       if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.deviceHasGyroscope) {
         this.geolocation.target.camera.quaternion = quaternion
       }
@@ -2709,28 +2769,29 @@ export default {
       if (objectInit) {
         // apply user-defined rotation
         objectInit.rotation = objectInit.rotation || {}
-        if (objectInit.rotation.hasOwnProperty('x')) { object.rotateX(utils.degreesToRadians(objectInit.rotation.x)) } else {
-          object.rotateX(Math.PI / 2)
-        }
+        if (objectInit.rotation.hasOwnProperty('x')) { object.rotateX(utils.degreesToRadians(objectInit.rotation.x)) }
         if (objectInit.rotation.hasOwnProperty('y')) { object.rotateY(utils.degreesToRadians(objectInit.rotation.y)) }
         if (objectInit.rotation.hasOwnProperty('z')) { object.rotateZ(utils.degreesToRadians(objectInit.rotation.z)) }
         
         // apply user-defined scaling
         let scale = (objectInit.scale || 1) * scaleFactor
         object.scale.set(scale, scale, scale)
+      }
         
-        // set object origin at center
-        let objBbox = new THREE.Box3().setFromObject(object)
+      // set object origin at center
+      let objBbox = new THREE.Box3().setFromObject(object)
+      
+      let pivot = objBbox.getCenter(new THREE.Vector3())
+      pivot.multiplyScalar(-1)
+      
+      let pivotObj = new THREE.Object3D();
+      object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
+      pivotObj.add(object)
+      pivotObj.up = new THREE.Vector3(0, 0, 1)
+      object = pivotObj
         
-        let pivot = objBbox.getCenter(new THREE.Vector3())
-        pivot.multiplyScalar(-1)
-        
-        let pivotObj = new THREE.Object3D();
-        object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
-        pivotObj.add(object)
-        pivotObj.up = new THREE.Vector3(0, 0, 1)
-        object = pivotObj
-        
+      if (objectInit)
+      {
         // apply user-defined translation
         if (objectInit.translation && this.step.type === 'locate-item-ar') {
           if (objectInit.translation.hasOwnProperty('x')) { object.position.x += objectInit.translation.x * scaleFactor }

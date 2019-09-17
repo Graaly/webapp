@@ -151,11 +151,14 @@
           </div>
           <div v-if="isIOs">
             <q-input :label="$t('label.StartingPointOfTheQuest')" :disable="readOnly" type="text" v-model="form.fields.startingPlace" class="full-width" />
-            <q-input :label="$t('label.Latitude')" :disable="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" class="full-width" />
-            <q-input :label="$t('label.Longitude')" :disable="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" class="full-width" />
             <q-input :label="$t('label.ZipCode')" :disable="readOnly" type="text" v-model="form.fields.zipcode" class="full-width" />
             <q-input :label="$t('label.Town')" :disable="readOnly" type="text" v-model="form.fields.town" class="full-width" />
             <q-input :label="$t('label.Country')" :disable="readOnly" type="text" v-model="form.fields.country" class="full-width" />
+            <q-input :label="$t('label.Latitude')" :disable="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" class="full-width" />
+            <q-input :label="$t('label.Longitude')" :disable="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" class="full-width" />
+            <div>
+              <a @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+            </div>
           </div>
           
           <div v-if="form.fields.picture !== null">
@@ -599,7 +602,7 @@
       
       <!------------------ STEP SETTINGS SELECTION ------------------------>
       
-      <stepSettings :quest="quest" :stepId="stepId" :lang="languages.current" :options="{type: chapters.newStep.type, chapterId: chapters.newStep.chapterId, previousStepId: chapters.newStep.previousStepId, mode: form.fields.editorMode}" @change="trackStepChanges" @close="closeStepSettingsPage"></stepSettings>
+      <stepSettings :quest="quest" :stepId="stepId" :lang="languages.current" :options="{type: chapters.newStep.type, chapterId: chapters.newStep.chapterId, previousStepId: chapters.newStep.previousStepId, mode: form.fields.editorMode}" @change="trackStepChanges" @close="closeStepSettingsPage" @openPremiumBox="openPremiumBox"></stepSettings>
       
     </q-dialog>
     
@@ -2417,6 +2420,26 @@ export default {
      */
     isHintAvailable() {
       return (this.chapters.newStep.overviewData && this.chapters.newStep.overviewData.hasOwnProperty("hint") && this.chapters.newStep.overviewData.hint[this.languages.current] && this.chapters.newStep.overviewData.hint[this.languages.current] !== '')
+    },
+    /*
+     * Get the GPS location based on user location
+     * @param   {Object}    pos            Position data
+     */
+    async getMyGPSLocation() {
+      this.$q.loading.show()
+      var _this = this
+      navigator.geolocation.getCurrentPosition(function (position) {
+        _this.form.fields.location.lat = position.coords.latitude
+        _this.form.fields.location.lng = position.coords.longitude
+        _this.$v.form.fields.location.lat.$touch()
+        _this.$v.form.fields.location.lng.$touch()
+        _this.$q.loading.hide()
+      }, 
+      this.getLocationError, 
+      { 
+        timeout: 5000, 
+        maximumAge: 10000 
+      });
     },
     /*
      * Scroll page to the top

@@ -835,3 +835,8 @@ form .q-item__label, .big-label {
   display: block;
   z-index: 7500;
 }
+/* fix for <q-select> menus on desktop: must be above .q-dialog.fullscreen
+(z-index provided by Quasar is 6000) */
+.q-menu {
+  z-index: 7002;
+}

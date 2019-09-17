@@ -8,6 +8,7 @@ module.exports = function (ctx) {
   return {
     // app boot (/src/boot)
     boot: [
+      'CustomDirectives',
       'DateFormatFilter',
       'RouterAuthentication',
       'VueGoogleMaps',

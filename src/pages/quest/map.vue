@@ -127,6 +127,7 @@
             {{ $t('label.NoQuestCreated') }}
           </div>            
           <q-btn link class="full-width" @click="buildQuest" color="secondary">{{ $t('label.CreateANewQuest') }}</q-btn>
+          <q-btn outline class="full-width q-mt-sm" @click="menu.suggestQuest.show = true" color="secondary">{{ $t('label.SuggestAQuest') }}</q-btn>
           <div class="centered bg-warning q-pa-sm" v-if="warnings.listCreatedQuestsMissing" @click="listCreatedQuests($store.state.user._id)">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
@@ -681,7 +682,7 @@
     
     <!--====================== SHOP PAGE =================================-->
     
-    <q-dialog v-model="shop.show" class="over-map">
+    <q-dialog maximized v-model="shop.show" class="over-map">
       <a class="float-right no-underline close-btn" color="grey" @click="closeShop"><q-icon name="close" class="medium-icon" /></a>
       <h1 class="size-3 q-pl-md">{{ $t('label.Shop') }}</h1>
       <shop @close="closeShop"></shop>
@@ -796,6 +797,13 @@
     
     <q-dialog v-model="showBottomMenu" position="bottom" test-id="bottom-menu">
       <q-list class="bg-white">
+        <q-item @click.native="menu.suggestQuest.show = true">
+          <q-item-section avatar>
+            <q-icon color="primary" name="emoji_objects" />
+          </q-item-section>
+          <q-item-section>{{ $t('label.SuggestAQuest') }}</q-item-section>
+        </q-item>
+        
         <q-item @click.native="centerOnUserPosition()">
           <q-item-section avatar>
             <q-icon color="primary" name="gps_fixed" />
@@ -867,6 +875,12 @@
     <div class="fixed-bottom story-container fit" v-if="story.step !== null">
       <story :step="story.step" :data="story.data" @next="endStory"></story>
     </div>
+    
+    <!--====================== SUGGEST A QUEST =================================-->
+    
+    <q-dialog maximized v-model="menu.suggestQuest.show" class="over-map bg-white">
+      <suggest @close="menu.suggestQuest.show = false"></suggest>
+    </q-dialog>
        
   </div>
 </template>
@@ -880,6 +894,7 @@ import geolocation from 'components/geolocation'
 import newfriend from 'components/newfriend'
 import shop from 'components/shop'
 import story from 'components/story'
+import suggest from 'components/quest/suggest'
 import offlineLoader from 'components/offlineLoader'
 
 import utils from 'src/includes/utils'
@@ -904,6 +919,7 @@ export default {
     newfriend,
     shop,
     story,
+    suggest,
     offlineLoader
   },
   data () {
@@ -969,7 +985,10 @@ export default {
       showSearch: false,
       showBottomMenu: false,
       menu: {
-        show: true
+        show: true,
+        suggestQuest: {
+          show: false
+        }
       },
       warnings: {
         lowBattery: false,

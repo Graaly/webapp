@@ -68,7 +68,7 @@
                 -->
                 <q-btn v-if="!isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary">{{ $t('label.BuyCoinsToPlay') }}</q-btn>
                 <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary">{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</q-btn>
-                <q-btn v-if="shop.premiumQuest.priceCode !== 'free' && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)" :disabled="!shop.premiumQuest.buyable" @click="buyQuest()" color="primary">{{ $t('label.Buy') }} ({{ shop.premiumQuest.priceValue }})</q-btn>
+                <q-btn v-if="shop.premiumQuest.priceCode !== 'free' && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)" :disabled="!shop.premiumQuest.buyable" @click="buyQuest()" color="primary">{{ $t('label.Buy') }} ({{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }})</q-btn>
                 <q-btn v-if="shop.premiumQuest.priceCode === 'notplayableonweb'" disabled color="primary">{{ $t('label.QuestPlayableOnMobile') }}</q-btn>
               </p>
             </div>
