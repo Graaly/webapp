@@ -779,7 +779,17 @@ module.exports = {
       null: "Undefined",
       TooMuchOfflineLoadingErrors: "Quest loading failed. You can play the quest online if you always have network. Press here to close",
       CancelOfflineWarning: "You have canceled the loading of the quest. It will not work if you loose network",
-      TouchAndDragObject: "Touch and drag the object to rotate it. Use two fingers to zoom."
+      TouchAndDragObject: "Touch and drag the object to rotate it. Use two fingers to zoom.",
+      SuggestAQuest: "Suggest a quest",
+      SuggestANewQuest: "Suggest a new quest",
+      YouLikedThisQuest: "You liked this quest?",
+      SuggestAQuestDesc: "You would like to use Graaly to discover a place by playing, or to motivate your children or students? Propose this place, we do the rest!",
+      NameOfThePlace: "Name of the place",
+      NameOfThePlaceExample: "British Museum",
+      SuggestContactInformation: "responsible (if you have it)",
+      SuggestContactInformationExample: "Name, email or phone number",
+      ThankYouForYourProposal: "Thank you for your proposal",
+      SuggestWarningMessage: "By filling this form, you help us finding the most requested quests to contact the responsible of this place. You will be warned if a quest is created on this place."
     }
   },
   fr: {
@@ -1550,7 +1560,17 @@ module.exports = {
       null: "Indéfini",
       TooMuchOfflineLoadingErrors: "Le chargement de l'enquête n'a pas fonctionné. Vous pouvez jouer l'enquête si le réseau mobile fonctionne tout le long. Pressez ici pour fermer ce message",
       CancelOfflineWarning: "Vous avez annulé le chargement de l'enquête, l'enquête ne fonctionnera pas si vous perdez le réseau mobile",
-      TouchAndDragObject: "Touch and drag the object to rotate it. Use two fingers to zoom."
+      TouchAndDragObject: "Touch and drag the object to rotate it. Use two fingers to zoom.",
+      SuggestAQuest: "Suggérer une enquête",
+      SuggestANewQuest: "Suggérer une nouvelle enquête",
+      YouLikedThisQuest: "Vous avez aimé cette enquête ?",
+      SuggestAQuestDesc: "Vous souhaiteriez utiliser Graaly pour découvrir un lieu en jouant, ou pour motiver vos enfants ou élèves ? Proposez un lieu, nous nous occupons du reste !",
+      NameOfThePlace: "Nom du lieu",
+      NameOfThePlaceExample: "Musée du Louvre",
+      SuggestContactInformation: "responsable (si vous l'avez)",
+      SuggestContactInformationExample: "Nom, email ou téléphone",
+      ThankYouForYourProposal: "Merci pour votre proposition",
+      SuggestWarningMessage: "En complétant ce formulaire, vous nous aidez à identifier les enquêtes les plus demandées pour contacter les responsables des lieux concernés. Vous serez ensuite informé si une enquête est créée sur ce lieu."
     }
   }
 }

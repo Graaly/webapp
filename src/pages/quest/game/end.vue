@@ -39,6 +39,16 @@
           <q-btn icon="people" color="secondary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
         </div>
         
+        <!------------------ SUGGESTION AREA ------------------------>
+        
+        <div class="centered q-mt-md">{{ $t('label.YouLikedThisQuest') }}</div>
+        <div class="q-px-md">
+          <q-btn class="full-width q-ml-md" @click="suggestQuest.show = true" color="secondary">{{ $t('label.SuggestANewQuest') }}</q-btn>
+        </div>
+        <q-dialog maximized v-model="suggestQuest.show" class="over-map bg-white">
+          <suggest @close="suggestQuest.show = false"></suggest>
+        </q-dialog>
+        
         <!------------------ REVIEW AREA ------------------------>
         
         <div class="q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="showAddReview && quest && quest.data && quest.data.access === 'public'">
@@ -210,11 +220,13 @@ import Notification from 'boot/NotifyHelper'
 //import { filter } from 'quasar'
 import Vue from 'vue'
 import story from 'components/story'
+import suggest from 'components/quest/suggest'
 import utils from 'src/includes/utils'
 
 export default {
   components: {
-    story
+    story,
+    suggest
   },
   data() {
     return {
@@ -255,6 +267,9 @@ export default {
       isUserAdmin: this.$store.state.user.isAdmin,
       warnings: {
         noNetwork: false
+      },
+      suggestQuest: {
+        show: false
       },
       serverUrl: process.env.SERVER_URL
     }

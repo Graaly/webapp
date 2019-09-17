@@ -222,6 +222,13 @@ export default {
   hasPayed(questId) {
     return Api().get('quest/' + questId + '/premium/ispayed').catch(error => console.log(error.request))
   },
+  /*
+   * Submit a suggestion
+   * @param   {Object}    place              place for the quest
+   */
+  submitSuggestion(place) {
+    return Api().post('quest/suggest', place).catch(error => console.log(error.request))
+  },
   
   /*
    * List the editors of a quest

@@ -498,15 +498,34 @@
       </div>
       
       <h2>{{ $t('label.AddressToFind') }}</h2>
-      <div class="fields-group">
-        <div class="location-address">
+      <div class="fields-group">       
+        <div v-if="!isIOs" class="location-address">
           <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
             <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
             <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value" />
           </div>
           <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
         </div>
-        <q-list>
+        <div v-if="isIOs">
+          {{  $t('label.DefineGPSLocation') }}
+          <div class="location-gps-inputs">
+            <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
+            <div>
+              <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
+              <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+              <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
+            </div>
+            <div>
+              <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
+              <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+              <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
+            </div>
+          </div>
+          <div>
+            <a @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+          </div>
+        </div>
+        <q-list v-if="!isIOs">
           <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
