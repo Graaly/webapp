@@ -1794,7 +1794,7 @@ export default {
           }
         ]
         if (this.readMoreNotif === null) {
-          this.readMoreNotif = Notification(this.$t('label.ClickHereToKnowMore'), 'readMore', actions)
+          this.readMoreNotif = Notification('', 'readMore', actions)
         }
       }
     },
