@@ -394,7 +394,7 @@
     
     <div v-if="options.type.code === 'memory'">
       <h2>{{ $t('label.ImagesUsedForCards') }}</h2>
-      <div class="answer" v-for="(option, key) in config.memory.items" :key="key">       
+      <div class="answer" v-for="(option, key) in selectedStep.form.options.items" :key="key">       
         <p v-show="option.imagePath === null" class="error-label">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/memory/' + option.imagePath" /></p>
         <span v-if="!isIOs">
@@ -822,8 +822,7 @@ export default {
         },
         memory: {
           minNbAnswers: 3,
-          maxNbAnswers: 10,
-          items: []
+          maxNbAnswers: 10
         },
         useItem: {
           questItemsAsOptions: []
@@ -1095,14 +1094,12 @@ export default {
           this.selectedStep.form.options = { picture: null, level: 2 }
         }
       } else if (this.options.type.code === 'memory') {
-        if (!this.selectedStep.form.options.items) {
-          this.selectedStep.form.options = {lastIsSingle: false}
-          this.config.memory.items = []
+        if (!this.selectedStep.form.options.hasOwnProperty('items')) {
+          let defaultItems = []
           for (let i = 0; i < 8; i++) {
-            this.config.memory.items.push({ imagePath: null, single: false })
+            defaultItems.push({ imagePath: null, single: false })
           }
-        } else {
-          this.config.memory.items = this.selectedStep.form.options.items
+          this.$set(this.selectedStep.form.options, 'items', defaultItems)
         }
       } else if (this.options.type.code === 'locate-item-ar') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
@@ -1187,7 +1184,7 @@ export default {
       // format answer based on the type of step
       if (this.options.type.code === 'choose') {
         if (this.config.choose.answerType === 'text') {
-          for (var i = 0; i < this.selectedStep.form.options.items.length; i++) {
+          for (let i = 0; i < this.selectedStep.form.options.items.length; i++) {
             if (this.selectedStep.form.options && this.selectedStep.form.options.items && this.selectedStep.form.options.items[i] && this.selectedStep.form.options.items[i].textLanguage) {
               this.selectedStep.form.options.items[i].textLanguage[this.lang] = this.selectedStep.form.options.items[i].text
             } else {
@@ -1223,16 +1220,13 @@ export default {
         this.selectedStep.form.answers = piecePositionArray.join('|')
       }
       if (this.options.type.code === 'memory') {
-        if (!this.selectedStep.form.options.items) {
-          this.selectedStep.form.options.items = []
-        }
-        for (var j = 0; i < this.config.memory.items.length; i++) {
-          if (this.config.memory.items[j].imagePath !== null) {
-            this.selectedStep.form.options.items.push(this.config.memory.items[j])
+        if (Array.isArray(this.selectedStep.form.options.items) && this.selectedStep.form.options.items.length > 0) {
+          // force "reset" of .single property for all items
+          // (new items may have been added after the original "latest")
+          this.selectedStep.form.options.items.map((item) => { item.single = false; return item })
+          if (this.selectedStep.form.options.lastIsSingle) {
+            this.selectedStep.form.options.items[this.selectedStep.form.options.items.length - 1].single = true
           }
-        }
-        if (this.selectedStep.form.options.lastIsSingle && this.selectedStep.form.options.items && this.selectedStep.form.options.items.length > 0) {
-          this.selectedStep.form.options.items[this.selectedStep.form.options.items.length - 1].single = true
         }
       }
       if (this.options.type.code === 'find-item') {
@@ -1282,10 +1276,10 @@ export default {
      * Add an answer in the memory step
      */
     addMemoryAnswer: function () {
-      if (this.config.memory.items.length >= this.config.memory.maxNbAnswers) {
+      if (this.selectedStep.form.options.items.length >= this.config.memory.maxNbAnswers) {
         Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.config.memory.maxNbAnswers }), 'error')
       } else {
-        this.config.memory.items.push({
+        this.selectedStep.form.options.items.push({
           imagePath: null, // image default data
           single: false
         })
@@ -1609,7 +1603,7 @@ export default {
       let uploadResult = await StepService.uploadMemoryImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
-          this.config.memory.items[key].imagePath = uploadResult.data.file
+          this.selectedStep.form.options.items[key].imagePath = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         }
@@ -1622,10 +1616,10 @@ export default {
      * Delete an answer in the memory game
      */
     deleteMemoryAnswer: function (key) {
-      if (this.config.memory.items.length <= this.config.memory.minNbAnswers) {
+      if (this.selectedStep.form.options.items.length <= this.config.memory.minNbAnswers) {
         Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.config.memory.minNbAnswers }), 'error')
       } else {
-        this.config.memory.items.splice(key, 1);
+        this.selectedStep.form.options.items.splice(key, 1);
       }
     },
     /*
