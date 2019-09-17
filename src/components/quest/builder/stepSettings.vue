@@ -394,7 +394,7 @@
     
     <div v-if="options.type.code === 'memory'">
       <h2>{{ $t('label.ImagesUsedForCards') }}</h2>
-      <div class="answer" v-for="(option, key) in config.memory.items" :key="key">       
+      <div class="answer" v-for="(option, key) in selectedStep.form.options.items" :key="key">       
         <p v-show="option.imagePath === null" class="error-label">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/memory/' + option.imagePath" /></p>
         <span v-if="!isIOs">
@@ -488,7 +488,7 @@
             </div>
           </div>
           <div v-if="!quest.isPremium">
-            <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadTheObjectToFind')" @click="premium.show = true" />
+            <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadTheObjectToFind')" @click="$emit('openPremiumBox')" />
           </div>
           <div id="target-canvas"></div>
           <div>
@@ -841,8 +841,7 @@ export default {
         },
         memory: {
           minNbAnswers: 3,
-          maxNbAnswers: 10,
-          items: []
+          maxNbAnswers: 10
         },
         useItem: {
           questItemsAsOptions: []
@@ -1114,14 +1113,12 @@ export default {
           this.selectedStep.form.options = { picture: null, level: 2 }
         }
       } else if (this.options.type.code === 'memory') {
-        if (!this.selectedStep.form.options.items) {
-          this.selectedStep.form.options = {lastIsSingle: false}
-          this.config.memory.items = []
+        if (!this.selectedStep.form.options.hasOwnProperty('items')) {
+          let defaultItems = []
           for (let i = 0; i < 8; i++) {
-            this.config.memory.items.push({ imagePath: null, single: false })
+            defaultItems.push({ imagePath: null, single: false })
           }
-        } else {
-          this.config.memory.items = this.selectedStep.form.options.items
+          this.$set(this.selectedStep.form.options, 'items', defaultItems)
         }
       } else if (this.options.type.code === 'locate-item-ar') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
@@ -1145,7 +1142,13 @@ export default {
           this.$set(this.selectedStep.form.options, 'model', this.config.locateItem.selectModel3DOptions[0].value)
         }
         // display 3D model selected by default
-        await this.displayARObject(this.selectedStep.form.options.model)
+        if (this.selectedStep.form.options.is3D) {
+          if (this.selectedStep.form.options.customModel) {
+            await this.displayARObject(this.selectedStep.form.options.customModel, this.questId)
+          } else {
+            await this.displayARObject(this.selectedStep.form.options.model)
+          }
+        }
       } else if (this.options.type.code === 'locate-marker') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.$set(this.selectedStep.form, 'answers', markersList[0])
@@ -1200,7 +1203,7 @@ export default {
       // format answer based on the type of step
       if (this.options.type.code === 'choose') {
         if (this.config.choose.answerType === 'text') {
-          for (var i = 0; i < this.selectedStep.form.options.items.length; i++) {
+          for (let i = 0; i < this.selectedStep.form.options.items.length; i++) {
             if (this.selectedStep.form.options && this.selectedStep.form.options.items && this.selectedStep.form.options.items[i] && this.selectedStep.form.options.items[i].textLanguage) {
               this.selectedStep.form.options.items[i].textLanguage[this.lang] = this.selectedStep.form.options.items[i].text
             } else {
@@ -1236,16 +1239,13 @@ export default {
         this.selectedStep.form.answers = piecePositionArray.join('|')
       }
       if (this.options.type.code === 'memory') {
-        if (!this.selectedStep.form.options.items) {
-          this.selectedStep.form.options.items = []
-        }
-        for (var j = 0; i < this.config.memory.items.length; i++) {
-          if (this.config.memory.items[j].imagePath !== null) {
-            this.selectedStep.form.options.items.push(this.config.memory.items[j])
+        if (Array.isArray(this.selectedStep.form.options.items) && this.selectedStep.form.options.items.length > 0) {
+          // force "reset" of .single property for all items
+          // (new items may have been added after the original "latest")
+          this.selectedStep.form.options.items.map((item) => { item.single = false; return item })
+          if (this.selectedStep.form.options.lastIsSingle) {
+            this.selectedStep.form.options.items[this.selectedStep.form.options.items.length - 1].single = true
           }
-        }
-        if (this.selectedStep.form.options.lastIsSingle && this.selectedStep.form.options.items && this.selectedStep.form.options.items.length > 0) {
-          this.selectedStep.form.options.items[this.selectedStep.form.options.items.length - 1].single = true
         }
       }
       if (this.options.type.code === 'find-item') {
@@ -1295,10 +1295,10 @@ export default {
      * Add an answer in the memory step
      */
     addMemoryAnswer: function () {
-      if (this.config.memory.items.length >= this.config.memory.maxNbAnswers) {
+      if (this.selectedStep.form.options.items.length >= this.config.memory.maxNbAnswers) {
         Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.config.memory.maxNbAnswers }), 'error')
       } else {
-        this.config.memory.items.push({
+        this.selectedStep.form.options.items.push({
           imagePath: null, // image default data
           single: false
         })
@@ -1622,7 +1622,7 @@ export default {
       let uploadResult = await StepService.uploadMemoryImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
-          this.config.memory.items[key].imagePath = uploadResult.data.file
+          this.selectedStep.form.options.items[key].imagePath = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         }
@@ -1635,10 +1635,10 @@ export default {
      * Delete an answer in the memory game
      */
     deleteMemoryAnswer: function (key) {
-      if (this.config.memory.items.length <= this.config.memory.minNbAnswers) {
+      if (this.selectedStep.form.options.items.length <= this.config.memory.minNbAnswers) {
         Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.config.memory.minNbAnswers }), 'error')
       } else {
-        this.config.memory.items.splice(key, 1);
+        this.selectedStep.form.options.items.splice(key, 1);
       }
     },
     /*
@@ -1743,6 +1743,7 @@ export default {
      * Change the object selected in the 3D object list
      */
     async changeObjectInList() {
+      this.selectedStep.form.options.customModel = null
       await this.displayARObject(this.selectedStep.form.options.model)
     },
     /*
@@ -1798,10 +1799,10 @@ export default {
       let pivotObj = new THREE.Object3D();
       object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
       pivotObj.add(object)
-      pivotObj.up = new THREE.Vector3(0, 1, 0)
+      pivotObj.up = new THREE.Vector3(0, 0, 1)
       object = pivotObj
       
-      object.rotation.y = Math.PI / 4
+      object.rotation.z = Math.PI / 4
       
       return { object, animations: gltfData.animations }
     },
@@ -1845,6 +1846,9 @@ export default {
 
           // Create a basic perspective camera
           let camera = new THREE.PerspectiveCamera(70, 1.333, 0.001, 1000)
+          camera.up = new THREE.Vector3(0, 0, 1)
+          camera.rotation.x = Math.PI / 2
+          camera.lookAt(new THREE.Vector3(0, 0, 0))
           _this.config.locateItem.camera = camera
           
           // Create a renderer with Antialiasing
@@ -1884,7 +1888,7 @@ export default {
       let ObjectData = await this.loadAndPrepare3DModel(model, questId)
       
       let object = ObjectData.object
-      object.up = new THREE.Vector3(0, 1, 0)
+      object.up = new THREE.Vector3(0, 0, 1)
       object.visible = true
       object.name = DEMO_OBJECT_NAME
       
@@ -1898,9 +1902,7 @@ export default {
       this.config.locateItem.zoom = Math.max(size.x, size.y, size.z) * 1.5
       
       // distance with object
-      this.config.locateItem.camera.position.set(0, 0, this.config.locateItem.zoom)
-      this.config.locateItem.camera.up = new THREE.Vector3(0, 1, 0)
-      this.config.locateItem.camera.lookAt(new THREE.Vector3(0, 0, 0))
+      this.config.locateItem.camera.position.set(0, -this.config.locateItem.zoom, 0)
       this.config.locateItem.controls.update() // orbit controls update is required when camera position changes
       
       this.config.locateItem.object = object

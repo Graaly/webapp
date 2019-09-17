@@ -2,7 +2,7 @@
   <div class="story fit" v-if="currentStep.id !== null" :class="{fadeout: hide}" style="background: rgba(0,0,0,0.5); height: 100%;">
     <div :style="'position: fixed; width: 100%; bottom: ' + steps[currentStep.id].bottom + 'px;'">
       <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" style="min-height: 5vh" /></div>
-      <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh">
+      <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh" v-click-outside="onBackgroundTouch">
         <div v-if="needToScroll" class="scroll-indicator">
           <q-icon size="2.5em" name="arrow_drop_down_circle" />
         </div>
@@ -293,7 +293,8 @@ export default {
       },
       nextStep: 0,
       hide: false,
-      needToScroll: false
+      needToScroll: false,
+      backgroundTouchCount: 0
     }
   },
   async mounted() {
@@ -305,6 +306,8 @@ export default {
     this.moreToValidStep()
     
     await this.saveStepPassed()
+    
+    utils.setTimeout(this.checkIfTextIsHidden, 500)
   },
   methods: {
     /*
@@ -314,9 +317,9 @@ export default {
       this.needToScroll = false
       if (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].hasOwnProperty("button") && this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].button.hasOwnProperty("action")) {
         this.$router.push(this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].button.action)
+        utils.setTimeout(this.checkIfTextIsHidden, 500)
       } else {
         await this.closeStory()
-        utils.setTimeout(this.checkIfTextIsHidden, 500)
       }
     },
     async checkIfTextIsHidden() {
@@ -384,6 +387,21 @@ export default {
         }
       } else {
         await this.closeStory()
+      }
+    },
+    onBackgroundTouch(e) {
+      // for "read more" feature on quests only (type n°6)
+      if (this.currentStep.id !== 6) {
+        return
+      }
+      
+      // for unknown reason, onBackgroundTouch is fired/propagated at component creation (due to click on notification)
+      // the only way to prevent hiding before even showing is to count the number of "backgroundTouch" events
+      // Note that the click on notification event's propagation cannot be prevented (built-in Quasar notification component) 
+      if (this.backgroundTouchCount > 0) {
+        this.hideStory()
+      } else {
+        this.backgroundTouchCount++
       }
     }
   }

@@ -157,9 +157,9 @@ Visible console output is related to the activity on the Android Chrome browser 
 
 Remove the cache of your browser (if you renew the certificate)
 
-Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
-
 Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to easily create a custom Certification Authority, generate certificates for any IP/domain, and make all your dev devices trust them.
+
+Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
 
 # Testing
 
