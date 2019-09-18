@@ -940,54 +940,54 @@ export default {
       })
     },
     alternateAbsoluteOrientationSensor() {
-      var _this = this
+      window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
+    },
+    eventAlternateAbsoluteOrientationSensor(e) {
+      const alpha    = e.webkitCompassHeading !== null ? 360 - e.webkitCompassHeading : e.alpha
+      const beta     = e.beta
+      const gamma    = e.gamma
       const degtorad = Math.PI / 180
-      window.addEventListener('deviceorientation', function eventAlternateAbsoluteOrientationSensor(e) {
-        const alpha    = e.webkitCompassHeading !== null ? 360 - e.webkitCompassHeading : e.alpha
-        const beta     = e.beta
-        const gamma    = e.gamma
-        
-        var _x = beta  ? beta  * degtorad : 0 // beta value
-        var _y = gamma ? gamma * degtorad : 0 // gamma value
-        var _z = alpha ? alpha * degtorad : 0 // alpha value
-        var cX = Math.cos(_x/2)
-        var cY = Math.cos(_y/2)
-        var cZ = Math.cos(_z/2)
-        var sX = Math.sin(_x/2)
-        var sY = Math.sin(_y/2)
-        var sZ = Math.sin(_z/2)
+     
+      var _x = beta  ? beta  * degtorad : 0 // beta value
+      var _y = gamma ? gamma * degtorad : 0 // gamma value
+      var _z = alpha ? alpha * degtorad : 0 // alpha value
+      var cX = Math.cos(_x/2)
+      var cY = Math.cos(_y/2)
+      var cZ = Math.cos(_z/2)
+      var sX = Math.sin(_x/2)
+      var sY = Math.sin(_y/2)
+      var sZ = Math.sin(_z/2)
 
-        // ZXY quaternion construction.
-        var w = cX * cY * cZ - sX * sY * sZ
-        var x = sX * cY * cZ - cX * sY * sZ
-        var y = cX * sY * cZ + sX * cY * sZ
-        var z = cX * cY * sZ + sX * sY * cZ
-      
-        _this.geolocation.absoluteOrientationSensor.quaternion = [ y, -x, -w, z ]
+      // ZXY quaternion construction.
+      var w = cX * cY * cZ - sX * sY * sZ
+      var x = sX * cY * cZ - cX * sY * sZ
+      var y = cX * sY * cZ + sX * cY * sZ
+      var z = cX * cY * sZ + sX * sY * cZ
 
-        let quaternion = new THREE.Quaternion().fromArray(_this.geolocation.absoluteOrientationSensor.quaternion)
-  
-        if (_this.step.type === 'locate-item-ar' && _this.geolocation.target !== null && _this.deviceHasGyroscope) {
-          _this.geolocation.target.camera.quaternion = quaternion
-        }
-  
-        // every 100ms, update geolocation direction
-        if (!this.waitForNextQuaternionRead) {
-          let rotationZXY = new THREE.Euler().setFromQuaternion(quaternion, 'ZXY')
-          let rotationXZY = new THREE.Euler().setFromQuaternion(quaternion, 'XZY')
-  
-          let tmpAlpha = (rotationZXY.x < Math.PI / 4 ? rotationZXY.z : rotationXZY.y)
-          let newAlpha = JSON.stringify((360 - utils.radiansToDegrees(tmpAlpha)) % 360)
-  
-          _this.geolocation.direction = (_this.geolocation.rawDirection - newAlpha + 360) % 360
-  
-          this.waitForNextQuaternionRead = true
-          utils.setTimeout(() => { this.waitForNextQuaternionRead = false }, 100)
-        }
-      }, false)
+      this.geolocation.absoluteOrientationSensor.quaternion = [ y, -x, -w, z ]
+
+      let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
+
+      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.deviceHasGyroscope) {
+        this.geolocation.target.camera.quaternion = quaternion
+      }
+
+      // every 100ms, update geolocation direction
+      if (!this.waitForNextQuaternionRead) {
+        let rotationZXY = new THREE.Euler().setFromQuaternion(quaternion, 'ZXY')
+        let rotationXZY = new THREE.Euler().setFromQuaternion(quaternion, 'XZY')
+
+        let tmpAlpha = (rotationZXY.x < Math.PI / 4 ? rotationZXY.z : rotationXZY.y)
+        let newAlpha = JSON.stringify((360 - utils.radiansToDegrees(tmpAlpha)) % 360)
+
+        this.geolocation.direction = (this.geolocation.rawDirection - newAlpha + 360) % 360
+
+        this.waitForNextQuaternionRead = true
+        utils.setTimeout(() => { this.waitForNextQuaternionRead = false }, 100)
+      }
     },
     stopAlternateAbsoluteOrientationSensor() {
-      window.removeEventListener('deviceorientation', eventAlternateAbsoluteOrientationSensor, false)
+      window.removeEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
     },
     reloadPage() {
       this.$router.go({
@@ -1633,35 +1633,42 @@ export default {
                 
                 let cameraDistance = Math.max(size.x, size.y, size.z) * 2
                 
-                let startScale = Object.assign({}, object.scale) // copy the full Vector3 object, not a reference
+                // to fix temporally issue of animations with iOs
+                if (this.isIOs) {
+                  camera.position.set(0, 0,  cameraDistance * 2 / 3)
+
+                  this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+                } else {
+                  let startScale = Object.assign({}, object.scale) // copy the full Vector3 object, not a reference
                 
-                let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
-                  .easing(TWEEN.Easing.Back.In)
-                  .onComplete(() => {
-                    if (this.step.type === 'locate-marker') {
-                      // detach 3D object (target to find) from arSmoothedControl and attach it directly at scene root, for hassle free manipulation of the 3D object
-                      utils.detachObject3D(object, object.parent, target.scene)
-                      utils.attachObject3D(object, target.scene, target.scene)
-                    }
-                    
-                    camera.position.set(0, 0,  cameraDistance * 2 / 3)
-                    camera.lookAt(new THREE.Vector3(0, cameraDistance, size.z / 2))
-                    // reset object position/scale/rotation
-                    object.scale.set(0, 0, 0)
-                    object.position.set(0, cameraDistance, size.z / 2)
-                    object.rotation.set(0, 0, 0)
-                    this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
-                  })
-                
-                let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
-                  .easing(TWEEN.Easing.Back.Out)
-                
-                // https://stackoverflow.com/a/31766476/488666
-                let rotationAnimation = new TWEEN.Tween(object.rotation)
-                  .to({ z: "-" + Math.PI / 2 }, 2000) // relative animation
-                  .repeat(Infinity)
+                  let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
+                    .easing(TWEEN.Easing.Back.In)
+                    .onComplete(() => {
+                      if (this.step.type === 'locate-marker') {
+                        // detach 3D object (target to find) from arSmoothedControl and attach it directly at scene root, for hassle free manipulation of the 3D object
+                        utils.detachObject3D(object, object.parent, target.scene)
+                        utils.attachObject3D(object, target.scene, target.scene)
+                      }
+                      
+                      camera.position.set(0, 0,  cameraDistance * 2 / 3)
+                      camera.lookAt(new THREE.Vector3(0, cameraDistance, size.z / 2))
+                      // reset object position/scale/rotation
+                      object.scale.set(0, 0, 0)
+                      object.position.set(0, cameraDistance, size.z / 2)
+                      object.rotation.set(0, 0, 0)
+                      this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+                    })
                   
-                disappearAnimation.chain(appearAnimation, rotationAnimation).start()
+                  let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
+                    .easing(TWEEN.Easing.Back.Out)
+                  
+                  // https://stackoverflow.com/a/31766476/488666
+                  let rotationAnimation = new TWEEN.Tween(object.rotation)
+                    .to({ z: "-" + Math.PI / 2 }, 2000) // relative animation
+                    .repeat(Infinity)
+                    
+                  disappearAnimation.chain(appearAnimation, rotationAnimation).start()
+                }
               } else { // 2D image on plane
                 this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
               }
