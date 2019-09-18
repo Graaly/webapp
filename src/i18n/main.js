@@ -789,7 +789,8 @@ module.exports = {
       SuggestContactInformation: "responsible (if you have it)",
       SuggestContactInformationExample: "Name, email or phone number",
       ThankYouForYourProposal: "Thank you for your proposal",
-      SuggestWarningMessage: "By filling this form, you help us finding the most requested quests to contact the responsible of this place. You will be warned if a quest is created on this place."
+      SuggestWarningMessage: "By filling this form, you help us finding the most requested quests to contact the responsible of this place. You will be warned if a quest is created on this place.",
+      InsertAStepAfter: "Insert a step below"
     }
   },
   fr: {
@@ -1570,7 +1571,8 @@ module.exports = {
       SuggestContactInformation: "responsable (si vous l'avez)",
       SuggestContactInformationExample: "Nom, email ou téléphone",
       ThankYouForYourProposal: "Merci pour votre proposition",
-      SuggestWarningMessage: "En complétant ce formulaire, vous nous aidez à identifier les enquêtes les plus demandées pour contacter les responsables des lieux concernés. Vous serez ensuite informé si une enquête est créée sur ce lieu."
+      SuggestWarningMessage: "En complétant ce formulaire, vous nous aidez à identifier les enquêtes les plus demandées pour contacter les responsables des lieux concernés. Vous serez ensuite informé si une enquête est créée sur ce lieu.",
+      InsertAStepAfter: "Insérer une étape après"
     }
   }
 }
