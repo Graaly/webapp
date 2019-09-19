@@ -1556,7 +1556,7 @@ module.exports = {
       QuestPlayableOnMobile: "Cette enquête se joue sur mobile",
       ReloadPuzzle: "Les pièces ne bougent pas ? Appuyez ici",
       ClickToEnlargePictures: "Appuyez sur les images pour les élargir",
-      WaveThePhoneForGPSPrecision: "Faites des 8 avec votre tépéphone pendant 3 secondes pour une meilleure précision GPS",
+      WaveThePhoneForGPSPrecision: "Faites des 8 avec votre téléphone pendant 3 secondes pour une meilleure précision GPS",
       TakeMobileVertically: "Tenez votre téléphone verticalement et recherchez",
       null: "Indéfini",
       TooMuchOfflineLoadingErrors: "Le chargement de l'enquête n'a pas fonctionné. Vous pouvez jouer l'enquête si le réseau mobile fonctionne tout le long. Pressez ici pour fermer ce message",
