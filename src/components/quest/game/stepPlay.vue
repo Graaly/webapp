@@ -1611,12 +1611,12 @@ export default {
 
                 // stop moving camera when device moves
                 this.geolocation.absoluteOrientationSensor.stop()
-                
-                // stop camera flow
-                if (this.isIOs) {
-                  CameraPreview.hide()
-                  CameraPreview.stopCamera()
-                }
+              }
+              
+              // stop camera flow
+              if (this.isIOs) {
+                CameraPreview.hide()
+                CameraPreview.stopCamera()
               }
               
               TWEEN.removeAll() // clear all running animations
