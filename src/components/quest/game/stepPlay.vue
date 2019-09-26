@@ -1615,6 +1615,7 @@ export default {
                 // stop camera flow
                 if (this.isIOs) {
                   CameraPreview.hide()
+                  CameraPreview.stopCamera()
                 }
               }
               
