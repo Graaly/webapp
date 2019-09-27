@@ -1,4 +1,5 @@
-var DragDropTouch = {};
+// looks inspired from https://github.com/Bernardo-Castilho/dragdroptouch
+//var DragDropTouch = {};
 function initJigsaw (DragDropTouch_1) {
     'use strict';
     /**

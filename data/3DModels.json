@@ -6,10 +6,7 @@
     },
     "author": "Alex “SAFFY” Safayan",
     "url": "https://poly.google.com/view/5UQVd1Agl11",
-    "scale": 0.4,
-    "rotation": {
-      "y": -45
-    }
+    "scale": 0.4
   },
   "book": {
     "name": {
@@ -17,12 +14,7 @@
       "en": "Book"  
     },
     "author": "Anastasiia Ku",
-    "url": "https://poly.google.com/view/0-_UGETLPsX",
-    "rotation": {
-      "x": -15,
-      "y": 90,
-      "z": 55
-    }
+    "url": "https://poly.google.com/view/0-_UGETLPsX"
   },
   "candelabra": {
     "name": {
@@ -40,9 +32,6 @@
     },
     "author": "Alex “SAFFY” Safayan",
     "url": "https://poly.google.com/view/3SGvQIwe214",
-    "rotation": {
-      "y": 225
-    },
     "scale": 0.2
   },
   "ghost": {
@@ -64,9 +53,6 @@
     },
     "author": "VitSh",
     "url": "https://sketchfab.com/models/a8852f113416426bb06e6bba49a525a9",
-    "rotation": {
-      "y": 45
-    },
     "scale": 0.3
   },
   "gun": {
@@ -76,10 +62,6 @@
     },
     "author": "legoingr",
     "url": "https://sketchfab.com/models/bcf398f3109a4d0ea384dcd3196a695e",
-    "rotation": {
-      "y": -135,
-      "z": 90
-    },
     "scale": 0.02
   },
   "key": {
@@ -89,10 +71,6 @@
     },
     "author": "Jerad Bitner",
     "url": "https://poly.google.com/view/dR-kItm5ihP",
-    "rotation": {
-      "x": 180,
-      "z": 45
-    },
     "scale": 0.05
   },
   "knife": {
@@ -102,11 +80,7 @@
     },
     "author": "vepr",
     "url": "https://sketchfab.com/models/555a53a177314b789d31e49d731c2184",
-    "scale": 4,
-    "rotation": {
-      "y": 225,
-      "z": 90
-    }
+    "scale": 4
   },
   "lamp": {
     "name": {

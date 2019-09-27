@@ -402,7 +402,7 @@ import Vue from 'vue'
 
 // required for step 'locate-item-ar'
 import * as THREE from 'three'
-import * as TWEEN from '@tweenjs/tween.js'
+import TWEEN from '@tweenjs/tween.js'
 import GLTFLoader from 'three-gltf-loader'
 
 // required for step 'locate-marker'
@@ -720,16 +720,21 @@ export default {
           // reliable when device is held vertically
           try {
             let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
-            sensor.onerror = event => console.error(event.error.name, event.error.message)
-            sensor.onreading = this.onAbsoluteOrientationSensorReading
-            sensor.start()
-            this.geolocation.absoluteOrientationSensor = sensor
-          } catch (error) {
-            console.log(error)
-            this.geolocation.absoluteOrientationSensor = {
-              stop: this.stopAlternateAbsoluteOrientationSensor
+            if (typeof this.sensor === 'undefined') {
+              // iOS
+              this.geolocation.absoluteOrientationSensor = {
+                stop: this.stopAlternateAbsoluteOrientationSensor
+              }
+              window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
+            } else {
+              // Android
+              sensor.onerror = event => console.error(event.error.name, event.error.message)
+              sensor.onreading = this.onAbsoluteOrientationSensorReading
+              sensor.start()
+              this.geolocation.absoluteOrientationSensor = sensor
             }
-            this.alternateAbsoluteOrientationSensor()
+          } catch (error) {
+            console.error(error)
           }
           // must store object returned by setInterval() in Vue store instead of component properties,
           // otherwise it is reset when route changes & component is reloaded
@@ -938,9 +943,6 @@ export default {
           }
         }
       })
-    },
-    alternateAbsoluteOrientationSensor() {
-      window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
     },
     eventAlternateAbsoluteOrientationSensor(e) {
       const alpha    = e.webkitCompassHeading !== null ? 360 - e.webkitCompassHeading : e.alpha
@@ -1604,12 +1606,17 @@ export default {
             checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, false)
             if (checkAnswerResult.result === true) {
               if (this.step.type === 'locate-item-ar') {
-                this.geolocation.absoluteOrientationSensor.stop() // stop moving camera when device moves
-                
-                // stop camera flow
-                if (this.isIOs) {
-                  CameraPreview.hide()
-                }
+                // stop listening to motion events
+                window.removeEventListener("devicemotion", this.handleMotionEvent, true)
+
+                // stop moving camera when device moves
+                this.geolocation.absoluteOrientationSensor.stop()
+              }
+              
+              // stop camera flow
+              if (this.isIOs) {
+                CameraPreview.hide()
+                CameraPreview.stopCamera()
               }
               
               TWEEN.removeAll() // clear all running animations
@@ -2416,6 +2423,7 @@ export default {
       
       return true
     },
+    // https://stackoverflow.com/a/6274381/488666
     shuffle(array) {
       for (var i = array.length -1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1))

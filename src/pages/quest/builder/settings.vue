@@ -283,9 +283,26 @@
                     <span v-if="readOnly">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
                   </div>
                   <div class="step-button">
-                    <q-btn v-if="!readOnly" icon="mode_edit" dense @click="modifyStep(step)" />
-                    <q-btn v-if="!readOnly" icon="delete" dense @click="removeStep(step.stepId)" />
-                    <q-btn v-if="!readOnly" icon="subdirectory_arrow_left" dense @click="insertStep(chapter.chapterId, step.stepId)" />
+                    <q-btn-dropdown v-if="!readOnly" icon="mode_edit" split dense @click="modifyStep(step)">
+                      <q-list>
+                        <q-item clickable v-close-popup @click="insertStep(chapter.chapterId, step.stepId)">
+                          <q-item-section avatar>
+                            <q-avatar icon="subdirectory_arrow_left" />
+                          </q-item-section>
+                          <q-item-section>
+                            <q-item-label>{{ $t('label.InsertAStepAfter') }}</q-item-label>
+                          </q-item-section>
+                        </q-item>
+                        <q-item clickable v-close-popup @click="removeStep(step.stepId)">
+                          <q-item-section avatar>
+                            <q-avatar icon="delete" />
+                          </q-item-section>
+                          <q-item-section>
+                            <q-item-label>{{ $t('label.Remove') }}</q-item-label>
+                          </q-item-section>
+                        </q-item>
+                      </q-list>
+                    </q-btn-dropdown>
                   </div>
                 </div>
               </div>

@@ -789,7 +789,8 @@ module.exports = {
       SuggestContactInformation: "responsible (if you have it)",
       SuggestContactInformationExample: "Name, email or phone number",
       ThankYouForYourProposal: "Thank you for your proposal",
-      SuggestWarningMessage: "By filling this form, you help us finding the most requested quests to contact the responsible of this place. You will be warned if a quest is created on this place."
+      SuggestWarningMessage: "By filling this form, you help us finding the most requested quests to contact the responsible of this place. You will be warned if a quest is created on this place.",
+      InsertAStepAfter: "Insert a step below"
     }
   },
   fr: {
@@ -1555,7 +1556,7 @@ module.exports = {
       QuestPlayableOnMobile: "Cette enquête se joue sur mobile",
       ReloadPuzzle: "Les pièces ne bougent pas ? Appuyez ici",
       ClickToEnlargePictures: "Appuyez sur les images pour les élargir",
-      WaveThePhoneForGPSPrecision: "Faites des 8 avec votre tépéphone pendant 3 secondes pour une meilleure précision GPS",
+      WaveThePhoneForGPSPrecision: "Faites des 8 avec votre téléphone pendant 3 secondes pour une meilleure précision GPS",
       TakeMobileVertically: "Tenez votre téléphone verticalement et recherchez",
       null: "Indéfini",
       TooMuchOfflineLoadingErrors: "Le chargement de l'enquête n'a pas fonctionné. Vous pouvez jouer l'enquête si le réseau mobile fonctionne tout le long. Pressez ici pour fermer ce message",
@@ -1570,7 +1571,8 @@ module.exports = {
       SuggestContactInformation: "responsable (si vous l'avez)",
       SuggestContactInformationExample: "Nom, email ou téléphone",
       ThankYouForYourProposal: "Merci pour votre proposition",
-      SuggestWarningMessage: "En complétant ce formulaire, vous nous aidez à identifier les enquêtes les plus demandées pour contacter les responsables des lieux concernés. Vous serez ensuite informé si une enquête est créée sur ce lieu."
+      SuggestWarningMessage: "En complétant ce formulaire, vous nous aidez à identifier les enquêtes les plus demandées pour contacter les responsables des lieux concernés. Vous serez ensuite informé si une enquête est créée sur ce lieu.",
+      InsertAStepAfter: "Insérer une étape après"
     }
   }
 }
