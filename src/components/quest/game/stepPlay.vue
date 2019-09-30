@@ -301,11 +301,14 @@
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-marker"  webkit-playsinline playsinline src="" autoplay v-show="cameraStreamEnabled && playerResult === null"></video>
         </transition>
+        <!-- MP 2019-09-30 now we use phonegap-plugin-barcodescanner for compatibility reasons, and cannot use any "layer" above camera stream -->
+        <!--
         <div v-if="((step.type == 'locate-marker' && step.options.mode === 'scan') || step.id == 'sensor') && locateMarker.layer !== null &&  locateMarker.compliant">
           <transition appear :enter-active-class="'animated ' + locateMarker.layer.animationShow" :leave-active-class="'animated ' + locateMarker.layer.animationHide">
             <img class="locate-marker-layer" :src="'statics/images/find-marker-layers/' + step.options.layerCode + '.png'" v-show="step.id === 'sensor' || (playerResult === null || (playerResult === false && nbTry < 2))" />
           </transition>
         </div>
+        -->
         <div v-show="playerResult === null">
           <div class="text" v-show="getTranslatedText() != ''">
             <p>{{ getTranslatedText() }}</p>
@@ -391,7 +394,6 @@ import utils from 'src/includes/utils'
 import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
 import markersList from 'data/markers.json'
-import layersForMarkers from 'data/layersForMarkers.json'
 
 import Notification from 'boot/NotifyHelper'
 
@@ -887,6 +889,8 @@ export default {
             this.$emit('pass')
           }
           
+          // MP 2019-09-30 using phonegap-plugin-barcodescanner prevents using any kind of "layer" above camera stream
+          /*import layersForMarkers from 'data/layersForMarkers.json'
           if (this.step.options.mode === 'scan') {
             for (let layer of layersForMarkers) {
               if (layer.code === this.step.options.layerCode) {
@@ -894,7 +898,7 @@ export default {
                 break
               }
             }
-          }
+          }*/
           
           if (this.isHybrid) {
             this.initQRCodes()
@@ -1736,9 +1740,7 @@ export default {
      * stop the markers sensors
      */
     stopMarkersSensors() {
-      if (this.isIOs) {
-        //this.stopScanQRCode()
-      } else {
+      if (!this.isHybrid) {
         this.stopVideoTracks('camera-stream-for-locate-marker')
         this.locateMarker.scene = new THREE.Scene()
         this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
