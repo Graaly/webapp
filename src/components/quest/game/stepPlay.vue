@@ -896,27 +896,8 @@ export default {
             }
           }
           
-          //if (this.isIOs) {
           if (this.isHybrid) {
             this.initQRCodes()
-            /* //QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
-            // Start a scan. Scanning will continue until something is detected or
-            // `BBScanner.cancelScan()` is called.
-            //QRScanner.scan({format: cordova.plugins.QRScanner.types.QR_CODE}, this.scanQRCode)
-            this.startScanQRCode()
-
-            // Make the webview transparent so the video preview is visible behind it.
-            //QRScanner.show()
-            */
-            //this.startScanQRCode()
-            
-            /*/ With plugin Cordova-plugin-camera-preview 
-            this.cameraStreamEnabled = true
-            let sceneCanvas = document.getElementById('marker-canvas')
-            sceneCanvas.height = window.screen.height
-            sceneCanvas.width = window.screen.width
-            
-            await this.displayMarkers(sceneCanvas)*/
           } else {
             // with plugin phonegap-plugin-media-stream
             let cameraStream = this.$refs['camera-stream-for-locate-marker']
@@ -1038,7 +1019,6 @@ export default {
     startScanQRCode() {
       var _this = this
       if (this.isHybrid) {
-      //if (this.isIOs) {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
             if (result && result.text) {
@@ -1062,59 +1042,8 @@ export default {
             disableSuccessBeep: false // iOS and Android
           }
         )
-        /*this.stopScanQRCode()
-        QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
-        QRScanner.scan(this.scanQRCode)
-        QRScanner.show()
-        QRScanner.getStatus(function(status) {
-          console.log(status);
-        });*/
       }
     },
-    /*stopScanQRCode() {
-      QRScanner.hide(function(status) {
-        console.log(status);
-        QRScanner.destroy(function(status) {
-          console.log(status)
-        })
-      });
-    },
-    /*
-    * Triggered when a qr code is scanned
-    *
-    scanQRCode (err, text) {
-      if (err) {
-        console.log("Error with scanner: " + err)
-        // an error occurred, or the scan was canceled (error code `6`)
-      } else {console.log("found marker : " + text)
-        // The scan completed, display the contents of the QR code:
-        this.checkAnswer(text)
-      }
-    },
-    /*
-    * Prepare QR Code scanner
-    *
-    prepareQRCodeScanner (err, status) {
-      if (err) {
-       // here we can handle errors and clean up any loose ends.
-       console.error(err);
-      }
-      if (status.authorized) {
-        console.log("QR Code scan not authorized")
-        // W00t, you have camera access and the scanner is initialized.
-        // QRscanner.show() should feel very fast.
-      } else if (status.denied) {
-        console.log("QR Code access denied")
-       // The video preview will remain black, and scanning is disabled. We can
-       // try to ask the user to change their mind, but we'll have to send them
-       // to their device settings with `BBScanner.openSettings()`.
-      } else {
-        console.log("QR Code scan error with permission")
-        // we didn't get permission, but we didn't get permanently denied. (On
-        // Android, a denial isn't permanent unless the user checks the "Don't
-        // ask again" box.) We can ask again at the next relevant opportunity.
-      }
-    },*/
     /*
     * creates a marker control for step type 'locate-marker'
     */
@@ -1392,9 +1321,6 @@ export default {
           this.locateMarker.flash = true
           this.locateMarker.markerControls[answer].detected = true
           this.$emit('played', answer)
-          // reactivate scanner
-          //this.startScanQRCode()
-          //this.stopMarkersSensors()
         }
         return 
       }
@@ -1725,7 +1651,6 @@ export default {
                   this.submitWrongAnswer(checkAnswerResult.offline, true)
                   this.stopMarkersSensors()
                 } else {
-                  //this.startScanQRCode()
                   this.submitRetry(checkAnswerResult.offline)
                 }
               }
