@@ -889,7 +889,11 @@ export default {
     }
   },
   async mounted() {
-    //await this.initData() // already treated with watcher
+    // MP 2019-09-30 run initData() only for step creation, otherwise it is called twice when modifying an existing step
+    // In the condition below, "0" means new step creation
+    if (this.stepId === "0") {
+      await this.initData()
+    }
   },
   methods: {
     /*

@@ -301,11 +301,14 @@
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-marker"  webkit-playsinline playsinline src="" autoplay v-show="cameraStreamEnabled && playerResult === null"></video>
         </transition>
+        <!-- MP 2019-09-30 now we use phonegap-plugin-barcodescanner for compatibility reasons, and cannot use any "layer" above camera stream -->
+        <!--
         <div v-if="((step.type == 'locate-marker' && step.options.mode === 'scan') || step.id == 'sensor') && locateMarker.layer !== null &&  locateMarker.compliant">
           <transition appear :enter-active-class="'animated ' + locateMarker.layer.animationShow" :leave-active-class="'animated ' + locateMarker.layer.animationHide">
             <img class="locate-marker-layer" :src="'statics/images/find-marker-layers/' + step.options.layerCode + '.png'" v-show="step.id === 'sensor' || (playerResult === null || (playerResult === false && nbTry < 2))" />
           </transition>
         </div>
+        -->
         <div v-show="playerResult === null">
           <div class="text" v-show="getTranslatedText() != ''">
             <p>{{ getTranslatedText() }}</p>
@@ -391,7 +394,6 @@ import utils from 'src/includes/utils'
 import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
 import markersList from 'data/markers.json'
-import layersForMarkers from 'data/layersForMarkers.json'
 
 import Notification from 'boot/NotifyHelper'
 
@@ -402,7 +404,7 @@ import Vue from 'vue'
 
 // required for step 'locate-item-ar'
 import * as THREE from 'three'
-import * as TWEEN from '@tweenjs/tween.js'
+import TWEEN from '@tweenjs/tween.js'
 import GLTFLoader from 'three-gltf-loader'
 
 // required for step 'locate-marker'
@@ -720,16 +722,21 @@ export default {
           // reliable when device is held vertically
           try {
             let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
-            sensor.onerror = event => console.error(event.error.name, event.error.message)
-            sensor.onreading = this.onAbsoluteOrientationSensorReading
-            sensor.start()
-            this.geolocation.absoluteOrientationSensor = sensor
-          } catch (error) {
-            console.log(error)
-            this.geolocation.absoluteOrientationSensor = {
-              stop: this.stopAlternateAbsoluteOrientationSensor
+            if (typeof this.sensor === 'undefined') {
+              // iOS
+              this.geolocation.absoluteOrientationSensor = {
+                stop: this.stopAlternateAbsoluteOrientationSensor
+              }
+              window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
+            } else {
+              // Android
+              sensor.onerror = event => console.error(event.error.name, event.error.message)
+              sensor.onreading = this.onAbsoluteOrientationSensorReading
+              sensor.start()
+              this.geolocation.absoluteOrientationSensor = sensor
             }
-            this.alternateAbsoluteOrientationSensor()
+          } catch (error) {
+            console.error(error)
           }
           // must store object returned by setInterval() in Vue store instead of component properties,
           // otherwise it is reset when route changes & component is reloaded
@@ -882,6 +889,8 @@ export default {
             this.$emit('pass')
           }
           
+          // MP 2019-09-30 using phonegap-plugin-barcodescanner prevents using any kind of "layer" above camera stream
+          /*import layersForMarkers from 'data/layersForMarkers.json'
           if (this.step.options.mode === 'scan') {
             for (let layer of layersForMarkers) {
               if (layer.code === this.step.options.layerCode) {
@@ -889,29 +898,10 @@ export default {
                 break
               }
             }
-          }
+          }*/
           
-          //if (this.isIOs) {
           if (this.isHybrid) {
             this.initQRCodes()
-            /* //QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
-            // Start a scan. Scanning will continue until something is detected or
-            // `BBScanner.cancelScan()` is called.
-            //QRScanner.scan({format: cordova.plugins.QRScanner.types.QR_CODE}, this.scanQRCode)
-            this.startScanQRCode()
-
-            // Make the webview transparent so the video preview is visible behind it.
-            //QRScanner.show()
-            */
-            //this.startScanQRCode()
-            
-            /*/ With plugin Cordova-plugin-camera-preview 
-            this.cameraStreamEnabled = true
-            let sceneCanvas = document.getElementById('marker-canvas')
-            sceneCanvas.height = window.screen.height
-            sceneCanvas.width = window.screen.width
-            
-            await this.displayMarkers(sceneCanvas)*/
           } else {
             // with plugin phonegap-plugin-media-stream
             let cameraStream = this.$refs['camera-stream-for-locate-marker']
@@ -938,9 +928,6 @@ export default {
           }
         }
       })
-    },
-    alternateAbsoluteOrientationSensor() {
-      window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
     },
     eventAlternateAbsoluteOrientationSensor(e) {
       const alpha    = e.webkitCompassHeading !== null ? 360 - e.webkitCompassHeading : e.alpha
@@ -1036,7 +1023,6 @@ export default {
     startScanQRCode() {
       var _this = this
       if (this.isHybrid) {
-      //if (this.isIOs) {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
             if (result && result.text) {
@@ -1060,59 +1046,8 @@ export default {
             disableSuccessBeep: false // iOS and Android
           }
         )
-        /*this.stopScanQRCode()
-        QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
-        QRScanner.scan(this.scanQRCode)
-        QRScanner.show()
-        QRScanner.getStatus(function(status) {
-          console.log(status);
-        });*/
       }
     },
-    /*stopScanQRCode() {
-      QRScanner.hide(function(status) {
-        console.log(status);
-        QRScanner.destroy(function(status) {
-          console.log(status)
-        })
-      });
-    },
-    /*
-    * Triggered when a qr code is scanned
-    *
-    scanQRCode (err, text) {
-      if (err) {
-        console.log("Error with scanner: " + err)
-        // an error occurred, or the scan was canceled (error code `6`)
-      } else {console.log("found marker : " + text)
-        // The scan completed, display the contents of the QR code:
-        this.checkAnswer(text)
-      }
-    },
-    /*
-    * Prepare QR Code scanner
-    *
-    prepareQRCodeScanner (err, status) {
-      if (err) {
-       // here we can handle errors and clean up any loose ends.
-       console.error(err);
-      }
-      if (status.authorized) {
-        console.log("QR Code scan not authorized")
-        // W00t, you have camera access and the scanner is initialized.
-        // QRscanner.show() should feel very fast.
-      } else if (status.denied) {
-        console.log("QR Code access denied")
-       // The video preview will remain black, and scanning is disabled. We can
-       // try to ask the user to change their mind, but we'll have to send them
-       // to their device settings with `BBScanner.openSettings()`.
-      } else {
-        console.log("QR Code scan error with permission")
-        // we didn't get permission, but we didn't get permanently denied. (On
-        // Android, a denial isn't permanent unless the user checks the "Don't
-        // ask again" box.) We can ask again at the next relevant opportunity.
-      }
-    },*/
     /*
     * creates a marker control for step type 'locate-marker'
     */
@@ -1390,9 +1325,6 @@ export default {
           this.locateMarker.flash = true
           this.locateMarker.markerControls[answer].detected = true
           this.$emit('played', answer)
-          // reactivate scanner
-          //this.startScanQRCode()
-          //this.stopMarkersSensors()
         }
         return 
       }
@@ -1604,12 +1536,17 @@ export default {
             checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, false)
             if (checkAnswerResult.result === true) {
               if (this.step.type === 'locate-item-ar') {
-                this.geolocation.absoluteOrientationSensor.stop() // stop moving camera when device moves
-                
-                // stop camera flow
-                if (this.isIOs) {
-                  CameraPreview.hide()
-                }
+                // stop listening to motion events
+                window.removeEventListener("devicemotion", this.handleMotionEvent, true)
+
+                // stop moving camera when device moves
+                this.geolocation.absoluteOrientationSensor.stop()
+              }
+              
+              // stop camera flow
+              if (this.isIOs) {
+                CameraPreview.hide()
+                CameraPreview.stopCamera()
               }
               
               TWEEN.removeAll() // clear all running animations
@@ -1718,7 +1655,6 @@ export default {
                   this.submitWrongAnswer(checkAnswerResult.offline, true)
                   this.stopMarkersSensors()
                 } else {
-                  //this.startScanQRCode()
                   this.submitRetry(checkAnswerResult.offline)
                 }
               }
@@ -1804,9 +1740,7 @@ export default {
      * stop the markers sensors
      */
     stopMarkersSensors() {
-      if (this.isIOs) {
-        //this.stopScanQRCode()
-      } else {
+      if (!this.isHybrid) {
         this.stopVideoTracks('camera-stream-for-locate-marker')
         this.locateMarker.scene = new THREE.Scene()
         this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
@@ -2416,6 +2350,7 @@ export default {
       
       return true
     },
+    // https://stackoverflow.com/a/6274381/488666
     shuffle(array) {
       for (var i = array.length -1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1))

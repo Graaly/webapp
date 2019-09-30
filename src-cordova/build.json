@@ -1,0 +1,30 @@
+{
+    "ios": {
+        "debug": {
+            "codeSignIdentity": "iPhone Developer",
+            "developmentTeam": "VM6XZK9MKJ",
+            "packageType": "development",
+            "automaticProvisioning": true,
+            "buildFlag": [
+                "EMBEDDED_CONTENT_CONTAINS_SWIFT = YES",
+                "ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES=NO",
+                "LD_RUNPATH_SEARCH_PATHS = \"@executable_path/Frameworks\"",
+                "-UseModernBuildSystem=0",
+                "-allowProvisioningUpdates"
+            ]
+        },
+        "release": {
+            "codeSignIdentity": "iPhone Developer",
+            "developmentTeam": "VM6XZK9MKJ",
+            "packageType": "app-store",
+            "automaticProvisioning": true,
+            "buildFlag": [
+                "EMBEDDED_CONTENT_CONTAINS_SWIFT = YES",
+                "ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES=NO",
+                "LD_RUNPATH_SEARCH_PATHS = \"@executable_path/Frameworks\"",
+                "-UseModernBuildSystem=0",
+                "-allowProvisioningUpdates"
+            ]
+        }
+    }
+}
