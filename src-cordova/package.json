@@ -2,7 +2,7 @@
   "name": "com.graaly.app",
   "displayName": "Graaly",
   "version": "1.0.0",
-  "description": "A sample Apache Cordova application that responds to the deviceready event.",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,62 +10,59 @@
   "author": "Apache Cordova Team",
   "license": "Apache-2.0",
   "dependencies": {
-    "cordova": "^8.1.2",
+    "cordova": "^9.0.0",
+    "cordova-android": "^8.1.0",
     "cordova-ios": "^5.0.1",
     "cordova-open-native-settings": "^1.5.2",
-    "cordova-plugin-battery-status": "^2.0.2",
+    "cordova-plugin-add-swift-support": "^2.0.2",
     "cordova-plugin-camera-preview": "^0.10.0",
-    "cordova-plugin-compat": "^1.2.0",
     "cordova-plugin-contacts": "^3.0.1",
-    "cordova-plugin-facebook4": "6.0.0",
-    "cordova-plugin-file": "^6.0.1",
-    "cordova-plugin-file-opener2": "^2.1.4",
-    "cordova-plugin-geolocation": "^4.0.1",
-    "cordova-plugin-inapppurchase-fixed": "1.1.2",
+    "cordova-plugin-facebook4": "^6.0.0",
+    "cordova-plugin-file": "^6.0.2",
+    "cordova-plugin-file-opener2": "^2.2.1",
+    "cordova-plugin-geolocation": "4.0.1",
     "cordova-plugin-insomnia": "git+https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git",
-    "cordova-plugin-network-information": "^2.0.1",
-    "cordova-plugin-platform-replace": "^1.0.0",
-    "cordova-plugin-qrscanner": "file:../graaly-cordova-plugins/graaly-marker-scanner",
-    "cordova-plugin-splashscreen": "^5.0.2",
-    "cordova-plugin-statusbar": "^2.4.2",
-    "cordova-plugin-whitelist": "^1.3.3",
+    "cordova-plugin-network-information": "^2.0.2",
+    "cordova-plugin-purchase": "^8.1.1",
+    "cordova-plugin-splashscreen": "^5.0.3",
+    "cordova-plugin-statusbar": "^2.4.3",
+    "cordova-plugin-whitelist": "^1.3.4",
     "es6-promise-plugin": "^4.2.2",
-    "phonegap-plugin-barcodescanner": "file:../graaly-cordova-plugins/marker-scanner",
+    "phonegap-plugin-barcodescanner": "^8.1.0",
     "phonegap-plugin-media-stream": "^1.2.1"
   },
   "cordova": {
     "plugins": {
-      "cordova-plugin-whitelist": {},
       "cordova-open-native-settings": {},
-      "cordova-plugin-battery-status": {},
+      "phonegap-plugin-media-stream": {},
+      "cordova-plugin-contacts": {},
+      "cordova-plugin-camera-preview": {},
+      "cordova-plugin-insomnia": {},
+      "cordova-plugin-purchase": {
+        "BILLING_KEY": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmwxDQYxJHFcniYGQ6v14KMVZMeW6ZmQtoyEI8Z2LPdzMqyh6bA+GuOjAii7pX+eM5hrm6+0XeibLOIz9sozdJoqZN7020rz7ZBBM1J07PTQD2JKIkXQxeWqugyXM3eil1nVn7TcxEIc4o8pcYAev2hqqobkG479InVoQJyxStop9M5x5ifBzUR0ODz19bUDsg93i/SPZgl7ZCjzo56LRPlTUgdmKsGchR3HbVtodJI3IkK5Rp8AeaKeWuitFKsMopTXZXfqGagmd4IZAn99LLcr7JQ/YKuf5g7gZcw5r3P78rAXdzsf/6fvV8jyXYjDDv18pGD7d5d487gKdY2ZhyQIDAQAB"
+      },
+      "cordova-plugin-device": {},
       "cordova-plugin-geolocation": {},
+      "cordova-plugin-whitelist": {},
       "cordova-plugin-network-information": {},
       "cordova-plugin-splashscreen": {},
       "cordova-plugin-statusbar": {},
-      "phonegap-plugin-media-stream": {},
-      "cordova-plugin-file": {},
       "cordova-plugin-file-opener2": {
         "ANDROID_SUPPORT_V4_VERSION": "27.+"
       },
-      "cordova-plugin-contacts": {},
-      "cordova-plugin-camera-preview": {},
-      "graaly-plugin-marker-scanner": {
-        "ANDROID_SUPPORT_V4_VERSION": "27.+"
-      },
-      "cordova-plugin-insomnia": {},
-      "cordova-plugin-platform-replace": {},
-      "cordova-plugin-purchase": {},
-      "cordova-plugin-inapppurchase-fixed": {},
       "cordova-plugin-facebook4": {
         "APP_ID": "591912491155447",
-        "APP_NAME": "graaly"
+        "APP_NAME": "graaly",
+        "FACEBOOK_ANDROID_SDK_VERSION": "4.25.0"
+      },
+      "cordova-plugin-file": {},
+      "phonegap-plugin-barcodescanner": {
+        "ANDROID_SUPPORT_V4_VERSION": "27.+"
       }
     },
     "platforms": [
-      "ios"
+      "android"
     ]
   },
-  "devDependencies": {
-    "cordova-plugin-purchase": "^8.1.1"
-  }
+  "devDependencies": {}
 }
