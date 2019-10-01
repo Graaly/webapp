@@ -489,7 +489,7 @@ export default {
       
       if (!isStepOfflineLoaded || forceNetworkLoading) {
         const response2 = await StepService.getById(stepId, this.questVersion)
-        if (response2 && response2.data) {
+        if (response2 && response2.data && response2.status === 200) {
           this.step = response2.data
           this.step.id = this.step.stepId
           // get previous button redirect
