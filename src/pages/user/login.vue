@@ -259,18 +259,13 @@ export default {
     fbLoginSuccess(userData) {
       var _this = this
       facebookConnectPlugin.getAccessToken(function(token) {
-console.log("test2")
         AuthService.checkFacebookToken(userData.authResponse.userID, token, function(err, response) {
-console.log("test3")
           if (err) {
-console.log(err)
             Notification(_this.$t('label.TechnicalIssue'), 'error')
           }
-console.log("test4")
           if (response && (response.message === 'login successful' || (response.data && response.data.message === 'login successful'))) {
             return _this.$router.push('/map')
           } else {
-console.log("test5")
             Notification(_this.$t('label.TechnicalIssue'), 'error')
           }
         });

@@ -38,7 +38,10 @@ configurations {
     compile.exclude group: 'com.google.zxing'
 }
 ```
-* Save and quit 
+* If it still does not work, Open file `src-cordova/plugins/phonegap-plugin-barcodescanner/plugin.xml
+* Remove android:required="true" from <uses-feature android:name="android.hardware.camera" android:required="true"/>
+* Opens \src-cordova\platforms\android\app\src\main\java\org\apache\cordova\facebook\ConnectPlugin.java
+* Comment AppEventsLogger.augmentWebView((WebView) this.webView.getView(), appContext);
 
 :warning: npm package **ip-regex** is not compatible with Android 4.4 webview "as is". Quasar configuration (in version 1.0.0 beta 23) does not works for transpiling **ip-regex** using Babel. We have to do it manually for the moment.
 
@@ -171,12 +174,15 @@ Visible console output is related to the activity on the Android Chrome browser 
 
 ## Enable HTTPS on dev environment
 
-
 Remove the cache of your browser (if you renew the certificate)
 
-Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to easily create a custom Certification Authority, generate certificates for any IP/domain, and make all your dev devices trust them.
+Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to easily create a custom Certification Authority, generate certificates for any IP/domain, and make all your dev devices trust them :
 
-Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
+$ mkcert -install
+$ mkcert "dev.graaly.com" localhost 127.0.0.1 ::1
+Move the 2 files created in the /webapp/certs folder, and rename as webapp-dev-cert.pem and webapp-dev-key.pem
+
+Optional: Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
 
 # Testing
 

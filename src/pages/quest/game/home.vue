@@ -495,7 +495,6 @@ export default {
         // check if product is orderable
         _this.shop.premiumQuest.priceValue = product.price
         if (product.canPurchase) {
-
           _this.shop.premiumQuest.buyable = true
         }
       });
@@ -515,7 +514,7 @@ export default {
         }
       });
 
-      store.refresh();
+      store.refresh()
     },
     /*
      * Save a purchase

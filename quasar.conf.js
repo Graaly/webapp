@@ -110,6 +110,7 @@ module.exports = function (ctx) {
         //'QAutocomplete',
         'QAvatar',
         'QBanner',
+        'QBadge',
         'QBtn',
         'QBtnDropdown',
         'QBtnGroup',
@@ -225,7 +226,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: '1.7.7'
+      version: '1.7.8'
       // id: 'org.cordova.quasar.app'
     },
     electron: {

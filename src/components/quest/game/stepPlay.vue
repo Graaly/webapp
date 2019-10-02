@@ -1493,7 +1493,6 @@ export default {
           } else {
             this.nbTry++
             if (this.nbTry < 2 && this.step.displayRightAnswer) {
-              // reset code
               Notification(this.$t('label.UseItemNothingHappens'), 'error')
             } else {
               if (this.step.displayRightAnswer) {
@@ -1517,7 +1516,6 @@ export default {
           } else {
             this.nbTry++
             if (this.nbTry < 2 && this.step.displayRightAnswer) {
-              // reset code
               Notification(this.$t('label.FindItemNothingHappens'), 'error')
             } else {
               if (this.step.displayRightAnswer) {
@@ -2193,7 +2191,7 @@ export default {
       // if no item selected
       if (this.itemUsed === null) {
         Notification(this.$t('label.PleaseSelectAnItemFirst'), 'error')
-        // TODO: maybe make blink the 'inventory' icon in the left bottom corner
+        this.$emit('msg', 'suggestInventory')
         return
       }
       

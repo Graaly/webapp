@@ -637,7 +637,8 @@
           @played="trackStepPlayed" 
           @success="trackStepSuccess" 
           @fail="trackStepFail" 
-          @pass="trackStepPass">
+          @pass="trackStepPass"
+          @msg="trackMessage" >
         </stepPlay>
         <div v-show="overview.tabSelected" class="step-menu fixed-bottom">
           <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
@@ -659,7 +660,7 @@
                 size="lg" 
                 :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
                 icon="work" 
-                :class="{'bg-secondary': (inventory.isOpened && !quest.customization.color), 'bg-primary': (!inventory.isOpened && !quest.customization.color)}" 
+                :class="{'flashing': inventory.suggest, 'bg-secondary': (inventory.isOpened && !quest.customization.color), 'bg-primary': (!inventory.isOpened && !quest.customization.color)}" 
                 @click="openInventory()"
                 test-id="btn-inventory"
               />
@@ -897,6 +898,7 @@ export default {
       ranking: [],
       inventory: {
         isOpened: false,
+        suggest: false,
         items: []
       },
       // for step type 'use-item'
@@ -2250,6 +2252,14 @@ export default {
     async trackStepFail () {
       console.log("fail")
       this.hideHint()
+    },
+    /*
+     * Track message sent 
+     */
+    async trackMessage (message) {
+      if (message === 'suggestInventory') {
+        this.inventory.suggest = true
+      }
     },
     /*
      * add an editor

@@ -216,6 +216,13 @@ export default {
     return Api().post('quest/' + questId + '/premium/buy', product).catch(error => console.log(error.request))
   },
   /*
+   * Purchase a private quest
+   * @param   {String}    questId              questId
+   */
+  purchasePrivateQuest(questId, product) {
+    return Api().post('quest/' + questId + '/private/buy', product).catch(error => console.log(error.request))
+  },
+  /*
    * Check if the user has payed for a quest
    * @param   {String}    questId              questId
    */

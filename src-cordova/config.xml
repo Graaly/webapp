@@ -81,6 +81,10 @@
         <variable name="APP_NAME" value="graaly" />
         <variable name="FACEBOOK_ANDROID_SDK_VERSION" value="4.25.0" />
     </plugin>
+    <plugin name="cordova-plugin-camera-preview" spec="^0.10.0" />
+    <plugin name="phonegap-plugin-media-stream" spec="^1.2.1" />
+    <plugin name="cordova-plugin-insomnia" spec="https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git" />
+    <plugin name="phonegap-plugin-barcodescanner" spec="^7.0.0" />
     <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsageDescription">
         <string>Graaly uses the player location to gives him the list of the quests available around him. Some quest's enigmas also use the location to give reward if the user find the good location</string>
     </edit-config>
@@ -96,8 +100,4 @@
     <edit-config file="*-Info.plist" mode="merge" target="NSPhotoLibraryUsageDescription">
         <string>Each player can get photos of his library to build a quest</string>
     </edit-config>
-    <plugin name="cordova-plugin-camera-preview" spec="^0.10.0" />
-    <plugin name="phonegap-plugin-media-stream" spec="^1.2.1" />
-    <plugin name="cordova-plugin-insomnia" spec="https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git" />
-
 </widget>
