@@ -441,26 +441,21 @@ export default {
      * Check if user must pay to play this quest
      */
     async initPay() {
-console.log('initpay1')
       if (!this.quest.premiumPrice || !this.quest.premiumPrice.androidId) {
         return 'free'
       } 
-console.log('initpay2')
       // if game is free
       if (!this.quest.premiumPrice.active) {
         return 'free'
       }
-console.log('initpay3')
       // admin and owners do not pay
       if (this.isAdmin || this.isOwner) {
         return 'free'
       }
-console.log('initpay4')
       // if game is already started or played, do not pay
       if (this.isRunStarted || this.isRunFinished) {
         return 'free'
       }
-console.log('initpay5')
       // init Store pay
       //if (!window.store) {
       if (!window.cordova) {
@@ -468,7 +463,6 @@ console.log('initpay5')
         this.shop.premiumQuest.priceCode = 'notplayableonweb'
         return
       }
-console.log('initpay6')
       if (!this.quest.premiumPrice || !this.quest.premiumPrice.androidId) {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
         return
@@ -483,57 +477,49 @@ console.log('initpay6')
         }
         return "free"
       }
-console.log('initpay7')
+
       this.shop.premiumQuest.priceCode = this.quest.premiumPrice.androidId
       var _this = this
-console.log('initpay8')
+
       store.register({
         id: this.quest.premiumPrice.androidId,
         alias: this.quest.premiumPrice.androidId,
         type: store.CONSUMABLE
       })
-console.log('initpay9')
+
       store.error(function(error) {
         Notification(error.message + '(code: ' + error.code + ')', 'error')
       })
-console.log('initpay10')
+
       store.when(this.quest.premiumPrice.androidId).updated(function(product) {
-console.log('initpay11')
         // check if product is orderable
         _this.shop.premiumQuest.priceValue = product.price
         if (product.canPurchase) {
-console.log('initpay12')
           _this.shop.premiumQuest.buyable = true
         }
       });
-console.log('initpay13')
+
       store.when(this.quest.premiumPrice.androidId).approved(function(product) {
-console.log('initpay14')
         product.verify()
       });
-console.log('initpay15')
+
       store.when(this.quest.premiumPrice.androidId).verified(async(product) => {
-console.log('initpay16')
         // save the product purchase
         const purchaseStatus = await this.savePurchase(product)
-console.log('initpay17')
+
         if (purchaseStatus) {
-console.log('initpay18')
           product.finish()
         } else {
-console.log('initpay19')
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
       });
-console.log('initpay20')
-      store.refresh();
-console.log('initpay21')
+
+      store.refresh()
     },
     /*
      * Save a purchase
      */
     async savePurchase (product) {
-console.log(product)
       const purchaseStatus = await QuestService.purchasePremium(this.quest.questId, product)
       
       if (purchaseStatus && purchaseStatus.data && purchaseStatus.data.status && purchaseStatus.data.status === 'ok') {
@@ -551,9 +537,7 @@ console.log(product)
      * Buy the quest
      */
     async buyQuest () {
-console.log('buyquest')
       store.order(this.quest.premiumPrice.androidId)
-console.log('buyquest2')
     },
     /*
      * Compute the price of the quest

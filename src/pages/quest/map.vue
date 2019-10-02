@@ -137,6 +137,9 @@
                 <q-item-section avatar>
                   <q-avatar>
                     <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
+                    <q-badge floating color="black" v-if="quest.access === 'private'">
+                      <q-icon name="lock" color="white" />
+                    </q-badge>
                   </q-avatar>
                 </q-item-section>
                 <q-item-section>
@@ -154,6 +157,9 @@
                 <q-item-section avatar>
                   <q-avatar>
                     <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
+                    <q-badge floating color="black" v-if="quest.access === 'private'">
+                      <q-icon name="lock" color="white" />
+                    </q-badge>
                   </q-avatar>
                 </q-item-section>
                 <q-item-section>
@@ -171,6 +177,9 @@
                 <q-item-section avatar>
                   <q-avatar>
                     <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
+                    <q-badge floating color="black" v-if="quest.access === 'private'">
+                      <q-icon name="lock" color="white" />
+                    </q-badge>
                   </q-avatar>
                 </q-item-section>
                 <q-item-section>
@@ -188,6 +197,9 @@
                 <q-item-section avatar>
                   <q-avatar>
                     <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
+                    <q-badge floating color="black" v-if="quest.access === 'private'">
+                      <q-icon name="lock" color="white" />
+                    </q-badge>
                   </q-avatar>
                 </q-item-section>
                 <q-item-section>
@@ -1239,6 +1251,8 @@ console.log(quest.premiumPrice.androidId)
           store.when(quest.premiumPrice.androidId).updated(function(product) {
             _this.currentQuest.displayPrice = product.price
           })
+          
+          store.refresh()
         }
       }
     },

@@ -12,6 +12,7 @@ yarn-error.log*
 /test/jest/coverage
 /test/cypress/screenshots/*
 /test/cypress/videos/*
+/certs/*
 
 # Editor directories and files
 .idea

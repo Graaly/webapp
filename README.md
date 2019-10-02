@@ -29,6 +29,20 @@ If no data from server is shown on webapp on Chrome (desktop or mobile), try to 
 
 Open console / terminal in the *webapp* folder
 
+:warning: Plugin [**phonegap-plugin-barcodescanner** v8.1.0 can make conflicts with other plugins using "com.google.xzing" library](https://github.com/phonegap/phonegap-plugin-barcodescanner/issues/535#issuecomment-536535462) (in particular, [**cordova-plugin-facebook4**](https://github.com/jeduan/cordova-plugin-facebook4)).
+Until this problem is fixed, do the following after `cordova platform add android`:
+* Open file `src-cordova/plugins/phonegap-plugin-barcodescanner/src/android/barcodescanner.gradle`
+* Add the following:
+```
+configurations {
+    compile.exclude group: 'com.google.zxing'
+}
+```
+* If it still does not work, Open file `src-cordova/plugins/phonegap-plugin-barcodescanner/plugin.xml
+* Remove android:required="true" from <uses-feature android:name="android.hardware.camera" android:required="true"/>
+* Opens \src-cordova\platforms\android\app\src\main\java\org\apache\cordova\facebook\ConnectPlugin.java
+* Comment AppEventsLogger.augmentWebView((WebView) this.webView.getView(), appContext);
+
 :warning: npm package **ip-regex** is not compatible with Android 4.4 webview "as is". Quasar configuration (in version 1.0.0 beta 23) does not works for transpiling **ip-regex** using Babel. We have to do it manually for the moment.
 
 Procedure :
@@ -36,13 +50,10 @@ Procedure :
     babel node_modules\ip-regex\index.js --out-file node_modules\ip-regex\index.js-es5
     cd node_modules\ip-regex && mv index.js index.js-es6 && mv index.js-es5 index.js && cd ../..
 
-:warning: use only Cordova version 8 (`npm i -g cordova@8.1.2`) otherwise with Cordova 9+ you may get blocking error `Using "requireCordovaModule" to load non-cordova module "fs" is not supported` during build process. 
-
 ## iPhone app
 
 Warnings
 
-* Global Cordova installation must be at version 8.1.2 `npm i -g cordova@8.1.2` [see here](https://github.com/mapsplugin/cordova-plugin-googlemaps/issues/2581#issuecomment-483077530)
 * Enable XCode command line: XCode > Preferences > Locations > select XCode cli in the dropdown list, [see here](https://github.com/nodejs/node-gyp/issues/569#issuecomment-486049757)
 * Try this one too: `npm explore npm -g -- npm install node-gyp@latest` (same github issue)
 * Follow [this procedure](https://stackoverflow.com/a/39591319/488666)
@@ -58,8 +69,17 @@ Warnings
 
 ## iPhone app
 
-* To debug on physical device: follow [this procedure](http://maxprog.net.pl/best-practice/quasar-framework-how-deploy-and-debug-mobile-application-on-physical-device-ios-e-g-iphone/) 
-* To debug on simulator: `quasar dev -m cordova -T ios`
+* From Graaly webapp root directory, run `quasar mode add cordova`
+* Run `cd src-cordova`
+* Run `cordova platform add ios`
+* Run `cd ..`
+* Open **Graaly.xcworkspace** file, this should open XCode
+* In XCode, go to **File** > **Workspace settings...** and select **Legacy build system** in the first dropdown field, click **Done**
+* On the left pane, click **Graaly** project. On the tab **Signing & capabilities**, choose team **Graaly**
+* Plug in the iPhone, ensure it is unlocked and run `quasar dev -m cordova -T ios`
+
+Side note: [another procedure](http://maxprog.net.pl/best-practice/quasar-framework-how-deploy-and-debug-mobile-application-on-physical-device-ios-e-g-iphone/) to debug on physical device.
+See also [this Quasar doc page about setting up Cordova environment for iOS](https://quasar.dev/quasar-cli/developing-cordova-apps/preparation).
 
 # Publish the app
 
@@ -154,12 +174,15 @@ Visible console output is related to the activity on the Android Chrome browser 
 
 ## Enable HTTPS on dev environment
 
-
 Remove the cache of your browser (if you renew the certificate)
 
-Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to easily create a custom Certification Authority, generate certificates for any IP/domain, and make all your dev devices trust them.
+Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to easily create a custom Certification Authority, generate certificates for any IP/domain, and make all your dev devices trust them :
 
-Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
+$ mkcert -install
+$ mkcert "dev.graaly.com" localhost 127.0.0.1 ::1
+Move the 2 files created in the /webapp/certs folder, and rename as webapp-dev-cert.pem and webapp-dev-key.pem
+
+Optional: Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
 
 # Testing
 

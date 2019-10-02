@@ -17,7 +17,8 @@
       @played="trackStepPlayed" 
       @success="trackStepSuccess" 
       @fail="trackStepFail" 
-      @pass="trackStepPass">
+      @pass="trackStepPass"
+      @msg="trackMessage">
     </stepPlay>
       
     <!------------------ INVENTORY PAGE AREA ------------------------>
@@ -144,7 +145,7 @@
             size="lg" 
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="work" 
-            :class="{'bg-secondary': inventory.isOpened, 'bg-primary': (!inventory.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
+            :class="{'flashing': inventory.suggest, 'bg-secondary': inventory.isOpened, 'bg-primary': (!inventory.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
             @click="openInventory()" 
             v-show="inventory.show" 
           />
@@ -231,6 +232,7 @@ export default {
         },
         inventory: {
           isOpened: false,
+          suggest: false,
           items: [],
           show: true,
           detail: {
@@ -489,7 +491,7 @@ export default {
       
       if (!isStepOfflineLoaded || forceNetworkLoading) {
         const response2 = await StepService.getById(stepId, this.questVersion)
-        if (response2 && response2.data) {
+        if (response2 && response2.data && response2.status === 200) {
           this.step = response2.data
           this.step.id = this.step.stepId
           // get previous button redirect
@@ -667,6 +669,14 @@ export default {
         
       // save offline run
       await this.saveOfflineAnswer(false)
+    },
+    /*
+     * Track message sent 
+     */
+    async trackMessage (message) {
+      if (message === 'suggestInventory') {
+        this.inventory.suggest = true
+      }
     },
     /*
      * Track step fail

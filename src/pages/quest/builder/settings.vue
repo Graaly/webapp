@@ -283,9 +283,26 @@
                     <span v-if="readOnly">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
                   </div>
                   <div class="step-button">
-                    <q-btn v-if="!readOnly" icon="mode_edit" dense @click="modifyStep(step)" />
-                    <q-btn v-if="!readOnly" icon="delete" dense @click="removeStep(step.stepId)" />
-                    <q-btn v-if="!readOnly" icon="subdirectory_arrow_left" dense @click="insertStep(chapter.chapterId, step.stepId)" />
+                    <q-btn-dropdown v-if="!readOnly" icon="mode_edit" split dense @click="modifyStep(step)">
+                      <q-list>
+                        <q-item clickable v-close-popup @click="insertStep(chapter.chapterId, step.stepId)">
+                          <q-item-section avatar>
+                            <q-avatar icon="subdirectory_arrow_left" />
+                          </q-item-section>
+                          <q-item-section>
+                            <q-item-label>{{ $t('label.InsertAStepAfter') }}</q-item-label>
+                          </q-item-section>
+                        </q-item>
+                        <q-item clickable v-close-popup @click="removeStep(step.stepId)">
+                          <q-item-section avatar>
+                            <q-avatar icon="delete" />
+                          </q-item-section>
+                          <q-item-section>
+                            <q-item-label>{{ $t('label.Remove') }}</q-item-label>
+                          </q-item-section>
+                        </q-item>
+                      </q-list>
+                    </q-btn-dropdown>
                   </div>
                 </div>
               </div>
@@ -620,7 +637,8 @@
           @played="trackStepPlayed" 
           @success="trackStepSuccess" 
           @fail="trackStepFail" 
-          @pass="trackStepPass">
+          @pass="trackStepPass"
+          @msg="trackMessage" >
         </stepPlay>
         <div v-show="overview.tabSelected" class="step-menu fixed-bottom">
           <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
@@ -642,7 +660,7 @@
                 size="lg" 
                 :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
                 icon="work" 
-                :class="{'bg-secondary': (inventory.isOpened && !quest.customization.color), 'bg-primary': (!inventory.isOpened && !quest.customization.color)}" 
+                :class="{'flashing': inventory.suggest, 'bg-secondary': (inventory.isOpened && !quest.customization.color), 'bg-primary': (!inventory.isOpened && !quest.customization.color)}" 
                 @click="openInventory()"
                 test-id="btn-inventory"
               />
@@ -880,6 +898,7 @@ export default {
       ranking: [],
       inventory: {
         isOpened: false,
+        suggest: false,
         items: []
       },
       // for step type 'use-item'
@@ -2233,6 +2252,14 @@ export default {
     async trackStepFail () {
       console.log("fail")
       this.hideHint()
+    },
+    /*
+     * Track message sent 
+     */
+    async trackMessage (message) {
+      if (message === 'suggestInventory') {
+        this.inventory.suggest = true
+      }
     },
     /*
      * add an editor

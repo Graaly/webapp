@@ -309,7 +309,7 @@ module.exports = {
       AcceptTheRules: "Accept the rules",
       SomeMoney: "Some money",
       BuilderWelcomeMessage: "<p>By pressing the Start button, you accept those rules, described in the XXXXX:<ul><li>This application can be used by young people, it must not contain reference to violence, sex, horror, nudity, drug, alcohol, smoking, ...</li><li>If you are not the owner of the place of the quest, do not ask players to touch, move, or degrade things.</p><p>The story of your quest must not undermine living or dead people</li><li>Your quest must concern a location where no quest has already be done, except if the content is enough different.</li><li>Your quest must have more than 6 steps and less than 50 steps</li><li>Our moderation team will check if your quest respects these rules, and if the quality level is enough. If not, you will be asked to improve your quest, or your quest will be rejected</li></ul></p>",
-      BuilderPrivateWelcomeMessage: "<p>By pressing the Start button, you accept those rules, described in the XXXXX:<ul><li>If you are not the owner of the place of the quest, do not ask players to touch, move, or degrade things.</p><p>The story of your quest must not undermine living or dead people</li></ul></p>",
+      BuilderPrivateWelcomeMessage: "<p>By pressing the Start button, you accept those rules, described in the XXXXX:<ul><li>If you are not the owner of the place of the quest, do not ask players to touch, move, or degrade things.</li><li>The story of your quest must not undermine living or dead people</li><li>You are limited to 20 invitees (for more, please contact us)</li></ul></p>",
       BuilderIntro: "Graaly helps you create funny quest to challenge players and win points!",
       HowToWinMoney: "How to win money?",
       HowToWinMoneyExplaination: "Graaly share with you 50% of the revenues of the ads displayed when a use play one of your quest. The revenues are payed when they reach $100.",
@@ -689,6 +689,8 @@ module.exports = {
       PublicQuestDesc1: "You want to create a quest to present a place, an activity, a company.",
       PublicQuestDesc2: "Once validated by our game master, your quest will be visible on the Graaly map, and playable by every body",
       CreatePrivateQuest: "Create a private quest",
+      BuyPrivateQuest: "Buy a private quest",
+      AcceptAndBuyAPrivateQuest: "Accept annd buy a private quest",
       CreatePublicQuest: "Create a public quest",
       YouAreQuestOwnerDesc: "You are the owner of this quest, you will not win any point",
       CurrentlyPlaying: "Is currently playing",
@@ -789,7 +791,8 @@ module.exports = {
       SuggestContactInformation: "responsible (if you have it)",
       SuggestContactInformationExample: "Name, email or phone number",
       ThankYouForYourProposal: "Thank you for your proposal",
-      SuggestWarningMessage: "By filling this form, you help us finding the most requested quests to contact the responsible of this place. You will be warned if a quest is created on this place."
+      SuggestWarningMessage: "By filling this form, you help us finding the most requested quests to contact the responsible of this place. You will be warned if a quest is created on this place.",
+      InsertAStepAfter: "Insert a step below"
     }
   },
   fr: {
@@ -1089,7 +1092,7 @@ module.exports = {
       AcceptTheRules: "Accepter les règles",
       SomeMoney: "De l'argent",
       BuilderWelcomeMessage: "<p>En appuyant sur le bouton Démarrer, vous acceptez les règles suivantes :<ul><li>Cette application peut être utilisée par un jeune public, votre enquête ne doit pas contenir de la violence, des images effrayantes, ou des références au sexe, aux drogues, à l'alcool, au tabac, etc.</li><li>Si le lieu ne vous appartient pas, ne demandez pas aux joueurs de toucher, déplacer, dégrader les lieux visités</li><li>L'histoire de votre enquête ne doit pas porter atteinte à des personnes vivantes ou ayant existé</li><li>Votre enquête ne doit pas concerner un lieu pour lequel une enquête existe déjà, sauf si le thême est suffisamment différent</li><li>Votre enquête doit faire plus de 6 étapes et moins de 50</li><li>Notre équipe de modérateurs validera si votre enquête respecte ces règles et atteint un niveau de qualité suffisant. Dans le cas contraire, il vous sera demandé d'améliorer votre enquête, ou elle sera refusée</li></ul></p>",
-      BuilderPrivateWelcomeMessage: "<p>En appuyant sur le bouton Démarrer, vous acceptez les règles suivantes :<ul><li>Si le lieu de l'enquête ne vous appartient pas, ne demandez pas aux joueurs de toucher, déplacer, dégrader les lieux visités</li><li>L'histoire de votre enquête ne doit pas porter atteinte à des personnes vivantes ou ayant existé</li></ul></p>",
+      BuilderPrivateWelcomeMessage: "<p>En appuyant sur le bouton Démarrer, vous acceptez les règles suivantes :<ul><li>Si le lieu de l'enquête ne vous appartient pas, ne demandez pas aux joueurs de toucher, déplacer, dégrader les lieux visités</li><li>L'histoire de votre enquête ne doit pas porter atteinte à des personnes vivantes ou ayant existé</li><li>Vous êtes limité à 20 invités (pour plus d'invités, veuillez nous contacter)</li></ul></p>",
       BuilderIntro: "Graaly vous permet de créer très simplement, et pas à pas, des enquêtes ludiques pour les autres joueurs. Ces enquêtes peuvent être des jeux de piste ou des escape games",
       HowToWinMoney: "Comment gagner de l'argent",
       HowToWinMoneyExplaination: "Graaly partage avec vous 50% des revenus des publicités affichées quand un utilisateur joue à votre enquête. Les revenus sont payés à partir du moment où ils atteignent 100 euros.",
@@ -1469,6 +1472,8 @@ module.exports = {
       PublicQuestDesc1: "Vous créez une enquête pour faire découvrir un lieu, une activité, une entreprise.",
       PublicQuestDesc2: "Une fois validée par les games masters, cette enquête sera visible sur la carte Graaly et jouable par tous",
       CreatePrivateQuest: "Créer une enquête privée",
+      BuyPrivateQuest: "Acheter une enquête privée",
+      AcceptAndBuyAPrivateQuest: "Accepter et acheter une enquête privée",
       CreatePublicQuest: "Créer une enquête publique",
       YouAreQuestOwnerDesc: "Vous êtes le créateur de cette enquête, elle ne vous rapportera aucun point",
       CurrentlyPlaying: "Jeu en cours",
@@ -1555,7 +1560,7 @@ module.exports = {
       QuestPlayableOnMobile: "Cette enquête se joue sur mobile",
       ReloadPuzzle: "Les pièces ne bougent pas ? Appuyez ici",
       ClickToEnlargePictures: "Appuyez sur les images pour les élargir",
-      WaveThePhoneForGPSPrecision: "Faites des 8 avec votre tépéphone pendant 3 secondes pour une meilleure précision GPS",
+      WaveThePhoneForGPSPrecision: "Faites des 8 avec votre téléphone pendant 3 secondes pour une meilleure précision GPS",
       TakeMobileVertically: "Tenez votre téléphone verticalement et recherchez",
       null: "Indéfini",
       TooMuchOfflineLoadingErrors: "Le chargement de l'enquête n'a pas fonctionné. Vous pouvez jouer l'enquête si le réseau mobile fonctionne tout le long. Pressez ici pour fermer ce message",
@@ -1570,7 +1575,8 @@ module.exports = {
       SuggestContactInformation: "responsable (si vous l'avez)",
       SuggestContactInformationExample: "Nom, email ou téléphone",
       ThankYouForYourProposal: "Merci pour votre proposition",
-      SuggestWarningMessage: "En complétant ce formulaire, vous nous aidez à identifier les enquêtes les plus demandées pour contacter les responsables des lieux concernés. Vous serez ensuite informé si une enquête est créée sur ce lieu."
+      SuggestWarningMessage: "En complétant ce formulaire, vous nous aidez à identifier les enquêtes les plus demandées pour contacter les responsables des lieux concernés. Vous serez ensuite informé si une enquête est créée sur ce lieu.",
+      InsertAStepAfter: "Insérer une étape après"
     }
   }
 }
