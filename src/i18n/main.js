@@ -792,7 +792,9 @@ module.exports = {
       SuggestContactInformationExample: "Name, email or phone number",
       ThankYouForYourProposal: "Thank you for your proposal",
       SuggestWarningMessage: "By filling this form, you help us finding the most requested quests to contact the responsible of this place. You will be warned if a quest is created on this place.",
-      InsertAStepAfter: "Insert a step below"
+      InsertAStepAfter: "Insert a step below",
+      QuestUpdated: "Quest has been updated",
+      PleaseRestartQuest: "Please restart the quest from the beginning."
     }
   },
   fr: {
@@ -1576,7 +1578,9 @@ module.exports = {
       SuggestContactInformationExample: "Nom, email ou téléphone",
       ThankYouForYourProposal: "Merci pour votre proposition",
       SuggestWarningMessage: "En complétant ce formulaire, vous nous aidez à identifier les enquêtes les plus demandées pour contacter les responsables des lieux concernés. Vous serez ensuite informé si une enquête est créée sur ce lieu.",
-      InsertAStepAfter: "Insérer une étape après"
+      InsertAStepAfter: "Insérer une étape après",
+      QuestUpdated: "L'enquête a été modifiée",
+      PleaseRestartQuest: "Merci de rejouer l'enquête depuis le début."
     }
   }
 }
