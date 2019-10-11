@@ -456,9 +456,27 @@ export default {
         var response
         if (!this.offline.active) {
           response = await RunService.getNextStep(this.questId)
+          
+          if (response && response.status !== 200) {
+            if (response.data.message === "app_quest_data_is_obsolete") {
+              this.$q.dialog({
+                title: this.$t('label.QuestUpdated'),
+                message: this.$t('label.PleaseRestartQuest')
+              }).onOk(() => {
+                this.$router.push('/quest/play/' + this.questId)
+              })
+            } else {
+              this.$q.dialog({
+                title: this.$t('label.TechnicalProblem')
+              }).onOk(() => {
+                this.$router.push('/quest/play/' + this.questId)
+              })
+            }
+            return false
+          }
         }
         
-        if (response && response.data) {
+        if (response && response.data && response.status === 200) {
           // check if a step is triggered
           if (response.data.next) {
             stepId = response.data.next
