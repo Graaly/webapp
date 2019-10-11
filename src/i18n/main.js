@@ -883,7 +883,7 @@ module.exports = {
     story: {
       Welcome: "Bienvenue <b>jeune détective</b>, vous venez de rejoindre mon équipe.<br />Nous devons faire face à une augmentation des enquêtes, et avons choisi de faire appel à <b>quelqu'un de prometteur comme vous</b> !",
       FirstStep: 'Autant vous le dire tout de suite, il va y avoir du boulot.<br />Mais si vous êtes motivé(e) et vous écoutez mes conseils, vous allez <b>rapidement devenir un bon détective</b>.',
-      PresentTeam: "Avant d'aller plus loin, je vais vous <b>présenter notre l'équipe</b>",
+      PresentTeam: "Avant d'aller plus loin, je vais vous <b>présenter l'équipe</b>",
       PresentSecretary1: "Bonjour, je suis <b>Jeanne</b>, je vous assisterai dans vos missions.",
       PresentSecretary2: "Je vous ferai également un <b>briefing avant chaque enquête</b>.",
       PresentIndicator1: "Salut, je suis <b>Marc</b>, votre indic.",

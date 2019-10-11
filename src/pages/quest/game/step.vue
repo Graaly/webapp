@@ -985,11 +985,11 @@ export default {
     /*
      * count number of steps in a quest
      * @param   {string}    id             Quest ID
-     */
+     *
     async countStepsNumber(id) {
       let response = await StepService.countForAQuest(id, this.run.version)
       this.info.stepsNumber = (response && response.data && response.data.count) ? response.data.count : 1
-    },
+    },*/
     /*
      * Select an item in the inventory
      * @param   {object}    item            Item selected

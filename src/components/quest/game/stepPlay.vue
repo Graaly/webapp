@@ -722,7 +722,7 @@ export default {
           // reliable when device is held vertically
           try {
             let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
-            if (typeof this.sensor === 'undefined') {
+            if (typeof sensor === 'undefined') {
               // iOS
               this.geolocation.absoluteOrientationSensor = {
                 stop: this.stopAlternateAbsoluteOrientationSensor
