@@ -792,7 +792,9 @@ module.exports = {
       SuggestContactInformationExample: "Name, email or phone number",
       ThankYouForYourProposal: "Thank you for your proposal",
       SuggestWarningMessage: "By filling this form, you help us finding the most requested quests to contact the responsible of this place. You will be warned if a quest is created on this place.",
-      InsertAStepAfter: "Insert a step below"
+      InsertAStepAfter: "Insert a step below",
+      QuestUpdated: "Quest has been updated",
+      PleaseRestartQuest: "Please restart the quest from the beginning."
     }
   },
   fr: {
@@ -883,7 +885,7 @@ module.exports = {
     story: {
       Welcome: "Bienvenue <b>jeune détective</b>, vous venez de rejoindre mon équipe.<br />Nous devons faire face à une augmentation des enquêtes, et avons choisi de faire appel à <b>quelqu'un de prometteur comme vous</b> !",
       FirstStep: 'Autant vous le dire tout de suite, il va y avoir du boulot.<br />Mais si vous êtes motivé(e) et vous écoutez mes conseils, vous allez <b>rapidement devenir un bon détective</b>.',
-      PresentTeam: "Avant d'aller plus loin, je vais vous <b>présenter notre l'équipe</b>",
+      PresentTeam: "Avant d'aller plus loin, je vais vous <b>présenter l'équipe</b>",
       PresentSecretary1: "Bonjour, je suis <b>Jeanne</b>, je vous assisterai dans vos missions.",
       PresentSecretary2: "Je vous ferai également un <b>briefing avant chaque enquête</b>.",
       PresentIndicator1: "Salut, je suis <b>Marc</b>, votre indic.",
@@ -1576,7 +1578,9 @@ module.exports = {
       SuggestContactInformationExample: "Nom, email ou téléphone",
       ThankYouForYourProposal: "Merci pour votre proposition",
       SuggestWarningMessage: "En complétant ce formulaire, vous nous aidez à identifier les enquêtes les plus demandées pour contacter les responsables des lieux concernés. Vous serez ensuite informé si une enquête est créée sur ce lieu.",
-      InsertAStepAfter: "Insérer une étape après"
+      InsertAStepAfter: "Insérer une étape après",
+      QuestUpdated: "L'enquête a été modifiée",
+      PleaseRestartQuest: "Merci de rejouer l'enquête depuis le début."
     }
   }
 }

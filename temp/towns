@@ -1,5 +1,0 @@
-{"_id":{"$oid":"5b8fdcda72877e5778dd7bfb"},"name":"Villard-Bonnot","zipcode":"38190","questsNb":2,"__v":0}
-{"_id":{"$oid":"5b8fdcda72877e5778dd7bfc"},"name":"Brignoud","zipcode":"38190","questsNb":2.0,"__v":0}
-{"_id":{"$oid":"5b8fdcda72877e5778dd7bfd"},"name":"Grenoble","zipcode":"38000","questsNb":7,"__v":0}
-{"_id":{"$oid":"5b8fdcda72877e5778dd7bfe"},"name":"Meylan","zipcode":"38240","questsNb":1,"__v":0}
-{"_id":{"$oid":"5b8fdcda72877e5778dd7bff"},"name":"Prapoutel","zipcode":"38190","questsNb":1,"__v":0}

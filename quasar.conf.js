@@ -11,6 +11,7 @@ module.exports = function (ctx) {
       'CustomDirectives',
       'DateFormatFilter',
       'RouterAuthentication',
+      //'UniversalLinks', // enable to use deep links with Cordova plugin 
       'VueGoogleMaps',
       'VueI18n',
       'Vuelidate',
@@ -226,7 +227,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: '1.7.8'
+      version: '1.7.9'
       // id: 'org.cordova.quasar.app'
     },
     electron: {
