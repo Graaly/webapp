@@ -216,6 +216,7 @@
             <div class="piece" draggable="true"
               v-for="piece in puzzle.pieces" :key="piece.pos" :id="'piece-' + piece.pos"
               @dragstart="handleDragStart($event)"
+              @dragover="handleDragOver($event)"
               @drop="handleDrop($event)"
               @dragend="handleDragEnd($event)"
               :style="'background-image: url(' + puzzle.picture + '); background-size: ' + piece.backSize + '% ' + piece.backSize + '%;background-position: -' + piece.backXPos + ' -' + piece.backYPos + ';'"
@@ -626,7 +627,7 @@ export default {
     /*
      * Init the component data
      */
-    initData () {
+    async initData () {
       TWEEN.removeAll()
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
@@ -698,7 +699,7 @@ export default {
         }*/
         
         if (this.step.type === 'jigsaw-puzzle') {
-          utils.setTimeout(this.initPuzzle, 1000)
+          await this.initPuzzle()
           this.$emit('pass')
         }
         
@@ -2309,48 +2310,52 @@ export default {
     /*
      * Initialize puzzle, re-order pieces
      */
-    initPuzzle() {
+    async initPuzzle() {
+      let picture
+      if (this.step.options.picture.indexOf('blob:') !== -1) {
+        picture = this.step.options.picture
+      } else if (this.step.options.picture.indexOf('upload/') === -1) {
+        picture = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + this.step.options.picture
+      } else {
+        picture = this.serverUrl + this.step.options.picture
+      }
+      
+      // ensure that puzzle image is loaded before doing the remaining tasks
+      await utils.loadImage(picture)
+      
+      this.puzzle.picture = picture
+      
       // Puzzle sizes
-      var level = parseInt((this.step.options.level || 2), 10) // 1=easy, 2=medium, 3=very hard, 4=hard
-      var puzzleSize = this.puzzle.colsByLevel[level]
-      var puzzleWidth = document.getElementById('pieces').clientWidth
-      var puzzleHeight = puzzleWidth
+      let level = parseInt((this.step.options.level || 2), 10) // 1=easy, 2=medium, 3=very hard, 4=hard
+      let puzzleSize = this.puzzle.colsByLevel[level]
+      let puzzleWidth = document.getElementById('pieces').clientWidth
+      let puzzleHeight = puzzleWidth
       //document.getElementById('pieces').style.height = puzzleHeight + "px"
-      var pieceHeight = Math.floor(puzzleHeight / puzzleSize)
-      var pieceWidth = Math.floor(puzzleWidth / puzzleSize)
+      let pieceHeight = Math.floor(puzzleHeight / puzzleSize)
+      let pieceWidth = Math.floor(puzzleWidth / puzzleSize)
       
       // get the pieces position
       let piecesPosition = this.step.answers.split('|')
 
       // Build pieces
-      for (var i = 0; i < puzzleSize * puzzleSize; i++) {
+      for (let i = 0; i < puzzleSize * puzzleSize; i++) {
         let xPos = (pieceWidth * (i % puzzleSize)) + 'px';
         let yPos = (pieceHeight * Math.floor(i / puzzleSize)) + 'px';
         this.puzzle.pieces[i] = { pos: piecesPosition[i], backSize: (puzzleSize * 100), backXPos: xPos, backYPos: yPos, width: pieceWidth, height: pieceHeight }
       }
       
       //Shuffle & check that after shuffle the piece are correctly shuffled
-      var ordered = true
+      let ordered = true
       while (ordered) {
         this.puzzle.pieces = this.shuffle(this.puzzle.pieces)
         ordered = this.comparePuzzlePiecePositions()
       }
       
-      if (this.step.options.picture.indexOf('blob:') !== -1) {
-        this.puzzle.picture = this.step.options.picture
-      } else if (this.step.options.picture.indexOf('upload/') === -1) {
-        this.puzzle.picture = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + this.step.options.picture
-      } else {
-        this.puzzle.picture = this.serverUrl + this.step.options.picture
-      }
-
-      initJigsaw(this.puzzle.element)
-      
       return true
     },
     // https://stackoverflow.com/a/6274381/488666
     shuffle(array) {
-      for (var i = array.length -1; i > 0; i--) {
+      for (let i = array.length -1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1))
         let k = array[i]
         array[i] = array[j]
@@ -2365,48 +2370,19 @@ export default {
     handleDragStart(e) {
       if (e.target.className.indexOf('piece') !== -1) {
         this.puzzle.dragSrcEl = e.target;
-        /*this.puzzle.dragSrcEl.style.opacity = '0.4';
-        var dt = e.dataTransfer;
-        dt.effectAllowed = 'move';
-        dt.setData('text', this.puzzle.dragSrcEl.innerHTML);
-       
-        // customize drag image for one of the panels
-        if (dt.setDragImage instanceof Function && e.target.innerHTML.indexOf('X') > -1) {
-          var img = new Image();
-          img.src = 'dragimage.jpg';
-          dt.setDragImage(img, img.width / 2, img.height / 2);
-        }*/
       }
       return true
     },
     /*
      * Handle puzzle piece move over
      * @param   {object}    e            Event when user move puzzle piece over
-     *
+     */
     handleDragOver(e) {
-      if (this.dragSrcEl) {
+      if (this.puzzle.dragSrcEl) {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
       }
-    },*/
-    /*
-     * Handle puzzle piece drag enter
-     * @param   {object}    e            Event when user touch puzzle piece
-     *
-    handleDragEnter(e) {
-      if (this.dragSrcEl) {
-        e.target.classList.add('over');
-      }
     },
-    /*
-     * Handle puzzle piece drag leave
-     * @param   {object}    e            Event when user touch puzzle piece
-     *
-    handleDragLeave(e) {
-      if (this.dragSrcEl) {
-        e.target.classList.remove('over');
-      }
-    },*/
     /*
      * Handle puzzle piece move end
      * @param   {object}    e            Event when user stop moving puzzle piece

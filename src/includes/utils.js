@@ -722,6 +722,19 @@ var self = {
       }
     }
     return navigator.connection.type !== Connection.NONE
+  },
+  /**
+   * Loads an image synchronously (allows to wait that the image is loaded before using it)
+   * @param  {String}  src  image URL
+   * @return {Object}  image object
+   */
+  loadImage(src) {
+    return new Promise((resolve, reject) => {
+      let img = new Image()
+      img.onload = () => { resolve(img) }
+      img.onerror = reject
+      img.src = src
+    })
   }
 }
 
