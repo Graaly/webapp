@@ -124,6 +124,7 @@ module.exports = function (ctx) {
         'QCheckbox',
         'QChip',
         //'QChipsInput',
+        'QDate',
         'QDialog',
         'QDrawer',
         'QExpansionItem',
