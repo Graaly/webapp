@@ -1263,7 +1263,7 @@ export default {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }
       } else if (type === 'image-recognition') {
         return { result: answer, answer: this.answer, score: 0, reward: 0, offline: true }
-      } else if (type === 'geolocation' || type === 'locate-item-ar') {
+      } else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle') {
         //TODO: find a way to check server side
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
       } else if (type === 'use-item') {
@@ -1450,7 +1450,11 @@ export default {
           break
         
         case 'jigsaw-puzzle':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer.join('|')}, true)
+          // MP 2019-10-15 since shuffle is done on client side, we always
+          // consider that puzzle is solved when checkAnswer() is called.
+          
+          // call to sendAnswer() is required to get score & offline info
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: ''}, true)
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
@@ -2289,23 +2293,20 @@ export default {
      * Check if the puzzle is correct
      */
     async checkPuzzle() {
-      var result = this.comparePuzzlePiecePositions()
-      
+      let result = this.comparePuzzlePiecePositions()
       if (result) {
-        this.checkAnswer(result)
+        // no answer (server considers that puzzle is solved when called)
+        this.checkAnswer()
       }
-      return true
+      return result
     },
     comparePuzzlePiecePositions() {
-      var answer = []
-      var rightPositions = this.step.answers.split('|')
-      for (var i = 0; i < this.puzzle.pieces.length; i++) {
-        answer.push(this.puzzle.pieces[i].pos)
-        if (rightPositions[i] !== this.puzzle.pieces[i].pos) {
+      for (let i = 0; i < this.puzzle.pieces.length; i++) {
+        if (this.puzzle.pieces[i].pos !== i) {
           return false
         }
       }
-      return answer
+      return true
     },
     /*
      * Initialize puzzle, re-order pieces
@@ -2328,20 +2329,17 @@ export default {
       // Puzzle sizes
       let level = parseInt((this.step.options.level || 2), 10) // 1=easy, 2=medium, 3=very hard, 4=hard
       let puzzleSize = this.puzzle.colsByLevel[level]
+      let puzzleNbPieces = Math.pow(puzzleSize, 2)
       let puzzleWidth = document.getElementById('pieces').clientWidth
       let puzzleHeight = puzzleWidth
-      //document.getElementById('pieces').style.height = puzzleHeight + "px"
       let pieceHeight = Math.floor(puzzleHeight / puzzleSize)
       let pieceWidth = Math.floor(puzzleWidth / puzzleSize)
       
-      // get the pieces position
-      let piecesPosition = this.step.answers.split('|')
-
       // Build pieces
-      for (let i = 0; i < puzzleSize * puzzleSize; i++) {
+      for (let i = 0; i < puzzleNbPieces; i++) {
         let xPos = (pieceWidth * (i % puzzleSize)) + 'px';
         let yPos = (pieceHeight * Math.floor(i / puzzleSize)) + 'px';
-        this.puzzle.pieces[i] = { pos: piecesPosition[i], backSize: (puzzleSize * 100), backXPos: xPos, backYPos: yPos, width: pieceWidth, height: pieceHeight }
+        this.puzzle.pieces[i] = { pos: i, backSize: (puzzleSize * 100), backXPos: xPos, backYPos: yPos, width: pieceWidth, height: pieceHeight }
       }
       
       //Shuffle & check that after shuffle the piece are correctly shuffled
@@ -2408,14 +2406,14 @@ export default {
         // if the target is defined & a piece is moved
         if (e.target.parentNode.id && this.puzzle.dragSrcEl.id) {
           // get id of piece moved and piece destination
-          var destId = e.target.parentNode.id.replace('piece-', '')
-          var sourceId = this.puzzle.dragSrcEl.id.replace('piece-', '')
-          var destIdPos = 0, sourceIdPos = 0
+          let destId = parseInt(e.target.parentNode.id.replace('piece-', ''), 10)
+          let sourceId = parseInt(this.puzzle.dragSrcEl.id.replace('piece-', ''), 10)
+          let destIdPos = 0, sourceIdPos = 0
           
           // if the piece is moved
           if (destId !== sourceId) {
             // get the places in the arrays
-            for (var i = 0; i < this.puzzle.pieces.length; i++) {
+            for (let i = 0; i < this.puzzle.pieces.length; i++) {
               if (this.puzzle.pieces[i].pos === destId) {
                 destIdPos = i
               }
@@ -2515,7 +2513,7 @@ export default {
       }
       // animation
       if (mixers.length > 0) {
-        for (var i = 0; i < mixers.length; i++) {
+        for (let i = 0; i < mixers.length; i++) {
           mixers[i].update(target.clock.getDelta());
         }
       }
@@ -2559,7 +2557,7 @@ export default {
       
       // animation
       if (mixers.length > 0) {
-        for (var i = 0; i < mixers.length; i++) {
+        for (let i = 0; i < mixers.length; i++) {
           mixers[i].update(this.locateMarker.clock.getDelta());
         }
       }
