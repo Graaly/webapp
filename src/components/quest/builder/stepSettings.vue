@@ -685,6 +685,7 @@
             :min-rows="4"
             class="full-width"
           />
+          
         </div>
       </q-expansion-item>
     </q-list>
@@ -695,6 +696,17 @@
       <q-expansion-item icon="lightbulb" :label="$t('label.Hint')">
         <div class="q-pa-sm">
           <q-input v-model="selectedStep.form.hint[lang]" :label="$t('label.HintText')" />
+        </div>
+      </q-expansion-item>
+    </q-list>
+    
+    <!------------------ START DATE ------------------------>
+    
+    <q-list bordered>
+      <q-expansion-item icon="access_time" :label="$t('label.StartOnDate')">
+        <div class="q-pa-sm">
+          <q-toggle v-model="selectedStep.form.startDate.enabled" :label="$t('label.StepIsOnlyVisibleOnThisDate')" />
+          <q-date v-model="selectedStep.form.startDate.date" minimal />
         </div>
       </q-expansion-item>
     </q-list>
@@ -782,7 +794,10 @@ export default {
           options: {},
           hint: {},
           chapterId: "0",
-          conditions: []
+          conditions: [],
+          startDate: {
+            enabled: false
+          }
         },
         formatedConditions: [],
         newCondition: {
@@ -936,6 +951,7 @@ export default {
           type: 'none'
         },
         hint: {}, // {fr: 'un indice', en: 'a hint', ...}
+        startDate: { enabled: false },
         number: null
       }
       // reset upload item (after document fully loaded)

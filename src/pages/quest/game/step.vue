@@ -5,6 +5,12 @@
       <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
     </div>
     <div class="bg-accent text-white q-pa-md" v-if="warnings.isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
+    <div v-if="startDate.enabled" class="centered q-pa-lg">
+      <img :src="getLogoImage()" v-if="info.quest.customization && info.quest.customization.logo && info.quest.customization.logo !== ''" />
+      <img src="statics/icons/app-logo/icon-96x96.png" v-if="!info.quest.customization || !info.quest.customization.logo || info.quest.customization.logo === ''" />
+      <div class="text-h6">{{ $t('label.ThisStepIsAvailableIn') }}</div>
+      <div class="text-h5">{{ $t('label.TimeRemainingHoursMin', {day: startDate.remainingDays, hour: startDate.remainingHours, min: startDate.remainingMinutes, sec: startDate.remainingSeconds}) }}</div>
+    </div>
     
     <stepPlay 
       :step="step" 
@@ -135,7 +141,7 @@
             @click="openInfo()"
             v-if="info.quest.customization && info.quest.customization.logo && info.quest.customization.logo !== ''" >
             <q-avatar size="60px">
-              <img :src="serverUrl + '/upload/quest/' + info.quest.customization.logo">
+              <img :src="getLogoImage()" />
             </q-avatar>
           </q-btn>
         </div>
@@ -283,6 +289,13 @@ export default {
         feedback: {
           isOpened: false,
           message: ""
+        },
+        startDate: {
+          enabled: false,
+          remainingHours: '-',
+          remainingMinutes: '-',
+          remainingSeconds: '-',
+          remainingDays: '-'
         },
         previousStepId: '',
         
@@ -510,10 +523,16 @@ export default {
       if (!isStepOfflineLoaded || forceNetworkLoading) {
         const response2 = await StepService.getById(stepId, this.questVersion)
         if (response2 && response2.data && response2.status === 200) {
-          this.step = response2.data
-          this.step.id = this.step.stepId
-          // get previous button redirect
-          this.getPreviousStep()
+          if (response2.data && response2.data.message) {
+            if (response2.data.message === 'Step not yet available') {
+              this.showStepBlockedMessage(response2.data.startDate)
+            }
+          } else {
+            this.step = response2.data
+            this.step.id = this.step.stepId
+            // get previous button redirect
+            this.getPreviousStep()
+          }
         } else {
           this.warnings.stepDataMissing = true
           return false
@@ -531,6 +550,13 @@ export default {
           }
         } else {
           var tempStep = JSON.parse(step)
+          
+          const stepAccess = this.offlineCheckAccess(step)
+          if (stepAccess && stepAccess.message) {
+            if (stepAccessMessage === 'Step not yet available') {
+              this.showStepBlockedMessage(stepAccess.startDate)
+            }
+          }
           
           // get offline media
           if (tempStep.backgroundImage) {
@@ -754,6 +780,16 @@ export default {
       }
     },
     /*
+     * get logo image
+     */
+    getLogoImage () {
+      if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo.indexOf('blob:') !== -1) {
+        return this.info.quest.customization.logo
+      } else {
+        return this.serverUrl + '/upload/quest/' + this.info.quest.customization.logo
+      }
+    },
+    /*
      * Move to next step
      */
     async nextStep() {
@@ -939,6 +975,29 @@ export default {
       return this.$router.push('/map')
     },
     /*
+     * Display the message that the step is blocked
+     */
+    async showStepBlockedMessage(date) {
+      this.startDate.enabled = true
+      this.startDate.date = date
+      utils.setTimeout(this.computeRemainingTime, 1000)
+    },
+    /*
+     * Display the remaining time before step is playable
+     */
+    async computeRemainingTime() {
+      const today = new Date()
+      const startDate = new Date(this.startDate.date.substr(0, 4), (this.startDate.date.substr(5, 2) - 1), this.startDate.date.substr(8, 2), 0, 0, 0)
+
+      var diff = (startDate - today.getTime()) / 1000
+      this.startDate.remainingDays = Math.floor(diff / 86400) 
+      this.startDate.remainingHours = Math.floor((diff - this.startDate.remainingDays * 86400) / 3600) 
+      this.startDate.remainingMinutes = Math.floor((diff - this.startDate.remainingDays * 86400 - this.startDate.remainingHours * 3600) / 60) 
+      this.startDate.remainingSeconds = Math.floor(diff % 60) 
+      
+      utils.setTimeout(this.computeRemainingTime, 1000)
+    },
+    /*
      * Start the story step
      */
     async startStory() {
@@ -996,6 +1055,12 @@ export default {
             this.info.quest.picture = pictureUrl
           } else {
             this.info.quest.picture = '_default-quest-picture.png'
+          }
+          if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo !== '') {
+            const logoUrl = await utils.readBinaryFile(id, this.info.quest.customization.logo)
+            if (logoUrl) {
+              this.info.quest.customization.logo = logoUrl
+            }
           }
         }
       }
@@ -1247,6 +1312,21 @@ export default {
       this.run.conditionsDone = this.updateConditions(this.run.conditionsDone, stepId, false, this.step.type, true)
       //this.run.conditionsDone.push('stepFail_' + stepId)
       await this.saveOfflineRun(this.questId, this.run)
+    },
+    /*
+     * Check if user has access to the step
+     */
+    async offlineCheckAccess(step) {
+      if (step && step.startDate && step.startDate.enabled && step.startDate.date) {
+        // check if step is available today
+        const today = new Date()
+        const startDate = Date.UTC(step.startDate.date.substr(0, 4), step.startDate.date.substr(5, 2), step.startDate.date.substr(8, 2), 0, 0, 0)
+        
+        if (today < startDate) {
+          return {message: "Step not yet available", date: step.startDate.date}
+        }
+      }
+      return true
     },
     /*
      * Save current run offline
