@@ -224,7 +224,7 @@
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
         <div class="centered text-grey q-pt-xl">
-          <a color="grey" @click="reloadPage">{{ $t('label.ReloadPuzzle') }}</a>
+          {{ $t('label.PuzzleHelpText') }}
         </div>
       </div>
       
