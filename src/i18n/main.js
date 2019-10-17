@@ -798,7 +798,9 @@ module.exports = {
       StartOnDate: "Publication date",
       StepIsOnlyVisibleOnThisDate: "This step is only playable from this date",
       ThisStepIsAvailableIn: "This step will be available in",
-      TimeRemainingHoursMin: "{day} d {hour} h {min} m {sec} s"
+      TimeRemainingHoursMin: "{day} d {hour} h {min} m {sec} s",
+      PuzzleChangeMode: "The jigsaw puzzle does not work?",
+      PuzzleHelpTextClick: "Press on the piece you want to move, then on the place to move it"
     }
   },
   fr: {
@@ -1588,7 +1590,9 @@ module.exports = {
       StartOnDate: "Date de publication",
       StepIsOnlyVisibleOnThisDate: "Cette étape n'est jouable qu'à partir de cette date",
       ThisStepIsAvailableIn: "Cette étape sera disponible dans",
-      TimeRemainingHoursMin: "{day} j {hour} h {min} m {sec} s"
+      TimeRemainingHoursMin: "{day} j {hour} h {min} m {sec} s",
+      PuzzleChangeMode: "Le puzzle ne fonctionne pas ?",
+      PuzzleHelpTextClick: "Pressez la pièce à bouger, puis sur l'emplacement final"
     }
   }
 }

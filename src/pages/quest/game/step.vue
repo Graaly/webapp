@@ -990,6 +990,10 @@ export default {
       const startDate = new Date(this.startDate.date.substr(0, 4), (this.startDate.date.substr(5, 2) - 1), this.startDate.date.substr(8, 2), 0, 0, 0)
 
       var diff = (startDate - today.getTime()) / 1000
+      if (diff < 0) {
+        await this.initData()
+        return
+      }
       this.startDate.remainingDays = Math.floor(diff / 86400) 
       this.startDate.remainingHours = Math.floor((diff - this.startDate.remainingDays * 86400) / 3600) 
       this.startDate.remainingMinutes = Math.floor((diff - this.startDate.remainingDays * 86400 - this.startDate.remainingHours * 3600) / 60) 

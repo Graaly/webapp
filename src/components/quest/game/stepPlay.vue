@@ -213,18 +213,26 @@
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div id="pieces">
-            <div class="piece" draggable="true"
+            <div draggable="true"
               v-for="piece in puzzle.pieces" :key="piece.pos" :id="'piece-' + piece.pos"
               @dragstart="handleDragStart($event)"
               @dragover="handleDragOver($event)"
               @drop="handleDrop($event)"
               @dragend="handleDragEnd($event)"
+              @click="movePieceWithClick(piece.pos)"
+              :class="piece.classes"
               :style="'background-image: url(' + puzzle.picture + '); background-size: ' + piece.backSize + '% ' + piece.backSize + '%;background-position: -' + piece.backXPos + ' -' + piece.backYPos + ';'"
             ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'"></header></div>
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
-        <div class="centered text-grey q-pt-xl">
+        <div class="centered text-grey q-pt-xl" v-if="puzzle.mode === 'drag'">
           {{ $t('label.PuzzleHelpText') }}
+        </div>
+        <div class="centered text-grey q-pt-xl" v-if="puzzle.mode === 'click'">
+          {{ $t('label.PuzzleHelpTextClick') }}
+        </div>
+        <div class="centered text-grey q-pt-sm" v-if="puzzle.mode === 'drag'">
+          <a @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
         </div>
       </div>
       
@@ -584,7 +592,9 @@ export default {
           picture: 'statics/icons/game/medal.png',
           dragSrcEl: null,
           element: {},
-          colsByLevel: [1, 3, 4, 6, 5]
+          colsByLevel: [1, 3, 4, 6, 5],
+          mode: 'drag',
+          clickModeSelected: null
         },
         
         // for step type 'memory'
@@ -2339,7 +2349,7 @@ export default {
       for (let i = 0; i < puzzleNbPieces; i++) {
         let xPos = (pieceWidth * (i % puzzleSize)) + 'px';
         let yPos = (pieceHeight * Math.floor(i / puzzleSize)) + 'px';
-        this.puzzle.pieces[i] = { pos: i, backSize: (puzzleSize * 100), backXPos: xPos, backYPos: yPos, width: pieceWidth, height: pieceHeight }
+        this.puzzle.pieces[i] = { pos: i, backSize: (puzzleSize * 100), backXPos: xPos, backYPos: yPos, width: pieceWidth, height: pieceHeight, classes: 'piece' }
       }
       
       //Shuffle & check that after shuffle the piece are correctly shuffled
@@ -2366,19 +2376,23 @@ export default {
      * @param   {object}    e            Event when user touch puzzle piece
      */
     handleDragStart(e) {
-      if (e.target.className.indexOf('piece') !== -1) {
-        this.puzzle.dragSrcEl = e.target;
+      if (this.puzzle.mode === 'drag') {
+        if (e.target.className.indexOf('piece') !== -1) {
+          this.puzzle.dragSrcEl = e.target;
+        }
+        return true
       }
-      return true
     },
     /*
      * Handle puzzle piece move over
      * @param   {object}    e            Event when user move puzzle piece over
      */
     handleDragOver(e) {
-      if (this.puzzle.dragSrcEl) {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
+      if (this.puzzle.mode === 'drag') {
+        if (this.puzzle.dragSrcEl) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+        }
       }
     },
     /*
@@ -2386,52 +2400,96 @@ export default {
      * @param   {object}    e            Event when user stop moving puzzle piece
      */
     handleDragEnd(e) {
-      this.puzzle.dragSrcEl = null;
-      var cols = document.querySelectorAll('#pieces .piece');
-      [].forEach.call(cols, function (col) {
-        col.style.opacity = ''
-        col.classList.remove('over')
-      })
-      return true
+      if (this.puzzle.mode === 'drag') {
+        this.puzzle.dragSrcEl = null;
+        var cols = document.querySelectorAll('#pieces .piece');
+        [].forEach.call(cols, function (col) {
+          col.style.opacity = ''
+          col.classList.remove('over')
+        })
+        return true
+      }
     },
     /*
      * Handle puzzle piece drop
      * @param   {object}    e            Event when user drop puzzle piece
      */
     handleDrop(e) {
-      if (this.puzzle.dragSrcEl && e.cancelable) {
-        e.stopPropagation()
-        e.stopImmediatePropagation()
-        e.preventDefault()
-        // if the target is defined & a piece is moved
-        if (e.target.parentNode.id && this.puzzle.dragSrcEl.id) {
-          // get id of piece moved and piece destination
-          let destId = parseInt(e.target.parentNode.id.replace('piece-', ''), 10)
-          let sourceId = parseInt(this.puzzle.dragSrcEl.id.replace('piece-', ''), 10)
-          let destIdPos = 0, sourceIdPos = 0
-          
-          // if the piece is moved
-          if (destId !== sourceId) {
-            // get the places in the arrays
-            for (let i = 0; i < this.puzzle.pieces.length; i++) {
-              if (this.puzzle.pieces[i].pos === destId) {
-                destIdPos = i
-              }
-              if (this.puzzle.pieces[i].pos === sourceId) {
-                sourceIdPos = i
-              }
-            }
-
-            // move the places in the arrays
-            let oldPlace = this.puzzle.pieces[destIdPos]
-            Vue.set(this.puzzle.pieces, destIdPos, this.puzzle.pieces[sourceIdPos])
-            Vue.set(this.puzzle.pieces, sourceIdPos, oldPlace)
-            // check if the puzzle is finished
-            this.checkPuzzle()
+      if (this.puzzle.mode === 'drag') {
+        if (this.puzzle.dragSrcEl && e.cancelable) {
+          e.stopPropagation()
+          e.stopImmediatePropagation()
+          e.preventDefault()
+          // if the target is defined & a piece is moved
+          if (e.target.parentNode.id && this.puzzle.dragSrcEl.id) {
+            // get id of piece moved and piece destination
+            let destId = parseInt(e.target.parentNode.id.replace('piece-', ''), 10)
+            let sourceId = parseInt(this.puzzle.dragSrcEl.id.replace('piece-', ''), 10)
+            this.switchPieces(sourceId, destId)
           }
         }
+        return true
       }
-      return true
+    },
+    /*
+     * Switch 2 pieces in puzzle
+     */
+    switchPieces(sourceId, destId) {
+      let destIdPos = 0, sourceIdPos = 0
+      
+      // if the piece is moved
+      if (destId !== sourceId) {
+        // get the places in the arrays
+        for (let i = 0; i < this.puzzle.pieces.length; i++) {
+          if (this.puzzle.pieces[i].pos === destId) {
+            destIdPos = i
+          }
+          if (this.puzzle.pieces[i].pos === sourceId) {
+            sourceIdPos = i
+          }
+        }
+
+        // move the places in the arrays
+        let oldPlace = this.puzzle.pieces[destIdPos]
+        Vue.set(this.puzzle.pieces, destIdPos, this.puzzle.pieces[sourceIdPos])
+        Vue.set(this.puzzle.pieces, sourceIdPos, oldPlace)
+        // check if the puzzle is finished
+        this.checkPuzzle()
+      }
+    },
+    /*
+     * Change the piece move mode for puzzle
+     */
+    changePuzzleMode() {
+      if (this.puzzle.mode === 'drag') {
+        this.puzzle.mode = 'click'
+      } else {
+        this.puzzle.mode = 'drag'
+      }
+    },
+    /*
+     * Move puzzle pieces with click
+     */
+    movePieceWithClick(pos) {
+      if (this.puzzle.mode === 'click') {
+        if (this.puzzle.clickModeSelected === null) {
+          for (let i = 0; i < this.puzzle.pieces.length; i++) {
+            if (this.puzzle.pieces[i].pos === pos) {
+              this.puzzle.pieces[i].classes = 'piece border-red'
+              this.puzzle.clickModeSelected = pos
+              let piece = this.puzzle.pieces[i]
+              // force properties changes
+              Vue.set(this.puzzle.pieces, i, piece)
+            }
+          }
+        } else {
+          for (let i = 0; i < this.puzzle.pieces.length; i++) {
+            this.puzzle.pieces[i].classes = 'piece'
+          }
+          this.switchPieces(this.puzzle.clickModeSelected, pos)
+          this.puzzle.clickModeSelected = null
+        }
+      }
     },
     /*
      * Init the memory game
@@ -3116,6 +3174,11 @@ export default {
     text-align: center; 
     cursor: move; 
     background-repeat: none; 
+  } 
+  #pieces .piece.border-red { 
+    -webkit-box-shadow:inset 0px 0px 0px 6px #f00;
+    -moz-box-shadow:inset 0px 0px 0px 3px #f00;
+    box-shadow:inset 0px 0px 0px 3px #f00;
   }  
   
   /* write-text specific */
