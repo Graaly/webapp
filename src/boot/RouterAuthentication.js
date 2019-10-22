@@ -96,7 +96,7 @@ export default ({ app, router, Vue }) => {
         next()
       }
     } catch (e) {
-      console.log(e)
+      console.error('Error in RouterAuthentication:', e)
       next()
     }
   })

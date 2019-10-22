@@ -90,6 +90,7 @@ const actions = {
     return result
   },
   logout: async ({ commit }) => {
+    // TODO ON SERVER: calling logout should blacklist the JWT, see https://medium.com/devgorilla/how-to-log-out-when-using-jwt-a8c7823e8a6
     let result = await AuthService.logout()
     commit('logout')
     return result
