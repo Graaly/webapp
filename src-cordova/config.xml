@@ -63,6 +63,7 @@
         <splash height="1242" src="res/screen/ios/Default-Landscape-736h.png" width="2208" />
         <splash height="2436" src="res/screen/ios/iphoneX-portrait.png" width="1125" />
         <splash height="1125" src="res/screen/ios/iphoneX-landscape.png" width="2436" />
+        <preference name="ScrollEnabled" value="true" />
     </platform>
     <allow-navigation href="http://192.168.43.151:8080/index.html" />
     <allow-navigation href="*" />
