@@ -3,7 +3,6 @@ import axios from 'axios'
 // otherwise cookies are not sent back to server
 axios.defaults.withCredentials = true
 axios.defaults.timeout = 15000
-// value of localStorage['jwt'] is updated by login/logout
 axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage['jwt']}`
 
 // Note: HTTPS is mandatory here because HTTPS is required for front (geolocation)
