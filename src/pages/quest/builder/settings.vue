@@ -206,6 +206,19 @@
               {{ $t('label.AddALogo') }}:
               <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" />
             </div>
+            <div v-if="form.fields.rewardPicture && form.fields.rewardPicture !== ''">
+              <p>{{ $t('label.Reward') }} :</p>
+              <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.rewardPicture" style="background-color: #f00" />
+              {{ $t('label.RewardPictureWarning')}}
+            </div>
+            <div v-if="!isIOs" class="q-mt-md">
+              <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddAReward')" @click="$refs['rewardfile'].click()" />
+              <input @change="uploadReward" ref="rewardfile" type="file" accept="image/*" hidden />
+            </div>
+            <div v-if="isIOs" class="q-mt-md">
+              {{ $t('label.AddAReward') }}:
+              <input @change="uploadReward" ref="rewardfile" type="file" accept="image/*" />
+            </div>
           </div>
           
           <div v-if="!this.quest.isPremium">
@@ -420,20 +433,31 @@
           
           <q-item>
             <q-item-section side top>
-              <q-icon name="fa fa-qrcode" class="left-icon" />
+              <q-icon name="select_all" class="left-icon" />
             </q-item-section>
             <q-item-section>
               <q-item-label class="big-label">{{ $t('label.MarkersFile') }}</q-item-label>
-              <!-- for webapp mode -->
-              <q-btn v-if="!isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" type="a" href="statics/markers/all.pdf" download />
-              <!-- for hybrid mode -->
-              <q-btn v-if="isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" @click="downloadMarkers()" />
+              <div>
+                {{ $t('label.MarkersToPrint') }}
+                <!-- for webapp mode -->
+                <q-btn v-if="!isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" type="a" href="statics/markers/all.pdf" download />
+                <!-- for hybrid mode -->
+                <q-btn v-if="isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" @click="downloadMarkers()" />
+              </div>
+              <div v-if="this.quest.isPremium" class="q-pt-md" v-html="$t('label.MarkersToStartQuest', {code: questId})" />
             </q-item-section>
           </q-item>
           
-          <p class="centered q-pa-md" v-if="quest.status !== 'published'">
-            <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
-          </p>
+          <q-item v-if="quest.status !== 'published'">
+            <q-item-section side top>
+              <q-icon name="delete" class="left-icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="big-label">{{ $t('label.RemoveThisQuest') }}</q-item-label>
+              <q-btn color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
+              {{ $t('label.ThisActionCanNotBeCanceled') }}
+            </q-item-section>
+          </q-item>
           
         </div>
         
@@ -854,7 +878,8 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { color: '', logo: '' }
+          customization: { color: '', logo: '' },
+          rewardPicture: ''
         },
         categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }, this.$t),
         languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
@@ -1099,6 +1124,27 @@ export default {
         }
         this.premium.isOpened = true
       }
+    },
+    async uploadReward(e) {
+      this.$q.loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadPictureResult = await QuestService.uploadReward(data)
+      if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
+        if (uploadPictureResult.data.file) {
+          this.form.fields.rewardPicture = uploadPictureResult.data.file
+          this.$forceUpdate()
+        } else if (uploadPictureResult.data.message && uploadPictureResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
     },
     async changeEditorMode() {
       if (this.form.fields.editorMode === 'advanced') {

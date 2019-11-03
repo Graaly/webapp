@@ -743,22 +743,16 @@
                 </q-item-label>
             </q-item>
           </q-list>
-          <q-list v-if="success.ranking && success.ranking.length > 0">
-            <q-item-label header>{{ $t("label.TerritoriesWon") }}</q-item-label>
-            <q-item v-for="(item, index) in success.ranking" :key="index">
-              <q-item-section avatar>
-                <q-icon v-if="item.playedNb < item.totalNb" name="flag" size="2rem" color="grey" />
-                <q-icon v-if="item.playedNb >= item.totalNb" name="flag" size="2rem" color="primary" />
-              </q-item-section>
-              <q-item-label>
-                {{ item.town }}
-                <q-linear-progress class="q-mt-sm" v-if="item.playedNb < item.totalNb" :value="item.playedNb / item.totalNb" color="primary" style="height: 10px;" />
-              </q-item-label>
-            </q-item>
-            <q-item>
+          <div v-if="success.ranking && success.ranking.length > 0">
+            <h1 class="size-3 q-pl-md">{{ $t('label.Rewards') }}</h1>
+            <q-list v-for="(item, index) in success.ranking" :key="index">
+              <q-item-label header>{{ item.city }}</q-item-label>
+              <q-item style="flex-wrap: wrap">
+                <img v-for="(reward, index2) in item.rewards" :class="{'reward': true, 'disabled': !reward.won}" :key="index2" :src="serverUrl + '/upload/quest/' + reward.image" />
+              </q-item>
+            </q-list>
             {{ $t("label.PlayAllQuestsInACityToWin") }}
-            </q-item>
-          </q-list>
+          </div>
         </q-card-section>
         <q-card-section v-if="!($store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings) && !(success.ranking && success.ranking.length > 0)">
           {{ $t("label.NoRankingYet") }}
@@ -1334,7 +1328,17 @@ console.log(quest.premiumPrice.androidId)
           return this.getQuests('world')
         }
 
-        if (this.$store.state.user.story.step === 16 && this.user.proposeAQuest) {
+        // if tutorial finished, switch to recurrent stories
+        if (this.$store.state.user.story.step > 16) {
+          if (this.$store.state.user.story.step < 23 || this.$store.state.user.story.step > 30) {
+            this.story.step = 23
+          } else {
+            this.story.step = this.$store.state.user.story.step + 1
+          }
+          await UserService.nextStoryStep(this.story.step)
+        }
+        
+        if ((this.$store.state.user.story.step === 16 ||  this.$store.state.user.story.step === 23) && this.user.proposeAQuest) {
           // get the closest quest not already played
           var closestQuest = this.getClosestQuestUnplayed()
 
@@ -1896,7 +1900,9 @@ console.log(quest.premiumPrice.androidId)
      */
     async endStory (nextStep) {
       this.story.step = null
-      this.$store.state.user.story.step = nextStep
+      if (nextStep !== 0) {
+        this.$store.state.user.story.step = nextStep
+      }
       // if skip tutorial
       if (nextStep === 17) {
         await this.reloadMap()
@@ -2092,5 +2098,13 @@ console.log(quest.premiumPrice.androidId)
 .no-internet-connection p {
   font-size: 1.5rem;
   margin: 0;
+}
+.reward {
+  width: 50%
+}
+.reward.disabled {
+  filter: brightness(0);
+  -webkit-filter: brightness(0);
+  -moz-filter: brightness(0);
 }
 </style>

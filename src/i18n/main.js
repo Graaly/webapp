@@ -99,6 +99,7 @@ module.exports = {
       fr: "French"
     },
     story: {
+      AskIfUseTuto: "Welcome<br />Do you want to play the demo quest, to understand how to use Graaly (approx. duration 5 min) ? Press <b>Skip tutorial</b> on the bottom left to play without demo",
       Welcome: "Welcome <b>young detective</b>, you have just joined my team.<br />We have to deal with an increase in inquiries, and have chosen to call <b>someone like you</b>! ",
       FirstStep: "Please let me tell you that there will be a lot of work.<br />But if you're motivated and you listen to my advice, you'll <b>quickly become a good detective</b>.",
       PresentTeam: "Let start to <b>present our team</b>",
@@ -215,7 +216,7 @@ module.exports = {
       YourZipCode: "Your zip code",
       PleaseEnterYourZipCode: "Please enter your zip code (used to list the quest near from your location)",
       PleaseEnterYourPassword: "Please enter your password",
-      EnterTheCodeYouReceivedByEmail: "Enter the code you received by email",
+      EnterTheCodeYouReceivedByEmail: "Enter the code you received by email (it can takes 5 minutes)",
       IncorrectCodePleaseRetry: "Incorrect code, please try again!",
       SignOutInProgress: "Sign-out in progress ...",
       ErrorStandardMessage: "An error occurs, please check your network and contact the support if the problem occurs again!",
@@ -472,7 +473,7 @@ module.exports = {
       TerritoriesWon: "Conquest of territories",
       YourWorldRanking: "My global rank",
       YourCityRanking: "My rank in my city",
-      PlayAllQuestsInACityToWin: "Play all the quests of a city to conquest the territory",
+      PlayAllQuestsInACityToWin: "Play all the quests of a city to win all the rewards",
       NoRankingYet: "Your rank is not yet computed, please wait for tomorrow",
       Challenge: "Challenge",
       ChallengeAllFriends: "Challenge all your friends",
@@ -531,7 +532,7 @@ module.exports = {
       Character: "Character",
       Rankings: "Rankings",
       UseMyCurrentGPSLocation: "Use my current GPS phone location",
-      MarkersFile: "Symbols file",
+      MarkersFile: "QR Codes",
       ChooseTheMarker: "Choose the symbol",
       Download: "Download",
       Marker: "Symbol",
@@ -573,7 +574,7 @@ module.exports = {
       RemoveYourAccountDesc: "By removing your account, you will loose your score, all the items you bought, and your progression, and you will not be able to log again to the application.",
       RemoveYourAccount: "Remove your account",
       IConfirmIWantToRemoveMyAccount: "I confirm I want to remove my account",
-      AreYouSureYouWantToRemoveYourAccount: "Are you sure to remove your account, and not use LinkyLove any more? This actions can not be canceled!",
+      AreYouSureYouWantToRemoveYourAccount: "Are you sure to remove your account, and not use Graaly any more? This actions can not be canceled!",
       YourAccountIsRemoved: "Your account has been removed",
       Reviews: "Reviews",
       CommentThisQuest: "Comments for quest author",
@@ -800,7 +801,18 @@ module.exports = {
       ThisStepIsAvailableIn: "This step will be available in",
       TimeRemainingHoursMin: "{day} d {hour} h {min} m {sec} s",
       PuzzleChangeMode: "The jigsaw puzzle does not work?",
-      PuzzleHelpTextClick: "Press on the piece you want to move, then on the place to move it"
+      PuzzleHelpTextClick: "Press on the piece you want to move, then on the place to move it",
+      QRCodeIsNotWorking: "The QR Code is not recognized",
+      ScanQRCodeToStartQuest: "Scan a QR Code to start a quest without account",
+      MarkersToPrint: "Print the game's QR Codes, and place them where you want to",
+      MarkersToStartQuest: "You can redirect the players to the quest, weither they have an account or not. For that, create a QR Code (on https://www.qr-code-generator.com/ for instance) with the value <strong>{code}</strong>",
+      ThisActionCanNotBeCanceled: "This actions can not be canceled",
+      AddAReward: "Upload a reward",
+      Reward: "Reward",
+      Rewards: "Rewards",
+      RewardPictureWarning: "Warning: if your picture background is not red, upload a picture with a transparent background. If a part of your picture is cropped, upload a square format picture",
+      YouWonAReward: "Congratulation, you have won a reward",
+      WonOtherRewardByPlayingOtherGamesInCity: "You can won other rewards by playing other quests around"
     }
   },
   fr: {
@@ -889,6 +901,7 @@ module.exports = {
       fr: "Français"
     },
     story: {
+      AskIfUseTuto: "Bienvenue dans Graaly<br />Souhaitez-vous suivre l'enquête de démo pour vous familiariser avec Graaly (durée approx. 5 min). Pressez <b>Passer l'aide</b> en bas à gauche pour jouer sans la démo",
       Welcome: "Bienvenue <b>jeune détective</b>, vous venez de rejoindre mon équipe.<br />Nous devons faire face à une augmentation des enquêtes, et avons choisi de faire appel à <b>quelqu'un de prometteur comme vous</b> !",
       FirstStep: 'Autant vous le dire tout de suite, il va y avoir du boulot.<br />Mais si vous êtes motivé(e) et vous écoutez mes conseils, vous allez <b>rapidement devenir un bon détective</b>.',
       PresentTeam: "Avant d'aller plus loin, je vais vous <b>présenter l'équipe</b>",
@@ -1006,7 +1019,7 @@ module.exports = {
       YourZipCode: "Votre code postal",
       PleaseEnterYourZipCode: "Veuillez entrer un code postal (nécessaire pour lister les enquêtes à proximité de chez vous)",
       PleaseEnterYourPassword: "Veuillez saisir votre mot de passe",
-      EnterTheCodeYouReceivedByEmail: "Entrez le code que vous avez reçu par email",
+      EnterTheCodeYouReceivedByEmail: "Entrez le code que vous avez reçu par email (cela peut prendre 5 minutes)",
       IncorrectCodePleaseRetry: "Code incorrect, veuillez réessayer",
       SignOutInProgress: "Déconnexion en cours ...",
       ErrorStandardMessage: "Une erreur est survenue, veuillez vérifier que vous avez du réseau et contacter le support si le problème persiste",
@@ -1263,7 +1276,7 @@ module.exports = {
       TerritoriesWon: "Conquête de territoires",
       YourWorldRanking: "Mon classement mondial",
       YourCityRanking: "Mon classement dans ma ville",
-      PlayAllQuestsInACityToWin: "Jouez à toutes les enquêtes d'une ville pour conquérir le territoire",
+      PlayAllQuestsInACityToWin: "Réussissez toutes les enquêtes d'une ville pour obtenir toutes les récompenses",
       NoRankingYet: "Votre classement n'est pas encore calculé, veuillez attendre demain",
       Challenge: "Défier",
       ChallengeAllFriends: "Défier tous vos amis",
@@ -1322,7 +1335,7 @@ module.exports = {
       Character: "Personnage",
       Rankings: "Classements",
       UseMyCurrentGPSLocation: "Utiliser mes coordonnées GPS actuelles",
-      MarkersFile: "Fichier de symboles",
+      MarkersFile: "QR Codes",
       ChooseTheMarker: "Choisissez le symbole",
       Download: "Télécharger",
       Marker: "Symbole",
@@ -1592,7 +1605,18 @@ module.exports = {
       ThisStepIsAvailableIn: "Cette étape sera disponible dans",
       TimeRemainingHoursMin: "{day} j {hour} h {min} m {sec} s",
       PuzzleChangeMode: "Le puzzle ne fonctionne pas ?",
-      PuzzleHelpTextClick: "Pressez la pièce à bouger, puis sur l'emplacement final"
+      PuzzleHelpTextClick: "Pressez la pièce à bouger, puis sur l'emplacement final",
+      QRCodeIsNotWorking: "Le QR Code n'est pas reconnu",
+      ScanQRCodeToStartQuest: "Scannez un QR Code pour jouer une enquête sans compte",
+      MarkersToPrint: "Imprimez les QR Codes du jeu, à placer aux endroits que vous avez prévu",
+      MarkersToStartQuest: "Vous pouvez permettre aux joueurs d'accéder directement à l'enquête, avec ou sans compte utilisateur. Pour cela, créez un QR code (par exemple sur le site https://www.qr-code-generator.com/) ayant la valeur <strong>{code}</strong>",
+      ThisActionCanNotBeCanceled: "Cette action ne peut être annulée",
+      AddAReward: "Télécharger une récompense",
+      Reward: "Récompense",
+      Rewards: "Récompenses",
+      RewardPictureWarning: "Attention, le fond de votre image doit être en rouge, sinon pensez à utiliser une image avec un fond transparent. Si une partie de votre image est coupée, téléchargez une image au format carré.",
+      YouWonAReward: "Bravo, vous avez gagné une récompense",
+      WonOtherRewardByPlayingOtherGamesInCity: "Vous pouvez gagner d'autres récompenses en jouant aux autres enquêtes dans la ville"
     }
   }
 }

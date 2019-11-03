@@ -70,6 +70,10 @@
         <q-btn v-if="showSocialLogin.facebook" @click="facebookLogin" class="full-width" color="facebook" icon="fab fa-facebook" label="Facebook" />
         <q-btn v-if="showSocialLogin.google" @click="googleLogin" class="full-width" color="google" icon="fab fa-google" label="Google" />
       </div>
+      
+      <!------------------ START PLAYING WITH QR CODE ------------------>
+      
+      <div v-if="isHybrid" class="q-pa-md"><q-btn color="secondary" @click="startScanQRCode()">{{ $t('label.ScanQRCodeToStartQuest') }}</q-btn></div>
     
     </div>
   </div>
@@ -77,6 +81,7 @@
 
 <script>
 import AuthService from 'services/AuthService'
+import QuestService from 'services/QuestService'
 import { required, minLength, email } from 'vuelidate/lib/validators'
 import checkPasswordComplexity from 'boot/PasswordComplexity'
 import Notification from 'boot/NotifyHelper'
@@ -96,6 +101,7 @@ export default {
         facebook: false,
         google: false
       },
+      isHybrid: window.cordova,
       serverUrl: process.env.SERVER_URL,
       submitting: false
     }
@@ -290,7 +296,49 @@ console.log(err)
         localStorage.setItem('isLoggedIn', true)
       }
     },
-    
+    /*
+    * start the scanner for hybrid app
+    */
+    startScanQRCode() {
+      var _this = this
+      if (this.isHybrid) {
+        cordova.plugins.barcodeScanner.scan(
+          function (result) {
+            if (result && result.text) {
+              _this.checkCode(result.text)
+            }
+          },
+          function (error) {
+            console.log("Scanning failed: " + error)
+          },
+          {
+            preferFrontCamera: false, // iOS and Android
+            showFlipCameraButton: false, // iOS and Android
+            showTorchButton: true, // iOS and Android
+            torchOn: false, // Android, launch with the torch switched on (if available)
+            saveHistory: true, // Android, save scan history (default false)
+            prompt: "", // Android
+            resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+            formats: "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
+            orientation: "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
+            disableAnimations: true, // iOS
+            disableSuccessBeep: false // iOS and Android
+          }
+        )
+      }
+    },
+    /*
+     * Check if the quest code is valid
+     * @param   {String}  code            QR Code value
+     */
+    async checkCode(code) {
+      let checkStatus = await QuestService.checkLoginQRCode(code)
+      if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
+        this.$router.push('/quest/play/' + code + '/lang/' + this.$t('label.shortLang'))
+      } else {
+        Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
+      }
+    },
     /*
      * send the forgotten password code
      */
