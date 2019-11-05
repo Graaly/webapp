@@ -11,7 +11,7 @@ module.exports = function (ctx) {
       'CustomDirectives',
       'DateFormatFilter',
       'RouterAuthentication',
-      //'UniversalLinks', // enable to use deep links with Cordova plugin 
+      'UniversalLinks', // enable to use deep links with Cordova plugin 
       'VueGoogleMaps',
       'VueI18n',
       'Vuelidate',

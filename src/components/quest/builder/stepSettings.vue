@@ -1535,6 +1535,8 @@ export default {
           this.selectedStep.form.backgroundImage = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1572,6 +1574,8 @@ export default {
           this.selectedStep.form.videoStream = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1596,6 +1600,8 @@ export default {
           this.selectedStep.form.answers = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1620,6 +1626,8 @@ export default {
           this.selectedStep.form.options.items[key].imagePath = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1645,6 +1653,8 @@ export default {
           this.selectedStep.form.options.items[key].imagePath = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1679,6 +1689,8 @@ export default {
           this.selectedStep.form.options.images[key].imagePath = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1703,6 +1715,8 @@ export default {
           this.selectedStep.form.options.picture = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1727,6 +1741,8 @@ export default {
           this.selectedStep.form.options.picture = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1753,6 +1769,8 @@ export default {
           await this.displayARObject(this.selectedStep.form.options.customModel, this.questId)
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1784,6 +1802,8 @@ export default {
           Vue.set(this.selectedStep.form.options, 'character', uploadResult.data.file)
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')

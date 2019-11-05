@@ -100,4 +100,7 @@
     <edit-config file="*-Info.plist" mode="merge" target="NSPhotoLibraryUsageDescription">
         <string>Each player can get photos of his library to build a quest</string>
     </edit-config>
+    <universal-links>
+        <host name="app.graaly.com" scheme="https" />
+    </universal-links>
 </widget>

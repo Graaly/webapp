@@ -809,10 +809,11 @@ module.exports = {
       ThisActionCanNotBeCanceled: "This actions can not be canceled",
       AddAReward: "Upload a reward",
       Reward: "Reward",
-      Rewards: "Rewards",
+      Rewards: "Bagdes",
       RewardPictureWarning: "Warning: if your picture background is not red, upload a picture with a transparent background. If a part of your picture is cropped, upload a square format picture",
-      YouWonAReward: "Congratulation, you have won a reward",
-      WonOtherRewardByPlayingOtherGamesInCity: "You can won other rewards by playing other quests around"
+      YouWonAReward: "Congratulation, you have won a badge",
+      WonOtherRewardByPlayingOtherGamesInCity: "You can won other rewards by playing other quests around",
+      UnknowUploadError: "An error occurs. Maybe your file is too big or not the right format. Please try again with a smaller picture"
     }
   },
   fr: {
@@ -1613,10 +1614,11 @@ module.exports = {
       ThisActionCanNotBeCanceled: "Cette action ne peut être annulée",
       AddAReward: "Télécharger une récompense",
       Reward: "Récompense",
-      Rewards: "Récompenses",
+      Rewards: "Badges",
       RewardPictureWarning: "Attention, le fond de votre image doit être en rouge, sinon pensez à utiliser une image avec un fond transparent. Si une partie de votre image est coupée, téléchargez une image au format carré.",
-      YouWonAReward: "Bravo, vous avez gagné une récompense",
-      WonOtherRewardByPlayingOtherGamesInCity: "Vous pouvez gagner d'autres récompenses en jouant aux autres enquêtes dans la ville"
+      YouWonAReward: "Bravo, vous avez gagné un badge",
+      WonOtherRewardByPlayingOtherGamesInCity: "Vous pouvez gagner d'autres récompenses en jouant aux autres enquêtes dans la ville",
+      UnknowUploadError: "Une erreur est survenue. Votre fichier est peut être trop gros ou n'a pas le bon format. Veuillez réessayer avec une image plus petite"
     }
   }
 }
