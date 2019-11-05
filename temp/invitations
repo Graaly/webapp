@@ -1,3 +1,0 @@
-{"_id":{"$oid":"5a64cda3acd0e61ff4ee9d2b"},"code":"SHf0NhrKeJQsiGz4","type":"teamInvitation","objectConcernedId":{"$oid":"5a450258e97f9665754a437a"},"date":{"$date":"2018-01-21T17:28:03.280Z"},"__v":0}
-{"_id":{"$oid":"5a64d0bec977c05bacc157f1"},"code":"1nioXgzK6hkWAkG9","type":"teamInvitation","invitee":"eric.mathieu13@gmail.com","objectConcernedId":{"$oid":"5a450258e97f9665754a437a"},"date":{"$date":"2018-01-21T17:41:18.075Z"},"__v":0}
-{"_id":{"$oid":"5a64d2c9a55aac46eca5bd9b"},"code":"lKQPOheVIH1RaKyr","type":"teamInvitation","invitee":"aurore.boulloud@gmail.com","objectConcernedId":{"$oid":"5a450258e97f9665754a437a"},"date":{"$date":"2018-01-21T17:50:01.082Z"},"__v":0}

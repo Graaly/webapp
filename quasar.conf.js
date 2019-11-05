@@ -8,8 +8,10 @@ module.exports = function (ctx) {
   return {
     // app boot (/src/boot)
     boot: [
+      'CustomDirectives',
       'DateFormatFilter',
       'RouterAuthentication',
+      'UniversalLinks', // enable to use deep links with Cordova plugin 
       'VueGoogleMaps',
       'VueI18n',
       'Vuelidate',
@@ -109,6 +111,7 @@ module.exports = function (ctx) {
         //'QAutocomplete',
         'QAvatar',
         'QBanner',
+        'QBadge',
         'QBtn',
         'QBtnDropdown',
         'QBtnGroup',
@@ -121,6 +124,7 @@ module.exports = function (ctx) {
         'QCheckbox',
         'QChip',
         //'QChipsInput',
+        'QDate',
         'QDialog',
         'QDrawer',
         'QExpansionItem',
@@ -224,7 +228,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: '1.6.5'
+      version: '1.7.10'
       // id: 'org.cordova.quasar.app'
     },
     electron: {

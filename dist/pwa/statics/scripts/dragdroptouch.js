@@ -1,4 +1,5 @@
-var DragDropTouch = {};
+// looks inspired from https://github.com/Bernardo-Castilho/dragdroptouch
+//var DragDropTouch = {};
 function initJigsaw (DragDropTouch_1) {
     'use strict';
     /**
@@ -128,6 +129,7 @@ function initJigsaw (DragDropTouch_1) {
      * https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Drag_operations.
      */
     var DragDropTouch = (function () {
+console.log("init drop touch")
         /**
          * Initializes the single instance of the @see:DragDropTouch class.
          */

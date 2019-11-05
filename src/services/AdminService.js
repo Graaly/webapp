@@ -43,6 +43,6 @@ export default {
    * @param   {Object}    data                picture data
    */
   uploadPlaceImage(data) {
-    return Api().post('/admin/town/place/picture/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    return Api().post('/admin/town/place/picture/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   }
 }

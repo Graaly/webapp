@@ -300,6 +300,10 @@ form .q-item__label, .big-label {
 .hide-img img {
   display: none;
 }
+.q-tabs.two-lines .q-tab {
+  white-space: normal;
+  min-width: 85px;
+}
 
 /////////////////////////////// Images CSS /////////////////////////////////////
 
@@ -531,7 +535,8 @@ form .q-item__label, .big-label {
   background: #fff; /* otherwise, default is transparent */
 }
 .q-dialog.fullscreen {
-  z-index: 7001;
+  /* 7003 to be over the stories, especially when user pass the tutorial */
+  z-index: 7003;
 }
 
 /////////////////////////////// Other CSS /////////////////////////////////////
@@ -691,13 +696,13 @@ form .q-item__label, .big-label {
   overflow-x: hidden;
 }
 .step-list.list-group-item div .step-button {
-  width: 100px;
+  /*width: 144px;*/
   flex: none;
 }
 .step-list.list-group-item div .step-text {
   flex: 1;
   overflow: hidden;
-  text-overflow: ellipsis;
+  /*text-overflow: ellipsis;*/
   white-space: nowrap;
 }
 
@@ -830,4 +835,9 @@ form .q-item__label, .big-label {
 .pac-container {
   display: block;
   z-index: 7500;
+}
+/* fix for <q-select> menus on desktop: must be above .q-dialog.fullscreen
+(z-index provided by Quasar is 6000) */
+.q-menu {
+  z-index: 7002;
 }

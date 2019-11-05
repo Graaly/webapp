@@ -150,6 +150,23 @@ export default {
     return Api().delete('quest/' + id + '/version/' + version + '/media/' + mediaId + '/remove')
   },
   /*
+   * List the object files
+   * @param   {String}    questId             ID of the quest
+   * @param   {String}    model               name of the model
+   */
+  listObjectFiles (model, questId) {
+    return Api().get('quest/' + questId + '/offline/object/' + model + '/files').catch(error => console.log(error.request))
+  },
+  /*
+   * get the quest statistics
+   * @param   {String}    questId           Quest Id
+   * @param   {Number}    version           version of the quest
+   * @param   {Date}      date              Date
+   */
+  getStatistics (questId, version, date) {
+    return Api().get('quest/' + questId + '/version/' + version + '/statistics/' + date).catch(error => console.log(error.request))
+  },
+  /*
    * list user invitations to private quests
    */
   getInvitations () {
@@ -160,21 +177,78 @@ export default {
    * @param   {Object}    data                picture data
    */
   uploadPicture(data) {
-    return Api().post('/quest/picture/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    return Api().post('/quest/picture/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   },
   /*
    * Upload a quest logo
    * @param   {Object}    data                picture data
    */
   uploadLogo(data) {
-    return Api().post('/quest/logo/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    return Api().post('/quest/logo/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+  },
+  /*
+   * Upload a quest reward
+   * @param   {Object}    data                picture data
+   */
+  uploadReward(data) {
+    return Api().post('/quest/reward/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   },
   /*
    * Upload a quest thumb
    * @param   {Object}    data                picture data
    */
   uploadThumb(data) {
-    return Api().post('/quest/thumb/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    return Api().post('/quest/thumb/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+  },
+  
+  /*
+   * Check if the quest can be moved premium
+   * @param   {String}    questId              questId
+   */
+  CheckIfCanBeMovedPremium(questId) {
+    return Api().get('quest/' + questId + '/premium/check').catch(error => console.log(error.request))
+  },
+  /*
+   * Move a quest to premium
+   * @param   {String}    questId              questId
+   */
+  MoveToPremium(questId) {
+    return Api().post('quest/' + questId + '/premium/set').catch(error => console.log(error.request))
+  },
+  /*
+   * Purchase to play a premium quest
+   * @param   {String}    questId              questId
+   */
+  purchasePremium(questId, product) {
+    return Api().post('quest/' + questId + '/premium/buy', product).catch(error => console.log(error.request))
+  },
+  /*
+   * Purchase a private quest
+   * @param   {String}    questId              questId
+   */
+  purchasePrivateQuest(questId, product) {
+    return Api().post('quest/' + questId + '/private/buy', product).catch(error => console.log(error.request))
+  },
+  /*
+   * Check if the user has payed for a quest
+   * @param   {String}    questId              questId
+   */
+  hasPayed(questId) {
+    return Api().get('quest/' + questId + '/premium/ispayed').catch(error => console.log(error.request))
+  },
+  /*
+   * Check if a QR Code can opens a quest, and create a dummy account
+   * @param   {String}    questId              questId
+   */
+  checkLoginQRCode(questId) {
+    return Api().get('quest/' + questId + '/play/qrcode').catch(error => console.log(error.request))
+  },
+  /*
+   * Submit a suggestion
+   * @param   {Object}    place              place for the quest
+   */
+  submitSuggestion(place) {
+    return Api().post('quest/suggest', place).catch(error => console.log(error.request))
   },
   
   /*
@@ -268,6 +342,21 @@ export default {
    */
   async removeFromCache (questId) {
     await utils.removeDirectory(questId)
+  },
+  
+  /**
+   * get background image given quest object
+   */
+  getBackgroundImage (quest) {
+    if (quest.picture && quest.picture[0] === '_') {
+      return 'statics/images/quest/' + quest.picture
+    } else if (quest.picture && quest.picture.indexOf('blob:') !== -1) {
+      return quest.picture
+    } else if (quest.picture) {
+      return process.env.SERVER_URL + '/upload/quest/' + quest.picture
+    } else {
+      return 'statics/images/quest/default-quest-picture.png'
+    }
   }
   
   /*

@@ -157,7 +157,7 @@ export default {
    * @param   {Object}    data           upload data
    */
   async uploadBackgroundImage (questId, data) {
-    let res = await Api().post('/quest/' + questId + '/step/background/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    let res = await Api().post('/quest/' + questId + '/step/background/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
     
     // clears cached data if there is any
     await QuestService.removeFromCache(questId)
@@ -170,7 +170,7 @@ export default {
    * @param   {Object}    data           upload data
    */
   async uploadImageToRecognize (questId, data) {
-    let res = await Api().post('/quest/' + questId + '/step/image-recognition/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    let res = await Api().post('/quest/' + questId + '/step/image-recognition/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
     
     // clears cached data if there is any
     await QuestService.removeFromCache(questId)
@@ -183,7 +183,7 @@ export default {
    * @param   {Object}    data           upload data
    */
   async uploadAnswerImage(questId, data) {
-    let res = await Api().post('/quest/' + questId + '/step/choose-image/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    let res = await Api().post('/quest/' + questId + '/step/choose-image/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
     
     // clears cached data if there is any
     await QuestService.removeFromCache(questId)
@@ -196,7 +196,7 @@ export default {
    * @param   {Object}    data           upload data
    */
   async uploadMemoryImage(questId, data) {
-    let res = await Api().post('/quest/' + questId + '/step/memory/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    let res = await Api().post('/quest/' + questId + '/step/memory/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
     
     // clears cached data if there is any
     await QuestService.removeFromCache(questId)
@@ -209,7 +209,7 @@ export default {
    * @param   {Object}    data           upload data
    */
   async uploadCodeAnswerImage(questId, data) {
-    let res = await Api().post('/quest/' + questId + '/step/code-image/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    let res = await Api().post('/quest/' + questId + '/step/code-image/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
     
     // clears cached data if there is any
     await QuestService.removeFromCache(questId)
@@ -222,7 +222,7 @@ export default {
    * @param   {Object}    data           upload data
    */
   async uploadVideo(questId, data) {
-    let res = await Api().post('/quest/' + questId + '/step/video/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    let res = await Api().post('/quest/' + questId + '/step/video/upload', data, { timeout: 120000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
     
     // clears cached data if there is any
     await QuestService.removeFromCache(questId)
@@ -235,7 +235,7 @@ export default {
    * @param   {Object}    data           upload data
    */
   async uploadPuzzleImage(questId, data) {
-    let res = await Api().post('/quest/' + questId + '/step/jigsaw-puzzle/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    let res = await Api().post('/quest/' + questId + '/step/jigsaw-puzzle/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
     
     // clears cached data if there is any
     await QuestService.removeFromCache(questId)
@@ -249,7 +249,20 @@ export default {
    * @param   {Object}    data           upload data
    */
   async uploadItemImage(questId, stepType, data) {
-    let res = await Api().post('/quest/' + questId + '/step/' + stepType + '/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    let res = await Api().post('/quest/' + questId + '/step/' + stepType + '/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
+  },
+  /*
+   * upload a 3D object for 'locate item ar' step
+   * @param   {String}    questId        ID of the quest
+   * @param   {Object}    data           upload data
+   */
+  async uploadItemObject(questId, stepType, data) {
+    let res = await Api().post('/quest/' + questId + '/step/3dobject/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
     
     // clears cached data if there is any
     await QuestService.removeFromCache(questId)
@@ -263,7 +276,7 @@ export default {
    * @param   {Object}    data           upload data
    */
   async uploadCharacterImage(questId, stepType, data) {
-    let res = await Api().post('/quest/' + questId + '/step/character/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    let res = await Api().post('/quest/' + questId + '/step/character/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
     
     // clears cached data if there is any
     await QuestService.removeFromCache(questId)

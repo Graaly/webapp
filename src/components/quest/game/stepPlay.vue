@@ -154,6 +154,7 @@
             </td>
           </tr>
         </table>
+        <div class="centered text-grey q-py-md">{{ $t('label.ClickToEnlargePictures') }}</div>
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
@@ -189,11 +190,6 @@
         <div>
           <p class="text">{{ getTranslatedText() }}</p>
           <p class="text" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
-          <!--
-          <p class="text">Raw direction: {{ Math.round(geolocation.rawDirection) }}°</p>
-          <p class="text">Alpha: {{ Math.round(geolocation.alpha) }}°</p>
-          <p class="text">Difference direction: {{ geolocation.direction }}°</p>
-          -->
         </div>
       </div>
       
@@ -204,8 +200,9 @@
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div class="answer-text">
-          <input v-model="writetext.playerAnswer" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" />
-          <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" class="full-width" :disabled="playerResult !== null" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
+          <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
+          <input v-bind:value="writetext.playerAnswer" v-on:input="writetext.playerAnswer = $event.target.value" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" :disabled="stepPlayed" />
+          <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" class="full-width" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
         </div>
       </div>
       
@@ -216,15 +213,27 @@
           <p class="text">{{ getTranslatedText() }}</p>
         </div>
         <div id="pieces">
-            <div class="piece" draggable="true"
+            <div draggable="true"
               v-for="piece in puzzle.pieces" :key="piece.pos" :id="'piece-' + piece.pos"
               @dragstart="handleDragStart($event)"
+              @dragover="handleDragOver($event)"
               @drop="handleDrop($event)"
               @dragend="handleDragEnd($event)"
+              @click="movePieceWithClick(piece.pos)"
+              :class="piece.classes"
               :style="'background-image: url(' + puzzle.picture + '); background-size: ' + piece.backSize + '% ' + piece.backSize + '%;background-position: -' + piece.backXPos + ' -' + piece.backYPos + ';'"
             ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'"></header></div>
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
+        <div class="centered text-grey q-pt-xl" v-if="puzzle.mode === 'drag'">
+          {{ $t('label.PuzzleHelpText') }}
+        </div>
+        <div class="centered text-grey q-pt-xl" v-if="puzzle.mode === 'click'">
+          {{ $t('label.PuzzleHelpTextClick') }}
+        </div>
+        <div class="centered text-grey q-pt-sm" v-if="puzzle.mode === 'drag'">
+          <a @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
+        </div>
       </div>
       
       <!------------------ MEMORY STEP AREA ------------------------>
@@ -276,7 +285,7 @@
       
       <!------------------ LOCATE ITEM IN AUGMENTED REALITY STEP AREA ------------------------>
       
-      <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
+      <div class="locate-item-ar" v-show="step.type == 'locate-item-ar'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && geolocation.active"></video>
         </transition>
@@ -289,10 +298,10 @@
             <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
           </div>
         </div>
-        <div class="target-view" v-show="playerResult === null || (playerResult && step.options.is3D)">
+        <div class="target-view" v-show="(playerResult === null) || (playerResult && step.options && step.options.is3D)">
           <canvas id="target-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
-        <img ref="item-image" v-show="playerResult && !step.options.is3D" />
+        <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
       </div>
       
       <!------------------ LOCATE A 2D MARKER / TOUCH OBJECT ON MARKER ------------------------>
@@ -301,11 +310,14 @@
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-marker"  webkit-playsinline playsinline src="" autoplay v-show="cameraStreamEnabled && playerResult === null"></video>
         </transition>
+        <!-- MP 2019-09-30 now we use phonegap-plugin-barcodescanner for compatibility reasons, and cannot use any "layer" above camera stream -->
+        <!--
         <div v-if="((step.type == 'locate-marker' && step.options.mode === 'scan') || step.id == 'sensor') && locateMarker.layer !== null &&  locateMarker.compliant">
           <transition appear :enter-active-class="'animated ' + locateMarker.layer.animationShow" :leave-active-class="'animated ' + locateMarker.layer.animationHide">
             <img class="locate-marker-layer" :src="'statics/images/find-marker-layers/' + step.options.layerCode + '.png'" v-show="step.id === 'sensor' || (playerResult === null || (playerResult === false && nbTry < 2))" />
           </transition>
         </div>
+        -->
         <div v-show="playerResult === null">
           <div class="text" v-show="getTranslatedText() != ''">
             <p>{{ getTranslatedText() }}</p>
@@ -317,6 +329,7 @@
         <div v-if="locateMarker.compliant && playerResult === null && isHybrid" class="text-white centered q-mt-md">
           {{ $t('label.ScanTheMarkersLikeThat') }}
           <div><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
+          {{ $t('label.ScanTheMarkersLikeThat2') }}
           <div><q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" @click="startScanQRCode()">{{ $t('label.LaunchTheScanner') }}</q-btn></div>
         </div>
         <div v-if="!locateMarker.compliant">
@@ -361,6 +374,21 @@
       </div>
     </q-dialog>
     
+    <!--====================== GPS CALIBRATION =================================-->
+    
+    <q-dialog v-model="geolocation.showCalibration">
+      <div class="bg-black centered q-pa-md">
+        <img style="width: 100%" src="statics/icons/game/wave-phone.gif">
+        <span class="text-white">{{ $t('label.WaveThePhoneForGPSPrecision') }}</span>
+      </div>
+    </q-dialog>
+    <q-dialog v-model="geolocation.takeMobileVertically">
+      <div class="bg-black centered q-pa-md">
+        <img style="width: 100%" src="statics/icons/game/take-mobile-vertically.gif">
+        <span class="text-white">{{ $t('label.TakeMobileVertically') }}</span>
+      </div>
+    </q-dialog>
+    
   </div>
   
 </template>
@@ -375,7 +403,6 @@ import utils from 'src/includes/utils'
 import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
 import markersList from 'data/markers.json'
-import layersForMarkers from 'data/layersForMarkers.json'
 
 import Notification from 'boot/NotifyHelper'
 
@@ -386,7 +413,7 @@ import Vue from 'vue'
 
 // required for step 'locate-item-ar'
 import * as THREE from 'three'
-import * as TWEEN from '@tweenjs/tween.js'
+import TWEEN from '@tweenjs/tween.js'
 import GLTFLoader from 'three-gltf-loader'
 
 // required for step 'locate-marker'
@@ -471,7 +498,8 @@ export default {
   methods: {
     initialState () {
       return {
-        playerResult: null,
+        playerResult: null, // can be null even if step is played (answered)
+        stepPlayed: false, // changes to true when step is played
         cameraStreamEnabled: false,
         serverUrl: process.env.SERVER_URL,
         nbTry: 0,
@@ -514,7 +542,9 @@ export default {
           target: null,
           canSeeTarget: false,
           canTouchTarget: false,
-          primaryColor: colors.getBrand('primary')
+          primaryColor: colors.getBrand('primary'),
+          showCalibration: false,
+          takeMobileVertically: false
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -522,7 +552,7 @@ export default {
             raw: { x: 0, y: 0, z: 0 },
             filtered: { x: 0, y: 0 },
             avgData: { x: [], y: [], z: [] },
-            maxAvgItems: 3
+            maxAvgItems: 4
           },
           velocity: { x: 0, y: 0 },
           dateLatestEvent: null,
@@ -531,6 +561,7 @@ export default {
           idleAccelerationCounter: 1
         },
         minDistanceForGPS: 20, // in meters
+        deviceHasGyroscope: null,
         
         // for step type 'locate-marker'
         locateMarker: {
@@ -552,7 +583,7 @@ export default {
         
         // for step type 'write-text'
         writetext: {
-          playerAnswer: null
+          playerAnswer: ""
         },
         
         // for step type 'jigsaw puzzle'
@@ -560,7 +591,10 @@ export default {
           pieces: [],
           picture: 'statics/icons/game/medal.png',
           dragSrcEl: null,
-          element: {}
+          element: {},
+          colsByLevel: [1, 3, 4, 6, 5],
+          mode: 'drag',
+          clickModeSelected: null
         },
         
         // for step type 'memory'
@@ -583,6 +617,7 @@ export default {
           show: false,
           url: ''
         },
+        
         // for cleanup
         latestRequestAnimationId: null
       }
@@ -602,7 +637,7 @@ export default {
     /*
      * Init the component data
      */
-    initData () {
+    async initData () {
       TWEEN.removeAll()
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
@@ -674,7 +709,7 @@ export default {
         }*/
         
         if (this.step.type === 'jigsaw-puzzle') {
-          utils.setTimeout(this.initPuzzle, 1000)
+          await this.initPuzzle()
           this.$emit('pass')
         }
         
@@ -688,7 +723,8 @@ export default {
           // user can pass
           this.$emit('pass')
           
-          this.$refs['geolocation-component'].disabled = false
+          // ask user to calibrate gps
+          this.askUserToCalibrateGPS()
           
           // Start absolute orientation sensor
           // ---------------------------------
@@ -697,46 +733,64 @@ export default {
           // reliable when device is held vertically
           try {
             let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
-            sensor.onerror = event => console.error(event.error.name, event.error.message)
-            sensor.onreading = this.onAbsoluteOrientationSensorReading
-            sensor.start()
-            this.geolocation.absoluteOrientationSensor = sensor
-            
-            // must store object returned by setInterval() in Vue store instead of component properties,
-            // otherwise it is reset when route changes & component is reloaded
-            this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
+            if (typeof sensor === 'undefined') {
+              // iOS
+              this.geolocation.absoluteOrientationSensor = {
+                stop: this.stopAlternateAbsoluteOrientationSensor
+              }
+              window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
+            } else {
+              // Android
+              sensor.onerror = event => console.error(event.error.name, event.error.message)
+              sensor.onreading = this.onAbsoluteOrientationSensorReading
+              sensor.start()
+              this.geolocation.absoluteOrientationSensor = sensor
+            }
           } catch (error) {
-            console.log(error)
+            console.error(error)
           }
+          // must store object returned by setInterval() in Vue store instead of component properties,
+          // otherwise it is reset when route changes & component is reloaded
+          this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
           
           // start accelerometer sensor
           window.addEventListener("devicemotion", this.handleMotionEvent, true)
+          
+          await this.waitForGyroscopeDetection()
+          
+          if (this.step.type === 'locate-item-ar' && !this.deviceHasGyroscope) {
+            Notification(this.$t('label.CouldNotEnableAR'), 'warning')
+          }
         }
         
-        if (this.step.type === 'locate-item-ar' && !this.playerResult) {
-          if (this.isIOs) {
-            let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
-            CameraPreview.startCamera(options)
-            CameraPreview.show()
-          } else {
-            var cameraStream = this.$refs['camera-stream-for-locate-item-ar']
-            // enable rear camera stream
-            // -------------------------
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-              .then((stream) => {
-                // Hacks for Safari iOS
-                cameraStream.setAttribute("muted", true)
-                cameraStream.setAttribute("playsinline", true)
-                
-                cameraStream.srcObject = stream
-                cameraStream.play()
-                this.cameraStreamEnabled = true
-              })
-              .catch((err) => {
-                // TODO friendly behavior/message for user
-                console.warn("No camera stream available")
-                console.log(err)
-              });
+        if (this.step.type === 'locate-item-ar'  && !this.playerResult) {
+          if (this.deviceHasGyroscope || !this.step.backgroundImage) {
+            // video stream for AR background
+            if (this.isIOs) {
+              let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
+              CameraPreview.startCamera(options)
+              CameraPreview.show()
+            } else {
+              var cameraStream = this.$refs['camera-stream-for-locate-item-ar']
+              // enable rear camera stream
+              // -------------------------
+              navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+              
+                .then((stream) => {
+                  // Hacks for Safari iOS
+                  cameraStream.setAttribute("muted", true)
+                  cameraStream.setAttribute("playsinline", true)
+                                  
+                  cameraStream.srcObject = stream
+                  cameraStream.play()
+                  this.cameraStreamEnabled = true
+                })
+                .catch((err) => {
+                  // TODO friendly behavior/message for user
+                  console.warn("No camera stream available")
+                  console.log(err)
+                });
+            }
           }
           
           // Prepare scene to render
@@ -746,7 +800,7 @@ export default {
           
           this.geolocation.target = {
             scene: new THREE.Scene(),
-            camera: new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000),
+            camera: new THREE.PerspectiveCamera(67, window.innerWidth / window.innerHeight, 0.001, 1000),
             renderer: new THREE.WebGLRenderer({ canvas: sceneCanvas, alpha: true, antialias: true }),
             size: null, // in meters
             // for animation
@@ -766,7 +820,7 @@ export default {
           // --- specific parts for 2D/3D ---
           let object, animations
           if (this.step.options.is3D) {
-            let data = await this.loadAndPrepare3DModel(this.step.options.model)
+            let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.options.customModel ? this.step.questId : null)
             object = data.object
             animations = data.animations
             
@@ -803,6 +857,7 @@ export default {
             let texture
             try {
               texture = new THREE.TextureLoader().load(itemImage)
+              // handling PNG transparency, see https://stackoverflow.com/a/26933541/488666
               texture.anisotropy = 0
               texture.magFilter = THREE.NearestFilter
               texture.minFilter = THREE.NearestFilter
@@ -832,6 +887,11 @@ export default {
           this.animateTargetCanvas()
         }
         
+        // enable geoloc only when 3D scene is fully loaded
+        if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
+          this.$refs['geolocation-component'].disabled = false
+        }
+        
         if ((this.step.type === 'locate-marker' || this.step.id === 'sensor') && !this.playerResult) {
           if (this.step.id === 'sensor') {
             this.step.options = { mode: 'scan', layerCode: 'magnifier' }
@@ -840,6 +900,8 @@ export default {
             this.$emit('pass')
           }
           
+          // MP 2019-09-30 using phonegap-plugin-barcodescanner prevents using any kind of "layer" above camera stream
+          /*import layersForMarkers from 'data/layersForMarkers.json'
           if (this.step.options.mode === 'scan') {
             for (let layer of layersForMarkers) {
               if (layer.code === this.step.options.layerCode) {
@@ -847,29 +909,10 @@ export default {
                 break
               }
             }
-          }
+          }*/
           
-          //if (this.isIOs) {
           if (this.isHybrid) {
             this.initQRCodes()
-            /* //QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
-            // Start a scan. Scanning will continue until something is detected or
-            // `BBScanner.cancelScan()` is called.
-            //QRScanner.scan({format: cordova.plugins.QRScanner.types.QR_CODE}, this.scanQRCode)
-            this.startScanQRCode()
-
-            // Make the webview transparent so the video preview is visible behind it.
-            //QRScanner.show()
-            */
-            //this.startScanQRCode()
-            
-            /*/ With plugin Cordova-plugin-camera-preview 
-            this.cameraStreamEnabled = true
-            let sceneCanvas = document.getElementById('marker-canvas')
-            sceneCanvas.height = window.screen.height
-            sceneCanvas.width = window.screen.width
-            
-            await this.displayMarkers(sceneCanvas)*/
           } else {
             // with plugin phonegap-plugin-media-stream
             let cameraStream = this.$refs['camera-stream-for-locate-marker']
@@ -897,6 +940,86 @@ export default {
         }
       })
     },
+    eventAlternateAbsoluteOrientationSensor(e) {
+      const alpha    = e.webkitCompassHeading !== null ? 360 - e.webkitCompassHeading : e.alpha
+      const beta     = e.beta
+      const gamma    = e.gamma
+      const degtorad = Math.PI / 180
+     
+      var _x = beta  ? beta  * degtorad : 0 // beta value
+      var _y = gamma ? gamma * degtorad : 0 // gamma value
+      var _z = alpha ? alpha * degtorad : 0 // alpha value
+      var cX = Math.cos(_x/2)
+      var cY = Math.cos(_y/2)
+      var cZ = Math.cos(_z/2)
+      var sX = Math.sin(_x/2)
+      var sY = Math.sin(_y/2)
+      var sZ = Math.sin(_z/2)
+
+      // ZXY quaternion construction.
+      var w = cX * cY * cZ - sX * sY * sZ
+      var x = sX * cY * cZ - cX * sY * sZ
+      var y = cX * sY * cZ + sX * cY * sZ
+      var z = cX * cY * sZ + sX * sY * cZ
+
+      this.geolocation.absoluteOrientationSensor.quaternion = [ y, -x, -w, z ]
+
+      let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
+
+      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.deviceHasGyroscope) {
+        this.geolocation.target.camera.quaternion = quaternion
+      }
+
+      // every 100ms, update geolocation direction
+      if (!this.waitForNextQuaternionRead) {
+        let rotationZXY = new THREE.Euler().setFromQuaternion(quaternion, 'ZXY')
+        let rotationXZY = new THREE.Euler().setFromQuaternion(quaternion, 'XZY')
+
+        let tmpAlpha = (rotationZXY.x < Math.PI / 4 ? rotationZXY.z : rotationXZY.y)
+        let newAlpha = JSON.stringify((360 - utils.radiansToDegrees(tmpAlpha)) % 360)
+
+        this.geolocation.direction = (this.geolocation.rawDirection - newAlpha + 360) % 360
+
+        this.waitForNextQuaternionRead = true
+        utils.setTimeout(() => { this.waitForNextQuaternionRead = false }, 100)
+      }
+    },
+    stopAlternateAbsoluteOrientationSensor() {
+      window.removeEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
+    },
+    reloadPage() {
+      this.$router.go({
+          path: this.$router.path,
+          query: {
+              t: new Date()
+          }
+      })
+    },
+    /*
+    * Open GPS calibration popin
+    */
+    askUserToCalibrateGPS() {
+      if (this.step.options && this.step.options.showHelp) {
+        this.geolocation.showCalibration = true
+        utils.setTimeout(this.closeGPSCalibration, 7000)
+      }
+    },
+    closeGPSCalibration() {
+      this.geolocation.showCalibration = false
+      if (this.step.type === 'locate-item-ar') {
+        this.askUserToHandleMobileVertically()
+      }
+    },
+    /*
+    * Show the user that he needs to take his mobile vertically
+    */
+    askUserToHandleMobileVertically() {
+      this.geolocation.takeMobileVertically = true
+      utils.setTimeout(this.closeHandleMobileVertically, 5000)
+    },
+    closeHandleMobileVertically() {
+      this.geolocation.takeMobileVertically = false
+    },
     /*
     * Init QR Codes
     */
@@ -913,7 +1036,6 @@ export default {
     startScanQRCode() {
       var _this = this
       if (this.isHybrid) {
-      //if (this.isIOs) {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
             if (result && result.text) {
@@ -937,59 +1059,8 @@ export default {
             disableSuccessBeep: false // iOS and Android
           }
         )
-        /*this.stopScanQRCode()
-        QRScanner.prepare(this.prepareQRCodeScanner) // show the prompt
-        QRScanner.scan(this.scanQRCode)
-        QRScanner.show()
-        QRScanner.getStatus(function(status) {
-          console.log(status);
-        });*/
       }
     },
-    /*stopScanQRCode() {
-      QRScanner.hide(function(status) {
-        console.log(status);
-        QRScanner.destroy(function(status) {
-          console.log(status)
-        })
-      });
-    },
-    /*
-    * Triggered when a qr code is scanned
-    *
-    scanQRCode (err, text) {
-      if (err) {
-        console.log("Error with scanner: " + err)
-        // an error occurred, or the scan was canceled (error code `6`)
-      } else {console.log("found marker : " + text)
-        // The scan completed, display the contents of the QR code:
-        this.checkAnswer(text)
-      }
-    },
-    /*
-    * Prepare QR Code scanner
-    *
-    prepareQRCodeScanner (err, status) {
-      if (err) {
-       // here we can handle errors and clean up any loose ends.
-       console.error(err);
-      }
-      if (status.authorized) {
-        console.log("QR Code scan not authorized")
-        // W00t, you have camera access and the scanner is initialized.
-        // QRscanner.show() should feel very fast.
-      } else if (status.denied) {
-        console.log("QR Code access denied")
-       // The video preview will remain black, and scanning is disabled. We can
-       // try to ask the user to change their mind, but we'll have to send them
-       // to their device settings with `BBScanner.openSettings()`.
-      } else {
-        console.log("QR Code scan error with permission")
-        // we didn't get permission, but we didn't get permanently denied. (On
-        // Android, a denial isn't permanent unless the user checks the "Don't
-        // ask again" box.) We can ask again at the next relevant opportunity.
-      }
-    },*/
     /*
     * creates a marker control for step type 'locate-marker'
     */
@@ -1128,7 +1199,8 @@ export default {
       
       if (this.step.options.mode === 'touch') {
         let object, animations
-        let data = await this.loadAndPrepare3DModel(this.step.options.model)
+        //let data = await this.loadAndPrepare3DModel(this.step.options.model)
+        let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.options.customModel ? this.step.questId : null)
         object = data.object
         animations = data.animations
         
@@ -1203,11 +1275,11 @@ export default {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }
       } else if (type === 'image-recognition') {
         return { result: answer, answer: this.answer, score: 0, reward: 0, offline: true }
-      } else if (type === 'geolocation' || type === 'locate-item-ar') {
+      } else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle') {
         //TODO: find a way to check server side
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
       } else if (type === 'use-item') {
-        let anwserPixelCoordinates = {
+        let answerPixelCoordinates = {
           left: Math.round(this.answer.coordinates.left / 100 * 100 * answer.windowWidth),
           top: Math.round(this.answer.coordinates.top / 100 * 133 * answer.windowWidth)
         }
@@ -1215,13 +1287,13 @@ export default {
         // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
         let solutionAreaRadius = Math.round(8 * answer.windowWidth)
         
-        let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - answer.posX, 2) + Math.pow(anwserPixelCoordinates.top - answer.posY, 2))
+        let distanceToSolution = Math.sqrt(Math.pow(answerPixelCoordinates.left - answer.posX, 2) + Math.pow(answerPixelCoordinates.top - answer.posY, 2))
 
         if (distanceToSolution <= solutionAreaRadius && this.answer.item === answer.item) {
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       } else if (type === 'find-item') {
-        let anwserPixelCoordinates = {
+        let answerPixelCoordinates = {
           left: Math.round(this.answer.left / 100 * 100 * answer.windowWidth),
           top: Math.round(this.answer.top / 100 * 133 * answer.windowWidth)
         }
@@ -1229,7 +1301,7 @@ export default {
         // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
         let solutionAreaRadius = Math.round(8 * answer.windowWidth)
         
-        let distanceToSolution = Math.sqrt(Math.pow(anwserPixelCoordinates.left - answer.posX, 2) + Math.pow(anwserPixelCoordinates.top - answer.posY, 2))
+        let distanceToSolution = Math.sqrt(Math.pow(answerPixelCoordinates.left - answer.posX, 2) + Math.pow(answerPixelCoordinates.top - answer.posY, 2))
 
         if (distanceToSolution <= solutionAreaRadius) {
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
@@ -1266,9 +1338,6 @@ export default {
           this.locateMarker.flash = true
           this.locateMarker.markerControls[answer].detected = true
           this.$emit('played', answer)
-          // reactivate scanner
-          //this.startScanQRCode()
-          //this.stopMarkersSensors()
         }
         return 
       }
@@ -1393,7 +1462,11 @@ export default {
           break
         
         case 'jigsaw-puzzle':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer.join('|')}, true)
+          // MP 2019-10-15 since shuffle is done on client side, we always
+          // consider that puzzle is solved when checkAnswer() is called.
+          
+          // call to sendAnswer() is required to get score & offline info
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: ''}, true)
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
@@ -1437,7 +1510,6 @@ export default {
           } else {
             this.nbTry++
             if (this.nbTry < 2 && this.step.displayRightAnswer) {
-              // reset code
               Notification(this.$t('label.UseItemNothingHappens'), 'error')
             } else {
               if (this.step.displayRightAnswer) {
@@ -1461,7 +1533,6 @@ export default {
           } else {
             this.nbTry++
             if (this.nbTry < 2 && this.step.displayRightAnswer) {
-              // reset code
               Notification(this.$t('label.FindItemNothingHappens'), 'error')
             } else {
               if (this.step.displayRightAnswer) {
@@ -1480,7 +1551,17 @@ export default {
             checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, false)
             if (checkAnswerResult.result === true) {
               if (this.step.type === 'locate-item-ar') {
-                this.geolocation.absoluteOrientationSensor.stop() // stop moving camera when device moves
+                // stop listening to motion events
+                window.removeEventListener("devicemotion", this.handleMotionEvent, true)
+
+                // stop moving camera when device moves
+                this.geolocation.absoluteOrientationSensor.stop()
+              }
+              
+              // stop camera flow
+              if (this.isIOs) {
+                CameraPreview.hide()
+                CameraPreview.stopCamera()
               }
               
               TWEEN.removeAll() // clear all running animations
@@ -1496,6 +1577,7 @@ export default {
                 }
                 let camera = target.camera
                 let object = target.scene.getObjectByName('targetObject')
+                object.visible = true
                 
                 let box = new THREE.Box3().setFromObject(object)
                 let size = new THREE.Vector3()
@@ -1503,35 +1585,42 @@ export default {
                 
                 let cameraDistance = Math.max(size.x, size.y, size.z) * 2
                 
-                let startScale = Object.assign({}, object.scale) // copy the full Vector3 object, not a reference
+                // to fix temporally issue of animations with iOs
+                if (this.isIOs) {
+                  camera.position.set(0, 0,  cameraDistance * 2 / 3)
+
+                  this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+                } else {
+                  let startScale = Object.assign({}, object.scale) // copy the full Vector3 object, not a reference
                 
-                let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
-                  .easing(TWEEN.Easing.Back.In)
-                  .onComplete(() => {
-                    if (this.step.type === 'locate-marker') {
-                      // detach 3D object (target to find) from arSmoothedControl and attach it directly at scene root, for hassle free manipulation of the 3D object
-                      utils.detachObject3D(object, object.parent, target.scene)
-                      utils.attachObject3D(object, target.scene, target.scene)
-                    }
-                    
-                    camera.position.set(0, 0,  cameraDistance * 2 / 3)
-                    camera.lookAt(new THREE.Vector3(0, cameraDistance, size.z / 2))
-                    // reset object position/scale/rotation
-                    object.scale.set(0, 0, 0)
-                    object.position.set(0, cameraDistance, size.z / 2)
-                    object.rotation.set(0, 0, 0)
-                    this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
-                  })
-                
-                let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
-                  .easing(TWEEN.Easing.Back.Out)
-                
-                // https://stackoverflow.com/a/31766476/488666
-                let rotationAnimation = new TWEEN.Tween(object.rotation)
-                  .to({ z: "-" + Math.PI / 2 }, 2000) // relative animation
-                  .repeat(Infinity)
+                  let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
+                    .easing(TWEEN.Easing.Back.In)
+                    .onComplete(() => {
+                      if (this.step.type === 'locate-marker') {
+                        // detach 3D object (target to find) from arSmoothedControl and attach it directly at scene root, for hassle free manipulation of the 3D object
+                        utils.detachObject3D(object, object.parent, target.scene)
+                        utils.attachObject3D(object, target.scene, target.scene)
+                      }
+                      
+                      camera.position.set(0, 0,  cameraDistance * 2 / 3)
+                      camera.lookAt(new THREE.Vector3(0, cameraDistance, size.z / 2))
+                      // reset object position/scale/rotation
+                      object.scale.set(0, 0, 0)
+                      object.position.set(0, cameraDistance, size.z / 2)
+                      object.rotation.set(0, 0, 0)
+                      this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+                    })
                   
-                disappearAnimation.chain(appearAnimation, rotationAnimation).start()
+                  let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
+                    .easing(TWEEN.Easing.Back.Out)
+                  
+                  // https://stackoverflow.com/a/31766476/488666
+                  let rotationAnimation = new TWEEN.Tween(object.rotation)
+                    .to({ z: "-" + Math.PI / 2 }, 2000) // relative animation
+                    .repeat(Infinity)
+                    
+                  disappearAnimation.chain(appearAnimation, rotationAnimation).start()
+                }
               } else { // 2D image on plane
                 this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
               }
@@ -1581,7 +1670,6 @@ export default {
                   this.submitWrongAnswer(checkAnswerResult.offline, true)
                   this.stopMarkersSensors()
                 } else {
-                  //this.startScanQRCode()
                   this.submitRetry(checkAnswerResult.offline)
                 }
               }
@@ -1601,6 +1689,7 @@ export default {
      * Send answer without telling if it is true or false
      */
     submitAnswer(offlineMode) {
+      this.stepPlayed = true
       this.$emit('played', null, offlineMode)
       
       this.displayReadMoreAlert()
@@ -1617,6 +1706,7 @@ export default {
       } else {
         this.playerResult = null
       }
+      this.stepPlayed = true
       
       this.$emit('success', score, offlineMode, showResult)
       this.$emit('played')
@@ -1665,9 +1755,7 @@ export default {
      * stop the markers sensors
      */
     stopMarkersSensors() {
-      if (this.isIOs) {
-        //this.stopScanQRCode()
-      } else {
+      if (!this.isHybrid) {
         this.stopVideoTracks('camera-stream-for-locate-marker')
         this.locateMarker.scene = new THREE.Scene()
         this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
@@ -1682,6 +1770,7 @@ export default {
       } else {
         this.playerResult = null
       }
+      this.stepPlayed = true
       
       this.$emit('fail', offlineMode, showResult)
       this.$emit('played')
@@ -1715,7 +1804,7 @@ export default {
           }
         ]
         if (this.readMoreNotif === null) {
-          this.readMoreNotif = Notification(this.$t('label.ClickHereToKnowMore'), 'readMore', actions)
+          this.readMoreNotif = Notification('', 'readMore', actions)
         }
       }
     },
@@ -2049,17 +2138,25 @@ export default {
       this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
       let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
       
-      if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && this.geolocation.GPSdistance > this.minDistanceForGPS) || this.step.type !== 'locate-item-ar') {
+      if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && (this.geolocation.GPSdistance > this.minDistanceForGPS || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
         this.geolocation.distance = this.geolocation.GPSdistance
         this.geolocation.rawDirection = rawDirection
       }
       
       let finalDirection = utils.degreesToRadians(rawDirection)
       
+      if (!this.deviceHasGyroscope) {
+        // consider that the object to find is always in front of the device 
+        finalDirection = 0
+        // avoid to be too close from the object, set minimal distance
+        const minDistanceFromObject = 2 + (this.geolocation.target !== null ? this.geolocation.target.size : 0) // in meters
+        this.geolocation.GPSdistance = Math.max(minDistanceFromObject, this.geolocation.GPSdistance)
+      }
+      
       // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
       // note that those properties are also needed when accelerometer is used (method 'handleMotionEvent()')
-      this.geolocation.position.x = this.geolocation.GPSdistance !== 0 ? Math.sin(finalDirection) * this.geolocation.GPSdistance : 0
-      this.geolocation.position.y = this.geolocation.GPSdistance !== 0 ? Math.cos(finalDirection) * this.geolocation.GPSdistance : 0
+      this.geolocation.position.x = Math.sin(finalDirection) * this.geolocation.GPSdistance
+      this.geolocation.position.y = Math.cos(finalDirection) * this.geolocation.GPSdistance
       
       if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.geolocation.target.scene !== null) {
         let target = this.geolocation.target
@@ -2072,10 +2169,16 @@ export default {
         
         // object may not be loaded at first calls => skip part where 3D scene must be loaded
         if (typeof object === 'undefined') { return }
-        object.visible = true
+        
+        if (!object.visible) {
+          // initialize object position
+          object.position.x = this.geolocation.position.x
+          object.position.y = this.geolocation.position.y
+          object.visible = true
+        }
         
         // if distance to object is greater than value of this.minDistanceForGPS, update target object position only given GPS position. Otherwise, accelerometer is used to track device position for better user experience (avoids object "drifts").
-        if (this.geolocation.GPSdistance > this.minDistanceForGPS) {
+        if (this.geolocation.GPSdistance > this.minDistanceForGPS || this.deviceHasGyroscope === false) {
           // smooth position change
           new TWEEN.Tween(object.position)
             .to({ x: this.geolocation.position.x, y: this.geolocation.position.y }, 1000)
@@ -2105,7 +2208,7 @@ export default {
       // if no item selected
       if (this.itemUsed === null) {
         Notification(this.$t('label.PleaseSelectAnItemFirst'), 'error')
-        // TODO: maybe make blink the 'inventory' icon in the left bottom corner
+        this.$emit('msg', 'suggestInventory')
         return
       }
       
@@ -2202,68 +2305,67 @@ export default {
      * Check if the puzzle is correct
      */
     async checkPuzzle() {
-      var result = this.comparePuzzlePiecePositions()
-      
+      let result = this.comparePuzzlePiecePositions()
       if (result) {
-        this.checkAnswer(result)
+        // no answer (server considers that puzzle is solved when called)
+        this.checkAnswer()
       }
-      return true
+      return result
     },
     comparePuzzlePiecePositions() {
-      var answer = []
-      var rightPositions = this.step.answers.split('|')
-      for (var i = 0; i < this.puzzle.pieces.length; i++) {
-        answer.push(this.puzzle.pieces[i].pos)
-        if (rightPositions[i] !== this.puzzle.pieces[i].pos) {
+      for (let i = 0; i < this.puzzle.pieces.length; i++) {
+        if (this.puzzle.pieces[i].pos !== i) {
           return false
         }
       }
-      return answer
+      return true
     },
     /*
      * Initialize puzzle, re-order pieces
      */
-    initPuzzle() {
-      // Puzzle sizes
-      var level = parseInt((this.step.options.level || 2), 10) // 1=easy, 2=medium, 3=hard
-      var puzzleSize = level * 2
-      var puzzleWidth = document.getElementById('pieces').clientWidth
-      var puzzleHeight = puzzleWidth
-      //document.getElementById('pieces').style.height = puzzleHeight + "px"
-      var pieceHeight = Math.floor(puzzleHeight / puzzleSize)
-      var pieceWidth = Math.floor(puzzleWidth / puzzleSize)
+    async initPuzzle() {
+      let picture
+      if (this.step.options.picture.indexOf('blob:') !== -1) {
+        picture = this.step.options.picture
+      } else if (this.step.options.picture.indexOf('upload/') === -1) {
+        picture = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + this.step.options.picture
+      } else {
+        picture = this.serverUrl + this.step.options.picture
+      }
       
-      // get the pieces position
-      let piecesPosition = this.step.answers.split('|')
-
+      // ensure that puzzle image is loaded before doing the remaining tasks
+      await utils.loadImage(picture)
+      
+      this.puzzle.picture = picture
+      
+      // Puzzle sizes
+      let level = parseInt((this.step.options.level || 2), 10) // 1=easy, 2=medium, 3=very hard, 4=hard
+      let puzzleSize = this.puzzle.colsByLevel[level]
+      let puzzleNbPieces = Math.pow(puzzleSize, 2)
+      let puzzleWidth = document.getElementById('pieces').clientWidth
+      let puzzleHeight = puzzleWidth
+      let pieceHeight = Math.floor(puzzleHeight / puzzleSize)
+      let pieceWidth = Math.floor(puzzleWidth / puzzleSize)
+      
       // Build pieces
-      for (var i = 0; i < puzzleSize * puzzleSize; i++) {
+      for (let i = 0; i < puzzleNbPieces; i++) {
         let xPos = (pieceWidth * (i % puzzleSize)) + 'px';
         let yPos = (pieceHeight * Math.floor(i / puzzleSize)) + 'px';
-        this.puzzle.pieces[i] = { pos: piecesPosition[i], backSize: (puzzleSize * 100), backXPos: xPos, backYPos: yPos, width: pieceWidth, height: pieceHeight }
+        this.puzzle.pieces[i] = { pos: i, backSize: (puzzleSize * 100), backXPos: xPos, backYPos: yPos, width: pieceWidth, height: pieceHeight, classes: 'piece' }
       }
       
       //Shuffle & check that after shuffle the piece are correctly shuffled
-      var ordered = true
+      let ordered = true
       while (ordered) {
         this.puzzle.pieces = this.shuffle(this.puzzle.pieces)
         ordered = this.comparePuzzlePiecePositions()
       }
       
-      if (this.step.options.picture.indexOf('blob:') !== -1) {
-        this.puzzle.picture = this.step.options.picture
-      } else if (this.step.options.picture.indexOf('upload/') === -1) {
-        this.puzzle.picture = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + this.step.options.picture
-      } else {
-        this.puzzle.picture = this.serverUrl + this.step.options.picture
-      }
-
-      initJigsaw(this.puzzle.element)
-      
       return true
     },
+    // https://stackoverflow.com/a/6274381/488666
     shuffle(array) {
-      for (var i = array.length -1; i > 0; i--) {
+      for (let i = array.length -1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1))
         let k = array[i]
         array[i] = array[j]
@@ -2276,101 +2378,120 @@ export default {
      * @param   {object}    e            Event when user touch puzzle piece
      */
     handleDragStart(e) {
-      if (e.target.className.indexOf('piece') !== -1) {
-        this.puzzle.dragSrcEl = e.target;
-        /*this.puzzle.dragSrcEl.style.opacity = '0.4';
-        var dt = e.dataTransfer;
-        dt.effectAllowed = 'move';
-        dt.setData('text', this.puzzle.dragSrcEl.innerHTML);
-       
-        // customize drag image for one of the panels
-        if (dt.setDragImage instanceof Function && e.target.innerHTML.indexOf('X') > -1) {
-          var img = new Image();
-          img.src = 'dragimage.jpg';
-          dt.setDragImage(img, img.width / 2, img.height / 2);
-        }*/
+      if (this.puzzle.mode === 'drag') {
+        if (e.target.className.indexOf('piece') !== -1) {
+          this.puzzle.dragSrcEl = e.target;
+        }
+        return true
       }
-      return true
     },
     /*
      * Handle puzzle piece move over
      * @param   {object}    e            Event when user move puzzle piece over
-     *
+     */
     handleDragOver(e) {
-      if (this.dragSrcEl) {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-      }
-    },*/
-    /*
-     * Handle puzzle piece drag enter
-     * @param   {object}    e            Event when user touch puzzle piece
-     *
-    handleDragEnter(e) {
-      if (this.dragSrcEl) {
-        e.target.classList.add('over');
+      if (this.puzzle.mode === 'drag') {
+        if (this.puzzle.dragSrcEl) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+        }
       }
     },
-    /*
-     * Handle puzzle piece drag leave
-     * @param   {object}    e            Event when user touch puzzle piece
-     *
-    handleDragLeave(e) {
-      if (this.dragSrcEl) {
-        e.target.classList.remove('over');
-      }
-    },*/
     /*
      * Handle puzzle piece move end
      * @param   {object}    e            Event when user stop moving puzzle piece
      */
     handleDragEnd(e) {
-      this.puzzle.dragSrcEl = null;
-      var cols = document.querySelectorAll('#pieces .piece');
-      [].forEach.call(cols, function (col) {
-        col.style.opacity = ''
-        col.classList.remove('over')
-      })
-      return true
+      if (this.puzzle.mode === 'drag') {
+        this.puzzle.dragSrcEl = null;
+        var cols = document.querySelectorAll('#pieces .piece');
+        [].forEach.call(cols, function (col) {
+          col.style.opacity = ''
+          col.classList.remove('over')
+        })
+        return true
+      }
     },
     /*
      * Handle puzzle piece drop
      * @param   {object}    e            Event when user drop puzzle piece
      */
     handleDrop(e) {
-      if (this.puzzle.dragSrcEl && e.cancelable) {
-        e.stopPropagation()
-        e.stopImmediatePropagation()
-        e.preventDefault()
-        // if the target is defined & a piece is moved
-        if (e.target.parentNode.id && this.puzzle.dragSrcEl.id) {
-          // get id of piece moved and piece destination
-          var destId = e.target.parentNode.id.replace('piece-', '')
-          var sourceId = this.puzzle.dragSrcEl.id.replace('piece-', '')
-          var destIdPos = 0, sourceIdPos = 0
-          
-          // if the piece is moved
-          if (destId !== sourceId) {
-            // get the places in the arrays
-            for (var i = 0; i < this.puzzle.pieces.length; i++) {
-              if (this.puzzle.pieces[i].pos === destId) {
-                destIdPos = i
-              }
-              if (this.puzzle.pieces[i].pos === sourceId) {
-                sourceIdPos = i
-              }
-            }
-
-            // move the places in the arrays
-            let oldPlace = this.puzzle.pieces[destIdPos]
-            Vue.set(this.puzzle.pieces, destIdPos, this.puzzle.pieces[sourceIdPos])
-            Vue.set(this.puzzle.pieces, sourceIdPos, oldPlace)
-            // check if the puzzle is finished
-            this.checkPuzzle()
+      if (this.puzzle.mode === 'drag') {
+        if (this.puzzle.dragSrcEl && e.cancelable) {
+          e.stopPropagation()
+          e.stopImmediatePropagation()
+          e.preventDefault()
+          // if the target is defined & a piece is moved
+          if (e.target.parentNode.id && this.puzzle.dragSrcEl.id) {
+            // get id of piece moved and piece destination
+            let destId = parseInt(e.target.parentNode.id.replace('piece-', ''), 10)
+            let sourceId = parseInt(this.puzzle.dragSrcEl.id.replace('piece-', ''), 10)
+            this.switchPieces(sourceId, destId)
           }
         }
+        return true
       }
-      return true
+    },
+    /*
+     * Switch 2 pieces in puzzle
+     */
+    switchPieces(sourceId, destId) {
+      let destIdPos = 0, sourceIdPos = 0
+      
+      // if the piece is moved
+      if (destId !== sourceId) {
+        // get the places in the arrays
+        for (let i = 0; i < this.puzzle.pieces.length; i++) {
+          if (this.puzzle.pieces[i].pos === destId) {
+            destIdPos = i
+          }
+          if (this.puzzle.pieces[i].pos === sourceId) {
+            sourceIdPos = i
+          }
+        }
+
+        // move the places in the arrays
+        let oldPlace = this.puzzle.pieces[destIdPos]
+        Vue.set(this.puzzle.pieces, destIdPos, this.puzzle.pieces[sourceIdPos])
+        Vue.set(this.puzzle.pieces, sourceIdPos, oldPlace)
+        // check if the puzzle is finished
+        this.checkPuzzle()
+      }
+    },
+    /*
+     * Change the piece move mode for puzzle
+     */
+    changePuzzleMode() {
+      if (this.puzzle.mode === 'drag') {
+        this.puzzle.mode = 'click'
+      } else {
+        this.puzzle.mode = 'drag'
+      }
+    },
+    /*
+     * Move puzzle pieces with click
+     */
+    movePieceWithClick(pos) {
+      if (this.puzzle.mode === 'click') {
+        if (this.puzzle.clickModeSelected === null) {
+          for (let i = 0; i < this.puzzle.pieces.length; i++) {
+            if (this.puzzle.pieces[i].pos === pos) {
+              this.puzzle.pieces[i].classes = 'piece border-red'
+              this.puzzle.clickModeSelected = pos
+              let piece = this.puzzle.pieces[i]
+              // force properties changes
+              Vue.set(this.puzzle.pieces, i, piece)
+            }
+          }
+        } else {
+          for (let i = 0; i < this.puzzle.pieces.length; i++) {
+            this.puzzle.pieces[i].classes = 'piece'
+          }
+          this.switchPieces(this.puzzle.clickModeSelected, pos)
+          this.puzzle.clickModeSelected = null
+        }
+      }
     },
     /*
      * Init the memory game
@@ -2444,17 +2565,20 @@ export default {
     animateTargetCanvas() {
       let target = this.geolocation.target
       let mixers = target.mixers
+      let targetObject = target.scene.getObjectByName('targetObject')
       
       // 2D object: plane must always face camera
       if (this.step.options && !this.step.options.is3D) {
-        let plane = target.scene.getObjectByName('targetObject')
-        plane.lookAt(target.camera.position)
+        targetObject.lookAt(target.camera.position)
       }
       // animation
       if (mixers.length > 0) {
-        for (var i = 0; i < mixers.length; i++) {
+        for (let i = 0; i < mixers.length; i++) {
           mixers[i].update(target.clock.getDelta());
         }
+      }
+      if (this.deviceHasGyroscope === false) {
+        target.camera.lookAt(targetObject.position)
       }
       target.renderer.render(target.scene, target.camera)
       TWEEN.update()
@@ -2493,7 +2617,7 @@ export default {
       
       // animation
       if (mixers.length > 0) {
-        for (var i = 0; i < mixers.length; i++) {
+        for (let i = 0; i < mixers.length; i++) {
           mixers[i].update(this.locateMarker.clock.getDelta());
         }
       }
@@ -2518,8 +2642,8 @@ export default {
       }
       
       let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
-      
-      if (this.step.type === 'locate-item-ar') {
+
+      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.deviceHasGyroscope) {
         this.geolocation.target.camera.quaternion = quaternion
       }
       
@@ -2600,13 +2724,13 @@ export default {
     * @param     modelCode     code of the 3D model, for example "lamp"
     * @return    object        { object: <3D object>, animations: <animations from GLTF data> }
     */
-    async loadAndPrepare3DModel(modelCode) {
+    async loadAndPrepare3DModel(modelCode, questId) {
       let scaleFactor = 4 // make objects four times bigger than their "real" size, for better usability
       let objectInit = modelsList[modelCode]
       let gltfData
       try {
         this.$q.loading.show()
-        gltfData = await this.ModelLoaderAsync(modelCode)
+        gltfData = await this.ModelLoaderAsync(modelCode, questId)
         this.$q.loading.hide()
       } catch (err) {
         console.error("Error while loading 3D model:", err)
@@ -2616,18 +2740,18 @@ export default {
       
       let object = gltfData.scene
       
-      // apply user-defined rotation
-      objectInit.rotation = objectInit.rotation || {}
-      if (objectInit.rotation.hasOwnProperty('x')) { object.rotateX(utils.degreesToRadians(objectInit.rotation.x)) } else {
-        object.rotateX(Math.PI / 2)
+      if (objectInit) {
+        // apply user-defined rotation
+        objectInit.rotation = objectInit.rotation || {}
+        if (objectInit.rotation.hasOwnProperty('x')) { object.rotateX(utils.degreesToRadians(objectInit.rotation.x)) }
+        if (objectInit.rotation.hasOwnProperty('y')) { object.rotateY(utils.degreesToRadians(objectInit.rotation.y)) }
+        if (objectInit.rotation.hasOwnProperty('z')) { object.rotateZ(utils.degreesToRadians(objectInit.rotation.z)) }
+        
+        // apply user-defined scaling
+        let scale = (objectInit.scale || 1) * scaleFactor
+        object.scale.set(scale, scale, scale)
       }
-      if (objectInit.rotation.hasOwnProperty('y')) { object.rotateY(utils.degreesToRadians(objectInit.rotation.y)) }
-      if (objectInit.rotation.hasOwnProperty('z')) { object.rotateZ(utils.degreesToRadians(objectInit.rotation.z)) }
-      
-      // apply user-defined scaling
-      let scale = (objectInit.scale || 1) * scaleFactor
-      object.scale.set(scale, scale, scale)
-      
+        
       // set object origin at center
       let objBbox = new THREE.Box3().setFromObject(object)
       
@@ -2639,32 +2763,44 @@ export default {
       pivotObj.add(object)
       pivotObj.up = new THREE.Vector3(0, 0, 1)
       object = pivotObj
-      
-      // apply user-defined translation
-      if (objectInit.translation && this.step.type === 'locate-item-ar') {
-        if (objectInit.translation.hasOwnProperty('x')) { object.position.x += objectInit.translation.x * scaleFactor }
-        if (objectInit.translation.hasOwnProperty('y')) { object.position.y += objectInit.translation.y * scaleFactor }
-        if (objectInit.translation.hasOwnProperty('z')) { object.position.z += objectInit.translation.z * scaleFactor }
+        
+      if (objectInit)
+      {
+        // apply user-defined translation
+        if (objectInit.translation && this.step.type === 'locate-item-ar') {
+          if (objectInit.translation.hasOwnProperty('x')) { object.position.x += objectInit.translation.x * scaleFactor }
+          if (objectInit.translation.hasOwnProperty('y')) { object.position.y += objectInit.translation.y * scaleFactor }
+          if (objectInit.translation.hasOwnProperty('z')) { object.position.z += objectInit.translation.z * scaleFactor }
+        }
       }
       
       return { object, animations: gltfData.animations }
     },
     /*
     * Loads material file and object file into a 3D Model for Three.js
-    * Supports only GLTF format
+    * Supports only GLB format
     * Returns a Promise, usable with async/await
     */
-    async ModelLoaderAsync(objName) {
+    async ModelLoaderAsync(objName, questId) {
       let progress = console.log
       
+      // Load GLTF packed as binary (blob)
+      const offlineObject = await utils.readBinaryFile(questId, objName + '.glb')
       return new Promise((resolve, reject) => {
         let gltfLoader = new GLTFLoader()
         // loads automatically .bin and textures files if necessary
         if (objName.indexOf('blob:') !== -1) {
           gltfLoader.load(objName, resolve, progress, reject)
         } else {
-          //gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
-          gltfLoader.load('statics/3d-models/' + objName + '/scene.gltf', resolve, progress, reject)
+          if (offlineObject) {
+            gltfLoader.load(offlineObject, resolve, progress, reject)
+          } else {
+            if (questId) {
+              gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '.glb', resolve, progress, reject)
+            } else {
+              gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '.glb', resolve, progress, reject)
+            }
+          }
         }
       })
     },
@@ -2742,14 +2878,23 @@ export default {
       let object
       let canProcess = true // can this method be entierely run? is all required data available?
       
+      // detect if device has gyroscope
+      // inspired from https://stackoverflow.com/a/33843234/488666
+      if (this.deviceHasGyroscope === null) {
+        this.deviceHasGyroscope = ("rotationRate" in event && "alpha" in event.rotationRate && event.rotationRate.alpha !== null)
+      }
+      
       // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
-      if (this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion || !this.geolocation.target || !this.geolocation.target.scene) {
+      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion || isNaN(this.geolocation.position.x) || isNaN(this.geolocation.position.y)) {
         canProcess = false
       }
       
-      object = this.geolocation.target.scene.getObjectByName('targetObject')
-      
-      canProcess = canProcess && typeof object !== 'undefined'
+      if (this.geolocation.target  && this.geolocation.target.scene) {
+        object = this.geolocation.target.scene.getObjectByName('targetObject')
+        canProcess = canProcess && typeof object !== 'undefined'
+      } else {
+        canProcess = false
+      }
       
       if (!canProcess) {
         dm.acceleration.avgData = { x: [], y: [], z: [] }
@@ -2758,7 +2903,7 @@ export default {
       }
       
       // this means we are switching from GPS only to "accelerometer + GPS" mode (or we are in the "switching zone"), or it's the first time we handle motion event
-      if (this.isUsingGPSOnly || dm.isTargetPositionUndefined) {
+      if (this.geolocation.GPSdistance !== null && (dm.isTargetPositionUndefined || this.geolocation.GPSdistance >= this.minDistanceForGPS)) {
         this.geolocation.distance = this.geolocation.GPSdistance
         object.position.x = this.geolocation.position.x
         object.position.y = this.geolocation.position.y
@@ -2848,9 +2993,9 @@ export default {
         let deltaFromGeolocation
         if (!dm.isAccelerationIdle) {
           deltaFromGeolocation = {
-            // the "/ 700" factor guarantees that the object won't move faster than about 1.5m/s if its real position is 20m away from current position.
-            x: (this.geolocation.position.x - currentObjectPosition.x) / 700,
-            y: (this.geolocation.position.y - currentObjectPosition.y) / 700
+            // the "/ 600" factor guarantees that the object won't move faster than about 1.5m/s if its real position is 20m away from current position.
+            x: (this.geolocation.position.x - currentObjectPosition.x) / 600,
+            y: (this.geolocation.position.y - currentObjectPosition.y) / 600
           }
         } else {
           deltaFromGeolocation = { x: 0, y: 0 }
@@ -2882,6 +3027,25 @@ export default {
       if (!this.geolocation.canTouchTarget && this.geolocation.distance <= 10) {
         this.geolocation.canTouchTarget = true
       }
+    },
+    /**
+     * Checks that property this.deviceHasGyroscope is either set to true or false
+     * Otherwise, tries again until it becomes not null
+     * @returns a promise
+     */
+    async waitForGyroscopeDetection () {
+      let self = this
+      return new Promise((resolve, reject) => {
+        if (this.deviceHasGyroscope !== null) {
+          resolve()
+        }
+        else {
+          utils.setTimeout(async () => {
+            await self.waitForGyroscopeDetection()
+            resolve()
+          }, 250)
+        }
+      })
     },
     /*
      * Enlarge the picture
@@ -3012,6 +3176,11 @@ export default {
     text-align: center; 
     cursor: move; 
     background-repeat: none; 
+  } 
+  #pieces .piece.border-red { 
+    -webkit-box-shadow:inset 0px 0px 0px 6px #f00;
+    -moz-box-shadow:inset 0px 0px 0px 3px #f00;
+    box-shadow:inset 0px 0px 0px 3px #f00;
   }  
   
   /* write-text specific */

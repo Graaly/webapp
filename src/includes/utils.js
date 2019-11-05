@@ -437,8 +437,8 @@ var self = {
                   dataObj = new Blob(['some file data'], { type: 'text/plain' })
                 }
 
-              const encryptedContent = _this.gcrypt(dataObj, 'Gr44lyCryp7')
-              fileWriter.write(encryptedContent)
+                const encryptedContent = _this.gcrypt(dataObj, 'Gr44lyCryp7')
+                fileWriter.write(encryptedContent)
               })
             }, function() { resolve(false) })
           }, function() { resolve(false) })
@@ -535,7 +535,8 @@ var self = {
                   }
            
                   fileWriter.onerror = function(e) {
-                      console.log("Failed file write: " + e.toString())
+                    console.log("Failed file write: " + e.toString())
+                    resolve(false)
                   }
            
                   fileWriter.write(blob)
@@ -551,7 +552,8 @@ var self = {
                     }
              
                     fileWriter.onerror = function(e) {
-                        console.log("Failed file write: " + e.toString())
+                      console.log("Failed file write: " + e.toString())
+                      resolve(false)
                     }
              
                     fileWriter.write(blob)
@@ -675,6 +677,9 @@ var self = {
       case 'webm':
         mimeType = 'video/webm'
         break
+      case '.glb':
+        mimeType = 'model/gltf-binary'
+        break
     }
     return mimeType
   },
@@ -695,15 +700,41 @@ var self = {
     return sum / arr.length
   },
   /**
-   * Allows to check if is network available
+   * Checks if network is available
    * @return  {Boolean}  on hybrid: true if network is available, false otherwise.
-   *                     other contexts (desktop, PWA...): returns always true (cannot use Cordova plugin "cordova-plugin-network-information")
+   *                     desktop: returns always true (cannot use Cordova plugin "cordova-plugin-network-information")
    */
   isNetworkAvailable() {
     if (typeof navigator.connection === 'undefined' || typeof navigator.connection.type === 'undefined') {
       return true
     }
+    if (typeof Connection === 'undefined') {
+      // Connection object polyfill from Chrome Mobile (PWA mode), see https://moodle.org/mod/forum/discuss.php?d=348679#p1448862
+      window.Connection = {
+        UNKNOWN: 'unknown',
+        ETHERNET: 'ethernet',
+        WIFI: 'wifi',
+        CELL_2G: '2g',
+        CELL_3G: '3g',
+        CELL_4G: '4g',
+        CELL: 'cellular',
+        NONE: 'none'
+      }
+    }
     return navigator.connection.type !== Connection.NONE
+  },
+  /**
+   * Loads an image synchronously (allows to wait that the image is loaded before using it)
+   * @param  {String}  src  image URL
+   * @return {Object}  image object
+   */
+  loadImage(src) {
+    return new Promise((resolve, reject) => {
+      let img = new Image()
+      img.onload = () => { resolve(img) }
+      img.onerror = reject
+      img.src = src
+    })
   }
 }
 

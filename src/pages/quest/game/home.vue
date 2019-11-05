@@ -40,7 +40,7 @@
             <div class="text-center">
               <p>
                 
-                <q-btn-dropdown v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
+                <q-btn-dropdown v-if="shop.premiumQuest.priceCode === 'free' && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
                   <q-list link>
                     <q-item 
                       v-for="lang in getAllLanguages()" :key="lang.lang" 
@@ -54,7 +54,7 @@
                     </q-item>
                   </q-list>
                 </q-btn-dropdown>
-                <q-btn v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
+                <q-btn v-if="shop.premiumQuest.priceCode === 'free' && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
                   <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
                   <span v-if="!continueQuest && isRunFinished">{{ $t('label.SolveAgainThisQuest') }}</span>
                   <span v-if="!continueQuest && !isRunFinished">{{ $t('label.SolveThisQuest') }}</span>
@@ -68,6 +68,8 @@
                 -->
                 <q-btn v-if="!isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary">{{ $t('label.BuyCoinsToPlay') }}</q-btn>
                 <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary">{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</q-btn>
+                <q-btn v-if="shop.premiumQuest.priceCode !== 'free' && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)" :disabled="!shop.premiumQuest.buyable" @click="buyQuest()" color="primary">{{ $t('label.Buy') }} ({{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }})</q-btn>
+                <q-btn v-if="shop.premiumQuest.priceCode === 'notplayableonweb'" disabled color="primary">{{ $t('label.QuestPlayableOnMobile') }}</q-btn>
               </p>
             </div>
             <div class="full-width text-center">
@@ -153,6 +155,7 @@ import story from 'components/story'
 import offlineLoader from 'components/offlineLoader'
 
 import utils from 'src/includes/utils'
+import Notification from 'boot/NotifyHelper'
 
 export default {
   components: {
@@ -168,7 +171,12 @@ export default {
         items: []
       },
       shop: {
-        show: false
+        show: false,
+        premiumQuest: {
+          priceCode: 'free',
+          priceValue: '0',
+          buyable: false
+        }
       },
       story: {
         step: null,
@@ -272,6 +280,9 @@ export default {
       // check if user can play this quest
       await this.checkUserCanPlay()
       
+      // check if user must pay to play this quest
+      await this.initPay()
+      
       // get rankings this quest
       await this.getRanking()
     },
@@ -320,8 +331,11 @@ export default {
             }
             this.quest.description = utils.replaceBreakByBR(this.quest.description)
             
+            // display offline loader only if quest is free
             if (window.cordova) {
-              this.offline.show = true
+              if (!this.quest.premiumPrice || !this.quest.premiumPrice.androidId || this.quest.premiumPrice.androidId === 'free') {
+                this.offline.show = true
+              }
             }
           }
         } else {
@@ -423,6 +437,123 @@ export default {
       }
       return true
     },
+    /*
+     * Check if user must pay to play this quest
+     */
+    async initPay() {
+      if (!this.quest.premiumPrice || !this.quest.premiumPrice.androidId) {
+        return 'free'
+      } 
+      // if game is free
+      if (!this.quest.premiumPrice.active) {
+        return 'free'
+      }
+      // admin and owners do not pay
+      if (this.isAdmin || this.isOwner) {
+        return 'free'
+      }
+      // if game is already started or played, do not pay
+      if (this.isRunStarted || this.isRunFinished) {
+        return 'free'
+      }
+      // init Store pay
+      //if (!window.store) {
+      if (!window.cordova) {
+        Notification(this.$t('label.YouMustPlayThisKindOfQuestOnAMobileDevice'), 'error')
+        this.shop.premiumQuest.priceCode = 'notplayableonweb'
+        return
+      }
+      if (!this.quest.premiumPrice || !this.quest.premiumPrice.androidId) {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        return
+      }
+      
+      // check if player has already paied
+      const isPayed = await QuestService.hasPayed(this.quest.questId)
+      if (isPayed && isPayed.data && isPayed.data.status && isPayed.data.status === 'paied') {
+        this.shop.premiumQuest.priceCode = 'free'
+        if (window.cordova) {
+          this.offline.show = true
+        }
+        return "free"
+      }
+
+      this.shop.premiumQuest.priceCode = this.quest.premiumPrice.androidId
+      var _this = this
+
+      store.register({
+        id: this.quest.premiumPrice.androidId,
+        alias: this.quest.premiumPrice.androidId,
+        type: store.CONSUMABLE
+      })
+
+      store.error(function(error) {
+        Notification(error.message + '(code: ' + error.code + ')', 'error')
+      })
+
+      store.when(this.quest.premiumPrice.androidId).updated(function(product) {
+        // check if product is orderable
+        _this.shop.premiumQuest.priceValue = product.price
+        if (product.canPurchase) {
+          _this.shop.premiumQuest.buyable = true
+        }
+      });
+
+      store.when(this.quest.premiumPrice.androidId).approved(function(product) {
+        product.verify()
+      });
+
+      store.when(this.quest.premiumPrice.androidId).verified(async(product) => {
+        // save the product purchase
+        const purchaseStatus = await this.savePurchase(product)
+
+        if (purchaseStatus) {
+          product.finish()
+        } else {
+          Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        }
+      });
+
+      store.refresh()
+    },
+    /*
+     * Save a purchase
+     */
+    async savePurchase (product) {
+      const purchaseStatus = await QuestService.purchasePremium(this.quest.questId, product)
+      
+      if (purchaseStatus && purchaseStatus.data && purchaseStatus.data.status && purchaseStatus.data.status === 'ok') {
+        // download quest for offline mode
+        if (window.cordova) {
+          this.offline.show = true
+        }
+        // activate play button
+        this.shop.premiumQuest.priceCode = 'free'
+        return true
+      }
+      return false
+    },
+    /*
+     * Buy the quest
+     */
+    async buyQuest () {
+      store.order(this.quest.premiumPrice.androidId)
+    },
+    /*
+     * Compute the price of the quest
+     *
+    async getPrice() {
+      if (!this.quest || !this.quest.premiumPrice || !this.quest.premiumPrice.prices) {
+        return this.$t('label.Error')
+      }
+      if (this.$store.state.user.language && this.quest.premiumPrice.prices[this.$store.state.user.language]) {
+        return this.quest.premiumPrice.prices[this.$store.state.user.language]
+      } else if (this.quest.premiumPrice.prices[quest.mainLanguage] && this.quest.premiumPrice.prices[quest.mainLanguage] !== '') {
+        return this.quest.premiumPrice.prices[quest.mainLanguage]
+      } else {
+        return this.$t('label.Error')
+      }
+    },*/
     /*
      * Add a new friend
      */

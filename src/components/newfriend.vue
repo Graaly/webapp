@@ -179,8 +179,12 @@ export default {
       var data = new FormData()
       data.append('image', files[0])
       let uploadPicture = await AuthService.uploadAccountPicture(data)
-      if (uploadPicture) {
-        this.$store.state.user.picture = uploadPicture.data.file
+      if (uploadPicture && uploadPicture.data) {
+        if (uploadPicture.data.file) {
+          this.$store.state.user.picture = uploadPicture.data.file
+        } else if (uploadPicture.data.message && uploadPicture.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
       }
     },
     async getContacts() {

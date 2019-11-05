@@ -144,7 +144,7 @@
         <p><img src="statics/icons/story/character4_attitude1.png" /></p>
       </div>
       <div>
-        <div class="q-mb-sm">
+        <div class="q-mb-sm" v-if="quest.isPremium">
           {{ $t('label.OrDownloadAFile') }}
           <div v-if="!isIOs">
             <q-btn class="full-width" type="button" :label="$t('label.UploadACharacter')" @click="$refs['characterfile'].click()" />
@@ -158,6 +158,9 @@
           <div class="centered" v-if="selectedStep.form.options.character && selectedStep.form.options.character.length > 1">
             <img style="width:100%" :src="serverUrl + '/upload/quest/' + questId + '/step/character/' + selectedStep.form.options.character" />
           </div>
+        </div>
+        <div class="q-mb-sm" v-if="!quest.isPremium">
+          <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadACharacter')" @click="premium.show = true" />
         </div>
       </div>
     </div>
@@ -221,8 +224,8 @@
     <div v-if="options.type.code == 'choose'">
       
       <h2>{{ $t('label.ResponseTypes') }}</h2>
-      <q-radio v-model="answerType" val="text" :label="$t('label.Texts')" @click="$v.selectedStep.form.options.items.$touch" />
-      <q-radio v-model="answerType" val="image" :label="$t('label.Pictures')" @click="$v.selectedStep.form.options.items.$touch" test-id="radio-choose-images" />
+      <q-radio v-model="config.choose.answerType" val="text" :label="$t('label.Texts')" @click="$v.selectedStep.form.options.items.$touch" />
+      <q-radio v-model="config.choose.answerType" val="image" :label="$t('label.Pictures')" @click="$v.selectedStep.form.options.items.$touch" test-id="radio-choose-images" />
         
       <h2>{{ $t('label.PossibleAnswers') }}</h2>
       <p>{{ $t('label.SelectTheGoodAnswer') }}</p>
@@ -230,13 +233,13 @@
       <div class="answer" v-for="(option, key) in selectedStep.form.options.items" :key="key">
         <q-radio v-model="selectedStep.form.answers" :val="key" :test-id="'radio-answer-' + key" />
         
-        <q-input v-show="answerType === 'text'" v-model="option.text" @input="$v.selectedStep.form.options.items ? $v.selectedStep.form.options.items.$each[key].text.$touch : null" input-class="native-input-class" :test-id="'text-answer-' + key" />
-        <p class="error-label" v-if="answerType === 'text' && $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].text.required">{{ $t('label.RequiredField') }}</p>
+        <q-input v-show="config.choose.answerType === 'text'" v-model="option.text" @input="$v.selectedStep.form.options.items ? $v.selectedStep.form.options.items.$each[key].text.$touch : null" input-class="native-input-class" :test-id="'text-answer-' + key" />
+        <p class="error-label" v-if="config.choose.answerType === 'text' && $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].text.required">{{ $t('label.RequiredField') }}</p>
         
-        <p v-show="answerType === 'image' && option.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
-        <p><img v-if="answerType === 'image' && option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + option.imagePath" /></p>
+        <p v-show="config.choose.answerType === 'image' && option.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
+        <p><img v-if="config.choose.answerType === 'image' && option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + option.imagePath" /></p>
         <span v-if="!isIOs">
-          <q-btn v-show="answerType === 'image'" icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
+          <q-btn v-show="config.choose.answerType === 'image'" icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
           <input @change="uploadAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden :test-id="'image-answer-' + key" />
         </span>
         <span v-if="isIOs">
@@ -284,12 +287,12 @@
     <!------------------ STEP : COLOR CODE ------------------------>
     
     <div v-if="options.type.code == 'code-color'" class="code-color">
-      <q-select emit-value map-options :label="$t('label.NumberOfColorsInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-colors" />
+      <q-select emit-value map-options :label="$t('label.NumberOfColorsInTheCode')" :options="config.colorCode.numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-colors" />
       <h2>{{ $t('label.ExpectedColorCodeAnswer') }}</h2>
       <table>
       <tr>
         <td v-for="(color, index) in unformatedAnswer" :key="index">
-          <q-select emit-value map-options :ref="'colorSelect' + index" v-model="unformatedAnswer[index]" :options="colorsForCode" :test-id="'select-color-' + index" />
+          <q-select emit-value map-options :ref="'colorSelect' + index" v-model="unformatedAnswer[index]" :options="config.colorCode.colorsForCode" :test-id="'select-color-' + index" />
         </td>
       </tr>
       <tr>
@@ -324,7 +327,7 @@
       </q-btn>
       <div v-if="selectedStep.form.options.images && selectedStep.form.options.images.length > 0 && selectedStep.form.options.images[0].imagePath">
         <h2>{{ $t('label.ExpectedCode') }}</h2>
-        <q-select emit-value map-options :label="$t('label.NumberOfImagesInTheCode')" :options="numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-images-in-code" />
+        <q-select emit-value map-options :label="$t('label.NumberOfImagesInTheCode')" :options="config.imageCode.numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-images-in-code" />
         <table>
           <tr>
             <td v-for="(code, index) in unformatedAnswer" :key="index" class="text-center" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index">
@@ -383,7 +386,7 @@
         </div>
       </div>
       <div>
-        <q-select emit-value map-options :label="$t('label.Difficulty')" :options="jigsawLevels" v-model="selectedStep.form.options.level" />
+        <q-select emit-value map-options :label="$t('label.Difficulty')" :options="config.jigsaw.levels" v-model="selectedStep.form.options.level" />
       </div>
     </div>
     
@@ -391,7 +394,7 @@
     
     <div v-if="options.type.code === 'memory'">
       <h2>{{ $t('label.ImagesUsedForCards') }}</h2>
-      <div class="answer" v-for="(option, key) in memoryItems" :key="key">       
+      <div class="answer" v-for="(option, key) in selectedStep.form.options.items" :key="key">       
         <p v-show="option.imagePath === null" class="error-label">{{ $t('label.NoPictureUploaded') }}</p>
         <p><img v-if="option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/memory/' + option.imagePath" /></p>
         <span v-if="!isIOs">
@@ -421,7 +424,7 @@
     <div class="inventory" v-if="options.type.code == 'use-item'">
       <q-select emit-value map-options
         :label="$t('label.ObjectToUse')"
-        :options="questItemsAsOptions"
+        :options="config.useItem.questItemsAsOptions"
         v-model="selectedStep.form.answerItem"
         @change="$v.selectedStep.form.answerItem.$touch"
         bottom-slots
@@ -448,7 +451,7 @@
       <h2>{{ $t('label.ObjectFormat') }}</h2>
       <div class="fields-group">
         <q-radio v-model="selectedStep.form.options.is3D" :val="false" :label="$t('label.2DPicture')" />
-        <q-radio v-model="selectedStep.form.options.is3D" :val="true" :label="$t('label.3DObject')" test-id="radio-locate-item-3d" />
+        <q-radio v-model="selectedStep.form.options.is3D" :val="true" :label="$t('label.3DObject')" test-id="radio-locate-item-3d" @input="change2D3DObject" />
       
         <div v-if="!selectedStep.form.options.is3D">
           <div v-if="!isIOs">
@@ -471,21 +474,58 @@
           </div>
         </div>
         <div v-if="selectedStep.form.options.is3D">
-          <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" test-id="select-3d-model" />
+          <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="config.locateItem.selectModel3DOptions" test-id="select-3d-model" @input="changeObjectInList" />
           <p class="error-label" v-show="$v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
+          <div class="centered">{{ $t('label.Or') }}</div>
+          <div v-if="quest.isPremium">
+            <div v-if="!isIOs">
+              <q-btn class="full-width" type="button" @click="$refs['object-to-find'].click()" :label="$t('label.UploadTheObjectToFind')" />
+              <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".glb" hidden />
+            </div>
+            <div v-if="isIOs">
+              {{ $t('label.UploadTheObjectToFind') }}:
+              <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".glb" />
+            </div>
+          </div>
+          <div v-if="!quest.isPremium">
+            <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadTheObjectToFind')" @click="$emit('openPremiumBox')" />
+          </div>
+          <div id="target-canvas"></div>
+          <div>
+            {{ $t('label.TouchAndDragObject') }}
+          </div>
         </div>
       </div>
       
       <h2>{{ $t('label.AddressToFind') }}</h2>
-      <div class="fields-group">
-        <div class="location-address">
+      <div class="fields-group">       
+        <div v-if="!isIOs" class="location-address">
           <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
             <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
             <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value" />
           </div>
           <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
         </div>
-        <q-list>
+        <div v-if="isIOs">
+          {{  $t('label.DefineGPSLocation') }}
+          <div class="location-gps-inputs">
+            <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
+            <div>
+              <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
+              <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+              <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
+            </div>
+            <div>
+              <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
+              <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+              <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
+            </div>
+          </div>
+          <div>
+            <a @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+          </div>
+        </div>
+        <q-list v-if="!isIOs">
           <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
@@ -543,7 +583,7 @@
       
       </div>-->
       
-      <q-dialog id="choose-marker-modal" v-model="markerModalOpened">
+      <q-dialog id="choose-marker-modal" v-model="config.locateMarker.markerModalOpened">
         <q-card>
           <q-card-section>
             <div class="text-h6">{{ $t('label.ChooseTheMarker') }}</div>
@@ -611,6 +651,7 @@
           <div v-if="options.type.code == 'geolocation' || options.type.code == 'locate-item-ar'" class="location-gps">
             <q-toggle v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
             <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
+            <q-toggle v-model="selectedStep.form.options.showHelp" :label="$t('label.DisplayGeolocationHelp')" />
           </div>
           <div v-if="options.type.code === 'memory'">
             <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
@@ -645,6 +686,7 @@
             :min-rows="4"
             class="full-width"
           />
+          
         </div>
       </q-expansion-item>
     </q-list>
@@ -655,6 +697,17 @@
       <q-expansion-item icon="lightbulb" :label="$t('label.Hint')">
         <div class="q-pa-sm">
           <q-input v-model="selectedStep.form.hint[lang]" :label="$t('label.HintText')" />
+        </div>
+      </q-expansion-item>
+    </q-list>
+    
+    <!------------------ START DATE ------------------------>
+    
+    <q-list bordered>
+      <q-expansion-item icon="access_time" :label="$t('label.StartOnDate')">
+        <div class="q-pa-sm">
+          <q-toggle v-model="selectedStep.form.startDate.enabled" :label="$t('label.StepIsOnlyVisibleOnThisDate')" />
+          <q-date v-model="selectedStep.form.startDate.date" minimal />
         </div>
       </q-expansion-item>
     </q-list>
@@ -671,6 +724,15 @@
           <q-btn color="primary" @click="$emit('close')" :label="$t('label.No')" />
         </q-card-actions>
       </q-card>
+    </q-dialog>
+    
+    <!------------------ PREMIUM POPIN ------------------------>
+    
+    <q-dialog v-model="premium.show">
+      <div class="q-pa-md">
+        <div v-html="$t('label.PremiumDefinition1')" />
+        <q-btn class="q-mb-xl" color="primary" @click="premium.show = false">{{ $t('label.Close') }}</q-btn>
+      </div>
     </q-dialog>
     
   </div>
@@ -692,6 +754,13 @@ import markersList from 'data/markers.json'
 import layersForMarkers from 'data/layersForMarkers.json'
 
 import StepService from 'services/StepService'
+
+import * as THREE from 'three'
+//import * as TWEEN from '@tweenjs/tween.js'
+import GLTFLoader from 'three-gltf-loader'
+import OrbitControls from 'three-orbitcontrols'
+
+const DEMO_OBJECT_NAME = 'demoObject'
 
 export default {
   /*
@@ -726,7 +795,10 @@ export default {
           options: {},
           hint: {},
           chapterId: "0",
-          conditions: []
+          conditions: [],
+          startDate: {
+            enabled: false
+          }
         },
         formatedConditions: [],
         newCondition: {
@@ -748,51 +820,68 @@ export default {
       originalStepData: {}, // helps to detect if step has been modified
       saveChangesModalOpened: false,
 
-      /*
-       * List of the levels for the jigsaw step
-       */
-      jigsawLevels: [
-        { value: 1, label: this.$t('label.Easy') },
-        { value: 2, label: this.$t('label.Medium') },
-        { value: 3, label: this.$t('label.Hard') }
-      ],
-            
-      answerType: 'text',
-      numberOfDigitsOptions: [
-        { value: 1, label: "1" },
-        { value: 2, label: "2" },
-        { value: 3, label: "3" },
-        { value: 4, label: "4" }
-      ],
-      defaultNbAnswers: 4,
-      minNbAnswers: 2,
-      maxNbAnswers: 6,
-      rightAnswerIndex: 0,
+      config: {
+        jigsaw: {
+          levels: [
+            { value: 1, label: this.$t('label.Easy') },
+            { value: 2, label: this.$t('label.Medium') },
+            { value: 4, label: this.$t('label.Hard') },
+            { value: 3, label: this.$t('label.VeryHard') }
+          ],
+          nbPiecesByLevel: [0, 3, 4, 6, 5]
+        },
+        choose: {
+          answerType: 'text',
+          defaultNbAnswers: 4,
+          minNbAnswers: 2,
+          maxNbAnswers: 6
+        },
+        colorCode: {
+          numberOfDigitsOptions: [
+            { value: 1, label: "1" },
+            { value: 2, label: "2" },
+            { value: 3, label: "3" },
+            { value: 4, label: "4" }
+          ],
+          colorsForCode: this.getColorsForCodeOptions()
+        },
+        imageCode: {
+          numberOfDigitsOptions: [
+            { value: 1, label: "1" },
+            { value: 2, label: "2" },
+            { value: 3, label: "3" },
+            { value: 4, label: "4" }
+          ],
+          defaultNbAnswers: 4,
+          imagesForCode: this.getImagesForCodeOptions()
+        },
+        memory: {
+          minNbAnswers: 3,
+          maxNbAnswers: 10
+        },
+        useItem: {
+          questItemsAsOptions: []
+        },
+        locateItem: {
+          selectModel3DOptions: [],
+          zoom: 60,
+          rotation: {},
+          object: null
+        },
+        locateMarker: {
+          markerModalOpened: false,
+          layersForMarkersOptions: []
+        }
+      },
+      questItems: [],
       isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
       serverUrl: process.env.SERVER_URL,
       
-      // for 'code-color' steps
-      colorsForCode: this.getColorsForCodeOptions(),
-      
-      // for 'code-image' steps
-      imagesForCode: this.getImagesForCodeOptions(),
-      
-      // for 'new-item' & 'use-item' steps
-      questItemsAsOptions: [],
-      questItems: [],
-      
-      // for 'memory' steps
-      memoryItems: [],
-      maxMemoryItems: 10,
-      
       unformatedAnswer: null,
-      
-      // for 'locate-item-ar' and 'locate-marker'
-      selectModel3DOptions: [],
-      
-      // for 'locate-marker'
-      markerModalOpened: false,
-      layersForMarkersOptions: [] // for 'locate-marker' only
+
+      premium: {
+        show: false
+      }
     }
   },
   computed: {
@@ -816,7 +905,11 @@ export default {
     }
   },
   async mounted() {
-    //await this.initData() // already treated with watcher
+    // MP 2019-09-30 run initData() only for step creation, otherwise it is called twice when modifying an existing step
+    // In the condition below, "0" means new step creation
+    if (this.stepId === "0") {
+      await this.initData()
+    }
   },
   methods: {
     /*
@@ -859,6 +952,7 @@ export default {
           type: 'none'
         },
         hint: {}, // {fr: 'un indice', en: 'a hint', ...}
+        startDate: { enabled: false },
         number: null
       }
       // reset upload item (after document fully loaded)
@@ -950,15 +1044,15 @@ export default {
       // initialize specific steps
       if (this.options.type.code === 'choose') {
         if (!this.selectedStep.form.options || !this.selectedStep.form.options.items || !Array.isArray(this.selectedStep.form.options.items)) {
-          this.answerType = 'text'
+          this.config.choose.answerType = 'text'
           this.selectedStep.form.options = {items: []}
           this.selectedStep.form.answers = 0
-          for (let i = 0; i < this.defaultNbAnswers; i++) {
+          for (let i = 0; i < this.config.choose.defaultNbAnswers; i++) {
             this.selectedStep.form.options.items.push({ text: this.$t('label.AnswerNb', { nb: (i + 1) }), imagePath: null })
           }
         } else {
-          this.answerType = this.selectedStep.form.options.items[0].hasOwnProperty('imagePath') && this.selectedStep.form.options.items[0].imagePath !== null ? 'image' : 'text'
-          if (this.answerType === 'text') {
+          this.config.choose.answerType = this.selectedStep.form.options.items[0].hasOwnProperty('imagePath') && this.selectedStep.form.options.items[0].imagePath !== null ? 'image' : 'text'
+          if (this.config.choose.answerType === 'text') {
             for (var i = 0; i < this.selectedStep.form.options.items.length; i++) {
               if (this.selectedStep.form.options.items[i].textLanguage && this.selectedStep.form.options.items[i].textLanguage[this.lang]) {
                 this.selectedStep.form.options.items[i].text = this.selectedStep.form.options.items[i].textLanguage[this.lang]
@@ -966,8 +1060,6 @@ export default {
             }
           }          
         }
-        this.minNbAnswers = 2
-        this.maxNbAnswers = 6
       } else if (this.options.type.code === 'code-color') {
         if (this.selectedStep.form.answers && typeof this.selectedStep.form.answers === 'string' && this.selectedStep.form.answers.indexOf('|') !== -1) {
           this.unformatedAnswer = this.selectedStep.form.answers.split("|")
@@ -981,7 +1073,7 @@ export default {
         // init images list
         if (!this.selectedStep.form.options || !this.selectedStep.form.options.images) {
           this.selectedStep.form.options = {images: []}
-          for (let i = 0; i < this.defaultNbAnswers; i++) {
+          for (let i = 0; i < this.config.imageCode.defaultNbAnswers; i++) {
             this.selectedStep.form.options.images.push({ imagePath: null })
           }
         }
@@ -1042,17 +1134,13 @@ export default {
           this.selectedStep.form.options = { picture: null, level: 2 }
         }
       } else if (this.options.type.code === 'memory') {
-        if (!this.selectedStep.form.options.items) {
-          this.selectedStep.form.options = {lastIsSingle: false}
-          this.memoryItems = []
+        if (!this.selectedStep.form.options.hasOwnProperty('items')) {
+          let defaultItems = []
           for (let i = 0; i < 8; i++) {
-            this.memoryItems.push({ imagePath: null, single: false })
+            defaultItems.push({ imagePath: null, single: false })
           }
-        } else {
-          this.memoryItems = this.selectedStep.form.options.items
+          this.$set(this.selectedStep.form.options, 'items', defaultItems)
         }
-        this.minNbAnswers = 3
-        this.maxNbAnswers = 12
       } else if (this.options.type.code === 'locate-item-ar') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
           this.$set(this.selectedStep.form.options, 'picture', null)
@@ -1065,14 +1153,22 @@ export default {
         }
         // create options for 3D Model selection
         for (let key in modelsList) {
-          this.selectModel3DOptions.push({ label: modelsList[key].name[this.$store.state.user.language], value: key })
+          this.config.locateItem.selectModel3DOptions.push({ label: modelsList[key].name[this.$store.state.user.language], value: key })
         }
         // sort options in alphabetical order
-        this.selectModel3DOptions = this.selectModel3DOptions.sort((a, b) => {
+        this.config.locateItem.selectModel3DOptions = this.config.locateItem.selectModel3DOptions.sort((a, b) => {
           return a.label.localeCompare(b.label)
         })
         if (!this.selectedStep.form.options.hasOwnProperty('model')) {
-          this.$set(this.selectedStep.form.options, 'model', this.selectModel3DOptions[0].value)
+          this.$set(this.selectedStep.form.options, 'model', this.config.locateItem.selectModel3DOptions[0].value)
+        }
+        // display 3D model selected by default
+        if (this.selectedStep.form.options.is3D) {
+          if (this.selectedStep.form.options.customModel) {
+            await this.displayARObject(this.selectedStep.form.options.customModel, this.questId)
+          } else {
+            await this.displayARObject(this.selectedStep.form.options.model)
+          }
         }
       } else if (this.options.type.code === 'locate-marker') {
         if (typeof this.selectedStep.form.answers !== 'string') {
@@ -1080,10 +1176,10 @@ export default {
         }
         // create options for layer above camera stream selection
         for (let layer of layersForMarkers) {
-          this.layersForMarkersOptions.push({ label: this.$t('layersForMarkers.' + layer.label), value: layer.code })
+          this.config.locateMarker.layersForMarkersOptions.push({ label: this.$t('layersForMarkers.' + layer.label), value: layer.code })
         }
         // sort options in alphabetical order
-        this.layersForMarkersOptions = this.layersForMarkersOptions.sort((a, b) => {
+        this.config.locateMarker.layersForMarkersOptions = this.config.locateMarker.layersForMarkersOptions.sort((a, b) => {
           return a.label.localeCompare(b.label)
         })
         // default layer = first
@@ -1093,14 +1189,14 @@ export default {
         
         // create options for 3D Model selection
         for (let key in modelsList) {
-          this.selectModel3DOptions.push({ label: modelsList[key].name[this.$store.state.user.language], value: key })
+          this.config.locateItem.selectModel3DOptions.push({ label: modelsList[key].name[this.$store.state.user.language], value: key })
         }
         // sort options in alphabetical order
-        this.selectModel3DOptions = this.selectModel3DOptions.sort((a, b) => {
+        this.config.locateItem.selectModel3DOptions = this.config.locateItem.selectModel3DOptions.sort((a, b) => {
           return a.label.localeCompare(b.label)
         })
         if (!this.selectedStep.form.options.hasOwnProperty('model')) {
-          this.$set(this.selectedStep.form.options, 'model', this.selectModel3DOptions[0].value)
+          this.$set(this.selectedStep.form.options, 'model', this.config.locateItem.selectModel3DOptions[0].value)
         }
         // default mode: scan code
         if (!this.selectedStep.form.options.hasOwnProperty('mode')) {
@@ -1118,17 +1214,17 @@ export default {
      */
     async submitStep() {
       this.$v.selectedStep.form.$touch()
-      
+
       // treat form errors (based on validation rules)
       if (this.$v.selectedStep.form.$error) {    
         Notification(this.$t('label.StepSettingsFormError'), 'error')
         return
       }
-      
+
       // format answer based on the type of step
       if (this.options.type.code === 'choose') {
-        if (this.answerType === 'text') {
-          for (var i = 0; i < this.selectedStep.form.options.items.length; i++) {
+        if (this.config.choose.answerType === 'text') {
+          for (let i = 0; i < this.selectedStep.form.options.items.length; i++) {
             if (this.selectedStep.form.options && this.selectedStep.form.options.items && this.selectedStep.form.options.items[i] && this.selectedStep.form.options.items[i].textLanguage) {
               this.selectedStep.form.options.items[i].textLanguage[this.lang] = this.selectedStep.form.options.items[i].text
             } else {
@@ -1157,22 +1253,20 @@ export default {
       }
       if (this.options.type.code === 'jigsaw-puzzle') {
         // build random order for jigsaw puzzle pieces.
-        let piecePositionArray = utils.buildIncrementalArray(Math.pow(parseInt(this.selectedStep.form.options.level, 10) * 2, 2))
+        var level = parseInt(this.selectedStep.form.options.level, 10)
+        var nbPieceByRow = this.config.jigsaw.nbPiecesByLevel[level]
+        let piecePositionArray = utils.buildIncrementalArray(Math.pow(nbPieceByRow, 2))
         piecePositionArray = utils.shuffle(piecePositionArray)
         this.selectedStep.form.answers = piecePositionArray.join('|')
       }
       if (this.options.type.code === 'memory') {
-        if (!this.selectedStep.form.options.items) {
-          this.selectedStep.form.options.items = []
-        }
-        for (i = 0; i < this.memoryItems.length; i++) {
-          if (this.memoryItems[i].imagePath !== null) {
-            this.selectedStep.form.options.items.push(this.memoryItems[i])
+        if (Array.isArray(this.selectedStep.form.options.items) && this.selectedStep.form.options.items.length > 0) {
+          // force "reset" of .single property for all items
+          // (new items may have been added after the original "latest")
+          this.selectedStep.form.options.items.map((item) => { item.single = false; return item })
+          if (this.selectedStep.form.options.lastIsSingle) {
+            this.selectedStep.form.options.items[this.selectedStep.form.options.items.length - 1].single = true
           }
-        }
-        
-        if (this.selectedStep.form.options.lastIsSingle && this.selectedStep.form.options.items && this.selectedStep.form.options.items.length > 0) {
-          this.selectedStep.form.options.items[this.selectedStep.form.options.items.length - 1].single = true
         }
       }
       if (this.options.type.code === 'find-item') {
@@ -1184,7 +1278,6 @@ export default {
       if (this.options.type.code === 'new-item') {
         //this.selectedStep.form.answers = this.selectedStep.form.answerItem
       }
-      
       // save step data
       let newStepData = Object.assign(this.selectedStep.form, {
         questId: this.questId,
@@ -1195,7 +1288,6 @@ export default {
       this.$q.loading.show()
       let stepData = await StepService.save(newStepData)
       this.$q.loading.hide()
-
       if (stepData && stepData.data && stepData.data.stepId) {
         // send change event to parent, with stepId information
         newStepData.id = stepData.data.stepId
@@ -1210,8 +1302,8 @@ export default {
      * Add an answer in the multiple choice step
      */
     addAnswer: function () {
-      if (this.selectedStep.form.options.items.length >= this.maxNbAnswers) {
-        Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.maxNbAnswers }), 'error')
+      if (this.selectedStep.form.options.items.length >= this.config.choose.maxNbAnswers) {
+        Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.config.choose.maxNbAnswers }), 'error')
       } else {
         this.selectedStep.form.options.items.push({
           isRightAnswer: false,
@@ -1224,11 +1316,12 @@ export default {
      * Add an answer in the memory step
      */
     addMemoryAnswer: function () {
-      if (this.memoryItems.length >= this.maxMemoryItems) {
-        Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.maxMemoryItems }), 'error')
+      if (this.selectedStep.form.options.items.length >= this.config.memory.maxNbAnswers) {
+        Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.config.memory.maxNbAnswers }), 'error')
       } else {
-        this.memoryItems.push({
-          imagePath: null // image default data
+        this.selectedStep.form.options.items.push({
+          imagePath: null, // image default data
+          single: false
         })
       }
     },
@@ -1236,8 +1329,8 @@ export default {
      * Add a picture answer in the multiple choice step
      */
     addCodeAnswer: function () {
-      if (this.selectedStep.form.options.images.length >= this.maxNbAnswers) {
-        Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.maxNbAnswers }), 'error')
+      if (this.selectedStep.form.options.images.length >= this.config.choose.maxNbAnswers) {
+        Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.config.choose.maxNbAnswers }), 'error')
       } else {
         this.selectedStep.form.options.images.push({
           imagePath: null // image default data
@@ -1249,8 +1342,8 @@ export default {
      * Delete an answer in the multiple choice step
      */
     deleteAnswer: function (key) {
-      if (this.selectedStep.form.options.items.length <= this.minNbAnswers) {
-        Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.minNbAnswers }), 'error')
+      if (this.selectedStep.form.options.items.length <= this.config.choose.minNbAnswers) {
+        Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.config.choose.minNbAnswers }), 'error')
       } else {
         this.selectedStep.form.options.items.splice(key, 1)
       }
@@ -1259,8 +1352,8 @@ export default {
      * Add a picture answer in the multiple choice step
      */
     deleteCodeAnswer: function (key) {
-      if (this.selectedStep.form.options.images.length <= this.minNbAnswers) {
-        Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.minNbAnswers }), 'error')
+      if (this.selectedStep.form.options.images.length <= this.config.choose.minNbAnswers) {
+        Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.config.choose.minNbAnswers }), 'error')
       } else {
         // change code if the code answer is used in the code
         for (var i  = 0; i < this.unformatedAnswer.length; i++) {
@@ -1439,7 +1532,13 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadBackgroundImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.backgroundImage = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.selectedStep.form.backgroundImage = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1472,7 +1571,13 @@ export default {
       data.append('video', files[0])
       let uploadResult = await StepService.uploadVideo(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.videoStream = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.selectedStep.form.videoStream = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1492,7 +1597,13 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadImageToRecognize(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.answers = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.selectedStep.form.answers = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1512,7 +1623,13 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadAnswerImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.options.items[key].imagePath = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.selectedStep.form.options.items[key].imagePath = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1530,9 +1647,16 @@ export default {
       }
       var data = new FormData()
       data.append('image', files[0])
+
       let uploadResult = await StepService.uploadMemoryImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.memoryItems[key].imagePath = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.selectedStep.form.options.items[key].imagePath = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1542,10 +1666,10 @@ export default {
      * Delete an answer in the memory game
      */
     deleteMemoryAnswer: function (key) {
-      if (this.memoryItems.length <= this.minNbAnswers) {
-        Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.minNbAnswers }), 'error')
+      if (this.selectedStep.form.options.items.length <= this.config.memory.minNbAnswers) {
+        Notification(this.$t('label.YouMustDefineAtLeastNbAnswers', { nb: this.config.memory.minNbAnswers }), 'error')
       } else {
-        this.memoryItems.splice(key, 1);
+        this.selectedStep.form.options.items.splice(key, 1);
       }
     },
     /*
@@ -1562,7 +1686,13 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadCodeAnswerImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.options.images[key].imagePath = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.selectedStep.form.options.images[key].imagePath = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1582,7 +1712,13 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadPuzzleImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.options.picture = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.selectedStep.form.options.picture = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1602,11 +1738,52 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadItemImage(this.questId, this.options.type.code, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        this.selectedStep.form.options.picture = uploadResult.data.file
+        if (uploadResult.data.file) {
+          this.selectedStep.form.options.picture = uploadResult.data.file
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
       this.$q.loading.hide()
+    },
+    /*
+     * Upload a 3D object
+     * @param   {Object}    e            Upload data
+     */
+    async uploadItemObject(e) {
+      this.$q.loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadResult = await StepService.uploadItemObject(this.questId, this.options.type.code, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        if (uploadResult.data.file) {
+          this.selectedStep.form.options.customModel = uploadResult.data.file
+          
+          await this.displayARObject(this.selectedStep.form.options.customModel, this.questId)
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    /*
+     * Change the object selected in the 3D object list
+     */
+    async changeObjectInList() {
+      this.selectedStep.form.options.customModel = null
+      await this.displayARObject(this.selectedStep.form.options.model)
     },
     /*
      * Upload a character picture
@@ -1622,11 +1799,165 @@ export default {
       data.append('image', files[0])
       let uploadResult = await StepService.uploadCharacterImage(this.questId, this.options.type.code, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
-        Vue.set(this.selectedStep.form.options, 'character', uploadResult.data.file)
+        if (uploadResult.data.file) {
+          Vue.set(this.selectedStep.form.options, 'character', uploadResult.data.file)
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
       this.$q.loading.hide()
+    },
+    
+    /*
+    * loads GLTF data, puts object origin at center, sets position of 3D model according to its settings in 3DModels.json
+    * @param     modelCode     code of the 3D model, for example "lamp"
+    * @return    object        { object: <3D object>, animations: <animations from GLTF data> }
+    */
+    async loadAndPrepare3DModel(modelCode, questId) {
+      let gltfData
+      try {
+        this.$q.loading.show()
+        gltfData = await this.ModelLoaderAsync(modelCode, questId)
+        this.$q.loading.hide()
+      } catch (err) {
+        console.error("Error while loading 3D model:", err)
+        Notification(this.$t('label.CouldNotDisplayObject'), 'error')
+        return
+      }
+      
+      let object = gltfData.scene
+      
+      // set object origin at center
+      let objBbox = new THREE.Box3().setFromObject(object)
+      
+      let pivot = objBbox.getCenter(new THREE.Vector3())
+      pivot.multiplyScalar(-1)
+      
+      let pivotObj = new THREE.Object3D();
+      object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
+      pivotObj.add(object)
+      pivotObj.up = new THREE.Vector3(0, 0, 1)
+      object = pivotObj
+      
+      object.rotation.z = Math.PI / 4
+      
+      return { object, animations: gltfData.animations }
+    },
+    /*
+    * Loads material file and object file into a 3D Model for Three.js
+    * Supports only GLB format
+    * Returns a Promise, usable with async/await
+    */
+    async ModelLoaderAsync(objName, questId) {
+      let progress = console.log
+      
+      return new Promise((resolve, reject) => {
+        let gltfLoader = new GLTFLoader()
+        // loads automatically .bin and textures files if necessary
+        if (objName.indexOf('blob:') !== -1) {
+          gltfLoader.load(objName, resolve, progress, reject)
+        } else {
+          if (questId) {
+            gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '.glb', resolve, progress, reject)
+          } else {
+            gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '.glb', resolve, progress, reject)
+          }
+        }
+      })
+    },
+    /*
+    * Display a 3D Model for Three.js
+    */
+    async displayARObject(model, questId) {
+      if (this.config.locateItem.object === null) {
+        // first execution: append renderer to DOM
+        // wait for DOM <div> canvas to be ready/available
+        let _this = this
+        this.$nextTick(async () => {
+          let canvasItem = document.getElementById('target-canvas')
+          if (!canvasItem) {
+            throw new Error('missing 3D canvas')
+          }
+          // Create an empty scene
+          _this.config.locateItem.scene = new THREE.Scene()
+
+          // Create a basic perspective camera
+          let camera = new THREE.PerspectiveCamera(70, 1.333, 0.001, 1000)
+          camera.up = new THREE.Vector3(0, 0, 1)
+          camera.rotation.x = Math.PI / 2
+          camera.lookAt(new THREE.Vector3(0, 0, 0))
+          _this.config.locateItem.camera = camera
+          
+          // Create a renderer with Antialiasing
+          let renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
+          canvasItem.appendChild(renderer.domElement)
+          _this.config.locateItem.renderer = renderer
+          
+          // Configure renderer size
+          _this.config.locateItem.renderer.setSize(Math.round(window.innerWidth * 0.8), Math.round(window.innerWidth * 0.6))
+          _this.config.locateItem.renderer.gammaOutput = true
+          
+          // Add "orbit controls"
+          _this.config.locateItem.controls = new OrbitControls(camera, renderer.domElement)
+          
+          let light = new THREE.DirectionalLight(0xdddddd)
+          light.position.set(0, 1, 1).normalize()
+          _this.config.locateItem.scene.add(light)
+
+          // soft ambient light
+          _this.config.locateItem.scene.add(new THREE.AmbientLight(0xb0b0b0))
+          
+          await _this.displayARObjectEnd(model, questId)
+          
+          _this.animateModelPreview()
+        })
+      } else {
+        // renderer already defined => only replace 3D models
+        let objectToRemove = this.config.locateItem.scene.getObjectByName(DEMO_OBJECT_NAME)
+        
+        // clean previously loaded object
+        this.config.locateItem.scene.remove(objectToRemove)
+        
+        await this.displayARObjectEnd(model, questId)
+      }
+    },
+    async displayARObjectEnd(model, questId) {
+      let ObjectData = await this.loadAndPrepare3DModel(model, questId)
+      
+      let object = ObjectData.object
+      object.up = new THREE.Vector3(0, 0, 1)
+      object.visible = true
+      object.name = DEMO_OBJECT_NAME
+      
+      this.config.locateItem.scene.add(object)
+      
+      // detect object size and adjust default zoom accordingly
+      let box = new THREE.Box3().setFromObject(object)
+      let size = new THREE.Vector3()
+      box.getSize(size)
+      
+      this.config.locateItem.zoom = Math.max(size.x, size.y, size.z) * 1.5
+      
+      // distance with object
+      this.config.locateItem.camera.position.set(0, -this.config.locateItem.zoom, 0)
+      this.config.locateItem.controls.update() // orbit controls update is required when camera position changes
+      
+      this.config.locateItem.object = object
+    },
+    animateModelPreview() {
+      requestAnimationFrame(this.animateModelPreview)
+      this.config.locateItem.renderer.render(this.config.locateItem.scene, this.config.locateItem.camera)
+      this.config.locateItem.controls.update()
+    },
+    /*
+     * Change 2D / 3D mode
+     */
+    async change2D3DObject() {
+      await this.changeObjectInList()
     },
     /*
      * Select an object in the list
@@ -1676,7 +2007,7 @@ export default {
           })
         })
         options.sort((a, b) => { return a.label > b.label ? 1 : -1 })
-        this.questItemsAsOptions = options
+        this.config.useItem.questItemsAsOptions = options
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1808,10 +2139,10 @@ export default {
       return value.length <= maxNbChars && (value.match(/\n/g) || []).length <= maxNbCarriageReturns
     },
     openChooseMarkerModal() {
-      this.markerModalOpened = true
+      this.config.locateMarker.markerModalOpened = true
     },
     closeChooseMarkerModal() {
-      this.markerModalOpened = false
+      this.config.locateMarker.markerModalOpened = false
     },
     selectMarker(code) {
       this.selectedStep.form.answers = code
@@ -1848,7 +2179,7 @@ export default {
       case 'choose':
         fieldsToValidate.options = {
           items: {
-            $each: this.answerType === 'text' ? { text: { required }, imagePath: {} } : { text: {}, imagePath: { required } }
+            $each: this.config.choose.answerType === 'text' ? { text: { required }, imagePath: {} } : { text: {}, imagePath: { required } }
           }
         }
         break
@@ -1958,6 +2289,8 @@ p { margin-bottom: 0.5rem; }
 
 #choose-marker-modal img { width: 5rem; height: 5rem; }
 #choose-marker-modal span { flex-grow: 1; font-size:1.5rem; color: #000; }
+
+#target-canvas { margin: 1rem auto 0 auto; background: linear-gradient(#aab, #657); }
 
 </style>
 
