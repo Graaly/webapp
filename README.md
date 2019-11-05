@@ -178,8 +178,10 @@ Remove the cache of your browser (if you renew the certificate)
 
 Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to easily create a custom Certification Authority, generate certificates for any IP/domain, and make all your dev devices trust them :
 
+```bash
 $ mkcert -install
 $ mkcert "dev.graaly.com" localhost 127.0.0.1 ::1
+```
 Move the 2 files created in the /webapp/certs folder, and rename as webapp-dev-cert.pem and webapp-dev-key.pem
 
 Optional: Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
