@@ -206,12 +206,16 @@
             <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.customization.logo" />
           </div>
           <div v-if="!isIOs">
-            <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddALogo')" @click="$refs['logofile'].click()" />
+            <q-btn-group class="full-width">
+              <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddALogo')" @click="$refs['logofile'].click()" />
+              <q-btn @click="showHelpPopup('helpQuestLogo')" icon="help" />
+            </q-btn-group>
             <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" hidden />
           </div>
           <div v-if="isIOs">
             {{ $t('label.AddALogo') }}:
             <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" />
+            <q-icon name="help" @click.native="showHelpPopup('helpQuestLogo')" />
           </div>
           <div v-if="form.fields.rewardPicture && form.fields.rewardPicture !== ''">
             <p>{{ $t('label.Reward') }} :</p>
@@ -219,17 +223,24 @@
             {{ $t('label.RewardPictureWarning')}}
           </div>
           <div v-if="!isIOs" class="q-mt-md">
-            <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddAReward')" @click="$refs['rewardfile'].click()" />
+            <q-btn-group class="full-width">
+              <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddAReward')" @click="$refs['rewardfile'].click()" />
+              <q-btn @click.native="showHelpPopup('helpQuestReward')" icon="help" />
+            </q-btn-group>
             <input @change="uploadReward" ref="rewardfile" type="file" accept="image/*" hidden />
           </div>
           <div v-if="isIOs" class="q-mt-md">
             {{ $t('label.AddAReward') }}:
             <input @change="uploadReward" ref="rewardfile" type="file" accept="image/*" />
+            <q-icon name="help" @click.native="showHelpPopup('helpQuestReward')" />
           </div>
         </div>
         
         <div v-if="!this.quest.isPremium">
-          <q-btn color="secondary" class="full-width q-mt-lg" @click="openPremiumBox()" icon="star" :label="$t('label.MovePremium')" />
+          <q-btn-group class="full-width q-mt-lg">
+            <q-btn color="secondary" @click="openPremiumBox()" :label="$t('label.MovePremium')" />
+            <q-btn color="secondary" @click="openPremiumBox()" icon="help" split />
+          </q-btn-group>
         </div>
         <q-btn v-if="!readOnly" @click="submitSettings" color="primary" class="full-width q-mt-lg" test-id="btn-save-settings">{{ $t('label.Save') }}</q-btn>
           

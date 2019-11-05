@@ -813,7 +813,10 @@ module.exports = {
       RewardPictureWarning: "Warning: if your picture background is not red, upload a picture with a transparent background. If a part of your picture is cropped, upload a square format picture",
       YouWonAReward: "Congratulation, you have won a badge",
       WonOtherRewardByPlayingOtherGamesInCity: "You can won other rewards by playing other quests around",
-      UnknowUploadError: "An error occurs. Maybe your file is too big or not the right format. Please try again with a smaller picture"
+      UnknowUploadError: "An error occurs. Maybe your file is too big or not the right format. Please try again with a smaller picture",
+      helpQuestLogo: "Your logo will be display in a bubble on the bottom of the game screens. Depending on the screens, the bubble can be small, please use a picture with few details.",
+      helpQuestReward: "The player will win a badge as a reward at the end of your quest. This will motivate them to play your quest. To create this badge, upload a picture of this reward, with a transparent background (.gif or .png format)",
+      DisplayGeolocationHelp: "Display the GPS calibration animation"
     }
   },
   fr: {
@@ -1618,7 +1621,10 @@ module.exports = {
       RewardPictureWarning: "Attention, le fond de votre image doit être en rouge, sinon pensez à utiliser une image avec un fond transparent. Si une partie de votre image est coupée, téléchargez une image au format carré.",
       YouWonAReward: "Bravo, vous avez gagné un badge",
       WonOtherRewardByPlayingOtherGamesInCity: "Vous pouvez gagner d'autres récompenses en jouant aux autres enquêtes dans la ville",
-      UnknowUploadError: "Une erreur est survenue. Votre fichier est peut être trop gros ou n'a pas le bon format. Veuillez réessayer avec une image plus petite"
+      UnknowUploadError: "Une erreur est survenue. Votre fichier est peut être trop gros ou n'a pas le bon format. Veuillez réessayer avec une image plus petite",
+      helpQuestLogo: "Votre logo apparaîtra dans un bulle en bas de l'écran de jeu. Suivant les écrans, la bulle peut être assez petite, choisissez une image avec peu de détails.",
+      helpQuestReward: "Les joueurs pourront gagner un badge à la fin de l'enquête. Cela les motive à jouer à votre enquête. Pour proposer un badge en récompense, téléchargez une image représentant le badge, avec un fond transparent (format .gif ou .png)",
+      DisplayGeolocationHelp: "Afficher l'animation de calibrage GPS"
     }
   }
 }

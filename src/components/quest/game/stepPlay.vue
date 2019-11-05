@@ -999,8 +999,10 @@ export default {
     * Open GPS calibration popin
     */
     askUserToCalibrateGPS() {
-      this.geolocation.showCalibration = true
-      utils.setTimeout(this.closeGPSCalibration, 7000)
+      if (this.step.options && this.step.options.showHelp) {
+        this.geolocation.showCalibration = true
+        utils.setTimeout(this.closeGPSCalibration, 7000)
+      }
     },
     closeGPSCalibration() {
       this.geolocation.showCalibration = false
@@ -1013,7 +1015,7 @@ export default {
     */
     askUserToHandleMobileVertically() {
       this.geolocation.takeMobileVertically = true
-      utils.setTimeout(this.closeHandleMobileVertically, 7000)
+      utils.setTimeout(this.closeHandleMobileVertically, 5000)
     },
     closeHandleMobileVertically() {
       this.geolocation.takeMobileVertically = false
