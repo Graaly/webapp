@@ -423,9 +423,6 @@ import GLTFLoader from 'three-gltf-loader'
 import { THREEx } from 'src/includes/ar' // import * as ARjs from 'ar.js' in future versions?
 import { promisify } from 'es6-promisify'
 
-// required for iOS compatibility
-import { AbsoluteOrientationSensor } from 'src/includes/motion-sensors';
-
 export default {
   /*
    * Properties used on component call
@@ -538,7 +535,8 @@ export default {
           // object position relative to device
           position: { x: null, y: null },
           // for 'locate-item-ar'
-          absoluteOrientationSensor: null, 
+          absoluteOrientationSensor: null,
+          initialBearingAngle: null,
           target: null,
           canSeeTarget: false,
           canTouchTarget: false,
@@ -732,19 +730,19 @@ export default {
           // It is different from 'deviceorientationabsolute' listener whose values are not
           // reliable when device is held vertically
           try {
-            let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
-            if (typeof sensor === 'undefined') {
+            if ("AbsoluteOrientationSensor" in window) {
+              // Android
+              let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
+              sensor.onerror = event => console.error(event.error.name, event.error.message)
+              sensor.onreading = this.onAbsoluteOrientationSensorReading
+              sensor.start()
+              this.geolocation.absoluteOrientationSensor = sensor
+            } else {
               // iOS
               this.geolocation.absoluteOrientationSensor = {
                 stop: this.stopAlternateAbsoluteOrientationSensor
               }
               window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
-            } else {
-              // Android
-              sensor.onerror = event => console.error(event.error.name, event.error.message)
-              sensor.onreading = this.onAbsoluteOrientationSensorReading
-              sensor.start()
-              this.geolocation.absoluteOrientationSensor = sensor
             }
           } catch (error) {
             console.error(error)
@@ -940,8 +938,15 @@ export default {
         }
       })
     },
+    /**
+     * handles deviceorientation event on iOS
+     */
     eventAlternateAbsoluteOrientationSensor(e) {
-      const alpha    = e.webkitCompassHeading !== null ? 360 - e.webkitCompassHeading : e.alpha
+      if (this.geolocation.initialBearingAngle === null && e.webkitCompassHeading !== 0) {
+        this.geolocation.initialBearingAngle = (-e.webkitCompassHeading - e.alpha + 720) % 360
+      }
+
+      const alpha = e.webkitCompassHeading != null ? (this.geolocation.initialBearingAngle + e.alpha) % 360 : e.alpha
       const beta     = e.beta
       const gamma    = e.gamma
       const degtorad = Math.PI / 180
@@ -962,27 +967,9 @@ export default {
       var y = cX * sY * cZ + sX * cY * sZ
       var z = cX * cY * sZ + sX * sY * cZ
 
-      this.geolocation.absoluteOrientationSensor.quaternion = [ y, -x, -w, z ]
-
-      let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
-
-      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.deviceHasGyroscope) {
-        this.geolocation.target.camera.quaternion = quaternion
-      }
-
-      // every 100ms, update geolocation direction
-      if (!this.waitForNextQuaternionRead) {
-        let rotationZXY = new THREE.Euler().setFromQuaternion(quaternion, 'ZXY')
-        let rotationXZY = new THREE.Euler().setFromQuaternion(quaternion, 'XZY')
-
-        let tmpAlpha = (rotationZXY.x < Math.PI / 4 ? rotationZXY.z : rotationXZY.y)
-        let newAlpha = JSON.stringify((360 - utils.radiansToDegrees(tmpAlpha)) % 360)
-
-        this.geolocation.direction = (this.geolocation.rawDirection - newAlpha + 360) % 360
-
-        this.waitForNextQuaternionRead = true
-        utils.setTimeout(() => { this.waitForNextQuaternionRead = false }, 100)
-      }
+      this.geolocation.absoluteOrientationSensor.quaternion = [ x, y, z, w ]
+      
+      this.onAbsoluteOrientationSensorReading() // same process as Android
     },
     stopAlternateAbsoluteOrientationSensor() {
       window.removeEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
@@ -1584,11 +1571,12 @@ export default {
                 let cameraDistance = Math.max(size.x, size.y, size.z) * 2
                 
                 // to fix temporally issue of animations with iOs
-                if (this.isIOs) {
+                // MPA 2019-11-08 tested on iPhone SE => OK
+                /*if (this.isIOs) {
                   camera.position.set(0, 0,  cameraDistance * 2 / 3)
 
                   this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
-                } else {
+                } else {*/
                   let startScale = Object.assign({}, object.scale) // copy the full Vector3 object, not a reference
                 
                   let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
@@ -1618,7 +1606,7 @@ export default {
                     .repeat(Infinity)
                     
                   disappearAnimation.chain(appearAnimation, rotationAnimation).start()
-                }
+                //}
               } else { // 2D image on plane
                 this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
               }
@@ -2883,7 +2871,7 @@ export default {
       }
       
       // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
-      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion || isNaN(this.geolocation.position.x) || isNaN(this.geolocation.position.y)) {
+      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || this.geolocation.absoluteOrientationSensor === null || !this.geolocation.absoluteOrientationSensor.quaternion || isNaN(this.geolocation.position.x) || isNaN(this.geolocation.position.y)) {
         canProcess = false
       }
       
