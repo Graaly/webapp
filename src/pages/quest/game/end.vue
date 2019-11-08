@@ -197,6 +197,19 @@
       </div>
     </transition>
     
+     <!--====================== REWARD PAGE =================================-->
+    
+    <transition name="slideInBottom">
+      <div class="panel-bottom q-pa-md" v-if="showReward">      
+        <a class="float-right no-underline close-btn" color="grey" @click="closeReward"><q-icon name="close" class="medium-icon" /></a>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.YouWonAReward') }}</div>
+        <div class="q-pa-md">
+          <img :src="serverUrl + '/upload/quest/' + run.questData.rewardPicture">
+          <p>{{ $t('label.WonOtherRewardByPlayingOtherGamesInCity') }}</p>
+        </div>
+      </div>
+    </transition>
+    
     <!--====================== STORY =================================-->
     
     <div class="fixed-bottom over-map" v-if="story.step !== null && story.step !== 'end'">
@@ -261,6 +274,7 @@ export default {
       awardPoints: true,
       showChallenge: false,
       showBonus: false,
+      showReward: false,
       showAddReview: false,
       reviewSent: false,
       isUserAuthor: false,
@@ -337,6 +351,9 @@ export default {
           if (endStatus.data.newBonus && endStatus.data.newBonus !== '') {
             this.run.bonus = endStatus.data.newBonus
             this.showBonus = true
+          }
+          if (this.run.questData.rewardPicture && this.run.questData.rewardPicture !== '') {
+            this.showReward = true
           }
           
           // remove offline data
@@ -548,6 +565,12 @@ export default {
      */
     async closeBonus() {
       this.showBonus = false
+    },
+    /*
+     * Close the reward modal
+     */
+    async closeReward() {
+      this.showReward = false
     },
     /*
      * Start the story

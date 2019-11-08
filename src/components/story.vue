@@ -1,6 +1,6 @@
 <template>
-  <div class="story fit" v-if="currentStep.id !== null" :class="{fadeout: hide}" style="background: rgba(0,0,0,0.5); height: 100%;">
-    <div :style="'position: fixed; width: 100%; bottom: ' + steps[currentStep.id].bottom + 'px;'">
+  <div class="story fit" v-if="currentStep.id !== null && steps[currentStep.id]" :class="{fadeout: hide}" style="background: rgba(0,0,0,0.5); height: 100%;">
+    <div :style="'position: fixed; width: 100%; bottom: ' + ((steps && steps[currentStep.id]) ? steps[currentStep.id].bottom :  0) + 'px;'">
       <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" style="min-height: 5vh" /></div>
       <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh" v-click-outside="onBackgroundTouch">
         <div v-if="needToScroll" class="scroll-indicator">
@@ -55,6 +55,7 @@ export default {
         // step 0 - Graaly introduction
         0: {
           discussions: [
+            {character: "1", text: "AskIfUseTuto", condition: null},
             {character: "1", text: "Welcome", condition: null},
             {character: "1", text: "FirstStep", condition: null},
             {character: "1", text: "PresentTeam", condition: null},
@@ -285,6 +286,16 @@ export default {
           ],
           bottom: 0,
           allowSkip: true
+        },
+        // step 23 - Start a new quest
+        23: {
+          discussions: [
+            {character: "1", text: "StartNewQuest1", condition: null, link: {label: "NoThanks", action: "close"}},
+            {character: "1", text: "StartNewQuest2", condition: (this.data !== null && this.data.hasOwnProperty("questId")), button: {label: "letsGo", action: "/quest/play/" + ((this.data && this.data.hasOwnProperty("questId")) ? this.data.questId : '0')}, link: {label: "NoThanks"}},
+            {character: "1", text: "StartNewQuest3", condition: null}
+          ],
+          bottom: 0,
+          allowSkip: true
         }
       },
       currentStep: {
@@ -299,6 +310,10 @@ export default {
   },
   async mounted() {
     this.currentStep.id = this.step
+    if (!this.steps[this.currentStep.id]) {
+      this.hideStory()
+      return
+    }
     this.currentStep.discussionId = 0
     this.nextStep = this.step
     this.hide = false
@@ -334,8 +349,10 @@ export default {
       }
     },
     moreToValidStep () {
-      while (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].condition === false) {
-        this.currentStep.discussionId++
+      if (this.steps[this.currentStep.id]) {
+        while (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].condition === false) {
+          this.currentStep.discussionId++
+        }
       }
     },
     async saveStepPassed () {
@@ -347,6 +364,8 @@ export default {
     },
     async skipTutorial () {
       this.hide = true
+      //var _this = this
+      //setTimeout(function() { _this.$emit('close') }, 2000)
       this.$q.dialog({
         title: this.$t('label.SkipTutorial'),
         message: this.$t('label.SkipTutorialDesc'),
