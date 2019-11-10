@@ -16,6 +16,10 @@
             <q-spinner color="primary" size="3em" />
             {{ $t('label.LoadingContacts') }}
           </div>
+          <div class="centered" v-if="loadingContacts === null">
+            <q-btn @click="this.getContacts" :label="$t('label.LoadContactsFromPhone')" />
+          </div>
+          
           <div v-if="validatedContacts && validatedContacts.length > 0">
             <q-list highlight>
               <q-item v-for="contact in validatedContacts" :key="contact._id">
@@ -32,6 +36,9 @@
                 </q-item-section>
               </q-item>
             </q-list>
+          </div>
+          <div v-if="loadingContacts === false && (!validatedContacts || validatedContacts.length === 0)">
+            {{ $t('label.NoMoreContactFound') }}
           </div>
         </q-tab-panel>
         
@@ -129,7 +136,7 @@ export default {
       canFindContacts: true,
       serverUrl: process.env.SERVER_URL,
       submitting: false,
-      loadingContacts: false,
+      loadingContacts: null,
       console: '',
       newFriendTab: "suggestions"
     }
@@ -193,16 +200,22 @@ export default {
       }
     },
     async getContacts() {
+console.log("contact1")
       if (window.cordova) {
         this.loadingContacts = true
         // find all contacts
-        var options = new ContactFindOptions();
-        options.filter = "";
-        options.multiple = true;
-        var filter = ["displayName", "emails", "phoneNumbers"];
-        navigator.contacts.find(filter, this.checkContacts, this.onError, options);
+console.log("contact2")
+        var options = new ContactFindOptions()
+console.log("contact3")
+        options.filter = ""
+        options.multiple = true
+        var filter = ["displayName", "emails", "phoneNumbers"]
+console.log("contact4")
+        navigator.contacts.find(filter, this.checkContacts, this.onError, options)
+console.log("contact5")
         this.loadingContacts = false
       } else {
+console.log("contact6")
         this.canFindContacts = false
       }
     },

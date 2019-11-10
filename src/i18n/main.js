@@ -818,7 +818,9 @@ module.exports = {
       helpQuestLogo: "Your logo will be display in a bubble on the bottom of the game screens. Depending on the screens, the bubble can be small, please use a picture with few details.",
       helpQuestReward: "The player will win a badge as a reward at the end of your quest. This will motivate them to play your quest. To create this badge, upload a picture of this reward, with a transparent background (.gif or .png format)",
       DisplayGeolocationHelp: "Display the GPS calibration animation",
-      LoadingContacts: "Loading contacts"
+      LoadingContacts: "Loading contacts",
+      LoadContactsFromPhone: "Search in my address book",
+      NoMoreContactFound: "No more contact found"
     }
   },
   fr: {
@@ -1628,7 +1630,9 @@ module.exports = {
       helpQuestLogo: "Votre logo apparaîtra dans un bulle en bas de l'écran de jeu. Suivant les écrans, la bulle peut être assez petite, choisissez une image avec peu de détails.",
       helpQuestReward: "Les joueurs pourront gagner un badge à la fin de l'enquête. Cela les motive à jouer à votre enquête. Pour proposer un badge en récompense, téléchargez une image représentant le badge, avec un fond transparent (format .gif ou .png)",
       DisplayGeolocationHelp: "Afficher l'animation de calibrage GPS",
-      LoadingContacts: "Chargement des contacts"
+      LoadingContacts: "Chargement des contacts",
+      LoadContactsFromPhone: "Rechercher dans mon carnet d'adresse",
+      NoMoreContactFound: "Aucun autre contact trouvé"
     }
   }
 }
