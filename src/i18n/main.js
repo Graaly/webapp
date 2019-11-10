@@ -99,7 +99,7 @@ module.exports = {
       fr: "French"
     },
     story: {
-      AskIfUseTuto: "Welcome<br />Do you want to play the demo quest, to understand how to use Graaly (approx. duration 5 min) ? Press <b>Skip tutorial</b> on the bottom left to play without demo",
+      AskIfUseTuto: "Welcome<br />Do you want to play the demo quest, to understand how to use Graaly (approx. duration 5 min)? Press <b>Skip tutorial</b> on the bottom left to play without demo",
       Welcome: "Welcome <b>young detective</b>, you have just joined my team.<br />We have to deal with an increase in inquiries, and have chosen to call <b>someone like you</b>! ",
       FirstStep: "Please let me tell you that there will be a lot of work.<br />But if you're motivated and you listen to my advice, you'll <b>quickly become a good detective</b>.",
       PresentTeam: "Let start to <b>present our team</b>",
@@ -749,6 +749,7 @@ module.exports = {
       PremiumDefinition1: "Give your quest more value!",
       PremiumDefinition2: "Moving pro offers you several advantages : <ul><li><u>A more customized quest to your needs</u>: you can use your own 3D objects & characters, you can display your logo and adapt screens with your colors, ... </li><li><u>A profitable quest</u>: you can sell your quest to players</li><li>You can access the statistics of your quest</li><li>You can have support from our team</li></ul>",
       PremiumDefinition3: "To buy pro credits, look at <a href='https://graaly.com'>our web site</a> or contact us at sales@graaly.com",
+      PremiumWarning: "To use this feature, you need to move your quest to premium mode (look at your quest settings)",
       Statistics: "Statistics",
       colons: ": ",
       TotalNumberOfPlayers: "Total number of players",
@@ -816,7 +817,10 @@ module.exports = {
       UnknowUploadError: "An error occurs. Maybe your file is too big or not the right format. Please try again with a smaller picture",
       helpQuestLogo: "Your logo will be display in a bubble on the bottom of the game screens. Depending on the screens, the bubble can be small, please use a picture with few details.",
       helpQuestReward: "The player will win a badge as a reward at the end of your quest. This will motivate them to play your quest. To create this badge, upload a picture of this reward, with a transparent background (.gif or .png format)",
-      DisplayGeolocationHelp: "Display the GPS calibration animation"
+      DisplayGeolocationHelp: "Display the GPS calibration animation",
+      LoadingContacts: "Loading contacts",
+      LoadContactsFromPhone: "Search in my address book",
+      NoMoreContactFound: "No more contact found"
     }
   },
   fr: {
@@ -905,7 +909,7 @@ module.exports = {
       fr: "Français"
     },
     story: {
-      AskIfUseTuto: "Bienvenue dans Graaly<br />Souhaitez-vous suivre l'enquête de démo pour vous familiariser avec Graaly (durée approx. 5 min). Pressez <b>Passer l'aide</b> en bas à gauche pour jouer sans la démo",
+      AskIfUseTuto: "Bienvenue dans Graaly<br />Souhaitez-vous suivre l'enquête de démo pour vous familiariser avec Graaly (durée approx. 5 min) ? Pressez <b>Passer l'aide</b> en bas à gauche pour jouer sans la démo",
       Welcome: "Bienvenue <b>jeune détective</b>, vous venez de rejoindre mon équipe.<br />Nous devons faire face à une augmentation des enquêtes, et avons choisi de faire appel à <b>quelqu'un de prometteur comme vous</b> !",
       FirstStep: 'Autant vous le dire tout de suite, il va y avoir du boulot.<br />Mais si vous êtes motivé(e) et vous écoutez mes conseils, vous allez <b>rapidement devenir un bon détective</b>.',
       PresentTeam: "Avant d'aller plus loin, je vais vous <b>présenter l'équipe</b>",
@@ -1557,6 +1561,7 @@ module.exports = {
       PremiumDefinition1: "Donnez plus de valeur à votre enquête !",
       PremiumDefinition2: "Les avantages du mode pro sont multiples : <ul><li><u>Une enquête plus personnalisée à vos besoins</u>: vous pouvez utiliser vos propres objets 3D et personnages, Vous pouvez personnaliser l'enquête avec votre logo et vos couleurs, ... </li><li><u>Une enquête rentable</u> : Vous pouvez gagner de l'argent en rendant votre enquête payante</li><li>Vous pouvez accéder aux statistiques de votre enquête</li><li>Vous bénéficiez du support de notre équipe</li></ul>",
       PremiumDefinition3: "Pour pouvoir passer vos enquêtes en mode pro, contactez nous à sales@graaly.com",
+      PremiumWarning: "Pour utiliser cette fonctionnalité, vous devez passer cette enquête en mode premium (voir dans les paramètres de votre enquête)",
       Statistics: "Statistiques",
       colons: " : ",
       TotalNumberOfPlayers: "Nombre total de joueurs",
@@ -1624,7 +1629,10 @@ module.exports = {
       UnknowUploadError: "Une erreur est survenue. Votre fichier est peut être trop gros ou n'a pas le bon format. Veuillez réessayer avec une image plus petite",
       helpQuestLogo: "Votre logo apparaîtra dans un bulle en bas de l'écran de jeu. Suivant les écrans, la bulle peut être assez petite, choisissez une image avec peu de détails.",
       helpQuestReward: "Les joueurs pourront gagner un badge à la fin de l'enquête. Cela les motive à jouer à votre enquête. Pour proposer un badge en récompense, téléchargez une image représentant le badge, avec un fond transparent (format .gif ou .png)",
-      DisplayGeolocationHelp: "Afficher l'animation de calibrage GPS"
+      DisplayGeolocationHelp: "Afficher l'animation de calibrage GPS",
+      LoadingContacts: "Chargement des contacts",
+      LoadContactsFromPhone: "Rechercher dans mon carnet d'adresse",
+      NoMoreContactFound: "Aucun autre contact trouvé"
     }
   }
 }

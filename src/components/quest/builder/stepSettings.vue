@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-md scroll-y">
 
     <a class="float-right no-underline close-btn" color="grey" @click="close"><q-icon name="close" class="medium-icon" /></a>
     
@@ -664,11 +664,11 @@
               <q-btn class="full-width" type="button" @click="$refs['backgroundfile2'].click()">
                 <q-icon name="cloud_upload" /> <label for="picturefile2">{{ $t('label.UploadABackgroundImage') }}</label>
               </q-btn>
-              <input @input="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+              <input @change="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
             </div>
             <div v-if="isIOs">
               <q-icon name="cloud_upload" /> {{ $t('label.UploadABackgroundImage') }}
-              <input @input="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" />
+              <input @change="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" />
             </div>
             <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
             <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
@@ -729,9 +729,9 @@
     <!------------------ PREMIUM POPIN ------------------------>
     
     <q-dialog v-model="premium.show">
-      <div class="q-pa-md">
-        <div v-html="$t('label.PremiumDefinition1')" />
-        <q-btn class="q-mb-xl" color="primary" @click="premium.show = false">{{ $t('label.Close') }}</q-btn>
+      <div class="q-pa-md centered">
+        <div v-html="$t('label.PremiumWarning')" />
+        <q-btn class="q-mt-md" color="primary" @click="premium.show = false">{{ $t('label.Close') }}</q-btn>
       </div>
     </q-dialog>
     
@@ -2239,7 +2239,7 @@ export default {
 
 <style scoped>
 
-#main-view { padding: 1rem; overflow-y: scroll; }
+.scroll-y { padding: 1rem; overflow: auto; height: 100%;}
 
 h1 { margin-top: 0; }
 h2 { font-size: 1.2rem; color: grey; }

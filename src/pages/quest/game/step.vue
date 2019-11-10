@@ -379,19 +379,25 @@ export default {
           }
           if (runs.data[i].status === 'in-progress') {
             this.run = runs.data[i]
+            
             currentChapter = runs.data[i].currentChapter
             
             // update the offline run or the online depending on the last updated
             if (isRunOfflineLoaded) {
               if (offlineRun.dateUpdated > this.run.dateUpdated) {
+                const tempId = this.run._id
                 this.run = offlineRun
+                // fix when id is not set
+                if (!this.run._id) {
+                  this.run._id = tempId
+                }
                 
                 // save run changes in DB
                 await RunService.updateFromOffline(this.run)
               } else {
                 // the answers are the offline one
                 this.run.answers = offlineRun.answers
-                
+
                 await this.updateOfflineRun(this.questId)
               }
             }
