@@ -14,7 +14,8 @@
       
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
         <div id="info-clickable" :class="{ grow: !step.videoStream }" @click="hideControlsTemporaly">
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="step.options && step.options.html" v-html="getTranslatedText()"/></p>
         </div>
         <div class="video" v-if="step.videoStream">
           <video class="full-width" controls controlsList="nodownload" autoplay>
@@ -768,6 +769,7 @@ export default {
             // video stream for AR background
             if (this.isIOs) {
               let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
+console.log("=======> starting camera") 
               CameraPreview.startCamera(options)
               CameraPreview.show()
             } else {
@@ -1560,8 +1562,10 @@ export default {
               
               // stop camera flow
               if (this.isIOs) {
-                CameraPreview.hide()
+console.log("=======> stopping camera")
+                //CameraPreview.hide()
                 CameraPreview.stopCamera()
+                CameraPreview.stopCamera() // calling twice is needed
               }
               
               TWEEN.removeAll() // clear all running animations

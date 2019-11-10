@@ -205,14 +205,14 @@
             <p>{{ $t('label.YourLogo') }} :</p>
             <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.customization.logo" />
           </div>
-          <div v-if="!isIOs">
+          <div v-if="!isIOs && !readOnly">
             <q-btn-group class="full-width">
-              <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddALogo')" @click="$refs['logofile'].click()" />
+              <q-btn class="full-width" :label="$t('label.AddALogo')" @click="$refs['logofile'].click()" />
               <q-btn @click="showHelpPopup('helpQuestLogo')" icon="help" />
             </q-btn-group>
             <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" hidden />
           </div>
-          <div v-if="isIOs">
+          <div v-if="isIOs && !readOnly">
             {{ $t('label.AddALogo') }}:
             <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" />
             <q-icon name="help" @click.native="showHelpPopup('helpQuestLogo')" />
@@ -222,14 +222,14 @@
             <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.rewardPicture" style="background-color: #f00" />
             {{ $t('label.RewardPictureWarning')}}
           </div>
-          <div v-if="!isIOs" class="q-mt-md">
+          <div v-if="!isIOs && !readOnly" class="q-mt-md">
             <q-btn-group class="full-width">
-              <q-btn class="full-width" v-if="!readOnly" :label="$t('label.AddAReward')" @click="$refs['rewardfile'].click()" />
+              <q-btn class="full-width" :label="$t('label.AddAReward')" @click="$refs['rewardfile'].click()" />
               <q-btn @click.native="showHelpPopup('helpQuestReward')" icon="help" />
             </q-btn-group>
             <input @change="uploadReward" ref="rewardfile" type="file" accept="image/*" hidden />
           </div>
-          <div v-if="isIOs" class="q-mt-md">
+          <div v-if="isIOs && !readOnly" class="q-mt-md">
             {{ $t('label.AddAReward') }}:
             <input @change="uploadReward" ref="rewardfile" type="file" accept="image/*" />
             <q-icon name="help" @click.native="showHelpPopup('helpQuestReward')" />
@@ -472,7 +472,7 @@
           </q-item-section>
           <q-item-section>
             <q-item-label class="big-label">{{ $t('label.RemoveThisQuest') }}</q-item-label>
-            <q-btn color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
+            <q-btn color="primary" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
             {{ $t('label.ThisActionCanNotBeCanceled') }}
           </q-item-section>
         </q-item>

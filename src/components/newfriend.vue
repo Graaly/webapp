@@ -12,6 +12,10 @@
         <!-- ========================================== FRIENDS SUGGESTIONS ====================================== -->
         
         <q-tab-panel name="suggestions">
+          <div class="centered" v-if="loadingContacts">
+            <q-spinner color="primary" size="3em" />
+            {{ $t('label.LoadingContacts') }}
+          </div>
           <div v-if="validatedContacts && validatedContacts.length > 0">
             <q-list highlight>
               <q-item v-for="contact in validatedContacts" :key="contact._id">
@@ -125,6 +129,7 @@ export default {
       canFindContacts: true,
       serverUrl: process.env.SERVER_URL,
       submitting: false,
+      loadingContacts: false,
       console: '',
       newFriendTab: "suggestions"
     }
@@ -189,12 +194,14 @@ export default {
     },
     async getContacts() {
       if (window.cordova) {
+        this.loadingContacts = true
         // find all contacts
         var options = new ContactFindOptions();
         options.filter = "";
         options.multiple = true;
         var filter = ["displayName", "emails", "phoneNumbers"];
         navigator.contacts.find(filter, this.checkContacts, this.onError, options);
+        this.loadingContacts = false
       } else {
         this.canFindContacts = false
       }

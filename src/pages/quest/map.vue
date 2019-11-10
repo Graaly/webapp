@@ -70,7 +70,7 @@
     
     <!------------------ GEOLOCATION COMPONENT ------------------------>
     
-    <geolocation ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError()" />
+    <geolocation v-if="!offline.active" ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError()" />
     
     <!------------------ SCORE AREA ------------------------>
     
@@ -1262,6 +1262,8 @@ console.log(quest.premiumPrice.androidId)
       // get quests only if tutorial is advanced
       if (this.$store.state.user.story.step > 3) {
         await this.getQuests()
+        // close info windows (if already opened by discovery quest)
+        this.closeInfoWindows()
       } else {
         this.openDiscoveryQuestSummary()
       }

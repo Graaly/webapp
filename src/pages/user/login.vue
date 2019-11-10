@@ -332,9 +332,9 @@ console.log(err)
      * @param   {String}  code            QR Code value
      */
     async checkCode(code) {
-      let checkStatus = await QuestService.checkLoginQRCode(code)
+      let checkStatus = await QuestService.checkLoginQRCode(code, this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
-        this.$router.push('/quest/play/' + code + '/lang/' + this.$t('label.shortLang'))
+        this.$router.push('/quest/play/' + code)
       } else {
         Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
       }
