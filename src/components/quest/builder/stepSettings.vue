@@ -2239,8 +2239,6 @@ export default {
 
 <style scoped>
 
-.scroll-y { padding: 1rem; overflow: auto; height: 100%;}
-
 h1 { margin-top: 0; }
 h2 { font-size: 1.2rem; color: grey; }
 p { margin-bottom: 0.5rem; }
