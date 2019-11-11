@@ -298,6 +298,7 @@ export default {
           remainingDays: '-'
         },
         previousStepId: '',
+        isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
         
         // for step type 'use-item'
         selectedItem: null
@@ -841,6 +842,15 @@ export default {
       //hide button
       this.canMoveNextStep = false
       this.canPass = false
+      
+      // force camera flow to hide
+      if (this.step.type === 'locate-item-ar') {
+        if (this.isIOs) {
+  console.log("=======> stopping camera")
+          CameraPreview.stopCamera()
+          CameraPreview.stopCamera() // calling twice is needed
+        }
+      }
       
       this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + type + '_' + this.step.stepId + '_' + utils.randomId() + '/' + this.$route.params.lang)
     },
