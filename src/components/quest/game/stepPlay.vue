@@ -766,8 +766,7 @@ export default {
           if (this.deviceHasGyroscope || !this.step.backgroundImage) {
             // video stream for AR background
             if (this.isIOs) {
-              let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
-console.log("=======> starting camera") 
+              let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
               CameraPreview.startCamera(options)
               CameraPreview.show()
             } else {
@@ -844,14 +843,11 @@ console.log("=======> starting camera")
           } else {
             // 2D plane with transparent image (user uploaded picture) as texture
             var itemImage = ''
-console.log(this.step.options.picture)
             if (this.step.options.picture && this.step.options.picture.indexOf('blob:') !== -1) {
               itemImage = this.step.options.picture
             } else {
               itemImage = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/locate-item-ar/' + this.step.options.picture
             }
-console.log("call1")
-console.log(itemImage)
           
             this.$refs['item-image'].src = itemImage
             
@@ -859,17 +855,11 @@ console.log(itemImage)
             let geometry = new THREE.PlaneGeometry(target.size, target.size)
             let texture
             try {
-console.log("call2")
-console.log(itemImage)
               texture = new THREE.TextureLoader().load(itemImage)
               // handling PNG transparency, see https://stackoverflow.com/a/26933541/488666
-console.log("test1")
               texture.anisotropy = 0
-console.log("test2")
               texture.magFilter = THREE.NearestFilter
-console.log("test3")
               texture.minFilter = THREE.NearestFilter
-console.log("test4")
             } catch (err) {
               console.error("Error while loading image:", err)
               Notification(this.$t('label.CouldNotDisplayObject'), 'error')
@@ -1558,7 +1548,6 @@ console.log("test4")
               
               // stop camera flow
               if (this.isIOs) {
-console.log("=======> stopping camera")
                 //CameraPreview.hide()
                 CameraPreview.stopCamera()
                 CameraPreview.stopCamera() // calling twice is needed
@@ -2732,11 +2721,8 @@ console.log("=======> stopping camera")
       let objectInit = modelsList[modelCode]
       let gltfData
       try {
-console.log("toto1")
         this.$q.loading.show()
-console.log("toto2")
         gltfData = await this.ModelLoaderAsync(modelCode, questId, isCustom)
-console.log("toto3")
         this.$q.loading.hide()
       } catch (err) {
         console.error("Error while loading 3D model:", err)
@@ -2789,38 +2775,22 @@ console.log("toto3")
     */
     async ModelLoaderAsync(objName, questId, isCustom) {
       let progress = console.log
-console.log("titi1")
-console.log(objName)
-console.log(questId)
+
       // Load GLTF packed as binary (blob)
       const offlineObject = await utils.readBinaryFile(questId, objName + '.glb')
-console.log(offlineObject)
-console.log("titi2")
       return new Promise((resolve, reject) => {
-console.log("titi3")
         let gltfLoader = new GLTFLoader()
         // loads automatically .bin and textures files if necessary
-console.log("titi4")
         if (objName.indexOf('blob:') !== -1) {
-console.log("titi5")
           gltfLoader.load(objName, resolve, progress, reject)
-console.log("titi6")
         } else {
-console.log("titi7")
           if (offlineObject) {
-console.log("titi8")
             gltfLoader.load(offlineObject, resolve, progress, reject)
-console.log("titi9")
           } else {
-console.log("titi10")
             if (isCustom) {
-console.log("titi11")
               gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '.glb', resolve, progress, reject)
-console.log("titi12")
             } else {
-console.log("titi13")
               gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '.glb', resolve, progress, reject)
-console.log("titi14")
             }
           }
         }
