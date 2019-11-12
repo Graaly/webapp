@@ -37,7 +37,7 @@
       
     <!------------------ SETTINGS TAB ------------------------>
       
-    <div v-if="tabs.selected === 'settings' && !chapters.showNewStepOverview" class="q-pa-md tab-content-120">
+    <div v-if="tabs.selected === 'settings' && !chapters.showNewStepOverview" class="q-pa-md" :class="{'tab-content-120': !isIOs}">
       
       <div v-if="!this.quest.languages || this.quest.languages.length === 0">
         <q-item>
@@ -609,7 +609,7 @@
     </div>
     
     <q-dialog v-model="chapters.showNewStepPage" maximized>
-      <div>
+      <div class="scroll-y">
     
         <!------------------ STEP TYPE SELECTION ------------------------>
         

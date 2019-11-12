@@ -1325,7 +1325,7 @@ console.log(quest.premiumPrice.androidId)
         }
 
         // if tutorial finished, switch to recurrent stories
-        if (this.$store.state.user.story.step > 16) {
+        if (this.$store.state.user.story.step >= 16) {
           if (this.$store.state.user.story.step < 23 || this.$store.state.user.story.step > 36) {
             this.story.step = 23
           } else {
