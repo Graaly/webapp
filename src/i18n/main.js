@@ -1315,7 +1315,7 @@ module.exports = {
       WarningLowBattery: "Pensez à charger votre mobile",
       WarningNoNetwork: "Aucun réseau ...",
       WarningLowNetwork: "Réseau faible, veuillez patienter ...",
-      CouldNotDisplayObject: "Désolé, une erreur est survenue au chargement de l'objet à trouver, il ne peut donc pas être affiché. Redémarrez l'application ; si le problème persiste, passez cette étape.",
+      CouldNotDisplayObject: "Désolé, une erreur est survenue au chargement de l'objet à trouver, il ne peut donc pas être affiché. Veuillez redémarrez l'application. Si le problème persiste, passez cette étape.",
       CouldNotEnableAR: "Nous n'avons pas pu détecter l'orientation de votre téléphone. Pas de panique ! Vous pouvez quand même trouver l'élément de l'enquête.",
       Step: "Etape",
       EasyLongDesc: "Facile, tout public même jeune (> 6 ans)",

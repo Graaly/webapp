@@ -820,7 +820,7 @@ console.log("=======> starting camera")
           // --- specific parts for 2D/3D ---
           let object, animations
           if (this.step.options.is3D) {
-            let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.options.customModel ? this.step.questId : null)
+            let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.questId, this.step.options.customModel || false)
             object = data.object
             animations = data.animations
             
@@ -844,11 +844,14 @@ console.log("=======> starting camera")
           } else {
             // 2D plane with transparent image (user uploaded picture) as texture
             var itemImage = ''
+console.log(this.step.options.picture)
             if (this.step.options.picture && this.step.options.picture.indexOf('blob:') !== -1) {
               itemImage = this.step.options.picture
             } else {
               itemImage = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/locate-item-ar/' + this.step.options.picture
             }
+console.log("call1")
+console.log(itemImage)
           
             this.$refs['item-image'].src = itemImage
             
@@ -856,11 +859,17 @@ console.log("=======> starting camera")
             let geometry = new THREE.PlaneGeometry(target.size, target.size)
             let texture
             try {
+console.log("call2")
+console.log(itemImage)
               texture = new THREE.TextureLoader().load(itemImage)
               // handling PNG transparency, see https://stackoverflow.com/a/26933541/488666
+console.log("test1")
               texture.anisotropy = 0
+console.log("test2")
               texture.magFilter = THREE.NearestFilter
+console.log("test3")
               texture.minFilter = THREE.NearestFilter
+console.log("test4")
             } catch (err) {
               console.error("Error while loading image:", err)
               Notification(this.$t('label.CouldNotDisplayObject'), 'error')
@@ -1189,7 +1198,7 @@ console.log("=======> starting camera")
       if (this.step.options.mode === 'touch') {
         let object, animations
         //let data = await this.loadAndPrepare3DModel(this.step.options.model)
-        let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.options.customModel ? this.step.questId : null)
+        let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.questId, this.step.options.customModel || false)
         object = data.object
         animations = data.animations
         
@@ -2714,15 +2723,20 @@ console.log("=======> stopping camera")
     /*
     * loads GLTF data, puts object origin at center, sets position of 3D model according to its settings in 3DModels.json
     * @param     modelCode     code of the 3D model, for example "lamp"
+    * @param     questId       Id of the quest
+    * @param     isCustom      true if the 3D model is a custom model
     * @return    object        { object: <3D object>, animations: <animations from GLTF data> }
     */
-    async loadAndPrepare3DModel(modelCode, questId) {
+    async loadAndPrepare3DModel(modelCode, questId, isCustom) {
       let scaleFactor = 4 // make objects four times bigger than their "real" size, for better usability
       let objectInit = modelsList[modelCode]
       let gltfData
       try {
+console.log("toto1")
         this.$q.loading.show()
-        gltfData = await this.ModelLoaderAsync(modelCode, questId)
+console.log("toto2")
+        gltfData = await this.ModelLoaderAsync(modelCode, questId, isCustom)
+console.log("toto3")
         this.$q.loading.hide()
       } catch (err) {
         console.error("Error while loading 3D model:", err)
@@ -2773,24 +2787,40 @@ console.log("=======> stopping camera")
     * Supports only GLB format
     * Returns a Promise, usable with async/await
     */
-    async ModelLoaderAsync(objName, questId) {
+    async ModelLoaderAsync(objName, questId, isCustom) {
       let progress = console.log
-      
+console.log("titi1")
+console.log(objName)
+console.log(questId)
       // Load GLTF packed as binary (blob)
       const offlineObject = await utils.readBinaryFile(questId, objName + '.glb')
+console.log(offlineObject)
+console.log("titi2")
       return new Promise((resolve, reject) => {
+console.log("titi3")
         let gltfLoader = new GLTFLoader()
         // loads automatically .bin and textures files if necessary
+console.log("titi4")
         if (objName.indexOf('blob:') !== -1) {
+console.log("titi5")
           gltfLoader.load(objName, resolve, progress, reject)
+console.log("titi6")
         } else {
+console.log("titi7")
           if (offlineObject) {
+console.log("titi8")
             gltfLoader.load(offlineObject, resolve, progress, reject)
+console.log("titi9")
           } else {
-            if (questId) {
+console.log("titi10")
+            if (isCustom) {
+console.log("titi11")
               gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '.glb', resolve, progress, reject)
+console.log("titi12")
             } else {
+console.log("titi13")
               gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '.glb', resolve, progress, reject)
+console.log("titi14")
             }
           }
         }
