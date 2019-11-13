@@ -73,8 +73,11 @@
     <geolocation v-if="!offline.active" ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError()" />
     
     <!------------------ SCORE AREA ------------------------>
-    
-    <div class="score-box q-mr-md" v-if="$store.state.user && !offline.active" @click="openRanking">
+    <div class="centered q-pa-xl" style="width: 100%; position: absolute; top: 100px; z-index: 7000" v-if="loadingMap">
+      <q-spinner color="primary" size="3em" /><br />
+      {{ $t('label.QuestMapIsLoading') }}
+    </div>
+    <div class="score-box q-mr-md" v-if="$store.state.user && !offline.active && !loadingMap" @click="openRanking">
       <div class="q-px-md q-pt-md score-text centered" :class="{'bouncing': warnings.score}">{{ $store.state.user.score }}<!--<q-icon name="fas fa-trophy" />--></div>
       <div style="width: 100px">
         <div class="centered bg-primary text-white level-box" style="margin-bottom: 1px">{{ $t('label.Level') }} {{ $store.state.user.level }}</div>
@@ -1046,6 +1049,7 @@ export default {
       },
       languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
       isMounted: false,
+      loadingMap: true,
       innerWidth: window.innerWidth,
       questsTab: "built",
       profileTab: "news",
@@ -1065,6 +1069,9 @@ export default {
       this.backToLogin()
     } else {
       this.initPage()
+      
+      var _this = this
+      utils.setTimeout(function() { _this.loadingMap = false }, 6000)
     
       this.$nextTick(() => {
         this.isMounted = true

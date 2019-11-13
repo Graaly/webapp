@@ -820,7 +820,8 @@ module.exports = {
       DisplayGeolocationHelp: "Display the GPS calibration animation",
       LoadingContacts: "Loading contacts",
       LoadContactsFromPhone: "Search in my address book",
-      NoMoreContactFound: "No more contact found"
+      NoMoreContactFound: "No more contact found",
+      QuestMapIsLoading: "Quest map is loading"
     }
   },
   fr: {
@@ -1632,7 +1633,8 @@ module.exports = {
       DisplayGeolocationHelp: "Afficher l'animation de calibrage GPS",
       LoadingContacts: "Chargement des contacts",
       LoadContactsFromPhone: "Rechercher dans mon carnet d'adresse",
-      NoMoreContactFound: "Aucun autre contact trouvé"
+      NoMoreContactFound: "Aucun autre contact trouvé",
+      QuestMapIsLoading: "La carte des enquête se charge"
     }
   }
 }
