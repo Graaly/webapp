@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md scroll-y">
+  <div class="q-pa-md">
 
     <a class="float-right no-underline close-btn" color="grey" @click="close"><q-icon name="close" class="medium-icon" /></a>
     

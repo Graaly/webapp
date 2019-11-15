@@ -1069,10 +1069,7 @@ export default {
       this.backToLogin()
     } else {
       this.initPage()
-      
-      var _this = this
-      setTimeout(function() { _this.loadingMap = false }, 6000)
-    
+
       this.$nextTick(() => {
         this.isMounted = true
       })
@@ -1299,7 +1296,7 @@ console.log(quest.premiumPrice.androidId)
         this.centerOnUserPosition()
         this.map.loaded = true
       }
-      
+      this.loadingMap = false
       this.$q.loading.hide()
     },
      /*
@@ -1329,7 +1326,9 @@ console.log(quest.premiumPrice.androidId)
           return
         }
         
-        this.questList = response.data
+        if (!response.data.message || response.data.message !== 'No quest') {
+          this.questList = response.data
+        }
         
         // if no quest, enlarge to all quests
         if (this.questList.length === 0 && this.map.filter !== 'world') {

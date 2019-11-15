@@ -609,14 +609,14 @@
     </div>
     
     <q-dialog v-model="chapters.showNewStepPage" maximized>
-      <div class="scroll-y">
+      <div>
     
         <!------------------ STEP TYPE SELECTION ------------------------>
         
         <a class="float-right no-underline close-btn" color="grey" @click="closeStepTypePage"><q-icon name="close" class="medium-icon" /></a>
-        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.ChooseTheStepType') }}</div>
+        <div class="text-h4 q-pa-md">{{ $t('label.ChooseTheStepType') }}</div>
       
-        <div class="q-pa-md">
+        <div>
           <div class="text-subtitle1 q-pa-md">{{ $t('label.Transition') }}</div>
           <q-list>
             <q-expansion-item color="primary" popup
