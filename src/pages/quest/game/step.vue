@@ -846,7 +846,6 @@ export default {
       // force camera flow to hide
       if (this.step.type === 'locate-item-ar') {
         if (this.isIOs) {
-  console.log("=======> stopping camera")
           CameraPreview.stopCamera()
           CameraPreview.stopCamera() // calling twice is needed
         }
