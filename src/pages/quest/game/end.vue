@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll-y">
+  <div>
     <!------------------ NO NETWORK AREA ------------------------>
     <div class="dark-background" v-if="warnings.noNetwork">
       <div class="bg-primary">

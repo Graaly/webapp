@@ -92,12 +92,6 @@ body {
 .modal-content {
   padding: 3vw;
 }
-.scroll-y { 
-  overflow: auto; 
-  height: 100%;
-  -webkit-overflow-scrolling: touch;
-  /*overflow-y: scroll;*/
-}
 
 /////////////////////////////// Links CSS /////////////////////////////////////
 
@@ -539,6 +533,15 @@ form .q-item__label, .big-label {
 
 .q-dialog__inner > div {
   background: #fff; /* otherwise, default is transparent */
+}
+/*
+ * MP 2019-11-15
+ * fix quasar issue with "maximized" property on <q-dialog>, which can prevent scrolling on Android
+ * tried to prevent scrolling "above limits" on iOS, using those solutions https://stackoverflow.com/a/39821505/488666, but no luck
+ */
+.q-dialog__inner--maximized {
+  overflow-y: scroll;
+  padding: 0.5rem; /* nicer layout / UI */
 }
 .q-dialog.fullscreen {
   /* 7003 to be over the stories, especially when user pass the tutorial */
