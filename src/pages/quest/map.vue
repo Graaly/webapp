@@ -1071,7 +1071,7 @@ export default {
       this.initPage()
       
       var _this = this
-      utils.setTimeout(function() { _this.loadingMap = false }, 6000)
+      setTimeout(function() { _this.loadingMap = false }, 6000)
     
       this.$nextTick(() => {
         this.isMounted = true
@@ -1117,7 +1117,7 @@ export default {
       this.$set(this.user, 'position', position.coords)
 
       //if (positionNeedsUpdate) {
-      if (!this.map.loaded && !this.offline.active) {
+      if (this.map.loaded === false && !this.offline.active) {
         await this.reloadMap()
       }
     },
@@ -1264,6 +1264,7 @@ console.log(quest.premiumPrice.androidId)
      * reload the map
      */
     async reloadMap() {
+      this.map.loaded = null // to prevent multiple call of reload map if onNewUserPosition is called too often
       this.warnings.noServerReponse = false
       this.$q.loading.show()
       // get quests only if tutorial is advanced
@@ -1274,7 +1275,7 @@ console.log(quest.premiumPrice.androidId)
       } else {
         this.openDiscoveryQuestSummary()
       }
-      
+
       if (this.$refs.mapRef) {
         // adjust zoom / pan to nearest quests, or current user location
         if (this.questList.length > 0) {
@@ -1292,6 +1293,10 @@ console.log(quest.premiumPrice.androidId)
         } else {
           this.centerOnUserPosition()
         }
+        this.map.loaded = true
+      } else {
+        // on ios simulators, this.$refs.mapRef does not exists
+        this.centerOnUserPosition()
         this.map.loaded = true
       }
       
