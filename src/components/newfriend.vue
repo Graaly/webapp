@@ -200,22 +200,19 @@ export default {
       }
     },
     async getContacts() {
-console.log("contact1")
       if (window.cordova) {
         this.loadingContacts = true
         // find all contacts
-console.log("contact2")
         var options = new ContactFindOptions()
-console.log("contact3")
+
         options.filter = ""
         options.multiple = true
         var filter = ["displayName", "emails", "phoneNumbers"]
-console.log("contact4")
+
         navigator.contacts.find(filter, this.checkContacts, this.onError, options)
-console.log("contact5")
+
         this.loadingContacts = false
       } else {
-console.log("contact6")
         this.canFindContacts = false
       }
     },
