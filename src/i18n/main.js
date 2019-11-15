@@ -1634,7 +1634,7 @@ module.exports = {
       LoadingContacts: "Chargement des contacts",
       LoadContactsFromPhone: "Rechercher dans mon carnet d'adresse",
       NoMoreContactFound: "Aucun autre contact trouvé",
-      QuestMapIsLoading: "La carte des enquête se charge"
+      QuestMapIsLoading: "La carte des enquêtes se charge"
     }
   }
 }
