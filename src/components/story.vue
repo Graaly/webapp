@@ -2,7 +2,8 @@
   <div class="story fit" v-if="currentStep.id !== null && steps[currentStep.id]" :class="{fadeout: hide}" style="background: rgba(0,0,0,0.5); height: 100%;">
     <div :style="'position: fixed; width: 100%; bottom: ' + ((steps && steps[currentStep.id]) ? steps[currentStep.id].bottom :  0) + 'px;'">
       <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" style="min-height: 5vh" /></div>
-      <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh" v-click-outside="onBackgroundTouch">
+      <!-- remove temporaly by EMA on 18/11/2019<div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh" v-click-outside="onBackgroundTouch">-->
+      <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh">
         <div v-if="needToScroll" class="scroll-indicator">
           <q-icon size="2.5em" name="arrow_drop_down_circle" />
         </div>
