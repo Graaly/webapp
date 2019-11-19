@@ -74,7 +74,7 @@
       <!------------------ START PLAYING WITH QR CODE ------------------>
       
       <div v-if="isHybrid" class="q-pa-md"><q-btn class="full-width" color="secondary" @click="startScanQRCode()">{{ $t('label.ScanQRCodeToStartQuest') }}</q-btn></div>
-    
+
     </div>
   </div>
 </template>

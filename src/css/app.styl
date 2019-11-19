@@ -14,7 +14,6 @@
   .q-layout, .q-page-container {
     height: 100%;
     min-height: 100%;
-    /*overflow-y: scroll;*/
   }
 }
 
@@ -49,11 +48,10 @@ body {
   min-height: inherit;
 }
 #main-view > div.wrapper {
-  height: inherit; 
+  /*height: inherit; 
   min-height: inherit; 
-  /*padding: 1rem;*/
   display: flex; 
-  flex-flow: column nowrap;
+  flex-flow: column nowrap;*/
 }  
 .dark-background {
   background: #D60B52;/*#e82a34;*/
@@ -850,4 +848,8 @@ form .q-item__label, .big-label {
 (z-index provided by Quasar is 6000) */
 .q-menu {
   z-index: 7002;
+}
+/* fix for missing vertical scrolling at end.vue */
+.q-layout, .q-page-container {
+  overflow-y: scroll;
 }

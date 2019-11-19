@@ -608,7 +608,7 @@
       
     </div>
     
-    <q-dialog v-model="chapters.showNewStepPage" maximized>
+    <q-dialog persistent v-model="chapters.showNewStepPage" maximized>
       <div>
     
         <!------------------ STEP TYPE SELECTION ------------------------>
@@ -655,7 +655,7 @@
       
     </q-dialog>
     
-    <q-dialog maximized v-model="chapters.showNewStepPageSettings">
+    <q-dialog maximized persistent v-model="chapters.showNewStepPageSettings">
       
       <!------------------ STEP SETTINGS SELECTION ------------------------>
       
