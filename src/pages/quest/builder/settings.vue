@@ -37,7 +37,7 @@
       
     <!------------------ SETTINGS TAB ------------------------>
       
-    <div v-if="tabs.selected === 'settings' && !chapters.showNewStepOverview" class="q-pa-md" :class="{'tab-content-120': !isIOs}">
+    <div v-if="tabs.selected === 'settings' && !chapters.showNewStepOverview" class="q-pa-md">
       
       <div v-if="!this.quest.languages || this.quest.languages.length === 0">
         <q-item>
@@ -253,7 +253,7 @@
     
     <!------------------ STEPS TAB ------------------------>
       
-    <div v-if="tabs.selected === 'steps' && !chapters.showNewStepOverview" class="q-pa-md tab-content-120">
+    <div v-if="tabs.selected === 'steps' && !chapters.showNewStepOverview" class="q-pa-md">
       <div class="centered bg-warning q-pa-sm" v-if="warnings.stepsMissing" @click="refreshStepsList">
         <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
       </div>
@@ -356,7 +356,7 @@
     
     <!------------------ PUBLISHING TAB ------------------------>
       
-    <div v-if="tabs.selected === 'publish' && !chapters.showNewStepOverview" class="q-pa-md tab-content-120">
+    <div v-if="tabs.selected === 'publish' && !chapters.showNewStepOverview" class="q-pa-md">
       <div v-if="quest.status === 'old'">
         <q-banner class="q-mb-md bg-warning">
           {{ $t('label.YourQuestIsClosedAndCanNotBePublishedAnymore') }}
@@ -483,7 +483,7 @@
       
     <!------------------ REVIEWS TAB ------------------------>
       
-    <div v-if="tabs.selected === 'reviews' && !chapters.showNewStepOverview && isEdition && quest.access === 'public'" class="q-pa-md tab-content-120">
+    <div v-if="tabs.selected === 'reviews' && !chapters.showNewStepOverview && isEdition && quest.access === 'public'" class="q-pa-md">
       <q-item>
         <q-item-section side top>
           <q-icon name="timeline" class="left-icon" />
@@ -550,7 +550,7 @@
   
   <!------------------ RESULTS TAB ------------------------>
       
-    <div v-if="tabs.selected === 'results' && !chapters.showNewStepOverview && isEdition && quest.access === 'private'" class="q-pa-md tab-content-120">
+    <div v-if="tabs.selected === 'results' && !chapters.showNewStepOverview && isEdition && quest.access === 'private'" class="q-pa-md">
       <div v-if="quest.status === 'published'">
         <div v-if="ranking && ranking.items && ranking.items.length > 0">
           <q-list>
@@ -2734,13 +2734,14 @@ export default {
 
 <style>
 .review-text { color: black; font-size: 0.8rem; white-space: pre-line; }
+/* MP 2019-11-22 does not seems useful anymore
 .tab-content-120 {
   overflow: auto;
   height: 100%;
   height: -webkit-calc(100% - 120px);
   height: -moz-calc(100% - 120px);
   height: calc(100% - 120px);
-}
+}*/
 .title-bar {
   height: 50px;
   overflow: hidden;
