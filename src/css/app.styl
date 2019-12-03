@@ -850,8 +850,10 @@ form .q-item__label, .big-label {
 .q-menu {
   z-index: 7002;
 }
-/* fix for missing vertical scrolling at end.vue */
-.q-layout, .q-page-container {
+/* fix for missing vertical scrolling at end.vue, only for android
+note that .platform-android selector targets both webapp (Chrome) & hybrid on android
+WARNING: introduces bad scrolling behaviors on iOS webapp (Safari) & hybrid */
+.platform-android .q-layout, .platform-android .q-page-container {
   overflow-y: scroll;
 }
 .version {

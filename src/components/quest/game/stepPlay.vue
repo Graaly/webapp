@@ -15,7 +15,7 @@
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
         <div id="info-clickable" :class="{ grow: !step.videoStream }" @click="hideControlsTemporaly">
           <p class="text" v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
-          <p class="text" v-if="step.options && step.options.html" v-html="getTranslatedText()"/></p>
+          <p class="text" v-if="step.options && step.options.html" v-html="getTranslatedText()"></p>
         </div>
         <div class="video" v-if="step.videoStream">
           <video class="full-width" controls controlsList="nodownload" autoplay>

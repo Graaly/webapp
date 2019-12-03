@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "2M7VD7YHZV.graaly.app",
+        "paths": [
+          "*",
+          "/"
+        ]
+      }
+    ]
+  }
+}
