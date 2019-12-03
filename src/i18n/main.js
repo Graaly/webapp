@@ -70,6 +70,8 @@ module.exports = {
       FindTheColorCodeDesc: "Player has to find the color code",
       FindTheImageCode: "Code with images",
       FindTheImageCodeDesc: "Player has to find the code based on images",
+      ImageOverFlow: "superimpose image and camera",
+      ImageOverFlowDesc: "superimpose transparent image and camera flow",
       PhotographAnObject: "Photograph an item",
       PhotographAnObjectDesc: "Compare your picture with a play camera picture",
       JigsawPuzzle: "Jigsaw Puzzle",
@@ -99,7 +101,7 @@ module.exports = {
       fr: "French"
     },
     story: {
-      AskIfUseTuto: "Welcome<br />Do you want to play the demo quest, to understand how to use Graaly (approx. duration 5 min)? Press <b>Skip tutorial</b> on the bottom left to play without demo",
+      AskIfUseTuto: "Welcome<br />Do you want to play the demo quest, to understand how to use Graaly (approx. duration 5 min)?",
       Welcome: "Welcome <b>young detective</b>, you have just joined my team.<br />We have to deal with an increase in inquiries, and have chosen to call <b>someone like you</b>! ",
       FirstStep: "Please let me tell you that there will be a lot of work.<br />But if you're motivated and you listen to my advice, you'll <b>quickly become a good detective</b>.",
       PresentTeam: "Let start to <b>present our team</b>",
@@ -567,7 +569,8 @@ module.exports = {
       ConfirmSaveChanges: "Save changes?",
       Yes: "Yes",
       No: "No",
-      WeNeedMoreInformationAboutYou: "We need more information about you",
+      WeNeedMoreInformationAboutYou: "Create your profile!",
+      WeNeedMoreInformationAboutYouDesc: "It's simple and it unlocks nice features",
       ToDisplayRelevantQuests: "To display the right quests:",
       ToHelpYouFindYourFriends: "To help you find your friends (optional):",
       ToAvoidSendingYourToUnrelevantQuests: "To avoid to make you go to unsuitable quests:",
@@ -576,6 +579,8 @@ module.exports = {
       IConfirmIWantToRemoveMyAccount: "I confirm I want to remove my account",
       AreYouSureYouWantToRemoveYourAccount: "Are you sure to remove your account, and not use Graaly any more? This actions can not be canceled!",
       YourAccountIsRemoved: "Your account has been removed",
+      CreateMyAccount: "Create my account",
+      IAlreadyHaveAnAccount: "I already have an account",
       Reviews: "Reviews",
       CommentThisQuest: "Comments for quest author",
       Send: "Send",
@@ -821,7 +826,11 @@ module.exports = {
       LoadingContacts: "Loading contacts",
       LoadContactsFromPhone: "Search in my address book",
       NoMoreContactFound: "No more contact found",
-      QuestMapIsLoading: "Quest map is loading"
+      QuestMapIsLoading: "Quest map is loading",
+      CreateYourAccountMsg: "Create your account to save your score and play with your friends!",
+      MaybeLater: "Maybe later!",
+      LetsPlay: "Play",
+      NewAccount: "New account"
     }
   },
   fr: {
@@ -882,6 +891,8 @@ module.exports = {
       FindTheColorCodeDesc: "Trouver une combinaison de couleurs",
       FindTheImageCode: "Code avec images",
       FindTheImageCodeDesc: "Trouver le code composé d'images",
+      ImageOverFlow: "Superposer image et caméra",
+      ImageOverFlowDesc: "Superposer une image transparente avec la caméra",
       PhotographAnObject: "Photographier un objet",
       PhotographAnObjectDesc: "Retrouver et photographier un objet",
       JigsawPuzzle: "Puzzle",
@@ -910,7 +921,7 @@ module.exports = {
       fr: "Français"
     },
     story: {
-      AskIfUseTuto: "Bienvenue dans Graaly<br />Souhaitez-vous suivre l'enquête de démo pour vous familiariser avec Graaly (durée approx. 5 min) ? Pressez <b>Passer l'aide</b> en bas à gauche pour jouer sans la démo",
+      AskIfUseTuto: "Bienvenue dans Graaly<br />Souhaitez-vous suivre l'enquête de démo pour vous familiariser avec Graaly (durée approx. 5 min) ?",
       Welcome: "Bienvenue <b>jeune détective</b>, vous venez de rejoindre mon équipe.<br />Nous devons faire face à une augmentation des enquêtes, et avons choisi de faire appel à <b>quelqu'un de prometteur comme vous</b> !",
       FirstStep: 'Autant vous le dire tout de suite, il va y avoir du boulot.<br />Mais si vous êtes motivé(e) et vous écoutez mes conseils, vous allez <b>rapidement devenir un bon détective</b>.',
       PresentTeam: "Avant d'aller plus loin, je vais vous <b>présenter l'équipe</b>",
@@ -1379,7 +1390,8 @@ module.exports = {
       ConfirmSaveChanges: "Enregistrer les modifications ?",
       Yes: "Oui",
       No: "Non",
-      WeNeedMoreInformationAboutYou: "Nous avons besoin de quelques informations complémentaires",
+      WeNeedMoreInformationAboutYou: "Créez votre profil !",
+      WeNeedMoreInformationAboutYouDesc: "C'est simple et ça vous débloque des fonctionnalités utiles",
       ToDisplayRelevantQuests: "Pour vous afficher les bonnes enquêtes :",
       ToHelpYouFindYourFriends: "Pour vous aider à trouver vos amis (optionnel) :",
       ToAvoidSendingYourToUnrelevantQuests: "Pour ne pas vous faire aller vers des enquêtes inadaptées :",
@@ -1388,6 +1400,8 @@ module.exports = {
       IConfirmIWantToRemoveMyAccount: "Je confirme que je veux supprimer mon compte",
       AreYouSureYouWantToRemoveYourAccount: "Êtes-vous sûrs de supprimer votre compte, et de ne plus pouvoir vous connecter ? Vous ne pourrez pas annuler cette action !",
       YourAccountIsRemoved: "Votre compte est supprimé",
+      CreateMyAccount: "Créer mon compte",
+      IAlreadyHaveAnAccount: "J'ai déjà un compte",
       Reviews: "Avis",
       CommentThisQuest: "Commentaires pour l'auteur",
       Send: "Envoyer",
@@ -1634,7 +1648,11 @@ module.exports = {
       LoadingContacts: "Chargement des contacts",
       LoadContactsFromPhone: "Rechercher dans mon carnet d'adresse",
       NoMoreContactFound: "Aucun autre contact trouvé",
-      QuestMapIsLoading: "La carte des enquêtes se charge"
+      QuestMapIsLoading: "La carte des enquêtes se charge",
+      CreateYourAccountMsg: "Créez votre compte pour sauvegarder votre score et jouer avec vos amis !",
+      MaybeLater: "Peut-être plus tard !",
+      LetsPlay: "Jouez",
+      NewAccount: "Nouveau compte"
     }
   }
 }

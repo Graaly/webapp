@@ -273,264 +273,276 @@
     <!--====================== PROFILE PAGE =================================-->
     
     <q-drawer class="over-map" side="right" v-model="showProfile" :width="innerWidth" test-id="profile-pane">
-    
-      <!------------------ HEADER AREA ------------------------>
-        
-      <div class="header row">
-        <div class="col-4">
-          <div class="big-avatar">
-            <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
-            <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
-            <div v-if="!$store.state.user.picture" :style="'background-image: url(statics/icons/game/profile-small.png); background-color: #fff;'"></div>
-            <label for="picturefile" @click="$refs['uploadfile'].click()">{{ $t('label.Edit') }}</label>
-            <input @change="uploadImage" ref="uploadfile" name="picturefile" id="picturefile" type="file" accept="image/*" hidden />
+      
+      <div  v-if="$store.state.user.name !== '-'">
+        <!------------------ HEADER AREA ------------------------>
+          
+        <div class="header row">
+          <div class="col-4">
+            <div class="big-avatar">
+              <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
+              <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
+              <div v-if="!$store.state.user.picture" :style="'background-image: url(statics/icons/game/profile-small.png); background-color: #fff;'"></div>
+              <label for="picturefile" @click="$refs['uploadfile'].click()">{{ $t('label.Edit') }}</label>
+              <input @change="uploadImage" ref="uploadfile" name="picturefile" id="picturefile" type="file" accept="image/*" hidden />
+            </div>
+          </div>
+          <div class="col">
+            <div class="title">{{ $store.state.user.name }}</div>
+            <q-btn :label="$t('label.SignOut')" icon="power_settings_new" @click.native="disconnect()" flat test-id="btn-signout" />
           </div>
         </div>
-        <div class="col">
-          <div class="title">{{ $store.state.user.name }}</div>
-          <q-btn :label="$t('label.SignOut')" icon="power_settings_new" @click.native="disconnect()" flat test-id="btn-signout" />
-        </div>
-      </div>
-      
-      <!------------------ TABS AREA ------------------------>
-      
-      <q-tabs v-model="profileTab" class="bg-accent text-white">
-        <q-tab name="profile" icon="face" :label="$t('label.MyProfile')" />
-        <q-tab name="friends" icon="supervised_user_circle" :label="$t('label.Friends')" />
-        <q-tab name="news" icon="notifications" :label="$t('label.News')" />
-        <q-tab name="pro" icon="store" :label="$t('label.Pro')" />
-      </q-tabs>
-      
-      <q-separator />
-      
-      <!------------------ PROFILE TAB ------------------------>
-      
-      <div v-if="profileTab === 'profile'" class="q-pa-md tab-content-180">
-        <form @submit.prevent="submitProfileChanges()">
-          <q-item>
-            <q-item-section side top>
-              <q-icon name="account_circle" class="left-icon" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ $t('label.EditYourInformations') }}</q-item-label>
-
-              <q-input
-                v-model="profile.form.name"
-                :label="$t('label.YourName')"
-                placeholder="John Doe"
-                @focus="hideMenu()"
-                @blur="showMenu();$v.profile.form.name.$touch"
-                maxlength="30"
-                bottom-slots
-                :error="$v.profile.form.name.$error"
-                :error-message="$t('label.PleaseEnterYourName')"
-                />
-              
-              <q-input
-                v-if="profile.userCanChangeEmail"
-                v-model="profile.form.email"
-                :label="$t('label.YourEmail')"
-                :placeholder="$t('label.emailExample')"
-                @focus="hideMenu()"
-                @blur="showMenu();$v.profile.form.email.$touch"
-                bottom-slots
-                :error="$v.profile.form.email.$error"
-                :error-message="profile.form.email.required ? $t('label.PleaseEnterYourEmailAddress') : $t('label.PleaseEnterAValidEmailAddress')"
-                />
-              
-              <q-input
-                v-if="profile.userCanChangePhone"
-                v-model="profile.form.phone"
-                :label="$t('label.YourPhoneNumber')"
-                :placeholder="$t('label.phoneExample')"
-                @focus="hideMenu()"
-                @blur="showMenu();$v.profile.form.phone.$touch"
-                bottom-slots
-                :error="$v.profile.form.phone.$error"
-                :error-message="$t('label.InvalidPhoneNumber')"
-                />
-              
-              <q-select
-                :label="$t('label.YourCountry')"
-                v-model="profile.form.country"
-                :options="profile.countries"
-                emit-value
-                map-options
-                @focus="hideMenu()"
-                @blur="showMenu()"
-                bottom-slots
-                :error="$v.profile.form.country.$error"
-                :error-message="$t('label.PleaseSelectYourCountry')"
-                />
-              
-              <q-input
-                v-model="profile.form.zipCode"
-                :label="$t('label.YourZipCode')"
-                placeholder="38500"
-                @focus="hideMenu()"
-                @blur="showMenu()"
-                bottom-slots
-                :error="$v.profile.form.zipCode.$error"
-                :error-message="$t('label.PleaseEnterYourZipCode')"
-                />
-                
-              <q-select :label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" emit-value map-options @input="changeLanguage" @focus="hideMenu()" @blur="showMenu()" />
-              
-              <q-btn color="primary" class="full-width" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
-            </q-item-section>
-          </q-item>
-          
-          <q-item v-if="profile.userCanChangePassword">
-            <q-item-section side top>
-              <q-icon name="lock" class="left-icon" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ $t('label.ChangeYourPassword') }}</q-item-label>
-              
-              <q-input type="password" v-model="profile.form.oldPassword" :label="$t('label.CurrentPassword')" @focus="hideMenu()" @blur="showMenu()" />
-              
-              <q-input type="password" v-model="profile.form.newPassword" :label="$t('label.NewPassword')" @focus="hideMenu()" @blur="showMenu()" />
-              
-              <q-btn color="primary" class="full-width" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
-            </q-item-section>
-          </q-item>
-          
-          <q-item>
-            <q-item-section side top>
-              <q-icon name="help" class="left-icon" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ $t('label.Tutorial') }}</q-item-label>
-              <q-btn class="q-my-md" color="primary" :label="$t('label.IWantToRestartTutorial')" @click="restartTutorial()" />
-            </q-item-section>
-          </q-item>
-          
-          <q-item>
-            <q-item-section side top>
-              <q-icon name="remove_circle" class="left-icon" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ $t('label.RemoveYourAccount') }}</q-item-label>
-              <p>{{ $t('label.RemoveYourAccountDesc') }}</p>
-              <q-btn class="q-my-md" color="primary" :label="$t('label.IConfirmIWantToRemoveMyAccount')" @click="removeAccount()" />
-            </q-item-section>
-          </q-item>
-          
-          <div class="centered" v-html="$t('label.TermsAndConditionsLink')"></div>
-          <div class="centered q-mb-xl" v-html="$t('label.PrivacyPolicyLink')"></div>
-        </form>
-      </div>
-      
-      <!------------------ FRIENDS TAB ------------------------>
-      
-      <div v-if="profileTab === 'friends'" class="q-pa-md tab-content-180">
         
-        <!------------------ ADD FRIENDS BUTTON AREA ------------------------>
-        <q-btn link class="full-width" @click="openAddFriendsModal()" color="secondary">{{ $t('label.AddFriends') }}</q-btn>
+        <!------------------ TABS AREA ------------------------>
         
-        <div class="centered bg-warning q-pa-sm" v-if="warnings.listFriendsMissing" @click="loadFriends">
-          <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
-        </div>
-        <q-list>
-          <q-item v-for="friend in friends.list" :key="friend.friendId">
-            <q-item-section avatar @click.native="openFriendCard(friend.friendId)">
-              <q-avatar>
-                <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') !== -1" :src="friend.picture" />
-                <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + friend.picture" />
-                <img v-if="!friend.picture || friend.picture === ''" src="statics/icons/game/profile-small.png" />
-              </q-avatar>
-            </q-item-section>
-            <q-item-section @click.native="openFriendCard(friend.friendId)">
-              {{ friend.name }}
-            </q-item-section>
-            <q-item-section side>
-              <q-btn icon="close" @click="removeFriend(friend.friendId)" />
-            </q-item-section>
-          </q-item>
-          <q-item v-if="friends.list.length === 0 && !warnings.listFriendsMissing">
-            <q-item-label>{{ $t('label.NoFriend') }}</q-item-label>
-          </q-item>
-        </q-list>
-      </div>
-      
-      <!------------------ NEWS TAB ------------------------>
-      
-      <div v-if="profileTab === 'news'" class="q-pa-md tab-content-180">
-        <q-infinite-scroll @load="loadNews">
-          <q-list>
-            <q-item v-for="(item, index) in friends.news.items" :key="item._id">
-              <q-item-section avatar>
-                <q-avatar>
-                  <img v-if="item.data.picture && item.data.picture.indexOf('http') !== -1" :src="item.data.picture" />
-                  <img v-if="item.data.picture && item.data.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + item.data.picture" />
-                  <img v-if="!item.data.picture" src="statics/icons/game/profile-small.png" />
-                </q-avatar>
+        <q-tabs v-model="profileTab" class="bg-accent text-white">
+          <q-tab name="profile" icon="face" :label="$t('label.MyProfile')" />
+          <q-tab name="friends" icon="supervised_user_circle" :label="$t('label.Friends')" />
+          <q-tab name="news" icon="notifications" :label="$t('label.News')" />
+          <q-tab name="pro" icon="store" :label="$t('label.Pro')" />
+        </q-tabs>
+        
+        <q-separator />
+        
+        <!------------------ PROFILE TAB ------------------------>
+        
+        <div v-if="profileTab === 'profile'" class="q-pa-md tab-content-180">
+          <form @submit.prevent="submitProfileChanges()">
+            <q-item>
+              <q-item-section side top>
+                <q-icon name="account_circle" class="left-icon" />
               </q-item-section>
               <q-item-section>
-                <q-item-label v-if="item.data && item.data.userId"><strong>{{ item.data.name }}</strong></q-item-label>
-                <q-item-label v-if="item.type === 'standard'">
-                  {{ item.title }}
-                </q-item-label>
-                <q-item-label v-if="item.type !== 'standard'">
-                  <span v-html="$t('news.' + item.type, item.data)"></span>
-                  <span v-if="item.type === 'challengeWon'">{{ $t('challenge.' + item.data.name) }}</span>
-                </q-item-label>
-                <q-item-label caption>
-                  <span v-if="item.data.stars">
-                    <q-icon color="warning" name="fas fa-award" />
-                    <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="item.data.stars > 1" />
-                    <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="item.data.stars > 2" />
-                  </span>
-                  {{item.creation.date | formatDate($store.state.user.language)}}
-                  <span v-if="item.destination === 'friends'">
-                    - 
-                    <a style="color: #000" v-if="!isLiked(item)" v-on:click="like(index)">{{ $t('label.Like') }}</a>
-                    <a v-if="isLiked(item)" v-on:click="unlike(index)">{{ $t('label.Like') }}</a>
-                    <span v-if="item.likes.length > 0">({{ item.likes.length }})</span>
-                  </span>
-                </q-item-label>
+                <q-item-label>{{ $t('label.EditYourInformations') }}</q-item-label>
+
+                <q-input
+                  v-model="profile.form.name"
+                  :label="$t('label.YourName')"
+                  placeholder="John Doe"
+                  @focus="hideMenu()"
+                  @blur="showMenu();$v.profile.form.name.$touch"
+                  maxlength="30"
+                  bottom-slots
+                  :error="$v.profile.form.name.$error"
+                  :error-message="$t('label.PleaseEnterYourName')"
+                  />
+                
+                <q-input
+                  v-if="profile.userCanChangeEmail"
+                  v-model="profile.form.email"
+                  :label="$t('label.YourEmail')"
+                  :placeholder="$t('label.emailExample')"
+                  @focus="hideMenu()"
+                  @blur="showMenu();$v.profile.form.email.$touch"
+                  bottom-slots
+                  :error="$v.profile.form.email.$error"
+                  :error-message="profile.form.email.required ? $t('label.PleaseEnterYourEmailAddress') : $t('label.PleaseEnterAValidEmailAddress')"
+                  />
+                
+                <q-input
+                  v-if="profile.userCanChangePhone"
+                  v-model="profile.form.phone"
+                  :label="$t('label.YourPhoneNumber')"
+                  :placeholder="$t('label.phoneExample')"
+                  @focus="hideMenu()"
+                  @blur="showMenu();$v.profile.form.phone.$touch"
+                  bottom-slots
+                  :error="$v.profile.form.phone.$error"
+                  :error-message="$t('label.InvalidPhoneNumber')"
+                  />
+                
+                <q-select
+                  :label="$t('label.YourCountry')"
+                  v-model="profile.form.country"
+                  :options="profile.countries"
+                  emit-value
+                  map-options
+                  @focus="hideMenu()"
+                  @blur="showMenu()"
+                  bottom-slots
+                  :error="$v.profile.form.country.$error"
+                  :error-message="$t('label.PleaseSelectYourCountry')"
+                  />
+                
+                <q-input
+                  v-model="profile.form.zipCode"
+                  :label="$t('label.YourZipCode')"
+                  placeholder="38500"
+                  @focus="hideMenu()"
+                  @blur="showMenu()"
+                  bottom-slots
+                  :error="$v.profile.form.zipCode.$error"
+                  :error-message="$t('label.PleaseEnterYourZipCode')"
+                  />
+                  
+                <q-select :label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" emit-value map-options @input="changeLanguage" @focus="hideMenu()" @blur="showMenu()" />
+                
+                <q-btn color="primary" class="full-width" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
               </q-item-section>
             </q-item>
-            <q-item v-if="friends.news.items.length === 0">
-              <q-item-label>{{ $t('label.NoNews') }}</q-item-label>
+            
+            <q-item v-if="profile.userCanChangePassword">
+              <q-item-section side top>
+                <q-icon name="lock" class="left-icon" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ $t('label.ChangeYourPassword') }}</q-item-label>
+                
+                <q-input type="password" v-model="profile.form.oldPassword" :label="$t('label.CurrentPassword')" @focus="hideMenu()" @blur="showMenu()" />
+                
+                <q-input type="password" v-model="profile.form.newPassword" :label="$t('label.NewPassword')" @focus="hideMenu()" @blur="showMenu()" />
+                
+                <q-btn color="primary" class="full-width" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
+              </q-item-section>
+            </q-item>
+            
+            <q-item>
+              <q-item-section side top>
+                <q-icon name="help" class="left-icon" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ $t('label.Tutorial') }}</q-item-label>
+                <q-btn class="q-my-md" color="primary" :label="$t('label.IWantToRestartTutorial')" @click="restartTutorial()" />
+              </q-item-section>
+            </q-item>
+            
+            <q-item>
+              <q-item-section side top>
+                <q-icon name="remove_circle" class="left-icon" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ $t('label.RemoveYourAccount') }}</q-item-label>
+                <p>{{ $t('label.RemoveYourAccountDesc') }}</p>
+                <q-btn class="q-my-md" color="primary" :label="$t('label.IConfirmIWantToRemoveMyAccount')" @click="removeAccount()" />
+              </q-item-section>
+            </q-item>
+            
+            <div class="centered" v-html="$t('label.TermsAndConditionsLink')"></div>
+            <div class="centered q-mb-xl" v-html="$t('label.PrivacyPolicyLink')"></div>
+          </form>
+        </div>
+        
+        <!------------------ FRIENDS TAB ------------------------>
+        
+        <div v-if="profileTab === 'friends'" class="q-pa-md tab-content-180">
+          
+          <!------------------ ADD FRIENDS BUTTON AREA ------------------------>
+          <q-btn link class="full-width" @click="openAddFriendsModal()" color="secondary">{{ $t('label.AddFriends') }}</q-btn>
+          
+          <div class="centered bg-warning q-pa-sm" v-if="warnings.listFriendsMissing" @click="loadFriends">
+            <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+          </div>
+          <q-list>
+            <q-item v-for="friend in friends.list" :key="friend.friendId">
+              <q-item-section avatar @click.native="openFriendCard(friend.friendId)">
+                <q-avatar>
+                  <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') !== -1" :src="friend.picture" />
+                  <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + friend.picture" />
+                  <img v-if="!friend.picture || friend.picture === ''" src="statics/icons/game/profile-small.png" />
+                </q-avatar>
+              </q-item-section>
+              <q-item-section @click.native="openFriendCard(friend.friendId)">
+                {{ friend.name }}
+              </q-item-section>
+              <q-item-section side>
+                <q-btn icon="close" @click="removeFriend(friend.friendId)" />
+              </q-item-section>
+            </q-item>
+            <q-item v-if="friends.list.length === 0 && !warnings.listFriendsMissing">
+              <q-item-label>{{ $t('label.NoFriend') }}</q-item-label>
             </q-item>
           </q-list>
-          <div slot="message" class="row justify-center" style="margin-bottom: 50px;">
-            <q-spinner-dots :size="5" />
-          </div>
-        </q-infinite-scroll>
-      </div>
-      
-      <!------------------ PRO TAB ------------------------>
-      
-      <div v-if="profileTab === 'pro'" class="q-pa-md tab-content-180">
-        <div v-if="!$store.state.user.organizationId">
-          <div>
-            <q-card class="q-mb-md">
-              <q-img src="statics/icons/game/storekeeper.jpg">
-                <div class="absolute-bottom">
-                  <div class="text-h6">{{ $t('label.Storekeeper') }}</div>
-                  <div class="text-subtitle2">{{ $t('label.StorekeeperDesc') }}</div>
-                </div>
-              </q-img>
-            </q-card>
-          </div>
-          <div>
-            <span v-html="$t('label.contactUsPro')" />
-          </div>
         </div>
-        <div v-if="$store.state.user.organizationId && profile.organization.organization">
-          <p class="text-weight-bold">{{ $t('label.YourOrganizationSubscribeAProAccount', {name: profile.organization.organization.name}) }}</p>
-          <p v-if="profile.organization.quests && profile.organization.quests.length > 0">
-            {{ $t('label.MembersOfYourOrganizationCreatedPremiumQuests') }}
-            <q-list class="shadow-2 rounded-borders">
-              <q-item v-for="premiumQuest in profile.organization.quests" :key="premiumQuest.questId" @click.native="playQuest(premiumQuest.questId)">
-                <q-item-section>{{ getQuestTitle(premiumQuest) }} (statut{{ $t('label.colons') }}{{ $t('status.' + premiumQuest.status) }})</q-item-section>
+        
+        <!------------------ NEWS TAB ------------------------>
+        
+        <div v-if="profileTab === 'news'" class="q-pa-md tab-content-180">
+          <q-infinite-scroll @load="loadNews">
+            <q-list>
+              <q-item v-for="(item, index) in friends.news.items" :key="item._id">
+                <q-item-section avatar>
+                  <q-avatar>
+                    <img v-if="item.data.picture && item.data.picture.indexOf('http') !== -1" :src="item.data.picture" />
+                    <img v-if="item.data.picture && item.data.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + item.data.picture" />
+                    <img v-if="!item.data.picture" src="statics/icons/game/profile-small.png" />
+                  </q-avatar>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label v-if="item.data && item.data.userId"><strong>{{ item.data.name }}</strong></q-item-label>
+                  <q-item-label v-if="item.type === 'standard'">
+                    {{ item.title }}
+                  </q-item-label>
+                  <q-item-label v-if="item.type !== 'standard'">
+                    <span v-html="$t('news.' + item.type, item.data)"></span>
+                    <span v-if="item.type === 'challengeWon'">{{ $t('challenge.' + item.data.name) }}</span>
+                  </q-item-label>
+                  <q-item-label caption>
+                    <span v-if="item.data.stars">
+                      <q-icon color="warning" name="fas fa-award" />
+                      <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="item.data.stars > 1" />
+                      <q-icon color="warning" class="q-ml-xs" name="fas fa-award" v-if="item.data.stars > 2" />
+                    </span>
+                    {{item.creation.date | formatDate($store.state.user.language)}}
+                    <span v-if="item.destination === 'friends'">
+                      - 
+                      <a style="color: #000" v-if="!isLiked(item)" v-on:click="like(index)">{{ $t('label.Like') }}</a>
+                      <a v-if="isLiked(item)" v-on:click="unlike(index)">{{ $t('label.Like') }}</a>
+                      <span v-if="item.likes.length > 0">({{ item.likes.length }})</span>
+                    </span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item v-if="friends.news.items.length === 0">
+                <q-item-label>{{ $t('label.NoNews') }}</q-item-label>
               </q-item>
             </q-list>
-          </p>
-          <p v-if="profile.organization.organization.premiumQuestsNb && profile.organization.organization.premiumQuestsNb > 0">{{ $t('label.YouCanCreateNbPremiumQuests', {nb: profile.organization.organization.premiumQuestsNb}) }}</p>
-          <p v-if="!profile.organization.organization.premiumQuestsNb || profile.organization.organization.premiumQuestsNb === 0"><span v-html="$t('label.YouCanNotCreateNewQuests')" /></p>
+            <div slot="message" class="row justify-center" style="margin-bottom: 50px;">
+              <q-spinner-dots :size="5" />
+            </div>
+          </q-infinite-scroll>
+        </div>
+        
+        <!------------------ PRO TAB ------------------------>
+        
+        <div v-if="profileTab === 'pro'" class="q-pa-md tab-content-180">
+          <div v-if="!$store.state.user.organizationId">
+            <div>
+              <q-card class="q-mb-md">
+                <q-img src="statics/icons/game/storekeeper.jpg">
+                  <div class="absolute-bottom">
+                    <div class="text-h6">{{ $t('label.Storekeeper') }}</div>
+                    <div class="text-subtitle2">{{ $t('label.StorekeeperDesc') }}</div>
+                  </div>
+                </q-img>
+              </q-card>
+            </div>
+            <div>
+              <span v-html="$t('label.contactUsPro')" />
+            </div>
+          </div>
+          <div v-if="$store.state.user.organizationId && profile.organization.organization">
+            <p class="text-weight-bold">{{ $t('label.YourOrganizationSubscribeAProAccount', {name: profile.organization.organization.name}) }}</p>
+            <p v-if="profile.organization.quests && profile.organization.quests.length > 0">
+              {{ $t('label.MembersOfYourOrganizationCreatedPremiumQuests') }}
+              <q-list class="shadow-2 rounded-borders">
+                <q-item v-for="premiumQuest in profile.organization.quests" :key="premiumQuest.questId" @click.native="playQuest(premiumQuest.questId)">
+                  <q-item-section>{{ getQuestTitle(premiumQuest) }} (statut{{ $t('label.colons') }}{{ $t('status.' + premiumQuest.status) }})</q-item-section>
+                </q-item>
+              </q-list>
+            </p>
+            <p v-if="profile.organization.organization.premiumQuestsNb && profile.organization.organization.premiumQuestsNb > 0">{{ $t('label.YouCanCreateNbPremiumQuests', {nb: profile.organization.organization.premiumQuestsNb}) }}</p>
+            <p v-if="!profile.organization.organization.premiumQuestsNb || profile.organization.organization.premiumQuestsNb === 0"><span v-html="$t('label.YouCanNotCreateNewQuests')" /></p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="centered q-pa-xl" v-if="$store.state.user.name === '-'">
+        <div class="text-h5">{{ $t('label.CreateYourAccountMsg') }}</div>
+        <div class="q-mt-xl">
+          <q-btn @click="openUpdateProfilePage()" color="primary">{{ $t('label.CreateMyAccount') }}</q-btn>
+        </div>
+        <div class="q-mt-lg">
+          <q-btn @click="disconnect()" flat color="primary">{{ $t('label.IAlreadyHaveAnAccount') }}</q-btn>
         </div>
       </div>
 
@@ -1096,15 +1108,19 @@ export default {
      * Check if user profile is enough completed to have Graaly work
      */
     checkIfProfileIsComplete() {
-      if (!this.$store.state.user.name || this.$store.state.user.name === '' || 
+console.log(this.$store.state.user.story.step)
+      if (this.$store.state.user.story.step === 18 && (!this.$store.state.user.name || this.$store.state.user.name === '' || 
         this.$store.state.user.email === 'providersignin' || 
         //!this.$store.state.user.sex || this.$store.state.user.sex === '' || 
         //!this.$store.state.user.age || this.$store.state.user.age === '' || 
         !this.$store.state.user.location || 
         !this.$store.state.user.location.postalCode || this.$store.state.user.location.postalCode === '' || 
-        !this.$store.state.user.location.country || this.$store.state.user.location.country === '') {
-        this.$router.push('/user/updateprofile')
+        !this.$store.state.user.location.country || this.$store.state.user.location.country === '')) {
+        this.openUpdateProfilePage()
       }
+    },
+    openUpdateProfilePage() {
+      this.$router.push('/user/updateprofile')
     },
     closeInfoWindows() {
       this.map.infoWindow.isOpen = false

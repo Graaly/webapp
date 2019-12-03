@@ -305,6 +305,30 @@
         <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
       </div>
       
+      <!------------------ SUPERIMPOSE IMAGE AND CAMERA STEP AREA ------------------------>
+      
+      <div class="image-over-flow" v-show="step.type == 'image-over-flow'">
+        <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
+          <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled && playerResult === null"></video>
+        </transition>
+        <!--<div>
+          <div class="text">
+            <p>{{ getTranslatedText() }}</p>
+            <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+            <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
+            <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
+            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
+          </div>
+        </div>-->
+        <div>
+          <div>
+            <p class="text">{{ getTranslatedText() }}</p>
+          </div>
+          <div class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
+          </div>
+        </div>
+      </div>
+      
       <!------------------ LOCATE A 2D MARKER / TOUCH OBJECT ON MARKER ------------------------>
       
       <div class="locate-marker" v-if="step.type == 'locate-marker' || step.id == 'sensor'">
@@ -646,9 +670,13 @@ export default {
             background.style.background = 'none'
             background.style.backgroundColor = '#000'
             this.showControls()
-          } else if (this.step.type === 'jigsaw-puzzle') {
+          } else if (this.step.type === 'image-over-flow') {
             background.style.background = 'none'
             background.style.backgroundColor = '#fff'
+            this.showControls()
+          } else if (this.step.type === 'jigsaw-puzzle') {
+            let backgroundUrl = this.getBackgroundImage()
+            background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             this.showControls()
           } else {
             // define if background image is a generic one or user defined one
@@ -884,6 +912,37 @@ export default {
           
           // animate & render
           this.animateTargetCanvas()
+        }
+        
+        if (this.step.type === 'image-over-flow') {
+          this.$emit('pass')
+          // video stream
+          if (this.isIOs) {
+            let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
+            CameraPreview.startCamera(options)
+            CameraPreview.show()
+          } else {
+            var cameraStream2 = this.$refs['camera-stream-for-image-over-flow']
+            // enable rear camera stream
+            // -------------------------
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+            
+              .then((stream) => {
+                // Hacks for Safari iOS
+                cameraStream2.setAttribute("muted", true)
+                cameraStream2.setAttribute("playsinline", true)
+                                
+                cameraStream2.srcObject = stream
+                cameraStream2.play()
+                this.cameraStreamEnabled = true
+              })
+              .catch((err) => {
+                // TODO friendly behavior/message for user
+                console.warn("No camera stream available")
+                console.log(err)
+              }
+            );
+          }
         }
         
         // enable geoloc only when 3D scene is fully loaded
@@ -1259,7 +1318,7 @@ export default {
      */
     async checkOfflineAnswer(answer) {
       const type = this.step.type
-      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character') {
+      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'image-over-flow') {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }
       } else if (type === 'image-recognition') {
         return { result: answer, answer: this.answer, score: 0, reward: 0, offline: true }
@@ -1336,9 +1395,15 @@ export default {
         case 'new-item':
         case 'end-chapter':
         case 'character':
+        case 'image-over-flow':
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
           this.submitGoodAnswer(0, checkAnswerResult.offline, true)
+          if (CameraPreview) {
+            CameraPreview.stopCamera()
+            CameraPreview.stopCamera() // calling twice is needed
+          }
+          
           break
           
         case 'choose':
@@ -1710,6 +1775,7 @@ export default {
           case 'info-text': 
           case 'end-chapter': 
           case 'info-video': 
+          case 'image-over-flow': 
             
             break
           case 'choose':
@@ -2835,6 +2901,7 @@ export default {
       let streamDivs = [
         'camera-stream-for-recognition',
         'camera-stream-for-locate-marker',
+        'camera-stream-for-image-over-flow',
         'camera-stream-for-locate-item-ar'
       ]
       
@@ -3193,6 +3260,13 @@ export default {
   .locate-item-ar #target-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }
   .locate-item-ar .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
   .locate-item-ar img { margin: 30vw auto; } /* 2D result image */
+
+  /* image-over-flow specific */
+  
+  .image-over-flow { background: transparent; }
+  .image-over-flow video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+  .image-over-flow .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
+  .image-over-flow .image { z-index: 50; position: relative; } /* positioning is required to have z-index working */
   
   /* locate-marker specific */
   

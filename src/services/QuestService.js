@@ -239,6 +239,7 @@ export default {
   /*
    * Check if a QR Code can opens a quest, and create a dummy account
    * @param   {String}    questId              questId
+   * @param   {String}    lang                user language
    */
   checkLoginQRCode(questId, lang) {
     return Api().get('quest/' + questId + '/play/qrcode/lang/' + lang).catch(error => console.log(error.request))

@@ -1443,13 +1443,18 @@ export default {
             maxNbConditions = stepsThatFit[i].nbConditions
           }
         }
-        // set the marker step as done to pass to next step
-        var conditionsDone = this.run.conditionsDone
-        conditionsDone.push('stepDone_' + stepId.toString())
-        
-        // update run
-        this.run.conditionDone = conditionsDone
-        this.run.currentStep = stepId
+        if (this.info.quest.editorMode === 'simple') {
+          // add points if basic quest mode (not in escape game mode)
+          await this.saveOfflineAnswer('success')
+        } else {
+          // set the marker step as done to pass to next step
+          var conditionsDone = this.run.conditionsDone
+          conditionsDone.push('stepDone_' + stepId.toString())
+
+          // update run
+          this.run.conditionDone = conditionsDone
+          this.run.currentStep = stepId
+        }
       }
       
       // list the steps for the chapter
@@ -1470,8 +1475,11 @@ export default {
             }
             // if the marker is not requested, do not treat marker step
             if (stepsofChapter[i].type === 'locate-marker') {
-              locationMarkerFound = true
-              continue stepListFor
+              // if advanced mode => do not treat this step
+              if (this.info.quest && this.info.quest.editorMode === 'advanced') {
+                locationMarkerFound = true
+                continue stepListFor
+              }
             }
             // if step is end of chapter 
             if (stepsofChapter[i].type === 'end-chapter') {

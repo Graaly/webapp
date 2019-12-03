@@ -12,6 +12,9 @@
           <a v-if="steps[currentStep.id].discussions[currentStep.discussionId].link" @click="linkAction">
             {{ $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].link.label) }}
           </a> &nbsp;
+          <q-btn v-if="steps[currentStep.id].discussions[currentStep.discussionId].hasOwnProperty('button2')" @click="buttonAction">
+            {{ $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].button2.label) }}
+          </q-btn> &nbsp;
           <q-btn color="primary" @click="next">
             {{ steps[currentStep.id].discussions[currentStep.discussionId].hasOwnProperty("button") ? $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].button.label) : (steps[currentStep.id].discussions.length - 1 === currentStep.discussionId ? $t('label.Close') : $t('label.Next') + ' >>') }}
           </q-btn>
@@ -56,7 +59,7 @@ export default {
         // step 0 - Graaly introduction
         0: {
           discussions: [
-            {character: "1", text: "AskIfUseTuto", condition: null},
+            {character: "1", text: "AskIfUseTuto", condition: null, button: {label: "Yes"}, button2: {label: "No", action: "closeall"}},
             {character: "1", text: "Welcome", condition: null},
             {character: "1", text: "FirstStep", condition: null},
             {character: "1", text: "PresentTeam", condition: null},
@@ -404,6 +407,19 @@ export default {
           this.hideStory()
         } else {
           this.$router.push(this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].link.action)
+        }
+      } else {
+        await this.closeStory()
+      }
+    },
+    async buttonAction() {
+      if (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].button2.hasOwnProperty("action")) {
+        if (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].button2.action === 'close') {
+          this.hideStory()
+        } else if (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].button2.action === 'closeall') {
+          this.skipTutorial()
+        } else {
+          this.$router.push(this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].button2.action)
         }
       } else {
         await this.closeStory()

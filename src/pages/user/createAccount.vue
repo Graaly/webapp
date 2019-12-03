@@ -1,19 +1,26 @@
 <template>
-  <div class="wrapper dark-background">
-    <div class="page-content top-padding-middle q-pa-lg">
+  <div class="wrapper puzzle-bottom">
+    <div class="page-content puzzle-top">
       
-      <!------------------ TITLE AREA ------------------------>
+      <div class="centered q-pt-lg q-pb-md">
+        <img src="statics/icons/game/logo-medium.png" style="width: 40%; max-width: 320px;" />
+      </div>
+      
+      <!------------------ TITLE AREA -----------------------
       
       <h1 v-if="step !== 'firstusage'" class="text-center size-3 q-mt-xl q-mb-lg">{{ $t('label.tellUsAboutYou') }}</h1>
       <h1 v-if="step === 'firstusage'" class="text-center size-3 q-mt-xl q-mb-lg">{{ $t('label.IfYouUseGraalyForTheFirstTime') }}</h1>
+      
+      -->
+      
+      <h1 class="text-center size-3">{{ $t('label.NewAccount') }}</h1>
     
       <!------------------ FORM AREA ------------------------>
     
-      <form @submit.prevent="formSubmit()">
+      <form @submit.prevent="formSubmit()" class="q-pa-lg">
         
         <q-input
           v-if="step === 'generic'"
-          dark
           :label="$t('label.YourName')"
           v-model="form.name"
           @blur="$v.form.name.$touch"
@@ -26,7 +33,6 @@
         
         <q-select
           v-if="step === 'generic'"
-          dark
           :label="$t('label.YourSex')"
           v-model="form.sex"
           :options="sexes"
@@ -41,7 +47,6 @@
         
         <q-select
           v-if="step === 'generic'"
-          dark
           :label="$t('label.YourAge')"
           v-model="form.age"
           :options="ages"
@@ -56,7 +61,6 @@
           
         <q-select
           v-if="step === 'location'"
-          dark
           :label="$t('label.YourCountry')"
           v-model="form.country"
           :options="countries"
@@ -71,7 +75,6 @@
         
         <q-input
           v-if="step === 'location'"
-          dark
           :label="$t('label.YourZipCode')"
           v-model="form.zipCode"
           @blur="$v.form.zipCode.$touch"
@@ -83,7 +86,6 @@
         
         <q-input
           v-if="step === 'password'"
-          dark
           type="password"
           v-model="form.password"
           :label="$t('label.YourPassword')"
@@ -95,7 +97,7 @@
           />
           
         <div class="row" v-if="step === 'password'">
-          <div class="col-2"><q-checkbox dark color="gold" v-model="form.terms" test-id="terms" /></div>
+          <div class="col-2"><q-checkbox color="gold" v-model="form.terms" test-id="terms" /></div>
           <div class="col">
             <span v-html="$t('label.IAgreeTheTermsAndConditions')" />
             <div class="q-field-bottom" v-if="$v.form.terms.$error">
@@ -105,7 +107,7 @@
         </div>
         
         <div class="row" v-if="step === 'password'">
-          <div class="col-2"><q-checkbox dark color="gold" v-model="form.privacy" test-id="privacy" /></div>
+          <div class="col-2"><q-checkbox color="gold" v-model="form.privacy" test-id="privacy" /></div>
           <div class="col">
             <span v-html="$t('label.IAgreeThePrivacyPolicy')" />
             <div class="q-field-bottom" v-if="$v.form.privacy.$error">
@@ -116,7 +118,7 @@
         
         <div v-if="step === 'validation'">
           <p test-id="enter-code">{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
-          <q-input dark :label="$t('label.Code')" v-model="form.code" />
+          <q-input :label="$t('label.Code')" v-model="form.code" />
         </div>
         
         <p class="text-right q-mt-md q-mb-md" v-if="step === 'validation'">
@@ -128,8 +130,8 @@
         </p>
       
         <p class="text-center multiple-btn margin-size-3 q-mt-lg q-mb-xl">
-          <q-btn v-if="step !== 'firstusage'" round color="white" text-color="primary" icon="fas fa-chevron-left" :loading="submitting" @click="backAction()" />
-          <q-btn round color="white" text-color="primary" icon="fas fa-chevron-right" :loading="submitting" @click="formSubmit" />
+          <q-btn v-if="step !== 'firstusage'" round color="primary" icon="fas fa-chevron-left" :loading="submitting" @click="backAction()" />
+          <q-btn round color="primary" icon="fas fa-chevron-right" :loading="submitting" @click="formSubmit" />
         </p>
       </form>
       
