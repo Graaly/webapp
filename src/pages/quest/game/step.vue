@@ -298,6 +298,7 @@ export default {
           remainingDays: '-'
         },
         previousStepId: '',
+        isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
         
         // for step type 'use-item'
         selectedItem: null
@@ -379,19 +380,25 @@ export default {
           }
           if (runs.data[i].status === 'in-progress') {
             this.run = runs.data[i]
+            
             currentChapter = runs.data[i].currentChapter
             
             // update the offline run or the online depending on the last updated
             if (isRunOfflineLoaded) {
               if (offlineRun.dateUpdated > this.run.dateUpdated) {
+                const tempId = this.run._id
                 this.run = offlineRun
+                // fix when id is not set
+                if (!this.run._id) {
+                  this.run._id = tempId
+                }
                 
                 // save run changes in DB
                 await RunService.updateFromOffline(this.run)
               } else {
                 // the answers are the offline one
                 this.run.answers = offlineRun.answers
-                
+
                 await this.updateOfflineRun(this.questId)
               }
             }
@@ -835,6 +842,14 @@ export default {
       //hide button
       this.canMoveNextStep = false
       this.canPass = false
+      
+      // force camera flow to hide
+      if (this.step.type === 'locate-item-ar') {
+        if (this.isIOs) {
+          CameraPreview.stopCamera()
+          CameraPreview.stopCamera() // calling twice is needed
+        }
+      }
       
       this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + type + '_' + this.step.stepId + '_' + utils.randomId() + '/' + this.$route.params.lang)
     },
@@ -1428,13 +1443,18 @@ export default {
             maxNbConditions = stepsThatFit[i].nbConditions
           }
         }
-        // set the marker step as done to pass to next step
-        var conditionsDone = this.run.conditionsDone
-        conditionsDone.push('stepDone_' + stepId.toString())
-        
-        // update run
-        this.run.conditionDone = conditionsDone
-        this.run.currentStep = stepId
+        if (this.info.quest.editorMode === 'simple') {
+          // add points if basic quest mode (not in escape game mode)
+          await this.saveOfflineAnswer('success')
+        } else {
+          // set the marker step as done to pass to next step
+          var conditionsDone = this.run.conditionsDone
+          conditionsDone.push('stepDone_' + stepId.toString())
+
+          // update run
+          this.run.conditionDone = conditionsDone
+          this.run.currentStep = stepId
+        }
       }
       
       // list the steps for the chapter
@@ -1455,8 +1475,11 @@ export default {
             }
             // if the marker is not requested, do not treat marker step
             if (stepsofChapter[i].type === 'locate-marker') {
-              locationMarkerFound = true
-              continue stepListFor
+              // if advanced mode => do not treat this step
+              if (this.info.quest && this.info.quest.editorMode === 'advanced') {
+                locationMarkerFound = true
+                continue stepListFor
+              }
             }
             // if step is end of chapter 
             if (stepsofChapter[i].type === 'end-chapter') {

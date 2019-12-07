@@ -1,11 +1,13 @@
 <template>
-  <div class="wrapper dark-background">
+  <div class="wrapper">
     <div class="page-content top-padding-middle q-pa-lg">
-    
-      <div class="centered">
+      <div class="centered text-h5">
         {{ $t('label.WeNeedMoreInformationAboutYou') }}
       </div>
       <div class="centered">
+        {{ $t('label.WeNeedMoreInformationAboutYouDesc') }}
+      </div>
+      <div class="centered q-mt-lg">
         <div class="big-avatar">
           <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
           <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
@@ -16,7 +18,7 @@
       </div>
       <form @submit.prevent="submitProfileChanges()">
         
-        <q-input
+        <q-input dark
           v-model="profile.form.name"
           :label="$t('label.YourName')"
           placeholder="John Doe"
@@ -26,7 +28,7 @@
           :error-message="$t('label.PleaseEnterYourName')"
           />
           
-        <q-input
+        <q-input dark
           v-model="profile.form.email"
           :label="$t('label.YourEmail')"
           placeholder="john.doe@gmail.com"
@@ -35,10 +37,21 @@
           :error="$v.profile.form.email.$error"
           :error-message="$t('label.PleaseEnterAValidEmailAddress')"
           />
+          
+        <q-input dark
+          v-if="displayPassword"
+          type="password"
+          v-model="profile.form.password"
+          :label="$t('label.YourPassword')"
+          @blur="$v.profile.form.password.$touch"
+          bottom-slots
+          :error="$v.profile.form.password.$error"
+          :error-message="!$v.profile.form.password.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.profile.form.password.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
+          />
                   
         <div class="q-pt-lg q-pb-md">{{ $t('label.ToDisplayRelevantQuests') }}</div>
         
-        <q-select
+        <q-select dark
           :label="$t('label.YourCountry')"
           v-model="profile.form.country"
           :options="countries"
@@ -49,7 +62,7 @@
           :error-message="$t('label.PleaseSelectYourCountry')"
           />
           
-        <q-input
+        <q-input dark
           v-model="profile.form.zipCode"
           :label="$t('label.YourZipCode')"
           placeholder="38500"
@@ -58,18 +71,19 @@
           :error-message="$t('label.PleaseEnterYourZipCode')"
           />
           
-        <q-select :label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" emit-value map-options @input="changeLanguage" />
+        <q-select dark :label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" emit-value map-options @input="changeLanguage" />
         
         <div class="q-pt-lg q-pb-md">{{ $t('label.ToAvoidSendingYourToUnrelevantQuests') }}</div>
         
-        <q-select dark :label="$t('label.YourSex')" v-model="profile.form.sex" :options="sexes" emit-value map-options />
-        <q-select dark :label="$t('label.YourAge')" v-model="profile.form.age" :options="ages" emit-value map-options />
+        <q-select :label="$t('label.YourSex')" v-model="profile.form.sex" :options="sexes" emit-value map-options />
+        <q-select :label="$t('label.YourAge')" v-model="profile.form.age" :options="ages" emit-value map-options />
         
         <div class="q-pt-lg q-pb-md">{{ $t('label.ToHelpYouFindYourFriends') }}</div>
         
-        <q-input v-model="profile.form.phone" :label="$t('label.YourPhoneNumber')" :placeholder="$t('label.phoneExample')" />
+        <q-input dark v-model="profile.form.phone" :label="$t('label.YourPhoneNumber')" :placeholder="$t('label.phoneExample')" />
         
-        <q-btn class="text-primary bg-white full-width" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
+        <q-btn class="full-width" color="primary" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
+        <q-btn class="full-width q-pt-md" color="primary" flat @click="backToMap()">{{ $t('label.MaybeLater') }}</q-btn>
       </form>
       
     </div>
@@ -78,8 +92,9 @@
 
 <script>
 import AuthService from 'services/AuthService'
-import { required, email } from 'vuelidate/lib/validators'
+import { required, minLength, email } from 'vuelidate/lib/validators'
 import Notification from 'boot/NotifyHelper'
+import checkPasswordComplexity from 'boot/PasswordComplexity'
 import languages from 'data/languages.json'
 import utils from 'src/includes/utils'
 
@@ -98,13 +113,15 @@ export default {
           country: "", 
           language: "en",
           sex: "",
-          age: ""
+          age: "",
+          password: ""
         }
       },
       countries: this.$i18n.locale === 'fr' ? countriesFR : countriesEN,
       sexes: [{label: this.$t('label.Male'), value: 'male'}, {label: this.$t('label.Female'), value: 'female'}],
       ages: [{label: '13 - 25', value: '13-25'}, {label: '26 - 39', value: '26-39'}, {label: '40 - 49', value: '40-49'}, {label: '50 - 64', value: '50-64'}, {label: '65 +', value: '65+'}],
       languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
+      displayPassword: false,
       serverUrl: process.env.SERVER_URL
     }
   },
@@ -112,6 +129,7 @@ export default {
     this.profile.form = {
       name: this.$store.state.user.name ? this.$store.state.user.name : '?',
       email: (this.$store.state.user.email && this.$store.state.user.email !== 'providersignin') ? this.$store.state.user.email : '',
+      password: '',
       phone: this.$store.state.user.phone ? this.$store.state.user.phone : '',
       picture: this.$store.state.user.picture ? this.$store.state.user.picture : '',
       zipCode: this.$store.state.user.location.postalCode ? this.$store.state.user.location.postalCode : '',
@@ -119,6 +137,9 @@ export default {
       sex: this.$store.state.user.sex ? this.$store.state.user.sex : '',
       age: this.$store.state.user.age ? this.$store.state.user.age : '',
       language: this.$store.state.user.language
+    }
+    if (this.$store.state.user.missingPassword) {
+      this.displayPassword = true
     }
   },
   methods: {
@@ -132,6 +153,7 @@ export default {
         let modifications = {
           name: this.profile.form.name,
           email: this.profile.form.email,
+          password: this.profile.form.password,
           phone: this.profile.form.phone ? this.profile.form.phone : "",
           zipCode: this.profile.form.zipCode,
           country: this.profile.form.country,
@@ -196,7 +218,8 @@ export default {
         email: { required, email },
         name: { required },
         country: { required },
-        zipCode: { required }
+        zipCode: { required },
+        password: { required, minLength: minLength(8), checkPasswordComplexity }
       }
     }
   }

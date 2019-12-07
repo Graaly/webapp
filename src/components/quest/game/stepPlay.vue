@@ -14,7 +14,8 @@
       
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
         <div id="info-clickable" :class="{ grow: !step.videoStream }" @click="hideControlsTemporaly">
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="step.options && step.options.html" v-html="getTranslatedText()"></p>
         </div>
         <div class="video" v-if="step.videoStream">
           <video class="full-width" controls controlsList="nodownload" autoplay>
@@ -304,6 +305,30 @@
         <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
       </div>
       
+      <!------------------ SUPERIMPOSE IMAGE AND CAMERA STEP AREA ------------------------>
+      
+      <div class="image-over-flow" v-show="step.type == 'image-over-flow'">
+        <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
+          <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled && playerResult === null"></video>
+        </transition>
+        <!--<div>
+          <div class="text">
+            <p>{{ getTranslatedText() }}</p>
+            <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+            <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
+            <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
+            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
+          </div>
+        </div>-->
+        <div>
+          <div>
+            <p class="text">{{ getTranslatedText() }}</p>
+          </div>
+          <div class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
+          </div>
+        </div>
+      </div>
+      
       <!------------------ LOCATE A 2D MARKER / TOUCH OBJECT ON MARKER ------------------------>
       
       <div class="locate-marker" v-if="step.type == 'locate-marker' || step.id == 'sensor'">
@@ -423,9 +448,6 @@ import GLTFLoader from 'three-gltf-loader'
 import { THREEx } from 'src/includes/ar' // import * as ARjs from 'ar.js' in future versions?
 import { promisify } from 'es6-promisify'
 
-// required for iOS compatibility
-import { AbsoluteOrientationSensor } from 'src/includes/motion-sensors';
-
 export default {
   /*
    * Properties used on component call
@@ -538,7 +560,8 @@ export default {
           // object position relative to device
           position: { x: null, y: null },
           // for 'locate-item-ar'
-          absoluteOrientationSensor: null, 
+          absoluteOrientationSensor: null,
+          initialBearingAngle: null,
           target: null,
           canSeeTarget: false,
           canTouchTarget: false,
@@ -647,9 +670,13 @@ export default {
             background.style.background = 'none'
             background.style.backgroundColor = '#000'
             this.showControls()
-          } else if (this.step.type === 'jigsaw-puzzle') {
+          } else if (this.step.type === 'image-over-flow') {
             background.style.background = 'none'
             background.style.backgroundColor = '#fff'
+            this.showControls()
+          } else if (this.step.type === 'jigsaw-puzzle') {
+            let backgroundUrl = this.getBackgroundImage()
+            background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             this.showControls()
           } else {
             // define if background image is a generic one or user defined one
@@ -732,19 +759,19 @@ export default {
           // It is different from 'deviceorientationabsolute' listener whose values are not
           // reliable when device is held vertically
           try {
-            let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
-            if (typeof sensor === 'undefined') {
+            if ("AbsoluteOrientationSensor" in window) {
+              // Android
+              let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
+              sensor.onerror = event => console.error(event.error.name, event.error.message)
+              sensor.onreading = this.onAbsoluteOrientationSensorReading
+              sensor.start()
+              this.geolocation.absoluteOrientationSensor = sensor
+            } else {
               // iOS
               this.geolocation.absoluteOrientationSensor = {
                 stop: this.stopAlternateAbsoluteOrientationSensor
               }
               window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
-            } else {
-              // Android
-              sensor.onerror = event => console.error(event.error.name, event.error.message)
-              sensor.onreading = this.onAbsoluteOrientationSensorReading
-              sensor.start()
-              this.geolocation.absoluteOrientationSensor = sensor
             }
           } catch (error) {
             console.error(error)
@@ -767,7 +794,7 @@ export default {
           if (this.deviceHasGyroscope || !this.step.backgroundImage) {
             // video stream for AR background
             if (this.isIOs) {
-              let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false}
+              let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
               CameraPreview.startCamera(options)
               CameraPreview.show()
             } else {
@@ -820,7 +847,7 @@ export default {
           // --- specific parts for 2D/3D ---
           let object, animations
           if (this.step.options.is3D) {
-            let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.options.customModel ? this.step.questId : null)
+            let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.questId, this.step.options.customModel || false)
             object = data.object
             animations = data.animations
             
@@ -887,6 +914,37 @@ export default {
           this.animateTargetCanvas()
         }
         
+        if (this.step.type === 'image-over-flow') {
+          this.$emit('pass')
+          // video stream
+          if (this.isIOs) {
+            let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
+            CameraPreview.startCamera(options)
+            CameraPreview.show()
+          } else {
+            var cameraStream2 = this.$refs['camera-stream-for-image-over-flow']
+            // enable rear camera stream
+            // -------------------------
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+            
+              .then((stream) => {
+                // Hacks for Safari iOS
+                cameraStream2.setAttribute("muted", true)
+                cameraStream2.setAttribute("playsinline", true)
+                                
+                cameraStream2.srcObject = stream
+                cameraStream2.play()
+                this.cameraStreamEnabled = true
+              })
+              .catch((err) => {
+                // TODO friendly behavior/message for user
+                console.warn("No camera stream available")
+                console.log(err)
+              }
+            );
+          }
+        }
+        
         // enable geoloc only when 3D scene is fully loaded
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
           this.$refs['geolocation-component'].disabled = false
@@ -940,8 +998,15 @@ export default {
         }
       })
     },
+    /**
+     * handles deviceorientation event on iOS
+     */
     eventAlternateAbsoluteOrientationSensor(e) {
-      const alpha    = e.webkitCompassHeading !== null ? 360 - e.webkitCompassHeading : e.alpha
+      if (this.geolocation.initialBearingAngle === null && e.webkitCompassHeading !== 0) {
+        this.geolocation.initialBearingAngle = (-e.webkitCompassHeading - e.alpha + 720) % 360
+      }
+
+      const alpha = e.webkitCompassHeading != null ? (this.geolocation.initialBearingAngle + e.alpha) % 360 : e.alpha
       const beta     = e.beta
       const gamma    = e.gamma
       const degtorad = Math.PI / 180
@@ -962,27 +1027,9 @@ export default {
       var y = cX * sY * cZ + sX * cY * sZ
       var z = cX * cY * sZ + sX * sY * cZ
 
-      this.geolocation.absoluteOrientationSensor.quaternion = [ y, -x, -w, z ]
-
-      let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
-
-      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.deviceHasGyroscope) {
-        this.geolocation.target.camera.quaternion = quaternion
-      }
-
-      // every 100ms, update geolocation direction
-      if (!this.waitForNextQuaternionRead) {
-        let rotationZXY = new THREE.Euler().setFromQuaternion(quaternion, 'ZXY')
-        let rotationXZY = new THREE.Euler().setFromQuaternion(quaternion, 'XZY')
-
-        let tmpAlpha = (rotationZXY.x < Math.PI / 4 ? rotationZXY.z : rotationXZY.y)
-        let newAlpha = JSON.stringify((360 - utils.radiansToDegrees(tmpAlpha)) % 360)
-
-        this.geolocation.direction = (this.geolocation.rawDirection - newAlpha + 360) % 360
-
-        this.waitForNextQuaternionRead = true
-        utils.setTimeout(() => { this.waitForNextQuaternionRead = false }, 100)
-      }
+      this.geolocation.absoluteOrientationSensor.quaternion = [ x, y, z, w ]
+      
+      this.onAbsoluteOrientationSensorReading() // same process as Android
     },
     stopAlternateAbsoluteOrientationSensor() {
       window.removeEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
@@ -999,8 +1046,10 @@ export default {
     * Open GPS calibration popin
     */
     askUserToCalibrateGPS() {
-      this.geolocation.showCalibration = true
-      utils.setTimeout(this.closeGPSCalibration, 7000)
+      if (this.step.options && this.step.options.showHelp) {
+        this.geolocation.showCalibration = true
+        utils.setTimeout(this.closeGPSCalibration, 7000)
+      }
     },
     closeGPSCalibration() {
       this.geolocation.showCalibration = false
@@ -1013,7 +1062,7 @@ export default {
     */
     askUserToHandleMobileVertically() {
       this.geolocation.takeMobileVertically = true
-      utils.setTimeout(this.closeHandleMobileVertically, 7000)
+      utils.setTimeout(this.closeHandleMobileVertically, 5000)
     },
     closeHandleMobileVertically() {
       this.geolocation.takeMobileVertically = false
@@ -1198,7 +1247,7 @@ export default {
       if (this.step.options.mode === 'touch') {
         let object, animations
         //let data = await this.loadAndPrepare3DModel(this.step.options.model)
-        let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.options.customModel ? this.step.questId : null)
+        let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.questId, this.step.options.customModel || false)
         object = data.object
         animations = data.animations
         
@@ -1269,7 +1318,7 @@ export default {
      */
     async checkOfflineAnswer(answer) {
       const type = this.step.type
-      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character') {
+      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'image-over-flow') {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }
       } else if (type === 'image-recognition') {
         return { result: answer, answer: this.answer, score: 0, reward: 0, offline: true }
@@ -1346,9 +1395,15 @@ export default {
         case 'new-item':
         case 'end-chapter':
         case 'character':
+        case 'image-over-flow':
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
           this.submitGoodAnswer(0, checkAnswerResult.offline, true)
+          if (CameraPreview) {
+            CameraPreview.stopCamera()
+            CameraPreview.stopCamera() // calling twice is needed
+          }
+          
           break
           
         case 'choose':
@@ -1558,8 +1613,9 @@ export default {
               
               // stop camera flow
               if (this.isIOs) {
-                CameraPreview.hide()
+                //CameraPreview.hide()
                 CameraPreview.stopCamera()
+                CameraPreview.stopCamera() // calling twice is needed
               }
               
               TWEEN.removeAll() // clear all running animations
@@ -1584,11 +1640,12 @@ export default {
                 let cameraDistance = Math.max(size.x, size.y, size.z) * 2
                 
                 // to fix temporally issue of animations with iOs
-                if (this.isIOs) {
+                // MPA 2019-11-08 tested on iPhone SE => OK
+                /*if (this.isIOs) {
                   camera.position.set(0, 0,  cameraDistance * 2 / 3)
 
                   this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
-                } else {
+                } else {*/
                   let startScale = Object.assign({}, object.scale) // copy the full Vector3 object, not a reference
                 
                   let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
@@ -1618,7 +1675,7 @@ export default {
                     .repeat(Infinity)
                     
                   disappearAnimation.chain(appearAnimation, rotationAnimation).start()
-                }
+                //}
               } else { // 2D image on plane
                 this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
               }
@@ -1718,6 +1775,7 @@ export default {
           case 'info-text': 
           case 'end-chapter': 
           case 'info-video': 
+          case 'image-over-flow': 
             
             break
           case 'choose':
@@ -2720,15 +2778,17 @@ export default {
     /*
     * loads GLTF data, puts object origin at center, sets position of 3D model according to its settings in 3DModels.json
     * @param     modelCode     code of the 3D model, for example "lamp"
+    * @param     questId       Id of the quest
+    * @param     isCustom      true if the 3D model is a custom model
     * @return    object        { object: <3D object>, animations: <animations from GLTF data> }
     */
-    async loadAndPrepare3DModel(modelCode, questId) {
+    async loadAndPrepare3DModel(modelCode, questId, isCustom) {
       let scaleFactor = 4 // make objects four times bigger than their "real" size, for better usability
       let objectInit = modelsList[modelCode]
       let gltfData
       try {
         this.$q.loading.show()
-        gltfData = await this.ModelLoaderAsync(modelCode, questId)
+        gltfData = await this.ModelLoaderAsync(modelCode, questId, isCustom)
         this.$q.loading.hide()
       } catch (err) {
         console.error("Error while loading 3D model:", err)
@@ -2779,9 +2839,9 @@ export default {
     * Supports only GLB format
     * Returns a Promise, usable with async/await
     */
-    async ModelLoaderAsync(objName, questId) {
+    async ModelLoaderAsync(objName, questId, isCustom) {
       let progress = console.log
-      
+
       // Load GLTF packed as binary (blob)
       const offlineObject = await utils.readBinaryFile(questId, objName + '.glb')
       return new Promise((resolve, reject) => {
@@ -2793,7 +2853,7 @@ export default {
           if (offlineObject) {
             gltfLoader.load(offlineObject, resolve, progress, reject)
           } else {
-            if (questId) {
+            if (isCustom) {
               gltfLoader.load(this.serverUrl + '/upload/quest/' + questId + '/step/3dobject/' + objName + '.glb', resolve, progress, reject)
             } else {
               gltfLoader.load(this.serverUrl + '/statics/3d-models/' + objName + '.glb', resolve, progress, reject)
@@ -2841,6 +2901,7 @@ export default {
       let streamDivs = [
         'camera-stream-for-recognition',
         'camera-stream-for-locate-marker',
+        'camera-stream-for-image-over-flow',
         'camera-stream-for-locate-item-ar'
       ]
       
@@ -2883,7 +2944,7 @@ export default {
       }
       
       // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
-      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || !this.geolocation.absoluteOrientationSensor.quaternion || isNaN(this.geolocation.position.x) || isNaN(this.geolocation.position.y)) {
+      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || this.geolocation.absoluteOrientationSensor === null || !this.geolocation.absoluteOrientationSensor.quaternion || isNaN(this.geolocation.position.x) || isNaN(this.geolocation.position.y)) {
         canProcess = false
       }
       
@@ -3199,6 +3260,13 @@ export default {
   .locate-item-ar #target-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }
   .locate-item-ar .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
   .locate-item-ar img { margin: 30vw auto; } /* 2D result image */
+
+  /* image-over-flow specific */
+  
+  .image-over-flow { background: transparent; }
+  .image-over-flow video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+  .image-over-flow .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
+  .image-over-flow .image { z-index: 50; position: relative; } /* positioning is required to have z-index working */
   
   /* locate-marker specific */
   

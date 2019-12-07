@@ -12,6 +12,14 @@
         <!-- ========================================== FRIENDS SUGGESTIONS ====================================== -->
         
         <q-tab-panel name="suggestions">
+          <div class="centered" v-if="loadingContacts">
+            <q-spinner color="primary" size="3em" />
+            {{ $t('label.LoadingContacts') }}
+          </div>
+          <div class="centered" v-if="loadingContacts === null">
+            <q-btn @click="this.getContacts" :label="$t('label.LoadContactsFromPhone')" />
+          </div>
+          
           <div v-if="validatedContacts && validatedContacts.length > 0">
             <q-list highlight>
               <q-item v-for="contact in validatedContacts" :key="contact._id">
@@ -28,6 +36,9 @@
                 </q-item-section>
               </q-item>
             </q-list>
+          </div>
+          <div v-if="loadingContacts === false && (!validatedContacts || validatedContacts.length === 0)">
+            {{ $t('label.NoMoreContactFound') }}
           </div>
         </q-tab-panel>
         
@@ -125,6 +136,7 @@ export default {
       canFindContacts: true,
       serverUrl: process.env.SERVER_URL,
       submitting: false,
+      loadingContacts: null,
       console: '',
       newFriendTab: "suggestions"
     }
@@ -189,12 +201,17 @@ export default {
     },
     async getContacts() {
       if (window.cordova) {
+        this.loadingContacts = true
         // find all contacts
-        var options = new ContactFindOptions();
-        options.filter = "";
-        options.multiple = true;
-        var filter = ["displayName", "emails", "phoneNumbers"];
-        navigator.contacts.find(filter, this.checkContacts, this.onError, options);
+        var options = new ContactFindOptions()
+
+        options.filter = ""
+        options.multiple = true
+        var filter = ["displayName", "emails", "phoneNumbers"]
+
+        navigator.contacts.find(filter, this.checkContacts, this.onError, options)
+
+        this.loadingContacts = false
       } else {
         this.canFindContacts = false
       }

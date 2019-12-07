@@ -153,7 +153,7 @@ export default {
     async initPay() {
       // init Store pay
       if (!window.cordova) {
-        Notification(this.$t('label.YouMustPlayThisKindOfQuestOnAMobileDevice'), 'error')
+        //Notification(this.$t('label.YouMustPlayThisKindOfQuestOnAMobileDevice'), 'error')
         return
       }
 

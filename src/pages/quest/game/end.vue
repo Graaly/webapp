@@ -35,7 +35,7 @@
               
         <!------------------ CHALLENGE FRIENDS AREA ------------------------>
         
-        <div class="q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="run.score > 0 && quest && quest.data && quest.data.access === 'public'">
+        <div class="q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="quest.data.type !== 'discovery' && run.score > 0 && quest && quest.data && quest.data.access === 'public'">
           <q-btn icon="people" color="secondary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
         </div>
         
@@ -51,7 +51,7 @@
         
         <!------------------ REVIEW AREA ------------------------>
         
-        <div class="q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="showAddReview && quest && quest.data && quest.data.access === 'public'">
+        <div class="q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="quest.data.type !== 'discovery' && showAddReview && quest && quest.data && quest.data.access === 'public'">
           <h3 class="size-2">{{ $t('label.ReviewThisQuest') }} <!--(+2 <q-icon color="white" name="fas fa-bolt" />)--></h3>
           <p>{{ $t('label.Rating') + $t('label.Colon') }} <q-rating v-model="rating" :max="5" size="1.5rem" :disable="reviewSent" /></p>
           <p>{{ $t('label.CommentThisQuest') }} ({{ $t('label.Optional') }}){{ $t('label.Colon') }}</p>
@@ -197,6 +197,19 @@
       </div>
     </transition>
     
+     <!--====================== REWARD PAGE =================================-->
+    
+    <transition name="slideInBottom">
+      <div class="panel-bottom q-pa-md" v-if="showReward">      
+        <a class="float-right no-underline close-btn" color="grey" @click="closeReward"><q-icon name="close" class="medium-icon" /></a>
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.YouWonAReward') }}</div>
+        <div class="q-pa-md">
+          <img :src="serverUrl + '/upload/quest/' + run.questData.rewardPicture">
+          <p>{{ $t('label.WonOtherRewardByPlayingOtherGamesInCity') }}</p>
+        </div>
+      </div>
+    </transition>
+    
     <!--====================== STORY =================================-->
     
     <div class="fixed-bottom over-map" v-if="story.step !== null && story.step !== 'end'">
@@ -261,6 +274,7 @@ export default {
       awardPoints: true,
       showChallenge: false,
       showBonus: false,
+      showReward: false,
       showAddReview: false,
       reviewSent: false,
       isUserAuthor: false,
@@ -338,6 +352,9 @@ export default {
             this.run.bonus = endStatus.data.newBonus
             this.showBonus = true
           }
+          if (this.run.questData.rewardPicture && this.run.questData.rewardPicture !== '') {
+            this.showReward = true
+          }
           
           // remove offline data
           await this.removeOfflineData()
@@ -359,6 +376,8 @@ export default {
         // get user new score
         //this.level.color = "secondary"
         this.score.new = runIsInProgress ? this.score.old + this.run.score : this.score.old
+        // force score update
+        this.$store.state.user.score = this.score.new
         utils.setTimeout(this.updateProgression, 3000)
       } else {
         // no network
@@ -548,6 +567,12 @@ export default {
      */
     async closeBonus() {
       this.showBonus = false
+    },
+    /*
+     * Close the reward modal
+     */
+    async closeReward() {
+      this.showReward = false
     },
     /*
      * Start the story

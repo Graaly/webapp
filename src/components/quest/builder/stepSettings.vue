@@ -651,6 +651,7 @@
           <div v-if="options.type.code == 'geolocation' || options.type.code == 'locate-item-ar'" class="location-gps">
             <q-toggle v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
             <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
+            <q-toggle v-model="selectedStep.form.options.showHelp" :label="$t('label.DisplayGeolocationHelp')" />
           </div>
           <div v-if="options.type.code === 'memory'">
             <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
@@ -663,11 +664,11 @@
               <q-btn class="full-width" type="button" @click="$refs['backgroundfile2'].click()">
                 <q-icon name="cloud_upload" /> <label for="picturefile2">{{ $t('label.UploadABackgroundImage') }}</label>
               </q-btn>
-              <input @input="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+              <input @change="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
             </div>
             <div v-if="isIOs">
               <q-icon name="cloud_upload" /> {{ $t('label.UploadABackgroundImage') }}
-              <input @input="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" />
+              <input @change="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" />
             </div>
             <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
             <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
@@ -728,9 +729,9 @@
     <!------------------ PREMIUM POPIN ------------------------>
     
     <q-dialog v-model="premium.show">
-      <div class="q-pa-md">
-        <div v-html="$t('label.PremiumDefinition1')" />
-        <q-btn class="q-mb-xl" color="primary" @click="premium.show = false">{{ $t('label.Close') }}</q-btn>
+      <div class="q-pa-md centered">
+        <div v-html="$t('label.PremiumWarning')" />
+        <q-btn class="q-mt-md" color="primary" @click="premium.show = false">{{ $t('label.Close') }}</q-btn>
       </div>
     </q-dialog>
     
@@ -1535,6 +1536,8 @@ export default {
           this.selectedStep.form.backgroundImage = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1572,6 +1575,8 @@ export default {
           this.selectedStep.form.videoStream = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1596,6 +1601,8 @@ export default {
           this.selectedStep.form.answers = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1620,6 +1627,8 @@ export default {
           this.selectedStep.form.options.items[key].imagePath = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1645,6 +1654,8 @@ export default {
           this.selectedStep.form.options.items[key].imagePath = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1679,6 +1690,8 @@ export default {
           this.selectedStep.form.options.images[key].imagePath = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1703,6 +1716,8 @@ export default {
           this.selectedStep.form.options.picture = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1727,6 +1742,8 @@ export default {
           this.selectedStep.form.options.picture = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1753,6 +1770,8 @@ export default {
           await this.displayARObject(this.selectedStep.form.options.customModel, this.questId)
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1784,6 +1803,8 @@ export default {
           Vue.set(this.selectedStep.form.options, 'character', uploadResult.data.file)
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -2217,8 +2238,6 @@ export default {
 </script>
 
 <style scoped>
-
-#main-view { padding: 1rem; overflow-y: scroll; }
 
 h1 { margin-top: 0; }
 h2 { font-size: 1.2rem; color: grey; }

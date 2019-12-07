@@ -70,11 +70,14 @@
     
     <!------------------ GEOLOCATION COMPONENT ------------------------>
     
-    <geolocation ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError()" />
+    <geolocation v-if="!offline.active" ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError()" />
     
     <!------------------ SCORE AREA ------------------------>
-    
-    <div class="score-box q-mr-md" v-if="$store.state.user && !offline.active" @click="openRanking">
+    <div class="centered q-pa-xl" style="width: 100%; position: absolute; top: 100px; z-index: 7000" v-if="loadingMap">
+      <q-spinner color="primary" size="3em" /><br />
+      {{ $t('label.QuestMapIsLoading') }}
+    </div>
+    <div class="score-box q-mr-md" v-if="$store.state.user && !offline.active && !loadingMap" @click="openRanking">
       <div class="q-px-md q-pt-md score-text centered" :class="{'bouncing': warnings.score}">{{ $store.state.user.score }}<!--<q-icon name="fas fa-trophy" />--></div>
       <div style="width: 100px">
         <div class="centered bg-primary text-white level-box" style="margin-bottom: 1px">{{ $t('label.Level') }} {{ $store.state.user.level }}</div>
@@ -118,112 +121,110 @@
       
       <q-separator />
       
-      <q-tab-panels v-model="questsTab" animated>
+      <!------------------ LIST OF QUESTS BUILT TAB ------------------------>
       
-        <!------------------ LIST OF QUESTS BUILT TAB ------------------------>
-        
-        <q-tab-panel name="built">
-          <div class="centered q-pa-md" v-if="success.quests.built.tovalidate && success.quests.built.tovalidate.length === 0 && success.quests.built.rejected.length === 0 && success.quests.built.published.length === 0 && success.quests.built.draft.length === 0 && !warnings.listCreatedQuestsMissing">
-            {{ $t('label.NoQuestCreated') }}
-          </div>            
-          <q-btn link class="full-width" @click="buildQuest" color="secondary">{{ $t('label.CreateANewQuest') }}</q-btn>
-          <q-btn outline class="full-width q-mt-sm" @click="menu.suggestQuest.show = true" color="secondary">{{ $t('label.SuggestAQuest') }}</q-btn>
-          <div class="centered bg-warning q-pa-sm" v-if="warnings.listCreatedQuestsMissing" @click="listCreatedQuests($store.state.user._id)">
-            <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
-          </div>
-          <q-expansion-item :label="$t('label.YourUnderValidationQuests')" default-opened v-if="success.quests.built.tovalidate && success.quests.built.tovalidate.length > 0">
-            <q-list>
-              <q-item v-for="quest in success.quests.built.tovalidate" :key="quest._id">
-                <q-item-section avatar>
-                  <q-avatar>
-                    <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
-                    <q-badge floating color="black" v-if="quest.access === 'private'">
-                      <q-icon name="lock" color="white" />
-                    </q-badge>
-                  </q-avatar>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
-                  <q-item-label caption>
-                    {{ $t('label.PublicationRequested') }} ...
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-expansion-item>
-          <q-expansion-item :label="$t('label.YourRejectedQuests')" default-opened v-if="success.quests.built.rejected && success.quests.built.rejected.length > 0">
-            <q-list>
-              <q-item v-for="quest in success.quests.built.rejected" :key="quest._id" @click.native="modifyQuest(quest.questId)">
-                <q-item-section avatar>
-                  <q-avatar>
-                    <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
-                    <q-badge floating color="black" v-if="quest.access === 'private'">
-                      <q-icon name="lock" color="white" />
-                    </q-badge>
-                  </q-avatar>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
-                  <q-item-label caption style="color: #f00">
-                    {{ $t('label.PublicationRejected') }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-expansion-item>
-          <q-expansion-item :label="$t('label.YourDraftQuests')" default-opened v-if="success.quests.built.draft && success.quests.built.draft.length > 0">
-            <q-list>
-              <q-item v-for="quest in success.quests.built.draft" :key="quest._id" @click.native="modifyQuest(quest.questId)">
-                <q-item-section avatar>
-                  <q-avatar>
-                    <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
-                    <q-badge floating color="black" v-if="quest.access === 'private'">
-                      <q-icon name="lock" color="white" />
-                    </q-badge>
-                  </q-avatar>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
-                  <q-item-label caption>
-                    {{ $t('label.Unpublished') }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-expansion-item>
-          <q-expansion-item :label="$t('label.YourPublishedQuests')" default-opened v-if="success.quests.built.published && success.quests.built.published.length > 0">
-            <q-list>
-              <q-item v-for="quest in success.quests.built.published" :key="quest._id" @click.native="modifyQuest(quest.questId)">
-                <q-item-section avatar>
-                  <q-avatar>
-                    <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
-                    <q-badge floating color="black" v-if="quest.access === 'private'">
-                      <q-icon name="lock" color="white" />
-                    </q-badge>
-                  </q-avatar>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
-                  <q-item-label caption v-if="quest.status === 'published'">
-                    <q-rating readonly v-if="quest.rating && quest.rating.rounded" v-model="quest.rating.rounded" color="primary" :max="5" size="1rem" />
-                    {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate($store.state.user.language)}}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-expansion-item>
-          <div v-if="!success.quests.built.tovalidate && !warnings.listCreatedQuestsMissing">
-            {{ $t('label.Loading') }}
-          </div>
-        </q-tab-panel>
-        
-        <!------------------ LIST OF QUESTS PLAYED TAB ------------------------>
-        
-        <q-tab-panel name="played">
-          <div class="centered bg-warning q-pa-sm" v-if="warnings.listPlayedQuestsMissing" @click="listPlayedQuests($store.state.user._id)">
-            <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
-          </div>
-          <q-list v-if="success.quests.played && success.quests.played.length > 0">
+      <div v-if="questsTab === 'built'" class="q-pa-md q-pb-xl tab-content-80">
+        <div class="centered q-pa-md" v-if="success.quests.built.tovalidate && success.quests.built.tovalidate.length === 0 && success.quests.built.rejected.length === 0 && success.quests.built.published.length === 0 && success.quests.built.draft.length === 0 && !warnings.listCreatedQuestsMissing">
+          {{ $t('label.NoQuestCreated') }}
+        </div>            
+        <q-btn link class="full-width" @click="buildQuest" color="secondary">{{ $t('label.CreateANewQuest') }}</q-btn>
+        <q-btn outline class="full-width q-mt-sm" @click="menu.suggestQuest.show = true" color="secondary">{{ $t('label.SuggestAQuest') }}</q-btn>
+        <div class="centered bg-warning q-pa-sm" v-if="warnings.listCreatedQuestsMissing" @click="listCreatedQuests($store.state.user._id)">
+          <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+        </div>
+        <q-expansion-item :label="$t('label.YourUnderValidationQuests')" default-opened v-if="success.quests.built.tovalidate && success.quests.built.tovalidate.length > 0">
+          <q-list>
+            <q-item v-for="quest in success.quests.built.tovalidate" :key="quest._id">
+              <q-item-section avatar>
+                <q-avatar>
+                  <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
+                  <q-badge floating color="black" v-if="quest.access === 'private'">
+                    <q-icon name="lock" color="white" />
+                  </q-badge>
+                </q-avatar>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
+                <q-item-label caption>
+                  {{ $t('label.PublicationRequested') }} ...
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-expansion-item>
+        <q-expansion-item :label="$t('label.YourRejectedQuests')" default-opened v-if="success.quests.built.rejected && success.quests.built.rejected.length > 0">
+          <q-list>
+            <q-item v-for="quest in success.quests.built.rejected" :key="quest._id" @click.native="modifyQuest(quest.questId)">
+              <q-item-section avatar>
+                <q-avatar>
+                  <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
+                  <q-badge floating color="black" v-if="quest.access === 'private'">
+                    <q-icon name="lock" color="white" />
+                  </q-badge>
+                </q-avatar>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
+                <q-item-label caption style="color: #f00">
+                  {{ $t('label.PublicationRejected') }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-expansion-item>
+        <q-expansion-item :label="$t('label.YourDraftQuests')" default-opened v-if="success.quests.built.draft && success.quests.built.draft.length > 0">
+          <q-list>
+            <q-item v-for="quest in success.quests.built.draft" :key="quest._id" @click.native="modifyQuest(quest.questId)">
+              <q-item-section avatar>
+                <q-avatar>
+                  <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
+                  <q-badge floating color="black" v-if="quest.access === 'private'">
+                    <q-icon name="lock" color="white" />
+                  </q-badge>
+                </q-avatar>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
+                <q-item-label caption>
+                  {{ $t('label.Unpublished') }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-expansion-item>
+        <q-expansion-item :label="$t('label.YourPublishedQuests')" default-opened v-if="success.quests.built.published && success.quests.built.published.length > 0">
+          <q-list>
+            <q-item v-for="quest in success.quests.built.published" :key="quest._id" @click.native="modifyQuest(quest.questId)">
+              <q-item-section avatar>
+                <q-avatar>
+                  <img :src="quest.thumb ? serverUrl + '/upload/quest/' + quest.thumb : 'statics/profiles/noprofile.png'" />
+                  <q-badge floating color="black" v-if="quest.access === 'private'">
+                    <q-icon name="lock" color="white" />
+                  </q-badge>
+                </q-avatar>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ getQuestTitle(quest, false) }} (v{{ quest.version }})</q-item-label>
+                <q-item-label caption v-if="quest.status === 'published'">
+                  <q-rating readonly v-if="quest.rating && quest.rating.rounded" v-model="quest.rating.rounded" color="primary" :max="5" size="1rem" />
+                  {{ $t('label.PublishedSince') }} {{quest.dateCreated | formatDate($store.state.user.language)}}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-expansion-item>
+        <div v-if="!success.quests.built.tovalidate && !warnings.listCreatedQuestsMissing">
+          {{ $t('label.Loading') }}
+        </div>
+      </div>
+      
+      <!------------------ LIST OF QUESTS PLAYED TAB ------------------------>
+      
+      <div v-if="questsTab === 'played'" class="q-pa-md q-pb-xl tab-content-80">
+        <div class="centered bg-warning q-pa-sm" v-if="warnings.listPlayedQuestsMissing" @click="listPlayedQuests($store.state.user._id)">
+          <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+        </div>
+        <q-list v-if="success.quests.played && success.quests.played.length > 0">
           <q-item v-for="quest in success.quests.played" :key="quest._id" @click.native="playQuest(quest.questId)">
             <q-item-section avatar>
               <q-avatar>
@@ -259,54 +260,53 @@
               <q-item-label class="score" v-if="quest.questData.type && quest.questData.type !== 'quest'">{{ quest.reward }} <q-icon name="fas fa-bolt" /></q-item-label>
             </q-item-section>
           </q-item>
+        </q-list>
+        <q-list v-if="!success.quests.played || success.quests.played.length === 0">      
           <q-item v-if="success.quests.played.length === 0 && !warnings.listPlayedQuestsMissing">
             <q-item-label>{{ $t('label.NoQuestPlayedLong') }}</q-item-label>
           </q-item>
         </q-list>
-        </q-tab-panel>
-        
-      </q-tab-panels>
+      </div>
 
     </q-drawer>
     
     <!--====================== PROFILE PAGE =================================-->
     
     <q-drawer class="over-map" side="right" v-model="showProfile" :width="innerWidth" test-id="profile-pane">
-    
-      <!------------------ HEADER AREA ------------------------>
-        
-      <div class="header row">
-        <div class="col-4">
-          <div class="big-avatar">
-            <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
-            <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
-            <div v-if="!$store.state.user.picture" :style="'background-image: url(statics/icons/game/profile-small.png); background-color: #fff;'"></div>
-            <label for="picturefile" @click="$refs['uploadfile'].click()">{{ $t('label.Edit') }}</label>
-            <input @change="uploadImage" ref="uploadfile" name="picturefile" id="picturefile" type="file" accept="image/*" hidden />
+      
+      <div  v-if="$store.state.user.name !== '-'">
+        <!------------------ HEADER AREA ------------------------>
+          
+        <div class="header row">
+          <div class="col-4">
+            <div class="big-avatar">
+              <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
+              <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
+              <div v-if="!$store.state.user.picture" :style="'background-image: url(statics/icons/game/profile-small.png); background-color: #fff;'"></div>
+              <label for="picturefile" @click="$refs['uploadfile'].click()">{{ $t('label.Edit') }}</label>
+              <input @change="uploadImage" ref="uploadfile" name="picturefile" id="picturefile" type="file" accept="image/*" hidden />
+            </div>
+          </div>
+          <div class="col">
+            <div class="title">{{ $store.state.user.name }}</div>
+            <q-btn :label="$t('label.SignOut')" icon="power_settings_new" @click.native="disconnect()" flat test-id="btn-signout" />
           </div>
         </div>
-        <div class="col">
-          <div class="title">{{ $store.state.user.name }}</div>
-          <q-btn :label="$t('label.SignOut')" icon="power_settings_new" @click.native="disconnect()" flat test-id="btn-signout" />
-        </div>
-      </div>
-      
-      <!------------------ TABS AREA ------------------------>
-      
-      <q-tabs v-model="profileTab" class="bg-accent text-white">
-        <q-tab name="profile" icon="face" :label="$t('label.MyProfile')" />
-        <q-tab name="friends" icon="supervised_user_circle" :label="$t('label.Friends')" />
-        <q-tab name="news" icon="notifications" :label="$t('label.News')" />
-        <q-tab name="pro" icon="store" :label="$t('label.Pro')" />
-      </q-tabs>
-      
-      <q-separator />
-      
-      <q-tab-panels v-model="profileTab" animated>
-      
+        
+        <!------------------ TABS AREA ------------------------>
+        
+        <q-tabs v-model="profileTab" class="bg-accent text-white">
+          <q-tab name="profile" icon="face" :label="$t('label.MyProfile')" />
+          <q-tab name="friends" icon="supervised_user_circle" :label="$t('label.Friends')" />
+          <q-tab name="news" icon="notifications" :label="$t('label.News')" />
+          <q-tab name="pro" icon="store" :label="$t('label.Pro')" />
+        </q-tabs>
+        
+        <q-separator />
+        
         <!------------------ PROFILE TAB ------------------------>
         
-        <q-tab-panel name="profile">
+        <div v-if="profileTab === 'profile'" class="q-pa-md tab-content-180">
           <form @submit.prevent="submitProfileChanges()">
             <q-item>
               <q-item-section side top>
@@ -420,11 +420,11 @@
             <div class="centered" v-html="$t('label.TermsAndConditionsLink')"></div>
             <div class="centered q-mb-xl" v-html="$t('label.PrivacyPolicyLink')"></div>
           </form>
-        </q-tab-panel>
+        </div>
         
         <!------------------ FRIENDS TAB ------------------------>
         
-        <q-tab-panel name="friends">
+        <div v-if="profileTab === 'friends'" class="q-pa-md tab-content-180">
           
           <!------------------ ADD FRIENDS BUTTON AREA ------------------------>
           <q-btn link class="full-width" @click="openAddFriendsModal()" color="secondary">{{ $t('label.AddFriends') }}</q-btn>
@@ -452,11 +452,11 @@
               <q-item-label>{{ $t('label.NoFriend') }}</q-item-label>
             </q-item>
           </q-list>
-        </q-tab-panel>
+        </div>
         
         <!------------------ NEWS TAB ------------------------>
         
-        <q-tab-panel name="news">
+        <div v-if="profileTab === 'news'" class="q-pa-md tab-content-180">
           <q-infinite-scroll @load="loadNews">
             <q-list>
               <q-item v-for="(item, index) in friends.news.items" :key="item._id">
@@ -500,11 +500,11 @@
               <q-spinner-dots :size="5" />
             </div>
           </q-infinite-scroll>
-        </q-tab-panel>
+        </div>
         
         <!------------------ PRO TAB ------------------------>
         
-        <q-tab-panel name="pro">
+        <div v-if="profileTab === 'pro'" class="q-pa-md tab-content-180">
           <div v-if="!$store.state.user.organizationId">
             <div>
               <q-card class="q-mb-md">
@@ -533,9 +533,18 @@
             <p v-if="profile.organization.organization.premiumQuestsNb && profile.organization.organization.premiumQuestsNb > 0">{{ $t('label.YouCanCreateNbPremiumQuests', {nb: profile.organization.organization.premiumQuestsNb}) }}</p>
             <p v-if="!profile.organization.organization.premiumQuestsNb || profile.organization.organization.premiumQuestsNb === 0"><span v-html="$t('label.YouCanNotCreateNewQuests')" /></p>
           </div>
-        </q-tab-panel>
-        
-      </q-tab-panels>
+        </div>
+      </div>
+      
+      <div class="centered q-pa-xl" v-if="$store.state.user.name === '-'">
+        <div class="text-h5">{{ $t('label.CreateYourAccountMsg') }}</div>
+        <div class="q-mt-xl">
+          <q-btn @click="openUpdateProfilePage()" color="primary">{{ $t('label.CreateMyAccount') }}</q-btn>
+        </div>
+        <div class="q-mt-lg">
+          <q-btn @click="disconnect()" flat color="primary">{{ $t('label.IAlreadyHaveAnAccount') }}</q-btn>
+        </div>
+      </div>
 
     </q-drawer>
     
@@ -743,22 +752,16 @@
                 </q-item-label>
             </q-item>
           </q-list>
-          <q-list v-if="success.ranking && success.ranking.length > 0">
-            <q-item-label header>{{ $t("label.TerritoriesWon") }}</q-item-label>
-            <q-item v-for="(item, index) in success.ranking" :key="index">
-              <q-item-section avatar>
-                <q-icon v-if="item.playedNb < item.totalNb" name="flag" size="2rem" color="grey" />
-                <q-icon v-if="item.playedNb >= item.totalNb" name="flag" size="2rem" color="primary" />
-              </q-item-section>
-              <q-item-label>
-                {{ item.town }}
-                <q-linear-progress class="q-mt-sm" v-if="item.playedNb < item.totalNb" :value="item.playedNb / item.totalNb" color="primary" style="height: 10px;" />
-              </q-item-label>
-            </q-item>
-            <q-item>
+          <div v-if="success.ranking && success.ranking.length > 0">
+            <h1 class="size-3 q-pl-md">{{ $t('label.Rewards') }}</h1>
+            <q-list v-for="(item, index) in success.ranking" :key="index">
+              <q-item-label header>{{ item.city }}</q-item-label>
+              <q-item style="flex-wrap: wrap">
+                <img v-for="(reward, index2) in item.rewards" :class="{'reward': true, 'disabled': !reward.won}" :key="index2" :src="serverUrl + '/upload/quest/' + reward.image" />
+              </q-item>
+            </q-list>
             {{ $t("label.PlayAllQuestsInACityToWin") }}
-            </q-item>
-          </q-list>
+          </div>
         </q-card-section>
         <q-card-section v-if="!($store.state.user && $store.state.user.statistics && $store.state.user.statistics.rankings) && !(success.ranking && success.ranking.length > 0)">
           {{ $t("label.NoRankingYet") }}
@@ -1058,6 +1061,7 @@ export default {
       },
       languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
       isMounted: false,
+      loadingMap: true,
       innerWidth: window.innerWidth,
       questsTab: "built",
       profileTab: "news",
@@ -1077,7 +1081,7 @@ export default {
       this.backToLogin()
     } else {
       this.initPage()
-    
+
       this.$nextTick(() => {
         this.isMounted = true
       })
@@ -1104,15 +1108,19 @@ export default {
      * Check if user profile is enough completed to have Graaly work
      */
     checkIfProfileIsComplete() {
-      if (!this.$store.state.user.name || this.$store.state.user.name === '' || 
+console.log(this.$store.state.user.story.step)
+      if (this.$store.state.user.story.step === 18 && (!this.$store.state.user.name || this.$store.state.user.name === '' || 
         this.$store.state.user.email === 'providersignin' || 
         //!this.$store.state.user.sex || this.$store.state.user.sex === '' || 
         //!this.$store.state.user.age || this.$store.state.user.age === '' || 
         !this.$store.state.user.location || 
         !this.$store.state.user.location.postalCode || this.$store.state.user.location.postalCode === '' || 
-        !this.$store.state.user.location.country || this.$store.state.user.location.country === '') {
-        this.$router.push('/user/updateprofile')
+        !this.$store.state.user.location.country || this.$store.state.user.location.country === '')) {
+        this.openUpdateProfilePage()
       }
+    },
+    openUpdateProfilePage() {
+      this.$router.push('/user/updateprofile')
     },
     closeInfoWindows() {
       this.map.infoWindow.isOpen = false
@@ -1122,7 +1130,7 @@ export default {
       this.$set(this.user, 'position', position.coords)
 
       //if (positionNeedsUpdate) {
-      if (!this.map.loaded && !this.offline.active) {
+      if (this.map.loaded === false && !this.offline.active) {
         await this.reloadMap()
       }
     },
@@ -1269,15 +1277,18 @@ console.log(quest.premiumPrice.androidId)
      * reload the map
      */
     async reloadMap() {
+      this.map.loaded = null // to prevent multiple call of reload map if onNewUserPosition is called too often
       this.warnings.noServerReponse = false
       this.$q.loading.show()
       // get quests only if tutorial is advanced
       if (this.$store.state.user.story.step > 3) {
         await this.getQuests()
+        // close info windows (if already opened by discovery quest)
+        this.closeInfoWindows()
       } else {
         this.openDiscoveryQuestSummary()
       }
-      
+
       if (this.$refs.mapRef) {
         // adjust zoom / pan to nearest quests, or current user location
         if (this.questList.length > 0) {
@@ -1296,8 +1307,12 @@ console.log(quest.premiumPrice.androidId)
           this.centerOnUserPosition()
         }
         this.map.loaded = true
+      } else {
+        // on ios simulators, this.$refs.mapRef does not exists
+        this.centerOnUserPosition()
+        this.map.loaded = true
       }
-      
+      this.loadingMap = false
       this.$q.loading.hide()
     },
      /*
@@ -1327,14 +1342,26 @@ console.log(quest.premiumPrice.androidId)
           return
         }
         
-        this.questList = response.data
+        if (!response.data.message || response.data.message !== 'No quest') {
+          this.questList = response.data
+        }
         
         // if no quest, enlarge to all quests
         if (this.questList.length === 0 && this.map.filter !== 'world') {
           return this.getQuests('world')
         }
 
-        if (this.$store.state.user.story.step === 16 && this.user.proposeAQuest) {
+        // if tutorial finished, switch to recurrent stories
+        if (this.$store.state.user.story.step >= 16) {
+          if (this.$store.state.user.story.step < 23 || this.$store.state.user.story.step > 36) {
+            this.story.step = 23
+          } else {
+            this.story.step = this.$store.state.user.story.step + 1
+          }
+          await UserService.nextStoryStep(this.story.step)
+        }
+        
+        if ((this.$store.state.user.story.step === 16 ||  this.$store.state.user.story.step === 23) && this.user.proposeAQuest) {
           // get the closest quest not already played
           var closestQuest = this.getClosestQuestUnplayed()
 
@@ -1896,7 +1923,9 @@ console.log(quest.premiumPrice.androidId)
      */
     async endStory (nextStep) {
       this.story.step = null
-      this.$store.state.user.story.step = nextStep
+      if (nextStep !== 0) {
+        this.$store.state.user.story.step = nextStep
+      }
       // if skip tutorial
       if (nextStep === 17) {
         await this.reloadMap()
@@ -2092,5 +2121,29 @@ console.log(quest.premiumPrice.androidId)
 .no-internet-connection p {
   font-size: 1.5rem;
   margin: 0;
+}
+.reward {
+  width: 50%
+}
+.reward.disabled {
+  filter: brightness(0);
+  -webkit-filter: brightness(0);
+  -moz-filter: brightness(0);
+}
+.tab-content-80 {
+  overflow: auto;
+  height: 100%;
+  height: -webkit-calc(100% - 80px);
+  height: -moz-calc(100% - 80px);
+  height: calc(100% - 80px);
+  padding-bottom: 130px;
+}
+.tab-content-180 {
+  overflow: auto;
+  height: 100%;
+  height: -webkit-calc(100% - 180px);
+  height: -moz-calc(100% - 180px);
+  height: calc(100% - 180px);
+  padding-bottom: 130px;
 }
 </style>

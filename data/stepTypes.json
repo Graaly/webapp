@@ -172,6 +172,21 @@
   },
   {
     "category": "enigma",
+    "code": "image-over-flow",
+    "icon": "layer-group",
+    "title": "ImageOverFlow",
+    "description": "ImageOverFlowDesc",
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 50,
+      "maxNbCarriageReturns": 1
+    },
+    "enabled": true,
+    "hasBackgroundImage": "main",
+    "hasOptions": true
+  },
+  {
+    "category": "enigma",
     "code": "find-item",
     "icon": "search",
     "title": "FindAnItem",

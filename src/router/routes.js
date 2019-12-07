@@ -18,7 +18,7 @@ import AdminValidation from 'pages/admin/validation'
 import AdminMinigamesBuilder from 'pages/admin/minigamebuilder.vue'
 
 import UserCreateAccount from 'pages/user/createAccount'
-import UserFirstUsage from 'pages/user/firstusage'
+//import UserFirstUsage from 'pages/user/firstusage'
 import ErrorMessage from 'pages/errorMessage'
 
 export default [
@@ -41,7 +41,8 @@ export default [
       {
         path: 'firstusage',
         name: 'firstusage',
-        component: UserFirstUsage,
+        //component: UserFirstUsage,
+        redirect: '/user/login',
         meta: { requiresAuth: false }
       },
       {

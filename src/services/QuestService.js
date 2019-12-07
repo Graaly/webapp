@@ -187,6 +187,13 @@ export default {
     return Api().post('/quest/logo/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   },
   /*
+   * Upload a quest reward
+   * @param   {Object}    data                picture data
+   */
+  uploadReward(data) {
+    return Api().post('/quest/reward/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+  },
+  /*
    * Upload a quest thumb
    * @param   {Object}    data                picture data
    */
@@ -228,6 +235,14 @@ export default {
    */
   hasPayed(questId) {
     return Api().get('quest/' + questId + '/premium/ispayed').catch(error => console.log(error.request))
+  },
+  /*
+   * Check if a QR Code can opens a quest, and create a dummy account
+   * @param   {String}    questId              questId
+   * @param   {String}    lang                user language
+   */
+  checkLoginQRCode(questId, lang) {
+    return Api().get('quest/' + questId + '/play/qrcode/lang/' + lang).catch(error => console.log(error.request))
   },
   /*
    * Submit a suggestion

@@ -105,7 +105,7 @@ export default {
     async saveQuestData(quest) {
       var _this = this
       // cancel save if the duration is too long
-      utils.setTimeout(async () => { await _this.cancelSavingTooLong(_this.quest.questId) }, 60000)
+      utils.setTimeout(async () => { await _this.cancelSavingTooLong(_this.quest.questId) }, 180000)
       
       // load data
       var stepsData = await StepService.listForAQuest(quest.questId, quest.version)
@@ -193,11 +193,11 @@ export default {
                   return false
                 }
               }
-              if (step.type === 'choose' && step.options) {
+              if (step.type === 'choose' && step.options && step.options.items) {
                 var chooseImageSuccess = true
-                for (var k = 0; k < step.options.length; k++) {
-                  if (step.options[k].imagePath) {
-                    chooseImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/choose-image/', step.options[k].imagePath)
+                for (var k = 0; k < step.options.items.length; k++) {
+                  if (step.options.items[k].imagePath) {
+                    chooseImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/choose-image/', step.options.items[k].imagePath)
                     if (!chooseImageSuccess) {
                       this.throwSaveError()
                       return false
