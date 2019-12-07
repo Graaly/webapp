@@ -12,6 +12,7 @@
   "dependencies": {
     "cordova": "^9.0.0",
     "cordova-android": "^8.1.0",
+    "cordova-ios": "^5.0.1",
     "cordova-open-native-settings": "^1.5.2",
     "cordova-plugin-add-swift-support": "^2.0.2",
     "cordova-plugin-camera-preview": "^0.10.0",
@@ -24,6 +25,7 @@
     "cordova-plugin-file-opener2": "^2.2.1",
     "cordova-plugin-geolocation": "4.0.1",
     "cordova-plugin-insomnia": "git+https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git",
+    "cordova-plugin-ionic-webview": "^4.1.2",
     "cordova-plugin-network-information": "^2.0.2",
     "cordova-plugin-purchase": "^8.1.1",
     "cordova-plugin-splashscreen": "^5.0.3",
@@ -62,10 +64,12 @@
       "phonegap-plugin-barcodescanner": {
         "ANDROID_SUPPORT_V4_VERSION": "27.+"
       },
-      "cordova-plugin-deeplinks": {}
+      "cordova-plugin-deeplinks": {},
+      "cordova-plugin-ionic-webview": {}
     },
     "platforms": [
-      "android"
+      "android",
+      "ios"
     ]
   },
   "devDependencies": {}

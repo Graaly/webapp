@@ -5,9 +5,14 @@
 </template>
 
 <script>
+
+import axios from 'axios'
+
 export default {
   async mounted () {
     await this.$store.dispatch('logout')
+    window.localStorage.removeItem('jwt')
+    delete axios.defaults.headers.common['Authorization']
     this.$router.push('/user/login')
   }
 }
