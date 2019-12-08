@@ -18,7 +18,7 @@
       </div>
       <form @submit.prevent="submitProfileChanges()">
         
-        <q-input dark
+        <q-input
           v-model="profile.form.name"
           :label="$t('label.YourName')"
           placeholder="John Doe"
@@ -28,7 +28,7 @@
           :error-message="$t('label.PleaseEnterYourName')"
           />
           
-        <q-input dark
+        <q-input
           v-model="profile.form.email"
           :label="$t('label.YourEmail')"
           placeholder="john.doe@gmail.com"
@@ -38,7 +38,7 @@
           :error-message="$t('label.PleaseEnterAValidEmailAddress')"
           />
           
-        <q-input dark
+        <q-input
           v-if="displayPassword"
           type="password"
           v-model="profile.form.password"
@@ -51,7 +51,7 @@
                   
         <div class="q-pt-lg q-pb-md">{{ $t('label.ToDisplayRelevantQuests') }}</div>
         
-        <q-select dark
+        <q-select
           :label="$t('label.YourCountry')"
           v-model="profile.form.country"
           :options="countries"
@@ -62,7 +62,7 @@
           :error-message="$t('label.PleaseSelectYourCountry')"
           />
           
-        <q-input dark
+        <q-input
           v-model="profile.form.zipCode"
           :label="$t('label.YourZipCode')"
           placeholder="38500"
@@ -71,7 +71,7 @@
           :error-message="$t('label.PleaseEnterYourZipCode')"
           />
           
-        <q-select dark :label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" emit-value map-options @input="changeLanguage" />
+        <q-select :label="$t('label.YourLanguage')" v-model="profile.form.language" :options="languages" emit-value map-options @input="changeLanguage" />
         
         <div class="q-pt-lg q-pb-md">{{ $t('label.ToAvoidSendingYourToUnrelevantQuests') }}</div>
         
@@ -80,7 +80,7 @@
         
         <div class="q-pt-lg q-pb-md">{{ $t('label.ToHelpYouFindYourFriends') }}</div>
         
-        <q-input dark v-model="profile.form.phone" :label="$t('label.YourPhoneNumber')" :placeholder="$t('label.phoneExample')" />
+        <q-input v-model="profile.form.phone" :label="$t('label.YourPhoneNumber')" :placeholder="$t('label.phoneExample')" />
         
         <q-btn class="full-width" color="primary" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
         <q-btn class="full-width q-pt-md" color="primary" flat @click="backToMap()">{{ $t('label.MaybeLater') }}</q-btn>
