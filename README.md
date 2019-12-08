@@ -182,7 +182,9 @@ $ mkcert -install
 $ mkcert "dev.graaly.com" localhost 127.0.0.1 ::1
 Move the 2 files created in the /webapp/certs folder, and rename as webapp-dev-cert.pem and webapp-dev-key.pem
 
-Optional: Follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
+Optional: For Chrome Desktop, follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
+
+⚠️ **iOS**: to install & trust mkcert certification authority on iOS store, follow [this procedure](https://www.thesslstore.com/blog/trust-manually-installed-root-certificates-in-ios/) (iOS 10.3), in particular the last section.
 
 # Testing
 
