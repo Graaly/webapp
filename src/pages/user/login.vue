@@ -92,6 +92,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import AuthService from 'services/AuthService'
 import QuestService from 'services/QuestService'
 import { required, minLength, email } from 'vuelidate/lib/validators'
@@ -169,9 +170,12 @@ export default {
           break
         case 'password':
           // sign in user
-          var userSignedIn = await this.signIn(this.form.email, this.form.password)
-          if (userSignedIn.status) {
-            if (userSignedIn.status === 'success') {
+          let result = await this.signIn(this.form.email, this.form.password)
+          if (result.status) {
+            if (result.status === 'success') {
+              window.localStorage.setItem('jwt', result.user.jwt)
+              axios.defaults.headers.common['Authorization'] = `Bearer ${result.user.jwt}`
+              
               let destination = '/home';
               if (this.$route.query.hasOwnProperty('redirect')) {
                 destination = this.$route.query.redirect
@@ -179,7 +183,7 @@ export default {
               this.$router.push(destination)
             }
             
-            if (userSignedIn.status === 'failed') {
+            if (result.status === 'failed') {
               Notification(this.$t('label.IncorrectLoginPleaseRetry'), 'warning')
             }
           } else {
@@ -245,7 +249,7 @@ export default {
       let result = await AuthService.login(email, password)
       
       if (result.status === 200) {
-        return {status: 'success'}
+        return {status: 'success', user: result.data.user}
       } else if (result.status === 401) {
         return {status: 'failed', error: 'incorrect login'}
       } else {
