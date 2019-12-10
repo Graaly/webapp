@@ -12,11 +12,7 @@
   "dependencies": {
     "cordova": "^9.0.0",
     "cordova-android": "^8.1.0",
-<<<<<<< Updated upstream
-    "cordova-ios": "^5.0.1",
-=======
     "cordova-ios": "^5.1.0",
->>>>>>> Stashed changes
     "cordova-open-native-settings": "^1.5.2",
     "cordova-plugin-add-swift-support": "^2.0.2",
     "cordova-plugin-camera-preview": "^0.10.0",
