@@ -747,6 +747,8 @@ export default {
         
         // common process to 'geolocation' and 'locate-item-ar'
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
+          let requestPermissionResult
+          
           // user can pass
           this.$emit('pass')
           
@@ -771,23 +773,43 @@ export default {
               this.geolocation.absoluteOrientationSensor = {
                 stop: this.stopAlternateAbsoluteOrientationSensor
               }
+              
+              // ask user to access to his device orientation
+              requestPermissionResult = await utils.requestDeviceOrientationPermission()
+              
+              if (requestPermissionResult !== 'granted') {
+                Notification(this.$t('label.PleaseAcceptDeviceOrientationPermissionRequest'), 'error')
+                return
+              }
               window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
             }
           } catch (error) {
             console.error(error)
           }
+          
+          if (this.step.type === 'locate-item-ar') {
+            // ask user to access to his device motion
+            requestPermissionResult = await utils.requestDeviceMotionPermission()
+            
+            if (requestPermissionResult !== 'granted') {
+              Notification(this.$t('label.PleaseAcceptDeviceMotionPermissionRequest'), 'error')
+              return
+            }
+            
+            // start accelerometer sensor
+            window.addEventListener("devicemotion", this.handleMotionEvent, true)
+          
+            await this.waitForGyroscopeDetection()
+          
+            if (!this.deviceHasGyroscope) {
+              // only a warning because step can still be played
+              Notification(this.$t('label.CouldNotEnableAR'), 'warning')
+            }
+          }
+          
           // must store object returned by setInterval() in Vue store instead of component properties,
           // otherwise it is reset when route changes & component is reloaded
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
-          
-          // start accelerometer sensor
-          window.addEventListener("devicemotion", this.handleMotionEvent, true)
-          
-          await this.waitForGyroscopeDetection()
-          
-          if (this.step.type === 'locate-item-ar' && !this.deviceHasGyroscope) {
-            Notification(this.$t('label.CouldNotEnableAR'), 'warning')
-          }
         }
         
         if (this.step.type === 'locate-item-ar'  && !this.playerResult) {

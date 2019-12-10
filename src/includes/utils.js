@@ -741,6 +741,34 @@ var self = {
    */
   isIOS() {
     return window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'
+  },
+  /**
+   * @return 'granted' if user accepts permission request for devicemotion, 'default' or 'denied' otherwise
+   * @see https://dev.to/li/how-to-requestpermission-for-devicemotion-and-deviceorientation-events-in-ios-13-46g2
+   * @see https://w3.org/TR/orientation-event/#dom-devicemotionevent-requestpermission
+   */
+  async requestDeviceMotionPermission() {
+    // feature detect
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+      return DeviceMotionEvent.requestPermission()
+    } else {
+      // handle regular non iOS 13+ devices
+      return Promise.resolve('granted')
+    }
+  },
+  /**
+   * @return 'granted' if user accepts permission request for deviceorientation, 'default' or 'denied' otherwise
+   * @see https://dev.to/li/how-to-requestpermission-for-devicemotion-and-deviceorientation-events-in-ios-13-46g2
+   * @see https://w3.org/TR/orientation-event/#dom-devicemotionevent-requestpermission
+   */
+  async requestDeviceOrientationPermission() {
+    // feature detect
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      return DeviceMotionEvent.requestPermission() // returns a promise
+    } else {
+      // handle regular non iOS 13+ devices
+      return Promise.resolve('granted')
+    }
   }
 }
 

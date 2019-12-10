@@ -830,7 +830,9 @@ module.exports = {
       CreateYourAccountMsg: "Create your account to save your score and play with your friends!",
       MaybeLater: "Maybe later!",
       LetsPlay: "Play",
-      NewAccount: "New account"
+      NewAccount: "New account",
+      PleaseAcceptDeviceMotionPermissionRequest: "Please allow Graaly to detect the motion of your device, in order to play this part of the quest",
+      PleaseAcceptDeviceOrientationPermissionRequest: "Please allow Graaly to detect the orientation of your device, in order to play this part of the quest"
     }
   },
   fr: {
@@ -1652,7 +1654,9 @@ module.exports = {
       CreateYourAccountMsg: "Créez votre compte pour sauvegarder votre score et jouer avec vos amis !",
       MaybeLater: "Peut-être plus tard !",
       LetsPlay: "Jouez",
-      NewAccount: "Nouveau compte"
+      NewAccount: "Nouveau compte",
+      PleaseAcceptDeviceMotionPermissionRequest: "Veuillez accepter que Graaly accède aux mesures des mouvements de votre appareil, afin de pouvoir jouer cette partie de l'enquête",
+      PleaseAcceptDeviceOrientationPermissionRequest: "Veuillez accepter que Graaly accède aux mesures de l'orientation de votre appareil, afin de pouvoir jouer cette partie de l'enquête"
     }
   }
 }
