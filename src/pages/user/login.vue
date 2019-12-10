@@ -27,12 +27,13 @@
         </p>
         
         <!------------------ SOCIAL LOGIN BUTTONS ------------------------>
-          
+        <!-- MPA 2019-12-10 not currently supported by new JWT-based auth
         <div class="q-pl-md q-pr-md">
           <q-btn v-if="showSocialLogin.facebook" @click="facebookLogin" class="full-width" color="facebook" icon="fab fa-facebook" label="Facebook" />
           <q-btn v-if="showSocialLogin.google" @click="googleLogin" class="full-width" color="google" icon="fab fa-google" label="Google" />
         </div>
-    
+        -->
+        
         <!------------------ FORM AREA ------------------------>
         
         <form @submit.prevent="formSubmit()">
