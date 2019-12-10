@@ -55,7 +55,7 @@ export default {
       nbFails: 0,
       disabled: false,
       alreadyWorked: false,
-      method: 'watchPosition', // 'watchPosition' or 'getCurrentPosition'
+      method: utils.isIOS() ? 'getCurrentPosition' : 'watchPosition',
       // specific to method 'watchPosition'
       geolocationWatchId: null,
       // specific to method 'getCurrentPosition' (not currently used)
@@ -134,6 +134,7 @@ export default {
      * @param   {string}    err            Error string
      */
     locationError(err) {
+      console.log('*** locationError', err)
       // avoids to run this method asynchronously (can happen even after component is set to disabled !)
       if (this.disabled) {
         return
@@ -175,6 +176,11 @@ export default {
       this.nbFails = 0
       this.userDeniedGeolocation = false
       this.$emit('success', position)
+
+      if (this.method === 'getCurrentPosition') {
+        let timeoutId = utils.setTimeout(this.startTracking, 1000)
+        this.timeoutIds.push(timeoutId)
+      }
     },
     /*
      * Forces stop refreshing location

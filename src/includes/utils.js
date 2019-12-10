@@ -735,6 +735,12 @@ var self = {
       img.onerror = reject
       img.src = src
     })
+  },
+  /**
+   * @return true if platform is iOS, false otherwise
+   */
+  isIOS() {
+    return window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'
   }
 }
 

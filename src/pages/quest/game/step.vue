@@ -298,7 +298,7 @@ export default {
           remainingDays: '-'
         },
         previousStepId: '',
-        isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
+        isIOs: utils.isIOS(),
         
         // for step type 'use-item'
         selectedItem: null

@@ -376,7 +376,7 @@
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
-    <geolocation ref="geolocation-component" v-if="step.type == 'geolocation' || step.type == 'locate-item-ar'" @success="onNewUserPosition($event)" :withNavBar="true" />
+    <geolocation ref="geolocation-component" v-if="step.type == 'geolocation' || step.type == 'locate-item-ar'" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" :withNavBar="true" />
     
     <!--====================== WIN POINTS ANIMATION =================================-->
     
@@ -529,7 +529,7 @@ export default {
         reward: 0,
         controlsAreDisplayed: false,
         isHybrid: window.cordova,
-        isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
+        isIOs: utils.isIOS(),
         isNetworkLow: false,
         
         // for step 'choose'
@@ -1639,43 +1639,35 @@ export default {
                 
                 let cameraDistance = Math.max(size.x, size.y, size.z) * 2
                 
-                // to fix temporally issue of animations with iOs
-                // MPA 2019-11-08 tested on iPhone SE => OK
-                /*if (this.isIOs) {
-                  camera.position.set(0, 0,  cameraDistance * 2 / 3)
-
-                  this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
-                } else {*/
-                  let startScale = Object.assign({}, object.scale) // copy the full Vector3 object, not a reference
-                
-                  let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
-                    .easing(TWEEN.Easing.Back.In)
-                    .onComplete(() => {
-                      if (this.step.type === 'locate-marker') {
-                        // detach 3D object (target to find) from arSmoothedControl and attach it directly at scene root, for hassle free manipulation of the 3D object
-                        utils.detachObject3D(object, object.parent, target.scene)
-                        utils.attachObject3D(object, target.scene, target.scene)
-                      }
-                      
-                      camera.position.set(0, 0,  cameraDistance * 2 / 3)
-                      camera.lookAt(new THREE.Vector3(0, cameraDistance, size.z / 2))
-                      // reset object position/scale/rotation
-                      object.scale.set(0, 0, 0)
-                      object.position.set(0, cameraDistance, size.z / 2)
-                      object.rotation.set(0, 0, 0)
-                      this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
-                    })
-                  
-                  let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
-                    .easing(TWEEN.Easing.Back.Out)
-                  
-                  // https://stackoverflow.com/a/31766476/488666
-                  let rotationAnimation = new TWEEN.Tween(object.rotation)
-                    .to({ z: "-" + Math.PI / 2 }, 2000) // relative animation
-                    .repeat(Infinity)
+                let startScale = Object.assign({}, object.scale) // copy the full Vector3 object, not a reference
+              
+                let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
+                  .easing(TWEEN.Easing.Back.In)
+                  .onComplete(() => {
+                    if (this.step.type === 'locate-marker') {
+                      // detach 3D object (target to find) from arSmoothedControl and attach it directly at scene root, for hassle free manipulation of the 3D object
+                      utils.detachObject3D(object, object.parent, target.scene)
+                      utils.attachObject3D(object, target.scene, target.scene)
+                    }
                     
-                  disappearAnimation.chain(appearAnimation, rotationAnimation).start()
-                //}
+                    camera.position.set(0, 0,  cameraDistance * 2 / 3)
+                    camera.lookAt(new THREE.Vector3(0, cameraDistance, size.z / 2))
+                    // reset object position/scale/rotation
+                    object.scale.set(0, 0, 0)
+                    object.position.set(0, cameraDistance, size.z / 2)
+                    object.rotation.set(0, 0, 0)
+                    this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+                  })
+                
+                let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
+                  .easing(TWEEN.Easing.Back.Out)
+                
+                // https://stackoverflow.com/a/31766476/488666
+                let rotationAnimation = new TWEEN.Tween(object.rotation)
+                  .to({ z: "-" + Math.PI / 2 }, 2000) // relative animation
+                  .repeat(Infinity)
+                  
+                disappearAnimation.chain(appearAnimation, rotationAnimation).start()
               } else { // 2D image on plane
                 this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
               }
@@ -2251,6 +2243,12 @@ export default {
         this.resetDrawDirectionInterval()
         await this.checkAnswer(current)
       }
+    },
+    /*
+     * On user position error
+     */
+    onUserPositionError(ret) {
+      console.error('UserPositionError', ret)
     },
     /*
      * Use an item

@@ -985,7 +985,7 @@ export default {
       canMoveNextStep: false,
       canPass: false,
       itemUsed: null,
-      isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
+      isIOs: utils.isIOS(),
       serverUrl: process.env.SERVER_URL,
       pictureUploadURL: this.serverUrl + '/quest/picture/upload',
       titleMaxLength: 50,
