@@ -35,55 +35,58 @@
         -->
         
         <!------------------ FORM AREA ------------------------>
-        
-        <form @submit.prevent="formSubmit()">
-          
-          <div class="q-pa-lg">
-            
-            <q-input
-              v-if="step === 'email'"
-              type="email"
-              :label="$t('label.YourEmail')"
-              v-model="form.email"
-              @blur="$v.form.email.$touch"
-              bottom-slots
-              :error="$v.form.email.$error"
-              :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
-              test-id="login"
-              />
+        <q-card class="q-mx-md">
+          <q-card-section>
+            <form @submit.prevent="formSubmit()">
               
-            <q-input v-if="step === 'password'" type="password" v-model="form.password" :label="$t('label.YourPassword')" test-id="password" />
-            
-            <!------------------ FORGOTTEN PASS AREA ------------------------>
-            
-            <p class="text-right q-mt-md q-mb-md" v-if="step === 'password'">
-              <a @click="sendForgottenPasswordCode()">{{ $t('label.ForgottenPassword') }}</a>
-            </p>
-            
-            <div v-if="step === 'forgottenpassword'">
-              <p>{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
-              <q-input :label="$t('label.Code')" v-model="form.code" />
-            </div>
-            
-            <div v-if="step === 'forgottenpassword'">
-              <q-input
-                type="password"
-                v-model="form.newPassword"
-                :label="$t('label.YourNewPassword')"
-                @blur="$v.form.newPassword.$touch"
-                bottom-slots
-                :error="$v.form.newPassword.$error"
-                :error-message="!$v.form.newPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.form.newPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
-                />
-            </div>
-          </div>
-          
-          <p class="text-center multiple-btn margin-size-3 q-mb-xl">
-            <q-btn v-if="step !== 'email'" round color="primary" icon="fas fa-chevron-left" :loading="submitting" @click="backAction()" />
-            <q-btn round color="primary" icon="fas fa-chevron-right" :loading="submitting" @click="formSubmit" :disabled="(step === 'email' && !form.email) || (step === 'password' && !form.password)" />
-          </p>
-          
-        </form>
+              <div>
+                
+                <q-input
+                  v-if="step === 'email'"
+                  type="email"
+                  :label="$t('label.YourEmail')"
+                  v-model="form.email"
+                  @blur="$v.form.email.$touch"
+                  bottom-slots
+                  :error="$v.form.email.$error"
+                  :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
+                  test-id="login"
+                  />
+                  
+                <q-input v-if="step === 'password'" type="password" v-model="form.password" :label="$t('label.YourPassword')" test-id="password" />
+                
+                <!------------------ FORGOTTEN PASS AREA ------------------------>
+                
+                <p class="text-right q-mt-md q-mb-md" v-if="step === 'password'">
+                  <a @click="sendForgottenPasswordCode()">{{ $t('label.ForgottenPassword') }}</a>
+                </p>
+                
+                <div v-if="step === 'forgottenpassword'">
+                  <p>{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
+                  <q-input :label="$t('label.Code')" v-model="form.code" />
+                </div>
+                
+                <div v-if="step === 'forgottenpassword'">
+                  <q-input
+                    type="password"
+                    v-model="form.newPassword"
+                    :label="$t('label.YourNewPassword')"
+                    @blur="$v.form.newPassword.$touch"
+                    bottom-slots
+                    :error="$v.form.newPassword.$error"
+                    :error-message="!$v.form.newPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.form.newPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
+                    />
+                </div>
+              </div>
+              
+              <p class="text-center multiple-btn margin-size-3">
+                <q-btn v-if="step !== 'email'" color="primary" icon="fas fa-chevron-left" :loading="submitting" @click="backAction()" />
+                <q-btn color="primary" icon="fas fa-chevron-right" :loading="submitting" @click="formSubmit" :disabled="(step === 'email' && !form.email) || (step === 'password' && !form.password)" />
+              </p>
+              
+            </form>
+          </q-card-section>
+        </q-card>
 
         <div class="version">Version {{ version }}</div>
       
@@ -197,11 +200,17 @@ export default {
             let changePasswordStatus = await AuthService.changePassword(this.form.email, this.form.newPassword, this.form.code)
             
             if (changePasswordStatus.status && changePasswordStatus.status === 200) {
-              let destination = '/home';
-              if (this.$route.query.hasOwnProperty('redirect')) {
-                destination = this.$route.query.redirect
+              if (changePasswordStatus.data && changePasswordStatus.data.user) {
+                window.localStorage.setItem('jwt', changePasswordStatus.data.user.jwt)
+                axios.defaults.headers.common['Authorization'] = `Bearer ${changePasswordStatus.data.user.jwt}`
+                let destination = '/home';
+                if (this.$route.query.hasOwnProperty('redirect')) {
+                  destination = this.$route.query.redirect
+                }
+                this.$router.push(destination)
+              } else {
+                Notification(this.$t('label.ErrorStandardMessage'), 'error')
               }
-              this.$router.push(destination)
             } else if (changePasswordStatus.data && changePasswordStatus.data.message === "You have tries too much codes") {
               Notification(this.$t('label.YourAccountIsBlocked'), 'warning')
             } else {
@@ -350,7 +359,13 @@ export default {
     async playAnonymous() {
       let checkStatus = await AuthService.playAnonymous(this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
-        this.$router.push('/map')
+        if (checkStatus.data.user) {
+          window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
+          axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
+          this.$router.push('/map')
+        } else {
+          Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -362,7 +377,13 @@ export default {
     async checkCode(code) {
       let checkStatus = await QuestService.checkLoginQRCode(code, this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
-        this.$router.push('/quest/play/' + code)
+        if (checkStatus.data.user) {
+          window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
+          axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
+          this.$router.push('/quest/play/' + code)
+        } else {
+          Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
+        }
       } else {
         Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
       }
