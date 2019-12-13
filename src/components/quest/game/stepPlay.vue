@@ -11,11 +11,11 @@
       <div class="bg-accent text-white q-pa-md" v-if="isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     
       <!------------------ TRANSITION AREA ------------------------>
-      
+
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
         <div id="info-clickable" :class="{ grow: !step.videoStream }" @click="hideControlsTemporaly">
-          <p class="text" v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
-          <p class="text" v-if="step.options && step.options.html" v-html="getTranslatedText()"></p>
+          <p class="text" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != '' && step.options && step.options.html" v-html="getTranslatedText()"></p>
         </div>
         <div class="video" v-if="step.videoStream">
           <video class="full-width" controls controlsList="nodownload" autoplay>
@@ -33,7 +33,7 @@
       
       <div class="new-item" v-if="step.type == 'new-item'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div class="item">
           <img style="width: 80%" :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
@@ -69,7 +69,7 @@
       
       <div class="choose" v-if="step.type == 'choose'" style="overflow: auto; margin-bottom: 80px;">
         <div @click="hideControlsTemporaly">
-           <p class="text">{{ getTranslatedText() }}</p>
+           <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div class="answers-text" v-if="answerType === 'text'">
           <q-btn v-for="(option, key) in step.options.items" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
@@ -91,7 +91,7 @@
       
       <div class="code" v-if="step.type == 'code-keypad'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div class="typed-code">
           <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
@@ -119,7 +119,7 @@
       
       <div class="code code-color" v-if="step.type == 'code-color'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div class="color-bubbles">
           <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
@@ -136,7 +136,7 @@
       
       <div class="code code-image" v-if="step.type == 'code-image'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <table>
           <tr>
@@ -168,7 +168,7 @@
       
       <div class="image-recognition" v-if="step.type == 'image-recognition'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div class="photo">
           <img ref="original-photo" :src="(step.answers && step.answers.indexOf('blob:') !== -1) ? step.answers : serverUrl + '/upload/quest/' + step.questId + '/step/image-recognition/' + step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
@@ -189,7 +189,7 @@
       
       <div class="geolocation" v-if="step.type == 'geolocation'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
           <p class="text" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
         </div>
       </div>
@@ -198,7 +198,7 @@
       
       <div class="write-text" v-if="step.type == 'write-text'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div class="answer-text">
           <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
@@ -211,7 +211,7 @@
       
       <div class="puzzle" v-if="step.type === 'jigsaw-puzzle'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div id="pieces">
             <div draggable="true"
@@ -241,7 +241,7 @@
       
       <div class="puzzle" v-if="step.type === 'memory'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <ul class="memory" id="card-deck">
           <li 
@@ -260,7 +260,7 @@
       
       <div class="use-item" v-if="step.type == 'use-item'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div ref="useItemPicture" @click="useItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="use-item-picture">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
@@ -277,7 +277,7 @@
       
       <div class="find-item" v-if="step.type == 'find-item'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div ref="findItemPicture" @click="findItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="find-item-picture">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
@@ -309,7 +309,7 @@
       
       <div class="image-over-flow" v-show="step.type == 'image-over-flow'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-          <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled && playerResult === null"></video>
+          <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled"></video>
         </transition>
         <!--<div>
           <div class="text">
@@ -322,7 +322,7 @@
         </div>-->
         <div>
           <div>
-            <p class="text">{{ getTranslatedText() }}</p>
+            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
           </div>
           <div class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
           </div>
@@ -671,8 +671,8 @@ export default {
             background.style.backgroundColor = '#000'
             this.showControls()
           } else if (this.step.type === 'image-over-flow') {
-            background.style.background = 'none'
-            background.style.backgroundColor = '#fff'
+            //background.style.background = 'none'
+            //background.style.backgroundColor = '#fff'
             this.showControls()
           } else if (this.step.type === 'jigsaw-puzzle') {
             let backgroundUrl = this.getBackgroundImage()
@@ -815,7 +815,7 @@ export default {
         if (this.step.type === 'locate-item-ar'  && !this.playerResult) {
           if (this.deviceHasGyroscope || !this.step.backgroundImage) {
             // video stream for AR background
-            if (this.isIOs) {
+            if (this.isIOs && CameraPreview) {
               let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
               CameraPreview.startCamera(options)
               CameraPreview.show()
@@ -939,7 +939,7 @@ export default {
         if (this.step.type === 'image-over-flow') {
           this.$emit('pass')
           // video stream
-          if (this.isIOs) {
+          if (this.isIOs && CameraPreview) {
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
             CameraPreview.startCamera(options)
             CameraPreview.show()
@@ -1164,7 +1164,11 @@ export default {
     showControls () {
       this.controlsAreDisplayed = true // !this.controlsAreDisplayed
       // if transition step, next button is clickable when controls are displayed
-      if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'character' || this.step.type === 'new-item') {
+      if (this.step.type === 'info-text' || 
+        this.step.type === 'info-video' || 
+        this.step.type === 'character' || 
+        this.step.type === 'image-over-flow' || 
+        this.step.type === 'new-item') {
         this.checkAnswer()
       }
     },
@@ -1421,10 +1425,10 @@ export default {
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
           this.submitGoodAnswer(0, checkAnswerResult.offline, true)
-          if (CameraPreview) {
-            CameraPreview.stopCamera()
-            CameraPreview.stopCamera() // calling twice is needed
-          }
+          //if (CameraPreview) {
+          //  CameraPreview.stopCamera()
+          //  CameraPreview.stopCamera() // calling twice is needed
+          //}
           
           break
           
@@ -1634,7 +1638,7 @@ export default {
               }
               
               // stop camera flow
-              if (this.isIOs) {
+              if (this.isIOs && CameraPreview) {
                 //CameraPreview.hide()
                 CameraPreview.stopCamera()
                 CameraPreview.stopCamera() // calling twice is needed
@@ -1775,6 +1779,7 @@ export default {
       } else {
         this.playerResult = null
       }
+      
       this.stepPlayed = true
       
       this.$emit('success', score, offlineMode, showResult)
@@ -2917,6 +2922,7 @@ export default {
     * clear all camera streams
     */
     clearAllCameraStreams() {
+console.log('clear all')
       // TODO maybe only one "camera stream" <div> could be used by all steps
       let streamDivs = [
         'camera-stream-for-recognition',

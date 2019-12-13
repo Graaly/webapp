@@ -832,7 +832,8 @@ module.exports = {
       LetsPlay: "Play",
       NewAccount: "New account",
       PleaseAcceptDeviceMotionPermissionRequest: "Please allow Graaly to detect the motion of your device, in order to play this part of the quest",
-      PleaseAcceptDeviceOrientationPermissionRequest: "Please allow Graaly to detect the orientation of your device, in order to play this part of the quest"
+      PleaseAcceptDeviceOrientationPermissionRequest: "Please allow Graaly to detect the orientation of your device, in order to play this part of the quest",
+      DoYouWantToCreateAnAccount: "To build a quest, you need to create an account. Do you agree to create your account?"
     }
   },
   fr: {
@@ -1656,7 +1657,8 @@ module.exports = {
       LetsPlay: "Jouez",
       NewAccount: "Nouveau compte",
       PleaseAcceptDeviceMotionPermissionRequest: "Veuillez accepter que Graaly accède aux mesures des mouvements de votre appareil, afin de pouvoir jouer cette partie de l'enquête",
-      PleaseAcceptDeviceOrientationPermissionRequest: "Veuillez accepter que Graaly accède aux mesures de l'orientation de votre appareil, afin de pouvoir jouer cette partie de l'enquête"
+      PleaseAcceptDeviceOrientationPermissionRequest: "Veuillez accepter que Graaly accède aux mesures de l'orientation de votre appareil, afin de pouvoir jouer cette partie de l'enquête",
+      DoYouWantToCreateAnAccount: "Pour créer une enquête, vous devez créer votre compte. Souhaitez-vous créer votre compte Graaly ?"
     }
   }
 }

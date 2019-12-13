@@ -126,7 +126,7 @@
       <div v-if="questsTab === 'built'" class="q-pa-md q-pb-xl tab-content-80">
         <div class="centered q-pa-md" v-if="success.quests.built.tovalidate && success.quests.built.tovalidate.length === 0 && success.quests.built.rejected.length === 0 && success.quests.built.published.length === 0 && success.quests.built.draft.length === 0 && !warnings.listCreatedQuestsMissing">
           {{ $t('label.NoQuestCreated') }}
-        </div>            
+        </div> 
         <q-btn link class="full-width" @click="buildQuest" color="secondary">{{ $t('label.CreateANewQuest') }}</q-btn>
         <q-btn outline class="full-width q-mt-sm" @click="menu.suggestQuest.show = true" color="secondary">{{ $t('label.SuggestAQuest') }}</q-btn>
         <div class="centered bg-warning q-pa-sm" v-if="warnings.listCreatedQuestsMissing" @click="listCreatedQuests($store.state.user._id)">
@@ -812,6 +812,13 @@
     
     <q-dialog v-model="showBottomMenu" position="bottom" test-id="bottom-menu">
       <q-list class="bg-white">
+        <q-item v-if="isHybrid" @click.native="startScanQRCode()">
+          <q-item-section avatar>
+            <q-icon color="primary" name="aspect_ratio" />
+          </q-item-section>
+          <q-item-section>{{ $t('label.ScanQRCodeToStartQuest') }}</q-item-section>
+        </q-item>
+        
         <q-item @click.native="menu.suggestQuest.show = true">
           <q-item-section avatar>
             <q-icon color="primary" name="emoji_objects" />
@@ -1108,7 +1115,6 @@ export default {
      * Check if user profile is enough completed to have Graaly work
      */
     checkIfProfileIsComplete() {
-console.log(this.$store.state.user.story.step)
       if (this.$store.state.user.story.step === 18 && (!this.$store.state.user.name || this.$store.state.user.name === '' || 
         this.$store.state.user.email === 'providersignin' || 
         //!this.$store.state.user.sex || this.$store.state.user.sex === '' || 
@@ -1142,6 +1148,37 @@ console.log(this.$store.state.user.story.step)
       }
       this.CenterMapOnPosition(this.user.position.latitude, this.user.position.longitude)
       this.map.zoom = 15
+    },
+    /*
+    * start the scanner for hybrid app
+    */
+    startScanQRCode() {
+      var _this = this
+      if (this.isHybrid) {
+        cordova.plugins.barcodeScanner.scan(
+          function (result) {
+            if (result && result.text) {
+              _this.playQuest(result.text)
+            }
+          },
+          function (error) {
+            console.log("Scanning failed: " + error)
+          },
+          {
+            preferFrontCamera: false, // iOS and Android
+            showFlipCameraButton: false, // iOS and Android
+            showTorchButton: true, // iOS and Android
+            torchOn: false, // Android, launch with the torch switched on (if available)
+            saveHistory: true, // Android, save scan history (default false)
+            prompt: "", // Android
+            resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+            formats: "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
+            orientation: "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
+            disableAnimations: true, // iOS
+            disableSuccessBeep: false // iOS and Android
+          }
+        )
+      }
     },
     /*
      * Check battery level
@@ -2066,7 +2103,26 @@ console.log(quest.premiumPrice.androidId)
       this.$router.push('/quest/play/' + questId)
     },
     buildQuest() {
-      this.$router.push('/quest/create/welcome')
+      if (this.userIsConnected()) {
+        this.$router.push('/quest/create/welcome')
+      } else {
+        var _this = this; // workaround for closure scope quirks
+      
+        this.$q.dialog({
+          message: this.$t('label.DoYouWantToCreateAnAccount'),
+          ok: true,
+          cancel: true
+        }).onOk(async () => {
+          _this.openUpdateProfilePage()
+        })
+      }
+    },
+    userIsConnected() {
+      if (this.$store.state.user.name === '-') {
+        return false
+      } else {
+        return true
+      }
     },
     /*
      * Download a quest
