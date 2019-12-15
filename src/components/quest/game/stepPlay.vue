@@ -229,7 +229,7 @@
         <div class="centered text-grey q-pt-xl" v-if="puzzle.mode === 'drag'">
           {{ $t('label.PuzzleHelpText') }}
         </div>
-        <div class="centered text-grey q-pt-xl" v-if="puzzle.mode === 'click'">
+        <div class="centered text-primary q-pt-xl" v-if="puzzle.mode === 'click'">
           {{ $t('label.PuzzleHelpTextClick') }}
         </div>
         <div class="centered text-grey q-pt-sm" v-if="puzzle.mode === 'drag'">

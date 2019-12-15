@@ -187,7 +187,7 @@ export default {
         this.$q.loading.hide()
         
         if (modificationStatus.status >= 300 && modificationStatus.data && modificationStatus.data.message) {
-          Notification(modificationStatus.data.message, 'warning')
+          Notification(this.$t('label.' + modificationStatus.data.message), 'warning')
         } else {
           this.backToMap()
         }

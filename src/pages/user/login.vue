@@ -52,7 +52,8 @@
                   :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
                   test-id="login"
                   />
-                  
+                
+                <div v-if="step === 'password'">{{ form.email }}</div>
                 <q-input v-if="step === 'password'" type="password" v-model="form.password" :label="$t('label.YourPassword')" test-id="password" />
                 
                 <!------------------ FORGOTTEN PASS AREA ------------------------>
