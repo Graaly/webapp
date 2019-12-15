@@ -37,7 +37,7 @@
       
     <!------------------ SETTINGS TAB ------------------------>
       
-    <div v-if="tabs.selected === 'settings' && !chapters.showNewStepOverview" class="q-pa-md" :class="{'tab-content-120': !isIOs}">
+    <div v-if="tabs.selected === 'settings' && !chapters.showNewStepOverview" class="q-pa-md">
       
       <div v-if="!this.quest.languages || this.quest.languages.length === 0">
         <q-item>
@@ -151,7 +151,7 @@
           
           <div v-if="!readOnly" class="location-address">
             <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-              <gmap-autocomplete v-if="tabs.selected === 'settings'" id="startingplace" :placeholder="$t('label.StartingPointOfTheQuest')" v-model="form.fields.startingPlace" class="col q-input-target text-left" @place_changed="setLocation"></gmap-autocomplete>
+              <gmap-autocomplete v-if="tabs.selected === 'settings'" id="startingplace" :placeholder="$t('label.StartingPointOfTheQuest')" :value="form.fields.startingPlace" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value"></gmap-autocomplete>
             </div>
             <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
           </div>
@@ -161,11 +161,17 @@
           <q-input :label="$t('label.ZipCode')" :disable="readOnly" type="text" v-model="form.fields.zipcode" class="full-width" />
           <q-input :label="$t('label.Town')" :disable="readOnly" type="text" v-model="form.fields.town" class="full-width" />
           <q-input :label="$t('label.Country')" :disable="readOnly" type="text" v-model="form.fields.country" class="full-width" />
-          <q-input :label="$t('label.Latitude')" :disable="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" class="full-width" />
-          <q-input :label="$t('label.Longitude')" :disable="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" class="full-width" />
-          <div>
-            <a @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
-          </div>
+          <table>
+            <tr>
+              <td>
+                <q-input :label="$t('label.Latitude')" :disable="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" class="full-width" />
+                <q-input :label="$t('label.Longitude')" :disable="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" class="full-width" />
+              </td>
+              <td>
+                <q-btn class="q-ma-md" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</q-btn>
+              </td>
+            </tr>
+          </table>
         </div>
         
         <div v-if="form.fields.picture !== null">
@@ -253,7 +259,7 @@
     
     <!------------------ STEPS TAB ------------------------>
       
-    <div v-if="tabs.selected === 'steps' && !chapters.showNewStepOverview" class="q-pa-md tab-content-120">
+    <div v-if="tabs.selected === 'steps' && !chapters.showNewStepOverview" class="q-pa-md">
       <div class="centered bg-warning q-pa-sm" v-if="warnings.stepsMissing" @click="refreshStepsList">
         <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
       </div>
@@ -356,7 +362,7 @@
     
     <!------------------ PUBLISHING TAB ------------------------>
       
-    <div v-if="tabs.selected === 'publish' && !chapters.showNewStepOverview" class="q-pa-md tab-content-120">
+    <div v-if="tabs.selected === 'publish' && !chapters.showNewStepOverview" class="q-pa-md">
       <div v-if="quest.status === 'old'">
         <q-banner class="q-mb-md bg-warning">
           {{ $t('label.YourQuestIsClosedAndCanNotBePublishedAnymore') }}
@@ -483,7 +489,7 @@
       
     <!------------------ REVIEWS TAB ------------------------>
       
-    <div v-if="tabs.selected === 'reviews' && !chapters.showNewStepOverview && isEdition && quest.access === 'public'" class="q-pa-md tab-content-120">
+    <div v-if="tabs.selected === 'reviews' && !chapters.showNewStepOverview && isEdition && quest.access === 'public'" class="q-pa-md">
       <q-item>
         <q-item-section side top>
           <q-icon name="timeline" class="left-icon" />
@@ -550,7 +556,7 @@
   
   <!------------------ RESULTS TAB ------------------------>
       
-    <div v-if="tabs.selected === 'results' && !chapters.showNewStepOverview && isEdition && quest.access === 'private'" class="q-pa-md tab-content-120">
+    <div v-if="tabs.selected === 'results' && !chapters.showNewStepOverview && isEdition && quest.access === 'private'" class="q-pa-md">
       <div v-if="quest.status === 'published'">
         <div v-if="ranking && ranking.items && ranking.items.length > 0">
           <q-list>
@@ -985,7 +991,7 @@ export default {
       canMoveNextStep: false,
       canPass: false,
       itemUsed: null,
-      isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
+      isIOs: utils.isIOS(),
       serverUrl: process.env.SERVER_URL,
       pictureUploadURL: this.serverUrl + '/quest/picture/upload',
       titleMaxLength: 50,
@@ -1061,7 +1067,21 @@ export default {
           this.quest.description[this.languages.current] = this.quest.description[this.quest.mainLanguage]
         }
         
-        this.form.fields = this.quest
+        //this.form.fields = this.quest // removed EMA on 15112019 because issue with iOS
+        this.form.fields.questId = this.quest.questId
+        this.form.fields.title = this.quest.title
+        this.form.fields.description = this.quest.description
+        this.form.fields.category = this.quest.category
+        this.form.fields.location = this.quest.location
+        this.form.fields.languages = this.quest.languages
+        this.form.fields.mainLanguage = this.quest.mainLanguage
+        this.form.fields.level = this.quest.level
+        this.form.fields.duration = this.quest.duration
+        this.form.fields.picture = this.quest.picture
+        this.form.fields.thumb = this.quest.thumb
+        this.form.fields.editorMode = this.quest.editorMode
+        this.form.fields.customization = this.quest.customization
+        this.form.fields.rewardPicture = this.quest.rewardPicture
       
         this.form.fields.startingPlace = this.form.fields.location.address || ""
         this.form.fields.zipcode = (this.form.fields.location && this.form.fields.location.zipcode) ? this.form.fields.location.zipcode : ""
@@ -1468,6 +1488,9 @@ export default {
         }
         
         let quest = Object.assign({}, this.form.fields, commonProperties)
+        if (!quest.questId) {
+          quest.questId = this.questId
+        }
 
         // save to DB (or update, if property '_id' is defined)
         this.$q.loading.show()
@@ -2513,11 +2536,11 @@ export default {
       this.$q.loading.show()
       var _this = this
       navigator.geolocation.getCurrentPosition(function (position) {
+        _this.$q.loading.hide()
         _this.form.fields.location.lat = position.coords.latitude
         _this.form.fields.location.lng = position.coords.longitude
-        _this.$v.form.fields.location.lat.$touch()
-        _this.$v.form.fields.location.lng.$touch()
-        _this.$q.loading.hide()
+        //_this.$v.form.fields.location.lat.$touch()
+        //_this.$v.form.fields.location.lng.$touch()
       }, 
       this.getLocationError, 
       { 
@@ -2734,13 +2757,14 @@ export default {
 
 <style>
 .review-text { color: black; font-size: 0.8rem; white-space: pre-line; }
+/* MP 2019-11-22 does not seems useful anymore
 .tab-content-120 {
   overflow: auto;
   height: 100%;
   height: -webkit-calc(100% - 120px);
   height: -moz-calc(100% - 120px);
   height: calc(100% - 120px);
-}
+}*/
 .title-bar {
   height: 50px;
   overflow: hidden;

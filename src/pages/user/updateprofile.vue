@@ -1,10 +1,13 @@
 <template>
-  <div class="wrapper dark-background">
+  <div class="wrapper">
     <div class="page-content top-padding-middle q-pa-lg">
-      <div class="centered">
+      <div class="centered text-h5">
         {{ $t('label.WeNeedMoreInformationAboutYou') }}
       </div>
       <div class="centered">
+        {{ $t('label.WeNeedMoreInformationAboutYouDesc') }}
+      </div>
+      <div class="centered q-mt-lg">
         <div class="big-avatar">
           <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :style="'background-image: url(' + $store.state.user.picture + ');'"></div>
           <div v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :style="'background-image: url(' + serverUrl + '/upload/profile/' + $store.state.user.picture + ');'"></div>
@@ -72,14 +75,35 @@
         
         <div class="q-pt-lg q-pb-md">{{ $t('label.ToAvoidSendingYourToUnrelevantQuests') }}</div>
         
-        <q-select dark :label="$t('label.YourSex')" v-model="profile.form.sex" :options="sexes" emit-value map-options />
-        <q-select dark :label="$t('label.YourAge')" v-model="profile.form.age" :options="ages" emit-value map-options />
+        <q-select 
+          :label="$t('label.YourSex')" 
+          v-model="profile.form.sex" 
+          :options="sexes" 
+          emit-value 
+          map-options
+          @blur="$v.profile.form.sex.$touch"
+          bottom-slots
+          :error="$v.profile.form.sex.$error"
+          :error-message="$t('label.PleaseSelectYourSex')"
+          />
+        
+        <q-select 
+          :label="$t('label.YourAge')" 
+          v-model="profile.form.age" 
+          :options="ages" 
+          emit-value map-options 
+          @blur="$v.profile.form.age.$touch"
+          bottom-slots
+          :error="$v.profile.form.age.$error"
+          :error-message="$t('label.PleaseSelectYourAge')"
+          />
         
         <div class="q-pt-lg q-pb-md">{{ $t('label.ToHelpYouFindYourFriends') }}</div>
         
         <q-input v-model="profile.form.phone" :label="$t('label.YourPhoneNumber')" :placeholder="$t('label.phoneExample')" />
         
-        <q-btn class="text-primary bg-white full-width" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
+        <q-btn class="full-width" color="primary" @click="submitProfileChanges()">{{ $t('label.Save') }}</q-btn>
+        <q-btn class="full-width q-pt-md" color="primary" flat @click="backToMap()">{{ $t('label.MaybeLater') }}</q-btn>
       </form>
       
     </div>
@@ -142,8 +166,9 @@ export default {
     /*
      * Submit account changes
      */
-    async submitProfileChanges() {      
-      if (!this.profile.form.$error) {
+    async submitProfileChanges() {
+      this.$v.$touch()
+      if (!this.$v.$error) {
         // TODO keep the original route which required authentification
         // & redirect user to it when he clicks on the 'verify' link in email
         let modifications = {
@@ -162,7 +187,7 @@ export default {
         this.$q.loading.hide()
         
         if (modificationStatus.status >= 300 && modificationStatus.data && modificationStatus.data.message) {
-          Notification(modificationStatus.data.message, 'warning')
+          Notification(this.$t('label.' + modificationStatus.data.message), 'warning')
         } else {
           this.backToMap()
         }
@@ -212,10 +237,12 @@ export default {
     profile: {
       form: {
         email: { required, email },
-        name: { required },
+        name: { required, minLength: minLength(2) },
         country: { required },
         zipCode: { required },
-        password: { required, minLength: minLength(8), checkPasswordComplexity }
+        password: { required, minLength: minLength(8), checkPasswordComplexity },
+        age: { required },
+        sex: { required }
       }
     }
   }

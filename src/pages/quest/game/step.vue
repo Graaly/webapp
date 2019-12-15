@@ -183,9 +183,9 @@
             round 
             size="lg" 
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            :class="{'flashing': canMoveNextStep, 'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}" 
+            :class="{'flashing': next.suggest, 'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}" 
             icon="arrow_forward" 
-            v-show="canMoveNextStep || canPass" 
+            v-show="next.enabled || next.canPass" 
             @click="nextStep()" 
           />
         </div>
@@ -258,6 +258,11 @@ export default {
           score: 0,
           quest: {}
         },
+        next: {
+          suggest: false,
+          enabled: false,
+          canPass: false
+        },
         questId: this.$route.params.questId,
         questVersion: this.$route.params.version,
         step: {},
@@ -268,8 +273,6 @@ export default {
         loadStepData: false,
         run: {},
         isRunFinished: false,
-        canMoveNextStep: false,
-        canPass: false,
         remotePlay: false,
         //cameraStreamEnabled: false,
         serverUrl: process.env.SERVER_URL,
@@ -298,7 +301,7 @@ export default {
           remainingDays: '-'
         },
         previousStepId: '',
-        isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
+        isIOs: utils.isIOS(),
         
         // for step type 'use-item'
         selectedItem: null
@@ -309,8 +312,7 @@ export default {
       this.inventory = defaultVars.inventory
       this.hint = defaultVars.hint
       this.step = defaultVars.step
-      this.canMoveNextStep = defaultVars.canMoveNextStep
-      this.canPass = defaultVars.canPass
+      this.next = defaultVars.next
       this.nbTry = defaultVars.nbTry
       this.warnings = defaultVars.warnings
       this.selectedItem = defaultVars.selectItem
@@ -342,6 +344,9 @@ export default {
         utils.setTimeout(this.alertOnHint, 12000)
         this.hint.show = true
       }
+      
+      // next button blink if user did not succeed after 3 minutes
+      utils.setTimeout(this.alertOnNext, 180000)      
       
       // check if story needs to start
       await this.startStory()
@@ -696,7 +701,10 @@ export default {
       if (this.step.id === 'sensor') {
         await this.getMarkerStep(returnData)
       } else {
-        this.canMoveNextStep = true
+        this.next.enabled = true
+        if (this.step.type !== 'image-over-flow') {
+          this.next.suggest = true
+        }
         this.hint.suggest = false
         this.hint.show = false
         this.inventory.show = false
@@ -709,7 +717,7 @@ export default {
     async trackStepPass () {
       // Not possible to pass for the mini games
       //if (this.info.quest.type === 'quest') {
-      this.canPass = true
+      this.next.canPass = true
       //}
     },
     /*
@@ -804,14 +812,14 @@ export default {
       this.loadStepData = false
       this.$q.loading.show()
       
-      if (this.canMoveNextStep) {
+      if (this.next.enabled) {
         /*utils.clearAllRunningProcesses()
         this.resetData()
         await this.initData()
         */
         await this.moveToNextStep('success')
         this.$q.loading.hide()
-      } else if (this.canPass) {
+      } else if (this.next.canPass) {
         this.$q.loading.hide()
         this.$q.dialog({
           message: this.$t('label.ConfirmPass'),
@@ -840,11 +848,12 @@ export default {
       await this.saveOfflineRun(this.questId, this.run)
     
       //hide button
-      this.canMoveNextStep = false
-      this.canPass = false
+      this.next.enabled = false
+      this.next.suggest = false
+      this.next.canPass = false
       
       // force camera flow to hide
-      if (this.step.type === 'locate-item-ar') {
+      if (this.step.type === 'locate-item-ar' || this.step.type === 'image-over-flow') {
         if (this.isIOs) {
           CameraPreview.stopCamera()
           CameraPreview.stopCamera() // calling twice is needed
@@ -1141,6 +1150,9 @@ export default {
     },
     alertOnHint() {
       this.hint.suggest = true
+    },
+    alertOnNext() {
+      this.next.suggest = true
     },
     // ============================================ OFFLINE MANAGEMENT ========================
     /*
@@ -1443,13 +1455,18 @@ export default {
             maxNbConditions = stepsThatFit[i].nbConditions
           }
         }
-        // set the marker step as done to pass to next step
-        var conditionsDone = this.run.conditionsDone
-        conditionsDone.push('stepDone_' + stepId.toString())
-        
-        // update run
-        this.run.conditionDone = conditionsDone
-        this.run.currentStep = stepId
+        if (this.info.quest.editorMode === 'simple') {
+          // add points if basic quest mode (not in escape game mode)
+          await this.saveOfflineAnswer('success')
+        } else {
+          // set the marker step as done to pass to next step
+          var conditionsDone = this.run.conditionsDone
+          conditionsDone.push('stepDone_' + stepId.toString())
+
+          // update run
+          this.run.conditionDone = conditionsDone
+          this.run.currentStep = stepId
+        }
       }
       
       // list the steps for the chapter
@@ -1470,8 +1487,11 @@ export default {
             }
             // if the marker is not requested, do not treat marker step
             if (stepsofChapter[i].type === 'locate-marker') {
-              locationMarkerFound = true
-              continue stepListFor
+              // if advanced mode => do not treat this step
+              if (this.info.quest && this.info.quest.editorMode === 'advanced') {
+                locationMarkerFound = true
+                continue stepListFor
+              }
             }
             // if step is end of chapter 
             if (stepsofChapter[i].type === 'end-chapter') {

@@ -27,6 +27,13 @@ export default {
     })
   },
   /*
+   * create a dummy account for Anonymous game
+   * @param   {String}    lang              user language
+   */
+  playAnonymous(lang) {
+    return Api().post('user/create/anonymous/' + lang).catch(error => console.log(error.request))
+  },
+  /*
    * Sign-out user
    */
   logout () {

@@ -97,11 +97,11 @@ module.exports = function (ctx) {
       //transpileDependencies: [/ip-regex/]
     },
     devServer: {
-      //https: true,
-      https: {
+      https: true,
+      /*https: {
         key: fs.readFileSync('certs/webapp-dev-key.pem'),
         cert: fs.readFileSync('certs/webapp-dev-cert.pem')
-      },
+      },*/
       // port: 8080,
       open: true // opens browser window automatically
     },
@@ -228,7 +228,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: '1.7.17'
+      version: "1.8.1"
       // id: 'org.cordova.quasar.app'
     },
     electron: {

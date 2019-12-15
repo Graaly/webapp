@@ -11,11 +11,11 @@
       <div class="bg-accent text-white q-pa-md" v-if="isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     
       <!------------------ TRANSITION AREA ------------------------>
-      
+
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
         <div id="info-clickable" :class="{ grow: !step.videoStream }" @click="hideControlsTemporaly">
-          <p class="text" v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
-          <p class="text" v-if="step.options && step.options.html" v-html="getTranslatedText()"/></p>
+          <p class="text" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != '' && step.options && step.options.html" v-html="getTranslatedText()"></p>
         </div>
         <div class="video" v-if="step.videoStream">
           <video class="full-width" controls controlsList="nodownload" autoplay>
@@ -33,7 +33,7 @@
       
       <div class="new-item" v-if="step.type == 'new-item'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div class="item">
           <img style="width: 80%" :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
@@ -69,7 +69,7 @@
       
       <div class="choose" v-if="step.type == 'choose'" style="overflow: auto; margin-bottom: 80px;">
         <div @click="hideControlsTemporaly">
-           <p class="text">{{ getTranslatedText() }}</p>
+           <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div class="answers-text" v-if="answerType === 'text'">
           <q-btn v-for="(option, key) in step.options.items" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
@@ -91,7 +91,7 @@
       
       <div class="code" v-if="step.type == 'code-keypad'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div class="typed-code">
           <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
@@ -119,7 +119,7 @@
       
       <div class="code code-color" v-if="step.type == 'code-color'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div class="color-bubbles">
           <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
@@ -136,7 +136,7 @@
       
       <div class="code code-image" v-if="step.type == 'code-image'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <table>
           <tr>
@@ -168,7 +168,7 @@
       
       <div class="image-recognition" v-if="step.type == 'image-recognition'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div class="photo">
           <img ref="original-photo" :src="(step.answers && step.answers.indexOf('blob:') !== -1) ? step.answers : serverUrl + '/upload/quest/' + step.questId + '/step/image-recognition/' + step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
@@ -189,7 +189,7 @@
       
       <div class="geolocation" v-if="step.type == 'geolocation'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
           <p class="text" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
         </div>
       </div>
@@ -198,7 +198,7 @@
       
       <div class="write-text" v-if="step.type == 'write-text'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div class="answer-text">
           <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
@@ -211,7 +211,7 @@
       
       <div class="puzzle" v-if="step.type === 'jigsaw-puzzle'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div id="pieces">
             <div draggable="true"
@@ -229,7 +229,7 @@
         <div class="centered text-grey q-pt-xl" v-if="puzzle.mode === 'drag'">
           {{ $t('label.PuzzleHelpText') }}
         </div>
-        <div class="centered text-grey q-pt-xl" v-if="puzzle.mode === 'click'">
+        <div class="centered text-primary q-pt-xl" v-if="puzzle.mode === 'click'">
           {{ $t('label.PuzzleHelpTextClick') }}
         </div>
         <div class="centered text-grey q-pt-sm" v-if="puzzle.mode === 'drag'">
@@ -241,7 +241,7 @@
       
       <div class="puzzle" v-if="step.type === 'memory'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <ul class="memory" id="card-deck">
           <li 
@@ -260,7 +260,7 @@
       
       <div class="use-item" v-if="step.type == 'use-item'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div ref="useItemPicture" @click="useItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="use-item-picture">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
@@ -277,7 +277,7 @@
       
       <div class="find-item" v-if="step.type == 'find-item'">
         <div>
-          <p class="text">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
         <div ref="findItemPicture" @click="findItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="find-item-picture">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
@@ -303,6 +303,30 @@
           <canvas id="target-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
         <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
+      </div>
+      
+      <!------------------ SUPERIMPOSE IMAGE AND CAMERA STEP AREA ------------------------>
+      
+      <div class="image-over-flow" v-show="step.type == 'image-over-flow'">
+        <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
+          <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled"></video>
+        </transition>
+        <!--<div>
+          <div class="text">
+            <p>{{ getTranslatedText() }}</p>
+            <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+            <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
+            <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
+            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
+          </div>
+        </div>-->
+        <div>
+          <div>
+            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          </div>
+          <div class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
+          </div>
+        </div>
       </div>
       
       <!------------------ LOCATE A 2D MARKER / TOUCH OBJECT ON MARKER ------------------------>
@@ -352,7 +376,7 @@
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
-    <geolocation ref="geolocation-component" v-if="step.type == 'geolocation' || step.type == 'locate-item-ar'" @success="onNewUserPosition($event)" :withNavBar="true" />
+    <geolocation ref="geolocation-component" v-if="step.type == 'geolocation' || step.type == 'locate-item-ar'" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" :withNavBar="true" />
     
     <!--====================== WIN POINTS ANIMATION =================================-->
     
@@ -505,7 +529,7 @@ export default {
         reward: 0,
         controlsAreDisplayed: false,
         isHybrid: window.cordova,
-        isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
+        isIOs: utils.isIOS(),
         isNetworkLow: false,
         
         // for step 'choose'
@@ -646,9 +670,13 @@ export default {
             background.style.background = 'none'
             background.style.backgroundColor = '#000'
             this.showControls()
+          } else if (this.step.type === 'image-over-flow') {
+            //background.style.background = 'none'
+            //background.style.backgroundColor = '#fff'
+            this.showControls()
           } else if (this.step.type === 'jigsaw-puzzle') {
-            background.style.background = 'none'
-            background.style.backgroundColor = '#fff'
+            let backgroundUrl = this.getBackgroundImage()
+            background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             this.showControls()
           } else {
             // define if background image is a generic one or user defined one
@@ -719,6 +747,8 @@ export default {
         
         // common process to 'geolocation' and 'locate-item-ar'
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
+          let requestPermissionResult
+          
           // user can pass
           this.$emit('pass')
           
@@ -743,29 +773,49 @@ export default {
               this.geolocation.absoluteOrientationSensor = {
                 stop: this.stopAlternateAbsoluteOrientationSensor
               }
+              
+              // ask user to access to his device orientation
+              requestPermissionResult = await utils.requestDeviceOrientationPermission()
+              
+              if (requestPermissionResult !== 'granted') {
+                Notification(this.$t('label.PleaseAcceptDeviceOrientationPermissionRequest'), 'error')
+                return
+              }
               window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
             }
           } catch (error) {
             console.error(error)
           }
+          
+          if (this.step.type === 'locate-item-ar') {
+            // ask user to access to his device motion
+            requestPermissionResult = await utils.requestDeviceMotionPermission()
+            
+            if (requestPermissionResult !== 'granted') {
+              Notification(this.$t('label.PleaseAcceptDeviceMotionPermissionRequest'), 'error')
+              return
+            }
+            
+            // start accelerometer sensor
+            window.addEventListener("devicemotion", this.handleMotionEvent, true)
+          
+            await this.waitForGyroscopeDetection()
+          
+            if (!this.deviceHasGyroscope) {
+              // only a warning because step can still be played
+              Notification(this.$t('label.CouldNotEnableAR'), 'warning')
+            }
+          }
+          
           // must store object returned by setInterval() in Vue store instead of component properties,
           // otherwise it is reset when route changes & component is reloaded
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
-          
-          // start accelerometer sensor
-          window.addEventListener("devicemotion", this.handleMotionEvent, true)
-          
-          await this.waitForGyroscopeDetection()
-          
-          if (this.step.type === 'locate-item-ar' && !this.deviceHasGyroscope) {
-            Notification(this.$t('label.CouldNotEnableAR'), 'warning')
-          }
         }
         
         if (this.step.type === 'locate-item-ar'  && !this.playerResult) {
           if (this.deviceHasGyroscope || !this.step.backgroundImage) {
             // video stream for AR background
-            if (this.isIOs) {
+            if (this.isIOs && CameraPreview) {
               let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
               CameraPreview.startCamera(options)
               CameraPreview.show()
@@ -884,6 +934,37 @@ export default {
           
           // animate & render
           this.animateTargetCanvas()
+        }
+        
+        if (this.step.type === 'image-over-flow') {
+          this.$emit('pass')
+          // video stream
+          if (this.isIOs && CameraPreview) {
+            let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
+            CameraPreview.startCamera(options)
+            CameraPreview.show()
+          } else {
+            var cameraStream2 = this.$refs['camera-stream-for-image-over-flow']
+            // enable rear camera stream
+            // -------------------------
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+            
+              .then((stream) => {
+                // Hacks for Safari iOS
+                cameraStream2.setAttribute("muted", true)
+                cameraStream2.setAttribute("playsinline", true)
+                                
+                cameraStream2.srcObject = stream
+                cameraStream2.play()
+                this.cameraStreamEnabled = true
+              })
+              .catch((err) => {
+                // TODO friendly behavior/message for user
+                console.warn("No camera stream available")
+                console.log(err)
+              }
+            );
+          }
         }
         
         // enable geoloc only when 3D scene is fully loaded
@@ -1083,7 +1164,11 @@ export default {
     showControls () {
       this.controlsAreDisplayed = true // !this.controlsAreDisplayed
       // if transition step, next button is clickable when controls are displayed
-      if (this.step.type === 'info-text' || this.step.type === 'info-video' || this.step.type === 'character' || this.step.type === 'new-item') {
+      if (this.step.type === 'info-text' || 
+        this.step.type === 'info-video' || 
+        this.step.type === 'character' || 
+        this.step.type === 'image-over-flow' || 
+        this.step.type === 'new-item') {
         this.checkAnswer()
       }
     },
@@ -1259,7 +1344,7 @@ export default {
      */
     async checkOfflineAnswer(answer) {
       const type = this.step.type
-      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character') {
+      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'image-over-flow') {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }
       } else if (type === 'image-recognition') {
         return { result: answer, answer: this.answer, score: 0, reward: 0, offline: true }
@@ -1336,9 +1421,15 @@ export default {
         case 'new-item':
         case 'end-chapter':
         case 'character':
+        case 'image-over-flow':
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
           this.submitGoodAnswer(0, checkAnswerResult.offline, true)
+          //if (CameraPreview) {
+          //  CameraPreview.stopCamera()
+          //  CameraPreview.stopCamera() // calling twice is needed
+          //}
+          
           break
           
         case 'choose':
@@ -1547,7 +1638,7 @@ export default {
               }
               
               // stop camera flow
-              if (this.isIOs) {
+              if (this.isIOs && CameraPreview) {
                 //CameraPreview.hide()
                 CameraPreview.stopCamera()
                 CameraPreview.stopCamera() // calling twice is needed
@@ -1574,43 +1665,35 @@ export default {
                 
                 let cameraDistance = Math.max(size.x, size.y, size.z) * 2
                 
-                // to fix temporally issue of animations with iOs
-                // MPA 2019-11-08 tested on iPhone SE => OK
-                /*if (this.isIOs) {
-                  camera.position.set(0, 0,  cameraDistance * 2 / 3)
-
-                  this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
-                } else {*/
-                  let startScale = Object.assign({}, object.scale) // copy the full Vector3 object, not a reference
-                
-                  let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
-                    .easing(TWEEN.Easing.Back.In)
-                    .onComplete(() => {
-                      if (this.step.type === 'locate-marker') {
-                        // detach 3D object (target to find) from arSmoothedControl and attach it directly at scene root, for hassle free manipulation of the 3D object
-                        utils.detachObject3D(object, object.parent, target.scene)
-                        utils.attachObject3D(object, target.scene, target.scene)
-                      }
-                      
-                      camera.position.set(0, 0,  cameraDistance * 2 / 3)
-                      camera.lookAt(new THREE.Vector3(0, cameraDistance, size.z / 2))
-                      // reset object position/scale/rotation
-                      object.scale.set(0, 0, 0)
-                      object.position.set(0, cameraDistance, size.z / 2)
-                      object.rotation.set(0, 0, 0)
-                      this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
-                    })
-                  
-                  let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
-                    .easing(TWEEN.Easing.Back.Out)
-                  
-                  // https://stackoverflow.com/a/31766476/488666
-                  let rotationAnimation = new TWEEN.Tween(object.rotation)
-                    .to({ z: "-" + Math.PI / 2 }, 2000) // relative animation
-                    .repeat(Infinity)
+                let startScale = Object.assign({}, object.scale) // copy the full Vector3 object, not a reference
+              
+                let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
+                  .easing(TWEEN.Easing.Back.In)
+                  .onComplete(() => {
+                    if (this.step.type === 'locate-marker') {
+                      // detach 3D object (target to find) from arSmoothedControl and attach it directly at scene root, for hassle free manipulation of the 3D object
+                      utils.detachObject3D(object, object.parent, target.scene)
+                      utils.attachObject3D(object, target.scene, target.scene)
+                    }
                     
-                  disappearAnimation.chain(appearAnimation, rotationAnimation).start()
-                //}
+                    camera.position.set(0, 0,  cameraDistance * 2 / 3)
+                    camera.lookAt(new THREE.Vector3(0, cameraDistance, size.z / 2))
+                    // reset object position/scale/rotation
+                    object.scale.set(0, 0, 0)
+                    object.position.set(0, cameraDistance, size.z / 2)
+                    object.rotation.set(0, 0, 0)
+                    this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+                  })
+                
+                let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
+                  .easing(TWEEN.Easing.Back.Out)
+                
+                // https://stackoverflow.com/a/31766476/488666
+                let rotationAnimation = new TWEEN.Tween(object.rotation)
+                  .to({ z: "-" + Math.PI / 2 }, 2000) // relative animation
+                  .repeat(Infinity)
+                  
+                disappearAnimation.chain(appearAnimation, rotationAnimation).start()
               } else { // 2D image on plane
                 this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
               }
@@ -1696,6 +1779,7 @@ export default {
       } else {
         this.playerResult = null
       }
+      
       this.stepPlayed = true
       
       this.$emit('success', score, offlineMode, showResult)
@@ -1710,6 +1794,7 @@ export default {
           case 'info-text': 
           case 'end-chapter': 
           case 'info-video': 
+          case 'image-over-flow': 
             
             break
           case 'choose':
@@ -2185,6 +2270,12 @@ export default {
         this.resetDrawDirectionInterval()
         await this.checkAnswer(current)
       }
+    },
+    /*
+     * On user position error
+     */
+    onUserPositionError(ret) {
+      console.error('UserPositionError', ret)
     },
     /*
      * Use an item
@@ -2831,10 +2922,12 @@ export default {
     * clear all camera streams
     */
     clearAllCameraStreams() {
+console.log('clear all')
       // TODO maybe only one "camera stream" <div> could be used by all steps
       let streamDivs = [
         'camera-stream-for-recognition',
         'camera-stream-for-locate-marker',
+        'camera-stream-for-image-over-flow',
         'camera-stream-for-locate-item-ar'
       ]
       
@@ -3193,6 +3286,13 @@ export default {
   .locate-item-ar #target-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }
   .locate-item-ar .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
   .locate-item-ar img { margin: 30vw auto; } /* 2D result image */
+
+  /* image-over-flow specific */
+  
+  .image-over-flow { background: transparent; }
+  .image-over-flow video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+  .image-over-flow .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
+  .image-over-flow .image { z-index: 50; position: relative; } /* positioning is required to have z-index working */
   
   /* locate-marker specific */
   

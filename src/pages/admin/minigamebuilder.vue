@@ -112,6 +112,8 @@
 import { required } from 'vuelidate/lib/validators'
 import AdminService from 'services/AdminService'
 
+import utils from 'src/includes/utils'
+
 export default {
   data () {
     return {
@@ -125,7 +127,7 @@ export default {
           places: []
         }
       },
-      isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
+      isIOs: utils.isIOS(),
       serverUrl: process.env.SERVER_URL
     }
   },

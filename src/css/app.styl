@@ -29,6 +29,10 @@ body {
   overflow-y: hidden;
   min-height: 100%;
   height: 100%;
+  color: #05275a;
+  padding-top: constant(safe-area-inset-top); /* iOS 11.0 */
+  padding-top: env(safe-area-inset-top); /* iOS 11.2 */
+
 }
 #q-app { 
   min-height: 100%;
@@ -849,7 +853,22 @@ form .q-item__label, .big-label {
 .q-menu {
   z-index: 7002;
 }
-/* fix for missing vertical scrolling at end.vue */
-.q-layout, .q-page-container {
+/* fix for missing vertical scrolling at end.vue, only for android
+note that .platform-android selector targets both webapp (Chrome) & hybrid on android
+WARNING: introduces bad scrolling behaviors on iOS webapp (Safari) & hybrid */
+.platform-android .q-layout, .platform-android .q-page-container {
   overflow-y: scroll;
+}
+.version {
+  text-align: right;
+  padding: 20px;
+  opacity: 0.3;
+}
+.puzzle-top {
+  background: url('/statics/icons/game/puzzle-top.png') 100% no-repeat; 
+  background-position: top right;
+}
+.puzzle-bottom {
+  background: url('/statics/icons/game/puzzle-bottom.png') 100% no-repeat;
+  background-position: bottom left;
 }

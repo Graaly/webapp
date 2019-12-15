@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="graaly.app" version="1.7.17" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="graaly.app" version="1.8.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Graaly</name>
     <description>Graaly Frontend</description>
     <author email="eric@graaly.com" href="http://graaly.com">
@@ -63,6 +63,7 @@
         <splash height="1242" src="res/screen/ios/Default-Landscape-736h.png" width="2208" />
         <splash height="2436" src="res/screen/ios/iphoneX-portrait.png" width="1125" />
         <splash height="1125" src="res/screen/ios/iphoneX-landscape.png" width="2436" />
+        <preference name="ScrollEnabled" value="true" />
     </platform>
     <allow-navigation href="http://192.168.43.151:8080/index.html" />
     <allow-navigation href="*" />

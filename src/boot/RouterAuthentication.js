@@ -43,7 +43,7 @@ export default ({ app, router, Vue }) => {
           Loading.hide()
 
           if (response && response.data && response.data.name) {
-            if (response.data.clientSupportedVersion && response.data.clientSupportedVersion > "1.7.0") {
+            if (response.data.clientSupportedVersion && response.data.clientSupportedVersion > "1.8.1") {
               next({
                 path: '/error/upgraderequired'
               })
@@ -96,7 +96,7 @@ export default ({ app, router, Vue }) => {
         next()
       }
     } catch (e) {
-      console.log(e)
+      console.error('Error in RouterAuthentication:', e)
       next()
     }
   })
