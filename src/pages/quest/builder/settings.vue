@@ -1070,6 +1070,7 @@ export default {
         //this.form.fields = this.quest // removed EMA on 15112019 because issue with iOS
         this.form.fields.questId = this.quest.questId
         this.form.fields.title = this.quest.title
+        this.form.fields.description = this.quest.description
         this.form.fields.category = this.quest.category
         this.form.fields.location = this.quest.location
         this.form.fields.languages = this.quest.languages
