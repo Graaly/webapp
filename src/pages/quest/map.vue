@@ -1068,6 +1068,7 @@ export default {
       },
       languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
       isMounted: false,
+      isHybrid: window.cordova,
       loadingMap: true,
       innerWidth: window.innerWidth,
       questsTab: "built",
