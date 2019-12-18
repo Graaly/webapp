@@ -250,6 +250,11 @@ export default {
       // get quest information
       await this.getQuest(this.$route.params.id)
       
+      // Fix EMA on 18/12/2019 - products in store remains if I open several paying quests
+      if (window.cordova && this.quest.premiumPrice && this.quest.premiumPrice.androidId && store.products.length > 0) {
+        this.$router.go(0)
+      }
+      
       this.checkUserIsCloseFromStartingPoint()
           
       // check user access rights
@@ -467,7 +472,6 @@ export default {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
         return
       }
-      
       // check if player has already paied
       const isPayed = await QuestService.hasPayed(this.quest.questId)
       if (isPayed && isPayed.data && isPayed.data.status && isPayed.data.status === 'paied') {
@@ -477,10 +481,9 @@ export default {
         }
         return "free"
       }
-
       this.shop.premiumQuest.priceCode = this.quest.premiumPrice.androidId
-      var _this = this
-
+      //var _this = this
+      
       store.register({
         id: this.quest.premiumPrice.androidId,
         alias: this.quest.premiumPrice.androidId,
@@ -491,13 +494,7 @@ export default {
         Notification(error.message + '(code: ' + error.code + ')', 'error')
       })
 
-      store.when(this.quest.premiumPrice.androidId).updated(function(product) {
-        // check if product is orderable
-        _this.shop.premiumQuest.priceValue = product.price
-        if (product.canPurchase) {
-          _this.shop.premiumQuest.buyable = true
-        }
-      });
+      store.when(this.quest.premiumPrice.androidId).updated(this.displayPrice)
 
       store.when(this.quest.premiumPrice.androidId).approved(function(product) {
         product.verify()
@@ -515,6 +512,13 @@ export default {
       });
 
       store.refresh()
+    },
+    displayPrice(product) {
+        // check if product is orderable
+        this.shop.premiumQuest.priceValue = product.price
+        if (product.canPurchase) {
+          this.shop.premiumQuest.buyable = true
+        }
     },
     /*
      * Save a purchase
