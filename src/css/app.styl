@@ -778,15 +778,17 @@ form .q-item__label, .big-label {
 }
 .story .bubble-top, .story .bubble-bottom {
   font-size: 0px;
+  max-width: 800px;
 }
 .story .bubble-middle {
   width: 100%;
-  max-width: 100vw;
+  /*max-width: 100vw;*/
   padding: 0 15px;
   background-position: top left !important;
   background-size: 100% !important;
   max-height: 200px;
   overflow-y: auto;
+  max-width: 800px;
 }
 .story .bubble-top img, .story .bubble-bottom img {
   width: 100%;
@@ -856,7 +858,7 @@ form .q-item__label, .big-label {
 /* fix for missing vertical scrolling at end.vue, only for android
 note that .platform-android selector targets both webapp (Chrome) & hybrid on android
 WARNING: introduces bad scrolling behaviors on iOS webapp (Safari) & hybrid */
-.platform-android .q-layout, .platform-android .q-page-container {
+.platform-android .q-layout, .platform-android .q-page-container, .desktop .q-layout, .desktop .q-page-container {
   overflow-y: scroll;
 }
 .version {
