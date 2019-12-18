@@ -2208,12 +2208,14 @@ export default {
         return
       }
       
+      let previousGPSdistance = this.geolocation.GPSdistance
+      
       // compute distance between two coordinates
       // note: current.accuracy contains the result accuracy in meters
       this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
       let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
       
-      if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && (this.geolocation.GPSdistance > this.minDistanceForGPS || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
+      if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
         this.geolocation.distance = this.geolocation.GPSdistance
         this.geolocation.rawDirection = rawDirection
       }
@@ -2252,8 +2254,8 @@ export default {
           object.visible = true
         }
         
-        // if distance to object is greater than value of this.minDistanceForGPS, update target object position only given GPS position. Otherwise, accelerometer is used to track device position for better user experience (avoids object "drifts").
-        if (this.geolocation.GPSdistance > this.minDistanceForGPS || this.deviceHasGyroscope === false) {
+        // if GPS distance to object is greater than value of this.minDistanceForGPS, update target object position only given GPS position. Otherwise, accelerometer is used to track device position for better user experience (avoids object "drifts").
+        if ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || this.deviceHasGyroscope === false) {
           // smooth position change
           new TWEEN.Tween(object.position)
             .to({ x: this.geolocation.position.x, y: this.geolocation.position.y }, 1000)
@@ -2970,13 +2972,13 @@ console.log('clear all')
       }
       
       // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
-      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > (this.minDistanceForGPS + 10) || this.geolocation.absoluteOrientationSensor === null || !this.geolocation.absoluteOrientationSensor.quaternion || isNaN(this.geolocation.position.x) || isNaN(this.geolocation.position.y)) {
+      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > this.minDistanceForGPS || this.geolocation.absoluteOrientationSensor === null || !this.geolocation.absoluteOrientationSensor.quaternion || isNaN(this.geolocation.position.x) || isNaN(this.geolocation.position.y)) {
         canProcess = false
       }
       
       if (this.geolocation.target  && this.geolocation.target.scene) {
         object = this.geolocation.target.scene.getObjectByName('targetObject')
-        canProcess = canProcess && typeof object !== 'undefined'
+        canProcess = canProcess && typeof object !== 'undefined' && TWEEN.getAll().length === 0
       } else {
         canProcess = false
       }
@@ -2984,15 +2986,8 @@ console.log('clear all')
       if (!canProcess) {
         dm.acceleration.avgData = { x: [], y: [], z: [] }
         dm.velocity = { x: 0, y: 0 }
+        dm.dateLatestEvent = null
         return
-      }
-      
-      // this means we are switching from GPS only to "accelerometer + GPS" mode (or we are in the "switching zone"), or it's the first time we handle motion event
-      if (this.geolocation.GPSdistance !== null && (dm.isTargetPositionUndefined || this.geolocation.GPSdistance >= this.minDistanceForGPS)) {
-        this.geolocation.distance = this.geolocation.GPSdistance
-        object.position.x = this.geolocation.position.x
-        object.position.y = this.geolocation.position.y
-        dm.isTargetPositionUndefined = false
       }
       
       let accel = event.acceleration
@@ -3087,8 +3082,6 @@ console.log('clear all')
         }
         
         if (this.geolocation.GPSdistance <= this.minDistanceForGPS) {
-          TWEEN.removeAll() // clears current "move" from method "onNewUserPosition()"
-          
           // update object position
           object.position.x = currentObjectPosition.x + deltaFromAccelerometer.x + deltaFromGeolocation.x
           object.position.y = currentObjectPosition.y + deltaFromAccelerometer.y + deltaFromGeolocation.y

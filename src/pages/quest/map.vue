@@ -1068,6 +1068,7 @@ export default {
       },
       languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
       isMounted: false,
+      isHybrid: window.cordova,
       loadingMap: true,
       innerWidth: window.innerWidth,
       questsTab: "built",
@@ -1286,7 +1287,17 @@ export default {
         if (!window.store) {
           this.currentQuest.displayPrice = this.$t('label.QuestPlayableOnMobile')
         } else {
-          store.register({
+          // updated EMA => Connection to store to get prices impact prices display in home.vue page
+          let prices = {
+            'premiumprice1': "0,99 €",
+            'premiumprice2': "1,99 €",
+            'premiumprice3': "2,99 €",
+            'premiumprice5': "4,99 €",
+            'premiumprice10': "9,99 €",
+            'premiumprice20': "19,99 €"
+          }
+          this.currentQuest.displayPrice = prices[quest.premiumPrice.androidId]
+          /*store.register({
             id: quest.premiumPrice.androidId,
             alias: quest.premiumPrice.androidId,
             type: store.CONSUMABLE
@@ -1297,7 +1308,7 @@ console.log(quest.premiumPrice.androidId)
             _this.currentQuest.displayPrice = product.price
           })
           
-          store.refresh()
+          store.refresh()*/
         }
       }
     },
