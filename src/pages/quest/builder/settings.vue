@@ -1251,7 +1251,7 @@ export default {
             var sorted = []
             //until all the steps are treated
             var iteration = 0
-            while (unsorted.length > 0 || iteration < 1000) {
+            while (unsorted.length > 0 && iteration < 1000) {
               iteration++
               allSteps:
                 for (i = 0; i < stepsOfChapter.length; i++) {
