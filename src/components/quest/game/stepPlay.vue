@@ -109,8 +109,8 @@
         </div>
         <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
-            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('label.Clear') }}</q-btn>
-            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('label.Clear') }}</q-btn>
+            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer">{{ $t('label.Confirm') }}</q-btn>
           </div>
         </div>
       </div>
@@ -127,7 +127,7 @@
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
-            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code">{{ $t('label.Confirm') }}</q-btn>
           </div>
         </div>
       </div>
@@ -141,7 +141,7 @@
         <table>
           <tr>
             <td v-for="(code, index) in playerCode" :key="index" class="text-center">
-              <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" round icon="keyboard_arrow_up" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index" />
+              <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_up" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index" />
             </td>
           </tr>
           <tr>
@@ -151,7 +151,7 @@
           </tr>
           <tr>
             <td v-for="(code, index) in playerCode" :key="index" class="text-center">
-              <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
+              <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
             </td>
           </tr>
         </table>
@@ -159,7 +159,7 @@
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
-            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code">{{ $t('label.Confirm') }}</q-btn>
           </div>
         </div>
       </div>
@@ -177,10 +177,10 @@
           <img ref="player-photo" v-show="photoTaken" :alt="$t('label.TheScreenCaptureWillAppearInThisBox')" />
         </div>
         <div class="actions q-mt-lg">
-          <q-btn @click="toggleCameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color">{{ $t('label.TakeThePicture') }}</q-btn>
+          <q-btn @click="toggleCameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color">{{ $t('label.TakeThePicture') }}</q-btn>
           <div v-show="cameraStreamEnabled">
-            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" @click="toggleCameraStream()" icon="clear">{{ $t('label.Cancel') }}</q-btn>
-            <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" @click="checkAnswer()" icon="done">{{ $t('label.Check') }}</q-btn>
+            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="toggleCameraStream()" icon="clear">{{ $t('label.Cancel') }}</q-btn>
+            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="checkAnswer()" icon="done">{{ $t('label.Check') }}</q-btn>
           </div>
         </div>
       </div>
@@ -203,7 +203,7 @@
         <div class="answer-text">
           <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
           <input v-bind:value="writetext.playerAnswer" v-on:input="writetext.playerAnswer = $event.target.value" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" :disabled="stepPlayed" />
-          <q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" class="full-width" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
+          <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" class="full-width" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
         </div>
       </div>
       
@@ -267,7 +267,7 @@
         </div>
       </div>
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
-        <q-btn round :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color">
+        <q-btn round :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color">
           <img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
         </q-btn>
         {{ $t('label.TouchWhereYouUseThisItem') }}
@@ -350,12 +350,12 @@
         </div>
         
         <!-- HELP -->
-        <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null && !isHybrid" :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
+        <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null && !isHybrid" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
         <div v-if="locateMarker.compliant && playerResult === null && isHybrid" class="text-white centered q-mt-md">
           {{ $t('label.ScanTheMarkersLikeThat') }}
           <div><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
           {{ $t('label.ScanTheMarkersLikeThat2') }}
-          <div><q-btn :color="(color === 'primary') ? 'primary' : ''" :style="(color === 'primary') ? '' : 'background-color: ' + color" @click="startScanQRCode()">{{ $t('label.LaunchTheScanner') }}</q-btn></div>
+          <div><q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="startScanQRCode()">{{ $t('label.LaunchTheScanner') }}</q-btn></div>
         </div>
         <div v-if="!locateMarker.compliant">
           {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
@@ -457,7 +457,7 @@ export default {
    * itemUsed : item of the inventory used
    * lang : language of the step (fr, en, ...)
    */
-  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'color'],
+  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization'],
   components: {
     geolocation,
     story
@@ -1917,8 +1917,15 @@ export default {
      */
     resetImageCode() {
       this.playerCode.length = 0
+      var imagePositionInCode = 0
+      var nbImagePositionInCode = this.getNbImageUploadedForCode()
       for (var i = 0; i < ((this.step.options && this.step.options.codeLength && this.step.options.codeLength > 0) ? this.step.options.codeLength : 4); i++) {
-        this.playerCode.push(0)
+        this.playerCode.push(imagePositionInCode)
+        if (imagePositionInCode < nbImagePositionInCode - 1) {
+          imagePositionInCode++
+        } else {
+          imagePositionInCode = 0
+        }
         this.forceImageRefresh(i)
       }
     },
@@ -2916,7 +2923,8 @@ export default {
       if (this.step.extraText && typeof this.step.extraText === 'object' && this.step.extraText[this.lang]) {
         this.story.step = 6
         this.story.data = {
-          readMore: utils.replaceBreakByBR(this.step.extraText[this.lang])
+          readMore: utils.replaceBreakByBR(this.step.extraText[this.lang]),
+          character: (this.customization && this.customization.character && this.customization.character !== '') ? (this.customization.character.indexOf('blob:') === -1 ? this.serverUrl + '/upload/quest/' + this.customization.character : this.customization.character) : "2"
         }
       }
     },
@@ -2924,7 +2932,6 @@ export default {
     * clear all camera streams
     */
     clearAllCameraStreams() {
-console.log('clear all')
       // TODO maybe only one "camera stream" <div> could be used by all steps
       let streamDivs = [
         'camera-stream-for-recognition',

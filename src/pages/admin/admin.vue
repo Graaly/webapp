@@ -22,14 +22,14 @@
         <q-tab-panel name="validation">
           
           <q-list highlight>
-            <q-item v-for="quest in questsToValidate.items" :key="quest._id" @click.native="$router.push('/quest/play/' + quest.questId)">
-              <q-item-section avatar>
+            <q-item v-for="quest in questsToValidate.items" :key="quest._id">
+              <q-item-section avatar @click.native="$router.push('/quest/play/' + quest.questId)">
                 <q-avatar>
                   <img v-if="quest.thumb" :src="serverUrl + '/upload/quest/' + quest.thumb" />
                   <img v-if="!quest.thumb" src="statics/profiles/noprofile.png" />
                 </q-avatar>
               </q-item-section>
-              <q-item-section>
+              <q-item-section @click.native="$router.push('/quest/play/' + quest.questId)">
                 <q-item-label>{{ getQuestTitle(quest, false) }}</q-item-label>
                 <q-item-label caption v-if="quest.status === 'published'">
                   <q-rating readonly :value="(quest.rating && quest.rating.rounded) ? quest.rating.rounded : null" color="primary" :max="5" size="1rem" />
@@ -38,6 +38,9 @@
                 <q-item-label caption v-if="quest.status == 'unpublished'">
                   {{ $t('label.Unpublished') }}
                 </q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-btn @click="validate(quest.questId, quest.version)" icon="check"></q-btn>
               </q-item-section>
             </q-item>
             <q-item v-if="questsToValidate.items.length === 0">
@@ -145,6 +148,12 @@ export default {
       // get quests to validate
       let response = await AdminService.ListTowns()
       this.towns.items = response.data.towns
+    },
+    /*
+     * validate a quest
+     */
+    async validate(questId, version) {
+      this.$router.push('/admin/validate/' + questId + '/version/' + version)
     },
     /*
      * List quests rejected

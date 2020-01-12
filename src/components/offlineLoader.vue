@@ -151,7 +151,12 @@ export default {
             this.offline.progress += 0.1
           }
           
-          // Save customization logo
+          // save customized hint character
+          if (quest.customization && quest.customization.character && quest.customization.character !== '') {
+            await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/', quest.customization.character)
+          }
+          
+          // Save customized logo
           if (quest.customization && quest.customization.logo && quest.customization.logo !== '') {
             await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/', quest.customization.logo)
           }

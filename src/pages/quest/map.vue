@@ -1209,17 +1209,17 @@ export default {
       }
     },
     /*
-     * Check network
+     * Quest the quests that are 
      */
     getClosestQuestUnplayed() {
-      var distance = 100000
+      var distance = 300 // 200 meters
       var questSelected = null
       // get the closest quest
       for (var i = 0; i < this.questList.length; i++) {
-        // get only the quest unplayed
+        // get only the quest unplayed (and which the user is not the owner)
         if (this.questList[i].authorUserId !== this.$store.state.user._id && this.questList[i].status !== 'played' && this.questList[i].type === 'quest') {
           // compute the min distance
-          let newDistance = Math.sqrt(Math.pow(Math.abs(this.user.position.longitude - this.questList[i].location.coordinates[0]), 2) + Math.pow(Math.abs(this.user.position.latitude - this.questList[i].location.coordinates[1]), 2))
+          let newDistance = 111320 * Math.sqrt(Math.pow(Math.abs(this.user.position.longitude - this.questList[i].location.coordinates[0]), 2) + Math.pow(Math.abs(this.user.position.latitude - this.questList[i].location.coordinates[1]), 2))
           if (newDistance < distance) {
             distance = newDistance
             questSelected = this.questList[i]
@@ -1408,9 +1408,9 @@ console.log(quest.premiumPrice.androidId)
           }
           await UserService.nextStoryStep(this.story.step)
         }
-        
-        if ((this.$store.state.user.story.step === 16 ||  this.$store.state.user.story.step === 23) && this.user.proposeAQuest) {
-          // get the closest quest not already played
+       
+        if ((this.$store.state.user.story.step === 16 ||  this.$store.state.user.story.step >= 23) && this.user.proposeAQuest) {
+          // Alert if the user is very close to a quest
           var closestQuest = this.getClosestQuestUnplayed()
 
           if (closestQuest !== null) {
@@ -1418,11 +1418,11 @@ console.log(quest.premiumPrice.androidId)
               questId: closestQuest.questId,
               quest: this.getQuestTitle(closestQuest, false)
             }
+            this.story.step = 16
           } else {
             this.story.data = null
           }
           
-          this.story.step = 16
           // avoid the notification to appear when user filter on quests
           this.user.proposeAQuest = false
         }
