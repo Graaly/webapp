@@ -1,14 +1,105 @@
 <template>
   <div>
     <div class="wrapper">
-      <div v-if="!access">
+      <div v-if="!userType">
+        <h1 class="size-3 centered">{{ $t('label.CreateYourQuest') }}</h1>
+        <div class="q-pa-md centered">
+          {{ $t('label.BuilderChooseUserType') }}
+        </div>
+        <div class="q-pa-md">
+          <q-card class="my-card">
+            <q-card-section class="bg-secondary text-white">
+              <div class="text-h6">{{ $t('label.AProfessional') }}</div>
+            </q-card-section>
+
+            <q-card-section>
+              {{ $t('label.AProfessionalDesc1') }}
+            </q-card-section>
+            
+            <q-separator />
+
+            <q-card-actions align="right">
+              <q-btn flat color="secondary" @click="changeUserType('pro')" test-id="btn-create-public-quest">{{ $t('label.Select') }}</q-btn>
+            </q-card-actions>
+          </q-card>
+        </div>
+        <div class="q-pa-md">
+          <q-card class="my-card">
+            <q-card-section class="bg-secondary text-white">
+              <div class="text-h6">{{ $t('label.AnIndividual') }}</div>
+            </q-card-section>
+
+            <q-card-section>
+              {{ $t('label.AnIndividualDesc1') }}
+            </q-card-section>
+
+            <q-separator />
+
+            <q-card-actions align="right">
+              <q-btn flat color="secondary" @click="changeUserType('individual')">{{ $t('label.Select') }}</q-btn>
+            </q-card-actions>
+          </q-card>
+        </div>
+        <div class="centered">
+          <q-btn flat @click="cancel">{{ $t('label.Cancel') }}</q-btn>
+        </div>
+      </div>
+      <div v-if="userType==='pro' && !access">
+        <h1 class="size-3 centered">{{ $t('label.CreateYourQuest') }}</h1>
+        <div class="q-pa-md centered">
+          {{ $t('label.BuilderProIntro') }}
+        </div>
+        <div class="q-pa-md">
+          <q-card class="my-card">
+            <q-card-section class="bg-primary text-white">
+              <div class="text-h6">{{ $t('label.PublicQuest') }} - {{ $t('label.PaymentOnUsage') }}</div>
+            </q-card-section>
+
+            <q-card-section>
+              <div v-html="$t('label.PublicProQuestDesc1')"></div>
+              <div class="centered" v-if="!readMorePublicProQuest"><a @click="readMorePublicProQuest = true">{{ $t('label.ReadMore') }}</a></div>
+            </q-card-section>
+            
+            <q-card-section v-if="readMorePublicProQuest">
+              <div v-html="$t('label.PublicProQuestDesc2')"></div>
+            </q-card-section>
+
+            <q-separator />
+
+            <q-card-actions align="right">
+              <q-btn flat color="primary" @click="changeAccess('public')">{{ $t('label.TryForFree') }}</q-btn>
+            </q-card-actions>
+          </q-card>
+        </div>
+        <div class="q-pa-md">
+          <q-card class="my-card">
+            <q-card-section class="bg-primary text-white">
+              <div class="text-h6">{{ $t('label.PrivateQuest') }} - {{ $t('label.FromPrice') }} 399 €</div>
+            </q-card-section>
+
+            <q-card-section>
+              {{ $t('label.PrivateProQuestDesc1') }}
+            </q-card-section>
+
+            <q-separator />
+
+            <q-card-actions align="right">
+              <q-btn flat color="primary" @click="changeAccess('private')">{{ $t('label.TryForFree') }}</q-btn>
+            </q-card-actions>
+          </q-card>
+        </div>
+        <div class="centered">
+          <q-btn flat @click="backToUserType">{{ $t('label.Back') }}</q-btn>
+        </div>
+      </div>
+      <div v-if="userType==='individual' && !access">
         <h1 class="size-3 centered">{{ $t('label.CreateYourQuest') }}</h1>
         <div class="q-pa-md">
           {{ $t('label.BuilderIntro') }}
         </div>
         <div class="q-pa-md">
-          <q-card class="my-card bg-secondary text-white">
-            <q-card-section>
+          <q-card class="my-card">
+            <q-card-section class="bg-primary text-white">
               <div class="text-h6">{{ $t('label.PublicQuest') }} - {{ $t('label.Free') }}</div>
             </q-card-section>
 
@@ -22,15 +113,15 @@
 
             <q-separator />
 
-            <q-card-actions>
-              <q-btn flat @click="changeAccess('public')" test-id="btn-create-public-quest">{{ $t('label.CreatePublicQuest') }}</q-btn>
+            <q-card-actions align="right">
+              <q-btn flat color="primary" @click="changeAccess('public')">{{ $t('label.CreatePublicQuest') }}</q-btn>
             </q-card-actions>
           </q-card>
         </div>
-        <div class="q-pa-md" v-if="privateQuest.buyable">
-          <q-card class="my-card bg-primary text-white">
-            <q-card-section>
-              <div class="text-h6">{{ $t('label.PrivateQuest') }} - {{ privateQuest.price }}</div>
+        <div class="q-pa-md">
+          <q-card class="my-card">
+            <q-card-section class="bg-primary text-white">
+              <div class="text-h6">{{ $t('label.PrivateQuest') }} <span v-if="privateQuest.buyable">- {{ privateQuest.price }}</span></div>
             </q-card-section>
 
             <q-card-section>
@@ -43,29 +134,19 @@
 
             <q-separator />
 
-            <q-card-actions>
-              <q-btn flat @click="changeAccess('private')">{{ $t('label.BuyPrivateQuest') }}</q-btn>
+            <q-card-actions align="right">
+              <q-btn v-if="privateQuest.buyable" flat color="primary" @click="changeAccess('private')">{{ $t('label.BuyPrivateQuest') }}</q-btn>
+              <q-btn v-if="!privateQuest.buyable" flat disabled>{{ $t('label.OnlyBuyableOnMobile') }}</q-btn>
               <!--<q-btn flat>Utiliser un modèle</q-btn>-->
             </q-card-actions>
           </q-card>
         </div>
         <div class="centered">
-          <q-btn flat @click="cancel">{{ $t('label.Cancel') }}</q-btn>
+          <q-btn flat @click="backToUserType">{{ $t('label.Back') }}</q-btn>
         </div>
       </div>
       <div class="grow" v-if="access === 'public'">
         <h1 class="size-3 centered">{{ $t('label.CreateYourPublicQuest') }}</h1>
-        <!--
-        <div class="centered" v-html="$t('label.andWin')"></div>
-        <div class="row q-pa-md">
-          <div class="col score-text centered">600 <q-icon color="warning" name="fas fa-bolt" /></div>
-          <div class="col centered">
-            <q-icon color="positive" size="2rem" name="fas fa-money-bill-wave" /> <br />
-            {{ $t('label.SomeMoney') }} 
-            <a @click="openMoneyPopup()">*</a>
-          </div>
-        </div>
-        -->
         <div class="q-pa-md" v-html="$t('label.BuilderWelcomeMessage')"></div>
         <div class="q-px-md">
           <q-btn color="primary" class="full-width center" @click="createNewQuest()" test-id="btn-accept-rules">{{ $t('label.AcceptTheRules') }}</q-btn>
@@ -74,9 +155,11 @@
       </div>
       <div class="grow" v-if="access === 'private'">
         <h1 class="size-3 centered">{{ $t('label.CreateYourPrivateQuest') }}</h1>
-        <div class="q-pa-md" v-html="$t('label.BuilderPrivateWelcomeMessage')"></div>
+        <div v-if="userType === 'individual'" class="q-pa-md" v-html="$t('label.BuilderPrivateWelcomeMessage')"></div>
+        <div v-if="userType === 'pro'" class="q-pa-md" v-html="$t('label.BuilderPrivateProWelcomeMessage')"></div>
         <div class="q-px-md">
-          <q-btn color="primary" class="full-width center" @click="buyPrivateQuest()">{{ $t('label.AcceptAndBuyAPrivateQuest') }} ({{ privateQuest.price }})</q-btn>
+          <q-btn v-if="userType === 'individual'" color="primary" class="full-width center" @click="buyPrivateQuest()">{{ $t('label.AcceptAndBuyAPrivateQuest') }} ({{ privateQuest.price }})</q-btn>
+          <q-btn v-if="userType === 'pro'" color="primary" class="full-width center" @click="createNewQuest()">{{ $t('label.AcceptTheRules') }}</q-btn>
           <q-btn class="full-width center q-mt-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>
         </div>
       </div>
@@ -92,7 +175,9 @@ import QuestService from 'services/QuestService'
 export default {
   data() {
     return {
+      userType: null,
       access: null,
+      readMorePublicProQuest: false,
       privateQuest: {
         price: '-',
         buyable: false
@@ -111,6 +196,13 @@ export default {
         title: this.$t('label.HowToWinMoney'),
         message: this.$t('label.HowToWinMoneyExplaination')
       })
+    },
+    /*
+     * change user type (pro / individual)
+     */
+    changeUserType(userType) {  
+      this.userType = userType; 
+      this.moveToTop();
     },
     /*
      * change access mode (public / private)
@@ -139,7 +231,7 @@ export default {
       let newQuest = {
         title: {}
       }
-      let res = await QuestService.create(newQuest, this.access)
+      let res = await QuestService.create(newQuest, this.access, this.userType)
 
       if (res && res.data && res.data.questId) {
         this.$router.push('/quest/builder/' + res.data.questId)
@@ -213,6 +305,13 @@ export default {
      */
     async cancel() {
       this.$router.push('/map')
+    },
+    /*
+     * Back to user type selection
+     */
+    async backToUserType() {
+      this.userType = null
+      this.access = null
     }
   }
 }

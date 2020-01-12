@@ -2,11 +2,11 @@
   <div :class="{'bg-white': !chapters.showNewStepOverview}">
     <!------------------ NEW RELEASE BUTTON ---------->
     <div v-if="!chapters.showNewStepOverview" class="title-bar">
+      <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline close-btn" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
+      
       <div v-if="readOnly && (quest.status === 'published' || quest.status === 'unpublished')" class="centered bg-secondary text-white q-pa-md" @click="createNewVersion()">
         {{ $t('label.ClickHereToCreateANewQuestVersion') }}
       </div>
-      
-      <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline close-btn" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
       
       <h1 class="size-4 q-pl-md">
         <span v-if="tabs.progress > 0">
@@ -239,6 +239,22 @@
             {{ $t('label.AddAReward') }}:
             <input @change="uploadReward" ref="rewardfile" type="file" accept="image/*" />
             <q-icon name="help" @click.native="showHelpPopup('helpQuestReward')" />
+          </div>
+          <div v-if="form.fields.customization && form.fields.customization.character && form.fields.customization.character !== ''">
+            <p>{{ $t('label.YourCharacter') }} :</p>
+            <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.customization.character" />
+          </div>
+          <div v-if="!isIOs && !readOnly">
+            <q-btn-group class="full-width">
+              <q-btn class="full-width" :label="$t('label.AddACustomCharacter')" @click="$refs['characterfile'].click()" />
+              <q-btn @click="showHelpPopup('helpQuestCharacter')" icon="help" />
+            </q-btn-group>
+            <input @change="uploadCharacter" ref="characterfile" type="file" accept="image/*" hidden />
+          </div>
+          <div v-if="isIOs && !readOnly">
+            {{ $t('label.AddACustomCharacter') }}:
+            <input @change="uploadCharacter" ref="characterfile" type="file" accept="image/*" />
+            <q-icon name="help" @click.native="showHelpPopup('helpQuestCharacter')" />
           </div>
         </div>
         
@@ -676,7 +692,7 @@
         <stepPlay 
           :step="chapters.newStep.overviewData" 
           runId="0" 
-          :color="(quest.customization && quest.customization.color && quest.customization.color !== '') ? quest.customization.color : 'primary'" 
+          :customization="quest.customization ? quest.customization : {color: 'primary'}" 
           :itemUsed="selectedItem" 
           :reload="chapters.reloadStepPlay" 
           :lang="languages.current" 
@@ -900,7 +916,7 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { color: '', logo: '' },
+          customization: { color: '', logo: '', character: '' },
           rewardPicture: ''
         },
         categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }, this.$t),
@@ -1564,6 +1580,33 @@ export default {
       if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
         if (uploadPictureResult.data.file) {
           this.form.fields.customization.logo = uploadPictureResult.data.file
+          this.$forceUpdate()
+        } else if (uploadPictureResult.data.message && uploadPictureResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    /*
+     * Upload a custo character for the quest
+     */
+    async uploadCharacter(e) {
+      this.$q.loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadPictureResult = await QuestService.uploadCharacter(data)
+      if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
+        if (uploadPictureResult.data.file) {
+          this.form.fields.customization.character = uploadPictureResult.data.file
+          this.$forceUpdate()
         } else if (uploadPictureResult.data.message && uploadPictureResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -1729,18 +1772,37 @@ export default {
           }
         }
         if (action === 'publish') {
-          this.$q.loading.show()
-          await QuestService.publish(this.questId, lang)
-          //TODO: manage if publishing failed
-          this.$q.loading.hide()
-          
           if (this.quest.status === 'unpublished' || this.quest.status === 'draft') {
-            if (this.quest.access === 'public') {
-              this.quest.status = 'tovalidate'            
+            if (this.quest.access === 'private' && !this.quest.isPremium) {
+              this.$q.loading.show()
+              await QuestService.publish(this.questId, lang)
+              //TODO: manage if publishing failed
+              this.$q.loading.hide()
+              this.quest.status = 'published'            
             } else {
-              this.quest.status = 'published'
+              var _this = this
+              this.$q.dialog({
+                message: this.$t('label.AreYouSureYouWantToPublishThisQuest'),
+                ok: true,
+                cancel: true
+              }).onOk(async () => {
+                _this.$q.loading.show()
+                await QuestService.publish(_this.questId, lang)
+                //TODO: manage if publishing failed
+                _this.$q.loading.hide()
+                _this.quest.status = 'tovalidate'
+              }).onCancel(async () => {
+                for (var i = 0; i < _this.form.fields.languages.length; i++) {
+                  _this.form.fields.languages[i].published = false
+                }
+              })
             }
             this.readOnly = true
+          } else {
+            this.$q.loading.show()
+            await QuestService.publish(this.questId, lang)
+            //TODO: manage if publishing failed
+            this.$q.loading.hide()
           }
           this.tabs.progress = 3
         } else {

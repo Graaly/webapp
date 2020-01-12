@@ -46,8 +46,8 @@ export default {
    * Create a quest
    * @param   {Object}    data                Quest data (title, ...)
    */
-  create (data, access) {
-    return Api().post('quest/create/' + access, data).catch(error => console.log(error.request))
+  create (data, access, userType) {
+    return Api().post('quest/create/' + access + '/' + userType, data).catch(error => console.log(error.request))
   },
   /*
    * Create a quest
@@ -185,6 +185,13 @@ export default {
    */
   uploadLogo(data) {
     return Api().post('/quest/logo/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+  },
+  /*
+   * Upload a quest character
+   * @param   {Object}    data                picture data
+   */
+  uploadCharacter(data) {
+    return Api().post('/quest/character/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
   },
   /*
    * Upload a quest reward

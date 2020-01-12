@@ -18,7 +18,7 @@
       :itemUsed="selectedItem" 
       :reload="loadStepData" 
       :lang="lang" 
-      :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? info.quest.customization.color : 'primary'" 
+      :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}" 
       :answer="offline.answer" 
       @played="trackStepPlayed" 
       @success="trackStepSuccess" 
@@ -37,7 +37,8 @@
           <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
-          <p v-if="inventory.items.length > 0 && !warnings.inventoryMissing">{{ $t('label.InventoryUsage') }}</p>
+          <p v-if="inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type === 'use-item'">{{ $t('label.InventoryUsage') }}</p>
+          <p v-if="inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type !== 'use-item'">{{ $t('label.InventoryZoom') }}</p>
           <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
             <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
@@ -48,11 +49,12 @@
         </div>
       </div>
     </transition>
-    <q-dialog v-model="inventory.detail.isOpened">
-      <div class="bg-white centered q-pa-md">
+    <q-dialog maximized v-model="inventory.detail.isOpened">
+      <div class="bg-white centered">
         <img style="width: 100%" :src="inventory.detail.url">
-        <div>{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>
-        <q-btn class="q-mb-xl" color="primary" @click="closeInventoryDetail()">{{ $t('label.Close') }}</q-btn>
+        <div class="q-pa-md">{{ inventory.detail.title }}</div>
+        <div class="q-pa-md text-grey">{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>
+        <q-btn class="q-pa-md" color="primary" @click="closeInventoryDetail()">{{ $t('label.Close') }}</q-btn>
       </div>
     </q-dialog>
     
@@ -87,7 +89,7 @@
     <!--====================== HINT =================================-->
     
     <div class="fixed-bottom over-map" v-if="hint.isOpened">
-      <story step="hint" :data="{hint: hint.label[lang]}" @next="askForHint()"></story>
+      <story step="hint" :data="{hint: hint.label[lang], character: (info.quest.customization && info.quest.customization.character && info.quest.customization.character !== '') ? (info.quest.customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + info.quest.customization.character : info.quest.customization.character) : '3'}" @next="askForHint()"></story>
     </div>
     
     <!--====================== STORY =================================-->
@@ -153,8 +155,9 @@
             icon="work" 
             :class="{'flashing': inventory.suggest, 'bg-secondary': inventory.isOpened, 'bg-primary': (!inventory.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
             @click="openInventory()" 
-            v-show="inventory.show" 
-          />
+          />  
+            <!--v-show="inventory.show" 
+          />-->
         </div>
         <div class="col centered q-pb-md">
           <q-btn 
@@ -1084,10 +1087,18 @@ export default {
           } else {
             this.info.quest.picture = '_default-quest-picture.png'
           }
+          // get customized logo
           if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo !== '') {
             const logoUrl = await utils.readBinaryFile(id, this.info.quest.customization.logo)
             if (logoUrl) {
               this.info.quest.customization.logo = logoUrl
+            }
+          }
+          // get customized hint character
+          if (this.info.quest.customization && this.info.quest.customization.character && this.info.quest.customization.character !== '') {
+            const characterUrl = await utils.readBinaryFile(id, this.info.quest.customization.character)
+            if (characterUrl) {
+              this.info.quest.customization.character = characterUrl
             }
           }
         }
@@ -1109,6 +1120,7 @@ export default {
       if (this.step.type !== 'use-item') {
         this.inventory.detail.isOpened = true
         this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
+        this.inventory.detail.title = item.title
       } else {
         this.selectedItem = item
         this.closeAllPanels()

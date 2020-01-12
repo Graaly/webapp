@@ -22,7 +22,8 @@
       </div>
       <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" style="min-height: 20vh" /></div>
       <div class="character">
-        <img :src="'statics/icons/story/character' + steps[currentStep.id].discussions[currentStep.discussionId].character + '_attitude1.png'" style="min-height: 30vh" />
+        <img v-if="steps[currentStep.id].discussions[currentStep.discussionId].character.indexOf('.') === -1" :src="'statics/icons/story/character' + steps[currentStep.id].discussions[currentStep.discussionId].character + '_attitude1.png'" style="min-height: 30vh" />
+        <img v-if="steps[currentStep.id].discussions[currentStep.discussionId].character.indexOf('.') !== -1" :src="steps[currentStep.id].discussions[currentStep.discussionId].character" style="min-height: 20vh; max-height: 30vh;" />
       </div>
       <div class="fixed-bottom-left q-pa-md" v-if="steps[currentStep.id].allowSkip">
         <a class="text-white" @click="skipTutorial">{{ $t('label.SkipTutorial') }}</a>
@@ -43,7 +44,7 @@ export default {
         // Hint
         'hint': {
           discussions: [
-            {character: "3", text: "hint", button: {label: "OkThanks"}, condition: null}
+            {character: (this.data && this.data.character) ? this.data.character : "3", text: "hint", button: {label: "OkThanks"}, condition: null}
           ],
           bottom: 0,
           allowSkip: false
@@ -125,7 +126,7 @@ export default {
         // step 6 - Read more text in quests
         6: {
           discussions: [
-            {character: "2", text: "readMore", button: {label: "OkThanks"}, condition: null}
+            {character: (this.data && this.data.character) ? this.data.character : "2", text: "readMore", button: {label: "OkThanks"}, condition: null}
           ],
           bottom: 0,
           allowSkip: false
@@ -219,9 +220,9 @@ export default {
         // step 16 - Start a new quest
         16: {
           discussions: [
-            {character: "1", text: "StartNewQuest1", condition: null, link: {label: "NoThanks", action: "close"}},
-            {character: "1", text: "StartNewQuest2", condition: (this.data !== null && this.data.hasOwnProperty("questId")), button: {label: "letsGo", action: "/quest/play/" + ((this.data && this.data.hasOwnProperty("questId")) ? this.data.questId : '0')}, link: {label: "NoThanks"}},
-            {character: "1", text: "StartNewQuest3", condition: null}
+            {character: "1", text: "StartNewQuest1", condition: (this.data !== null && this.data.hasOwnProperty("questId")), button: {label: "letsGo", action: "/quest/play/" + ((this.data && this.data.hasOwnProperty("questId")) ? this.data.questId : '0')}, link: {label: "NoThanks", action: "close"}}
+            //{character: "1", text: "StartNewQuest2", condition: (this.data !== null && this.data.hasOwnProperty("questId")), button: {label: "letsGo", action: "/quest/play/" + ((this.data && this.data.hasOwnProperty("questId")) ? this.data.questId : '0')}, link: {label: "NoThanks"}},
+            //{character: "1", text: "StartNewQuest3", condition: null}
           ],
           bottom: 0,
           allowSkip: true
