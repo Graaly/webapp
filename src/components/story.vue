@@ -76,7 +76,7 @@ export default {
           bottom: 0,
           allowSkip: true
         },
-        // step 1 - Secretary introduce a quest
+        /*/ step 1 - Secretary introduce a quest
         1: {
           discussions: [
             {character: "2", text: "WelcomeToQuest1", link: {label: "BackToTheMap", action: "/map"}, condition: null},
@@ -90,7 +90,7 @@ export default {
           ],
           bottom: 0,
           allowSkip: false
-        },
+        },*/
         // step 3 - Discovery quest
         3: {
           discussions: [

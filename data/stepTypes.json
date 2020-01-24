@@ -234,7 +234,7 @@
     "description": "JigsawPuzzleDesc",
     "showTrick": "no",
     "textRules": {
-      "maxNbChars": 50,
+      "maxNbChars": 100,
       "maxNbCarriageReturns": 1
     },
     "hasBackgroundImage": "option",
@@ -249,7 +249,7 @@
     "description": "MemoryDesc",
     "showTrick": "no",
     "textRules": {
-      "maxNbChars": 50,
+      "maxNbChars": 100,
       "maxNbCarriageReturns": 1
     },
     "enabled": true,

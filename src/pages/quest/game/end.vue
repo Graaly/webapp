@@ -10,7 +10,19 @@
         </div>
       </div>
     </div>
-    <div class="dark-background" v-if="!warnings.noNetwork">
+    <div class="dark-background" v-if="!warnings.noNetwork && quest.customization && quest.customization.removeScoring">
+      <div class="bg-primary centered">
+        <h4 v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage !== ''" v-html="quest.customization.endMessage" />
+        <h4 v-if="!quest.customization || !quest.customization.endMessage || quest.customization.endMessage === ''">{{ $t('label.ThanksForPlaying') }}</h4>
+      </div>
+      <div v-if="isUserAuthor" class="back centered q-pa-md bg-primary text-primary">
+        <q-btn class="text-primary bg-white full-width" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
+      </div>
+      <div v-if="isUserAdmin" class="back centered q-pa-md bg-primary text-primary">
+        <q-btn class="text-primary bg-white full-width" :label="$t('label.GoToQuestValidation')" @click="$router.push('/admin/validate/' + questId + '/version/' + quest.version)" />
+      </div>
+    </div>
+    <div class="dark-background" v-if="!warnings.noNetwork && !(quest.customization && quest.customization.removeScoring)">
       <div class="bg-primary" v-if="run && run._id">
         <!------------------ TITLE AREA ------------------------>
         
@@ -35,7 +47,7 @@
               
         <!------------------ CHALLENGE FRIENDS AREA ------------------------>
         
-        <div class="q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="quest.data.type !== 'discovery' && run.score > 0 && quest && quest.data && quest.data.access === 'public'">
+        <div class="q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="quest.type !== 'discovery' && run.score > 0 && quest && quest.access === 'public'">
           <q-btn icon="people" color="secondary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
         </div>
         
@@ -51,7 +63,7 @@
         
         <!------------------ REVIEW AREA ------------------------>
         
-        <div class="q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="quest.data.type !== 'discovery' && showAddReview && quest && quest.data && quest.data.access === 'public'">
+        <div class="q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="quest.type !== 'discovery' && showAddReview && quest && quest.access === 'public'">
           <h3 class="size-2">{{ $t('label.ReviewThisQuest') }} <!--(+2 <q-icon color="white" name="fas fa-bolt" />)--></h3>
           <p>{{ $t('label.Rating') + $t('label.Colon') }} <q-rating v-model="rating" :max="5" size="1.5rem" :disable="reviewSent" /></p>
           <p>{{ $t('label.CommentThisQuest') }} ({{ $t('label.Optional') }}){{ $t('label.Colon') }}</p>
@@ -91,7 +103,7 @@
           <q-btn class="text-primary bg-white full-width" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
         </div>
         <div v-if="isUserAdmin" class="back centered q-pa-md bg-primary text-primary">
-          <q-btn class="text-primary bg-white full-width" :label="$t('label.GoToQuestValidation')" @click="$router.push('/admin/validate/' + questId + '/version/' + quest.data.version)" />
+          <q-btn class="text-primary bg-white full-width" :label="$t('label.GoToQuestValidation')" @click="$router.push('/admin/validate/' + questId + '/version/' + quest.version)" />
         </div>
         
       </div>
@@ -320,15 +332,19 @@ export default {
         await this.getRanking()
         
         // get quest data
+        var quest
         if (this.run && this.run.version) {
-          this.quest = await QuestService.getById(this.questId, this.run.version)
+          quest = await QuestService.getById(this.questId, this.run.version)
         } else {
-          this.quest = await QuestService.getLastById(this.questId)
+          quest = await QuestService.getLastById(this.questId)
+        }
+        if (quest && quest.data) {
+          this.quest = quest.data
         }
         
-        if (this.quest && this.quest.data) {
+        if (quest && quest.data) {
           // show review part only if player is not author & has not already sent a review for this quest
-          this.isUserAuthor = this.$store.state.user._id === this.quest.data.authorUserId
+          this.isUserAuthor = this.$store.state.user._id === this.quest.authorUserId
           const results = await ReviewService.list({ questId: this.questId, userId: this.$store.state.user._id, version: this.run.version }, { limit: 1 })
           const isReviewAlreadySent = results.data && results.data.length >= 1
           this.showAddReview = !this.isUserAdmin && !this.isUserAuthor && !isReviewAlreadySent
@@ -342,7 +358,7 @@ export default {
         // get offline run data
         const offlineRunData = await this.getOfflineRunData()
       
-        let endStatus = await RunService.endRun(this.run._id, offlineRunData, this.questId, this.quest.data.version, this.quest.data.mainLanguage)
+        let endStatus = await RunService.endRun(this.run._id, offlineRunData, this.questId, this.quest.version, this.quest.mainLanguage)
         if (endStatus && endStatus.data) {
           // assign computed score
           this.run.score = endStatus.data.score
@@ -370,15 +386,17 @@ export default {
           }
         }
         
-        // story management
-        this.startStory()
-        
-        // get user new score
-        //this.level.color = "secondary"
-        this.score.new = runIsInProgress ? this.score.old + this.run.score : this.score.old
-        // force score update
-        this.$store.state.user.score = this.score.new
-        utils.setTimeout(this.updateProgression, 3000)
+        if (!this.quest.customization || !this.quest.customization.removeScoring) {
+          // story management
+          this.startStory()
+          
+          // get user new score
+          //this.level.color = "secondary"
+          this.score.new = runIsInProgress ? this.score.old + this.run.score : this.score.old
+          // force score update
+          this.$store.state.user.score = this.score.new
+          utils.setTimeout(this.updateProgression, 3000)
+        }
       } else {
         // no network
         this.warnings.noNetwork = true

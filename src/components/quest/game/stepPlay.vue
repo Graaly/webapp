@@ -311,21 +311,24 @@
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled"></video>
         </transition>
-        <!--<div>
-          <div class="text">
-            <p>{{ getTranslatedText() }}</p>
-            <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
-            <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
-            <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
-            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
-          </div>
-        </div>-->
         <div>
+          <div v-if="isHybrid && !takingSnapshot" style="position: absolute; top: 8px; right: 8px;z-index: 1990;">
+            <q-btn 
+              round 
+              size="lg"
+              :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
+              :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}" 
+              icon="photo_camera"  
+              @click="takeSnapshot()"
+            />
+          </div>
+          <img id="snapshotImage" v-if="takingSnapshot" style="transform: rotate(90deg); position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />
           <div>
             <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
           </div>
-          <div class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
+          <div v-if="!step.options || !step.options.fullWidthPicture" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
           </div>
+          <img v-if="step.options && step.options.fullWidthPicture" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985;" />
         </div>
       </div>
       
@@ -523,6 +526,8 @@ export default {
         playerResult: null, // can be null even if step is played (answered)
         stepPlayed: false, // changes to true when step is played
         cameraStreamEnabled: false,
+        imageCapture: null,
+        takingSnapshot: false,
         serverUrl: process.env.SERVER_URL,
         nbTry: 0,
         score: 0,
@@ -543,6 +548,7 @@ export default {
           ["7", "8", "9"],
           ["*", "0", "#"]
         ],
+        codeColors: {},
         
         // for step type 'image-recognition'
         photoComparisonThreshold: 70,
@@ -721,6 +727,14 @@ export default {
         }
         
         if (this.step.type === 'code-color') {
+          if (this.step.options.colors) {
+            this.codeColors = []
+            for (var i = 0; i < this.step.options.colors.length; i++) {
+              this.codeColors.push(this.step.options.colors[i].value)
+            }
+          } else {
+            this.codeColors = colorsForCode
+          }
           this.resetColorCode()
         }
         if (this.step.type === 'code-image') {
@@ -957,6 +971,11 @@ export default {
                 cameraStream2.srcObject = stream
                 cameraStream2.play()
                 this.cameraStreamEnabled = true
+                
+                // init video capturing
+console.log("try")
+                const track = stream.getVideoTracks()[0];
+                this.imageCapture = new ImageCapture(track);
               })
               .catch((err) => {
                 // TODO friendly behavior/message for user
@@ -1910,7 +1929,7 @@ export default {
      */
     resetColorCode() {
       const length = ((this.step.options && this.step.options.codeLength && this.step.options.codeLength > 0) ? this.step.options.codeLength : 4)
-      this.playerCode = Array(length).fill('red')
+      this.playerCode = Array(length).fill(this.codeColors[0])
     },
     /*
      * Reset the image code pad
@@ -2014,9 +2033,9 @@ export default {
       if (this.playerResult !== null) {
         return
       }
-      let currentColorIndex = colorsForCode.indexOf(this.playerCode[index])
-      let nextColorIndex = (currentColorIndex + 1) % colorsForCode.length
-      this.$set(this.playerCode, index, colorsForCode[nextColorIndex])
+      let currentColorIndex = this.codeColors.indexOf(this.playerCode[index])
+      let nextColorIndex = (currentColorIndex + 1) % this.codeColors.length
+      this.$set(this.playerCode, index, this.codeColors[nextColorIndex])
     },
     /*
      * Change the image in the image code pad
@@ -2026,9 +2045,9 @@ export default {
       if (this.playerResult !== null) {
         return
       }
-      let currentColorIndex = colorsForCode.indexOf(this.playerCode[index])
-      let nextColorIndex = (currentColorIndex + 1) % colorsForCode.length
-      this.$set(this.playerCode, index, colorsForCode[nextColorIndex])
+      let currentColorIndex = this.codeColors.indexOf(this.playerCode[index])
+      let nextColorIndex = (currentColorIndex + 1) % this.codeColors.length
+      this.$set(this.playerCode, index, this.codeColors[nextColorIndex])
     },
     /*
      * Display / hide camera
@@ -2302,7 +2321,7 @@ export default {
         return
       }
       
-      let vw = window.innerWidth / 100 // in px
+      let vw = this.getScreenWidth() / 100 // in px
       
       var data = {
         windowWidth: vw,
@@ -2317,7 +2336,8 @@ export default {
      * Show the item location after success / failure
      */
     async showItemLocation(posX, posY) {
-      let vw = window.innerWidth / 100
+      let vw = this.getScreenWidth() / 100
+
       let answerPixelCoordinates = {
         left: Math.round(posX / 100 * 100 * vw),
         top: Math.round(posY / 100 * 133 * vw)
@@ -2351,7 +2371,7 @@ export default {
         return
       }
       
-      let vw = window.innerWidth / 100 // in px
+      let vw = this.getScreenWidth() / 100 // in px
       
       var data = {
         windowWidth: vw,
@@ -2360,6 +2380,68 @@ export default {
       }
       
       await this.checkAnswer(data)
+    },
+    /*
+     * take a snapshot of the screen
+     */
+    takeSnapshot() {
+      this.takingSnapshot = true
+console.log("test2")
+      if (this.isIOs && CameraPreview) {
+console.log("test3")
+        CameraPreview.takeSnapshot({quality: 85}, function(base64PictureData){
+          /*
+            base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
+          */
+
+          // One simple example is if you are going to use it inside an HTML img src attribute then you would do the following:
+          imageSrcData = 'data:image/jpeg;base64,' +base64PictureData;
+          const image = document.getElementById('snapshotImage')
+          image.src = imageSrcData
+          var _this = this
+          setTimeout(function () { 
+            // save snapshot
+            navigator.screenshot.save(function (error, res) {
+              if (error) {
+                console.error(error)
+              } else {
+                console.log('ok', res.filePath)
+              }
+              _this.takingSnapshot = false
+              Notification(_this.$t('label.SnapshotTaken'), 'info')
+            })
+          }, 2000)
+        });
+      } else {
+        // generate a snapshot of the video flow
+        this.imageCapture.takePhoto()
+          .then(blob => {
+            const image = document.getElementById('snapshotImage')
+            image.src = URL.createObjectURL(blob)
+            // rotate image (exif issue)
+            const width = image.width
+            const height = image.height
+            image.style.width = height + "px"
+            image.style.height = width + "px"
+            image.style.top = ((height - width) / 2) + "px"
+            image.style.left = ((width - height) / 2) + "px"
+            
+            var _this = this
+            setTimeout(function () { 
+              // save snapshot
+              navigator.screenshot.save(function (error, res) {
+                if (error) {
+                  console.error(error)
+                } else {
+                  console.log('ok', res.filePath)
+                }
+                _this.takingSnapshot = false
+                Notification(_this.$t('label.SnapshotTaken'), 'info')
+              })
+            }, 2000)
+          })
+          .catch(err => { Notification(_this.$t('label.SnapshotTakenIssue'), 'info'); console.log(err) })
+      }
     },
     /*
      * get the translation for main text
@@ -2372,11 +2454,19 @@ export default {
       let translation = (this.step.text && typeof this.step.text === 'object' && this.step.text[this.lang]) ? this.step.text[this.lang] : defaultText
       return translation
     },
+    getScreenWidth() {
+      let vw = window.innerWidth
+      //if desktop, limit window size to 500px 
+      if (!this.isHybrid && vw > 500) {
+        vw = 500
+      }
+      return vw
+    },
     /*
      * Show the item location after success / failure
      */
     async showFoundLocation(posX, posY) {
-      let vw = window.innerWidth / 100
+      let vw = this.getScreenWidth() / 100
       let answerPixelCoordinates = {
         left: Math.round(posX / 100 * 100 * vw),
         top: Math.round(posY / 100 * 133 * vw)
@@ -3289,7 +3379,7 @@ export default {
 
   /* image-over-flow specific */
   
-  .image-over-flow { background: transparent; }
+  .image-over-flow { background: transparent; padding: 0px !important; }
   .image-over-flow video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .image-over-flow .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
   .image-over-flow .image { z-index: 50; position: relative; } /* positioning is required to have z-index working */
