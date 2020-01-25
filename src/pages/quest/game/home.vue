@@ -24,7 +24,7 @@
           <q-item clickable v-ripple>
             <q-item-section side>
               <q-avatar size="50px">
-                <img v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.picture" :src="quest.author.picture" />
+                <img v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.picture" :src="serverUrl + '/upload/profile/' + quest.author.picture" />
                 <img v-if="typeof quest.author === 'undefined' || !quest.author || !quest.author.picture" src="statics/profiles/noprofile.png" />
               </q-avatar>
             </q-item-section>

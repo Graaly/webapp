@@ -53,7 +53,8 @@
         <div class="fixed-bottom story">
           <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
           <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
-            <p class="carrier-return">{{ getTranslatedText() }}</p>
+            <p class="carrier-return" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p class="text" v-if="getTranslatedText() != '' && step.options && step.options.html" v-html="getTranslatedText()"></p>
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
@@ -312,7 +313,7 @@
           <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled"></video>
         </transition>
         <div>
-          <div v-if="isHybrid && !takingSnapshot" style="position: absolute; top: 8px; right: 8px;z-index: 1990;">
+          <div v-if="isHybrid && !takingSnapshot && (step.options && step.options.snapshotAllowed)" style="position: absolute; top: 8px; right: 8px;z-index: 1990;">
             <q-btn 
               round 
               size="lg"
@@ -322,7 +323,8 @@
               @click="takeSnapshot()"
             />
           </div>
-          <img id="snapshotImage" v-if="takingSnapshot" style="transform: rotate(90deg); position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />
+          <img id="snapshotImage" v-if="!isIOs && takingSnapshot" style="transform: rotate(90deg); position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />
+          <img id="snapshotImageIos" v-if="isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />
           <div>
             <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
           </div>
@@ -2386,19 +2388,12 @@ console.log("try")
      */
     takeSnapshot() {
       this.takingSnapshot = true
-console.log("test2")
+      var _this = this
       if (this.isIOs && CameraPreview) {
-console.log("test3")
-        CameraPreview.takeSnapshot({quality: 85}, function(base64PictureData){
-          /*
-            base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
-          */
-
-          // One simple example is if you are going to use it inside an HTML img src attribute then you would do the following:
-          imageSrcData = 'data:image/jpeg;base64,' +base64PictureData;
-          const image = document.getElementById('snapshotImage')
+        CameraPreview.takePicture({quality: 85}, function(base64PictureData) {
+          imageSrcData = 'data:image/jpeg;base64,' +base64PictureData
+          const image = document.getElementById('snapshotImageIos')
           image.src = imageSrcData
-          var _this = this
           setTimeout(function () { 
             // save snapshot
             navigator.screenshot.save(function (error, res) {
@@ -2426,7 +2421,6 @@ console.log("test3")
             image.style.top = ((height - width) / 2) + "px"
             image.style.left = ((width - height) / 2) + "px"
             
-            var _this = this
             setTimeout(function () { 
               // save snapshot
               navigator.screenshot.save(function (error, res) {
