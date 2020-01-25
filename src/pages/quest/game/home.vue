@@ -1,7 +1,6 @@
 <template>
   <div class="scroll" v-scroll="scrolling">
-    <div class="fit" id="teaser">
-      
+    <div id="teaser">
       <!------------------ MAIN INFORMATION AREA ------------------------>
       
       <div v-if="(!quest || !quest.status) && !warning.questNotLoaded" class="centered q-pa-lg">
@@ -16,71 +15,114 @@
           <q-btn @click="initQuest()" color="primary">{{ $t('label.ReloadQuest') }}</q-btn>
         </div>
       </div>
-      <div v-if="quest && quest.status" class="fit" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '" v-touch-swipe.horizontal="swipeMgmt">
-        <div class="fit">
-          <div class="text-center bottom-dark-banner">
-            <div v-if="quest.status !== 'published'" class="bg-accent centered q-pa-sm">
-              {{ $t('label.QuestDraftVersion') }}
-            </div>
-            <div class="title" @click="restartStory()">
-              {{getLanguage() ? quest.title[getLanguage()] : $t('label.NoTitle') }} <q-icon name="help" />
-              &nbsp;<img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + getLanguage() + '.png'" />
-            </div>
-            <p v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.name">{{ $t('label.By') }} {{ quest.author.name }}</p>
-            <p class="medium-icon q-pa-none q-ma-none">
-              <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.availablePoints && quest.availablePoints > 0">{{ quest.availablePoints }} <span style="font-size: 0.5em">{{ $t('label.pointsToWin') }}</span><!--<q-icon name="fas fa-trophy" />--></span>
-              <span class="q-ml-sm q-mr-sm" v-show="!isOwner && isRunFinished && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAlreadyPlayedThisQuest') }}</span></span>
-              <span class="q-ml-sm q-mr-sm" v-show="isOwner && !isAdmin && quest.availablePoints && quest.availablePoints > 0"><span style="font-size: 0.5em">{{ $t('label.YouAreQuestOwnerDesc') }}</span></span>
-              <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.reward && quest.reward > 0">{{ quest.reward }} <q-icon name="fas fa-bolt" /></span>
-              <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || (isOwner && !isAdmin)) && quest.reward && quest.reward > 0">0 <q-icon name="fas fa-bolt" /></span>
-            </p>
-            <p v-if="quest.rating && quest.rating.rounded">
-              <q-rating readonly v-model="quest.rating.rounded" color="white" :max="5" size="1.2rem" />
-            </p> &nbsp;
-            <div class="text-center">
-              <p>
-                
-                <q-btn-dropdown v-if="shop.premiumQuest.priceCode === 'free' && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
-                  <q-list link>
-                    <q-item 
-                      v-for="lang in getAllLanguages()" :key="lang.lang" 
-                      v-show="lang.published" 
-                      @click.native="playQuest(quest.questId, lang.lang)"
-                    >
-                      <q-item-label>
-                        <img style="vertical-align: middle; margin-left: 8px" :src="'statics/icons/game/flag-' + lang.lang + '.png'" />
-                        {{ $t('language.' + lang.lang) }}
-                      </q-item-label>
-                    </q-item>
-                  </q-list>
-                </q-btn-dropdown>
-                <q-btn v-if="shop.premiumQuest.priceCode === 'free' && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
-                  <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
-                  <span v-if="!continueQuest && isRunFinished">{{ $t('label.SolveAgainThisQuest') }}</span>
-                  <span v-if="!continueQuest && !isRunFinished">{{ $t('label.SolveThisQuest') }}</span>
-                </q-btn>
-                <!--
-                <button class="q-btn q-btn-item q-btn-rectange bg-primary" v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && !(isOwner || isAdmin || isRunStarted || isRunFinished) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
-                  <span v-if="!continueQuest">{{ $t('label.SolveThisQuest') }}</span>
-                  <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
-                  <br /><span v-if="quest.price && quest.price > 0">{{ quest.price }} <q-icon name="fas fa-bolt" /></span>
-                </button>
-                -->
-                <q-btn v-if="!isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary">{{ $t('label.BuyCoinsToPlay') }}</q-btn>
-                <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary">{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</q-btn>
-                <q-btn v-if="shop.premiumQuest.priceCode !== 'free' && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)" :disabled="!shop.premiumQuest.buyable" @click="buyQuest()" color="primary">{{ $t('label.Buy') }} ({{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }})</q-btn>
-                <q-btn v-if="shop.premiumQuest.priceCode === 'notplayableonweb'" disabled color="primary">{{ $t('label.QuestPlayableOnMobile') }}</q-btn>
-              </p>
-            </div>
-            <div class="full-width text-center">
-              <q-btn flat :label="$t('label.BackToTheMap')" @click="backToTheMap()" />
-              <q-btn v-if="isOwner || isAdmin" flat :label="$t('label.Modify')" @click="modifyQuest()" />
-            </div>
+      <!-- =========================== PICTURE & AUTHOR ========================== -->
+      <div v-if="quest && quest.status" class="relative-position" :style="'width: 100vw; height: 133vw; background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '" v-touch-swipe.horizontal="swipeMgmt">
+        <div class="q-pa-sm dark-banner absolute-top">
+          <q-btn flat icon="arrow_back" @click="backToTheMap()" />
+        </div>
+        <div class="q-pa-sm dark-banner absolute-bottom">
+          <q-item clickable v-ripple>
+            <q-item-section side>
+              <q-avatar size="50px">
+                <img v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.picture" :src="serverUrl + '/upload/profile/' + quest.author.picture" />
+                <img v-if="typeof quest.author === 'undefined' || !quest.author || !quest.author.picture" src="statics/profiles/noprofile.png" />
+              </q-avatar>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.name">{{ quest.author.name }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </div>
+      </div>
+      <div class="q-pa-md bg-gray1 text-white">
+        <div v-if="quest.status !== 'published'" class="bg-accent centered q-pa-sm">
+          {{ $t('label.QuestDraftVersion') }}
+        </div>
+        <!-- =========================== TITLE ========================== -->
+        <div class="text-h5">
+          {{getLanguage() ? quest.title[getLanguage()] : $t('label.NoTitle') }} 
+          &nbsp;<img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + getLanguage() + '.png'" />
+        </div>
+        <!-- =========================== PROPERTIES ========================== -->
+        <div class="row q-pt-md text-subtitle1">
+          <div class="col-3">
+            <q-icon name="search" color="secondary" />
+            <q-icon name="search" :color="quest.level === 1 ? 'white' : 'secondary'" />
+            <q-icon name="search" :color="quest.level === 3 ? 'secondary' : 'white'" />
           </div>
-          <div class="fixed-bottom over-map fit" v-if="offline.show">
-            <offlineLoader :quest="this.quest" :design="'prepare'" @end="offline.show = false"></offlineLoader>
+          <div class="col-3">
+            <q-icon name="timer" color="secondary" />&nbsp;
+            <span v-if="quest.duration && quest.duration <= 60">{{ quest.duration }} {{ $t('label.minutesSimplified') }}</span>
+            <span v-if="quest.duration && quest.duration > 60">{{ quest.duration / 60 }} {{ $t('label.hoursSimplified') }}</span>
+          </div>
+          <div class="col-3" v-if="!quest.customization.removeScoring">
+            <q-icon name="emoji_events" color="secondary" />&nbsp;<span class="q-ml-sm q-mr-sm">{{ quest.availablePoints }} </span>
+            <span class="q-ml-sm q-mr-sm" v-show="!(isRunFinished || (isOwner && !isAdmin)) && quest.reward && quest.reward > 0">{{ quest.reward }} <q-icon name="fas fa-bolt" /></span>
+            <span class="q-ml-sm q-mr-sm" v-show="(isRunFinished || (isOwner && !isAdmin)) && quest.reward && quest.reward > 0">0 <q-icon name="fas fa-bolt" /></span>
+          </div>
+          <div class="col-3" v-if="!quest.customization.removeScoring">
+            <q-rating v-if="quest.rating && quest.rating.rounded" readonly v-model="quest.rating.rounded" color="secondary" :max="5" size="0.8em" />
           </div>
         </div>
+        <!-- =========================== LOCATION ========================== -->
+        <div v-if="quest.location && quest.location.address" class="text-subtitle1 q-pt-sm">
+          <q-icon name="room" color="primary" />&nbsp;
+          {{ quest.location.address }}
+        </div>
+        <div class="text-center q-py-md">
+          <p>
+            
+            <q-btn-dropdown v-if="shop.premiumQuest.priceCode === 'free' && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
+              <q-list link>
+                <q-item 
+                  v-for="lang in getAllLanguages()" :key="lang.lang" 
+                  v-show="lang.published" 
+                  @click.native="playQuest(quest.questId, lang.lang)"
+                >
+                  <q-item-label>
+                    <img style="vertical-align: middle; margin-left: 8px" :src="'statics/icons/game/flag-' + lang.lang + '.png'" />
+                    {{ $t('language.' + lang.lang) }}
+                  </q-item-label>
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
+            <q-btn v-if="shop.premiumQuest.priceCode === 'free' && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
+              <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
+              <span v-if="!continueQuest && isRunFinished">{{ $t('label.SolveAgainThisQuest') }}</span>
+              <span v-if="!continueQuest && !isRunFinished">{{ $t('label.SolveThisQuest') }}</span>
+            </q-btn>
+            <!--
+            <button class="q-btn q-btn-item q-btn-rectange bg-primary" v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && !(isOwner || isAdmin || isRunStarted || isRunFinished) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
+              <span v-if="!continueQuest">{{ $t('label.SolveThisQuest') }}</span>
+              <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
+              <br /><span v-if="quest.price && quest.price > 0">{{ quest.price }} <q-icon name="fas fa-bolt" /></span>
+            </button>
+            -->
+            <q-btn v-if="!isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary">{{ $t('label.BuyCoinsToPlay') }}</q-btn>
+            <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary">{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</q-btn>
+            <q-btn v-if="shop.premiumQuest.priceCode !== 'free' && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)" :disabled="!shop.premiumQuest.buyable" @click="buyQuest()" color="primary">{{ $t('label.Buy') }} ({{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }})</q-btn>
+            <q-btn v-if="shop.premiumQuest.priceCode === 'notplayableonweb'" disabled color="primary">{{ $t('label.QuestPlayableOnMobile') }}</q-btn>
+          </p>
+        </div>
+        <div class="text-subtitle2">
+          {{ this.getLanguage() ? this.quest.description[this.getLanguage()] : "" }}
+        </div>
+        <div v-if="isUserTooFar && !quest.allowRemotePlay" class="q-pt-md">
+          <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.QuestIsFarFromUser')" />
+        </div>
+        <div v-if="isRunFinished" class="q-pt-md">
+          <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.YouAlreadyDidThisQuest')" />
+        </div>
+        <div v-if="isOwner || isAdmin" class="q-pt-md">
+          <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.YouAreQuestOwnerDesc')" />
+          &nbsp;<q-btn flat color="secondary" :label="$t('label.Modify')" @click="modifyQuest()" />
+        </div>
+        <div class="q-pt-md">
+          <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.GeneralWarning')" />
+        </div>
+      </div>
+      <div class="fixed-bottom over-map fit" v-if="offline.show">
+        <offlineLoader :quest="this.quest" :design="'prepare'" @end="offline.show = false"></offlineLoader>
       </div>
     </div>
     
@@ -135,12 +177,6 @@
       </div>
     </div>
     
-    <!--====================== STORY =================================-->
-    
-    <div class="fixed-bottom over-map fit" v-if="quest && story.step !== null && story.step !== 'end'">
-      <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
-    </div>
-    
   </div>
 </template>
 
@@ -151,7 +187,6 @@ import QuestService from 'services/QuestService'
 import RunService from 'services/RunService'
 import UserService from 'services/UserService'
 import shop from 'components/shop'
-import story from 'components/story'
 import offlineLoader from 'components/offlineLoader'
 
 import utils from 'src/includes/utils'
@@ -160,7 +195,6 @@ import Notification from 'boot/NotifyHelper'
 export default {
   components: {
     shop,
-    story,
     offlineLoader
   },
   data () {
@@ -177,10 +211,6 @@ export default {
           priceValue: '0',
           buyable: false
         }
-      },
-      story: {
-        step: null,
-        data: null
       },
       offline: {
         active: false,
@@ -225,26 +255,17 @@ export default {
           // check again in 15 seconds
           utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 15000)
           this.geolocationIsSupported = true
-          if (!this.isRunStarted && !this.isRunFinished) {
-            utils.setTimeout(this.startStory, 4000)
-          }
         }, () => {
           this.geolocationIsSupported = false
           utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
-          if (!this.isRunStarted && !this.isRunFinished) {
-            utils.setTimeout(this.startStory, 4000)
-          }
         }, { timeout: 10000, maximumAge: 10000 });
       } else {
         this.geolocationIsSupported = false
         utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
-        if (!this.isRunStarted && !this.isRunFinished) {
-          utils.setTimeout(this.startStory, 4000)
-        }
       }
     },
     /*
-     * Start the story
+     * Init quest data
      */
     async initQuest() {
       // get quest information
@@ -290,29 +311,6 @@ export default {
       
       // get rankings this quest
       await this.getRanking()
-    },
-    /*
-     * Start the story
-     */
-    startStory() {
-      if (this.story.step === null) {
-        this.story.step = 1
-        this.story.data = {
-          level2: (this.quest.level === 1 ? 'grey' : 'red'),
-          level3: (this.quest.level === 3 ? 'red' : 'grey'),
-          startingPlace: this.quest.location ? this.quest.location.address : null,
-          duration: this.quest.duration,
-          isFar: (this.isUserTooFar && !this.quest.allowRemotePlay),
-          isRunFinished: this.isRunFinished,
-          isOwner: (typeof this.quest.author !== 'undefined' && this.quest.author._id === this.$store.state.user._id),
-          description: (this.getLanguage() ? this.quest.description[this.getLanguage()] : ""),
-          score: (this.isRunFinished || (this.isOwner && !this.isAdmin)) ? 0 : this.quest.availablePoints
-        }
-      }
-    },
-    restartStory() {
-      this.story.step = null
-      this.startStory()
     },
     /*
      * Get a quest information

@@ -287,19 +287,40 @@
     <!------------------ STEP : COLOR CODE ------------------------>
     
     <div v-if="options.type.code == 'code-color'" class="code-color">
+      <h2>{{ $t('label.AvailableColors') }}</h2>
+      <q-list>
+        <q-item v-for="(option, key) in config.colorCode.colorsForCode" :key="key" :style="'background-color: ' + option.value">
+          <q-item-section>
+            <q-item-label lines="1">&nbsp;</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-btn class="bg-white" @click="deleteColor(key)">
+              <q-icon name="clear" />
+            </q-btn>
+          </q-item-section>
+        </q-item>
+      </q-list>
+      <q-input bottom-slots v-model="config.colorCode.newColor" :label="$t('label.AddNewColor')" maxlength="7" dense="dense">
+        <template v-slot:hint>
+          {{ $t('label.TypeColorCode') }}
+        </template>
+        <template v-slot:after>
+          <q-btn round dense flat icon="add" @click="addColor()" />
+        </template>
+      </q-input>
       <q-select emit-value map-options :label="$t('label.NumberOfColorsInTheCode')" :options="config.colorCode.numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-colors" />
       <h2>{{ $t('label.ExpectedColorCodeAnswer') }}</h2>
       <table>
-      <tr>
-        <td v-for="(color, index) in unformatedAnswer" :key="index">
-          <q-select emit-value map-options :ref="'colorSelect' + index" v-model="unformatedAnswer[index]" :options="config.colorCode.colorsForCode" :test-id="'select-color-' + index" />
-        </td>
-      </tr>
-      <tr>
-        <td v-for="(color, index) in unformatedAnswer" :key="index">
-          <div @click="triggerClickOnColorSelect(index)" class="color-bubble" :style="'background-color: ' + unformatedAnswer[index]">&nbsp;</div>
-        </td>
-      </tr>
+        <tr>
+          <td v-for="(color, index) in unformatedAnswer" :key="index">
+            <q-select emit-value map-options :ref="'colorSelect' + index" v-model="unformatedAnswer[index]" :options="config.colorCode.colorsForCode" :test-id="'select-color-' + index" />
+          </td>
+        </tr>
+        <tr>
+          <td v-for="(color, index) in unformatedAnswer" :key="index">
+            <div @click="triggerClickOnColorSelect(index)" class="color-bubble" :style="'background-color: ' + unformatedAnswer[index]">&nbsp;</div>
+          </td>
+        </tr>
       </table>
     </div>
     
@@ -656,6 +677,10 @@
           <div v-if="options.type.code === 'memory'">
             <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
           </div>
+          <div v-if="options.type.code === 'image-over-flow'">
+            <q-toggle v-model="selectedStep.form.options.fullWidthPicture" :label="$t('label.EnlargePictureToFullWidth')" />
+            <q-toggle v-model="selectedStep.form.options.snapshotAllowed" :label="$t('label.PlayerCanTakeSnapshot')" />
+          </div>
           <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
             <q-input v-model="selectedStep.form.options.initDuration" :label="$t('label.DurationBeforeTextAppearAbovePicture')" />
           </div>
@@ -843,7 +868,8 @@ export default {
             { value: 3, label: "3" },
             { value: 4, label: "4" }
           ],
-          colorsForCode: this.getColorsForCodeOptions()
+          colorsForCode: this.getColorsForCodeOptions(),
+          newColor: ""
         },
         imageCode: {
           numberOfDigitsOptions: [
@@ -1066,6 +1092,9 @@ export default {
         } else {
           this.unformatedAnswer = Array(4).fill('red')
         }
+        if (this.selectedStep.form.options.colors) {
+          this.config.colorCode.colorsForCode = this.selectedStep.form.options.colors
+        }
         if (!this.selectedStep.form.options.codeLength) {
           this.selectedStep.form.options.codeLength = 4
         }
@@ -1247,6 +1276,7 @@ export default {
       }
       if (this.options.type.code === 'code-color') {
         this.selectedStep.form.answers = this.unformatedAnswer.join('|')
+        this.selectedStep.form.options.colors = this.config.colorCode.colorsForCode
       }
       if (this.options.type.code === 'code-image') {
         this.selectedStep.form.answers = this.unformatedAnswer.join('|')
@@ -1990,6 +2020,21 @@ export default {
     triggerClickOnColorSelect(index) {
       // [0] is required because of v-for, see https://forum-archive.vuejs.org/topic/5190/this-refs-ref_name-on-dynamic-component-is-array-instead-of-vuecomponent/2
       this.$refs['colorSelect' + index][0].$el.click()
+    },
+    /*
+     * Delete a color for color code
+     */
+    deleteColor(index) {
+      this.config.colorCode.colorsForCode.splice(index, 1)
+    },
+    /*
+     * add a color for color code
+     */
+    addColor() {
+      this.config.colorCode.colorsForCode.push({
+        value: this.config.colorCode.newColor,
+        label: this.config.colorCode.newColor
+      })
     },
     /*
      * Get the list of the items won on previous steps

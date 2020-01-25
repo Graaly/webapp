@@ -198,6 +198,20 @@
             bottom-slots
             options-cover
             />
+          <q-toggle
+            :readonly="readOnly"
+            :label="$t('label.RemoveScoringAndRating')"
+            v-model="form.fields.customization.removeScoring"
+            />
+          <div v-if="form.fields.customization.removeScoring">
+            <q-input
+              :disable="readOnly"
+              v-model="form.fields.customization.endMessage"
+              :label="$t('label.TypeEndMessage')"
+              class="full-width"
+              type="textarea"
+            />
+          </div>
           <div v-if="form.fields.customization">
             <q-input
               :disable="readOnly"
@@ -916,7 +930,7 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { color: '', logo: '', character: '' },
+          customization: { color: '', logo: '', character: '', removeScoring: false, endMessage: '' },
           rewardPicture: ''
         },
         categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }, this.$t),

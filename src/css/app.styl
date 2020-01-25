@@ -95,6 +95,14 @@ body {
 .modal-content {
   padding: 3vw;
 }
+.absolute-top {
+  position: absolute;
+  top: 0px;
+}
+.absolute-bottom {
+  position: absolute;
+  bottom: 0px;
+}
 
 /////////////////////////////// Links CSS /////////////////////////////////////
 
@@ -649,15 +657,12 @@ form .q-item__label, .big-label {
   display: block;
   cursor: pointer;
 }
-.bottom-dark-banner {
-  background-color: rgba(0, 0, 0, 0.5);
-  position: fixed;
-  bottom: 0px;
+.dark-banner {
+  background-color: rgba(0, 0, 0, 0.3);
   width: 100%;
   color: #fff;
-  padding: 10px;
 }
-.bottom-dark-banner .title {
+.dark-banner .title {
   font-size: 1.5em;
 }
 .q-pb-xxl {
@@ -877,6 +882,25 @@ WARNING: introduces bad scrolling behaviors on iOS webapp (Safari) & hybrid */
   background: url('/statics/icons/game/puzzle-bottom.png') 100% no-repeat;
   background-position: bottom left;
 }
-.desktop #main-view {
-  width: 600px;
+
+// manage desktop display
+.desktop #main-view, .desktop .story>div, .desktop .bottom-dark-banner, .desktop .fixed-bottom, 
+.desktop .panel-bottom, .desktop .direction-helper, .desktop .map, .desktop .fullscreen {
+  width: 500px !important;
+}
+.desktop .q-page-container {
+  max-width: 515px !important;
+}
+.desktop .direction-helper {
+  right: auto !important;
+}
+.desktop .find-item>div {
+  max-width: 500px !important;
+}
+.desktop #cross-play {
+  max-width: 80px !important;
+  height: auto !important;
+}
+.bg-gray1 {
+  background-color: #3e3e3e;
 }
