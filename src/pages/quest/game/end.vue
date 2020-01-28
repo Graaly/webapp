@@ -359,7 +359,7 @@ export default {
         const offlineRunData = await this.getOfflineRunData()
       
         let endStatus = await RunService.endRun(this.run._id, offlineRunData, this.questId, this.quest.version, this.quest.mainLanguage)
-        if (endStatus && endStatus.data) {
+        if (endStatus && endStatus.data && (!this.quest.customization || !this.quest.customization.removeScoring)) {
           // assign computed score
           this.run.score = endStatus.data.score
           this.run.reward = endStatus.data.reward
