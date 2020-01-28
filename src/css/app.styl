@@ -885,8 +885,13 @@ WARNING: introduces bad scrolling behaviors on iOS webapp (Safari) & hybrid */
 
 // manage desktop display
 .desktop #main-view, .desktop .story>div, .desktop .bottom-dark-banner, .desktop .fixed-bottom, 
-.desktop .panel-bottom, .desktop .direction-helper, .desktop .map, .desktop .fullscreen {
+.desktop .panel-bottom, .desktop .direction-helper, .desktop .map, .desktop .fullscreen,
+.desktop .q-drawer, .desktop #teaser>div {
   width: 500px !important;
+}
+.desktop #teaser>div {
+  width: 480px !important;
+  height: 600px !important;
 }
 .desktop .q-page-container {
   max-width: 515px !important;
