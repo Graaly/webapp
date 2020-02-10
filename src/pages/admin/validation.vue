@@ -3,7 +3,7 @@
     <div class="page-content top-padding-middle" v-if="quest.title">
       <!------------------ MAIN INFORMATION AREA ------------------------>
       <p>
-        Validation of the quest <strong>{{quest.title.fr}} {{quest.title.en}}</strong>
+        Validation of the quest <strong>{{quest.title}}</strong>
       </p>
       <p>
         <q-btn big class="full-width" color="positive" @click="publish()" label="Validate" />

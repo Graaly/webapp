@@ -6,17 +6,25 @@ export default {
    * list quest near the user
    * @param   {Object}    location            user location
    * @param   {String}    type                type of quest
+   * @param   {String}    lang                language
    */
-  listNearest (location, type) {
-    return Api().get('quests/nearest/' + location.lng + '-' + location.lat + '/' + type).catch(error => console.log(error.request))
+  listNearest (location, type, lang) {
+    if (!lang) {
+      lang = 'default'
+    }
+    return Api().get('quests/nearest/' + location.lng + '-' + location.lat + '/' + type + '/lang/' + lang).catch(error => console.log(error.request))
   },
   /*
    * get a quest based on its ID
    * @param   {String}    id                  ID of the quest
    * @param   {Number}    version             version of the quest
+   * @param   {String}    lang                language
    */
-  getById (id, version) {
-    return Api().get('quest/' + id + '/version/' + version).catch(error => console.log(error.request))
+  getById (id, version, lang) {
+    if (!lang) {
+      lang = 'default'
+    }
+    return Api().get('quest/' + id + '/version/' + version + '/lang/' + lang).catch(error => console.log(error.request))
   },
   /*
    * get a quest media size
@@ -29,22 +37,32 @@ export default {
   /*
    * get the last version of a quest based on its ID
    * @param   {String}    id                  ID of the quest
+   * @param   {String}    lang                language
    */
-  getLastById (id) {
-    return Api().get('quest/' + id + '/version/last').catch(error => console.log('getLastById(): could not retrieve quest data', error))
+  getLastById (id, lang) {
+    if (!lang) {
+      lang = 'default'
+    }
+    return Api().get('quest/' + id + '/version/last/lang/' + lang).catch(error => console.log('getLastById(): could not retrieve quest data', error))
   },
   /*
    * Find quests based on keyword
    * @param   {String}    keyword             keyword
    * @param   {Object}    location            user location
+   * @param   {String}    lang                language
    */
-  find(keyword, location) {
+  find(keyword, location, lang) {
+    if (!lang) {
+      lang = 'default'
+    }
     // to update : better filter with position and keyword
-    return Api().get('quests/find/' + keyword + '/nearest/' + location.longitude + '-' + location.latitude)  
+    return Api().get('quests/find/' + keyword + '/nearest/' + location.longitude + '-' + location.latitude + '/lang/' + lang)  
   },
   /*
    * Create a quest
    * @param   {Object}    data                Quest data (title, ...)
+   * @param   {String}    access              public or private
+   * @param   {String}    userType            pro / individual
    */
   create (data, access, userType) {
     return Api().post('quest/create/' + access + '/' + userType, data).catch(error => console.log(error.request))
@@ -121,16 +139,24 @@ export default {
   /*
    * List the quests created by a user
    * @param   {String}    id                  ID of the user
+   * @param   {String}    lang                language
    */
-  ListCreatedByAUser (id) {
-    return Api().get('user/' + id + '/quests/created').catch(error => console.log(error.request))
+  ListCreatedByAUser (id, lang) {
+    if (!lang) {
+      lang = 'default'
+    }
+    return Api().get('user/' + id + '/quests/created/lang/' + lang).catch(error => console.log(error.request))
   },
   /*
    * List the quests played by a user
    * @param   {String}    id                  ID of the user
+   * @param   {String}    lang                language
    */
-  ListPlayedByAUser (id) {
-    return Api().get('user/' + id + '/quests/played').catch(error => console.log(error.request))
+  ListPlayedByAUser (id, lang) {
+    if (!lang) {
+      lang = 'default'
+    }
+    return Api().get('user/' + id + '/quests/played/lang/' + lang).catch(error => console.log(error.request))
   },
   /*
    * List the quests medias

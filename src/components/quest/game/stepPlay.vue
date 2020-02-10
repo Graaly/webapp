@@ -1890,7 +1890,7 @@ console.log("try")
      * Display the read more alert
      */
     displayReadMoreAlert() {
-      if (this.step.extraText && typeof this.step.extraText === 'object' && this.step.extraText[this.lang]) {
+      if (this.step.extraText) {
         var actions = [
           {
             label: this.$t('label.ReadMore'),
@@ -3004,10 +3004,10 @@ console.log("try")
     * Display read more text
     */
     readMore() {
-      if (this.step.extraText && typeof this.step.extraText === 'object' && this.step.extraText[this.lang]) {
+      if (this.step.extraText) {
         this.story.step = 6
         this.story.data = {
-          readMore: utils.replaceBreakByBR(this.step.extraText[this.lang]),
+          readMore: utils.replaceBreakByBR(this.step.extraText),
           character: (this.customization && this.customization.character && this.customization.character !== '') ? (this.customization.character.indexOf('blob:') === -1 ? this.serverUrl + '/upload/quest/' + this.customization.character : this.customization.character) : "2"
         }
       }

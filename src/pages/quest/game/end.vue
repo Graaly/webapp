@@ -10,7 +10,7 @@
         </div>
       </div>
     </div>
-    <div class="dark-background" v-if="!warnings.noNetwork && quest.customization && quest.customization.removeScoring">
+    <div class="dark-background" v-if="!warnings.noNetwork && quest && quest.customization && quest.customization.removeScoring">
       <div class="bg-primary centered">
         <h4 v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage !== ''" v-html="quest.customization.endMessage" />
         <h4 v-if="!quest.customization || !quest.customization.endMessage || quest.customization.endMessage === ''">{{ $t('label.ThanksForPlaying') }}</h4>
@@ -22,7 +22,7 @@
         <q-btn class="text-primary bg-white full-width" :label="$t('label.GoToQuestValidation')" @click="$router.push('/admin/validate/' + questId + '/version/' + quest.version)" />
       </div>
     </div>
-    <div class="dark-background" v-if="!warnings.noNetwork && !(quest.customization && quest.customization.removeScoring)">
+    <div class="dark-background" v-if="!warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
       <div class="bg-primary" v-if="run && run._id">
         <!------------------ TITLE AREA ------------------------>
         
@@ -271,7 +271,7 @@ export default {
         score: 0,
         stars: 1
       },
-      quest: {},
+      quest: null,
       friends: [],
       filteredFriends: [],
       invitedFriends: {
@@ -359,17 +359,19 @@ export default {
         const offlineRunData = await this.getOfflineRunData()
       
         let endStatus = await RunService.endRun(this.run._id, offlineRunData, this.questId, this.quest.version, this.quest.mainLanguage)
-        if (endStatus && endStatus.data && (!this.quest.customization || !this.quest.customization.removeScoring)) {
-          // assign computed score
-          this.run.score = endStatus.data.score
-          this.run.reward = endStatus.data.reward
-          this.run.stars = endStatus.data.stars
-          if (endStatus.data.newBonus && endStatus.data.newBonus !== '') {
-            this.run.bonus = endStatus.data.newBonus
-            this.showBonus = true
-          }
-          if (this.run.questData.rewardPicture && this.run.questData.rewardPicture !== '') {
-            this.showReward = true
+        if (endStatus && endStatus.data) {
+          if (!this.quest.customization || !this.quest.customization.removeScoring) {
+            // assign computed score
+            this.run.score = endStatus.data.score
+            this.run.reward = endStatus.data.reward
+            this.run.stars = endStatus.data.stars
+            if (endStatus.data.newBonus && endStatus.data.newBonus !== '') {
+              this.run.bonus = endStatus.data.newBonus
+              this.showBonus = true
+            }
+            if (this.run.questData.rewardPicture && this.run.questData.rewardPicture !== '') {
+              this.showReward = true
+            }
           }
           
           // remove offline data

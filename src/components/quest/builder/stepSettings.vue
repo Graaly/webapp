@@ -719,9 +719,20 @@
     <!------------------ HINT ------------------------>
     
     <q-list v-show="options.type.showTrick == 'yes'" bordered>
-      <q-expansion-item icon="lightbulb" :label="$t('label.Hint')">
+      <q-expansion-item icon="lightbulb" :label="$t('label.Hints')">
         <div class="q-pa-sm">
-          <q-input v-model="selectedStep.form.hint[lang]" :label="$t('label.HintText')" />
+          <div v-if="selectedStep.form.hint && selectedStep.form.hint[lang] && selectedStep.form.hint[lang].length > 0" v-for="(item, key) in selectedStep.form.hint[lang]" :key="key">
+            <q-btn class="float-right" @click="removeHint(key)"><q-icon name="delete" /></q-btn>
+            <div class="text-subtitle1">{{ $t('label.Hint') + " " + (key + 1) }}</div>
+            {{ item }}
+          </div>
+          <div>
+            <q-input v-model="newHint" :label="$t('label.NewHint')">
+              <template v-slot:after>
+                <q-btn round dense flat icon="add" @click="addHint()" />
+              </template>
+            </q-input>
+          </div>
         </div>
       </q-expansion-item>
     </q-list>
@@ -899,6 +910,7 @@ export default {
           layersForMarkersOptions: []
         }
       },
+      newHint: "",
       questItems: [],
       isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
       serverUrl: process.env.SERVER_URL,
@@ -1006,7 +1018,7 @@ export default {
       // initialize step form data when edited
       if (!this.selectedStep.isNew) {
         // get step data
-        var response = await StepService.getById(this.stepId, this.quest.version)
+        var response = await StepService.getById(this.stepId, this.quest.version, 'all')
         if (response && response.data) {
           Object.assign(this.selectedStep.form, response.data)
         } else {
@@ -1466,7 +1478,7 @@ export default {
         var condition = this.selectedStep.form.conditions[i]
         var conditionParts = condition.split("_")
         if (conditionParts[0] === 'stepDone' || conditionParts[0] === 'stepSuccess' || conditionParts[0] === 'stepFail') {
-          const stepData = await StepService.getById(conditionParts[1], this.quest.version)
+          const stepData = await StepService.getById(conditionParts[1], this.quest.version, 'all')
           if (stepData && stepData.data && stepData.data.hasOwnProperty("title")) {
             let condStepTitle = stepData.data.title[this.lang] ? stepData.data.title[this.lang] : stepData.data.title[Object.keys(stepData.data.title)[0]]
             if (conditionParts[0] === 'stepDone') {
@@ -1496,7 +1508,7 @@ export default {
       this.selectedStep.newCondition.values.length = 0
       const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', 'image-recognition', 'jigsaw-puzzle', 'memory']
       if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail') {
-        const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version)
+        const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version, 'all')
         if (response && response.data && response.data.length > 0) {
           for (var i = 0; i < response.data.length; i++) {
             if (response.data[i].stepId.toString() !== this.stepId.toString()) {
@@ -2035,6 +2047,26 @@ export default {
         value: this.config.colorCode.newColor,
         label: this.config.colorCode.newColor
       })
+    },
+    /*
+     * remove a hint
+     */
+    removeHint(index) {
+      this.selectedStep.form.hint[this.lang].splice(index, 1)
+    },
+    /*
+     * add a hint
+     */
+    addHint() {
+      if (this.selectedStep.form.hint && this.selectedStep.form.hint[this.lang]) {
+        this.selectedStep.form.hint[this.lang].push(this.newHint)
+      } else {
+        this.selectedStep.form.hint = {}
+        this.selectedStep.form.hint[this.lang] = []
+        this.selectedStep.form.hint[this.lang].push(this.newHint)
+      }
+      
+      this.newHint = ""
     },
     /*
      * Get the list of the items won on previous steps
