@@ -365,6 +365,9 @@ export default {
     let questFromCache = JSON.parse(await utils.readFile(questId, 'quest_' + questId + '.json'))
     
     let questFromServer = await this.getLastById(questId)
+    if (!questFromServer) {
+      return false
+    }
     questFromServer = questFromServer.data
     
     return (questFromServer.version === questFromCache.version)

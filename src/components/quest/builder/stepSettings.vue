@@ -291,7 +291,7 @@
       <q-list>
         <q-item v-for="(option, key) in config.colorCode.colorsForCode" :key="key" :style="'background-color: ' + option.value">
           <q-item-section>
-            <q-item-label lines="1">&nbsp;</q-item-label>
+            <q-item-label lines="1">{{ option.label }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-btn class="bg-white" @click="deleteColor(key)">
@@ -300,14 +300,21 @@
           </q-item-section>
         </q-item>
       </q-list>
-      <q-input bottom-slots v-model="config.colorCode.newColor" :label="$t('label.AddNewColor')" maxlength="7" dense="dense">
-        <template v-slot:hint>
-          {{ $t('label.TypeColorCode') }}
-        </template>
-        <template v-slot:after>
-          <q-btn round dense flat icon="add" @click="addColor()" />
-        </template>
-      </q-input>
+      <q-list bordered class="rounded-borders">
+        <q-expansion-item dense icon="playlist_add" :label="$t('label.AddNewColor')" class="q-pa-md">
+          <q-input bottom-slots v-model="config.colorCode.newColor.label" :label="$t('label.TypeColorCodeName')" maxlength="15" />
+          <q-input bottom-slots v-model="config.colorCode.newColor.value" :label="$t('label.TypeColorCode')" maxlength="7">
+            <template v-slot:append>
+              <q-icon name="colorize" class="cursor-pointer">
+                <q-popup-proxy transition-show="scale" transition-hide="scale">
+                  <q-color v-model="config.colorCode.newColor.value" />
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+          <div class="centered"><q-btn :label="$t('label.Add')" color="secondary" @click="addColor()" /></div>
+        </q-expansion-item>
+      </q-list>
       <q-select emit-value map-options :label="$t('label.NumberOfColorsInTheCode')" :options="config.colorCode.numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-colors" />
       <h2>{{ $t('label.ExpectedColorCodeAnswer') }}</h2>
       <table>
@@ -888,7 +895,10 @@ export default {
             { value: 4, label: "4" }
           ],
           colorsForCode: this.getColorsForCodeOptions(),
-          newColor: ""
+          newColor: {
+            label: "",
+            value: ""
+          }
         },
         imageCode: {
           numberOfDigitsOptions: [
@@ -2029,8 +2039,8 @@ export default {
       let options = []
       colorsForCode.forEach((code) => {
         options.push({
-          value: code,
-          label: this.$t('color.' + code)
+          value: code.value,
+          label: this.$t(code.label)
         })
       })
       return options
@@ -2057,9 +2067,10 @@ export default {
      */
     addColor() {
       this.config.colorCode.colorsForCode.push({
-        value: this.config.colorCode.newColor,
-        label: this.config.colorCode.newColor
+        value: this.config.colorCode.newColor.value,
+        label: this.config.colorCode.newColor.label
       })
+      this.config.colorCode.newColor = {label: "", value: ""}
     },
     /*
      * remove a hint

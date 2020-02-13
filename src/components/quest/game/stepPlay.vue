@@ -1352,6 +1352,7 @@ console.log("try")
         // check offline answer
         //if (this.answer) {
           let checkAnswerOfflineResult = await this.checkOfflineAnswer(answerData.answer)
+console.log(checkAnswerOfflineResult)
           return checkAnswerOfflineResult
         //} else {
         //  Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1411,8 +1412,13 @@ console.log("try")
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       }
-      // TODO: send answer only if all tries done
-      return { result: false, answer: this.answer, score: 0, reward: 0, offline: true }
+      // answers not found
+      // check if nb trials is met or not
+      if (this.step.nbTrial && this.step.nbTrial > 0 && (this.nbTry + 1) < this.step.nbTrial) {
+        return { result: false, remainingTrial: (this.step.nbTrial - this.nbTry - 1), offline: true }
+      } else {
+        return { result: false, answer: this.answer, score: 0, reward: 0, offline: true }
+      }
     },
     /*
      * Check if the answer is correct
@@ -1520,11 +1526,14 @@ console.log("try")
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
+console.log(checkAnswerResult)
             if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
+console.log("check1")
               // reset code
               this.resetKeypadCode()
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
+console.log("check2")
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
