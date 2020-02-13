@@ -718,10 +718,9 @@ export default {
      * Track step passing
      */
     async trackStepPass () {
-      // Not possible to pass for the mini games
-      //if (this.info.quest.type === 'quest') {
-      this.next.canPass = true
-      //}
+      if ((!this.step.canPass && this.step.canPass !== false) || this.step.canPass === true) {
+        this.next.canPass = true
+      }
     },
     /*
      * Track step fail
@@ -1282,6 +1281,7 @@ export default {
           conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true)
         }
         ended = true
+        
         if (this.hint.used || this.nbTry > 1) {
           score = this.step.points / 2
         } else {
@@ -1324,7 +1324,7 @@ export default {
           for (var i = 0; i < this.run.answers.length; i++) {
             if (this.run.answers[i] && this.run.answers[i].stepId && this.run.answers[i].stepId !== null && this.run.answers[i].stepId === this.step.stepId) {
               update = true
-              answer.nbType = this.run.answers[i].nbTry + 1
+              answer.nbTry = this.run.answers[i].nbTry + 1
               answer.useHint = this.run.answers[i].useHint
               this.run.answers[i] = answer
             }

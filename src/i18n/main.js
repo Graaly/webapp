@@ -421,7 +421,7 @@ module.exports = {
       GoodAnswer: "Good answer!",
       WrongAnswer: "Wrong answer!",
       Next: "Next",
-      SecondTry: "Try again (-5 points)",
+      SecondTry: "Wrong answer. You have {nb} trial(s) more",
       Clear: "Clear",
       Confirm: "Confirm",
       WrongGoodCodeWas: "Wrong! The right code was:",
@@ -871,7 +871,9 @@ module.exports = {
       EnlargePictureToFullWidth: "Enlarge the picture to full screen",
       PlayerCanTakeSnapshot: "Player can take snapshots",
       SnapshotTaken: "Screenshot saved on your mobile",
-      SnapshotTakenIssue: "Error with the screenshot"
+      SnapshotTakenIssue: "Error with the screenshot",
+      NbTrials: "Trials number",
+      UserCanPass: "Player can pass this step"
     }
   },
   fr: {
@@ -1283,7 +1285,7 @@ module.exports = {
       GoodAnswer: "Bonne réponse !",
       WrongAnswer: "Mauvaise réponse !",
       Next: "Suivant",
-      SecondTry: "Essaye à nouveau (-5 points)",
+      SecondTry: "Mauvaise réponse. Il vous reste {nb} essai(s)",
       Clear: "Effacer",
       Confirm: "Valider",
       WrongGoodCodeWas: "Raté ! Le bon code était :",
@@ -1734,7 +1736,9 @@ module.exports = {
       EnlargePictureToFullWidth: "Elargir l'image en plein écran",
       PlayerCanTakeSnapshot: "Le joueur peut prendre des captures d'écran",
       SnapshotTaken: "Capture enregistrée dans vos photos",
-      SnapshotTakenIssue: "Impossible de faire une capture"
+      SnapshotTakenIssue: "Impossible de faire une capture",
+      NbTrials: "Nombre d'essais",
+      UserCanPass: "Le joueur peut passer l'étape"
     }
   }
 }

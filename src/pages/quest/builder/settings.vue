@@ -2056,15 +2056,22 @@ export default {
         this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
       }
       this.closeAllPanels()
-      this.chapters.newStep.overviewData = step
-      this.chapters.showNewStepPageSettings = false
-      this.chapters.showNewStepOverview = true
-      this.hint.number = 0
-      // move to top
-      this.moveToTop()
-      // add timer else the watcher is not working in stepPlay
-      var _this = this
-      setTimeout(function() { _this.chapters.reloadStepPlay = true }, 300)
+      
+      // Load step data for selected language
+      const response = await StepService.getById(this.stepId, this.quest.version, this.languages.current)
+      if (response && response.data) {
+        this.chapters.newStep.overviewData = response.data
+        this.chapters.showNewStepPageSettings = false
+        this.chapters.showNewStepOverview = true
+        this.hint.number = 0
+        // move to top
+        this.moveToTop()
+        // add timer else the watcher is not working in stepPlay
+        var _this = this
+        setTimeout(function() { _this.chapters.reloadStepPlay = true }, 300)
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
     },
     /*
      * Move screen to current chapter (anchor)
@@ -2383,19 +2390,25 @@ export default {
       }
       this.chapters.showNewStepOverview = true
       this.stepId = step.id
-      this.chapters.newStep.overviewData = step
-      // move to top
-      this.moveToTop()
-      // add timer else the watcher is not working in stepPlay
-      var _this = this
-      setTimeout(function() { _this.chapters.reloadStepPlay = true }, 300)
       
-      if (this.story.active && this.countSteps() === 0) {
-        this.story.step = 21
+      const response = await StepService.getById(this.stepId, this.quest.version, this.languages.current)
+      if (response && response.data) {
+        this.chapters.newStep.overviewData = response.data
+        // move to top
+        this.moveToTop()
+        // add timer else the watcher is not working in stepPlay
+        var _this = this
+        setTimeout(function() { _this.chapters.reloadStepPlay = true }, 300)
+        
+        if (this.story.active && this.countSteps() === 0) {
+          this.story.step = 21
+        }
+        
+        // refresh quest media size
+        await this.refreshMediaSize()
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
-      
-      // refresh quest media size
-      await this.refreshMediaSize()
     },
     /*
      * Launched when the step is played
@@ -2622,7 +2635,7 @@ export default {
      */
     isHintAvailable() {
       return (this.chapters.newStep.overviewData && this.chapters.newStep.overviewData.hasOwnProperty("hint") &&
-        this.chapters.newStep.overviewData.hint[this.languages.current] && this.chapters.newStep.overviewData.hint[this.languages.current] !== '')
+        this.chapters.newStep.overviewData.hint !== '')
     },
     /*
      * Get the GPS location based on user location

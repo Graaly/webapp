@@ -1474,7 +1474,7 @@ console.log("try")
               selectedAnswer.icon = 'clear' // "x" icon
               selectedAnswer.class = 'wrong'
               // indicate the right answer
-              if (checkAnswerResult.answer || checkAnswerResult.answer === 0) {
+              if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
                 let selectedAnswer = this.step.options.items[checkAnswerResult.answer]
                 selectedAnswer.icon = 'done'
                 selectedAnswer.class = 'right'
@@ -1485,7 +1485,11 @@ console.log("try")
             Vue.set(this.step.options.items, answer, selectedAnswer)
             
             this.nbTry++
-            this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
+            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
+              this.submitRetry(checkAnswerResult.remainingTrial)
+            } else {
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
+            }
           }
           
           break
@@ -1516,10 +1520,10 @@ console.log("try")
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2 && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
               // reset code
               this.resetKeypadCode()
-              this.submitRetry()
+              this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
@@ -1534,10 +1538,10 @@ console.log("try")
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2 && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
               // reset code
               this.resetColorCode()
-              this.submitRetry()
+              this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
@@ -1551,10 +1555,10 @@ console.log("try")
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2 && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
               // reset code
               this.resetImageCode()
-              this.submitRetry()
+              this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
@@ -1587,10 +1591,10 @@ console.log("try")
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2 && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
               // reset field
               this.writetext.playerAnswer = ""
-              this.submitRetry()
+              this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
@@ -1609,7 +1613,7 @@ console.log("try")
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2 && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
               Notification(this.$t('label.UseItemNothingHappens'), 'error')
             } else {
               if (this.step.displayRightAnswer) {
@@ -1632,7 +1636,7 @@ console.log("try")
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2 && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
               Notification(this.$t('label.FindItemNothingHappens'), 'error')
             } else {
               if (this.step.displayRightAnswer) {
@@ -1764,7 +1768,7 @@ console.log("try")
                   this.submitWrongAnswer(checkAnswerResult.offline, true)
                   this.stopMarkersSensors()
                 } else {
-                  this.submitRetry(checkAnswerResult.offline)
+                  this.submitRetry(1)
                 }
               }
             }
@@ -1912,8 +1916,8 @@ console.log("try")
     /*
      * Display retry message when wrong answer
      */
-    submitRetry() {
-      this.displaySuccessMessage(false, this.$t('label.SecondTry'))
+    submitRetry(nbRemainingTrials) {
+      this.displaySuccessMessage(false, this.$t('label.SecondTry', {nb: nbRemainingTrials}))
     },
     
     ////////////////////////////////////////////// MANAGEMENT OF THE ENIGMA COMPONENTS /////////////////////////////////////////////
@@ -2445,7 +2449,7 @@ console.log("try")
       if (this.step.type === 'new-item') {
         defaultText = this.$t('label.YouHaveWinANewItem')
       }
-      let translation = (this.step.text && typeof this.step.text === 'object' && this.step.text[this.lang]) ? this.step.text[this.lang] : defaultText
+      let translation = this.step.text ? this.step.text : defaultText
       return translation
     },
     getScreenWidth() {
@@ -2726,6 +2730,7 @@ console.log("try")
             _self.memory.disabled = false
           }, 1500)
         }
+        
         this.memory.nbTry = 0
       } else {
         this.memory.nbTry++

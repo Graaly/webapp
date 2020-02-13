@@ -677,6 +677,12 @@
           <div v-if="options.type.code === 'memory'">
             <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
           </div>
+          <div v-if="options.type.nbTrials > 0">
+            <q-input v-model="selectedStep.form.nbTrial" :label="$t('label.NbTrials')" />
+          </div>
+          <div v-if="options.type.passOption > 0">
+            <q-toggle v-model="selectedStep.form.canPass" :label="$t('label.UserCanPass')" />
+          </div>
           <div v-if="options.type.code === 'image-over-flow'">
             <q-toggle v-model="selectedStep.form.options.fullWidthPicture" :label="$t('label.EnlargePictureToFullWidth')" />
             <q-toggle v-model="selectedStep.form.options.snapshotAllowed" :label="$t('label.PlayerCanTakeSnapshot')" />
@@ -830,6 +836,8 @@ export default {
           extraText: {},
           options: {},
           hint: {},
+          nbTrial: 0,
+          canPass: true,
           chapterId: "0",
           conditions: [],
           startDate: {
@@ -980,6 +988,8 @@ export default {
         // geoloc step specific
         answerPointerCoordinates: {top: 50, left: 50},
         answerItem: null,
+        nbTrial: 0,
+        canPass: true,
         showDistanceToTarget: true,
         showDirectionToTarget: true,
         displayRightAnswer: true,
@@ -1041,6 +1051,9 @@ export default {
 
       // retrieve step type properties
       this.selectedStep.type = this.getStepType(this.selectedStep.form.type)
+      if (!this.selectedStep.form.nbTrial || this.selectedStep.form.nbTrial === 0) {
+        this.selectedStep.form.nbTrial = this.selectedStep.type.nbTrials
+      }
       
       // compute number of steps
       if (this.selectedStep.form.number === null) {
