@@ -1,3 +1,12 @@
 [
-  "red", "pink", "purple", "green", "blue", "yellow", "orange", "black", "gray", "white"
+  { "label": "red", "value": "#FF0000" },
+  { "label": "pink", "value": "#FFC0CB" },
+  { "label": "purple", "value": "#800080" },
+  { "label": "green", "value": "#008000" },
+  { "label": "blue", "value": "#0000FF" },
+  { "label": "yellow", "value": "#FFFF00" },
+  { "label": "orange", "value": "#FFA500" },
+  { "label": "black", "value": "#000000" },
+  { "label": "white", "value": "#FFFFFF" },
+  { "label": "gray", "value": "#808080" }
 ]

@@ -6,9 +6,13 @@ export default {
    * list the steps of a quest
    * @param   {String}    questId        ID of the quest
    * @param   {Number}    version        version of the quest
+   * @param   {string}    lang           language
    */
-  async listForAQuest (questId, version) {
-    let res = await Api().get('quest/' + questId + '/version/' + version + '/steps').catch(error => console.log(error.request))
+  async listForAQuest (questId, version, lang) {
+    if (!lang) {
+      lang = 'default'
+    }
+    let res = await Api().get('quest/' + questId + '/version/' + version + '/steps/lang/' + lang).catch(error => console.log(error.request))
     return res
   },
   /*
@@ -16,9 +20,13 @@ export default {
    * @param   {String}    questId        ID of the quest
    * @param   {String}    chapterId      ID of the chapter
    * @param   {Number}    version        version of the quest
+   * @param   {string}    lang           language
    */
-  async listForAChapter (questId, chapterId, version) {
-    let res = await Api().get('quest/' + questId + '/version/' + version + '/chapter/' + chapterId + '/steps').catch(error => console.log(error.request))
+  async listForAChapter (questId, chapterId, version, lang) {
+    if (!lang) {
+      lang = 'default'
+    }
+    let res = await Api().get('quest/' + questId + '/version/' + version + '/chapter/' + chapterId + '/steps/lang/' + lang).catch(error => console.log(error.request))
     return res
   },
   /*
@@ -34,9 +42,14 @@ export default {
   /*
    * get a step by its ID
    * @param   {String}    stepId         ID of the step
+   * @param   {String}    version        version of the quest
+   * @param   {String}    lang           language
    */
-  async getById (stepId, version) {
-    let res = await Api().get('step/' + stepId + '/version/' + version).catch(error => console.log(error.request))
+  async getById (stepId, version, lang) {
+    if (!lang) {
+      lang = 'default'
+    }
+    let res = await Api().get('step/' + stepId + '/version/' + version + '/lang/' + lang).catch(error => console.log(error.request))
     return res
   },
   /*

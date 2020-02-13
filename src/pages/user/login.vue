@@ -13,7 +13,7 @@
         <!------------------ PLAY ANONYMOUS ------------------>
         
         <div class="q-pa-md">
-          <q-btn class="full-width" size="lg" color="primary" @click="playAnonymous()">{{ $t('label.LetsPlay') }}</q-btn>
+          <q-btn class="full-width" size="lg" color="primary" @click="validateTerms()">{{ $t('label.LetsPlay') }}</q-btn>
         </div>
         
         <!------------------ START PLAYING WITH QR CODE ------------------>
@@ -93,6 +93,40 @@
       
       </div>
     </div>
+    
+    <!------------------ Validate terms ------------------------>
+    
+    <q-dialog v-model="terms.show">
+      <div class="q-pa-md">
+        <q-item dense>
+          <q-item-section avatar>
+            <q-checkbox color="gold" v-model="terms.usage" />
+          </q-item-section>
+          <q-item-section>
+            <span v-html="$t('label.IAgreeTheTermsAndConditions')" />
+            <div class="q-field-bottom" v-if="terms.usageError">
+              <div class="error">{{ $t('label.PleaseAgreeTheTermsAndConditions') }}</div>
+            </div>
+          </q-item-section>
+        </q-item>
+
+        <q-item dense>
+          <q-item-section avatar>
+            <q-checkbox color="gold" v-model="terms.privacy" />
+          </q-item-section>
+          <q-item-section>
+            <span v-html="$t('label.IAgreeThePrivacyPolicy')" />
+            <div class="q-field-bottom" v-if="terms.privacyError">
+              <div class="error">{{ $t('label.PleaseAgreeThePrivacyPolicy') }}</div>
+            </div>
+          </q-item-section>
+        </q-item>
+        
+        <div class="centered q-pa-md">
+          <q-btn color="primary" @click="playAnonymous()">{{ $t('label.Confirm') }}</q-btn>
+        </div>
+      </div>
+    </q-dialog>
   </div>
 </template>
 
@@ -114,6 +148,13 @@ export default {
         password: '',
         newPassword: '',
         code: ''
+      },
+      terms: {
+        show: false,
+        usage: false,
+        usageError: false,
+        privacy: false,
+        privacyError: false
       },
       showSocialLogin: {
         facebook: false,
@@ -354,21 +395,32 @@ export default {
         )
       }
     },
+    async validateTerms() {
+      this.terms.show = true
+    },
     /*
     * start the game
     */
     async playAnonymous() {
-      let checkStatus = await AuthService.playAnonymous(this.$t('label.shortLang'))
-      if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
-        if (checkStatus.data.user) {
-          window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
-          axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
-          this.$router.push('/map')
+      this.terms.usageError = false
+      this.terms.privacyError = false
+      if (this.terms.usage === false) {
+        this.terms.usageError = true
+      } else if (this.terms.privacy === false) {
+        this.terms.privacyError = true
+      } else {
+        let checkStatus = await AuthService.playAnonymous(this.$t('label.shortLang'))
+        if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
+          if (checkStatus.data.user) {
+            window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
+            axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
+            this.$router.push('/map')
+          } else {
+            Notification(this.$t('label.ErrorStandardMessage'), 'error')
+          }
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
-      } else {
-        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
     },
     /*

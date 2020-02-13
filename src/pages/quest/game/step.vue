@@ -67,9 +67,9 @@
         </div>
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
           <div class="text-center dark-banner q-pb-xl q-pt-md fixed-bottom">
-            <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title[lang] : $t('label.NoTitle') }}</p>
+            <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title : $t('label.NoTitle') }}</p>
             <!--<q-linear-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-linear-progress>-->
-            <p class="q-pa-md score-text" v-show="info && !offline.active && !info.quest.customization.removeScoring">{{ $t('label.CurrentScore') }}: {{ info.score }} <!--<q-icon color="white" name="fas fa-trophy" />--></p>
+            <p class="q-pa-md score-text" v-show="info && !offline.active && (!info.quest.customization || !info.quest.customization.removeScoring)">{{ $t('label.CurrentScore') }}: {{ info.score }} <!--<q-icon color="white" name="fas fa-trophy" />--></p>
             <p>
               <q-btn :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="backToMap">{{ $t('label.LeaveQuest') }}</q-btn>
             </p>
@@ -89,7 +89,7 @@
     <!--====================== HINT =================================-->
     
     <div class="fixed-bottom over-map" v-if="hint.isOpened">
-      <story step="hint" :data="{hint: hint.label[lang], character: (info.quest.customization && info.quest.customization.character && info.quest.customization.character !== '') ? (info.quest.customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + info.quest.customization.character : info.quest.customization.character) : '3'}" @next="askForHint()"></story>
+      <story step="hint" :data="{hint: hint.label, character: (info.quest.customization && info.quest.customization.character && info.quest.customization.character !== '') ? (info.quest.customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + info.quest.customization.character : info.quest.customization.character) : '3'}" @next="askForHint()"></story>
     </div>
     
     <!--====================== STORY =================================-->
@@ -366,7 +366,7 @@ export default {
     async getRun() {
       this.$q.loading.show()
       // List all run for this quest for current user
-      var runs = await RunService.listForAQuest(this.info.quest.questId)
+      var runs = await RunService.listForAQuest(this.info.quest.questId, null, this.lang)
       
       var currentChapter = 0
       var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
@@ -536,7 +536,7 @@ export default {
       let isStepOfflineLoaded = await this.checkIfStepIsAlreadyLoaded(stepId)
       
       if (!isStepOfflineLoaded || forceNetworkLoading) {
-        const response2 = await StepService.getById(stepId, this.questVersion)
+        const response2 = await StepService.getById(stepId, this.questVersion, this.lang)
         if (response2 && response2.data && response2.status === 200) {
           if (response2.data && response2.data.message) {
             if (response2.data.message === 'Step not yet available') {
@@ -718,10 +718,9 @@ export default {
      * Track step passing
      */
     async trackStepPass () {
-      // Not possible to pass for the mini games
-      //if (this.info.quest.type === 'quest') {
-      this.next.canPass = true
-      //}
+      if ((!this.step.canPass && this.step.canPass !== false) || this.step.canPass === true) {
+        this.next.canPass = true
+      }
     },
     /*
      * Track step fail
@@ -1154,7 +1153,7 @@ export default {
       }
     },
     isHintAvailable() {
-      if (this.step && this.step.hint && this.step.hint[this.lang] && this.step.hint[this.lang] !== '') {
+      if (this.step && this.step.hint && this.step.hint !== '') {
         return true
       } else {
         return false
@@ -1282,6 +1281,7 @@ export default {
           conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true)
         }
         ended = true
+        
         if (this.hint.used || this.nbTry > 1) {
           score = this.step.points / 2
         } else {
@@ -1324,7 +1324,7 @@ export default {
           for (var i = 0; i < this.run.answers.length; i++) {
             if (this.run.answers[i] && this.run.answers[i].stepId && this.run.answers[i].stepId !== null && this.run.answers[i].stepId === this.step.stepId) {
               update = true
-              answer.nbType = this.run.answers[i].nbTry + 1
+              answer.nbTry = this.run.answers[i].nbTry + 1
               answer.useHint = this.run.answers[i].useHint
               this.run.answers[i] = answer
             }

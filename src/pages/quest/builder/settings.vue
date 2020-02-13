@@ -224,6 +224,7 @@
           <div v-if="form.fields.customization && form.fields.customization.logo && form.fields.customization.logo !== ''">
             <p>{{ $t('label.YourLogo') }} :</p>
             <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.customization.logo" />
+            <div class="centered"><a @click="removeLogo">{{$t('label.Remove')}}</a></div>
           </div>
           <div v-if="!isIOs && !readOnly">
             <q-btn-group class="full-width">
@@ -240,7 +241,8 @@
           <div v-if="form.fields.rewardPicture && form.fields.rewardPicture !== ''">
             <p>{{ $t('label.Reward') }} :</p>
             <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.rewardPicture" style="background-color: #f00" />
-            {{ $t('label.RewardPictureWarning')}}
+            <div>{{ $t('label.RewardPictureWarning')}}</div>
+            <div class="centered"><a @click="removeReward">{{ $t('label.Remove') }}</a></div>
           </div>
           <div v-if="!isIOs && !readOnly" class="q-mt-md">
             <q-btn-group class="full-width">
@@ -257,6 +259,7 @@
           <div v-if="form.fields.customization && form.fields.customization.character && form.fields.customization.character !== ''">
             <p>{{ $t('label.YourCharacter') }} :</p>
             <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.customization.character" />
+            <div class="centered"><a @click="removeCharacter">{{ $t('label.Remove') }}</a></div>
           </div>
           <div v-if="!isIOs && !readOnly">
             <q-btn-group class="full-width">
@@ -805,7 +808,7 @@
       <div class="hint panel-bottom q-pa-md">
         <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Hint') }}</div>
         <p v-if="hint.label === ''">{{ $t('label.NoHintForThisStep') }}</p>
-        <p v-if="hint.label !== ''">{{ hint.label[languages.current] }}</p>
+        <p v-if="hint.label !== ''">{{ hint.label[hint.number] }}</p>
         <q-btn class="q-mb-xl" color="primary" @click="askForHint()">{{ $t('label.Close') }}</q-btn>
       </div>
     </q-dialog>
@@ -982,7 +985,8 @@ export default {
       selectedItem: null,
       hint: {
         isOpened: false,
-        label: ""
+        label: "",
+        number: 0
       },
       media: {
         isOpened: false,
@@ -1073,7 +1077,7 @@ export default {
       this.questId = this.$route.params.questId
       
       // fill quest settings form
-      let res = await QuestService.getLastById(this.questId)
+      let res = await QuestService.getLastById(this.questId, 'all')
       
       if (res && res.data) {
         this.quest = res.data
@@ -1214,6 +1218,9 @@ export default {
       }
       this.$q.loading.hide()
     },
+    async removeReward() {
+      this.form.fields.rewardPicture = null
+    },
     async changeEditorMode() {
       if (this.form.fields.editorMode === 'advanced') {
         this.$q.dialog({
@@ -1236,7 +1243,7 @@ export default {
       this.warnings.stepsMissing = false
       // list steps
       this.$q.loading.show()
-      var response = await StepService.listForAQuest(this.questId, this.quest.version)
+      var response = await StepService.listForAQuest(this.questId, this.quest.version, 'all')
       if (response && response.data) {
         this.chapters.items = response.data.chapters
         
@@ -1605,6 +1612,9 @@ export default {
       }
       this.$q.loading.hide()
     },
+    async removeLogo() {
+      this.form.fields.customization.logo = null
+    },
     /*
      * Upload a custo character for the quest
      */
@@ -1630,6 +1640,9 @@ export default {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
       this.$q.loading.hide()
+    },
+    async removeCharacter() {
+      this.form.fields.customization.character = null
     },
     /*
      * Start the tutorial
@@ -2043,14 +2056,22 @@ export default {
         this.chapters.newStep.scrollPosition = document.documentElement.scrollTop
       }
       this.closeAllPanels()
-      this.chapters.newStep.overviewData = step
-      this.chapters.showNewStepPageSettings = false
-      this.chapters.showNewStepOverview = true
-      // move to top
-      this.moveToTop()
-      // add timer else the watcher is not working in stepPlay
-      var _this = this
-      setTimeout(function() { _this.chapters.reloadStepPlay = true }, 300)
+      
+      // Load step data for selected language
+      const response = await StepService.getById(this.stepId, this.quest.version, this.languages.current)
+      if (response && response.data) {
+        this.chapters.newStep.overviewData = response.data
+        this.chapters.showNewStepPageSettings = false
+        this.chapters.showNewStepOverview = true
+        this.hint.number = 0
+        // move to top
+        this.moveToTop()
+        // add timer else the watcher is not working in stepPlay
+        var _this = this
+        setTimeout(function() { _this.chapters.reloadStepPlay = true }, 300)
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
     },
     /*
      * Move screen to current chapter (anchor)
@@ -2086,6 +2107,7 @@ export default {
       this.selectedItem = null
       this.canMoveNextStep = false
       this.canPass = false
+      this.hint.number = 0
     },
     /*
      * Close step settings page
@@ -2368,19 +2390,25 @@ export default {
       }
       this.chapters.showNewStepOverview = true
       this.stepId = step.id
-      this.chapters.newStep.overviewData = step
-      // move to top
-      this.moveToTop()
-      // add timer else the watcher is not working in stepPlay
-      var _this = this
-      setTimeout(function() { _this.chapters.reloadStepPlay = true }, 300)
       
-      if (this.story.active && this.countSteps() === 0) {
-        this.story.step = 21
+      const response = await StepService.getById(this.stepId, this.quest.version, this.languages.current)
+      if (response && response.data) {
+        this.chapters.newStep.overviewData = response.data
+        // move to top
+        this.moveToTop()
+        // add timer else the watcher is not working in stepPlay
+        var _this = this
+        setTimeout(function() { _this.chapters.reloadStepPlay = true }, 300)
+        
+        if (this.story.active && this.countSteps() === 0) {
+          this.story.step = 21
+        }
+        
+        // refresh quest media size
+        await this.refreshMediaSize()
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
-      
-      // refresh quest media size
-      await this.refreshMediaSize()
     },
     /*
      * Launched when the step is played
@@ -2585,8 +2613,12 @@ export default {
       }
       if (this.hint.isOpened) {
         this.closeAllPanels()
+        this.hint.number++
+        if (this.hint.number >= this.hint.label.length) {
+          this.hint.number = 0
+        }
       } else {
-        let hintLabel = await RunService.getHint(0, this.stepId, this.quest.version)
+        let hintLabel = await RunService.getHint(0, this.stepId, this.quest.version, this.languages.current)
 
         if (hintLabel && hintLabel.hint) {
           this.hint.label = hintLabel.hint
@@ -2602,7 +2634,8 @@ export default {
      * Check if a hint is available for the step
      */
     isHintAvailable() {
-      return (this.chapters.newStep.overviewData && this.chapters.newStep.overviewData.hasOwnProperty("hint") && this.chapters.newStep.overviewData.hint[this.languages.current] && this.chapters.newStep.overviewData.hint[this.languages.current] !== '')
+      return (this.chapters.newStep.overviewData && this.chapters.newStep.overviewData.hasOwnProperty("hint") &&
+        this.chapters.newStep.overviewData.hint !== '')
     },
     /*
      * Get the GPS location based on user location

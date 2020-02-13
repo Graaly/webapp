@@ -291,7 +291,7 @@
       <q-list>
         <q-item v-for="(option, key) in config.colorCode.colorsForCode" :key="key" :style="'background-color: ' + option.value">
           <q-item-section>
-            <q-item-label lines="1">&nbsp;</q-item-label>
+            <q-item-label lines="1">{{ option.label }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-btn class="bg-white" @click="deleteColor(key)">
@@ -300,14 +300,21 @@
           </q-item-section>
         </q-item>
       </q-list>
-      <q-input bottom-slots v-model="config.colorCode.newColor" :label="$t('label.AddNewColor')" maxlength="7" dense="dense">
-        <template v-slot:hint>
-          {{ $t('label.TypeColorCode') }}
-        </template>
-        <template v-slot:after>
-          <q-btn round dense flat icon="add" @click="addColor()" />
-        </template>
-      </q-input>
+      <q-list bordered class="rounded-borders">
+        <q-expansion-item dense icon="playlist_add" :label="$t('label.AddNewColor')" class="q-pa-md">
+          <q-input bottom-slots v-model="config.colorCode.newColor.label" :label="$t('label.TypeColorCodeName')" maxlength="15" />
+          <q-input bottom-slots v-model="config.colorCode.newColor.value" :label="$t('label.TypeColorCode')" maxlength="7">
+            <template v-slot:append>
+              <q-icon name="colorize" class="cursor-pointer">
+                <q-popup-proxy transition-show="scale" transition-hide="scale">
+                  <q-color v-model="config.colorCode.newColor.value" />
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+          <div class="centered"><q-btn :label="$t('label.Add')" color="secondary" @click="addColor()" /></div>
+        </q-expansion-item>
+      </q-list>
       <q-select emit-value map-options :label="$t('label.NumberOfColorsInTheCode')" :options="config.colorCode.numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-colors" />
       <h2>{{ $t('label.ExpectedColorCodeAnswer') }}</h2>
       <table>
@@ -677,6 +684,12 @@
           <div v-if="options.type.code === 'memory'">
             <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
           </div>
+          <div v-if="options.type.nbTrials > 0">
+            <q-input v-model="selectedStep.form.nbTrial" :label="$t('label.NbTrials')" />
+          </div>
+          <div v-if="options.type.passOption > 0">
+            <q-toggle v-model="selectedStep.form.canPass" :label="$t('label.UserCanPass')" />
+          </div>
           <div v-if="options.type.code === 'image-over-flow'">
             <q-toggle v-model="selectedStep.form.options.fullWidthPicture" :label="$t('label.EnlargePictureToFullWidth')" />
             <q-toggle v-model="selectedStep.form.options.snapshotAllowed" :label="$t('label.PlayerCanTakeSnapshot')" />
@@ -719,9 +732,20 @@
     <!------------------ HINT ------------------------>
     
     <q-list v-show="options.type.showTrick == 'yes'" bordered>
-      <q-expansion-item icon="lightbulb" :label="$t('label.Hint')">
+      <q-expansion-item icon="lightbulb" :label="$t('label.Hints')">
         <div class="q-pa-sm">
-          <q-input v-model="selectedStep.form.hint[lang]" :label="$t('label.HintText')" />
+          <div v-if="selectedStep.form.hint && selectedStep.form.hint[lang] && selectedStep.form.hint[lang].length > 0" v-for="(item, key) in selectedStep.form.hint[lang]" :key="key">
+            <q-btn class="float-right" @click="removeHint(key)"><q-icon name="delete" /></q-btn>
+            <div class="text-subtitle1">{{ $t('label.Hint') + " " + (key + 1) }}</div>
+            {{ item }}
+          </div>
+          <div>
+            <q-input v-model="newHint" :label="$t('label.NewHint')">
+              <template v-slot:after>
+                <q-btn round dense flat icon="add" @click="addHint()" />
+              </template>
+            </q-input>
+          </div>
         </div>
       </q-expansion-item>
     </q-list>
@@ -819,6 +843,8 @@ export default {
           extraText: {},
           options: {},
           hint: {},
+          nbTrial: 0,
+          canPass: true,
           chapterId: "0",
           conditions: [],
           startDate: {
@@ -869,7 +895,10 @@ export default {
             { value: 4, label: "4" }
           ],
           colorsForCode: this.getColorsForCodeOptions(),
-          newColor: ""
+          newColor: {
+            label: "",
+            value: ""
+          }
         },
         imageCode: {
           numberOfDigitsOptions: [
@@ -899,6 +928,7 @@ export default {
           layersForMarkersOptions: []
         }
       },
+      newHint: "",
       questItems: [],
       isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
       serverUrl: process.env.SERVER_URL,
@@ -968,6 +998,8 @@ export default {
         // geoloc step specific
         answerPointerCoordinates: {top: 50, left: 50},
         answerItem: null,
+        nbTrial: 0,
+        canPass: true,
         showDistanceToTarget: true,
         showDirectionToTarget: true,
         displayRightAnswer: true,
@@ -1006,7 +1038,7 @@ export default {
       // initialize step form data when edited
       if (!this.selectedStep.isNew) {
         // get step data
-        var response = await StepService.getById(this.stepId, this.quest.version)
+        var response = await StepService.getById(this.stepId, this.quest.version, 'all')
         if (response && response.data) {
           Object.assign(this.selectedStep.form, response.data)
         } else {
@@ -1029,6 +1061,9 @@ export default {
 
       // retrieve step type properties
       this.selectedStep.type = this.getStepType(this.selectedStep.form.type)
+      if (!this.selectedStep.form.nbTrial || this.selectedStep.form.nbTrial === 0) {
+        this.selectedStep.form.nbTrial = this.selectedStep.type.nbTrials
+      }
       
       // compute number of steps
       if (this.selectedStep.form.number === null) {
@@ -1466,7 +1501,7 @@ export default {
         var condition = this.selectedStep.form.conditions[i]
         var conditionParts = condition.split("_")
         if (conditionParts[0] === 'stepDone' || conditionParts[0] === 'stepSuccess' || conditionParts[0] === 'stepFail') {
-          const stepData = await StepService.getById(conditionParts[1], this.quest.version)
+          const stepData = await StepService.getById(conditionParts[1], this.quest.version, 'all')
           if (stepData && stepData.data && stepData.data.hasOwnProperty("title")) {
             let condStepTitle = stepData.data.title[this.lang] ? stepData.data.title[this.lang] : stepData.data.title[Object.keys(stepData.data.title)[0]]
             if (conditionParts[0] === 'stepDone') {
@@ -1496,7 +1531,7 @@ export default {
       this.selectedStep.newCondition.values.length = 0
       const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', 'image-recognition', 'jigsaw-puzzle', 'memory']
       if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail') {
-        const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version)
+        const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version, 'all')
         if (response && response.data && response.data.length > 0) {
           for (var i = 0; i < response.data.length; i++) {
             if (response.data[i].stepId.toString() !== this.stepId.toString()) {
@@ -2004,8 +2039,8 @@ export default {
       let options = []
       colorsForCode.forEach((code) => {
         options.push({
-          value: code,
-          label: this.$t('color.' + code)
+          value: code.value,
+          label: this.$t(code.label)
         })
       })
       return options
@@ -2032,9 +2067,30 @@ export default {
      */
     addColor() {
       this.config.colorCode.colorsForCode.push({
-        value: this.config.colorCode.newColor,
-        label: this.config.colorCode.newColor
+        value: this.config.colorCode.newColor.value,
+        label: this.config.colorCode.newColor.label
       })
+      this.config.colorCode.newColor = {label: "", value: ""}
+    },
+    /*
+     * remove a hint
+     */
+    removeHint(index) {
+      this.selectedStep.form.hint[this.lang].splice(index, 1)
+    },
+    /*
+     * add a hint
+     */
+    addHint() {
+      if (this.selectedStep.form.hint && this.selectedStep.form.hint[this.lang]) {
+        this.selectedStep.form.hint[this.lang].push(this.newHint)
+      } else {
+        this.selectedStep.form.hint = {}
+        this.selectedStep.form.hint[this.lang] = []
+        this.selectedStep.form.hint[this.lang].push(this.newHint)
+      }
+      
+      this.newHint = ""
     },
     /*
      * Get the list of the items won on previous steps

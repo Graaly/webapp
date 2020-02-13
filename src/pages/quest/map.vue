@@ -1845,13 +1845,7 @@ console.log(quest.premiumPrice.androidId)
       if (!quest || !quest.title) {
         return this.$t('label.NoTitle')
       }
-      if (this.$store.state.user.language && quest.title[this.$store.state.user.language]) {
-        return quest.title[this.$store.state.user.language]
-      } else if (quest.title[quest.mainLanguage] && quest.title[quest.mainLanguage] !== '') {
-        return quest.title[quest.mainLanguage] + (showLanguage ? ' <img class="image-and-text-aligned" src="statics/icons/game/flag-' + Object.keys(quest.title)[0] + '.png" />' : '')
-      } else {
-        return this.$t('label.NoTitle')
-      }
+      return quest.title
     },
     /*
      * Back to the map

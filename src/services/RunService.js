@@ -57,9 +57,14 @@ export default {
    * get a step hint
    * @param   {String}    runId                 ID of the run
    * @param   {String}    stepId                ID of the step
+   * @param   {String}    version               version of the step
+   * @param   {String}    lang                  lang of the hint (if empty => user language)
    */
-  async getHint (runId, stepId, version) {
-    let res = await Api().get('run/' + runId + '/step/' + stepId + '/version/' + version + '/hint')
+  async getHint (runId, stepId, version, lang) {
+    if (!lang) {
+      lang = 'default'
+    }
+    let res = await Api().get('run/' + runId + '/step/' + stepId + '/version/' + version + '/hint/lang/' + lang)
     return res.data
   },
   /*

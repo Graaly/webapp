@@ -8,7 +8,9 @@
     "showTrick": "no",
     "enabled": true,
     "hasBackgroundImage": "main",
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": false
   },
   {
     "category": "transition",
@@ -19,7 +21,9 @@
     "showTrick": "no",
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": false
+    "hasOptions": false,
+    "nbTrials": 0,
+    "passOption": false
   },
   {
     "category": "transition",
@@ -30,7 +34,9 @@
     "showTrick": "no",
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": false
+    "hasOptions": false,
+    "nbTrials": 0,
+    "passOption": false
   },
   {
     "category": "transition",
@@ -41,7 +47,9 @@
     "showTrick": "no",
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": false
   },
   {
     "category": "transition",
@@ -52,7 +60,9 @@
     "showTrick": "no",
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": false
+    "hasOptions": false,
+    "nbTrials": 0,
+    "passOption": false
   },
   {
     "category": "enigma",
@@ -67,7 +77,9 @@
     },
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": true
   },
   {
     "category": "enigma",
@@ -82,7 +94,9 @@
     },
     "hasBackgroundImage": "option",
     "enabled": true,
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": true
   },
   {
     "category": "enigma",
@@ -97,7 +111,9 @@
     },
     "hasBackgroundImage": "no",
     "enabled": true,
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": true
   },
   {
     "category": "enigma",
@@ -112,7 +128,9 @@
     },
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 1,
+    "passOption": false
   },
   {
     "category": "enigma",
@@ -123,7 +141,9 @@
     "showTrick": "yes",
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 2,
+    "passOption": false
   },
   {
     "category": "enigma",
@@ -138,7 +158,9 @@
     },
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 2,
+    "passOption": false
   },
   {
     "category": "enigma",
@@ -153,7 +175,9 @@
     },
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 2,
+    "passOption": false
   },
   {
     "category": "enigma",
@@ -168,7 +192,9 @@
     },
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 2,
+    "passOption": false
   },
   {
     "category": "enigma",
@@ -183,7 +209,9 @@
     },
     "enabled": true,
     "hasBackgroundImage": "main",
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": false
   },
   {
     "category": "enigma",
@@ -198,7 +226,9 @@
     },
     "enabled": true,
     "hasBackgroundImage": "main",
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 2,
+    "passOption": false
   },
   {
     "category": "enigma",
@@ -213,7 +243,9 @@
     },
     "enabled": true,
     "hasBackgroundImage": "main",
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 2,
+    "passOption": false
   },
   {
     "category": "enigma",
@@ -224,7 +256,9 @@
     "showTrick": "yes",
     "enabled": false,
     "hasBackgroundImage": "option",
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 2,
+    "passOption": true
   },
   {
     "category": "enigma",
@@ -239,7 +273,9 @@
     },
     "hasBackgroundImage": "option",
     "enabled": true,
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": true
   },
   {
     "category": "enigma",
@@ -254,6 +290,8 @@
     },
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": true
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": true
   }
 ]

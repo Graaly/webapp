@@ -1352,6 +1352,7 @@ console.log("try")
         // check offline answer
         //if (this.answer) {
           let checkAnswerOfflineResult = await this.checkOfflineAnswer(answerData.answer)
+console.log(checkAnswerOfflineResult)
           return checkAnswerOfflineResult
         //} else {
         //  Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1411,8 +1412,13 @@ console.log("try")
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       }
-      // TODO: send answer only if all tries done
-      return { result: false, answer: this.answer, score: 0, reward: 0, offline: true }
+      // answers not found
+      // check if nb trials is met or not
+      if (this.step.nbTrial && this.step.nbTrial > 0 && (this.nbTry + 1) < this.step.nbTrial) {
+        return { result: false, remainingTrial: (this.step.nbTrial - this.nbTry - 1), offline: true }
+      } else {
+        return { result: false, answer: this.answer, score: 0, reward: 0, offline: true }
+      }
     },
     /*
      * Check if the answer is correct
@@ -1474,7 +1480,7 @@ console.log("try")
               selectedAnswer.icon = 'clear' // "x" icon
               selectedAnswer.class = 'wrong'
               // indicate the right answer
-              if (checkAnswerResult.answer || checkAnswerResult.answer === 0) {
+              if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
                 let selectedAnswer = this.step.options.items[checkAnswerResult.answer]
                 selectedAnswer.icon = 'done'
                 selectedAnswer.class = 'right'
@@ -1485,7 +1491,11 @@ console.log("try")
             Vue.set(this.step.options.items, answer, selectedAnswer)
             
             this.nbTry++
-            this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
+            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
+              this.submitRetry(checkAnswerResult.remainingTrial)
+            } else {
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
+            }
           }
           
           break
@@ -1516,11 +1526,14 @@ console.log("try")
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2 && this.step.displayRightAnswer) {
+console.log(checkAnswerResult)
+            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
+console.log("check1")
               // reset code
               this.resetKeypadCode()
-              this.submitRetry()
+              this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
+console.log("check2")
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
@@ -1534,10 +1547,10 @@ console.log("try")
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2 && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
               // reset code
               this.resetColorCode()
-              this.submitRetry()
+              this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
@@ -1551,10 +1564,10 @@ console.log("try")
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2 && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
               // reset code
               this.resetImageCode()
-              this.submitRetry()
+              this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
@@ -1587,10 +1600,10 @@ console.log("try")
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2 && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
               // reset field
               this.writetext.playerAnswer = ""
-              this.submitRetry()
+              this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
@@ -1609,7 +1622,7 @@ console.log("try")
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2 && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
               Notification(this.$t('label.UseItemNothingHappens'), 'error')
             } else {
               if (this.step.displayRightAnswer) {
@@ -1632,7 +1645,7 @@ console.log("try")
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-            if (this.nbTry < 2 && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
               Notification(this.$t('label.FindItemNothingHappens'), 'error')
             } else {
               if (this.step.displayRightAnswer) {
@@ -1764,7 +1777,7 @@ console.log("try")
                   this.submitWrongAnswer(checkAnswerResult.offline, true)
                   this.stopMarkersSensors()
                 } else {
-                  this.submitRetry(checkAnswerResult.offline)
+                  this.submitRetry(1)
                 }
               }
             }
@@ -1890,7 +1903,7 @@ console.log("try")
      * Display the read more alert
      */
     displayReadMoreAlert() {
-      if (this.step.extraText && typeof this.step.extraText === 'object' && this.step.extraText[this.lang]) {
+      if (this.step.extraText) {
         var actions = [
           {
             label: this.$t('label.ReadMore'),
@@ -1912,8 +1925,8 @@ console.log("try")
     /*
      * Display retry message when wrong answer
      */
-    submitRetry() {
-      this.displaySuccessMessage(false, this.$t('label.SecondTry'))
+    submitRetry(nbRemainingTrials) {
+      this.displaySuccessMessage(false, this.$t('label.SecondTry', {nb: nbRemainingTrials}))
     },
     
     ////////////////////////////////////////////// MANAGEMENT OF THE ENIGMA COMPONENTS /////////////////////////////////////////////
@@ -2445,7 +2458,7 @@ console.log("try")
       if (this.step.type === 'new-item') {
         defaultText = this.$t('label.YouHaveWinANewItem')
       }
-      let translation = (this.step.text && typeof this.step.text === 'object' && this.step.text[this.lang]) ? this.step.text[this.lang] : defaultText
+      let translation = this.step.text ? this.step.text : defaultText
       return translation
     },
     getScreenWidth() {
@@ -2726,6 +2739,7 @@ console.log("try")
             _self.memory.disabled = false
           }, 1500)
         }
+        
         this.memory.nbTry = 0
       } else {
         this.memory.nbTry++
@@ -3004,10 +3018,10 @@ console.log("try")
     * Display read more text
     */
     readMore() {
-      if (this.step.extraText && typeof this.step.extraText === 'object' && this.step.extraText[this.lang]) {
+      if (this.step.extraText) {
         this.story.step = 6
         this.story.data = {
-          readMore: utils.replaceBreakByBR(this.step.extraText[this.lang]),
+          readMore: utils.replaceBreakByBR(this.step.extraText),
           character: (this.customization && this.customization.character && this.customization.character !== '') ? (this.customization.character.indexOf('blob:') === -1 ? this.serverUrl + '/upload/quest/' + this.customization.character : this.customization.character) : "2"
         }
       }

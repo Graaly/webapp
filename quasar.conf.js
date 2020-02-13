@@ -123,6 +123,7 @@ module.exports = function (ctx) {
         'QCarouselSlide',
         'QCheckbox',
         'QChip',
+        'QColor',
         //'QChipsInput',
         'QDate',
         'QDialog',
@@ -141,6 +142,7 @@ module.exports = function (ctx) {
         'QPageContainer',
         'QPage',
         'QParallax',
+        'QPopupProxy',
         'QLinearProgress',
         'QRadio',
         'QRating',
@@ -228,7 +230,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: "1.8.7"
+      version: "1.8.8"
       // id: 'org.cordova.quasar.app'
     },
     electron: {

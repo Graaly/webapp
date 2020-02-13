@@ -40,7 +40,7 @@
         </div>
         <!-- =========================== TITLE ========================== -->
         <div class="text-h5">
-          {{getLanguage() ? quest.title[getLanguage()] : $t('label.NoTitle') }} 
+          {{ quest.title === "" ?  $t('label.NoTitle') : quest.title }} 
           &nbsp;<img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + getLanguage() + '.png'" />
         </div>
         <!-- =========================== PROPERTIES ========================== -->
@@ -105,7 +105,7 @@
           </p>
         </div>
         <div class="text-subtitle2">
-          {{ this.getLanguage() ? this.quest.description[this.getLanguage()] : "" }}
+          {{ this.quest.description }}
         </div>
         <div v-if="isUserTooFar && !quest.allowRemotePlay" class="q-pt-md">
           <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.QuestIsFarFromUser')" />
