@@ -793,6 +793,7 @@ module.exports = {
       YouCanNotCreateNewQuests: `Yon can not create new pro quests. Subscribe to our professional offers on <a href="${websiteBaseURL}" target="_blank">${websiteBaseURL}</a> or by email at  <a href="mailto:${salesEmail}">${salesEmail}</a>.`,
       PriceForPlayer: "Price for the players",
       Free: "Free",
+      Paying: "Paying",
       Buy: "Buy",
       Error: "Error",
       YouMustPlayThisKindOfQuestOnAMobileDevice: "You must play this kind of quest on a mobile device",
@@ -874,7 +875,22 @@ module.exports = {
       SnapshotTaken: "Screenshot saved on your mobile",
       SnapshotTakenIssue: "Error with the screenshot",
       NbTrials: "Trials number",
-      UserCanPass: "Player can pass this step"
+      UserCanPass: "Player can pass this step",
+      Welcome: "Welcome!",
+      SignIn: "Sign-in",
+      Subscribe: "Subscribe",
+      EmailAlreadyUsed: "This email address is already used. Please sign-in or ask to modify your password",
+      AroundYou: "Close to you",
+      SeeMore: "See more",
+      Designers: "Designers",
+      Difficulty1: "Simple",
+      Difficulty2: "Normal",
+      Difficulty3: "Hard",
+      ClosestQuestToYou: "The game closest to you",
+      YouAreNearThisQuest: "You are close to this game",
+      YouAreInvitedToThisQuest: "You are invited to this game",
+      CreatedByGraaly: "Créées avec Graaly",
+      FriendsQuests: "Friends games"
     }
   },
   fr: {
@@ -1659,6 +1675,7 @@ module.exports = {
       YouCanNotCreateNewQuests: `Vous ne pouvez plus créer d'enquêtes pro. Souscrivez à nos offres professionnelles sur <a href="${websiteBaseURL}" target="_blank">${websiteBaseURL}</a> ou contactez-nous à <a href="mailto:${salesEmail}">${salesEmail}</a>.`,
       PriceForPlayer: "Prix pour les joueurs",
       Free: "Gratuit",
+      Paying: "Payant",
       Buy: "Acheter",
       Error: "Erreur",
       YouMustPlayThisKindOfQuestOnAMobileDevice: "Vous devez jouer cette enquête sur un appareil mobile",
@@ -1740,7 +1757,22 @@ module.exports = {
       SnapshotTaken: "Capture enregistrée dans vos photos",
       SnapshotTakenIssue: "Impossible de faire une capture",
       NbTrials: "Nombre d'essais",
-      UserCanPass: "Le joueur peut passer l'étape"
+      UserCanPass: "Le joueur peut passer l'étape",
+      Welcome: "Bienvenue !",
+      SignIn: "Connexion",
+      Subscribe: "S'inscrire",
+      EmailAlreadyUsed: "Cette adresse email est déjà utilisée. Connectez-vous ou demandez une modification de votre mot de passe",
+      AroundYou: "Autour de vous",
+      SeeMore: "Voir plus",
+      Designers: "Créateurs",
+      Difficulty1: "Simple",
+      Difficulty2: "Normal",
+      Difficulty3: "Difficile",
+      ClosestQuestToYou: "Jeu proche de vous",
+      YouAreNearThisQuest: "Jeu le plus proche de vous",
+      YouAreInvitedToThisQuest: "Vous êtes invité à ce jeu",
+      CreatedByGraaly: "Créées avec Graaly",
+      FriendsQuests: "Jeux des amis"
     }
   }
 }

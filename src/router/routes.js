@@ -94,7 +94,7 @@ export default [
         meta: { requiresAuth: true }
       },
       {
-        path: 'user/createAccount/:email/:step',
+        path: 'user/createAccount/:step',
         name: 'signup',
         component: UserCreateAccount,
         meta: { requiresAuth: false }

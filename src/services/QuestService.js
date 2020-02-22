@@ -15,6 +15,18 @@ export default {
     return Api().get('quests/nearest/' + location.lng + '-' + location.lat + '/' + type + '/lang/' + lang).catch(error => console.log(error.request))
   },
   /*
+   * list quest displayed on home page
+   * @param   {Object}    location            user location
+   * @param   {String}    type                type of quest
+   * @param   {String}    lang                language
+   */
+  listHomeQuests (location, lang) {
+    if (!lang) {
+      lang = 'default'
+    }
+    return Api().get('quests/home/' + location.lng + '-' + location.lat + '/lang/' + lang).catch(error => console.log(error.request))
+  },
+  /*
    * get a quest based on its ID
    * @param   {String}    id                  ID of the quest
    * @param   {Number}    version             version of the quest

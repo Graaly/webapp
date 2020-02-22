@@ -7,7 +7,15 @@ export default {
    */
   listFriends () {
     return Api().get('user/friends/list').catch(error => console.log(error.request))
-  },  
+  },
+  /*
+   * list creators near from connected user
+   * @param   {Object}    location            user location
+   * @param   {Number}    number              number of results
+   */
+  listNearCreators (location, number) {
+    return Api().get('user/creators/' + location.lng + '-' + location.lat + '/' + number).catch(error => console.log(error.request))
+  },
   /*
    * List news of user's friend
    */
