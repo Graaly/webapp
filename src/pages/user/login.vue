@@ -64,7 +64,7 @@
           <div class="text-center">
             <q-btn 
               class="glossy large-btn"
-              color="accent" 
+              color="primary" 
               :label="$t('label.SignIn')"
               :loading="submitting" 
               @click="formSubmit" 
@@ -81,7 +81,7 @@
         <div class="q-py-md centered">
           <q-btn 
             class="glossy large-btn" 
-            color="primary" 
+            color="accent" 
             @click="validateTerms()"
             :label="$t('label.LetsPlay')"
             />
@@ -92,7 +92,7 @@
         <div v-if="isHybrid" class="q-py-md centered">
           <q-btn 
             class="glossy large-btn" 
-            color="primary"
+            color="accent"
             @click="startScanQRCode()"
             :label="$t('label.ScanQRCodeToStartQuest')"
             />
@@ -141,7 +141,7 @@
           
           <q-btn 
             class="glossy full-width" 
-            color="accent" 
+            color="primary" 
             @click="sendForgottenPasswordCode()"
             :label="$t('label.Ok')"
             />

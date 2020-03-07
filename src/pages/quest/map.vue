@@ -18,7 +18,7 @@
       
       <titleBar :title="{text: $t('label.AroundYou'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMore"></titleBar>
 
-      <questsList :quests="nearestQuests"></questsList>
+      <questsList format="small" :quests="nearestQuests"></questsList>
       
       <!--====================== QUEST CREATED BY GRAALY =================================-->
       
@@ -26,19 +26,20 @@
       
       <!--====================== QUEST PLAYED OR CREATED BY GRAALY =================================-->
       
-      <titleBar :title="{text: $t('label.FriendsQuests'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMore"></titleBar>
+      <titleBar format="small" :title="{text: $t('label.FriendsQuests'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMore"></titleBar>
       
       <!--====================== CREATORS =================================-->
       
       <titleBar :title="{text: $t('label.Designers'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}"></titleBar>
       
-      <usersList :users="users"></usersList>
+      <usersList format="scroll" :users="users"></usersList>
       
       <!--====================== CREATE QUEST BUTTON =================================-->
       
-      <div class="q-pa-md">
+      <div class="q-ma-md relative-position creator-button" @click="buildQuest">
         <img src="statics/images/other/creator.jpg" class="full-width" />
-        <div class="bkg-primary subtitle2">
+        <div class="bg-accent subtitle2 q-pa-md full-width" style="bottom: 0px; position: absolute;">
+          <div class="float-right"><img src="statics/images/icon/puzzle-big.svg" style="width: 32px" /></div>
           <span>Devenir créateur ?</span>
         </div>
       </div>
@@ -49,12 +50,10 @@
         <div class="home-header row no-wrap">
           <img src="statics/images/logo/logo-header.png" class="logo" />
           <q-space />
-          <img src="statics/images/icon/search.png" class="header-button q-mr-md" />
-          <img src="statics/images/icon/level1.png" class="header-button q-mr-md" />
-          <q-avatar>
-            <img v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') !== -1" :src="$store.state.user.picture" />
-            <img v-if="$store.state.user.picture && $store.state.user.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + $store.state.user.picture" />
-            <img v-if="!$store.state.user.picture" src="statics/images/icon/profile-small.png" />
+          <img src="statics/images/icon/search.svg" class="header-button q-mr-md" @click="openSearch" />
+          <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" class="header-button q-mr-md" @click="openRanking" />
+          <q-avatar @click="openProfile()">
+            <img :src="getProfileImage()" />
           </q-avatar>
         </div>
       </div>
@@ -94,10 +93,10 @@
       </div>-->
       
       <!--====================== SUCCESS PAGE =================================-->
-      
+      <!--
       <q-drawer class="over-map" side="left" v-model="showSuccess" :width="innerWidth" test-id="quests-pane">
         
-        <!------------------ TABS AREA ------------------------>
+        <!------------------ TABS AREA ------------------------
         
         <q-tabs v-model="questsTab" class="bg-accent text-white">
           <q-tab name="built" icon="add_box" :label="$t('label.QuestsCreated')" />
@@ -106,12 +105,10 @@
         
         <q-separator />
         
-        <!------------------ LIST OF QUESTS BUILT TAB ------------------------>
+        <!------------------ LIST OF QUESTS BUILT TAB ------------------------
         
         <div v-if="questsTab === 'built'" class="q-pa-md q-pb-xl tab-content-80">
-          <div class="centered q-pa-md" v-if="success.quests.built.tovalidate && success.quests.built.tovalidate.length === 0 && success.quests.built.rejected.length === 0 && success.quests.built.published.length === 0 && success.quests.built.draft.length === 0 && !warnings.listCreatedQuestsMissing">
-            {{ $t('label.NoQuestCreated') }}
-          </div> 
+          
           <q-btn link class="full-width" @click="buildQuest" color="secondary">{{ $t('label.CreateANewQuest') }}</q-btn>
           <q-btn outline class="full-width q-mt-sm" @click="menu.suggestQuest.show = true" color="secondary">{{ $t('label.SuggestAQuest') }}</q-btn>
           <div class="centered bg-warning q-pa-sm" v-if="warnings.listCreatedQuestsMissing" @click="listCreatedQuests($store.state.user._id)">
@@ -203,7 +200,7 @@
           </div>
         </div>
         
-        <!------------------ LIST OF QUESTS PLAYED TAB ------------------------>
+        <------------------ LIST OF QUESTS PLAYED TAB ------------------------
         
         <div v-if="questsTab === 'played'" class="q-pa-md q-pb-xl tab-content-80">
           <div class="centered bg-warning q-pa-sm" v-if="warnings.listPlayedQuestsMissing" @click="listPlayedQuests($store.state.user._id)">
@@ -230,7 +227,7 @@
                   {{ $t('label.Succeeded') }}
                 </q-item-label>
                 <q-item-label caption v-if="quest.dateCreated && quest.status == 'finished' && quest.score">
-                  {{ $t('label.MyScore') }}: {{ quest.score }} <!--<q-icon name="fas fa-trophy" />-->
+                  {{ $t('label.MyScore') }}: {{ quest.score }} <!--<q-icon name="fas fa-trophy" />--
                 </q-item-label>
                 <q-item-label caption v-if="quest.status == 'in-progress'">
                   {{ $t('label.ContinueThisQuest') }}
@@ -254,13 +251,13 @@
         </div>
 
       </q-drawer>
-      
+      -->
       <!--====================== PROFILE PAGE =================================-->
-      
+      <!--
       <q-drawer class="over-map" side="right" v-model="showProfile" :width="innerWidth" test-id="profile-pane">
         
         <div  v-if="$store.state.user.name !== '-'">
-          <!------------------ HEADER AREA ------------------------>
+          <!------------------ HEADER AREA ------------------------
             
           <div class="header row">
             <div class="col-4">
@@ -278,7 +275,7 @@
             </div>
           </div>
           
-          <!------------------ TABS AREA ------------------------>
+          <!------------------ TABS AREA ------------------------
           
           <q-tabs v-model="profileTab" class="bg-accent text-white">
             <q-tab name="profile" icon="face" :label="$t('label.MyProfile')" />
@@ -290,7 +287,7 @@
           <q-separator />
           
           <!------------------ PROFILE TAB ------------------------>
-          
+          <!--
           <div v-if="profileTab === 'profile'" class="q-pa-md tab-content-180">
             <form @submit.prevent="submitProfileChanges()">
               <q-item>
@@ -409,17 +406,14 @@
                   <q-btn class="q-my-md" color="primary" :label="$t('label.IConfirmIWantToRemoveMyAccount')" @click="removeAccount()" />
                 </q-item-section>
               </q-item>
-              
-              <div class="centered" v-html="$t('label.TermsAndConditionsLink')"></div>
-              <div class="centered q-mb-xl" v-html="$t('label.PrivacyPolicyLink')"></div>
             </form>
           </div>
-          
+          ->
           <!------------------ FRIENDS TAB ------------------------>
-          
+          <!--
           <div v-if="profileTab === 'friends'" class="q-pa-md tab-content-180">
             
-            <!------------------ ADD FRIENDS BUTTON AREA ------------------------>
+            <!------------------ ADD FRIENDS BUTTON AREA ------------------------
             <q-btn link class="full-width" @click="openAddFriendsModal()" color="secondary">{{ $t('label.AddFriends') }}</q-btn>
             
             <div class="centered bg-warning q-pa-sm" v-if="warnings.listFriendsMissing" @click="loadFriends">
@@ -447,7 +441,7 @@
             </q-list>
           </div>
           
-          <!------------------ NEWS TAB ------------------------>
+          <!------------------ NEWS TAB ------------------------
           
           <div v-if="profileTab === 'news'" class="q-pa-md tab-content-180">
             <q-infinite-scroll @load="loadNews">
@@ -495,7 +489,7 @@
             </q-infinite-scroll>
           </div>
           
-          <!------------------ PRO TAB ------------------------>
+          <!------------------ PRO TAB ------------------------
           
           <div v-if="profileTab === 'pro'" class="q-pa-md tab-content-180">
             <div v-if="!$store.state.user.organizationId">
@@ -541,64 +535,14 @@
 
       </q-drawer>
       
-      <!--====================== SEARCH PAGE =================================-->
-      
-      <q-dialog v-model="showSearch" full-width full-height>
-        <div class="column search-from-map" ref="div-column">
-          <div>
-            <q-input
-              class="q-pa-md"
-              v-model="search.text"
-              debounce="500"
-              :placeholder="$t('label.Search')"
-              @input="findQuests()"
-            >
-              <template v-slot:append>
-                <q-icon name="close" @click="closeSearch()" />
-              </template>
-            </q-input>
-          </div>
-          
-          <q-card v-for="item in search.quests" :key="item._id" class="q-ma-sm" @click.native="$router.push(item.authorUserId === $store.state.user._id ? '/quest/builder/' + item.questId : '/quest/play/' + item.questId)">
-            <q-img :src="serverUrl + '/upload/quest/' + item.picture">
-              <div class="absolute-top text-center">
-                {{ getQuestTitle(item, true) }}
-                <q-rating slot="subtitle" v-if="item.rating && item.rating.rounded" v-model="item.rating.rounded" color="primary" :max="5" />
-                <span slot="right" class="row items-center text-white" v-if="item.distance && item.distance > 0 && item.distance <= 99">
-                  <q-icon color="white" name="place" /> {{ item.distance }} {{ $t('label.km') }}
-                </span>
-                <span slot="right" class="row items-center text-white" v-if="item.distance === 0">
-                  <q-icon color="white" name="place" /> &lt;1 {{ $t('label.km') }}
-                </span>
-                <span slot="right" class="row items-center text-white" v-if="item.distance > 99">
-                  <q-icon color="white" name="place" /> &gt;99 {{ $t('label.km') }}
-                </span>
-              </div>
-            </q-img>
-          </q-card>
-          <q-item v-show="search.text.length > 0 && search.quests.length == 0" @click.native="$router.push('/quest/create')">
-            <q-item-section avatar>
-              <q-icon name="explore" size="2rem" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ $t('label.NoQuestForThisSearch') }}</q-item-label>
-              <q-item-label caption>
-                <a @click="$router.push('/quest/create')">{{ $t('label.WhyDontYouCreateAQuest') }}</a>
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-          
-        </div>
-      </q-dialog>
-      
       <!--====================== FRIEND PAGE =================================-->
-      
+      <!--
       <q-dialog v-model="friends.show" class="over-map">
          <div class="panel-bottom q-pa-md">
           <a class="float-right no-underline close-btn" color="grey" @click="friends.show = false"><q-icon name="close" class="medium-icon" /></a>
           <h1 class="size-3 q-pl-md">{{ friends.selected.name }}</h1>
           <q-tabs v-model="friendsTab" class="bg-accent text-white">
-            <!--<q-tab name="friendranking" icon="star" :label="$t('label.Ranking')" default />-->
+
             <q-tab name="friendbuilt" icon="add_box" :label="$t('label.QuestsCreated')" default />
             <q-tab name="friendplayed" icon="play_circle_filled" :label="$t('label.QuestsSuccessful')" />
           </q-tabs>
@@ -606,9 +550,6 @@
           <q-separator />
           
           <q-tab-panels v-model="friendsTab" animated>
-          
-            <!--<q-tab-panel name="friendranking">  
-            </q-tab-panel>-->
             
             <q-tab-panel name="friendbuilt">
               <q-list>
@@ -657,7 +598,7 @@
                       {{ $t('label.Succeeded') }}
                     </q-item-label>
                     <q-item-label caption v-if="quest.score">
-                      {{ $t('label.Score') }}: {{ quest.score }} <!--<q-icon name="fas fa-trophy" />-->
+                      {{ $t('label.Score') }}: {{ quest.score }} <!--<q-icon name="fas fa-trophy" />--
                     </q-item-label>
                   </q-item-section>
                   <q-item-section side class="score" v-if="!quest.questData.type || quest.questData.type === 'quest'">
@@ -677,9 +618,9 @@
           </q-tab-panels>
         </div>
       </q-dialog>
-      
+      -->
       <!--====================== ADD FRIEND PAGE =================================-->
-      
+      <!--
       <q-dialog v-model="friends.new.show" class="over-map">
         <q-card>
           <q-card-section class="row items-center">
@@ -693,15 +634,15 @@
           </q-card-section>
         </q-card>
       </q-dialog>
-      
+      -->
       <!--====================== SHOP PAGE =================================-->
-      
+      <!--
       <q-dialog maximized v-model="shop.show" class="over-map">
         <a class="float-right no-underline close-btn" color="grey" @click="closeShop"><q-icon name="close" class="medium-icon" /></a>
         <h1 class="size-3 q-pl-md">{{ $t('label.Shop') }}</h1>
         <shop @close="closeShop"></shop>
       </q-dialog>
-      
+      -->
       <!--====================== RANKING PAGE =================================-->
       
       <q-dialog maximized v-model="ranking.show" class="over-map">
@@ -709,7 +650,7 @@
           <q-card-section class="row items-center">
             <h1 class="size-3 q-pl-md">{{ $t('label.YourRanking') }}</h1>
             <q-space />
-            <q-btn icon="close" flat round dense @click="closeRanking" />
+            <q-btn icon="close" flat round dense />
           </q-card-section>
           <q-card-section class="centered bg-warning q-pa-sm" v-if="warnings.rankingMissing" @click="getRanking">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
@@ -764,7 +705,7 @@
       
       <!--====================== BOTTOM BAR =================================-->
       
-      <div class="fixed-bottom over-map" v-if="menu.show && !offline.active">
+      <div class="fixed-bottom over-map" v-if="!offline.active">
         <div class="centered bg-warning q-pa-sm" v-if="warnings.noLocation">
           <q-spinner-puff class="on-left" /> {{ $t('label.WarningNoLocation') }}
         </div>
@@ -785,7 +726,7 @@
       </div>
       
       <!--====================== BOTTOM MENU =================================-->
-      
+      <!--
       <q-dialog v-model="showBottomMenu" position="bottom" test-id="bottom-menu">
         <q-list class="bg-white">
           <q-item v-if="isHybrid" @click.native="startScanQRCode()">
@@ -839,54 +780,48 @@
           </q-item>
         </q-list>
       </q-dialog>
-      
+      -->
       <!--====================== SUGGEST A QUEST =================================-->
-      
+      <!--
       <q-dialog maximized v-model="menu.suggestQuest.show" class="over-map bg-white">
         <suggest @close="menu.suggestQuest.show = false"></suggest>
       </q-dialog>
-        
+      -->
     </div>
   </div>
 </template>
 
 <script>
 import QuestService from 'services/QuestService'
-import AuthService from 'services/AuthService'
 import UserService from 'services/UserService'
 
 import geolocation from 'components/geolocation'
-import newfriend from 'components/newfriend'
+//import newfriend from 'components/newfriend'
 import shop from 'components/shop'
 import suggest from 'components/quest/suggest'
 import titleBar from 'components/titleBar'
 import mainQuest from 'components/quest/mainQuest'
 import questsList from 'components/quest/questsList'
 import usersList from 'components/user/usersList'
-import offlineLoader from 'components/offlineLoader'
+//import offlineLoader from 'components/offlineLoader'
 
 import utils from 'src/includes/utils'
-import { required, email } from 'vuelidate/lib/validators'
-import checkPhone from 'boot/CheckPhone'
+//import { required, email } from 'vuelidate/lib/validators'
+//import checkPhone from 'boot/CheckPhone'
 import { QSpinnerDots, QInfiniteScroll } from 'quasar'
 
 import Notification from 'boot/NotifyHelper'
 import LevelCompute from 'boot/LevelCompute'
-
-import questLevels from 'data/questLevels.json'
-import countriesFR from 'data/countries_fr.json'
-import countriesEN from 'data/countries_en.json'
-import languages from 'data/languages.json'
 
 export default {
   components: {
     QInfiniteScroll,
     QSpinnerDots,
     geolocation,
-    newfriend,
+    //newfriend,
     shop,
     suggest,
-    offlineLoader,
+    //offlineLoader,
     mainQuest,
     titleBar,
     questsList,
@@ -906,23 +841,6 @@ export default {
         position: null,
         proposeAQuest: true
       },
-      friends: {
-        list: [],
-        news: {
-          limit: 20,
-          skip: 0,
-          items: []
-        },
-        show: false,
-        selected: {
-          name: '',
-          played: [],
-          built: []
-        },
-        new: {
-          show: false
-        }
-      },
       shop: {
         show: false,
         inAppPurchase: {
@@ -934,42 +852,29 @@ export default {
       searchText: '',
       questList: [],
       serverUrl: process.env.SERVER_URL,
-      showSuccess: false,
-      showProfile: false,
+      //showSuccess: false,
+      //showProfile: false,
       showSearch: false,
-      showBottomMenu: false,
-      menu: {
-        show: true,
-        suggestQuest: {
-          show: false
-        }
-      },
+      //showBottomMenu: false,
       warnings: {
         lowBattery: false,
         noLocation: false,
         noNetwork: false,
         noServerReponse: false,
         rankingMissing: false,
-        listCreatedQuestsMissing: false,
-        listPlayedQuestsMissing: false,
-        listFriendsMissing: false,
         score: false,
         questButton: false,
         networkButton: false,
         mainButton: false
       },
       success: {
-        quests: {
-          played: [],
-          built: {}
-        },
         ranking: []
       },
       profile: {
         level: {},
         organization: {},
         progress: 0.1,
-        form: {
+        /*form: {
           name: "--", 
           picture: "", 
           email: "", 
@@ -980,7 +885,7 @@ export default {
           newPassword: "", 
           language: "en"
         },
-        countries: this.$i18n.locale === 'fr' ? countriesFR : countriesEN,
+        countries: [],*/
         userCanChangeEmail: true,
         userCanChangePhone: true,
         userCanChangePassword: true
@@ -994,16 +899,16 @@ export default {
       ranking: {
         show: false
       },
-      languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
+      //languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
       isMounted: false,
       isHybrid: window.cordova,
       isQuestsLoaded: false,
-      innerWidth: window.innerWidth,
-      questsTab: "built",
-      profileTab: "news",
-      friendsTab: "friendbuilt",
-      invitations: [],
-      QuestService // to have getBackgroundImage() method available in template
+      innerWidth: window.innerWidth//,
+      //questsTab: "built",
+      //profileTab: "news",
+      //friendsTab: "friendbuilt",
+      //invitations: [],
+      //QuestService // to have getBackgroundImage() method available in template
     }
   },
   created () {
@@ -1026,13 +931,6 @@ export default {
       this.checkIfProfileIsComplete()
       // clear all running process
       utils.clearAllRunningProcesses()
-      // get quests
-console.log("test0")
-      //await this.getQuests()
-      // get creators
-console.log("test1")
-      //await this.getCreators()
-console.log("test2")
       // check if battery is enough charged to play
       window.addEventListener("batterylow", this.checkBattery, false);
       // check if user has network
@@ -1062,10 +960,11 @@ console.log("test2")
     async onLocationSuccess(position) {
       //let positionNeedsUpdate = (this.user.position === null || this.questList.length === 0)
       this.$set(this.user, 'position', position.coords)
-
+      
       if (this.isQuestsLoaded === false && !this.offline.active) {
         await this.loadQuests()
       }
+
       await this.getCreators()
     },
     /*
@@ -1152,6 +1051,7 @@ console.log("test2")
     async checkNetwork() {
       // TODO on hybrid, maybe use events "offline" and "online" to get realtime network status
       // see https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-network-information/#offline
+console.log(this.offline)
       let previousOfflineValue = this.offline.active
       let isNetworkAvailable = utils.isNetworkAvailable()
       this.warnings.noNetwork = !isNetworkAvailable
@@ -1343,38 +1243,6 @@ console.log("test2")
     },
     
     /*
-     * Get the level of each quest in the map
-     */
-    getQuestLevelName(id) {
-      let level = utils.getById(questLevels, id)
-      return level === null ? '' : level.name
-    },
-    
-    /*
-     * Open the bottom menu
-     */
-    openBottomMenu() {
-      if (this.showSuccess) {
-        this.showSuccess = false
-      } else if (this.showProfile) {
-        this.showProfile = false
-      } else {
-        this.showBottomMenu = true
-      }
-    },
-    /*
-     * Open the success page
-     */
-    openSuccessPage() {
-      this.$q.loading.show()
-      if (!this.showSuccess) {
-        this.listCreatedQuests(this.$store.state.user._id)
-        this.listPlayedQuests(this.$store.state.user._id)
-      }
-      this.$q.loading.hide()
-      this.showSuccess = !this.showSuccess
-    },
-    /*
      * Get current user ranking data
      */
     async getRanking() {
@@ -1388,83 +1256,7 @@ console.log("test2")
         this.warnings.rankingMissing = true
       }
     },
-    /*
-     * Get the list of the quests created by the user
-     * @param   {string}    id            ID of the user
-     */
-    async listCreatedQuests(id) {
-      if (!id) {
-        id = this.$store.state.user._id
-      }
-      this.warnings.listCreatedQuestsMissing = false
-      let response = await QuestService.ListCreatedByAUser(id)
-      this.success.quests.built = {
-        rejected: [],
-        tovalidate: [],
-        draft: [],
-        published: []
-      }
-      if (response && response.data) {
-        for (var i = 0; i < response.data.length; i++) {
-          var quest = response.data[i]
-          if (quest.status === 'published') {
-            this.success.quests.built['published'].push(quest)
-          } else if (quest.status === 'rejected') {
-            this.success.quests.built['rejected'].push(quest)
-          } else if (quest.status === 'tovalidate') {
-            this.success.quests.built['tovalidate'].push(quest)
-          } else {
-            this.success.quests.built['draft'].push(quest)
-          }
-        }
-      } else {
-        this.warnings.listCreatedQuestsMissing = true
-      }
-    },
-    /*
-     * Get the list of the quests played by the user
-     * @param   {string}    id            ID of the user
-     */
-    async listPlayedQuests(id) {
-      if (!id) {
-        id = this.$store.state.user._id
-      }
-      this.warnings.listPlayedQuestsMissing = false
-      let response = await QuestService.ListPlayedByAUser(id)
-      if (response && response.data) {
-        this.success.quests.played = response.data
-      } else {
-        this.warnings.listPlayedQuestsMissing = true
-      }
-    },
-    /*
-     * Open the profile page
-     */
-    async openProfilePage() {
-      this.warnings.networkButton = false
-      this.$q.loading.show()
-      this.showProfile = !this.showProfile
-      this.getProfileChangeData(this.$store.state.user._id)
-      
-      await this.loadFriends()
-      //await this.loadNews()
-      this.$q.loading.hide()
-      
-      await this.loadOrganization()      
-    },
-    /*
-     * List friends
-     */
-    async loadFriends() {
-      this.warnings.listFriendsMissing = false
-      let response = await UserService.listFriends()
-      
-      if (response && response.data) {
-        this.friends.list = response.data
-      } else {
-        this.warnings.listFriendsMissing = true
-      }
-    },    
+        
     /*
      * List news
      */
@@ -1482,187 +1274,12 @@ console.log("test2")
         }
       })
     },     
-    /*
-     * Load organization data
-     */
-    async loadOrganization() {
-      if (this.$store.state.user.organizationId) {
-        const organizationData = await UserService.getOrganization()
-        if (organizationData) {
-          this.profile.organization = organizationData.data
-        }
-      }
-    }, 
     
-    /*
-     * Like news
-     */
-    async like (index) {
-      this.$q.loading.show()
-      this.friends.news.items[index].likes.push({userId: this.$store.state.user._id, date: new Date()})
-      await UserService.likeNews(this.friends.news.items[index]._id)
-      this.$q.loading.hide()
-    },
-    /*
-     * Unlike news
-     */
-    async unlike (index) {
-      this.$q.loading.show()
-      for (var i = 0; i < this.friends.news.items[index].likes.length; i++) {
-        if (this.friends.news.items[index].likes[i].userId === this.$store.state.user._id) {
-          this.friends.news.items[index].likes.splice(i, 1)
-        }
-      }
-      await UserService.unlikeNews(this.friends.news.items[index]._id)
-      this.$q.loading.hide()
-    },
-    // return true if the current user has liked the news
-    isLiked (item) {
-      if (item.likes) {
-        for (var i = 0; i < item.likes.length; i++) {
-          if (item.likes[i].userId === this.$store.state.user._id) {
-            return true;
-          }
-        }
-      }
-      return false;
-    },
-    /*
-     * Open the friend card
-     * @param   {string}    id            ID of the friend
-     */
-    async openFriendCard(id) {
-      this.$q.loading.show()
-      var allDataLoaded = true
-      // load user data
-      let friend = await UserService.getFriend(id)
-      
-      if (friend && friend.data) {
-        this.friends.selected.name = friend.data.name
-      
-        // load user played quests
-        let played = await QuestService.ListPlayedByAUser(id)
-        if (played && played.data) {
-          this.friends.selected.played = played.data
-        } else {
-          allDataLoaded = false
-        }
-        
-        // load user build quests
-        let built = await QuestService.ListCreatedByAUser(id)
-        if (played && played.data) {
-          this.friends.selected.built = built.data
-        } else {
-          allDataLoaded = false
-        }
-      } else {
-        allDataLoaded = false
-      }
-      
-      this.$q.loading.hide()
-      
-      if (allDataLoaded) {
-        // display user page
-        this.friends.show = true
-      } else {
-        this.displayNetworkIssueMessage()
-      }
-    },
     displayNetworkIssueMessage() {
       this.$q.dialog({
         title: this.$t('label.TechnicalProblem'),
         message: this.$t('label.TechnicalProblemNetworkIssue')
       })
-    },
-    /*
-     * Get the user informations
-     * @param   {string}    id            ID of the user
-     */
-    async getProfileChangeData(id) {
-      this.profile.form = {
-        name: this.$store.state.user.name,
-        email: this.$store.state.user.email,
-        phone: this.$store.state.user.phone ? this.$store.state.user.phone : '',
-        picture: this.$store.state.user.picture,
-        zipCode: this.$store.state.user.location.postalCode,
-        country: this.$store.state.user.location.country,
-        language: this.$store.state.user.language
-      }
-      
-      // check if user can change his email
-      if (this.$store.state.user.provider && this.$store.state.user.provider.name !== 'graaly') {
-        this.profile.userCanChangeEmail = false
-        this.profile.userCanChangePassword = false
-      }
-    },
-    /*
-     * Submit account changes
-     */
-    async submitProfileChanges() {      
-      if (!this.profile.form.$error) {
-        // TODO keep the original route which required authentification
-        // & redirect user to it when he clicks on the 'verify' link in email
-        let modifications = {
-          name: this.profile.form.name,
-          email: this.profile.form.email,
-          phone: this.profile.form.phone ? this.profile.form.phone : "",
-          oldPassword: this.profile.form.oldPassword,
-          newPassword: this.profile.form.newPassword,
-          zipCode: this.profile.form.zipCode,
-          country: this.profile.form.country,
-          language: this.profile.form.language
-        }
-        this.$q.loading.show()
-        let modificationStatus = await AuthService.modifyAccount(modifications)
-        this.$q.loading.hide()
-        
-        if (modificationStatus.status >= 300 && modificationStatus.data && modificationStatus.data.message) {
-          Notification(modificationStatus.data.message, 'warning')
-        } else {
-          Notification(this.$t('label.AccountModifiedLong'), 'positive')
-        }
-      }
-    },
-    /*
-     * Change interface language dynamically
-     */
-    changeLanguage() {        
-      this.$i18n.locale = this.profile.form.language
-    },
-    /*
-     * upload a profile image
-     */
-    async uploadImage(e) {
-      var files = e.target.files
-      if (!files[0]) {
-        return
-      }
-      var data = new FormData()
-      data.append('image', files[0])
-      // MP 2018-02-12 should not be necessary because picture info is now updated in user session data
-      // remove the commented lines below after a while if no problem occurs with user picture "refreshing" when a new picture is uploaded
-      /*var reader = new FileReader()
-      reader.onload = (e) => {
-        this.form.picture = e.target.result;
-      };*/
-      this.$q.loading.show()
-      let uploadPicture = await AuthService.uploadAccountPicture(data)
-      if (uploadPicture && uploadPicture.data) {
-        if (uploadPicture.data.file) {
-          this.$store.state.user.picture = uploadPicture.data.file
-        } else if (uploadPicture.data.message && uploadPicture.data.message === 'Error: File too large') {
-          Notification(this.$t('label.FileTooLarge'), 'error')
-        }
-      } else {
-        this.displayNetworkIssueMessage()
-      }
-      this.$q.loading.hide()
-    },
-    /*
-     * Disconnection
-     */
-    disconnect() {
-      this.$router.push('/user/logout')
     },
     openAdminPage() {
       this.$router.push('/admin')
@@ -1695,58 +1312,6 @@ console.log("test2")
       this.$router.push('/user/login')
     },
     /*
-     * Show search page
-     */
-    openSearch() {
-      this.showSearch = true
-      this.showBottomMenu = false
-    },
-    /*
-     * Hide search page
-     */
-    closeSearch() {
-      this.showSearch = false
-    },
-    /*
-     * Search for quests
-     */
-    async findQuests() {
-      try {
-        if (this.search.text.length > 3) {
-          // show loading animation
-          this.$q.loading.show()
-
-          // Get quests for the search
-          var userPosition = this.user.position
-          let response = await QuestService.find(this.search.text, userPosition)
-          if (response && response.data) {
-            this.search.quests = response.data
-         
-            // compute distance
-            if (this.user.position.isSupported) {
-              this.search.quests = this.search.quests.map(function(quest) {
-                const R = 6378.137
-                let dLat = quest.location.coordinates[1] * Math.PI / 180 - userPosition.latitude * Math.PI / 180
-                let dLon = quest.location.coordinates[0] * Math.PI / 180 - userPosition.longitude * Math.PI / 180
-                let a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                  Math.cos(userPosition.latitude * Math.PI / 180) * Math.cos(quest.location.coordinates[1] * Math.PI / 180) *
-                  Math.sin(dLon/2) * Math.sin(dLon/2)
-                let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-                quest.distance = Math.floor(R * c)
-
-                return quest
-              });
-            }
-          } else {
-            this.displayNetworkIssueMessage()
-          }
-        }
-        this.$q.loading.hide()
-      } catch (e) {
-        this.$q.loading.hide()
-      }
-    },
-    /*
      * Open shop
      */
     buyCoins () {
@@ -1772,18 +1337,6 @@ console.log("test2")
       // reload friend list
       await this.loadFriends()
     },
-    async removeFriend (friendId) {    
-      this.$q.dialog({
-        message: this.$t('label.AreYouSureYouWantToRemoveThisFriend'),
-        ok: true,
-        cancel: true
-      }).onOk(async () => {
-        await UserService.removeFriend(friendId)
-        // TODO: manage network issue with removeFriend
-        await this.loadFriends()
-        await this.updateFriendsActivity()
-      })
-    },
     /*
      * Reset the friends' activity list
      */
@@ -1791,41 +1344,6 @@ console.log("test2")
       this.friends.news.skip = 0
       this.friends.news.items = []
       this.friends.news.items.length = 0
-    },
-    /*
-     * Remove user account
-     */
-    async removeAccount() {
-      var _this = this; // workaround for closure scope quirks
-      
-      this.$q.dialog({
-        message: this.$t('label.AreYouSureYouWantToRemoveYourAccount'),
-        ok: true,
-        cancel: true
-      }).onOk(async () => {
-        const removeAccountStatus = await AuthService.removeAccount()
-
-        if (removeAccountStatus) {
-          Notification(_this.$t('label.YourAccountIsRemoved'), 'info')
-          await _this.disconnect()
-        } else {
-          Notification(_this.$t('label.ErrorStandardMessage'), 'error')
-        }
-      })
-    },
-    /*
-     * Open the ranking page
-     */
-    openRanking () {
-      this.warnings.score = false
-      this.getRanking()
-      this.ranking.show = true
-    },
-    /*
-     * close the ranking page
-     */
-    closeRanking () {
-      this.ranking.show = false
     },
     /*
      * Restart tutorial
@@ -1836,19 +1354,6 @@ console.log("test2")
       this.backToMap()
       
       await this.initPage()
-    },
-    /*
-     * Show main menu
-     */
-    async showMenu () {
-      this.menu.show = true
-    },
-    /*
-     * Hide main menu
-     */
-    async hideMenu () {
-      var _this = this
-      utils.setTimeout(function() { _this.menu.show = false }, 500)
     },
     /*
      * Prevent mobile player to use back button here
@@ -1891,22 +1396,6 @@ console.log("test2")
       }
     },
     /*
-     * Download a quest
-     */
-    downloadQuest(quest) {
-      if (!this.offline.show) {
-        this.offline.quest = quest
-        this.offline.show = true
-      }
-    },
-    /**
-     * Handle 'quest loaded in cache' event ("@end" event from <offlineLoader> component)
-     */
-    questLoadedInCache() {
-      Notification(this.$t('label.QuestDownloadFinished'), 'positive')
-      this.offline.show = false
-    },
-    /*
      * Modify a quest
      */
     modifyQuest(questId) {
@@ -1917,8 +1406,41 @@ console.log("test2")
      */
     readMore() {
       Notification(this.$t('label.QuestDownloadFinished'), 'positive')
+    },
+    /*
+     * Open a user profile
+     */
+    openProfile(id) {
+      if (!id) {
+        id = this.$store.state.user.id
+      }
+      this.$router.push('/profile/' + id)
+    },
+    /*
+     * Open search page
+     */
+    openSearch() {
+      this.$router.push('/search')
+    },
+    /*
+     * Open ranking page
+     */
+    openRanking() {
+      this.$router.push('/user/ranking')
+    },
+    /*
+     * get profile image
+     */
+    getProfileImage () {
+      if (this.user.picture && this.user.picture.indexOf('http') !== -1) {
+        return this.user.picture
+      } else if (this.user.picture) {
+        return this.serverUrl + '/upload/profile/' + this.user.picture
+      } else {
+        return 'statics/images/icon/profile-small.png'
+      }
     }
-  },
+  }/*,
   validations: {
     profile: {
       form: {
@@ -1929,7 +1451,7 @@ console.log("test2")
         phone: { checkPhone }
       }
     }
-  }
+  }*/
 }
 </script>
 

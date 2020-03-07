@@ -1,33 +1,37 @@
 <template>
-  <div class="geolocation-layer centered" :class="{'with-nav-bar': withNavBar, 'without-nav-bar': !withNavBar, 'disabled': disabled}" v-if="!isSupported || !isActive">
-    <div class="enable-geolocation" v-if="!isActive && askUserToEnableGeolocation">
-      <p class="text-primary">{{ $t('label.CouldNotRetrieveYourPosition') }}</p>
-      <p>{{ $t('label.PossibleReasons') }}</p>
-      <ul>
-        <li>{{ $t('label.ClosedEnvironment') }}</li>
-        <li>
-          {{ $t('label.GeolocationDisabled') }}
-          <span v-if="nativeSettingsIsEnabled"><br /><q-btn color="primary" @click="openLocationSettings">{{ $t('label.OpenLocationSettings') }}</q-btn></span>
-        </li>
-      </ul>
-      <div v-if="!nativeSettingsIsEnabled">
-        <div v-if="isChrome">
-          <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
-        </div>
-        <div v-if="!isChrome">
-          <p v-html="$t('label.HowToActivateGeolocationOnIOs')"></p>
-        </div>
-        <!--
-        <p>
-          {{ $t('label.OnceGeolocationEnabled') }}
-          <router-link :to="$route.path + '?_=' + (new Date).getTime()">{{ $t('label.PressHere') }}</router-link>.
-        </p>
-        -->
+  <div class="geolocation-layer" v-if="!isSupported || !isActive">
+    <div v-if="!isActive" class="search-geolocation fixed-bottom"> 
+      <div class="centered q-pa-md">
+        <q-spinner-puff color="primary" size="25px" /> &nbsp;{{ $t('label.LocationSearching') }}
       </div>
-    </div>
-    <div class="search-geolocation centered" :class="withNavBar ? 'with-nav-bar' : 'without-nav-bar'" v-if="!isActive">
-      <p><q-spinner-puff color="primary" size="25px" /></p>
-      <p>{{ $t('label.LocationSearching') }}</p>
+      <div v-if="askUserToEnableGeolocation">
+        <div class="q-pa-md subtitle6">
+          {{ $t('label.CouldNotRetrieveYourPosition') }}
+        </div>
+        <q-expansion-item
+          expand-separator
+          :label="$t('label.ReadMore')"
+        >
+          <div class="q-pa-md subtitle6">
+            {{ $t('label.PossibleReasons') }}
+            <ul>
+              <li>{{ $t('label.ClosedEnvironment') }}</li>
+              <li>
+                {{ $t('label.GeolocationDisabled') }}
+                <span v-if="nativeSettingsIsEnabled"><br /><q-btn color="primary" @click="openLocationSettings">{{ $t('label.OpenLocationSettings') }}</q-btn></span>
+              </li>
+            </ul>
+            <div v-if="!nativeSettingsIsEnabled">
+              <div v-if="isChrome">
+                <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
+              </div>
+              <div v-if="!isChrome">
+                <p v-html="$t('label.HowToActivateGeolocationOnIOs')"></p>
+              </div>
+            </div>
+          </div>
+        </q-expansion-item>
+      </div>
     </div>
     <div class="geolocation-not-supported" v-if="!isSupported" style="flex-grow: 1">
       {{ $t('label.GeolocationNotSupported') }}
@@ -114,7 +118,7 @@ export default {
       if (this.disabled) {
         return
       }
-      
+
       if (this.method === 'watchPosition') {
         this.geolocationWatchId = navigator.geolocation.watchPosition(this.locationSuccess, this.locationError, {
           enableHighAccuracy: true,
@@ -169,12 +173,13 @@ export default {
       if (this.disabled) {
         return
       }
-      
+
       this.isSupported = true
       this.alreadyWorked = true
       this.isActive = true
       this.nbFails = 0
       this.userDeniedGeolocation = false
+
       this.$emit('success', position)
 
       if (this.method === 'getCurrentPosition') {
@@ -237,8 +242,8 @@ export default {
 .enable-geolocation li { text-align: justify; margin: 0.5rem; }
 .enable-geolocation ul { margin: 0 1rem; padding: 0 }
 
-.search-geolocation { position: absolute; width: 100%; height: 10vw !important; min-height: initial !important;  display: flex; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center; justify-content: center; background: orange; }
-.search-geolocation p { display: flex; margin: 1vw; }
+/*.search-geolocation { position: absolute; width: 100%; height: 10vw !important; min-height: initial !important;  display: flex; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center; justify-content: center; background: orange; }*/
+.search-geolocation { width: 100%; min-height: 50px;  background: orange;}
 
 .search-geolocation.without-nav-bar { z-index: 7000; bottom: 0; }
 .search-geolocation.with-nav-bar { z-index: 60; bottom: 4vw; }

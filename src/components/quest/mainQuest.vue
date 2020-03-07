@@ -2,7 +2,7 @@
   <div class="main-quest relative-position" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
     <div v-if="!quest" class="absolute-center">
       <q-spinner-dots
-        color="accent"
+        color="primary"
         size="2em"
       />
     </div>
@@ -11,25 +11,25 @@
         <div class="title2">
           {{ quest.title }}
         </div>
-        <div class="q-pt-md q-pb-md subtitle5">
+        <div class="q-pt-md q-pb-md subtitle6">
           {{ $t('label.Difficulty' + quest.level) }}
           <img src="statics/images/icon/separator.png" />
           <span class="q-mx-sm" v-if="quest.premiumPrice && quest.premiumPrice.androidId && quest.premiumPrice.active">{{ $t('label.Paying') }}</span>
           <span class="q-mx-sm" v-if="!(quest.premiumPrice && quest.premiumPrice.androidId && quest.premiumPrice.active)">{{ $t('label.Free') }}</span>
-          <span v-if="quest.availablePoints">
+          <span v-if="quest.availablePoints && quest.availablePoints.maxPts">
             <img src="statics/images/icon/separator.png" />
-            +{{ quest.availablePoints }} {{ $t('label.points') }}
+            +{{ quest.availablePoints.maxPts }} {{ $t('label.points') }}
           </span>
         </div>
         <div>
           <q-btn 
             class="glossy large-btn"
-            color="accent" 
+            color="primary" 
             :label="$t('label.Play')"
             :loading="submitting" 
             @click="playQuest" />
         </div>
-        <div class="white-overliner q-mt-md subtitle5">
+        <div class="white-overliner q-mt-md subtitle6">
           {{ $t('label.' + quest.description) }}
         </div>
       </div>
@@ -59,6 +59,9 @@ export default {
      * get background image
      */
     getBackgroundImage () {
+      if (!this.quest) {
+        return ''
+      }
       if (this.quest.picture && this.quest.picture[0] === '_') {
         return 'statics/images/quest/' + this.quest.picture
       } else if (this.quest.picture && this.quest.picture.indexOf('blob:') !== -1) {

@@ -145,6 +145,7 @@ module.exports = function (ctx) {
         'QLinearProgress',
         'QRadio',
         'QRating',
+        'QScrollObserver',
         'QSelect',
         'QSeparator',
         'QSlider',

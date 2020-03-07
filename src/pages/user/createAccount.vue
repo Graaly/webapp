@@ -158,7 +158,7 @@
               @click="backAction()" />-->
             <q-btn 
               class="glossy large-btn"
-              color="accent" 
+              color="primary" 
               :label="$t('label.Subscribe')" 
               :loading="submitting" 
               @click="formSubmit" />

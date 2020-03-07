@@ -12,6 +12,10 @@ import QuestManageSettings from 'pages/quest/builder/settings'
 import UserLogin from 'pages/user/login'
 import UserLogout from 'pages/user/logout'
 import UserProfile from 'pages/user/updateprofile'
+import UserRanking from 'pages/user/ranking'
+import Profile from 'pages/user/profile'
+
+import Search from 'pages/search'
 
 import Admin from 'pages/admin/admin'
 import AdminValidation from 'pages/admin/validation'
@@ -112,8 +116,26 @@ export default [
         meta: { requiresAuth: true }
       },
       {
-        path: 'user/updateprofile',
+        path: 'search',
+        name: 'search',
+        component: Search,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'user/ranking',
+        name: 'ranking',
+        component: UserRanking,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'profile/:id(\\w{24})',
         name: 'profile',
+        component: Profile,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'user/updateprofile',
+        name: 'updateprofile',
         component: UserProfile,
         meta: { requiresAuth: true }
       },

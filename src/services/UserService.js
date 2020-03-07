@@ -4,9 +4,10 @@ export default {
     
   /*
    * List friends for the user
+   * @param   {String}    id                  ID of the user
    */
-  listFriends () {
-    return Api().get('user/friends/list').catch(error => console.log(error.request))
+  listFriends (id) {
+    return Api().get('user/' + id + '/friends/list').catch(error => console.log(error.request))
   },
   /*
    * list creators near from connected user
@@ -15,6 +16,14 @@ export default {
    */
   listNearCreators (location, number) {
     return Api().get('user/creators/' + location.lng + '-' + location.lat + '/' + number).catch(error => console.log(error.request))
+  },
+  /*
+   * find a user
+   * @param   {String}    type            user type (player, designer, all)
+   * @param   {String}    filter          String to find
+   */
+  find (type, filter) {
+    return Api().get('user/type/' + type + '/filter/' + filter).catch(error => console.log(error.request))
   },
   /*
    * List news of user's friend
@@ -48,8 +57,20 @@ export default {
   /*
    * Get current user ranking data
    */
-  getRanking () {
-    return Api().get('account/ranking').catch(error => console.log(error.request))
+  getRanking (id) {
+    return Api().get('user/' + id + '/ranking').catch(error => console.log(error.request))
+  },
+  /*
+   * Get ranking for a specific range
+   */
+  getRangeRanking (range) {
+    return Api().get('ranking/' + range).catch(error => console.log(error.request))
+  },
+  /*
+   * Get current user rewards
+   */
+  getRewards (id) {
+    return Api().get('user/' + id + '/reward/list').catch(error => console.log(error.request))
   },
   /*
    * challenge a friend
