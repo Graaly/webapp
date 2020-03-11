@@ -12,6 +12,7 @@ module.exports = function (ctx) {
       'DateFormatFilter',
       'RouterAuthentication',
       'UniversalLinks', // enable to use deep links with Cordova plugin 
+      'VueGoogleMaps',
       'VueI18n',
       'Vuelidate',
       ctx.mode.cordova ? 'google-analytics' : ''

@@ -5,17 +5,34 @@ export default {
   /*
    * List friends for the user
    * @param   {String}    id                  ID of the user
+   * @param   {Number}    start               start results after x results
+   * @param   {Number}    number              number of results
    */
-  listFriends (id) {
-    return Api().get('user/' + id + '/friends/list').catch(error => console.log(error.request))
+  listFriends (id, start, number) {
+    return Api().get('user/' + id + '/friends/list/' + start + '/' + number).catch(error => console.log(error.request))
+  },
+  listFriendsSync (id, start, number, done) {
+    return Api().get('user/' + id + '/friends/list/' + start + '/' + number).then(function (response) {
+      done(false, response)
+    })
   },
   /*
    * list creators near from connected user
    * @param   {Object}    location            user location
    * @param   {Number}    number              number of results
    */
-  listNearCreators (location, number) {
-    return Api().get('user/creators/' + location.lng + '-' + location.lat + '/' + number).catch(error => console.log(error.request))
+  listSuggestions (location, number) {
+    return Api().get('user/suggestions/' + location.lng + '-' + location.lat + '/' + number + '/0').catch(error => console.log(error.request))
+  },
+  /*
+   * list creators near from connected user
+   * @param   {Object}    location            user location
+   * @param   {Number}    number              number of results
+   */
+  listSuggestionsSync (location, number, skip, done) {
+    return Api().get('user/suggestions/' + location.lng + '-' + location.lat + '/' + number + '/' + skip).then(function (response) {
+      done(false, response)
+    })
   },
   /*
    * find a user
@@ -23,7 +40,12 @@ export default {
    * @param   {String}    filter          String to find
    */
   find (type, filter) {
-    return Api().get('user/type/' + type + '/filter/' + filter).catch(error => console.log(error.request))
+    return Api().get('user/type/' + type + '/filter/' + filter + '/0').catch(error => console.log(error.request))
+  },
+  findSync (type, filter, skip, done) {
+    return Api().get('user/type/' + type + '/filter/' + filter + '/' + skip).then(function (response) {
+      done(false, response)
+    })
   },
   /*
    * List news of user's friend
@@ -56,7 +78,7 @@ export default {
   },
   /*
    * Get current user ranking data
-   */
+   *
   getRanking (id) {
     return Api().get('user/' + id + '/ranking').catch(error => console.log(error.request))
   },
@@ -69,8 +91,8 @@ export default {
   /*
    * Get current user rewards
    */
-  getRewards (id) {
-    return Api().get('user/' + id + '/reward/list').catch(error => console.log(error.request))
+  getRewards (id, filter) {
+    return Api().get('user/' + id + '/reward/list/' + filter).catch(error => console.log(error.request))
   },
   /*
    * challenge a friend

@@ -1,6 +1,6 @@
 <template>
-  <div class="scroll">
-    <div class="background-dark" id="teaser">
+  <div class="scroll background-dark">
+    <div id="teaser">
       <!------------------ MAIN INFORMATION AREA ------------------------>
       
       <div v-if="(!quest || !quest.status) && !warning.questNotLoaded" class="centered q-pa-lg">
@@ -38,11 +38,11 @@
         <div class="float-right quest-score" v-if="quest.availablePoints && quest.availablePoints.maxPts && (!quest.customization || !quest.customization.removeScoring)" @click="showRewards">
           <img src="statics/images/icon/point.png" />
           <div class="absolute">
-            {{ quest.availablePoints.maxPts }}
+            +{{ quest.availablePoints.maxPts }}
           </div>
         </div>
-        <div v-if="quest.status !== 'published'" class="bg-primary centered q-pa-sm">
-          {{ $t('label.QuestDraftVersion') }}
+        <div v-if="quest.status !== 'published'" class="bg-primary centered q-pa-sm q-mb-md">
+          {{ $t('label.' + (quest.type === 'quest' ? 'QuestDraftVersion' : 'PageDraftVersion')) }}
         </div>
         <!-- =========================== TITLE ========================== -->
         <div class="text-h5">
@@ -59,14 +59,18 @@
             <span v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</span>
             <span v-if="quest.duration && quest.duration >= 60">{{ quest.duration / 60 }}{{ $t('label.hoursSimplified') }}</span>
           </div>
-          <div v-if="!quest.customization || !quest.customization.removeScoring" class="q-mr-lg">
+          <div v-if="quest.type === 'quest' && (!quest.customization || !quest.customization.removeScoring)" class="q-mr-lg">
             <img src="statics/images/icon/cost.svg" class="medium-icon" />
-            <span v-if="shop.premiumQuest.priceCode === 'free'">{{ $t('label.Free') }}</span>
-            <span v-if="shop.premiumQuest.priceCode !== 'free'">{{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }}</span>
+            <span v-if="shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">{{ $t('label.Free') }}</span>
+            <span v-if="shop.premiumQuest.priceCode !== 'free' && quest.type === 'quest'">{{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }}</span>
           </div>
           <div v-if="!quest.customization || !quest.customization.removeScoring">
             <q-rating v-if="quest.rating && quest.rating.rounded" readonly v-model="quest.rating.rounded" color="secondary" :max="5" size="0.8em" />
           </div>
+        </div>
+        <div v-if="quest.type === 'room' && quest.premiumPrice.manual">
+          <img src="statics/images/icon/cost.svg" class="medium-icon" />
+          <span v-if="quest.type === 'room' && quest.premiumPrice.manual">{{ $t('label.FromPricePerPlayer', {price: quest.premiumPrice.manual}) }}</span>
         </div>
         <!-- =========================== LOCATION ========================== -->
         <div v-if="quest.location && quest.location.address" class="text-subtitle1 q-pt-sm quest-location">
@@ -90,10 +94,13 @@
                 </q-item>
               </q-list>
             </q-btn-dropdown>
-            <q-btn v-if="shop.premiumQuest.priceCode === 'free' && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary" class="glossy large-btn">
+            <q-btn v-if="quest.type === 'quest' && shop.premiumQuest.priceCode === 'free' && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary" class="glossy large-btn">
               <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
               <span v-if="!continueQuest && isRunFinished">{{ $t('label.SolveAgainThisQuest') }}</span>
               <span v-if="!continueQuest && !isRunFinished">{{ $t('label.SolveThisQuest') }}</span>
+            </q-btn>
+            <q-btn v-if="quest.type === 'room' && quest.readMoreLink && quest.readMoreLink !== ''" @click="openReadMoreLink" color="primary" class="glossy large-btn">
+              {{ $t('label.Book') }}
             </q-btn>
             <!--
             <button class="q-btn q-btn-item q-btn-rectange bg-primary" v-if="!(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && !(isOwner || isAdmin || isRunStarted || isRunFinished) && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary">
@@ -115,6 +122,10 @@
           <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.QuestIsFarFromUser')" />
         </div>
       </div>
+      <div v-if="isOwner || isAdmin" class="q-pa-md subtitle5 centered">
+        <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.YouAreQuestOwnerDesc')" />
+        &nbsp;<q-btn flat color="secondary" :label="$t('label.Modify')" @click="modifyQuest()" />
+      </div>
     </div>
     
     <!------------------ LOADER AREA ------------------------>
@@ -134,10 +145,6 @@
           </div>
           <div v-if="isRunFinished" class="q-pa-md subtitle5">
             <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.YouAlreadyDidThisQuest')" />
-          </div>
-          <div v-if="isOwner || isAdmin" class="q-pa-md subtitle5">
-            <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.YouAreQuestOwnerDesc')" />
-            &nbsp;<q-btn flat color="secondary" :label="$t('label.Modify')" @click="modifyQuest()" />
           </div>
         </div>
         <div class="centered" v-if="offline.show">
@@ -726,6 +733,12 @@ export default {
         var _this = this
         setTimeout(function() { _this.startQuest(questId, lang) }, 7000)
       }      
+    },
+    /*
+     * Open booking link
+     */
+    openReadMoreLink() {
+      window.open(this.quest.readMoreLink)
     },
     startQuest(questId, lang) {
       this.$router.push('/quest/play/' + questId + '/version/' + this.quest.version + '/step/0/' + lang + '?remoteplay=' + this.isUserTooFar)

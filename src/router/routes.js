@@ -13,6 +13,9 @@ import UserLogin from 'pages/user/login'
 import UserLogout from 'pages/user/logout'
 import UserProfile from 'pages/user/updateprofile'
 import UserRanking from 'pages/user/ranking'
+import UserQuests from 'pages/user/quests'
+import UserFriends from 'pages/user/friends'
+import UserBadges from 'pages/user/badges'
 import Profile from 'pages/user/profile'
 
 import Search from 'pages/search'
@@ -116,7 +119,25 @@ export default [
         meta: { requiresAuth: true }
       },
       {
-        path: 'search',
+        path: 'user/:id/quests/:type',
+        name: 'quests',
+        component: UserQuests,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'user/:id/friends',
+        name: 'friends',
+        component: UserFriends,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'user/:id/badges',
+        name: 'badges',
+        component: UserBadges,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'search/:type/:subtype',
         name: 'search',
         component: Search,
         meta: { requiresAuth: true }

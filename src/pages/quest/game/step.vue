@@ -30,9 +30,9 @@
     <!------------------ INVENTORY PAGE AREA ------------------------>
     
     <transition name="slideInBottom">
-      <div>
-        <div class="inventory panel-bottom q-pa-md" v-show="inventory.isOpened">
-          <a class="float-right no-underline close-btn" color="grey" @click="inventory.isOpened = false"><q-icon name="close" class="medium-icon" /></a>
+      <div v-show="inventory.isOpened" class="bg-primary text-white inventory panel-bottom">
+        <div class="q-pa-md">
+          <a class="float-right no-underline close-btn" color="grey" @click="inventory.isOpened = false"><q-icon name="close" class="subtitle4" /></a>
           <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Inventory') }}</div>
           <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}

@@ -1,6 +1,6 @@
 <template>
   <div class="q-pl-md">
-    <div v-if="!quests || quests.length === 0" class="quest-small relative-position">
+    <div v-if="!quests" class="quest-small relative-position">
       <div class="absolute-center">
         <q-spinner-dots
           color="primary"
@@ -43,7 +43,7 @@
           </div>
           <div v-if="quest.playStatus">
             <span v-if="quest.playStatus === 'in-progress'">{{ $t('label.CurrentlyPlaying') }}</span>
-            <span v-if="quest.playStatus === 'succeeded'">{{ $t('label.Succeeded') }}</span>
+            <span v-if="quest.playStatus === 'finished'">{{ $t('label.Succeeded') }}</span>
           </div>
         </div>
         <div class="title-banner q-pl-sm">
@@ -55,8 +55,8 @@
           <div class="point-banner with-plus"><div>{{ quest.availablePoints.maxPts }}</div></div>
         </div>
         <div v-if="quest.points">
-          <div class="point-banner"><img src="statics/images/icon/wonpoint.png" /></div>
-          <div class="point-banner"><div>{{ quest.points }}</div></div>
+          <div class="point-banner point-won"><img src="statics/images/icon/wonpoint.png" /></div>
+          <div class="point-banner point-won"><div>{{ quest.points }}</div></div>
         </div>
       </div>
     </div>
@@ -93,7 +93,7 @@
           </div>
           <div v-if="quest.playStatus">
             <span v-if="quest.playStatus === 'in-progress'">{{ $t('label.CurrentlyPlaying') }}</span>
-            <span v-if="quest.playStatus === 'succeeded'">{{ $t('label.Succeeded') }}</span>
+            <span v-if="quest.playStatus === 'finished'">{{ $t('label.Succeeded') }}</span>
           </div>
         </div>
         <div class="title-banner q-pl-sm">
@@ -105,8 +105,8 @@
           <div class="point-banner with-plus"><div>{{ quest.availablePoints.maxPts }}</div></div>
         </div>
         <div v-if="quest.points">
-          <div class="point-banner"><img src="statics/images/icon/point.png" /></div>
-          <div class="point-banner"><div>{{ quest.points }}</div></div>
+          <div class="point-banner point-won"><img src="statics/images/icon/wonpoint.png" /></div>
+          <div class="point-banner point-won"><div>{{ quest.points }}</div></div>
         </div>
       </div>
     </div>

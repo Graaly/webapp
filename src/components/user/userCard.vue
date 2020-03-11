@@ -5,10 +5,10 @@
     <div v-if="showName" class="centered subtitle6">
       {{ user.name }}
     </div>
-    <div v-if="user.statistics && user.statistics.nbQuestsSuccessful && user.statistics.nbQuestsSuccessful > 0" class="profile-item-creator">
+    <div v-if="user.statistics && user.statistics.nbQuestsCreated && user.statistics.nbQuestsCreated > 0" class="profile-item-creator">
       <img src="statics/images/icon/profile-puzzle.svg" />
     </div>
-    <div v-if="user.statistics && user.statistics.nbQuestsCreated && user.statistics.nbQuestsCreated > 0" class="profile-item-level">
+    <div v-if="user.statistics && user.statistics.nbQuestsSuccessful && user.statistics.nbQuestsSuccessful > 0" class="profile-item-level">
       <img :src="'statics/images/icon/level' + user.level + '.svg'" />
     </div>
   </div>

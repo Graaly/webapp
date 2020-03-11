@@ -1,10 +1,10 @@
 <template>
   <div class="wrapper">
     <div class="page-content top-padding-middle">
-      
-      <a class="float-right no-underline close-btn" color="grey" @click="$router.push('/map')"><q-icon name="close" class="medium-icon" /></a>
-      <h1 class="size-3">Administration</h1>
-      
+      <div class="background-dark q-pa-md">
+        <a class="float-right no-underline close-btn" color="grey" @click="$router.push('/map')"><q-icon name="close" class="subtitle1" /></a>
+        <div class="title2 centered">Administration</div>
+      </div>
       <!------------------ TABS AREA ------------------------>
       
       <q-tabs v-model="adminTab" class="bg-primary text-white">

@@ -5,22 +5,24 @@
         <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         <q-btn flat v-if="$store.state.user.id === $route.params.id" class="float-right" icon="settings" @click="updateProfile()" />
       </div>
-      <div class="user-card user-card-big main-profile centered relative-position">
-        <div class="relative-position" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
-          <div v-if="user.statistics && user.statistics.nbQuestsSuccessful && user.statistics.nbQuestsSuccessful > 0" class="profile-item-creator">
-            <img src="statics/images/icon/profile-puzzle.svg" />
+      <div class="centered">
+        <div class="user-card user-card-big main-profile relative-position">
+          <div class="relative-position" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
+            <div v-if="user.statistics && user.statistics.nbQuestsCreated && user.statistics.nbQuestsCreated > 0" class="profile-item-creator">
+              <img src="statics/images/icon/profile-puzzle.svg" />
+            </div>
+            <div v-if="user.statistics && user.statistics.nbQuestsSuccessful && user.statistics.nbQuestsSuccessful > 0" class="profile-item-level">
+              <img :src="'statics/images/icon/level' + user.level + '.svg'" />
+            </div>
           </div>
-          <div v-if="user.statistics && user.statistics.nbQuestsCreated && user.statistics.nbQuestsCreated > 0" class="profile-item-level">
-            <img :src="'statics/images/icon/level' + user.level + '.svg'" />
+          <div class="centered subtitle3 q-mt-lg">
+            {{ user.name }}
           </div>
-        </div>
-        <div class="centered subtitle3 q-mt-lg">
-          {{ user.name }}
-        </div>
-        <div class="centered subtitle6 q-mt-sm" v-if="user.location && (user.location.postalCode || user.location.country)">
-          <span v-if="user.location.postalCode">{{ user.location.postalCode }}</span>
-          <span v-if="user.location.postalCode && user.location.country">, </span>
-          <span v-if="user.location.country">{{ user.location.country }}</span>
+          <div class="centered subtitle6 q-mt-sm" v-if="user.location && (user.location.postalCode || user.location.country)">
+            <span v-if="user.location.postalCode">{{ user.location.postalCode }}</span>
+            <span v-if="user.location.postalCode && user.location.country">, </span>
+            <span v-if="user.location.country">{{ user.location.country }}</span>
+          </div>
         </div>
       </div>
       <div v-if="user.description" class="q-pa-md subtitle6">
@@ -47,9 +49,9 @@
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
       </div>
-      <div v-if="$store.state.user.id === $route.params.id">
+      <!--<div v-if="$store.state.user.id === $route.params.id">
         <div v-if="quests.built.rejected && quests.built.rejected.length > 0">
-          <!--====================== MY QUESTS REJECTED =================================-->
+          <!--====================== MY QUESTS REJECTED =================================--
         
           <titleBar :title="{text: $t('label.YourRejectedQuests'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
@@ -57,7 +59,7 @@
         
         </div>
         <div v-if="quests.built.tovalidate && quests.built.tovalidate.length > 0">
-          <!--====================== MY QUESTS TO VALIDATE =================================-->
+          <!--====================== MY QUESTS TO VALIDATE =================================--
         
           <titleBar :title="{text: $t('label.YourUnderValidationQuests'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
@@ -65,7 +67,7 @@
         
         </div>
         <div>
-          <!--====================== MY QUESTS DRAFT =================================-->
+          <!--====================== MY QUESTS DRAFT =================================--
         
           <titleBar :title="{text: $t('label.YourDraftQuests'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
@@ -73,27 +75,34 @@
         
         </div>
         <div v-if="quests.built.published && quests.built.published.length > 0">
-          <!--====================== MY QUESTS PUBLISHED =================================-->
+          <!--====================== MY QUESTS PUBLISHED =================================--
         
           <titleBar :title="{text: $t('label.YourPublishedQuests'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
           <questsList format="small" color="red" :quests="quests.built.published"></questsList>
         
         </div>
+      </div>-->
+      <div v-if="$store.state.user.id === $route.params.id">
+        <!--====================== QUESTS CREATED BY CURRENT USER =================================-->
+        
+        <titleBar :title="{text: $t('label.EscapeGames'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
+
+        <questsList format="small" color="red" :add="true" :quests="quests.built"></questsList>
       </div>
       <div v-if="$store.state.user.id !== $route.params.id">
-        <!--====================== QUESTS PUBLISHED =================================-->
+        <!--====================== QUESTS CREATED BY OTHER USER =================================-->
         
-        <titleBar :title="{text: $t('label.Creations'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
+        <titleBar :title="{text: $t('label.EscapeGames'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
-        <questsList format="big" color="red" :quests="quests.built.published"></questsList>
+        <questsList format="big" color="red" :quests="quests.built"></questsList>
       </div>
       <div v-if="badges === null || badges.length > 0">
         <!--====================== BADGES WON =================================-->
         
-        <titleBar :title="{text: $t('label.Badges'), type: 'badge'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
+        <titleBar :title="{text: $t('label.Badges'), type: 'badge'}" :link="{text: $t('label.SeeMore')}" @click="readMoreBadges"></titleBar>
 
-        <badgesList :badges="badges"></badgesList>
+        <badgesList format="scroll" :badges="badges"></badgesList>
       </div>
       <div v-if="quests.played === null || quests.played.length > 0">
         <!--====================== QUESTS PLAYED =================================-->
@@ -102,10 +111,10 @@
 
         <questsList format="small" :quests="quests.played"></questsList>
       </div>
-      <div>
+      <div v-if="friends.list === null || friends.list.length > 0">
         <!--====================== FRIENDS =================================-->
         
-        <titleBar :title="{text: $t('label.Friends'), type: 'friend'}" :link="{text: $t('label.SeeMore')}"></titleBar>
+        <titleBar :title="{text: $t('label.YouFollowThem'), type: 'friend'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAllFriends"></titleBar>
         
         <usersList format="scroll" :add="$store.state.user.id === $route.params.id ? true : false" :users="friends.list"></usersList>
       </div>
@@ -148,7 +157,7 @@ export default {
       },
       quests: {
         played: null,
-        built: {},
+        built: null,
         createdNb: 0
       },
       badges: null,
@@ -192,6 +201,10 @@ export default {
           statistics: this.$store.state.user.statistics,
           level: this.$store.state.user.level
         }
+        
+        if (this.user.name === '-') {
+          this.updateProfile()
+        }
       
         /*/ check if user can change his email
         if (this.$store.state.user.provider && this.$store.state.user.provider.name !== 'graaly') {
@@ -214,26 +227,30 @@ export default {
         id = this.$store.state.user._id
       }
       this.warnings.listCreatedQuestsMissing = false
-      let response = await QuestService.ListCreatedByAUser(id)
-      this.quests.built = {
+      var response = await QuestService.ListCreatedByAUser(id)
+      /*this.quests.built = {
         rejected: [],
         tovalidate: [],
         draft: [],
         published: []
-      }
+      }*/
+
       if (response && response.data) {
-        this.quests.createdNb = response.data.length
-        for (var i = 0; i < response.data.length; i++) {
-          var quest = response.data[i]
-          if (quest.status === 'published') {
-            this.quests.built['published'].push(quest)
-          } else if (quest.status === 'rejected') {
-            this.quests.built['rejected'].push(quest)
-          } else if (quest.status === 'tovalidate') {
-            this.quests.built['tovalidate'].push(quest)
-          } else {
-            this.quests.built['draft'].push(quest)
-          }
+        if (response.data.length > 0) {
+          this.quests.createdNb = response.data.length
+          this.quests.built = response.data
+          /*for (var i = 0; i < response.data.length; i++) {
+            var quest = response.data[i]
+            if (quest.status === 'published') {
+              this.quests.built['published'].push(quest)
+            } else if (quest.status === 'rejected') {
+              this.quests.built['rejected'].push(quest)
+            } else if (quest.status === 'tovalidate') {
+              this.quests.built['tovalidate'].push(quest)
+            } else {
+              this.quests.built['draft'].push(quest)
+            }
+          }*/
         }
       } else {
         this.warnings.listCreatedQuestsMissing = true
@@ -269,7 +286,7 @@ export default {
      */
     async loadFriends(id) {
       this.warnings.listFriendsMissing = false
-      let response = await UserService.listFriends(id)
+      let response = await UserService.listFriends(id, 0, 10)
       
       if (response && response.data) {
         this.friends.list = response.data
@@ -281,10 +298,8 @@ export default {
      * List badges
      */
     async loadBadges(id) {
-      let response = await UserService.getRewards(id)
-console.log(response)      
+      const response = await UserService.getRewards(id, 'won')
       if (response && response.data) {
-console.log("go")
         this.badges = response.data
       }
     },
@@ -321,19 +336,31 @@ console.log("go")
      * Display all quests published
      */
     async readMoreQuestPublished() {
-console.log("test")
+      this.$router.push('/user/' + this.$route.params.id + '/quests/created')
     },
     /*
      * Display all quests played
      */
     async readMoreQuestPlayed() {
-console.log("test")
+      this.$router.push('/user/' + this.$route.params.id + '/quests/played')
+    },
+    /*
+     * Display all the badges
+     */
+    async readMoreBadges() {
+      this.$router.push('/user/' + this.$route.params.id + '/badges')
     },
     /*
      * Manage back to the map button
      */
     backToTheMap () {
       this.$router.push('/map')
+    },
+    /*
+     * List all friends
+     */
+    readMoreAllFriends() {
+      this.$router.push('/user/' + this.$route.params.id + '/friends')
     },
     /*
      * get profile image

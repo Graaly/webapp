@@ -195,6 +195,9 @@ a {
   font-size: 12pt;
   text-decoration: underline;
 }
+a.dark {
+  color: #232323;
+}
 .bar-link a {
   font-size: 10pt;
   margin-top: 5px;
@@ -204,6 +207,9 @@ a {
 }
 .subtitle6 a {
   font-size: 10pt;
+}
+a.no-underline {
+  text-decoration: none;
 }
 
 /////////////////////////////// Buttons CSS /////////////////////////////////////
@@ -241,6 +247,9 @@ a {
   color: #fff;
   overflow: visible;
 }
+.q-dialog__inner > div.bg-white {
+  color: rgba(0,0,0,0.87);
+}
 .popup-over-header {
   margin-top: -116px;
 }
@@ -251,7 +260,7 @@ a {
 /////////////////////////////// Titles CSS /////////////////////////////////////
 
 .title-bar {
-  padding: 11px 0 5px 35px;
+  padding: 11px 0 11px 35px;
   background-repeat: no-repeat;
   text-transform: uppercase;
   font-size: 10pt;
@@ -411,8 +420,27 @@ a {
 .quest-big .point-banner.with-plus div {
   padding: 15px 15px 0px 0px;
 }
+.quest-small .point-won {
+  height: 87px;
+}
+.quest-small .point-won img {
+  width: 59px;
+}
+.quest-small .point-won div {
+  padding: 21px 20px 0px 0px;
+}
+.quest-big .point-won {
+  height: 120px;
+}
+.quest-big .point-won img {
+  width: 93px;
+}
+.quest-big .point-won div {
+  padding: 34px 29px 0px 0px;
+  font-size: 27pt;
+}
 .quest-add-button {
-  width: 80px;
+  width: 84px;
   height: 201px;
   background-color: #D60B52;
   border: 1px solid #620526;
@@ -438,7 +466,7 @@ a {
 .user-small-with-title {
   height: 123px;
 }
-.user-card div:first-child {
+.user-card>div:first-child {
   width: 100%;
   margin-bottom: 8px;
   border-radius: 50%;
@@ -506,6 +534,7 @@ a {
   background-color: #F29203 !important;
   text-align: center;
   padding-top: 13px;
+  border-radius: 50%;
 }
 
 /////////////////////////////// TAB CSS /////////////////////////////////////
@@ -594,15 +623,18 @@ a {
   background-color: #555 !important;
 }
 .badge {
-  width: 135px;
-  height: 192px;
+  width: 100px;
+  height: 160px;
   overflow-y: hidden;
   margin-right: 24px;
   display: inline-block;
 }
+.badge-without-title {
+  height: 115px;
+}
 .badge img {
   width: 100%;
-  height: 135px;
+  height: 100px;
   margin-bottom: 8px;
 }
 .badge div {
@@ -631,6 +663,10 @@ a {
   white-space: nowrap;
   height: 200px;
 }
+.horizontal-scroll-wrapper>div {
+  display: inline-block;
+  vertical-align: top;
+}
 .quests-horizontal-scroll-wrapper {
   height: 200px;
 }
@@ -638,7 +674,7 @@ a {
   height: 125px;
 }
 .badges-horizontal-scroll-wrapper {
-  height: 192px;
+  height: 160px;
 }
 .creator-button {
   height: 228px;
@@ -660,7 +696,7 @@ a {
 }
 .quest-score div {
   bottom: 29px;
-  left: 38px;
+  left: 17px;
   font-size: 32pt;
   color: #fcecba;
   line-height: 1em;
@@ -877,9 +913,6 @@ span .q-icon {
 .big-icon {
   font-size: 5rem
 }
-.medium-icon {
-  font-size: 2.5rem
-}
 
 /////////////////////////// Search from map CSS /////////////////////////////////
 
@@ -955,6 +988,13 @@ span .q-icon {
   to {
       opacity: 1;
   }
+}
+.slideInBottom-enter-active, .slideInBottom-leave-active {
+  transition: all .3s ease;
+}
+.slideInBottom-enter, .slideInBottom-leave-to {
+  transform: translateY(100vh);
+  opacity: 0;
 }
 
 .fadein-message {
@@ -1085,6 +1125,9 @@ span .q-icon {
 .q-dialog__inner--maximized {
   overflow-y: scroll;
   padding: 0.5rem; /* nicer layout / UI */
+}
+.q-dialog__inner--maximized > div {
+  overflow-y: scroll;
 }
 .q-dialog.fullscreen {
   /* 7003 to be over the stories, especially when user pass the tutorial */

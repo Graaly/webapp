@@ -1,14 +1,14 @@
 <template>
-  <div :class="{'bg-white': !chapters.showNewStepOverview}">
+  <div class="scroll" :class="{'bg-white': !chapters.showNewStepOverview}">
     <!------------------ NEW RELEASE BUTTON ---------->
-    <div v-if="!chapters.showNewStepOverview" class="title-bar">
-      <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline close-btn" color="grey"><q-icon name="close" class="medium-icon" /></router-link>
+    <div v-if="!chapters.showNewStepOverview" class="settings-bar background-dark">
+      <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline close-btn q-pa-sm"><q-icon name="close" class="subtitle1" /></router-link>
       
       <div v-if="readOnly && (quest.status === 'published' || quest.status === 'unpublished')" class="centered bg-secondary text-white q-pa-md" @click="createNewVersion()">
         {{ $t('label.ClickHereToCreateANewQuestVersion') }}
       </div>
       
-      <h1 class="size-4 q-pl-md">
+      <div class="q-pa-md full-width">
         <span v-if="tabs.progress > 0">
           <span v-if="form.fields.title[languages.current]">
             <span v-if="form.fields.title[languages.current].length <= 30">{{ form.fields.title[languages.current] }}</span>
@@ -20,14 +20,14 @@
           </span>
         </span>
         <span v-else>{{ $t('label.NewQuest') }}</span>
-      </h1>
+      </div>
     </div>
     
     <!------------------ TABS ------------------------>
     
     <q-tabs v-model="tabs.selected" class="bg-accent text-white hide-img two-lines" v-if="!chapters.showNewStepOverview">
-      <q-tab :disable="isReadOnly()" name="settings" :icon="getTabIcon(1)" :label="$t('label.Intro') + ' (' + languages.current + ')'" default />
-      <q-tab :disable="tabs.progress < 1 || isReadOnly()" name="steps" :icon="getTabIcon(2)" :label="$t('label.Steps') + ' (' + languages.current + ')'" />
+      <q-tab :disable="isReadOnly()" name="settings" :icon="getTabIcon(1)" :label="quest.type === 'quest' ? $t('label.Intro') + ' (' + languages.current + ')' : $t('label.YourRoom')" default />
+      <q-tab :disable="tabs.progress < 1 || isReadOnly()" name="steps" :icon="getTabIcon(2)" :label="$t('label.Steps') + ' (' + languages.current + ')'" v-if="quest.type === 'quest'" />
       <q-tab :disable="tabs.progress < 2" name="publish" :icon="getTabIcon(3)" :label="$t('label.Publish')" />
       <q-tab name="reviews" :icon="getTabIcon(4)" :label="$t('label.ReviewsAndStats')" v-if="isEdition && quest.access === 'public'" />
       <q-tab name="results" :icon="getTabIcon(5)" :label="$t('label.Results')" v-if="quest.status !== 'draft' && quest.access === 'private'" />
@@ -53,11 +53,19 @@
               :options="form.languages"
               :disable="readOnly"
             />
-            <q-item-label caption>{{ $t('label.SelectTheLanguageAndClickOnNextButton') }}</q-item-label>
           </q-item-section>
         </q-item>
         
-        <q-btn big :disabled="readOnly" class="full-width" color="primary" @click="selectLanguage()" :label="$t('label.Save')" test-id="btn-save-language" />
+        <div class="centered">
+          <q-btn 
+            big 
+            :disabled="readOnly" 
+            class="glossy large-button" 
+            color="primary" 
+            @click="selectLanguage()" 
+            :label="$t('label.Save')" 
+            test-id="btn-save-language" />
+        </div>
       </div>
     
       <form @submit.prevent="submitSettings()" v-if="this.quest.languages.length > 0">
@@ -100,6 +108,7 @@
           />
         
         <q-select
+          v-if="quest.type === 'quest'"
           :readonly="readOnly"
           :label="$t('label.Category')"
           v-model="form.fields.category"
@@ -113,7 +122,7 @@
           :error-message="$t('label.PleaseSelectACategory')"
           />
         
-        <div>
+        <div v-if="quest.type === 'quest'">
           {{ $t('label.QuestType') }} 
           <q-icon name="help" @click.native="showHelpPopup('helpQuestType')" />
           <div class="q-gutter-sm">
@@ -123,10 +132,18 @@
         </div>
         
         <q-select
-          :readonly="readOnly" :label="$t('label.Difficulty')" v-model="form.fields.level" :options="form.levels" emit-value map-options />
+          :readonly="readOnly" 
+          :label="$t('label.Difficulty')" 
+          v-model="form.fields.level" 
+          :options="form.levels" 
+          emit-value map-options />
           
         <q-select
-          :readonly="readOnly" :label="$t('label.Duration')" v-model="form.fields.duration" :options="form.durations" emit-value map-options />
+          :readonly="readOnly" 
+          :label="$t('label.Duration')" 
+          v-model="form.fields.duration" 
+          :options="form.durations" 
+          emit-value map-options />
         
         <div class="description">
           <q-input
@@ -186,8 +203,35 @@
           {{ $t('label.ModifyThePicture') }}:
           <input @change="uploadImage" ref="picturefile" type="file" accept="image/*" />
         </div>
+        <div v-if="form.fields.thumb !== null">
+          <p>{{ $t('label.SmallPicture') }} :</p>
+          <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.thumb" />
+        </div>
+        <div v-if="!isIOs">
+          <q-btn class="full-width" v-if="!readOnly" :label="$t('label.ModifyThePicture')" @click="$refs['thumbfile'].click()" />
+          <input @change="uploadThumb" ref="thumbfile" type="file" accept="image/*" hidden />
+        </div>
+        <div v-if="isIOs">
+          {{ $t('label.ModifyThePicture') }}:
+          <input @change="uploadThumb" ref="thumbfile" type="file" accept="image/*" />
+        </div>
         
-        <div v-if="this.quest.isPremium">
+        <div v-if="this.quest.type === 'room'">
+          <q-input
+            :disable="readOnly"
+            v-model="form.fields.priceForPlayer"
+            :label="$t('label.PriceFrom')"
+            class="full-width"
+          />
+          <q-input
+            :disable="readOnly"
+            v-model="form.fields.readMoreLink"
+            :label="$t('label.ReadMoreLink')"
+            class="full-width"
+          />
+        </div>
+        
+        <div v-if="this.quest.isPremium && this.quest.type === 'quest'">
           <q-select
             :readonly="readOnly"
             :label="$t('label.PriceForPlayer')"
@@ -275,18 +319,24 @@
           </div>
         </div>
         
-        <div v-if="!this.quest.isPremium">
+        <!--<div v-if="!this.quest.isPremium">
           <q-btn-group class="full-width q-mt-lg">
             <q-btn color="secondary" @click="openPremiumBox()" :label="$t('label.MovePremium')" />
             <q-btn color="secondary" @click="openPremiumBox()" icon="help" split />
           </q-btn-group>
+        </div>-->
+        <div class="centered">
+          <q-btn 
+            v-if="!readOnly" 
+            @click="submitSettings" 
+            color="primary" 
+            class="glossy large-button q-mt-lg" 
+            test-id="btn-save-settings">{{ $t('label.Save') }}</q-btn>
         </div>
-        <q-btn v-if="!readOnly" @click="submitSettings" color="primary" class="full-width q-mt-lg" test-id="btn-save-settings">{{ $t('label.Save') }}</q-btn>
-          
       </form>
       
-      <p class="centered q-pa-md" v-if="quest.status !== 'published'">
-        <q-btn flat color="primary" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
+      <p class="centered q-pa-md subtitle5" v-if="quest.status !== 'published'">
+        <q-btn flat color="negative" icon="delete" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
       </p>
     </div>
     
@@ -311,10 +361,10 @@
           </li>
         </ul>
         <p v-if="!readOnly" class="centered">
-          <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" test-id="btn-add-step" />
+          <q-btn color="primary" class="glossy large-button" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" test-id="btn-add-step" />
         </p>
         <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items[0] && chapters.items[0].steps && chapters.items[0].steps.length > 1">
-          <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
+          <q-btn color="primary" class="glossy large-button" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
         </p>
         <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current">
           <a @click="showMedia()">{{ getReadableStorageUsage() }}</a>
@@ -380,10 +430,10 @@
         </ul>
       
         <p v-if="!readOnly" class="centered">
-          <q-btn color="primary" icon="fas fa-plus-circle" @click="addChapter()" :label="$t('label.AddASChapter')" />
+          <q-btn color="primary" class="glossy large-button" icon="fas fa-plus-circle" @click="addChapter()" :label="$t('label.AddASChapter')" />
         </p>
         <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items.length > 1">
-          <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
+          <q-btn color="primary" class="glossy large-button" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
         </p>
         <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current">
           <a @click="showMedia()">{{ getReadableStorageUsage() }}</a>
@@ -414,8 +464,11 @@
         <q-banner class="q-mb-md bg-warning" v-if="chapters.items.length > 100">
           {{ $t('label.YourQuestMustContainLessThan50Steps') }}
         </q-banner>
-        <p class="centered q-pa-md">
-          <q-btn color="primary" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
+        <p class="centered q-pa-md" v-if="quest.type === 'quest'">
+          <q-btn color="primary" class="glossy large-button" icon="play_arrow" @click="testQuest()" :label="$t('label.TestYourQuest')" />
+        </p>
+        <p class="centered q-pa-md" v-if="quest.type === 'room'">
+          <q-btn color="primary" class="glossy large-button" icon="play_arrow" @click="testQuest()" :label="$t('label.SeeYourQuestPage')" />
         </p>
         
         <q-item v-if="quest.access === 'private'">
@@ -451,11 +504,11 @@
             <q-icon name="visibility" class="left-icon" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="big-label">{{ $t('label.LanguagesPublished') }}</q-item-label>
+            <q-item-label class="big-label">{{ $t('label.' + (quest.type === 'quest' ? 'LanguagesPublished' : 'PageLanguagesPublished')) }}</q-item-label>
             <p v-for="lang in form.fields.languages" :key="lang.lang">
               <q-toggle :disable="quest.status === 'tovalidate'" v-model="lang.published" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
             </p>
-            <q-item-label caption v-if="quest.access === 'public'">{{ $t('label.ActivateTheLanguageVisible') }}</q-item-label>
+            <q-item-label caption v-if="quest.access === 'public' && quest.type === 'quest'">{{ $t('label.ActivateTheLanguageVisible') }}</q-item-label>
             <q-item-label caption v-if="quest.access === 'private'">{{ $t('label.ActivateTheLanguageVisiblePrivate') }}</q-item-label>
           </q-item-section>
         </q-item>
@@ -494,14 +547,15 @@
           </q-item-section>
           <q-item-section>
             <q-item-label class="big-label">{{ $t('label.MarkersFile') }}</q-item-label>
-            <div>
+            <div v-if="quest.type === 'quest'">
               {{ $t('label.MarkersToPrint') }}
               <!-- for webapp mode -->
-              <q-btn v-if="!isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" type="a" href="statics/markers/all.pdf" download />
+              <q-btn v-if="!isHybrid" color="primary" class="glossy large-button" icon="fa fa-download" :label="$t('label.Download')" type="a" href="statics/markers/all.pdf" download />
               <!-- for hybrid mode -->
-              <q-btn v-if="isHybrid" color="primary" icon="fa fa-download" :label="$t('label.Download')" @click="downloadMarkers()" />
+              <q-btn v-if="isHybrid" color="primary" class="glossy large-button" icon="fa fa-download" :label="$t('label.Download')" @click="downloadMarkers()" />
             </div>
-            <div v-if="this.quest.isPremium" class="q-pt-md" v-html="$t('label.MarkersToStartQuest', {code: questId})" />
+            <div v-if="this.quest.isPremium && quest.type === 'quest'" class="q-pt-md" v-html="$t('label.MarkersToStartQuest', {code: questId})" />
+            <div v-if="quest.type === 'room'" class="q-pt-md" v-html="$t('label.SaveQuestResultsMarker', {questId: questId, score1: (1 + ((quest.level - 1) * 2)), score2: (2 + ((quest.level - 1) * 2)), score3: (3 + ((quest.level - 1) * 2))})" />
           </q-item-section>
         </q-item>
         
@@ -511,7 +565,7 @@
           </q-item-section>
           <q-item-section>
             <q-item-label class="big-label">{{ $t('label.RemoveThisQuest') }}</q-item-label>
-            <q-btn color="primary" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
+            <q-btn color="negative" class="glossy large-button q-ma-sm" @click="removeQuest()" :label="$t('label.RemoveThisQuest')" />
             {{ $t('label.ThisActionCanNotBeCanceled') }}
           </q-item-section>
         </q-item>
@@ -613,7 +667,7 @@
           {{ $t('label.NoPlayersYetForThisQuest') }}
         </div>
         <div class="centered">
-          <q-btn color="primary" @click="closePrivateQuest">{{ $t('label.ClosePrivateQuest') }}</q-btn>
+          <q-btn color="primary" class="glossy large-button" @click="closePrivateQuest">{{ $t('label.ClosePrivateQuest') }}</q-btn>
           <div>{{ $t('label.ClosePrivateQuestDesc') }}</div>
         </div>
       </div>
@@ -666,7 +720,7 @@
             >
               <div class="centered q-pa-sm">
                 <div>{{ $t('stepType.' + stepType.description) }}</div>
-                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" :test-id="'btn-select-step-type-' + stepType.code" />
+                <q-btn color="primary" class="glossy large-button" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" :test-id="'btn-select-step-type-' + stepType.code" />
               </div>
             </q-expansion-item>
           </q-list> 
@@ -681,7 +735,7 @@
             >
               <div class="centered q-pa-sm">
                 <div>{{ $t('stepType.' + stepType.description) }}</div>
-                <q-btn color="primary" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" :test-id="'btn-select-step-type-' + stepType.code" />
+                <q-btn color="primary" class="glossy large-button" :label="$t('label.UseThisGame')" @click.native="selectStepType(stepType)" :test-id="'btn-select-step-type-' + stepType.code" />
               </div>
             </q-expansion-item>
           </q-list>
@@ -694,7 +748,7 @@
       
     </q-dialog>
     
-    <q-dialog maximized persistent v-model="chapters.showNewStepPageSettings">
+    <q-dialog maximized persistent v-model="chapters.showNewStepPageSettings" class="bg-white">
       
       <!------------------ STEP SETTINGS SELECTION ------------------------>
       
@@ -809,7 +863,7 @@
         <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Hint') }}</div>
         <p v-if="hint.label === ''">{{ $t('label.NoHintForThisStep') }}</p>
         <p v-if="hint.label !== ''">{{ hint.label[hint.number] }}</p>
-        <q-btn class="q-mb-xl" color="primary" @click="askForHint()">{{ $t('label.Close') }}</q-btn>
+        <q-btn class="q-mb-xl glossy large-button" color="primary" @click="askForHint()">{{ $t('label.Close') }}</q-btn>
       </div>
     </q-dialog>
     
@@ -830,12 +884,12 @@
         <div v-if="media.items.length === 0">
           {{ $t('label.YouDoNotUseAnyMediaYetInYourQuest') }}
         </div>
-        <q-btn class="q-mb-xl" color="primary" @click="hideMedia()">{{ $t('label.Close') }}</q-btn>
+        <q-btn class="q-mb-xl glossy large-button" color="primary" @click="hideMedia()">{{ $t('label.Close') }}</q-btn>
       </div>
     </transition>
     <q-dialog v-model="media.detail.isOpened">
       <img v-if="media.items.length > 0" style="width: 100%" :src="serverUrl + '/upload/quest/' + questId + media.items[media.detail.index].type + media.items[media.detail.index].file">
-      <q-btn class="q-mb-xl" color="primary" @click="unzoomMedia()">{{ $t('label.Close') }}</q-btn>
+      <q-btn class="q-mb-xl glossy large-button" color="primary" @click="unzoomMedia()">{{ $t('label.Close') }}</q-btn>
     </q-dialog>
     
     <!------------------ PREMIUM POPIN ------------------------>
@@ -847,11 +901,11 @@
         <div v-html="$t('label.PremiumDefinition2')" />
         <div v-if="!premium.canMovePremium" class="centered">
           <p>{{ $t('label.PremiumDefinition3') }}</p>
-          <q-btn class="q-mb-xl" color="primary" @click="premium.isOpened = false">{{ $t('label.Close') }}</q-btn>
+          <q-btn class="q-mb-xl glossy large-button" color="primary" @click="premium.isOpened = false">{{ $t('label.Close') }}</q-btn>
         </div>
         <div v-if="premium.canMovePremium" class="centered">
-          <q-btn class="q-mb-sm" color="primary" @click="movePremium()">{{ $t('label.MovePremium') }}</q-btn>
-          <q-btn class="q-mb-xl" flat color="primary"  @click="premium.isOpened = false">{{ $t('label.Cancel') }}</q-btn>
+          <q-btn class="q-mb-sm glossy large-button" color="primary" @click="movePremium()">{{ $t('label.MovePremium') }}</q-btn>
+          <q-btn class="q-mb-xl glossy large-button" flat color="primary"  @click="premium.isOpened = false">{{ $t('label.Cancel') }}</q-btn>
         </div>
       </div>
     </q-dialog>
@@ -919,7 +973,7 @@ export default {
         fields: {
           title: {},
           category: '',
-          priceForPlayer: 'free',
+          priceForPlayer: '',
           description: {},
           location: { lat: '', lng: '' },
           startingPlace: '',
@@ -934,7 +988,8 @@ export default {
           zipcode: "",
           editorMode: 'simple',
           customization: { color: '', logo: '', character: '', removeScoring: false, endMessage: '' },
-          rewardPicture: ''
+          rewardPicture: '',
+          readMoreLink: ''
         },
         categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }, this.$t),
         languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
@@ -1116,6 +1171,7 @@ export default {
         this.form.fields.editorMode = this.quest.editorMode
         this.form.fields.customization = this.quest.customization
         this.form.fields.rewardPicture = this.quest.rewardPicture
+        this.form.fields.readMoreLink = this.quest.readMoreLink
       
         this.form.fields.startingPlace = this.form.fields.location.address || ""
         this.form.fields.zipcode = (this.form.fields.location && this.form.fields.location.zipcode) ? this.form.fields.location.zipcode : ""
@@ -1123,8 +1179,12 @@ export default {
         this.form.fields.country = (this.form.fields.location && this.form.fields.location.country) ? this.form.fields.location.country : ""
         
         // prices
-        if (this.quest.premiumPrice && this.quest.premiumPrice.androidId) {
-          this.form.fields.priceForPlayer = this.quest.premiumPrice.androidId
+        if (this.quest.type === 'room') {
+          this.form.fields.priceForPlayer = this.quest.premiumPrice.manual
+        } else if (this.quest.type === 'quest') {
+          if (this.quest.premiumPrice && this.quest.premiumPrice.androidId) {
+            this.form.fields.priceForPlayer = this.quest.premiumPrice.androidId
+          }
         }
         
         // adapt data from DB to match form data structure
@@ -1139,7 +1199,7 @@ export default {
         if (this.tabs.progress <= 3) {
           this.tabs.selected = this.tabs.list[Math.min(this.tabs.progress, 2)]
         }
-
+        
         await this.refreshStepsList()
         
         await this.listEditors()
@@ -1514,6 +1574,7 @@ export default {
         let commonProperties = {
           'languages': [this.form.fields.mainLanguage],
           'version': this.quest.version,
+          'type': this.quest.type,
           'location': { 
             type: 'Point', 
             coordinates: [this.form.fields.location.lng, this.form.fields.location.lat],
@@ -1537,12 +1598,17 @@ export default {
         if (res && res.data) {
           // update progression in stepper
           if (this.tabs.progress < 1) {
-            this.tabs.progress = 1
-            this.tabs.selected = 'steps'
-            // start configuration story
+            if (this.quest.type === 'quest') {
+              this.tabs.progress = 1
+              this.tabs.selected = 'steps'
+            } else {
+              this.tabs.progress = 2
+              this.tabs.selected = 'publish'
+            }
+            /*/ start configuration story
             if (this.story.active) {
               this.story.step = 19
-            }
+            }*/
           }
           Notification(this.$t('label.QuestSaved'), 'info')
         } else {
@@ -1574,6 +1640,30 @@ export default {
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
+      let uploadThumbResult = await QuestService.uploadThumb(data)
+      if (uploadThumbResult && uploadThumbResult.hasOwnProperty('data')) {
+        if (uploadThumbResult.data.file) {
+          this.form.fields.thumb = uploadThumbResult.data.file
+        } else if (uploadThumbResult.data.message && uploadThumbResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    
+    /*
+     * Upload a new thumb for the quest
+     */
+    async uploadThumb(e) {
+      this.$q.loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
       let uploadThumbResult = await QuestService.uploadThumb(data)
       if (uploadThumbResult && uploadThumbResult.hasOwnProperty('data')) {
         if (uploadThumbResult.data.file) {
@@ -2840,7 +2930,7 @@ export default {
       let creationTodoIcon = this.tabs.icons[number - 1] // icons array indexes start at 0
       let creationDoneIcon = 'check_circle'
       
-      if (this.isEdition) {
+      if (this.isEdition || this.quest.type !== 'quest') {
         return 'img:'
       } else {
         return number <= this.tabs.progress ? creationDoneIcon : creationTodoIcon
@@ -2866,16 +2956,4 @@ export default {
 
 <style>
 .review-text { color: black; font-size: 0.8rem; white-space: pre-line; }
-/* MP 2019-11-22 does not seems useful anymore
-.tab-content-120 {
-  overflow: auto;
-  height: 100%;
-  height: -webkit-calc(100% - 120px);
-  height: -moz-calc(100% - 120px);
-  height: calc(100% - 120px);
-}*/
-.title-bar {
-  height: 50px;
-  overflow: hidden;
-}
 </style>

@@ -35,6 +35,27 @@
       <div v-if="userType==='pro' && !access">
         <h1 class="subtitle3 text-uppercase q-pa-md q-mt-xl q-pt-lg">{{ $t('label.CreateYourQuest') }}</h1>
         <div class="q-pa-md">
+          {{ $t('label.AddYourRoomInTheDirectory') }}
+        </div>
+        <div class="q-pa-md">
+          <q-card class="my-card bg-primary text-white">
+            <q-card-section class="centered">
+              <div class="subtitle2">{{ $t('label.AddYourRoom') }}</div>
+              <div class="subtitle4">{{ $t('label.Free') }}</div>
+            </q-card-section>
+
+            <q-card-section class="subtitle5">
+              <div v-html="$t('label.ProAddYourRoom')"></div>
+            </q-card-section>
+
+            <q-separator />
+
+            <q-card-actions align="right">
+              <q-btn flat color="white" @click="changeAccess('public'); changeQuestType('room')">{{ $t('label.Add') }}</q-btn>
+            </q-card-actions>
+          </q-card>
+        </div>
+        <div class="q-pa-md">
           {{ $t('label.BuilderProIntro') }}
         </div>
         <div class="q-pa-md">
@@ -133,7 +154,15 @@
           <q-btn flat @click="backToUserType">{{ $t('label.Back') }}</q-btn>
         </div>
       </div>
-      <div class="grow" v-if="access === 'public'">
+      <div class="grow" v-if="access === 'public' && questType === 'room'">
+        <h1 class="subtitle3 text-uppercase q-pa-md q-mt-xl q-pt-lg">{{ $t('label.AddYourRoom') }}</h1>
+        <div class="q-pa-md" v-html="$t('label.BuilderAddRoomMessage')"></div>
+        <div class="q-px-md centered">
+          <q-btn color="primary" class="glossy large-btn" @click="createNewQuest()" test-id="btn-accept-rules">{{ $t('label.Add') }}</q-btn>
+          <q-btn class="full-width center q-mt-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>
+        </div>
+      </div>
+      <div class="grow" v-if="access === 'public' && questType === 'quest'">
         <h1 class="subtitle3 text-uppercase q-pa-md q-mt-xl q-pt-lg">{{ $t('label.CreateYourPublicQuest') }}</h1>
         <div class="q-pa-md" v-html="$t('label.BuilderWelcomeMessage')"></div>
         <div class="q-px-md centered">
@@ -171,6 +200,7 @@ export default {
     return {
       userType: null,
       access: null,
+      questType: 'quest',
       readMorePublicProQuest: false,
       privateQuest: {
         price: '-',
@@ -206,6 +236,13 @@ export default {
       this.moveToTop();
     },
     /*
+     * change quest type (quest / room)
+     */
+    changeQuestType(type) {  
+      this.questType = type; 
+      this.moveToTop();
+    },
+    /*
      * Scroll page to the top
      */
     moveToTop() {
@@ -225,7 +262,7 @@ export default {
       let newQuest = {
         title: {}
       }
-      let res = await QuestService.create(newQuest, this.access, this.userType)
+      let res = await QuestService.create(newQuest, this.access, this.userType, this.questType)
 
       if (res && res.data && res.data.questId) {
         this.$router.push('/quest/builder/' + res.data.questId)

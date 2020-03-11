@@ -1,6 +1,6 @@
 <template>
   <div class="q-pl-md">
-    <div v-if="!users" class="user-small relative-position">
+    <div v-if="!users" class="user-card-small relative-position">
       <div class="centered q-pt-lg">
         <q-spinner-dots
           color="primary"
@@ -9,7 +9,7 @@
       </div>
     </div>
     <div v-if="format === 'scroll' && ((users && users.length > 0) || add)" class="horizontal-scroll-wrapper users-horizontal-scroll-wrapper">
-      <div v-if="add" class="user-small relative-position q-mr-md" @click="openFriendAddPopup()">
+      <div v-if="add" class="user-card-small relative-position q-mr-md" @click="openFriendAddPopup()">
         <div class="user-add-button">
           <q-icon name="add" style="font-size: 3em;" />
         </div>
@@ -19,7 +19,7 @@
       </div>
     </div>
     <div class="row justify-around" v-if="format === 'list' && ((users && users.length > 0) || add)">
-      <div v-if="add" class="user-small relative-position q-mr-md" @click="openFriendAddPopup()">
+      <div v-if="add" class="user-card-small relative-position q-mr-md" @click="openFriendAddPopup()">
         <div class="user-add-button">
           <q-icon name="add" style="font-size: 3em;" />
         </div>

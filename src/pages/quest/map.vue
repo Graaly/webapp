@@ -9,14 +9,14 @@
       <!--====================== INVITATION QUEST =================================-->
       
       <div v-if="invitationQuests && invitationQuests.length > 0">
-        <titleBar :title="{text: $t('label.AroundYou'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMore"></titleBar>
+        <titleBar :title="{text: $t('label.Invitations'), type: 'key'}"></titleBar>
 
-        <questsList :quests="invitationQuests"></questsList>
+        <questsList format="small" :quests="invitationQuests"></questsList>
       </div>
       
       <!--====================== OTHER QUEST =================================-->
       
-      <titleBar :title="{text: $t('label.AroundYou'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMore"></titleBar>
+      <titleBar :title="{text: $t('label.AroundYou'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAroundYou"></titleBar>
 
       <questsList format="small" :quests="nearestQuests"></questsList>
       
@@ -26,11 +26,11 @@
       
       <!--====================== QUEST PLAYED OR CREATED BY GRAALY =================================-->
       
-      <titleBar format="small" :title="{text: $t('label.FriendsQuests'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMore"></titleBar>
+      <titleBar format="small" :title="{text: $t('label.FriendsQuests'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMoreFriendsGames"></titleBar>
       
       <!--====================== CREATORS =================================-->
       
-      <titleBar :title="{text: $t('label.Designers'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}"></titleBar>
+      <titleBar :title="{text: $t('label.Designers'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAllCreators"></titleBar>
       
       <usersList format="scroll" :users="users"></usersList>
       
@@ -50,6 +50,7 @@
         <div class="home-header row no-wrap">
           <img src="statics/images/logo/logo-header.png" class="logo" />
           <q-space />
+          <img src="statics/images/icon/tools.png" class="header-button q-mr-md" @click="openAdminPage" />
           <img src="statics/images/icon/search.svg" class="header-button q-mr-md" @click="openSearch" />
           <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" class="header-button q-mr-md" @click="openRanking" />
           <q-avatar @click="openProfile()">
@@ -964,8 +965,9 @@ export default {
       if (this.isQuestsLoaded === false && !this.offline.active) {
         await this.loadQuests()
       }
-
-      await this.getCreators()
+      if (this.users === null) {
+        await this.getCreators()
+      }
     },
     /*
     * start the scanner for hybrid app
@@ -1051,7 +1053,6 @@ export default {
     async checkNetwork() {
       // TODO on hybrid, maybe use events "offline" and "online" to get realtime network status
       // see https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-network-information/#offline
-console.log(this.offline)
       let previousOfflineValue = this.offline.active
       let isNetworkAvailable = utils.isNetworkAvailable()
       this.warnings.noNetwork = !isNetworkAvailable
@@ -1220,7 +1221,7 @@ console.log(this.offline)
      * Get the list of creators near the location of the user
      */
     async getCreators() {      
-      let response = await UserService.listNearCreators({ lng: this.user.position.longitude, lat: this.user.position.latitude }, 10)
+      let response = await UserService.listSuggestions({ lng: this.user.position.longitude, lat: this.user.position.latitude }, 10)
       
       if (!response || !response.data) {
         Notification(this.$t('label.TechnicalIssue'), 'error')
@@ -1256,25 +1257,7 @@ console.log(this.offline)
         this.warnings.rankingMissing = true
       }
     },
-        
-    /*
-     * List news
-     */
-    loadNews(index, done) {
-      var self = this
-      // get the team news list
-      UserService.listNews(this.friends.news.limit, this.friends.news.skip, function(err, response) {
-        self.friends.news.skip += self.friends.news.limit
-        if (err) {
-          done(err)
-        }
-        if (response && response.data && response.data.length > 0) {
-          self.friends.news.items = self.friends.news.items.concat(response.data)
-          done()
-        }
-      })
-    },     
-    
+       
     displayNetworkIssueMessage() {
       this.$q.dialog({
         title: this.$t('label.TechnicalProblem'),
@@ -1408,6 +1391,24 @@ console.log(this.offline)
       Notification(this.$t('label.QuestDownloadFinished'), 'positive')
     },
     /*
+     * Read more quests around you
+     */
+    readMoreAroundYou() {
+      this.$router.push('/search/quest/around')
+    },
+    /*
+     * Read more quests of friends
+     */
+    readMoreFriendsGames() {
+      this.$router.push('/search/quest/friends')
+    },
+    /*
+     * List all friends
+     */
+    readMoreAllCreators() {
+      this.$router.push('/user/' + this.$store.state.user.id + '/friends')
+    },
+    /*
      * Open a user profile
      */
     openProfile(id) {
@@ -1420,7 +1421,7 @@ console.log(this.offline)
      * Open search page
      */
     openSearch() {
-      this.$router.push('/search')
+      this.$router.push('/search/quest/around')
     },
     /*
      * Open ranking page
@@ -1432,10 +1433,11 @@ console.log(this.offline)
      * get profile image
      */
     getProfileImage () {
-      if (this.user.picture && this.user.picture.indexOf('http') !== -1) {
-        return this.user.picture
-      } else if (this.user.picture) {
-        return this.serverUrl + '/upload/profile/' + this.user.picture
+      const user = this.$store.state.user
+      if (user.picture && user.picture.indexOf('http') !== -1) {
+        return user.picture
+      } else if (user.picture) {
+        return this.serverUrl + '/upload/profile/' + user.picture
       } else {
         return 'statics/images/icon/profile-small.png'
       }

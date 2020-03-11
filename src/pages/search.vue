@@ -1,15 +1,21 @@
 <template>
   <div class="scroll background-dark">
     <div id="teaser q-mb-lg">
-      <div style="padding-top: 248px;">
+      <div :style="'padding-top: ' + (type === 'quest' ? '302' : '258') + 'px;'">
         <div v-if="type === 'quest' && results.quests && results.quests.length > 0">
-          <questsList format="big" :quests="results.quests"></questsList>
+          <q-infinite-scroll @load="loadOtherQuests" :offset="250">
+            <questsList format="big" :quests="results.quests"></questsList>
+          </q-infinite-scroll>
         </div>
         <div v-if="type === 'designer' && results.designers && results.designers.length > 0">
-          <usersList :users="results.designers"></usersList>
+          <q-infinite-scroll @load="loadOtherUsers" :offset="250">
+            <usersList format='list' :users="results.designers"></usersList>
+          </q-infinite-scroll>
         </div>
         <div v-if="type === 'player' && results.players && results.players.length > 0">
-          <usersList format='list' :users="results.players"></usersList>
+          <q-infinite-scroll @load="loadOtherUsers" :offset="250">
+            <usersList format='list' :users="results.players"></usersList>
+          </q-infinite-scroll>
         </div>
         <div v-if="type === 'quest' && results.quests && results.quests.length === 0" @click.native="$router.push('/quest/create')" class="centered q-pa-md">
           <q-icon name="explore" size="2rem" />
@@ -57,6 +63,20 @@
             </div>
           </div>
         </div>
+        <div v-if="type === 'quest'">
+          <div class="row q-pa-sm">
+            <div class="col-6" @click="selectSubtype('around')" :class="{'tab-unselected': (subtype !== 'around')}">
+              <div class="tab-button subtitle6 centered">
+                {{ $t('label.AroundYou') }}
+              </div>
+            </div>
+            <div class="col-6" @click="selectSubtype('friends')" :class="{'tab-unselected': (subtype !== 'friends')}">
+              <div class="tab-button subtitle6 centered">
+                {{ $t('label.FriendsQuests') }}
+              </div>
+            </div>
+          </div>
+        </div>
         <div>
           <q-input
             dark
@@ -97,23 +117,37 @@ export default {
   data () {
     return {
       type: 'quest',
+      subtype: null,
       results: {
         quests: null,
         designers: null,
         players: null
       },
       search: {
-        text: ""
+        text: "",
+        limit: 10,
+        skip: 0
       },
       user: {
         position: null
       },
       scrollInfo: {},
+      findQuestWhenLocationIsKnown: true,
       serverUrl: process.env.SERVER_URL
     }
   },
   mounted() {
-
+    if (this.$route.params.subtype) {
+      this.subtype = this.$route.params.subtype
+    }
+    if (this.$route.params.type) {
+      this.type = this.$route.params.type
+    }
+    // wait for location of around request
+    if (this.subtype !== 'around') {
+      this.findQuestWhenLocationIsKnown = false
+      this.find()
+    }
   },
   methods: {
     /*
@@ -122,6 +156,17 @@ export default {
      */
     async selectType(type) {
       this.type = type
+      this.subtype = 'none'
+      await this.find()
+    },
+    /*
+     * Select the search subtype
+     * @param   {string}    subtype            ID of the subtype
+     */
+    async selectSubtype(subtype) {
+      this.subtype = subtype
+      this.search.text = ""
+      this.search.skip = 0
       await this.find()
     },
     /*
@@ -131,8 +176,10 @@ export default {
       if (this.type === 'quest') {
         await this.findQuests()
       } else if (this.type === 'player') {
+        this.search.skip = 0
         await this.findUser('player')
       } else {
+        this.search.skip = 0
         await this.findUser('designer')
       }
     },
@@ -142,6 +189,7 @@ export default {
     async findUser(type) {
       try {
         if (this.search.text.length > 3) {
+          this.subtype = 'keyword'
           // show loading animation
           this.$q.loading.show()
 
@@ -162,21 +210,52 @@ export default {
         this.$q.loading.hide()
       }
     },
+    loadOtherUsers(index, done) {
+      if (this.search.skip >= 10) {
+        var self = this
+        UserService.find(this.type, this.search.text, this.search.skip, function(err, response) {
+          self.search.skip += self.search.limit
+          if (err) {
+            done(err)
+          }
+          if (response && response.data && response.data.length > 0) {
+            if (type === 'player') {
+              self.results.players = self.results.players.concat(response.data)
+            } else {
+              self.results.designers = self.results.designers.concat(response.data)
+            }
+            done()
+          }
+        })
+      }
+    },
     /*
      * Search for quests
      */
     async findQuests() {
       try {
-        if (this.search.text.length > 3) {
+        if (this.subtype !== 'keyword' || this.search.text.length > 3) {
+          if (this.search.text.length > 3) {
+            this.subtype = 'keyword'
+          }
           // show loading animation
           this.$q.loading.show()
 
           // Get quests for the search
           var userPosition = this.user.position
 
-          let response = await QuestService.find(this.search.text, userPosition)
+          var response
+          if (this.subtype === 'keyword') {
+            response = await QuestService.find(this.search.text, userPosition, 0, 10)
+          } else if (this.subtype === 'around') {
+            response = await QuestService.listNearest(userPosition, 0)
+          } else if (this.subtype === 'friends') {
+            // TODO : replace with friends quest
+            response = await QuestService.find(this.search.text, userPosition)
+          }
           if (response && response.data) {
             this.results.quests = response.data
+            this.search.skip = response.data.length
 
             // compute distance
             if (this.user.position) {
@@ -203,6 +282,37 @@ export default {
         this.$q.loading.hide()
       }
     },
+    loadOtherQuests(index, done) {
+      if (this.user.position && this.search.skip >= 10) {
+        var self = this
+        // get the team news list
+        if (this.subtype === 'around') {
+          QuestService.listNearestSync(this.user.position, null, this.search.skip, function(err, response) {
+            self.search.skip += self.search.limit
+            if (err) {
+              done(err)
+            }
+            if (response && response.data && response.data.length > 0) {
+              self.results.quests = self.results.quests.concat(response.data)
+              done()
+            }
+          })
+        } else if (this.subtype === 'friends') {
+          // TODO
+        } else {
+          QuestService.findSync(this.search.text, this.user.position, null, this.search.skip, function(err, response) {
+            self.search.skip += self.search.limit
+            if (err) {
+              done(err)
+            }
+            if (response && response.data && response.data.length > 0) {
+              self.results.quests = self.results.quests.concat(response.data)
+              done()
+            }
+          })
+        }
+      }
+    },
     displayNetworkIssueMessage() {
       this.$q.dialog({
         title: this.$t('label.TechnicalProblem'),
@@ -211,6 +321,9 @@ export default {
     },
     async onLocationSuccess(position) {
       this.$set(this.user, 'position', position.coords)
+      if (this.findQuestWhenLocationIsKnown) {
+        await this.find()
+      }
     },
     onLocationError(ret) {
       // reset position only if localization never worked, else keep current location

@@ -4,26 +4,30 @@
       <div class="q-py-sm dark-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToProfile()" />
       </div>
-      <div class="user-big main-profile centered relative-position">
-        <div class="relative-position no-overflow" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
-          <div class="edit-bar centered">
-            <label for="picturefile" @click="$refs['uploadfile'].click()">
-              <q-icon name="camera_alt" />
-            </label>
-            <input @change="uploadImage" ref="uploadfile" name="picturefile" id="picturefile" type="file" accept="image/*" hidden />
+      <div class="centered">
+        <div class="user-card user-card-big main-profile centered relative-position">
+          <div class="relative-position no-overflow" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
+            <div class="edit-bar centered">
+              <label @click="$refs['uploadfile'].click()">
+                <q-icon name="camera_alt" />
+              </label>
+              <input @change="uploadImage" ref="uploadfile" name="picturefile" id="picturefile" type="file" accept="image/*" hidden />
+            </div>
+          </div>
+          <div v-if="profile.form.name !== ''">
+            <div class="centered subtitle3 q-mt-lg">
+              {{ profile.form.name }}
+            </div>
+            <div class="centered subtitle6 q-mt-sm" v-if="profile.form.location && (profile.form.location.postalCode || profile.form.location.country)">
+              <span v-if="profile.form.location.postalCode">{{ profile.form.location.postalCode }}</span>
+              <span v-if="profile.form.location.postalCode && profile.form.location.country">, </span>
+              <span v-if="profile.form.location.country">{{ profile.form.location.country }}</span>
+            </div>
           </div>
         </div>
-        <div v-if="$store.state.user.name !== ''">
-          <div class="centered subtitle3 q-mt-lg">
-            {{ profile.form.name }}
-          </div>
-          <div class="centered subtitle6 q-mt-sm" v-if="profile.form.location && (profile.form.location.postalCode || profile.form.location.country)">
-            <span v-if="profile.form.location.postalCode">{{ profile.form.location.postalCode }}</span>
-            <span v-if="profile.form.location.postalCode && profile.form.location.country">, </span>
-            <span v-if="profile.form.location.country">{{ profile.form.location.country }}</span>
-          </div>
-        </div>
-        <div v-if="$store.state.user.name === ''">
+      </div>
+      <div>
+        <div v-if="profile.form.name === ''">
           <div class="centered subtitle5 q-mt-lg">
             {{ $t('label.WeNeedMoreInformationAboutYou') }}
           </div>
@@ -198,7 +202,11 @@
         <p class="subtitle6">{{ $t('label.RemoveYourAccountDesc') }}</p>
         <q-btn class="q-my-md glossy" color="negative" :label="$t('label.IConfirmIWantToRemoveMyAccount')" @click="removeAccount()" />
       </div>
-      
+      <div>
+        <div class="centered q-mt-xl q-mb-sm"><a @click="disconnect()">{{ $t('label.SignOut') }}</a></div>
+        <div class="centered q-mb-sm" v-html="$t('label.TermsAndConditionsLink')"></div>
+        <div class="centered q-mb-xl" v-html="$t('label.PrivacyPolicyLink')"></div>
+      </div>
     </div>
         
     <!------------------ REWARDS POPUP ------------------------>
@@ -267,8 +275,8 @@ export default {
   },
   mounted() {
     this.profile.form = {
-      name: this.$store.state.user.name ? this.$store.state.user.name : '?',
-      email: (this.$store.state.user.email && this.$store.state.user.email !== 'providersignin') ? this.$store.state.user.email : '',
+      name: this.$store.state.user.name ? (this.$store.state.user.name === '-' ? '' : this.$store.state.user.name) : '?',
+      email: (this.$store.state.user.email && this.$store.state.user.email !== 'providersignin') ? (this.$store.state.user.email.indexOf('dummyuser') === -1 ? this.$store.state.user.email : '') : '',
       password: '',
       phone: this.$store.state.user.phone ? this.$store.state.user.phone : '',
       picture: this.$store.state.user.picture ? this.$store.state.user.picture : '',
@@ -393,6 +401,12 @@ export default {
         }
       }
       this.$q.loading.hide()
+    },
+    /*
+     * Disconnection
+     */
+    disconnect() {
+      this.$router.push('/user/logout')
     },
     /*
      * Remove user account
