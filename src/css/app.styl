@@ -95,6 +95,19 @@ body {
 .no-overflow {
   overflow: hidden;
 }
+.bg-graaly-blue-dark {
+  background: #0F2A3C;
+  color: #fff;
+}
+.bg-status-draft {
+  background: orange;
+}
+.bg-status-tovalidate, .bg-status-rejected {
+  background: red;
+}
+.scroll {
+  overflow-y: scroll;
+}
 
 /////////////////////////////// Typography /////////////////////////////////////
 
@@ -152,6 +165,16 @@ body {
   font-family: arial;
   font-size: 12pt;
 }
+.secondary-font-very-small {
+  font-family: arial;
+  font-size: 10pt;
+}
+.arial {
+  font-family: arial;
+}
+.concertone {
+  font-family: 'concertone';
+}
 .opacity50 {
   opacity: 0.5;
 }
@@ -171,6 +194,9 @@ body {
 }
 .background-lighter {
   background-color: rgba(255, 255, 255, .1);
+}
+.background-lighter2 {
+  background-color: rgba(255, 255, 255, .3);
 }
 
 /////////////////////////////// Form CSS /////////////////////////////////////
@@ -198,6 +224,9 @@ a {
 a.dark {
   color: #232323;
 }
+a.small {
+  font-size: 10pt;
+}
 .bar-link a {
   font-size: 10pt;
   margin-top: 5px;
@@ -217,16 +246,51 @@ a.no-underline {
 .q-btn {
   font-size: 15pt;
   min-height: 2.1em;
+  line-height: 1em;
+  padding: 5px 0;
 }
-.large-btn {
-  min-width: 70%
+.q-btn__content div, .q-btn__content span {
+  min-height: 30px;
+}
+.large-btn, .large-button {
+  min-width: 70%;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.normal-button {
+  padding-left: 10px;
+  padding-right: 10px;
 }
 .q-btn--rectangle {
-    border-radius: 9px;
+  border-radius: 9px;
+}
+.image-button {
+  border: 2px solid #fff;
+  border-radius: 5px;
+  padding: 12px 8px 20px 100px;
+  background-repeat: no-repeat;
+  background-size: 100px 100px;
+  text-align: center;
 }
 
 /////////////////////////////// Popup CSS /////////////////////////////////////
 
+/*
+ * MP 2019-11-15
+ * fix quasar issue with "maximized" property on <q-dialog>, which can prevent scrolling on Android
+ * tried to prevent scrolling "above limits" on iOS, using those solutions https://stackoverflow.com/a/39821505/488666, but no luck
+ */
+.q-dialog__inner--maximized {
+  overflow-y: scroll;
+  padding: 0.5rem; /* nicer layout / UI */
+}
+.q-dialog__inner--maximized > div {
+  overflow-y: scroll !important;
+}
+.q-dialog.fullscreen {
+  /* 7003 to be over the stories, especially when user pass the tutorial */
+  z-index: 7003;
+}
 .popup-header {
   background-color: #215C84;
   color: #fff;
@@ -250,6 +314,10 @@ a.no-underline {
 .q-dialog__inner > div.bg-white {
   color: rgba(0,0,0,0.87);
 }
+.q-dialog__inner > div.bg-grey {
+  background-color: #4B4B4B !important;
+  border-color: #000;
+}
 .popup-over-header {
   margin-top: -116px;
 }
@@ -260,7 +328,7 @@ a.no-underline {
 /////////////////////////////// Titles CSS /////////////////////////////////////
 
 .title-bar {
-  padding: 11px 0 11px 35px;
+  padding: 8px 0 22px 35px;
   background-repeat: no-repeat;
   text-transform: uppercase;
   font-size: 10pt;
@@ -269,8 +337,11 @@ a.no-underline {
   margin: 30px 0 8px 0;
   background-size: 172px 43px;
 }
+.desktop .title-bar {
+  padding-top: 11px;
+}
 .bar-link {
-  padding-top: 8px;
+  /*padding-top: 8px;*/
 }
 .key-bar {
   background-image: url('/statics/images/other/bar-key.svg');
@@ -349,10 +420,13 @@ a.no-underline {
 }
 .title-banner div {
   width: 100%;
-  overflow: hidden;
+  /*overflow: hidden;*/
   text-overflow: ellipsis;
 }
 .title-banner div:first-child {
+  margin-top: -5px;
+}
+.quest-small .title-banner div:first-child {
   line-height: 1.1em;
 }
 .point-banner img {
@@ -365,7 +439,8 @@ a.no-underline {
   line-height: 1em;
 }
 .point-banner.with-plus div {
-  padding: 11px 15px 0px 0px;
+  /*padding: 11px 15px 0px 0px;*/
+  padding: 5px 15px 0px 0px;
   font-size: 20pt;
 }
 .point-banner {
@@ -397,7 +472,7 @@ a.no-underline {
 .quest-big .title-banner .subtitle4 {
   padding-top: 4px;
   width: 80%;
-  height: 26px;
+  height: 30px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -418,7 +493,7 @@ a.no-underline {
   font-size: 20pt;
 }
 .quest-big .point-banner.with-plus div {
-  padding: 15px 15px 0px 0px;
+  padding: 10px 15px 0px 0px;
 }
 .quest-small .point-won {
   height: 87px;
@@ -427,7 +502,9 @@ a.no-underline {
   width: 59px;
 }
 .quest-small .point-won div {
-  padding: 21px 20px 0px 0px;
+  /*padding: 21px 21px 0px 0px;*/
+  padding: 16px 21px 0px 0px;
+  font-size: 24pt;
 }
 .quest-big .point-won {
   height: 120px;
@@ -436,8 +513,9 @@ a.no-underline {
   width: 93px;
 }
 .quest-big .point-won div {
-  padding: 34px 29px 0px 0px;
-  font-size: 27pt;
+  /*padding: 34px 33px 0px 0px;*/
+  padding: 27px 33px 0px 0px;
+  font-size: 36pt;
 }
 .quest-add-button {
   width: 84px;
@@ -457,6 +535,9 @@ a.no-underline {
   margin-right: 24px;
   display: inline-block;
 }
+.user-card .subtitle3 {
+  line-height: inherit;
+}
 .user-card-small {
   width: 84px;
 }
@@ -464,7 +545,7 @@ a.no-underline {
   width: 100px;
 }
 .user-small-with-title {
-  height: 123px;
+  height: 132px;
 }
 .user-card>div:first-child {
   width: 100%;
@@ -473,7 +554,7 @@ a.no-underline {
   background-color: #0F2A3C;
 }
 .user-card-small>div:first-child {
-  height: 84px;
+  height: 80px;
 }
 .user-card-medium>div:first-child {
   height: 100px;
@@ -497,7 +578,7 @@ a.no-underline {
   height: 28px;
 }
 .user-small-with-title.user-card-small .profile-item-creator, .user-small-with-title.user-card-small .profile-item-level {
-  height: 62px;
+  height: 77px;
 }
 .user-card-medium .profile-item-creator img {
   width: 30px;
@@ -506,7 +587,7 @@ a.no-underline {
   height: 34px;
 }
 .user-small-with-title.user-card-small .profile-item-creator, .user-small-with-title.user-card-small .profile-item-level {
-  height: 62px;
+  height: 77px;
 }
 .user-card-big .profile-item-creator img {
   width: 32px;
@@ -536,6 +617,10 @@ a.no-underline {
   padding-top: 13px;
   border-radius: 50%;
 }
+.user-card-name {
+  white-space: normal;
+  line-height: 1.3em;
+}
 
 /////////////////////////////// TAB CSS /////////////////////////////////////
 
@@ -546,6 +631,8 @@ a.no-underline {
   border: 1px solid #fff;
   border-radius: 4px;
   margin: 0 4px;
+}
+.tab-button.subtitle6 {
   padding-top: 2px;
 }
 .tab-unselected .tab-button {
@@ -641,13 +728,16 @@ a.no-underline {
   width: 100%;
   white-space: normal;
 }
+.badge-alone {
+  width: 100px;
+}
 .main-profile {
   margin: 80px auto 20px auto;
 }
 .main-quest-banner {
   position: absolute;
   bottom: 0;
-  height: 33vh;
+  min-height: 33vh;
   background-color: rgba(0, 0, 0, 0.2);
   width: 100%;
 }
@@ -695,7 +785,8 @@ a.no-underline {
   width: 84px;
 }
 .quest-score div {
-  bottom: 29px;
+  /*bottom: 29px;*/
+  bottom: 35px;
   left: 17px;
   font-size: 32pt;
   color: #fcecba;
@@ -712,6 +803,13 @@ a.no-underline {
   padding-left: 21px;
   background-repeat: no-repeat;
   background-image: url(/statics/images/icon/place.svg);
+  background-size: 16px;
+  background-position-y: 10px;
+}
+.quest-ranking {
+  padding-left: 21px;
+  background-repeat: no-repeat;
+  background-image: url(/statics/images/icon/medal.svg);
   background-size: 16px;
   background-position-y: 10px;
 }
@@ -748,6 +846,7 @@ a.no-underline {
   text-align: center;
   position: absolute;
   height: 27px;
+  line-height: 1em;
 }
 .progress-box .score {
   width: 100%;
@@ -770,7 +869,8 @@ a.no-underline {
   margin-left: 32px;
 }
 .level-to-reach div {
-  padding-top: 11px;
+  /*padding-top: 11px;*/
+  padding-top: 6px;
   height: 50px;
   text-align: center;
 }
@@ -783,7 +883,7 @@ a.no-underline {
 }
 .grey-round-box.icons img {
   height: 32px;
-  vertical-align: bottom;
+  vertical-align: top;
 }
 .rank-box {
   padding-left: 24px;
@@ -791,6 +891,44 @@ a.no-underline {
 }
 .force-justify-start {
   justify-content: start
+}
+.header-point img {
+  width: 155px;
+}
+.header-point div {
+  margin-top: -120px;
+  font-size: 47pt;
+  line-height: 1em;
+  color: #fcecba;
+}
+.header-point-box .rounded {
+  top: 143px;
+}
+.header-point-box {
+  height: 375px;
+}
+.end-rating i {
+  margin-left: 12px;
+  margin-right: 12px;
+}
+.q-loading svg {
+  background: url(/statics/images/other/spinner.gif) no-repeat;
+  background-size: 80px 80px;
+}
+.q-loading .q-spinner-mat {
+  webkit-animation: none;
+  animation: none;
+}
+.step-menu {
+  z-index: 2000;
+}
+.reward {
+  width: 50%
+}
+.reward.disabled {
+  filter: brightness(100);
+  -webkit-filter: brightness(100);
+  -moz-filter: brightness(100);
 }
 
 /////////////////////////////// page CSS /////////////////////////////////////
@@ -859,50 +997,14 @@ span .q-icon {
     bottom: 70px !important;
 }
 
-/////////////////////////////// Menus CSS /////////////////////////////////////
-
-.menu {
-  width: 100%;
-  height: 120px;
-  z-index: 5000;
-  background-color: rgba(0, 0, 0, .2)
-}
-.menu>div {
-  padding-top: 20px;
-}
-.menu>div:first-child, .menu>div:last-child {
-  padding-top: 35px;
-}
-.menu-background {
-  background: #000;
-  opacity: 0.2;
-}
 .over-map {
   z-index: 6000;
 }
-
-/////////////////////////////// Tabs CSS /////////////////////////////////////
-
-.q-tab-panel {
-  border: 0px;
-  padding: 0.6rem 0.6rem 100px 0.6rem; /* Quasar default padding takes too much space + add 100px to avoid bottom information to be hidden by menu */
-}
-.step-menu .q-tabs-normal .q-tab-icon, .step-menu .q-tabs-normal .q-tab-label {
-  opacity: 0.9 !important;
-}
 .disabled, [disabled] {
-  opacity: 0.9 !important;
-}
-.step-menu {
-  position: fixed !important;
-  z-index: 2000;
+  opacity: 0.5 !important;
 }
 .hide-img img {
   display: none;
-}
-.q-tabs.two-lines .q-tab {
-  white-space: normal;
-  min-width: 85px;
 }
 
 /////////////////////////////// Images CSS /////////////////////////////////////
@@ -1115,24 +1217,6 @@ span .q-icon {
   user-select: none;
 }
 
-/////////////////////////////// Dialog /////////////////////////////////////
-
-/*
- * MP 2019-11-15
- * fix quasar issue with "maximized" property on <q-dialog>, which can prevent scrolling on Android
- * tried to prevent scrolling "above limits" on iOS, using those solutions https://stackoverflow.com/a/39821505/488666, but no luck
- */
-.q-dialog__inner--maximized {
-  overflow-y: scroll;
-  padding: 0.5rem; /* nicer layout / UI */
-}
-.q-dialog__inner--maximized > div {
-  overflow-y: scroll;
-}
-.q-dialog.fullscreen {
-  /* 7003 to be over the stories, especially when user pass the tutorial */
-  z-index: 7003;
-}
 
 /////////////////////////////// Other CSS /////////////////////////////////////
 
@@ -1418,10 +1502,11 @@ span .q-icon {
 }
 /* fix for missing vertical scrolling at end.vue, only for android
 note that .platform-android selector targets both webapp (Chrome) & hybrid on android
-WARNING: introduces bad scrolling behaviors on iOS webapp (Safari) & hybrid */
+WARNING: introduces bad scrolling behaviors on iOS webapp (Safari) & hybrid 
 .platform-android .q-layout, .platform-android .q-page-container, .desktop .q-layout, .desktop .q-page-container {
   overflow-y: scroll;
 }
+*/
 .version {
   padding: 20px;
   opacity: 0.4;

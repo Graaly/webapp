@@ -52,7 +52,7 @@
      
       <!------------------ HEADER COMPONENT ------------------------>
       
-      <div class="q-py-sm dark-banner opaque-banner fixed-top">
+      <div class="q-py-sm q-px-md dark-banner opaque-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         <div class="row q-pa-sm">
           <div class="col-6" @click="selectTab('played')" :class="{'tab-unselected': (tab !== 'played')}">
@@ -176,7 +176,7 @@ export default {
      * Manage back to the map button
      */
     backToTheMap () {
-      this.$router.push('/map')
+      this.$router.back()
     }
   }
 }

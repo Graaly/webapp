@@ -2,7 +2,7 @@
   <div class="scroll" :class="{'bg-white': !chapters.showNewStepOverview}">
     <!------------------ NEW RELEASE BUTTON ---------->
     <div v-if="!chapters.showNewStepOverview" class="settings-bar background-dark">
-      <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/map'}" class="float-right no-underline close-btn q-pa-sm"><q-icon name="close" class="subtitle1" /></router-link>
+      <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/profile/me'}" class="float-right no-underline close-btn q-pa-sm"><q-icon name="close" class="subtitle1" /></router-link>
       
       <div v-if="readOnly && (quest.status === 'published' || quest.status === 'unpublished')" class="centered bg-secondary text-white q-pa-md" @click="createNewVersion()">
         {{ $t('label.ClickHereToCreateANewQuestVersion') }}
@@ -559,6 +559,15 @@
           </q-item-section>
         </q-item>
         
+        <q-item>
+          <q-item-section side top>
+            <q-icon name="delete" class="left-icon" />
+          </q-item-section>
+          <q-item-section>
+            <q-btn color="primary" class="glossy large-button" @click="duplicateQuest()" :label="$t('label.DuplicateThisQuest')" />
+          </q-item-section>
+        </q-item>
+        
         <q-item v-if="quest.status !== 'published'">
           <q-item-section side top>
             <q-icon name="delete" class="left-icon" />
@@ -584,6 +593,7 @@
         <q-item-section v-if="statistics && statistics.statistics">
           <q-item-label class="big-label">{{ $t('label.Statistics') }}</q-item-label>
           <p>{{ $t('label.TotalNumberOfPlayers') }}{{ $t('label.colons') }}{{ statistics.statistics.nbPlayers }}</p>
+          <p>{{ $t('label.TotalNumberOfPlaysNotFinished') }}{{ $t('label.colons') }}{{ statistics.statistics.notFinished }}</p>
           <p>{{ $t('label.NumberOfPlayersYesterday') }}{{ $t('label.colons') }}{{ statistics.statistics.dailyNbPlayers }}</p>
           <p v-if="statistics && statistics.statistics && statistics.statistics.ageRepartition && statistics.statistics.ageRepartition.length > 0">
             {{ $t('label.NumberOfPlayersByAge') }}
@@ -1564,8 +1574,8 @@ export default {
      * Submit settings changes
      */
     async submitSettings() {
-      // start location must be defined
-      if (this.form.fields.location.lat === 0 || this.form.fields.location.lng === 0) {
+      // start location must be defined (only for public quests)
+      if (this.quest.access === 'public' && (this.form.fields.location.lat === 0 || this.form.fields.location.lng === 0)) {
         Notification(this.$t('label.YouMustDefineStartLocation'), 'warning')
         return
       }
@@ -1771,7 +1781,7 @@ export default {
     fillLocation(pos) {
       this.form.fields.location = {lat: pos.coords.latitude, lng: pos.coords.longitude}
       // get the address
-      var geocoder = new google.maps.Geocoder();
+      var geocoder = new google.maps.Geocoder()
       geocoder.geocode({'location': {lat: pos.coords.latitude, lng: pos.coords.longitude}}, (results, status) => {
         this.$q.loading.hide()
         if (status === 'OK' && results[0].formatted_address) {
@@ -1989,8 +1999,27 @@ export default {
       }).onOk(async () => {
         await QuestService.remove(_this.questId, _this.quest.version)
         // TODO: manage when remove failed
-        this.$router.push('/map')
+        this.$router.push('/home')
       })
+    },
+    /*
+     * Duplicate the quest
+     */
+    async duplicateQuest() {
+      const response = await QuestService.clone(this.questId, this.quest.version)
+      
+      if (response && response.data && response.data.newId) {
+        const questId = response.data.newId
+        var _this = this
+        
+        this.$q.dialog({
+          message: this.$t('label.DoYouWantToOpenClonedQuest'),
+          ok: true,
+          cancel: true
+        }).onOk(async () => {
+          _this.$router.push('/quest/settings/' + questId)
+        })
+      }
     },
     /*
      * Remove a step

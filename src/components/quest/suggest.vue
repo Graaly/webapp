@@ -1,61 +1,64 @@
 <template>
-  <div class="q-pa-md">
-    <h1 class="size-3">{{ $t('label.SuggestAQuest') }}</h1>
-    <p>{{ $t('label.SuggestAQuestDesc') }}</p>
-    
-    <form @submit.prevent="submitSuggestion()">
-      <q-item>
-        <q-item-section side top>
-          <q-icon name="room" class="left-icon" />
-        </q-item-section>
-        <q-item-section>
+  <div class="q-pt-lg">
+    <div class="q-pa-md bg-grey-8">
+      <div class="subtitle4 centered">{{ $t('label.SuggestAQuest') }}</div>
+      <div class="subtitle6 q-py-md">{{ $t('label.SuggestAQuestDesc') }}</div>
+      
+      <form @submit.prevent="submitSuggestion()">
 
-          <q-input
-            v-model="place.name"
-            :label="$t('label.NameOfThePlace')"
-            :placeholder="$t('label.NameOfThePlaceExample')"
-            maxlength="50"
-            bottom-slots
-            />
-          <q-input
-            v-model="place.address"
-            :label="$t('label.Address')"
-            maxlength="100"
-            bottom-slots
-            />
-          <q-input
-            v-model="place.postalCode"
-            :label="$t('label.ZipCode')"
-            maxlength="10"
-            bottom-slots
-            />
-          <q-input
-            v-model="place.city"
-            :label="$t('label.Town')"
-            maxlength="50"
-            bottom-slots
-            />
-          <q-input
-            v-model="place.country"
-            :label="$t('label.Country')"
-            maxlength="50"
-            bottom-slots
-            />
-          <q-input
-            v-model="place.contact"
-            :label="$t('label.SuggestContactInformation')"
-            :placeholder="$t('label.SuggestContactInformationExample')"
-            maxlength="50"
-            bottom-slots
-            />
-          <q-btn color="primary" class="full-width" @click="submitSuggestion()">{{ $t('label.Send') }}</q-btn>
-          <div class="centered q-pt-md">
-            <a color="primary" class="text-primary" @click="emitClose()">{{ $t('label.Cancel') }}</a>
-          </div>
-          <p>{{ $t('label.SuggestWarningMessage') }}</p>
-        </q-item-section>
-      </q-item>
-    </form>
+        <q-input
+          dark
+          v-model="place.name"
+          :label="$t('label.NameOfThePlace')"
+          :placeholder="$t('label.NameOfThePlaceExample')"
+          maxlength="50"
+          bottom-slots
+          />
+        <q-input
+          dark
+          v-model="place.address"
+          :label="$t('label.Address')"
+          maxlength="100"
+          bottom-slots
+          />
+        <q-input
+          dark
+          v-model="place.postalCode"
+          :label="$t('label.ZipCode')"
+          maxlength="10"
+          bottom-slots
+          />
+        <q-input
+          dark
+          v-model="place.city"
+          :label="$t('label.Town')"
+          maxlength="50"
+          bottom-slots
+          />
+        <q-input
+          dark
+          v-model="place.country"
+          :label="$t('label.Country')"
+          maxlength="50"
+          bottom-slots
+          />
+        <q-input
+          dark
+          v-model="place.contact"
+          :label="$t('label.SuggestContactInformation')"
+          :placeholder="$t('label.SuggestContactInformationExample')"
+          maxlength="50"
+          bottom-slots
+          />
+        <div class="centered">
+          <q-btn color="primary" class="glossy large-button" @click="submitSuggestion()">{{ $t('label.Send') }}</q-btn>
+        </div>
+        <div class="centered q-pt-md">
+          <a @click="emitClose()">{{ $t('label.Cancel') }}</a>
+        </div>
+        <p class="subtitle6">{{ $t('label.SuggestWarningMessage') }}</p>
+      </form>
+    </div>
   </div>
 </template>
 

@@ -110,8 +110,8 @@
         </div>
         <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
-            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('label.Clear') }}</q-btn>
-            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
+            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
         </div>
       </div>
@@ -128,7 +128,7 @@
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
-            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
         </div>
       </div>
@@ -160,7 +160,7 @@
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
-            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
         </div>
       </div>
@@ -203,8 +203,14 @@
         </div>
         <div class="answer-text">
           <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
-          <input v-bind:value="writetext.playerAnswer" v-on:input="writetext.playerAnswer = $event.target.value" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" :disabled="stepPlayed" />
-          <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" class="full-width" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
+          <input 
+            class="subtitle6" 
+            v-bind:value="writetext.playerAnswer" 
+            v-on:input="writetext.playerAnswer = $event.target.value" 
+            :placeholder="$t('label.YourAnswer')" 
+            :class="{right: playerResult === true, wrong: playerResult === false}" 
+            :disabled="stepPlayed" />
+          <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer"><div>{{ $t('label.ConfirmTheAnswer') }}</div></q-btn>
         </div>
       </div>
       
@@ -328,9 +334,10 @@
           <div>
             <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
           </div>
-          <div v-if="!step.options || !step.options.fullWidthPicture" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
+          <div v-if="!step.options || (!step.options.fullWidthPicture && !step.options.redFilter)" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
           </div>
-          <img v-if="step.options && step.options.fullWidthPicture" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985;" />
+          <img v-if="step.options && step.options.fullWidthPicture && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985;" />
+          <img v-if="step.options && step.options.redFilter" src="statics/images/background/red.png" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985; mix-blend-mode: multiply;" />
         </div>
       </div>
       
@@ -360,7 +367,7 @@
           {{ $t('label.ScanTheMarkersLikeThat') }}
           <div><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
           {{ $t('label.ScanTheMarkersLikeThat2') }}
-          <div><q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="startScanQRCode()">{{ $t('label.LaunchTheScanner') }}</q-btn></div>
+          <div><q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="startScanQRCode()"><div>{{ $t('label.LaunchTheScanner') }}</div></q-btn></div>
         </div>
         <div v-if="!locateMarker.compliant">
           {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
@@ -385,8 +392,8 @@
     
     <!--====================== WIN POINTS ANIMATION =================================-->
     
-    <div v-show="playerResult === true && score > 1" class="fadein-message">+{{ score }} <!--<q-icon color="white" name="fas fa-trophy" />--></div>
-    <div v-show="playerResult === true && score === 1" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
+    <!--<div v-show="playerResult === true && score >= 1" class="fadein-message">+{{ score }}</div>-->
+    <div v-show="playerResult === true && score >= 1" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
     
     <!--====================== STORY =================================-->
@@ -400,7 +407,7 @@
     <q-dialog v-model="enlargePicture.show">
       <div class="bg-white centered q-pa-md">
         <img style="width: 100%" :src="enlargePicture.url">
-        <q-btn class="q-mb-xl" color="primary" @click="enlargePicture.show = false">{{ $t('label.Close') }}</q-btn>
+        <q-btn class="q-mb-xl glossy large-button" color="primary" @click="enlargePicture.show = false"><div>{{ $t('label.Close') }}</div></q-btn>
       </div>
     </q-dialog>
     
@@ -3369,7 +3376,7 @@ console.log("check2")
   /* write-text specific */
   
   .answer-text { flex-grow: 1; display: flex; flex-flow: column nowrap; justify-content: center; }
-  .answer-text input { opacity: 0.7; font-size: 1.5em; font-weight: bold; height: 1.5em; background-color: #fff; border-radius: 0.5rem; box-shadow: 0px 0px 0.1rem 0.1rem #fff;}
+  .answer-text input { opacity: 0.7; font-family: arial; font-size: 1.5em; font-weight: bold; height: 1.5em; background-color: #fff; border-radius: 0.5rem; box-shadow: 0px 0px 0.1rem 0.1rem #fff;}
     
   /* new-item specific */
   
@@ -3389,7 +3396,7 @@ console.log("check2")
   
   .image-over-flow { background: transparent; padding: 0px !important; }
   .image-over-flow video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-  .image-over-flow .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
+  .image-over-flow .text { z-index: 5000; position: relative; } /* positioning is required to have z-index working */
   .image-over-flow .image { z-index: 50; position: relative; } /* positioning is required to have z-index working */
   
   /* locate-marker specific */

@@ -205,7 +205,7 @@ module.exports = function (ctx) {
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
-        theme_color: '#e82a34',
+        theme_color: '#323232',
         icons: [
           {
             "src": "/statics/icons/app-logo/icon-48x48.png",
@@ -231,7 +231,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: "1.8.8"
+      version: "1.9.0"
       // id: 'org.cordova.quasar.app'
     },
     electron: {

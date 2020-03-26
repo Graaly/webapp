@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div v-if="offline.progress > 0 && offline.progress < 1" class="bg-secondary centered fixed-bottom q-pa-md q-pb-lg q-pt-lg">
-      <div v-if="design === 'prepare' && !error.raised">{{ $t('label.LoadingQuestDataForOfflineMode') }}</div>
-      <div v-if="design === 'download' && !error.raised">{{ $t('label.Downloading') }} {{quest.title.fr}}</div>
-      <div v-if="!error.raised">
-        <q-linear-progress color="primary" stripe style="height: 10px" :value="offline.progress" />
+    <div v-if="offline.progress > 0 && offline.progress < 1" class="centered q-pa-md q-pb-lg q-pt-lg">
+      <div v-if="design === 'prepare' && !error.raised" class="subtitle5 text-grey-6">{{ $t('label.LoadingQuestDataForOfflineMode') }}</div>
+      <div v-if="design === 'download' && !error.raised" class="subtitle5 text-grey-6">{{ $t('label.Downloading') }}</div>
+      <div v-if="!error.raised" class="q-pa-md">
+        <q-linear-progress color="primary" track-color="grey-1" style="height: 5px" :value="offline.progress" />
         <a class="text-white" @click="cancelOfflineLoading()">{{ $t('label.Cancel') }}</a>
       </div>
       <div v-if="error.raised && error.nb < 2" @click="saveOfflineQuest(quest)">
@@ -58,16 +58,17 @@ export default {
       
       // check if quest is not already loaded
       const isQuestOfflineLoaded = await QuestService.isCached(quest.questId)
-      
+   
       if (!isQuestOfflineLoaded) {
         this.offline.progress = 0.1
         await this.saveQuestData(quest)
         this.offline.progress = 0.1
+        this.$emit('end')
       } else {
         this.offline.progress = 1
+        var _this = this
+        setTimeout(function() { _this.$emit('end') }, 7000)
       }
-      
-      this.$emit('end')
     },
     /*
      * Add the quest in the offline quests list
@@ -146,11 +147,9 @@ export default {
               this.throwSaveError()
               return false
             }
-            this.offline.progress += 0.1
-          } else {
-            this.offline.progress += 0.1
           }
-          
+          this.offline.progress += 0.1
+     
           // save customized hint character
           if (quest.customization && quest.customization.character && quest.customization.character !== '') {
             await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/', quest.customization.character)

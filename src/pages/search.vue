@@ -35,7 +35,7 @@
       <!------------------ HEADER COMPONENT ------------------------>
       
       <q-scroll-observer @scroll="onScroll" />
-      <div class="q-py-sm dark-banner opaque-banner fixed-top">
+      <div class="q-py-sm q-px-md dark-banner opaque-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         <div class="row q-pa-sm">
           <div class="col-4" @click="selectType('quest')" :class="{'box-unselected': (type !== 'quest')}">
@@ -80,7 +80,7 @@
         <div>
           <q-input
             dark
-            class="q-px-md"
+            class="q-px-md arial"
             v-model="search.text"
             debounce="500"
             :placeholder="$t('label.Search')"
@@ -145,7 +145,6 @@ export default {
     }
     // wait for location of around request
     if (this.subtype !== 'around') {
-      this.findQuestWhenLocationIsKnown = false
       this.find()
     }
   },
@@ -250,11 +249,14 @@ export default {
           } else if (this.subtype === 'around') {
             response = await QuestService.listNearest(userPosition, 0)
           } else if (this.subtype === 'friends') {
-            // TODO : replace with friends quest
-            response = await QuestService.find(this.search.text, userPosition)
+            response = await QuestService.listFriendQuests()
           }
           if (response && response.data) {
-            this.results.quests = response.data
+            if (this.subtype === 'friends') {
+              this.results.quests = this.formatRunResults(response.data)
+            } else {
+              this.results.quests = response.data
+            }
             this.search.skip = response.data.length
 
             // compute distance
@@ -298,7 +300,16 @@ export default {
             }
           })
         } else if (this.subtype === 'friends') {
-          // TODO
+          QuestService.listFriendQuestsync(null, this.search.skip, function(err, response) {
+            self.search.skip += self.search.limit
+            if (err) {
+              done(err)
+            }
+            if (response && response.data && response.data.length > 0) {
+              self.results.quests = self.results.quests.concat(this.formatRunResults(response.data))
+              done()
+            }
+          })
         } else {
           QuestService.findSync(this.search.text, this.user.position, null, this.search.skip, function(err, response) {
             self.search.skip += self.search.limit
@@ -313,6 +324,22 @@ export default {
         }
       }
     },
+    formatRunResults(results) {
+      var formatedResults = []
+      for (var i = 0; i < results.length; i++) {
+        formatedResults.push({
+          questId: results[i].questId,
+          picture: results[i].questData.picture,
+          title: results[i].questData.title,
+          location: {
+            town: results[i].questData.town
+          },
+          playStatus: results[i].status ? results[i].status : 'succeeded',
+          points: results[i].stars
+        })
+      }
+      return formatedResults
+    },
     displayNetworkIssueMessage() {
       this.$q.dialog({
         title: this.$t('label.TechnicalProblem'),
@@ -322,6 +349,7 @@ export default {
     async onLocationSuccess(position) {
       this.$set(this.user, 'position', position.coords)
       if (this.findQuestWhenLocationIsKnown) {
+        this.findQuestWhenLocationIsKnown = false
         await this.find()
       }
     },
@@ -338,7 +366,7 @@ export default {
      * Manage back to the map button
      */
     backToTheMap () {
-      this.$router.push('/map')
+      this.$router.back()
     }
   }
 }

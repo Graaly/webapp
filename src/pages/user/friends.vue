@@ -3,7 +3,7 @@
     <div id="teaser q-mb-lg q-pt-xl">
       <div style="margin-top: 120px">
         <q-infinite-scroll @load="loadFriends" :offset="250" v-if="tab === 'follow'">
-          <usersList format='list' :add="$store.state.user.id === $route.params.id ? true : false" :users="users"></usersList>
+          <usersList format='list' :add="$store.state.user.id === $route.params.id ? true : false" :users="users" @refresh="reloadFriends"></usersList>
         </q-infinite-scroll>
         <q-infinite-scroll @load="loadSuggestions" :offset="250" v-if="tab === 'suggestion' && user.position !== null">
           <usersList format='list' :add="false" :users="suggestions"></usersList>
@@ -15,7 +15,7 @@
         
       <!------------------ HEADER COMPONENT ------------------------>
       
-      <div class="q-py-sm dark-banner opaque-banner fixed-top">
+      <div class="q-py-sm q-px-md dark-banner opaque-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         <div v-if="$store.state.user.id === $route.params.id" class="row q-pa-sm">
           <div class="col-6" @click="selectTab('follow')" :class="{'tab-unselected': (tab !== 'follow')}">
@@ -61,6 +61,7 @@ export default {
         position: null
       },
       suggestions: null,
+      suggestionType: 'followers',
       skip: 0,
       limit: 12,
       tab: 'follow',
@@ -71,13 +72,16 @@ export default {
 
   },
   methods: {
+    async reloadFriends() {
+      this.skip = 0
+      await this.loadFriends(0, function () {}) 
+    },
     /*
      * List friends
      */
     async loadFriends(index, done) {
       var self = this
       UserService.listFriendsSync(0, this.skip, this.limit, function(err, response) {
-        self.skip += self.limit
         if (self.users === null) {
           self.users = []
         }
@@ -85,6 +89,7 @@ export default {
           done(err)
         }
         if (response && response.data && response.data.length > 0) {
+          self.skip += self.limit
           self.users = self.users.concat(response.data)
           done()
         }
@@ -95,19 +100,39 @@ export default {
      */
     async loadSuggestions(index, done) {
       var self = this
-      UserService.listSuggestionsSync({ lng: this.user.position.longitude, lat: this.user.position.latitude }, this.limit, this.skip, function(err, response) {
-        self.skip += self.limit
-        if (self.suggestions === null) {
-          self.suggestions = []
-        }
-        if (err) {
-          done(err)
-        }
-        if (response && response.data && response.data.length > 0) {
-          self.suggestions = self.suggestions.concat(response.data)
-          done()
-        }
-      })
+      if (this.suggestionType === 'near') {
+        UserService.listSuggestionsSync({ lng: this.user.position.longitude, lat: this.user.position.latitude }, this.limit, this.skip, function(err, response) {
+          self.skip += self.limit
+          if (self.suggestions === null) {
+            self.suggestions = []
+          }
+          if (err) {
+            done(err)
+          }
+          if (response && response.data && response.data.length > 0) {
+            self.suggestions = self.suggestions.concat(response.data)
+            done()
+          }
+        })
+      } else {
+        UserService.listFollowersSync(this.limit, this.skip, function(err, response) {
+          if (self.suggestions === null) {
+            self.suggestions = []
+          }
+          if (err) {
+            done(err)
+          }
+          if (response && response.data && response.data.length > 0) {
+            self.skip += response.data.length
+            self.suggestions = self.suggestions.concat(response.data)
+            done()
+          }
+          if (!(response && response.data && response.data.length > 0) || response.data.length < self.limit) {
+            self.suggestionType = 'near'
+            self.loadSuggestions(index, done)
+          }
+        })
+      }
     },
     async onLocationSuccess(position) {
       this.$set(this.user, 'position', position.coords)
@@ -129,7 +154,7 @@ export default {
      * Manage back to the map button
      */
     backToTheMap () {
-      this.$router.push('/map')
+      this.$router.back()
     }
   }
 }

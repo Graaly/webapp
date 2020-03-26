@@ -1,7 +1,7 @@
 <template>
   <div class="scroll background-dark">
     <div id="teaser q-mb-lg">
-      <div class="q-py-sm dark-banner fixed-top">
+      <div class="q-py-sm q-px-md dark-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         <q-btn flat v-if="$store.state.user.id === $route.params.id" class="float-right" icon="settings" @click="updateProfile()" />
       </div>
@@ -83,14 +83,14 @@
         
         </div>
       </div>-->
-      <div v-if="$store.state.user.id === $route.params.id">
+      <div v-if="$store.state.user.id === userId">
         <!--====================== QUESTS CREATED BY CURRENT USER =================================-->
         
         <titleBar :title="{text: $t('label.EscapeGames'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
 
         <questsList format="small" color="red" :add="true" :quests="quests.built"></questsList>
       </div>
-      <div v-if="$store.state.user.id !== $route.params.id">
+      <div v-if="$store.state.user.id !== userId">
         <!--====================== QUESTS CREATED BY OTHER USER =================================-->
         
         <titleBar :title="{text: $t('label.EscapeGames'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
@@ -111,14 +111,14 @@
 
         <questsList format="small" :quests="quests.played"></questsList>
       </div>
-      <div v-if="friends.list === null || friends.list.length > 0">
+      <div v-if="friends.list === null || friends.list.length > 0 || $store.state.user.id === userId">
         <!--====================== FRIENDS =================================-->
         
         <titleBar :title="{text: $t('label.YouFollowThem'), type: 'friend'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAllFriends"></titleBar>
         
-        <usersList format="scroll" :add="$store.state.user.id === $route.params.id ? true : false" :users="friends.list"></usersList>
+        <usersList format="scroll" :add="$store.state.user.id === userId ? true : false" :users="friends.list" @refresh="loadFriends"></usersList>
       </div>
-      <div v-if="$store.state.user.id === $route.params.id">
+      <div v-if="$store.state.user.id === userId">
         <div class="centered q-mt-xl q-mb-sm"><a @click="disconnect()">{{ $t('label.SignOut') }}</a></div>
         <div class="centered q-mb-sm" v-html="$t('label.TermsAndConditionsLink')"></div>
         <div class="centered q-mb-xl" v-html="$t('label.PrivacyPolicyLink')"></div>
@@ -151,6 +151,7 @@ export default {
         position: null,
         proposeAQuest: true
       },
+      userId: null,
       friends: {
         list: null,
         show: false
@@ -169,16 +170,22 @@ export default {
     }
   },
   mounted() {
+    if (this.$route.params.id === 'me') {
+      this.userId = this.$store.state.user.id
+    } else {
+      this.userId = this.$route.params.id
+    }
+
     // Get data of the user
-    this.getProfile(this.$route.params.id)
+    this.getProfile()
     // get list of quests created by the user
-    this.listCreatedQuests(this.$route.params.id)
+    this.listCreatedQuests()
     // get the list of qusts played by the user
-    this.listPlayedQuests(this.$route.params.id)
+    this.listPlayedQuests()
     // get friends of the user
-    this.loadFriends(this.$route.params.id)
+    this.loadFriends()
     // get badges
-    this.loadBadges(this.$route.params.id)
+    this.loadBadges()
     // get organisation of the user
     //await this.loadOrganization()
   },
@@ -187,8 +194,8 @@ export default {
      * Get the user informations
      * @param   {string}    id            ID of the user
      */
-    async getProfile(id) {
-      if (id === this.$store.state.user.id) {
+    async getProfile() {
+      if (this.userId === this.$store.state.user.id) {
         this.user = {
           name: this.$store.state.user.name,
           email: this.$store.state.user.email,
@@ -212,7 +219,7 @@ export default {
           this.profile.userCanChangePassword = false
         }*/
       } else {
-        let friend = await UserService.getFriend(id)
+        let friend = await UserService.getFriend(this.userId)
         if (friend && friend.data) {
           this.user = friend.data
         }
@@ -223,11 +230,8 @@ export default {
      * @param   {string}    id            ID of the user
      */
     async listCreatedQuests(id) {
-      if (!id) {
-        id = this.$store.state.user._id
-      }
       this.warnings.listCreatedQuestsMissing = false
-      var response = await QuestService.ListCreatedByAUser(id)
+      var response = await QuestService.ListCreatedByAUser(this.userId)
       /*this.quests.built = {
         rejected: [],
         tovalidate: [],
@@ -260,33 +264,34 @@ export default {
      * Get the list of the quests played by the user
      * @param   {string}    id            ID of the user
      */
-    async listPlayedQuests(id) {
-      if (!id) {
-        id = this.$store.state.user._id
-      }
-      let response = await QuestService.ListPlayedByAUser(id)
+    async listPlayedQuests() {
+      let response = await QuestService.ListPlayedByAUser(this.userId)
       if (response && response.data) {
-        this.quests.played = []
-        for (var i = 0; i < response.data.length; i++) {
-          this.quests.played.push({
-            questId: response.data[i].questId,
-            picture: response.data[i].questData.picture,
-            title: response.data[i].questData.title,
-            location: {
-              town: response.data[i].questData.town
-            },
-            playStatus: response.data[i].status ? response.data[i].status : 'succeeded',
-            points: response.data[i].stars
-          })
-        }
+        this.quests.played = this.formatRunResults(response.data)
       }
+    },
+    formatRunResults(results) {
+      var formatedResults = []
+      for (var i = 0; i < results.length; i++) {
+        formatedResults.push({
+          questId: results[i].questId,
+          picture: results[i].questData.picture,
+          title: results[i].questData.title,
+          location: {
+            town: results[i].questData.town
+          },
+          playStatus: results[i].status ? results[i].status : 'succeeded',
+          points: results[i].stars
+        })
+      }
+      return formatedResults
     },
     /*
      * List friends
      */
-    async loadFriends(id) {
+    async loadFriends() {
       this.warnings.listFriendsMissing = false
-      let response = await UserService.listFriends(id, 0, 10)
+      let response = await UserService.listFriends(this.userId, 0, 10)
       
       if (response && response.data) {
         this.friends.list = response.data
@@ -297,8 +302,8 @@ export default {
     /*
      * List badges
      */
-    async loadBadges(id) {
-      const response = await UserService.getRewards(id, 'won')
+    async loadBadges() {
+      const response = await UserService.getRewards(this.userId, 'won')
       if (response && response.data) {
         this.badges = response.data
       }
@@ -318,7 +323,7 @@ export default {
      * Follow a user
      */
     async follow () {
-      let addFriendStatus = await UserService.addFriend(this.$route.params.id)
+      let addFriendStatus = await UserService.addFriend(this.userId)
 
       if (addFriendStatus) {
         if (addFriendStatus.data && addFriendStatus.data.hasOwnProperty('status') && addFriendStatus.data.status === 'invitationsent') {
@@ -336,31 +341,35 @@ export default {
      * Display all quests published
      */
     async readMoreQuestPublished() {
-      this.$router.push('/user/' + this.$route.params.id + '/quests/created')
+      this.$router.push('/user/' + this.userId + '/quests/created')
     },
     /*
      * Display all quests played
      */
     async readMoreQuestPlayed() {
-      this.$router.push('/user/' + this.$route.params.id + '/quests/played')
+      this.$router.push('/user/' + this.userId + '/quests/played')
     },
     /*
      * Display all the badges
      */
     async readMoreBadges() {
-      this.$router.push('/user/' + this.$route.params.id + '/badges')
+      this.$router.push('/user/' + this.userId + '/badges')
     },
     /*
      * Manage back to the map button
      */
     backToTheMap () {
-      this.$router.push('/map')
+      if (this.userId === this.$store.state.user.id) {
+        this.$router.push('/home')
+      } else {
+        this.$router.back()
+      }
     },
     /*
      * List all friends
      */
     readMoreAllFriends() {
-      this.$router.push('/user/' + this.$route.params.id + '/friends')
+      this.$router.push('/user/' + this.userId + '/friends')
     },
     /*
      * get profile image
@@ -390,7 +399,7 @@ export default {
      * Stop following a friend
      */
     async removeFriend () {    
-      const friendId = this.$route.params.id
+      const friendId = this.userId
       this.$q.dialog({
         message: this.$t('label.AreYouSureYouWantToRemoveThisFriend'),
         ok: true,

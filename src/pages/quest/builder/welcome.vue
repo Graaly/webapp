@@ -183,8 +183,8 @@
       
       <!------------------ HEADER COMPONENT ------------------------>
       
-      <div class="q-py-sm dark-banner opaque-banner fixed-top">
-        <q-btn flat icon="arrow_back" @click="backToTheMap()" />
+      <div class="q-py-sm q-px-md dark-banner opaque-banner fixed-top">
+        <q-btn flat icon="arrow_back" @click="cancel()" />
       </div>
     </div>
   </div>
@@ -335,7 +335,7 @@ export default {
      * Cancel creation
      */
     async cancel() {
-      this.$router.push('/map')
+      this.$router.push('/profile/me')
     },
     /*
      * Back to user type selection

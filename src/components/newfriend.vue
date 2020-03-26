@@ -1,17 +1,8 @@
 <template>
   <div>
-    <div v-if="canFindContacts">
-      <q-tabs v-model="newFriendTab" class="bg-primary text-white">
-        <q-tab name="suggestions" :label="$t('label.Suggestions')" />
-        <q-tab name="addfriends" :label="$t('label.Add')" />
-      </q-tabs>
-      
-      <q-separator />
-      
-      <q-tab-panels v-model="newFriendTab" animated>
+    <div>
         <!-- ========================================== FRIENDS SUGGESTIONS ====================================== -->
-        
-        <q-tab-panel name="suggestions">
+        <div v-if="newFriendMode === 'suggestions' && !(loadingContacts === false && (!validatedContacts || validatedContacts.length === 0))">
           <div class="centered" v-if="loadingContacts">
             <q-spinner color="primary" size="3em" />
             {{ $t('label.LoadingContacts') }}
@@ -35,77 +26,51 @@
                   <q-btn :label="$t('label.Add')" @click="addFriend(contact._id)" />
                 </q-item-section>
               </q-item>
+              <q-item>
+                <q-item-section avatar>
+                  
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label><a @click="newFriendMode = 'addFriend'">{{ $t('label.AddFriendManually') }}</a></q-item-label>
+                </q-item-section>
+              </q-item>
             </q-list>
           </div>
-          <div v-if="loadingContacts === false && (!validatedContacts || validatedContacts.length === 0)">
-            {{ $t('label.NoMoreContactFound') }}
-          </div>
-        </q-tab-panel>
-        
+        </div>
         <!-- ========================================== ADD FRIEND MANUALLY ====================================== -->
         
-        <q-tab-panel name="addfriends">
+        <div v-if="newFriendMode === 'addFriend' || (loadingContacts === false && (!validatedContacts || validatedContacts.length === 0))">
           <form @submit.prevent="formSubmit()" class="q-pt-md">
           
             {{ $t('label.FindWithEmail') }}
             <div class="row q-pb-md">
               <div class="col-8">
-                <q-input color="secondary" type="email" :label="$t('label.Email')" v-model="form.email" @blur="$v.form.email.$touch()" />
+                <q-input dark color="secondary" type="email" :label="$t('label.Email')" v-model="form.email" @blur="$v.form.email.$touch()" />
                 <div class="q-field-bottom" v-if="$v.form.email.$error">
                   <div class="q-field-error" v-if="!$v.form.email.email">{{ $t('label.EmailIsNotValid') }}</div>
                 </div>
               </div>
               <div class="col-4 centered">
-                <q-btn :label="$t('label.Add')" @click="formSubmit" />
+                <q-btn color="primary" :label="$t('label.Add')" @click="formSubmit" />
               </div>
             </div>
             {{ $t('label.FindWithPhone') }}
             <div class="row">
               <div class="col-8">
-                <q-input color="secondary" :label="$t('label.PhoneNumber')" v-model="form.phone" @blur="$v.form.phone.$touch()" />
+                <q-input dark color="secondary" :label="$t('label.PhoneNumber')" v-model="form.phone" @blur="$v.form.phone.$touch()" />
                 <div class="q-field-bottom" v-if="$v.form.phone.$error">
                   <div class="q-field-error" v-if="!$v.form.phone.checkPhone">{{ $t('label.InvalidPhoneNumber') }}</div>
                 </div>
               </div>
               <div class="col-4 centered">
-                <q-btn :label="$t('label.Add')" @click="formSubmit" />
+                <q-btn color="primary" :label="$t('label.Add')" @click="formSubmit" />
               </div>
             </div>
           </form>
-        </q-tab-panel>
-      </q-tab-panels>
+        </div>
+      </div>
     </div>
     
-    <div v-if="!canFindContacts">
-      <form @submit.prevent="formSubmit()" class="q-pt-md">
-        
-        {{ $t('label.FindWithEmail') }}
-        <div class="row q-pb-md">
-          <div class="col-8">
-            <q-input color="secondary" type="email" :label="$t('label.Email')" v-model="form.email" @blur="$v.form.email.$touch()" />
-            <div class="q-field-bottom" v-if="$v.form.email.$error">
-              <div class="q-field-error" v-if="!$v.form.email.email">{{ $t('label.EmailIsNotValid') }}</div>
-            </div>
-          </div>
-          <div class="col-4 centered">
-            <q-btn :label="$t('label.Add')" @click="formSubmit" />
-          </div>
-        </div>
-        {{ $t('label.FindWithPhone') }}
-        <div class="row">
-          <div class="col-8">
-            <q-input color="secondary" :label="$t('label.PhoneNumber')" v-model="form.phone" @blur="$v.form.phone.$touch()" />
-            <div class="q-field-bottom" v-if="$v.form.phone.$error">
-              <div class="q-field-error" v-if="!$v.form.phone.checkPhone">{{ $t('label.InvalidPhoneNumber') }}</div>
-            </div>
-          </div>
-          <div class="col-4 centered">
-            <q-btn :label="$t('label.Add')" @click="formSubmit" />
-          </div>
-        </div>
-      </form>
-    </div>
-
   </div>
 </template>
 
@@ -116,15 +81,19 @@ import Notification from 'boot/NotifyHelper'
 import checkPhone from 'boot/CheckPhone'
 
 export default {
-  props: ['load'],
+  /*props: ['load'],
   watch: { 
     // load contacts
     load: async function(newVal, oldVal) {
       if (newVal === true || newVal === 'true') {
-        await this.getContacts()
+        if (this.isHybrid) {
+          await this.getContacts()
+        } else {
+          this.newFriendMode = "addFriend"
+        }
       }
     }
-  },
+  },*/
   data() {
     return {
       form: {
@@ -133,16 +102,18 @@ export default {
       },
       phoneContacts: "",
       validatedContacts: null,
-      canFindContacts: true,
       serverUrl: process.env.SERVER_URL,
       submitting: false,
       loadingContacts: null,
       console: '',
-      newFriendTab: "suggestions"
+      newFriendMode: "suggestions",
+      isHybrid: window.cordova
     }
   },
   async mounted() {
-
+    if (!this.isHybrid) {
+      this.newFriendMode = "addFriend"
+    }
   },
   methods: {
     /*
@@ -213,7 +184,7 @@ export default {
 
         this.loadingContacts = false
       } else {
-        this.canFindContacts = false
+        this.newFriendMode = "addFriend"
       }
     },
     checkContacts(contacts) {

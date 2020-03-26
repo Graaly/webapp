@@ -1,7 +1,9 @@
 import MainLayout from 'layouts/main'
 
-import QuestMap from 'pages/quest/map'
-import QuestPlayHome from 'pages/quest/game/home'
+import Home from 'pages/home'
+import Map from 'pages/quest/map'
+
+import QuestPlayHome from 'pages/quest/game/intro'
 import QuestPlayStep from 'pages/quest/game/step'
 import QuestEnd from 'pages/quest/game/end'
 
@@ -36,13 +38,7 @@ export default [
       {
         path: '',
         name: 'none',
-        redirect: '/map',
-        meta: { requiresAuth: true }
-      },
-      {
-        path: 'home',
-        name: 'home',
-        redirect: '/map',
+        redirect: '/home',
         meta: { requiresAuth: true }
       },
       {
@@ -53,9 +49,15 @@ export default [
         meta: { requiresAuth: false }
       },
       {
+        path: 'home',
+        name: 'home',
+        component: Home,
+        meta: { requiresAuth: true }
+      },
+      {
         path: 'map',
         name: 'map',
-        component: QuestMap,
+        component: Map,
         meta: { requiresAuth: true }
       },
       {
@@ -143,13 +145,13 @@ export default [
         meta: { requiresAuth: true }
       },
       {
-        path: 'user/ranking',
+        path: 'user/ranking/:type/:subtype',
         name: 'ranking',
         component: UserRanking,
         meta: { requiresAuth: true }
       },
       {
-        path: 'profile/:id(\\w{24})',
+        path: 'profile/:id',
         name: 'profile',
         component: Profile,
         meta: { requiresAuth: true }

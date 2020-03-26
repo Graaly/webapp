@@ -691,6 +691,7 @@
             <div v-if="options.type.code === 'image-over-flow'">
               <q-toggle v-model="selectedStep.form.options.fullWidthPicture" :label="$t('label.EnlargePictureToFullWidth')" />
               <q-toggle v-model="selectedStep.form.options.snapshotAllowed" :label="$t('label.PlayerCanTakeSnapshot')" />
+              <q-toggle v-model="selectedStep.form.options.redFilter" :label="$t('label.ReplacePictureByRedFilter')" />
             </div>
             <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
               <q-input v-model="selectedStep.form.options.initDuration" :label="$t('label.DurationBeforeTextAppearAbovePicture')" />
@@ -1125,7 +1126,7 @@ export default {
         if (this.selectedStep.form.answers && typeof this.selectedStep.form.answers === 'string' && this.selectedStep.form.answers.indexOf('|') !== -1) {
           this.unformatedAnswer = this.selectedStep.form.answers.split("|")
         } else {
-          this.unformatedAnswer = Array(4).fill('red')
+          this.unformatedAnswer = Array(4).fill('#FF0000')
         }
         if (this.selectedStep.form.options.colors) {
           this.config.colorCode.colorsForCode = this.selectedStep.form.options.colors
@@ -1443,7 +1444,7 @@ export default {
         this.unformatedAnswer.length = 0      
         const codeLength = parseInt(this.selectedStep.form.options.codeLength, 10)
         while (codeLength > this.unformatedAnswer.length) {
-          this.unformatedAnswer.push('red')
+          this.unformatedAnswer.push('#FF0000')
         }
       } else if (this.options.type.code === 'code-image') {
         this.unformatedAnswer.length = 0      

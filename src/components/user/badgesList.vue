@@ -31,8 +31,14 @@
       <div v-for="(item, index) in badges" :key="index">
         <div class="subtitle4 q-pb-md">{{ item.city }}</div>
         <div class="row justify-around">
-          <div class="badge badge-without-title relative-position q-mr-md">
-            <img v-for="(reward, index2) in item.rewards" :class="{'reward': true, 'disabled': !reward.won}" :key="index2" :src="serverUrl + '/upload/quest/' + reward.image" />
+          <div v-for="(reward, index2) in item.rewards" :key="index2" class="badge relative-position q-mr-md" @click="openQuest(reward.questId)">
+            <img :class="{'reward': true, 'disabled': !reward.won}" :src="serverUrl + '/upload/quest/' + reward.image" />
+            <div class="centered subtitle6" v-if="reward.won">
+              {{ reward.title }}
+            </div>
+            <div class="centered subtitle6" v-if="!reward.won">
+              {{ $t('label.NotWon') }}
+            </div>
           </div>
         </div>
       </div>
@@ -47,6 +53,11 @@ export default {
   data() {
     return {
       serverUrl: process.env.SERVER_URL
+    }
+  },
+  methods: {
+    openQuest(questId) {
+      this.$router.push("/quest/play/" + questId)
     }
   }
 }

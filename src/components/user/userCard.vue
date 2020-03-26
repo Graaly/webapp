@@ -2,7 +2,7 @@
   <div class="relative-position q-mr-md user-card" :class="'user-card-' + size + (showName ? ' user-' + size + '-with-title' : '')" @click="sendClickEvent(user._id, user.friendId)">
     <div :style="'background: url(' + getBackgroundImage(user.picture) + ' ) center center / cover no-repeat '">
     </div>
-    <div v-if="showName" class="centered subtitle6">
+    <div v-if="showName" class="centered subtitle6 user-card-name">
       {{ user.name }}
     </div>
     <div v-if="user.statistics && user.statistics.nbQuestsCreated && user.statistics.nbQuestsCreated > 0" class="profile-item-creator">

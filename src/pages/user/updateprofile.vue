@@ -1,7 +1,7 @@
 <template>
   <div class="scroll background-dark">
     <div id="teaser q-mb-lg">
-      <div class="q-py-sm dark-banner fixed-top">
+      <div class="q-py-sm q-px-md dark-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToProfile()" />
       </div>
       <div class="centered">
@@ -72,6 +72,15 @@
           :error-message="!$v.profile.form.password.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.profile.form.password.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
           />
         
+        <q-input
+          dark
+          v-model="profile.form.description"
+          :label="$t('label.YourPresentation')"
+          bottom-slots
+          type="textarea"
+          :min-rows="3"
+          />
+        
         <q-select
           dark
           :label="$t('label.YourCountry')"
@@ -80,6 +89,7 @@
           emit-value
           map-options
           bottom-slots
+          @blur="getLocation"
           :error="$v.profile.form.country.$error"
           :error-message="$t('label.PleaseSelectYourCountry')">
           <template v-slot:after>
@@ -93,6 +103,7 @@
           :label="$t('label.YourZipCode')"
           placeholder="38500"
           bottom-slots
+          @blur="getLocation"
           :error="$v.profile.form.zipCode.$error"
           :error-message="$t('label.PleaseEnterYourZipCode')">
           <template v-slot:after>
@@ -163,7 +174,7 @@
         </div>
       </form>
       
-      <form class="q-mt-lg q-pa-md q-ma-md background-lighter rounded" @submit.prevent="submitProfileChanges()">
+      <form class="q-mt-lg q-pa-md q-ma-md background-lighter rounded" v-if="!displayPassword" @submit.prevent="submitProfileChanges()">
         <div class="centered">{{ $t('label.ChangeYourPassword') }}</div>
         
         <q-input 
@@ -208,6 +219,7 @@
         <div class="centered q-mb-xl" v-html="$t('label.PrivacyPolicyLink')"></div>
       </div>
     </div>
+    <!--<gmap-autocomplete id="destination" :placeholder="$t('label.Address')" class="col q-input-target text-left" @input="value = $event.target.value" />-->
         
     <!------------------ REWARDS POPUP ------------------------>
     
@@ -252,6 +264,7 @@ export default {
       profile: {
         form: {
           name: "--", 
+          description: "",
           picture: "", 
           phone: "",
           zipCode: "", 
@@ -264,6 +277,7 @@ export default {
           newPassword: ""
         }
       },
+      position: null,
       countries: this.$i18n.locale === 'fr' ? countriesFR : countriesEN,
       sexes: [{label: this.$t('label.Male'), value: 'male'}, {label: this.$t('label.Female'), value: 'female'}],
       ages: [{label: '13 - 25', value: '13-25'}, {label: '26 - 39', value: '26-39'}, {label: '40 - 49', value: '40-49'}, {label: '50 - 64', value: '50-64'}, {label: '65 +', value: '65+'}],
@@ -278,6 +292,7 @@ export default {
       name: this.$store.state.user.name ? (this.$store.state.user.name === '-' ? '' : this.$store.state.user.name) : '?',
       email: (this.$store.state.user.email && this.$store.state.user.email !== 'providersignin') ? (this.$store.state.user.email.indexOf('dummyuser') === -1 ? this.$store.state.user.email : '') : '',
       password: '',
+      description: this.$store.state.user.description ? this.$store.state.user.description : '',
       phone: this.$store.state.user.phone ? this.$store.state.user.phone : '',
       picture: this.$store.state.user.picture ? this.$store.state.user.picture : '',
       zipCode: this.$store.state.user.location.postalCode ? this.$store.state.user.location.postalCode : '',
@@ -316,6 +331,7 @@ export default {
         let modifications = {
           name: this.profile.form.name,
           email: this.profile.form.email,
+          description: this.profile.form.description,
           password: this.profile.form.password,
           phone: this.profile.form.phone ? this.profile.form.phone : "",
           zipCode: this.profile.form.zipCode,
@@ -323,6 +339,9 @@ export default {
           language: this.profile.form.language,
           age: this.profile.form.age,
           sex: this.profile.form.sex
+        }
+        if (this.position) {
+          modifications.position = this.position
         }
         this.$q.loading.show()
         let modificationStatus = await AuthService.modifyAccount(modifications)
@@ -333,6 +352,24 @@ export default {
         } else {
           this.backToProfile()
         }
+      }
+    },
+    /*
+     * Get the lat/lng from a zip code
+     * @param   {String}    zip code            Zip code
+     * @param   {String}    country             country
+     */
+    getLocation() {
+      if (this.profile.form.zipCode && this.profile.form.zipCode !== '' && this.profile.form.country && this.profile.form.country !== '') {
+        var geocoder = new google.maps.Geocoder()
+        geocoder.geocode({'address': this.profile.form.zipCode + " " + this.profile.form.country}, (results, status) => {
+          this.$q.loading.hide()
+          if (status === 'OK' && results[0].geometry) {
+            this.position = {}
+            this.position.lat = results[0].geometry.location.lat()
+            this.position.lng = results[0].geometry.location.lng()
+          }
+        });
       }
     },
     /*

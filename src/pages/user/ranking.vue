@@ -1,7 +1,7 @@
 <template>
   <div class="scroll background-dark">
     <div id="teaser q-mb-lg">
-      <div :style="'padding-top: ' + (tab === 'level' ? 200 : (tab === 'ranking' ? 150 : 110)) + 'px;'">
+      <div :style="'padding-top: ' + (tab === 'level' ? 200 : (tab === 'ranking' ? 160 : 110)) + 'px;'">
         <transition name="slideInTop">
           <div v-if="tab === 'level'">
             <div v-for="level in levels" :key="level.number" class="q-ma-md level-to-reach" :class="{'level-not-reached': ($store.state.user.score < level.minPoints)}" :style="'background-image: url(statics/images/icon/level' + level.number + '.svg)'">
@@ -12,12 +12,13 @@
         </transition>
         <transition name="slideInTop">
           <div v-if="tab === 'ranking'">
-            <div v-if="ranking && ranking.length > 0" v-for="(user, index) in ranking" :key="index" class="q-pa-md rank-box">
+            <div v-if="range !== 'quest' && ranking && ranking.length > 0" v-for="(user, index) in ranking" :key="index" class="q-pa-md rank-box">
               <div>
                 <userCard :user="user" size="medium" @click="openProfile"></userCard>
               </div>
               <div class="full-width">
-                <div class="subtitle5">{{ user.name }}</div>
+                <div class="subtitle5" v-if="user.name !== '-'">{{ user.name }}</div>
+                <div class="subtitle5" v-if="user.name === '-'">{{ $t('label.AnonymousUser') }}</div>
                 <div class="subtitle6" v-if="user.location && (user.location.country || user.location.postalCode)">
                   <span v-if="user.location.postalCode">{{ user.location.postalCode }}</span>
                   <span v-if="user.location.postalCode && user.location.country">, </span>
@@ -27,6 +28,32 @@
                   <div class="col-6 centered">
                     <img src="statics/images/icon/pts.svg" />
                     {{ user.score }}
+                  </div>
+                  <div class="col-6 centered">
+                    <img src="statics/images/icon/medal.svg" />
+                    {{ index + 1 }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-if="range === 'quest' && ranking && ranking.length > 0" class="subtitle3 q-pa-md">
+              {{ ranking[0].questData.title.fr }}
+            </div>
+            <div v-if="range === 'quest' && ranking && ranking.length > 0" v-for="(run, index) in ranking" :key="index" class="q-pa-md rank-box">
+              <div>
+                <userCard :user="run.userData" size="medium" @click="openProfile"></userCard>
+              </div>
+              <div class="full-width">
+                <div class="subtitle5">{{ run.userData.name }}</div>
+                <div class="subtitle6" v-if="run.userData.location && (run.userData.location.country || run.userData.location.postalCode)">
+                  <span v-if="run.userData.location.postalCode">{{ run.userData.location.postalCode }}</span>
+                  <span v-if="run.userData.location.postalCode && run.userData.location.country">, </span>
+                  <span v-if="run.userData.location.country">{{ run.userData.location.country }}</span>
+                </div>
+                <div class="grey-round-box row icons q-mt-sm q-pa-sm">
+                  <div class="col-6 centered">
+                    <img src="statics/images/icon/pts.svg" />
+                    {{ run.stars }}
                   </div>
                   <div class="col-6 centered">
                     <img src="statics/images/icon/medal.svg" />
@@ -89,7 +116,7 @@
       
       <!------------------ HEADER COMPONENT ------------------------>
       
-      <div class="q-py-sm dark-banner opaque-banner fixed-top">
+      <div class="q-py-sm q-px-md dark-banner opaque-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         <div class="row q-pa-sm">
           <div class="col-4" @click="selectTab('level')" :class="{'tab-unselected': (tab !== 'level')}">
@@ -111,10 +138,10 @@
         <div v-if="tab === 'level'">
           <div class="relative-position progress-box">
             <div class="progress-bar">
-              <div class="progress" :style="'width: ' + progression + '%'">
+              <div class="progress" :style="'width: ' + Math.floor(level.progress * 100) + '%'">
               </div>
               <div class="value">
-                {{ progression }}%
+                {{ Math.floor(level.progress * 100) }}%
               </div>
             </div>
             <div class="score subtitle6">
@@ -156,19 +183,13 @@
 
 <script>
 import UserService from 'services/UserService'
+import RunService from 'services/RunService'
 import userCard from 'components/user/userCard'
-//import QuestService from 'services/QuestService'
-//import Notification from 'boot/NotifyHelper'
-//import utils from 'src/includes/utils'
-//import questsList from 'components/quest/questsList'
-//import usersList from 'components/user/usersList'
+import LevelCompute from 'boot/LevelCompute'
 
 export default {
   components: {
     userCard
-    /*geolocation,
-    questsList,
-    usersList*/
   },
   data () {
     return {
@@ -191,12 +212,14 @@ export default {
         {number: 1, minPoints: 0, maxPoints: 15}
       ],
       ranking: null,
-      progression: 4,
+      level: {
+        progress: 0.04
+      },
       serverUrl: process.env.SERVER_URL
     }
   },
   mounted() {
-    this.selectTab('level')
+    this.selectTab(this.$route.params.type)
   },
   methods: {
     /*
@@ -206,10 +229,15 @@ export default {
     async selectTab(tab) {
       this.tab = tab
       if (this.tab === 'level') {
+        this.range = null
         this.computeProgression()
       }
       if (this.tab === 'ranking') {
-        await this.selectRange()
+        if (this.$route.params.subtype.length === 24) {
+          await this.selectRange(this.$route.params.subtype)
+        } else {
+          await this.selectRange()
+        }
       }
     },
     /*
@@ -234,13 +262,14 @@ export default {
      * Manage back to the map button
      */
     backToTheMap () {
-      this.$router.push('/map')
+      this.$router.back()
     },
     /*
      * Compute the user progression
      */
     computeProgression () {
-      for (var i = 0; i < 9; i++) {
+      this.level = LevelCompute(this.$store.state.user.score)
+      /*for (var i = 0; i < 9; i++) {
         if (this.$store.state.user.score > this.levels[i].minPoints) {
           this.progression = Math.floor(((this.$store.state.user.score - this.levels[i].minPoints) / (this.levels[i].maxPoints - this.levels[i].minPoints)) * 100)
           break
@@ -249,7 +278,7 @@ export default {
       // if progression is = 0, display at least a little pink bar (=4)
       if (this.progression < 4) {
         this.progression = 4
-      }
+      }*/
     },
         
     /*
@@ -309,9 +338,20 @@ export default {
      */
     async getRanking (range) {
       this.$q.loading.show()
-      const ranking = await UserService.getRangeRanking(range)
-      if (ranking && ranking.data && ranking.data.users) {
-        this.ranking = ranking.data.users
+      var ranking
+      if (range === 'world' || range === 'country' || range === 'city' || range === 'friends') {
+        ranking = await UserService.getRangeRanking(range)
+      } else {
+        ranking = await RunService.getRankingForAQuest(range)
+        this.range = "quest"
+      }
+      
+      if (ranking && ranking.data) {
+        if (ranking.data.users) {
+          this.ranking = ranking.data.users
+        } else {
+          this.ranking = ranking.data
+        }
       } else {
         this.ranking = []
       }

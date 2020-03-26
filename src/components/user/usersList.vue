@@ -18,7 +18,7 @@
         <userCard :user="user" size="small" :showName="true" @click="openProfile"></userCard>
       </div>
     </div>
-    <div class="row justify-around" v-if="format === 'list' && ((users && users.length > 0) || add)">
+    <div class="row justify-around q-pt-sm" v-if="format === 'list' && ((users && users.length > 0) || add)">
       <div v-if="add" class="user-card-small relative-position q-mr-md" @click="openFriendAddPopup()">
         <div class="user-add-button">
           <q-icon name="add" style="font-size: 3em;" />
@@ -41,7 +41,7 @@
         <q-separator />
         
         <q-card-section class="subtitle5">
-          <newfriend :load="addFriend.show" @close="closeAddFriends" @friendadded="updateFriendsActivity"></newfriend>
+          <newfriend @close="closeAddFriends" @friendadded="updateFriendsActivity"></newfriend>
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -89,7 +89,7 @@ export default {
      * Reset the friends' activity list
      */
     async updateFriendsActivity() {
-//to define
+      this.$emit('refresh')
     }
   }
 }

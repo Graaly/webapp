@@ -8,7 +8,7 @@
         
       <!------------------ HEADER COMPONENT ------------------------>
       
-      <div class="q-py-sm dark-banner opaque-banner fixed-top">
+      <div class="q-py-sm q-px-md dark-banner opaque-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToTheMap()" />
       </div>
     </div>
@@ -47,7 +47,7 @@ export default {
      * Manage back to the map button
      */
     backToTheMap () {
-      this.$router.push('/map')
+      this.$router.back()
     }
   }
 }

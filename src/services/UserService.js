@@ -35,6 +35,15 @@ export default {
     })
   },
   /*
+   * list people that follow me
+   * @param   {Number}    number              number of results
+   */
+  listFollowersSync (number, skip, done) {
+    return Api().get('user/followers/' + number + '/' + skip).then(function (response) {
+      done(false, response)
+    })
+  },
+  /*
    * find a user
    * @param   {String}    type            user type (player, designer, all)
    * @param   {String}    filter          String to find

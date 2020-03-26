@@ -34,6 +34,30 @@ export default {
     return Api().get('quests/home/' + location.lng + '-' + location.lat + '/lang/' + lang).catch(error => console.log(error.request))
   },
   /*
+   * list quests for a country
+   */
+  listAllForCountry () {
+    return Api().get('quests/country/FR').catch(error => console.log(error.request))
+  },
+  /*
+   * list quests played by friends
+   * @param   {String}    lang                language
+   */
+  listFriendQuests (lang) {
+    if (!lang) {
+      lang = 'default'
+    }
+    return Api().get('quests/friends/played/0/lang/' + lang).catch(error => console.log(error.request))
+  },
+  listFriendQuestsync (lang, skip, done) {
+    if (!lang) {
+      lang = 'default'
+    }
+    return Api().get('quests/friends/played/' + skip + '/lang/' + lang).then(function (response) {
+      done(false, response)
+    })
+  },
+  /*
    * get a quest based on its ID
    * @param   {String}    id                  ID of the quest
    * @param   {Number}    version             version of the quest
@@ -117,6 +141,14 @@ export default {
    */
   remove (id, version) {
     return Api().delete('quest/' + id + '/version/' + version + '/remove')
+  },
+  /*
+   * Duplicate a quest
+   * @param   {String}    id                Quest Id
+   * @param   {Number}    version             version of the quest
+   */
+  clone (id, version) {
+    return Api().post('quest/' + id + '/version/' + version + '/clone')
   },
   /*
    * Close a private quest
@@ -312,6 +344,14 @@ export default {
    * @param   {String}    lang                user language
    */
   checkLoginQRCode(questId, lang) {
+    return Api().get('quest/' + questId + '/connectandplay/qrcode/lang/' + lang).catch(error => console.log(error.request))
+  },
+  /*
+   * Check if a QR Code can opens a quest, and create a dummy account
+   * @param   {String}    questId              questId
+   * @param   {String}    lang                user language
+   */
+  checkQRCode(questId, lang) {
     return Api().get('quest/' + questId + '/play/qrcode/lang/' + lang).catch(error => console.log(error.request))
   },
   /*

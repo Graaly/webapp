@@ -12,7 +12,7 @@
         <div class="centered title2 q-mb-lg">{{ $t('label.Welcome') }}</div>
         
         <!------------------ FORM AREA ------------------------>
-        <form @submit.prevent="formSubmit()">
+        <form @submit="formSubmit">
           
           <div>
             
@@ -63,12 +63,12 @@
           
           <div class="text-center">
             <q-btn 
+              type="submit"
               class="glossy large-btn"
               color="primary" 
               :label="$t('label.SignIn')"
               :loading="submitting" 
-              @click="formSubmit" 
-              :disabled="(step === 'email' && !form.email) || (step === 'password' && !form.password)" />
+              @click="formSubmit" />
           </div>
           <div class="centered q-mt-sm q-mb-lg">
             <a @click="goToSubscribe()">{{ $t('label.Subscribe') }}</a>
@@ -155,7 +155,7 @@
       <div class="q-pa-md">
         <q-item dense>
           <q-item-section avatar>
-            <q-checkbox color="gold" v-model="terms.usage" />
+            <q-checkbox dark v-model="terms.usage" />
           </q-item-section>
           <q-item-section>
             <span v-html="$t('label.IAgreeTheTermsAndConditions')" />
@@ -167,7 +167,7 @@
 
         <q-item dense>
           <q-item-section avatar>
-            <q-checkbox color="gold" v-model="terms.privacy" />
+            <q-checkbox dark v-model="terms.privacy" />
           </q-item-section>
           <q-item-section>
             <span v-html="$t('label.IAgreeThePrivacyPolicy')" />
@@ -178,7 +178,7 @@
         </q-item>
         
         <div class="centered q-pa-md">
-          <q-btn color="primary" @click="playAnonymous()">{{ $t('label.Confirm') }}</q-btn>
+          <q-btn color="primary" class="glossy large-button" @click="playAnonymous()"><span>{{ $t('label.Confirm') }}</span></q-btn>
         </div>
       </div>
     </q-dialog>
@@ -242,6 +242,7 @@ export default {
      * Manage login
      */
     async formSubmit() {
+console.log("submitting")
       this.$v.$touch()
       this.submitting = true
       //if (!this.$v.form.$error) {
@@ -367,7 +368,7 @@ export default {
             Notification(_this.$t('label.TechnicalIssue'), 'error')
           }
           if (response && (response.message === 'login successful' || (response.data && response.data.message === 'login successful'))) {
-            return _this.$router.push('/map')
+            return _this.$router.push('/home')
           } else {
             Notification(_this.$t('label.TechnicalIssue'), 'error')
           }
@@ -442,7 +443,7 @@ export default {
           if (checkStatus.data.user) {
             window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
             axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
-            this.$router.push('/map')
+            this.$router.push('/home')
           } else {
             Notification(this.$t('label.ErrorStandardMessage'), 'error')
           }
@@ -461,7 +462,11 @@ export default {
         if (checkStatus.data.user) {
           window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
           axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
-          this.$router.push('/quest/play/' + code)
+          if (code.indexOf('_score') === -1) {
+            this.$router.push('/quest/play/' + code)
+          } else {
+            this.$router.push('/quest/' + (code.substring(0, 24)) + '/end')
+          }
         } else {
           Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
         }
