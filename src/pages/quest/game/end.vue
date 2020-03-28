@@ -301,6 +301,7 @@ export default {
       suggestQuest: {
         show: false
       },
+      isHybrid: window.cordova,
       serverUrl: process.env.SERVER_URL
     }
   },
@@ -308,7 +309,7 @@ export default {
     utils.clearAllRunningProcesses()
     await this.loadData()
     // hide status bar on Android
-    if (cordova.platformId === 'android') {
+    if (this.isHybrid && cordova.platformId === 'android') {
       StatusBar.hide()
     }
   },

@@ -249,7 +249,7 @@ a.no-underline {
   line-height: 1em;
   padding: 5px 0;
 }
-.q-btn__content div, .q-btn__content span {
+.platform-android .q-btn__content div, .platform-android .q-btn__content span {
   min-height: 30px;
 }
 .large-btn, .large-button {
@@ -276,10 +276,13 @@ a.no-underline {
 .image-button {
   border: 2px solid #fff;
   border-radius: 5px;
-  padding: 12px 8px 20px 100px;
+  padding: 15px 8px 15px 100px;
   background-repeat: no-repeat;
   background-size: 100px 100px;
   text-align: center;
+}
+.platform-android .image-button {
+  padding: 12px 8px 20px 100px;
 }
 .q-btn--flat {
   line-height: 2em;
@@ -351,7 +354,7 @@ a.no-underline {
 /////////////////////////////// Titles CSS /////////////////////////////////////
 
 .title-bar {
-  padding: 8px 0 22px 35px;
+  padding: 10px 0 22px 35px;
   background-repeat: no-repeat;
   text-transform: uppercase;
   font-size: 10pt;
@@ -360,11 +363,17 @@ a.no-underline {
   margin: 25px 0 8px 0;
   background-size: 172px 43px;
 }
+.platform-android .title-bar {
+  padding: 8px 0 22px 35px;
+}
 .desktop .title-bar {
   padding-top: 11px;
 }
 .bar-link {
-  /*padding-top: 8px;*/
+  padding-top: 6px;
+}
+.platform-android .bar-link {
+  padding-top: 0px;
 }
 .key-bar {
   background-image: url('/statics/images/other/bar-key.svg');
@@ -443,7 +452,7 @@ a.no-underline {
 }
 .title-banner div {
   width: 100%;
-  /*overflow: hidden;*/
+  overflow: hidden;
   text-overflow: ellipsis;
 }
 .title-banner div:first-child {
@@ -462,7 +471,10 @@ a.no-underline {
   line-height: 1em;
 }
 .point-banner.with-plus div {
-  /*padding: 11px 15px 0px 0px;*/
+  padding: 11px 15px 0px 0px;
+  font-size: 20pt;
+}
+.platform-android .point-banner.with-plus div {
   padding: 5px 15px 0px 0px;
   font-size: 20pt;
 }
@@ -495,9 +507,12 @@ a.no-underline {
 .quest-big .title-banner .subtitle4 {
   padding-top: 4px;
   width: 80%;
-  height: 30px;
+  height: 27px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.platform-android .quest-big .title-banner .subtitle4 {
+  height: 30px;
 }
 .quest-small .point-banner {
   height: 75px;
@@ -516,6 +531,9 @@ a.no-underline {
   font-size: 20pt;
 }
 .quest-big .point-banner.with-plus div {
+  padding: 15px 15px 0px 0px;
+}
+.platform-android .quest-big .point-banner.with-plus div {
   padding: 10px 15px 0px 0px;
 }
 .quest-small .point-won {
@@ -525,7 +543,10 @@ a.no-underline {
   width: 59px;
 }
 .quest-small .point-won div {
-  /*padding: 21px 21px 0px 0px;*/
+  padding: 21px 21px 0px 0px;
+  font-size: 24pt;
+}
+.platform-android .quest-small .point-won div {
   padding: 16px 21px 0px 0px;
   font-size: 24pt;
 }
@@ -536,9 +557,11 @@ a.no-underline {
   width: 93px;
 }
 .quest-big .point-won div {
-  /*padding: 34px 33px 0px 0px;*/
-  padding: 27px 33px 0px 0px;
+  padding: 34px 33px 0px 0px;
   font-size: 36pt;
+}
+.platform-android .quest-big .point-won div {
+  padding: 27px 33px 0px 0px;
 }
 .quest-add-button {
   width: 84px;
@@ -656,6 +679,9 @@ a.no-underline {
   margin: 0 4px;
 }
 .tab-button.subtitle6 {
+  padding-top: 4px;
+}
+.platform-android .tab-button.subtitle6 {
   padding-top: 2px;
 }
 .tab-unselected .tab-button {
@@ -765,10 +791,13 @@ a.no-underline {
   width: 100%;
 }
 .main-quest-banner .title2 {
-  height: 100px;
+  height: 95px;
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.platform-android .main-quest-banner .title2 {
+  height: 100px;
 }
 .horizontal-scroll-wrapper {
   overflow-x: scroll;
@@ -808,12 +837,14 @@ a.no-underline {
   width: 84px;
 }
 .quest-score div {
-  /*bottom: 29px;*/
-  bottom: 35px;
+  bottom: 29px;
   left: 17px;
   font-size: 32pt;
   color: #fcecba;
   line-height: 1em;
+}
+.platform-android .quest-score div {
+  bottom: 35px;
 }
 .properties-bar {
   font-size: 12pt;
@@ -828,6 +859,10 @@ a.no-underline {
   background-image: url(/statics/images/icon/place.svg);
   background-size: 16px;
   background-position-y: 10px;
+  padding-top: 6px;
+}
+.platform-android .quest-location {
+  padding-top: 0px;
 }
 .quest-ranking {
   padding-left: 21px;
@@ -835,6 +870,10 @@ a.no-underline {
   background-image: url(/statics/images/icon/medal.svg);
   background-size: 16px;
   background-position-y: 10px;
+  padding-top: 6px;
+}
+.platform-android .quest-ranking {
+  padding-top: 0px;
 }
 .edit-bar {
   position: absolute;
@@ -869,6 +908,9 @@ a.no-underline {
   text-align: center;
   position: absolute;
   height: 27px;
+  line-height: 1.2em;
+}
+.platform-android .progress-bar .value {
   line-height: 1em;
 }
 .progress-box .score {
@@ -892,10 +934,12 @@ a.no-underline {
   margin-left: 32px;
 }
 .level-to-reach div {
-  /*padding-top: 11px;*/
-  padding-top: 6px;
+  padding-top: 11px;
   height: 50px;
   text-align: center;
+}
+.platform-android .level-to-reach div {
+  padding-top: 6px;
 }
 .level-not-reached {
   opacity: 0.3;
@@ -919,10 +963,13 @@ a.no-underline {
   width: 155px;
 }
 .header-point div {
-  margin-top: -120px;
+  margin-top: -112px;
   font-size: 47pt;
   line-height: 1em;
   color: #fcecba;
+}
+.platform-android .header-point div {
+  margin-top: -120px;
 }
 .header-point-box .rounded {
   top: 143px;
@@ -956,6 +1003,9 @@ a.no-underline {
 .step-setting {
   overflow-y: scroll !important;
   height: 100%
+}
+.q-loading svg circle {
+  display: none;
 }
 
 /////////////////////////////// page CSS /////////////////////////////////////

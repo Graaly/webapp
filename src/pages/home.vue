@@ -360,7 +360,7 @@ export default {
       })
     }
     // hide status bar on Android
-    if (cordova.platformId === 'android') {
+    if (this.isHybrid && cordova.platformId === 'android') {
       StatusBar.hide()
     }
   },

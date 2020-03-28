@@ -22,6 +22,7 @@ export default ({ app, router, Vue }) => {
               "age": "40-49", 
               "language": "fr", 
               "score": 0, 
+              "points": 0,
               "coins": 100, 
               "status": "active", 
               "rankings": { "world": 99999999, "town": 99999999 }, 
