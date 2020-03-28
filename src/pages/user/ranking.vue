@@ -4,7 +4,7 @@
       <div :style="'padding-top: ' + (tab === 'level' ? 200 : (tab === 'ranking' ? 160 : 110)) + 'px;'">
         <transition name="slideInTop">
           <div v-if="tab === 'level'">
-            <div v-for="level in levels" :key="level.number" class="q-ma-md level-to-reach" :class="{'level-not-reached': ($store.state.user.score < level.minPoints)}" :style="'background-image: url(statics/images/icon/level' + level.number + '.svg)'">
+            <div v-for="level in levels" :key="level.number" class="q-ma-md level-to-reach" :class="{'level-not-reached': ($store.state.user.points < level.minPoints)}" :style="'background-image: url(statics/images/icon/level' + level.number + '.svg)'">
               <div class="grey-round-box" v-if="$store.state.user.score < level.minPoints">{{ $t('label.PointsToReachLevel', {score: level.minPoints}) }}</div>
               <div class="grey-round-box" v-if="$store.state.user.score >= level.minPoints">{{ $t('label.LevelReached') }}</div>
             </div>
@@ -145,7 +145,7 @@
               </div>
             </div>
             <div class="score subtitle6">
-              {{ $t('label.YouHaveReachAScore', {score: $store.state.user.score}) }}
+              {{ $t('label.YouHaveReachAScore', {score: $store.state.user.points}) }}
             </div>
             <div class="rank-level">
               <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" />
@@ -219,6 +219,9 @@ export default {
     }
   },
   mounted() {
+    if (!this.$store.state.user.points) {
+      this.$store.state.user.points = 0
+    }
     this.selectTab(this.$route.params.type)
   },
   methods: {
@@ -268,7 +271,7 @@ export default {
      * Compute the user progression
      */
     computeProgression () {
-      this.level = LevelCompute(this.$store.state.user.score)
+      this.level = LevelCompute(this.$store.state.user.points)
       /*for (var i = 0; i < 9; i++) {
         if (this.$store.state.user.score > this.levels[i].minPoints) {
           this.progression = Math.floor(((this.$store.state.user.score - this.levels[i].minPoints) / (this.levels[i].maxPoints - this.levels[i].minPoints)) * 100)

@@ -110,8 +110,8 @@
         </div>
         <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
-            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
-            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
+            <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
+            <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
         </div>
       </div>
@@ -233,14 +233,14 @@
             ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'"></header></div>
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
-        <div class="centered text-grey q-pt-xl" v-if="puzzle.mode === 'drag'">
+        <div class="centered text-grey q-pt-lg arial" v-if="puzzle.mode === 'drag'">
           {{ $t('label.PuzzleHelpText') }}
         </div>
-        <div class="centered text-primary q-pt-xl" v-if="puzzle.mode === 'click'">
+        <div class="centered text-primary q-pt-lg arial" v-if="puzzle.mode === 'click'">
           {{ $t('label.PuzzleHelpTextClick') }}
         </div>
         <div class="centered text-grey q-pt-sm" v-if="puzzle.mode === 'drag'">
-          <a @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
+          <a class="text-grey" @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
         </div>
       </div>
       
@@ -982,7 +982,6 @@ export default {
                 this.cameraStreamEnabled = true
                 
                 // init video capturing
-console.log("try")
                 const track = stream.getVideoTracks()[0];
                 this.imageCapture = new ImageCapture(track);
               })
@@ -1359,7 +1358,6 @@ console.log("try")
         // check offline answer
         //if (this.answer) {
           let checkAnswerOfflineResult = await this.checkOfflineAnswer(answerData.answer)
-console.log(checkAnswerOfflineResult)
           return checkAnswerOfflineResult
         //} else {
         //  Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1533,14 +1531,11 @@ console.log(checkAnswerOfflineResult)
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-console.log(checkAnswerResult)
             if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
-console.log("check1")
               // reset code
               this.resetKeypadCode()
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
-console.log("check2")
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
@@ -1644,7 +1639,6 @@ console.log("check2")
           
         case 'find-item':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
-          
           if (checkAnswerResult.result === true) {
             if (this.step.displayRightAnswer) {
               this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
@@ -1658,7 +1652,6 @@ console.log("check2")
               if (this.step.displayRightAnswer) {
                 this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
               }
-              
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
@@ -2332,7 +2325,7 @@ console.log("check2")
      * @param   {object}    ev            Event when user touch screen to get location
      */
     async useItem(ev) {
-      if (this.playerResult === true || this.nbTry >= 3) {
+      if (this.playerResult === true) {
         return
       }
 
@@ -2389,7 +2382,7 @@ console.log("check2")
      * @param   {object}    ev            Event when user touch the screen
      */
     async findItem(ev) {
-      if (this.playerResult === true || this.nbTry >= 3) {
+      if (this.playerResult === true) {
         return
       }
       
@@ -2574,9 +2567,14 @@ console.log("check2")
     handleDragStart(e) {
       if (this.puzzle.mode === 'drag') {
         if (e.target.className.indexOf('piece') !== -1) {
-          this.puzzle.dragSrcEl = e.target;
+          this.puzzle.dragSrcEl = e.target
         }
         return true
+      } else {
+        this.puzzle.dragSrcEl = null
+        e.stopPropagation()
+        e.stopImmediatePropagation()
+        e.preventDefault()
       }
     },
     /*
@@ -2597,7 +2595,7 @@ console.log("check2")
      */
     handleDragEnd(e) {
       if (this.puzzle.mode === 'drag') {
-        this.puzzle.dragSrcEl = null;
+        this.puzzle.dragSrcEl = null
         var cols = document.querySelectorAll('#pieces .piece');
         [].forEach.call(cols, function (col) {
           col.style.opacity = ''
@@ -2667,6 +2665,7 @@ console.log("check2")
      * Move puzzle pieces with click
      */
     movePieceWithClick(pos) {
+      this.puzzle.dragSrcEl = null
       if (this.puzzle.mode === 'click') {
         if (this.puzzle.clickModeSelected === null) {
           for (let i = 0; i < this.puzzle.pieces.length; i++) {
@@ -2679,6 +2678,10 @@ console.log("check2")
             }
           }
         } else {
+          // sometimes click is doubled
+          if (this.puzzle.clickModeSelected === pos) {
+            return
+          }
           for (let i = 0; i < this.puzzle.pieces.length; i++) {
             this.puzzle.pieces[i].classes = 'piece'
           }

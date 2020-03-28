@@ -12,7 +12,7 @@
         <div class="centered title2 q-mb-lg">{{ $t('label.Welcome') }}</div>
         
         <!------------------ FORM AREA ------------------------>
-        <form @submit="formSubmit">
+        <form @submit.prevent="formSubmit">
           
           <div>
             
@@ -68,24 +68,13 @@
               color="primary" 
               :label="$t('label.SignIn')"
               :loading="submitting" 
-              @click="formSubmit" />
+              />
           </div>
           <div class="centered q-mt-sm q-mb-lg">
             <a @click="goToSubscribe()">{{ $t('label.Subscribe') }}</a>
           </div>
           
         </form>
-        
-        <!------------------ PLAY ANONYMOUS ------------------>
-        
-        <div class="q-py-md centered">
-          <q-btn 
-            class="glossy large-btn" 
-            color="accent" 
-            @click="validateTerms()"
-            :label="$t('label.LetsPlay')"
-            />
-        </div>
         
         <!------------------ START PLAYING WITH QR CODE ------------------>
         
@@ -95,6 +84,17 @@
             color="accent"
             @click="startScanQRCode()"
             :label="$t('label.ScanQRCodeToStartQuest')"
+            />
+        </div>
+        
+        <!------------------ PLAY ANONYMOUS ------------------>
+        
+        <div class="q-py-md centered">
+          <q-btn 
+            class="glossy large-btn" 
+            color="accent" 
+            @click="validateTerms()"
+            :label="$t('label.LetsPlay')"
             />
         </div>
         
@@ -242,7 +242,6 @@ export default {
      * Manage login
      */
     async formSubmit() {
-console.log("submitting")
       this.$v.$touch()
       this.submitting = true
       //if (!this.$v.form.$error) {

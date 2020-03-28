@@ -398,7 +398,11 @@ export default {
      * Back to the profile
      */
     backToProfile() {
-      this.$router.push('/profile/' + this.$store.state.user.id)
+      if (this.profile.form.name === '') {
+        this.$router.push('/home')
+      } else {
+        this.$router.push('/profile/' + this.$store.state.user.id)
+      }
     },
     /*
      * Change interface language dynamically

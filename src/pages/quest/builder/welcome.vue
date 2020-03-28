@@ -67,7 +67,7 @@
 
             <q-card-section class="subtitle5">
               <div v-html="$t('label.PublicProQuestDesc1')"></div>
-              <div class="centered" v-if="!readMorePublicProQuest"><a @click="readMorePublicProQuest = true">{{ $t('label.ReadMore') }}</a></div>
+              <!--<div class="centered" v-if="!readMorePublicProQuest"><a @click="readMorePublicProQuest = true">{{ $t('label.ReadMore') }}</a></div>-->
             </q-card-section>
             
             <q-card-section v-if="readMorePublicProQuest">
@@ -85,7 +85,7 @@
           <q-card class="my-card bg-primary text-white">
             <q-card-section class="centered">
               <div class="subtitle2">{{ $t('label.PrivateQuest') }}</div>
-              <div class="subtitle4">{{ $t('label.FromPrice') }} 399 €</div>
+              <div class="subtitle4">{{ $t('label.FromPrice') }} 499 €</div>
             </q-card-section>
 
             <q-card-section class="subtitle5">
@@ -158,7 +158,7 @@
         <h1 class="subtitle3 text-uppercase q-pa-md q-mt-xl q-pt-lg">{{ $t('label.AddYourRoom') }}</h1>
         <div class="q-pa-md" v-html="$t('label.BuilderAddRoomMessage')"></div>
         <div class="q-px-md centered">
-          <q-btn color="primary" class="glossy large-btn" @click="createNewQuest()" test-id="btn-accept-rules">{{ $t('label.Add') }}</q-btn>
+          <q-btn color="primary" class="glossy large-btn" @click="createNewQuest()" test-id="btn-accept-rules"><div>{{ $t('label.Add') }}</div></q-btn>
           <q-btn class="full-width center q-mt-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>
         </div>
       </div>
@@ -166,7 +166,7 @@
         <h1 class="subtitle3 text-uppercase q-pa-md q-mt-xl q-pt-lg">{{ $t('label.CreateYourPublicQuest') }}</h1>
         <div class="q-pa-md" v-html="$t('label.BuilderWelcomeMessage')"></div>
         <div class="q-px-md centered">
-          <q-btn color="primary" class="glossy large-btn" @click="createNewQuest()" test-id="btn-accept-rules">{{ $t('label.AcceptTheRules') }}</q-btn>
+          <q-btn color="primary" class="glossy large-btn" @click="createNewQuest()" test-id="btn-accept-rules"><div>{{ $t('label.AcceptTheRules') }}</div></q-btn>
           <q-btn class="full-width center q-mt-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>
         </div>
       </div>
@@ -174,9 +174,9 @@
         <h1 class="subtitle3 text-uppercase q-pa-md q-mt-xl q-pt-lg">{{ $t('label.CreateYourPrivateQuest') }}</h1>
         <div v-if="userType === 'individual'" class="q-pa-md" v-html="$t('label.BuilderPrivateWelcomeMessage')"></div>
         <div v-if="userType === 'pro'" class="q-pa-md" v-html="$t('label.BuilderPrivateProWelcomeMessage')"></div>
-        <div class="q-px-md">
-          <q-btn v-if="userType === 'individual'" color="primary" class="full-width center" @click="buyPrivateQuest()">{{ $t('label.AcceptAndBuyAPrivateQuest') }} ({{ privateQuest.price }})</q-btn>
-          <q-btn v-if="userType === 'pro'" color="primary" class="full-width center" @click="createNewQuest()">{{ $t('label.AcceptTheRules') }}</q-btn>
+        <div class="q-px-md centered">
+          <q-btn v-if="userType === 'individual'" color="primary" class="glossy large-btn" @click="buyPrivateQuest()"><div>{{ $t('label.AcceptAndBuyAPrivateQuest') }} ({{ privateQuest.price }})</div></q-btn>
+          <q-btn v-if="userType === 'pro'" color="primary" class="glossy large-btn" @click="createNewQuest()"><div>{{ $t('label.AcceptTheRules') }}</div></q-btn>
           <q-btn class="full-width center q-mt-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>
         </div>
       </div>

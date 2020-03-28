@@ -158,10 +158,11 @@
               @click="backAction()" />-->
             <q-btn 
               class="glossy large-btn"
+              :disabled="formDisabled"
               color="primary" 
               :label="$t('label.Subscribe')" 
               :loading="submitting" 
-              @click="formSubmit" />
+              type="submit" />
             <div class="centered q-mt-sm q-mb-lg">
               <a @click="goToSignIn()">{{ $t('label.IAlreadyHaveAnAccount') }}</a>
             </div>
@@ -200,6 +201,7 @@ export default {
       },
       showPrivateBox: false,
       submitting: false,
+      formDisabled: true,
       step: this.$route.params.step ? this.$route.params.step: 'generic',
       countries: this.$i18n.locale === 'fr' ? countriesFR : countriesEN,
       sexes: [{label: this.$t('label.Male'), value: 'male'}, {label: this.$t('label.Female'), value: 'female'}],
@@ -218,9 +220,10 @@ export default {
         case 'generic':
           // check if password is set
           this.$v.form.password.$touch()
+          this.$v.form.email.$touch()
           // check if name is set
           this.$v.form.name.$touch()
-          if (!this.$v.form.password.$error && !this.$v.form.name.$error) {
+          if (!this.$v.form.password.$error && !this.$v.form.email.$error && !this.$v.form.name.$error) {
             this.step = 'location'
           }
           break
@@ -328,6 +331,8 @@ export default {
           } else if (userExisting.status === 'blocked') {
             // the user account is blocked (too much password or validation code tries)
             Notification(this.$t('label.YourAccountIsBlocked'), 'warning')
+          } else {
+            this.formDisabled = false
           }
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')

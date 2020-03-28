@@ -30,15 +30,15 @@
     <!------------------ INVENTORY PAGE AREA ------------------------>
     
     <transition name="slideInBottom">
-      <div v-show="inventory.isOpened" class="bg-primary text-white inventory panel-bottom">
+      <div v-show="inventory.isOpened" class="bg-graaly-blue-dark text-white inventory panel-bottom">
         <div class="q-pa-md">
-          <a class="float-right no-underline close-btn" color="grey" @click="inventory.isOpened = false"><q-icon name="close" class="subtitle4" /></a>
-          <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Inventory') }}</div>
+          <a class="float-right no-underline" color="grey" @click="inventory.isOpened = false"><q-icon name="close" class="subtitle3" /></a>
+          <div class="subtitle3 q-pb-lg">{{ $t('label.Inventory') }}</div>
           <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
-          <p v-if="inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type === 'use-item'">{{ $t('label.InventoryUsage') }}</p>
-          <p v-if="inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type !== 'use-item'">{{ $t('label.InventoryZoom') }}</p>
+          <p class="subtitle5" v-if="inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type === 'use-item'">{{ $t('label.InventoryUsage') }}</p>
+          <p class="subtitle5" v-if="inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type !== 'use-item'">{{ $t('label.InventoryZoom') }}</p>
           <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
             <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
@@ -54,7 +54,7 @@
         <img style="width: 100%" :src="inventory.detail.url">
         <div class="q-pa-md">{{ inventory.detail.title }}</div>
         <div class="q-pa-md text-grey">{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>
-        <q-btn class="q-pa-md" color="primary" @click="closeInventoryDetail()">{{ $t('label.Close') }}</q-btn>
+        <q-btn class="glossy normal-button" color="primary" @click="closeInventoryDetail()"><div>{{ $t('label.Close') }}</div></q-btn>
       </div>
     </q-dialog>
     
@@ -69,7 +69,7 @@
           <div class="text-center dark-banner q-pb-xl q-pt-md fixed-bottom">
             <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title : $t('label.NoTitle') }}</p>
             <!--<q-linear-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-linear-progress>-->
-            <p class="q-pa-md score-text" v-show="info && !offline.active && (!info.quest.customization || !info.quest.customization.removeScoring)">{{ $t('label.CurrentScore') }}: {{ info.score }} <!--<q-icon color="white" name="fas fa-trophy" />--></p>
+            <!--<p class="q-pa-md score-text" v-show="info && !offline.active && (!info.quest.customization || !info.quest.customization.removeScoring)">{{ $t('label.CurrentScore') }}: {{ info.score }} <!--<q-icon color="white" name="fas fa-trophy" />--</p>-->
             <p>
               <q-btn class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="backToMap"><span>{{ $t('label.LeaveQuest') }}</span></q-btn>
             </p>
@@ -170,7 +170,9 @@
             :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!hint.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
             @click="askForHint()" 
             v-show="hint.show" 
-          />
+          >
+            <q-badge v-if="this.step && this.step.hint" color="secondary" floating>{{ this.step.hint.length }}</q-badge>
+          </q-btn>
         </div>
         <div class="col centered q-pb-md">
           <q-btn 
@@ -233,6 +235,10 @@ export default {
     utils.clearAllRunningProcesses()
     this.initData()
     this.keepScreenAwake()
+    // hide status bar on Android
+    if (cordova.platformId === 'android') {
+      StatusBar.show()
+    }
   },
   methods: {
     initialState () {

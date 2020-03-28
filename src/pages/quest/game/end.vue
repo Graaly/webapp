@@ -26,7 +26,11 @@
       </div>
     </div>
     
-    <div class="q-pa-md" style="margin-top: 50px;" v-if="!warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
+    <div v-if="isUserAuthor" class="back centered q-pa-md">
+      <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
+    </div>
+        
+    <div class="q-pa-md" style="margin-top: 50px;" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
       <div v-if="run && run._id">
         <div class="relative-position header-point-box">
           <!------------------ TITLE AREA ------------------------>
@@ -124,9 +128,6 @@
         <div class="back centered q-pa-md">
           <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToTheMap')" @click="$router.push('/home')" />
         </div>
-        <div v-if="isUserAuthor" class="back centered q-pa-md">
-          <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
-        </div>
         <div v-if="isUserAdmin" class="back centered q-pa-md">
           <q-btn color="primary" class="glossy large-button" :label="$t('label.GoToQuestValidation')" @click="$router.push('/admin/validate/' + questId + '/version/' + quest.version)" />
         </div>
@@ -174,15 +175,15 @@
     <!--====================== CHALLENGE YOUR FRIENDS PAGE =================================-->
     
     <transition name="slideInBottom">
-      <div class="panel-bottom q-pa-md bg-primary" v-show="showChallenge">      
-        <a class="float-right no-underline" color="grey" @click="closeChallenge"><q-icon name="close" class="subtitle4" /></a>
-        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.ChallengeYourFriends') }}</div>
+      <div class="panel-bottom q-pa-md bg-graaly-blue-dark" v-show="showChallenge">      
+        <a class="float-right no-underline" color="grey" @click="closeChallenge"><q-icon name="close" class="subtitle3" /></a>
+        <div class="subtitle3 q-pt-md q-pb-lg">{{ $t('label.ChallengeYourFriends') }}</div>
         <div v-if="filteredFriends.length === 0">
           {{ $t('label.NoFriendsLong') }}
         </div>
         <div v-if="filteredFriends.length > 0">
           <div class="q-pa-md centered">
-            <q-btn color="primary" size="lg" full @click="challengeAll" :label="$t('label.ChallengeAllFriends')" />
+            <q-btn color="primary" class="glossy large-button" full @click="challengeAll" :label="$t('label.ChallengeAllFriends')" />
           </div>
           <div class="q-pa-md centered">
             {{ $t('label.Or') }}
@@ -205,7 +206,7 @@
                 </q-item-section>
                 <q-item-label>{{ friend.name }}</q-item-label>
                 <q-item-section side>
-                  <q-btn v-show="!friend.isChallenged" color="primary" :label="$t('label.Challenge')" @click="challenge(friend)" />
+                  <q-btn v-show="!friend.isChallenged" color="primary" class="normal-button glossy" :label="$t('label.Challenge')" @click="challenge(friend)" />
                 </q-item-section>
               </q-item>
             </q-list>
@@ -218,9 +219,8 @@
     
     <transition name="slideInBottom">
       <div class="panel-bottom q-pa-md" v-if="showBonus">      
-        <a class="float-right no-underline close-btn" color="grey" @click="closeBonus"><q-icon name="close" class="medium-icon" /></a>
-        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.YouWonABonus') }}</div>
-        <div class="q-pa-md">
+        <div class="text-h4 q-pt-md q-pb-lg centered">{{ $t('label.YouWonABonus') }}</div>
+        <div class="q-pa-md text-primary">
           <q-card class="q-ma-sm">
             <img :src="'statics/icons/game/bonus_' + run.bonus + '.png'">
             <q-card-section>
@@ -228,6 +228,9 @@
             </q-card-section>
             <q-card-section>
               {{ $t('bonus.' + run.bonus + 'Desc') }}
+            </q-card-section>
+            <q-card-section>
+              <q-btn color="primary" class="glossy normal-button" @click="closeBonus"><div>{{ $t('label.Close') }}</div></q-btn>
             </q-card-section>
           </q-card>
         </div>
@@ -304,6 +307,10 @@ export default {
   async mounted () {
     utils.clearAllRunningProcesses()
     await this.loadData()
+    // hide status bar on Android
+    if (cordova.platformId === 'android') {
+      StatusBar.hide()
+    }
   },
   methods: {
     /*
@@ -352,7 +359,10 @@ export default {
         }
         
         // get user old score
-        this.score.old = this.$store.state.user.score
+        this.score.old = this.$store.state.user.points
+        if (!this.score.old) {
+          this.score.old = 0
+        }
         
         this.initProgression()
         
@@ -395,7 +405,7 @@ export default {
           this.score.new = runIsInProgress ? this.score.old + this.run.stars : this.score.old
 
           // force score update
-          this.$store.state.user.score = this.score.new
+          this.$store.state.user.points = this.score.new
           utils.setTimeout(this.updateProgression, 3000)
         }
       } else {
@@ -534,16 +544,21 @@ export default {
      * Open the challenge friends modal
      */
     async openChallengeBox() {
-      this.showChallenge = true
-      /*var challengers = await UserService.getBestFriends()
-      if (challengers && challengers.data && challengers.data.length > 0) {
-        this.bestFriends = challengers.data
-      }*/
-      var allFriends = await UserService.listFriends()
-      if (allFriends && allFriends.data && allFriends.data.length > 0) {
-        this.friends = allFriends.data
-        this.filteredFriends = this.friends
-      }
+      // only connected user can challenge
+      if (this.$store.state.user.name === '-') {
+        this.$router.push("/user/updateprofile")
+      } else {
+        this.showChallenge = true
+        /*var challengers = await UserService.getBestFriends()
+        if (challengers && challengers.data && challengers.data.length > 0) {
+          this.bestFriends = challengers.data
+        }*/
+        var allFriends = await UserService.listFriends(this.$store.state.user._id, 0, 100)
+        if (allFriends && allFriends.data && allFriends.data.length > 0) {
+          this.friends = allFriends.data
+          this.filteredFriends = this.friends
+        }
+      } 
     },
     /*
      * Close the challenge friends modal

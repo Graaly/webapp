@@ -16,7 +16,7 @@
         </div>
       </div>
       <!-- =========================== PICTURE & AUTHOR ========================== -->
-      <div v-if="quest && quest.status" class="relative-position" :style="'width: 100vw; height: 50vh; background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '" v-touch-swipe.horizontal="swipeMgmt">
+      <div v-if="quest && quest.status" class="relative-position" :style="'width: 100vw; height: 50vh; background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
         <div class="q-py-sm q-px-md dark-banner fixed-top">
           <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         </div>
@@ -707,7 +707,7 @@ export default {
     /*
      * Launch a quest with default language
      * @param   {Object}    obj         Swipe object
-     */
+     *
     swipeMgmt(obj) {
       if (obj.direction === 'right') {
         this.backToTheMap()
@@ -728,6 +728,7 @@ export default {
       if (this.isHybrid) {
         this.offline.show = true
       } else {
+console.log("Issue *****")
         var _this = this
         setTimeout(function() { _this.startQuest(questId, lang) }, 7000)
       }      

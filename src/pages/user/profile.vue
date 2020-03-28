@@ -3,7 +3,7 @@
     <div id="teaser q-mb-lg">
       <div class="q-py-sm q-px-md dark-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToTheMap()" />
-        <q-btn flat v-if="$store.state.user.id === $route.params.id" class="float-right" icon="settings" @click="updateProfile()" />
+        <q-btn flat v-if="$store.state.user.id === userId" class="float-right" icon="settings" @click="updateProfile()" />
       </div>
       <div class="centered">
         <div class="user-card user-card-big main-profile relative-position">
@@ -28,7 +28,7 @@
       <div v-if="user.description" class="q-pa-md subtitle6">
         {{ user.description }}
       </div>
-      <div class="centered q-pa-md" v-if="$store.state.user.id !== $route.params.id">
+      <div class="centered q-pa-md" v-if="$store.state.user.id !== userId">
         <q-btn 
            v-if="!user.status || user.status !== 'friend'"
           class="glossy large-btn"
@@ -49,7 +49,7 @@
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
       </div>
-      <!--<div v-if="$store.state.user.id === $route.params.id">
+      <!--<div v-if="$store.state.user.id === userId">
         <div v-if="quests.built.rejected && quests.built.rejected.length > 0">
           <!--====================== MY QUESTS REJECTED =================================--
         
@@ -238,6 +238,7 @@ export default {
         draft: [],
         published: []
       }*/
+      this.quests.built = []
 
       if (response && response.data) {
         if (response.data.length > 0) {
@@ -323,18 +324,22 @@ export default {
      * Follow a user
      */
     async follow () {
-      let addFriendStatus = await UserService.addFriend(this.userId)
-
-      if (addFriendStatus) {
-        if (addFriendStatus.data && addFriendStatus.data.hasOwnProperty('status') && addFriendStatus.data.status === 'invitationsent') {
-          Notification(this.$t('label.InvitationSent'), 'success')
-        } else {
-          Notification(this.$t('label.FriendsAdded'), 'success')
-        }
-        // hide the user to avoid user add him again as friend
-        Vue.set(this.user, 'status', 'friend')
+      if (this.$store.state.user.name === '-') {
+        this.updateProfile()
       } else {
-        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        let addFriendStatus = await UserService.addFriend(this.userId)
+
+        if (addFriendStatus) {
+          if (addFriendStatus.data && addFriendStatus.data.hasOwnProperty('status') && addFriendStatus.data.status === 'invitationsent') {
+            Notification(this.$t('label.InvitationSent'), 'success')
+          } else {
+            Notification(this.$t('label.FriendsAdded'), 'success')
+          }
+          // hide the user to avoid user add him again as friend
+          Vue.set(this.user, 'status', 'friend')
+        } else {
+          Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        }
       }
     },
     /*

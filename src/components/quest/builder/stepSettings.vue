@@ -1,14 +1,9 @@
 <template>
-  <div class="bg-white">
-    <div class="q-pa-md background-dark">
-      <a class="float-right no-underline" color="grey" @click="close"><q-icon name="close" class="subtitle4" /></a>
-      
-      <div class="subtitle3" v-if="selectedStep.type !== null">{{ $t('stepType.' + selectedStep.type.title) }}</div>
-    </div>
+  <div class="bg-white arial step-setting">
     
     <!------------------ COMMON FOR ALL STEPS ------------------------>
     
-    <div class="q-pa-md scroll">
+    <div class="q-pa-md q-pt-xl q-mt-lg">
       <q-input
         type="text"
         :label="$t('label.Title') + ' ' + currentLanguageForLabels"
@@ -762,6 +757,14 @@
       <div class="centered q-pa-md">
         <q-btn class="glossy large-button" color="primary" @click="submitStep" test-id="btn-save-step">{{ $t('label.SaveThisStep') }}</q-btn>
       </div>
+    </div>
+    
+    <!------------------ HEADER ------------------------>
+    
+    <div class="q-pa-md background-dark fixed-top">
+      <a class="float-right no-underline" color="grey" @click="close"><q-icon name="close" class="subtitle4" /></a>
+      
+      <div class="subtitle3" v-if="selectedStep.type !== null">{{ $t('stepType.' + selectedStep.type.title) }}</div>
     </div>
     
     <q-dialog id="save-changes-modal" class="full-width" v-model="saveChangesModalOpened">

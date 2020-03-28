@@ -261,6 +261,15 @@ a.no-underline {
   padding-left: 10px;
   padding-right: 10px;
 }
+.small-button {
+  font-size: 0.8em;
+  padding-left: 7px;
+  padding-right: 7px;
+  min-height: 1.5em;
+}
+.small-button .q-btn__content div {
+  min-height: 20px !important;
+}
 .q-btn--rectangle {
   border-radius: 9px;
 }
@@ -271,6 +280,9 @@ a.no-underline {
   background-repeat: no-repeat;
   background-size: 100px 100px;
   text-align: center;
+}
+.q-btn--flat {
+  line-height: 2em;
 }
 
 /////////////////////////////// Popup CSS /////////////////////////////////////
@@ -309,7 +321,7 @@ a.no-underline {
   background-color: #0F2A3C;
   border: 1px solid #215C84;
   color: #fff;
-  overflow: visible;
+  /*overflow: visible;*/
 }
 .q-dialog__inner > div.bg-white {
   color: rgba(0,0,0,0.87);
@@ -324,6 +336,17 @@ a.no-underline {
 .popup-over-header img {
   width: 50%;
 }
+.full-page-div {
+  position: absolute; 
+  top:0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0; 
+  z-index: 7003;
+}
+.full-page-div .scroll {
+  height: 100%;
+}
 
 /////////////////////////////// Titles CSS /////////////////////////////////////
 
@@ -334,7 +357,7 @@ a.no-underline {
   font-size: 10pt;
   width: 172px;
   text-align: center;
-  margin: 30px 0 8px 0;
+  margin: 25px 0 8px 0;
   background-size: 172px 43px;
 }
 .desktop .title-bar {
@@ -357,7 +380,7 @@ a.no-underline {
 }
 .white-overliner {
   background-color: rgba(255, 255, 255, 0.2);
-  padding: 5px;
+  padding: 3px 5px 8px 5px;
   border-radius: 5px;
 }
 
@@ -742,7 +765,7 @@ a.no-underline {
   width: 100%;
 }
 .main-quest-banner .title2 {
-  height: 90px;
+  height: 100px;
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -929,6 +952,10 @@ a.no-underline {
   filter: brightness(100);
   -webkit-filter: brightness(100);
   -moz-filter: brightness(100);
+}
+.step-setting {
+  overflow-y: scroll !important;
+  height: 100%
 }
 
 /////////////////////////////// page CSS /////////////////////////////////////
