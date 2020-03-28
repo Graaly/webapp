@@ -58,10 +58,10 @@
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
-            <img style="vertical-align:bottom" v-if="step.options.character.length === 1" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
-            <img style="max-width: 100%; max-height: 200px; vertical-align:bottom;" v-if="step.options.character.length > 1" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
+            <img style="vertical-align:bottom" v-if="step.options.character.length < 3" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
+            <img style="max-width: 100%; max-height: 200px; vertical-align:bottom;" v-if="step.options.character.length > 2" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
           </div>
-          <div class="full-width bg-accent" style="height: 70px">
+          <div class="full-width bg-black" style="height: 70px">
           </div>
         </div>
       </div>
@@ -110,8 +110,8 @@
         </div>
         <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
-            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()">{{ $t('label.Clear') }}</q-btn>
-            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
+            <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
         </div>
       </div>
@@ -128,7 +128,7 @@
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
-            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
         </div>
       </div>
@@ -160,7 +160,7 @@
         
         <div class="actions q-mt-lg" v-show="playerResult === null">
           <div>
-            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code">{{ $t('label.Confirm') }}</q-btn>
+            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
         </div>
       </div>
@@ -203,8 +203,14 @@
         </div>
         <div class="answer-text">
           <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
-          <input v-bind:value="writetext.playerAnswer" v-on:input="writetext.playerAnswer = $event.target.value" :placeholder="$t('label.YourAnswer')" :class="{right: playerResult === true, wrong: playerResult === false}" :disabled="stepPlayed" />
-          <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" class="full-width" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer">{{ $t('label.ConfirmTheAnswer') }}</q-btn>
+          <input 
+            class="subtitle6" 
+            v-bind:value="writetext.playerAnswer" 
+            v-on:input="writetext.playerAnswer = $event.target.value" 
+            :placeholder="$t('label.YourAnswer')" 
+            :class="{right: playerResult === true, wrong: playerResult === false}" 
+            :disabled="stepPlayed" />
+          <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer"><div>{{ $t('label.ConfirmTheAnswer') }}</div></q-btn>
         </div>
       </div>
       
@@ -227,14 +233,14 @@
             ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'"></header></div>
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
-        <div class="centered text-grey q-pt-xl" v-if="puzzle.mode === 'drag'">
+        <div class="centered text-grey q-pt-lg arial" v-if="puzzle.mode === 'drag'">
           {{ $t('label.PuzzleHelpText') }}
         </div>
-        <div class="centered text-primary q-pt-xl" v-if="puzzle.mode === 'click'">
+        <div class="centered text-primary q-pt-lg arial" v-if="puzzle.mode === 'click'">
           {{ $t('label.PuzzleHelpTextClick') }}
         </div>
         <div class="centered text-grey q-pt-sm" v-if="puzzle.mode === 'drag'">
-          <a @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
+          <a class="text-grey" @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
         </div>
       </div>
       
@@ -328,9 +334,10 @@
           <div>
             <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
           </div>
-          <div v-if="!step.options || !step.options.fullWidthPicture" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
+          <div v-if="!step.options || (!step.options.fullWidthPicture && !step.options.redFilter)" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
           </div>
-          <img v-if="step.options && step.options.fullWidthPicture" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985;" />
+          <img v-if="step.options && step.options.fullWidthPicture && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985;" />
+          <img v-if="step.options && step.options.redFilter" src="statics/images/background/red.png" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985; mix-blend-mode: multiply;" />
         </div>
       </div>
       
@@ -360,7 +367,7 @@
           {{ $t('label.ScanTheMarkersLikeThat') }}
           <div><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
           {{ $t('label.ScanTheMarkersLikeThat2') }}
-          <div><q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="startScanQRCode()">{{ $t('label.LaunchTheScanner') }}</q-btn></div>
+          <div><q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="startScanQRCode()"><div>{{ $t('label.LaunchTheScanner') }}</div></q-btn></div>
         </div>
         <div v-if="!locateMarker.compliant">
           {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
@@ -385,8 +392,8 @@
     
     <!--====================== WIN POINTS ANIMATION =================================-->
     
-    <div v-show="playerResult === true && score > 1" class="fadein-message">+{{ score }} <!--<q-icon color="white" name="fas fa-trophy" />--></div>
-    <div v-show="playerResult === true && score === 1" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
+    <!--<div v-show="playerResult === true && score >= 1" class="fadein-message">+{{ score }}</div>-->
+    <div v-show="playerResult === true && score >= 1" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
     
     <!--====================== STORY =================================-->
@@ -400,7 +407,7 @@
     <q-dialog v-model="enlargePicture.show">
       <div class="bg-white centered q-pa-md">
         <img style="width: 100%" :src="enlargePicture.url">
-        <q-btn class="q-mb-xl" color="primary" @click="enlargePicture.show = false">{{ $t('label.Close') }}</q-btn>
+        <q-btn class="q-mb-xl glossy large-button" color="primary" @click="enlargePicture.show = false"><div>{{ $t('label.Close') }}</div></q-btn>
       </div>
     </q-dialog>
     
@@ -975,7 +982,6 @@ export default {
                 this.cameraStreamEnabled = true
                 
                 // init video capturing
-console.log("try")
                 const track = stream.getVideoTracks()[0];
                 this.imageCapture = new ImageCapture(track);
               })
@@ -1352,7 +1358,6 @@ console.log("try")
         // check offline answer
         //if (this.answer) {
           let checkAnswerOfflineResult = await this.checkOfflineAnswer(answerData.answer)
-console.log(checkAnswerOfflineResult)
           return checkAnswerOfflineResult
         //} else {
         //  Notification(this.$t('label.ErrorStandardMessage'), 'error')
@@ -1526,14 +1531,11 @@ console.log(checkAnswerOfflineResult)
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             this.nbTry++
-console.log(checkAnswerResult)
             if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
-console.log("check1")
               // reset code
               this.resetKeypadCode()
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
-console.log("check2")
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
@@ -1637,7 +1639,6 @@ console.log("check2")
           
         case 'find-item':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
-          
           if (checkAnswerResult.result === true) {
             if (this.step.displayRightAnswer) {
               this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
@@ -1651,7 +1652,6 @@ console.log("check2")
               if (this.step.displayRightAnswer) {
                 this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
               }
-              
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
@@ -2325,7 +2325,7 @@ console.log("check2")
      * @param   {object}    ev            Event when user touch screen to get location
      */
     async useItem(ev) {
-      if (this.playerResult === true || this.nbTry >= 3) {
+      if (this.playerResult === true) {
         return
       }
 
@@ -2382,7 +2382,7 @@ console.log("check2")
      * @param   {object}    ev            Event when user touch the screen
      */
     async findItem(ev) {
-      if (this.playerResult === true || this.nbTry >= 3) {
+      if (this.playerResult === true) {
         return
       }
       
@@ -2567,9 +2567,14 @@ console.log("check2")
     handleDragStart(e) {
       if (this.puzzle.mode === 'drag') {
         if (e.target.className.indexOf('piece') !== -1) {
-          this.puzzle.dragSrcEl = e.target;
+          this.puzzle.dragSrcEl = e.target
         }
         return true
+      } else {
+        this.puzzle.dragSrcEl = null
+        e.stopPropagation()
+        e.stopImmediatePropagation()
+        e.preventDefault()
       }
     },
     /*
@@ -2590,7 +2595,7 @@ console.log("check2")
      */
     handleDragEnd(e) {
       if (this.puzzle.mode === 'drag') {
-        this.puzzle.dragSrcEl = null;
+        this.puzzle.dragSrcEl = null
         var cols = document.querySelectorAll('#pieces .piece');
         [].forEach.call(cols, function (col) {
           col.style.opacity = ''
@@ -2660,6 +2665,7 @@ console.log("check2")
      * Move puzzle pieces with click
      */
     movePieceWithClick(pos) {
+      this.puzzle.dragSrcEl = null
       if (this.puzzle.mode === 'click') {
         if (this.puzzle.clickModeSelected === null) {
           for (let i = 0; i < this.puzzle.pieces.length; i++) {
@@ -2672,6 +2678,10 @@ console.log("check2")
             }
           }
         } else {
+          // sometimes click is doubled
+          if (this.puzzle.clickModeSelected === pos) {
+            return
+          }
           for (let i = 0; i < this.puzzle.pieces.length; i++) {
             this.puzzle.pieces[i].classes = 'piece'
           }
@@ -3369,7 +3379,7 @@ console.log("check2")
   /* write-text specific */
   
   .answer-text { flex-grow: 1; display: flex; flex-flow: column nowrap; justify-content: center; }
-  .answer-text input { opacity: 0.7; font-size: 1.5em; font-weight: bold; height: 1.5em; background-color: #fff; border-radius: 0.5rem; box-shadow: 0px 0px 0.1rem 0.1rem #fff;}
+  .answer-text input { opacity: 0.7; font-family: arial; font-size: 1.5em; font-weight: bold; height: 1.5em; background-color: #fff; border-radius: 0.5rem; box-shadow: 0px 0px 0.1rem 0.1rem #fff;}
     
   /* new-item specific */
   
@@ -3389,7 +3399,7 @@ console.log("check2")
   
   .image-over-flow { background: transparent; padding: 0px !important; }
   .image-over-flow video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-  .image-over-flow .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
+  .image-over-flow .text { z-index: 5000; position: relative; } /* positioning is required to have z-index working */
   .image-over-flow .image { z-index: 50; position: relative; } /* positioning is required to have z-index working */
   
   /* locate-marker specific */

@@ -1,30 +1,106 @@
 <template>
-  <div class="wrapper puzzle-bottom">
-    <div class="page-content puzzle-top">
+  <div class="wrapper background-map">
+    <div class="page-content">
       
       <!------------------ TITLE AREA ------------------------>
       
       <div class="centered q-pt-lg q-pb-md">
-        <img src="statics/icons/game/logo-medium.png" style="width: 40%; max-width: 320px;" />
+        <img src="statics/images/logo/logo-home.png" class="logo-top" />
       </div>
       
-      <div>
+      <div class="q-pa-md">
+        <div class="centered title2 q-mb-lg">{{ $t('label.Welcome') }}</div>
         
-        <!------------------ PLAY ANONYMOUS ------------------>
-        
-        <div class="q-pa-md">
-          <q-btn class="full-width" size="lg" color="primary" @click="validateTerms()">{{ $t('label.LetsPlay') }}</q-btn>
-        </div>
+        <!------------------ FORM AREA ------------------------>
+        <form @submit.prevent="formSubmit">
+          
+          <div>
+            
+            <q-input
+              outlined
+              type="email"
+              :label="$t('label.YourEmail')"
+              v-model="form.email"
+              @blur="$v.form.email.$touch"
+              :error="$v.form.email.$error"
+              :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
+              test-id="login"
+              />
+            
+            <q-input 
+              outlined
+              type="password" 
+              v-model="form.password" 
+              :label="$t('label.YourPassword')" 
+              v-if="step !== 'forgottenpassword'"
+              test-id="password"
+              />
+            
+            <!------------------ FORGOTTEN PASS AREA ------------------------>
+            
+            <p class="centered q-mt-sm q-mb-lg" v-if="step !== 'forgottenpassword'">
+              <a @click="openPasswordForgottenPopup()">{{ $t('label.ForgottenPassword') }}</a>
+            </p>
+            
+            <div v-if="step === 'forgottenpassword'">
+              <p>{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
+              <q-input outlined :label="$t('label.Code')" v-model="form.code" />
+            </div>
+            
+            <div v-if="step === 'forgottenpassword'">
+              <q-input
+                outlined
+                type="password"
+                v-model="form.newPassword"
+                :label="$t('label.YourNewPassword')"
+                @blur="$v.form.newPassword.$touch"
+                bottom-slots
+                :error="$v.form.newPassword.$error"
+                :error-message="!$v.form.newPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.form.newPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
+                />
+            </div>
+          </div>
+          
+          <div class="text-center">
+            <q-btn 
+              type="submit"
+              class="glossy large-btn"
+              color="primary" 
+              :label="$t('label.SignIn')"
+              :loading="submitting" 
+              />
+          </div>
+          <div class="centered q-mt-sm q-mb-lg">
+            <a @click="goToSubscribe()">{{ $t('label.Subscribe') }}</a>
+          </div>
+          
+        </form>
         
         <!------------------ START PLAYING WITH QR CODE ------------------>
         
-        <div v-if="isHybrid" class="q-pa-md">
-          <q-btn class="full-width" color="secondary" @click="startScanQRCode()">{{ $t('label.ScanQRCodeToStartQuest') }}</q-btn>
+        <div v-if="isHybrid" class="q-py-md centered">
+          <q-btn 
+            class="glossy large-btn" 
+            color="accent"
+            @click="startScanQRCode()"
+            :label="$t('label.ScanQRCodeToStartQuest')"
+            />
         </div>
         
-        <p class="text-center text-h6 text-grey q-mt-md q-mb-md">
+        <!------------------ PLAY ANONYMOUS ------------------>
+        
+        <div class="q-py-md centered">
+          <q-btn 
+            class="glossy large-btn" 
+            color="accent" 
+            @click="validateTerms()"
+            :label="$t('label.LetsPlay')"
+            />
+        </div>
+        
+        <!--<p class="text-center text-h6 text-grey q-mt-md q-mb-md">
           {{ $t('label.orSignInWith') }}
-        </p>
+        </p>-->
         
         <!------------------ SOCIAL LOGIN BUTTONS ------------------------>
         <!-- MPA 2019-12-10 not currently supported by new JWT-based auth
@@ -33,66 +109,45 @@
           <q-btn v-if="showSocialLogin.google" @click="googleLogin" class="full-width" color="google" icon="fab fa-google" label="Google" />
         </div>
         -->
-        
-        <!------------------ FORM AREA ------------------------>
-        <q-card class="q-mx-md">
-          <q-card-section>
-            <form @submit.prevent="formSubmit()">
-              
-              <div>
-                
-                <q-input
-                  v-if="step === 'email'"
-                  type="email"
-                  :label="$t('label.YourEmail')"
-                  v-model="form.email"
-                  @blur="$v.form.email.$touch"
-                  bottom-slots
-                  :error="$v.form.email.$error"
-                  :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
-                  test-id="login"
-                  />
-                
-                <div v-if="step === 'password'">{{ form.email }}</div>
-                <q-input v-if="step === 'password'" type="password" v-model="form.password" :label="$t('label.YourPassword')" test-id="password" />
-                
-                <!------------------ FORGOTTEN PASS AREA ------------------------>
-                
-                <p class="text-right q-mt-md q-mb-md" v-if="step === 'password'">
-                  <a @click="sendForgottenPasswordCode()">{{ $t('label.ForgottenPassword') }}</a>
-                </p>
-                
-                <div v-if="step === 'forgottenpassword'">
-                  <p>{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
-                  <q-input :label="$t('label.Code')" v-model="form.code" />
-                </div>
-                
-                <div v-if="step === 'forgottenpassword'">
-                  <q-input
-                    type="password"
-                    v-model="form.newPassword"
-                    :label="$t('label.YourNewPassword')"
-                    @blur="$v.form.newPassword.$touch"
-                    bottom-slots
-                    :error="$v.form.newPassword.$error"
-                    :error-message="!$v.form.newPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.form.newPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
-                    />
-                </div>
-              </div>
-              
-              <p class="text-center multiple-btn margin-size-3">
-                <q-btn v-if="step !== 'email'" color="primary" icon="fas fa-chevron-left" :loading="submitting" @click="backAction()" />
-                <q-btn color="primary" icon="fas fa-chevron-right" :loading="submitting" @click="formSubmit" :disabled="(step === 'email' && !form.email) || (step === 'password' && !form.password)" />
-              </p>
-              
-            </form>
-          </q-card-section>
-        </q-card>
 
-        <div class="version">Version {{ version }}</div>
+        <div class="centered smaller version secondary-font">Version {{ version }}</div>
       
       </div>
     </div>
+    
+    <!------------------ Lost Password Dialog ------------------------>
+    
+    <q-dialog v-model="passwordForgottenPopup">
+      <q-card>
+        <q-card-section class="popup-header row items-center">
+          {{ $t('label.ForgottenPassword') }}
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-section>
+          <q-input
+            outlined
+            type="email"
+            :label="$t('label.YourEmail')"
+            v-model="form.email"
+            @blur="$v.form.email.$touch"
+            bottom-slots
+            :error="$v.form.email.$error"
+            :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
+            />
+          
+          <q-btn 
+            class="glossy full-width" 
+            color="primary" 
+            @click="sendForgottenPasswordCode()"
+            :label="$t('label.Ok')"
+            />
+        </q-card-section>
+      </q-card>
+    </q-dialog>
     
     <!------------------ Validate terms ------------------------>
     
@@ -100,7 +155,7 @@
       <div class="q-pa-md">
         <q-item dense>
           <q-item-section avatar>
-            <q-checkbox color="gold" v-model="terms.usage" />
+            <q-checkbox dark v-model="terms.usage" />
           </q-item-section>
           <q-item-section>
             <span v-html="$t('label.IAgreeTheTermsAndConditions')" />
@@ -112,7 +167,7 @@
 
         <q-item dense>
           <q-item-section avatar>
-            <q-checkbox color="gold" v-model="terms.privacy" />
+            <q-checkbox dark v-model="terms.privacy" />
           </q-item-section>
           <q-item-section>
             <span v-html="$t('label.IAgreeThePrivacyPolicy')" />
@@ -123,7 +178,7 @@
         </q-item>
         
         <div class="centered q-pa-md">
-          <q-btn color="primary" @click="playAnonymous()">{{ $t('label.Confirm') }}</q-btn>
+          <q-btn color="primary" class="glossy large-button" @click="playAnonymous()"><span>{{ $t('label.Confirm') }}</span></q-btn>
         </div>
       </div>
     </q-dialog>
@@ -142,7 +197,7 @@ import utils from 'src/includes/utils'
 export default {
   data() {
     return {
-      step: 'email',
+      step: 'password',
       form: {
         email: '',
         password: '',
@@ -160,6 +215,7 @@ export default {
         facebook: false,
         google: false
       },
+      passwordForgottenPopup: false,
       isHybrid: window.cordova,
       serverUrl: process.env.SERVER_URL,
       submitting: false,
@@ -190,7 +246,7 @@ export default {
       this.submitting = true
       //if (!this.$v.form.$error) {
       switch (this.step) {
-        case 'email':
+        /*case 'email':
           if (!this.$v.form.email.$error) {
             // check if the user email is existing
             var userExisting = await this.checkUserIsExisting(this.form.email)
@@ -213,7 +269,7 @@ export default {
               Notification(this.$t('label.ErrorStandardMessage'), 'error')
             }
           }
-          break
+          break*/
         case 'password':
           // sign in user
           let result = await this.signIn(this.form.email, this.form.password)
@@ -263,34 +319,6 @@ export default {
       }
       this.submitting = false
     },
-    /*
-     * Manage back button actions
-     */
-    async backAction() {
-      switch (this.step) {
-        case 'password':
-          this.step = 'email'
-          break
-        case 'forgottenpassword':
-          this.step = 'password'
-          break
-      }
-    },
-    
-    /*
-     * check if the user email is already existing
-     * @param   {string}    email            user email
-     */
-    async checkUserIsExisting(email) {
-      let userStatus = await AuthService.checkEmail(email)
-      if (userStatus && userStatus.data && userStatus.data.hasOwnProperty('existing') && userStatus.data.existing === true) {
-        return {status: userStatus.data.status}
-      } else if (userStatus && userStatus.data && userStatus.data.hasOwnProperty('existing') && userStatus.data.existing === false) {
-        return {status: 'missing'}
-      } else {
-        return {error: 'technical issue'}
-      }
-    },
     
     /*
      * sign in user
@@ -339,7 +367,7 @@ export default {
             Notification(_this.$t('label.TechnicalIssue'), 'error')
           }
           if (response && (response.message === 'login successful' || (response.data && response.data.message === 'login successful'))) {
-            return _this.$router.push('/map')
+            return _this.$router.push('/home')
           } else {
             Notification(_this.$t('label.TechnicalIssue'), 'error')
           }
@@ -414,7 +442,7 @@ export default {
           if (checkStatus.data.user) {
             window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
             axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
-            this.$router.push('/map')
+            this.$router.push('/home')
           } else {
             Notification(this.$t('label.ErrorStandardMessage'), 'error')
           }
@@ -433,13 +461,29 @@ export default {
         if (checkStatus.data.user) {
           window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
           axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
-          this.$router.push('/quest/play/' + code)
+          if (code.indexOf('_score') === -1) {
+            this.$router.push('/quest/play/' + code)
+          } else {
+            this.$router.push('/quest/' + (code.substring(0, 24)) + '/end')
+          }
         } else {
           Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
         }
       } else {
         Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
       }
+    },
+    /*
+     * open the subscribe page
+     */
+    async goToSubscribe() {
+      this.$router.push('/user/createAccount/generic')
+    },
+    /*
+     * open the forgotten password popup
+     */
+    async openPasswordForgottenPopup() {
+      this.passwordForgottenPopup = true
     },
     /*
      * send the forgotten password code
@@ -451,6 +495,7 @@ export default {
       
       if (codeSent.status === 200) {
         this.step = 'forgottenpassword'
+        this.passwordForgottenPopup = false
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }

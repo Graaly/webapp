@@ -1,7 +1,9 @@
 import MainLayout from 'layouts/main'
 
-import QuestMap from 'pages/quest/map'
-import QuestPlayHome from 'pages/quest/game/home'
+import Home from 'pages/home'
+import Map from 'pages/quest/map'
+
+import QuestPlayHome from 'pages/quest/game/intro'
 import QuestPlayStep from 'pages/quest/game/step'
 import QuestEnd from 'pages/quest/game/end'
 
@@ -12,6 +14,13 @@ import QuestManageSettings from 'pages/quest/builder/settings'
 import UserLogin from 'pages/user/login'
 import UserLogout from 'pages/user/logout'
 import UserProfile from 'pages/user/updateprofile'
+import UserRanking from 'pages/user/ranking'
+import UserQuests from 'pages/user/quests'
+import UserFriends from 'pages/user/friends'
+import UserBadges from 'pages/user/badges'
+import Profile from 'pages/user/profile'
+
+import Search from 'pages/search'
 
 import Admin from 'pages/admin/admin'
 import AdminValidation from 'pages/admin/validation'
@@ -29,13 +38,7 @@ export default [
       {
         path: '',
         name: 'none',
-        redirect: '/map',
-        meta: { requiresAuth: true }
-      },
-      {
-        path: 'home',
-        name: 'home',
-        redirect: '/map',
+        redirect: '/home',
         meta: { requiresAuth: true }
       },
       {
@@ -46,9 +49,15 @@ export default [
         meta: { requiresAuth: false }
       },
       {
+        path: 'home',
+        name: 'home',
+        component: Home,
+        meta: { requiresAuth: true }
+      },
+      {
         path: 'map',
         name: 'map',
-        component: QuestMap,
+        component: Map,
         meta: { requiresAuth: true }
       },
       {
@@ -94,7 +103,7 @@ export default [
         meta: { requiresAuth: true }
       },
       {
-        path: 'user/createAccount/:email/:step',
+        path: 'user/createAccount/:step',
         name: 'signup',
         component: UserCreateAccount,
         meta: { requiresAuth: false }
@@ -112,8 +121,44 @@ export default [
         meta: { requiresAuth: true }
       },
       {
-        path: 'user/updateprofile',
+        path: 'user/:id/quests/:type',
+        name: 'quests',
+        component: UserQuests,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'user/:id/friends',
+        name: 'friends',
+        component: UserFriends,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'user/:id/badges',
+        name: 'badges',
+        component: UserBadges,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'search/:type/:subtype',
+        name: 'search',
+        component: Search,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'user/ranking/:type/:subtype',
+        name: 'ranking',
+        component: UserRanking,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'profile/:id',
         name: 'profile',
+        component: Profile,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'user/updateprofile',
+        name: 'updateprofile',
         component: UserProfile,
         meta: { requiresAuth: true }
       },

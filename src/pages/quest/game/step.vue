@@ -30,15 +30,15 @@
     <!------------------ INVENTORY PAGE AREA ------------------------>
     
     <transition name="slideInBottom">
-      <div>
-        <div class="inventory panel-bottom q-pa-md" v-show="inventory.isOpened">
-          <a class="float-right no-underline close-btn" color="grey" @click="inventory.isOpened = false"><q-icon name="close" class="medium-icon" /></a>
-          <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Inventory') }}</div>
+      <div v-show="inventory.isOpened" class="bg-graaly-blue-dark text-white inventory panel-bottom">
+        <div class="q-pa-md">
+          <a class="float-right no-underline" color="grey" @click="inventory.isOpened = false"><q-icon name="close" class="subtitle3" /></a>
+          <div class="subtitle3 q-pb-lg">{{ $t('label.Inventory') }}</div>
           <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
-          <p v-if="inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type === 'use-item'">{{ $t('label.InventoryUsage') }}</p>
-          <p v-if="inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type !== 'use-item'">{{ $t('label.InventoryZoom') }}</p>
+          <p class="subtitle5" v-if="inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type === 'use-item'">{{ $t('label.InventoryUsage') }}</p>
+          <p class="subtitle5" v-if="inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type !== 'use-item'">{{ $t('label.InventoryZoom') }}</p>
           <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
             <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
@@ -54,7 +54,7 @@
         <img style="width: 100%" :src="inventory.detail.url">
         <div class="q-pa-md">{{ inventory.detail.title }}</div>
         <div class="q-pa-md text-grey">{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>
-        <q-btn class="q-pa-md" color="primary" @click="closeInventoryDetail()">{{ $t('label.Close') }}</q-btn>
+        <q-btn class="glossy normal-button" color="primary" @click="closeInventoryDetail()"><div>{{ $t('label.Close') }}</div></q-btn>
       </div>
     </q-dialog>
     
@@ -69,15 +69,15 @@
           <div class="text-center dark-banner q-pb-xl q-pt-md fixed-bottom">
             <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title : $t('label.NoTitle') }}</p>
             <!--<q-linear-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-linear-progress>-->
-            <p class="q-pa-md score-text" v-show="info && !offline.active && (!info.quest.customization || !info.quest.customization.removeScoring)">{{ $t('label.CurrentScore') }}: {{ info.score }} <!--<q-icon color="white" name="fas fa-trophy" />--></p>
+            <!--<p class="q-pa-md score-text" v-show="info && !offline.active && (!info.quest.customization || !info.quest.customization.removeScoring)">{{ $t('label.CurrentScore') }}: {{ info.score }} <!--<q-icon color="white" name="fas fa-trophy" />--</p>-->
             <p>
-              <q-btn :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="backToMap">{{ $t('label.LeaveQuest') }}</q-btn>
+              <q-btn class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="backToMap"><span>{{ $t('label.LeaveQuest') }}</span></q-btn>
             </p>
             <p>
-              <q-btn :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" v-if="!offline.active" @click="showFeedback">{{ $t('label.Feedback') }}</q-btn>
+              <q-btn class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" v-if="!offline.active" @click="showFeedback"><span>{{ $t('label.Feedback') }}</span></q-btn>
             </p>
             <p class="q-pb-xl">
-              <q-btn color="secondary" @click="openInfo">{{ $t('label.BackToQuest') }}</q-btn>
+              <q-btn class="glossy large-button" color="secondary" @click="openInfo"><span>{{ $t('label.BackToQuest') }}</span></q-btn>
             </p>
             <p class="q-pb-lg">
             </p>
@@ -114,9 +114,11 @@
               class="full-width"
             />
         </form>
-        <div class="q-pa-md q-gutter-sm">
-          <q-btn color="secondary" @click="sendFeedback">{{ $t('label.Send') }}</q-btn>
-          <q-btn @click="hideFeedback">{{ $t('label.Close') }}</q-btn>
+        <div class="q-pa-md q-gutter-sm centered">
+          <q-btn color="primary" class="glossy large-button" @click="sendFeedback">{{ $t('label.Send') }}</q-btn>
+          <div class="q-pt-md">
+            <a class="dark" @click="hideFeedback">{{ $t('label.Cancel') }}</a>
+          </div>
         </div>
       </div>
     </q-dialog>
@@ -168,7 +170,9 @@
             :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!hint.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
             @click="askForHint()" 
             v-show="hint.show" 
-          />
+          >
+            <q-badge v-if="this.step && this.step.hint" color="secondary" floating>{{ this.step.hint.length }}</q-badge>
+          </q-btn>
         </div>
         <div class="col centered q-pb-md">
           <q-btn 
@@ -231,6 +235,10 @@ export default {
     utils.clearAllRunningProcesses()
     this.initData()
     this.keepScreenAwake()
+    // hide status bar on Android
+    if (cordova.platformId === 'android') {
+      StatusBar.show()
+    }
   },
   methods: {
     initialState () {
@@ -327,12 +335,14 @@ export default {
     async initData () {
       this.$q.loading.show()
       // get quest information
-      await this.getQuest(this.questId)
+      //await this.getQuest(this.questId) // remove await to speed up loading
+      this.getQuest(this.questId)
       
       this.loadStepData = false
 
       // get current run or create it
-      await this.getRun() // on sync mode to load step while run is checked
+      //await this.getRun() // on sync mode to load step while run is checked
+      await this.getRun()
       
       // get current step
       await this.getStep()
@@ -352,7 +362,7 @@ export default {
       utils.setTimeout(this.alertOnNext, 180000)      
       
       // check if story needs to start
-      await this.startStory()
+      //await this.startStory()
       
       // load component data
       this.loadStepData = true
@@ -366,7 +376,7 @@ export default {
     async getRun() {
       this.$q.loading.show()
       // List all run for this quest for current user
-      var runs = await RunService.listForAQuest(this.info.quest.questId, null, this.lang)
+      var runs = await RunService.listForAQuest(this.questId, null, this.lang)
       
       var currentChapter = 0
       var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
@@ -998,7 +1008,7 @@ export default {
      * Back to the map
      */
     async backToMap() {
-      return this.$router.push('/map')
+      return this.$router.push('/home')
     },
     /*
      * Display the message that the step is blocked
@@ -1026,28 +1036,6 @@ export default {
       this.startDate.remainingSeconds = Math.floor(diff % 60) 
       
       utils.setTimeout(this.computeRemainingTime, 1000)
-    },
-    /*
-     * Start the story step
-     */
-    async startStory() {
-      if (this.info.quest.type === 'discovery') {
-        if (this.step.number === 1) {
-          this.story.step = 4
-        }
-        if (this.step.number === 2) {
-          this.story.step = 5
-        }
-        /*if (this.step.number === 3) {
-          this.story.step = 6
-        }*/
-        if (this.step.number === 5) {
-          this.story.step = 7
-        }
-        if (this.step.number === 7) {
-          this.story.step = 8
-        }
-      }
     },
     /*
      * Get a quest information

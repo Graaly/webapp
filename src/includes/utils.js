@@ -724,6 +724,12 @@ var self = {
     return navigator.connection.type !== Connection.NONE
   },
   /**
+   * Open a link in the mobile browser
+   */
+  openExternalLink(url) {
+    navigator.app.loadUrl(url, { openExternal: true })
+  },
+  /**
    * Loads an image synchronously (allows to wait that the image is loaded before using it)
    * @param  {String}  src  image URL
    * @return {Object}  image object

@@ -5,14 +5,57 @@ export default {
   /*
    * list quest near the user
    * @param   {Object}    location            user location
-   * @param   {String}    type                type of quest
    * @param   {String}    lang                language
    */
-  listNearest (location, type, lang) {
+  listNearest (location, lang) {
     if (!lang) {
       lang = 'default'
     }
-    return Api().get('quests/nearest/' + location.lng + '-' + location.lat + '/' + type + '/lang/' + lang).catch(error => console.log(error.request))
+    return Api().get('quests/nearest/' + location.longitude + '-' + location.latitude + '/0/lang/' + lang).catch(error => console.log(error.request))
+  },
+  listNearestSync (location, lang, skip, done) {
+    if (!lang) {
+      lang = 'default'
+    }
+    return Api().get('quests/nearest/' + location.longitude + '-' + location.latitude + '/' + skip + '/lang/' + lang).then(function (response) {
+      done(false, response)
+    })
+  },
+  /*
+   * list quest displayed on home page
+   * @param   {Object}    location            user location
+   * @param   {String}    type                type of quest
+   * @param   {String}    lang                language
+   */
+  listHomeQuests (location, lang) {
+    if (!lang) {
+      lang = 'default'
+    }
+    return Api().get('quests/home/' + location.lng + '-' + location.lat + '/lang/' + lang).catch(error => console.log(error.request))
+  },
+  /*
+   * list quests for a country
+   */
+  listAllForCountry () {
+    return Api().get('quests/country/FR').catch(error => console.log(error.request))
+  },
+  /*
+   * list quests played by friends
+   * @param   {String}    lang                language
+   */
+  listFriendQuests (lang) {
+    if (!lang) {
+      lang = 'default'
+    }
+    return Api().get('quests/friends/played/0/lang/' + lang).catch(error => console.log(error.request))
+  },
+  listFriendQuestsync (lang, skip, done) {
+    if (!lang) {
+      lang = 'default'
+    }
+    return Api().get('quests/friends/played/' + skip + '/lang/' + lang).then(function (response) {
+      done(false, response)
+    })
   },
   /*
    * get a quest based on its ID
@@ -51,21 +94,31 @@ export default {
    * @param   {Object}    location            user location
    * @param   {String}    lang                language
    */
-  find(keyword, location, lang) {
+  find (keyword, location, lang) {
     if (!lang) {
       lang = 'default'
     }
     // to update : better filter with position and keyword
-    return Api().get('quests/find/' + keyword + '/nearest/' + location.longitude + '-' + location.latitude + '/lang/' + lang)  
+    return Api().get('quests/find/' + keyword + '/nearest/' + location.longitude + '-' + location.latitude + '/0/lang/' + lang)  
+  },
+  findSync (keyword, location, lang, skip, done) {
+    if (!lang) {
+      lang = 'default'
+    }
+    // to update : better filter with position and keyword
+    return Api().get('quests/find/' + keyword + '/nearest/' + location.longitude + '-' + location.latitude + '/' + skip + '/lang/' + lang).then(function (response) {
+      done(false, response)
+    })
   },
   /*
    * Create a quest
    * @param   {Object}    data                Quest data (title, ...)
    * @param   {String}    access              public or private
    * @param   {String}    userType            pro / individual
+   * @param   {String}    questType           quest / room
    */
-  create (data, access, userType) {
-    return Api().post('quest/create/' + access + '/' + userType, data).catch(error => console.log(error.request))
+  create (data, access, userType, questType) {
+    return Api().post('quest/create/' + questType + '/' + access + '/' + userType, data).catch(error => console.log(error.request))
   },
   /*
    * Create a quest
@@ -88,6 +141,14 @@ export default {
    */
   remove (id, version) {
     return Api().delete('quest/' + id + '/version/' + version + '/remove')
+  },
+  /*
+   * Duplicate a quest
+   * @param   {String}    id                Quest Id
+   * @param   {Number}    version             version of the quest
+   */
+  clone (id, version) {
+    return Api().post('quest/' + id + '/version/' + version + '/clone')
   },
   /*
    * Close a private quest
@@ -156,7 +217,15 @@ export default {
     if (!lang) {
       lang = 'default'
     }
-    return Api().get('user/' + id + '/quests/played/lang/' + lang).catch(error => console.log(error.request))
+    return Api().get('user/' + id + '/quests/played/0/lang/' + lang).catch(error => console.log(error.request))
+  },
+  ListPlayedByAUserSync (id, lang, skip, done) {
+    if (!lang) {
+      lang = 'default'
+    }
+    return Api().get('user/' + id + '/quests/played/' + skip + '/lang/' + lang).then(function (response) {
+      done(false, response)
+    })
   },
   /*
    * List the quests medias
@@ -275,6 +344,14 @@ export default {
    * @param   {String}    lang                user language
    */
   checkLoginQRCode(questId, lang) {
+    return Api().get('quest/' + questId + '/connectandplay/qrcode/lang/' + lang).catch(error => console.log(error.request))
+  },
+  /*
+   * Check if a QR Code can opens a quest, and create a dummy account
+   * @param   {String}    questId              questId
+   * @param   {String}    lang                user language
+   */
+  checkQRCode(questId, lang) {
     return Api().get('quest/' + questId + '/play/qrcode/lang/' + lang).catch(error => console.log(error.request))
   },
   /*

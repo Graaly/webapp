@@ -15,8 +15,8 @@
           <q-btn v-if="steps[currentStep.id].discussions[currentStep.discussionId].hasOwnProperty('button2')" @click="buttonAction">
             {{ $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].button2.label) }}
           </q-btn> &nbsp;
-          <q-btn color="primary" @click="next">
-            {{ steps[currentStep.id].discussions[currentStep.discussionId].hasOwnProperty("button") ? $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].button.label) : (steps[currentStep.id].discussions.length - 1 === currentStep.discussionId ? $t('label.Close') : $t('label.Next') + ' >>') }}
+          <q-btn class="glossy normal-button" color="primary" @click="next">
+            <div>{{ steps[currentStep.id].discussions[currentStep.discussionId].hasOwnProperty("button") ? $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].button.label) : (steps[currentStep.id].discussions.length - 1 === currentStep.discussionId ? $t('label.Close') : $t('label.Next') + ' >>') }}</div>
           </q-btn>
         </div>
       </div>
@@ -79,13 +79,13 @@ export default {
         /*/ step 1 - Secretary introduce a quest
         1: {
           discussions: [
-            {character: "2", text: "WelcomeToQuest1", link: {label: "BackToTheMap", action: "/map"}, condition: null},
-            {character: "2", text: "WelcomeToQuest2", link: {label: "BackToTheMap", action: "/map"}, condition: (this.data && this.data.hasOwnProperty("startingPlace") && (typeof this.data.startingPlace !== 'undefined') && this.data.startingPlace.length > 1)},
-            {character: "2", text: "YouAlreadyDidThisQuest", link: {label: "BackToTheMap", action: "/map"}, condition: (this.data && this.data.isRunFinished)},
-            {character: "2", text: "YouAreQuestOwnerDesc", link: {label: "BackToTheMap", action: "/map"}, condition: (this.data && this.data.isOwner)},
-            {character: "2", text: "QuestIsFarFromUser", link: {label: "BackToTheMap", action: "/map"}, condition: (this.data && this.data.isFar && this.data.hasOwnProperty("startingPlace") && (typeof this.data.startingPlace !== 'undefined') && this.data.startingPlace.length > 1)},
-            {character: "2", text: "QuestParams", link: {label: "BackToTheMap", action: "/map"}, condition: (this.data && this.data.hasOwnProperty("score") && this.data.score > 0)},
-            {character: "2", text: "description", link: {label: "BackToTheMap", action: "/map"}, condition: (this.data && this.data.hasOwnProperty("description") && this.data.description.length > 1)},
+            {character: "2", text: "WelcomeToQuest1", link: {label: "BackToTheMap", action: "/home"}, condition: null},
+            {character: "2", text: "WelcomeToQuest2", link: {label: "BackToTheMap", action: "/home"}, condition: (this.data && this.data.hasOwnProperty("startingPlace") && (typeof this.data.startingPlace !== 'undefined') && this.data.startingPlace.length > 1)},
+            {character: "2", text: "YouAlreadyDidThisQuest", link: {label: "BackToTheMap", action: "/home"}, condition: (this.data && this.data.isRunFinished)},
+            {character: "2", text: "YouAreQuestOwnerDesc", link: {label: "BackToTheMap", action: "/home"}, condition: (this.data && this.data.isOwner)},
+            {character: "2", text: "QuestIsFarFromUser", link: {label: "BackToTheMap", action: "/home"}, condition: (this.data && this.data.isFar && this.data.hasOwnProperty("startingPlace") && (typeof this.data.startingPlace !== 'undefined') && this.data.startingPlace.length > 1)},
+            {character: "2", text: "QuestParams", link: {label: "BackToTheMap", action: "/home"}, condition: (this.data && this.data.hasOwnProperty("score") && this.data.score > 0)},
+            {character: "2", text: "description", link: {label: "BackToTheMap", action: "/home"}, condition: (this.data && this.data.hasOwnProperty("description") && this.data.description.length > 1)},
             {character: "2", text: "GeneralWarning", condition: null}
           ],
           bottom: 0,

@@ -1,12 +1,15 @@
 <template>
   <div>
     <img src="/statics/icons/game/oops.png" style="width: 100%" />
-    <h2 class="centered" v-if="errorType === 'upgraderequired'">
+    <h3 class="centered" v-if="errorType === 'upgraderequired' && isHybrid">
       {{ $t('label.UpgradeRequired') }}
-    </h2>
-    <h1 v-if="errorType === null">
+    </h3>
+    <h3 class="centered" v-if="errorType === 'upgraderequired' && !isHybrid">
+      {{ $t('label.RefreshCacheRequired') }}
+    </h3>
+    <h3 v-if="errorType === null">
       {{ $t('label.SorryAnErrorOccurs') }}
-    </h1>
+    </h3>
     <p v-if="errorMessage !== null">
       {{ errorMessage }}
     </p>
@@ -19,7 +22,8 @@ export default {
   data () {
     return {
       errorMessage: null,
-      errorType: null
+      errorType: null,
+      isHybrid: window.cordova
     }
   },
   mounted () {

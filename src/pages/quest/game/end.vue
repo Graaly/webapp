@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="scroll background-dark">
     <!------------------ NO NETWORK AREA ------------------------>
-    <div class="dark-background" v-if="warnings.noNetwork">
+    <div v-if="warnings.noNetwork">
       <div class="bg-primary">
         <div class="centered q-pa-lg">    
           <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouHaveWin') }}</h2>
@@ -10,65 +10,94 @@
         </div>
       </div>
     </div>
-    <div class="dark-background" v-if="!warnings.noNetwork && quest && quest.customization && quest.customization.removeScoring">
-      <div class="bg-primary centered">
+    
+    <!------------------ TEXT IF NO SCORING ------------------>
+    
+    <div class="q-ma-md rounded background-lighter2" v-if="!warnings.noNetwork && quest && quest.customization && quest.customization.removeScoring">
+      <div>
         <h4 v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage !== ''" v-html="quest.customization.endMessage" />
         <h4 v-if="!quest.customization || !quest.customization.endMessage || quest.customization.endMessage === ''">{{ $t('label.ThanksForPlaying') }}</h4>
       </div>
-      <div v-if="isUserAuthor" class="back centered q-pa-md bg-primary text-primary">
-        <q-btn class="text-primary bg-white full-width" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
+      <div v-if="isUserAuthor" class="back centered q-pa-md">
+        <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
       </div>
-      <div v-if="isUserAdmin" class="back centered q-pa-md bg-primary text-primary">
-        <q-btn class="text-primary bg-white full-width" :label="$t('label.GoToQuestValidation')" @click="$router.push('/admin/validate/' + questId + '/version/' + quest.version)" />
+      <div v-if="isUserAdmin" class="back centered q-pa-md">
+        <q-btn color="primary" class="glossy large-button" :label="$t('label.GoToQuestValidation')" @click="openValidation(questId, quest.version)"></q-btn>
       </div>
     </div>
-    <div class="dark-background" v-if="!warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
-      <div class="bg-primary" v-if="run && run._id">
-        <!------------------ TITLE AREA ------------------------>
+    
+    <div v-if="isUserAuthor" class="back centered q-pa-md">
+      <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
+    </div>
         
-        <div class="centered">    
-          <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouWin') }}</h2>
-          <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.score > 0 || run.reward === 0">{{ run.score }} {{ $t('label.points') }} <!--<q-icon color="white" name="fas fa-trophy" />--></h2>
-          <h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.reward > 0">{{ run.reward }} <q-icon color="white" name="fas fa-bolt" /></h2>
-          <!--<router-link to="/help/points" v-show="run.score > 0">{{ $t('label.WhatCanYouDoWithThesePoints') }}</router-link>-->
-          <q-icon name="fas fa-award" color="secondary" class="big-icon" />
-          <q-icon name="fas fa-award" color="secondary" class="big-icon q-ml-md" v-if="run.stars > 1" />
-          <q-icon name="fas fa-award" class="big-icon q-ml-md" style="color: #ed555d" v-if="run.stars <= 1" />
-          <q-icon name="fas fa-award" color="secondary" class="big-icon q-ml-md" v-if="run.stars > 2" />
-          <q-icon name="fas fa-award" class="big-icon q-ml-md" style="color: #ed555d" v-if="run.stars <= 2" />
-        </div>
-        
-        <!------------------ PROGRESS AREA ------------------------>
-        
-        <div class="q-pa-md centered">
-          <p class="centered">{{ $t('label.YourLevel') }} : {{ $store.state.user.level }}</p>
-          <q-linear-progress :value="level.progress" stripe rounded style="height: 30px" color="secondary"></q-linear-progress>
-        </div>
-              
-        <!------------------ CHALLENGE FRIENDS AREA ------------------------>
-        
-        <div class="q-mt-md q-ml-md q-mr-md q-pb-md centered" v-show="quest.type !== 'discovery' && run.score > 0 && quest && quest.access === 'public'">
-          <q-btn icon="people" color="secondary" size="lg" @click="openChallengeBox" :label="$t('label.ChallengeYourFriends')" />
+    <div class="q-pa-md" style="margin-top: 50px;" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
+      <div v-if="run && run._id">
+        <div class="relative-position header-point-box">
+          <!------------------ TITLE AREA ------------------------>
+          <div class="rounded background-lighter2 centered absolute full-width">    
+            <h2 class="text-center title2 q-mt-xl q-mb-sm q-mx-xl text-uppercase">{{ $t('label.YouWin') }}</h2>
+            <!--<h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.score > 0 || run.reward === 0">{{ run.score }} {{ $t('label.points') }} <!--<q-icon color="white" name="fas fa-trophy" />--</h2>-->
+            <!--<h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.reward > 0">{{ run.reward }} <q-icon color="white" name="fas fa-bolt" /></h2>-->
+            <!--<router-link to="/help/points" v-show="run.score > 0">{{ $t('label.WhatCanYouDoWithThesePoints') }}</router-link>-->
+            <div class="relative-position progress-box q-mb-md">
+              <div class="progress-bar">
+                <div class="progress" :style="'width: ' + Math.floor(level.progress * 100) + '%'">
+                </div>
+                <div class="value">
+                  {{ Math.floor(level.progress * 100) }}%
+                </div>
+              </div>
+              <div class="rank-level">
+                <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" />
+              </div>
+            </div>
+          </div>
+          <div class="full-width centered header-point absolute">
+            <img src="statics/images/icon/wonpoint.png" />
+            <div>+{{ run.stars }}</div>
+          </div>
         </div>
         
         <!------------------ SUGGESTION AREA ------------------------>
         
-        <div class="centered q-mt-md">{{ $t('label.YouLikedThisQuest') }}</div>
-        <div class="q-px-md">
-          <q-btn class="full-width q-ml-md" @click="suggestQuest.show = true" color="secondary">{{ $t('label.SuggestANewQuest') }}</q-btn>
+        <div class="centered q-mt-md subtitle5">{{ $t('label.YouLikedThisQuest') }}</div>
+        <div class="centered q-px-md">
+          <span v-show="quest.type !== 'discovery' && run.score > 0 && quest && quest.access === 'public'">
+            <a class="small" @click="openChallengeBox">{{ $t('label.ChallengeYourFriends') }}</a> <span class="secondary-font-very-small"> {{ $t('label.or') }} </span>
+          </span>
+          <a class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
         </div>
-        <q-dialog maximized v-model="suggestQuest.show" class="over-map bg-white">
+        <q-dialog maximized v-model="suggestQuest.show">
           <suggest @close="suggestQuest.show = false"></suggest>
         </q-dialog>
         
         <!------------------ REVIEW AREA ------------------------>
         
-        <div class="q-mt-md q-ml-md q-mr-md q-pa-sm centered" v-if="quest.type !== 'discovery' && showAddReview && quest && quest.access === 'public'">
-          <h3 class="size-2">{{ $t('label.ReviewThisQuest') }} <!--(+2 <q-icon color="white" name="fas fa-bolt" />)--></h3>
-          <p>{{ $t('label.Rating') + $t('label.Colon') }} <q-rating v-model="rating" :max="5" size="1.5rem" :disable="reviewSent" /></p>
-          <p>{{ $t('label.CommentThisQuest') }} ({{ $t('label.Optional') }}){{ $t('label.Colon') }}</p>
-          <textarea class="shadowed full-width" v-model="comment" rows="5" :disabled="reviewSent" />
-          <q-btn class="full-width" color="secondary" :label="$t('label.Send')" @click="addReview()" :disabled="reviewSent" />
+        <div class="q-mx-md q-mt-xl q-pa-sm centered" v-if="quest.type !== 'discovery' && showAddReview && quest && quest.access === 'public'">
+          <div class="subtitle4">{{ $t('label.ReviewThisQuest') }}</div>
+          <div class="q-py-sm"><q-rating v-model="rating" :max="5" size="1rem" class="end-rating" color="white" :disable="reviewSent" @click="showReviewText = true" /></div>
+        </div>
+        <q-dialog v-model="showReviewText" class="over-map">
+          <div class="q-pa-md q-pt-lg centered bg-grey">
+            <div class="subtitle4">{{ $t('label.ReviewThisQuest') }}</div>
+            <div class="q-py-sm"><q-rating v-model="rating" :max="5" size="1rem" class="end-rating" color="white" :disable="reviewSent" /></div>
+            <div class="subtitle6 q-pt-lg">{{ $t('label.CommentThisQuest') }} ({{ $t('label.Optional') }}){{ $t('label.Colon') }}</div>
+            <textarea class="shadowed full-width q-my-sm" v-model="comment" :placeholder="$t('label.Feedback')" rows="4" :disabled="reviewSent" />
+            <q-btn class="glossy large-button" color="primary" :label="$t('label.Send')" @click="addReview()" :disabled="reviewSent" />
+            <div class="q-pa-md">
+              <a @click="showReviewText = false">{{ $t('label.Cancel') }}</a>
+            </div>
+          </div>
+        </q-dialog>
+        
+        <!------------------ REWARD AREA ------------------------>
+        
+        <div class="q-pa-md q-mt-lg centered rounded background-lighter2" v-if="showReward && run && run.questData">      
+          <div class="subtitle4 q-pb-lg">{{ $t('label.YouWonAReward') }}</div>
+          <div class="q-pt-md">
+            <img class="badge-alone" :src="serverUrl + '/upload/quest/' + run.questData.rewardPicture">
+            <div class="subtitle6">{{ $t('label.WonOtherRewardByPlayingOtherGamesInCity') }}</div>
+          </div>
         </div>
         
         <!------------------ SHARE AREA ------------------------>
@@ -77,17 +106,17 @@
           <h3 class="size-2 q-ma-sm">{{ $t('label.ShareYourSuccess') }}</h3>
           <ul>
             <li>
-              <a href="https://www.facebook.com/sharer/sharer.php?u=http://graaly.com" target="_blank">
+              <a @click="utils.openExternalLink('https://www.facebook.com/sharer/sharer.php?u=http://graaly.com')" target="_blank">
                 <img src="statics/icons/social-networks/facebook.png" />
               </a>
             </li>
             <li>
-              <a href="https://twitter.com/intent/tweet?text=To%Define&url=http://graaly.com" target="_blank">
+              <a @click="utils.openExternalLink('https://twitter.com/intent/tweet?text=To%Define&url=http://graaly.com')" target="_blank">
                 <img src="statics/icons/social-networks/twitter.png" />
               </a>
             </li>
             <li>
-              <a href="https://plus.google.com/share?url=http://graaly.com" target="_blank">
+              <a @click="utils.openExternalLink('https://plus.google.com/share?url=http://graaly.com')" target="_blank">
                 <img src="statics/icons/social-networks/googleplus.png" />
               </a>
             </li>
@@ -96,14 +125,11 @@
      
         <!------------------ BACK TO MAP LINK AREA ------------------------>
         
-        <div v-if="!isUserAuthor && !isUserAdmin" class="back centered q-pa-md bg-primary text-primary">
-          <q-btn class="text-primary bg-white full-width" :label="$t('label.BackToTheMap')" @click="$router.push('/map')" />
+        <div class="back centered q-pa-md">
+          <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToTheMap')" @click="$router.push('/home')" />
         </div>
-        <div v-if="isUserAuthor" class="back centered q-pa-md bg-primary text-primary">
-          <q-btn class="text-primary bg-white full-width" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
-        </div>
-        <div v-if="isUserAdmin" class="back centered q-pa-md bg-primary text-primary">
-          <q-btn class="text-primary bg-white full-width" :label="$t('label.GoToQuestValidation')" @click="$router.push('/admin/validate/' + questId + '/version/' + quest.version)" />
+        <div v-if="isUserAdmin" class="back centered q-pa-md">
+          <q-btn color="primary" class="glossy large-button" :label="$t('label.GoToQuestValidation')" @click="$router.push('/admin/validate/' + questId + '/version/' + quest.version)" />
         </div>
         
       </div>
@@ -149,15 +175,15 @@
     <!--====================== CHALLENGE YOUR FRIENDS PAGE =================================-->
     
     <transition name="slideInBottom">
-      <div class="panel-bottom q-pa-md" v-show="showChallenge">      
-        <a class="float-right no-underline close-btn" color="grey" @click="closeChallenge"><q-icon name="close" class="medium-icon" /></a>
-        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.ChallengeYourFriends') }}</div>
+      <div class="panel-bottom q-pa-md bg-graaly-blue-dark" v-show="showChallenge">      
+        <a class="float-right no-underline" color="grey" @click="closeChallenge"><q-icon name="close" class="subtitle3" /></a>
+        <div class="subtitle3 q-pt-md q-pb-lg">{{ $t('label.ChallengeYourFriends') }}</div>
         <div v-if="filteredFriends.length === 0">
           {{ $t('label.NoFriendsLong') }}
         </div>
         <div v-if="filteredFriends.length > 0">
           <div class="q-pa-md centered">
-            <q-btn color="primary" size="lg" full @click="challengeAll" :label="$t('label.ChallengeAllFriends')" />
+            <q-btn color="primary" class="glossy large-button" full @click="challengeAll" :label="$t('label.ChallengeAllFriends')" />
           </div>
           <div class="q-pa-md centered">
             {{ $t('label.Or') }}
@@ -180,7 +206,7 @@
                 </q-item-section>
                 <q-item-label>{{ friend.name }}</q-item-label>
                 <q-item-section side>
-                  <q-btn v-show="!friend.isChallenged" color="primary" :label="$t('label.Challenge')" @click="challenge(friend)" />
+                  <q-btn v-show="!friend.isChallenged" color="primary" class="normal-button glossy" :label="$t('label.Challenge')" @click="challenge(friend)" />
                 </q-item-section>
               </q-item>
             </q-list>
@@ -193,9 +219,8 @@
     
     <transition name="slideInBottom">
       <div class="panel-bottom q-pa-md" v-if="showBonus">      
-        <a class="float-right no-underline close-btn" color="grey" @click="closeBonus"><q-icon name="close" class="medium-icon" /></a>
-        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.YouWonABonus') }}</div>
-        <div class="q-pa-md">
+        <div class="text-h4 q-pt-md q-pb-lg centered">{{ $t('label.YouWonABonus') }}</div>
+        <div class="q-pa-md text-primary">
           <q-card class="q-ma-sm">
             <img :src="'statics/icons/game/bonus_' + run.bonus + '.png'">
             <q-card-section>
@@ -204,29 +229,13 @@
             <q-card-section>
               {{ $t('bonus.' + run.bonus + 'Desc') }}
             </q-card-section>
+            <q-card-section>
+              <q-btn color="primary" class="glossy normal-button" @click="closeBonus"><div>{{ $t('label.Close') }}</div></q-btn>
+            </q-card-section>
           </q-card>
         </div>
       </div>
     </transition>
-    
-     <!--====================== REWARD PAGE =================================-->
-    
-    <transition name="slideInBottom">
-      <div class="panel-bottom q-pa-md" v-if="showReward">      
-        <a class="float-right no-underline close-btn" color="grey" @click="closeReward"><q-icon name="close" class="medium-icon" /></a>
-        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.YouWonAReward') }}</div>
-        <div class="q-pa-md">
-          <img :src="serverUrl + '/upload/quest/' + run.questData.rewardPicture">
-          <p>{{ $t('label.WonOtherRewardByPlayingOtherGamesInCity') }}</p>
-        </div>
-      </div>
-    </transition>
-    
-    <!--====================== STORY =================================-->
-    
-    <div class="fixed-bottom over-map" v-if="story.step !== null && story.step !== 'end'">
-      <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
-    </div>
     
     <!--====================== WIN COINS ANIMATION =================================-->
       
@@ -244,13 +253,11 @@ import LevelCompute from 'boot/LevelCompute'
 import Notification from 'boot/NotifyHelper'
 //import { filter } from 'quasar'
 import Vue from 'vue'
-import story from 'components/story'
 import suggest from 'components/quest/suggest'
 import utils from 'src/includes/utils'
 
 export default {
   components: {
-    story,
     suggest
   },
   data() {
@@ -278,16 +285,13 @@ export default {
         id: [],
         name: []
       },
-      story: {
-        step: null,
-        data: null
-      },
       questId: this.$route.params.questId,
       awardPoints: true,
       showChallenge: false,
       showBonus: false,
       showReward: false,
       showAddReview: false,
+      showReviewText: false,
       reviewSent: false,
       isUserAuthor: false,
       isUserAdmin: this.$store.state.user.isAdmin,
@@ -303,6 +307,10 @@ export default {
   async mounted () {
     utils.clearAllRunningProcesses()
     await this.loadData()
+    // hide status bar on Android
+    if (cordova.platformId === 'android') {
+      StatusBar.hide()
+    }
   },
   methods: {
     /*
@@ -351,7 +359,10 @@ export default {
         }
         
         // get user old score
-        this.score.old = this.$store.state.user.score
+        this.score.old = this.$store.state.user.points
+        if (!this.score.old) {
+          this.score.old = 0
+        }
         
         this.initProgression()
         
@@ -369,7 +380,7 @@ export default {
               this.run.bonus = endStatus.data.newBonus
               this.showBonus = true
             }
-            if (this.run.questData.rewardPicture && this.run.questData.rewardPicture !== '') {
+            if (this.run.questData && this.run.questData.rewardPicture && this.run.questData.rewardPicture !== '') {
               this.showReward = true
             }
           }
@@ -389,14 +400,12 @@ export default {
         }
         
         if (!this.quest.customization || !this.quest.customization.removeScoring) {
-          // story management
-          this.startStory()
-          
           // get user new score
           //this.level.color = "secondary"
-          this.score.new = runIsInProgress ? this.score.old + this.run.score : this.score.old
+          this.score.new = runIsInProgress ? this.score.old + this.run.stars : this.score.old
+
           // force score update
-          this.$store.state.user.score = this.score.new
+          this.$store.state.user.points = this.score.new
           utils.setTimeout(this.updateProgression, 3000)
         }
       } else {
@@ -421,6 +430,7 @@ export default {
         utils.setTimeout(this.updateProgression, 2000)
       } else {
         var newLevel = LevelCompute(this.score.new)
+
         // check if the user will move to a new level
         if (newLevel.level > this.level.level) {
           this.level.progress = 1
@@ -534,16 +544,21 @@ export default {
      * Open the challenge friends modal
      */
     async openChallengeBox() {
-      this.showChallenge = true
-      /*var challengers = await UserService.getBestFriends()
-      if (challengers && challengers.data && challengers.data.length > 0) {
-        this.bestFriends = challengers.data
-      }*/
-      var allFriends = await UserService.listFriends()
-      if (allFriends && allFriends.data && allFriends.data.length > 0) {
-        this.friends = allFriends.data
-        this.filteredFriends = this.friends
-      }
+      // only connected user can challenge
+      if (this.$store.state.user.name === '-') {
+        this.$router.push("/user/updateprofile")
+      } else {
+        this.showChallenge = true
+        /*var challengers = await UserService.getBestFriends()
+        if (challengers && challengers.data && challengers.data.length > 0) {
+          this.bestFriends = challengers.data
+        }*/
+        var allFriends = await UserService.listFriends(this.$store.state.user._id, 0, 100)
+        if (allFriends && allFriends.data && allFriends.data.length > 0) {
+          this.friends = allFriends.data
+          this.filteredFriends = this.friends
+        }
+      } 
     },
     /*
      * Close the challenge friends modal
@@ -595,18 +610,10 @@ export default {
       this.showReward = false
     },
     /*
-     * Start the story
+     * Open validation page
      */
-    startStory() {
-      if (this.story.step === null) {
-        this.story.step = 9
-        this.story.data = {
-          score: this.run.score,
-          level: this.$store.state.user.level,
-          progress: this.level.progress,
-          discovery: this.questId === '5b7303ec4efbcd1f8cb101c6'
-        }
-      }
+    openValidation(questId, version) {
+      this.$router.push('/admin/validate/' + questId + '/version/' + version)
     },
     /*
      * Send a review
@@ -623,6 +630,7 @@ export default {
       this.$q.loading.hide()
       
       this.reviewSent = true
+      this.showReviewText = false
       Notification(this.$t('label.ReviewSent'), 'positive')
     },
     /*
@@ -704,19 +712,3 @@ export default {
   }
 }
 </script>
-
-<style lang="styl" scoped>
-
-#main-view { display: flex; flex-flow: column nowrap; }
-
-.share ul { margin: 0; padding: 0; display: flex; flex-flow: row nowrap; justify-content: center; }
-.share li { list-style-type: none; margin: 0.5rem; }
-.share img { width: 3rem; height: 3rem; }
-
-.selected { background-color: #ddd; }
-
-h3 { line-height: normal; margin: 0 auto 2vw auto; padding: 2vw; }
-
-.bg-secondary p { text-align: left }
-
-</style>

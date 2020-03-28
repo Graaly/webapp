@@ -1,203 +1,177 @@
 <template>
-  <div class="q-pa-md">
-
-    <a class="float-right no-underline close-btn" color="grey" @click="close"><q-icon name="close" class="medium-icon" /></a>
-    
-    <h1 class="size-3" v-if="selectedStep.type !== null">{{ $t('stepType.' + selectedStep.type.title) }}</h1>
+  <div class="bg-white arial step-setting">
     
     <!------------------ COMMON FOR ALL STEPS ------------------------>
     
-    <q-input
-      type="text"
-      :label="$t('label.Title') + ' ' + currentLanguageForLabels"
-      v-model="selectedStep.form.title[lang]"
-      @blur="$v.selectedStep.form.title[lang].$touch"
-      bottom-slots
-      counter
-      :maxlength="titleMaxLength"
-      :error="$v.selectedStep.form.title[lang].$error"
-      :error-message="$t('label.PleaseEnterATitle')"
-      test-id="step-title"
+    <div class="q-pa-md q-pt-xl q-mt-lg">
+      <q-input
+        type="text"
+        :label="$t('label.Title') + ' ' + currentLanguageForLabels"
+        v-model="selectedStep.form.title[lang]"
+        @blur="$v.selectedStep.form.title[lang].$touch"
+        bottom-slots
+        counter
+        :maxlength="titleMaxLength"
+        :error="$v.selectedStep.form.title[lang].$error"
+        :error-message="$t('label.PleaseEnterATitle')"
+        test-id="step-title"
+        />
+      
+      <q-input
+        v-if="options.type.code !== 'end-chapter'"
+        :label="$t('label.' + mainTextFieldLabel) + ' ' + currentLanguageForLabels"
+        v-model="selectedStep.form.text[lang]"
+        type="textarea"
+        :max-height="100"
+        :min-rows="4"
+        class="full-width"
+        @blur="$v.selectedStep.form.text[lang].$touch"
+        @input="$v.selectedStep.form.text[lang].$touch"
+        bottom-slots
+        counter
+        :maxlength="mainTextMaxLength"
+        :error="$v.selectedStep.form.text[lang].$error"
+        :error-message="$t('label.KeepEnigmaQuestionsShort')"
+        test-id="step-text"
       />
-    
-    <q-input
-      v-if="options.type.code !== 'end-chapter'"
-      :label="$t('label.' + mainTextFieldLabel) + ' ' + currentLanguageForLabels"
-      v-model="selectedStep.form.text[lang]"
-      type="textarea"
-      :max-height="100"
-      :min-rows="4"
-      class="full-width"
-      @blur="$v.selectedStep.form.text[lang].$touch"
-      @input="$v.selectedStep.form.text[lang].$touch"
-      bottom-slots
-      counter
-      :maxlength="mainTextMaxLength"
-      :error="$v.selectedStep.form.text[lang].$error"
-      :error-message="$t('label.KeepEnigmaQuestionsShort')"
-      test-id="step-text"
-    />
 
-    <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'main'">
-      <div v-if="!isIOs">
-        <q-btn class="full-width" type="button" @click="$refs['backgroundfile'].click()">
-          <q-icon name="cloud_upload" /> <label for="picturefile1">{{ $t('label.UploadABackgroundImage') }}</label>
-        </q-btn>
-        <input @change="uploadBackgroundImage" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" test-id="background-upload" />
-      </div>
-      <div v-if="isIOs">
-        {{ $t('label.UploadABackgroundImage') }}:
-        <input @change="uploadBackgroundImage" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" test-id="background-upload" />
-      </div>
-      <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-      <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
-      <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
-        <p>{{ $t('label.YourPicture') }} :</p>
-        <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
-        <a @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
-      </div>
-    </div>
-    
-    <!------------------ STEP : VIDEO ------------------------>
-    
-    <div v-if="options.type.code == 'info-video'">
-      <div v-if="!isIOs">
-        <q-btn class="full-width" type="button" icon="cloud_upload" :label="$t('label.UploadAVideo')" @click="$refs['videofile'].click()" />
-        <input @change="uploadVideo" ref="videofile" type="file" accept="video/mp4,video/x-m4v,video/*" hidden test-id="video-upload" />
-      </div>
-      <div v-if="isIOs">
-        {{ $t('label.UploadAVideo') }}:
-        <input @change="uploadVideo" ref="videofile" type="file" accept="video/mp4,video/x-m4v,video/*" test-id="video-upload" />
-      </div>
-      <div>
-        <!-- TODO show video file infos (size on disk, width x height, etc.) -->
-        <p v-show="$v.selectedStep.form.videoStream.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-        <p v-show="selectedStep.form.videoStream === null">{{ $t('label.NoVideoUploaded') }}</p>
-        <video v-if="selectedStep.form.videoStream !== null" class="full-width" controls controlsList="nodownload" test-id="uploaded-video">
-          <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + selectedStep.form.videoStream" type="video/mp4" />
-        </video>
-      </div>
-    </div>
-    
-    <!------------------ STEP : WIN NEW ITEM ------------------------>
-    
-    <div class="inventory" v-if="options.type.code == 'new-item'">
-      <q-radio v-model="imageSource" v-if="selectedStep.form.options === null || !selectedStep.form.options.picture || selectedStep.form.options.picture === null" val="list" :label="$t('label.SelectPictureInTheList')" test-id="radio-select-new-item-in-list" />
-      <div class="row objects-list" v-show="imageSource === 'list'">
-        <div class="col-2 q-pa-sm" v-for="(item, key) in objectsList" :key="key" @click="selectObject(key)">
-          <img style="width: 100%" :class="{'selected': (selectedStep.form.options.picture && selectedStep.form.options.picture === 'statics/images/object/' + objectsList[key].file)}" :src="'statics/images/object/' + item.thumb" />
-        </div>
-      </div>
-      <q-radio v-model="imageSource" v-if="selectedStep.form.options === null || !selectedStep.form.options.picture || selectedStep.form.options.picture === null" val="upload" :label="$t('label.UploadTheItemPicture')" />
-      <div v-show="imageSource === 'upload'">
+      <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'main'">
         <div v-if="!isIOs">
-          <q-btn class="full-width" type="button" :label="$t('label.UploadTheItemPicture')" @click="$refs['itemfile'].click()" />
-          <input @change="uploadItemImage" ref="itemfile" type="file" accept="image/*" hidden />
+          <q-btn class="full-width" type="button" @click="$refs['backgroundfile'].click()">
+            <q-icon name="cloud_upload" /> <label for="picturefile1">{{ $t('label.UploadABackgroundImage') }}</label>
+          </q-btn>
+          <input @change="uploadBackgroundImage" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" test-id="background-upload" />
         </div>
         <div v-if="isIOs">
-          {{ $t('label.UploadTheItemPicture') }}:
-          <input @change="uploadItemImage" ref="itemfile" type="file" accept="image/*" />
+          {{ $t('label.UploadABackgroundImage') }}:
+          <input @change="uploadBackgroundImage" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" test-id="background-upload" />
         </div>
-        <p v-show="$v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-        <p>{{ $t('label.WarningImageSizeSquare') }}</p>
-      </div>
-      <div v-if="selectedStep.form.options !== null && selectedStep.form.options.picture && selectedStep.form.options.picture !== null">
-        <p>{{ $t('label.YourItemPicture') }} :</p>
-        <div class="centered">
-          <img style="width:100%" :src="(selectedStep.form.options.picture.indexOf('statics/') !== -1 ? selectedStep.form.options.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.options.picture)" test-id="img-new-item" />
-          <a @click="selectedStep.form.options.picture = null">{{ $t('label.SelectANewObject') }}</a>
+        <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+        <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
+        <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
+          <p>{{ $t('label.YourPicture') }} :</p>
+          <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
+          <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
         </div>
       </div>
-      <!--<p>{{ $t('message.Or') }}</p>
-      <q-select emit-value map-options :label="$t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
-      <div v-show="form.answerItem !== null">
-        {{ $t('message.SelectedObject') }} :
-        <q-icon :name="getItemIcon(form.answerItem)" />
-      </div>-->
-        <q-input
-          v-model="selectedStep.form.options.title"
-          :label="$t('label.ObjectName')"
-          bottom-slots
-          :error="$v.selectedStep.form.options.title.$error"
-          :error-message="$t('label.RequiredField')"
-          />
-    </div>
-    
-    <!------------------ STEP : CHARACTER ------------------------>
-    
-    <div v-if="options.type.code == 'character'">
-      <h2>{{ $t('label.Character') }}</h2>
-      <div class="answer">
-        <q-radio v-model="selectedStep.form.options.character" val="1" />
-        <p><img src="statics/icons/story/character1_attitude1.png" /></p>
+      
+      <!------------------ STEP : VIDEO ------------------------>
+      
+      <div v-if="options.type.code == 'info-video'">
+        <div v-if="!isIOs">
+          <q-btn class="full-width" type="button" icon="cloud_upload" :label="$t('label.UploadAVideo')" @click="$refs['videofile'].click()" />
+          <input @change="uploadVideo" ref="videofile" type="file" accept="video/mp4,video/x-m4v,video/*" hidden test-id="video-upload" />
+        </div>
+        <div v-if="isIOs">
+          {{ $t('label.UploadAVideo') }}:
+          <input @change="uploadVideo" ref="videofile" type="file" accept="video/mp4,video/x-m4v,video/*" test-id="video-upload" />
+        </div>
+        <div>
+          <!-- TODO show video file infos (size on disk, width x height, etc.) -->
+          <p v-show="$v.selectedStep.form.videoStream.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+          <p v-show="selectedStep.form.videoStream === null">{{ $t('label.NoVideoUploaded') }}</p>
+          <video v-if="selectedStep.form.videoStream !== null" class="full-width" controls controlsList="nodownload" test-id="uploaded-video">
+            <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + selectedStep.form.videoStream" type="video/mp4" />
+          </video>
+        </div>
       </div>
-      <div class="answer">
-        <q-radio v-model="selectedStep.form.options.character" val="2" test-id="radio-character-to-select" />
-        <p><img src="statics/icons/story/character2_attitude1.png" /></p>
-      </div>
-      <div class="answer">
-        <q-radio v-model="selectedStep.form.options.character" val="3" />
-        <p><img src="statics/icons/story/character3_attitude1.png" /></p>
-      </div>
-      <div class="answer">
-        <q-radio v-model="selectedStep.form.options.character" val="4" />
-        <p><img src="statics/icons/story/character4_attitude1.png" /></p>
-      </div>
-      <div>
-        <div class="q-mb-sm" v-if="quest.isPremium">
-          {{ $t('label.OrDownloadAFile') }}
+      
+      <!------------------ STEP : WIN NEW ITEM ------------------------>
+      
+      <div class="inventory" v-if="options.type.code == 'new-item'">
+        <q-radio v-model="imageSource" v-if="selectedStep.form.options === null || !selectedStep.form.options.picture || selectedStep.form.options.picture === null" val="list" :label="$t('label.SelectPictureInTheList')" test-id="radio-select-new-item-in-list" />
+        <div class="row objects-list" v-show="imageSource === 'list'">
+          <div class="col-2 q-pa-sm" v-for="(item, key) in objectsList" :key="key" @click="selectObject(key)">
+            <img style="width: 100%" :class="{'selected': (selectedStep.form.options.picture && selectedStep.form.options.picture === 'statics/images/object/' + objectsList[key].file)}" :src="'statics/images/object/' + item.thumb" />
+          </div>
+        </div>
+        <q-radio v-model="imageSource" v-if="selectedStep.form.options === null || !selectedStep.form.options.picture || selectedStep.form.options.picture === null" val="upload" :label="$t('label.UploadTheItemPicture')" />
+        <div v-show="imageSource === 'upload'">
           <div v-if="!isIOs">
-            <q-btn class="full-width" type="button" :label="$t('label.UploadACharacter')" @click="$refs['characterfile'].click()" />
-            <input @change="uploadCharacterImage" ref="characterfile" type="file" accept="image/*" hidden />
+            <q-btn class="full-width" type="button" :label="$t('label.UploadTheItemPicture')" @click="$refs['itemfile'].click()" />
+            <input @change="uploadItemImage" ref="itemfile" type="file" accept="image/*" hidden />
           </div>
           <div v-if="isIOs">
-            {{ $t('label.UploadACharacter') }}:
-            <input @change="uploadCharacterImage" ref="characterfile" type="file" accept="image/*" />
+            {{ $t('label.UploadTheItemPicture') }}:
+            <input @change="uploadItemImage" ref="itemfile" type="file" accept="image/*" />
           </div>
-          <p v-show="$v.selectedStep.form.options.character.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-          <div class="centered" v-if="selectedStep.form.options.character && selectedStep.form.options.character.length > 1">
-            <img style="width:100%" :src="serverUrl + '/upload/quest/' + questId + '/step/character/' + selectedStep.form.options.character" />
+          <p v-show="$v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+          <p>{{ $t('label.WarningImageSizeSquare') }}</p>
+        </div>
+        <div v-if="selectedStep.form.options !== null && selectedStep.form.options.picture && selectedStep.form.options.picture !== null">
+          <p>{{ $t('label.YourItemPicture') }} :</p>
+          <div class="centered">
+            <img style="width:100%" :src="(selectedStep.form.options.picture.indexOf('statics/') !== -1 ? selectedStep.form.options.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.options.picture)" test-id="img-new-item" />
+            <a class="dark" @click="selectedStep.form.options.picture = null">{{ $t('label.SelectANewObject') }}</a>
           </div>
         </div>
-        <div class="q-mb-sm" v-if="!quest.isPremium">
-          <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadACharacter')" @click="premium.show = true" />
+        <!--<p>{{ $t('message.Or') }}</p>
+        <q-select emit-value map-options :label="$t('message.ObjectToUse')" :options="questItemsAsOptions" v-model="form.answerItem" />
+        <div v-show="form.answerItem !== null">
+          {{ $t('message.SelectedObject') }} :
+          <q-icon :name="getItemIcon(form.answerItem)" />
+        </div>-->
+          <q-input
+            v-model="selectedStep.form.options.title"
+            :label="$t('label.ObjectName')"
+            bottom-slots
+            :error="$v.selectedStep.form.options.title.$error"
+            :error-message="$t('label.RequiredField')"
+            />
+      </div>
+      
+      <!------------------ STEP : CHARACTER ------------------------>
+      
+      <div v-if="options.type.code == 'character'">
+        <h2>{{ $t('label.Character') }}</h2>
+        <div class="answer" v-for="n in 6" :key="n">
+          <q-radio v-model="selectedStep.form.options.character" :val="n.toString()" />
+          <p><img :src="'statics/icons/story/character' + n + '_attitude1.png'" /></p>
+        </div>
+        <q-list bordered>
+          <q-expansion-item :label="$t('label.OtherCharacters')">
+            <div class="answer" v-for="n in 34" :key="n">
+              <q-radio v-model="selectedStep.form.options.character" :val="(n + 6).toString()" />
+              <p><img :src="'statics/icons/story/character' + (n + 6) + '_attitude1.png'" /></p>
+            </div>
+          </q-expansion-item>
+        </q-list>
+        <div>
+          <div class="q-mb-sm" v-if="quest.isPremium">
+            {{ $t('label.OrDownloadAFile') }}
+            <div v-if="!isIOs">
+              <q-btn class="full-width" type="button" :label="$t('label.UploadACharacter')" @click="$refs['characterfile'].click()" />
+              <input @change="uploadCharacterImage" ref="characterfile" type="file" accept="image/*" hidden />
+            </div>
+            <div v-if="isIOs">
+              {{ $t('label.UploadACharacter') }}:
+              <input @change="uploadCharacterImage" ref="characterfile" type="file" accept="image/*" />
+            </div>
+            <p v-show="$v.selectedStep.form.options.character.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+            <div class="centered" v-if="selectedStep.form.options.character && selectedStep.form.options.character.length > 2">
+              <img style="width:100%" :src="serverUrl + '/upload/quest/' + questId + '/step/character/' + selectedStep.form.options.character" />
+            </div>
+          </div>
+          <div class="q-mb-sm" v-if="!quest.isPremium">
+            <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadACharacter')" @click="premium.show = true" />
+          </div>
         </div>
       </div>
-    </div>
-    
-    <!------------------ STEP : GEOLOCATION ------------------------>
-    
-    <div v-if="options.type.code == 'geolocation'" class="location-gps">
-      <h2>{{ $t('label.AddressToFind') }}</h2>
-      <div class="fields-group">
-        <div v-if="!isIOs" class="location-address">
-          <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-            <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
-            <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value" />
-          </div>
-          <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
-        </div>
-        <div v-if="isIOs">
-          {{  $t('label.DefineGPSLocation') }}
-          <div class="location-gps-inputs">
-            <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
-            <div>
-              <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-              <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
-              <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
+      
+      <!------------------ STEP : GEOLOCATION ------------------------>
+      
+      <div v-if="options.type.code == 'geolocation'" class="location-gps">
+        <h2>{{ $t('label.AddressToFind') }}</h2>
+        <div class="fields-group">
+          <div v-if="!isIOs" class="location-address">
+            <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
+              <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
+              <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value" />
             </div>
-            <div>
-              <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-              <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
-              <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
-            </div>
+            <a class="dark" @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
           </div>
-          <div>
-            <a @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
-          </div>
-        </div>
-        <q-list v-if="!isIOs">
-          <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
+          <div v-if="isIOs">
+            {{  $t('label.DefineGPSLocation') }}
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
               <div>
@@ -212,349 +186,349 @@
               </div>
             </div>
             <div>
-              <a @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+              <a class="dark" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
             </div>
+          </div>
+          <q-list v-if="!isIOs">
+            <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
+              <div class="location-gps-inputs">
+                <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
+                <div>
+                  <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
+                  <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+                  <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
+                </div>
+                <div>
+                  <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
+                  <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+                  <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
+                </div>
+              </div>
+              <div>
+                <a class="dark" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+              </div>
+            </q-expansion-item>
+          </q-list>
+        </div>
+      </div>
+      
+      <!------------------ STEP : MULTIPLE CHOICE ------------------------>
+      
+      <div v-if="options.type.code == 'choose'">
+        
+        <h2>{{ $t('label.ResponseTypes') }}</h2>
+        <q-radio v-model="config.choose.answerType" val="text" :label="$t('label.Texts')" @click="$v.selectedStep.form.options.items.$touch" />
+        <q-radio v-model="config.choose.answerType" val="image" :label="$t('label.Pictures')" @click="$v.selectedStep.form.options.items.$touch" test-id="radio-choose-images" />
+          
+        <h2>{{ $t('label.PossibleAnswers') }}</h2>
+        <p>{{ $t('label.SelectTheGoodAnswer') }}</p>
+          
+        <div class="answer" v-for="(option, key) in selectedStep.form.options.items" :key="key">
+          <q-radio v-model="selectedStep.form.answers" :val="key" :test-id="'radio-answer-' + key" />
+          
+          <q-input v-show="config.choose.answerType === 'text'" v-model="option.text" @input="$v.selectedStep.form.options.items ? $v.selectedStep.form.options.items.$each[key].text.$touch : null" input-class="native-input-class" :test-id="'text-answer-' + key" />
+          <p class="error-label" v-if="config.choose.answerType === 'text' && $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].text.required">{{ $t('label.RequiredField') }}</p>
+          
+          <p v-show="config.choose.answerType === 'image' && option.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
+          <p><img v-if="config.choose.answerType === 'image' && option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + option.imagePath" /></p>
+          <span v-if="!isIOs">
+            <q-btn v-show="config.choose.answerType === 'image'" icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
+            <input @change="uploadAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden :test-id="'image-answer-' + key" />
+          </span>
+          <span v-if="isIOs">
+            <input @change="uploadAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden :test-id="'image-answer-' + key" />
+          </span>
+          <q-btn @click="deleteAnswer(key)" :test-id="'delete-answer-' + key">
+            <q-icon name="clear" />
+          </q-btn>
+        </div>
+        <q-btn @click="addAnswer()" class="full-width add-answer" color="secondary" test-id="add-answer">
+          {{ $t('label.AddAnAnswer') }}
+        </q-btn>
+      </div>
+      
+      <!------------------ STEP : SIMPLE TEXT ------------------------>
+      
+      <div v-if="options.type.code == 'write-text'">
+        <q-input
+          v-model="selectedStep.form.answers"
+          :label="$t('label.ExpectedAnswer')"
+          bottom-slots
+          :error="$v.selectedStep.form.answers.$error"
+          :error-message="$t('label.RequiredField')"
+          test-id="input-text-answer"
+          />
+      </div>
+      
+      <!------------------ STEP : CODE KEYPAD ------------------------>
+      
+      <div v-if="options.type.code == 'code-keypad'">
+        <q-input
+          v-model="selectedStep.form.answers"
+          :label="$t('label.Code')"
+          min-length="2"
+          max-length="6"
+          @blur="$v.selectedStep.form.answers.$touch"
+          @input="$v.selectedStep.form.answers.$touch"
+          bottom-slots
+          :error="$v.selectedStep.form.answers.$error"
+          :error-message="$t('label.CodeKeypadFormatError')"
+          test-id="input-code"
+        />
+      </div>
+      
+      <!------------------ STEP : COLOR CODE ------------------------>
+      
+      <div v-if="options.type.code == 'code-color'" class="code-color">
+        <h2>{{ $t('label.AvailableColors') }}</h2>
+        <q-list>
+          <q-item v-for="(option, key) in config.colorCode.colorsForCode" :key="key" :style="'background-color: ' + option.value">
+            <q-item-section>
+              <q-item-label lines="1">{{ option.label }}</q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-btn class="bg-white" @click="deleteColor(key)">
+                <q-icon name="clear" />
+              </q-btn>
+            </q-item-section>
+          </q-item>
+        </q-list>
+        <q-list bordered class="rounded-borders">
+          <q-expansion-item dense icon="playlist_add" :label="$t('label.AddNewColor')" class="q-pa-md">
+            <q-input bottom-slots v-model="config.colorCode.newColor.label" :label="$t('label.TypeColorCodeName')" maxlength="15" />
+            <q-input bottom-slots v-model="config.colorCode.newColor.value" :label="$t('label.TypeColorCode')" maxlength="7">
+              <template v-slot:append>
+                <q-icon name="colorize" class="cursor-pointer">
+                  <q-popup-proxy transition-show="scale" transition-hide="scale">
+                    <q-color v-model="config.colorCode.newColor.value" />
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+            <div class="centered"><q-btn :label="$t('label.Add')" color="secondary" @click="addColor()" /></div>
           </q-expansion-item>
         </q-list>
-      </div>
-    </div>
-    
-    <!------------------ STEP : MULTIPLE CHOICE ------------------------>
-    
-    <div v-if="options.type.code == 'choose'">
-      
-      <h2>{{ $t('label.ResponseTypes') }}</h2>
-      <q-radio v-model="config.choose.answerType" val="text" :label="$t('label.Texts')" @click="$v.selectedStep.form.options.items.$touch" />
-      <q-radio v-model="config.choose.answerType" val="image" :label="$t('label.Pictures')" @click="$v.selectedStep.form.options.items.$touch" test-id="radio-choose-images" />
-        
-      <h2>{{ $t('label.PossibleAnswers') }}</h2>
-      <p>{{ $t('label.SelectTheGoodAnswer') }}</p>
-        
-      <div class="answer" v-for="(option, key) in selectedStep.form.options.items" :key="key">
-        <q-radio v-model="selectedStep.form.answers" :val="key" :test-id="'radio-answer-' + key" />
-        
-        <q-input v-show="config.choose.answerType === 'text'" v-model="option.text" @input="$v.selectedStep.form.options.items ? $v.selectedStep.form.options.items.$each[key].text.$touch : null" input-class="native-input-class" :test-id="'text-answer-' + key" />
-        <p class="error-label" v-if="config.choose.answerType === 'text' && $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].text.required">{{ $t('label.RequiredField') }}</p>
-        
-        <p v-show="config.choose.answerType === 'image' && option.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
-        <p><img v-if="config.choose.answerType === 'image' && option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/choose-image/' + option.imagePath" /></p>
-        <span v-if="!isIOs">
-          <q-btn v-show="config.choose.answerType === 'image'" icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
-          <input @change="uploadAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden :test-id="'image-answer-' + key" />
-        </span>
-        <span v-if="isIOs">
-          <input @change="uploadAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden :test-id="'image-answer-' + key" />
-        </span>
-        <q-btn @click="deleteAnswer(key)" :test-id="'delete-answer-' + key">
-          <q-icon name="clear" />
-        </q-btn>
-      </div>
-      <q-btn @click="addAnswer()" class="full-width add-answer" color="secondary" test-id="add-answer">
-        {{ $t('label.AddAnAnswer') }}
-      </q-btn>
-    </div>
-    
-    <!------------------ STEP : SIMPLE TEXT ------------------------>
-    
-    <div v-if="options.type.code == 'write-text'">
-      <q-input
-        v-model="selectedStep.form.answers"
-        :label="$t('label.ExpectedAnswer')"
-        bottom-slots
-        :error="$v.selectedStep.form.answers.$error"
-        :error-message="$t('label.RequiredField')"
-        test-id="input-text-answer"
-        />
-    </div>
-    
-    <!------------------ STEP : CODE KEYPAD ------------------------>
-    
-    <div v-if="options.type.code == 'code-keypad'">
-      <q-input
-        v-model="selectedStep.form.answers"
-        :label="$t('label.Code')"
-        min-length="2"
-        max-length="6"
-        @blur="$v.selectedStep.form.answers.$touch"
-        @input="$v.selectedStep.form.answers.$touch"
-        bottom-slots
-        :error="$v.selectedStep.form.answers.$error"
-        :error-message="$t('label.CodeKeypadFormatError')"
-        test-id="input-code"
-      />
-    </div>
-    
-    <!------------------ STEP : COLOR CODE ------------------------>
-    
-    <div v-if="options.type.code == 'code-color'" class="code-color">
-      <h2>{{ $t('label.AvailableColors') }}</h2>
-      <q-list>
-        <q-item v-for="(option, key) in config.colorCode.colorsForCode" :key="key" :style="'background-color: ' + option.value">
-          <q-item-section>
-            <q-item-label lines="1">{{ option.label }}</q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-btn class="bg-white" @click="deleteColor(key)">
-              <q-icon name="clear" />
-            </q-btn>
-          </q-item-section>
-        </q-item>
-      </q-list>
-      <q-list bordered class="rounded-borders">
-        <q-expansion-item dense icon="playlist_add" :label="$t('label.AddNewColor')" class="q-pa-md">
-          <q-input bottom-slots v-model="config.colorCode.newColor.label" :label="$t('label.TypeColorCodeName')" maxlength="15" />
-          <q-input bottom-slots v-model="config.colorCode.newColor.value" :label="$t('label.TypeColorCode')" maxlength="7">
-            <template v-slot:append>
-              <q-icon name="colorize" class="cursor-pointer">
-                <q-popup-proxy transition-show="scale" transition-hide="scale">
-                  <q-color v-model="config.colorCode.newColor.value" />
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-          <div class="centered"><q-btn :label="$t('label.Add')" color="secondary" @click="addColor()" /></div>
-        </q-expansion-item>
-      </q-list>
-      <q-select emit-value map-options :label="$t('label.NumberOfColorsInTheCode')" :options="config.colorCode.numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-colors" />
-      <h2>{{ $t('label.ExpectedColorCodeAnswer') }}</h2>
-      <table>
-        <tr>
-          <td v-for="(color, index) in unformatedAnswer" :key="index">
-            <q-select emit-value map-options :ref="'colorSelect' + index" v-model="unformatedAnswer[index]" :options="config.colorCode.colorsForCode" :test-id="'select-color-' + index" />
-          </td>
-        </tr>
-        <tr>
-          <td v-for="(color, index) in unformatedAnswer" :key="index">
-            <div @click="triggerClickOnColorSelect(index)" class="color-bubble" :style="'background-color: ' + unformatedAnswer[index]">&nbsp;</div>
-          </td>
-        </tr>
-      </table>
-    </div>
-    
-    <!------------------ STEP : IMAGE CODE ------------------------>
-    
-    <div v-if="options.type.code == 'code-image'" class="code-image">
-      <h2>{{ $t('label.ImagesUsedForCode') }}</h2>
-      <div class="answer" v-for="(image, key) in selectedStep.form.options.images" :key="key">
-        
-        <p v-show="image.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && !$v.selectedStep.form.options.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
-        <p><img v-if="image.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/code-image/' + image.imagePath" /></p>
-        <span v-if="!isIOs">
-          <q-btn icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
-          <input @change="uploadCodeAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden :test-id="'image-code-' + key" />
-        </span>
-        <span v-if="isIOs">
-          <input @change="uploadCodeAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" :test-id="'image-code-' + key" />
-        </span>
-        <q-btn @click="deleteCodeAnswer(key)">
-          <q-icon name="clear" />
-        </q-btn>
-      </div>
-      <q-btn @click="addCodeAnswer()" class="full-width add-answer" color="secondary">
-        {{ $t('label.AddAnImage') }}
-      </q-btn>
-      <div v-if="selectedStep.form.options.images && selectedStep.form.options.images.length > 0 && selectedStep.form.options.images[0].imagePath">
-        <h2>{{ $t('label.ExpectedCode') }}</h2>
-        <q-select emit-value map-options :label="$t('label.NumberOfImagesInTheCode')" :options="config.imageCode.numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-images-in-code" />
+        <q-select emit-value map-options :label="$t('label.NumberOfColorsInTheCode')" :options="config.colorCode.numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-colors" />
+        <h2>{{ $t('label.ExpectedColorCodeAnswer') }}</h2>
         <table>
           <tr>
-            <td v-for="(code, index) in unformatedAnswer" :key="index" class="text-center" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index">
-              <q-icon name="keyboard_arrow_up" />
+            <td v-for="(color, index) in unformatedAnswer" :key="index">
+              <q-select emit-value map-options :ref="'colorSelect' + index" v-model="unformatedAnswer[index]" :options="config.colorCode.colorsForCode" :test-id="'select-color-' + index" />
             </td>
           </tr>
           <tr>
-            <td v-for="(code, index) in unformatedAnswer" :key="index">
-              <img :id="'image-code-setting-' + index" :src="serverUrl + '/upload/quest/' + questId + '/step/code-image/' + selectedStep.form.options.images[code].imagePath" />
-            </td>
-          </tr>
-          <tr>
-            <td v-for="(code, index) in unformatedAnswer" :key="index" class="text-center" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index">
-              <q-icon name="keyboard_arrow_down" />
+            <td v-for="(color, index) in unformatedAnswer" :key="index">
+              <div @click="triggerClickOnColorSelect(index)" class="color-bubble" :style="'background-color: ' + unformatedAnswer[index]">&nbsp;</div>
             </td>
           </tr>
         </table>
       </div>
-    </div>
-    
-    <!------------------ STEP : IMAGE RECOGNITION ------------------------>
-    
-    <div v-if="options.type.code == 'image-recognition'" class="image-recognition">
-      <div v-if="!isIOs">
-        <q-btn class="full-width" :label="$t('label.UploadThePictureOfTheObjectToFind')" @click="$refs['image-to-recognize'].click()" />
-        <input @change="uploadImageToRecognize" ref="image-to-recognize" id="image-to-recognize" type="file" accept="image/*" hidden />
+      
+      <!------------------ STEP : IMAGE CODE ------------------------>
+      
+      <div v-if="options.type.code == 'code-image'" class="code-image">
+        <h2>{{ $t('label.ImagesUsedForCode') }}</h2>
+        <div class="answer" v-for="(image, key) in selectedStep.form.options.images" :key="key">
+          
+          <p v-show="image.imagePath === null" :class="{'error-label': $v.selectedStep.form.options && !$v.selectedStep.form.options.$each[key].imagePath.required}">{{ $t('label.NoPictureUploaded') }}</p>
+          <p><img v-if="image.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/code-image/' + image.imagePath" /></p>
+          <span v-if="!isIOs">
+            <q-btn icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
+            <input @change="uploadCodeAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden :test-id="'image-code-' + key" />
+          </span>
+          <span v-if="isIOs">
+            <input @change="uploadCodeAnswerImage(key, $event)" ref="answerImage" type="file" accept="image/*" :test-id="'image-code-' + key" />
+          </span>
+          <q-btn @click="deleteCodeAnswer(key)">
+            <q-icon name="clear" />
+          </q-btn>
+        </div>
+        <q-btn @click="addCodeAnswer()" class="full-width add-answer" color="secondary">
+          {{ $t('label.AddAnImage') }}
+        </q-btn>
+        <div v-if="selectedStep.form.options.images && selectedStep.form.options.images.length > 0 && selectedStep.form.options.images[0].imagePath">
+          <h2>{{ $t('label.ExpectedCode') }}</h2>
+          <q-select emit-value map-options :label="$t('label.NumberOfImagesInTheCode')" :options="config.imageCode.numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-images-in-code" />
+          <table>
+            <tr>
+              <td v-for="(code, index) in unformatedAnswer" :key="index" class="text-center" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index">
+                <q-icon name="keyboard_arrow_up" />
+              </td>
+            </tr>
+            <tr>
+              <td v-for="(code, index) in unformatedAnswer" :key="index">
+                <img :id="'image-code-setting-' + index" :src="serverUrl + '/upload/quest/' + questId + '/step/code-image/' + selectedStep.form.options.images[code].imagePath" />
+              </td>
+            </tr>
+            <tr>
+              <td v-for="(code, index) in unformatedAnswer" :key="index" class="text-center" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index">
+                <q-icon name="keyboard_arrow_down" />
+              </td>
+            </tr>
+          </table>
+        </div>
       </div>
-      <div v-if="isIOs">
-        {{ $t('label.UploadThePictureOfTheObjectToFind') }}:
-        <input @change="uploadImageToRecognize" ref="image-to-recognize" id="image-to-recognize" type="file" accept="image/*" />
-      </div>
-      <p v-show="$v.selectedStep.form.answers.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-      <div v-if="selectedStep.form.answers != ''">
-        <p>{{ $t('label.UploadedPicture') }} :</p>
-        <img :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + selectedStep.form.answers" />
-      </div>
-    </div>
-    
-    <!------------------ STEP : JIGSAW PUZZLE ------------------------>
-    
-    <div v-if="options.type.code === 'jigsaw-puzzle'">
-      <div class="background-upload">
+      
+      <!------------------ STEP : IMAGE RECOGNITION ------------------------>
+      
+      <div v-if="options.type.code == 'image-recognition'" class="image-recognition">
         <div v-if="!isIOs">
-          <q-btn class="full-width" :label="$t('label.UploadThePuzzlePicture')" @click="$refs['puzzlefile'].click()" />
-          <input @change="uploadPuzzleImage" ref="puzzlefile" type="file" accept="image/*" hidden test-id="upload-puzzle-image" />
+          <q-btn class="full-width" :label="$t('label.UploadThePictureOfTheObjectToFind')" @click="$refs['image-to-recognize'].click()" />
+          <input @change="uploadImageToRecognize" ref="image-to-recognize" id="image-to-recognize" type="file" accept="image/*" hidden />
         </div>
         <div v-if="isIOs">
-          {{ $t('label.UploadThePuzzlePicture') }}:
-          <input @change="uploadPuzzleImage" ref="puzzlefile" type="file" accept="image/*" test-id="upload-puzzle-image" />
+          {{ $t('label.UploadThePictureOfTheObjectToFind') }}:
+          <input @change="uploadImageToRecognize" ref="image-to-recognize" id="image-to-recognize" type="file" accept="image/*" />
         </div>
-        <p v-show="$v.selectedStep.form.options.picture && $v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-        <p v-if="!selectedStep.form.options.picture">{{ $t('label.WarningImageSizeSquare') }}</p>
-        <div v-if="selectedStep.form.options.picture">
-          <p>{{ $t('label.YourPuzzlePicture') }} :</p>
-          <img :src="serverUrl + '/upload/quest/' + questId + '/step/jigsaw-puzzle/' + selectedStep.form.options.picture" />
+        <p v-show="$v.selectedStep.form.answers.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+        <div v-if="selectedStep.form.answers != ''">
+          <p>{{ $t('label.UploadedPicture') }} :</p>
+          <img :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + selectedStep.form.answers" />
         </div>
       </div>
-      <div>
-        <q-select emit-value map-options :label="$t('label.Difficulty')" :options="config.jigsaw.levels" v-model="selectedStep.form.options.level" />
-      </div>
-    </div>
-    
-    <!------------------ STEP : MEMORY PUZZLE ------------------------>
-    
-    <div v-if="options.type.code === 'memory'">
-      <h2>{{ $t('label.ImagesUsedForCards') }}</h2>
-      <div class="answer" v-for="(option, key) in selectedStep.form.options.items" :key="key">       
-        <p v-show="option.imagePath === null" class="error-label">{{ $t('label.NoPictureUploaded') }}</p>
-        <p><img v-if="option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/memory/' + option.imagePath" /></p>
-        <span v-if="!isIOs">
-          <q-btn icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
-          <input @change="uploadMemoryImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden :test-id="'memory-image-' + key" />
-        </span>
-        <span v-if="isIOs">
-          <input @change="uploadMemoryImage(key, $event)" ref="answerImage" type="file" accept="image/*" :test-id="'memory-image-' + key" />
-        </span>
-        <q-btn @click="deleteMemoryAnswer(key)">
-          <q-icon name="clear" />
-        </q-btn>
-      </div>
-      <q-btn @click="addMemoryAnswer()" class="full-width add-answer" color="secondary">
-        {{ $t('label.AddACardPair') }}
-      </q-btn>
-    </div>
-    
-    <!------------------ STEP : USE INVENTORY ITEM ------------------------>
-    
-    <div class="find-item" v-if="options.type.code == 'use-item' && selectedStep.form.backgroundImage">
-      <p>{{ $t('label.ClickOnTheLocationTheItemMustBeUsed') }} :</p>
-      <div @click="getClickCoordinates($event)" id="useItemPicture" ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
-        <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="statics/icons/game/find-item-locator.png" />
-      </div>
-    </div>
-    <div class="inventory" v-if="options.type.code == 'use-item'">
-      <q-select emit-value map-options
-        :label="$t('label.ObjectToUse')"
-        :options="config.useItem.questItemsAsOptions"
-        v-model="selectedStep.form.answerItem"
-        @change="$v.selectedStep.form.answerItem.$touch"
-        bottom-slots
-        :error="$v.selectedStep.form.answerItem && $v.selectedStep.form.answerItem.$error"
-        :error-message="$t('label.RequiredField')"/>
-      <div v-if="selectedStep.form.answerItem">
-        {{ $t('label.SelectedObject') }} :
-        <img style="width: 100%" :src="(selectedStep.form.answerItem.indexOf('statics/') !== -1 ? selectedStep.form.answerItem : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.answerItem)" />
-      </div>
-    </div>
-    
-    <!------------------ STEP : FIND ITEM ------------------------>
-
-    <div class="find-item" v-if="options.type.code === 'find-item' && (selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '')">
-      <p>{{ $t('label.ClickOnTheItemThatIsToFind') }} :</p>
-      <div @click="getClickCoordinates($event)" id="findItemPicture" ref="findItemPicture" :style="'overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
-        <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="statics/icons/game/find-item-locator.png" />
-      </div>
-    </div>
-    
-    <!------------------ STEP : LOCATE ITEM USING AR ------------------------>
-
-    <div class="locate-item-ar" v-if="options.type.code === 'locate-item-ar'">
-      <h2>{{ $t('label.ObjectFormat') }}</h2>
-      <div class="fields-group">
-        <q-radio v-model="selectedStep.form.options.is3D" :val="false" :label="$t('label.2DPicture')" />
-        <q-radio v-model="selectedStep.form.options.is3D" :val="true" :label="$t('label.3DObject')" test-id="radio-locate-item-3d" @input="change2D3DObject" />
       
-        <div v-if="!selectedStep.form.options.is3D">
+      <!------------------ STEP : JIGSAW PUZZLE ------------------------>
+      
+      <div v-if="options.type.code === 'jigsaw-puzzle'">
+        <div class="background-upload">
           <div v-if="!isIOs">
-            <q-btn class="full-width" type="button" @click="$refs['item-to-find'].click()" :label="$t('label.UploadThePictureOfTheObjectToFind')" />
-            <input @change="uploadItemImage" ref="item-to-find" type="file" accept="image/png" hidden />
+            <q-btn class="full-width" :label="$t('label.UploadThePuzzlePicture')" @click="$refs['puzzlefile'].click()" />
+            <input @change="uploadPuzzleImage" ref="puzzlefile" type="file" accept="image/*" hidden test-id="upload-puzzle-image" />
           </div>
           <div v-if="isIOs">
-            {{ $t('label.UploadThePictureOfTheObjectToFind') }}:
-            <input @change="uploadItemImage" ref="item-to-find" type="file" accept="image/png" />
+            {{ $t('label.UploadThePuzzlePicture') }}:
+            <input @change="uploadPuzzleImage" ref="puzzlefile" type="file" accept="image/*" test-id="upload-puzzle-image" />
           </div>
-          <p v-show="!selectedStep.form.options.picture">{{ $t('label.PleaseUploadAFileInPNGFormat') }}</p>
-          <p v-show="$v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+          <p v-show="$v.selectedStep.form.options.picture && $v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+          <p v-if="!selectedStep.form.options.picture">{{ $t('label.WarningImageSizeSquare') }}</p>
           <div v-if="selectedStep.form.options.picture">
-            <p>{{ $t('label.UploadedPicture') }} :</p>
-            <img :src="serverUrl + '/upload/quest/' + questId + '/step/locate-item-ar/' + selectedStep.form.options.picture" />
-          </div>
-          <div>
-            <p>{{ $t('label.ObjectSize') }}</p>
-            <q-slider v-if="typeof selectedStep.form.options.objectSize !== 'undefined'" v-model="selectedStep.form.options.objectSize" :min="0.5" :max="10" :step="0.1" label-always :label-value="(selectedStep.form.options.objectSize || 0.5) + 'm'" />
+            <p>{{ $t('label.YourPuzzlePicture') }} :</p>
+            <img :src="serverUrl + '/upload/quest/' + questId + '/step/jigsaw-puzzle/' + selectedStep.form.options.picture" />
           </div>
         </div>
-        <div v-if="selectedStep.form.options.is3D">
-          <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="config.locateItem.selectModel3DOptions" test-id="select-3d-model" @input="changeObjectInList" />
-          <p class="error-label" v-show="$v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
-          <div class="centered">{{ $t('label.Or') }}</div>
-          <div v-if="quest.isPremium">
-            <div v-if="!isIOs">
-              <q-btn class="full-width" type="button" @click="$refs['object-to-find'].click()" :label="$t('label.UploadTheObjectToFind')" />
-              <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".glb" hidden />
-            </div>
-            <div v-if="isIOs">
-              {{ $t('label.UploadTheObjectToFind') }}:
-              <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".glb" />
-            </div>
-          </div>
-          <div v-if="!quest.isPremium">
-            <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadTheObjectToFind')" @click="$emit('openPremiumBox')" />
-          </div>
-          <div id="target-canvas"></div>
-          <div>
-            {{ $t('label.TouchAndDragObject') }}
-          </div>
+        <div>
+          <q-select emit-value map-options :label="$t('label.Difficulty')" :options="config.jigsaw.levels" v-model="selectedStep.form.options.level" />
         </div>
       </div>
       
-      <h2>{{ $t('label.AddressToFind') }}</h2>
-      <div class="fields-group">       
-        <div v-if="!isIOs" class="location-address">
-          <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-            <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
-            <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value" />
-          </div>
-          <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
+      <!------------------ STEP : MEMORY PUZZLE ------------------------>
+      
+      <div v-if="options.type.code === 'memory'">
+        <h2>{{ $t('label.ImagesUsedForCards') }}</h2>
+        <div class="answer" v-for="(option, key) in selectedStep.form.options.items" :key="key">       
+          <p v-show="option.imagePath === null" class="error-label">{{ $t('label.NoPictureUploaded') }}</p>
+          <p><img v-if="option.imagePath !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/memory/' + option.imagePath" /></p>
+          <span v-if="!isIOs">
+            <q-btn icon="cloud_upload" @click="$refs['answerImage'][key].click()" />
+            <input @change="uploadMemoryImage(key, $event)" ref="answerImage" type="file" accept="image/*" hidden :test-id="'memory-image-' + key" />
+          </span>
+          <span v-if="isIOs">
+            <input @change="uploadMemoryImage(key, $event)" ref="answerImage" type="file" accept="image/*" :test-id="'memory-image-' + key" />
+          </span>
+          <q-btn @click="deleteMemoryAnswer(key)">
+            <q-icon name="clear" />
+          </q-btn>
         </div>
-        <div v-if="isIOs">
-          {{  $t('label.DefineGPSLocation') }}
-          <div class="location-gps-inputs">
-            <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
-            <div>
-              <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-              <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
-              <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
+        <q-btn @click="addMemoryAnswer()" class="full-width add-answer" color="secondary">
+          {{ $t('label.AddACardPair') }}
+        </q-btn>
+      </div>
+      
+      <!------------------ STEP : USE INVENTORY ITEM ------------------------>
+      
+      <div class="find-item" v-if="options.type.code == 'use-item' && selectedStep.form.backgroundImage">
+        <p>{{ $t('label.ClickOnTheLocationTheItemMustBeUsed') }} :</p>
+        <div @click="getClickCoordinates($event)" id="useItemPicture" ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
+          <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="statics/icons/game/find-item-locator.png" />
+        </div>
+      </div>
+      <div class="inventory" v-if="options.type.code == 'use-item'">
+        <q-select emit-value map-options
+          :label="$t('label.ObjectToUse')"
+          :options="config.useItem.questItemsAsOptions"
+          v-model="selectedStep.form.answerItem"
+          @change="$v.selectedStep.form.answerItem.$touch"
+          bottom-slots
+          :error="$v.selectedStep.form.answerItem && $v.selectedStep.form.answerItem.$error"
+          :error-message="$t('label.RequiredField')"/>
+        <div v-if="selectedStep.form.answerItem">
+          {{ $t('label.SelectedObject') }} :
+          <img style="width: 100%" :src="(selectedStep.form.answerItem.indexOf('statics/') !== -1 ? selectedStep.form.answerItem : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.answerItem)" />
+        </div>
+      </div>
+      
+      <!------------------ STEP : FIND ITEM ------------------------>
+
+      <div class="find-item" v-if="options.type.code === 'find-item' && (selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '')">
+        <p>{{ $t('label.ClickOnTheItemThatIsToFind') }} :</p>
+        <div @click="getClickCoordinates($event)" id="findItemPicture" ref="findItemPicture" :style="'overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
+          <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="statics/icons/game/find-item-locator.png" />
+        </div>
+      </div>
+      
+      <!------------------ STEP : LOCATE ITEM USING AR ------------------------>
+
+      <div class="locate-item-ar" v-if="options.type.code === 'locate-item-ar'">
+        <h2>{{ $t('label.ObjectFormat') }}</h2>
+        <div class="fields-group">
+          <q-radio v-model="selectedStep.form.options.is3D" :val="false" :label="$t('label.2DPicture')" />
+          <q-radio v-model="selectedStep.form.options.is3D" :val="true" :label="$t('label.3DObject')" test-id="radio-locate-item-3d" @input="change2D3DObject" />
+        
+          <div v-if="!selectedStep.form.options.is3D">
+            <div v-if="!isIOs">
+              <q-btn class="full-width" type="button" @click="$refs['item-to-find'].click()" :label="$t('label.UploadThePictureOfTheObjectToFind')" />
+              <input @change="uploadItemImage" ref="item-to-find" type="file" accept="image/png" hidden />
+            </div>
+            <div v-if="isIOs">
+              {{ $t('label.UploadThePictureOfTheObjectToFind') }}:
+              <input @change="uploadItemImage" ref="item-to-find" type="file" accept="image/png" />
+            </div>
+            <p v-show="!selectedStep.form.options.picture">{{ $t('label.PleaseUploadAFileInPNGFormat') }}</p>
+            <p v-show="$v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+            <div v-if="selectedStep.form.options.picture">
+              <p>{{ $t('label.UploadedPicture') }} :</p>
+              <img :src="serverUrl + '/upload/quest/' + questId + '/step/locate-item-ar/' + selectedStep.form.options.picture" />
             </div>
             <div>
-              <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-              <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
-              <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
+              <p>{{ $t('label.ObjectSize') }}</p>
+              <q-slider v-if="typeof selectedStep.form.options.objectSize !== 'undefined'" v-model="selectedStep.form.options.objectSize" :min="0.5" :max="10" :step="0.1" label-always :label-value="(selectedStep.form.options.objectSize || 0.5) + 'm'" />
             </div>
           </div>
-          <div>
-            <a @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+          <div v-if="selectedStep.form.options.is3D">
+            <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="config.locateItem.selectModel3DOptions" test-id="select-3d-model" @input="changeObjectInList" />
+            <p class="error-label" v-show="$v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
+            <div class="centered">{{ $t('label.Or') }}</div>
+            <div v-if="quest.isPremium">
+              <div v-if="!isIOs">
+                <q-btn class="full-width" type="button" @click="$refs['object-to-find'].click()" :label="$t('label.UploadTheObjectToFind')" />
+                <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".glb" hidden />
+              </div>
+              <div v-if="isIOs">
+                {{ $t('label.UploadTheObjectToFind') }}:
+                <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".glb" />
+              </div>
+            </div>
+            <div v-if="!quest.isPremium">
+              <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadTheObjectToFind')" @click="$emit('openPremiumBox')" />
+            </div>
+            <div id="target-canvas"></div>
+            <div>
+              {{ $t('label.TouchAndDragObject') }}
+            </div>
           </div>
         </div>
-        <q-list v-if="!isIOs">
-          <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
+        
+        <h2>{{ $t('label.AddressToFind') }}</h2>
+        <div class="fields-group">       
+          <div v-if="!isIOs" class="location-address">
+            <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
+              <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
+              <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value" />
+            </div>
+            <a class="dark" @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
+          </div>
+          <div v-if="isIOs">
+            {{  $t('label.DefineGPSLocation') }}
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
               <div>
@@ -569,199 +543,229 @@
               </div>
             </div>
             <div>
-              <a @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+              <a class="dark" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
             </div>
-          </q-expansion-item>
-        </q-list>
+          </div>
+          <q-list v-if="!isIOs">
+            <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
+              <div class="location-gps-inputs">
+                <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
+                <div>
+                  <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
+                  <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+                  <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
+                </div>
+                <div>
+                  <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
+                  <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+                  <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
+                </div>
+              </div>
+              <div>
+                <a class="dark" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+              </div>
+            </q-expansion-item>
+          </q-list>
+        </div>
+      </div>
+      
+      <!------------------ STEP : FIND AR MARKER ------------------------>
+      
+      <div class="locate-marker" v-if="options.type.code === 'locate-marker' && typeof selectedStep.form.answers === 'string'">
+        <h2>{{ $t('label.Marker') }}</h2>
+        
+        <p>
+          <img :src="'statics/markers/' + selectedStep.form.answers + '/marker.png'" />
+          <span>{{ selectedStep.form.answers }}</span>
+          <q-btn color="primary" :label="$t('label.Choose')" @click="openChooseMarkerModal()" test-id="btn-open-choose-marker-modal" />
+        </p>
+        
+        <!--
+        <h2>{{ $t('label.Mode') }}</h2>
+        
+        <div class="fields-group">
+          
+          <q-option-group
+            type="radio"
+            color="secondary"
+            v-model="selectedStep.form.options.mode"
+            :options="[
+              { label: $t('label.TouchA3DObjectOnTheMarker'), value: 'touch' },
+              { label: $t('label.ScanTheMarker'), value: 'scan' }
+            ]"
+          />
+          
+          <div v-if="selectedStep.form.options.mode === 'touch'">
+            <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
+            <p class="error-label" v-show="$v.selectedStep.form.options && $v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
+          </div>
+          
+          <q-select emit-value map-options v-if="selectedStep.form.options.mode === 'scan'" :label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
+        
+        </div>-->
+        
+        <q-dialog id="choose-marker-modal" v-model="config.locateMarker.markerModalOpened">
+          <q-card>
+            <q-card-section>
+              <div class="text-h6">{{ $t('label.ChooseTheMarker') }}</div>
+            </q-card-section>
+          
+            <q-card-section>
+              <q-btn v-for="(option, key) in markersList" :key="key" color="white" class="full-width" @click="selectMarker(option)" :test-id="'btn-select-marker-' + option">
+                <img :src="'statics/markers/' + option + '/marker.png'" />
+                <span>{{ option }}</span>
+              </q-btn>
+            </q-card-section>
+          
+            <q-card-actions>
+              <q-btn
+                color="primary"
+                class="full-width"
+                @click="closeChooseMarkerModal()"
+                :label="$t('label.Cancel')"
+              />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
+      </div>
+      
+      <!------------------ CONDITIONS ------------------------>
+      
+      <q-list bordered v-if="options && options.mode && options.mode === 'advanced'">
+        <q-expansion-item icon="add_box" :label="$t('label.Conditions')">
+          <div class="q-pa-sm">
+            <q-list highlight v-if="selectedStep.formatedConditions.length > 0">
+              <q-item-label header>{{ $t('label.ThisStepIsTriggeredWhen') }}</q-item-label>
+              <q-item v-for="(condition, index) in selectedStep.formatedConditions" :key="index">
+                <q-item-section>
+                  <q-item-label v-html="condition" />
+                </q-item-section>
+                <q-item-section side>
+                  <q-icon name="delete" @click.native="deleteCondition(index)" />
+                </q-item-section>
+              </q-item>
+            </q-list>
+            <div v-if="selectedStep.formatedConditions.length === 0">
+              {{ $t("label.NoCondition") }}
+            </div>
+            <q-btn color="primary" class="full-width" v-if="!selectedStep.newConditionForm" @click="selectedStep.newConditionForm = true" :label="$t('label.AddACondition')" />
+            <div v-if="selectedStep.newConditionForm">
+              <q-select emit-value map-options :label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @input="changeNewConditionType" />
+              <q-select emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
+              <div class="centered">
+                <q-btn color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />
+                <q-btn color="primary" flat @click="selectedStep.newConditionForm = false" :label="$t('label.Cancel')" />
+              </div>
+            </div>
+          </div>
+        </q-expansion-item>
+      </q-list>
+      
+      <!------------------ OTHER OPTIONS ------------------------>
+      
+      <q-list v-show="options.type.hasOptions" bordered>
+        <q-expansion-item icon="add_box" :label="$t('label.OtherOptions')">
+          <div class="q-pa-sm">
+            <div v-if="options && options.mode && options.mode === 'advanced' && (options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text')" class="q-pb-md">
+              <q-toggle v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
+            </div>
+            <div v-if="options.type.code == 'geolocation' || options.type.code == 'locate-item-ar'" class="location-gps">
+              <q-toggle v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
+              <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
+              <q-toggle v-model="selectedStep.form.options.showHelp" :label="$t('label.DisplayGeolocationHelp')" />
+            </div>
+            <div v-if="options.type.code === 'memory'">
+              <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
+            </div>
+            <div v-if="options.type.nbTrials > 0">
+              <q-input v-model="selectedStep.form.nbTrial" :label="$t('label.NbTrials')" />
+            </div>
+            <div v-if="options.type.passOption > 0">
+              <q-toggle v-model="selectedStep.form.canPass" :label="$t('label.UserCanPass')" />
+            </div>
+            <div v-if="options.type.code === 'image-over-flow'">
+              <q-toggle v-model="selectedStep.form.options.fullWidthPicture" :label="$t('label.EnlargePictureToFullWidth')" />
+              <q-toggle v-model="selectedStep.form.options.snapshotAllowed" :label="$t('label.PlayerCanTakeSnapshot')" />
+              <q-toggle v-model="selectedStep.form.options.redFilter" :label="$t('label.ReplacePictureByRedFilter')" />
+            </div>
+            <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
+              <q-input v-model="selectedStep.form.options.initDuration" :label="$t('label.DurationBeforeTextAppearAbovePicture')" />
+            </div>
+            <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
+              <div v-if="!isIOs">
+                <q-btn class="full-width" type="button" @click="$refs['backgroundfile2'].click()">
+                  <q-icon name="cloud_upload" /> <label for="picturefile2">{{ $t('label.UploadABackgroundImage') }}</label>
+                </q-btn>
+                <input @change="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+              </div>
+              <div v-if="isIOs">
+                <q-icon name="cloud_upload" /> {{ $t('label.UploadABackgroundImage') }}
+                <input @change="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" />
+              </div>
+              <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+              <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
+              <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
+                <p>{{ $t('label.YourPicture') }} :</p>
+                <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
+                <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
+              </div>
+            </div>
+            <q-input
+              :label="$t('label.ExtraTextFieldLabel')"
+              v-model="selectedStep.form.extraText[lang]"
+              type="textarea"
+              :max-height="100"
+              :min-rows="4"
+              class="full-width"
+            />
+            
+          </div>
+        </q-expansion-item>
+      </q-list>
+      
+      <!------------------ HINT ------------------------>
+      
+      <q-list v-show="options.type.showTrick == 'yes'" bordered>
+        <q-expansion-item icon="lightbulb" :label="$t('label.Hints')">
+          <div class="q-pa-sm">
+            <div v-if="selectedStep.form.hint && selectedStep.form.hint[lang] && selectedStep.form.hint[lang].length > 0" v-for="(item, key) in selectedStep.form.hint[lang]" :key="key">
+              <q-btn class="float-right" @click="removeHint(key)"><q-icon name="delete" /></q-btn>
+              <div class="text-subtitle1">{{ $t('label.Hint') + " " + (key + 1) }}</div>
+              {{ item }}
+            </div>
+            <div>
+              <q-input v-model="newHint" :label="$t('label.NewHint')">
+                <template v-slot:after>
+                  <q-btn round dense flat icon="add" @click="addHint()" />
+                </template>
+              </q-input>
+            </div>
+          </div>
+        </q-expansion-item>
+      </q-list>
+      
+      <!------------------ START DATE ------------------------>
+      
+      <q-list bordered>
+        <q-expansion-item icon="access_time" :label="$t('label.StartOnDate')">
+          <div class="q-pa-sm">
+            <q-toggle v-model="selectedStep.form.startDate.enabled" :label="$t('label.StepIsOnlyVisibleOnThisDate')" />
+            <q-date v-model="selectedStep.form.startDate.date" minimal />
+          </div>
+        </q-expansion-item>
+      </q-list>
+      <div class="centered q-pa-md">
+        <q-btn class="glossy large-button" color="primary" @click="submitStep" test-id="btn-save-step">{{ $t('label.SaveThisStep') }}</q-btn>
       </div>
     </div>
     
-    <!------------------ STEP : FIND AR MARKER ------------------------>
+    <!------------------ HEADER ------------------------>
     
-    <div class="locate-marker" v-if="options.type.code === 'locate-marker' && typeof selectedStep.form.answers === 'string'">
-      <h2>{{ $t('label.Marker') }}</h2>
+    <div class="q-pa-md background-dark fixed-top">
+      <a class="float-right no-underline" color="grey" @click="close"><q-icon name="close" class="subtitle4" /></a>
       
-      <p>
-        <img :src="'statics/markers/' + selectedStep.form.answers + '/marker.png'" />
-        <span>{{ selectedStep.form.answers }}</span>
-        <q-btn color="primary" :label="$t('label.Choose')" @click="openChooseMarkerModal()" test-id="btn-open-choose-marker-modal" />
-      </p>
-      
-      <!--
-      <h2>{{ $t('label.Mode') }}</h2>
-      
-      <div class="fields-group">
-        
-        <q-option-group
-          type="radio"
-          color="secondary"
-          v-model="selectedStep.form.options.mode"
-          :options="[
-            { label: $t('label.TouchA3DObjectOnTheMarker'), value: 'touch' },
-            { label: $t('label.ScanTheMarker'), value: 'scan' }
-          ]"
-        />
-        
-        <div v-if="selectedStep.form.options.mode === 'touch'">
-          <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
-          <p class="error-label" v-show="$v.selectedStep.form.options && $v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
-        </div>
-        
-        <q-select emit-value map-options v-if="selectedStep.form.options.mode === 'scan'" :label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
-      
-      </div>-->
-      
-      <q-dialog id="choose-marker-modal" v-model="config.locateMarker.markerModalOpened">
-        <q-card>
-          <q-card-section>
-            <div class="text-h6">{{ $t('label.ChooseTheMarker') }}</div>
-          </q-card-section>
-        
-          <q-card-section>
-            <q-btn v-for="(option, key) in markersList" :key="key" color="white" class="full-width" @click="selectMarker(option)" :test-id="'btn-select-marker-' + option">
-              <img :src="'statics/markers/' + option + '/marker.png'" />
-              <span>{{ option }}</span>
-            </q-btn>
-          </q-card-section>
-        
-          <q-card-actions>
-            <q-btn
-              color="primary"
-              class="full-width"
-              @click="closeChooseMarkerModal()"
-              :label="$t('label.Cancel')"
-            />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
+      <div class="subtitle3" v-if="selectedStep.type !== null">{{ $t('stepType.' + selectedStep.type.title) }}</div>
     </div>
-    
-    <!------------------ CONDITIONS ------------------------>
-    
-    <q-list bordered v-if="options && options.mode && options.mode === 'advanced'">
-      <q-expansion-item icon="add_box" :label="$t('label.Conditions')">
-        <div class="q-pa-sm">
-          <q-list highlight v-if="selectedStep.formatedConditions.length > 0">
-            <q-item-label header>{{ $t('label.ThisStepIsTriggeredWhen') }}</q-item-label>
-            <q-item v-for="(condition, index) in selectedStep.formatedConditions" :key="index">
-              <q-item-section>
-                <q-item-label v-html="condition" />
-              </q-item-section>
-              <q-item-section side>
-                <q-icon name="delete" @click.native="deleteCondition(index)" />
-              </q-item-section>
-            </q-item>
-          </q-list>
-          <div v-if="selectedStep.formatedConditions.length === 0">
-            {{ $t("label.NoCondition") }}
-          </div>
-          <q-btn color="primary" class="full-width" v-if="!selectedStep.newConditionForm" @click="selectedStep.newConditionForm = true" :label="$t('label.AddACondition')" />
-          <div v-if="selectedStep.newConditionForm">
-            <q-select emit-value map-options :label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @input="changeNewConditionType" />
-            <q-select emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
-            <div class="centered">
-              <q-btn color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />
-              <q-btn color="primary" flat @click="selectedStep.newConditionForm = false" :label="$t('label.Cancel')" />
-            </div>
-          </div>
-        </div>
-      </q-expansion-item>
-    </q-list>
-    
-    <!------------------ OTHER OPTIONS ------------------------>
-    
-    <q-list v-show="options.type.hasOptions" bordered>
-      <q-expansion-item icon="add_box" :label="$t('label.OtherOptions')">
-        <div class="q-pa-sm">
-          <div v-if="options && options.mode && options.mode === 'advanced' && (options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text')" class="q-pb-md">
-            <q-toggle v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
-          </div>
-          <div v-if="options.type.code == 'geolocation' || options.type.code == 'locate-item-ar'" class="location-gps">
-            <q-toggle v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
-            <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
-            <q-toggle v-model="selectedStep.form.options.showHelp" :label="$t('label.DisplayGeolocationHelp')" />
-          </div>
-          <div v-if="options.type.code === 'memory'">
-            <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
-          </div>
-          <div v-if="options.type.nbTrials > 0">
-            <q-input v-model="selectedStep.form.nbTrial" :label="$t('label.NbTrials')" />
-          </div>
-          <div v-if="options.type.passOption > 0">
-            <q-toggle v-model="selectedStep.form.canPass" :label="$t('label.UserCanPass')" />
-          </div>
-          <div v-if="options.type.code === 'image-over-flow'">
-            <q-toggle v-model="selectedStep.form.options.fullWidthPicture" :label="$t('label.EnlargePictureToFullWidth')" />
-            <q-toggle v-model="selectedStep.form.options.snapshotAllowed" :label="$t('label.PlayerCanTakeSnapshot')" />
-          </div>
-          <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
-            <q-input v-model="selectedStep.form.options.initDuration" :label="$t('label.DurationBeforeTextAppearAbovePicture')" />
-          </div>
-          <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
-            <div v-if="!isIOs">
-              <q-btn class="full-width" type="button" @click="$refs['backgroundfile2'].click()">
-                <q-icon name="cloud_upload" /> <label for="picturefile2">{{ $t('label.UploadABackgroundImage') }}</label>
-              </q-btn>
-              <input @change="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
-            </div>
-            <div v-if="isIOs">
-              <q-icon name="cloud_upload" /> {{ $t('label.UploadABackgroundImage') }}
-              <input @change="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" />
-            </div>
-            <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-            <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
-            <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
-              <p>{{ $t('label.YourPicture') }} :</p>
-              <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
-              <a @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
-            </div>
-          </div>
-          <q-input
-            :label="$t('label.ExtraTextFieldLabel')"
-            v-model="selectedStep.form.extraText[lang]"
-            type="textarea"
-            :max-height="100"
-            :min-rows="4"
-            class="full-width"
-          />
-          
-        </div>
-      </q-expansion-item>
-    </q-list>
-    
-    <!------------------ HINT ------------------------>
-    
-    <q-list v-show="options.type.showTrick == 'yes'" bordered>
-      <q-expansion-item icon="lightbulb" :label="$t('label.Hints')">
-        <div class="q-pa-sm">
-          <div v-if="selectedStep.form.hint && selectedStep.form.hint[lang] && selectedStep.form.hint[lang].length > 0" v-for="(item, key) in selectedStep.form.hint[lang]" :key="key">
-            <q-btn class="float-right" @click="removeHint(key)"><q-icon name="delete" /></q-btn>
-            <div class="text-subtitle1">{{ $t('label.Hint') + " " + (key + 1) }}</div>
-            {{ item }}
-          </div>
-          <div>
-            <q-input v-model="newHint" :label="$t('label.NewHint')">
-              <template v-slot:after>
-                <q-btn round dense flat icon="add" @click="addHint()" />
-              </template>
-            </q-input>
-          </div>
-        </div>
-      </q-expansion-item>
-    </q-list>
-    
-    <!------------------ START DATE ------------------------>
-    
-    <q-list bordered>
-      <q-expansion-item icon="access_time" :label="$t('label.StartOnDate')">
-        <div class="q-pa-sm">
-          <q-toggle v-model="selectedStep.form.startDate.enabled" :label="$t('label.StepIsOnlyVisibleOnThisDate')" />
-          <q-date v-model="selectedStep.form.startDate.date" minimal />
-        </div>
-      </q-expansion-item>
-    </q-list>
-    
-    <q-btn class="full-width" color="primary" @click="submitStep" test-id="btn-save-step">{{ $t('label.SaveThisStep') }}</q-btn>
     
     <q-dialog id="save-changes-modal" class="full-width" v-model="saveChangesModalOpened">
       <q-card>
@@ -1125,7 +1129,7 @@ export default {
         if (this.selectedStep.form.answers && typeof this.selectedStep.form.answers === 'string' && this.selectedStep.form.answers.indexOf('|') !== -1) {
           this.unformatedAnswer = this.selectedStep.form.answers.split("|")
         } else {
-          this.unformatedAnswer = Array(4).fill('red')
+          this.unformatedAnswer = Array(4).fill('#FF0000')
         }
         if (this.selectedStep.form.options.colors) {
           this.config.colorCode.colorsForCode = this.selectedStep.form.options.colors
@@ -1443,7 +1447,7 @@ export default {
         this.unformatedAnswer.length = 0      
         const codeLength = parseInt(this.selectedStep.form.options.codeLength, 10)
         while (codeLength > this.unformatedAnswer.length) {
-          this.unformatedAnswer.push('red')
+          this.unformatedAnswer.push('#FF0000')
         }
       } else if (this.options.type.code === 'code-image') {
         this.unformatedAnswer.length = 0      
