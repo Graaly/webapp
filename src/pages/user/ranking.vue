@@ -219,6 +219,7 @@ export default {
     }
   },
   mounted() {
+console.log(this.$store.state.user)
     if (!this.$store.state.user.points) {
       this.$store.state.user.points = 0
     }

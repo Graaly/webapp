@@ -236,7 +236,7 @@ export default {
     this.initData()
     this.keepScreenAwake()
     // hide status bar on Android
-    if (cordova.platformId === 'android') {
+    if (this.isHybrid && cordova.platformId === 'android') {
       StatusBar.show()
     }
   },
@@ -286,6 +286,7 @@ export default {
         isRunFinished: false,
         remotePlay: false,
         //cameraStreamEnabled: false,
+        isHybrid: window.cordova,
         serverUrl: process.env.SERVER_URL,
         nbTry: 0,
         controlsAreDisplayed: false,
