@@ -28,7 +28,7 @@
                 <img v-if="typeof quest.author === 'undefined' || !quest.author || !quest.author.picture" src="statics/profiles/noprofile.png" />
               </q-avatar>
             </q-item-section>
-            <q-item-section>
+            <q-item-section style="padding-right: 84px">
               <q-item-label class="subtitle5" v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.name">{{ quest.author.name }}</q-item-label>
             </q-item-section>
           </q-item>
@@ -84,7 +84,7 @@
         
         <!-- =========================== RANKING ========================== -->
         
-        <div v-if="quest.location && quest.location.address" class="text-subtitle1 q-mt-sm quest-ranking">
+        <div class="text-subtitle1 q-mt-sm quest-ranking">
           <a class="concertone" @click="$router.push('/user/ranking/ranking/' + quest.questId)">{{ $t('label.Ranking') }}</a>
         </div>
       </div>

@@ -90,7 +90,7 @@
 
         <questsList format="small" color="red" :add="true" :quests="quests.built"></questsList>
       </div>
-      <div v-if="$store.state.user.id !== userId">
+      <div v-if="$store.state.user.id !== userId && quests && quests.built && quests.built.length > 0">
         <!--====================== QUESTS CREATED BY OTHER USER =================================-->
         
         <titleBar :title="{text: $t('label.EscapeGames'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreQuestPublished"></titleBar>
