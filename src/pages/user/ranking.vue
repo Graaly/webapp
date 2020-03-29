@@ -5,8 +5,8 @@
         <transition name="slideInTop">
           <div v-if="tab === 'level'">
             <div v-for="level in levels" :key="level.number" class="q-ma-md level-to-reach" :class="{'level-not-reached': ($store.state.user.points < level.minPoints)}" :style="'background-image: url(statics/images/icon/level' + level.number + '.svg)'">
-              <div class="grey-round-box" v-if="$store.state.user.score < level.minPoints">{{ $t('label.PointsToReachLevel', {score: level.minPoints}) }}</div>
-              <div class="grey-round-box" v-if="$store.state.user.score >= level.minPoints">{{ $t('label.LevelReached') }}</div>
+              <div class="grey-round-box" v-if="$store.state.user.points < level.minPoints">{{ $t('label.PointsToReachLevel', {score: level.minPoints}) }}</div>
+              <div class="grey-round-box" v-if="$store.state.user.points >= level.minPoints">{{ $t('label.LevelReached') }}</div>
             </div>
           </div>
         </transition>
@@ -27,7 +27,7 @@
                 <div class="grey-round-box row icons q-mt-sm q-pa-sm">
                   <div class="col-6 centered">
                     <img src="statics/images/icon/pts.svg" />
-                    {{ user.score }}
+                    {{ user.points }}
                   </div>
                   <div class="col-6 centered">
                     <img src="statics/images/icon/medal.svg" />
@@ -219,7 +219,6 @@ export default {
     }
   },
   mounted() {
-console.log(this.$store.state.user)
     if (!this.$store.state.user.points) {
       this.$store.state.user.points = 0
     }
