@@ -49,7 +49,7 @@
       <!--====================== QR CODE BUTTON =================================-->
       
       <div class="q-px-md q-pt-lg" v-if="isHybrid && !offline.active">
-        <div class="image-button" @click="startScanQRCode" style="background-image: url(/statics/images/icon/scan-button.png)">
+        <div class="image-button" @click="startScanQRCode" style="background-image: url(statics/images/icon/scan-button.png)">
           {{ $t('label.ScanQRCode') }}
         </div>
       </div>
@@ -75,7 +75,7 @@
       <!--====================== CREATE PROFILE BUTTON =================================-->
       
       <div class="q-px-md q-pt-lg" v-if="!offline.active && (!this.$store.state.user.name || this.$store.state.user.name === '' || this.$store.state.user.email === 'providersignin' || !this.$store.state.user.location || !this.$store.state.user.location.postalCode || this.$store.state.user.location.postalCode === '' || !this.$store.state.user.location.country || this.$store.state.user.location.country === '')">
-        <div class="image-button" @click="openUpdateProfilePage" style="background-image: url(/statics/images/icon/profile-button.png)">
+        <div class="image-button" @click="openUpdateProfilePage" style="background-image: url(statics/images/icon/profile-button.png)">
           {{ $t('label.WeNeedMoreInformationAboutYou') }}
         </div>
       </div>
@@ -113,7 +113,7 @@
       <!--====================== MAP BUTTON =================================-->
       
       <div class="q-px-md q-py-lg" v-if="!offline.active">
-        <div class="image-button" @click="openMap" style="background-image: url(/statics/images/icon/locator-button.png)">
+        <div class="image-button" @click="openMap" style="background-image: url(statics/images/icon/locator-button.png)">
           {{ $t('label.OpenTheMap') }}
         </div>
       </div>

@@ -60,7 +60,7 @@
           </div>
         </div>
         <div class="title-banner q-pl-sm">
-          <div><span v-if="quest.location && quest.location.town">{{ quest.location.town }}</span></div>
+          <div><span v-if="quest.location && quest.location.town">{{ quest.location.town }}&nbsp;</span></div>
           <div class="subtitle4" v-if="quest.title">{{ quest.title }}</div>
         </div>
         <div v-if="quest.availablePoints && quest.availablePoints.maxPts">
@@ -110,7 +110,7 @@
           </div>
         </div>
         <div class="title-banner q-pl-sm">
-          <div><span v-if="quest.location && quest.location.town">{{ quest.location.town }}</span></div>
+          <div><span v-if="quest.location && quest.location.town">{{ quest.location.town }}&nbsp;</span></div>
           <div class="subtitle4" v-if="quest.title">{{ quest.title }}</div>
         </div>
         <div v-if="quest.availablePoints && quest.availablePoints.maxPts">
