@@ -358,6 +358,7 @@
         <div v-show="playerResult === null">
           <div class="text" v-show="getTranslatedText() != ''">
             <p>{{ getTranslatedText() }}</p>
+            <p v-if="!isHybrid">{{ $t('label.ThisStepOnlyWorkOnMobile') }}</p>
           </div>
         </div>
         
@@ -2234,7 +2235,7 @@ export default {
       // if lat and lng are not set, compute to have the object close to the current user position
       if (this.step.options.lat === 0 && this.step.options.lng === 0) {
         if (this.step.type === 'locate-item-ar') {
-          this.step.options.lat = current.latitude + 0.0002
+          this.step.options.lat = current.latitude + 0.00005
           this.step.options.lng = current.longitude 
         } else {
           this.step.options.lat = current.latitude + 0.0005

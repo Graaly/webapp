@@ -77,8 +77,8 @@ module.exports = {
       UseAnItemDesc: "Player use an item of his inventory on a part of a picture",
       LocateItemAR: "Locate item using augmented reality",
       LocateItemARDesc: "Player has to find an geolocated item, visible on his smartphone when he is near.",
-      LocateMarker: "Locate a symbol",
-      LocateMarkerDesc: "Player has to find a special symbol, printed or shown on a real screen.",
+      LocateMarker: "Scan a QR Code",
+      LocateMarkerDesc: "Player has to find a QR code.",
       GraalyCharacter: "Character",
       GraalyCharacterDesc: "Make a character speak",
       EndOfChapter: "End of chapter",
@@ -471,8 +471,8 @@ module.exports = {
       GeolocationFailedDesc: "We can not localize you, either you have no network, or you blocked the localization for this app",
       NumberOfColorsInTheCode: "Number of colors in the code",
       NumberOfImagesInTheCode: "Number of pictures in the code",
-      FindMarkerHelp: "Target the correct marker with your phone camera. A marker is a symbol surrounded by a black frame. Good luck!",
-      TouchObjectOnMarkerHelp: "Point your phone camera towards the right marker. A marker is a symbol or a QR Code surrounded by a black frame. Good luck!",
+      FindMarkerHelp: "Target the correct QR code with your phone camera. Good luck!",
+      TouchObjectOnMarkerHelp: "Point your phone camera towards the right QR code. A QR code is a square picture with dark dots. Good luck!",
       LocationSearching: "Looking for your position...",
       ConfirmSaveChanges: "Save changes?",
       Yes: "Yes",
@@ -848,7 +848,9 @@ module.exports = {
       TotalNumberOfPlaysNotFinished: "Number of unfinished games",
       RoomDataWarning: "Some information can be obsolete, do not hesitate to look at the escape game web site for more information",
       AnonymousUser: "Anonymous user",
-      NotWon: "To be won"
+      NotWon: "To be won",
+      OnTopGames: "Featured games",
+      ThisStepOnlyWorkOnMobile: "The QR code scan only works on mobile app"
     }
   },
   fr: {
@@ -916,8 +918,8 @@ module.exports = {
       UseAnItemDesc: "Utiliser un objet de l'inventaire",
       LocateItemAR: "Trouver un objet en réalité augmentée",
       LocateItemARDesc: "Le joueur doit trouver un objet géolocalisé et visible sur l'écran de son smartphone lorsqu'il se trouve à proximité.",
-      LocateMarker: "Trouver un symbole",
-      LocateMarkerDesc: "Le joueur doit trouver un symbole spécial, imprimé ou affiché sur un écran.",
+      LocateMarker: "Scanner un QR Code",
+      LocateMarkerDesc: "Le joueur doit trouver un QR Code.",
       GraalyCharacter: "Personnage",
       GraalyCharacterDesc: "Faire parler un personnage",
       EndOfChapter: "Fin de chapitre",
@@ -1311,8 +1313,8 @@ module.exports = {
       GeolocationFailedDesc: "Nous n'avons pas réussi à vous géolocaliser, soit vous n'avez pas de réseau, soit vous avez bloqué la géolocalisation pour cette app",
       NumberOfColorsInTheCode: "Nombre de couleurs dans le code",
       NumberOfImagesInTheCode: "Nombre d'images dans le code",
-      FindMarkerHelp: "Visez le bon marqueur avec la caméra de votre téléphone. Un marqueur est un signe entouré d'un cadre noir. Bonne chance !",
-      TouchObjectOnMarkerHelp: "Visez le bon marqueur avec la caméra de votre téléphone. Un marqueur est un signe ou un QR code entouré d'un cadre noir. Bonne chance !",
+      FindMarkerHelp: "Visez le bon QR code avec la caméra de votre téléphone. Bonne chance !",
+      TouchObjectOnMarkerHelp: "Visez le bon QR code avec la caméra de votre téléphone. Un QR code est une figure carrée composée de point noirs. Bonne chance !",
       LocationSearching: "Recherche de votre position ...",
       ConfirmSaveChanges: "Enregistrer les modifications ?",
       Yes: "Oui",
@@ -1688,7 +1690,9 @@ module.exports = {
       TotalNumberOfPlaysNotFinished: "Nombre de parties non terminées",
       RoomDataWarning: "Certaines informations peuvent être obsolètes, n'hésitez pas à aller sur le site de l'escape game pour plus d'informations",
       AnonymousUser: "Joueur anonyme",
-      NotWon: "A gagner"
+      NotWon: "A gagner",
+      OnTopGames: "Jeux du moment",
+      ThisStepOnlyWorkOnMobile: "Le scan de QR code ne fonctionne que sur l'application mobile"
     }
   }
 }

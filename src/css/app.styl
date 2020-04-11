@@ -1422,8 +1422,8 @@ span .q-icon {
 }
 .list-group-item p {
   height: 30px;
-  padding: 7px;
-  /*background-color: #ddd;*/
+  /*padding: 7px;
+  background-color: #ddd;*/
 }
 .list-group-item div { 
   flex-grow: 1; 
@@ -1600,12 +1600,8 @@ WARNING: introduces bad scrolling behaviors on iOS webapp (Safari) & hybrid
 // manage desktop display
 .desktop #main-view, .desktop .story>div, .desktop .bottom-dark-banner, .desktop .fixed-bottom, 
 .desktop .panel-bottom, .desktop .direction-helper, .desktop .map, .desktop .fullscreen,
-.desktop .q-drawer, .desktop #teaser>div {
-  width: 500px !important;
-}
-.desktop #teaser>div {
-  width: 480px !important;
-  height: 600px !important;
+.desktop .q-drawer, .desktop #teaser>div, .desktop .full-page-div {
+  max-width: 500px !important;
 }
 .desktop .q-page-container {
   max-width: 515px !important;
@@ -1619,6 +1615,9 @@ WARNING: introduces bad scrolling behaviors on iOS webapp (Safari) & hybrid
 .desktop #cross-play {
   max-width: 80px !important;
   height: auto !important;
+}
+.desktop .fixed-top {
+  max-width: 500px;
 }
 .bg-gray1 {
   background-color: #3e3e3e;
