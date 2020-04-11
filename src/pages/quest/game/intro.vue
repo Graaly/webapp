@@ -214,12 +214,12 @@
     
     <q-dialog v-model="showRewardsPopup">
       <q-card>
-        <q-card-section class="popup-header popup-header-big centered">
+        <q-card-section class="popup-header centered">
           {{ $t('label.ScoreAndBadges') }}
           <q-btn class="float-right" icon="close" flat round dense v-close-popup />
-          <div class="centered popup-over-header">
+          <!--<div class="centered popup-over-header">
             <img src="statics/images/other/popup-rewards.svg" />
-          </div>
+          </div>-->
         </q-card-section>
 
         <q-separator />

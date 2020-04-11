@@ -46,6 +46,14 @@
         <questsList format="small" :quests="invitationQuests"></questsList>
       </div>
       
+      <!--====================== ON TOP QUEST =================================-->
+      
+      <div v-if="!offline.active && onTopQuests && onTopQuests.length > 0">
+        <titleBar :title="{text: $t('label.OnTopGames'), type: 'key'}"></titleBar>
+
+        <questsList format="small" :quests="onTopQuests"></questsList>
+      </div>
+      
       <!--====================== QR CODE BUTTON =================================-->
       
       <div class="q-px-md q-pt-lg" v-if="isHybrid && !offline.active">
@@ -263,6 +271,7 @@ export default {
       bestQuest: null,
       nearestQuests: null,
       invitationQuests: null,
+      onTopQuests: null,
       friendQuests: null,
       users: null,
       search: {
@@ -613,6 +622,11 @@ export default {
             this.nearestQuests = response.data.nearests
           } else {
             this.nearestQuests = []
+          }
+          if (response.data.topQuests) {
+            this.onTopQuests = response.data.topQuests
+          } else {
+            this.onTopQuests = []
           }
           if (response.data.invitations) {
             this.invitationQuests = response.data.invitations

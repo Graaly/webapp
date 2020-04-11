@@ -383,7 +383,7 @@
             <div>
               <p class="bigger">
                 {{ chapter.title[languages.current] || chapter.title[quest.mainLanguage] }}
-                <q-icon v-if="!readOnly" name="add_box" class="float-right q-ml-md size-1" style="margin-top: -8px" @click.native="addStep(chapter.chapterId)" />
+                <q-icon v-if="!readOnly" name="add_box" class="float-right q-ml-md size-1" @click.native="addStep(chapter.chapterId)" />
                 <q-icon v-if="!readOnly" name="delete" class="float-right q-ml-md a-bit-bigger" @click.native="removeChapter(chapter.chapterId)" />
                 <q-icon v-if="!readOnly" name="mode_edit" class="float-right q-ml-md a-bit-bigger" @click.native="modifyChapter(chapter.chapterId)" />
                 <q-icon name="warning" color="primary" class="float-right a-bit-bigger" v-if="chapter.warnings && chapter.warnings.length > 0" @click.native="showChapterWarnings(chapter.warnings)" />
@@ -2137,7 +2137,8 @@ export default {
           model: '',
           type: 'text'
         },
-        cancel: true
+        cancel: true,
+        dark: true
       }).onOk(async (data) => {
         var title = {}
         title[_this.languages.current] = data
