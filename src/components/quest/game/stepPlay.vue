@@ -966,6 +966,7 @@ export default {
           if (this.isIOs && CameraPreview) {
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
             CameraPreview.startCamera(options)
+            CameraPreview.setColorEffect("redfilter")
             CameraPreview.show()
           } else {
             var cameraStream2 = this.$refs['camera-stream-for-image-over-flow']
