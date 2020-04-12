@@ -32,6 +32,10 @@ body {
   top: constant(safe-area-inset-top); /* iOS 11.0 */
   top: env(safe-area-inset-top); /* iOS 11.2 */
 }
+.absolute-full, .fullscreen, .fixed-full {
+  top: constant(safe-area-inset-top); /* iOS 11.0 */
+  top: env(safe-area-inset-top); /* iOS 11.2 */
+}
 #q-app { 
   min-height: 100%;
   height: 100%;
@@ -88,6 +92,8 @@ body {
 .absolute-top {
   position: absolute;
   top: 0px;
+  top: constant(safe-area-inset-top); /* iOS 11.0 */
+  top: env(safe-area-inset-top); /* iOS 11.2 */
 }
 .absolute-bottom {
   position: absolute;
@@ -350,6 +356,8 @@ a.no-underline {
   right: 0; 
   bottom: 0; 
   z-index: 7003;
+  top: constant(safe-area-inset-top); /* iOS 11.0 */
+  top: env(safe-area-inset-top); /* iOS 11.2 */
 }
 .full-page-div .scroll {
   height: 100%;
@@ -404,6 +412,8 @@ a.no-underline {
   bottom: 0; 
   left: 0; 
   top: 0;
+  top: constant(safe-area-inset-top); /* iOS 11.0 */
+  top: env(safe-area-inset-top); /* iOS 11.2 */
   width: 100%; 
   height: 100%; 
   overflow-y: scroll;
@@ -1315,6 +1325,8 @@ span .q-icon {
 .coin-box {
   position: fixed;
   top: 0px;
+  top: constant(safe-area-inset-top); /* iOS 11.0 */
+  top: env(safe-area-inset-top); /* iOS 11.2 */
   left: 0px;
   z-index: 6000;
   text-shadow: #fff 1px 1px, #fff -1px 1px, #fff -1px -1px, #fff 1px -1px;

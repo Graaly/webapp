@@ -82,6 +82,12 @@
           {{ quest.location.address }}
         </div>
         
+        <!-- =========================== WARNING ========================== -->
+        
+        <div v-if="quest.warning" class="text-subtitle1 q-mt-sm quest-warning" @click="openWarningLink()">
+          <q-icon color="secondary" name="warning" /> <u>{{ getTranslatedData(quest.warning) }}</u>
+        </div>
+        
         <!-- =========================== RANKING ========================== -->
         
         <div class="text-subtitle1 q-mt-sm quest-ranking">
@@ -681,6 +687,27 @@ export default {
         defaultLanguage = quest.languages[0].lang
       }
       return defaultLanguage
+    },
+    /*
+     * Return data translated based on default language
+     * @param   {object}    data            object containing translated data
+     */
+    getTranslatedData(data) {
+      let lang = this.getLanguage()
+      if (data[lang]) {
+        return data[lang]
+      } else {
+        this.quest.warning = null
+        return ""
+      }
+    },
+    /*
+     * Open the warning link
+     */
+    openWarningLink() {
+      if (this.quest && this.quest.warning && this.quest.warning.link) {
+        utils.openExternalLink(this.quest.warning.link)
+      }
     },
     /*
      * Get all the published language for this quest
