@@ -991,7 +991,7 @@ export default {
                 console.warn("No camera stream available")
                 console.log(err)
               }
-            );
+            )
           }
         }
         
