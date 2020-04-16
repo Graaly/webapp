@@ -2762,8 +2762,13 @@ export default {
      * Check if a hint is available for the step
      */
     isHintAvailable() {
-      return (this.chapters.newStep.overviewData && this.chapters.newStep.overviewData.hasOwnProperty("hint") &&
-        this.chapters.newStep.overviewData.hint !== '')
+      return (this.chapters.newStep.overviewData && 
+        this.chapters.newStep.overviewData.hasOwnProperty("hint") &&
+        this.chapters.newStep.overviewData.hint !== '',
+        this.step && 
+        this.step.hint &&
+        this.step.hint !== '' && 
+        this.step.hint.length > 0)
     },
     /*
      * Get the GPS location based on user location
