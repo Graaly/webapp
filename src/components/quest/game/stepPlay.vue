@@ -1,5 +1,5 @@
 <template>
-  <div id="play-view" class="fit" :class="{'bg-black': (step.type == 'locate-marker' || step.id === 'sensor')}">
+  <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor')}">
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
       
       <!------------------ COMPONENT TO KEEP THE SCREEN ON ----------------------
@@ -337,7 +337,7 @@
           <div v-if="!step.options || (!step.options.fullWidthPicture && !step.options.redFilter)" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
           </div>
           <img v-if="step.options && step.options.fullWidthPicture && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985;" />
-          <img v-if="step.options && step.options.redFilter" src="statics/images/background/red.png" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985; mix-blend-mode: multiply;" />
+          <img v-if="step.options && step.options.redFilter" src="statics/images/background/red.png" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985; mix-blend-mode: multiply; opacity: 0.8;" />
         </div>
       </div>
       
@@ -687,9 +687,9 @@ export default {
             background.style.backgroundColor = '#000'
             this.showControls()
           } else if (this.step.type === 'image-over-flow') {
-            //background.style.background = 'none'
-            //background.style.backgroundColor = '#fff'
             this.showControls()
+            background.style.background = 'none'
+            background.style.backgroundColor = 'transparent'
           } else if (this.step.type === 'jigsaw-puzzle') {
             let backgroundUrl = this.getBackgroundImage()
             background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
@@ -963,11 +963,15 @@ export default {
         if (this.step.type === 'image-over-flow') {
           this.$emit('pass')
           // video stream
-          if (this.isIOs && CameraPreview) {
+          //if (this.isIOs && CameraPreview) {
+          if (CameraPreview) {
+console.log("camera preview")
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
             CameraPreview.startCamera(options)
+            //CameraPreview.setColorEffect("redfilter")
             CameraPreview.show()
           } else {
+console.log("not camera preview")
             var cameraStream2 = this.$refs['camera-stream-for-image-over-flow']
             // enable rear camera stream
             // -------------------------
@@ -3430,6 +3434,8 @@ export default {
   .memory .card {
     height: 15vw;
     width: 15vw;
+    max-width: 110px;
+    max-height: 110px;
     margin: 2vw 2vw;
     background: url(/statics/icons/game/card-back.png) no-repeat;
     background-size: 100%;

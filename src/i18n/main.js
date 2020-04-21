@@ -577,7 +577,7 @@ module.exports = {
       UpgradeRequired: "You need to upgrade your Graaly application to continue to use it",
       SorryAnErrorOccurs: "Sorry, an error occurs.",
       PleaseContactTheSupport: "Please contact the support",
-      CreateNewVersionDescription: "You will create a new draft version for this quest. Your published quest will be still available for player, until you will publish this new quest version.",
+      CreateNewVersionDescription: "You will create a new draft version for this quest. If your quest is already published, players will play the published version, until you will publish this new quest version.",
       ClickHereToCreateANewQuestVersion: "To edit your quest, click here",
       YourUnderValidationQuests: "currently reviewed",
       YourRejectedQuests: "Your rejected",
@@ -845,12 +845,13 @@ module.exports = {
       DoYouWantToOpenClonedQuest: "Do you want to edit the new escape game now?",
       OpenTheMap: "Escape games map",
       ReplacePictureByRedFilter: "Replace picture by red filter",
-      TotalNumberOfPlaysNotFinished: "Number of unfinished games",
+      TotalNumberOfPlaysNotFinished: "Number of games in progress",
       RoomDataWarning: "Some information can be obsolete, do not hesitate to look at the escape game web site for more information",
       AnonymousUser: "Anonymous user",
       NotWon: "To be won",
       OnTopGames: "Featured games",
-      ThisStepOnlyWorkOnMobile: "The QR code scan only works on mobile app"
+      ThisStepOnlyWorkOnMobile: "The QR code scan only works on mobile app",
+      YourQuestHasNotBeenPublished: "Your quest is not published"
     }
   },
   fr: {
@@ -1419,7 +1420,7 @@ module.exports = {
       UpgradeRequired: "Vous devez mettre à jour votre application Graaly pour continuer à l'utiliser",
       SorryAnErrorOccurs: "Désolé, une erreur est survenue.",
       PleaseContactTheSupport: "Veuillez contacter le support.",
-      CreateNewVersionDescription: "Vous allez créer un nouveau brouillon pour cet escape game. Votre escape game publié restera accessible aux joueurs, jusqu'à ce que vous publiiez cette nouvelle version de votre escape game.",
+      CreateNewVersionDescription: "Vous allez créer un nouveau brouillon pour cet escape game. Si votre escape game est déjà publié, cette version restera accessible aux joueurs, jusqu'à ce que vous publiiez cette nouvelle version de votre escape game.",
       ClickHereToCreateANewQuestVersion: "Pour modifier votre escape game, cliquez ici",
       YourUnderValidationQuests: "Vos escape games en cours de validation",
       YourRejectedQuests: "Vos jeux rejetés",
@@ -1687,12 +1688,13 @@ module.exports = {
       DoYouWantToOpenClonedQuest: "Voulez-vous modifier le nouvel escape game maintenant ?",
       OpenTheMap: "Carte des escape games",
       ReplacePictureByRedFilter: "Remplacer l'image par un filtre rouge",
-      TotalNumberOfPlaysNotFinished: "Nombre de parties non terminées",
+      TotalNumberOfPlaysNotFinished: "Nombre de parties en cours",
       RoomDataWarning: "Certaines informations peuvent être obsolètes, n'hésitez pas à aller sur le site de l'escape game pour plus d'informations",
       AnonymousUser: "Joueur anonyme",
       NotWon: "A gagner",
       OnTopGames: "Jeux du moment",
-      ThisStepOnlyWorkOnMobile: "Le scan de QR code ne fonctionne que sur l'application mobile"
+      ThisStepOnlyWorkOnMobile: "Le scan de QR code ne fonctionne que sur l'application mobile",
+      YourQuestHasNotBeenPublished: "Votre escape n'a pas été publié"
     }
   }
 }

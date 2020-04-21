@@ -1,5 +1,7 @@
 # Graaly Web App
 
+
+
 ## Build Setup
 
 ``` bash
@@ -18,14 +20,46 @@ $ quasar build -m pwa
 # lint code
 $ quasar lint
 ```
+## Table of Contents
+- [Graaly Web App](#graaly-web-app)
+  - [Build Setup](#build-setup)
+  - [Table of Contents](#table-of-contents)
+  - [Known issues](#known-issues)
+  - [Build hybrid app](#build-hybrid-app)
+    - [Android app](#android-app)
+    - [iPhone app](#iphone-app)
+  - [Debug the app](#debug-the-app)
+    - [Android app](#android-app-1)
+    - [iPhone app](#iphone-app-1)
+  - [Publish the app](#publish-the-app)
+    - [Android app](#android-app-2)
+    - [iPhone app](#iphone-app-2)
+  - [Debug web app](#debug-web-app)
+    - [With Chrome Desktop & Chrome Android](#with-chrome-desktop--chrome-android)
+    - [With Chrome Desktop & Hybrid App](#with-chrome-desktop--hybrid-app)
+    - [Enable HTTPS on dev environment](#enable-https-on-dev-environment)
+  - [Testing](#testing)
+    - [Installing](#installing)
+    - [Running](#running)
+    - [Readings](#readings)
+  - [Generate AR.js pattern files to detect markers](#generate-arjs-pattern-files-to-detect-markers)
+  - [Technical specs](#technical-specs)
+  - [COMMON ISSUES](#common-issues)
+    - [Cordova Android Build unsuccessful](#cordova-android-build-unsuccessful)
+      - [Error message `Failed to execute aapt`](#error-message-failed-to-execute-aapt)
+      - [Error "Element ... at  AndroidManifest.xml:... duplicated with element declared at  AndroidManifest.xml:..."](#error-%22element--at-androidmanifestxml-duplicated-with-element-declared-at-androidmanifestxml%22)
+      - [Error `Unable to merge dex`](#error-unable-to-merge-dex)
+      - [Error message `No target specified and no devices found`](#error-message-no-target-specified-and-no-devices-found)
+      - [Error message `Failed to execute tools\android.bat`](#error-message-failed-to-execute-toolsandroidbat)
+      - [Error "Can not find symbol"](#error-%22can-not-find-symbol%22)
 
 ## Known issues
 
 If no data from server is shown on webapp on Chrome (desktop or mobile), try to load `https://<server-address>:3000` on a new browser tab, bypass the warning by clicking on "advanced settings", then "continue to site (dangerous)". Then, data from server should be loaded when accessing `https://<server-address>:8081`.
 
-# Build hybrid app
+## Build hybrid app
 
-## Android app
+### Android app
 
 Open console / terminal in the *webapp* folder
 
@@ -50,7 +84,7 @@ Procedure :
     babel node_modules\ip-regex\index.js --out-file node_modules\ip-regex\index.js-es5
     cd node_modules\ip-regex && mv index.js index.js-es6 && mv index.js-es5 index.js && cd ../..
 
-## iPhone app
+### iPhone app
 
 Warnings
 
@@ -59,15 +93,15 @@ Warnings
 * Follow [this procedure](https://stackoverflow.com/a/39591319/488666)
 * **Keep any device disconnected during build** to avoid unexpected "Code Signing" build errors, see [here](https://stackoverflow.com/a/48683840/488666) and [here](https://stackoverflow.com/a/50457679/488666)
 
-# Debug the app
+## Debug the app
 
-## Android app
+### Android app
 
 * Enable developer options on your Android device
 * Connect your build computer your Android device through USB, allow remote debug from your device
 * On your build computer, run `quasar dev -m cordova -T android`
 
-## iPhone app
+### iPhone app
 
 * From Graaly webapp root directory, run `quasar mode add cordova`
 * Run `cd src-cordova`
@@ -81,9 +115,9 @@ Warnings
 Side note: [another procedure](http://maxprog.net.pl/best-practice/quasar-framework-how-deploy-and-debug-mobile-application-on-physical-device-ios-e-g-iphone/) to debug on physical device.
 See also [this Quasar doc page about setting up Cordova environment for iOS](https://quasar.dev/quasar-cli/developing-cordova-apps/preparation).
 
-# Publish the app
+## Publish the app
 
-## Android app
+### Android app
 
 :warning: Change the version in the **config/prod.env.js** file
   If needed change the client required version in **/server/routes/main.js** & **webapp/src/plugins/RouterAuthentication.js**
@@ -106,7 +140,7 @@ Open https://play.google.com/apps/publish/?account=5104428642488176820#ManageRel
 
 Create a new version by uploading the apk signed file
 
-## iPhone app
+### iPhone app
 
 Open console / terminal in the *webapp* folder
 
@@ -125,9 +159,9 @@ If any issue with certificate, or provisioning profile, generate a new certifica
 
 Account to test the app : eric.mathieu@graaly.com / Gr44ly!2k19
 
-# Debug web app
+## Debug web app
 
-## With Chrome Desktop & Chrome Android
+### With Chrome Desktop & Chrome Android
 
 On the Android smartphone:
 
@@ -147,7 +181,7 @@ On your computer:
 Now you should be able to view what is displayed on your smartphone in Chrome Desktop.
 Visible console output is related to the activity on the Android Chrome browser of the smartphone.
 
-## With Chrome Desktop & Hybrid App
+### With Chrome Desktop & Hybrid App
 
 On the Android smartphone:
 
@@ -172,7 +206,7 @@ If the app run as HTTP rather than HTTPS, follow this fix :  https://forum.quasa
 Now you should be able to view what is displayed on your smartphone in Chrome Desktop.
 Visible console output is related to the activity on the Android Chrome browser of the smartphone.
 
-## Enable HTTPS on dev environment
+### Enable HTTPS on dev environment
 
 Remove the cache of your browser (if you renew the certificate)
 
@@ -188,9 +222,9 @@ Optional: For Chrome Desktop, follow [this procedure](https://stackoverflow.com/
 
 ⚠️ **iOS**: to install & trust mkcert certification authority on iOS store, follow [this procedure](https://www.thesslstore.com/blog/trust-manually-installed-root-certificates-in-ios/) (iOS 10.3), in particular the last section.
 
-# Testing
+## Testing
 
-## Installing
+### Installing
 
 After running `npm install` in project folder, you can install latest version of Cypress:
 
@@ -202,7 +236,7 @@ After running `npm install` in project folder, you can install latest version of
 * Find the line containing exactly: `testId: state("runnable").id` and change it to `testId: state("runnable") ? state("runnable").id : null`
 * Save & close the file
 
-## Running
+### Running
 
 * Run **main test script** for Graaly (runs [**unit tests**](https://fr.wikipedia.org/wiki/Test_unitaire) on API/webapp & [**E2E tests**](https://blog.testingdigital.com/quest-test-de-bout-bout-end-to-end-1288) on webapp):
 
@@ -210,7 +244,7 @@ After running `npm install` in project folder, you can install latest version of
     
     If you want to run only **unit tests** or **e2e tests**, open file `test/index.mjs` and modify **config** object to your convenience.
 
-## Readings
+### Readings
 
 * [Quasar's own testing framework](https://github.com/quasarframework/quasar-testing) promotes
 
@@ -231,12 +265,12 @@ After running `npm install` in project folder, you can install latest version of
   * [Google Firebase Test Lab](https://firebase.google.com/docs/test-lab/) (maybe for native Android apps only)
   * [Saucelabs mobile app testing](https://saucelabs.com/products/mobile-app-testing) (paid service)
 
-# Generate AR.js pattern files to detect markers
+## Generate AR.js pattern files to detect markers
 
 * Follow [this procedure](https://medium.com/arjs/how-to-create-your-own-marker-44becbec1105)
 * Warning: set pattern ratio to 0.80 instead of 0.50 (ratio pattern size / black border size)
 
-# Technical specs
+## Technical specs
 
 `step.answers` types, depending on `step.type` value:
 
@@ -249,11 +283,11 @@ After running `npm install` in project folder, you can install latest version of
 * for *new-item*, a `String` (item code)
 * for *find-item* and *use-item*, an object `{ coordinates: { top: <Number 0-100>, left: <Number 0-100> }, item: <String> }`
 
-# COMMON ISSUES
+## COMMON ISSUES
 
-## Cordova Android Build unsuccessful
+### Cordova Android Build unsuccessful
 
-### Error message `Failed to execute aapt` 
+#### Error message `Failed to execute aapt` 
 
 Add in the `allprojects` section of the `/src-cordova/platforms/android/build.gradle` file : 
 
@@ -263,29 +297,29 @@ Add in the `allprojects` section of the `/src-cordova/platforms/android/build.gr
         }
     }
 
-### Error "Element ... at  AndroidManifest.xml:... duplicated with element declared at  AndroidManifest.xml:..."
+#### Error "Element ... at  AndroidManifest.xml:... duplicated with element declared at  AndroidManifest.xml:..."
 `Element uses-feature#android.hardware.camera at AndroidManifest.xml:39:5-60 duplicated with element declared at AndroidManifest.xml:36:5-84`
 `C:\...\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml Error: Validation failed, exiting`
 
 See https://stackoverflow.com/a/51788464/488666
 
-### Error `Unable to merge dex`
+#### Error `Unable to merge dex`
 `Execution failed for task ':app:transformDexArchiveWithExternalLibsDexMergerForDebug'.`
 `> java.lang.RuntimeException: java.lang.RuntimeException: com.android.builder.dexing.DexArchiveMergerException: Unable to merge dex`
 
 Check this [solution](https://stackoverflow.com/a/55120122/488666)
 
-### Error message `No target specified and no devices found`
+#### Error message `No target specified and no devices found`
 
 Open the platform tools folder of your android SDK (e.g. : cd E:\logiciels\Android\sdk\platform-tools)
 
 `adb devices` (unplug the device, run "adb kill-server" if device is offline)
 
-### Error message `Failed to execute tools\android.bat`
+#### Error message `Failed to execute tools\android.bat`
 
 Check the solutions [here](https://stackoverflow.com/questions/19015587/failed-to-execute-tools-android-bat-solution), and particularly [this one](https://stackoverflow.com/a/56633566/488666)
 
-### Error "Can not find symbol"
+#### Error "Can not find symbol"
 
 Replace in the file 
 

@@ -1142,9 +1142,12 @@ export default {
       }
     },
     isHintAvailable() {
-      if (this.step && this.step.hint && this.step.hint !== '') {
+      // console.log("ishindavaibles")
+      if (this.step && this.step.hint && this.step.hint !== '' && this.step.hint.length > 0) {
+      // console.log("hint is available")
         return true
       } else {
+      // console.log("hint is not available")
         return false
       }
     },

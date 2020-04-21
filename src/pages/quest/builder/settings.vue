@@ -4,7 +4,10 @@
     <div v-if="!chapters.showNewStepOverview" class="settings-bar background-dark">
       <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/profile/me'}" class="float-right no-underline close-btn q-pa-sm"><q-icon name="close" class="subtitle1" /></router-link>
       
-      <div v-if="readOnly && (quest.status === 'published' || quest.status === 'unpublished')" class="centered bg-secondary text-white q-pa-md" @click="createNewVersion()">
+      <div v-if="readOnly && quest.status === 'rejected'" class="centered bg-secondary text-white q-pa-md" @click="createNewVersion()">
+        {{ $t('label.YourQuestHasNotBeenPublished') }}
+      </div>
+      <div v-if="readOnly && (quest.status === 'published' || quest.status === 'unpublished' || quest.status === 'rejected')" class="centered bg-secondary text-white q-pa-md" @click="createNewVersion()">
         {{ $t('label.ClickHereToCreateANewQuestVersion') }}
       </div>
       
@@ -2762,8 +2765,13 @@ export default {
      * Check if a hint is available for the step
      */
     isHintAvailable() {
-      return (this.chapters.newStep.overviewData && this.chapters.newStep.overviewData.hasOwnProperty("hint") &&
-        this.chapters.newStep.overviewData.hint !== '')
+      return (this.chapters.newStep.overviewData && 
+        this.chapters.newStep.overviewData.hasOwnProperty("hint") &&
+        this.chapters.newStep.overviewData.hint !== '',
+        this.step && 
+        this.step.hint &&
+        this.step.hint !== '' && 
+        this.step.hint.length > 0)
     },
     /*
      * Get the GPS location based on user location
