@@ -736,7 +736,7 @@
             <div>
               <q-input v-model="newHint" :label="$t('label.NewHint')">
                 <template v-slot:after>
-                  <q-btn round dense flat icon="add" @click="addHint()" />
+                  <q-btn round dense flat icon="check" @click="addHint()" />
                 </template>
               </q-input>
             </div>
@@ -2354,7 +2354,7 @@ p { margin-bottom: 0.5rem; }
 .answer { display: flex; flex-flow: row nowrap; align-items: center; }
 .answer .q-input { flex-grow: 1; }
 .answer p { min-width: 1rem; margin: 0; }
-.answer img { width: 50vw; }
+.answer img { width: 50vw; max-width: 450px; }
 .answer .q-radio { padding-right: 0.5rem; }
 .answer .q-btn { padding: 0.3rem; margin: 0.2rem; }
 .answer .error-label { flex-grow: 1; }

@@ -3434,6 +3434,8 @@ console.log("not camera preview")
   .memory .card {
     height: 15vw;
     width: 15vw;
+    max-width: 110px;
+    max-height: 110px;
     margin: 2vw 2vw;
     background: url(/statics/icons/game/card-back.png) no-repeat;
     background-size: 100%;
