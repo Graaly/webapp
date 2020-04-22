@@ -629,6 +629,36 @@
         </q-dialog>
       </div>
       
+      <!------------------ STEP : WAIT FOR EVENT ------------------------>
+      
+      <div v-if="options.type.code === 'wait-for-event'">
+        <q-input
+          v-model="selectedStep.form.options.code"
+          :label="$t('label.EventCode')"
+        />
+        <q-input
+          v-model="selectedStep.form.options.boardMacAddress"
+          :label="$t('label.BoardMacAddress')"
+        />
+        <q-input
+          v-model="selectedStep.form.options.successMessage"
+          :label="$t('label.SuccessMessage')"
+        />
+      </div>
+      
+      <!------------------ STEP : TRIGGER EVENT ------------------------>
+      
+      <div v-if="options.type.code === 'trigger-event'">
+        <q-input
+          v-model="selectedStep.form.options.code"
+          :label="$t('label.EventCode')"
+        />
+        <q-input
+          v-model="selectedStep.form.options.boardMacAddress"
+          :label="$t('label.BoardMacAddress')"
+        />
+      </div>
+      
       <!------------------ CONDITIONS ------------------------>
       
       <q-list bordered v-if="options && options.mode && options.mode === 'advanced'">
@@ -1269,6 +1299,10 @@ export default {
         // default mode: scan code
         if (!this.selectedStep.form.options.hasOwnProperty('mode')) {
           this.$set(this.selectedStep.form.options, 'mode', 'scan')
+        }
+      } else if (this.options.type.code === 'wait-for-event') {
+        if (!this.selectedStep.form.options.hasOwnProperty('code')) {
+          this.$set(this.selectedStep.form.options, 'code', '')
         }
       }
       

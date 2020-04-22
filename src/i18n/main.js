@@ -82,7 +82,11 @@ module.exports = {
       GraalyCharacter: "Character",
       GraalyCharacterDesc: "Make a character speak",
       EndOfChapter: "End of chapter",
-      EndOfChapterDesc: "This transition send player to next chapter"
+      EndOfChapterDesc: "This transition send player to next chapter",
+      TriggerEvent: "Trigger a physical action",
+      TriggerEventDesc: "Trigger a physical action (by sending an event to an electronic board)",
+      WaitForEvent: "Wait for a physical action",
+      WaitForEventDesc: "Wait for a physical action by the player (sent by an electronic card)"
     },
     layersForMarkers: {
       Magnifier: 'Magnifier',
@@ -851,7 +855,10 @@ module.exports = {
       NotWon: "To be won",
       OnTopGames: "Featured games",
       ThisStepOnlyWorkOnMobile: "The QR code scan only works on mobile app",
-      YourQuestHasNotBeenPublished: "Your quest is not published"
+      YourQuestHasNotBeenPublished: "Your quest is not published",
+      EventCode: "Event code",
+      BoardMacAddress: "Board Mac address",
+      SuccessMessage: "Success message"
     }
   },
   fr: {
@@ -871,7 +878,7 @@ module.exports = {
     news: {
       newQuestWon: "A réussi l'escape game <a href='/#/quest/play/{questId}'>{quest}</a>",
       newQuest: "A créé l'escape game <a href='/#/quest/play/{questId}'>{quest}</a>",
-      questUnderValidation: "Votre escaepe game <a href='/#/quest/play/{questId}'>{quest}</a> est en cours de validation",
+      questUnderValidation: "Votre escape game <a href='/#/quest/play/{questId}'>{quest}</a> est en cours de validation",
       challenge: "Vous défie sur l'escape game <a href='/#/quest/play/{questId}'>{quest}</a>"
     },
     bonus: {
@@ -924,7 +931,11 @@ module.exports = {
       GraalyCharacter: "Personnage",
       GraalyCharacterDesc: "Faire parler un personnage",
       EndOfChapter: "Fin de chapitre",
-      EndOfChapterDesc: "Cette transition fait passer le joueur au chapitre suivant"
+      EndOfChapterDesc: "Cette transition fait passer le joueur au chapitre suivant",
+      TriggerEvent: "Déclencher un événement physique",
+      TriggerEventDesc: "Déclencher un événement physique à l'aide d'une carte électronique",
+      WaitForEvent: "Attendre un événement physique",
+      WaitForEventDesc: "Attendre un événement physique envoyé par une carte électronique"
     },
     layersForMarkers: {
       Magnifier: 'Loupe',
@@ -1694,7 +1705,10 @@ module.exports = {
       NotWon: "A gagner",
       OnTopGames: "Jeux du moment",
       ThisStepOnlyWorkOnMobile: "Le scan de QR code ne fonctionne que sur l'application mobile",
-      YourQuestHasNotBeenPublished: "Votre escape n'a pas été publié"
+      YourQuestHasNotBeenPublished: "Votre escape n'a pas été publié",
+      EventCode: "Code de l'événement",
+      BoardMacAddress: "Adresse Mac de la carte",
+      SuccessMessage: "Message de réussite"
     }
   }
 }

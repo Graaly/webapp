@@ -381,6 +381,24 @@
           <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? $t('label.FindMarkerHelp') : $t('label.TouchObjectOnMarkerHelp') }" @next="locateMarker.showHelp = false"></story>
         </div>
       </div>
+      
+      <!------------------ WAIT FOR IOT EVENT ------------------------>
+      
+      <div v-if="step.type == 'wait-for-event'">
+        <div>
+          <p class="text" v-if="getTranslatedText() != '' && playerResult === null">{{ getTranslatedText() }}</p>
+        </div>
+      </div>
+      
+      <!------------------ WAIT FOR IOT EVENT ------------------------>
+      
+      <div v-if="step.type == 'trigger-event'">
+        <div>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          <q-btn color="primary" label="Push to trigger" size="xl" @click="triggerIotEvent()" />
+        </div>
+      </div>
+      
     </div>
     
     <!------------------ COMMON COMPONENTS ------------------>
@@ -461,6 +479,14 @@ import GLTFLoader from 'three-gltf-loader'
 import { THREEx } from 'src/includes/ar' // import * as ARjs from 'ar.js' in future versions?
 import { promisify } from 'es6-promisify'
 
+// required for steps 'wait-for-event' and 'trigger-event' (IoT):
+import * as mqtt from 'mqtt'
+
+const mqttClientUrl = 'wss://127.0.0.1:9001' // TODO store in .env
+//const mqttClientUrl = 'wss://test.mosquitto.org:8081'
+//const mqttClientUrl = 'mqtt://graaly.duckdns.org'
+const mqttTopicName = 'Graaly' // TODO store in .env
+
 export default {
   /*
    * Properties used on component call
@@ -529,6 +555,14 @@ export default {
     utils.clearAllRunningProcesses()
     
     TWEEN.removeAll() // 3D animations
+    
+    // close MQTT connection (steps 'wait-for-event', 'trigger-event')
+    if (this.mqttClient !== null) {
+      let _this = this
+      this.mqttClient.end(false, {}, () => {
+        _this.mqttClient = null
+      })
+    }
   },
   methods: {
     initialState () {
@@ -645,8 +679,9 @@ export default {
           disabled: false
         },
         // for step type 'find-item'
-        itemAdded: null,
         readMoreNotif: null,
+        // for step types 'wait-for-event', 'trigger-event'
+        mqttClient: null,
         // for story/tutorial
         story: {
           step: null,
@@ -1050,6 +1085,59 @@ console.log("not camera preview")
               })
           }
         }
+        
+        if (this.step.type === 'wait-for-event' || this.step.type === 'trigger-event') {
+          let _this = this
+          
+          this.mqttClient = mqtt.connect(mqttClientUrl)
+          
+          this.mqttClient.on('connect', () => {
+            console.log("Successfully connected to MQTT server " + mqttClientUrl)
+            if (_this.step.type === 'wait-for-event') {
+              _this.mqttClient.subscribe(mqttTopicName, function (err) {
+                if (err) {
+                  console.error("Error when subscribing to topic " + mqttTopicName + ":", err)
+                } else {
+                  console.log("Successfully subscribed to MQTT topic " + mqttTopicName)
+                }
+              })
+            }
+          })
+
+          this.mqttClient.on('error', (connack) => {
+            console.error("Error connecting to MQTT server " + mqttClientUrl, "connack=", connack)
+          })
+          
+          if (_this.step.type === 'wait-for-event') {
+            this.mqttClient.on('message', (topic, message) => {
+              console.log("Received MQTT message (topic " + topic + "): ", message.toString())
+              
+              try {
+                message = JSON.parse(message)
+              } catch (err) {
+                console.error("Could not read MQTT message. Error:", err)
+              }
+              
+              if (message.macAddress === _this.step.options.boardMacAddress) {
+                console.log('*** MAC ADDRESSES MATCHED ***', _this.step.stepId)
+                console.log('matching codes?', message.code, _this.step.options.code)
+                if (message.code === _this.step.options.code) {
+                  console.log('*** CODES MATCHED, CHECK ANSWER ***')
+                  Notification(_this.step.options.successMessage, 'positive')
+                  _this.checkAnswer()
+                }
+              }
+            })
+          }
+          
+          // user can pass
+          this.$emit('pass')
+        } else if (this.mqttClient !== null) {
+          let _this = this
+          this.mqttClient.end(false, {}, () => {
+            _this.mqttClient = null
+          })
+        }
       })
     },
     /**
@@ -1200,7 +1288,8 @@ console.log("not camera preview")
         this.step.type === 'info-video' || 
         this.step.type === 'character' || 
         this.step.type === 'image-over-flow' || 
-        this.step.type === 'new-item') {
+        this.step.type === 'new-item' || 
+        this.step.type === 'trigger-event') {
         this.checkAnswer()
       }
     },
@@ -1459,6 +1548,7 @@ console.log("not camera preview")
         case 'end-chapter':
         case 'character':
         case 'image-over-flow':
+        case 'trigger-event':
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
           this.submitGoodAnswer(0, checkAnswerResult.offline, true)
@@ -1788,7 +1878,28 @@ console.log("not camera preview")
             }
           }
           break
-
+        
+        case 'wait-for-event':
+          // reaching this line means that the correct event (code + mac address) has been retrieved from the board through MQTT
+          
+          // call to sendAnswer() is required to get score & offline info
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: ''}, true)
+          
+          // server should always return true, otherwise user may be cheating
+          // TODO check on server side if same MQTT event has been retrieved
+          if (checkAnswerResult.result === true) {
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+          } else {
+            Notification(this.$t('label.TechnicalIssue'), 'error')
+          }
+          
+          let _this = this
+          this.mqttClient.end(false, {}, () => {
+            _this.mqttClient = null
+          })
+          
+          break
+        
         default:
           console.log('checkAnswer(): Step type ' + this.step.type + ' not supported.')
       }
@@ -3253,6 +3364,12 @@ console.log("not camera preview")
       this.enlargePicture.show = true
       var pictureUrl = this.step.options.images[this.playerCode[index]].imagePath
       this.enlargePicture.url = pictureUrl.indexOf('blob:') !== -1 ? pictureUrl : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + pictureUrl
+    },
+    /**
+     * Triggers an IoT event
+     */
+    triggerIotEvent () {
+      this.mqttClient.publish(mqttTopicName, JSON.stringify({macAddress: this.step.options.boardMacAddress, code: this.step.options.code}))
     }
   }
 }
