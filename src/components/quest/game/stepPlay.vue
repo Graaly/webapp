@@ -482,11 +482,6 @@ import { promisify } from 'es6-promisify'
 // required for steps 'wait-for-event' and 'trigger-event' (IoT):
 import * as mqtt from 'mqtt'
 
-const mqttClientUrl = 'wss://127.0.0.1:9001' // TODO store in .env
-//const mqttClientUrl = 'wss://test.mosquitto.org:8081'
-//const mqttClientUrl = 'mqtt://graaly.duckdns.org'
-const mqttTopicName = 'Graaly' // TODO store in .env
-
 export default {
   /*
    * Properties used on component call
@@ -1089,23 +1084,23 @@ console.log("not camera preview")
         if (this.step.type === 'wait-for-event' || this.step.type === 'trigger-event') {
           let _this = this
           
-          this.mqttClient = mqtt.connect(mqttClientUrl)
+          this.mqttClient = mqtt.connect(process.env.MQTT_URL)
           
           this.mqttClient.on('connect', () => {
-            console.log("Successfully connected to MQTT server " + mqttClientUrl)
+            console.log("Successfully connected to MQTT server " + process.env.MQTT_URL)
             if (_this.step.type === 'wait-for-event') {
-              _this.mqttClient.subscribe(mqttTopicName, function (err) {
+              _this.mqttClient.subscribe(process.env.MQTT_TOPIC, function (err) {
                 if (err) {
-                  console.error("Error when subscribing to topic " + mqttTopicName + ":", err)
+                  console.error("Error when subscribing to topic " + process.env.MQTT_TOPIC + ":", err)
                 } else {
-                  console.log("Successfully subscribed to MQTT topic " + mqttTopicName)
+                  console.log("Successfully subscribed to MQTT topic " + process.env.MQTT_TOPIC)
                 }
               })
             }
           })
 
           this.mqttClient.on('error', (connack) => {
-            console.error("Error connecting to MQTT server " + mqttClientUrl, "connack=", connack)
+            console.error("Error connecting to MQTT server " + process.env.MQTT_URL, "connack=", connack)
           })
           
           if (_this.step.type === 'wait-for-event') {
@@ -3369,7 +3364,7 @@ console.log("not camera preview")
      * Triggers an IoT event
      */
     triggerIotEvent () {
-      this.mqttClient.publish(mqttTopicName, JSON.stringify({macAddress: this.step.options.boardMacAddress, code: this.step.options.code}))
+      this.mqttClient.publish(process.env.MQTT_TOPIC, JSON.stringify({macAddress: this.step.options.boardMacAddress, code: this.step.options.code}))
     }
   }
 }
