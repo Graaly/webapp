@@ -343,6 +343,7 @@ module.exports = {
       ActivateTheLanguageVisible: "Activate the languages playable for your quest",
       ActivateTheLanguageVisiblePrivate: "Activate the languages to let your invitees play your quest",
       LanguagesPublished: "Publish game in",
+      LanguagesPublishedForPrivate: "Quest is visible for invitees",
       PageLanguagesPublished: "Publish page in",
       ModifyThePicture: "Modify the picture",
       Picture: "Picture",
@@ -428,7 +429,8 @@ module.exports = {
       InvitePeople: "Invite a player",
       InviteEditorsHelp: "Type email address of the editor you want to invite",
       InviteInviteesHelp: "Type email address of the person you want to invite",
-      UserIsNotAGraalyUser: "No more editor allowed or this person need to create a Graaly account.",
+      UserIsNotAGraalyUser: "No more invitee allowed or this person need to create a Graaly account.",
+      EditorIsNotAGraalyUser: "No more editor allowed or this person need to create a Graaly account.",
       OtherOptions: "Other options",
       SelectPictureInTheList: "Select the object is the list",
       HintText: "Hint text",
@@ -851,7 +853,8 @@ module.exports = {
       NotWon: "To be won",
       OnTopGames: "Featured games",
       ThisStepOnlyWorkOnMobile: "The QR code scan only works on mobile app",
-      YourQuestHasNotBeenPublished: "Your quest is not published"
+      YourQuestHasNotBeenPublished: "Your quest is not published",
+      OnDesktopDisplayMessage: "On computer, you need to reduce your screen size. You can press F12 for that."
     }
   },
   fr: {
@@ -1186,6 +1189,7 @@ module.exports = {
       ActivateTheLanguageVisible: "Activez les langues pour que votre escape game soit jouable",
       ActivateTheLanguageVisiblePrivate: "Activez les langues pour que vos invités puissent jouer",
       LanguagesPublished: "Publier le jeu en",
+      LanguagesPublishedForPrivate: "Rendre visible pour les invités",
       PageLanguagesPublished: "Publier la fiche en",
       ModifyThePicture: "Modifier l'image",
       Picture: "Photo",
@@ -1272,6 +1276,7 @@ module.exports = {
       InviteEditorsHelp: "Tapez l'adresse email de l'éditeur que vous invitez",
       InviteInviteesHelp: "Tapez l'adresse email de la personne que vous invitez",
       UserIsNotAGraalyUser: "Limite dépassée ou cette personne doit créer un compte Graaly.",
+      EditorIsNotAGraalyUser: "Limite dépassée ou cette personne doit créer un compte Graaly.",
       OtherOptions: "Autres options",
       SelectPictureInTheList: "Sélectionner l'objet dans la liste",
       HintText: "Texte de l'indice",
@@ -1694,7 +1699,8 @@ module.exports = {
       NotWon: "A gagner",
       OnTopGames: "Jeux du moment",
       ThisStepOnlyWorkOnMobile: "Le scan de QR code ne fonctionne que sur l'application mobile",
-      YourQuestHasNotBeenPublished: "Votre escape n'a pas été publié"
+      YourQuestHasNotBeenPublished: "Votre escape n'a pas été publié",
+      OnDesktopDisplayMessage: "Sur ordinateur, vous devez réduire la taille de votre écran. Vous pouvez taper sur la touche F12 pour cela."
     }
   }
 }

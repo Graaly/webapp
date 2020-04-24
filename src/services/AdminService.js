@@ -21,6 +21,12 @@ export default {
     return Api().get('admin/towns')
   },
   /*
+   * List the statistics of best games
+   */
+  ListBestGames () {
+    return Api().get('admin/bestgames')
+  },
+  /*
    * Validate a quest
    */
   publish (id) {

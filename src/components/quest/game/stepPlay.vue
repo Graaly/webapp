@@ -1355,6 +1355,10 @@ console.log("not camera preview")
           this.$q.loading.hide()
         }
         let checkAnswerResult = response.data
+        // if run as builder, get the remainingTrial
+        if (this.runId === "0") {
+          checkAnswerResult.remainingTrial = (this.step.nbTrial - this.nbTry - 1)
+        }
         return checkAnswerResult
       } else {
         if (displaySpinner) {

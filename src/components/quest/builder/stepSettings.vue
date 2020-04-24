@@ -137,7 +137,7 @@
           </q-expansion-item>
         </q-list>
         <div>
-          <div class="q-mb-sm" v-if="quest.isPremium">
+          <div class="q-mb-sm">
             {{ $t('label.OrDownloadAFile') }}
             <div v-if="!isIOs">
               <q-btn class="full-width" type="button" :label="$t('label.UploadACharacter')" @click="$refs['characterfile'].click()" />
@@ -152,9 +152,9 @@
               <img style="width:100%" :src="serverUrl + '/upload/quest/' + questId + '/step/character/' + selectedStep.form.options.character" />
             </div>
           </div>
-          <div class="q-mb-sm" v-if="!quest.isPremium">
+          <!--<div class="q-mb-sm">
             <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadACharacter')" @click="premium.show = true" />
-          </div>
+          </div>-->
         </div>
       </div>
       
@@ -508,9 +508,9 @@
                 <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".glb" />
               </div>
             </div>
-            <div v-if="!quest.isPremium">
+            <!--<div v-if="!quest.isPremium">
               <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadTheObjectToFind')" @click="$emit('openPremiumBox')" />
-            </div>
+            </div>-->
             <div id="target-canvas"></div>
             <div>
               {{ $t('label.TouchAndDragObject') }}

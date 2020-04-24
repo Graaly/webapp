@@ -506,7 +506,7 @@
             <q-icon name="visibility" class="left-icon" />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="big-label">{{ $t('label.' + (quest.type === 'quest' ? 'LanguagesPublished' : 'PageLanguagesPublished')) }}</q-item-label>
+            <q-item-label class="big-label">{{ $t('label.' + (quest.type === 'quest' ? (quest.access === 'public' ? 'LanguagesPublished' : 'LanguagesPublishedForPrivate') : 'PageLanguagesPublished')) }}</q-item-label>
             <p v-for="lang in form.fields.languages" :key="lang.lang">
               <q-toggle :disable="quest.status === 'tovalidate'" v-model="lang.published" :label="$t('language.' + lang.lang)" @input="publish(lang.lang)" />
             </p>
@@ -531,7 +531,7 @@
               v-model="editor.new.email"
               bottom-slots
               :error="!editor.new.isExisting"
-              :error-message="$t('label.UserIsNotAGraalyUser')"
+              :error-message="$t('label.EditorIsNotAGraalyUser')"
               >
               <template v-slot:after>
                 <q-btn icon="add_circle" color="primary" flat round dense @click="addEditor()" />
@@ -556,7 +556,7 @@
               <!-- for hybrid mode -->
               <q-btn v-if="isHybrid" color="primary" class="glossy large-button" icon="fa fa-download" @click="downloadMarkers()">{{ $t('label.Download') }}</q-btn>
             </div>
-            <div v-if="this.quest.isPremium && quest.type === 'quest'" class="q-pt-md">
+            <div v-if="quest.type === 'quest'" class="q-pt-md">
               <div v-html="$t('label.MarkersToStartQuest')" />
               <img :src="serverUrl + '/upload/quest/' + questId + '_qrcode.png'" />
             </div>
@@ -1911,7 +1911,7 @@ export default {
         }
         if (action === 'publish') {
           if (this.quest.status === 'unpublished' || this.quest.status === 'draft') {
-            if (this.quest.access === 'private' && !this.quest.isPremium) {
+            if (this.quest.access === 'private') {
               this.$q.loading.show()
               await QuestService.publish(this.questId, lang)
               //TODO: manage if publishing failed

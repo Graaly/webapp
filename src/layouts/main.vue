@@ -22,12 +22,17 @@ export default {
   mounted () {
     if (this.$store.state.user && this.$store.state.user.language) {
       this.$i18n.locale = this.$store.state.user.language
+    } else {
+      this.$i18n.locale = "fr"
     }
   },
   watch: {
     '$route': function(value) {
       if (this.$store.state.user && this.$store.state.user.language) {
         this.$i18n.locale = this.$store.state.user.language
+      } else {
+        // french default language
+        this.$i18n.locale = "fr"
       }
     }
   },
