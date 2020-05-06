@@ -108,6 +108,15 @@ module.exports = {
       hint: "Hello, here is a hint: <br /><b>{hint}</b>",
       readMore: "{readMore}"
     },
+    iotObjects: {
+      keypad: "Keypad",
+      joystick: "Joystick",
+      distance: "Distance",
+      pot: "Potentiometers",
+      lcd: "LCD display",
+      buzzer: "Buzzer",
+      escapebox: "Escape Box"
+    },
     label: {
       shortLang: "en",
       letsGo: "Let's Go!",
@@ -858,7 +867,10 @@ module.exports = {
       YourQuestHasNotBeenPublished: "Your quest is not published",
       EventCode: "Event code",
       BoardMacAddress: "Board Mac address",
-      SuccessMessage: "Success message"
+      SuccessMessage: "Success message",
+      IotObject: "IoT object",
+      Protocol: "Protocol",
+      SuccessRange: "Success range"
     }
   },
   fr: {
@@ -956,6 +968,15 @@ module.exports = {
     story: {
       hint: "Salut, voici un indice :<br /><b>{hint}</b>",
       readMore: "{readMore}"
+    },
+    iotObjects: {
+      keypad: "Digicode",
+      joystick: "Joystick",
+      distance: "Distance",
+      pot: "Potentiomètres",
+      lcd: "Afficheur LCD",
+      buzzer: "Buzzer",
+      escapebox: "Escape Box"
     },
     label: {
       shortLang: "fr",
@@ -1708,7 +1729,10 @@ module.exports = {
       YourQuestHasNotBeenPublished: "Votre escape n'a pas été publié",
       EventCode: "Code de l'événement",
       BoardMacAddress: "Adresse Mac de la carte",
-      SuccessMessage: "Message de réussite"
+      SuccessMessage: "Message de réussite",
+      IotObject: "Objet connecté",
+      Protocol: "Protocole",
+      SuccessRange: "Plage de succès"
     }
   }
 }
