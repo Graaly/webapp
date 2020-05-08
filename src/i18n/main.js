@@ -870,7 +870,8 @@ module.exports = {
       SuccessMessage: "Success message",
       IotObject: "IoT object",
       Protocol: "Protocol",
-      SuccessRange: "Success range"
+      SuccessRange: "Success range",
+      SuccessRanges: "Success ranges"
     }
   },
   fr: {
@@ -1732,7 +1733,8 @@ module.exports = {
       SuccessMessage: "Message de réussite",
       IotObject: "Objet connecté",
       Protocol: "Protocole",
-      SuccessRange: "Plage de succès"
+      SuccessRange: "Plage de succès",
+      SuccessRanges: "Plages de succès"
     }
   }
 }

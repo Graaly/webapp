@@ -389,10 +389,14 @@
           <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
           
           <!-- distance -->
-          <h2 v-if="step.options.object === 'distance' && iot.distance !== null" class="centered big q-pb-lg" :class="{'right': this.playerResult === true}">
+          <h2 v-if="step.options.object === 'distance' && iot.distance !== null" class="centered big q-pb-lg" :class="{'right': playerResult === true}">
             {{ iot.distance }} cm
           </h2>
           
+          <!-- potientiometers -->
+          <div v-if="step.options.object === 'pot' && iot['pot1'] !== null">
+            <q-linear-progress v-for="index of [1, 2, 3]" v-bind:key="index" :value="iot['pot' + index]" stripe rounded class="q-pa-md q-my-md" :color="playerResult === true ? 'positive' : 'primary'" />
+          </div>
         </div>
       </div>
       
@@ -693,7 +697,10 @@ export default {
         },
         iotObject: null,
         iot: {
-          distance: null
+          distance: null,
+          pot1: null,
+          pot2: null,
+          pot3: null
         },
         // for story/tutorial
         story: {
@@ -3451,7 +3458,7 @@ console.log("not camera preview")
     bluetoothDeviceConnected: async function(data) {
       console.log("BT device connected", data);
       
-      await this.sendMessageToBluetoothServer("cm:distance")
+      await this.sendMessageToBluetoothServer("cm:" + this.step.options.object)
       
       console.log("Start notification listening")
       ble.startNotification(
@@ -3480,6 +3487,21 @@ console.log("not camera preview")
           }
           break
         case 'pot':
+          let potValues = data.match(new RegExp('(\\d+)', 'g'))
+          let correctRanges = true
+          if (potValues.length !== 3) {
+            throw new Error("Invalid length for array 'potValues'")
+          }
+          for (let i = 0; i < 3; i++) {
+            let potValue = parseInt(potValues[i], 10)
+            this.iot['pot' + (i+1)] = potValue / 255
+            if (potValue < this.step.options['range' + (i+1)].min || potValue > this.step.options['range' + (i+1)].max) {
+              correctRanges = false
+            }
+          }
+          if (correctRanges) {
+            this.checkAnswer()
+          }
           break
         case 'escapebox':
           break

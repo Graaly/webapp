@@ -637,18 +637,31 @@
         
         <q-select v-if="options.type.code === 'wait-for-event'" emit-value map-options :label="$t('label.IotObject')" v-model="selectedStep.form.options.object" :options="config.iot.waitForEvent.iotObjectsAsOptions" @input="updateIotStepOptions()" />
         
-        <q-select v-if="options.type.code === 'trigger-event'" emit-value map-options :label="$t('label.IotObject')" v-model="selectedStep.form.options.object" :options="config.iot.triggerEvent.iotObjectsAsOptions" />
+        <q-select v-if="options.type.code === 'trigger-event'" emit-value map-options :label="$t('label.IotObject')" v-model="selectedStep.form.options.object" :options="config.iot.triggerEvent.iotObjectsAsOptions" @input="updateIotStepOptions()" />
         
-        <!-- for distance mode -->
+        <!-- distance mode -->
         <div v-if="selectedStep.form.options.object === 'distance'">
           <h2>{{ $t('label.SuccessRange') }}</h2>
-          <q-range  v-model="selectedStep.form.options.range"
+          <q-range v-model="selectedStep.form.options.range"
           :min="0"
           :max="200"
           :left-label-value="selectedStep.form.options.range ? selectedStep.form.options.range.min + 'cm' : ''"
           :right-label-value="selectedStep.form.options.range ? selectedStep.form.options.range.max + 'cm' : ''"
           label-always />
         </div>
+        
+        <!-- potentiometers mode -->
+        <div v-if="selectedStep.form.options.object === 'pot'">
+          <h2>{{ $t('label.SuccessRanges') }}</h2>
+          
+          <q-range v-for="index of [1, 2, 3]" v-bind:key="index" class="q-my-md" v-model="selectedStep.form.options['range' + index]"
+            :min="0"
+            :max="255"
+            :left-label-value="selectedStep.form.options['range' + index] ? selectedStep.form.options['range' + index].min : ''"
+            :right-label-value="selectedStep.form.options['range' + index] ? selectedStep.form.options['range' + index].max : ''"
+            label-always />
+        </div>
+        
         <!--
           Original code for MQTT only => TODO adapt
         <q-input
@@ -1321,8 +1334,14 @@ export default {
           this.$set(this.selectedStep.form.options, 'mode', 'scan')
         }
       } else if (this.options.type.code === 'wait-for-event') {
-        if (!this.selectedStep.form.options.hasOwnProperty('code')) {
-          this.$set(this.selectedStep.form.options, 'code', '')
+        if (!this.selectedStep.form.options.hasOwnProperty('object')) {
+          this.$set(this.selectedStep.form.options, 'object', 'distance')
+        }
+        if (!this.selectedStep.form.options.hasOwnProperty('protocol')) {
+          this.$set(this.selectedStep.form.options, 'protocol', 'bluetooth')
+        }
+        if (!this.selectedStep.form.options.hasOwnProperty('range')) {
+          this.$set(this.selectedStep.form.options, 'range', { min: 50, max: 150 })
         }
       }
       
@@ -2357,12 +2376,12 @@ export default {
         case 'joystick':
           break
         case 'distance':
-          this.selectedStep.form.options.range = {
-            min: 50,
-            max: 150
-          }
+          this.$set(this.selectedStep.form.options, 'range', { min: 50, max: 150 })
           break
         case 'pot':
+          for (let i = 1; i < 4; i++) {
+            this.$set(this.selectedStep.form.options, 'range' + i, { min: 100, max: 200 })
+          }
           break
         case 'escapebox':
           break
@@ -2439,6 +2458,9 @@ export default {
         break
       case 'touch-object-on-marker':
         fieldsToValidate.options = { model: { required } }
+        break
+      case 'wait-for-event':
+        fieldsToValidate.options = { protocol: { required }, object: { required } }
         break
     }
     
