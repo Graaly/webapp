@@ -39,7 +39,7 @@
             <!--<h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.score > 0 || run.reward === 0">{{ run.score }} {{ $t('label.points') }} <!--<q-icon color="white" name="fas fa-trophy" />--</h2>-->
             <!--<h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.reward > 0">{{ run.reward }} <q-icon color="white" name="fas fa-bolt" /></h2>-->
             <!--<router-link to="/help/points" v-show="run.score > 0">{{ $t('label.WhatCanYouDoWithThesePoints') }}</router-link>-->
-            <div class="relative-position progress-box q-mb-md">
+            <div class="relative-position progress-box">
               <div class="progress-bar">
                 <div class="progress" :style="'width: ' + Math.floor(level.progress * 100) + '%'">
                 </div>
@@ -50,6 +50,9 @@
               <div class="rank-level">
                 <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" />
               </div>
+            </div>
+            <div class="centered q-mb-md" v-if="run && run.duration">
+              {{ $t('label.YourTime') }}: {{ run.duration.h }}h {{ run.duration.m }}m 
             </div>
           </div>
           <div class="full-width centered header-point absolute">
@@ -100,6 +103,37 @@
           </div>
         </div>
         
+        <!------------------ RANKING AREA ------------------------>
+    
+        <div v-show="ranking.show">
+          <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Ranking') }}</div>
+          <div>{{ $t('label.RankingEndIntro') }}</div>
+          <div v-for="rank in ranking.items" :key="rank.id" class="q-py-md rank-box">
+            <div>
+              <userCard :user="rank" size="medium"></userCard>
+            </div>
+            <div class="full-width">
+              <div class="subtitle5" v-if="rank.name !== '-'">{{ rank.name }}</div>
+              <div class="subtitle5" v-if="rank.name === '-'">{{ $t('label.AnonymousUser') }}</div>
+              <div class="subtitle6" v-if="rank.location && (rank.location.country || rank.location.postalCode)">
+                <span v-if="rank.location.postalCode">{{ rank.location.postalCode }}</span>
+                <span v-if="rank.location.postalCode && rank.location.country">, </span>
+                <span v-if="rank.location.country">{{ rank.location.country }}</span>
+              </div>
+              <div class="grey-round-box row icons q-mt-sm q-pa-sm">
+                <div class="col-6 centered">
+                  <img src="statics/images/icon/pts.svg" />
+                  {{ rank.stars }}
+                </div>
+                <div class="col-6 centered">
+                  <img src="statics/images/icon/medal.svg" />
+                  {{ rank.position }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <!------------------ SHARE AREA ------------------------>
         
         <!--<div class="share bg-secondary q-mt-md q-ml-md q-mr-md q-pa-sm centered">
@@ -137,40 +171,6 @@
         <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
       </div>
     </div>
-    <!------------------ RANKING AREA ------------------------>
-    
-    <transition name="slideInBottom">
-      <div class="panel-bottom q-pa-md" v-show="ranking.show">
-        <a class="float-right no-underline close-btn" color="grey" @click="ranking.show = false"><q-icon name="close" class="medium-icon" /></a>
-        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Ranking') }}</div>
-        <div class="q-pl-md">{{ $t('label.RankingEndIntro') }}</div>
-        <q-list>
-          <q-item v-for="rank in ranking.items" :key="rank.id" :class="rank.className" >
-            <q-item-section avatar>
-              <img :src="'statics/icons/game/medal-' + rank.position + '.png'">
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ rank.name }}</q-item-label>
-              <q-item-label caption>{{ rank.score}} {{ $t('label.points') }}<!--<q-icon name="fas fa-trophy" />--></q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              <q-avatar>
-                <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
-                <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
-                <img v-if="!rank.picture || rank.picture === ''" src="statics/icons/game/profile-small.png" />
-              </q-avatar>
-            </q-item-section>
-            <q-item-section side v-if="!rank.isFriend && rank.id !== $store.state.user._id" @click.native="addFriend(rank.id)">
-              <q-icon name="person_add" color="primary" />
-            </q-item-section>
-            <q-item-section side v-if="rank.isFriend"></q-item-section>
-          </q-item>
-        </q-list>
-        <div class="centered">
-          <q-btn color="primary" :label="$t('label.CloseEndRanking')" @click="ranking.show = false" />
-        </div>
-      </div>
-    </transition>
     
     <!--====================== CHALLENGE YOUR FRIENDS PAGE =================================-->
     
@@ -254,11 +254,13 @@ import Notification from 'boot/NotifyHelper'
 //import { filter } from 'quasar'
 import Vue from 'vue'
 import suggest from 'components/quest/suggest'
+import userCard from 'components/user/userCard'
 import utils from 'src/includes/utils'
 
 export default {
   components: {
-    suggest
+    suggest,
+    userCard
   },
   data() {
     return {
@@ -409,6 +411,10 @@ export default {
           this.$store.state.user.points = this.score.new
           utils.setTimeout(this.updateProgression, 3000)
         }
+        
+        // get duration
+        const duration = utils.getDurationFromNow(this.run.dateCreated)
+        this.run.duration = {h: duration.h, m: duration.m}
       } else {
         // no network
         this.warnings.noNetwork = true
@@ -427,7 +433,7 @@ export default {
      */
     async updateProgression() {
       // delay animation if a modal is opened
-      if (this.ranking.show || this.showChallenge || this.showBonus) {
+      if (this.showChallenge || this.showBonus) {
         utils.setTimeout(this.updateProgression, 2000)
       } else {
         var newLevel = LevelCompute(this.score.new)
@@ -453,7 +459,7 @@ export default {
       if (this.questId !== '5b7303ec4efbcd1f8cb101c6') {
         var scores = await RunService.listPlayersForThisQuest(this.questId)
         
-        if (scores && scores.data && scores.data.length > 0) {
+        if (scores && scores.data && scores.data.length > 1) {
           this.ranking.items = scores.data
           this.ranking.items.sort(this.compareScore)
           // compute position

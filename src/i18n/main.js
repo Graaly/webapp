@@ -82,7 +82,11 @@ module.exports = {
       GraalyCharacter: "Character",
       GraalyCharacterDesc: "Make a character speak",
       EndOfChapter: "End of chapter",
-      EndOfChapterDesc: "This transition send player to next chapter"
+      EndOfChapterDesc: "This transition send player to next chapter",
+      TriggerEvent: "Trigger a physical action",
+      TriggerEventDesc: "Trigger a physical action (by sending an event to an electronic board)",
+      WaitForEvent: "Wait for a physical action",
+      WaitForEventDesc: "Wait for a physical action by the player (sent by an electronic card)"
     },
     layersForMarkers: {
       Magnifier: 'Magnifier',
@@ -211,7 +215,7 @@ module.exports = {
       Start: "Start",
       AcceptTheRules: "Accept the rules",
       SomeMoney: "Some money",
-      BuilderWelcomeMessage: "<p>By pressing the Start button, you accept these rules:<ul><li>This application can be used by young people, it must not contain reference to violence, sex, horror, nudity, drug, alcohol, smoking, ...</li><li>If you are not the owner of the place of the quest, do not ask players to touch, move, or degrade things.</p><p>The story of your quest must not undermine living or dead people</li><li>Your quest must concern a location where no quest has already be done, except if the content is different enough.</li><li>Your quest must have more than 6 steps and less than 50 steps</li><li>Our moderation team will check if your quest respects these rules, and if the quality level is enough. If not, you will be asked to improve your quest, or your quest will be rejected</li></ul></p>",
+      BuilderWelcomeMessage: "<p>By pressing the Start button, you accept these rules:<ul><li>This application can be used by young people, it must not contain reference to violence, sex, horror, nudity, drug, alcohol, smoking, ...</li><li>If you are not the owner of the place of the quest, do not ask players to touch, move, or degrade things.</p><p>The story of your quest must not undermine living or dead people</li><li>Your quest must concern a location where no quest has already be done, except if the content is different enough.</li><li>Your quest must have more than 6 steps. We advise you to have less than 70 steps</li><li>Our moderation team will check if your quest respects these rules, and if the quality level is enough. If not, you will be asked to improve your quest, or your quest will be rejected</li></ul></p>",
       BuilderPrivateWelcomeMessage: "<p>By pressing the Start button, you accept these rules:<ul><li>If you are not the owner of the place of the quest, do not ask players to touch, move, or degrade things.</li><li>The story of your quest must not undermine living or dead people</li><li>You are limited to 20 invitees (for more, please contact us)</li></ul></p>",
       BuilderPrivateProWelcomeMessage: "<p>By pressing the Start button, you accept these rules:<ul><li>If you are not the owner of the place of the quest, do not ask players to touch, move, or degrade things.</li><li>The story of your quest must not undermine living or dead people</li><li>You are limited to 200 invitees (for more, please contact us)</li></ul></p>",
       BuilderIntro: "Graaly helps you create funny quest to challenge players and win points!",
@@ -274,7 +278,8 @@ module.exports = {
       PleaseUploadAFile: "Please upload a file.",
       RequiredField: "This field is required.",
       Question: "Question",
-      UploadABackgroundImage: "Upload a background image",
+      UploadABackgroundImage: "Upload an image",
+      AddABackgroundImage: "Add a background image",
       WarningImageResize: "The image will be resized with a mobile size (portrait orientation)",
       UploadAVideo: "Upload a video",
       NoVideoUploaded: "No video video",
@@ -562,7 +567,7 @@ module.exports = {
       By: "By",
       YourChapterMustHaveAEndOfChapterStep: "You must have a End of chapter step in each chapter to move player to next chapter",
       FollowingStepsHaveNoConditionsOnlyTheFirstStepCanHaveThis: "Following steps have no trigger. Only the introduction step of a chapter can not have triggers",
-      FollowingStepsHaveInvalidCondition: "Some steps have invalid condition (maybe step it is following is missing)",
+      FollowingStepsHaveInvalidCondition: "Some steps have invalid condition (maybe step it is following has been removed, or you created circular conditions)",
       FollowingStepsHaveNoValidParent: "Following steps have invalid trigger",
       IssuesInYouQuest: "Issues of your quest",
       IssuesInYourStep: "Issues of your step",
@@ -854,7 +859,14 @@ module.exports = {
       OnTopGames: "Featured games",
       ThisStepOnlyWorkOnMobile: "The QR code scan only works on mobile app",
       YourQuestHasNotBeenPublished: "Your quest is not published",
-      OnDesktopDisplayMessage: "On computer, you need to reduce your screen size. You can press F12 for that."
+      OnDesktopDisplayMessage: "On computer, you need to reduce your screen size. You can press F12 for that.",
+      EventCode: "Event code",
+      BoardMacAddress: "Board Mac address",
+      SuccessMessage: "Success message",
+      YourTime: "Your time",
+      LimitNumberOfPlayerInOneHour: "Limit the number of players by hour (0 = unlimited)",
+      TooMuchUsersCurrently: "Too much users are playing currently",
+      OrSelectAnImageInTheList: "Or pick a picture in the list"
     }
   },
   fr: {
@@ -874,7 +886,7 @@ module.exports = {
     news: {
       newQuestWon: "A réussi l'escape game <a href='/#/quest/play/{questId}'>{quest}</a>",
       newQuest: "A créé l'escape game <a href='/#/quest/play/{questId}'>{quest}</a>",
-      questUnderValidation: "Votre escaepe game <a href='/#/quest/play/{questId}'>{quest}</a> est en cours de validation",
+      questUnderValidation: "Votre escape game <a href='/#/quest/play/{questId}'>{quest}</a> est en cours de validation",
       challenge: "Vous défie sur l'escape game <a href='/#/quest/play/{questId}'>{quest}</a>"
     },
     bonus: {
@@ -927,7 +939,11 @@ module.exports = {
       GraalyCharacter: "Personnage",
       GraalyCharacterDesc: "Faire parler un personnage",
       EndOfChapter: "Fin de chapitre",
-      EndOfChapterDesc: "Cette transition fait passer le joueur au chapitre suivant"
+      EndOfChapterDesc: "Cette transition fait passer le joueur au chapitre suivant",
+      TriggerEvent: "Déclencher un événement physique",
+      TriggerEventDesc: "Déclencher un événement physique à l'aide d'une carte électronique",
+      WaitForEvent: "Attendre un événement physique",
+      WaitForEventDesc: "Attendre un événement physique envoyé par une carte électronique"
     },
     layersForMarkers: {
       Magnifier: 'Loupe',
@@ -1057,7 +1073,7 @@ module.exports = {
       Start: "Commencer",
       AcceptTheRules: "Accepter les règles",
       SomeMoney: "De l'argent",
-      BuilderWelcomeMessage: "<p>En appuyant sur le bouton Démarrer, vous acceptez les règles suivantes :<ul><li>Cette application peut être utilisée par un jeune public, votre escape game ne doit pas contenir de la violence, des images effrayantes, ou des références au sexe, aux drogues, à l'alcool, au tabac, etc.</li><li>Si le lieu ne vous appartient pas, ne demandez pas aux joueurs de toucher, déplacer, dégrader les lieux visités</li><li>L'histoire de votre escape game ne doit pas porter atteinte à des personnes vivantes ou ayant existé</li><li>Votre escape game ne doit pas concerner un lieu pour lequel un escape game existe déjà, sauf si le thême est suffisamment différent</li><li>Votre escape game doit faire plus de 6 étapes et moins de 50</li><li>Notre équipe de modérateurs validera si votre escape game respecte ces règles et atteint un niveau de qualité suffisant. Dans le cas contraire, il vous sera demandé d'améliorer votre escape game, ou il sera refusé</li></ul></p>",
+      BuilderWelcomeMessage: "<p>En appuyant sur le bouton Démarrer, vous acceptez les règles suivantes :<ul><li>Cette application peut être utilisée par un jeune public, votre escape game ne doit pas contenir de la violence, des images effrayantes, ou des références au sexe, aux drogues, à l'alcool, au tabac, etc.</li><li>Si le lieu ne vous appartient pas, ne demandez pas aux joueurs de toucher, déplacer, dégrader les lieux visités</li><li>L'histoire de votre escape game ne doit pas porter atteinte à des personnes vivantes ou ayant existé</li><li>Votre escape game ne doit pas concerner un lieu pour lequel un escape game existe déjà, sauf si le thême est suffisamment différent</li><li>Votre escape game doit faire plus de 6 étapes. Nous vous conseillons d'en créer moins de 70.</li><li>Notre équipe de modérateurs validera si votre escape game respecte ces règles et atteint un niveau de qualité suffisant. Dans le cas contraire, il vous sera demandé d'améliorer votre escape game, ou il sera refusé</li></ul></p>",
       BuilderPrivateWelcomeMessage: "<p>En appuyant sur le bouton Démarrer, vous acceptez les règles suivantes :<ul><li>Si le lieu de l'escape game ne vous appartient pas, ne demandez pas aux joueurs de toucher, déplacer, dégrader les lieux visités</li><li>L'histoire de votre escape game ne doit pas porter atteinte à des personnes vivantes ou ayant existé</li><li>Vous êtes limité à 20 invités (pour plus d'invités, veuillez nous contacter)</li></ul></p>",
       BuilderPrivateProWelcomeMessage: "<p>En appuyant sur le bouton Démarrer, vous acceptez les règles suivantes :<ul><li>Si le lieu de l'escape game ne vous appartient pas, ne demandez pas aux joueurs de toucher, déplacer, dégrader les lieux visités</li><li>L'histoire de votre escape game ne doit pas porter atteinte à des personnes vivantes ou ayant existé</li><li>Vous êtes limité à 200 invités (pour plus d'invités, veuillez nous contacter)</li></ul></p>",
       BuilderIntro: "Graaly vous permet de créer très simplement, et pas à pas, des escape games ludiques pour les autres joueurs. Ces jeux peuvent être des jeux de piste ou des escape games",
@@ -1120,7 +1136,8 @@ module.exports = {
       PleaseUploadAFile: "Veuillez télécharger un fichier.",
       RequiredField: "Ce champ est requis.",
       Question: "Question",
-      UploadABackgroundImage: "Télécharger une image de fond",
+      UploadABackgroundImage: "Télécharger une image",
+      AddABackgroundImage: "Ajouter une image de fond",
       WarningImageResize: "L'image sera redimensionnée au format d'un téléphone (format portrait)",
       UploadAVideo: "Télécharger une vidéo",
       NoVideoUploaded: "Aucune vidéo téléchargée",
@@ -1408,7 +1425,7 @@ module.exports = {
       By: "Par",
       YourChapterMustHaveAEndOfChapterStep: "Vous devez créer une étape de type Fin de chapitre dans chaque chapitre pour que le joueur passe au chapitre suivant",
       FollowingStepsHaveNoConditionsOnlyTheFirstStepCanHaveThis: "Les étapes suivantes n'ont pas de déclencheur. Seul la première étape d'un chapitre peut ne pas avoir de déclencheur",
-      FollowingStepsHaveInvalidCondition: "Des étapes ont des conditions invalides (dépendent probablement d'étapes manquantes)",
+      FollowingStepsHaveInvalidCondition: "Des étapes ont des conditions invalides (dépendent probablement d'étapes manquantes, ou vous avez créé une chaîne impossible, comme une condition circulaire)",
       FollowingStepsHaveNoValidParent: "Les étapes suivantes ont un déclencheur incorrect",
       IssuesInYouQuest: "Problèmes de votre escape game",
       IssuesInYourStep: "Problèmes de votre étape",
@@ -1700,7 +1717,14 @@ module.exports = {
       OnTopGames: "Jeux du moment",
       ThisStepOnlyWorkOnMobile: "Le scan de QR code ne fonctionne que sur l'application mobile",
       YourQuestHasNotBeenPublished: "Votre escape n'a pas été publié",
-      OnDesktopDisplayMessage: "Sur ordinateur, vous devez réduire la taille de votre écran. Vous pouvez taper sur la touche F12 pour cela."
+      OnDesktopDisplayMessage: "Sur ordinateur, vous devez réduire la taille de votre écran. Vous pouvez taper sur la touche F12 pour cela.",
+      EventCode: "Code de l'événement",
+      BoardMacAddress: "Adresse Mac de la carte",
+      SuccessMessage: "Message de réussite",
+      YourTime: "Votre temps",
+      LimitNumberOfPlayerInOneHour: "Limiter le nombre de joueurs par heure (0 = illimité)",
+      TooMuchUsersCurrently: "Trop de joueurs actuellement",
+      OrSelectAnImageInTheList: "Ou sélectionnez une image dans la liste"
     }
   }
 }

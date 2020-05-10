@@ -44,6 +44,9 @@
         <div class="bg-warning q-pa-sm" v-if="warning.lowBattery">
           <q-icon name="battery_alert" /> {{ $t('label.WarningLowBattery') }}
         </div>
+        <div class="bg-warning q-pa-sm" v-if="warning.tooMuchUsers">
+          <q-icon name="warning" /> {{ $t('label.TooMuchUsersCurrently') }}
+        </div>
         <div v-if="quest.status !== 'published'" class="bg-primary centered q-pa-sm q-mb-md">
           {{ $t('label.' + (quest.type === 'quest' ? 'QuestDraftVersion' : 'PageDraftVersion')) }}
         </div>
@@ -289,7 +292,8 @@ export default {
       },
       warning: {
         questNotLoaded: false,
-        lowBattery: false
+        lowBattery: false,
+        tooMuchUsers: false
       },
       serverUrl: process.env.SERVER_URL,
       isRunFinished: false,
@@ -388,6 +392,9 @@ export default {
       
       // get rankings this quest
       //await this.getRanking()
+      
+      // check number of simultaneous users
+      await this.checkSimultaneousPlayers()
     },
     /*
      * Get a quest information
@@ -488,6 +495,20 @@ export default {
           this.continueQuest = true
         }
       }
+    },
+    /*
+     * Get number of simultaneous users
+     */
+    async checkSimultaneousPlayers() {
+      if (this.quest.limitNumberOfPlayer) {
+        const nbOfPlayers = await RunService.checkNumberOfPlayers(this.quest.questId)
+        if (nbOfPlayers && nbOfPlayers.data && parseInt(nbOfPlayers.data, 10) >= this.quest.limitNumberOfPlayer) {
+          this.warning.tooMuchUsers = true
+        }
+      }
+      
+      // remove run offline data
+      await utils.writeInFile(this.quest.questId, 'run_' + this.quest.questId + '.json', JSON.stringify({}), false)
     },
     /*
      * Cancel a run

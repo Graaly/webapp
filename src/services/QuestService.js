@@ -231,9 +231,13 @@ export default {
    * List the quests medias
    * @param   {String}    id                  ID of the quest
    * @param   {Number}    version             version of the quest
+   * @param   {String}    type                type of files (see type values in media collection - without /step/ string)
    */
-  listMedia (id, version) {
-    return Api().get('quest/' + id + '/version/' + version + '/media/list').catch(error => console.log(error.request))
+  listMedia (id, version, type) {
+    if (!type) {
+      type = 'all'
+    }
+    return Api().get('quest/' + id + '/version/' + version + '/media/' + type + '/list').catch(error => console.log(error.request))
   },
   /*
    * Remove a media

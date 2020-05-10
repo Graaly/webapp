@@ -36,18 +36,9 @@
       />
 
       <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'main'">
-        <div v-if="!isIOs">
-          <q-btn class="full-width" type="button" @click="$refs['backgroundfile'].click()">
-            <q-icon name="cloud_upload" /> <label for="picturefile1">{{ $t('label.UploadABackgroundImage') }}</label>
-          </q-btn>
-          <input @change="uploadBackgroundImage" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" test-id="background-upload" />
-        </div>
-        <div v-if="isIOs">
-          {{ $t('label.UploadABackgroundImage') }}:
-          <input @change="uploadBackgroundImage" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" test-id="background-upload" />
-        </div>
-        <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-        <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
+        <q-btn class="full-width" type="button" @click="showMedia">
+          {{ $t('label.AddABackgroundImage') }}
+        </q-btn>
         <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
           <p>{{ $t('label.YourPicture') }} :</p>
           <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
@@ -629,6 +620,36 @@
         </q-dialog>
       </div>
       
+      <!------------------ STEP : WAIT FOR EVENT ------------------------>
+      
+      <div v-if="options.type.code === 'wait-for-event'">
+        <q-input
+          v-model="selectedStep.form.options.code"
+          :label="$t('label.EventCode')"
+        />
+        <q-input
+          v-model="selectedStep.form.options.boardMacAddress"
+          :label="$t('label.BoardMacAddress')"
+        />
+        <q-input
+          v-model="selectedStep.form.options.successMessage"
+          :label="$t('label.SuccessMessage')"
+        />
+      </div>
+      
+      <!------------------ STEP : TRIGGER EVENT ------------------------>
+      
+      <div v-if="options.type.code === 'trigger-event'">
+        <q-input
+          v-model="selectedStep.form.options.code"
+          :label="$t('label.EventCode')"
+        />
+        <q-input
+          v-model="selectedStep.form.options.boardMacAddress"
+          :label="$t('label.BoardMacAddress')"
+        />
+      </div>
+      
       <!------------------ CONDITIONS ------------------------>
       
       <q-list bordered v-if="options && options.mode && options.mode === 'advanced'">
@@ -653,8 +674,8 @@
               <q-select emit-value map-options :label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @input="changeNewConditionType" />
               <q-select emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
               <div class="centered">
-                <q-btn color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />
-                <q-btn color="primary" flat @click="selectedStep.newConditionForm = false" :label="$t('label.Cancel')" />
+                <q-btn class="glossy normal-button" color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />
+                <q-btn class="q-mx-md" color="primary" flat @click="selectedStep.newConditionForm = false" :label="$t('label.Cancel')" />
               </div>
             </div>
           </div>
@@ -692,7 +713,10 @@
               <q-input v-model="selectedStep.form.options.initDuration" :label="$t('label.DurationBeforeTextAppearAbovePicture')" />
             </div>
             <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
-              <div v-if="!isIOs">
+              <q-btn class="full-width" type="button" @click="showMedia">
+                {{ $t('label.AddABackgroundImage') }}
+              </q-btn>
+              <!--toot<div v-if="!isIOs">
                 <q-btn class="full-width" type="button" @click="$refs['backgroundfile2'].click()">
                   <q-icon name="cloud_upload" /> <label for="picturefile2">{{ $t('label.UploadABackgroundImage') }}</label>
                 </q-btn>
@@ -703,7 +727,7 @@
                 <input @change="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" />
               </div>
               <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-              <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>
+              <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>-->
               <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
                 <p>{{ $t('label.YourPicture') }} :</p>
                 <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
@@ -788,6 +812,34 @@
       </div>
     </q-dialog>
     
+    <!------------------ MEDIA LIST AREA ------------------------>
+    
+    <transition name="slideInBottom">
+      <div class="bg-white panel-bottom q-pa-md" v-show="media.isOpened">
+        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.AddABackgroundImage') }}</div>
+        <div v-if="!isIOs">
+          <q-btn class="full-width" type="button" @click="$refs['backgroundfile'].click()">
+            <q-icon name="cloud_upload" /> <label for="picturefile1">{{ $t('label.UploadABackgroundImage') }}</label>
+          </q-btn>
+          <input @change="uploadBackgroundImage" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" test-id="background-upload" />
+        </div>
+        <div v-if="isIOs">
+          {{ $t('label.UploadABackgroundImage') }}:
+          <input @change="uploadBackgroundImage" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" test-id="background-upload" />
+        </div>
+        <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+        <div class="centered" v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</div>
+        
+        <div v-if="media && media.items && media.items.length > 0">
+          <div class="centered q-pa-md">{{ $t('label.OrSelectAnImageInTheList') }}</div>
+          <img v-for="(item, index) in media.items" :key="item.id" :src="serverUrl + '/upload/quest/' + questId + item.type + item.file" style="width: 30vw; height: 40vw;" @click="selectMedia(index)">
+        </div>
+        <div class="centered q-ma-md">
+          <q-btn class="q-mb-xl glossy large-button" color="primary" @click="hideMedia()">{{ $t('label.Close') }}</q-btn>
+        </div>
+      </div>
+    </transition>
+    
   </div>
 </template>
 
@@ -807,6 +859,7 @@ import markersList from 'data/markers.json'
 import layersForMarkers from 'data/layersForMarkers.json'
 
 import StepService from 'services/StepService'
+import QuestService from 'services/QuestService'
 
 import * as THREE from 'three'
 //import * as TWEEN from '@tweenjs/tween.js'
@@ -865,6 +918,14 @@ export default {
           ],
           selectedValue: '',
           values: []
+        }
+      },
+      media: {
+        isOpened: false,
+        items: [],
+        detail: {
+          isOpened: false,
+          index: 0
         }
       },
       stepTypes,
@@ -1270,6 +1331,10 @@ export default {
         if (!this.selectedStep.form.options.hasOwnProperty('mode')) {
           this.$set(this.selectedStep.form.options, 'mode', 'scan')
         }
+      } else if (this.options.type.code === 'wait-for-event') {
+        if (!this.selectedStep.form.options.hasOwnProperty('code')) {
+          this.$set(this.selectedStep.form.options, 'code', '')
+        }
       }
       
       this.originalStepData = utils.clone(this.selectedStep.form)
@@ -1592,11 +1657,11 @@ export default {
      * @param   {Object}    e            Upload data
      */
     async uploadBackgroundImage(e) {
-      this.$q.loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
       }
+      this.$q.loading.show()
       var data = new FormData()
       data.append('image', files[0])
       let uploadResult = await StepService.uploadBackgroundImage(this.questId, data)
@@ -1612,6 +1677,7 @@ export default {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
       this.$q.loading.hide()
+      this.hideMedia()
     },
     /*
      * Reset the background image
@@ -1631,11 +1697,11 @@ export default {
      * @param   {Object}    e            Upload data
      */
     async uploadVideo(e) {
-      this.$q.loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
       }
+      this.$q.loading.show()
       var data = new FormData()
       data.append('video', files[0])
       let uploadResult = await StepService.uploadVideo(this.questId, data)
@@ -1657,11 +1723,11 @@ export default {
      * @param   {Object}    e            Upload data
      */
     async uploadImageToRecognize(e) {
-      this.$q.loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
       }
+      this.$q.loading.show()
       var data = new FormData()
       data.append('image', files[0])
       let uploadResult = await StepService.uploadImageToRecognize(this.questId, data)
@@ -1683,11 +1749,11 @@ export default {
      * @param   {Object}    e            Upload data
      */
     async uploadAnswerImage(key, e) {
-      this.$q.loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
       }
+      this.$q.loading.show()
       var data = new FormData()
       data.append('image', files[0])
       let uploadResult = await StepService.uploadAnswerImage(this.questId, data)
@@ -1709,11 +1775,11 @@ export default {
      * @param   {Object}    e            Upload data
      */
     async uploadMemoryImage(key, e) {
-      this.$q.loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
       }
+      this.$q.loading.show()
       var data = new FormData()
       data.append('image', files[0])
 
@@ -1746,11 +1812,11 @@ export default {
      * @param   {Object}    e            Upload data
      */
     async uploadCodeAnswerImage(key, e) {
-      this.$q.loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
       }
+      this.$q.loading.show()
       var data = new FormData()
       data.append('image', files[0])
       let uploadResult = await StepService.uploadCodeAnswerImage(this.questId, data)
@@ -1772,11 +1838,11 @@ export default {
      * @param   {Object}    e            Upload data
      */
     async uploadPuzzleImage(e) {
-      this.$q.loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
       }
+      this.$q.loading.show()
       var data = new FormData()
       data.append('image', files[0])
       let uploadResult = await StepService.uploadPuzzleImage(this.questId, data)
@@ -1798,11 +1864,11 @@ export default {
      * @param   {Object}    e            Upload data
      */
     async uploadItemImage(e) {
-      this.$q.loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
       }
+      this.$q.loading.show()
       var data = new FormData()
       data.append('image', files[0])
       let uploadResult = await StepService.uploadItemImage(this.questId, this.options.type.code, data)
@@ -1824,11 +1890,11 @@ export default {
      * @param   {Object}    e            Upload data
      */
     async uploadItemObject(e) {
-      this.$q.loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
       }
+      this.$q.loading.show()
       var data = new FormData()
       data.append('image', files[0])
       let uploadResult = await StepService.uploadItemObject(this.questId, this.options.type.code, data)
@@ -1859,11 +1925,11 @@ export default {
      * @param   {Object}    e            Upload data
      */
     async uploadCharacterImage(e) {
-      this.$q.loading.show()
       var files = e.target.files
       if (!files[0]) {
         return
       }
+      this.$q.loading.show()
       var data = new FormData()
       data.append('image', files[0])
       let uploadResult = await StepService.uploadCharacterImage(this.questId, this.options.type.code, data)
@@ -2268,6 +2334,40 @@ export default {
       }
       console.warn("Could not retrieve step type from code '" + code + "'")
       return null
+    },
+    /*
+     * Show the media panel
+     */
+    async showMedia() {
+      // load quest medias
+      await this.loadMedia('background')
+      
+      // open the panel
+      this.media.isOpened = true
+    },
+    /*
+     * select a media
+     */
+    async selectMedia(index) {
+      this.selectedStep.form.backgroundImage = this.media.items[index].file
+      this.hideMedia()
+    },
+    /*
+     * Load the quest media
+     */
+    async loadMedia(type) {
+      // load quest medias
+      let media = await QuestService.listMedia(this.quest.questId, this.quest.version, type)
+      
+      if (media && media.data) {
+        this.media.items = media.data
+      }
+    },
+    /*
+     * Hide the media panel
+     */
+    async hideMedia() {
+      this.media.isOpened = false
     }
   },
   validations() {

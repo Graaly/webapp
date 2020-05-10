@@ -23,6 +23,13 @@ export default {
     return Api().get('run/quest/' + questId + '/ranking/friends').catch(error => console.log(error.request))
   },
   /*
+   * get the number of players for a quest
+   * @param   {String}    questId                  ID of the quest
+   */
+  checkNumberOfPlayers (questId) {
+    return Api().get('run/quest/' + questId + '/players/number').catch(error => console.log(error.request))
+  },
+  /*
    * list players that played this quest
    * @param   {String}    questId                  ID of the quest
    */

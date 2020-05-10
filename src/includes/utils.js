@@ -242,6 +242,12 @@ var self = {
       })
     }*/
   },
+  getDurationFromNow: function(date) {
+    const oldDate = new Date(date)
+    const now = new Date()
+    const duration =(now.getTime() - oldDate.getTime())
+    return {h: parseInt((duration/(1000*60*60))%24), m: parseInt((duration/(1000*60))%60)}
+  },
   
   /**
    * Clear all tracks of a camera stream

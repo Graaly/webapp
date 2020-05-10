@@ -244,6 +244,12 @@
             bottom-slots
             options-cover
             />
+          <q-input
+              :disable="readOnly"
+              v-model="form.fields.limitNumberOfPlayer"
+              :label="$t('label.LimitNumberOfPlayerInOneHour')"
+              class="full-width"
+            />
           <q-toggle
             :readonly="readOnly"
             :label="$t('label.RemoveScoringAndRating')"
@@ -369,7 +375,7 @@
           <q-btn color="primary" class="glossy large-button" icon="play_arrow" @click="testQuest()">{{ $t('label.TestYourQuest') }}</q-btn>
         </p>
         <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current">
-          <a @click="showMedia()">{{ getReadableStorageUsage() }}</a>
+          <div @click="showMedia()">{{ storage }}</div>
           <q-linear-progress rounded style="height: 15px" :value="getPercentStorageUsage()" color="secondary" class="q-mt-sm" />
         </p>
       </div>
@@ -438,7 +444,7 @@
           <q-btn color="primary" class="glossy large-button" icon="play_arrow" @click="testQuest()">{{ $t('label.TestYourQuest') }}</q-btn>
         </p>
         <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current">
-          <a @click="showMedia()">{{ getReadableStorageUsage() }}</a>
+          <div @click="showMedia()">{{ storage }}</div>
           <q-linear-progress rounded style="height: 15px" :value="getPercentStorageUsage()" color="secondary" class="q-mt-sm" />
         </p>
       </div>
@@ -487,7 +493,7 @@
               type="text"
               :label="$t('label.InvitePeople')"
               v-model="invitee.new.email"
-              bottom-slots
+              bottom-slots  
               :error="!invitee.new.isExisting"
               :error-message="$t('label.UserIsNotAGraalyUser')"
               >
@@ -891,7 +897,7 @@
     <!------------------ MEDIA LIST AREA ------------------------>
     
     <transition name="slideInBottom">
-      <div class="hint panel-bottom q-pa-md" v-show="media.isOpened">
+      <div class="bg-white hint panel-bottom q-pa-md" v-show="media.isOpened">
         <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.QuestMedia') }}</div>
         <q-list v-for="(item, index) in media.items" :key="item.id">
           <q-item clickable v-ripple>
@@ -1010,7 +1016,8 @@ export default {
           editorMode: 'simple',
           customization: { color: '', logo: '', character: '', removeScoring: false, endMessage: '' },
           rewardPicture: '',
-          readMoreLink: ''
+          readMoreLink: '',
+          limitNumberOfPlayer: 0
         },
         categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }, this.$t),
         languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
@@ -1100,6 +1107,7 @@ export default {
       statistics: [],
       canMoveNextStep: false,
       canPass: false,
+      storage: "",
       itemUsed: null,
       isIOs: utils.isIOS(),
       serverUrl: process.env.SERVER_URL,
@@ -1193,6 +1201,7 @@ export default {
         this.form.fields.customization = this.quest.customization
         this.form.fields.rewardPicture = this.quest.rewardPicture
         this.form.fields.readMoreLink = this.quest.readMoreLink
+        this.form.fields.limitNumberOfPlayer = this.quest.limitNumberOfPlayer
       
         this.form.fields.startingPlace = this.form.fields.location.address || ""
         this.form.fields.zipcode = (this.form.fields.location && this.form.fields.location.zipcode) ? this.form.fields.location.zipcode : ""
@@ -1234,6 +1243,8 @@ export default {
         if (this.quest.access && this.quest.access === 'private') {
           this.getPrivateRanking()
         }
+        
+        this.getReadableStorageUsage()
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -1432,6 +1443,21 @@ export default {
                   }
                   this.chapters.items[j].steps.push(stepsOfChapter[k])
                 }
+              }
+            }
+            // check if steps are not treated
+            var isTreated = false
+            for (k = 0; k < stepsOfChapter.length; k++) {
+              isTreated = false
+              for (i = 0; i < sorted.length; i++) {
+                if (sorted[i] === stepsOfChapter[k].stepId.toString()) {
+                  isTreated = true
+                }
+              }
+              if (!isTreated) {
+                stepsOfChapter[k].error = 'FollowingStepsHaveInvalidCondition'
+                stepsOfChapter[k].level = 1
+                this.chapters.items[j].steps.push(stepsOfChapter[k])
               }
             }
             
@@ -2806,9 +2832,7 @@ export default {
       if (this.quest && this.quest.size) {
         let usedStorage = utils.humanReadableFileSize(this.quest.size.current, true, this.$t)
         let limitStorage = utils.humanReadableFileSize(this.quest.size.limit, true, this.$t)
-        return this.$t('label.UsedOver', {current: usedStorage, limit: limitStorage})
-      } else {
-        return ''
+        this.storage = this.$t('label.UsedOver', {current: usedStorage, limit: limitStorage})
       }
     },
     getPercentStorageUsage() {
