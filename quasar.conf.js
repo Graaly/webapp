@@ -145,6 +145,7 @@ module.exports = function (ctx) {
         'QPopupProxy',
         'QLinearProgress',
         'QRadio',
+        'QRange',
         'QRating',
         'QScrollObserver',
         'QSelect',

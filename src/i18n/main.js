@@ -108,6 +108,15 @@ module.exports = {
       hint: "Hello, here is a hint: <br /><b>{hint}</b>",
       readMore: "{readMore}"
     },
+    iotObjects: {
+      keypad: "Keypad",
+      joystick: "Joystick",
+      distance: "Distance",
+      pot: "Potentiometers",
+      lcd: "LCD display",
+      buzzer: "Buzzer",
+      escapebox: "Escape Box"
+    },
     label: {
       shortLang: "en",
       letsGo: "Let's Go!",
@@ -866,7 +875,11 @@ module.exports = {
       YourTime: "Your time",
       LimitNumberOfPlayerInOneHour: "Limit the number of players by hour (0 = unlimited)",
       TooMuchUsersCurrently: "Too much users are playing currently",
-      OrSelectAnImageInTheList: "Or pick a picture in the list"
+      OrSelectAnImageInTheList: "Or pick a picture in the list",
+      IotObject: "IoT object",
+      Protocol: "Protocol",
+      SuccessRange: "Success range",
+      SuccessRanges: "Success ranges"
     }
   },
   fr: {
@@ -964,6 +977,15 @@ module.exports = {
     story: {
       hint: "Salut, voici un indice :<br /><b>{hint}</b>",
       readMore: "{readMore}"
+    },
+    iotObjects: {
+      keypad: "Digicode",
+      joystick: "Joystick",
+      distance: "Distance",
+      pot: "Potentiomètres",
+      lcd: "Afficheur LCD",
+      buzzer: "Buzzer",
+      escapebox: "Escape Box"
     },
     label: {
       shortLang: "fr",
@@ -1724,7 +1746,11 @@ module.exports = {
       YourTime: "Votre temps",
       LimitNumberOfPlayerInOneHour: "Limiter le nombre de joueurs par heure (0 = illimité)",
       TooMuchUsersCurrently: "Trop de joueurs actuellement",
-      OrSelectAnImageInTheList: "Ou sélectionnez une image dans la liste"
+      OrSelectAnImageInTheList: "Ou sélectionnez une image dans la liste",
+      IotObject: "Objet connecté",
+      Protocol: "Protocole",
+      SuccessRange: "Plage de succès",
+      SuccessRanges: "Plages de succès"
     }
   }
 }

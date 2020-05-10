@@ -1,0 +1,51 @@
+[
+  {
+    "code": "keypad",
+    "step": "wait-for-event",
+    "deviceName": "Graaly RPi",
+    "bleServiceId": "4fafc201-1fb5-459e-8fcc-c5c9c331914b",
+    "bleCharacteristicId": "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+  },
+  {
+    "code": "joystick",
+    "step": "wait-for-event",
+    "deviceName": "Graaly RPi",
+    "bleServiceId": "4fafc201-1fb5-459e-8fcc-c5c9c331914b",
+    "bleCharacteristicId": "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+  },
+  {
+    "code": "distance",
+    "step": "wait-for-event",
+    "deviceName": "Graaly RPi",
+    "bleServiceId": "4fafc201-1fb5-459e-8fcc-c5c9c331914b",
+    "bleCharacteristicId": "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+  },
+  {
+    "code": "pot",
+    "step": "wait-for-event",
+    "deviceName": "Graaly RPi",
+    "bleServiceId": "4fafc201-1fb5-459e-8fcc-c5c9c331914b",
+    "bleCharacteristicId": "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+  },
+  {
+    "code": "escapebox",
+    "step": "wait-for-event",
+    "deviceName": "Graaly RPi",
+    "bleServiceId": "4fafc201-1fb5-459e-8fcc-c5c9c331914b",
+    "bleCharacteristicId": "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+  },
+  {
+    "code": "lcd",
+    "step": "trigger-event",
+    "deviceName": "Graaly RPi",
+    "bleServiceId": "4fafc201-1fb5-459e-8fcc-c5c9c331914b",
+    "bleCharacteristicId": "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+  },
+  {
+    "code": "buzzer",
+    "step": "trigger-event",
+    "deviceName": "Graaly RPi",
+    "bleServiceId": "4fafc201-1fb5-459e-8fcc-c5c9c331914b",
+    "bleCharacteristicId": "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+  }
+]

@@ -386,11 +386,21 @@
       
       <div v-if="step.type == 'wait-for-event'">
         <div>
-          <p class="text" v-if="getTranslatedText() != '' && playerResult === null">{{ getTranslatedText() }}</p>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          
+          <!-- distance -->
+          <h2 v-if="step.options.object === 'distance' && iot.distance !== null" class="centered big q-pb-lg" :class="{'right': playerResult === true}">
+            {{ iot.distance }} cm
+          </h2>
+          
+          <!-- potientiometers -->
+          <div v-if="step.options.object === 'pot' && iot['pot1'] !== null">
+            <q-linear-progress v-for="index of [1, 2, 3]" v-bind:key="index" :value="iot['pot' + index]" stripe rounded class="q-pa-md q-my-md" :color="playerResult === true ? 'positive' : 'primary'" />
+          </div>
         </div>
       </div>
       
-      <!------------------ WAIT FOR IOT EVENT ------------------------>
+      <!------------------ TRIGGER IOT EVENT ------------------------>
       
       <div v-if="step.type == 'trigger-event'">
         <div>
@@ -459,6 +469,7 @@ import utils from 'src/includes/utils'
 import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
 import markersList from 'data/markers.json'
+import iotObjectsList from 'data/iotObjects.json'
 
 import Notification from 'boot/NotifyHelper'
 
@@ -551,12 +562,15 @@ export default {
     
     TWEEN.removeAll() // 3D animations
     
-    // close MQTT connection (steps 'wait-for-event', 'trigger-event')
+    // close MQTT connection & bluetooth (steps 'wait-for-event', 'trigger-event')
     if (this.mqttClient !== null) {
       let _this = this
       this.mqttClient.end(false, {}, () => {
         _this.mqttClient = null
       })
+    }
+    if (this.bluetooth.enabled) {
+      this.bluetoothDisconnect(this.bluetooth.deviceId)
     }
   },
   methods: {
@@ -677,6 +691,17 @@ export default {
         readMoreNotif: null,
         // for step types 'wait-for-event', 'trigger-event'
         mqttClient: null,
+        bluetooth: {
+          enabled: false,
+          deviceId: null
+        },
+        iotObject: null,
+        iot: {
+          distance: null,
+          pot1: null,
+          pot2: null,
+          pot3: null
+        },
         // for story/tutorial
         story: {
           step: null,
@@ -1082,56 +1107,74 @@ console.log("not camera preview")
         }
         
         if (this.step.type === 'wait-for-event' || this.step.type === 'trigger-event') {
-          let _this = this
-          
-          this.mqttClient = mqtt.connect(process.env.MQTT_URL)
-          
-          this.mqttClient.on('connect', () => {
-            console.log("Successfully connected to MQTT server " + process.env.MQTT_URL)
+          this.iotObject = this.getIotObjectFromCode(this.step.options.object)
+
+          if (this.step.options.protocol === 'mqtt') {
+            let _this = this
+            
+            this.mqttClient = mqtt.connect(process.env.MQTT_URL)
+            
+            this.mqttClient.on('connect', () => {
+              console.log("Successfully connected to MQTT server " + process.env.MQTT_URL)
+              if (_this.step.type === 'wait-for-event') {
+                _this.mqttClient.subscribe(process.env.MQTT_TOPIC, function (err) {
+                  if (err) {
+                    console.error("Error when subscribing to topic " + process.env.MQTT_TOPIC + ":", err)
+                  } else {
+                    console.log("Successfully subscribed to MQTT topic " + process.env.MQTT_TOPIC)
+                  }
+                })
+              }
+            })
+
+            this.mqttClient.on('error', (connack) => {
+              console.error("Error connecting to MQTT server " + process.env.MQTT_URL, "connack=", connack)
+            })
+            
             if (_this.step.type === 'wait-for-event') {
-              _this.mqttClient.subscribe(process.env.MQTT_TOPIC, function (err) {
-                if (err) {
-                  console.error("Error when subscribing to topic " + process.env.MQTT_TOPIC + ":", err)
-                } else {
-                  console.log("Successfully subscribed to MQTT topic " + process.env.MQTT_TOPIC)
+              this.mqttClient.on('message', (topic, message) => {
+                console.log("Received MQTT message (topic " + topic + "): ", message.toString())
+                
+                try {
+                  message = JSON.parse(message)
+                } catch (err) {
+                  console.error("Could not read MQTT message. Error:", err)
+                }
+                
+                if (message.macAddress === _this.step.options.boardMacAddress) {
+                  console.log('*** MAC ADDRESSES MATCHED ***', _this.step.stepId)
+                  console.log('matching codes?', message.code, _this.step.options.code)
+                  if (message.code === _this.step.options.code) {
+                    console.log('*** CODES MATCHED, CHECK ANSWER ***')
+                    Notification(_this.step.options.successMessage, 'positive')
+                    _this.checkAnswer()
+                  }
                 }
               })
             }
-          })
-
-          this.mqttClient.on('error', (connack) => {
-            console.error("Error connecting to MQTT server " + process.env.MQTT_URL, "connack=", connack)
-          })
-          
-          if (_this.step.type === 'wait-for-event') {
-            this.mqttClient.on('message', (topic, message) => {
-              console.log("Received MQTT message (topic " + topic + "): ", message.toString())
-              
-              try {
-                message = JSON.parse(message)
-              } catch (err) {
-                console.error("Could not read MQTT message. Error:", err)
-              }
-              
-              if (message.macAddress === _this.step.options.boardMacAddress) {
-                console.log('*** MAC ADDRESSES MATCHED ***', _this.step.stepId)
-                console.log('matching codes?', message.code, _this.step.options.code)
-                if (message.code === _this.step.options.code) {
-                  console.log('*** CODES MATCHED, CHECK ANSWER ***')
-                  Notification(_this.step.options.successMessage, 'positive')
-                  _this.checkAnswer()
-                }
-              }
-            })
+          } else if (this.step.options.protocol === 'bluetooth') {
+            if (this.isHybrid) {
+              ble.enable(this.bluetoothEnableSuccess, this.bluetoothEnableFailure);
+            } else {
+              console.warn('Webapp mode => no bluetooth support.')
+            }
+          } else {
+            throw new Error('Unsupported IoT step protocol: ' + this.step.options.protocol)
           }
           
           // user can pass
           this.$emit('pass')
-        } else if (this.mqttClient !== null) {
-          let _this = this
-          this.mqttClient.end(false, {}, () => {
-            _this.mqttClient = null
-          })
+        } else {
+          // other steps than IoT? disable MQTT & bluetooth if enabled
+          if (this.mqttClient !== null) {
+            let _this = this
+            this.mqttClient.end(false, {}, () => {
+              _this.mqttClient = null
+            })
+          }
+          if (this.bluetooth.enabled) {
+            this.bluetoothDisconnect(this.bluetooth.deviceId)
+          }
         }
       })
     },
@@ -1550,7 +1593,7 @@ console.log("not camera preview")
         case 'trigger-event':
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
-          this.submitGoodAnswer(0, checkAnswerResult.offline, true)
+          this.submitGoodAnswer(0, checkAnswerResult.offline, false)
           //if (CameraPreview) {
           //  CameraPreview.stopCamera()
           //  CameraPreview.stopCamera() // calling twice is needed
@@ -1879,7 +1922,7 @@ console.log("not camera preview")
           break
         
         case 'wait-for-event':
-          // reaching this line means that the correct event (code + mac address) has been retrieved from the board through MQTT
+          // reaching this line means that the correct event (code + mac address) has been retrieved from the IoT board
           
           // call to sendAnswer() is required to get score & offline info
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: ''}, true)
@@ -1892,10 +1935,16 @@ console.log("not camera preview")
             Notification(this.$t('label.TechnicalIssue'), 'error')
           }
           
-          let _this = this
-          this.mqttClient.end(false, {}, () => {
-            _this.mqttClient = null
-          })
+          if (this.step.options.protocol === 'mqtt') {
+            let _this = this
+            this.mqttClient.end(false, {}, () => {
+              _this.mqttClient = null
+            })
+          } else if (this.step.options.protocol === 'bluetooth') {
+            this.bluetoothDisconnect(this.bluetooth.deviceId)
+          } else {
+            throw new Error("Unknown IoT protocol '" + this.step.options.protocol + "'")
+          }
           
           break
         
@@ -1969,6 +2018,9 @@ console.log("not camera preview")
             } else { // locate marker, mode scan
               this.displaySuccessMessage(true, this.$t('label.WellDone'))
             }
+            break
+          case 'wait-for-event':
+            this.displaySuccessMessage(true, this.$t('label.WellDone'))
             break
         }
       }
@@ -3368,7 +3420,136 @@ console.log("not camera preview")
      * Triggers an IoT event
      */
     triggerIotEvent () {
-      this.mqttClient.publish(process.env.MQTT_TOPIC, JSON.stringify({macAddress: this.step.options.boardMacAddress, code: this.step.options.code}))
+      if (this.step.options.protocol === "mqtt") {
+        this.mqttClient.publish(process.env.MQTT_TOPIC, JSON.stringify({macAddress: this.step.options.boardMacAddress, code: this.step.options.code}))
+      } else if (this.step.options.protocol === "bluetooth") {
+        console.log("TRIGGER IOT EVENT USING BLUETOOTH ")
+      } else {
+        throw new Error('IoT protocol not supported: ' + this.step.options.protocol)
+      }
+    },
+    
+    bluetoothEnableSuccess: function() {
+      console.log("Bluetooth is enabled")
+      this.bluetooth.enabled = true
+      this.searchForBluetoothPeripheral()
+    },
+    bluetoothDisconnect: function(deviceId) {
+      console.log("Disconnecting BLE")
+      let _this = this
+      ble.disconnect(deviceId, () => {
+        _this.bluetooth.enabled = false
+        _this.bluetooth.deviceId = null
+      })
+    },
+    bluetoothEnableFailure: function() {
+      console.log("The user did *not* enable Bluetooth")
+      Notification("Bluetooth could not be enabled", "error")
+    },
+    searchForBluetoothPeripheral: function() {
+      console.log("Searching for BT peripherals...")
+      ble.startScan([], this.bluetoothScanResult)
+    },
+    bluetoothScanResult: function(data) {
+      console.log("Device discovered", data)
+      if (data.name === this.iotObject.deviceName) {
+        this.stopBluetoothScan()
+        console.log("Graaly IoT BT device discovered")
+        this.bluetooth.deviceId = data.id;
+        ble.connect(data.id, this.bluetoothDeviceConnected, this.bluetoothDeviceDisonnected)
+      }
+    },
+    bluetoothDeviceConnected: async function(data) {
+      console.log("BT device connected", data);
+      
+      await this.sendMessageToBluetoothServer("cm:" + this.step.options.object)
+      
+      console.log("Start notification listening")
+      ble.startNotification(
+        data.id,
+        this.iotObject.bleServiceId,
+        this.iotObject.bleCharacteristicId,
+        this.onBluetoothNotification,
+        err => console.error(err))
+    },
+    bluetoothDeviceDisonnected: function(err) {
+      console.log("BT device disconnected", err);
+    },
+    onBluetoothNotification: function(buffer) {
+      const data = utils.bytesToString(buffer);
+      console.log("Received BT notification: " + data);
+      this.lastReceivedValue = data;
+      switch (this.step.options.object) {
+        case 'keypad':
+          break
+        case 'joystick':
+          break
+        case 'distance':
+          this.iot.distance = parseInt(data.substring(9), 10)
+          if (this.iot.distance >= this.step.options.range.min && this.iot.distance <= this.step.options.range.max) {
+            this.checkAnswer()
+          }
+          break
+        case 'pot':
+          let potValues = data.match(new RegExp('(\\d+)', 'g'))
+          let correctRanges = true
+          if (potValues.length !== 3) {
+            throw new Error("Invalid length for array 'potValues'")
+          }
+          for (let i = 0; i < 3; i++) {
+            let potValue = parseInt(potValues[i], 10)
+            this.iot['pot' + (i+1)] = potValue / 255
+            if (potValue < this.step.options['range' + (i+1)].min || potValue > this.step.options['range' + (i+1)].max) {
+              correctRanges = false
+            }
+          }
+          if (correctRanges) {
+            this.checkAnswer()
+          }
+          break
+        case 'escapebox':
+          break
+        default:
+          throw new Error("Unknown IoT object code '" + this.step.options.object + "'")
+      }
+    },
+    sendMessageToBluetoothServer: function(stringToSend) {
+      let _this = this
+      return new Promise(function (resolve, reject) {
+        console.log("sendMessageToBluetoothServer: " + stringToSend)
+        ble.writeWithoutResponse(
+          _this.bluetooth.deviceId,
+          _this.iotObject.bleServiceId,
+          _this.iotObject.bleCharacteristicId,
+          utils.stringToBytes(stringToSend),
+          data => {
+            console.log("BLE write success", data)
+            resolve()
+          },
+          err => {
+            console.log("BLE write failure", err)
+            reject(err)
+          }
+        );
+      })
+    },
+    stopBluetoothScan: async function() {
+      await ble.stopScan(
+        () => {
+          console.log("BT Scan stopped");
+        },
+        err => {
+          console.log("Could not stop BT scan", err);
+        }
+      );
+    },
+    getIotObjectFromCode (code) {
+      for (let object of iotObjectsList) {
+        if (object.code === code) {
+          return object
+        }
+      }
+      throw new Error("Unknown object code '" + code + "'")
     }
   }
 }

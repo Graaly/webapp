@@ -620,9 +620,41 @@
         </q-dialog>
       </div>
       
-      <!------------------ STEP : WAIT FOR EVENT ------------------------>
+      <!---------- STEPS IOT : WAIT FOR EVENT / TRIGGER EVENT  ------------>
       
-      <div v-if="options.type.code === 'wait-for-event'">
+      <div v-if="options.type.code === 'wait-for-event' || options.type.code === 'trigger-event'">
+        
+        <q-select emit-value map-options :label="$t('label.Protocol')" v-model="selectedStep.form.options.protocol" :options="config.iot.protocols" />
+        
+        <q-select v-if="options.type.code === 'wait-for-event'" emit-value map-options :label="$t('label.IotObject')" v-model="selectedStep.form.options.object" :options="config.iot.waitForEvent.iotObjectsAsOptions" @input="updateIotStepOptions()" />
+        
+        <q-select v-if="options.type.code === 'trigger-event'" emit-value map-options :label="$t('label.IotObject')" v-model="selectedStep.form.options.object" :options="config.iot.triggerEvent.iotObjectsAsOptions" @input="updateIotStepOptions()" />
+        
+        <!-- distance mode -->
+        <div v-if="selectedStep.form.options.object === 'distance'">
+          <h2>{{ $t('label.SuccessRange') }}</h2>
+          <q-range v-model="selectedStep.form.options.range"
+          :min="0"
+          :max="200"
+          :left-label-value="selectedStep.form.options.range ? selectedStep.form.options.range.min + 'cm' : ''"
+          :right-label-value="selectedStep.form.options.range ? selectedStep.form.options.range.max + 'cm' : ''"
+          label-always />
+        </div>
+        
+        <!-- potentiometers mode -->
+        <div v-if="selectedStep.form.options.object === 'pot'">
+          <h2>{{ $t('label.SuccessRanges') }}</h2>
+          
+          <q-range v-for="index of [1, 2, 3]" v-bind:key="index" class="q-my-md" v-model="selectedStep.form.options['range' + index]"
+            :min="0"
+            :max="255"
+            :left-label-value="selectedStep.form.options['range' + index] ? selectedStep.form.options['range' + index].min : ''"
+            :right-label-value="selectedStep.form.options['range' + index] ? selectedStep.form.options['range' + index].max : ''"
+            label-always />
+        </div>
+        
+        <!--
+          Original code for MQTT only => TODO adapt
         <q-input
           v-model="selectedStep.form.options.code"
           :label="$t('label.EventCode')"
@@ -631,25 +663,13 @@
           v-model="selectedStep.form.options.boardMacAddress"
           :label="$t('label.BoardMacAddress')"
         />
-        <q-input
+        <q-input v-if="options.type.code === 'wait-for-event'"
           v-model="selectedStep.form.options.successMessage"
           :label="$t('label.SuccessMessage')"
         />
+        -->
       </div>
-      
-      <!------------------ STEP : TRIGGER EVENT ------------------------>
-      
-      <div v-if="options.type.code === 'trigger-event'">
-        <q-input
-          v-model="selectedStep.form.options.code"
-          :label="$t('label.EventCode')"
-        />
-        <q-input
-          v-model="selectedStep.form.options.boardMacAddress"
-          :label="$t('label.BoardMacAddress')"
-        />
-      </div>
-      
+            
       <!------------------ CONDITIONS ------------------------>
       
       <q-list bordered v-if="options && options.mode && options.mode === 'advanced'">
@@ -856,6 +876,7 @@ import stepTypes from 'data/stepTypes.json'
 import modelsList from 'data/3DModels.json'
 import objectsList from 'data/2Dobjects.json'
 import markersList from 'data/markers.json'
+import iotObjectsList from 'data/iotObjects.json'
 import layersForMarkers from 'data/layersForMarkers.json'
 
 import StepService from 'services/StepService'
@@ -879,7 +900,7 @@ export default {
   props: ['quest', 'stepId', 'lang', 'options'],
   watch: { 
     // refresh component if stepId change
-    stepId: async function(newVal, oldVal) {
+    stepId: async function (newVal, oldVal) {
       if (newVal !== -1) {
         await this.initData()
       }
@@ -991,6 +1012,18 @@ export default {
         locateMarker: {
           markerModalOpened: false,
           layersForMarkersOptions: []
+        },
+        iot: {
+          triggerEvent: {
+            iotObjectsAsOptions: this.getIotObjectsAsOptions('trigger-event')
+          },
+          waitForEvent: {
+            iotObjectsAsOptions: this.getIotObjectsAsOptions('wait-for-event')
+          },
+          protocols: [
+            { label: 'MQTT', value: 'mqtt' },
+            { label: 'Bluetooth', value: 'bluetooth' }
+          ]
         }
       },
       newHint: "",
@@ -1332,8 +1365,14 @@ export default {
           this.$set(this.selectedStep.form.options, 'mode', 'scan')
         }
       } else if (this.options.type.code === 'wait-for-event') {
-        if (!this.selectedStep.form.options.hasOwnProperty('code')) {
-          this.$set(this.selectedStep.form.options, 'code', '')
+        if (!this.selectedStep.form.options.hasOwnProperty('object')) {
+          this.$set(this.selectedStep.form.options, 'object', 'distance')
+        }
+        if (!this.selectedStep.form.options.hasOwnProperty('protocol')) {
+          this.$set(this.selectedStep.form.options, 'protocol', 'bluetooth')
+        }
+        if (!this.selectedStep.form.options.hasOwnProperty('range')) {
+          this.$set(this.selectedStep.form.options, 'range', { min: 50, max: 150 })
         }
       }
       
@@ -2110,7 +2149,7 @@ export default {
       colorsForCode.forEach((code) => {
         options.push({
           value: code.value,
-          label: this.$t(code.label)
+          label: this.$t('color.' + code.label)
         })
       })
       return options
@@ -2368,6 +2407,57 @@ export default {
      */
     async hideMedia() {
       this.media.isOpened = false
+    },
+    /**
+     * Get iot objects list as options for <q-select>
+     * @param   {String}   stepType    Required. Must be either "wait-for-event" or "trigger-event".
+     */
+    getIotObjectsAsOptions (stepType) {
+      if (!['wait-for-event', 'trigger-event'].includes(stepType)) {
+        throw new Error('Unsupported step type: ' + stepType)
+      }
+      
+      let options = []
+      iotObjectsList.forEach((object) => {
+        if (object.step === stepType) {
+          options.push({
+            value: object.code,
+            label: this.$t('iotObjects.' + object.code)
+          })
+        }
+      })
+      options.sort((a, b) => { return a.label > b.label ? 1 : -1 })
+      return options
+    },
+    /**
+     * Updates step options data structure (required for view part to avoid undefined errors) when selected IoT object changes
+     */
+    updateIotStepOptions () {
+      // clean possible custom properties first
+      delete this.selectedStep.form.options.range
+      
+      switch (this.selectedStep.form.options.object) {
+        case 'keypad':
+          break
+        case 'joystick':
+          break
+        case 'distance':
+          this.$set(this.selectedStep.form.options, 'range', { min: 50, max: 150 })
+          break
+        case 'pot':
+          for (let i = 1; i < 4; i++) {
+            this.$set(this.selectedStep.form.options, 'range' + i, { min: 100, max: 200 })
+          }
+          break
+        case 'escapebox':
+          break
+        case 'lcd':
+          break
+        case 'buzzer':
+          break
+        default:
+          throw new Error("unknown IoT object code '" + this.selectedStep.form.options.object + "'")
+      }
     }
   },
   validations() {
@@ -2434,6 +2524,9 @@ export default {
         break
       case 'touch-object-on-marker':
         fieldsToValidate.options = { model: { required } }
+        break
+      case 'wait-for-event':
+        fieldsToValidate.options = { protocol: { required }, object: { required } }
         break
     }
     
