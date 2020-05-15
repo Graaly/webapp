@@ -402,11 +402,10 @@
       
       <!------------------ TRIGGER IOT EVENT ------------------------>
       
-      <div v-if="step.type == 'trigger-event'">
-        <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
-          <q-btn color="primary" label="Push to trigger" size="xl" @click="triggerIotEvent()" />
-        </div>
+      <div v-if="step.type == 'trigger-event'" style="display: flex; flex-direction: column; height: 100%; margin-bottom: 25vw;">
+          <p class="text" style="flex-grow: 1" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          <q-btn class="full-width" color="primary" :label="$t('label.TriggerTheEvent')" size="xl" @click="triggerIotEvent()" :disable="bluetooth.deviceId === null" />
+          <p v-if="step.options.protocol === 'bluetooth' && bluetooth.deviceId === null">{{ $t('label.SearchingBluetoothDevice') }}</p>
       </div>
       
     </div>
@@ -3423,7 +3422,18 @@ console.log("not camera preview")
       if (this.step.options.protocol === "mqtt") {
         this.mqttClient.publish(process.env.MQTT_TOPIC, JSON.stringify({macAddress: this.step.options.boardMacAddress, code: this.step.options.code}))
       } else if (this.step.options.protocol === "bluetooth") {
-        console.log("TRIGGER IOT EVENT USING BLUETOOTH ")
+        let data
+        switch (this.step.options.object) {
+          case 'lcd':
+            data = this.step.options.message
+            break
+          case 'buzzer':
+            data = this.step.options.duration + ',' + this.step.options.frequency
+            break
+          default:
+            throw new Error("Object '" + this.step.options.object + "' not supported")
+        }
+        this.sendMessageToBluetoothServer(this.step.options.object + ':' + data)
       } else {
         throw new Error('IoT protocol not supported: ' + this.step.options.protocol)
       }
@@ -3464,13 +3474,15 @@ console.log("not camera preview")
       
       await this.sendMessageToBluetoothServer("cm:" + this.step.options.object)
       
-      console.log("Start notification listening")
-      ble.startNotification(
-        data.id,
-        this.iotObject.bleServiceId,
-        this.iotObject.bleCharacteristicId,
-        this.onBluetoothNotification,
-        err => console.error(err))
+      if (this.step.type === 'wait-for-event') {
+        console.log("Start notification listening")
+        ble.startNotification(
+          data.id,
+          this.iotObject.bleServiceId,
+          this.iotObject.bleCharacteristicId,
+          this.onBluetoothNotification,
+          err => console.error(err))
+      }
     },
     bluetoothDeviceDisonnected: function(err) {
       console.log("BT device disconnected", err);
@@ -3516,6 +3528,10 @@ console.log("not camera preview")
     sendMessageToBluetoothServer: function(stringToSend) {
       let _this = this
       return new Promise(function (resolve, reject) {
+        if (!_this.bluetooth.enabled || _this.bluetooth.deviceId === null) {
+          reject(new Error('Bluetooth device not connected'))
+          return
+        }
         console.log("sendMessageToBluetoothServer: " + stringToSend)
         ble.writeWithoutResponse(
           _this.bluetooth.deviceId,

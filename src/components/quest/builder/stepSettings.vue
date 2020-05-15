@@ -634,11 +634,11 @@
         <div v-if="selectedStep.form.options.object === 'distance'">
           <h2>{{ $t('label.SuccessRange') }}</h2>
           <q-range v-model="selectedStep.form.options.range"
-          :min="0"
-          :max="200"
-          :left-label-value="selectedStep.form.options.range ? selectedStep.form.options.range.min + 'cm' : ''"
-          :right-label-value="selectedStep.form.options.range ? selectedStep.form.options.range.max + 'cm' : ''"
-          label-always />
+            :min="0"
+            :max="200"
+            :left-label-value="selectedStep.form.options.range ? selectedStep.form.options.range.min + 'cm' : ''"
+            :right-label-value="selectedStep.form.options.range ? selectedStep.form.options.range.max + 'cm' : ''"
+            label-always />
         </div>
         
         <!-- potentiometers mode -->
@@ -650,6 +650,31 @@
             :max="255"
             :left-label-value="selectedStep.form.options['range' + index] ? selectedStep.form.options['range' + index].min : ''"
             :right-label-value="selectedStep.form.options['range' + index] ? selectedStep.form.options['range' + index].max : ''"
+            label-always />
+        </div>
+        
+        <!-- lcd mode -->
+        <div v-if="selectedStep.form.options.object === 'lcd'">
+          <q-input
+            v-model="selectedStep.form.options.message"
+            :label="$t('label.Message')"
+          />
+        </div>
+        
+        <!-- buzzer mode -->
+        <div v-if="selectedStep.form.options.object === 'buzzer'">
+          <h2>{{ $t('label.Duration') }}</h2>
+          <q-slider v-model="selectedStep.form.options.duration"
+            :min="0"
+            :max="3000"
+            :label-value="selectedStep.form.options.duration ? selectedStep.form.options.duration + 'ms' : ''"
+            label-always />
+            
+          <h2>{{ $t('label.Frequency') }}</h2>
+          <q-slider v-model="selectedStep.form.options.frequency"
+            :min="100"
+            :max="10000"
+            :label-value="selectedStep.form.options.frequency ? selectedStep.form.options.frequency + 'Hz' : ''"
             label-always />
         </div>
         
@@ -1364,15 +1389,17 @@ export default {
         if (!this.selectedStep.form.options.hasOwnProperty('mode')) {
           this.$set(this.selectedStep.form.options, 'mode', 'scan')
         }
-      } else if (this.options.type.code === 'wait-for-event') {
-        if (!this.selectedStep.form.options.hasOwnProperty('object')) {
-          this.$set(this.selectedStep.form.options, 'object', 'distance')
-        }
+      } else if (this.options.type.code === 'wait-for-event' || this.options.type.code === 'trigger-event') {
         if (!this.selectedStep.form.options.hasOwnProperty('protocol')) {
           this.$set(this.selectedStep.form.options, 'protocol', 'bluetooth')
         }
-        if (!this.selectedStep.form.options.hasOwnProperty('range')) {
-          this.$set(this.selectedStep.form.options, 'range', { min: 50, max: 150 })
+        if (!this.selectedStep.form.options.hasOwnProperty('object')) {
+          if (this.options.type.code === 'wait-for-event') {
+            this.$set(this.selectedStep.form.options, 'object', 'distance')
+          } else {
+            this.$set(this.selectedStep.form.options, 'object', 'lcd')
+          }
+          this.updateIotStepOptions()
         }
       }
       
@@ -2435,6 +2462,10 @@ export default {
     updateIotStepOptions () {
       // clean possible custom properties first
       delete this.selectedStep.form.options.range
+      for (let i = 1; i <= 3; i++) {
+        delete this.selectedStep.form.options['range' + i]
+      }
+      delete this.selectedStep.form.options.message
       
       switch (this.selectedStep.form.options.object) {
         case 'keypad':
@@ -2445,15 +2476,18 @@ export default {
           this.$set(this.selectedStep.form.options, 'range', { min: 50, max: 150 })
           break
         case 'pot':
-          for (let i = 1; i < 4; i++) {
+          for (let i = 1; i <= 3; i++) {
             this.$set(this.selectedStep.form.options, 'range' + i, { min: 100, max: 200 })
           }
           break
         case 'escapebox':
           break
         case 'lcd':
+          this.$set(this.selectedStep.form.options, 'message', '')
           break
         case 'buzzer':
+          this.$set(this.selectedStep.form.options, 'duration', 1000)
+          this.$set(this.selectedStep.form.options, 'frequency', 440)
           break
         default:
           throw new Error("unknown IoT object code '" + this.selectedStep.form.options.object + "'")

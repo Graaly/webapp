@@ -879,7 +879,11 @@ module.exports = {
       IotObject: "IoT object",
       Protocol: "Protocol",
       SuccessRange: "Success range",
-      SuccessRanges: "Success ranges"
+      SuccessRanges: "Success ranges",
+      Message: "Message",
+      Frequency: "Frequency",
+      TriggerTheEvent: "Trigger the event",
+      SearchingBluetoothDevice: "Searching Bluetooth device..."
     }
   },
   fr: {
@@ -1750,7 +1754,11 @@ module.exports = {
       IotObject: "Objet connecté",
       Protocol: "Protocole",
       SuccessRange: "Plage de succès",
-      SuccessRanges: "Plages de succès"
+      SuccessRanges: "Plages de succès",
+      Message: "Message",
+      Frequency: "Fréquence",
+      TriggerTheEvent: "Déclencher l'action",
+      SearchingBluetoothDevice: "Recherche de l'appareil Bluetooth..."
     }
   }
 }
