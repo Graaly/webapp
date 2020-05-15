@@ -653,6 +653,31 @@
             label-always />
         </div>
         
+        <!-- keypad mode -->
+        <div v-if="selectedStep.form.options.object === 'keypad'">
+          <q-input
+            v-model="selectedStep.form.options.answer"
+            :label="$t('label.Code')"
+          />
+        </div>
+        
+        <!-- joystick mode -->
+        <div v-if="selectedStep.form.options.object === 'joystick'">
+          <h2>{{ $t('label.SuccessRanges') }}</h2>
+          <q-range v-model="selectedStep.form.options.rangeX"
+            :min="0"
+            :max="255"
+            :left-label-value="selectedStep.form.options.rangeX ? selectedStep.form.options.rangeX.min : ''"
+            :right-label-value="selectedStep.form.options.rangeX ? selectedStep.form.options.rangeX.max : ''"
+            label-always />
+          <q-range v-model="selectedStep.form.options.rangeY"
+            :min="0"
+            :max="255"
+            :left-label-value="selectedStep.form.options.rangeY ? selectedStep.form.options.rangeY.min + '' : ''"
+            :right-label-value="selectedStep.form.options.rangeY ? selectedStep.form.options.rangeY.max + '' : ''"
+            label-always />
+        </div>
+        
         <!-- lcd mode -->
         <div v-if="selectedStep.form.options.object === 'lcd'">
           <q-input
@@ -2461,16 +2486,21 @@ export default {
      */
     updateIotStepOptions () {
       // clean possible custom properties first
-      delete this.selectedStep.form.options.range
+      let propertiesToClean = ['range', 'rangeX', 'rangeY', 'message', 'answer']
       for (let i = 1; i <= 3; i++) {
-        delete this.selectedStep.form.options['range' + i]
+        propertiesToClean.push('range' + i)
       }
-      delete this.selectedStep.form.options.message
+      for (let prop of propertiesToClean) {
+        delete this.selectedStep.form.options[prop]
+      }
       
       switch (this.selectedStep.form.options.object) {
         case 'keypad':
+          this.$set(this.selectedStep.form.options, 'answer', '')
           break
         case 'joystick':
+          this.$set(this.selectedStep.form.options, 'rangeX', { min: 100, max: 200 })
+          this.$set(this.selectedStep.form.options, 'rangeY', { min: 100, max: 200 })
           break
         case 'distance':
           this.$set(this.selectedStep.form.options, 'range', { min: 50, max: 150 })
@@ -2488,6 +2518,8 @@ export default {
         case 'buzzer':
           this.$set(this.selectedStep.form.options, 'duration', 1000)
           this.$set(this.selectedStep.form.options, 'frequency', 440)
+          break
+        case 'chest':
           break
         default:
           throw new Error("unknown IoT object code '" + this.selectedStep.form.options.object + "'")

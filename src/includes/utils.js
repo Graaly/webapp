@@ -799,6 +799,25 @@ var self = {
    */
   bytesToString: function(buffer) {
     return String.fromCharCode.apply(null, new Uint8Array(buffer));
+  },
+  /**
+   * Replace substring at specified position in string
+   * @see https://stackoverflow.com/a/1431113/488666
+   * @return {String}
+   * @param {String} originalString
+   * @param {String} index
+   * @param {String} replacement
+   */
+  replaceStringAt: function (originalString, index, replacement) {
+    return originalString.substr(0, index) + replacement + originalString.substr(index + replacement.length)
+  },
+  /**
+   * Sleeps for specified time. Example: await utils.sleep(2000)
+   * @param {Number} ms   number of milliseconds to sleep
+   * @see https://stackoverflow.com/a/39914235/488666
+   */
+  sleep: function (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
   }
 }
 

@@ -397,12 +397,19 @@
           <div v-if="step.options.object === 'pot' && iot['pot1'] !== null">
             <q-linear-progress v-for="index of [1, 2, 3]" v-bind:key="index" :value="iot['pot' + index]" stripe rounded class="q-pa-md q-my-md" :color="playerResult === true ? 'positive' : 'primary'" />
           </div>
+          
+          <!-- keypad -->
+          <div v-if="step.options.object === 'keypad'">
+            <p>{{ $t('label.KeypadInput') }}</p>
+            <p class="iot-keypad" :class="{ 'right': playerResult === true, 'wrong': playerResult === false, 'shake': playerResult === false }" ref="iot-keypad">{{ iot.keypadAnswer }}</p>
+          </div>
+          
         </div>
       </div>
       
       <!------------------ TRIGGER IOT EVENT ------------------------>
       
-      <div v-if="step.type == 'trigger-event'" style="display: flex; flex-direction: column; height: 100%; margin-bottom: 25vw;">
+      <div v-if="step.type == 'trigger-event'" class="trigger-event">
           <p class="text" style="flex-grow: 1" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
           <q-btn class="full-width" color="primary" :label="$t('label.TriggerTheEvent')" size="xl" @click="triggerIotEvent()" :disable="bluetooth.deviceId === null" />
           <p v-if="step.options.protocol === 'bluetooth' && bluetooth.deviceId === null">{{ $t('label.SearchingBluetoothDevice') }}</p>
@@ -699,7 +706,8 @@ export default {
           distance: null,
           pot1: null,
           pot2: null,
-          pot3: null
+          pot3: null,
+          keypadAnswer: null
         },
         // for story/tutorial
         story: {
@@ -1107,7 +1115,11 @@ console.log("not camera preview")
         
         if (this.step.type === 'wait-for-event' || this.step.type === 'trigger-event') {
           this.iotObject = this.getIotObjectFromCode(this.step.options.object)
-
+          
+          if (this.step.options.object === 'keypad') {
+            this.iot.keypadAnswer = '_'.repeat(this.step.options.answer.length)
+          }
+          
           if (this.step.options.protocol === 'mqtt') {
             let _this = this
             
@@ -3487,14 +3499,53 @@ console.log("not camera preview")
     bluetoothDeviceDisonnected: function(err) {
       console.log("BT device disconnected", err);
     },
-    onBluetoothNotification: function(buffer) {
-      const data = utils.bytesToString(buffer);
-      console.log("Received BT notification: " + data);
-      this.lastReceivedValue = data;
+    onBluetoothNotification: async function(buffer) {
+      const data = utils.bytesToString(buffer)
+      let correctRanges
+      console.log("Received BT notification: " + data)
+      this.lastReceivedValue = data
+      
+      // no reaction if player answer is detected as correct or wrong
+      if (this.playerResult !== null) { return }
+      
       switch (this.step.options.object) {
         case 'keypad':
+          if (data.length < 8) {
+            throw new Error('Invalid data retrieved from IoT device (keypad mode): ' + data)
+          }
+          this.iot.keypadAnswer = utils.replaceStringAt(this.iot.keypadAnswer, this.iot.keypadAnswer.indexOf('_'), data.charAt(7))
+          if (this.iot.keypadAnswer.indexOf('_') === -1) {
+            if (this.iot.keypadAnswer === this.step.options.answer) {
+              this.checkAnswer() // server returns always success
+            } else {
+              // wrong answer behavior: horizontal shake animation
+              this.playerResult = false
+              await utils.sleep(1000) // wait for shake animation
+              this.iot.keypadAnswer = '_'.repeat(this.step.options.answer.length)
+              this.playerResult = null
+            }
+          }
           break
         case 'joystick':
+          let axisValues = data.match(new RegExp('(\\d+)', 'g'))
+          correctRanges = true
+          if (axisValues.length !== 2) {
+            throw new Error("Invalid length for array 'axisValues'")
+          }
+          axisValues = {
+            X: axisValues[1],
+            Y: axisValues[0]
+          }
+          for (let axis of ['X', 'Y']) {
+            let axisValue = parseInt(axisValues[axis], 10)
+            this.iot['range' + axis] = axisValue / 255
+            if (axisValue < this.step.options['range' + axis].min || axisValue > this.step.options['range' + axis].max) {
+              correctRanges = false
+            }
+          }
+          if (correctRanges) {
+            this.checkAnswer()
+          }
           break
         case 'distance':
           this.iot.distance = parseInt(data.substring(9), 10)
@@ -3504,7 +3555,7 @@ console.log("not camera preview")
           break
         case 'pot':
           let potValues = data.match(new RegExp('(\\d+)', 'g'))
-          let correctRanges = true
+          correctRanges = true
           if (potValues.length !== 3) {
             throw new Error("Invalid length for array 'potValues'")
           }
@@ -3799,7 +3850,27 @@ console.log("not camera preview")
     animation-duration: .75s;
     background: #e2043b;
   }
+  
+  /* IoT steps */
+  
+  .trigger-event { display: flex; flex-direction: column; height: 100%; margin-bottom: 25vw; }
+  
+  .iot-keypad { text-align: center; font-family: Courier; font-weight: bold; font-size: 2rem; }
+  
+  .shake {
+    animation: shake 1s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
 
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+  }
+  
   /* right/wrong styles */
   
   .right, .q-btn.right { color: #0a0; background-color: #cfc; box-shadow: 0px 0px 0.3rem 0.3rem #9f9; }

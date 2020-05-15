@@ -883,7 +883,8 @@ module.exports = {
       Message: "Message",
       Frequency: "Frequency",
       TriggerTheEvent: "Trigger the event",
-      SearchingBluetoothDevice: "Searching Bluetooth device..."
+      SearchingBluetoothDevice: "Searching Bluetooth device...",
+      KeypadInput: "Keypad input"
     }
   },
   fr: {
@@ -1758,7 +1759,8 @@ module.exports = {
       Message: "Message",
       Frequency: "Fréquence",
       TriggerTheEvent: "Déclencher l'action",
-      SearchingBluetoothDevice: "Recherche de l'appareil Bluetooth..."
+      SearchingBluetoothDevice: "Recherche de l'appareil Bluetooth...",
+      KeypadInput: "Saisie digicode"
     }
   }
 }
