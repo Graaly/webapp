@@ -418,9 +418,18 @@
       <!------------------ TRIGGER IOT EVENT ------------------------>
       
       <div v-if="step.type == 'trigger-event'" class="trigger-event">
-          <p class="text" style="flex-grow: 1" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+        <p class="text" style="flex-grow: 1" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+        <div v-if="step.options.object !== 'chest'">
           <q-btn class="full-width" color="primary" :label="$t('label.TriggerTheEvent')" size="xl" @click="triggerIotEvent()" :disable="bluetooth.deviceId === null" />
-          <p v-if="step.options.protocol === 'bluetooth' && bluetooth.deviceId === null">{{ $t('label.SearchingBluetoothDevice') }}</p>
+        </div>
+        <div v-if="step.options.object === 'chest'">
+          <p>{{ $t('label.ChestActions') }}</p>
+          <div style="display:flex; ">
+            <q-btn style="flex-grow:1; margin-right: 1rem;" color="primary" :label="$t('label.Open')" size="xl" @click="triggerIotEvent('open')" :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons" />
+            <q-btn style="flex-grow:1" color="primary" :label="$t('label.Close')" size="xl" @click="triggerIotEvent('close')" :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons" />
+          </div>
+        </div>
+        <p v-if="step.options.protocol === 'bluetooth' && bluetooth.deviceId === null">{{ $t('label.SearchingBluetoothDevice') }}</p>
       </div>
       
     </div>
@@ -717,7 +726,8 @@ export default {
           pot3: null,
           keypadAnswer: null,
           axisX: null,
-          axisY: null
+          axisY: null,
+          chest: { disableActionButtons: false }
         },
         // for story/tutorial
         story: {
@@ -3440,23 +3450,33 @@ console.log("not camera preview")
     },
     /**
      * Triggers an IoT event
+     * @param {String} data    optional - data to send to box
      */
-    triggerIotEvent () {
+    async triggerIotEvent (data) {
       if (this.step.options.protocol === "mqtt") {
+        // TODO adapt to have same behavior as bluetooth
         this.mqttClient.publish(process.env.MQTT_TOPIC, JSON.stringify({macAddress: this.step.options.boardMacAddress, code: this.step.options.code}))
       } else if (this.step.options.protocol === "bluetooth") {
-        let data
+        let finalData
         switch (this.step.options.object) {
           case 'lcd':
-            data = this.step.options.message
+            finalData = this.step.options.message
             break
           case 'buzzer':
-            data = this.step.options.duration + ',' + this.step.options.frequency
+            finalData = this.step.options.duration + ',' + this.step.options.frequency
+            break
+          case 'chest':
+            this.iot.chest.disableActionButtons = true
+            finalData = data
             break
           default:
             throw new Error("Object '" + this.step.options.object + "' not supported")
         }
-        this.sendMessageToBluetoothServer(this.step.options.object + ':' + data)
+        this.sendMessageToBluetoothServer(this.step.options.object + ':' + finalData)
+        if (this.step.options.object === 'chest') {
+          await utils.sleep(2000)
+          this.iot.chest.disableActionButtons = false
+        }
       } else {
         throw new Error('IoT protocol not supported: ' + this.step.options.protocol)
       }

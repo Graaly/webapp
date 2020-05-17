@@ -115,7 +115,8 @@ module.exports = {
       pot: "Potentiometers",
       lcd: "LCD display",
       buzzer: "Buzzer",
-      escapebox: "Escape Box"
+      escapebox: "Escape Box",
+      chest: "Chest"
     },
     label: {
       shortLang: "en",
@@ -886,7 +887,9 @@ module.exports = {
       SearchingBluetoothDevice: "Searching Bluetooth device...",
       KeypadInput: "Keypad input",
       Horizontal: "Horizontal",
-      Vertical: "Vertical"
+      Vertical: "Vertical",
+      Open: "Open",
+      ChestActions: "Chest actions"
     }
   },
   fr: {
@@ -992,7 +995,8 @@ module.exports = {
       pot: "Potentiomètres",
       lcd: "Afficheur LCD",
       buzzer: "Buzzer",
-      escapebox: "Escape Box"
+      escapebox: "Escape Box",
+      chest: "Coffre"
     },
     label: {
       shortLang: "fr",
@@ -1764,7 +1768,9 @@ module.exports = {
       SearchingBluetoothDevice: "Recherche de l'appareil Bluetooth...",
       KeypadInput: "Saisie digicode",
       Horizontal: "Horizontal",
-      Vertical: "Vertical"
+      Vertical: "Vertical",
+      Open: "Ouvrir",
+      ChestActions: "Actions sur le coffre"
     }
   }
 }
