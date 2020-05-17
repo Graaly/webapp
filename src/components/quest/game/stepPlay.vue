@@ -404,6 +404,14 @@
             <p class="iot-keypad" :class="{ 'right': playerResult === true, 'wrong': playerResult === false, 'shake': playerResult === false }" ref="iot-keypad">{{ iot.keypadAnswer }}</p>
           </div>
           
+          <!-- joystick -->
+          <div v-if="step.options.object === 'joystick' && iot['axisX'] !== null">
+            <div v-for="index of ['X', 'Y']" v-bind:key="index">
+              <p>{{ index === 'X' ? $t('label.Horizontal') : $t('label.Vertical') }}</p>
+              <q-linear-progress :value="iot['axis' + index]" stripe rounded class="q-pa-md q-my-md" :color="playerResult === true ? 'positive' : 'primary'" />
+            </div>
+          </div>
+          
         </div>
       </div>
       
@@ -707,7 +715,9 @@ export default {
           pot1: null,
           pot2: null,
           pot3: null,
-          keypadAnswer: null
+          keypadAnswer: null,
+          axisX: null,
+          axisY: null
         },
         // for story/tutorial
         story: {
@@ -1121,6 +1131,7 @@ console.log("not camera preview")
           }
           
           if (this.step.options.protocol === 'mqtt') {
+            // TODO: adapt to match specs at https://github.com/Graaly/iot/blob/master/README.md
             let _this = this
             
             this.mqttClient = mqtt.connect(process.env.MQTT_URL)
@@ -3538,7 +3549,7 @@ console.log("not camera preview")
           }
           for (let axis of ['X', 'Y']) {
             let axisValue = parseInt(axisValues[axis], 10)
-            this.iot['range' + axis] = axisValue / 255
+            this.iot['axis' + axis] = axisValue / 255
             if (axisValue < this.step.options['range' + axis].min || axisValue > this.step.options['range' + axis].max) {
               correctRanges = false
             }

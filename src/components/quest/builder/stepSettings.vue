@@ -663,13 +663,15 @@
         
         <!-- joystick mode -->
         <div v-if="selectedStep.form.options.object === 'joystick'">
-          <h2>{{ $t('label.SuccessRanges') }}</h2>
+          <h2 style="line-height: 1.5rem">{{ $t('label.SuccessRanges') }}</h2>
+          <p style="font-size: 0.8rem">{{ $t('label.Horizontal') }}</p>
           <q-range v-model="selectedStep.form.options.rangeX"
             :min="0"
             :max="255"
             :left-label-value="selectedStep.form.options.rangeX ? selectedStep.form.options.rangeX.min : ''"
             :right-label-value="selectedStep.form.options.rangeX ? selectedStep.form.options.rangeX.max : ''"
             label-always />
+          <p style="font-size: 0.8rem">{{ $t('label.Vertical') }}</p>
           <q-range v-model="selectedStep.form.options.rangeY"
             :min="0"
             :max="255"
