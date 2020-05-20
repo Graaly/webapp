@@ -1956,6 +1956,9 @@ console.log("not camera preview")
         case 'wait-for-event':
           // reaching this line means that the correct event (code + mac address) has been retrieved from the IoT board
           
+          // otherwise, this.onBluetoothNotification() can still be called a lot of times while the call to this.sendAnswer() below is waiting for a reply from web API
+          await this.stopBluetoothNotification()
+          
           // call to sendAnswer() is required to get score & offline info
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: ''}, true)
           
@@ -3640,6 +3643,17 @@ console.log("not camera preview")
           console.log("Could not stop BT scan", err);
         }
       );
+    },
+    stopBluetoothNotification: function() {
+      let _this = this
+      return new Promise((resolve, reject) => {
+        ble.stopNotification(
+          _this.bluetooth.deviceId,
+          _this.iotObject.bleServiceId,
+          _this.iotObject.bleCharacteristicId,
+          () => { resolve() },
+          (err) => { reject(new Error("Could not stop bluetooth notifications. error: " + err)) })
+      })
     },
     getIotObjectFromCode (code) {
       for (let object of iotObjectsList) {
