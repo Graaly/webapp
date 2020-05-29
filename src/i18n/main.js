@@ -889,7 +889,10 @@ module.exports = {
       Horizontal: "Horizontal",
       Vertical: "Vertical",
       Open: "Open",
-      ChestActions: "Chest actions"
+      ChestActions: "Chest actions",
+      TriggerMode: "Triggering mode",
+      TriggerModeAuto: "Auto (at step loading)",
+      TriggerModeManual: "Manual (player must touch a button)"
     }
   },
   fr: {
@@ -1770,7 +1773,10 @@ module.exports = {
       Horizontal: "Horizontal",
       Vertical: "Vertical",
       Open: "Ouvrir",
-      ChestActions: "Actions sur le coffre"
+      ChestActions: "Actions sur le coffre",
+      TriggerMode: "Mode de déclenchement",
+      TriggerModeAuto: "Auto (au chargement de l'étape)",
+      TriggerModeManual: "Manuel (le joueur doit toucher un bouton)"
     }
   }
 }

@@ -631,6 +631,8 @@
         
         <q-select v-if="options.type.code === 'trigger-event'" emit-value map-options :label="$t('label.IotObject')" v-model="selectedStep.form.options.object" :options="config.iot.triggerEvent.iotObjectsAsOptions" @input="updateIotStepOptions()" />
         
+        <q-select v-if="options.type.code === 'trigger-event'" emit-value map-options v-model="selectedStep.form.options.triggerMode" :label="$t('label.TriggerMode')" :options="config.iot.triggerEvent.modes" />
+        
         <!-- distance mode -->
         <div v-if="selectedStep.form.options.object === 'distance'">
           <h2>{{ $t('label.SuccessRange') }}</h2>
@@ -1071,7 +1073,11 @@ export default {
         },
         iot: {
           triggerEvent: {
-            iotObjectsAsOptions: this.getIotObjectsAsOptions('trigger-event')
+            iotObjectsAsOptions: this.getIotObjectsAsOptions('trigger-event'),
+            modes: [
+              { label: this.$t('label.TriggerModeAuto'), value: 'auto' },
+              { label: this.$t('label.TriggerModeManual'), value: 'manual' }
+            ]
           },
           waitForEvent: {
             iotObjectsAsOptions: this.getIotObjectsAsOptions('wait-for-event')
@@ -1199,7 +1205,7 @@ export default {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
         //get chapter Id
-        this.options.chapterId = response.data.chapterId ? response.data.chapterId : 0
+        this.options.chapterId = (response.data && response.data.chapterId) ? response.data.chapterId : 0
         
         // get conditions
         this.getUnderstandableConditions()
@@ -1431,6 +1437,9 @@ export default {
             this.$set(this.selectedStep.form.options, 'object', 'lcd')
           }
           this.updateIotStepOptions()
+        }
+        if (this.options.type.code === 'trigger-event' && !this.selectedStep.form.options.hasOwnProperty('triggerMode')) {
+          this.$set(this.selectedStep.form.options, 'triggerMode', 'auto')
         }
       }
       

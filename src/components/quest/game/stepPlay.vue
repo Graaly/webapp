@@ -420,7 +420,7 @@
       <div v-if="step.type == 'trigger-event'" class="trigger-event">
         <p class="text" style="flex-grow: 1" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         <div v-if="step.options.object !== 'chest'">
-          <q-btn class="full-width" color="primary" :label="$t('label.TriggerTheEvent')" size="xl" @click="triggerIotEvent()" :disable="bluetooth.deviceId === null" />
+          <q-btn v-if="step.options.triggerMode && step.options.triggerMode === 'manual'" class="full-width" color="primary" :label="$t('label.TriggerTheEvent')" size="xl" @click="triggerIotEvent()" :disable="bluetooth.deviceId === null" />
         </div>
         <div v-if="step.options.object === 'chest'">
           <p>{{ $t('label.ChestActions') }}</p>
@@ -3528,6 +3528,10 @@ console.log("not camera preview")
           this.iotObject.bleCharacteristicId,
           this.onBluetoothNotification,
           err => console.error(err))
+      }
+      
+      if (this.step.type === 'trigger-event' && (!this.step.options.triggerMode || this.step.options.triggerMode === 'auto')) {
+        this.triggerIotEvent(this.step.options.object === 'chest' ? 'open' : '')
       }
     },
     bluetoothDeviceDisonnected: function(err) {
