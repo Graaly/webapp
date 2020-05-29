@@ -683,6 +683,18 @@
             label-always />
         </div>
         
+        <!-- button mode -->
+        <div v-if="selectedStep.form.options.object === 'button'">
+          <q-input
+            type="textarea"
+            v-model="selectedStep.form.options.message"
+            :label="$t('label.Message')"
+            counter
+            bottom-slots
+            :maxlength="300"
+          />
+        </div>
+        
         <!-- lcd mode -->
         <div v-if="selectedStep.form.options.object === 'lcd'">
           <q-input

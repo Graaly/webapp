@@ -412,6 +412,10 @@
             </div>
           </div>
           
+          <!-- button -->
+          <div v-if="step.options.object === 'button' && playerResult === true">
+            <p class="right q-pb-md q-px-md q-my-md">{{ this.step.options.message }}</p>
+          </div>
         </div>
       </div>
       
@@ -3605,6 +3609,15 @@ console.log("not camera preview")
             }
           }
           if (correctRanges) {
+            this.checkAnswer()
+          }
+          break
+        case 'button':
+          if (data.length < 8) {
+            throw new Error('Invalid data retrieved from IoT device (button mode): ' + data)
+          }
+          let buttonAction = data.substring(7)
+          if (buttonAction === 'pressed') {
             this.checkAnswer()
           }
           break

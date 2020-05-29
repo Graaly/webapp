@@ -116,7 +116,8 @@ module.exports = {
       lcd: "LCD display",
       buzzer: "Buzzer",
       escapebox: "Escape Box",
-      chest: "Chest"
+      chest: "Chest",
+      button: "Button"
     },
     label: {
       shortLang: "en",
@@ -999,7 +1000,8 @@ module.exports = {
       lcd: "Afficheur LCD",
       buzzer: "Buzzer",
       escapebox: "Escape Box",
-      chest: "Coffre"
+      chest: "Coffre",
+      button: "Bouton"
     },
     label: {
       shortLang: "fr",
