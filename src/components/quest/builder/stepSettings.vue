@@ -167,12 +167,12 @@
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
               <div>
                 <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+                <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" @input="$v.selectedStep.form.options.lat.$touch" @blur="$v.selectedStep.form.options.lat.$touch" />
                 <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
               </div>
               <div>
                 <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+                <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" @input="$v.selectedStep.form.options.lng.$touch" @blur="$v.selectedStep.form.options.lng.$touch" />
                 <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
               </div>
             </div>
@@ -186,12 +186,12 @@
                 <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
                 <div>
                   <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                  <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+                  <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" @input="$v.selectedStep.form.options.lat.$touch" @blur="$v.selectedStep.form.options.lat.$touch" />
                   <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
                 </div>
                 <div>
                   <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                  <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+                  <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" @input="$v.selectedStep.form.options.lng.$touch" @blur="$v.selectedStep.form.options.lng.$touch" />
                   <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
                 </div>
               </div>
@@ -493,6 +493,7 @@
               <div v-if="!isIOs">
                 <q-btn class="full-width" type="button" @click="$refs['object-to-find'].click()" :label="$t('label.UploadTheObjectToFind')" />
                 <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".glb" hidden />
+                <!-- fix if upload button does not react to click/push: use accept="model/gltf-binary" instead of accept=".glb" -->
               </div>
               <div v-if="isIOs">
                 {{ $t('label.UploadTheObjectToFind') }}:
@@ -524,12 +525,12 @@
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
               <div>
                 <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+                <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" step="any" @input="$v.selectedStep.form.options.lat.$touch" @blur="$v.selectedStep.form.options.lat.$touch" />
                 <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
               </div>
               <div>
                 <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+                <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" step="any" @input="$v.selectedStep.form.options.lng.$touch" @blur="$v.selectedStep.form.options.lng.$touch" />
                 <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
               </div>
             </div>
@@ -685,6 +686,9 @@
           <q-input
             v-model="selectedStep.form.options.message"
             :label="$t('label.Message')"
+            counter
+            bottom-slots
+            :maxlength="16"
           />
         </div>
         
@@ -2366,12 +2370,12 @@ export default {
      * Get the GPS location based on user location
      * @param   {Object}    pos            Position data
      */
-    async getMyGPSLocation() {
+    getMyGPSLocation() {
       this.$q.loading.show()
       var _this = this
       navigator.geolocation.getCurrentPosition(function (position) {
-        _this.selectedStep.form.options.lat = position.coords.latitude
-        _this.selectedStep.form.options.lng = position.coords.longitude
+        _this.$set(_this.selectedStep.form.options, 'lat', position.coords.latitude)
+        _this.$set(_this.selectedStep.form.options, 'lng', position.coords.longitude)
         _this.$v.selectedStep.form.options.lat.$touch()
         _this.$v.selectedStep.form.options.lng.$touch()
         _this.$q.loading.hide()
