@@ -35,6 +35,13 @@
     "bleCharacteristicId": "beb5483e-36e1-4688-b7f5-ea07361b26a8"
   },
   {
+    "code": "button",
+    "step": "wait-for-event",
+    "deviceName": "Graaly RPi",
+    "bleServiceId": "4fafc201-1fb5-459e-8fcc-c5c9c331914b",
+    "bleCharacteristicId": "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+  },
+  {
     "code": "lcd",
     "step": "trigger-event",
     "deviceName": "Graaly RPi",
@@ -43,6 +50,13 @@
   },
   {
     "code": "buzzer",
+    "step": "trigger-event",
+    "deviceName": "Graaly RPi",
+    "bleServiceId": "4fafc201-1fb5-459e-8fcc-c5c9c331914b",
+    "bleCharacteristicId": "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+  },
+  {
+    "code": "chest",
     "step": "trigger-event",
     "deviceName": "Graaly RPi",
     "bleServiceId": "4fafc201-1fb5-459e-8fcc-c5c9c331914b",

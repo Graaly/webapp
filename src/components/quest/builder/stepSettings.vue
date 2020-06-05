@@ -168,12 +168,12 @@
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
               <div>
                 <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+                <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" @input="$v.selectedStep.form.options.lat.$touch" @blur="$v.selectedStep.form.options.lat.$touch" />
                 <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
               </div>
               <div>
                 <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+                <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" @input="$v.selectedStep.form.options.lng.$touch" @blur="$v.selectedStep.form.options.lng.$touch" />
                 <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
               </div>
             </div>
@@ -187,12 +187,12 @@
                 <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
                 <div>
                   <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                  <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+                  <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" @input="$v.selectedStep.form.options.lat.$touch" @blur="$v.selectedStep.form.options.lat.$touch" />
                   <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
                 </div>
                 <div>
                   <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                  <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+                  <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" @input="$v.selectedStep.form.options.lng.$touch" @blur="$v.selectedStep.form.options.lng.$touch" />
                   <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
                 </div>
               </div>
@@ -523,6 +523,7 @@
               <div v-if="!isIOs">
                 <q-btn class="full-width" type="button" @click="$refs['object-to-find'].click()" :label="$t('label.UploadTheObjectToFind')" />
                 <input @change="uploadItemObject" ref="object-to-find" type="file" accept=".glb" hidden />
+                <!-- fix if upload button does not react to click/push: use accept="model/gltf-binary" instead of accept=".glb" -->
               </div>
               <div v-if="isIOs">
                 {{ $t('label.UploadTheObjectToFind') }}:
@@ -554,12 +555,12 @@
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
               <div>
                 <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+                <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" step="any" @input="$v.selectedStep.form.options.lat.$touch" @blur="$v.selectedStep.form.options.lat.$touch" />
                 <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
               </div>
               <div>
                 <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+                <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" step="any" @input="$v.selectedStep.form.options.lng.$touch" @blur="$v.selectedStep.form.options.lng.$touch" />
                 <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
               </div>
             </div>
@@ -660,15 +661,17 @@
         
         <q-select v-if="options.type.code === 'trigger-event'" emit-value map-options :label="$t('label.IotObject')" v-model="selectedStep.form.options.object" :options="config.iot.triggerEvent.iotObjectsAsOptions" @input="updateIotStepOptions()" />
         
+        <q-select v-if="options.type.code === 'trigger-event'" emit-value map-options v-model="selectedStep.form.options.triggerMode" :label="$t('label.TriggerMode')" :options="config.iot.triggerEvent.modes" />
+        
         <!-- distance mode -->
         <div v-if="selectedStep.form.options.object === 'distance'">
           <h2>{{ $t('label.SuccessRange') }}</h2>
           <q-range v-model="selectedStep.form.options.range"
-          :min="0"
-          :max="200"
-          :left-label-value="selectedStep.form.options.range ? selectedStep.form.options.range.min + 'cm' : ''"
-          :right-label-value="selectedStep.form.options.range ? selectedStep.form.options.range.max + 'cm' : ''"
-          label-always />
+            :min="0"
+            :max="200"
+            :left-label-value="selectedStep.form.options.range ? selectedStep.form.options.range.min + 'cm' : ''"
+            :right-label-value="selectedStep.form.options.range ? selectedStep.form.options.range.max + 'cm' : ''"
+            label-always />
         </div>
         
         <!-- potentiometers mode -->
@@ -680,6 +683,73 @@
             :max="255"
             :left-label-value="selectedStep.form.options['range' + index] ? selectedStep.form.options['range' + index].min : ''"
             :right-label-value="selectedStep.form.options['range' + index] ? selectedStep.form.options['range' + index].max : ''"
+            label-always />
+        </div>
+        
+        <!-- keypad mode -->
+        <div v-if="selectedStep.form.options.object === 'keypad'">
+          <q-input
+            v-model="selectedStep.form.options.answer"
+            :label="$t('label.Code')"
+          />
+        </div>
+        
+        <!-- joystick mode -->
+        <div v-if="selectedStep.form.options.object === 'joystick'">
+          <h2 style="line-height: 1.5rem">{{ $t('label.SuccessRanges') }}</h2>
+          <p style="font-size: 0.8rem">{{ $t('label.Horizontal') }}</p>
+          <q-range v-model="selectedStep.form.options.rangeX"
+            :min="0"
+            :max="255"
+            :left-label-value="selectedStep.form.options.rangeX ? selectedStep.form.options.rangeX.min : ''"
+            :right-label-value="selectedStep.form.options.rangeX ? selectedStep.form.options.rangeX.max : ''"
+            label-always />
+          <p style="font-size: 0.8rem">{{ $t('label.Vertical') }}</p>
+          <q-range v-model="selectedStep.form.options.rangeY"
+            :min="0"
+            :max="255"
+            :left-label-value="selectedStep.form.options.rangeY ? selectedStep.form.options.rangeY.min + '' : ''"
+            :right-label-value="selectedStep.form.options.rangeY ? selectedStep.form.options.rangeY.max + '' : ''"
+            label-always />
+        </div>
+        
+        <!-- button mode -->
+        <div v-if="selectedStep.form.options.object === 'button'">
+          <q-input
+            type="textarea"
+            v-model="selectedStep.form.options.message"
+            :label="$t('label.Message')"
+            counter
+            bottom-slots
+            :maxlength="300"
+          />
+        </div>
+        
+        <!-- lcd mode -->
+        <div v-if="selectedStep.form.options.object === 'lcd'">
+          <q-input
+            v-model="selectedStep.form.options.message"
+            :label="$t('label.Message')"
+            counter
+            bottom-slots
+            :maxlength="16"
+          />
+        </div>
+        
+        <!-- buzzer mode -->
+        <div v-if="selectedStep.form.options.object === 'buzzer'">
+          <h2>{{ $t('label.Duration') }}</h2>
+          <q-slider v-model="selectedStep.form.options.duration"
+            :min="0"
+            :max="3000"
+            :label-value="selectedStep.form.options.duration ? selectedStep.form.options.duration + 'ms' : ''"
+            label-always />
+            
+          <h2>{{ $t('label.Frequency') }}</h2>
+          <q-slider v-model="selectedStep.form.options.frequency"
+            :min="100"
+            :max="10000"
+            :label-value="selectedStep.form.options.frequency ? selectedStep.form.options.frequency + 'Hz' : ''"
             label-always />
         </div>
         
@@ -1084,7 +1154,11 @@ export default {
         },
         iot: {
           triggerEvent: {
-            iotObjectsAsOptions: this.getIotObjectsAsOptions('trigger-event')
+            iotObjectsAsOptions: this.getIotObjectsAsOptions('trigger-event'),
+            modes: [
+              { label: this.$t('label.TriggerModeAuto'), value: 'auto' },
+              { label: this.$t('label.TriggerModeManual'), value: 'manual' }
+            ]
           },
           waitForEvent: {
             iotObjectsAsOptions: this.getIotObjectsAsOptions('wait-for-event')
@@ -1213,7 +1287,7 @@ export default {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
         //get chapter Id
-        this.options.chapterId = response.data.chapterId ? response.data.chapterId : 0
+        this.options.chapterId = (response.data && response.data.chapterId) ? response.data.chapterId : 0
         
         // get conditions
         this.getUnderstandableConditions()
@@ -1451,15 +1525,20 @@ export default {
         if (!this.selectedStep.form.options.hasOwnProperty('mode')) {
           this.$set(this.selectedStep.form.options, 'mode', 'scan')
         }
-      } else if (this.options.type.code === 'wait-for-event') {
-        if (!this.selectedStep.form.options.hasOwnProperty('object')) {
-          this.$set(this.selectedStep.form.options, 'object', 'distance')
-        }
+      } else if (this.options.type.code === 'wait-for-event' || this.options.type.code === 'trigger-event') {
         if (!this.selectedStep.form.options.hasOwnProperty('protocol')) {
           this.$set(this.selectedStep.form.options, 'protocol', 'bluetooth')
         }
-        if (!this.selectedStep.form.options.hasOwnProperty('range')) {
-          this.$set(this.selectedStep.form.options, 'range', { min: 50, max: 150 })
+        if (!this.selectedStep.form.options.hasOwnProperty('object')) {
+          if (this.options.type.code === 'wait-for-event') {
+            this.$set(this.selectedStep.form.options, 'object', 'distance')
+          } else {
+            this.$set(this.selectedStep.form.options, 'object', 'lcd')
+          }
+          this.updateIotStepOptions()
+        }
+        if (this.options.type.code === 'trigger-event' && !this.selectedStep.form.options.hasOwnProperty('triggerMode')) {
+          this.$set(this.selectedStep.form.options, 'triggerMode', 'auto')
         }
       }
       
@@ -2439,12 +2518,12 @@ export default {
      * Get the GPS location based on user location
      * @param   {Object}    pos            Position data
      */
-    async getMyGPSLocation() {
+    getMyGPSLocation() {
       this.$q.loading.show()
       var _this = this
       navigator.geolocation.getCurrentPosition(function (position) {
-        _this.selectedStep.form.options.lat = position.coords.latitude
-        _this.selectedStep.form.options.lng = position.coords.longitude
+        _this.$set(_this.selectedStep.form.options, 'lat', position.coords.latitude)
+        _this.$set(_this.selectedStep.form.options, 'lng', position.coords.longitude)
         _this.$v.selectedStep.form.options.lat.$touch()
         _this.$v.selectedStep.form.options.lng.$touch()
         _this.$q.loading.hide()
@@ -2565,26 +2644,40 @@ export default {
      */
     updateIotStepOptions () {
       // clean possible custom properties first
-      delete this.selectedStep.form.options.range
+      let propertiesToClean = ['range', 'rangeX', 'rangeY', 'message', 'answer']
+      for (let i = 1; i <= 3; i++) {
+        propertiesToClean.push('range' + i)
+      }
+      for (let prop of propertiesToClean) {
+        delete this.selectedStep.form.options[prop]
+      }
       
       switch (this.selectedStep.form.options.object) {
         case 'keypad':
+          this.$set(this.selectedStep.form.options, 'answer', '')
           break
         case 'joystick':
+          this.$set(this.selectedStep.form.options, 'rangeX', { min: 100, max: 200 })
+          this.$set(this.selectedStep.form.options, 'rangeY', { min: 100, max: 200 })
           break
         case 'distance':
           this.$set(this.selectedStep.form.options, 'range', { min: 50, max: 150 })
           break
         case 'pot':
-          for (let i = 1; i < 4; i++) {
+          for (let i = 1; i <= 3; i++) {
             this.$set(this.selectedStep.form.options, 'range' + i, { min: 100, max: 200 })
           }
           break
         case 'escapebox':
           break
         case 'lcd':
+          this.$set(this.selectedStep.form.options, 'message', '')
           break
         case 'buzzer':
+          this.$set(this.selectedStep.form.options, 'duration', 1000)
+          this.$set(this.selectedStep.form.options, 'frequency', 440)
+          break
+        case 'chest':
           break
         default:
           throw new Error("unknown IoT object code '" + this.selectedStep.form.options.object + "'")

@@ -116,7 +116,9 @@ module.exports = {
       pot: "Potentiometers",
       lcd: "LCD display",
       buzzer: "Buzzer",
-      escapebox: "Escape Box"
+      escapebox: "Escape Box",
+      chest: "Chest",
+      button: "Button"
     },
     label: {
       shortLang: "en",
@@ -924,7 +926,19 @@ module.exports = {
       ScanTheUniqueQRCode: "Scan the single use QR code",
       BuyInOneClick: "Buy in one clic",
       TechnicalIssueOrCodeAlreadyUsed: "Code already used or technical issue",
-      ChangeTheBackgroundImageOnceClicked: "Change background picture when player has clicked"
+      ChangeTheBackgroundImageOnceClicked: "Change background picture when player has clicked",
+      Message: "Message",
+      Frequency: "Frequency",
+      TriggerTheEvent: "Trigger the event",
+      SearchingBluetoothDevice: "Searching Bluetooth device...",
+      KeypadInput: "Keypad input",
+      Horizontal: "Horizontal",
+      Vertical: "Vertical",
+      Open: "Open",
+      ChestActions: "Chest actions",
+      TriggerMode: "Triggering mode",
+      TriggerModeAuto: "Auto (at step loading)",
+      TriggerModeManual: "Manual (player must touch a button)"
     }
   },
   fr: {
@@ -1031,7 +1045,9 @@ module.exports = {
       pot: "Potentiomètres",
       lcd: "Afficheur LCD",
       buzzer: "Buzzer",
-      escapebox: "Escape Box"
+      escapebox: "Escape Box",
+      chest: "Coffre",
+      button: "Bouton"
     },
     label: {
       shortLang: "fr",
@@ -1840,7 +1856,19 @@ module.exports = {
       ScanTheUniqueQRCode: "Scanner le QR code à usage unique",
       BuyInOneClick: "Achetez en un clic",
       TechnicalIssueOrCodeAlreadyUsed: "Code déjà utilisé ou problème technique",
-      ChangeTheBackgroundImageOnceClicked: "Changez l'image de fond quand le joueur a cliqué"
+      ChangeTheBackgroundImageOnceClicked: "Changez l'image de fond quand le joueur a cliqué",
+      Message: "Message",
+      Frequency: "Fréquence",
+      TriggerTheEvent: "Déclencher l'action",
+      SearchingBluetoothDevice: "Recherche de l'appareil Bluetooth...",
+      KeypadInput: "Saisie digicode",
+      Horizontal: "Horizontal",
+      Vertical: "Vertical",
+      Open: "Ouvrir",
+      ChestActions: "Actions sur le coffre",
+      TriggerMode: "Mode de déclenchement",
+      TriggerModeAuto: "Auto (au chargement de l'étape)",
+      TriggerModeManual: "Manuel (le joueur doit toucher un bouton)"
     }
   }
 }

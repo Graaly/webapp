@@ -398,16 +398,43 @@
           <div v-if="step.options.object === 'pot' && iot['pot1'] !== null">
             <q-linear-progress v-for="index of [1, 2, 3]" v-bind:key="index" :value="iot['pot' + index]" stripe rounded class="q-pa-md q-my-md" :color="playerResult === true ? 'positive' : 'primary'" />
           </div>
+          
+          <!-- keypad -->
+          <div v-if="step.options.object === 'keypad'">
+            <p>{{ $t('label.KeypadInput') }}</p>
+            <p class="iot-keypad" :class="{ 'right': playerResult === true, 'wrong': playerResult === false, 'shake': playerResult === false }" ref="iot-keypad">{{ iot.keypadAnswer }}</p>
+          </div>
+          
+          <!-- joystick -->
+          <div v-if="step.options.object === 'joystick' && iot['axisX'] !== null">
+            <div v-for="index of ['X', 'Y']" v-bind:key="index">
+              <p>{{ index === 'X' ? $t('label.Horizontal') : $t('label.Vertical') }}</p>
+              <q-linear-progress :value="iot['axis' + index]" stripe rounded class="q-pa-md q-my-md" :color="playerResult === true ? 'positive' : 'primary'" />
+            </div>
+          </div>
+          
+          <!-- button -->
+          <div v-if="step.options.object === 'button' && playerResult === true">
+            <p class="right q-pb-md q-px-md q-my-md">{{ this.step.options.message }}</p>
+          </div>
         </div>
       </div>
       
       <!------------------ TRIGGER IOT EVENT ------------------------>
       
-      <div v-if="step.type == 'trigger-event'">
-        <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
-          <q-btn color="primary" label="Push to trigger" size="xl" @click="triggerIotEvent()" />
+      <div v-if="step.type == 'trigger-event'" class="trigger-event">
+        <p class="text" style="flex-grow: 1" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+        <div v-if="step.options.object !== 'chest'">
+          <q-btn v-if="step.options.triggerMode && step.options.triggerMode === 'manual'" class="full-width" color="primary" :label="$t('label.TriggerTheEvent')" size="xl" @click="triggerIotEvent()" :disable="bluetooth.deviceId === null" />
         </div>
+        <div v-if="step.options.object === 'chest'">
+          <p>{{ $t('label.ChestActions') }}</p>
+          <div style="display:flex; ">
+            <q-btn style="flex-grow:1; margin-right: 1rem;" color="primary" :label="$t('label.Open')" size="xl" @click="triggerIotEvent('open')" :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons" />
+            <q-btn style="flex-grow:1" color="primary" :label="$t('label.Close')" size="xl" @click="triggerIotEvent('close')" :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons" />
+          </div>
+        </div>
+        <p v-if="step.options.protocol === 'bluetooth' && bluetooth.deviceId === null">{{ $t('label.SearchingBluetoothDevice') }}</p>
       </div>
       
       <!------------------ WAITING SCREEN (if waiting for another player actions) ------------------------>
@@ -726,7 +753,11 @@ export default {
           distance: null,
           pot1: null,
           pot2: null,
-          pot3: null
+          pot3: null,
+          keypadAnswer: null,
+          axisX: null,
+          axisY: null,
+          chest: { disableActionButtons: false }
         },
         // for story/tutorial
         story: {
@@ -1144,8 +1175,13 @@ export default {
         
         if (this.step.type === 'wait-for-event' || this.step.type === 'trigger-event') {
           this.iotObject = this.getIotObjectFromCode(this.step.options.object)
-
+          
+          if (this.step.options.object === 'keypad') {
+            this.iot.keypadAnswer = '_'.repeat(this.step.options.answer.length)
+          }
+          
           if (this.step.options.protocol === 'mqtt') {
+            // TODO: adapt to match specs at https://github.com/Graaly/iot/blob/master/README.md
             let _this = this
             
             this.mqttClient = mqtt.connect(process.env.MQTT_URL)
@@ -1961,6 +1997,9 @@ export default {
         
         case 'wait-for-event':
           // reaching this line means that the correct event (code + mac address) has been retrieved from the IoT board
+          
+          // otherwise, this.onBluetoothNotification() can still be called a lot of times while the call to this.sendAnswer() below is waiting for a reply from web API
+          await this.stopBluetoothNotification()
           
           // call to sendAnswer() is required to get score & offline info
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: ''}, true)
@@ -3477,12 +3516,33 @@ export default {
     },
     /**
      * Triggers an IoT event
+     * @param {String} data    optional - data to send to box
      */
-    triggerIotEvent () {
+    async triggerIotEvent (data) {
       if (this.step.options.protocol === "mqtt") {
+        // TODO adapt to have same behavior as bluetooth
         this.mqttClient.publish(process.env.MQTT_TOPIC, JSON.stringify({macAddress: this.step.options.boardMacAddress, code: this.step.options.code}))
       } else if (this.step.options.protocol === "bluetooth") {
-        console.log("TRIGGER IOT EVENT USING BLUETOOTH ")
+        let finalData
+        switch (this.step.options.object) {
+          case 'lcd':
+            finalData = this.step.options.message
+            break
+          case 'buzzer':
+            finalData = this.step.options.duration + ',' + this.step.options.frequency
+            break
+          case 'chest':
+            this.iot.chest.disableActionButtons = true
+            finalData = data
+            break
+          default:
+            throw new Error("Object '" + this.step.options.object + "' not supported")
+        }
+        this.sendMessageToBluetoothServer(this.step.options.object + ':' + finalData)
+        if (this.step.options.object === 'chest') {
+          await utils.sleep(2000)
+          this.iot.chest.disableActionButtons = false
+        }
       } else {
         throw new Error('IoT protocol not supported: ' + this.step.options.protocol)
       }
@@ -3523,25 +3583,70 @@ export default {
       
       await this.sendMessageToBluetoothServer("cm:" + this.step.options.object)
       
-      console.log("Start notification listening")
-      ble.startNotification(
-        data.id,
-        this.iotObject.bleServiceId,
-        this.iotObject.bleCharacteristicId,
-        this.onBluetoothNotification,
-        err => console.error(err))
+      if (this.step.type === 'wait-for-event') {
+        console.log("Start notification listening")
+        ble.startNotification(
+          data.id,
+          this.iotObject.bleServiceId,
+          this.iotObject.bleCharacteristicId,
+          this.onBluetoothNotification,
+          err => console.error(err))
+      }
+      
+      if (this.step.type === 'trigger-event' && (!this.step.options.triggerMode || this.step.options.triggerMode === 'auto')) {
+        this.triggerIotEvent(this.step.options.object === 'chest' ? 'open' : '')
+      }
     },
     bluetoothDeviceDisonnected: function(err) {
       console.log("BT device disconnected", err);
     },
-    onBluetoothNotification: function(buffer) {
-      const data = utils.bytesToString(buffer);
-      console.log("Received BT notification: " + data);
-      this.lastReceivedValue = data;
+    onBluetoothNotification: async function(buffer) {
+      const data = utils.bytesToString(buffer)
+      let correctRanges
+      console.log("Received BT notification: " + data)
+      this.lastReceivedValue = data
+      
+      // no reaction if player answer is detected as correct or wrong
+      if (this.playerResult !== null) { return }
+      
       switch (this.step.options.object) {
         case 'keypad':
+          if (data.length < 8) {
+            throw new Error('Invalid data retrieved from IoT device (keypad mode): ' + data)
+          }
+          this.iot.keypadAnswer = utils.replaceStringAt(this.iot.keypadAnswer, this.iot.keypadAnswer.indexOf('_'), data.charAt(7))
+          if (this.iot.keypadAnswer.indexOf('_') === -1) {
+            if (this.iot.keypadAnswer === this.step.options.answer) {
+              this.checkAnswer() // server returns always success
+            } else {
+              // wrong answer behavior: horizontal shake animation
+              this.playerResult = false
+              await utils.sleep(1000) // wait for shake animation
+              this.iot.keypadAnswer = '_'.repeat(this.step.options.answer.length)
+              this.playerResult = null
+            }
+          }
           break
         case 'joystick':
+          let axisValues = data.match(new RegExp('(\\d+)', 'g'))
+          correctRanges = true
+          if (axisValues.length !== 2) {
+            throw new Error("Invalid length for array 'axisValues'")
+          }
+          axisValues = {
+            X: axisValues[1],
+            Y: axisValues[0]
+          }
+          for (let axis of ['X', 'Y']) {
+            let axisValue = parseInt(axisValues[axis], 10)
+            this.iot['axis' + axis] = axisValue / 255
+            if (axisValue < this.step.options['range' + axis].min || axisValue > this.step.options['range' + axis].max) {
+              correctRanges = false
+            }
+          }
+          if (correctRanges) {
+            this.checkAnswer()
+          }
           break
         case 'distance':
           this.iot.distance = parseInt(data.substring(9), 10)
@@ -3551,7 +3656,7 @@ export default {
           break
         case 'pot':
           let potValues = data.match(new RegExp('(\\d+)', 'g'))
-          let correctRanges = true
+          correctRanges = true
           if (potValues.length !== 3) {
             throw new Error("Invalid length for array 'potValues'")
           }
@@ -3566,6 +3671,15 @@ export default {
             this.checkAnswer()
           }
           break
+        case 'button':
+          if (data.length < 8) {
+            throw new Error('Invalid data retrieved from IoT device (button mode): ' + data)
+          }
+          let buttonAction = data.substring(7)
+          if (buttonAction === 'pressed') {
+            this.checkAnswer()
+          }
+          break
         case 'escapebox':
           break
         default:
@@ -3575,6 +3689,10 @@ export default {
     sendMessageToBluetoothServer: function(stringToSend) {
       let _this = this
       return new Promise(function (resolve, reject) {
+        if (!_this.bluetooth.enabled || _this.bluetooth.deviceId === null) {
+          reject(new Error('Bluetooth device not connected'))
+          return
+        }
         console.log("sendMessageToBluetoothServer: " + stringToSend)
         ble.writeWithoutResponse(
           _this.bluetooth.deviceId,
@@ -3601,6 +3719,17 @@ export default {
           console.log("Could not stop BT scan", err);
         }
       );
+    },
+    stopBluetoothNotification: function() {
+      let _this = this
+      return new Promise((resolve, reject) => {
+        ble.stopNotification(
+          _this.bluetooth.deviceId,
+          _this.iotObject.bleServiceId,
+          _this.iotObject.bleCharacteristicId,
+          () => { resolve() },
+          (err) => { reject(new Error("Could not stop bluetooth notifications. error: " + err)) })
+      })
     },
     getIotObjectFromCode (code) {
       for (let object of iotObjectsList) {
@@ -3842,7 +3971,27 @@ export default {
     animation-duration: .75s;
     background: #e2043b;
   }
+  
+  /* IoT steps */
+  
+  .trigger-event { display: flex; flex-direction: column; height: 100%; margin-bottom: 25vw; }
+  
+  .iot-keypad { text-align: center; font-family: Courier; font-weight: bold; font-size: 2rem; }
+  
+  .shake {
+    animation: shake 1s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
 
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+  }
+  
   /* right/wrong styles */
   
   .right, .q-btn.right { color: #0a0; background-color: #cfc; box-shadow: 0px 0px 0.3rem 0.3rem #9f9; }
