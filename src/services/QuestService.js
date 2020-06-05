@@ -322,8 +322,40 @@ export default {
     return Api().post('quest/' + questId + '/premium/set').catch(error => console.log(error.request))
   },
   /*
+   * Create a tier payment
+   * @param   {String}    questId             questId
+   * @param   {String}    price               price
+   */
+  createTierPayment(questId, price) {
+    return Api().post('quest/' + questId + '/payment/tier/add', {price: price}).catch(error => console.log(error.request))
+  },
+  /*
+   * Create a tier payment
+   * @param   {String}    questId             questId
+   * @param   {String}    codeId              Id of the code to remove
+   */
+  removeTierPayment(questId, code) {
+    return Api().delete('quest/' + questId + '/payment/tier/remove/' + code).catch(error => console.log(error.request))
+  },
+  /*
+   * List the tier payments
+   * @param   {String}    questId              questId
+   */
+  listTierPayments(questId) {
+    return Api().get('quest/' + questId + '/payment/tier/list').catch(error => console.log(error.request))
+  },
+  /*
+   * Use a tier Payment QR code
+   * @param   {String}    questId             questId
+   * @param   {String}    code                user language
+   */
+  useTierPaymentCode(questId, code) {
+    return Api().post('quest/' + questId + '/payment/tier/use', {code: code}).catch(error => console.log(error.request))
+  },
+  /*
    * Purchase to play a premium quest
    * @param   {String}    questId              questId
+   * @param   {String}    product              product buyed
    */
   purchasePremium(questId, product) {
     return Api().post('quest/' + questId + '/premium/buy', product).catch(error => console.log(error.request))

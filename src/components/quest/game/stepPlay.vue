@@ -50,11 +50,12 @@
       <!------------------ CHARACTER STEP AREA ------------------------>
       
       <div class="character" v-if="step.type == 'character'">
-        <div class="fixed-bottom story">
+        <div class="fixed-bottom story" @click="nextCharacterBubbleText()">
           <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
           <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
-            <p class="carrier-return" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
-            <p class="text" v-if="getTranslatedText() != '' && step.options && step.options.html" v-html="getTranslatedText()"></p>
+            <p class="carrier-return" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
+            <p class="text" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
+            <p class="text text-grey" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ClickHere') }}</p>
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
@@ -409,6 +410,25 @@
         </div>
       </div>
       
+      <!------------------ WAITING SCREEN (if waiting for another player actions) ------------------------>
+      
+      <transition name="slideInBottom">
+        <div class="panel-bottom background-dark" v-show="step.id == 'waiting'">
+          <div class="centered q-pa-lg title4 text-primary">
+            <div class="q-pa-lg text-uppercase">{{ $t('label.WaitingForOtherUsersActions') }}</div>
+            <img src="statics/images/animation/map.gif" class="full-width q-mb-lg" />
+          </div>
+          <div>
+            <div class="q-pa-lg centered">
+              {{ $t('label.WaitingForOtherUsersActionsDesc') }}
+            </div>
+            <!--<div class="q-pa-md centered">
+              <q-btn flat icon="refresh"><span>{{ $t('label.CheckIfICanMoveFoward') }}</span></q-btn>
+            </div>-->
+          </div>
+        </div>
+      </transition>
+      
     </div>
     
     <!------------------ COMMON COMPONENTS ------------------>
@@ -502,7 +522,7 @@ export default {
    * itemUsed : item of the inventory used
    * lang : language of the step (fr, en, ...)
    */
-  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization'],
+  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player'],
   components: {
     geolocation,
     story
@@ -590,6 +610,12 @@ export default {
         isIOs: utils.isIOS(),
         isNetworkLow: false,
         
+        // for step 'character'
+        character: {
+          bubbleText: [],
+          numberOfBubble: 1,
+          bubbleNumber: 0
+        },
         // for step 'choose'
         answerType: 'text', // 'text' or 'image'
         
@@ -784,6 +810,18 @@ export default {
         
         if (this.step.type === 'choose') {
           this.answerType = Array.isArray(this.step.options.items) && this.step.options.items[0].hasOwnProperty('imagePath') && this.step.options.items[0].imagePath !== null ? 'image' : 'text'
+        }
+        
+        if (this.step.type === 'character') {
+          if (this.step.text && this.step.text !== "") {
+            this.character.bubbleText = this.step.text.split('|')
+            this.character.numberOfBubble = this.character.bubbleText.length
+            if (this.character.numberOfBubble === 1) {
+              this.checkAnswer()
+            }
+          } else {
+            this.checkAnswer()
+          }
         }
         
         if (this.step.type === 'code-keypad') {
@@ -1020,13 +1058,11 @@ export default {
           // video stream
           //if (this.isIOs && CameraPreview) {
           if (CameraPreview) {
-console.log("camera preview")
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
             CameraPreview.startCamera(options)
             //CameraPreview.setColorEffect("redfilter")
             CameraPreview.show()
           } else {
-console.log("not camera preview")
             var cameraStream2 = this.$refs['camera-stream-for-image-over-flow']
             // enable rear camera stream
             // -------------------------
@@ -1324,7 +1360,7 @@ console.log("not camera preview")
       // if transition step, next button is clickable when controls are displayed
       if (this.step.type === 'info-text' || 
         this.step.type === 'info-video' || 
-        this.step.type === 'character' || 
+        //this.step.type === 'character' || 
         this.step.type === 'image-over-flow' || 
         this.step.type === 'new-item' || 
         this.step.type === 'trigger-event') {
@@ -1471,7 +1507,7 @@ console.log("not camera preview")
       var _this = this
       var lowNetworkTimeout = setTimeout(function () { _this.isNetworkLow = true }, 8000)
 
-      var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData)
+      var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player)
 
       // clear low network alerte if displayed
       clearTimeout(lowNetworkTimeout)
@@ -1543,8 +1579,10 @@ console.log("not camera preview")
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       } else if (type === 'write-text') {
-        if (utils.removeAccents(answer) === utils.removeAccents(this.answer)) {
-          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+        for (var i = 0; i < this.answer.length; i++) {
+          if (utils.removeAccents(answer) === utils.removeAccents(this.answer[i])) {
+            return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+          }
         }
       } else if (type === 'memory') {
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
@@ -2099,6 +2137,17 @@ console.log("not camera preview")
     ////////////////////////////////////////////// MANAGEMENT OF THE ENIGMA COMPONENTS /////////////////////////////////////////////
     
     /*
+     * Display next text 
+     */
+    nextCharacterBubbleText() {
+      if (this.character.bubbleNumber < (this.character.numberOfBubble - 1)) {
+        this.character.bubbleNumber++
+      }
+      if (this.character.bubbleNumber >= (this.character.numberOfBubble - 1)) {
+        this.checkAnswer()
+      }
+    },
+    /*
      * Reset the key pad 
      */
     resetKeypadCode() {
@@ -2474,7 +2523,7 @@ console.log("not camera preview")
         this.updatePlayerCanTouchTarget()
       }
       
-      if (this.step.type === 'geolocation' && this.geolocation.distance <= 20) {
+      if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.distance <= parseInt(options.distance, 10)) || this.geolocation.distance <= 20)) {
         this.$refs['geolocation-component'].disabled = true
         this.geolocation.active = false
         this.resetDrawDirectionInterval()
@@ -2510,6 +2559,11 @@ console.log("not camera preview")
         posX: ev.offsetX,
         posY: ev.offsetY,
         item: this.itemUsed.originalPicture ? this.itemUsed.originalPicture : this.itemUsed.picture
+      }
+      
+      // if alt picture
+      if (this.step.options && this.step.options.altFile) {
+        this.step.backgroundImage = this.step.options.altFile
       }
       
       await this.checkAnswer(data)
@@ -2559,6 +2613,11 @@ console.log("not camera preview")
         windowWidth: vw,
         posX: ev.offsetX,
         posY: ev.offsetY
+      }
+      
+      // if alt picture
+      if (this.step.options && this.step.options.altFile) {
+        this.step.backgroundImage = this.step.options.altFile
       }
       
       await this.checkAnswer(data)
@@ -3626,7 +3685,7 @@ console.log("not camera preview")
   .images-block img { width: 100%; border-radius: 0.5rem; }
   
   /* keypad specific (code) */
-  
+  .code { overflow: auto; }
   .typed-code { text-align: center; margin: 1rem auto; }
   .typed-code table { border-collapse: collapse; background-color: rgba(255, 255, 255, 0.6); }
   .typed-code td { width: 2rem; height: 3rem; border: 1px solid black; vertical-align: middle; text-align: center; line-height: 3rem; }

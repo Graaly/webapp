@@ -32,8 +32,9 @@
       <q-tab :disable="isReadOnly()" name="settings" :icon="getTabIcon(1)" :label="quest.type === 'quest' ? $t('label.Intro') + ' (' + languages.current + ')' : $t('label.YourRoom')" default />
       <q-tab :disable="tabs.progress < 1 || isReadOnly()" name="steps" :icon="getTabIcon(2)" :label="$t('label.Steps') + ' (' + languages.current + ')'" v-if="quest.type === 'quest'" />
       <q-tab :disable="tabs.progress < 2" name="publish" :icon="getTabIcon(3)" :label="$t('label.Publish')" />
-      <q-tab name="reviews" :icon="getTabIcon(4)" :label="$t('label.ReviewsAndStats')" v-if="isEdition && quest.access === 'public'" />
-      <q-tab name="results" :icon="getTabIcon(5)" :label="$t('label.Results')" v-if="quest.status !== 'draft' && quest.access === 'private'" />
+      <q-tab name="payments" :icon="getTabIcon(5)" @click="listPayments" :label="$t('label.Payments')" v-if="quest && quest.premiumPrice && quest.premiumPrice.tier" />
+      <q-tab name="reviews" :icon="getTabIcon(6)" :label="$t('label.ReviewsAndStats')" v-if="isEdition && quest.access === 'public'" />
+      <q-tab name="results" :icon="getTabIcon(7)" :label="$t('label.Results')" v-if="quest.status !== 'draft' && quest.access === 'private'" />
     </q-tabs>
 
     <q-separator />
@@ -233,8 +234,30 @@
           />
         </div>
         
-        <div v-if="this.quest.isPremium && this.quest.type === 'quest'">
+        <div v-if="this.quest.type === 'quest' && form.fields.editorMode === 'advanced'">
           <q-select
+            :readonly="readOnly"
+            :label="$t('label.PlayersNumber')"
+            v-model="form.fields.playersNumber"
+            :options="form.players"
+            emit-value
+            map-options
+            bottom-slots
+            options-cover
+            >
+            <template v-slot:after>
+              <q-btn round dense flat icon="help" @click="showHelpPopup('helpQuestMultiplayer')" />
+            </template>
+          </q-select>
+        </div>
+        <div v-if="this.quest.isPremium && this.quest.type === 'quest'">
+          <q-toggle
+            :readonly="readOnly"
+            :label="$t('label.PaymentOnMobile')"
+            v-model="showPaymentBox"
+            /> <q-icon name="help" @click.native="showHelpPopup('PaymentOnMobileHelp')" />
+          <q-select
+            v-if="showPaymentBox"
             :readonly="readOnly"
             :label="$t('label.PriceForPlayer')"
             v-model="form.fields.priceForPlayer"
@@ -244,16 +267,28 @@
             bottom-slots
             options-cover
             />
+          <q-toggle
+            :readonly="readOnly"
+            :label="$t('label.PaymentOnYourSide')"
+            v-model="showTierPaymentBox"
+            /> <q-icon name="help" @click.native="showHelpPopup('PaymentOnYourSideHelp')" />
+          <q-input
+            v-if="showTierPaymentBox"
+            :disable="readOnly"
+            v-model="form.fields.tierPriceForPlayer"
+            :label="$t('label.PriceFrom')"
+            class="full-width"
+          />
+          <q-toggle
+            :readonly="readOnly"
+            :label="$t('label.RemoveScoringAndRating')"
+            v-model="form.fields.customization.removeScoring"
+            />
           <q-input
               :disable="readOnly"
               v-model="form.fields.limitNumberOfPlayer"
               :label="$t('label.LimitNumberOfPlayerInOneHour')"
               class="full-width"
-            />
-          <q-toggle
-            :readonly="readOnly"
-            :label="$t('label.RemoveScoringAndRating')"
-            v-model="form.fields.customization.removeScoring"
             />
           <div v-if="form.fields.customization.removeScoring">
             <q-input
@@ -402,8 +437,9 @@
               </div>
               <div v-for="step in chapter.steps" :key="step._id" style="height: 34px; overflow: hidden;display: flex;width: 100%;">
                 <div class="step-text">
-                  <q-icon color="grey" class="q-mr-sm" :class="{'q-ml-md': (step.level === 2)}" :name="getIconFromStepType(step.type)" />
-                  <span v-if="!readOnly && !step.error" @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
+                  <q-icon color="grey" class="q-mr-sm" :class="{'q-ml-md': (step.level === 2)}" :name="getIconFromStepType(step.type)">
+                  </q-icon>
+                  <span v-if="!readOnly && !step.error" @click="playStep(step)"><q-badge v-if="step.player !== 'All'" color="primary" align="top">{{ step.player }}</q-badge> {{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
                   <span v-if="!readOnly && step.error" @click="showStepWarnings(step.error)" class="text-primary">
                     <q-icon name="warning" color="primary" />
                     {{ step.title[languages.current] || step.title[quest.mainLanguage] }}
@@ -593,6 +629,41 @@
         
       </div>
       
+    </div>
+    
+    <!------------------ PAYMENTS TAB ------------------------>
+      
+    <div v-if="tabs.selected === 'payments' && !chapters.showNewStepOverview && isEdition" class="q-pa-md arial">
+      <q-list class="shadow-2 rounded-borders">
+        <q-item v-for="payment in payments" :key="payment._id">
+          <q-item-section avatar>
+            <q-avatar rounded>
+              <img :src="serverUrl + '/upload/tiers/' + payment.qrCode + '.png'">
+            </q-avatar>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label lines="1">{{ payment.qrCode.replace('tierplay_', '') }}</q-item-label>
+            <q-item-label caption>{{ $t('status.' + payment.status) }} - {{payment.dateUpdate | formatDate($store.state.user.language)}}</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-btn-dropdown icon="cloud_upload" split dense @click="downloadQRCode(payment.qrCode)">
+              <q-list>
+                <q-item v-if="payment.status === 'new'" clickable v-close-popup @click="removeCode(payment._id)">
+                  <q-item-section avatar>
+                    <q-avatar icon="delete" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>{{ $t('label.Remove') }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
+          </q-item-section>
+        </q-item>
+      </q-list>
+      <div class="centered">
+        <q-btn class="glossy large-button" color="primary" @click="createNewPaymentQRCode"><span>{{ $t('label.CreateNewQRCodeForPlay') }}</span></q-btn>
+      </div>
     </div>
       
     <!------------------ REVIEWS TAB ------------------------>
@@ -1001,6 +1072,9 @@ export default {
           title: {},
           category: '',
           priceForPlayer: '',
+          tierPriceForPlayer: '',
+          premiumPrice: {},
+          playersNumber: 1,
           description: {},
           location: { lat: '', lng: '' },
           startingPlace: '',
@@ -1023,13 +1097,22 @@ export default {
         languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
         levels: utils.buildOptionsForSelect(questLevels, { valueField: 'id', labelField: 'name' }, this.$t),
         prices: [
-          { label: this.$t('label.Free'), value: 'free' },
+          //{ label: this.$t('label.Free'), value: 'free' },
           { label: "0,99 €", value: 'premiumprice1' },
           { label: "1,99 €", value: 'premiumprice2' },
           { label: "2,99 €", value: 'premiumprice3' },
           { label: "4,99 €", value: 'premiumprice5' },
           { label: "9,99 €", value: 'premiumprice10' },
+          { label: "14,99 €", value: 'premiumprice15' },
           { label: "19,99 €", value: 'premiumprice20' }
+        ],
+        players: [
+          { label: "1", value: '1' },
+          { label: "2", value: '2' },
+          { label: "3", value: '3' },
+          { label: "4", value: '4' },
+          { label: "5", value: '5' },
+          { label: "6", value: '6' }
         ],
         durations: [
           { label: '15 ' + this.$t('label.minutes'), value: 15 },
@@ -1104,9 +1187,12 @@ export default {
         canMovePremium: false
       },
       reviews: [],
+      payments: [],
       statistics: [],
       canMoveNextStep: false,
       canPass: false,
+      showPaymentBox: false,
+      showTierPaymentBox: false,
       storage: "",
       itemUsed: null,
       isIOs: utils.isIOS(),
@@ -1187,7 +1273,12 @@ export default {
         
         //this.form.fields = this.quest // removed EMA on 15112019 because issue with iOS
         this.form.fields.questId = this.quest.questId
-        this.form.fields.title = this.quest.title
+        if (this.quest.title && Object.keys(this.quest.title).length > 0) {
+          this.form.fields.title = this.quest.title
+        } else {
+          this.form.fields.title = {}
+          this.form.fields.title[this.languages.current] = "-"
+        }
         this.form.fields.description = this.quest.description
         this.form.fields.category = this.quest.category
         this.form.fields.location = this.quest.location
@@ -1202,6 +1293,7 @@ export default {
         this.form.fields.rewardPicture = this.quest.rewardPicture
         this.form.fields.readMoreLink = this.quest.readMoreLink
         this.form.fields.limitNumberOfPlayer = this.quest.limitNumberOfPlayer
+        this.form.fields.playersNumber = this.quest.playersNumber
       
         this.form.fields.startingPlace = this.form.fields.location.address || ""
         this.form.fields.zipcode = (this.form.fields.location && this.form.fields.location.zipcode) ? this.form.fields.location.zipcode : ""
@@ -1212,8 +1304,23 @@ export default {
         if (this.quest.type === 'room') {
           this.form.fields.priceForPlayer = this.quest.premiumPrice.manual
         } else if (this.quest.type === 'quest') {
-          if (this.quest.premiumPrice && this.quest.premiumPrice.androidId) {
+          if (!this.quest.premiumPrice) {
+            this.form.fields.premiumPrice = {}
+          }
+          if (this.quest.premiumPrice.androidId) {
             this.form.fields.priceForPlayer = this.quest.premiumPrice.androidId
+          }
+            
+          if (!this.quest.premiumPrice.active) {
+            this.showPaymentBox = false
+          } else {
+            this.showPaymentBox = true
+          }
+          if (!this.quest.premiumPrice.tier) {
+            this.showTierPaymentBox = false
+          } else {
+            this.form.fields.tierPriceForPlayer = this.quest.premiumPrice.manual
+            this.showTierPaymentBox = true
           }
         }
         
@@ -1632,6 +1739,15 @@ export default {
           }
         }
         
+        if (!this.form.fields.premiumPrice) {
+          this.form.fields.premiumPrice = {}
+        }
+        if (this.showPaymentBox) {
+          this.form.fields.premiumPrice.active = true
+        }
+        if (this.showTierPaymentBox) {
+          this.form.fields.premiumPrice.tier = true
+        }
         let quest = Object.assign({}, this.form.fields, commonProperties)
         if (!quest.questId) {
           quest.questId = this.questId
@@ -1643,6 +1759,8 @@ export default {
         this.$q.loading.hide()
         
         if (res && res.data) {
+          // apply playernumber changes
+          this.quest.playersNumber = this.form.fields.playersNumber
           // update progression in stepper
           if (this.tabs.progress < 1) {
             if (this.quest.type === 'quest') {
@@ -1980,6 +2098,9 @@ export default {
         }
       } else {
         Notification(this.$t('label.YourQuestContainsErrorsInSteps'), 'error')
+        for (i = 0; i < this.form.fields.languages.length; i++) {
+          this.form.fields.languages[i].published = false
+        }
       }
     },
     /*
@@ -2008,18 +2129,40 @@ export default {
       let testable = await this.checkIfTestable()
       if (testable) {
         this.$router.push('/quest/play/' + this.questId)
-      } else {
-        Notification(this.$t('label.YourQuestContainsErrorsInSteps'), 'error')
       }
     },
     /*
      * Test the quest
      */
     async checkIfTestable() {
+      // Check if errors in steps or chapters
       for (var i = 0; i < this.chapters.items.length; i++) {
         if (this.chapters.items[i].warnings && this.chapters.items[i].warnings.length > 0) {
+          Notification(this.$t('label.YourQuestContainsErrorsInSteps'), 'error')
           return false
         }
+      }
+
+      // test if enough players to test
+      if (this.editor.items && this.quest.playersNumber && this.editor.items.length >= this.quest.playersNumber) {
+        // close potential ongoing run
+        await RunService.closeInProgressRuns(this.questId)
+
+        if (this.quest.playersNumber > 1) {
+          // create a new multiplayer game
+          var results = await RunService.createMultiplayerRunForTesters(this.questId)
+          if (results) {
+            // Notification
+            var testers = []
+            for (i = 0; i < this.editor.items.length; i++) {
+              testers.push(this.editor.items[i].name)
+            }
+            Notification(this.$t('label.HereAreTheTesters', {nameList: testers.join(', ')}), 'info')
+          }
+        }        
+      } else {
+        Notification(this.$t('label.YouNeedAtLeastXEditorsToTest', {nb: this.quest.playersNumber}), 'error')
+        return false
       }
       return true
     },
@@ -2964,6 +3107,38 @@ export default {
         console.error('Could not access to device filesystem', err)
       })
     },
+    /*
+     * Create a new QR Code for a player that paied
+     */
+    async createNewPaymentQRCode() {
+      await QuestService.createTierPayment(this.questId, this.quest.premiumPrice.manual)
+      await this.listPayments()
+    },
+    /*
+     * List the payments for the game
+     */
+    async listPayments () {
+      if (this.quest && this.quest.premiumPrice && this.quest.premiumPrice.tier) {
+        let results = await QuestService.listTierPayments(this.questId)
+        this.payments = results.data
+      }
+    },
+    downloadQRCode(qrCode) {
+      utils.openExternalLink(this.serverUrl + '/upload/tiers/' + qrCode + '.png')
+    },
+    async removeCode(code) {
+      this.$q.dialog({
+        message: this.$t('label.AreYouSureYouWantToRemoveThisTierCode'),
+        ok: true,
+        cancel: true
+      }).onOk(async () => {
+        await QuestService.removeTierPayment(this.questId, code)
+        await this.listPayments()
+      })
+    },
+    /*
+     * List a quest reviews
+     */
     async listReviews () {
       let results = await ReviewService.list({ questId: this.questId, version: this.quest.version })
       this.reviews = results.data

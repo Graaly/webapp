@@ -733,7 +733,21 @@ var self = {
    * Open a link in the mobile browser
    */
   openExternalLink(url) {
-    navigator.app.loadUrl(url, { openExternal: true })
+    if (window.cordova) {
+      navigator.app.loadUrl(url, { openExternal: true })
+    } else {
+      window.open(url, '_blank')
+    }
+  },
+  /**
+   * remove unused URL from a qrcode for ex.
+   */
+  removeUnusedUrl(url) {
+    if (url.indexOf('gc=') !== -1) {
+      let position = url.indexOf('gc=')
+      return url.substring(position + 3)
+    }
+    return url
   },
   /**
    * Loads an image synchronously (allows to wait that the image is loaded before using it)

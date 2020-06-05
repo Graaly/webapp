@@ -243,7 +243,15 @@ export default {
       if (response && response.data) {
         if (response.data.length > 0) {
           this.quests.createdNb = response.data.length
-          this.quests.built = response.data
+          // avoid to display all version of a quest
+          var myQuestsId = []
+          this.quests.built = []
+          for (var i = 0; i < response.data.length; i++) {
+            if (myQuestsId.indexOf(response.data[i].questId) === -1) {
+              this.quests.built.push(response.data[i])
+              myQuestsId.push(response.data[i].questId)
+            }
+          }
           /*for (var i = 0; i < response.data.length; i++) {
             var quest = response.data[i]
             if (quest.status === 'published') {
