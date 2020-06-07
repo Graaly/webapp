@@ -3,7 +3,7 @@
     
     <!------------------ COMMON FOR ALL STEPS ------------------------>
     
-    <div class="q-pa-md q-pt-xl q-mt-lg">
+    <div class="q-pa-md q-pt-xl q-mt-lg bottom-margin-for-keypad">
       <q-input
         type="text"
         :label="$t('label.Title') + ' ' + currentLanguageForLabels"
@@ -778,7 +778,11 @@
           map-options 
           :label="$t('label.Player')" 
           v-model="selectedStep.form.player" 
-          :options="players" />
+          :options="players">
+          <template v-slot:after>
+            <q-btn round dense flat icon="help" @click="showHelpPopup('helpPlayer')" />
+          </template>
+        </q-select>
       </div>
       
       <!------------------ CONDITIONS ------------------------>
@@ -913,7 +917,7 @@
         </q-expansion-item>
       </q-list>
       
-      <div class="centered q-pa-md">
+      <div class="centered q-pa-md q-pb-xl">
         <q-btn class="glossy large-button" color="primary" @click="submitStep" test-id="btn-save-step">{{ $t('label.SaveThisStep') }}</q-btn>
       </div>
     </div>
@@ -1345,7 +1349,9 @@ export default {
       }
       
       // define players select list
-      this.players.push({ label: this.$t('label.All'), value: 'All' })
+      if (this.options.type.code === 'info-text' || this.options.type.code === 'info-video' || this.options.type.code === 'new-item' || this.options.type.code === 'character' || this.options.type.code === 'end-chapter') {
+        this.players.push({ label: this.$t('label.All'), value: 'All' })
+      }
       for (var p = 0; p < this.quest.playersNumber; p++) {
         this.players.push({ label: this.$t('label.Player') + " " + (p + 1), value: 'P' + (p + 1) })
       }
@@ -1856,6 +1862,11 @@ export default {
       this.selectedStep.newCondition.selectedType = 'stepDone'
       await this.changeNewConditionType()
       this.selectedStep.newCondition.selectedValue = ''
+    },
+    showHelpPopup (message) {
+      this.$q.dialog({
+        message: this.$t('label.' + message)
+      })
     },
     /*
      * Upload the background image

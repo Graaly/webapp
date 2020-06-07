@@ -21,7 +21,7 @@
           <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         </div>
         <div class="q-py-sm dark-banner absolute-bottom">
-          <q-item clickable v-ripple>
+          <q-item clickable v-ripple @click="openProfile(quest.authorUserId)">
             <q-item-section side>
               <q-avatar size="50px">
                 <img v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.picture" :src="serverUrl + '/upload/profile/' + quest.author.picture" />
@@ -183,7 +183,7 @@
     
     <transition name="slideInBottom">
       <div class="panel-bottom background-dark" v-show="multiplayer.show">
-        <div>
+        <div class="bottom-margin-for-keypad">
           <div class="q-pa-lg centered subtitle2">
             {{ $t('label.ThisIsAMultiplayerGame') }}
           </div>
@@ -891,6 +891,12 @@ export default {
           setTimeout(function() { _this.startQuest(questId, lang) }, 7000)
         }
       }
+    },
+    /*
+     * Open a user profile
+     */
+    openProfile(id) {
+      this.$router.push('/profile/' + id)
     },
     /*
      * Scan a QR Code to join a team

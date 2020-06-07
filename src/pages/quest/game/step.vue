@@ -268,7 +268,8 @@ export default {
           label: "",
           suggest: false,
           show: false,
-          used: false
+          used: false,
+          number: 0
         },
         info: {
           isOpened: false,
@@ -424,7 +425,10 @@ export default {
                 if (!this.run._id) {
                   this.run._id = tempId
                 }
-                
+                if (!this.run.questId) {
+                  this.run.questId = this.questId
+                  this.run.version = this.questVersion
+                }
                 // save run changes in DB
                 await RunService.updateFromOffline(this.run)
               } else {
@@ -446,6 +450,10 @@ export default {
               // if a offline run already exists
               this.run = offlineRun
               this.run._id = res.data._id
+              if (!this.run.questId) {
+                this.run.questId = this.questId
+                this.run.version = this.questVersion
+              }
               await RunService.updateFromOffline(this.run)
             } else {
               this.run = res.data
@@ -1007,9 +1015,17 @@ export default {
       }
 
       if (hintLabel && hintLabel.hint) {
+        // online hint
         this.hint.label = hintLabel.hint
       } else {
-        this.hint.label = this.step.hint
+        // offline hint
+        this.hint.label = this.step.hint[this.hint.number]
+      }
+      // update hint number, used for offline
+      if (this.hint.number < this.step.hint.length - 1) {
+        this.hint.number++
+      } else {
+        this.hint.number = 0
       }
       this.hint.used = true
       this.closeAllPanels()
@@ -1292,6 +1308,10 @@ export default {
      * Load the run from offline file
      */
     async loadOfflineRun(questId) {
+      // offline mode not activated for multiplayer
+      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+        return false
+      }
       const run = await utils.readFile(this.questId, 'run_' + questId + '.json')
 
       if (!run) {
@@ -1304,6 +1324,10 @@ export default {
      * init the run offline file
      */
     async updateOfflineRun(questId) {
+      // offline mode not activated for multiplayer
+      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+        return false
+      }
       if (this.run && this.run.questId) {
         // init the offline file with the server one
       } else {
@@ -1349,6 +1373,10 @@ export default {
      * save the offline answer for a run
      */
     async saveOfflineAnswer(success) {
+      // offline mode not activated for multiplayer
+      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+        return false
+      }
       // check if user has already played this step in current run
       var stepAlreadyPlayed = await this.checkIfStepIsAlreadyPlayedInRun(this.step.stepId, this.player)
        
@@ -1443,6 +1471,10 @@ export default {
      * init the run offline file
      */
     async passOfflineStep(stepId) {
+      // offline mode not activated for multiplayer
+      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+        return false
+      }
       this.run.conditionsDone = this.updateConditions(this.run.conditionsDone, stepId, false, this.step.type, true, this.player)
       //this.run.conditionsDone.push('stepFail_' + stepId)
       await this.saveOfflineRun(this.questId, this.run)
@@ -1451,6 +1483,10 @@ export default {
      * Check if user has access to the step
      */
     async offlineCheckAccess(step) {
+      // offline mode not activated for multiplayer
+      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+        return false
+      }
       if (step && step.startDate && step.startDate.enabled && step.startDate.date) {
         // check if step is available today
         const today = new Date()
@@ -1466,6 +1502,10 @@ export default {
      * Save current run offline
      */
     async saveOfflineRun(questId, run) {
+      // offline mode not activated for multiplayer
+      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+        return false
+      }
       run.dateUpdated = new Date()
       let status = await utils.writeInFile(this.questId, 'run_' + questId + '.json', JSON.stringify(run), true)
       if (status) {

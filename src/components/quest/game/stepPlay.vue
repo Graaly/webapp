@@ -1831,6 +1831,10 @@ export default {
             if (this.step.displayRightAnswer) {
               this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
             }
+            // if alt picture
+            if (this.step.options && this.step.options.altFile) {
+              this.step.backgroundImage = this.step.options.altFile
+            }
             
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
@@ -1853,6 +1857,10 @@ export default {
           if (checkAnswerResult.result === true) {
             if (this.step.displayRightAnswer) {
               this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
+            }
+            // if alt picture
+            if (this.step.options && this.step.options.altFile) {
+              this.step.backgroundImage = this.step.options.altFile
             }
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
@@ -2600,11 +2608,6 @@ export default {
         item: this.itemUsed.originalPicture ? this.itemUsed.originalPicture : this.itemUsed.picture
       }
       
-      // if alt picture
-      if (this.step.options && this.step.options.altFile) {
-        this.step.backgroundImage = this.step.options.altFile
-      }
-      
       await this.checkAnswer(data)
     },
     /*
@@ -2652,11 +2655,6 @@ export default {
         windowWidth: vw,
         posX: ev.offsetX,
         posY: ev.offsetY
-      }
-      
-      // if alt picture
-      if (this.step.options && this.step.options.altFile) {
-        this.step.backgroundImage = this.step.options.altFile
       }
       
       await this.checkAnswer(data)
