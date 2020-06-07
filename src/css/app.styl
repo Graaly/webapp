@@ -118,6 +118,9 @@ body {
 .scroll {
   overflow-y: scroll;
 }
+.bottom-margin-for-keypad {
+  padding-bottom: 300px;
+}
 
 /////////////////////////////// Typography /////////////////////////////////////
 
@@ -311,6 +314,12 @@ a.no-underline {
 }
 .q-dialog__inner--maximized > div {
   overflow-y: scroll !important;
+}
+.q-dialog__inner .q-field__native {
+  color: #fff;
+}
+.q-dialog__inner .q-field--standard .q-field__control:hover:before {
+  border-color: #fff;
 }
 .q-dialog.fullscreen {
   /* 7003 to be over the stories, especially when user pass the tutorial */
@@ -993,7 +1002,7 @@ a.no-underline {
   top: 143px;
 }
 .header-point-box {
-  height: 375px;
+  height: 400px;
 }
 .end-rating i {
   margin-left: 12px;
@@ -1130,7 +1139,7 @@ span .q-icon {
   animation: bounce 0.7s ease infinite;
 }
 .flashing {
-  animation: blink 0.7s ease infinite;
+  animation: blink 2.4s ease infinite;
 }
 .slideInBottom-enter-active, .slideInBottom-leave-active {
   transition: all .3s ease;
@@ -1442,6 +1451,9 @@ span .q-icon {
   padding: 0; 
   margin: 0; 
   /*overflow-x: hidden; */
+}
+.list-group-item div.q-badge { 
+  padding: 2px 6px;
 }
 .step-list.list-group-item div {
   overflow-x: hidden;

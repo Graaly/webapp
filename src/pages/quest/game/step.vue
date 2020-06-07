@@ -20,6 +20,7 @@
       :lang="lang" 
       :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}" 
       :answer="offline.answer" 
+      :player="player"
       @played="trackStepPlayed" 
       @success="trackStepSuccess" 
       @fail="trackStepFail" 
@@ -68,13 +69,17 @@
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
           <div class="text-center dark-banner q-pb-xl q-pt-md fixed-bottom">
             <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title : $t('label.NoTitle') }}</p>
+            <p v-if="run && run.team && run.team.name">{{ $t('Team') }} : {{ run.team.name }}</p>
             <!--<q-linear-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-linear-progress>-->
             <!--<p class="q-pa-md score-text" v-show="info && !offline.active && (!info.quest.customization || !info.quest.customization.removeScoring)">{{ $t('label.CurrentScore') }}: {{ info.score }} <!--<q-icon color="white" name="fas fa-trophy" />--</p>-->
             <p>
-              <q-btn class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="backToMap"><span>{{ $t('label.LeaveQuest') }}</span></q-btn>
+              <q-btn v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring" class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="backToMap"><span>{{ $t('label.LeaveQuest') }}</span></q-btn>
             </p>
             <p>
-              <q-btn class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" v-if="!offline.active" @click="showFeedback"><span>{{ $t('label.Feedback') }}</span></q-btn>
+              <q-btn v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2" class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="restartGame"><span>{{ $t('label.RestartQuest') }}</span></q-btn>
+            </p>
+            <p>
+              <q-btn v-if="!offline.active" class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="showFeedback"><span>{{ $t('label.Feedback') }}</span></q-btn>
             </p>
             <p class="q-pb-xl">
               <q-btn class="glossy large-button" color="secondary" @click="openInfo"><span>{{ $t('label.BackToQuest') }}</span></q-btn>
@@ -141,6 +146,7 @@
           <q-btn
             round
             size="lg"
+            style="padding-top: 0 !important;"
             class="bg-white"
             @click="openInfo()"
             v-if="info.quest.customization && info.quest.customization.logo && info.quest.customization.logo !== ''" >
@@ -262,7 +268,8 @@ export default {
           label: "",
           suggest: false,
           show: false,
-          used: false
+          used: false,
+          number: 0
         },
         info: {
           isOpened: false,
@@ -283,6 +290,7 @@ export default {
         },
         loadStepData: false,
         run: {},
+        player: 'P1',
         isRunFinished: false,
         remotePlay: false,
         //cameraStreamEnabled: false,
@@ -345,8 +353,14 @@ export default {
       //await this.getRun() // on sync mode to load step while run is checked
       await this.getRun()
       
+      // get Player number
+      this.player = await this.getPlayer()
+      
       // get current step
       await this.getStep()
+      
+      // manage history
+      this.updateHistory()
       
       this.$q.loading.hide()
 
@@ -411,7 +425,10 @@ export default {
                 if (!this.run._id) {
                   this.run._id = tempId
                 }
-                
+                if (!this.run.questId) {
+                  this.run.questId = this.questId
+                  this.run.version = this.questVersion
+                }
                 // save run changes in DB
                 await RunService.updateFromOffline(this.run)
               } else {
@@ -433,6 +450,10 @@ export default {
               // if a offline run already exists
               this.run = offlineRun
               this.run._id = res.data._id
+              if (!this.run.questId) {
+                this.run.questId = this.questId
+                this.run.version = this.questVersion
+              }
               await RunService.updateFromOffline(this.run)
             } else {
               this.run = res.data
@@ -483,6 +504,19 @@ export default {
       }
     },
     /*
+     * Get the player number
+     */
+    async getPlayer () {
+      if (this.run.team && this.run.team.members) {
+        for (var i = 0; i < this.run.team.members.length; i++) {
+          if (this.run.team.members[i]._id === this.$store.state.user._id) {
+            return this.run.team.members[i].player
+          }
+        }
+      }
+      return 'P1'
+    },
+    /*
      * Get the step data
      */
     async getStep (forceNetworkLoading) {
@@ -494,7 +528,7 @@ export default {
       } else {
         var response
         if (!this.offline.active) {
-          response = await RunService.getNextStep(this.questId)
+          response = await RunService.getNextStep(this.questId, this.player)
           
           if (response && response.status !== 200) {
             if (response.data.message === "app_quest_data_is_obsolete") {
@@ -518,27 +552,38 @@ export default {
         if (response && response.data && response.status === 200) {
           // check if a step is triggered
           if (response.data.next) {
-            stepId = response.data.next
-          } else {
-            // if no step is triggered, display the markers sensor
-            this.step = {
-              id: "sensor"
+            if (response.data.next === 'locationMarker') {
+              // QR Code scanner
+              this.step = {
+                id: "sensor"
+              }
+              return false
+            } else {
+              stepId = response.data.next
             }
+          } else {
+            // display waiting screen
+            this.showWaitingPage()
             return false
           }
         } else {
           // use offline content
           stepId = await this.getNextOfflineStep(this.questId)
           if (!stepId) {
-            // if no step is triggered, display the markers sensor
-            this.step = {
-              id: "sensor"
-            }
+            // if no step is triggered, display the waiting screen
+            this.showWaitingPage()
             return false
           }
         }
       }
       
+      if (stepId === 'locationMarker') {
+        // QR Code scanner step
+        this.step = {
+          id: "sensor"
+        }
+        return false
+      }
       if (stepId === 'end') {
         return this.$router.push('/quest/' + this.questId + '/end')
       }
@@ -666,6 +711,12 @@ export default {
               tempStep.options.character = characterPictureUrl
             }
           }
+          if ((tempStep.type === 'find-item' || tempStep.type === 'use-item') && tempStep.options && tempStep.options.altFile && tempStep.options.altFile !== '') {
+            const altPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.altFile)
+            if (altPictureUrl) {
+              tempStep.options.altFile = altPictureUrl
+            }
+          }
           this.step = tempStep
           this.step.id = this.step.stepId
           // get previous button redirect
@@ -676,6 +727,32 @@ export default {
           
           return true
         }
+      }
+    },
+    /*
+     * Show waiting page
+     */
+    showWaitingPage () {
+      this.step = {
+        id: "waiting"
+      }
+      this.footer.show = false
+      utils.setTimeout(this.refreshWaitingPage, 15000)
+    },
+    refreshWaitingPage() {
+      //this.$router.push('/quest/play/' + this.questId)
+      this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/pass_' + this.step.stepId + '_' + utils.randomId() + '/' + this.$route.params.lang)
+    },
+    /*
+     * update history
+     */
+    updateHistory() {
+      if (!this.$store.state.history || !this.$store.state.history.items) {
+        this.$store.state.history = {items: [], index: 0}
+      }
+      //this.$store.state.history.index++
+      if (this.$store.state.history.items.indexOf(this.step.stepId) === -1) {
+        this.$store.state.history.items.push(this.step.stepId)
       }
     },
     /*
@@ -713,6 +790,8 @@ export default {
      */
     async trackStepPlayed (returnData, offline) {
       if (this.step.id === 'sensor') {
+        await this.getMarkerStep(returnData)
+      } else if (this.step.id === 'waiting') {
         await this.getMarkerStep(returnData)
       } else {
         this.next.enabled = true
@@ -758,7 +837,7 @@ export default {
       var response
       // get the next step after the marker
       if (!this.offline.active) {
-        response = await RunService.getMarkerNextStep(this.questId, answer)
+        response = await RunService.getMarkerNextStep(this.questId, answer, this.player)
       }
       
       if (response && response.data) {
@@ -821,6 +900,12 @@ export default {
      * Move to next step
      */
     async nextStep() {
+      this.$store.state.history.index++
+      // if moving in history
+      if (this.$store.state.history.index < this.$store.state.history.items.length) {
+        this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
+        return
+      }
       // reload step to remove notifications
       this.loadStepData = false
       this.$q.loading.show()
@@ -840,7 +925,7 @@ export default {
           cancel: this.$t('label.Cancel')
         }).onOk(async () => {          
           if (!this.offline.active) {
-            await RunService.passStep(this.run._id, this.step.id)
+            await RunService.passStep(this.run._id, this.step.id, this.player)
           }
           
           //if (!passSuccess) {
@@ -880,17 +965,17 @@ export default {
      */
     async previousStep() {
       if (this.previousStepId !== '') {
-        if (this.offline.active) {
-          this.run.historyIndex--
-          if (this.run.historyIndex < 1) {
-            this.run.historyIndex = 1
-          } else if (this.run.historyIndex > this.run.history.length) {
-            this.run.historyIndex = this.run.history.length
-          }
-          await this.saveOfflineRun(this.questId, this.run)
+        //if (this.offline.active) {
+        this.$store.state.history.index--
+        if (this.$store.state.history.index < 0) {
+          this.$store.state.history.index = 0
+        } else if (this.$store.state.history.index > this.$store.state.history.items.length) {
+          this.$store.state.history.index = this.$store.state.history.items.length
+        }
+        /*await this.saveOfflineRun(this.questId, this.run)
         } else {
           await RunService.setHistoryOneStepBack(this.run._id)
-        }
+        }*/
         this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.previousStepId + '/' + this.$route.params.lang)
       }
     },
@@ -930,9 +1015,17 @@ export default {
       }
 
       if (hintLabel && hintLabel.hint) {
+        // online hint
         this.hint.label = hintLabel.hint
       } else {
-        this.hint.label = this.step.hint
+        // offline hint
+        this.hint.label = this.step.hint[this.hint.number]
+      }
+      // update hint number, used for offline
+      if (this.hint.number < this.step.hint.length - 1) {
+        this.hint.number++
+      } else {
+        this.hint.number = 0
       }
       this.hint.used = true
       this.closeAllPanels()
@@ -1010,6 +1103,31 @@ export default {
      */
     async backToMap() {
       return this.$router.push('/home')
+    },
+    /*
+     * Restart the game
+     */
+    async restartGame() {
+      var self = this         
+      this.$q.dialog({
+        message: this.$t('label.AreYouSureToRestartThisQuest'),
+        ok: this.$t('label.Restart'),
+        cancel: this.$t('label.Cancel')
+      }).onOk(() => {
+        self.cancelRun()
+      }).onCancel(() => {
+        // do nothing
+      })
+    },
+    /*
+     * Cancel a run
+     */
+    async cancelRun() {
+      await RunService.endRun(this.run._id, null, this.questId, this.questVersion, this.info.quest.mainLanguage)
+      // remove run offline data
+      await utils.writeInFile(this.questId, 'run_' + this.questId + '.json', JSON.stringify({}), false)
+      // return to the home
+      this.$router.push('/quest/play/' + this.questId)
     },
     /*
      * Display the message that the step is blocked
@@ -1142,12 +1260,9 @@ export default {
       }
     },
     isHintAvailable() {
-      // console.log("ishindavaibles")
       if (this.step && this.step.hint && this.step.hint !== '' && this.step.hint.length > 0) {
-      // console.log("hint is available")
         return true
       } else {
-      // console.log("hint is not available")
         return false
       }
     },
@@ -1193,6 +1308,10 @@ export default {
      * Load the run from offline file
      */
     async loadOfflineRun(questId) {
+      // offline mode not activated for multiplayer
+      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+        return false
+      }
       const run = await utils.readFile(this.questId, 'run_' + questId + '.json')
 
       if (!run) {
@@ -1205,6 +1324,10 @@ export default {
      * init the run offline file
      */
     async updateOfflineRun(questId) {
+      // offline mode not activated for multiplayer
+      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+        return false
+      }
       if (this.run && this.run.questId) {
         // init the offline file with the server one
       } else {
@@ -1250,8 +1373,12 @@ export default {
      * save the offline answer for a run
      */
     async saveOfflineAnswer(success) {
+      // offline mode not activated for multiplayer
+      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+        return false
+      }
       // check if user has already played this step in current run
-      var stepAlreadyPlayed = await this.checkIfStepIsAlreadyPlayedInRun(this.step.stepId)
+      var stepAlreadyPlayed = await this.checkIfStepIsAlreadyPlayedInRun(this.step.stepId, this.player)
        
       // add conditions
       var conditions = this.run.conditionsDone
@@ -1265,12 +1392,12 @@ export default {
         if (this.step.displayRightAnswer === false) {
           removedStatus = await this.removeConditionsUntilLastMarker(conditions, this.step.stepId, this.run.version)
           if (removedStatus.found) {
-            conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, false)
+            conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, false, this.player)
           } else {
-            conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true)
+            conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player)
           }
         } else {
-          conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true)
+          conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player)
         }
         ended = true
         
@@ -1286,12 +1413,12 @@ export default {
         if (this.step.displayRightAnswer === false) {
           removedStatus = await this.removeConditionsUntilLastMarker(conditions, this.step.stepId, this.run.version)
           if (removedStatus.found) {
-            conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, false)
+            conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, false, this.player)
           } else {
-            conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true)
+            conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player)
           }
         } else {
-          conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true)
+          conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player)
         }
       }
       
@@ -1344,7 +1471,11 @@ export default {
      * init the run offline file
      */
     async passOfflineStep(stepId) {
-      this.run.conditionsDone = this.updateConditions(this.run.conditionsDone, stepId, false, this.step.type, true)
+      // offline mode not activated for multiplayer
+      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+        return false
+      }
+      this.run.conditionsDone = this.updateConditions(this.run.conditionsDone, stepId, false, this.step.type, true, this.player)
       //this.run.conditionsDone.push('stepFail_' + stepId)
       await this.saveOfflineRun(this.questId, this.run)
     },
@@ -1352,6 +1483,10 @@ export default {
      * Check if user has access to the step
      */
     async offlineCheckAccess(step) {
+      // offline mode not activated for multiplayer
+      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+        return false
+      }
       if (step && step.startDate && step.startDate.enabled && step.startDate.date) {
         // check if step is available today
         const today = new Date()
@@ -1367,6 +1502,10 @@ export default {
      * Save current run offline
      */
     async saveOfflineRun(questId, run) {
+      // offline mode not activated for multiplayer
+      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+        return false
+      }
       run.dateUpdated = new Date()
       let status = await utils.writeInFile(this.questId, 'run_' + questId + '.json', JSON.stringify(run), true)
       if (status) {
@@ -1379,7 +1518,7 @@ export default {
      * Adds step with <StepId> to run object <run> history and saves it to offline file
      * /!\ WARNING /!\ copied & adapted from server side file controller/run.js to handle online mode
      * @param {String} stepId 
-     */
+     *
     async addStepToHistory (stepId) {
       this.run.history.push(stepId)
       this.run.historyIndex = this.run.history.length
@@ -1389,7 +1528,7 @@ export default {
      * Get the next offline step
      * /!\ WARNING /!\ copied & adapted from server side file controller/run.js to handle online mode
      */
-    async getNextOfflineStep(questId, markerCode) {
+    async getNextOfflineStep(questId, markerCode, player) {
       var steps = []
       
       // check if user is currently navigating in quest history
@@ -1466,6 +1605,7 @@ export default {
           // set the marker step as done to pass to next step
           var conditionsDone = this.run.conditionsDone
           conditionsDone.push('stepDone_' + stepId.toString())
+          conditionsDone.push('stepDone' + this.player + '_' + stepId.toString())
 
           // update run
           this.run.conditionDone = conditionsDone
@@ -1474,13 +1614,13 @@ export default {
       }
       
       // list the steps for the chapter
-      var stepsofChapter = await this.listForAChapter(steps, chapter)
+      var stepsofChapter = await this.listForAChapter(steps, chapter, player)
       var locationMarkerFound = false
       if (stepsofChapter && stepsofChapter.length > 0) {
         stepListFor: 
         for (i = 0; i < stepsofChapter.length; i++) {
           // check if the step is not already done
-          if (this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone_' + stepsofChapter[i].stepId) === -1) {
+          if (this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
             if (stepsofChapter[i].conditions.length > 0) {
               for (j = 0; j < stepsofChapter[i].conditions.length; j++) {
                 // if one of the conditions of the step i not ok, continue with next step
@@ -1505,12 +1645,12 @@ export default {
                 // get next step by running the process again for new chapter
                 nextStepId = await this.getNextOfflineStep(questId, markerCode)
               }
-              await this.addStepToHistory(nextStepId)
+              //await this.addStepToHistory(nextStepId)
               return nextStepId
             } else { // if (markerCode || stepsofChapter[i].type !== 'locate-marker') { // if locate marker, do not start the step until user flash the marker
               // return step if no condition or all conditions met
               let nextStepId = stepsofChapter[i].stepId
-              await this.addStepToHistory(nextStepId)
+              //await this.addStepToHistory(nextStepId)
               return nextStepId
             }
           }
@@ -1524,9 +1664,13 @@ export default {
         if (nextStepId !== 'end') {
           // get next step by running the process again for new chapter
           nextStepId = await this.getNextOfflineStep(questId, markerCode)
-          await this.addStepToHistory(nextStepId)
+          //await this.addStepToHistory(nextStepId)
         }
         return nextStepId
+      }
+      // if location marker step found in advance mode, return information
+      if (locationMarkerFound && this.info.quest && this.info.quest.editorMode === 'advanced') {
+        return "locationMarker"
       }
       
       return false
@@ -1547,12 +1691,15 @@ export default {
     },
     /*
      * Return only steps of a chapter
+     * @param {Array}   steps     Array of all the steps of the game
+     * @param {String}  chapter   Id of the current chapter
+     * @param {String}  player    Player concerned ('All', 'P1', ...). Default = 'All'
      */
-    async listForAChapter(steps, chapter) {
+    async listForAChapter(steps, chapter, player) {
       var specificSteps = []
       if (steps) {
         for (var i = 0; i < steps.length; i++) {
-          if (steps[i].chapterId === chapter) {
+          if (steps[i].chapterId === chapter && (steps[i].player === 'All' || steps[i].player === player)) {
             specificSteps.push(steps[i])
           }
         }
@@ -1593,9 +1740,9 @@ export default {
     /*
      * Check if a step is already played in the run
      */
-    async checkIfStepIsAlreadyPlayedInRun(stepId) {
+    async checkIfStepIsAlreadyPlayedInRun(stepId, player) {
       if (this.run && this.run.conditionsDone &&  this.run.conditionsDone.length > 0) {
-        if (this.run.conditionsDone.indexOf('stepDone_' + stepId) !== -1) {
+        if (this.run.conditionsDone.indexOf('stepDone' + player + '_' + stepId) !== -1) {
           return true
         }
       }
@@ -1606,25 +1753,38 @@ export default {
      *
      * WARNING : this function is a duplicate for server function "updateConditions" of run.js controller
      */
-    updateConditions(currentConditions, stepId, isSuccess, stepType, addStepDone) {
+    updateConditions(currentConditions, stepId, isSuccess, stepType, addStepDone, player) {
       if (currentConditions.indexOf('stepDone_' + stepId) === -1 && addStepDone) {
         currentConditions.push('stepDone_' + stepId)
+      }
+      if (currentConditions.indexOf('stepDone' + player + '_' + stepId) === -1 && addStepDone) {
+        currentConditions.push('stepDone' + player + '_' + stepId)
       }
       if (currentConditions.indexOf('stepSuccess_' + stepId) !== -1) {
         let position = currentConditions.indexOf('stepSuccess_' + stepId)
         currentConditions.splice(position, 1)
+        if (currentConditions.indexOf('stepSuccess' + player + '_' + stepId) !== -1) {
+          position = currentConditions.indexOf('stepSuccess' + player + '_' + stepId)
+          currentConditions.splice(position, 1)
+        }
       }
       if (currentConditions.indexOf('stepFail_' + stepId) !== -1) {
         let position = currentConditions.indexOf('stepFail_' + stepId)
         currentConditions.splice(position, 1)
+        if (currentConditions.indexOf('stepFail' + player + '_' + stepId) !== -1) {
+          position = currentConditions.indexOf('stepFail' + player + '_' + stepId)
+          currentConditions.splice(position, 1)
+        }
       }
       const stepsWithoutSuccessTrigger = ['info-text', 'info-video', 'new-item', 'character', 'end-chapter']
       // assign success or fail status
       if (stepsWithoutSuccessTrigger.indexOf(stepType) === -1) {
         if (isSuccess) {
           currentConditions.push('stepSuccess_' + stepId)
+          currentConditions.push('stepSuccess' + player + '_' + stepId)
         } else {
           currentConditions.push('stepFail_' + stepId)
+          currentConditions.push('stepFail' + player + '_' + stepId)
         }
       }
       

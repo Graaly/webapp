@@ -67,9 +67,10 @@ export default {
    * @param   {String}    stepId          ID of the step
    * @param   {String}    runId           ID of the run
    * @param   {Object}    answer          Answer to the step
+   * @param   {String}    player          Player number ('P1', 'P2', ...)
    */
-  async checkAnswer (questId, stepId, version, runId, answer) {
-    let res = await Api().post('quest/' + questId + '/version/' + version + '/step/' + stepId + '/check/' + runId, answer).catch(error => console.log(error.request))
+  async checkAnswer (questId, stepId, version, runId, answer, player) {
+    let res = await Api().post('quest/' + questId + '/version/' + version + '/step/' + stepId + '/check/' + runId + '/player/' + player, answer).catch(error => console.log(error.request))
     return res
   },
   /*
@@ -290,6 +291,20 @@ export default {
    */
   async uploadCharacterImage(questId, stepType, data) {
     let res = await Api().post('/quest/' + questId + '/step/character/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
+  },
+  /*
+   * upload alt picture for 'use-item' and 'find-item' step
+   * @param   {String}    questId        ID of the quest
+   * @param   {String}    stepType       step type code, like 'new-item'
+   * @param   {Object}    data           upload data
+   */
+  async uploadAlternativeImage(questId, stepType, data) {
+    let res = await Api().post('/quest/' + questId + '/step/' + stepType + '/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
     
     // clears cached data if there is any
     await QuestService.removeFromCache(questId)

@@ -23,6 +23,13 @@ export default {
     return Api().get('run/quest/' + questId + '/ranking/friends').catch(error => console.log(error.request))
   },
   /*
+   * get the number of players for a quest
+   * @param   {String}    questId                  ID of the quest
+   */
+  checkNumberOfPlayers (questId) {
+    return Api().get('run/quest/' + questId + '/players/number').catch(error => console.log(error.request))
+  },
+  /*
    * list players that played this quest
    * @param   {String}    questId                  ID of the quest
    */
@@ -39,17 +46,19 @@ export default {
   /*
    * Get the next step of current run on a quest
    * @param   {String}    questId                ID of the quest
+   * @param   {String}    player                 Player number ('P1', 'P2', ...)
    */
-  getNextStep (questId) {
-    return Api().get('run/' + questId + '/step/next').catch(error => console.log(error.request))
+  getNextStep (questId, player) {
+    return Api().get('run/' + questId + '/step/next/player/' + player).catch(error => console.log(error.request))
   },
   /*
    * check if a market launch a new step
    * @param   {String}    questId                  ID of the quest
    * @param   {String}    markerCode             Code of the marker
+   * @param   {String}    player                 Player number ('P1', 'P2', ...)
    */
-  getMarkerNextStep (questId, markerCode) {
-    return Api().get('run/' + questId + '/marker/' + markerCode + '/next').catch(error => console.log(error.request))
+  getMarkerNextStep (questId, markerCode, player) {
+    return Api().get('run/' + questId + '/marker/' + markerCode + '/next/player/' + player).catch(error => console.log(error.request))
   },
   /*
    * list the objects won until a specific run
@@ -80,9 +89,35 @@ export default {
    * @param   {Number}    version             version of the quest
    * @param   {String}    lang                Language concerned
    * @param   {Boolean}   remotePlay          is the player playing remotely
+   * @param   {String}    teamNam             Name of the team (optional)
    */
-  init(questId, version, lang, remotePlay) {
+  init(questId, version, lang, remotePlay, teamName) {
+    if (!teamName) {
+      teamName = "noteamnamedefined"
+    }
+    return Api().post('run/quest/' + questId + '/version/' + version + '/init/' + lang + '/remote/' + remotePlay + '/team/' + teamName).catch(error => console.log(error.request))
+  },
+  /*
+   * add a team player
+   * @param   {String}    code                Code to join
+   */
+  addTeamPlayer(code) {
+    return Api().post('run/join/' + code).catch(error => console.log(error.request))
+  },
+  /*
+   * create a team for a multiplayer game
+   * @param   {String}    runId               ID of the run
+   * @param   {String}    name                Team name
+   */
+  createATeam(runId, name) {
     return Api().post('run/quest/' + questId + '/version/' + version + '/init/' + lang + '/remote/' + remotePlay).catch(error => console.log(error.request))
+  },
+  /*
+   * check if a team is ready to start for a multiplayer game
+   * @param   {String}    runId               ID of the run
+   */
+  checkTeamIsReady(runId) {
+    return Api().get('run/' + runId + '/check/team/ready').catch(error => console.log(error.request))
   },
   /*
    * set a run as finished
@@ -99,15 +134,23 @@ export default {
    * skip a step
    * @param   {String}    id                  ID of the run
    * @param   {String}    stepId              ID of the step
+   * @param   {String}    player              Player number ('P1', 'P2', ...)
    */
-  passStep(id, stepId) {
-    return Api().put('run/' + id + '/passstep/' + stepId).catch(error => console.log(error.request))
+  passStep(id, stepId, player) {
+    return Api().put('run/' + id + '/passstep/' + stepId + '/player/' + player).catch(error => console.log(error.request))
   },
-  /**
-   * Updates run history index to go one step back
-   * @param   {String}    id                  ID of the run
+  /*
+   * remove in-progress runs for a user
+   * @param   {String}    id                  ID of the quest
    */
-  setHistoryOneStepBack(id) {
-    return Api().get('run/' + id + '/historyonestepback').catch(error => console.log(error.request))
+  closeInProgressRuns(id) {
+    return Api().post('run/quest/' + id + '/close').catch(error => console.log(error.request))
+  },
+  /*
+   * create a multiplayer run for testers of the quest
+   * @param   {String}    id                  ID of the quest
+   */
+  createMultiplayerRunForTesters(id) {
+    return Api().post('run/quest/' + id + '/test/create').catch(error => console.log(error.request))
   }
 }

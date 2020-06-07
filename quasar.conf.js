@@ -145,6 +145,7 @@ module.exports = function (ctx) {
         'QPopupProxy',
         'QLinearProgress',
         'QRadio',
+        'QRange',
         'QRating',
         'QScrollObserver',
         'QSelect',
@@ -231,7 +232,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: "1.9.4"
+      version: "2.0.0"
       // id: 'org.cordova.quasar.app'
     },
     electron: {

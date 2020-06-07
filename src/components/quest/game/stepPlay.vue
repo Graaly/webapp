@@ -50,11 +50,12 @@
       <!------------------ CHARACTER STEP AREA ------------------------>
       
       <div class="character" v-if="step.type == 'character'">
-        <div class="fixed-bottom story">
+        <div class="fixed-bottom story" @click="nextCharacterBubbleText()">
           <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
           <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
-            <p class="carrier-return" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
-            <p class="text" v-if="getTranslatedText() != '' && step.options && step.options.html" v-html="getTranslatedText()"></p>
+            <p class="carrier-return" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
+            <p class="text" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
+            <p class="text text-grey" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ClickHere') }}</p>
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
@@ -381,6 +382,80 @@
           <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? $t('label.FindMarkerHelp') : $t('label.TouchObjectOnMarkerHelp') }" @next="locateMarker.showHelp = false"></story>
         </div>
       </div>
+      
+      <!------------------ WAIT FOR IOT EVENT ------------------------>
+      
+      <div v-if="step.type == 'wait-for-event'">
+        <div>
+          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          
+          <!-- distance -->
+          <h2 v-if="step.options.object === 'distance' && iot.distance !== null" class="centered big q-pb-lg" :class="{'right': playerResult === true}">
+            {{ iot.distance }} cm
+          </h2>
+          
+          <!-- potientiometers -->
+          <div v-if="step.options.object === 'pot' && iot['pot1'] !== null">
+            <q-linear-progress v-for="index of [1, 2, 3]" v-bind:key="index" :value="iot['pot' + index]" stripe rounded class="q-pa-md q-my-md" :color="playerResult === true ? 'positive' : 'primary'" />
+          </div>
+          
+          <!-- keypad -->
+          <div v-if="step.options.object === 'keypad'">
+            <p>{{ $t('label.KeypadInput') }}</p>
+            <p class="iot-keypad" :class="{ 'right': playerResult === true, 'wrong': playerResult === false, 'shake': playerResult === false }" ref="iot-keypad">{{ iot.keypadAnswer }}</p>
+          </div>
+          
+          <!-- joystick -->
+          <div v-if="step.options.object === 'joystick' && iot['axisX'] !== null">
+            <div v-for="index of ['X', 'Y']" v-bind:key="index">
+              <p>{{ index === 'X' ? $t('label.Horizontal') : $t('label.Vertical') }}</p>
+              <q-linear-progress :value="iot['axis' + index]" stripe rounded class="q-pa-md q-my-md" :color="playerResult === true ? 'positive' : 'primary'" />
+            </div>
+          </div>
+          
+          <!-- button -->
+          <div v-if="step.options.object === 'button' && playerResult === true">
+            <p class="right q-pb-md q-px-md q-my-md">{{ this.step.options.message }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <!------------------ TRIGGER IOT EVENT ------------------------>
+      
+      <div v-if="step.type == 'trigger-event'" class="trigger-event">
+        <p class="text" style="flex-grow: 1" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+        <div v-if="step.options.object !== 'chest'">
+          <q-btn v-if="step.options.triggerMode && step.options.triggerMode === 'manual'" class="full-width" color="primary" :label="$t('label.TriggerTheEvent')" size="xl" @click="triggerIotEvent()" :disable="bluetooth.deviceId === null" />
+        </div>
+        <div v-if="step.options.object === 'chest'">
+          <p>{{ $t('label.ChestActions') }}</p>
+          <div style="display:flex; ">
+            <q-btn style="flex-grow:1; margin-right: 1rem;" color="primary" :label="$t('label.Open')" size="xl" @click="triggerIotEvent('open')" :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons" />
+            <q-btn style="flex-grow:1" color="primary" :label="$t('label.Close')" size="xl" @click="triggerIotEvent('close')" :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons" />
+          </div>
+        </div>
+        <p v-if="step.options.protocol === 'bluetooth' && bluetooth.deviceId === null">{{ $t('label.SearchingBluetoothDevice') }}</p>
+      </div>
+      
+      <!------------------ WAITING SCREEN (if waiting for another player actions) ------------------------>
+      
+      <transition name="slideInBottom">
+        <div class="panel-bottom background-dark" v-show="step.id == 'waiting'">
+          <div class="centered q-pa-lg title4 text-primary">
+            <div class="q-pa-lg text-uppercase">{{ $t('label.WaitingForOtherUsersActions') }}</div>
+            <img src="statics/images/animation/map.gif" class="full-width q-mb-lg" />
+          </div>
+          <div>
+            <div class="q-pa-lg centered">
+              {{ $t('label.WaitingForOtherUsersActionsDesc') }}
+            </div>
+            <!--<div class="q-pa-md centered">
+              <q-btn flat icon="refresh"><span>{{ $t('label.CheckIfICanMoveFoward') }}</span></q-btn>
+            </div>-->
+          </div>
+        </div>
+      </transition>
+      
     </div>
     
     <!------------------ COMMON COMPONENTS ------------------>
@@ -441,6 +516,7 @@ import utils from 'src/includes/utils'
 import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
 import markersList from 'data/markers.json'
+import iotObjectsList from 'data/iotObjects.json'
 
 import Notification from 'boot/NotifyHelper'
 
@@ -461,6 +537,9 @@ import GLTFLoader from 'three-gltf-loader'
 import { THREEx } from 'src/includes/ar' // import * as ARjs from 'ar.js' in future versions?
 import { promisify } from 'es6-promisify'
 
+// required for steps 'wait-for-event' and 'trigger-event' (IoT):
+import * as mqtt from 'mqtt'
+
 export default {
   /*
    * Properties used on component call
@@ -470,7 +549,7 @@ export default {
    * itemUsed : item of the inventory used
    * lang : language of the step (fr, en, ...)
    */
-  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization'],
+  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player'],
   components: {
     geolocation,
     story
@@ -529,6 +608,17 @@ export default {
     utils.clearAllRunningProcesses()
     
     TWEEN.removeAll() // 3D animations
+    
+    // close MQTT connection & bluetooth (steps 'wait-for-event', 'trigger-event')
+    if (this.mqttClient !== null) {
+      let _this = this
+      this.mqttClient.end(false, {}, () => {
+        _this.mqttClient = null
+      })
+    }
+    if (this.bluetooth.enabled) {
+      this.bluetoothDisconnect(this.bluetooth.deviceId)
+    }
   },
   methods: {
     initialState () {
@@ -547,6 +637,12 @@ export default {
         isIOs: utils.isIOS(),
         isNetworkLow: false,
         
+        // for step 'character'
+        character: {
+          bubbleText: [],
+          numberOfBubble: 1,
+          bubbleNumber: 0
+        },
         // for step 'choose'
         answerType: 'text', // 'text' or 'image'
         
@@ -645,8 +741,24 @@ export default {
           disabled: false
         },
         // for step type 'find-item'
-        itemAdded: null,
         readMoreNotif: null,
+        // for step types 'wait-for-event', 'trigger-event'
+        mqttClient: null,
+        bluetooth: {
+          enabled: false,
+          deviceId: null
+        },
+        iotObject: null,
+        iot: {
+          distance: null,
+          pot1: null,
+          pot2: null,
+          pot3: null,
+          keypadAnswer: null,
+          axisX: null,
+          axisY: null,
+          chest: { disableActionButtons: false }
+        },
         // for story/tutorial
         story: {
           step: null,
@@ -729,6 +841,18 @@ export default {
         
         if (this.step.type === 'choose') {
           this.answerType = Array.isArray(this.step.options.items) && this.step.options.items[0].hasOwnProperty('imagePath') && this.step.options.items[0].imagePath !== null ? 'image' : 'text'
+        }
+        
+        if (this.step.type === 'character') {
+          if (this.step.text && this.step.text !== "") {
+            this.character.bubbleText = this.step.text.split('|')
+            this.character.numberOfBubble = this.character.bubbleText.length
+            if (this.character.numberOfBubble === 1) {
+              this.checkAnswer()
+            }
+          } else {
+            this.checkAnswer()
+          }
         }
         
         if (this.step.type === 'code-keypad') {
@@ -965,13 +1089,11 @@ export default {
           // video stream
           //if (this.isIOs && CameraPreview) {
           if (CameraPreview) {
-console.log("camera preview")
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
             CameraPreview.startCamera(options)
             //CameraPreview.setColorEffect("redfilter")
             CameraPreview.show()
           } else {
-console.log("not camera preview")
             var cameraStream2 = this.$refs['camera-stream-for-image-over-flow']
             // enable rear camera stream
             // -------------------------
@@ -1048,6 +1170,82 @@ console.log("not camera preview")
                 console.warn("No camera stream available")
                 console.log(err)
               })
+          }
+        }
+        
+        if (this.step.type === 'wait-for-event' || this.step.type === 'trigger-event') {
+          this.iotObject = this.getIotObjectFromCode(this.step.options.object)
+          
+          if (this.step.options.object === 'keypad') {
+            this.iot.keypadAnswer = '_'.repeat(this.step.options.answer.length)
+          }
+          
+          if (this.step.options.protocol === 'mqtt') {
+            // TODO: adapt to match specs at https://github.com/Graaly/iot/blob/master/README.md
+            let _this = this
+            
+            this.mqttClient = mqtt.connect(process.env.MQTT_URL)
+            
+            this.mqttClient.on('connect', () => {
+              console.log("Successfully connected to MQTT server " + process.env.MQTT_URL)
+              if (_this.step.type === 'wait-for-event') {
+                _this.mqttClient.subscribe(process.env.MQTT_TOPIC, function (err) {
+                  if (err) {
+                    console.error("Error when subscribing to topic " + process.env.MQTT_TOPIC + ":", err)
+                  } else {
+                    console.log("Successfully subscribed to MQTT topic " + process.env.MQTT_TOPIC)
+                  }
+                })
+              }
+            })
+
+            this.mqttClient.on('error', (connack) => {
+              console.error("Error connecting to MQTT server " + process.env.MQTT_URL, "connack=", connack)
+            })
+            
+            if (_this.step.type === 'wait-for-event') {
+              this.mqttClient.on('message', (topic, message) => {
+                console.log("Received MQTT message (topic " + topic + "): ", message.toString())
+                
+                try {
+                  message = JSON.parse(message)
+                } catch (err) {
+                  console.error("Could not read MQTT message. Error:", err)
+                }
+                
+                if (message.macAddress === _this.step.options.boardMacAddress) {
+                  console.log('*** MAC ADDRESSES MATCHED ***', _this.step.stepId)
+                  console.log('matching codes?', message.code, _this.step.options.code)
+                  if (message.code === _this.step.options.code) {
+                    console.log('*** CODES MATCHED, CHECK ANSWER ***')
+                    Notification(_this.step.options.successMessage, 'positive')
+                    _this.checkAnswer()
+                  }
+                }
+              })
+            }
+          } else if (this.step.options.protocol === 'bluetooth') {
+            if (this.isHybrid) {
+              ble.enable(this.bluetoothEnableSuccess, this.bluetoothEnableFailure);
+            } else {
+              console.warn('Webapp mode => no bluetooth support.')
+            }
+          } else {
+            throw new Error('Unsupported IoT step protocol: ' + this.step.options.protocol)
+          }
+          
+          // user can pass
+          this.$emit('pass')
+        } else {
+          // other steps than IoT? disable MQTT & bluetooth if enabled
+          if (this.mqttClient !== null) {
+            let _this = this
+            this.mqttClient.end(false, {}, () => {
+              _this.mqttClient = null
+            })
+          }
+          if (this.bluetooth.enabled) {
+            this.bluetoothDisconnect(this.bluetooth.deviceId)
           }
         }
       })
@@ -1198,9 +1396,10 @@ console.log("not camera preview")
       // if transition step, next button is clickable when controls are displayed
       if (this.step.type === 'info-text' || 
         this.step.type === 'info-video' || 
-        this.step.type === 'character' || 
+        //this.step.type === 'character' || 
         this.step.type === 'image-over-flow' || 
-        this.step.type === 'new-item') {
+        this.step.type === 'new-item' || 
+        this.step.type === 'trigger-event') {
         this.checkAnswer()
       }
     },
@@ -1344,7 +1543,7 @@ console.log("not camera preview")
       var _this = this
       var lowNetworkTimeout = setTimeout(function () { _this.isNetworkLow = true }, 8000)
 
-      var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData)
+      var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player)
 
       // clear low network alerte if displayed
       clearTimeout(lowNetworkTimeout)
@@ -1355,6 +1554,10 @@ console.log("not camera preview")
           this.$q.loading.hide()
         }
         let checkAnswerResult = response.data
+        // if run as builder, get the remainingTrial
+        if (this.runId === "0") {
+          checkAnswerResult.remainingTrial = (this.step.nbTrial - this.nbTry - 1)
+        }
         return checkAnswerResult
       } else {
         if (displaySpinner) {
@@ -1412,8 +1615,10 @@ console.log("not camera preview")
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       } else if (type === 'write-text') {
-        if (utils.removeAccents(answer) === utils.removeAccents(this.answer)) {
-          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+        for (var i = 0; i < this.answer.length; i++) {
+          if (utils.removeAccents(answer) === utils.removeAccents(this.answer[i])) {
+            return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+          }
         }
       } else if (type === 'memory') {
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
@@ -1459,9 +1664,10 @@ console.log("not camera preview")
         case 'end-chapter':
         case 'character':
         case 'image-over-flow':
+        case 'trigger-event':
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
-          this.submitGoodAnswer(0, checkAnswerResult.offline, true)
+          this.submitGoodAnswer(0, checkAnswerResult.offline, false)
           //if (CameraPreview) {
           //  CameraPreview.stopCamera()
           //  CameraPreview.stopCamera() // calling twice is needed
@@ -1625,6 +1831,10 @@ console.log("not camera preview")
             if (this.step.displayRightAnswer) {
               this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
             }
+            // if alt picture
+            if (this.step.options && this.step.options.altFile) {
+              this.step.backgroundImage = this.step.options.altFile
+            }
             
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
@@ -1647,6 +1857,10 @@ console.log("not camera preview")
           if (checkAnswerResult.result === true) {
             if (this.step.displayRightAnswer) {
               this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
+            }
+            // if alt picture
+            if (this.step.options && this.step.options.altFile) {
+              this.step.backgroundImage = this.step.options.altFile
             }
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
@@ -1788,7 +2002,37 @@ console.log("not camera preview")
             }
           }
           break
-
+        
+        case 'wait-for-event':
+          // reaching this line means that the correct event (code + mac address) has been retrieved from the IoT board
+          
+          // otherwise, this.onBluetoothNotification() can still be called a lot of times while the call to this.sendAnswer() below is waiting for a reply from web API
+          await this.stopBluetoothNotification()
+          
+          // call to sendAnswer() is required to get score & offline info
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: ''}, true)
+          
+          // server should always return true, otherwise user may be cheating
+          // TODO check on server side if same MQTT event has been retrieved
+          if (checkAnswerResult.result === true) {
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+          } else {
+            Notification(this.$t('label.TechnicalIssue'), 'error')
+          }
+          
+          if (this.step.options.protocol === 'mqtt') {
+            let _this = this
+            this.mqttClient.end(false, {}, () => {
+              _this.mqttClient = null
+            })
+          } else if (this.step.options.protocol === 'bluetooth') {
+            this.bluetoothDisconnect(this.bluetooth.deviceId)
+          } else {
+            throw new Error("Unknown IoT protocol '" + this.step.options.protocol + "'")
+          }
+          
+          break
+        
         default:
           console.log('checkAnswer(): Step type ' + this.step.type + ' not supported.')
       }
@@ -1859,6 +2103,9 @@ console.log("not camera preview")
             } else { // locate marker, mode scan
               this.displaySuccessMessage(true, this.$t('label.WellDone'))
             }
+            break
+          case 'wait-for-event':
+            this.displaySuccessMessage(true, this.$t('label.WellDone'))
             break
         }
       }
@@ -1936,6 +2183,17 @@ console.log("not camera preview")
     
     ////////////////////////////////////////////// MANAGEMENT OF THE ENIGMA COMPONENTS /////////////////////////////////////////////
     
+    /*
+     * Display next text 
+     */
+    nextCharacterBubbleText() {
+      if (this.character.bubbleNumber < (this.character.numberOfBubble - 1)) {
+        this.character.bubbleNumber++
+      }
+      if (this.character.bubbleNumber >= (this.character.numberOfBubble - 1)) {
+        this.checkAnswer()
+      }
+    },
     /*
      * Reset the key pad 
      */
@@ -2312,7 +2570,7 @@ console.log("not camera preview")
         this.updatePlayerCanTouchTarget()
       }
       
-      if (this.step.type === 'geolocation' && this.geolocation.distance <= 20) {
+      if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.distance <= parseInt(options.distance, 10)) || this.geolocation.distance <= 20)) {
         this.$refs['geolocation-component'].disabled = true
         this.geolocation.active = false
         this.resetDrawDirectionInterval()
@@ -3253,6 +3511,231 @@ console.log("not camera preview")
       this.enlargePicture.show = true
       var pictureUrl = this.step.options.images[this.playerCode[index]].imagePath
       this.enlargePicture.url = pictureUrl.indexOf('blob:') !== -1 ? pictureUrl : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + pictureUrl
+    },
+    /**
+     * Triggers an IoT event
+     * @param {String} data    optional - data to send to box
+     */
+    async triggerIotEvent (data) {
+      if (this.step.options.protocol === "mqtt") {
+        // TODO adapt to have same behavior as bluetooth
+        this.mqttClient.publish(process.env.MQTT_TOPIC, JSON.stringify({macAddress: this.step.options.boardMacAddress, code: this.step.options.code}))
+      } else if (this.step.options.protocol === "bluetooth") {
+        let finalData
+        switch (this.step.options.object) {
+          case 'lcd':
+            finalData = this.step.options.message
+            break
+          case 'buzzer':
+            finalData = this.step.options.duration + ',' + this.step.options.frequency
+            break
+          case 'chest':
+            this.iot.chest.disableActionButtons = true
+            finalData = data
+            break
+          default:
+            throw new Error("Object '" + this.step.options.object + "' not supported")
+        }
+        this.sendMessageToBluetoothServer(this.step.options.object + ':' + finalData)
+        if (this.step.options.object === 'chest') {
+          await utils.sleep(2000)
+          this.iot.chest.disableActionButtons = false
+        }
+      } else {
+        throw new Error('IoT protocol not supported: ' + this.step.options.protocol)
+      }
+    },
+    
+    bluetoothEnableSuccess: function() {
+      console.log("Bluetooth is enabled")
+      this.bluetooth.enabled = true
+      this.searchForBluetoothPeripheral()
+    },
+    bluetoothDisconnect: function(deviceId) {
+      console.log("Disconnecting BLE")
+      let _this = this
+      ble.disconnect(deviceId, () => {
+        _this.bluetooth.enabled = false
+        _this.bluetooth.deviceId = null
+      })
+    },
+    bluetoothEnableFailure: function() {
+      console.log("The user did *not* enable Bluetooth")
+      Notification("Bluetooth could not be enabled", "error")
+    },
+    searchForBluetoothPeripheral: function() {
+      console.log("Searching for BT peripherals...")
+      ble.startScan([], this.bluetoothScanResult)
+    },
+    bluetoothScanResult: function(data) {
+      console.log("Device discovered", data)
+      if (data.name === this.iotObject.deviceName) {
+        this.stopBluetoothScan()
+        console.log("Graaly IoT BT device discovered")
+        this.bluetooth.deviceId = data.id;
+        ble.connect(data.id, this.bluetoothDeviceConnected, this.bluetoothDeviceDisonnected)
+      }
+    },
+    bluetoothDeviceConnected: async function(data) {
+      console.log("BT device connected", data);
+      
+      await this.sendMessageToBluetoothServer("cm:" + this.step.options.object)
+      
+      if (this.step.type === 'wait-for-event') {
+        console.log("Start notification listening")
+        ble.startNotification(
+          data.id,
+          this.iotObject.bleServiceId,
+          this.iotObject.bleCharacteristicId,
+          this.onBluetoothNotification,
+          err => console.error(err))
+      }
+      
+      if (this.step.type === 'trigger-event' && (!this.step.options.triggerMode || this.step.options.triggerMode === 'auto')) {
+        this.triggerIotEvent(this.step.options.object === 'chest' ? 'open' : '')
+      }
+    },
+    bluetoothDeviceDisonnected: function(err) {
+      console.log("BT device disconnected", err);
+    },
+    onBluetoothNotification: async function(buffer) {
+      const data = utils.bytesToString(buffer)
+      let correctRanges
+      console.log("Received BT notification: " + data)
+      this.lastReceivedValue = data
+      
+      // no reaction if player answer is detected as correct or wrong
+      if (this.playerResult !== null) { return }
+      
+      switch (this.step.options.object) {
+        case 'keypad':
+          if (data.length < 8) {
+            throw new Error('Invalid data retrieved from IoT device (keypad mode): ' + data)
+          }
+          this.iot.keypadAnswer = utils.replaceStringAt(this.iot.keypadAnswer, this.iot.keypadAnswer.indexOf('_'), data.charAt(7))
+          if (this.iot.keypadAnswer.indexOf('_') === -1) {
+            if (this.iot.keypadAnswer === this.step.options.answer) {
+              this.checkAnswer() // server returns always success
+            } else {
+              // wrong answer behavior: horizontal shake animation
+              this.playerResult = false
+              await utils.sleep(1000) // wait for shake animation
+              this.iot.keypadAnswer = '_'.repeat(this.step.options.answer.length)
+              this.playerResult = null
+            }
+          }
+          break
+        case 'joystick':
+          let axisValues = data.match(new RegExp('(\\d+)', 'g'))
+          correctRanges = true
+          if (axisValues.length !== 2) {
+            throw new Error("Invalid length for array 'axisValues'")
+          }
+          axisValues = {
+            X: axisValues[1],
+            Y: axisValues[0]
+          }
+          for (let axis of ['X', 'Y']) {
+            let axisValue = parseInt(axisValues[axis], 10)
+            this.iot['axis' + axis] = axisValue / 255
+            if (axisValue < this.step.options['range' + axis].min || axisValue > this.step.options['range' + axis].max) {
+              correctRanges = false
+            }
+          }
+          if (correctRanges) {
+            this.checkAnswer()
+          }
+          break
+        case 'distance':
+          this.iot.distance = parseInt(data.substring(9), 10)
+          if (this.iot.distance >= this.step.options.range.min && this.iot.distance <= this.step.options.range.max) {
+            this.checkAnswer()
+          }
+          break
+        case 'pot':
+          let potValues = data.match(new RegExp('(\\d+)', 'g'))
+          correctRanges = true
+          if (potValues.length !== 3) {
+            throw new Error("Invalid length for array 'potValues'")
+          }
+          for (let i = 0; i < 3; i++) {
+            let potValue = parseInt(potValues[i], 10)
+            this.iot['pot' + (i+1)] = potValue / 255
+            if (potValue < this.step.options['range' + (i+1)].min || potValue > this.step.options['range' + (i+1)].max) {
+              correctRanges = false
+            }
+          }
+          if (correctRanges) {
+            this.checkAnswer()
+          }
+          break
+        case 'button':
+          if (data.length < 8) {
+            throw new Error('Invalid data retrieved from IoT device (button mode): ' + data)
+          }
+          let buttonAction = data.substring(7)
+          if (buttonAction === 'pressed') {
+            this.checkAnswer()
+          }
+          break
+        case 'escapebox':
+          break
+        default:
+          throw new Error("Unknown IoT object code '" + this.step.options.object + "'")
+      }
+    },
+    sendMessageToBluetoothServer: function(stringToSend) {
+      let _this = this
+      return new Promise(function (resolve, reject) {
+        if (!_this.bluetooth.enabled || _this.bluetooth.deviceId === null) {
+          reject(new Error('Bluetooth device not connected'))
+          return
+        }
+        console.log("sendMessageToBluetoothServer: " + stringToSend)
+        ble.writeWithoutResponse(
+          _this.bluetooth.deviceId,
+          _this.iotObject.bleServiceId,
+          _this.iotObject.bleCharacteristicId,
+          utils.stringToBytes(stringToSend),
+          data => {
+            console.log("BLE write success", data)
+            resolve()
+          },
+          err => {
+            console.log("BLE write failure", err)
+            reject(err)
+          }
+        );
+      })
+    },
+    stopBluetoothScan: async function() {
+      await ble.stopScan(
+        () => {
+          console.log("BT Scan stopped");
+        },
+        err => {
+          console.log("Could not stop BT scan", err);
+        }
+      );
+    },
+    stopBluetoothNotification: function() {
+      let _this = this
+      return new Promise((resolve, reject) => {
+        ble.stopNotification(
+          _this.bluetooth.deviceId,
+          _this.iotObject.bleServiceId,
+          _this.iotObject.bleCharacteristicId,
+          () => { resolve() },
+          (err) => { reject(new Error("Could not stop bluetooth notifications. error: " + err)) })
+      })
+    },
+    getIotObjectFromCode (code) {
+      for (let object of iotObjectsList) {
+        if (object.code === code) {
+          return object
+        }
+      }
+      throw new Error("Unknown object code '" + code + "'")
     }
   }
 }
@@ -3329,7 +3812,7 @@ console.log("not camera preview")
   .images-block img { width: 100%; border-radius: 0.5rem; }
   
   /* keypad specific (code) */
-  
+  .code { overflow: auto; }
   .typed-code { text-align: center; margin: 1rem auto; }
   .typed-code table { border-collapse: collapse; background-color: rgba(255, 255, 255, 0.6); }
   .typed-code td { width: 2rem; height: 3rem; border: 1px solid black; vertical-align: middle; text-align: center; line-height: 3rem; }
@@ -3486,7 +3969,27 @@ console.log("not camera preview")
     animation-duration: .75s;
     background: #e2043b;
   }
+  
+  /* IoT steps */
+  
+  .trigger-event { display: flex; flex-direction: column; height: 100%; margin-bottom: 25vw; }
+  
+  .iot-keypad { text-align: center; font-family: Courier; font-weight: bold; font-size: 2rem; }
+  
+  .shake {
+    animation: shake 1s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
 
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+  }
+  
   /* right/wrong styles */
   
   .right, .q-btn.right { color: #0a0; background-color: #cfc; box-shadow: 0px 0px 0.3rem 0.3rem #9f9; }

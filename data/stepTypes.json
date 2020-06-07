@@ -293,5 +293,39 @@
     "hasOptions": true,
     "nbTrials": 0,
     "passOption": true
+  },
+  {
+    "category": "enigma",
+    "code": "trigger-event",
+    "icon": "bolt",
+    "title": "TriggerEvent",
+    "description": "TriggerEventDesc",
+    "showTrick": "no",
+    "textRules": {
+      "maxNbChars": 250,
+      "maxNbCarriageReturns": 5
+    },
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": false
+  },
+  {
+    "category": "enigma",
+    "code": "wait-for-event",
+    "icon": "bolt",
+    "title": "WaitForEvent",
+    "description": "WaitForEventDesc",
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 250,
+      "maxNbCarriageReturns": 5
+    },
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": true
   }
 ]

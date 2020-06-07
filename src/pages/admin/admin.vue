@@ -10,7 +10,7 @@
       <q-tabs v-model="adminTab" class="bg-primary text-white">
         <q-tab name="validation" icon="check_box" label="Quests validation" default />
         <q-tab name="rejected" icon="sentiment_very_dissatisfied" label="Quests rejected" />
-        <q-tab name="minigames" icon="child_friendly" label="Mini games" />
+        <q-tab name="statistics" icon="stats" label="Statistics" />
       </q-tabs>
       
       <q-separator />
@@ -79,25 +79,21 @@
         </q-tab-panel>
         <!------------------ MINI GAMES TAB ------------------------>
         
-        <q-tab-panel name="minigames">
-          
-          <q-btn link class="full-width" @click="$router.push('/admin/minigames/builder')" color="accent">{{ $t('label.AddATown') }}</q-btn>
-          
+        <q-tab-panel name="statistics">
+          Best games of the month:
           <q-list highlight>
-            <q-item v-for="town in towns.items" :key="town._id">
+            <q-item v-for="game in games.items" :key="game._id.questId">
               <q-item-section>
-                <q-item-label>{{ town.name }} ({{ town.zipcode }})</q-item-label>
-                <q-item-label caption>{{ town.country }}</q-item-label>
+                <q-item-label v-if="game._id.questData.fr">{{ game._id.questData.fr }}</q-item-label>
+                <q-item-label v-if="!game._id.questData.fr && game._id.questData.en">{{ game._id.questData.en }}</q-item-label>
+                <q-item-label caption>Monthly:{{ game.monthNb }} Weekly:{{ game.weekNb }} rating: {{ game.rating }}</q-item-label>
               </q-item-section>
-              <q-item-section v-if="town.status === 'new'" side>
-                <q-btn>Configure</q-btn>
-              </q-item-section>
-              <q-item-section v-if="town.status === 'configured'" side>
+              <!--<q-item-section side>
                 <q-btn>Update</q-btn>
-              </q-item-section>
+              </q-item-section>-->
             </q-item>
-            <q-item v-if="towns.items.length === 0">
-              <q-item-label>No town configured yet</q-item-label>
+            <q-item v-if="games.items.length === 0">
+              <q-item-label>No game played during 1 month</q-item-label>
             </q-item>
           </q-list>
         </q-tab-panel>
@@ -123,6 +119,9 @@ export default {
       towns: {
         items: []
       },
+      games: {
+        items: []
+      },
       adminTab: 'validation',
       serverUrl: process.env.SERVER_URL
     })
@@ -130,7 +129,8 @@ export default {
   mounted () {
     this.loadQuestsToValidate()
     this.loadQuestsRejected()
-    this.loadTowns()
+    this.loadStatistics()
+    //this.loadTowns()
   },
   methods: {
     /*
@@ -148,6 +148,15 @@ export default {
       // get quests to validate
       let response = await AdminService.ListTowns()
       this.towns.items = response.data.towns
+    },
+    /*
+     * Get the statistics of best games
+     */
+    async loadStatistics() {
+      // get quests to validate
+      let response = await AdminService.ListBestGames()
+console.log(response.data)
+      this.games.items = response.data.games
     },
     /*
      * validate a quest

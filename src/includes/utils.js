@@ -242,6 +242,12 @@ var self = {
       })
     }*/
   },
+  getDurationFromNow: function(date) {
+    const oldDate = new Date(date)
+    const now = new Date()
+    const duration =(now.getTime() - oldDate.getTime())
+    return {h: parseInt((duration/(1000*60*60))%24), m: parseInt((duration/(1000*60))%60)}
+  },
   
   /**
    * Clear all tracks of a camera stream
@@ -727,7 +733,21 @@ var self = {
    * Open a link in the mobile browser
    */
   openExternalLink(url) {
-    navigator.app.loadUrl(url, { openExternal: true })
+    if (window.cordova) {
+      navigator.app.loadUrl(url, { openExternal: true })
+    } else {
+      window.open(url, '_blank')
+    }
+  },
+  /**
+   * remove unused URL from a qrcode for ex.
+   */
+  removeUnusedUrl(url) {
+    if (url.indexOf('gc=') !== -1) {
+      let position = url.indexOf('gc=')
+      return url.substring(position + 3)
+    }
+    return url
   },
   /**
    * Loads an image synchronously (allows to wait that the image is loaded before using it)
@@ -775,6 +795,43 @@ var self = {
       // handle regular non iOS 13+ devices
       return Promise.resolve('granted')
     }
+  },
+  /**
+   * @return {Buffer}
+   * @param {String} string 
+   */
+  stringToBytes: function(string) {
+    var array = new Uint8Array(string.length);
+    for (var i = 0, l = string.length; i < l; i++) {
+      array[i] = string.charCodeAt(i);
+    }
+    return array.buffer;
+  },
+  /**
+   * @return {String}
+   * @param {Buffer} buffer 
+   */
+  bytesToString: function(buffer) {
+    return String.fromCharCode.apply(null, new Uint8Array(buffer));
+  },
+  /**
+   * Replace substring at specified position in string
+   * @see https://stackoverflow.com/a/1431113/488666
+   * @return {String}
+   * @param {String} originalString
+   * @param {String} index
+   * @param {String} replacement
+   */
+  replaceStringAt: function (originalString, index, replacement) {
+    return originalString.substr(0, index) + replacement + originalString.substr(index + replacement.length)
+  },
+  /**
+   * Sleeps for specified time. Example: await utils.sleep(2000)
+   * @param {Number} ms   number of milliseconds to sleep
+   * @see https://stackoverflow.com/a/39914235/488666
+   */
+  sleep: function (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
   }
 }
 

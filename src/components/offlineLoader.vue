@@ -258,6 +258,15 @@ export default {
                   }
                 }
               }
+              if ((step.type === 'find-item' || step.type === 'use-item') && step.options && step.options.altFile && step.options.altFile !== '') {
+                if (step.options.altFile.length !== 1) {
+                  const altImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/background/', step.options.altFile)
+                  if (!altImageSuccess) {
+                    this.throwSaveError()
+                    return false
+                  }
+                }
+              }
               if (step.type === 'locate-item-ar' && step.options) {
                 if (step.options.picture && step.options.picture !== '') {
                   const locateItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/locate-item-ar/', step.options.picture)
