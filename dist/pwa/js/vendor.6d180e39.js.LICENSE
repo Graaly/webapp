@@ -51,6 +51,8 @@
    * @license MIT License (see LICENSE.txt)
    */
 
+/*! https://mths.be/punycode v1.4.1 by @mathias */
+
 /*!
  * JavaScript Cookie v2.2.0
  * https://github.com/js-cookie/js-cookie
