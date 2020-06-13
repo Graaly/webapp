@@ -920,6 +920,7 @@ export default {
       } else if (this.next.canPass) {
         this.$q.loading.hide()
         this.$q.dialog({
+          dark: true,
           message: this.$t('label.ConfirmPass'),
           ok: this.$t('label.Ok'),
           cancel: this.$t('label.Cancel')
@@ -996,6 +997,7 @@ export default {
           await this.getHint()
         } else {
           this.$q.dialog({
+            dark: true,
             message: this.$t('label.ConfirmHint'),
             ok: this.$t('label.Ok'),
             cancel: this.$t('label.Cancel')
@@ -1110,6 +1112,7 @@ export default {
     async restartGame() {
       var self = this         
       this.$q.dialog({
+        dark: true,
         message: this.$t('label.AreYouSureToRestartThisQuest'),
         ok: this.$t('label.Restart'),
         cancel: this.$t('label.Cancel')

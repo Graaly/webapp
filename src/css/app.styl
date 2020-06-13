@@ -211,6 +211,12 @@ body {
 .background-lighter2 {
   background-color: rgba(255, 255, 255, .3);
 }
+.background-lighter3 {
+  background-color: rgba(255, 255, 255, .5);
+}
+.background-lighter4 {
+  background-color: rgba(255, 255, 255, .7);
+}
 
 /////////////////////////////// Form CSS /////////////////////////////////////
 
@@ -308,18 +314,13 @@ a.no-underline {
  * fix quasar issue with "maximized" property on <q-dialog>, which can prevent scrolling on Android
  * tried to prevent scrolling "above limits" on iOS, using those solutions https://stackoverflow.com/a/39821505/488666, but no luck
  */
+ 
 .q-dialog__inner--maximized {
   overflow-y: scroll;
   padding: 0.5rem; /* nicer layout / UI */
 }
 .q-dialog__inner--maximized > div {
   overflow-y: scroll !important;
-}
-.q-dialog__inner .q-field__native {
-  color: #fff;
-}
-.q-dialog__inner .q-field--standard .q-field__control:hover:before {
-  border-color: #fff;
 }
 .q-dialog.fullscreen {
   /* 7003 to be over the stories, especially when user pass the tutorial */

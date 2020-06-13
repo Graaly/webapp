@@ -234,14 +234,16 @@
             ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'"></header></div>
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
-        <div class="centered text-grey q-pt-lg arial" v-if="puzzle.mode === 'drag'">
-          {{ $t('label.PuzzleHelpText') }}
-        </div>
-        <div class="centered text-primary q-pt-lg arial" v-if="puzzle.mode === 'click'">
-          {{ $t('label.PuzzleHelpTextClick') }}
-        </div>
-        <div class="centered text-grey q-pt-sm" v-if="puzzle.mode === 'drag'">
-          <a class="text-grey" @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
+        <div class="q-mt-lg background-lighter4 q-pa-md">
+          <div class="centered arial" v-if="puzzle.mode === 'drag'">
+            {{ $t('label.PuzzleHelpText') }}
+          </div>
+          <div class="centered text-primary q-pt-lg arial" v-if="puzzle.mode === 'click'">
+            {{ $t('label.PuzzleHelpTextClick') }}
+          </div>
+          <div class="centeredq-pt-sm" v-if="puzzle.mode === 'drag'">
+            <a class="text-black" @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
+          </div>
         </div>
       </div>
       
@@ -2722,6 +2724,13 @@ export default {
         defaultText = this.$t('label.YouHaveWinANewItem')
       }
       let translation = this.step.text ? this.step.text : defaultText
+      
+      // replace variables
+      let date = new Date()
+      translation = translation.replace('%id%', this.$store.state.user.id)
+      translation = translation.replace('%name%', this.$store.state.user.name)
+      translation = translation.replace('%date%', (date.getMonth() + 1) + '.' + date.getFullYear())
+      
       return translation
     },
     getScreenWidth() {
