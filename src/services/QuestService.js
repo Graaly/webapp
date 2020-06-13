@@ -380,6 +380,8 @@ export default {
    * @param   {String}    lang                user language
    */
   checkLoginQRCode(questId, lang) {
+    // replace / sign
+    questId = questId.replace('/', '-slash-')
     return Api().get('quest/' + questId + '/connectandplay/qrcode/lang/' + lang).catch(error => console.log(error.request))
   },
   /*
@@ -388,6 +390,8 @@ export default {
    * @param   {String}    lang                user language
    */
   checkQRCode(questId, lang) {
+    // replace / sign
+    questId = questId.replace('/', '-slash-')
     return Api().get('quest/' + questId + '/play/qrcode/lang/' + lang).catch(error => console.log(error.request))
   },
   /*

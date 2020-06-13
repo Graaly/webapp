@@ -874,6 +874,7 @@ export default {
         var _this = this; // workaround for closure scope quirks
       
         this.$q.dialog({
+          dark: true,
           message: this.$t('label.DoYouWantToCreateAnAccount'),
           ok: true,
           cancel: true

@@ -524,6 +524,7 @@ export default {
           }
         } else {
           this.$q.dialog({
+            dark: true,
             title: this.$t('label.TechnicalProblem'),
             message: this.$t('label.TechnicalProblemNetworkIssue'),
             ok: this.$t('label.BackToMap')
@@ -652,9 +653,9 @@ export default {
         return 'free'
       }
       // admin and owners do not pay
-      if (this.isAdmin || this.isOwner) {
+      /*if (this.isAdmin || this.isOwner) {
         return 'free'
-      }
+      }*/
       // if game is already started or played, do not pay
       if (this.isRunStarted || this.isRunFinished) {
         return 'free'
@@ -709,11 +710,11 @@ export default {
       store.refresh()
     },
     displayPrice(product) {
-        // check if product is orderable
-        this.shop.premiumQuest.priceValue = product.price
-        if (product.canPurchase) {
-          this.shop.premiumQuest.buyable = true
-        }
+      // check if product is orderable
+      this.shop.premiumQuest.priceValue = product.price
+      if (product.canPurchase) {
+        this.shop.premiumQuest.buyable = true
+      }
     },
     /*
      * Save a purchase
@@ -734,7 +735,6 @@ export default {
      * Buy the quest
      */
     async buyQuest () {
-//await this.savePurchase({price: 5, title: "toto", description: "tata"})
       store.order(this.quest.premiumPrice.androidId)
     },
     /*
@@ -874,7 +874,7 @@ export default {
      * @param   {String}    lang               lang of the quest
      */
     playQuest(questId, lang) {
-      if (this.playStep === 0 && this.quest.premiumPrice && (this.quest.premiumPrice.tier || this.quest.premiumPrice.active)) {
+      if (this.playStep === 0 && this.quest.premiumPrice && (this.quest.premiumPrice.tier || this.quest.premiumPrice.active) && !this.isAdmin && !this.isOwner) {
         this.shop.show = true
       } else if (this.playStep <= 1 && this.quest.playersNumber > 1) {
         this.shop.show = false
@@ -973,7 +973,7 @@ export default {
         this.playStep = 2
         this.playQuest(this.quest.questId, this.$route.params.lang)
       } else {
-        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        Notification(this.$t('label.ErrorMessageForNewTeamMember'), 'error')
       }
     },
     /*

@@ -414,6 +414,7 @@ export default {
     async removeFriend () {    
       const friendId = this.userId
       this.$q.dialog({
+        dark: true,
         message: this.$t('label.AreYouSureYouWantToRemoveThisFriend'),
         ok: true,
         cancel: true

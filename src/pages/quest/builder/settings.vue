@@ -1423,6 +1423,7 @@ export default {
     async changeEditorMode() {
       if (this.form.fields.editorMode === 'advanced') {
         this.$q.dialog({
+          dark: true,
           message: this.$t('label.AreYouSureYouWantToMoveToAdvancedMode'),
           ok: true,
           cancel: true
@@ -2055,7 +2056,7 @@ export default {
         }
         if (action === 'publish') {
           if (this.quest.status === 'unpublished' || this.quest.status === 'draft') {
-            if (this.quest.access === 'private') {
+            if (this.quest.access === 'private' && !this.quest.isPremium) {
               this.$q.loading.show()
               await QuestService.publish(this.questId, lang)
               //TODO: manage if publishing failed
@@ -2064,6 +2065,7 @@ export default {
             } else {
               var _this = this
               this.$q.dialog({
+                dark: true,
                 message: this.$t('label.AreYouSureYouWantToPublishThisQuest'),
                 ok: true,
                 cancel: true
@@ -2173,6 +2175,7 @@ export default {
       var _this = this; // workaround for closure scope quirks
       
       this.$q.dialog({
+        dark: true,
         message: this.$t('label.AreYouSureYouWantToRemoveThisQuest'),
         ok: true,
         cancel: true
@@ -2193,6 +2196,7 @@ export default {
         var _this = this
         
         this.$q.dialog({
+          dark: true,
           message: this.$t('label.DoYouWantToOpenClonedQuest'),
           ok: true,
           cancel: true
@@ -2209,6 +2213,7 @@ export default {
       var _this = this; // workaround for closure scope quirks
 
       this.$q.dialog({
+        dark: true,
         message: this.$t('label.DoYouWantToRemoveThisStep'),
         ok: true,
         cancel: true
@@ -2225,6 +2230,7 @@ export default {
       var _this = this; // workaround for closure scope quirks
 
       this.$q.dialog({
+        dark: true,
         message: this.$t('label.CreateNewVersionDescription'),
         ok: true,
         cancel: true
@@ -2252,6 +2258,7 @@ export default {
       }
       
       this.$q.dialog({
+        dark: true,
         message: this.$t('label.DoYouWantToRemoveThisChapter'),
         ok: true,
         cancel: true
@@ -2282,6 +2289,7 @@ export default {
       }
       
       this.$q.dialog({
+        dark: true,
         message: this.$t('label.ModifyTheChapter'),
         prompt: {
           model: chapterData.name,
@@ -2304,13 +2312,13 @@ export default {
       var _this = this; // workaround for closure scope quirks
       
       this.$q.dialog({
+        dark: true,
         message: this.$t('label.NewChapter'),
         prompt: {
           model: '',
           type: 'text'
         },
-        cancel: true,
-        dark: true
+        cancel: true
       }).onOk(async (data) => {
         var title = {}
         title[_this.languages.current] = data
@@ -2538,6 +2546,7 @@ export default {
         var _this = this;
       
         this.$q.dialog({
+          dark: true,
           message: this.$t('label.AreYouSureToAddThisNewLanguage'),
             ok: true,
             cancel: true
@@ -2581,6 +2590,7 @@ export default {
       var _this = this; // workaround for closure scope quirks
 
       this.$q.dialog({
+        dark: true,
         message: this.$t('label.ClosePrivateQuestAlert'),
         ok: true,
         cancel: true
@@ -3128,6 +3138,7 @@ export default {
     },
     async removeCode(code) {
       this.$q.dialog({
+        dark: true,
         message: this.$t('label.AreYouSureYouWantToRemoveThisTierCode'),
         ok: true,
         cancel: true
