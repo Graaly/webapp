@@ -626,6 +626,14 @@
             {{ $t('label.ThisActionCanNotBeCanceled') }}
           </q-item-section>
         </q-item>
+        <q-item v-if="quest.status === 'published'">
+          <q-item-section side top>
+            <q-icon name="delete" class="left-icon" />
+          </q-item-section>
+          <q-item-section>
+            {{ $t('label.YouNeedToUnpublishYourQuestToRemoveIt') }}
+          </q-item-section>
+        </q-item>
         
       </div>
       

@@ -940,7 +940,8 @@ module.exports = {
       TriggerModeAuto: "Auto (at step loading)",
       TriggerModeManual: "Manual (player must touch a button)",
       helpPlayer: "For each step of a multiplayer game, you need to select the player who will see the step. Other players will not see it, and will have a waiting message until the player solve the enigma. You can display a transition step for all player, but an enigma can only be display for one player. If you need an enigma to be solved by all users, you need to create a step for each player. For more information, please watch our Youtube tutos.",
-      ErrorMessageForNewTeamMember: "Technical issue or number of players reached"
+      ErrorMessageForNewTeamMember: "Technical issue or number of players reached",
+      YouNeedToUnpublishYourQuestToRemoveIt: "You need to unpublish your quest to remove it"
     }
   },
   fr: {
@@ -1872,7 +1873,8 @@ module.exports = {
       TriggerModeAuto: "Auto (au chargement de l'étape)",
       TriggerModeManual: "Manuel (le joueur doit toucher un bouton)",
       helpPlayer: "Pour chaque étape d'un jeu multijoueur, vous devez sélectionner le joueur qui verra cette étape. Les autres joueurs ne le verront pas, et auront un message d'attente jusqu'à que le joueur résolve l'énigme. Vous pouvez afficher une étape de type transition pour tous les joueurs, mais vous ne pouvez afficher une énigme que pour un joueur. Si vous souhaitez que tous les joueurs résolvent la même énigme, vous devez créer une étape pour chaque joueur. Pour plus d'information, regardez nos tutos Youtube.",
-      ErrorMessageForNewTeamMember: "Problème technique ou nombre de joueurs atteint"
+      ErrorMessageForNewTeamMember: "Problème technique ou nombre de joueurs atteint",
+      YouNeedToUnpublishYourQuestToRemoveIt: "Vous devez dépublier vote jeu pour le supprimer"
     }
   }
 }

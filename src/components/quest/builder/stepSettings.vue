@@ -116,6 +116,10 @@
       <div v-if="options.type.code == 'character'">
         <div>{{ $t('label.SplitMessageWithPipe') }}</div>
         <h2>{{ $t('label.Character') }}</h2>
+        <div v-if="quest.customization.character && quest.customization.character !== ''">
+          <q-radio v-model="selectedStep.form.options.character" val="usequestcharacter" />
+          <p><img :src="serverUrl + '/upload/quest/' + quest.customization.character" /></p>
+        </div>
         <div class="answer" v-for="n in 6" :key="n">
           <q-radio v-model="selectedStep.form.options.character" :val="n.toString()" />
           <p><img :src="'statics/icons/story/character' + n + '_attitude1.png'" /></p>
@@ -140,7 +144,7 @@
               <input @change="uploadCharacterImage" ref="characterfile" type="file" accept="image/*" />
             </div>
             <p v-show="$v.selectedStep.form.options.character.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-            <div class="centered" v-if="selectedStep.form.options.character && selectedStep.form.options.character.length > 2">
+            <div class="centered" v-if="selectedStep.form.options.character && selectedStep.form.options.character.length > 2 && selectedStep.form.options.character !== 'usequestcharacter'">
               <img style="width:100%" :src="serverUrl + '/upload/quest/' + questId + '/step/character/' + selectedStep.form.options.character" />
             </div>
           </div>

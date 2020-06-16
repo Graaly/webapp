@@ -67,7 +67,7 @@
           </div>
           <div v-if="quest.type === 'quest' && (!quest.customization || !quest.customization.removeScoring)" class="q-mr-lg">
             <img src="statics/images/icon/cost.svg" class="medium-icon" />
-            <span v-if="shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">{{ $t('label.Free') }}</span>
+            <span v-if="!quest.premiumPrice.tier && shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">{{ $t('label.Free') }}</span>
             <span v-if="shop.premiumQuest.priceCode !== 'free' && quest.type === 'quest'">{{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }}</span>
           </div>
           <div v-if="!quest.customization || !quest.customization.removeScoring">
@@ -76,7 +76,11 @@
         </div>
         <div v-if="quest.type === 'room' && quest.premiumPrice.manual">
           <img src="statics/images/icon/cost.svg" class="medium-icon" />
-          <span v-if="quest.type === 'room' && quest.premiumPrice.manual">{{ $t('label.FromPricePerPlayer', {price: quest.premiumPrice.manual}) }}</span>
+          <span>{{ $t('label.FromPricePerPlayer', {price: quest.premiumPrice.manual}) }}</span>
+        </div>
+        <div v-if="quest.premiumPrice.tier && quest.type === 'quest' && quest.premiumPrice.manual && shop.premiumQuest.priceCode === 'free'">
+          <img src="statics/images/icon/cost.svg" class="medium-icon" />
+          <span>{{ $t('label.FromPricePerPlayer', {price: quest.premiumPrice.manual}) }}</span>
         </div>
         
         <!-- =========================== LOCATION ========================== -->

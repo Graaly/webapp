@@ -60,7 +60,8 @@
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
             <img style="vertical-align:bottom" v-if="step.options.character.length < 3" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
-            <img style="max-width: 100%; max-height: 200px; vertical-align:bottom;" v-if="step.options.character.length > 2" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
+            <img style="max-width: 100%; max-height: 200px; vertical-align:bottom;" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
+            <img style="max-width: 100%; max-height: 200px; vertical-align:bottom;" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + customization.character : customization.character" />
           </div>
           <div class="full-width bg-black" style="height: 70px">
           </div>
@@ -92,28 +93,36 @@
       <!------------------ KEYPAD STEP AREA ------------------------>
       
       <div class="code" v-if="step.type == 'code-keypad'">
-        <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
-        </div>
-        <div class="typed-code">
-          <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
-          <tr>
-            <td v-for="(sign, key) in playerCode" :key="key" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
-          </tr>
-          </table>
-        </div>
-        <div class="keypad">
-          <div class="keypadLine">
-            <div v-for="(keypadLine, rowKey) in keypad" :key="rowKey">
-              <q-btn v-for="(keypadButton, btnKey) in keypadLine" :key="btnKey" color="grey" glossy @click="addCodeChar(keypadButton)" :disable="playerResult !== null" :test-id="'btn-keypad-' + keypadButton">{{ keypadButton }}</q-btn>
+        <div v-if="showKeypad">
+          <div>
+            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          </div>
+          <div class="typed-code">
+            <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
+            <tr>
+              <td v-for="(sign, key) in playerCode" :key="key" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
+            </tr>
+            </table>
+          </div>
+          <div class="keypad">
+            <div class="keypadLine">
+              <div v-for="(keypadLine, rowKey) in keypad" :key="rowKey">
+                <q-btn v-for="(keypadButton, btnKey) in keypadLine" :key="btnKey" color="grey" glossy @click="addCodeChar(keypadButton)" :disable="playerResult !== null" :test-id="'btn-keypad-' + keypadButton">{{ keypadButton }}</q-btn>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
-          <div>
-            <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
-            <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
+          <div class="actions q-mt-lg q-mb-md" v-show="playerResult === null">
+            <div>
+              <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
+              <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
+            </div>
           </div>
+          <div class="centered" style="padding-bottom: 100px">
+            <q-icon size="xl" name="expand_less" @click="showKeypad = false" />
+          </div>
+        </div>
+        <div v-if="!showKeypad" class="centered">
+          <q-icon size="xl" name="expand_more" @click="showKeypad = true" />
         </div>
       </div>
       
@@ -656,6 +665,7 @@ export default {
           ["7", "8", "9"],
           ["*", "0", "#"]
         ],
+        showKeypad: true,
         codeColors: {},
         
         // for step type 'image-recognition'
@@ -3823,7 +3833,7 @@ export default {
   /* keypad specific (code) */
   .code { overflow: auto; }
   .typed-code { text-align: center; margin: 1rem auto; }
-  .typed-code table { border-collapse: collapse; background-color: rgba(255, 255, 255, 0.6); }
+  .typed-code table { margin: auto; border-collapse: collapse; background-color: rgba(255, 255, 255, 0.6); }
   .typed-code td { width: 2rem; height: 3rem; border: 1px solid black; vertical-align: middle; text-align: center; line-height: 3rem; }
   .typed-code td.typed { font-weight: bold; font-size: 1.7rem; }
   
