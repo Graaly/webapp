@@ -177,7 +177,7 @@
             @click="askForHint()" 
             v-show="hint.show" 
           >
-            <q-badge v-if="this.step && this.step.hint" color="secondary" floating>{{ this.step.hint.length }}</q-badge>
+            <q-badge v-if="this.step && this.step.hint" color="secondary" floating>{{ this.hint.remainingNumber }}</q-badge>
           </q-btn>
         </div>
         <div class="col centered q-pb-md">
@@ -269,7 +269,8 @@ export default {
           suggest: false,
           show: false,
           used: false,
-          number: 0
+          number: 0,
+          remainingNumber: 0
         },
         info: {
           isOpened: false,
@@ -603,6 +604,9 @@ export default {
             this.step.id = this.step.stepId
             // get previous button redirect
             this.getPreviousStep()
+            if (this.step.hint) {
+              this.hint.remainingNumber = this.step.hint.length
+            }
           }
         } else {
           this.warnings.stepDataMissing = true
@@ -620,6 +624,10 @@ export default {
             return stepLoadingStatus
           }
         } else {
+          if (this.step.hint) {
+            this.hint.remainingNumber = this.step.hint.length
+          }
+          
           var tempStep = JSON.parse(step)
           
           const stepAccess = this.offlineCheckAccess(step)
@@ -759,15 +767,17 @@ export default {
      * Get the previous step ID
      */
     getPreviousStep () {
+      // only for steps with conditions
       if (this.step.conditions && this.step.conditions.length > 0) {
-        for (var i = 0; i < this.step.conditions.length; i++) {
+        this.previousStepId = 'ok'
+        /*for (var i = 0; i < this.step.conditions.length; i++) {
           if (this.step.conditions[i].indexOf('stepDone') !== -1) {
             var stepId = this.step.conditions[i].replace('stepDone_', '')
             this.previousStepId = stepId
             
             return stepId
           }
-        }
+        }*/
       }
     },
     /*
@@ -965,20 +975,20 @@ export default {
      * Return to previous step
      */
     async previousStep() {
-      if (this.previousStepId !== '') {
-        //if (this.offline.active) {
-        this.$store.state.history.index--
-        if (this.$store.state.history.index < 0) {
-          this.$store.state.history.index = 0
-        } else if (this.$store.state.history.index > this.$store.state.history.items.length) {
-          this.$store.state.history.index = this.$store.state.history.items.length
-        }
-        /*await this.saveOfflineRun(this.questId, this.run)
-        } else {
-          await RunService.setHistoryOneStepBack(this.run._id)
-        }*/
-        this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.previousStepId + '/' + this.$route.params.lang)
+      //if (this.previousStepId !== '') {
+      //if (this.offline.active) {
+      this.$store.state.history.index--
+      if (this.$store.state.history.index < 0) {
+        this.$store.state.history.index = 0
+      } else if (this.$store.state.history.index > this.$store.state.history.items.length) {
+        this.$store.state.history.index = this.$store.state.history.items.length
       }
+      /*await this.saveOfflineRun(this.questId, this.run)
+      } else {
+        await RunService.setHistoryOneStepBack(this.run._id)
+      }*/
+      //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.previousStepId + '/' + this.$route.params.lang)
+      this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
     },
     /*
      * Ask for a hint
@@ -1033,6 +1043,9 @@ export default {
       this.closeAllPanels()
       this.hint.isOpened = true
       this.footer.tabSelected = 'hint'
+      if (this.hint.remainingNumber >0) {
+        this.hint.remainingNumber--
+      }
     },
     closeAllPanels() {
       this.inventory.isOpened = false

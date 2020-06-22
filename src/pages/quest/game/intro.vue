@@ -597,7 +597,9 @@ export default {
             })
           //}*/
           this.continueQuest = true
-          this.startQuest(this.quest.questId, this.$route.params.lang)
+          if (!this.isOwner) {            
+            this.startQuest(this.quest.questId, this.$route.params.lang)
+          }
         }
       } else {
         // check if an offline run is already started
