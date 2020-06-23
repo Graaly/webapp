@@ -381,7 +381,7 @@ export default {
    */
   checkLoginQRCode(questId, lang) {
     // replace / sign
-    questId = questId.replace('/', '-slash-')
+    questId = questId.replace(/\//g, '-slash-')
     return Api().get('quest/' + questId + '/connectandplay/qrcode/lang/' + lang).catch(error => console.log(error.request))
   },
   /*
@@ -391,7 +391,7 @@ export default {
    */
   checkQRCode(questId, lang) {
     // replace / sign
-    questId = questId.replace('/', '-slash-')
+    questId = questId.replace(/\//g, '-slash-')
     return Api().get('quest/' + questId + '/play/qrcode/lang/' + lang).catch(error => console.log(error.request))
   },
   /*

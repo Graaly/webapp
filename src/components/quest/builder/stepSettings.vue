@@ -116,6 +116,10 @@
       <div v-if="options.type.code == 'character'">
         <div>{{ $t('label.SplitMessageWithPipe') }}</div>
         <h2>{{ $t('label.Character') }}</h2>
+        <div v-if="quest.customization.character && quest.customization.character !== ''">
+          <q-radio v-model="selectedStep.form.options.character" val="usequestcharacter" />
+          <p><img :src="serverUrl + '/upload/quest/' + quest.customization.character" /></p>
+        </div>
         <div class="answer" v-for="n in 6" :key="n">
           <q-radio v-model="selectedStep.form.options.character" :val="n.toString()" />
           <p><img :src="'statics/icons/story/character' + n + '_attitude1.png'" /></p>
@@ -140,7 +144,7 @@
               <input @change="uploadCharacterImage" ref="characterfile" type="file" accept="image/*" />
             </div>
             <p v-show="$v.selectedStep.form.options.character.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-            <div class="centered" v-if="selectedStep.form.options.character && selectedStep.form.options.character.length > 2">
+            <div class="centered" v-if="selectedStep.form.options.character && selectedStep.form.options.character.length > 2 && selectedStep.form.options.character !== 'usequestcharacter'">
               <img style="width:100%" :src="serverUrl + '/upload/quest/' + questId + '/step/character/' + selectedStep.form.options.character" />
             </div>
           </div>
@@ -1452,7 +1456,14 @@ export default {
         }
       } else if (this.options.type.code === 'new-item') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
-          this.selectedStep.form.options = { picture: null, title: "" }
+          this.selectedStep.form.options = { picture: null, title: "", pictures: {'fr': '', 'en': ''}, titles: {'fr': '', 'en': ''} }
+        } else {
+          if (this.selectedStep.form.options.hasOwnProperty('pictures') && this.selectedStep.form.options.pictures[this.lang]) {
+            this.selectedStep.form.options.picture = this.selectedStep.form.options.pictures[this.lang]
+          }
+          if (this.selectedStep.form.options.hasOwnProperty('titles') && this.selectedStep.form.options.titles[this.lang]) {
+            this.selectedStep.form.options.title = this.selectedStep.form.options.titles[this.lang]
+          }
         }
       } else if (this.options.type.code === 'jigsaw-puzzle') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
@@ -1621,6 +1632,16 @@ export default {
         this.selectedStep.form.answers = {coordinates: this.selectedStep.form.answerPointerCoordinates, item: this.selectedStep.form.answerItem}
       }
       if (this.options.type.code === 'new-item') {
+        if (!this.selectedStep.form.options.titles) {
+          this.selectedStep.form.options.titles = {}
+        }
+        this.selectedStep.form.options.titles[this.lang] = this.selectedStep.form.options.title
+        if (!this.selectedStep.form.options.pictures) {
+          this.selectedStep.form.options.pictures = {}
+        }
+        if (!this.selectedStep.form.options.pictures[this.lang]) {
+          this.selectedStep.form.options.pictures[this.lang] = this.selectedStep.form.options.picture
+        }
         //this.selectedStep.form.answers = this.selectedStep.form.answerItem
       }
       // save step data
@@ -2105,6 +2126,7 @@ export default {
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
           this.selectedStep.form.options.picture = uploadResult.data.file
+          this.selectedStep.form.options.pictures[this.lang] = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -2357,6 +2379,8 @@ export default {
     async selectObject(key) {
       this.selectedStep.form.options.title = this.objectsList[key].name[this.lang]
       this.selectedStep.form.options.picture = 'statics/images/object/' + this.objectsList[key].file
+      this.selectedStep.form.options.titles[this.lang] = this.selectedStep.form.options.title
+      this.selectedStep.form.options.pictures[this.lang] = this.selectedStep.form.options.picture
     },
     /*
      * Get the list of colors for the color code step

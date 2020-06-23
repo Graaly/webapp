@@ -24,7 +24,7 @@ import Notification from 'boot/NotifyHelper'
 import utils from 'src/includes/utils'
 
 export default {
-  props: ['quest', 'design'],
+  props: ['quest', 'design', 'lang'],
   watch: { 
     // refresh component if questId change
     quest: async function(newVal, oldVal) {
@@ -242,7 +242,13 @@ export default {
               }
               if (step.type === 'new-item' && step.options && step.options.picture && step.options.picture !== '') {
                 if (step.options.picture.indexOf('statics') === -1) {
-                  const newItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.picture)
+                  var newItemImageSuccess
+                  if (step.options.pictures && step.options.pictures[this.lang] && step.options.pictures[this.lang] !== '') {
+                    newItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.pictures[this.lang])
+                  } else {
+                    newItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.picture)
+                  }
+                  
                   if (!newItemImageSuccess) {
                     this.throwSaveError()
                     return false

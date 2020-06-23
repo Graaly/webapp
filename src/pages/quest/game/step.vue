@@ -43,8 +43,10 @@
           <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
             <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-              <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
-              <p>{{ item.title }}</p>
+              <img v-if="item.pictures && item.pictures[lang] && item.pictures[lang] !== ''" :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.pictures[lang] : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.pictures[lang])" />
+              <img v-if="!(item.pictures && item.pictures[lang] && item.pictures[lang] !== '')" :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
+              <p v-if="item.titles && item.titles[lang] && item.titles[lang] !== ''">{{ item.titles[lang] }}</p>
+              <p v-if="!(item.titles && item.titles[lang] && item.titles[lang] !== '')">{{ item.title }}</p>
             </div>
           </div>
         </div>
@@ -177,7 +179,7 @@
             @click="askForHint()" 
             v-show="hint.show" 
           >
-            <q-badge v-if="this.step && this.step.hint" color="secondary" floating>{{ this.step.hint.length }}</q-badge>
+            <q-badge v-if="this.step && this.step.hint" color="secondary" floating>{{ this.hint.remainingNumber }}</q-badge>
           </q-btn>
         </div>
         <div class="col centered q-pb-md">
@@ -269,7 +271,8 @@ export default {
           suggest: false,
           show: false,
           used: false,
-          number: 0
+          number: 0,
+          remainingNumber: 0
         },
         info: {
           isOpened: false,
@@ -603,6 +606,9 @@ export default {
             this.step.id = this.step.stepId
             // get previous button redirect
             this.getPreviousStep()
+            if (this.step.hint) {
+              this.hint.remainingNumber = this.step.hint.length
+            }
           }
         } else {
           this.warnings.stepDataMissing = true
@@ -620,6 +626,10 @@ export default {
             return stepLoadingStatus
           }
         } else {
+          if (this.step.hint) {
+            this.hint.remainingNumber = this.step.hint.length
+          }
+          
           var tempStep = JSON.parse(step)
           
           const stepAccess = this.offlineCheckAccess(step)
@@ -759,15 +769,17 @@ export default {
      * Get the previous step ID
      */
     getPreviousStep () {
+      // only for steps with conditions
       if (this.step.conditions && this.step.conditions.length > 0) {
-        for (var i = 0; i < this.step.conditions.length; i++) {
+        this.previousStepId = 'ok'
+        /*for (var i = 0; i < this.step.conditions.length; i++) {
           if (this.step.conditions[i].indexOf('stepDone') !== -1) {
             var stepId = this.step.conditions[i].replace('stepDone_', '')
             this.previousStepId = stepId
             
             return stepId
           }
-        }
+        }*/
       }
     },
     /*
@@ -965,20 +977,20 @@ export default {
      * Return to previous step
      */
     async previousStep() {
-      if (this.previousStepId !== '') {
-        //if (this.offline.active) {
-        this.$store.state.history.index--
-        if (this.$store.state.history.index < 0) {
-          this.$store.state.history.index = 0
-        } else if (this.$store.state.history.index > this.$store.state.history.items.length) {
-          this.$store.state.history.index = this.$store.state.history.items.length
-        }
-        /*await this.saveOfflineRun(this.questId, this.run)
-        } else {
-          await RunService.setHistoryOneStepBack(this.run._id)
-        }*/
-        this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.previousStepId + '/' + this.$route.params.lang)
+      //if (this.previousStepId !== '') {
+      //if (this.offline.active) {
+      this.$store.state.history.index--
+      if (this.$store.state.history.index < 0) {
+        this.$store.state.history.index = 0
+      } else if (this.$store.state.history.index > this.$store.state.history.items.length) {
+        this.$store.state.history.index = this.$store.state.history.items.length
       }
+      /*await this.saveOfflineRun(this.questId, this.run)
+      } else {
+        await RunService.setHistoryOneStepBack(this.run._id)
+      }*/
+      //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.previousStepId + '/' + this.$route.params.lang)
+      this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
     },
     /*
      * Ask for a hint
@@ -1033,6 +1045,9 @@ export default {
       this.closeAllPanels()
       this.hint.isOpened = true
       this.footer.tabSelected = 'hint'
+      if (this.hint.remainingNumber >0) {
+        this.hint.remainingNumber--
+      }
     },
     closeAllPanels() {
       this.inventory.isOpened = false
@@ -1228,8 +1243,16 @@ export default {
     selectItem(item) {
       if (this.step.type !== 'use-item') {
         this.inventory.detail.isOpened = true
-        this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
-        this.inventory.detail.title = item.title
+        if (item.pictures && item.pictures[this.lang] && item.pictures[this.lang] !== '') {
+          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.pictures[this.lang] : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.pictures[this.lang])
+        } else {
+          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
+        }
+        if (item.titles && item.titles[this.lang] && item.titles[this.lang] !== '') {
+          this.inventory.detail.title = item.titles[this.lang]
+        } else {
+          this.inventory.detail.title = item.title
+        }
       } else {
         this.selectedItem = item
         this.closeAllPanels()
@@ -1732,7 +1755,7 @@ export default {
                   pictureUrl = stepData.options.picture
                 }
 
-                results.push({step: stepWithObjectId, picture: pictureUrl, originalPicture: stepData.options.picture, title: stepData.options.title})
+                results.push({step: stepWithObjectId, picture: pictureUrl, originalPicture: stepData.options.picture, title: stepData.options.title, pictures: stepData.options.pictures, titles: stepData.options.titles})
               }
             }
           }

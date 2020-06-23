@@ -60,7 +60,8 @@
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
             <img style="vertical-align:bottom" v-if="step.options.character.length < 3" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
-            <img style="max-width: 100%; max-height: 200px; vertical-align:bottom;" v-if="step.options.character.length > 2" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
+            <img style="max-width: 100%; max-height: 200px; vertical-align:bottom;" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
+            <img style="max-width: 100%; max-height: 200px; vertical-align:bottom;" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + customization.character : customization.character" />
           </div>
           <div class="full-width bg-black" style="height: 70px">
           </div>
@@ -92,28 +93,36 @@
       <!------------------ KEYPAD STEP AREA ------------------------>
       
       <div class="code" v-if="step.type == 'code-keypad'">
-        <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
-        </div>
-        <div class="typed-code">
-          <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
-          <tr>
-            <td v-for="(sign, key) in playerCode" :key="key" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
-          </tr>
-          </table>
-        </div>
-        <div class="keypad">
-          <div class="keypadLine">
-            <div v-for="(keypadLine, rowKey) in keypad" :key="rowKey">
-              <q-btn v-for="(keypadButton, btnKey) in keypadLine" :key="btnKey" color="grey" glossy @click="addCodeChar(keypadButton)" :disable="playerResult !== null" :test-id="'btn-keypad-' + keypadButton">{{ keypadButton }}</q-btn>
+        <div v-if="showKeypad">
+          <div>
+            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          </div>
+          <div class="typed-code">
+            <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
+            <tr>
+              <td v-for="(sign, key) in playerCode" :key="key" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
+            </tr>
+            </table>
+          </div>
+          <div class="keypad">
+            <div class="keypadLine">
+              <div v-for="(keypadLine, rowKey) in keypad" :key="rowKey">
+                <q-btn v-for="(keypadButton, btnKey) in keypadLine" :key="btnKey" color="grey" glossy @click="addCodeChar(keypadButton)" :disable="playerResult !== null" :test-id="'btn-keypad-' + keypadButton">{{ keypadButton }}</q-btn>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
-          <div>
-            <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
-            <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
+          <div class="actions q-mt-lg q-mb-md" v-show="playerResult === null">
+            <div>
+              <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
+              <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
+            </div>
           </div>
+          <div class="centered" style="padding-bottom: 100px">
+            <q-icon size="xl" name="expand_less" @click="showKeypad = false" />
+          </div>
+        </div>
+        <div v-if="!showKeypad" class="centered">
+          <q-icon size="xl" name="expand_more" @click="showKeypad = true" />
         </div>
       </div>
       
@@ -278,7 +287,9 @@
       </div>
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
         <q-btn round :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color">
-          <img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
+          <!--<img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />-->
+          <img v-if="itemUsed && itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== ''" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.pictures[lang] : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.pictures[lang])" />
+          <img v-if="itemUsed && !(itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== '')" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
         </q-btn>
         {{ $t('label.TouchWhereYouUseThisItem') }}
       </p>
@@ -656,6 +667,7 @@ export default {
           ["7", "8", "9"],
           ["*", "0", "#"]
         ],
+        showKeypad: true,
         codeColors: {},
         
         // for step type 'image-recognition'
@@ -681,7 +693,8 @@ export default {
           canTouchTarget: false,
           primaryColor: colors.getBrand('primary'),
           showCalibration: false,
-          takeMobileVertically: false
+          takeMobileVertically: false,
+          gyroscopeDetectionCounter: 0
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -837,6 +850,11 @@ export default {
         
         this.resetDrawDirectionInterval()
         
+        //iOS Hack : all iphone have gyroscope
+        if (this.isIOS) {
+          this.deviceHasGyroscope = true
+        }
+        
         if (this.step.type === 'end-chapter') {
           this.checkAnswer()
         }
@@ -877,9 +895,15 @@ export default {
           this.resetImageCode()
         }
         
-        /*if (this.step.type === 'new-item') {
-          await this.addItemToInventory(this.step.answers)
-        }*/
+        if (this.step.type === 'new-item') {
+          if (this.step.options.hasOwnProperty('pictures') && this.step.options.pictures[this.lang]) {
+            this.step.options.picture = this.step.options.pictures[this.lang]
+          }
+          if (this.step.options.hasOwnProperty('titles') && this.step.options.titles[this.lang]) {
+            this.step.options.title = this.step.options.titles[this.lang]
+          }
+          //await this.addItemToInventory(this.step.answers)
+        }
         
         /*if (this.step.type === 'use-item') {
           await this.fillInventory()
@@ -2634,7 +2658,12 @@ export default {
       var self = this
       utils.setInterval(function() {
         if (cross.src === crossPicture) {
-          cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.step.answers.item : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
+          if (self.itemUsed.pictures && self.itemUsed.pictures[self.lang] && self.itemUsed.pictures[self.lang] !== '') {
+            cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.itemUsed.pictures[self.lang] : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.itemUsed.pictures[self.lang])
+          } else {
+            cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.step.answers.item : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
+          }
+          
           cross.style.borderRadius = '50%'
         } else {
           cross.src = crossPicture
@@ -3499,16 +3528,20 @@ export default {
      * @returns a promise
      */
     async waitForGyroscopeDetection () {
-      let self = this
+      var self = this
       return new Promise((resolve, reject) => {
         if (this.deviceHasGyroscope !== null) {
           resolve()
-        }
-        else {
-          utils.setTimeout(async () => {
-            await self.waitForGyroscopeDetection()
+        } else {
+          if (this.geolocation.gyroscopeDetectionCounter > 100) {
             resolve()
-          }, 250)
+          } else {
+            this.geolocation.gyroscopeDetectionCounter++
+            utils.setTimeout(async () => {
+              await self.waitForGyroscopeDetection()
+              resolve()
+            }, 250)
+          }
         }
       })
     },
@@ -3823,7 +3856,7 @@ export default {
   /* keypad specific (code) */
   .code { overflow: auto; }
   .typed-code { text-align: center; margin: 1rem auto; }
-  .typed-code table { border-collapse: collapse; background-color: rgba(255, 255, 255, 0.6); }
+  .typed-code table { margin: auto; border-collapse: collapse; background-color: rgba(255, 255, 255, 0.6); }
   .typed-code td { width: 2rem; height: 3rem; border: 1px solid black; vertical-align: middle; text-align: center; line-height: 3rem; }
   .typed-code td.typed { font-weight: bold; font-size: 1.7rem; }
   

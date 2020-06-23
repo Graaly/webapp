@@ -67,7 +67,7 @@
           </div>
           <div v-if="quest.type === 'quest' && (!quest.customization || !quest.customization.removeScoring)" class="q-mr-lg">
             <img src="statics/images/icon/cost.svg" class="medium-icon" />
-            <span v-if="shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">{{ $t('label.Free') }}</span>
+            <span v-if="!quest.premiumPrice.tier && shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">{{ $t('label.Free') }}</span>
             <span v-if="shop.premiumQuest.priceCode !== 'free' && quest.type === 'quest'">{{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }}</span>
           </div>
           <div v-if="!quest.customization || !quest.customization.removeScoring">
@@ -76,7 +76,11 @@
         </div>
         <div v-if="quest.type === 'room' && quest.premiumPrice.manual">
           <img src="statics/images/icon/cost.svg" class="medium-icon" />
-          <span v-if="quest.type === 'room' && quest.premiumPrice.manual">{{ $t('label.FromPricePerPlayer', {price: quest.premiumPrice.manual}) }}</span>
+          <span>{{ $t('label.FromPricePerPlayer', {price: quest.premiumPrice.manual}) }}</span>
+        </div>
+        <div v-if="quest.premiumPrice.tier && quest.type === 'quest' && quest.premiumPrice.manual && shop.premiumQuest.priceCode === 'free'">
+          <img src="statics/images/icon/cost.svg" class="medium-icon" />
+          <span>{{ $t('label.FromPricePerPlayer', {price: quest.premiumPrice.manual}) }}</span>
         </div>
         
         <!-- =========================== LOCATION ========================== -->
@@ -174,7 +178,7 @@
           </div>
         </div>
         <div class="centered" v-if="offline.show">
-          <offlineLoader :quest="this.quest" :design="'prepare'" @end="startQuest(quest.questId, getLanguage())"></offlineLoader>
+          <offlineLoader :quest="this.quest" :design="'prepare'" :lang="getLanguage()" @end="startQuest(quest.questId, getLanguage())"></offlineLoader>
         </div>
       </div>
     </transition>
@@ -593,7 +597,9 @@ export default {
             })
           //}*/
           this.continueQuest = true
-          this.startQuest(this.quest.questId, this.$route.params.lang)
+          if (!this.isOwner) {            
+            this.startQuest(this.quest.questId, this.$route.params.lang)
+          }
         }
       } else {
         // check if an offline run is already started
