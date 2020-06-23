@@ -178,7 +178,7 @@
           </div>
         </div>
         <div class="centered" v-if="offline.show">
-          <offlineLoader :quest="this.quest" :design="'prepare'" @end="startQuest(quest.questId, getLanguage())"></offlineLoader>
+          <offlineLoader :quest="this.quest" :design="'prepare'" :lang="getLanguage()" @end="startQuest(quest.questId, getLanguage())"></offlineLoader>
         </div>
       </div>
     </transition>

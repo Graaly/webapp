@@ -217,7 +217,7 @@
       
       <div class="fixed-bottom over-map" v-if="!offline.active">
         <div v-if="offline.show">
-          <offlineLoader :quest="offline.quest" :design="'download'" @end="questLoadedInCache()"></offlineLoader>
+          <offlineLoader :quest="offline.quest" :design="'download'" :lang="$t('label.shortLang')" @end="questLoadedInCache()"></offlineLoader>
         </div>
       </div>
       

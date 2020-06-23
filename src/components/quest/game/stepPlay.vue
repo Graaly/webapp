@@ -287,7 +287,9 @@
       </div>
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
         <q-btn round :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color">
-          <img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
+          <!--<img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />-->
+          <img v-if="itemUsed && itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== ''" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.pictures[lang] : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.pictures[lang])" />
+          <img v-if="itemUsed && !(itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== '')" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
         </q-btn>
         {{ $t('label.TouchWhereYouUseThisItem') }}
       </p>
@@ -691,7 +693,8 @@ export default {
           canTouchTarget: false,
           primaryColor: colors.getBrand('primary'),
           showCalibration: false,
-          takeMobileVertically: false
+          takeMobileVertically: false,
+          gyroscopeDetectionCounter: 0
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -847,6 +850,11 @@ export default {
         
         this.resetDrawDirectionInterval()
         
+        //iOS Hack : all iphone have gyroscope
+        if (this.isIOS) {
+          this.deviceHasGyroscope = true
+        }
+        
         if (this.step.type === 'end-chapter') {
           this.checkAnswer()
         }
@@ -887,9 +895,15 @@ export default {
           this.resetImageCode()
         }
         
-        /*if (this.step.type === 'new-item') {
-          await this.addItemToInventory(this.step.answers)
-        }*/
+        if (this.step.type === 'new-item') {
+          if (this.step.options.hasOwnProperty('pictures') && this.step.options.pictures[this.lang]) {
+            this.step.options.picture = this.step.options.pictures[this.lang]
+          }
+          if (this.step.options.hasOwnProperty('titles') && this.step.options.titles[this.lang]) {
+            this.step.options.title = this.step.options.titles[this.lang]
+          }
+          //await this.addItemToInventory(this.step.answers)
+        }
         
         /*if (this.step.type === 'use-item') {
           await this.fillInventory()
@@ -2644,7 +2658,12 @@ export default {
       var self = this
       utils.setInterval(function() {
         if (cross.src === crossPicture) {
-          cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.step.answers.item : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
+          if (self.itemUsed.pictures && self.itemUsed.pictures[self.lang] && self.itemUsed.pictures[self.lang] !== '') {
+            cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.itemUsed.pictures[self.lang] : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.itemUsed.pictures[self.lang])
+          } else {
+            cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.step.answers.item : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
+          }
+          
           cross.style.borderRadius = '50%'
         } else {
           cross.src = crossPicture
@@ -3509,16 +3528,20 @@ export default {
      * @returns a promise
      */
     async waitForGyroscopeDetection () {
-      let self = this
+      var self = this
       return new Promise((resolve, reject) => {
         if (this.deviceHasGyroscope !== null) {
           resolve()
-        }
-        else {
-          utils.setTimeout(async () => {
-            await self.waitForGyroscopeDetection()
+        } else {
+          if (this.geolocation.gyroscopeDetectionCounter > 100) {
             resolve()
-          }, 250)
+          } else {
+            this.geolocation.gyroscopeDetectionCounter++
+            utils.setTimeout(async () => {
+              await self.waitForGyroscopeDetection()
+              resolve()
+            }, 250)
+          }
         }
       })
     },

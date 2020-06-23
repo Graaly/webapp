@@ -43,8 +43,10 @@
           <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
             <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-              <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
-              <p>{{ item.title }}</p>
+              <img v-if="item.pictures && item.pictures[lang] && item.pictures[lang] !== ''" :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.pictures[lang] : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.pictures[lang])" />
+              <img v-if="!(item.pictures && item.pictures[lang] && item.pictures[lang] !== '')" :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
+              <p v-if="item.titles && item.titles[lang] && item.titles[lang] !== ''">{{ item.titles[lang] }}</p>
+              <p v-if="!(item.titles && item.titles[lang] && item.titles[lang] !== '')">{{ item.title }}</p>
             </div>
           </div>
         </div>
@@ -1241,8 +1243,16 @@ export default {
     selectItem(item) {
       if (this.step.type !== 'use-item') {
         this.inventory.detail.isOpened = true
-        this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
-        this.inventory.detail.title = item.title
+        if (item.pictures && item.pictures[this.lang] && item.pictures[this.lang] !== '') {
+          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.pictures[this.lang] : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.pictures[this.lang])
+        } else {
+          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
+        }
+        if (item.titles && item.titles[this.lang] && item.titles[this.lang] !== '') {
+          this.inventory.detail.title = item.titles[this.lang]
+        } else {
+          this.inventory.detail.title = item.title
+        }
       } else {
         this.selectedItem = item
         this.closeAllPanels()
@@ -1745,7 +1755,7 @@ export default {
                   pictureUrl = stepData.options.picture
                 }
 
-                results.push({step: stepWithObjectId, picture: pictureUrl, originalPicture: stepData.options.picture, title: stepData.options.title})
+                results.push({step: stepWithObjectId, picture: pictureUrl, originalPicture: stepData.options.picture, title: stepData.options.title, pictures: stepData.options.pictures, titles: stepData.options.titles})
               }
             }
           }

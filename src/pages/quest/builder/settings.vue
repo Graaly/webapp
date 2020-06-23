@@ -953,8 +953,10 @@
         <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
         <div class="inventory-items">
           <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-            <img :src="(item.picture.indexOf('statics/') > -1 ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
-            <p>{{ item.title}}</p>
+            <img v-if="item.pictures && item.pictures[languages.current] && item.pictures[languages.current] !== ''" :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.pictures[languages.current] : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.pictures[languages.current])" />
+            <img v-if="!(item.pictures && item.pictures[languages.current] && item.pictures[languages.current] !== '')" :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
+            <p v-if="item.titles && item.titles[languages.current] && item.titles[languages.current] !== ''">{{ item.titles[languages.current] }}</p>
+            <p v-if="!(item.titles && item.titles[languages.current] && item.titles[languages.current] !== '')">{{ item.title }}</p>
           </div>
         </div>
       </div>
