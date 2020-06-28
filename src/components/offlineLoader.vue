@@ -109,7 +109,7 @@ export default {
       utils.setTimeout(async () => { await _this.cancelSavingTooLong(_this.quest.questId) }, 180000)
       
       // load data
-      var stepsData = await StepService.listForAQuest(quest.questId, quest.version)
+      var stepsData = await StepService.listForAQuest(quest.questId, quest.version, this.lang)
       var steps = stepsData.data.steps
       var chapters = stepsData.data.chapters
       

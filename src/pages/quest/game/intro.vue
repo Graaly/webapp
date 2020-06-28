@@ -66,9 +66,14 @@
             <span v-if="quest.duration && quest.duration >= 60">{{ quest.duration / 60 }}{{ $t('label.hoursSimplified') }}</span>
           </div>
           <div v-if="quest.type === 'quest' && (!quest.customization || !quest.customization.removeScoring)" class="q-mr-lg">
-            <img src="statics/images/icon/cost.svg" class="medium-icon" />
-            <span v-if="!quest.premiumPrice.tier && shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">{{ $t('label.Free') }}</span>
-            <span v-if="shop.premiumQuest.priceCode !== 'free' && quest.type === 'quest'">{{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }}</span>
+            <span v-if="!quest.premiumPrice.tier && shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">
+              <img src="statics/images/icon/cost.svg" class="medium-icon" />
+              <span>{{ $t('label.Free') }}</span>
+            </span>
+            <span v-if="shop.premiumQuest.priceCode !== 'free' && quest.type === 'quest'">
+              <img src="statics/images/icon/cost.svg" class="medium-icon" />
+              <span>{{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }}</span>
+            </span>
           </div>
           <div v-if="!quest.customization || !quest.customization.removeScoring">
             <q-rating v-if="quest.rating && quest.rating.rounded" readonly v-model="quest.rating.rounded" color="yellow-8" :max="5" size="0.8em" />
@@ -800,7 +805,12 @@ export default {
         return false
       }
       // get only published languages
-      var publishedLanguages = quest.languages.filter(language => language.published)
+      var publishedLanguages
+      if (this.isOwner || this.isAdmin) {
+        publishedLanguages = quest.languages
+      } else {
+        publishedLanguages = quest.languages.filter(language => language.published)
+      }
       if (publishedLanguages && publishedLanguages.length > 0) {
         // check if the user language is set => default language
         var defaultLanguage = ''
@@ -882,7 +892,7 @@ export default {
     playQuest(questId, lang) {
       if (this.playStep === 0 && this.quest.premiumPrice && (this.quest.premiumPrice.tier || this.quest.premiumPrice.active) && !this.isAdmin && !this.isOwner) {
         this.shop.show = true
-      } else if (this.playStep <= 1 && this.quest.playersNumber > 1) {
+      } else if (this.playStep <= 1 && this.quest.playersNumber > 1 && !this.continueQuest) {
         this.shop.show = false
         this.multiplayer.show = true
       } else {
