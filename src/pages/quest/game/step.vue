@@ -38,9 +38,9 @@
           <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
-          <p class="subtitle5" v-if="inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type === 'use-item'">{{ $t('label.InventoryUsage') }}</p>
-          <p class="subtitle5" v-if="inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type !== 'use-item'">{{ $t('label.InventoryZoom') }}</p>
-          <p v-if="inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
+          <p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type === 'use-item'">{{ $t('label.InventoryUsage') }}</p>
+          <p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type !== 'use-item'">{{ $t('label.InventoryZoom') }}</p>
+          <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
             <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
               <img v-if="item.pictures && item.pictures[lang] && item.pictures[lang] !== ''" :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.pictures[lang] : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.pictures[lang])" />
@@ -571,7 +571,7 @@ export default {
           }
         } else {
           // use offline content
-          stepId = await this.getNextOfflineStep(this.questId)
+          stepId = await this.getNextOfflineStep(this.questId, null, this.player)
           if (!stepId) {
             // if no step is triggered, display the waiting screen
             this.showWaitingPage()
@@ -617,7 +617,6 @@ export default {
       } else {
         // get quest data from device storage
         const step = await utils.readFile(this.questId, 'step_' + stepId + '.json')
-
         if (!step) {
           if (forceNetworkLoading) {
             this.warnings.questDataMissing = true 
@@ -626,13 +625,13 @@ export default {
             return stepLoadingStatus
           }
         } else {
-          if (this.step.hint) {
-            this.hint.remainingNumber = this.step.hint.length
-          }
-          
           var tempStep = JSON.parse(step)
           
-          const stepAccess = this.offlineCheckAccess(step)
+          if (tempStep.hint) {
+            this.hint.remainingNumber = tempStep.hint.length
+          }
+          
+          const stepAccess = this.offlineCheckAccess(tempStep)
           if (stepAccess && stepAccess.message) {
             if (stepAccessMessage === 'Step not yet available') {
               this.showStepBlockedMessage(stepAccess.startDate)
@@ -861,7 +860,7 @@ export default {
         }
       } else {
         // try to find step offline
-        next = await this.getNextOfflineStep(this.questId, answer)
+        next = await this.getNextOfflineStep(this.questId, answer, this.player)
       }
       
       if (next) {
@@ -914,10 +913,10 @@ export default {
     async nextStep() {
       this.$store.state.history.index++
       // if moving in history
-      if (this.$store.state.history.index < this.$store.state.history.items.length) {
+      if (this.$store.state.history.items && this.$store.state.history.index < this.$store.state.history.items.length) {
         this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
         return
-      }
+      } 
       // reload step to remove notifications
       this.loadStepData = false
       this.$q.loading.show()
@@ -982,7 +981,7 @@ export default {
       this.$store.state.history.index--
       if (this.$store.state.history.index < 0) {
         this.$store.state.history.index = 0
-      } else if (this.$store.state.history.index > this.$store.state.history.items.length) {
+      } else if (this.$store.state.history.items && this.$store.state.history.index > this.$store.state.history.items.length) {
         this.$store.state.history.index = this.$store.state.history.items.length
       }
       /*await this.saveOfflineRun(this.questId, this.run)
@@ -1036,7 +1035,7 @@ export default {
         this.hint.label = this.step.hint[this.hint.number]
       }
       // update hint number, used for offline
-      if (this.hint.number < this.step.hint.length - 1) {
+      if (this.step.hint && this.hint.number < this.step.hint.length - 1) {
         this.hint.number++
       } else {
         this.hint.number = 0
@@ -1092,7 +1091,7 @@ export default {
      */
     async openInventory() {
       // check if the items are already loaded
-      if (this.inventory.items.length === 0) {
+      if (this.inventory.items && this.inventory.items.length === 0) {
         await this.fillInventory()
       }
       if (this.inventory.isOpened) {
@@ -1559,22 +1558,24 @@ export default {
       
       // check if user is currently navigating in quest history
       await this.updateOfflineRun(questId)
-      if (this.run.historyIndex < this.run.history.length) {
+      if (this.run.history && this.run.historyIndex < this.run.history.length) {
         this.run.historyIndex++
         await this.saveOfflineRun(questId, this.run)
         return this.run.history[this.run.historyIndex - 1]
       }
       
       // read all steps
-      for (var i = 0; i < this.info.quest.steps.length; i++) {
-        let step = await utils.readFile(questId, 'step_' + this.info.quest.steps[i] + '.json')
-        steps.push(JSON.parse(step))
+      if (this.info.quest.steps) {
+        for (var i = 0; i < this.info.quest.steps.length; i++) {
+          let step = await utils.readFile(questId, 'step_' + this.info.quest.steps[i] + '.json')
+          steps.push(JSON.parse(step))
+        }
       }
       
       // get current chapter
       var chapter = this.run.currentChapter
       if (!chapter) {
-        if (this.info.quest.chapters.length > 0) {
+        if (this.info.quest.chapters && this.info.quest.chapters.length > 0) {
           chapter = this.info.quest.chapters[0]
         } else {
           return false
@@ -1596,7 +1597,7 @@ export default {
 
             // check if the step is not already done
             if (this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone_' + markersSteps[i].stepId) === -1) {
-              if (markersSteps[i].conditions.length > 0) {
+              if (markersSteps[i].conditions && markersSteps[i].conditions.length > 0) {
                 for (var j = 0; j < markersSteps[i].conditions.length; j++) {
                   // if one of the conditions of the step i not ok, continue with next step
                   if (this.run.conditionsDone.indexOf(markersSteps[i].conditions[j]) === -1) {
@@ -1647,7 +1648,7 @@ export default {
         for (i = 0; i < stepsofChapter.length; i++) {
           // check if the step is not already done
           if (this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
-            if (stepsofChapter[i].conditions.length > 0) {
+            if (stepsofChapter[i].conditions && stepsofChapter[i].conditions.length > 0) {
               for (j = 0; j < stepsofChapter[i].conditions.length; j++) {
                 // if one of the conditions of the step i not ok, continue with next step
                 if (this.run.conditionsDone.indexOf(stepsofChapter[i].conditions[j]) === -1) {
@@ -1666,10 +1667,9 @@ export default {
             // if step is end of chapter 
             if (stepsofChapter[i].type === 'end-chapter') {
               let nextStepId = await this.moveToNextChapter()
-              
               if (nextStepId !== 'end') {
                 // get next step by running the process again for new chapter
-                nextStepId = await this.getNextOfflineStep(questId, markerCode)
+                nextStepId = await this.getNextOfflineStep(questId, markerCode, player)
               }
               //await this.addStepToHistory(nextStepId)
               return nextStepId
@@ -1686,10 +1686,9 @@ export default {
       // if no next step, check if the type of the quest is simple => end quest
       if (this.info.quest && this.info.quest.editorMode === 'simple' && !locationMarkerFound) {
         let nextStepId = await this.moveToNextChapter()
-
         if (nextStepId !== 'end') {
           // get next step by running the process again for new chapter
-          nextStepId = await this.getNextOfflineStep(questId, markerCode)
+          nextStepId = await this.getNextOfflineStep(questId, markerCode, player)
           //await this.addStepToHistory(nextStepId)
         }
         return nextStepId
@@ -1698,7 +1697,6 @@ export default {
       if (locationMarkerFound && this.info.quest && this.info.quest.editorMode === 'advanced') {
         return "locationMarker"
       }
-      
       return false
     },
     /*
@@ -1822,6 +1820,9 @@ export default {
      * @param   {String}    stepId            ID of the step
      */
     removeStepFromConditions (currentConditions, stepId) {
+      if (!currentConditions) {
+        return currentConditions
+      }
       var itemsToRemove = []
       for (var i = 0; i < currentConditions.length; i++) {
         if (currentConditions[i].indexOf('_' + stepId) !== -1) {
