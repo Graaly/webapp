@@ -106,7 +106,7 @@ export default {
     async saveQuestData(quest) {
       var _this = this
       // cancel save if the duration is too long
-      utils.setTimeout(async () => { await _this.cancelSavingTooLong(_this.quest.questId) }, 180000)
+      utils.setTimeout(async () => { await _this.cancelSavingTooLong(_this.quest.questId) }, 360000)
       
       // load data
       var stepsData = await StepService.listForAQuest(quest.questId, quest.version, this.lang)
