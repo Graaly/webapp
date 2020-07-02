@@ -73,7 +73,7 @@
             <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title : $t('label.NoTitle') }}</p>
             <p v-if="run && run.team && run.team.name">{{ $t('Team') }} : {{ run.team.name }}</p>
             <!--<q-linear-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-linear-progress>-->
-            <!--<p class="q-pa-md score-text" v-show="info && !offline.active && (!info.quest.customization || !info.quest.customization.removeScoring)">{{ $t('label.CurrentScore') }}: {{ info.score }} <!--<q-icon color="white" name="fas fa-trophy" />--</p>-->
+            <!--<p class="q-pa-md score-text" v-show="info && !offline.active && (!info.quest.customization || !info.quest.customization.removeScoring)">{{ $t('label.CurrentScore') }}: {{ info.score }} <q-icon color="white" name="fas fa-trophy" />-</p>-->
             <p>
               <q-btn v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring" class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="backToMap"><span>{{ $t('label.LeaveQuest') }}</span></q-btn>
             </p>
@@ -392,7 +392,6 @@ export default {
      * the offline run is used
      */
     async getRun() {
-      this.$q.loading.show()
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.questId, null, this.lang)
       
@@ -498,8 +497,6 @@ export default {
           })*/
         }
       }
-      
-      this.$q.loading.hide()
       
       // init the offline run
       if (currentChapter === 0) {
@@ -919,7 +916,6 @@ export default {
       } 
       // reload step to remove notifications
       this.loadStepData = false
-      this.$q.loading.show()
       
       if (this.next.enabled) {
         /*utils.clearAllRunningProcesses()
@@ -927,9 +923,7 @@ export default {
         await this.initData()
         */
         await this.moveToNextStep('success')
-        this.$q.loading.hide()
       } else if (this.next.canPass) {
-        this.$q.loading.hide()
         this.$q.dialog({
           dark: true,
           message: this.$t('label.ConfirmPass'),
@@ -1065,7 +1059,6 @@ export default {
     async fillInventory() {
       this.warnings.inventoryMissing = false
       // load items won on previous steps
-      this.$q.loading.show()
       var response
       if (!this.offline.active) {
         response = await RunService.listWonObjects(this.questId, this.run._id)
@@ -1083,8 +1076,6 @@ export default {
           this.warnings.inventoryMissing = true
         }
       }
-      
-      this.$q.loading.hide()
     },
     /*
      * Open the inventory
@@ -1778,6 +1769,9 @@ export default {
      * WARNING : this function is a duplicate for server function "updateConditions" of run.js controller
      */
     updateConditions(currentConditions, stepId, isSuccess, stepType, addStepDone, player) {
+      if (typeof currentConditions === 'undefined') {
+        currentConditions = []
+      }
       if (currentConditions.indexOf('stepDone_' + stepId) === -1 && addStepDone) {
         currentConditions.push('stepDone_' + stepId)
       }
