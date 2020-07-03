@@ -5,6 +5,9 @@
       <div v-if="design === 'download' && !error.raised" class="subtitle5 text-grey-6">{{ $t('label.Downloading') }}</div>
       <div v-if="!error.raised" class="q-pa-md">
         <q-linear-progress color="primary" track-color="grey-1" style="height: 5px" :value="offline.progress" />
+        <div v-if="isIos" class="centered">
+          {{ parseInt(offline.progress * 100, 10)}} %
+        </div>
         <a class="text-white" @click="cancelOfflineLoading()">{{ $t('label.Cancel') }}</a>
       </div>
       <div v-if="error.raised && error.nb < 2" @click="saveOfflineQuest(quest)">
@@ -42,6 +45,7 @@ export default {
         nb: 0,
         raised: false
       },
+      isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
       serverUrl: process.env.SERVER_URL
     }
   },
@@ -255,7 +259,7 @@ export default {
                   }
                 }
               }
-              if (step.type === 'character' && step.options && step.options.character && step.options.character !== '') {
+              if (step.type === 'character' && step.options && step.options.character && step.options.character !== ''  && step.options.character !== 'usequestcharacter') {
                 if (step.options.character.length !== 1) {
                   const characterImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/character/', step.options.character)
                   if (!characterImageSuccess) {

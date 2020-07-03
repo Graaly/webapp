@@ -713,7 +713,7 @@ export default {
               }
             }
           }
-          if (tempStep.type === 'character' && tempStep.options && tempStep.options.character && tempStep.options.character !== '') {
+          if (tempStep.type === 'character' && tempStep.options && tempStep.options.character && tempStep.options.character !== '' && tempStep.options.character !== 'usequestcharacter') {
             const characterPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.character)
             if (characterPictureUrl) {
               tempStep.options.character = characterPictureUrl
