@@ -5,7 +5,7 @@
       <div v-if="design === 'download' && !error.raised" class="subtitle5 text-grey-6">{{ $t('label.Downloading') }}</div>
       <div v-if="!error.raised" class="q-pa-md">
         <q-linear-progress color="primary" track-color="grey-1" style="height: 5px" :value="offline.progress" />
-        <div v-if="isIos" class="centered">
+        <div v-if="isIOs" class="centered">
           {{ parseInt(offline.progress * 100, 10)}} %
         </div>
         <a class="text-white" @click="cancelOfflineLoading()">{{ $t('label.Cancel') }}</a>
