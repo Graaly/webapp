@@ -43,8 +43,7 @@
           <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
             <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-              <img v-if="item.pictures && item.pictures[lang] && item.pictures[lang] !== ''" :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.pictures[lang] : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.pictures[lang])" />
-              <img v-if="!(item.pictures && item.pictures[lang] && item.pictures[lang] !== '')" :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
+              <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
               <p v-if="item.titles && item.titles[lang] && item.titles[lang] !== ''">{{ item.titles[lang] }}</p>
               <p v-if="!(item.titles && item.titles[lang] && item.titles[lang] !== '')">{{ item.title }}</p>
             </div>
@@ -712,6 +711,9 @@ export default {
             const itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
             if (itemImageUrl) {
               tempStep.options.picture = itemImageUrl
+              if (tempStep.options.hasOwnProperty('pictures') && tempStep.options.pictures[this.lang]) {
+                tempStep.options.pictures[this.lang] = itemImageUrl
+              }
             }
           }
           if (tempStep.type === 'character' && tempStep.options && tempStep.options.character && tempStep.options.character !== '') {
@@ -1748,11 +1750,14 @@ export default {
                 // get picture
                 var pictureUrl
                 if (stepData.options.picture.indexOf('statics') === -1) {
-                  pictureUrl = await utils.readBinaryFile(this.questId, stepData.options.picture)
+                  if (stepData.options.pictures && stepData.options.pictures[this.lang] && stepData.options.pictures[this.lang] !== '') {
+                    pictureUrl = await utils.readBinaryFile(this.questId, stepData.options.pictures[this.lang])
+                  } else {
+                    pictureUrl = await utils.readBinaryFile(this.questId, stepData.options.picture)
+                  }
                 } else {
                   pictureUrl = stepData.options.picture
                 }
-
                 results.push({step: stepWithObjectId, picture: pictureUrl, originalPicture: stepData.options.picture, title: stepData.options.title, pictures: stepData.options.pictures, titles: stepData.options.titles})
               }
             }
