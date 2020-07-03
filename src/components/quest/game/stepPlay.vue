@@ -307,7 +307,7 @@
       
       <!------------------ LOCATE ITEM IN AUGMENTED REALITY STEP AREA ------------------------>
       
-      <div class="locate-item-ar" v-show="step.type == 'locate-item-ar'">
+      <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && geolocation.active"></video>
         </transition>
@@ -328,7 +328,7 @@
       
       <!------------------ SUPERIMPOSE IMAGE AND CAMERA STEP AREA ------------------------>
       
-      <div class="image-over-flow" v-show="step.type == 'image-over-flow'">
+      <div class="image-over-flow" v-if="step.type == 'image-over-flow'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled"></video>
         </transition>
@@ -571,6 +571,7 @@ export default {
     // refresh component if stepId change
     reload: async function(newVal, oldVal) {
       if (newVal === true || newVal === 'true') {
+        this.clearAllCameraStreams()
         await this.initData()
       }
       if (newVal === false || newVal === 'false') {
@@ -1007,6 +1008,7 @@ export default {
                   cameraStream.srcObject = stream
                   cameraStream.play()
                   this.cameraStreamEnabled = true
+                  this.$store.dispatch('addMediaStream', stream)
                 })
                 .catch((err) => {
                   // TODO friendly behavior/message for user
@@ -1113,8 +1115,7 @@ export default {
         if (this.step.type === 'image-over-flow') {
           this.$emit('pass')
           // video stream
-          //if (this.isIOs && CameraPreview) {
-          if (CameraPreview) {
+          if (this.isIOs && CameraPreview) {
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
             CameraPreview.startCamera(options)
             //CameraPreview.setColorEffect("redfilter")
@@ -1124,7 +1125,6 @@ export default {
             // enable rear camera stream
             // -------------------------
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-            
               .then((stream) => {
                 // Hacks for Safari iOS
                 cameraStream2.setAttribute("muted", true)
@@ -1133,6 +1133,7 @@ export default {
                 cameraStream2.srcObject = stream
                 cameraStream2.play()
                 this.cameraStreamEnabled = true
+                this.$store.dispatch('addMediaStream', stream)
                 
                 // init video capturing
                 const track = stream.getVideoTracks()[0];
@@ -1190,6 +1191,7 @@ export default {
                   
                   await this.displayMarkers(sceneCanvas)
                 }
+                this.$store.dispatch('addMediaStream', stream)
               })
               .catch((err) => {
                 // TODO friendly behavior/message for user
@@ -1779,7 +1781,6 @@ export default {
           break
         
         case 'code-color':
-          this.$q.loading.show()
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|')}, true)
           
           if (checkAnswerResult.result === true) {
@@ -2374,6 +2375,7 @@ export default {
         .then((stream) => {
           cameraStream.srcObject = stream
           cameraStream.play()
+          this.$store.dispatch('addMediaStream', stream)
         })
         .catch((err) => {
           console.log("An error occured! " + err)
@@ -2439,8 +2441,8 @@ export default {
      * Stop the video tracking
      */
     stopVideoTracks(cameraStreamElementRef) {
-      if (this.$refs[cameraStreamElementRef].srcObject) {
-        this.$refs[cameraStreamElementRef].srcObject.getVideoTracks().forEach(function(track) { track.stop() })
+      if (this.$refs[cameraStreamElementRef] && this.$refs[cameraStreamElementRef].srcObject) {
+        this.$refs[cameraStreamElementRef].srcObject.getVideoTracks().forEach(function(track) { console.log('stop track', track); track.stop() })
       }
       this.cameraStreamEnabled = false
     },
@@ -3230,9 +3232,7 @@ export default {
       let objectInit = modelsList[modelCode]
       let gltfData
       try {
-        this.$q.loading.show()
         gltfData = await this.ModelLoaderAsync(modelCode, questId, isCustom)
-        this.$q.loading.hide()
       } catch (err) {
         console.error("Error while loading 3D model:", err)
         Notification(this.$t('label.CouldNotDisplayObject'), 'error')
@@ -3341,25 +3341,10 @@ export default {
     * clear all camera streams
     */
     clearAllCameraStreams() {
-      // TODO maybe only one "camera stream" <div> could be used by all steps
-      let streamDivs = [
-        'camera-stream-for-recognition',
-        'camera-stream-for-locate-marker',
-        'camera-stream-for-image-over-flow',
-        'camera-stream-for-locate-item-ar'
-      ]
-      
-      let streams = []
-      
-      for (let streamDiv of streamDivs) {
-        let element = this.$refs[streamDiv]
-        if (typeof element !== 'undefined' && element.srcObject) {
-          streams.push(element.srcObject)
-        }
-      }
-            
-      for (let stream of streams) {
-        utils.clearCameraStream(stream)
+      if (this.isIOs && CameraPreview) {
+        CameraPreview.stopCamera()
+      } else {
+        this.$store.dispatch('clearMediaStreams')
       }
     },
     /*

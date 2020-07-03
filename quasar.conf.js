@@ -182,6 +182,9 @@ module.exports = function (ctx) {
       config: {
         cordova: {
           backButtonExit: false // prevent user to exit if back button on home page
+        },
+        loading: {
+          delay: 500
         }
       }
     },
