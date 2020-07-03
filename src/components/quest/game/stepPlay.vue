@@ -2442,7 +2442,7 @@ export default {
      */
     stopVideoTracks(cameraStreamElementRef) {
       if (this.$refs[cameraStreamElementRef] && this.$refs[cameraStreamElementRef].srcObject) {
-        this.$refs[cameraStreamElementRef].srcObject.getVideoTracks().forEach(function(track) { console.log('stop track', track); track.stop() })
+        this.$refs[cameraStreamElementRef].srcObject.getVideoTracks().forEach(function(track) { track.stop() })
       }
       this.cameraStreamEnabled = false
     },
