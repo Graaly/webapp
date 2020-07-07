@@ -278,7 +278,7 @@
           <q-btn class="glossy large-button" color="primary" :label="$t('label.CloseQuestRanking')" @click="ranking.show = false" />
         </div>
       </div>
-    </transition>
+    </transition>-->
     
     <!--====================== SHOP PAGE =================================-->
     

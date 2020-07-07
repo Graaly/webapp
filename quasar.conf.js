@@ -182,6 +182,9 @@ module.exports = function (ctx) {
       config: {
         cordova: {
           backButtonExit: false // prevent user to exit if back button on home page
+        },
+        loading: {
+          delay: 500
         }
       }
     },
@@ -232,7 +235,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: "2.0.9"
+      version: "2.0.11"
       // id: 'org.cordova.quasar.app'
     },
     electron: {

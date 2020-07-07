@@ -43,8 +43,7 @@
           <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
             <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-              <img v-if="item.pictures && item.pictures[lang] && item.pictures[lang] !== ''" :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.pictures[lang] : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.pictures[lang])" />
-              <img v-if="!(item.pictures && item.pictures[lang] && item.pictures[lang] !== '')" :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
+              <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
               <p v-if="item.titles && item.titles[lang] && item.titles[lang] !== ''">{{ item.titles[lang] }}</p>
               <p v-if="!(item.titles && item.titles[lang] && item.titles[lang] !== '')">{{ item.title }}</p>
             </div>
@@ -73,7 +72,7 @@
             <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title : $t('label.NoTitle') }}</p>
             <p v-if="run && run.team && run.team.name">{{ $t('Team') }} : {{ run.team.name }}</p>
             <!--<q-linear-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-linear-progress>-->
-            <!--<p class="q-pa-md score-text" v-show="info && !offline.active && (!info.quest.customization || !info.quest.customization.removeScoring)">{{ $t('label.CurrentScore') }}: {{ info.score }} <!--<q-icon color="white" name="fas fa-trophy" />--</p>-->
+            <!--<p class="q-pa-md score-text" v-show="info && !offline.active && (!info.quest.customization || !info.quest.customization.removeScoring)">{{ $t('label.CurrentScore') }}: {{ info.score }} <q-icon color="white" name="fas fa-trophy" />-</p>-->
             <p>
               <q-btn v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring" class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="backToMap"><span>{{ $t('label.LeaveQuest') }}</span></q-btn>
             </p>
@@ -392,7 +391,6 @@ export default {
      * the offline run is used
      */
     async getRun() {
-      this.$q.loading.show()
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.questId, null, this.lang)
       
@@ -498,8 +496,6 @@ export default {
           })*/
         }
       }
-      
-      this.$q.loading.hide()
       
       // init the offline run
       if (currentChapter === 0) {
@@ -712,9 +708,12 @@ export default {
             const itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
             if (itemImageUrl) {
               tempStep.options.picture = itemImageUrl
+              if (tempStep.options.hasOwnProperty('pictures') && tempStep.options.pictures[this.lang]) {
+                tempStep.options.pictures[this.lang] = itemImageUrl
+              }
             }
           }
-          if (tempStep.type === 'character' && tempStep.options && tempStep.options.character && tempStep.options.character !== '') {
+          if (tempStep.type === 'character' && tempStep.options && tempStep.options.character && tempStep.options.character !== '' && tempStep.options.character !== 'usequestcharacter') {
             const characterPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.character)
             if (characterPictureUrl) {
               tempStep.options.character = characterPictureUrl
@@ -919,7 +918,6 @@ export default {
       } 
       // reload step to remove notifications
       this.loadStepData = false
-      this.$q.loading.show()
       
       if (this.next.enabled) {
         /*utils.clearAllRunningProcesses()
@@ -927,9 +925,7 @@ export default {
         await this.initData()
         */
         await this.moveToNextStep('success')
-        this.$q.loading.hide()
       } else if (this.next.canPass) {
-        this.$q.loading.hide()
         this.$q.dialog({
           dark: true,
           message: this.$t('label.ConfirmPass'),
@@ -1065,7 +1061,6 @@ export default {
     async fillInventory() {
       this.warnings.inventoryMissing = false
       // load items won on previous steps
-      this.$q.loading.show()
       var response
       if (!this.offline.active) {
         response = await RunService.listWonObjects(this.questId, this.run._id)
@@ -1083,8 +1078,6 @@ export default {
           this.warnings.inventoryMissing = true
         }
       }
-      
-      this.$q.loading.hide()
     },
     /*
      * Open the inventory
@@ -1243,7 +1236,7 @@ export default {
       if (this.step.type !== 'use-item') {
         this.inventory.detail.isOpened = true
         if (item.pictures && item.pictures[this.lang] && item.pictures[this.lang] !== '') {
-          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.pictures[this.lang] : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.pictures[this.lang])
+          this.inventory.detail.url = ((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
         } else {
           this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
         }
@@ -1748,11 +1741,14 @@ export default {
                 // get picture
                 var pictureUrl
                 if (stepData.options.picture.indexOf('statics') === -1) {
-                  pictureUrl = await utils.readBinaryFile(this.questId, stepData.options.picture)
+                  if (stepData.options.pictures && stepData.options.pictures[this.lang] && stepData.options.pictures[this.lang] !== '') {
+                    pictureUrl = await utils.readBinaryFile(this.questId, stepData.options.pictures[this.lang])
+                  } else {
+                    pictureUrl = await utils.readBinaryFile(this.questId, stepData.options.picture)
+                  }
                 } else {
                   pictureUrl = stepData.options.picture
                 }
-
                 results.push({step: stepWithObjectId, picture: pictureUrl, originalPicture: stepData.options.picture, title: stepData.options.title, pictures: stepData.options.pictures, titles: stepData.options.titles})
               }
             }
@@ -1778,6 +1774,9 @@ export default {
      * WARNING : this function is a duplicate for server function "updateConditions" of run.js controller
      */
     updateConditions(currentConditions, stepId, isSuccess, stepType, addStepDone, player) {
+      if (typeof currentConditions === 'undefined') {
+        currentConditions = []
+      }
       if (currentConditions.indexOf('stepDone_' + stepId) === -1 && addStepDone) {
         currentConditions.push('stepDone_' + stepId)
       }
