@@ -1,4 +1,5 @@
 import Api from 'services/Api'
+import firebase from 'firebase'
 
 export default {
   /*
@@ -13,16 +14,20 @@ export default {
    * @param   {String}    email         User email
    * @param   {String}    password      User password
    */
-  login (email, password) {
-    return Api().post('login', {email: email, password: password}).catch(error => console.log(error.request))
+  login(email, password) {
+    //return Api().post('login', { email: email, password: password }).catch(error => console.log(error.request))
+    console.log("logging in")
+    console.log(email)
+    console.log(password)
+    return firebase.auth().signInWithEmailAndPassword(email, password)
   },
   /*
    * Check the user facebook Id and facebook token, and sign him in
    * @param   {String}    fbId          Facebook Id
    * @param   {String}    token         Facebook Access Token
    */
-  checkFacebookToken (fbId, token, done) {
-    return Api().post('login/facebook', {id: fbId, token: token}).then(function (response) {
+  checkFacebookToken(fbId, token, done) {
+    return Api().post('login/facebook', { id: fbId, token: token }).then(function (response) {
       done(false, response)
     })
   },
@@ -36,9 +41,9 @@ export default {
   /*
    * Sign-out user
    */
-  logout () {
+  logout() {
     return Api().post('logout').catch(error => console.log(error.request))
-  }, 
+  },
   /*
    * Remove a user account
    */
@@ -49,7 +54,7 @@ export default {
    * get connected user data
    * @param   {String}    id          User ID
    */
-  getAccount (id) {
+  getAccount(id) {
     if (id && id !== "me") {
       return Api().get('user/' + id + '/profile').catch(error => console.log(error.request))
     } else {
@@ -61,7 +66,10 @@ export default {
    * @param   {Object}    data          User data
    */
   createAccount(data) {
-    return Api().post('user/create', data).catch(error => console.log(error.request))
+    //return Api().post('user/create', data).catch(error => console.log(error.request))
+    console.log("creating account")
+    console.log(data)
+    firebase.auth().createUserWithEmailAndPassword(data.email, data.password)
   },
   /*
    * Modify a user account
@@ -84,7 +92,7 @@ export default {
    */
   // a user validate his account
   validateAccount(email, code) {
-    return Api().post('account/validate', {email: email, code: code}).catch(error => console.log(error.request))
+    return Api().post('account/validate', { email: email, code: code }).catch(error => console.log(error.request))
   },
   /*
    * Change a user password
@@ -93,20 +101,20 @@ export default {
    * @param   {String}    code          Validation code
    */
   changePassword(email, password, code) {
-    return Api().post('user/forgottenpassword/code/validate', {email: email, password: password, code: code}).catch(error => console.log(error.request))
+    return Api().post('user/forgottenpassword/code/validate', { email: email, password: password, code: code }).catch(error => console.log(error.request))
   },
   /*
    * Send a code to secure password modification (user not authentifyed)
    * @param   {String}    email         User email
    */
   sendForgottenPasswordCode(email) {
-    return Api().post('user/forgottenpassword/code/generate', {email: email}).catch(error => console.log(error.request))
+    return Api().post('user/forgottenpassword/code/generate', { email: email }).catch(error => console.log(error.request))
   },
   /*
    * Send a code to secure password modification (user authentified)
    * @param   {String}    email         User email
    */
   generateANewValidationCode(email) {
-    return Api().post('user/validate/code/new', {email: email}).catch(error => console.log(error.request))
+    return Api().post('user/validate/code/new', { email: email }).catch(error => console.log(error.request))
   }
 }
