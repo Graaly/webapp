@@ -75,7 +75,12 @@
           <div class="centered q-mt-sm q-mb-lg">
             <a @click="goToSubscribe()">{{ $t('label.Subscribe') }}</a>
           </div>
-          
+          <div class="centered q-mt-sm q-mb-lg">
+            <a @click="goToGoogleLogin()">Google Login</a>
+          </div>
+          <div class="centered q-mt-sm q-mb-lg">
+            <a @click="goToFaceBookLogin()">Facebook Login</a>
+          </div>
         </form>
         
         <!------------------ START PLAYING WITH QR CODE ------------------>
@@ -486,6 +491,18 @@ export default {
      */
     async goToSubscribe() {
       this.$router.push('/user/createAccount/generic')
+    },
+    /*
+    Open the google login popup
+    */
+    async goToGoogleLogin() {
+      AuthService.createAccountGoogle();
+    },
+    /*
+    Open the facebook login popup
+    */
+    async goToFacebookLogin() {
+      AuthService.createAccountFacebook();
     },
     /*
      * open the forgotten password popup

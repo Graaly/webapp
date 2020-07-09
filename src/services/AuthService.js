@@ -71,6 +71,31 @@ export default {
     console.log(data)
     firebase.auth().createUserWithEmailAndPassword(data.email, data.password)
   },
+  createAccountGoogle() {
+    var googleProvider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(googleProvider).then(function (result) {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      // var token = result.credential.accessToken;
+      // The signed-in user info.
+      var user = result.user;
+      console.log(user);
+    }).catch(function (error) {
+      // Handle Errors here.
+      console.error(error)
+    });
+  },
+  createAccountFacebook() {
+    var faceBookProvider = new firebase.auth.FacebookAuthProvider();
+    firebase.auth().signInWithPopup(faceBookProvider).then(function (result) {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      // var token = result.credential.accessToken;
+      var user = result.user;
+      console.log(user);
+    }).catch(function (error) {
+      // Handle Errors here.
+      console.error(error)
+    });
+  },
   /*
    * Modify a user account
    * @param   {Object}    data          User data
