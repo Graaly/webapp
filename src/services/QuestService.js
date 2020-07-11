@@ -86,7 +86,7 @@ export default {
     if (!lang) {
       lang = 'default'
     }
-    return Api().get('quest/' + id + '/version/last/lang/' + lang).catch(error => console.log('getLastById(): could not retrieve quest data', error))
+    return Api().get('quest/' + id + '/version/999/lang/' + lang).catch(error => console.log('getLastById(): could not retrieve quest data', error))
   },
   /*
    * Find quests based on keyword
