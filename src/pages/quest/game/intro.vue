@@ -112,7 +112,7 @@
       <div class="quest-home-button">
         <div class="text-center q-pt-md">
           <p>
-            <q-btn-dropdown class="glossy large-btn" v-if="!(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
+            <!--<q-btn-dropdown class="glossy large-btn" v-if="!(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
               <q-list link>
                 <q-item 
                   v-for="lang in getAllLanguages()" :key="lang.lang" 
@@ -125,8 +125,8 @@
                   </q-item-label>
                 </q-item>
               </q-list>
-            </q-btn-dropdown>
-            <q-btn v-if="quest.type === 'quest' && !(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary" class="glossy large-btn">
+            </q-<btn-dropdown>-->
+            <q-btn v-if="quest.type === 'quest' && !(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages()" @click="playQuest(quest.questId, getLanguage())" color="primary" class="glossy large-btn">
               <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
               <span v-if="!continueQuest && isRunFinished">{{ $t('label.SolveAgainThisQuest') }}</span>
               <span v-if="!continueQuest && !isRunFinished">{{ $t('label.SolveThisQuest') }}</span>
@@ -1008,13 +1008,17 @@ export default {
      * Create a team
      */
     async createTeam() {
-      let res = await RunService.init(this.quest.questId, this.quest.version, this.$route.params.lang, this.isUserTooFar, this.multiplayer.team)
-      if (res.status === 200 && res.data && res.data._id) {
-        //Vue.set(this.multiplayer, qrcode, res.data._id)
-        this.multiplayer.runId = res.data._id
-        this.multiplayer.qrcode = res.data._id
+      if (this.multiplayer.team && this.multiplayer.team !== '') {
+        let res = await RunService.init(this.quest.questId, this.quest.version, this.$route.params.lang, this.isUserTooFar, this.multiplayer.team)
+        if (res.status === 200 && res.data && res.data._id) {
+          //Vue.set(this.multiplayer, qrcode, res.data._id)
+          this.multiplayer.runId = res.data._id
+          this.multiplayer.qrcode = res.data._id
+        } else {
+          Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        }
       } else {
-        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        Notification(this.$t('label.PleaseEnterYourTeamName'), 'error')
       }
     },
     /*

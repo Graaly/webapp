@@ -136,7 +136,7 @@
           <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
         </div>
         
-        <div class="actions q-mt-lg" v-show="playerResult === null">
+        <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
@@ -168,7 +168,7 @@
         </table>
         <div class="centered text-grey q-py-md">{{ $t('label.ClickToEnlargePictures') }}</div>
         
-        <div class="actions q-mt-lg" v-show="playerResult === null">
+        <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
@@ -211,7 +211,7 @@
         <div>
           <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
-        <div class="answer-text">
+        <div class="answer-text" style="padding-bottom: 100px">
           <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
           <input 
             class="subtitle6" 
