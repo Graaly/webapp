@@ -41,7 +41,7 @@ export default ({ app, router, Vue }) => {
           let response = await AuthService.getAccount()
 
           if (response && response.data && response.data.name) {
-            if (response.data.clientSupportedVersion && response.data.clientSupportedVersion > "2.0.0") {
+            if (response.data.clientSupportedVersion && response.data.clientSupportedVersion > "2.0.12") {
               next({
                 path: '/error/upgraderequired'
               })

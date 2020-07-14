@@ -852,7 +852,7 @@ export default {
         this.resetDrawDirectionInterval()
         
         //iOS Hack : all iphone have gyroscope
-        if (this.isIOS) {
+        if (this.isIOs) {
           this.deviceHasGyroscope = true
         }
         
@@ -2541,25 +2541,28 @@ export default {
       }
       
       let previousGPSdistance = this.geolocation.GPSdistance
-      
+console.log("1" + previousGPSdistance)
       // compute distance between two coordinates
       // note: current.accuracy contains the result accuracy in meters
       this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
+console.log("2 " + this.geolocation.GPSdistance)
       let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
-      
+console.log("3 " + rawDirection)      
       if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
         this.geolocation.distance = this.geolocation.GPSdistance
+console.log("4 " + this.geolocation.distance)
         this.geolocation.rawDirection = rawDirection
       }
       
       let finalDirection = utils.degreesToRadians(rawDirection)
-      
+console.log("5 " + finalDirection)      
       if (!this.deviceHasGyroscope) {
         // consider that the object to find is always in front of the device 
         finalDirection = 0
         // avoid to be too close from the object, set minimal distance
         const minDistanceFromObject = 2 + (this.geolocation.target !== null ? this.geolocation.target.size : 0) // in meters
         this.geolocation.GPSdistance = Math.max(minDistanceFromObject, this.geolocation.GPSdistance)
+console.log("6 " + this.geolocation.GPSdistance)
       }
       
       // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
@@ -3368,7 +3371,7 @@ export default {
       
       // detect if device has gyroscope
       // inspired from https://stackoverflow.com/a/33843234/488666
-      if (this.deviceHasGyroscope === null) {
+      if (this.deviceHasGyroscope === null && !this.isIOs) {
         this.deviceHasGyroscope = ("rotationRate" in event && "alpha" in event.rotationRate && event.rotationRate.alpha !== null)
       }
       

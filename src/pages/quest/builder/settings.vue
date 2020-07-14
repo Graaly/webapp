@@ -361,6 +361,9 @@
             <q-icon name="help" @click.native="showHelpPopup('helpQuestCharacter')" />
           </div>
         </div>
+        <div>
+          {{ $t('label.Version') }}: {{ quest.version }}
+        </div>
         
         <!--<div v-if="!this.quest.isPremium">
           <q-btn-group class="full-width q-mt-lg">
