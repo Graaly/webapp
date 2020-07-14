@@ -633,7 +633,7 @@ export default {
      * Check battery level
      */
     checkBattery(status) {
-      if (status.level < 30) {
+      if (status.level < 50) {
         this.warning.lowBattery = true
       } else {
         this.warning.lowBattery = false
