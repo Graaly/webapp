@@ -73,13 +73,22 @@
               />
           </div>
           <div class="centered q-mt-sm q-mb-lg">
+            <img 
+              @click="goToGoogleLogin()" 
+              src="statics/images/login/google.png" 
+              class="logo-top" 
+              style="cursor: pointer;"
+            />
+            <img 
+              @click="goToFacebookLogin()" 
+              src="statics/images/login/fb.png" 
+              class="logo-top" 
+              style="cursor: pointer;" 
+            />
+          </div>
+
+          <div class="centered q-mt-sm q-mb-lg">
             <a @click="goToSubscribe()">{{ $t('label.Subscribe') }}</a>
-          </div>
-          <div class="centered q-mt-sm q-mb-lg">
-            <a @click="goToGoogleLogin()">Google Login</a>
-          </div>
-          <div class="centered q-mt-sm q-mb-lg">
-            <a @click="goToFaceBookLogin()">Facebook Login</a>
           </div>
         </form>
         
