@@ -137,6 +137,7 @@ module.exports = {
       YourName: "Your name",
       YourSex: "Sex",
       YourAge: "Age",
+      BackToMap: "Back",
       PleaseEnterYourName: "Please enter your name",
       YourCountry: "Your country",
       PleaseSelectYourCountry: "Please select your country",
