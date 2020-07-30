@@ -943,7 +943,7 @@
           {{ $t('label.ConfirmSaveChanges') }}
         </div>
         <q-card-actions>
-          <q-btn color="primary" @click="submitStep(true)" :label="$t('label.Yes')" />
+          <q-btn color="primary" @click="submitStep(false)" :label="$t('label.Yes')" />
           <q-btn color="primary" @click="$emit('close')" :label="$t('label.No')" />
         </q-card-actions>
       </q-card>
@@ -1659,7 +1659,6 @@ export default {
       this.$q.loading.hide()
 
       if (test === true) {
-        console.log("testing the step")
         if (stepData && stepData.data && stepData.data.stepId) {
           // send change event to parent, with stepId information
           newStepData.id = stepData.data.stepId
@@ -1670,8 +1669,8 @@ export default {
         }   
       }
       else if (test === false) {
-        console.log("only saving the step")
         Notification('Step saved !', 'success')
+        this.$emit('close');
       }
     },
     
