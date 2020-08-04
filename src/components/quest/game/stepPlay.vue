@@ -1835,6 +1835,10 @@ export default {
           break
         
         case 'write-text':
+          // remove the trailing space if ther is one 
+          // https://www.w3schools.com/jsref/jsref_trim_string.asp
+          this.writetext.playerAnswer = this.writetext.playerAnswer.trim()
+
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.writetext.playerAnswer}, true)
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
