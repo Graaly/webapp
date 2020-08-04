@@ -217,7 +217,7 @@
       
       <div class="fixed-bottom over-map" v-if="!offline.active">
         <div v-if="offline.show">
-          <offlineLoader :quest="offline.quest" :design="'download'" @end="questLoadedInCache()"></offlineLoader>
+          <offlineLoader :quest="offline.quest" :design="'download'" :lang="$t('label.shortLang')" @end="questLoadedInCache()"></offlineLoader>
         </div>
       </div>
       
@@ -427,11 +427,8 @@ export default {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
             if (result && result.text) {
-              if (result.text.indexOf('_score') === -1) {
-                _this.playQuest(result.text)
-              } else {
-                _this.checkCode(result.text)
-              }
+              let code = utils.removeUnusedUrl(result.text)
+              _this.checkCode(code)
             }
           },
           function (error) {
@@ -461,7 +458,11 @@ export default {
       let checkStatus = await QuestService.checkQRCode(code, this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
         if (code.indexOf('_score') === -1) {
-          this.$router.push('/quest/play/' + code)
+          if (checkStatus.data.questId) {
+            this.playQuest(checkStatus.data.questId)
+          } else {
+            this.playQuest(code)
+          }
         } else {
           this.$router.push('/quest/' + (code.substring(0, 24)) + '/end')
         }
@@ -873,6 +874,7 @@ export default {
         var _this = this; // workaround for closure scope quirks
       
         this.$q.dialog({
+          dark: true,
           message: this.$t('label.DoYouWantToCreateAnAccount'),
           ok: true,
           cancel: true

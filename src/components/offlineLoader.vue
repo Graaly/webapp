@@ -5,6 +5,9 @@
       <div v-if="design === 'download' && !error.raised" class="subtitle5 text-grey-6">{{ $t('label.Downloading') }}</div>
       <div v-if="!error.raised" class="q-pa-md">
         <q-linear-progress color="primary" track-color="grey-1" style="height: 5px" :value="offline.progress" />
+        <div v-if="isIOs" class="centered">
+          {{ parseInt(offline.progress * 100, 10)}} %
+        </div>
         <a class="text-white" @click="cancelOfflineLoading()">{{ $t('label.Cancel') }}</a>
       </div>
       <div v-if="error.raised && error.nb < 2" @click="saveOfflineQuest(quest)">
@@ -24,7 +27,7 @@ import Notification from 'boot/NotifyHelper'
 import utils from 'src/includes/utils'
 
 export default {
-  props: ['quest', 'design'],
+  props: ['quest', 'design', 'lang'],
   watch: { 
     // refresh component if questId change
     quest: async function(newVal, oldVal) {
@@ -42,6 +45,7 @@ export default {
         nb: 0,
         raised: false
       },
+      isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
       serverUrl: process.env.SERVER_URL
     }
   },
@@ -106,10 +110,10 @@ export default {
     async saveQuestData(quest) {
       var _this = this
       // cancel save if the duration is too long
-      utils.setTimeout(async () => { await _this.cancelSavingTooLong(_this.quest.questId) }, 180000)
+      utils.setTimeout(async () => { await _this.cancelSavingTooLong(_this.quest.questId) }, 360000)
       
       // load data
-      var stepsData = await StepService.listForAQuest(quest.questId, quest.version)
+      var stepsData = await StepService.listForAQuest(quest.questId, quest.version, this.lang)
       var steps = stepsData.data.steps
       var chapters = stepsData.data.chapters
       
@@ -242,17 +246,32 @@ export default {
               }
               if (step.type === 'new-item' && step.options && step.options.picture && step.options.picture !== '') {
                 if (step.options.picture.indexOf('statics') === -1) {
-                  const newItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.picture)
+                  var newItemImageSuccess
+                  if (step.options.pictures && step.options.pictures[this.lang] && step.options.pictures[this.lang] !== '') {
+                    newItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.pictures[this.lang])
+                  } else {
+                    newItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.picture)
+                  }
+                  
                   if (!newItemImageSuccess) {
                     this.throwSaveError()
                     return false
                   }
                 }
               }
-              if (step.type === 'character' && step.options && step.options.character && step.options.character !== '') {
+              if (step.type === 'character' && step.options && step.options.character && step.options.character !== ''  && step.options.character !== 'usequestcharacter') {
                 if (step.options.character.length !== 1) {
                   const characterImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/character/', step.options.character)
                   if (!characterImageSuccess) {
+                    this.throwSaveError()
+                    return false
+                  }
+                }
+              }
+              if ((step.type === 'find-item' || step.type === 'use-item') && step.options && step.options.altFile && step.options.altFile !== '') {
+                if (step.options.altFile.length !== 1) {
+                  const altImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/background/', step.options.altFile)
+                  if (!altImageSuccess) {
                     this.throwSaveError()
                     return false
                   }

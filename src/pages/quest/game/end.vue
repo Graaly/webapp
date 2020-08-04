@@ -70,6 +70,34 @@
           </span>
           <a class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
         </div>
+        <div v-if="author" class="centered q-mt-lg">
+          <div class="user-card user-card-small relative-position" style="margin: 0px;">
+            <div class="relative-position" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
+              <div v-if="author.statistics && author.statistics.nbQuestsCreated && author.statistics.nbQuestsCreated > 0" class="profile-item-creator">
+                <img src="statics/images/icon/profile-puzzle.svg" />
+              </div>
+              <div v-if="author.statistics && author.statistics.nbQuestsSuccessful && author.statistics.nbQuestsSuccessful > 0" class="profile-item-level">
+                <img :src="'statics/images/icon/level' + author.level + '.svg'" />
+              </div>
+            </div>
+          </div>
+          <div class="centered subtitle3">
+            {{ author.name }}
+          </div>
+          <div class="centered q-pt-sm" v-if="$store.state.user.id !== author._id">
+            <q-btn 
+               v-if="!author.status || author.status !== 'friend'"
+              class="glossy normal-button"
+              color="primary" 
+              :label="$t('label.Follow')" 
+              @click="follow" />
+            <div v-if="author.status && author.status === 'friend'" class="centered">
+              <q-chip class="glossy" color="primary" text-color="white" icon-right="star">
+                {{ $t('label.Followed') }}
+              </q-chip>
+            </div>
+          </div>
+        </div>
         <q-dialog maximized v-model="suggestQuest.show">
           <suggest @close="suggestQuest.show = false"></suggest>
         </q-dialog>
@@ -239,7 +267,7 @@
     
     <!--====================== WIN COINS ANIMATION =================================-->
       
-    <div v-if="level.upgraded" class="fadein-message">+100 <q-icon color="white" name="fas fa-bolt" /></div>
+    <!--<div v-if="level.upgraded" class="fadein-message">+100 <q-icon color="white" name="fas fa-bolt" /></div>-->
         
   </div>
 </template>
@@ -287,6 +315,7 @@ export default {
         id: [],
         name: []
       },
+      author: null,
       questId: this.$route.params.questId,
       awardPoints: true,
       showChallenge: false,
@@ -371,7 +400,8 @@ export default {
         
         // get offline run data
         const offlineRunData = await this.getOfflineRunData()
-      
+        
+        // end the run
         let endStatus = await RunService.endRun(this.run._id, offlineRunData, this.questId, this.quest.version, this.quest.mainLanguage)
         if (endStatus && endStatus.data) {
           if (!this.quest.customization || !this.quest.customization.removeScoring) {
@@ -415,6 +445,8 @@ export default {
         // get duration
         const duration = utils.getDurationFromNow(this.run.dateCreated)
         this.run.duration = {h: duration.h, m: duration.m}
+        
+        this.getAuthorProfile()
       } else {
         // no network
         this.warnings.noNetwork = true
@@ -615,6 +647,48 @@ export default {
      */
     async closeReward() {
       this.showReward = false
+    },
+    /*
+     * Get the user informations
+     * @param   {string}    id            ID of the user
+     */
+    async getAuthorProfile() {
+      let author = await UserService.getFriend(this.quest.authorUserId)
+      if (author && author.data && author.data.status !== 'friend') {
+        this.author = author.data
+      }
+    },
+    /*
+     * get profile image
+     */
+    getProfileImage () {
+      if (this.author.picture && this.author.picture.indexOf('http') !== -1) {
+        return this.author.picture
+      } else if (this.author.picture) {
+        return this.serverUrl + '/upload/profile/' + this.author.picture
+      } else {
+        return 'statics/images/icon/profile-small.png'
+      }
+    },
+    /*
+     * Follow a user
+     */
+    async follow () {
+      if (this.$store.state.user.name !== '-') {
+        let addFriendStatus = await UserService.addFriend(this.quest.authorUserId)
+
+        if (addFriendStatus) {
+          if (addFriendStatus.data && addFriendStatus.data.hasOwnProperty('status') && addFriendStatus.data.status === 'invitationsent') {
+            Notification(this.$t('label.InvitationSent'), 'success')
+          } else {
+            Notification(this.$t('label.FriendsAdded'), 'success')
+          }
+          // hide the user to avoid user add him again as friend
+          Vue.set(this.author, 'status', 'friend')
+        } else {
+          Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        }
+      }
     },
     /*
      * Open validation page

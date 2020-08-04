@@ -3,7 +3,6 @@ import { i18n } from '../boot/VueI18n'
 import AuthService from '../services/AuthService'
 import store from '../store/index'
 import * as Cookies from 'js-cookie'
-import { Loading } from 'quasar'
 
 export default ({ app, router, Vue }) => {
   // check if user is authenticated for specific routes
@@ -39,12 +38,10 @@ export default ({ app, router, Vue }) => {
           
           next()
         } else {
-          Loading.show()
           let response = await AuthService.getAccount()
-          Loading.hide()
 
           if (response && response.data && response.data.name) {
-            if (response.data.clientSupportedVersion && response.data.clientSupportedVersion > "1.9.0") {
+            if (response.data.clientSupportedVersion && response.data.clientSupportedVersion > "2.0.12") {
               next({
                 path: '/error/upgraderequired'
               })

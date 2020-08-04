@@ -3,7 +3,7 @@
     
     <!------------------ COMMON FOR ALL STEPS ------------------------>
     
-    <div class="q-pa-md q-pt-xl q-mt-lg">
+    <div class="q-pa-md q-pt-xl q-mt-lg bottom-margin-for-keypad">
       <q-input
         type="text"
         :label="$t('label.Title') + ' ' + currentLanguageForLabels"
@@ -114,7 +114,12 @@
       <!------------------ STEP : CHARACTER ------------------------>
       
       <div v-if="options.type.code == 'character'">
+        <div>{{ $t('label.SplitMessageWithPipe') }}</div>
         <h2>{{ $t('label.Character') }}</h2>
+        <div v-if="quest.customization.character && quest.customization.character !== ''">
+          <q-radio v-model="selectedStep.form.options.character" val="usequestcharacter" />
+          <p><img :src="serverUrl + '/upload/quest/' + quest.customization.character" /></p>
+        </div>
         <div class="answer" v-for="n in 6" :key="n">
           <q-radio v-model="selectedStep.form.options.character" :val="n.toString()" />
           <p><img :src="'statics/icons/story/character' + n + '_attitude1.png'" /></p>
@@ -139,7 +144,7 @@
               <input @change="uploadCharacterImage" ref="characterfile" type="file" accept="image/*" />
             </div>
             <p v-show="$v.selectedStep.form.options.character.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-            <div class="centered" v-if="selectedStep.form.options.character && selectedStep.form.options.character.length > 2">
+            <div class="centered" v-if="selectedStep.form.options.character && selectedStep.form.options.character.length > 2 && selectedStep.form.options.character !== 'usequestcharacter'">
               <img style="width:100%" :src="serverUrl + '/upload/quest/' + questId + '/step/character/' + selectedStep.form.options.character" />
             </div>
           </div>
@@ -241,14 +246,17 @@
       <!------------------ STEP : SIMPLE TEXT ------------------------>
       
       <div v-if="options.type.code == 'write-text'">
-        <q-input
-          v-model="selectedStep.form.answers"
-          :label="$t('label.ExpectedAnswer')"
-          bottom-slots
-          :error="$v.selectedStep.form.answers.$error"
-          :error-message="$t('label.RequiredField')"
-          test-id="input-text-answer"
-          />
+        <div v-for="(answer, index) in selectedStep.form.answers" :key="index">
+          <q-input
+            v-model="selectedStep.form.answers[index]"
+            :label="$t('label.ExpectedAnswer')"
+            bottom-slots
+            :error="$v.selectedStep.form.answers.$error"
+            :error-message="$t('label.RequiredField')"
+            />
+        </div>
+        <q-btn class="full-width" @click="addWriteTextAnswer()">{{ $t('label.AddAnAnswer') }}</q-btn>
+        <div>{{ $t('label.WriteTextWarning')}}</div>
       </div>
       
       <!------------------ STEP : CODE KEYPAD ------------------------>
@@ -446,6 +454,19 @@
           {{ $t('label.SelectedObject') }} :
           <img style="width: 100%" :src="(selectedStep.form.answerItem.indexOf('statics/') !== -1 ? selectedStep.form.answerItem : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.answerItem)" />
         </div>
+        <div>
+          <div v-if="!isIOs">
+            <q-btn class="full-width" type="button" :label="$t('label.ChangeTheBackgroundImageOnceClicked')" @click="$refs['altfile'].click()" />
+            <input @change="uploadAlternativeImage" ref="altfile" type="file" accept="image/*" hidden />
+          </div>
+          <div v-if="isIOs">
+            {{ $t('label.ChangeTheBackgroundImageOnceClicked') }}:
+            <input @change="uploadAlternativeImage" ref="altfile" type="file" accept="image/*" />
+          </div>
+          <div class="centered" v-if="selectedStep.form.options.altFile && selectedStep.form.options.altFile.length > 2">
+            <img style="width:100%" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.options.altFile" />
+          </div>
+        </div>
       </div>
       
       <!------------------ STEP : FIND ITEM ------------------------>
@@ -454,6 +475,19 @@
         <p>{{ $t('label.ClickOnTheItemThatIsToFind') }} :</p>
         <div @click="getClickCoordinates($event)" id="findItemPicture" ref="findItemPicture" :style="'overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
           <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="statics/icons/game/find-item-locator.png" />
+        </div>
+        <div>
+          <div v-if="!isIOs">
+            <q-btn class="full-width" type="button" :label="$t('label.ChangeTheBackgroundImageOnceClicked')" @click="$refs['altfile'].click()" />
+            <input @change="uploadAlternativeImage" ref="altfile" type="file" accept="image/*" hidden />
+          </div>
+          <div v-if="isIOs">
+            {{ $t('label.ChangeTheBackgroundImageOnceClicked') }}:
+            <input @change="uploadAlternativeImage" ref="altfile" type="file" accept="image/*" />
+          </div>
+          <div class="centered" v-if="selectedStep.form.options.altFile && selectedStep.form.options.altFile.length > 2">
+            <img style="width:100%" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.options.altFile" />
+          </div>
         </div>
       </div>
       
@@ -740,6 +774,21 @@
         -->
       </div>
             
+      <!------------------ PLAYERS ------------------------>
+      
+      <div v-if="quest.playersNumber > 1">
+        <q-select 
+          emit-value 
+          map-options 
+          :label="$t('label.Player')" 
+          v-model="selectedStep.form.player" 
+          :options="players">
+          <template v-slot:after>
+            <q-btn round dense flat icon="help" @click="showHelpPopup('helpPlayer')" />
+          </template>
+        </q-select>
+      </div>
+      
       <!------------------ CONDITIONS ------------------------>
       
       <q-list bordered v-if="options && options.mode && options.mode === 'advanced'">
@@ -784,6 +833,9 @@
               <q-toggle v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
               <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
               <q-toggle v-model="selectedStep.form.options.showHelp" :label="$t('label.DisplayGeolocationHelp')" />
+            </div>
+            <div v-if="options.type.code == 'geolocation'">
+              <q-input v-model="selectedStep.form.options.distance" :label="$t('label.DistanceToWin')" />
             </div>
             <div v-if="options.type.code === 'memory'">
               <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
@@ -868,8 +920,12 @@
           </div>
         </q-expansion-item>
       </q-list>
-      <div class="centered q-pa-md">
-        <q-btn class="glossy large-button" color="primary" @click="submitStep" test-id="btn-save-step">{{ $t('label.SaveThisStep') }}</q-btn>
+      
+      <div class="centered q-pa-md q-pb-xl">
+        <q-btn class="glossy large-button" color="primary" @click="submitStep(true)" test-id="btn-save-step">{{ $t('label.SaveAndTestThisStep') }}</q-btn>
+      </div>
+      <div class="centered q-pa-md q-pb-xl">
+        <q-btn class="glossy large-button" color="primary" @click="submitStep(false)" test-id="btn-save-step-no-test">{{ $t('label.SaveThisStep') }}</q-btn>
       </div>
     </div>
     
@@ -887,7 +943,7 @@
           {{ $t('label.ConfirmSaveChanges') }}
         </div>
         <q-card-actions>
-          <q-btn color="primary" @click="submitStep()" :label="$t('label.Yes')" />
+          <q-btn color="primary" @click="submitStep(false)" :label="$t('label.Yes')" />
           <q-btn color="primary" @click="$emit('close')" :label="$t('label.No')" />
         </q-card-actions>
       </q-card>
@@ -917,10 +973,30 @@
           {{ $t('label.UploadABackgroundImage') }}:
           <input @change="uploadBackgroundImage" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" test-id="background-upload" />
         </div>
+        <div class="centered" v-if="media.isSimulated">
+          <div :style="'width: 105px; height: 180px; background: url(' + media.simulationPicture + ') center center / cover no-repeat; display: inline-block; margin-right: 6px;'" />
+          <div :style="'width: 84px; height: 180px; background: url(' + media.simulationPicture + ') center center / cover no-repeat; display: inline-block; margin-right: 6px;'" />
+          <div :style="'width: 135px; height: 180px; background: url(' + media.simulationPicture + ') center center / cover no-repeat; display: inline-block;'" />
+        </div>
+        <div v-if="media.isSimulated">
+          <div class="centered">{{ $t('label.MyBackgroundPictureImageDisplaysOnMobiles') }}</div>
+          <q-list bordered class="rounded-borders">
+            <q-expansion-item
+              expand-separator
+              :label="$t('label.MyPictureIsNotDisplayedWell')"
+            >
+              <q-card>
+                <q-card-section>
+                  <span v-html="$t('label.MyPictureIsNotDisplayedWellDesc')"></span>
+                </q-card-section>
+              </q-card>
+            </q-expansion-item>
+          </q-list>
+        </div>
         <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-        <div class="centered" v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</div>
+        <div class="centered" v-if="!selectedStep.form.backgroundImage && !media.isSimulated">{{ $t('label.WarningImageResize') }}</div>
         
-        <div v-if="media && media.items && media.items.length > 0">
+        <div v-if="media && media.items && media.items.length > 0 && !media.isSimulated">
           <div class="centered q-pa-md">{{ $t('label.OrSelectAnImageInTheList') }}</div>
           <img v-for="(item, index) in media.items" :key="item.id" :src="serverUrl + '/upload/quest/' + questId + item.type + item.file" style="width: 30vw; height: 40vw;" @click="selectMedia(index)">
         </div>
@@ -989,6 +1065,7 @@ export default {
           title: {},
           text: {},
           extraText: {},
+          player: 'All',
           options: {},
           hint: {},
           nbTrial: 0,
@@ -1013,12 +1090,15 @@ export default {
       },
       media: {
         isOpened: false,
+        isSimulated: false,
+        simulationPicture: "",
         items: [],
         detail: {
           isOpened: false,
           index: 0
         }
       },
+      players: [],
       stepTypes,
       objectsList,
       markersList,
@@ -1170,6 +1250,7 @@ export default {
         // geoloc step specific
         answerPointerCoordinates: {top: 50, left: 50},
         answerItem: null,
+        player: 'All',
         nbTrial: 0,
         canPass: true,
         showDistanceToTarget: true,
@@ -1274,6 +1355,14 @@ export default {
         }
       }
       
+      // define players select list
+      if (this.options.type.code === 'info-text' || this.options.type.code === 'info-video' || this.options.type.code === 'new-item' || this.options.type.code === 'character' || this.options.type.code === 'end-chapter') {
+        this.players.push({ label: this.$t('label.All'), value: 'All' })
+      }
+      for (var p = 0; p < this.quest.playersNumber; p++) {
+        this.players.push({ label: this.$t('label.Player') + " " + (p + 1), value: 'P' + (p + 1) })
+      }
+      
       // initialize specific steps
       if (this.options.type.code === 'choose') {
         if (!this.selectedStep.form.options || !this.selectedStep.form.options.items || !Array.isArray(this.selectedStep.form.options.items)) {
@@ -1327,8 +1416,9 @@ export default {
           this.selectedStep.form.answers = ""
         }
       } else if (this.options.type.code === 'write-text') {
-        if (typeof this.selectedStep.form.answers !== 'string') {
-          this.selectedStep.form.answers = ""
+        if (typeof this.selectedStep.form.answers !== 'object' || !this.selectedStep.form.answers.length) {
+          this.selectedStep.form.answers = []
+          this.selectedStep.form.answers.push("")
         }
       } else if (this.options.type.code === 'info-text' || this.options.type.code === 'character' || this.options.type.code === 'choose' || this.options.type.code === 'write-text' || this.options.type.code === 'code-keypad') {
         if (!this.selectedStep.form.options.hasOwnProperty('initDuration')) {
@@ -1349,6 +1439,9 @@ export default {
             this.positionFindItemPointer()
           })
         }
+        if (!this.selectedStep.form.options) {
+          this.selectedStep.form.options = {}
+        }
       } else if (this.options.type.code === 'use-item') {
         if (this.selectedStep.form.answers.hasOwnProperty('coordinates')) {
           this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers.coordinates
@@ -1361,9 +1454,19 @@ export default {
           this.selectedStep.form.answerItem = this.selectedStep.form.answers.item
         }
         this.getQuestItemsAsOptions()
+        if (!this.selectedStep.form.options) {
+          this.selectedStep.form.options = {}
+        }
       } else if (this.options.type.code === 'new-item') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
-          this.selectedStep.form.options = { picture: null, title: "" }
+          this.selectedStep.form.options = { picture: null, title: "", pictures: {'fr': '', 'en': ''}, titles: {'fr': '', 'en': ''} }
+        } else {
+          if (this.selectedStep.form.options.hasOwnProperty('pictures') && this.selectedStep.form.options.pictures[this.lang]) {
+            this.selectedStep.form.options.picture = this.selectedStep.form.options.pictures[this.lang]
+          }
+          if (this.selectedStep.form.options.hasOwnProperty('titles') && this.selectedStep.form.options.titles[this.lang]) {
+            this.selectedStep.form.options.title = this.selectedStep.form.options.titles[this.lang]
+          }
         }
       } else if (this.options.type.code === 'jigsaw-puzzle') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
@@ -1376,6 +1479,10 @@ export default {
             defaultItems.push({ imagePath: null, single: false })
           }
           this.$set(this.selectedStep.form.options, 'items', defaultItems)
+        }
+      } else if (this.options.type.code === 'geolocation') {
+        if (!this.selectedStep.form.options.hasOwnProperty('distance')) {
+          this.$set(this.selectedStep.form.options, 'distance', '20')
         }
       } else if (this.options.type.code === 'locate-item-ar') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
@@ -1463,7 +1570,7 @@ export default {
     /*
      * Submit step data
      */
-    async submitStep() {
+    async submitStep(test) {
       this.$v.selectedStep.form.$touch()
 
       // treat form errors (based on validation rules)
@@ -1528,6 +1635,16 @@ export default {
         this.selectedStep.form.answers = {coordinates: this.selectedStep.form.answerPointerCoordinates, item: this.selectedStep.form.answerItem}
       }
       if (this.options.type.code === 'new-item') {
+        if (!this.selectedStep.form.options.titles) {
+          this.selectedStep.form.options.titles = {}
+        }
+        this.selectedStep.form.options.titles[this.lang] = this.selectedStep.form.options.title
+        if (!this.selectedStep.form.options.pictures) {
+          this.selectedStep.form.options.pictures = {}
+        }
+        if (!this.selectedStep.form.options.pictures[this.lang]) {
+          this.selectedStep.form.options.pictures[this.lang] = this.selectedStep.form.options.picture
+        }
         //this.selectedStep.form.answers = this.selectedStep.form.answerItem
       }
       // save step data
@@ -1540,13 +1657,20 @@ export default {
       this.$q.loading.show()
       let stepData = await StepService.save(newStepData)
       this.$q.loading.hide()
-      if (stepData && stepData.data && stepData.data.stepId) {
-        // send change event to parent, with stepId information
-        newStepData.id = stepData.data.stepId
-        newStepData.stepId = stepData.data.stepId
-        this.$emit('change', newStepData)
-      } else {
-        Notification(this.$t('label.TechnicalIssue'), 'error')
+
+      if (test === true) {
+        if (stepData && stepData.data && stepData.data.stepId) {
+          // send change event to parent, with stepId information
+          newStepData.id = stepData.data.stepId
+          newStepData.stepId = stepData.data.stepId
+          this.$emit('change', newStepData)
+        } else {
+          Notification(this.$t('label.TechnicalIssue'), 'error')
+        }   
+      }
+      else if (test === false) {
+        Notification('Step saved !', 'success')
+        this.$emit('close');
       }
     },
     
@@ -1770,6 +1894,11 @@ export default {
       await this.changeNewConditionType()
       this.selectedStep.newCondition.selectedValue = ''
     },
+    showHelpPopup (message) {
+      this.$q.dialog({
+        message: this.$t('label.' + message)
+      })
+    },
     /*
      * Upload the background image
      * @param   {Object}    e            Upload data
@@ -1786,6 +1915,7 @@ export default {
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
           this.selectedStep.form.backgroundImage = uploadResult.data.file
+          this.displayBackgroundImageSize(this.selectedStep.form.backgroundImage)
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -1795,7 +1925,20 @@ export default {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
       this.$q.loading.hide()
-      this.hideMedia()
+      //this.hideMedia()
+    },
+    displayBackgroundImageSize(fileName) {
+      this.media.isSimulated = true
+      this.media.simulationPicture = this.serverUrl + '/upload/quest/' + this.questId + '/step/background/' + fileName
+      /*var sc1 = document.getElementById('screensize1')
+      var sc2 = document.getElementById('screensize2')
+      var sc3 = document.getElementById('screensize3')
+      sc1.style.backgroundImage = "url('" + this.serverUrl + '/upload/quest/' + this.questId + '/step/background/' + fileName + "')"
+      sc2.style.backgroundImage = "url('" + this.serverUrl + '/upload/quest/' + this.questId + '/step/background/' + fileName + "')"
+      sc3.style.backgroundImage = "url('" + this.serverUrl + '/upload/quest/' + this.questId + '/step/background/' + fileName + "')"
+      sc1.onload = function() { URL.revokeObjectURL(sc1.src) }// free memory 
+      sc2.onload = function() { URL.revokeObjectURL(sc2.src) }// free memory 
+      sc3.onload = function() { URL.revokeObjectURL(sc3.src) }// free memory */
     },
     /*
      * Reset the background image
@@ -1993,6 +2136,7 @@ export default {
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
           this.selectedStep.form.options.picture = uploadResult.data.file
+          this.selectedStep.form.options.pictures[this.lang] = uploadResult.data.file
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -2054,6 +2198,32 @@ export default {
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
           Vue.set(this.selectedStep.form.options, 'character', uploadResult.data.file)
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    /*
+     * Upload a picture when a user has clicked
+     * @param   {Object}    e            Upload data
+     */
+    async uploadAlternativeImage(e) {
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      this.$q.loading.show()
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadResult = await StepService.uploadAlternativeImage(this.questId, this.options.type.code, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        if (uploadResult.data.file) {
+          Vue.set(this.selectedStep.form.options, 'altFile', uploadResult.data.file)
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -2219,6 +2389,8 @@ export default {
     async selectObject(key) {
       this.selectedStep.form.options.title = this.objectsList[key].name[this.lang]
       this.selectedStep.form.options.picture = 'statics/images/object/' + this.objectsList[key].file
+      this.selectedStep.form.options.titles[this.lang] = this.selectedStep.form.options.title
+      this.selectedStep.form.options.pictures[this.lang] = this.selectedStep.form.options.picture
     },
     /*
      * Get the list of colors for the color code step
@@ -2427,6 +2599,9 @@ export default {
       // see https://stackoverflow.com/q/881085/488666
       return value.length <= maxNbChars && (value.match(/\n/g) || []).length <= maxNbCarriageReturns
     },
+    addWriteTextAnswer() {
+      this.selectedStep.form.answers.push("")
+    },
     openChooseMarkerModal() {
       this.config.locateMarker.markerModalOpened = true
     },
@@ -2486,6 +2661,7 @@ export default {
      */
     async hideMedia() {
       this.media.isOpened = false
+      this.media.isSimulated = false
     },
     /**
      * Get iot objects list as options for <q-select>

@@ -50,16 +50,18 @@
       <!------------------ CHARACTER STEP AREA ------------------------>
       
       <div class="character" v-if="step.type == 'character'">
-        <div class="fixed-bottom story">
+        <div class="fixed-bottom story" @click="nextCharacterBubbleText()">
           <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
           <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
-            <p class="carrier-return" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
-            <p class="text" v-if="getTranslatedText() != '' && step.options && step.options.html" v-html="getTranslatedText()"></p>
+            <p class="carrier-return" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
+            <p class="text" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
+            <p class="text text-grey" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ClickHere') }}</p>
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
             <img style="vertical-align:bottom" v-if="step.options.character.length < 3" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
-            <img style="max-width: 100%; max-height: 200px; vertical-align:bottom;" v-if="step.options.character.length > 2" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
+            <img style="max-width: 100%; max-height: 200px; vertical-align:bottom;" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
+            <img style="max-width: 100%; max-height: 200px; vertical-align:bottom;" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + customization.character : customization.character" />
           </div>
           <div class="full-width bg-black" style="height: 70px">
           </div>
@@ -91,28 +93,36 @@
       <!------------------ KEYPAD STEP AREA ------------------------>
       
       <div class="code" v-if="step.type == 'code-keypad'">
-        <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
-        </div>
-        <div class="typed-code">
-          <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
-          <tr>
-            <td v-for="(sign, key) in playerCode" :key="key" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
-          </tr>
-          </table>
-        </div>
-        <div class="keypad">
-          <div class="keypadLine">
-            <div v-for="(keypadLine, rowKey) in keypad" :key="rowKey">
-              <q-btn v-for="(keypadButton, btnKey) in keypadLine" :key="btnKey" color="grey" glossy @click="addCodeChar(keypadButton)" :disable="playerResult !== null" :test-id="'btn-keypad-' + keypadButton">{{ keypadButton }}</q-btn>
+        <div v-if="showKeypad">
+          <div>
+            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          </div>
+          <div class="typed-code">
+            <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
+            <tr>
+              <td v-for="(sign, key) in playerCode" :key="key" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
+            </tr>
+            </table>
+          </div>
+          <div class="keypad">
+            <div class="keypadLine">
+              <div v-for="(keypadLine, rowKey) in keypad" :key="rowKey">
+                <q-btn v-for="(keypadButton, btnKey) in keypadLine" :key="btnKey" color="grey" glossy @click="addCodeChar(keypadButton)" :disable="playerResult !== null" :test-id="'btn-keypad-' + keypadButton">{{ keypadButton }}</q-btn>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
-          <div>
-            <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
-            <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
+          <div class="actions q-mt-sm q-mb-md" v-show="playerResult === null">
+            <div>
+              <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
+              <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
+            </div>
           </div>
+          <div class="centered" style="padding-bottom: 100px">
+            <q-icon size="xl" name="expand_less" @click="showKeypad = false" />
+          </div>
+        </div>
+        <div v-if="!showKeypad" class="centered">
+          <q-icon size="xl" name="expand_more" @click="showKeypad = true" />
         </div>
       </div>
       
@@ -126,7 +136,7 @@
           <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
         </div>
         
-        <div class="actions q-mt-lg" v-show="playerResult === null">
+        <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
@@ -158,7 +168,7 @@
         </table>
         <div class="centered text-grey q-py-md">{{ $t('label.ClickToEnlargePictures') }}</div>
         
-        <div class="actions q-mt-lg" v-show="playerResult === null">
+        <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
@@ -201,7 +211,7 @@
         <div>
           <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
-        <div class="answer-text">
+        <div class="answer-text" style="padding-bottom: 100px">
           <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
           <input 
             class="subtitle6" 
@@ -233,14 +243,16 @@
             ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'"></header></div>
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
-        <div class="centered text-grey q-pt-lg arial" v-if="puzzle.mode === 'drag'">
-          {{ $t('label.PuzzleHelpText') }}
-        </div>
-        <div class="centered text-primary q-pt-lg arial" v-if="puzzle.mode === 'click'">
-          {{ $t('label.PuzzleHelpTextClick') }}
-        </div>
-        <div class="centered text-grey q-pt-sm" v-if="puzzle.mode === 'drag'">
-          <a class="text-grey" @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
+        <div class="q-mt-lg background-lighter4 q-pa-md">
+          <div class="centered arial" v-if="puzzle.mode === 'drag'">
+            {{ $t('label.PuzzleHelpText') }}
+          </div>
+          <div class="centered text-primary q-pt-lg arial" v-if="puzzle.mode === 'click'">
+            {{ $t('label.PuzzleHelpTextClick') }}
+          </div>
+          <div class="centeredq-pt-sm" v-if="puzzle.mode === 'drag'">
+            <a class="text-black" @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
+          </div>
         </div>
       </div>
       
@@ -275,7 +287,9 @@
       </div>
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
         <q-btn round :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color">
-          <img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
+          <!--<img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />-->
+          <img v-if="itemUsed && itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== ''" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
+          <img v-if="itemUsed && !(itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== '')" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
         </q-btn>
         {{ $t('label.TouchWhereYouUseThisItem') }}
       </p>
@@ -293,7 +307,7 @@
       
       <!------------------ LOCATE ITEM IN AUGMENTED REALITY STEP AREA ------------------------>
       
-      <div class="locate-item-ar" v-show="step.type == 'locate-item-ar'">
+      <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && geolocation.active"></video>
         </transition>
@@ -314,7 +328,7 @@
       
       <!------------------ SUPERIMPOSE IMAGE AND CAMERA STEP AREA ------------------------>
       
-      <div class="image-over-flow" v-show="step.type == 'image-over-flow'">
+      <div class="image-over-flow" v-if="step.type == 'image-over-flow'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled"></video>
         </transition>
@@ -436,6 +450,25 @@
         <p v-if="step.options.protocol === 'bluetooth' && bluetooth.deviceId === null">{{ $t('label.SearchingBluetoothDevice') }}</p>
       </div>
       
+      <!------------------ WAITING SCREEN (if waiting for another player actions) ------------------------>
+      
+      <transition name="slideInBottom">
+        <div class="panel-bottom background-dark" v-show="step.id == 'waiting'">
+          <div class="centered q-pa-lg title4 text-primary">
+            <div class="q-pa-lg text-uppercase">{{ $t('label.WaitingForOtherUsersActions') }}</div>
+            <img src="statics/images/animation/map.gif" class="full-width q-mb-lg" />
+          </div>
+          <div>
+            <div class="q-pa-lg centered">
+              {{ $t('label.WaitingForOtherUsersActionsDesc') }}
+            </div>
+            <!--<div class="q-pa-md centered">
+              <q-btn flat icon="refresh"><span>{{ $t('label.CheckIfICanMoveFoward') }}</span></q-btn>
+            </div>-->
+          </div>
+        </div>
+      </transition>
+      
     </div>
     
     <!------------------ COMMON COMPONENTS ------------------>
@@ -529,7 +562,7 @@ export default {
    * itemUsed : item of the inventory used
    * lang : language of the step (fr, en, ...)
    */
-  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization'],
+  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player'],
   components: {
     geolocation,
     story
@@ -538,6 +571,7 @@ export default {
     // refresh component if stepId change
     reload: async function(newVal, oldVal) {
       if (newVal === true || newVal === 'true') {
+        this.clearAllCameraStreams()
         await this.initData()
       }
       if (newVal === false || newVal === 'false') {
@@ -617,6 +651,12 @@ export default {
         isIOs: utils.isIOS(),
         isNetworkLow: false,
         
+        // for step 'character'
+        character: {
+          bubbleText: [],
+          numberOfBubble: 1,
+          bubbleNumber: 0
+        },
         // for step 'choose'
         answerType: 'text', // 'text' or 'image'
         
@@ -628,6 +668,7 @@ export default {
           ["7", "8", "9"],
           ["*", "0", "#"]
         ],
+        showKeypad: true,
         codeColors: {},
         
         // for step type 'image-recognition'
@@ -653,7 +694,8 @@ export default {
           canTouchTarget: false,
           primaryColor: colors.getBrand('primary'),
           showCalibration: false,
-          takeMobileVertically: false
+          takeMobileVertically: false,
+          gyroscopeDetectionCounter: 0
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -809,12 +851,29 @@ export default {
         
         this.resetDrawDirectionInterval()
         
+        //iOS Hack : all iphone have gyroscope
+        if (this.isIOs) {
+          this.deviceHasGyroscope = true
+        }
+        
         if (this.step.type === 'end-chapter') {
           this.checkAnswer()
         }
         
         if (this.step.type === 'choose') {
           this.answerType = Array.isArray(this.step.options.items) && this.step.options.items[0].hasOwnProperty('imagePath') && this.step.options.items[0].imagePath !== null ? 'image' : 'text'
+        }
+        
+        if (this.step.type === 'character') {
+          if (this.step.text && this.step.text !== "") {
+            this.character.bubbleText = this.step.text.split('|')
+            this.character.numberOfBubble = this.character.bubbleText.length
+            if (this.character.numberOfBubble === 1) {
+              this.checkAnswer()
+            }
+          } else {
+            this.checkAnswer()
+          }
         }
         
         if (this.step.type === 'code-keypad') {
@@ -837,9 +896,15 @@ export default {
           this.resetImageCode()
         }
         
-        /*if (this.step.type === 'new-item') {
-          await this.addItemToInventory(this.step.answers)
-        }*/
+        if (this.step.type === 'new-item') {
+          if (this.step.options.hasOwnProperty('pictures') && this.step.options.pictures[this.lang]) {
+            this.step.options.picture = this.step.options.pictures[this.lang]
+          }
+          if (this.step.options.hasOwnProperty('titles') && this.step.options.titles[this.lang]) {
+            this.step.options.title = this.step.options.titles[this.lang]
+          }
+          //await this.addItemToInventory(this.step.answers)
+        }
         
         /*if (this.step.type === 'use-item') {
           await this.fillInventory()
@@ -943,6 +1008,7 @@ export default {
                   cameraStream.srcObject = stream
                   cameraStream.play()
                   this.cameraStreamEnabled = true
+                  this.$store.dispatch('addMediaStream', stream)
                 })
                 .catch((err) => {
                   // TODO friendly behavior/message for user
@@ -1049,20 +1115,16 @@ export default {
         if (this.step.type === 'image-over-flow') {
           this.$emit('pass')
           // video stream
-          //if (this.isIOs && CameraPreview) {
-          if (CameraPreview) {
-console.log("camera preview")
+          if (this.isIOs && CameraPreview) {
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
             CameraPreview.startCamera(options)
             //CameraPreview.setColorEffect("redfilter")
             CameraPreview.show()
           } else {
-console.log("not camera preview")
             var cameraStream2 = this.$refs['camera-stream-for-image-over-flow']
             // enable rear camera stream
             // -------------------------
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-            
               .then((stream) => {
                 // Hacks for Safari iOS
                 cameraStream2.setAttribute("muted", true)
@@ -1071,6 +1133,7 @@ console.log("not camera preview")
                 cameraStream2.srcObject = stream
                 cameraStream2.play()
                 this.cameraStreamEnabled = true
+                this.$store.dispatch('addMediaStream', stream)
                 
                 // init video capturing
                 const track = stream.getVideoTracks()[0];
@@ -1128,6 +1191,7 @@ console.log("not camera preview")
                   
                   await this.displayMarkers(sceneCanvas)
                 }
+                this.$store.dispatch('addMediaStream', stream)
               })
               .catch((err) => {
                 // TODO friendly behavior/message for user
@@ -1360,7 +1424,7 @@ console.log("not camera preview")
       // if transition step, next button is clickable when controls are displayed
       if (this.step.type === 'info-text' || 
         this.step.type === 'info-video' || 
-        this.step.type === 'character' || 
+        //this.step.type === 'character' || 
         this.step.type === 'image-over-flow' || 
         this.step.type === 'new-item' || 
         this.step.type === 'trigger-event') {
@@ -1507,7 +1571,7 @@ console.log("not camera preview")
       var _this = this
       var lowNetworkTimeout = setTimeout(function () { _this.isNetworkLow = true }, 8000)
 
-      var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData)
+      var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player)
 
       // clear low network alerte if displayed
       clearTimeout(lowNetworkTimeout)
@@ -1579,8 +1643,10 @@ console.log("not camera preview")
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       } else if (type === 'write-text') {
-        if (utils.removeAccents(answer) === utils.removeAccents(this.answer)) {
-          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+        for (var i = 0; i < this.answer.length; i++) {
+          if (utils.removeAccents(answer) === utils.removeAccents(this.answer[i])) {
+            return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+          }
         }
       } else if (type === 'memory') {
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
@@ -1715,7 +1781,6 @@ console.log("not camera preview")
           break
         
         case 'code-color':
-          this.$q.loading.show()
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|')}, true)
           
           if (checkAnswerResult.result === true) {
@@ -1770,6 +1835,10 @@ console.log("not camera preview")
           break
         
         case 'write-text':
+          // remove the trailing space if ther is one 
+          // https://www.w3schools.com/jsref/jsref_trim_string.asp
+          this.writetext.playerAnswer = this.writetext.playerAnswer.trim()
+
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.writetext.playerAnswer}, true)
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
@@ -1793,6 +1862,10 @@ console.log("not camera preview")
             if (this.step.displayRightAnswer) {
               this.showItemLocation(checkAnswerResult.answer.coordinates.left, checkAnswerResult.answer.coordinates.top)
             }
+            // if alt picture
+            if (this.step.options && this.step.options.altFile) {
+              this.step.backgroundImage = this.step.options.altFile
+            }
             
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
@@ -1815,6 +1888,10 @@ console.log("not camera preview")
           if (checkAnswerResult.result === true) {
             if (this.step.displayRightAnswer) {
               this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
+            }
+            // if alt picture
+            if (this.step.options && this.step.options.altFile) {
+              this.step.backgroundImage = this.step.options.altFile
             }
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
@@ -2138,6 +2215,17 @@ console.log("not camera preview")
     ////////////////////////////////////////////// MANAGEMENT OF THE ENIGMA COMPONENTS /////////////////////////////////////////////
     
     /*
+     * Display next text 
+     */
+    nextCharacterBubbleText() {
+      if (this.character.bubbleNumber < (this.character.numberOfBubble - 1)) {
+        this.character.bubbleNumber++
+      }
+      if (this.character.bubbleNumber >= (this.character.numberOfBubble - 1)) {
+        this.checkAnswer()
+      }
+    },
+    /*
      * Reset the key pad 
      */
     resetKeypadCode() {
@@ -2291,6 +2379,7 @@ console.log("not camera preview")
         .then((stream) => {
           cameraStream.srcObject = stream
           cameraStream.play()
+          this.$store.dispatch('addMediaStream', stream)
         })
         .catch((err) => {
           console.log("An error occured! " + err)
@@ -2356,7 +2445,7 @@ console.log("not camera preview")
      * Stop the video tracking
      */
     stopVideoTracks(cameraStreamElementRef) {
-      if (this.$refs[cameraStreamElementRef].srcObject) {
+      if (this.$refs[cameraStreamElementRef] && this.$refs[cameraStreamElementRef].srcObject) {
         this.$refs[cameraStreamElementRef].srcObject.getVideoTracks().forEach(function(track) { track.stop() })
       }
       this.cameraStreamEnabled = false
@@ -2456,25 +2545,28 @@ console.log("not camera preview")
       }
       
       let previousGPSdistance = this.geolocation.GPSdistance
-      
+console.log("1" + previousGPSdistance)
       // compute distance between two coordinates
       // note: current.accuracy contains the result accuracy in meters
       this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
+console.log("2 " + this.geolocation.GPSdistance)
       let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
-      
+console.log("3 " + rawDirection)      
       if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
         this.geolocation.distance = this.geolocation.GPSdistance
+console.log("4 " + this.geolocation.distance)
         this.geolocation.rawDirection = rawDirection
       }
       
       let finalDirection = utils.degreesToRadians(rawDirection)
-      
+console.log("5 " + finalDirection)      
       if (!this.deviceHasGyroscope) {
         // consider that the object to find is always in front of the device 
         finalDirection = 0
         // avoid to be too close from the object, set minimal distance
         const minDistanceFromObject = 2 + (this.geolocation.target !== null ? this.geolocation.target.size : 0) // in meters
         this.geolocation.GPSdistance = Math.max(minDistanceFromObject, this.geolocation.GPSdistance)
+console.log("6 " + this.geolocation.GPSdistance)
       }
       
       // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
@@ -2513,7 +2605,7 @@ console.log("not camera preview")
         this.updatePlayerCanTouchTarget()
       }
       
-      if (this.step.type === 'geolocation' && this.geolocation.distance <= 20) {
+      if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.distance <= parseInt(options.distance, 10)) || this.geolocation.distance <= 20)) {
         this.$refs['geolocation-component'].disabled = true
         this.geolocation.active = false
         this.resetDrawDirectionInterval()
@@ -2575,7 +2667,12 @@ console.log("not camera preview")
       var self = this
       utils.setInterval(function() {
         if (cross.src === crossPicture) {
-          cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.step.answers.item : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
+          if (self.itemUsed.pictures && self.itemUsed.pictures[self.lang] && self.itemUsed.pictures[self.lang] !== '') {
+            cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.itemUsed.picture : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.itemUsed.picture)
+          } else {
+            cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.step.answers.item : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
+          }
+          
           cross.style.borderRadius = '50%'
         } else {
           cross.src = crossPicture
@@ -2665,6 +2762,13 @@ console.log("not camera preview")
         defaultText = this.$t('label.YouHaveWinANewItem')
       }
       let translation = this.step.text ? this.step.text : defaultText
+      
+      // replace variables
+      let date = new Date()
+      translation = translation.replace('%id%', this.$store.state.user.id)
+      translation = translation.replace('%name%', this.$store.state.user.name)
+      translation = translation.replace('%date%', (date.getMonth() + 1) + '.' + date.getFullYear())
+      
       return translation
     },
     getScreenWidth() {
@@ -3135,9 +3239,7 @@ console.log("not camera preview")
       let objectInit = modelsList[modelCode]
       let gltfData
       try {
-        this.$q.loading.show()
         gltfData = await this.ModelLoaderAsync(modelCode, questId, isCustom)
-        this.$q.loading.hide()
       } catch (err) {
         console.error("Error while loading 3D model:", err)
         Notification(this.$t('label.CouldNotDisplayObject'), 'error')
@@ -3246,25 +3348,10 @@ console.log("not camera preview")
     * clear all camera streams
     */
     clearAllCameraStreams() {
-      // TODO maybe only one "camera stream" <div> could be used by all steps
-      let streamDivs = [
-        'camera-stream-for-recognition',
-        'camera-stream-for-locate-marker',
-        'camera-stream-for-image-over-flow',
-        'camera-stream-for-locate-item-ar'
-      ]
-      
-      let streams = []
-      
-      for (let streamDiv of streamDivs) {
-        let element = this.$refs[streamDiv]
-        if (typeof element !== 'undefined' && element.srcObject) {
-          streams.push(element.srcObject)
-        }
-      }
-            
-      for (let stream of streams) {
-        utils.clearCameraStream(stream)
+      if (this.isIOs && CameraPreview) {
+        CameraPreview.stopCamera()
+      } else {
+        this.$store.dispatch('clearMediaStreams')
       }
     },
     /*
@@ -3288,7 +3375,7 @@ console.log("not camera preview")
       
       // detect if device has gyroscope
       // inspired from https://stackoverflow.com/a/33843234/488666
-      if (this.deviceHasGyroscope === null) {
+      if (this.deviceHasGyroscope === null && !this.isIOs) {
         this.deviceHasGyroscope = ("rotationRate" in event && "alpha" in event.rotationRate && event.rotationRate.alpha !== null)
       }
       
@@ -3433,16 +3520,20 @@ console.log("not camera preview")
      * @returns a promise
      */
     async waitForGyroscopeDetection () {
-      let self = this
+      var self = this
       return new Promise((resolve, reject) => {
         if (this.deviceHasGyroscope !== null) {
           resolve()
-        }
-        else {
-          utils.setTimeout(async () => {
-            await self.waitForGyroscopeDetection()
+        } else {
+          if (this.geolocation.gyroscopeDetectionCounter > 100) {
             resolve()
-          }, 250)
+          } else {
+            this.geolocation.gyroscopeDetectionCounter++
+            utils.setTimeout(async () => {
+              await self.waitForGyroscopeDetection()
+              resolve()
+            }, 250)
+          }
         }
       })
     },
@@ -3755,9 +3846,9 @@ console.log("not camera preview")
   .images-block img { width: 100%; border-radius: 0.5rem; }
   
   /* keypad specific (code) */
-  
+  .code { overflow: auto; }
   .typed-code { text-align: center; margin: 1rem auto; }
-  .typed-code table { border-collapse: collapse; background-color: rgba(255, 255, 255, 0.6); }
+  .typed-code table { margin: auto; border-collapse: collapse; background-color: rgba(255, 255, 255, 0.6); }
   .typed-code td { width: 2rem; height: 3rem; border: 1px solid black; vertical-align: middle; text-align: center; line-height: 3rem; }
   .typed-code td.typed { font-weight: bold; font-size: 1.7rem; }
   

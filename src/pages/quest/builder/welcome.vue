@@ -204,12 +204,12 @@ export default {
       readMorePublicProQuest: false,
       privateQuest: {
         price: '-',
-        buyable: false
+        buyable: false,
+        computed: false
       }
     }
   },
   async mounted () {
-    await this.initPay()
   },
   methods: {
     /*
@@ -224,9 +224,12 @@ export default {
     /*
      * change user type (pro / individual)
      */
-    changeUserType(userType) {  
+    async changeUserType(userType) {  
       this.userType = userType; 
       this.moveToTop();
+      if (userType === 'individual') {
+        await this.initPay()
+      }
     },
     /*
      * change access mode (public / private)
@@ -280,27 +283,29 @@ export default {
         return
       }
 
-      var _this = this
-
-      store.register({
-        id: 'privatequestprice',
-        alias: 'privatequestprice',
-        type: store.CONSUMABLE
-      })
+      //if price is already computed
+      if (this.privateQuest.computed) {
+        return
+      }
+      this.privateQuest.computed = true
+      
+      // if user already come on this page, product may be already registered
+      if (!store.products.byId["privatequestprice"]) {
+        store.register({
+          id: 'privatequestprice',
+          alias: 'privatequestprice',
+          type: store.CONSUMABLE
+        })
+      } else {
+        var product = store.get('privatequestprice')
+        this.displayPrice(product)
+      }
 
       store.error(function(error) {
         Notification(error.message + '(code: ' + error.code + ')', 'error')
       })
-
-      store.when('privatequestprice').updated(async(product) => {
-        // check if product is orderable
-        _this.privateQuest.price = product.price
-        if (product.canPurchase) {
-          _this.privateQuest.buyable = true
-// TO REMOVE          
-          //await this.savePurchase(product)
-        }
-      });
+            
+      store.when('privatequestprice').updated(this.displayPrice)
 
       store.when('privatequestprice').approved(function(product) {
         product.verify()
@@ -318,6 +323,15 @@ export default {
       });
 
       store.refresh();
+    },
+    displayPrice(product) {
+      //var product = store.get('privatequestprice')
+      // check if product is orderable
+      this.privateQuest.price = product.price
+      if (product.canPurchase) {
+        this.privateQuest.buyable = true
+        //await this.savePurchase(product)
+      }
     },
     /*
      * Save a purchase

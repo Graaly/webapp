@@ -17,6 +17,50 @@
   }
 }
 
+/* iPhone 4/4S */
+@media only screen and (max-device-width: 350px) and (max-device-height: 640px) and (-webkit-max-device-pixel-ratio: 2) {
+  .bubble-middle {
+    font-family: arial;
+    font-size: 0.8em;
+  }
+  .character img {
+    max-height: 100px !important;
+  }
+  .text {
+    font-size: 0.8em;
+  }
+  .answers-text .q-btn {
+    font-size: 0.8em !important;
+  }
+  .typed-code {
+    font-size: 0.8em;
+    margin: 0 !important;
+  }
+  .keypad .q-btn {
+    height: 10% !important;
+    font-size: 1rem !important;
+  }
+  .inventory-btn {
+    font-size: 0.6em;
+    bottom: 0px !important;
+    z-index: 5000;
+    background-color: #000;
+    width: 100%;
+    margin: 0 !important;
+  }
+  .inventory-btn .q-btn {
+    font-size: 7pt;
+    min-height: 1em;
+    margin: 0px !important;
+  }
+  .code-image .q-btn {
+    font-size: 10pt;
+  }
+  .code-image .text-grey {
+    font-size: 0.8em;
+  }
+}
+
 /* required for backgrounds with full height in step play */
 html {
   height: 100%;
@@ -118,6 +162,9 @@ body {
 .scroll {
   overflow-y: scroll;
 }
+.bottom-margin-for-keypad {
+  padding-bottom: 300px;
+}
 
 /////////////////////////////// Typography /////////////////////////////////////
 
@@ -207,6 +254,12 @@ body {
 }
 .background-lighter2 {
   background-color: rgba(255, 255, 255, .3);
+}
+.background-lighter3 {
+  background-color: rgba(255, 255, 255, .5);
+}
+.background-lighter4 {
+  background-color: rgba(255, 255, 255, .7);
 }
 
 /////////////////////////////// Form CSS /////////////////////////////////////
@@ -305,6 +358,7 @@ a.no-underline {
  * fix quasar issue with "maximized" property on <q-dialog>, which can prevent scrolling on Android
  * tried to prevent scrolling "above limits" on iOS, using those solutions https://stackoverflow.com/a/39821505/488666, but no luck
  */
+ 
 .q-dialog__inner--maximized {
   overflow-y: scroll;
   padding: 0.5rem; /* nicer layout / UI */
@@ -1130,7 +1184,7 @@ span .q-icon {
   animation: bounce 0.7s ease infinite;
 }
 .flashing {
-  animation: blink 0.7s ease infinite;
+  animation: blink 2.4s ease infinite;
 }
 .slideInBottom-enter-active, .slideInBottom-leave-active {
   transition: all .3s ease;
@@ -1442,6 +1496,9 @@ span .q-icon {
   padding: 0; 
   margin: 0; 
   /*overflow-x: hidden; */
+}
+.list-group-item div.q-badge { 
+  padding: 2px 6px;
 }
 .step-list.list-group-item div {
   overflow-x: hidden;

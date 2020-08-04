@@ -8,6 +8,8 @@ module.exports = function (ctx) {
   return {
     // app boot (/src/boot)
     boot: [
+      'SentryMonitoring',
+      'FirebaseMonitoring',
       'CustomDirectives',
       'DateFormatFilter',
       'RouterAuthentication',
@@ -182,6 +184,9 @@ module.exports = function (ctx) {
       config: {
         cordova: {
           backButtonExit: false // prevent user to exit if back button on home page
+        },
+        loading: {
+          delay: 500
         }
       }
     },
@@ -232,7 +237,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: "1.9.4"
+      version: "2.0.12"
       // id: 'org.cordova.quasar.app'
     },
     electron: {

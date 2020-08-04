@@ -1,0 +1,9 @@
+{
+    "apiKey": "AIzaSyBcimUc3bxmhauTxCxYWkxfsqyfjm8c_f8",
+    "authDomain": "graaly-app.firebaseapp.com",
+    "databaseURL": "https://graaly-app.firebaseio.com",
+    "projectId": "graaly-app",
+    "storageBucket": "graaly-app.appspot.com",
+    "messagingSenderId": "805193003092",
+    "appId": "1:805193003092:web:c1856fb49f88ea28e93dc1"
+}

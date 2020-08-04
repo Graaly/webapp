@@ -25,7 +25,8 @@ const state = {
   currentRun: null,
   // for quest steps, keep track of objects given by setInterval() & setTimeout() to clear them properly & avoid useless calls
   runningIntervalIds: [],
-  runningTimeoutsIds: []
+  runningTimeoutsIds: [],
+  mediaStreams: []
 }
 
 // mutations are operations that actually mutates the state.
@@ -74,6 +75,16 @@ const mutations = {
   },
   clearIntervalIds(state) {
     state.runningIntervalIds = []
+  },
+  addMediaStream(state, stream) {
+    state.mediaStreams.push(stream)
+  },
+  clearMediaStreams(state) {
+    for (let stream of state.mediaStreams) {
+      if (!stream || !stream.getTracks) { continue }
+      stream.getTracks().forEach(track => track.stop())
+    }
+    state.mediaStreams = []
   }
 }
 
@@ -118,7 +129,9 @@ const actions = {
   clearTimeoutIds: ({ commit }) => commit('clearTimeoutIds'),
   // for intervals handling
   addIntervalId: ({ commit }, intervalId) => commit('addIntervalId', intervalId),
-  clearIntervalIds: ({ commit }) => commit('clearIntervalIds')
+  clearIntervalIds: ({ commit }) => commit('clearIntervalIds'),
+  addMediaStream: ({ commit }, stream) => commit('addMediaStream', stream),
+  clearMediaStreams: ({ commit }) => commit('clearMediaStreams')
 }
 
 // getters are functions

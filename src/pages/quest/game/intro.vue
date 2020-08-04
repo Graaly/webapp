@@ -21,7 +21,7 @@
           <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         </div>
         <div class="q-py-sm dark-banner absolute-bottom">
-          <q-item clickable v-ripple>
+          <q-item clickable v-ripple @click="openProfile(quest.authorUserId)">
             <q-item-section side>
               <q-avatar size="50px">
                 <img v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.picture" :src="serverUrl + '/upload/profile/' + quest.author.picture" />
@@ -66,9 +66,14 @@
             <span v-if="quest.duration && quest.duration >= 60">{{ quest.duration / 60 }}{{ $t('label.hoursSimplified') }}</span>
           </div>
           <div v-if="quest.type === 'quest' && (!quest.customization || !quest.customization.removeScoring)" class="q-mr-lg">
-            <img src="statics/images/icon/cost.svg" class="medium-icon" />
-            <span v-if="shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">{{ $t('label.Free') }}</span>
-            <span v-if="shop.premiumQuest.priceCode !== 'free' && quest.type === 'quest'">{{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }}</span>
+            <span v-if="!quest.premiumPrice.tier && shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">
+              <img src="statics/images/icon/cost.svg" class="medium-icon" />
+              <span>{{ $t('label.Free') }}</span>
+            </span>
+            <span v-if="shop.premiumQuest.priceCode !== 'free' && quest.type === 'quest'">
+              <img src="statics/images/icon/cost.svg" class="medium-icon" />
+              <span>{{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }}</span>
+            </span>
           </div>
           <div v-if="!quest.customization || !quest.customization.removeScoring">
             <q-rating v-if="quest.rating && quest.rating.rounded" readonly v-model="quest.rating.rounded" color="yellow-8" :max="5" size="0.8em" />
@@ -76,19 +81,26 @@
         </div>
         <div v-if="quest.type === 'room' && quest.premiumPrice.manual">
           <img src="statics/images/icon/cost.svg" class="medium-icon" />
-          <span v-if="quest.type === 'room' && quest.premiumPrice.manual">{{ $t('label.FromPricePerPlayer', {price: quest.premiumPrice.manual}) }}</span>
+          <span>{{ $t('label.FromPricePerPlayer', {price: quest.premiumPrice.manual}) }}</span>
+        </div>
+        <div v-if="quest.premiumPrice.tier && quest.type === 'quest' && quest.premiumPrice.manual && shop.premiumQuest.priceCode === 'free'">
+          <img src="statics/images/icon/cost.svg" class="medium-icon" />
+          <span>{{ $t('label.FromPricePerPlayer', {price: quest.premiumPrice.manual}) }}</span>
         </div>
         
         <!-- =========================== LOCATION ========================== -->
         
-        <div v-if="quest.location && quest.location.address" class="text-subtitle1 q-mt-sm quest-location">
-          {{ quest.location.address }}
+        <div v-if="quest.location && quest.location.address" class="text-subtitle1 q-mt-sm quest-location" @click="goToLocationWithMaps(quest.location.coordinates[0],quest.location.coordinates[1])">
+         <u> {{ quest.location.address }}</u> 
         </div>
         
         <!-- =========================== WARNING ========================== -->
         
         <div v-if="quest.warning" class="text-subtitle1 q-mt-sm quest-warning" @click="openWarningLink()">
           <q-icon color="secondary" name="warning" /> <u>{{ getTranslatedData(quest.warning) }}</u>
+        </div>
+        <div v-if="quest.playersNumber && quest.playersNumber > 1" class="text-subtitle1 q-mt-sm quest-warning">
+          <q-icon color="secondary" name="group" /> {{ $t('label.YouNeedToBeXPlayers', {nb: quest.playersNumber}) }}
         </div>
         
         <!-- =========================== RANKING ========================== -->
@@ -100,7 +112,7 @@
       <div class="quest-home-button">
         <div class="text-center q-pt-md">
           <p>
-            <q-btn-dropdown class="glossy large-btn" v-if="shop.premiumQuest.priceCode === 'free' && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
+            <!--<q-btn-dropdown class="glossy large-btn" v-if="!(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
               <q-list link>
                 <q-item 
                   v-for="lang in getAllLanguages()" :key="lang.lang" 
@@ -113,8 +125,8 @@
                   </q-item-label>
                 </q-item>
               </q-list>
-            </q-btn-dropdown>
-            <q-btn v-if="quest.type === 'quest' && shop.premiumQuest.priceCode === 'free' && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary" class="glossy large-btn">
+            </q-<btn-dropdown>-->
+            <q-btn v-if="quest.type === 'quest' && !(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages()" @click="playQuest(quest.questId, getLanguage())" color="primary" class="glossy large-btn">
               <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
               <span v-if="!continueQuest && isRunFinished">{{ $t('label.SolveAgainThisQuest') }}</span>
               <span v-if="!continueQuest && !isRunFinished">{{ $t('label.SolveThisQuest') }}</span>
@@ -129,10 +141,10 @@
               <br /><span v-if="quest.price && quest.price > 0">{{ quest.price }} <q-icon name="fas fa-bolt" /></span>
             </button>
             -->
-            <q-btn v-if="!isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary" class="glossy large-btn">{{ $t('label.BuyCoinsToPlay') }}</q-btn>
-            <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary" class="glossy large-btn">{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</q-btn>
-            <q-btn v-if="shop.premiumQuest.priceCode !== 'free' && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)" :disabled="!shop.premiumQuest.buyable" @click="buyQuest()" color="primary" class="glossy large-btn">{{ $t('label.Buy') }} ({{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }})</q-btn>
-            <q-btn v-if="shop.premiumQuest.priceCode === 'notplayableonweb'" disabled color="primary" class="glossy large-btn">{{ $t('label.QuestPlayableOnMobile') }}</q-btn>
+            <q-btn v-if="!isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary" class="glossy large-btn"><span>{{ $t('label.BuyCoinsToPlay') }}</span></q-btn>
+            <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary" class="glossy large-btn"><span>{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</span></q-btn>
+            <q-btn v-if="quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="playQuest(quest.questId, getLanguage())" color="primary" class="glossy large-btn"><span>{{ $t('label.SolveThisQuest') }}</span></q-btn>
+            <q-btn v-if="shop.premiumQuest.priceCode === 'notplayableonweb'" disabled color="primary" class="glossy large-btn"><span>{{ $t('label.QuestPlayableOnMobile') }}</span></q-btn>
           </p>
         </div>
       </div>
@@ -171,7 +183,64 @@
           </div>
         </div>
         <div class="centered" v-if="offline.show">
-          <offlineLoader :quest="this.quest" :design="'prepare'" @end="startQuest(quest.questId, getLanguage())"></offlineLoader>
+          <offlineLoader :quest="this.quest" :design="'prepare'" :lang="getLanguage()" @end="startQuest(quest.questId, getLanguage())"></offlineLoader>
+        </div>
+      </div>
+    </transition>
+    
+    <!------------------ MULTIPLAYER AREA ------------------------>
+    
+    <transition name="slideInBottom">
+      <div class="panel-bottom background-dark" v-show="multiplayer.show">
+        <div class="bottom-margin-for-keypad">
+          <div class="q-pa-lg centered subtitle2">
+            {{ $t('label.ThisIsAMultiplayerGame') }}
+          </div>
+          <div class="q-pa-md">
+            <q-card class="my-card">
+              <q-card-section class="bg-primary text-white centered text-uppercase">
+                <div class="text-h6">{{ $t('label.JoinATeam') }}</div>
+              </q-card-section>
+              <q-card-section class="bg-primary subtitle5 q-pa-md centered">
+                <q-btn class="glossy large-button text-primary bg-white" @click="scanMultiplayerQRCode"><span>{{ $t('label.ScanTheLeaderQRCode') }}</span></q-btn>
+              </q-card-section>
+            </q-card>
+          </div>
+          
+          <div class="centered">
+            -
+            <span>{{ $t('label.Or') }}</span>
+            -
+          </div>
+          
+          <div class="q-pa-md">
+            <q-card class="my-card">
+              <q-card-section class="bg-primary text-white centered text-uppercase">
+                <div class="text-h6">{{ $t('label.CreateATeam') }}</div>
+              </q-card-section>
+              <q-card-section class="bg-primary subtitle5 q-pa-md centered">
+                <div v-if="multiplayer.qrcode === ''" class="centered">
+                  <q-input
+                    dark
+                    type="text"
+                    :label="$t('label.TeamName')"
+                    v-model="multiplayer.team"
+                    bottom-slots
+                    counter
+                    maxlength="20"
+                    />
+                  <q-btn class="glossy large-button text-primary bg-white" @click="createTeam"><span>{{ $t('label.CreateTeam') }}</span></q-btn>
+                </div>
+                <div v-if="multiplayer.qrcode !== ''" class="centered">
+                  <div>{{ $t('label.OtherPlayersMustScanThisQRCode') }}</div>
+                  <div class="q-pa-md">
+                    <img :src="serverUrl + '/upload/teams/' + multiplayer.qrcode + '.png'" />
+                  </div>
+                  <div><q-btn class="glossy large-button text-primary bg-white" @click="checkTeamAndStart"><span>{{ $t('label.MyTeamIsCompleteLetsGo') }}</span></q-btn></div>
+                </div>
+              </q-card-section>
+            </q-card>
+          </div>
         </div>
       </div>
     </transition>
@@ -209,15 +278,49 @@
           <q-btn class="glossy large-button" color="primary" :label="$t('label.CloseQuestRanking')" @click="ranking.show = false" />
         </div>
       </div>
-    </transition>
+    </transition>-->
     
     <!--====================== SHOP PAGE =================================-->
     
-    <q-dialog v-model="shop.show">
-      <a class="float-right no-underline close-btn" color="grey" @click="closeShop"><q-icon name="close" class="medium-icon" /></a>
-      <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Shop') }}</div>
-      <shop></shop>
-    </q-dialog>
+    <transition name="slideInBottom">
+      <div class="panel-bottom background-dark" v-show="shop.show">
+        <a class="float-right no-underline close-btn" color="grey" @click="closeShop"><q-icon name="close" /></a>
+        <div class="q-pa-lg centered subtitle2">
+          {{ $t('label.BuyThisQuest') }}
+        </div>
+        <div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.tier">
+          <q-card class="my-card">
+            <q-card-section class="bg-primary text-white centered text-uppercase">
+              <div class="text-h6">{{ $t('label.YouHaveReceivedAQrCodeFrom', {author: quest.author.name}) }}</div>
+            </q-card-section>
+            <q-card-section class="bg-primary subtitle5 q-pa-md centered">
+              <q-btn class="glossy large-button text-primary bg-white" @click="scanTierPaymentQRCode"><span>{{ $t('label.ScanTheUniqueQRCode') }}</span></q-btn>
+            </q-card-section>
+          </q-card>
+        </div>
+        
+        <div class="centered" v-if="quest.premiumPrice && quest.premiumPrice.tier && quest.premiumPrice.active">
+          -
+          <span>{{ $t('label.Or') }}</span>
+          -
+        </div>
+        
+        <div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.active">
+          <q-card class="my-card">
+            <q-card-section class="bg-primary text-white centered text-uppercase">
+              <div class="text-h6">{{ $t('label.BuyInOneClick') }}</div>
+            </q-card-section>
+            <q-card-section class="bg-primary subtitle5 q-pa-md centered">
+              <q-btn @click="buyQuest()" class="glossy large-button text-primary bg-white" v-if="quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)" :disabled="!shop.premiumQuest.buyable"><span>{{ $t('label.Buy') }} ({{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }})</span></q-btn>
+            </q-card-section>
+          </q-card>
+        </div>
+        <div class="centered">
+          <q-btn flat color="primary" @click="closeShop">{{ $t('label.Cancel') }}</q-btn>
+        </div>
+        <!--<shop></shop>-->
+      </div>
+    </transition>
     
     <!------------------ REWARDS POPUP ------------------------>
     
@@ -262,7 +365,8 @@ import RunService from 'services/RunService'
 import UserService from 'services/UserService'
 import shop from 'components/shop'
 import offlineLoader from 'components/offlineLoader'
-
+import { openURL } from 'quasar'
+//import Vue from 'vue'
 import utils from 'src/includes/utils'
 import Notification from 'boot/NotifyHelper'
 
@@ -278,6 +382,7 @@ export default {
         show: false,
         items: []
       },
+      playStep: 0,
       shop: {
         show: false,
         premiumQuest: {
@@ -303,6 +408,11 @@ export default {
       isAdmin: false,
       showRewardsPopup: false,
       showPreloaderPopup: false,
+      multiplayer: {
+        show: false,
+        team: '',
+        qrcode: ''
+      },
       geolocationIsSupported: navigator.geolocation,
       isUserTooFar: false,
       continueQuest: false,
@@ -317,6 +427,9 @@ export default {
     window.addEventListener("batterystatus", this.checkBattery, false);
 
     await this.initQuest()
+    
+    // reset user history
+    this.$store.state.history = {items: [], index: 0}
   },
   methods: {
     /*
@@ -404,7 +517,7 @@ export default {
     async getQuest(id, forceNetworkLoading) {
       // check if the quest data are not already saved on device
       let isQuestOfflineLoaded = await QuestService.isCached(id)
-
+//forceNetworkLoading = true
       if (!isQuestOfflineLoaded || forceNetworkLoading) {
         this.offline.active = false
         // get the last version accessible by user depending on user access
@@ -420,6 +533,7 @@ export default {
           }
         } else {
           this.$q.dialog({
+            dark: true,
             title: this.$t('label.TechnicalProblem'),
             message: this.$t('label.TechnicalProblemNetworkIssue'),
             ok: this.$t('label.BackToMap')
@@ -459,7 +573,7 @@ export default {
     async getRun() {
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.quest.questId)
-      var currentRun = 0
+      //var currentRun = 0
       
       if (runs && runs.data && runs.data.length > 0) {
         for (var i = 0; i < runs.data.length; i++) {
@@ -468,11 +582,11 @@ export default {
           }
           if (runs.data[i].status === 'in-progress' && runs.data[i].currentStep) {
             this.isRunStarted = true
-            currentRun = runs.data[i]._id
+            //currentRun = runs.data[i]._id
           }
         }
         if (this.isRunStarted) {
-          var self = this
+          /*var self = this
           // propose to continue quest on last step played (only if not the creator of the quest)
           //if (!this.isOwner) {
             this.$q.dialog({
@@ -483,9 +597,14 @@ export default {
             }).onOk(() => {
               self.cancelRun(currentRun)
             }).onCancel(() => {
-              this.continueQuest = true
+              self.continueQuest = true
+              self.startQuest(self.quest.questId, self.$route.params.lang)
             })
-          //}
+          //}*/
+          this.continueQuest = true
+          if (!this.isOwner) {            
+            this.startQuest(this.quest.questId, this.$route.params.lang)
+          }
         }
       } else {
         // check if an offline run is already started
@@ -511,18 +630,10 @@ export default {
       await utils.writeInFile(this.quest.questId, 'run_' + this.quest.questId + '.json', JSON.stringify({}), false)
     },
     /*
-     * Cancel a run
-     */
-    async cancelRun(runId) {
-      await RunService.endRun(runId, null, this.quest.questId, this.quest.version, this.quest.mainLanguage)
-      // remove run offline data
-      await utils.writeInFile(this.quest.questId, 'run_' + this.quest.questId + '.json', JSON.stringify({}), false)
-    },
-    /*
      * Check battery level
      */
     checkBattery(status) {
-      if (status.level < 30) {
+      if (status.level < 50) {
         this.warning.lowBattery = true
       } else {
         this.warning.lowBattery = false
@@ -553,9 +664,9 @@ export default {
         return 'free'
       }
       // admin and owners do not pay
-      if (this.isAdmin || this.isOwner) {
+      /*if (this.isAdmin || this.isOwner) {
         return 'free'
-      }
+      }*/
       // if game is already started or played, do not pay
       if (this.isRunStarted || this.isRunFinished) {
         return 'free'
@@ -610,11 +721,11 @@ export default {
       store.refresh()
     },
     displayPrice(product) {
-        // check if product is orderable
-        this.shop.premiumQuest.priceValue = product.price
-        if (product.canPurchase) {
-          this.shop.premiumQuest.buyable = true
-        }
+      // check if product is orderable
+      this.shop.premiumQuest.priceValue = product.price
+      if (product.canPurchase) {
+        this.shop.premiumQuest.buyable = true
+      }
     },
     /*
      * Save a purchase
@@ -624,7 +735,9 @@ export default {
       
       if (purchaseStatus && purchaseStatus.data && purchaseStatus.data.status && purchaseStatus.data.status === 'ok') {
         // activate play button
-        this.shop.premiumQuest.priceCode = 'free'
+        this.playStep = 1
+        this.playQuest(this.quest.questId, this.$route.params.lang)
+        //this.shop.premiumQuest.priceCode = 'free'
         return true
       }
       return false
@@ -692,7 +805,12 @@ export default {
         return false
       }
       // get only published languages
-      var publishedLanguages = quest.languages.filter(language => language.published)
+      var publishedLanguages
+      if (this.isOwner || this.isAdmin) {
+        publishedLanguages = quest.languages
+      } else {
+        publishedLanguages = quest.languages.filter(language => language.published)
+      }
       if (publishedLanguages && publishedLanguages.length > 0) {
         // check if the user language is set => default language
         var defaultLanguage = ''
@@ -729,6 +847,13 @@ export default {
       if (this.quest && this.quest.warning && this.quest.warning.link) {
         utils.openExternalLink(this.quest.warning.link)
       }
+    },
+    /*
+     * open in google maps
+     */
+    goToLocationWithMaps(lat, lon) {
+      console.log(lat + " " + lon);
+      openURL(`https://maps.google.com/?daddr=${lon},${lat}`);
     },
     /*
      * Get all the published language for this quest
@@ -772,15 +897,155 @@ export default {
      * @param   {String}    lang               lang of the quest
      */
     playQuest(questId, lang) {
-      this.showPreloaderPopup = true
-      if (this.isHybrid) {
-        this.offline.show = true
+      if (this.playStep === 0 && this.quest.premiumPrice && (this.quest.premiumPrice.tier || this.quest.premiumPrice.active) && !this.isAdmin && !this.isOwner) {
+        this.shop.show = true
+      } else if (this.playStep <= 1 && this.quest.playersNumber > 1 && !this.continueQuest) {
+        this.shop.show = false
+        this.multiplayer.show = true
       } else {
-console.log("Issue *****")
-        var _this = this
-        setTimeout(function() { _this.startQuest(questId, lang) }, 7000)
-      }      
+        this.shop.show = false
+        this.multiplayer.show = false
+        this.showPreloaderPopup = true
+        if (this.isHybrid) {
+          this.offline.show = true
+        } else {
+  console.log("Issue *****")
+          var _this = this
+          setTimeout(function() { _this.startQuest(questId, lang) }, 7000)
+        }
+      }
     },
+    /*
+     * Open a user profile
+     */
+    openProfile(id) {
+      this.$router.push('/profile/' + id)
+    },
+    /*
+     * Scan a QR Code to join a team
+     */
+    scanMultiplayerQRCode() {
+      var _this = this
+      if (this.isHybrid) {
+        cordova.plugins.barcodeScanner.scan(
+          function (result) {
+            if (result && result.text) {
+              if (result.text.indexOf('team_') === -1) {
+                Notification(_this.$t('label.ThisIsNotATeamQRCodeValid'), 'error')
+              } else {
+                _this.checkTeamCode(result.text)
+              }
+            }
+          },
+          function (error) {
+            console.log("Scanning failed: " + error)
+          },
+          {
+            preferFrontCamera: false, // iOS and Android
+            showFlipCameraButton: false, // iOS and Android
+            showTorchButton: true, // iOS and Android
+            torchOn: false, // Android, launch with the torch switched on (if available)
+            saveHistory: true, // Android, save scan history (default false)
+            prompt: "", // Android
+            resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+            formats: "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
+            orientation: "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
+            disableAnimations: true, // iOS
+            disableSuccessBeep: false // iOS and Android
+          }
+        )
+      }
+    },
+    /*
+     * Scan a QR Code to buy a quest using tier QR code
+     */
+    scanTierPaymentQRCode() {
+      var _this = this
+      if (this.isHybrid) {
+        cordova.plugins.barcodeScanner.scan(
+          function (result) {
+            if (result && result.text) {
+              _this.checkTierPaymentCode(result.text)
+            }
+          },
+          function (error) {
+            console.log("Scanning failed: " + error)
+          },
+          {
+            preferFrontCamera: false, // iOS and Android
+            showFlipCameraButton: false, // iOS and Android
+            showTorchButton: true, // iOS and Android
+            torchOn: false, // Android, launch with the torch switched on (if available)
+            saveHistory: true, // Android, save scan history (default false)
+            prompt: "", // Android
+            resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+            formats: "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
+            orientation: "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
+            disableAnimations: true, // iOS
+            disableSuccessBeep: false // iOS and Android
+          }
+        )
+      }
+    },
+    /*
+     * Check a team code
+     */
+    async checkTeamCode(code) {
+      let res = await RunService.addTeamPlayer(code)
+      if (res.status === 200) {
+        this.playStep = 2
+        this.playQuest(this.quest.questId, this.$route.params.lang)
+      } else {
+        Notification(this.$t('label.ErrorMessageForNewTeamMember'), 'error')
+      }
+    },
+    /*
+     * Check a tier payment code
+     */
+    async checkTierPaymentCode(code) {
+      let res = await QuestService.useTierPaymentCode(this.quest.questId, code)
+      if (res.status === 200) {
+        this.playStep = 1
+        this.playQuest(this.quest.questId, this.$route.params.lang)
+      } else {
+        Notification(this.$t('label.TechnicalIssueOrCodeAlreadyUsed'), 'error')
+      }
+    },
+    /*
+     * Create a team
+     */
+    async createTeam() {
+      if (this.multiplayer.team && this.multiplayer.team !== '') {
+        let res = await RunService.init(this.quest.questId, this.quest.version, this.$route.params.lang, this.isUserTooFar, this.multiplayer.team)
+        if (res.status === 200 && res.data && res.data._id) {
+          //Vue.set(this.multiplayer, qrcode, res.data._id)
+          this.multiplayer.runId = res.data._id
+          this.multiplayer.qrcode = res.data._id
+        } else {
+          Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.PleaseEnterYourTeamName'), 'error')
+      }
+    },
+    /*
+     * Check that team is ready
+     */
+    async checkTeamAndStart() {
+      let res = await RunService.checkTeamIsReady(this.multiplayer.runId)
+      if (res.status === 200) {
+        this.playStep = 2
+        this.playQuest(this.quest.questId, this.$route.params.lang)
+      } else {
+        if (res.data && res.data.members && res.data.members.length > 0) {
+          let members = res.data.members.join(', ')
+          Notification(this.$t('label.YouNeedMoreMembersToPlay', {nb: this.quest.playersNumber, members: members}), 'warning')
+        } else {
+          Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        }
+      }
+    },
+    
     /*
      * Open booking link
      */
@@ -811,7 +1076,7 @@ console.log("Issue *****")
     },
     /*
      * Open shop
-     */
+     *
     buyCoins () {
       this.shop.show = true
     },

@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper background-map">
     <div class="page-content">
-      <div class="desktop centered q-pa-md warning bg-warning">
+      <div class="desktop-only centered q-pa-md warning bg-warning">
         {{ $t('label.OnDesktopDisplayMessage') }}
       </div>
       <!------------------ TITLE AREA ------------------------>
@@ -403,7 +403,9 @@ export default {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
             if (result && result.text) {
-              _this.checkCode(result.text)
+              // remove unused data
+              let code = utils.removeUnusedUrl(result.text)
+              _this.checkCode(code)
             }
           },
           function (error) {
@@ -464,7 +466,11 @@ export default {
           window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
           axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
           if (code.indexOf('_score') === -1) {
-            this.$router.push('/quest/play/' + code)
+            if (checkStatus.data.questId) {
+              this.$router.push('/quest/play/' + checkStatus.data.questId)
+            } else {
+              this.$router.push('/quest/play/' + code)
+            }
           } else {
             this.$router.push('/quest/' + (code.substring(0, 24)) + '/end')
           }
