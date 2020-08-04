@@ -1,0 +1,60 @@
+name: Graaly Build
+on:
+  push:
+    branches:
+      - master
+      - github-actions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Node ${{ matrix.node-version }} setup
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Setup Quasar
+        uses: joshstrange/setup-quasar@1.0.0
+        with:
+          cordova-version: 9
+
+      - name: npm install
+        run : npm ci
+
+      - name: quasar info
+        run : quasar info
+
+      - name: build pwa
+        run: |
+          quasar build -m pwa
+
+      - name: build android
+        run: |
+          quasar build -m cordova -T android
+
+      # - name : create dir
+      #   run : mkdir src-cordova/www/
+
+      # - name: cordov add platform
+      #   run : cordova platform add android
+
+      - name: Artifact creation
+        uses: actions/upload-artifact@v1
+        with:
+          name: Build Artifact
+          path: dist/
