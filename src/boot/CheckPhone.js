@@ -1,4 +1,3 @@
-
 export default phoneNumber => {
   let phoneDigits = phoneNumber.match(/\d/g)
   

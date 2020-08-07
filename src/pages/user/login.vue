@@ -321,7 +321,7 @@ export default {
       }
       this.submitting = false
     },
-    
+
     /*
      * sign in user
      * @param   {string}    email            user email

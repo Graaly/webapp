@@ -5,9 +5,14 @@
 </template>
 
 <script>
+import AppStoreratingService from "services/AppStoreratingService";
+
 export default {
-  name: 'App'
-}
+  name: "App",
+  beforeCreate() {
+    AppStoreratingService.initLaunhCounter();
+  }
+};
 </script>
 
 <style>

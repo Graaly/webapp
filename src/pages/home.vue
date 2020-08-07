@@ -231,6 +231,8 @@
 </template>
 
 <script>
+import AppStoreratingService from 'services/AppStoreratingService'
+
 import QuestService from 'services/QuestService'
 import UserService from 'services/UserService'
 
@@ -357,6 +359,7 @@ export default {
   },
   created () {
     document.addEventListener("backbutton", this.trackCallBackFunction, false);
+    AppStoreratingService.initLaunhCounter();
   },
   mounted() {
     if (!this.$store || !this.$store.state || !this.$store.state.user || !this.$store.state.user.name) {
