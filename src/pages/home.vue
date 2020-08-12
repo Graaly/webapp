@@ -235,6 +235,7 @@ import AppStoreratingService from 'services/AppStoreratingService'
 
 import QuestService from 'services/QuestService'
 import UserService from 'services/UserService'
+import AppStoreRatingService from 'services/AppStoreRatingService'
 
 import geolocation from 'components/geolocation'
 //import newfriend from 'components/newfriend'
@@ -359,12 +360,21 @@ export default {
   },
   created () {
     document.addEventListener("backbutton", this.trackCallBackFunction, false);
-    AppStoreratingService.initLaunhCounter();
   },
   mounted() {
     if (!this.$store || !this.$store.state || !this.$store.state.user || !this.$store.state.user.name) {
       this.backToLogin()
+      AppStoreRatingService.initLocalStorage();
     } else {
+      //test for the review
+      var questsFinished = this.$store.state.user.statistics.nbQuestsSuccessful;
+      console.log(questsFinished);
+      if (questsFinished >= 1 && !AppStoreRatingService.hasAlreadyHavePopup) {
+        console.log("the user has do at least one quest");
+        AppStoreRatingService.launchpopup();
+        AppStoreRatingService.addAlreadyAskedForRating();
+      }
+
       this.initPage()
 
       this.$nextTick(() => {
