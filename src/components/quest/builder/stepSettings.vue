@@ -920,7 +920,20 @@
           </div>
         </q-expansion-item>
       </q-list>
-      
+
+      <!------------------ TIMER ------------------------>
+    
+      <q-list bordered>
+        <q-expansion-item icon="access_time" :label="$t('label.CountDownLabel')">
+          <div class="q-pa-sm"> 
+            <q-toggle v-model="selectedStep.form.countDownTime.enabled" :label="$t('label.CountDownIsActive')" />
+            <q-slider v-model="selectedStep.form.countDownTime.time" :min="0" :max="900" :step="10" label label-always/>
+          </div>
+        </q-expansion-item>
+      </q-list>
+
+      <!------------------ SUBMIT BUTTONS ------------------------>
+
       <div class="centered q-pa-md q-pb-xl">
         <q-btn class="glossy large-button" color="primary" @click="submitStep(true)" test-id="btn-save-step">{{ $t('label.SaveAndTestThisStep') }}</q-btn>
       </div>
@@ -1074,6 +1087,10 @@ export default {
           conditions: [],
           startDate: {
             enabled: false
+          },
+          countDownTime: {
+            enabled: false,
+            time: 0
           }
         },
         formatedConditions: [],
@@ -1263,7 +1280,13 @@ export default {
           type: 'none'
         },
         hint: {}, // {fr: 'un indice', en: 'a hint', ...}
-        startDate: { enabled: false },
+        startDate: { 
+          enabled: false 
+        },
+        countDownTime: { 
+          enabled: false,
+          time: 0
+        },
         number: null
       }
       // reset upload item (after document fully loaded)
@@ -1571,11 +1594,14 @@ export default {
      * Submit step data
      */
     async submitStep(test) {
+      console.log(this.selectedStep.form);
+
       this.$v.selectedStep.form.$touch()
 
       // treat form errors (based on validation rules)
       if (this.$v.selectedStep.form.$error) {    
         Notification(this.$t('label.StepSettingsFormError'), 'error')
+        console.log(this.$v.selectedStep.form)
         return
       }
 

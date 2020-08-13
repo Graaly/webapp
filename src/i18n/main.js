@@ -1,4 +1,4 @@
-const websiteBaseURL = "https://graaly.com" 
+const websiteBaseURL = "https://graaly.com"
 const salesEmail = "sales@graaly.com"
 const URLs = {
   privacy: {
@@ -97,11 +97,11 @@ module.exports = {
       fr: "French"
     },
     status: {
-      published: "published", 
-      draft: "draft", 
-      old: "old", 
-      tovalidate: "under validation", 
-      unpublished: "unpublished", 
+      published: "published",
+      draft: "draft",
+      old: "old",
+      tovalidate: "under validation",
+      unpublished: "unpublished",
       rejected: "rejected",
       new: "new"
     },
@@ -945,7 +945,9 @@ module.exports = {
       ErrorMessageForNewTeamMember: "Technical issue or number of players reached",
       YouNeedToUnpublishYourQuestToRemoveIt: "You need to unpublish your quest to remove it",
       PleaseEnterYourTeamName: "Please enter your team name",
-      Version: "Version"
+      Version: "Version",
+      CountDownLabel: "Time limite for this step",
+      CountDownIsActive: "Activate the time limit"
     }
   },
   fr: {
@@ -1033,11 +1035,11 @@ module.exports = {
       fr: "Français"
     },
     status: {
-      published: "publié", 
-      draft: "brouillon", 
-      old: "ancien", 
-      tovalidate: "en validation", 
-      unpublished: "dépublié", 
+      published: "publié",
+      draft: "brouillon",
+      old: "ancien",
+      tovalidate: "en validation",
+      unpublished: "dépublié",
       rejected: "rejeté",
       new: "nouveau"
     },
@@ -1881,7 +1883,9 @@ module.exports = {
       ErrorMessageForNewTeamMember: "Problème technique ou nombre de joueurs atteint",
       YouNeedToUnpublishYourQuestToRemoveIt: "Vous devez dépublier vote jeu pour le supprimer",
       PleaseEnterYourTeamName: "Veuillez entrer le nom de votre équipe",
-      Version: "Version"
+      Version: "Version",
+      CountDownLabel: "Limite de temps de l'enigme",
+      CountDownIsActive: "Activer la limite de temps pour cete enigme"
     }
   }
 }

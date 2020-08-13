@@ -11,6 +11,11 @@
       <div class="text-h6">{{ $t('label.ThisStepIsAvailableIn') }}</div>
       <div class="text-h5">{{ $t('label.TimeRemainingHoursMin', {day: startDate.remainingDays, hour: startDate.remainingHours, min: startDate.remainingMinutes, sec: startDate.remainingSeconds}) }}</div>
     </div>
+
+        <!------------------ HEADER AREA ------------------------>
+    <div class="" v-if="this.step.countDownTime">
+      00:00
+    </div>
     
     <stepPlay 
       :step="step" 
@@ -302,7 +307,7 @@ export default {
         controlsAreDisplayed: false,
         lang: this.$route.params.lang,
         offline: {
-          active: false,
+          active: true,
           answer: null
         },
         warnings: {
@@ -578,6 +583,10 @@ export default {
         }
       }
       
+      if (this.step.countDownTime) {
+        console.log("hello there is a countdown on this step")
+      }
+
       if (stepId === 'locationMarker') {
         // QR Code scanner step
         this.step = {
