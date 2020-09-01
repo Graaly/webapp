@@ -562,7 +562,9 @@ export default {
             }
           } else {
             // display waiting screen
-            this.showWaitingPage()
+            if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+              this.showWaitingPage()
+            }
             this.getPreviousStep()
             return false
           }
@@ -571,7 +573,9 @@ export default {
           stepId = await this.getNextOfflineStep(this.questId, null, this.player)
           if (!stepId) {
             // if no step is triggered, display the waiting screen
-            this.showWaitingPage()
+            if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+              this.showWaitingPage()
+            }
             this.getPreviousStep()
             return false
           }
