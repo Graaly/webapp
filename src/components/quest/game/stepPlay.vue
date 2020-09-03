@@ -329,9 +329,9 @@
       <!------------------ SUPERIMPOSE IMAGE AND CAMERA STEP AREA ------------------------>
       
       <div class="image-over-flow" v-if="step.type == 'image-over-flow'">
-        <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
+        <!--<transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">-->
           <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled"></video>
-        </transition>
+        <!--</transition>-->
         <div>
           <div v-if="isHybrid && !takingSnapshot && (step.options && step.options.snapshotAllowed)" style="position: absolute; top: 8px; right: 8px;z-index: 1990;">
             <q-btn 
@@ -1114,8 +1114,10 @@ export default {
         
         if (this.step.type === 'image-over-flow') {
           this.$emit('pass')
+          
           // video stream
           if (this.isIOs && CameraPreview) {
+          //if (CameraPreview) {
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
             CameraPreview.startCamera(options)
             //CameraPreview.setColorEffect("redfilter")
