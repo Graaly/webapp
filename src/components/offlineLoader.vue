@@ -8,7 +8,7 @@
         <div v-if="isIOs" class="centered">
           {{ parseInt(offline.progress * 100, 10)}} %
         </div>
-        <a class="text-white" @click="cancelOfflineLoading()">{{ $t('label.Cancel') }}</a>
+        <!--<a class="text-white" @click="cancelOfflineLoading()">{{ $t('label.Cancel') }}</a>-->
       </div>
       <div v-if="error.raised && error.nb < 2" @click="saveOfflineQuest(quest)">
         <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }} 
@@ -110,7 +110,7 @@ export default {
     async saveQuestData(quest) {
       var _this = this
       // cancel save if the duration is too long
-      utils.setTimeout(async () => { await _this.cancelSavingTooLong(_this.quest.questId) }, 360000)
+      utils.setTimeout(async () => { await _this.cancelSavingTooLong(_this.quest.questId) }, 420000)
       
       // load data
       var stepsData = await StepService.listForAQuest(quest.questId, quest.version, this.lang)
