@@ -562,7 +562,10 @@ export default {
             }
           } else {
             // display waiting screen
-            this.showWaitingPage()
+            if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+              this.showWaitingPage()
+            }
+            this.getPreviousStep()
             return false
           }
         } else {
@@ -570,7 +573,10 @@ export default {
           stepId = await this.getNextOfflineStep(this.questId, null, this.player)
           if (!stepId) {
             // if no step is triggered, display the waiting screen
-            this.showWaitingPage()
+            if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+              this.showWaitingPage()
+            }
+            this.getPreviousStep()
             return false
           }
         }
@@ -744,7 +750,9 @@ export default {
       this.step = {
         id: "waiting"
       }
-      this.footer.show = false
+      //this.footer.show = false
+      this.next.enabled = false
+      this.next.canPass = false
       utils.setTimeout(this.refreshWaitingPage, 15000)
     },
     refreshWaitingPage() {
@@ -759,7 +767,7 @@ export default {
         this.$store.state.history = {items: [], index: 0}
       }
       //this.$store.state.history.index++
-      if (this.$store.state.history.items.indexOf(this.step.stepId) === -1) {
+      if (this.$store.state.history.items.indexOf(this.step.stepId) === -1 && this.step.stepId) {
         this.$store.state.history.items.push(this.step.stepId)
       }
     },
@@ -768,7 +776,7 @@ export default {
      */
     getPreviousStep () {
       // only for steps with conditions
-      if (this.step.conditions && this.step.conditions.length > 0) {
+      if ((this.step.conditions && this.step.conditions.length > 0) || this.step.id === 'waiting') {
         this.previousStepId = 'ok'
         /*for (var i = 0; i < this.step.conditions.length; i++) {
           if (this.step.conditions[i].indexOf('stepDone') !== -1) {
@@ -1067,9 +1075,18 @@ export default {
       }
       
       if (response && response.data) {
-        this.inventory.items = response.data
+        this.inventory.items.length = 0
+        for (var i = 0; i < response.data.length; i++) {
+          this.inventory.items.push({
+            picture: (response.data[i].pictures && response.data[i].pictures[this.lang]) ? response.data[i].pictures[this.lang] : response.data[i].picture,
+            title: response.data[i].title
+          })
+          if (response.data[i].titles) {
+            this.inventory.items[i].titles = response.data[i].titles
+          }
+        }
         // to have it compliant with offline mode :
-        this.inventory.items.originalPicture = this.inventory.items.picture
+        //this.inventory.items.originalPicture = this.inventory.items.picture
       } else {
         let offlineInventory = await this.listWonObjects()
         if (offlineInventory) {
@@ -1236,7 +1253,7 @@ export default {
       if (this.step.type !== 'use-item') {
         this.inventory.detail.isOpened = true
         if (item.pictures && item.pictures[this.lang] && item.pictures[this.lang] !== '') {
-          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.pictures[this.lang] : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.pictures[this.lang])
+          this.inventory.detail.url = ((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
         } else {
           this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
         }

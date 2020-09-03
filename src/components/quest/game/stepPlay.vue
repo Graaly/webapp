@@ -136,7 +136,7 @@
           <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
         </div>
         
-        <div class="actions q-mt-lg" v-show="playerResult === null">
+        <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
@@ -168,7 +168,7 @@
         </table>
         <div class="centered text-grey q-py-md">{{ $t('label.ClickToEnlargePictures') }}</div>
         
-        <div class="actions q-mt-lg" v-show="playerResult === null">
+        <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
@@ -211,7 +211,7 @@
         <div>
           <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
-        <div class="answer-text">
+        <div class="answer-text" style="padding-bottom: 100px">
           <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
           <input 
             class="subtitle6" 
@@ -288,7 +288,7 @@
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
         <q-btn round :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color">
           <!--<img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />-->
-          <img v-if="itemUsed && itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== ''" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.pictures[lang] : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.pictures[lang])" />
+          <img v-if="itemUsed && itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== ''" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
           <img v-if="itemUsed && !(itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== '')" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
         </q-btn>
         {{ $t('label.TouchWhereYouUseThisItem') }}
@@ -852,7 +852,7 @@ export default {
         this.resetDrawDirectionInterval()
         
         //iOS Hack : all iphone have gyroscope
-        if (this.isIOS) {
+        if (this.isIOs) {
           this.deviceHasGyroscope = true
         }
         
@@ -1835,6 +1835,10 @@ export default {
           break
         
         case 'write-text':
+          // remove the trailing space if ther is one 
+          // https://www.w3schools.com/jsref/jsref_trim_string.asp
+          this.writetext.playerAnswer = this.writetext.playerAnswer.trim()
+
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.writetext.playerAnswer}, true)
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
@@ -2541,25 +2545,28 @@ export default {
       }
       
       let previousGPSdistance = this.geolocation.GPSdistance
-      
+console.log("1" + previousGPSdistance)
       // compute distance between two coordinates
       // note: current.accuracy contains the result accuracy in meters
       this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
+console.log("2 " + this.geolocation.GPSdistance)
       let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
-      
+console.log("3 " + rawDirection)      
       if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
         this.geolocation.distance = this.geolocation.GPSdistance
+console.log("4 " + this.geolocation.distance)
         this.geolocation.rawDirection = rawDirection
       }
       
       let finalDirection = utils.degreesToRadians(rawDirection)
-      
+console.log("5 " + finalDirection)      
       if (!this.deviceHasGyroscope) {
         // consider that the object to find is always in front of the device 
         finalDirection = 0
         // avoid to be too close from the object, set minimal distance
         const minDistanceFromObject = 2 + (this.geolocation.target !== null ? this.geolocation.target.size : 0) // in meters
         this.geolocation.GPSdistance = Math.max(minDistanceFromObject, this.geolocation.GPSdistance)
+console.log("6 " + this.geolocation.GPSdistance)
       }
       
       // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
@@ -2661,7 +2668,7 @@ export default {
       utils.setInterval(function() {
         if (cross.src === crossPicture) {
           if (self.itemUsed.pictures && self.itemUsed.pictures[self.lang] && self.itemUsed.pictures[self.lang] !== '') {
-            cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.itemUsed.pictures[self.lang] : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.itemUsed.pictures[self.lang])
+            cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.itemUsed.picture : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.itemUsed.picture)
           } else {
             cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.step.answers.item : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
           }
@@ -3368,7 +3375,7 @@ export default {
       
       // detect if device has gyroscope
       // inspired from https://stackoverflow.com/a/33843234/488666
-      if (this.deviceHasGyroscope === null) {
+      if (this.deviceHasGyroscope === null && !this.isIOs) {
         this.deviceHasGyroscope = ("rotationRate" in event && "alpha" in event.rotationRate && event.rotationRate.alpha !== null)
       }
       

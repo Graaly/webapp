@@ -90,8 +90,8 @@
         
         <!-- =========================== LOCATION ========================== -->
         
-        <div v-if="quest.location && quest.location.address" class="text-subtitle1 q-mt-sm quest-location">
-          {{ quest.location.address }}
+        <div v-if="quest.location && quest.location.address" class="text-subtitle1 q-mt-sm quest-location" @click="goToLocationWithMaps(quest.location.coordinates[0],quest.location.coordinates[1])">
+         <u> {{ quest.location.address }}</u> 
         </div>
         
         <!-- =========================== WARNING ========================== -->
@@ -112,7 +112,7 @@
       <div class="quest-home-button">
         <div class="text-center q-pt-md">
           <p>
-            <q-btn-dropdown class="glossy large-btn" v-if="!(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
+            <!--<q-btn-dropdown class="glossy large-btn" v-if="!(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
               <q-list link>
                 <q-item 
                   v-for="lang in getAllLanguages()" :key="lang.lang" 
@@ -125,8 +125,8 @@
                   </q-item-label>
                 </q-item>
               </q-list>
-            </q-btn-dropdown>
-            <q-btn v-if="quest.type === 'quest' && !(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length === 1" @click="playQuest(quest.questId, getLanguage())" color="primary" class="glossy large-btn">
+            </q-<btn-dropdown>-->
+            <q-btn v-if="quest.type === 'quest' && !(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages()" @click="playQuest(quest.questId, getLanguage())" color="primary" class="glossy large-btn">
               <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
               <span v-if="!continueQuest && isRunFinished">{{ $t('label.SolveAgainThisQuest') }}</span>
               <span v-if="!continueQuest && !isRunFinished">{{ $t('label.SolveThisQuest') }}</span>
@@ -365,7 +365,7 @@ import RunService from 'services/RunService'
 import UserService from 'services/UserService'
 import shop from 'components/shop'
 import offlineLoader from 'components/offlineLoader'
-
+import { openURL } from 'quasar'
 //import Vue from 'vue'
 import utils from 'src/includes/utils'
 import Notification from 'boot/NotifyHelper'
@@ -633,7 +633,7 @@ export default {
      * Check battery level
      */
     checkBattery(status) {
-      if (status.level < 30) {
+      if (status.level < 50) {
         this.warning.lowBattery = true
       } else {
         this.warning.lowBattery = false
@@ -849,6 +849,13 @@ export default {
       }
     },
     /*
+     * open in google maps
+     */
+    goToLocationWithMaps(lat, lon) {
+      console.log(lat + " " + lon);
+      openURL(`https://maps.google.com/?daddr=${lon},${lat}`);
+    },
+    /*
      * Get all the published language for this quest
      * @param   {object}    quest            quest data
      */
@@ -1008,13 +1015,17 @@ export default {
      * Create a team
      */
     async createTeam() {
-      let res = await RunService.init(this.quest.questId, this.quest.version, this.$route.params.lang, this.isUserTooFar, this.multiplayer.team)
-      if (res.status === 200 && res.data && res.data._id) {
-        //Vue.set(this.multiplayer, qrcode, res.data._id)
-        this.multiplayer.runId = res.data._id
-        this.multiplayer.qrcode = res.data._id
+      if (this.multiplayer.team && this.multiplayer.team !== '') {
+        let res = await RunService.init(this.quest.questId, this.quest.version, this.$route.params.lang, this.isUserTooFar, this.multiplayer.team)
+        if (res.status === 200 && res.data && res.data._id) {
+          //Vue.set(this.multiplayer, qrcode, res.data._id)
+          this.multiplayer.runId = res.data._id
+          this.multiplayer.qrcode = res.data._id
+        } else {
+          Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        }
       } else {
-        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        Notification(this.$t('label.PleaseEnterYourTeamName'), 'error')
       }
     },
     /*
