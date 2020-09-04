@@ -329,9 +329,9 @@
       <!------------------ SUPERIMPOSE IMAGE AND CAMERA STEP AREA ------------------------>
       
       <div class="image-over-flow" v-if="step.type == 'image-over-flow'">
-        <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
+        <!--<transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">-->
           <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled"></video>
-        </transition>
+        <!--</transition>-->
         <div>
           <div v-if="isHybrid && !takingSnapshot && (step.options && step.options.snapshotAllowed)" style="position: absolute; top: 8px; right: 8px;z-index: 1990;">
             <q-btn 
@@ -1114,8 +1114,10 @@ export default {
         
         if (this.step.type === 'image-over-flow') {
           this.$emit('pass')
+          
           // video stream
           if (this.isIOs && CameraPreview) {
+          //if (CameraPreview) {
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
             CameraPreview.startCamera(options)
             //CameraPreview.setColorEffect("redfilter")
@@ -1351,7 +1353,7 @@ export default {
     * Init QR Codes
     */
     initQRCodes() {
-      for (var i = 1; i <= 16; i++) {
+      for (var i = 1; i <= 60; i++) {
         let code = i.toString()
         code = code.padStart(3, "0")
         this.locateMarker.markerControls[code] = {detected: false}
@@ -2545,28 +2547,23 @@ export default {
       }
       
       let previousGPSdistance = this.geolocation.GPSdistance
-console.log("1" + previousGPSdistance)
+
       // compute distance between two coordinates
       // note: current.accuracy contains the result accuracy in meters
       this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
-console.log("2 " + this.geolocation.GPSdistance)
       let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
-console.log("3 " + rawDirection)      
       if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
         this.geolocation.distance = this.geolocation.GPSdistance
-console.log("4 " + this.geolocation.distance)
         this.geolocation.rawDirection = rawDirection
       }
       
       let finalDirection = utils.degreesToRadians(rawDirection)
-console.log("5 " + finalDirection)      
       if (!this.deviceHasGyroscope) {
         // consider that the object to find is always in front of the device 
         finalDirection = 0
         // avoid to be too close from the object, set minimal distance
         const minDistanceFromObject = 2 + (this.geolocation.target !== null ? this.geolocation.target.size : 0) // in meters
         this.geolocation.GPSdistance = Math.max(minDistanceFromObject, this.geolocation.GPSdistance)
-console.log("6 " + this.geolocation.GPSdistance)
       }
       
       // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
