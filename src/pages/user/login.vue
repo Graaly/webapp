@@ -209,6 +209,7 @@ import { required, minLength, email } from 'vuelidate/lib/validators'
 import checkPasswordComplexity from 'boot/PasswordComplexity'
 import Notification from 'boot/NotifyHelper'
 import utils from 'src/includes/utils'
+import firebase from 'firebase';
 
 export default {
   data() {
@@ -266,7 +267,6 @@ export default {
           if (!this.$v.form.email.$error) {
             // check if the user email is existing
             var userExisting = await this.checkUserIsExisting(this.form.email)
-
             if (userExisting && userExisting.status) {
               if (userExisting.status === 'active') {
                 // show password field
@@ -288,19 +288,20 @@ export default {
           break*/
         case 'password':
           // sign in user
-          let result = await this.signIn(this.form.email, this.form.password)
+          console.log("signin in with password");
+          await this.signIn(this.form.email, this.form.password);
           if (result.status) {
             if (result.status === 'success') {
-              window.localStorage.setItem('jwt', result.user.jwt)
-              axios.defaults.headers.common['Authorization'] = `Bearer ${result.user.jwt}`
+              console.log("success")
+              //window.localStorage.setItem('jwt', result.user.jwt)
+              axios.defaults.headers.common['Authorization'] = await firebase.auth().currentUser.getIdToken();
               
               let destination = '/home';
               if (this.$route.query.hasOwnProperty('redirect')) {
                 destination = this.$route.query.redirect
               }
               this.$router.push(destination)
-            }
-            
+            }     
             if (result.status === 'failed') {
               Notification(this.$t('label.IncorrectLoginPleaseRetry'), 'warning')
             }
@@ -342,15 +343,16 @@ export default {
      * @param   {string}    password         user password
      */
     async signIn(email, password) {
-      let result = await AuthService.login(email, password)
-      
+      await AuthService.login(email, password);
+      return {status: 'success', user: result.data.user}
+      /*
       if (result.status === 200) {
         return {status: 'success', user: result.data.user}
       } else if (result.status === 401) {
         return {status: 'failed', error: 'incorrect login'}
       } else {
         return {error: 'technical issue'}
-      }
+      }*/
     },
     
     /*
@@ -455,7 +457,7 @@ export default {
       } else if (this.terms.privacy === false) {
         this.terms.privacyError = true
       } else {
-        let checkStatus = await AuthService.playAnonymous(this.$t('label.shortLang'))
+        let checkStatus = await AuthService.playAnonymous(this.$t('label.shortLang'));
         if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
           if (checkStatus.data.user) {
             window.localStorage.setItem('jwt', checkStatus.data.user.jwt)

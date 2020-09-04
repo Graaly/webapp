@@ -1,4 +1,4 @@
-import * as firebase from "firebase/app";
+import * as firebase from "firebase";
 
 import "firebase/performance";
 
@@ -8,4 +8,4 @@ var firebaseConfig = require('./../../config/firebase.json');
 firebase.initializeApp(firebaseConfig);
 
 // Initialize Performance Monitoring and get a reference to the service
-firebase.performance();
+//firebase.performance();

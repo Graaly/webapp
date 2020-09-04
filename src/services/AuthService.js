@@ -1,5 +1,6 @@
 import Api from 'services/Api'
-import firebase from 'firebase'
+import ApiUser from 'services/ApiUser'
+import firebase from 'firebase/app'
 
 export default {
   /*
@@ -14,12 +15,16 @@ export default {
    * @param   {String}    email         User email
    * @param   {String}    password      User password
    */
-  login(email, password) {
+  async login(email, password) {
     //return Api().post('login', { email: email, password: password }).catch(error => console.log(error.request))
-    console.log("logging in")
-    console.log(email)
-    console.log(password)
-    return firebase.auth().signInWithEmailAndPassword(email, password)
+    console.log("logging in (auth service)")
+    await firebase.auth().signInWithEmailAndPassword(email, password)
+    .then(result => {
+      console.log("got result")
+      return result;
+    }).catch(e => {
+      console.error(e);
+    })
   },
   /*
    * Check the user facebook Id and facebook token, and sign him in
@@ -36,7 +41,7 @@ export default {
    * @param   {String}    lang              user language
    */
   playAnonymous(lang) {
-    return Api().post('user/create/anonymous/' + lang).catch(error => console.log(error.request))
+    return ApiUser().post('user/create/anonymous/' + lang).catch(error => console.log(error.request))
   },
   /*
    * Sign-out user
@@ -66,10 +71,7 @@ export default {
    * @param   {Object}    data          User data
    */
   createAccount(data) {
-    //return Api().post('user/create', data).catch(error => console.log(error.request))
-    console.log("creating account")
-    console.log(data)
-    firebase.auth().createUserWithEmailAndPassword(data.email, data.password)
+    return ApiUser().post('user/create', data).catch(error => console.log(error.request))
   },
   createAccountGoogle() {
     var googleProvider = new firebase.auth.GoogleAuthProvider();
