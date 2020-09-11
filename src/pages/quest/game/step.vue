@@ -12,11 +12,22 @@
       <div class="text-h5">{{ $t('label.TimeRemainingHoursMin', {day: startDate.remainingDays, hour: startDate.remainingHours, min: startDate.remainingMinutes, sec: startDate.remainingSeconds}) }}</div>
     </div>
 
-        <!------------------ HEADER AREA ------------------------>
-    <div class="" v-if="this.step.countDownTime && this.step.countDownTime.enabled">
-     {{this.countdowntimeleft}}
-    </div>
+    <!------------------ HEADER AREA ------------------------>
     
+    <q-circular-progress
+      show-value
+      class="text-white q-ma-md fixed-top-right"
+      :value="this.countdowntimeleft"
+      size="65px"
+      :thickness="0.4"
+      color="orange"
+      center-color="grey-8"
+      track-color="transparent"
+      :max="this.step.countDownTime.time  "
+      :min="0"
+    >
+    </q-circular-progress>
+
     <stepPlay 
       :step="step" 
       :runId="run._id" 
@@ -228,6 +239,8 @@ import Notification from 'boot/NotifyHelper'
 import story from 'components/story'
 import utils from 'src/includes/utils'
 
+import { QCircularProgress } from 'quasar'
+
 import Vue from 'vue'
 import Sortable from 'sortablejs'
 Vue.directive('sortable', {
@@ -239,7 +252,8 @@ Vue.directive('sortable', {
 export default {
   components: {
     stepPlay,
-    story
+    story,
+    QCircularProgress
   },
   data () {
     return this.initialState()
@@ -1946,17 +1960,15 @@ export default {
     },
 
     countdown() {
+      let _this = this
       console.log("launching countdown");
       if (this.step.countDownTime !== undefined && this.step.countDownTime.enabled) {
-        console.log("count");
+        //set up the seconds to the initial value
         var seconds = this.step.countDownTime.time;
-        console.log(seconds);
         var countdown = setInterval(function() {
           seconds--;
-          this.countdowntimeleft = seconds;
-          console.log(this.countdowntimeleft);
-          this.set(this.countdowntimeleft, 'time', seconds)
-          console.log(seconds)
+          _this.countdowntimeleft = seconds;
+          console.log(_this.countdowntimeleft);
           if (seconds <= 0) {
             clearInterval(countdown);
             console.log("times up !");   
