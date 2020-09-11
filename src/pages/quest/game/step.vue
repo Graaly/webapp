@@ -13,8 +13,8 @@
     </div>
 
         <!------------------ HEADER AREA ------------------------>
-    <div class="" v-if="this.step.countDownTime">
-      00:00
+    <div class="" v-if="this.step.countDownTime && this.step.countDownTime.enabled">
+     {{this.countdowntimeleft}}
     </div>
     
     <stepPlay 
@@ -192,6 +192,7 @@
             size="lg" 
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}" 
+            :disable="$store.state.history.index === 0"
             icon="arrow_back" 
             v-show="previousStepId !== ''" 
             @click="previousStep()"
@@ -329,7 +330,7 @@ export default {
         },
         previousStepId: '',
         isIOs: utils.isIOS(),
-        
+        countdowntimeleft: 0,
         // for step type 'use-item'
         selectedItem: null
       }
@@ -380,6 +381,11 @@ export default {
         this.hint.show = true
       }
       
+      //timer
+      if (this.isTimerAvailable()) {
+        this.countdown();
+      }
+
       // next button blink if user did not succeed after 3 minutes
       utils.setTimeout(this.alertOnNext, 180000)      
       
@@ -508,8 +514,8 @@ export default {
       }
     },
     /*
-     * Get the player number
-     */
+    * Get the player number
+    */
     async getPlayer () {
       if (this.run.team && this.run.team.members) {
         for (var i = 0; i < this.run.team.members.length; i++) {
@@ -585,11 +591,7 @@ export default {
             return false
           }
         }
-      }
-      
-      if (this.step.countDownTime) {
-        console.log("hello there is a countdown on this step")
-      }
+      }    
 
       if (stepId === 'locationMarker') {
         // QR Code scanner step
@@ -989,20 +991,17 @@ export default {
      * Return to previous step
      */
     async previousStep() {
-      //if (this.previousStepId !== '') {
-      //if (this.offline.active) {
+      let previousOK = true
       this.$store.state.history.index--
       if (this.$store.state.history.index < 0) {
         this.$store.state.history.index = 0
+        previousOK = false
       } else if (this.$store.state.history.items && this.$store.state.history.index > this.$store.state.history.items.length) {
         this.$store.state.history.index = this.$store.state.history.items.length
       }
-      /*await this.saveOfflineRun(this.questId, this.run)
-      } else {
-        await RunService.setHistoryOneStepBack(this.run._id)
-      }*/
-      //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.previousStepId + '/' + this.$route.params.lang)
-      this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
+      if (previousOK) {
+        this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
+      }
     },
     /*
      * Ask for a hint
@@ -1305,6 +1304,17 @@ export default {
     },
     isHintAvailable() {
       if (this.step && this.step.hint && this.step.hint !== '' && this.step.hint.length > 0) {
+        return true
+      } else {
+        return false
+      }
+    },
+    isTimerAvailable() {
+      if (this.step && 
+      this.step.countDownTime !== undefined &&
+      this.step.countDownTime.enabled === true && 
+      this.step.countDownTime.time > 1) {
+        console.log("this step has a timer")
         return true
       } else {
         return false
@@ -1933,6 +1943,26 @@ export default {
       
       this.run.currentChapter = nextChapter
       return nextChapter
+    },
+
+    countdown() {
+      console.log("launching countdown");
+      if (this.step.countDownTime !== undefined && this.step.countDownTime.enabled) {
+        console.log("count");
+        var seconds = this.step.countDownTime.time;
+        console.log(seconds);
+        var countdown = setInterval(function() {
+          seconds--;
+          this.countdowntimeleft = seconds;
+          console.log(this.countdowntimeleft);
+          this.set(this.countdowntimeleft, 'time', seconds)
+          console.log(seconds)
+          if (seconds <= 0) {
+            clearInterval(countdown);
+            console.log("times up !");   
+          }
+        }, 1000);
+      }
     }
   }
 }

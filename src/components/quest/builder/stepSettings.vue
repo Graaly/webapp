@@ -1090,8 +1090,7 @@ export default {
             enabled: false
           },
           countDownTime: {
-            enabled: false,
-            time: 0
+            enabled: false
           }
         },
         formatedConditions: [],
@@ -1285,8 +1284,7 @@ export default {
           enabled: false 
         },
         countDownTime: { 
-          enabled: false,
-          time: 0
+          enabled: false
         },
         number: null
       }
