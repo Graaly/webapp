@@ -63,7 +63,8 @@ export default {
       // specific to method 'watchPosition'
       geolocationWatchId: null,
       // specific to method 'getCurrentPosition' (not currently used)
-      timeoutIds: []
+      timeoutIds: [],
+      positionHistory: []
     }
   },
   watch: {
@@ -179,8 +180,18 @@ export default {
       this.isActive = true
       this.nbFails = 0
       this.userDeniedGeolocation = false
+      
+      const computedPosition = this.computeRelevantPosition(position)
 
-      this.$emit('success', position)
+      this.$emit('success', {
+        coords: {
+          accuracy: (position.coords && position.coords.accuracy) ? position.coords.accuracy : 10,
+          altitude: position.coords ? position.coords.altitude : null,
+          speed: position.coords ? position.coords.speed : null,
+          latitude: computedPosition.latitude,
+          longitude: computedPosition.longitude
+        }
+      })
 
       if (this.method === 'getCurrentPosition') {
         let timeoutId = utils.setTimeout(this.startTracking, 1000)
@@ -203,6 +214,34 @@ export default {
           }
           this.timeoutIds = []
         }
+      }
+    },
+    computeRelevantPosition (position) {
+      if (position && position.coords) {
+        // add position in history
+        if (this.positionHistory.length >= 5) {
+          this.positionHistory.splice(0, 1)
+        }
+        this.positionHistory.push({latitude: position.coords.latitude, longitude: position.coords.longitude, accuracy: position.coords.accuracy})
+        
+        const historyLength = this.positionHistory.length
+        var latDenum = 0
+        var lngDenum = 0
+        var latWeighted = 0
+        var lngWeighted = 0
+        var latWeightValue = 0
+        var lngWeightValue = 0
+        for (var i = 0; i < historyLength; i++) {
+          latWeightValue = 1 / (this.positionHistory[i].latitude * (historyLength - i))
+          lngWeightValue = 1 / (this.positionHistory[i].longitude * (historyLength - i))
+          latWeighted += this.positionHistory[i].latitude * latWeightValue
+          lngWeighted += this.positionHistory[i].longitude * lngWeightValue
+          latDenum += latWeightValue
+          lngDenum += lngWeightValue
+        }
+        return {latitude: latWeighted / latDenum, longitude: lngWeighted / lngDenum}
+      } else {
+        return position
       }
     },
     openLocationSettings () {
