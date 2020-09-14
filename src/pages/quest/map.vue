@@ -20,7 +20,7 @@
         <!-- quest markers -->
         <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="setMapIcon(quest)" @click="openQuestSummary(quest, index)" ref="questMarkers" />
         <!-- user markers -->
-        <gmap-marker v-if="map.loaded" :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()" @click="openDiscoveryQuest()" />
+        <gmap-marker v-if="map.loaded" :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()"/>
         <!-- markers tooltips -->
         <gmap-info-window :options="map.infoWindow.options" :position="map.infoWindow.location" :opened="map.infoWindow.isOpen" @closeclick="map.infoWindow.isOpen=false">
           <div class="infoWindow">
