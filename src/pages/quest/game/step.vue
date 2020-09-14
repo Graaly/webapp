@@ -14,20 +14,6 @@
 
     <!------------------ HEADER AREA ------------------------>
     
-    <q-circular-progress
-      show-value
-      class="text-white q-ma-md fixed-top-right"
-      :value="this.countdowntimeleft"
-      size="65px"
-      :thickness="0.4"
-      color="orange"
-      center-color="grey-8"
-      track-color="transparent"
-      :max="this.step.countDownTime.time  "
-      :min="0"
-    >
-    </q-circular-progress>
-
     <stepPlay 
       :step="step" 
       :runId="run._id" 
@@ -44,6 +30,20 @@
       @msg="trackMessage">
     </stepPlay>
       
+    <!-- countdown timer -->
+    <q-circular-progress
+      show-value
+      class="text-white q-ma-md fixed-top-right"
+      :value="this.countdowntimeleft"
+      size="65px"
+      :thickness="0.4"
+      color="orange"
+      center-color="grey-8"
+      track-color="transparent"
+      :max="countDownTime.time"
+      :min="0"
+    >
+    </q-circular-progress>
     <!------------------ INVENTORY PAGE AREA ------------------------>
     
     <transition name="slideInBottom">
@@ -344,6 +344,8 @@ export default {
         },
         previousStepId: '',
         isIOs: utils.isIOS(),
+        // timer 
+        countDownTime: {},
         countdowntimeleft: 0,
         // for step type 'use-item'
         selectedItem: null
@@ -359,6 +361,7 @@ export default {
       this.warnings = defaultVars.warnings
       this.selectedItem = defaultVars.selectItem
       this.loadStepData = defaultVars.loadStepData
+      this.countDownTime = defaultVars.countDownTime
     },
     /*
      * Init step data
@@ -1962,7 +1965,7 @@ export default {
     countdown() {
       let _this = this
       console.log("launching countdown");
-      if (this.step.countDownTime !== undefined && this.step.countDownTime.enabled) {
+      if (this.step.countDownTime !== undefined && this.step.countDownTime.enabled) { 
         //set up the seconds to the initial value
         var seconds = this.step.countDownTime.time;
         var countdown = setInterval(function() {
@@ -1972,8 +1975,14 @@ export default {
           if (seconds <= 0) {
             clearInterval(countdown);
             console.log("times up !");   
+            Notification(/*this.$t('label.StepSettingsFormError')*/ 'times up !', 'warning')
           }
         }, 1000);
+        /*window.addEventListener('popstate', function (event) {
+          console.log(event)
+          console.log("page changed");
+          clearInterval(countdown);
+        });*/ 
       }
     }
   }

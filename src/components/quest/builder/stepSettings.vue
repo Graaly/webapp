@@ -920,11 +920,7 @@
           </div>
         </q-expansion-item>
       </q-list>
-      
-      <!------------------ SAVE BUTTONS ------------------------>
-      
-      <div class="centered q-pa-md q-pt-lg q-pb-sm">
-
+       
       <!------------------ TIMER ------------------------>
     
       <q-list bordered>
@@ -936,6 +932,9 @@
         </q-expansion-item>
       </q-list>
 
+    <!------------------ SAVE BUTTONS ------------------------>
+      
+      <div class="centered q-pa-md q-pt-lg q-pb-sm">
         <q-btn class="glossy large-button" color="primary" @click="submitStep(true)" test-id="btn-save-step">{{ $t('label.SaveAndTestThisStep') }}</q-btn>
       </div>
       <div class="centered q-px-md q-pb-xl">
