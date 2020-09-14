@@ -921,8 +921,13 @@
         </q-expansion-item>
       </q-list>
       
-      <div class="centered q-pa-md q-pb-xl">
-        <q-btn class="glossy large-button" color="primary" @click="submitStep" test-id="btn-save-step">{{ $t('label.SaveThisStep') }}</q-btn>
+      <!------------------ SAVE BUTTONS ------------------------>
+      
+      <div class="centered q-pa-md q-pt-lg q-pb-sm">
+        <q-btn class="glossy large-button" color="primary" @click="submitStep(true)" test-id="btn-save-step">{{ $t('label.SaveAndTestThisStep') }}</q-btn>
+      </div>
+      <div class="centered q-px-md q-pb-xl">
+        <a class="text-primary" @click="submitStep(false)" test-id="btn-save-step-no-test">{{ $t('label.SaveThisStep') }}</a>
       </div>
     </div>
     
@@ -940,7 +945,7 @@
           {{ $t('label.ConfirmSaveChanges') }}
         </div>
         <q-card-actions>
-          <q-btn color="primary" @click="submitStep()" :label="$t('label.Yes')" />
+          <q-btn color="primary" @click="submitStep(false)" :label="$t('label.Yes')" />
           <q-btn color="primary" @click="$emit('close')" :label="$t('label.No')" />
         </q-card-actions>
       </q-card>
@@ -1567,7 +1572,7 @@ export default {
     /*
      * Submit step data
      */
-    async submitStep() {
+    async submitStep(test) {
       this.$v.selectedStep.form.$touch()
 
       // treat form errors (based on validation rules)
@@ -1654,13 +1659,20 @@ export default {
       this.$q.loading.show()
       let stepData = await StepService.save(newStepData)
       this.$q.loading.hide()
-      if (stepData && stepData.data && stepData.data.stepId) {
-        // send change event to parent, with stepId information
-        newStepData.id = stepData.data.stepId
-        newStepData.stepId = stepData.data.stepId
-        this.$emit('change', newStepData)
-      } else {
-        Notification(this.$t('label.TechnicalIssue'), 'error')
+
+      if (test === true) {
+        if (stepData && stepData.data && stepData.data.stepId) {
+          // send change event to parent, with stepId information
+          newStepData.id = stepData.data.stepId
+          newStepData.stepId = stepData.data.stepId
+          this.$emit('change', newStepData)
+        } else {
+          Notification(this.$t('label.TechnicalIssue'), 'error')
+        }   
+      }
+      else if (test === false) {
+        Notification('Step saved !', 'success')
+        this.$emit('close');
       }
     },
     

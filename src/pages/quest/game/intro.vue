@@ -90,8 +90,8 @@
         
         <!-- =========================== LOCATION ========================== -->
         
-        <div v-if="quest.location && quest.location.address" class="text-subtitle1 q-mt-sm quest-location">
-          {{ quest.location.address }}
+        <div v-if="quest.location && quest.location.address" class="text-subtitle1 q-mt-sm quest-location" @click="goToLocationWithMaps(quest.location.coordinates[0],quest.location.coordinates[1])">
+         <u> {{ quest.location.address }}</u> 
         </div>
         
         <!-- =========================== WARNING ========================== -->
@@ -365,7 +365,7 @@ import RunService from 'services/RunService'
 import UserService from 'services/UserService'
 import shop from 'components/shop'
 import offlineLoader from 'components/offlineLoader'
-
+import { openURL } from 'quasar'
 //import Vue from 'vue'
 import utils from 'src/includes/utils'
 import Notification from 'boot/NotifyHelper'
@@ -847,6 +847,13 @@ export default {
       if (this.quest && this.quest.warning && this.quest.warning.link) {
         utils.openExternalLink(this.quest.warning.link)
       }
+    },
+    /*
+     * open in google maps
+     */
+    goToLocationWithMaps(lat, lon) {
+      console.log(lat + " " + lon);
+      openURL(`https://maps.google.com/?daddr=${lon},${lat}`);
     },
     /*
      * Get all the published language for this quest
