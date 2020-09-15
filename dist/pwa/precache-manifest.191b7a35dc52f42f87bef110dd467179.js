@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "36f423b1c5e20092c705",
-    "url": "css/app.8dc2d6cd.css"
+    "revision": "e84ddbfc2f908e3a7960",
+    "url": "css/app.9ee45216.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -72,7 +72,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.9d8eecdb.gif"
   },
   {
-    "revision": "dc249b67fd86c170c633a846ad589886",
+    "revision": "5ace2cb87ce44521d6364ce6932f4186",
     "url": "index.html"
   },
   {
@@ -80,8 +80,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2d230c65.f2c84fb9.js"
   },
   {
-    "revision": "36f423b1c5e20092c705",
-    "url": "js/app.b0a10e8f.js"
+    "revision": "e84ddbfc2f908e3a7960",
+    "url": "js/app.776b77f0.js"
   },
   {
     "revision": "b768b1cdaa7eda457272",
@@ -408,7 +408,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/story/character9_attitude1.png"
   },
   {
-    "revision": "d99f4e347e20e727c94e2ff3be84dad8",
+    "revision": "9bf1331d673af7ae2a25c4cfe54560c0",
     "url": "statics/icons/story/sticker-bottom.png"
   },
   {
