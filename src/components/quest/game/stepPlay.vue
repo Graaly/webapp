@@ -1,7 +1,26 @@
 <template>
+
   <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor')}">
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
-      
+      <!-- countdown timer -->
+      <q-circular-progress
+        v-if="
+          this.step.countDownTime !== undefined &&
+          this.step.countDownTime.enabled === true && 
+          this.step.countDownTime.time > 0"
+        show-value
+        class="text-white q-ma-md fixed-botom-right"
+        :value="this.countdowntimeleft"
+        size="65px"
+        :thickness="0.4"
+        color="orange"
+        center-color="grey-8"
+        track-color="transparent"
+        :max="step.countDownTime.time"
+        :min="0"
+      >
+      </q-circular-progress>
+
       <!------------------ COMPONENT TO KEEP THE SCREEN ON ----------------------
       <video v-if="step.type === 'geolocation'" id="keep-screen-on" autoplay loop style="width: 0px; height: 0px;">
         <source src="statics/videos/empty.mp4" type="video/mp4" />
@@ -520,7 +539,7 @@
 </template>
 
 <script>
-import { colors } from 'quasar'
+import { colors, QCircularProgress } from 'quasar'
 
 import StepService from 'services/StepService'
 import simi from 'src/includes/simi' // for image similarity
@@ -565,7 +584,8 @@ export default {
   props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player'],
   components: {
     geolocation,
-    story
+    story,
+    QCircularProgress
   },
   watch: { 
     // refresh component if stepId change
@@ -786,7 +806,10 @@ export default {
         },
         
         // for cleanup
-        latestRequestAnimationId: null
+        latestRequestAnimationId: null,
+
+        //timer
+        countdowntimeleft: 0
       }
     },
     /*
@@ -851,6 +874,12 @@ export default {
         
         this.resetDrawDirectionInterval()
         
+        console.log(this.step)
+
+        if (this.isTimerAvailable()) {
+          this.countdown();
+        }
+
         //iOS Hack : all iphone have gyroscope
         if (this.isIOs) {
           this.deviceHasGyroscope = true
@@ -3767,6 +3796,41 @@ export default {
         }
       }
       throw new Error("Unknown object code '" + code + "'")
+    },
+    //Timer & countdown
+    isTimerAvailable() {
+      if (this.step && 
+      this.step.countDownTime !== undefined &&
+      this.step.countDownTime.enabled === true && 
+      this.step.countDownTime.time > 0) {
+        console.log("this step has a timer")
+        return true
+      } else {
+        return false
+      }
+    },
+    countdown() {
+      let _this = this
+      console.log("launching countdown");
+      if (this.isTimerAvailable()) { 
+        //set up the seconds to the initial value
+        var seconds = this.step.countDownTime.time;
+        var countdown = setInterval(function() {
+          seconds--;
+          _this.countdowntimeleft = seconds;
+          console.log(_this.countdowntimeleft);
+          if (seconds <= 0) {
+            clearInterval(countdown);
+            console.log("times up !");   
+            Notification(/*this.$t('label.StepSettingsFormError')*/ 'times up !', 'warning')
+          }
+        }, 1000);
+        /*window.addEventListener('popstate', function (event) {
+          console.log(event)
+          console.log("page changed");
+          clearInterval(countdown);
+        });*/ 
+      }
     }
   }
 }

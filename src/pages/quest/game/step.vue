@@ -23,6 +23,7 @@
       :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}" 
       :answer="offline.answer" 
       :player="player"
+      :countDownTime="countDownTime.timer"
       @played="trackStepPlayed" 
       @success="trackStepSuccess" 
       @fail="trackStepFail" 
@@ -30,20 +31,6 @@
       @msg="trackMessage">
     </stepPlay>
       
-    <!-- countdown timer -->
-    <q-circular-progress
-      show-value
-      class="text-white q-ma-md fixed-top-right"
-      :value="this.countdowntimeleft"
-      size="65px"
-      :thickness="0.4"
-      color="orange"
-      center-color="grey-8"
-      track-color="transparent"
-      :max="countDownTime.time"
-      :min="0"
-    >
-    </q-circular-progress>
     <!------------------ INVENTORY PAGE AREA ------------------------>
     
     <transition name="slideInBottom">
@@ -346,7 +333,6 @@ export default {
         isIOs: utils.isIOS(),
         // timer 
         countDownTime: {},
-        countdowntimeleft: 0,
         // for step type 'use-item'
         selectedItem: null
       }
@@ -396,11 +382,6 @@ export default {
       if (this.isHintAvailable()) {
         utils.setTimeout(this.alertOnHint, 12000)
         this.hint.show = true
-      }
-      
-      //timer
-      if (this.isTimerAvailable()) {
-        this.countdown();
       }
 
       // next button blink if user did not succeed after 3 minutes
@@ -1326,17 +1307,6 @@ export default {
         return false
       }
     },
-    isTimerAvailable() {
-      if (this.step && 
-      this.step.countDownTime !== undefined &&
-      this.step.countDownTime.enabled === true && 
-      this.step.countDownTime.time > 1) {
-        console.log("this step has a timer")
-        return true
-      } else {
-        return false
-      }
-    },
     alertOnHint() {
       this.hint.suggest = true
     },
@@ -1960,30 +1930,6 @@ export default {
       
       this.run.currentChapter = nextChapter
       return nextChapter
-    },
-
-    countdown() {
-      let _this = this
-      console.log("launching countdown");
-      if (this.step.countDownTime !== undefined && this.step.countDownTime.enabled) { 
-        //set up the seconds to the initial value
-        var seconds = this.step.countDownTime.time;
-        var countdown = setInterval(function() {
-          seconds--;
-          _this.countdowntimeleft = seconds;
-          console.log(_this.countdowntimeleft);
-          if (seconds <= 0) {
-            clearInterval(countdown);
-            console.log("times up !");   
-            Notification(/*this.$t('label.StepSettingsFormError')*/ 'times up !', 'warning')
-          }
-        }, 1000);
-        /*window.addEventListener('popstate', function (event) {
-          console.log(event)
-          console.log("page changed");
-          clearInterval(countdown);
-        });*/ 
-      }
     }
   }
 }
