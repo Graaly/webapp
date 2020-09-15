@@ -8,7 +8,7 @@ module.exports = function (ctx) {
   return {
     // app boot (/src/boot)
     boot: [
-      'SentryMonitoring',
+      ctx.dev ? '' : 'SentryMonitoring',
       //'FirebaseMonitoring',
       'CustomDirectives',
       'DateFormatFilter',
@@ -237,7 +237,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: "2.0.13"
+      version: "2.0.14"
       // id: 'org.cordova.quasar.app'
     },
     electron: {

@@ -52,9 +52,12 @@
       <div class="character" v-if="step.type == 'character'">
         <div class="fixed-bottom story" @click="nextCharacterBubbleText()">
           <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
-          <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
-            <p class="carrier-return" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
-            <p class="text" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
+          <div class="bubble-middle" style="font-size: 0.9em; background: url(statics/icons/story/sticker-middle.png) repeat-y;">
+            <div v-if="character.needToScroll" class="scroll-indicator">
+              <q-icon class="flashing" size="2.5em" name="arrow_drop_down_circle" />
+            </div>
+            <p ref="bubbleText" class="carrier-return" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
+            <p ref="bubbleTextHtml" class="text" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
             <p class="text text-grey" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ClickHere') }}</p>
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
@@ -655,7 +658,8 @@ export default {
         character: {
           bubbleText: [],
           numberOfBubble: 1,
-          bubbleNumber: 0
+          bubbleNumber: 0,
+          needToScroll: false
         },
         // for step 'choose'
         answerType: 'text', // 'text' or 'image'
@@ -871,6 +875,7 @@ export default {
             if (this.character.numberOfBubble === 1) {
               this.checkAnswer()
             }
+            utils.setTimeout(this.checkIfTextIsHidden, 1500)
           } else {
             this.checkAnswer()
           }
@@ -2222,9 +2227,25 @@ export default {
     nextCharacterBubbleText() {
       if (this.character.bubbleNumber < (this.character.numberOfBubble - 1)) {
         this.character.bubbleNumber++
+        this.character.needToScroll = false
+        utils.setTimeout(this.checkIfTextIsHidden, 500)
       }
       if (this.character.bubbleNumber >= (this.character.numberOfBubble - 1)) {
         this.checkAnswer()
+      }
+    },
+    async checkIfTextIsHidden() {
+      if (!this.$refs.bubbleText) {
+        return
+      }
+
+      // check if height > max size of the box
+      const bubbleHeight = this.$refs.bubbleText ? this.$refs.bubbleText.clientHeight : 0
+      const bubbleHTMLHeight = this.$refs.bubbleTextHtml ? this.$refs.bubbleTextHtml.clientHeight : 0
+      const realBubbleHeight = Math.max(bubbleHeight, bubbleHTMLHeight)
+      
+      if (realBubbleHeight > '177') {
+        this.character.needToScroll = true
       }
     },
     /*
@@ -2553,7 +2574,10 @@ export default {
       this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
       let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
       if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
-        this.geolocation.distance = this.geolocation.GPSdistance
+        // avoid to change distance too much
+        if (!this.geolocation.distance || this.geolocation.GPSdistance < this.geolocation.distance || this.geolocation.GPSdistance > (this.geolocation.distance + 4)) {
+          this.geolocation.distance = this.geolocation.GPSdistance
+        }
         this.geolocation.rawDirection = rawDirection
       }
       
