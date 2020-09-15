@@ -9,9 +9,9 @@
           this.step.countDownTime.enabled === true && 
           this.step.countDownTime.time > 0"
         show-value
-        class="text-white q-ma-md fixed-botom-right"
+        class="text-white q-ma-md absolute-top-right"
         :value="this.countdowntimeleft"
-        size="65px"
+        size="80px"
         :thickness="0.4"
         color="orange"
         center-color="grey-8"
@@ -653,6 +653,10 @@ export default {
     if (this.bluetooth.enabled) {
       this.bluetoothDisconnect(this.bluetooth.deviceId)
     }
+
+    if (this.currentcountdown !== null) {
+      this.stopcountdown(this.currentcountdown);
+    }
   },
   methods: {
     initialState () {
@@ -809,7 +813,8 @@ export default {
         latestRequestAnimationId: null,
 
         //timer
-        countdowntimeleft: 0
+        countdowntimeleft: 0,
+        currentcountdown: null
       }
     },
     /*
@@ -877,7 +882,7 @@ export default {
         console.log(this.step)
 
         if (this.isTimerAvailable()) {
-          this.countdown();
+         this.currentcountdown = this.countdown();
         }
 
         //iOS Hack : all iphone have gyroscope
@@ -3825,12 +3830,16 @@ export default {
             Notification(/*this.$t('label.StepSettingsFormError')*/ 'times up !', 'warning')
           }
         }, 1000);
+        return countdown;
         /*window.addEventListener('popstate', function (event) {
           console.log(event)
           console.log("page changed");
           clearInterval(countdown);
         });*/ 
       }
+    },
+    stopcountdown(countdown) {
+      clearInterval(countdown);
     }
   }
 }
