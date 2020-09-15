@@ -562,7 +562,9 @@ export default {
             }
           } else {
             // display waiting screen
-            this.showWaitingPage()
+            if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+              this.showWaitingPage()
+            }
             this.getPreviousStep()
             return false
           }
@@ -571,7 +573,9 @@ export default {
           stepId = await this.getNextOfflineStep(this.questId, null, this.player)
           if (!stepId) {
             // if no step is triggered, display the waiting screen
-            this.showWaitingPage()
+            if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+              this.showWaitingPage()
+            }
             this.getPreviousStep()
             return false
           }
@@ -975,21 +979,18 @@ export default {
     /*
      * Return to previous step
      */
-    async previousStep() {
-      //if (this.previousStepId !== '') {
-      //if (this.offline.active) {
+async previousStep() {
+      let previousOK = true
       this.$store.state.history.index--
       if (this.$store.state.history.index < 0) {
         this.$store.state.history.index = 0
+        previousOK = false
       } else if (this.$store.state.history.items && this.$store.state.history.index > this.$store.state.history.items.length) {
         this.$store.state.history.index = this.$store.state.history.items.length
       }
-      /*await this.saveOfflineRun(this.questId, this.run)
-      } else {
-        await RunService.setHistoryOneStepBack(this.run._id)
-      }*/
-      //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.previousStepId + '/' + this.$route.params.lang)
-      this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
+      if (previousOK) {
+        this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
+      }
     },
     /*
      * Ask for a hint

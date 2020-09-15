@@ -2738,11 +2738,9 @@ export default {
      * @param   {String}    stepId            ID of the step
      */
     async trackStepPlayed(stepId) {
-      console.log("played")
       this.canMoveNextStep = true
     },
     async trackStepSuccess(stepId) {
-      console.log("success")
       this.canMoveNextStep = true
       this.hideHint()
     },
@@ -2750,14 +2748,12 @@ export default {
      * Track step passing
      */
     async trackStepPass () {
-      console.log("pass")
       this.canPass = true
     },
     /*
      * Track step fail
      */
     async trackStepFail () {
-      console.log("fail")
       this.hideHint()
     },
     /*
@@ -2957,7 +2953,6 @@ export default {
      * Check if a hint is available for the step
      */
     isHintAvailable() {
-console.log(this.chapters.newStep.overviewData)
       return ((this.chapters.newStep.overviewData && 
         this.chapters.newStep.overviewData.hasOwnProperty("hint") &&
         this.chapters.newStep.overviewData.hint !== '' && 
