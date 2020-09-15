@@ -231,8 +231,6 @@
 </template>
 
 <script>
-import AppStoreratingService from 'services/AppStoreratingService'
-
 import QuestService from 'services/QuestService'
 import UserService from 'services/UserService'
 import AppStoreRatingService from 'services/AppStoreRatingService'
@@ -363,13 +361,15 @@ export default {
   },
   mounted() {
     if (!this.$store || !this.$store.state || !this.$store.state.user || !this.$store.state.user.name) {
-      this.backToLogin()
-      AppStoreRatingService.initLocalStorage();
+      this.backToLogin();
     } else {
+      AppStoreRatingService.initLocalStorage();
       //test for the review
+      AppStoreRatingService.resetAlreadyAsked();
       var questsFinished = this.$store.state.user.statistics.nbQuestsSuccessful;
       console.log(questsFinished);
-      if (questsFinished >= 1 && !AppStoreRatingService.hasAlreadyHavePopup) {
+      console.log(AppStoreRatingService.hasAlreadyHavePopup())
+      if (questsFinished >= 1 && AppStoreRatingService.hasAlreadyHavePopup() === "false") {
         console.log("the user has do at least one quest");
         AppStoreRatingService.launchpopup();
         AppStoreRatingService.addAlreadyAskedForRating();
