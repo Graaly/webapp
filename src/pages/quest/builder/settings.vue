@@ -159,7 +159,23 @@
             class="full-width"
           />
         </div>
-        
+
+        <!--countdown stuff-->
+        {{ "countdown"}} <br>
+
+        <q-toggle 
+          :label="$t('label.CountDownIsActive')"
+          v-model="form.fields.countDownTime.enabled"
+        />
+        <q-input
+          filled
+          v-model="form.fields.countDownTime.time"
+          label="Timer limite"
+          mask="##h##m##s"
+          fill-mask="0"
+          value="12h34m56s"
+        />
+
         <div v-if="!isIOs">
           <div class="location-gps" style="display: none">
             <input :readonly="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" step="any" />
@@ -1104,7 +1120,11 @@ export default {
           customization: { color: '', logo: '', character: '', removeScoring: false, endMessage: '' },
           rewardPicture: '',
           readMoreLink: '',
-          limitNumberOfPlayer: 0
+          limitNumberOfPlayer: 0,
+          countDownTime: {
+            enabled: false,
+            time: 0
+          }
         },
         categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }, this.$t),
         languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
@@ -1313,6 +1333,9 @@ export default {
         this.form.fields.town = (this.form.fields.location && this.form.fields.location.town) ? this.form.fields.location.town : ""
         this.form.fields.country = (this.form.fields.location && this.form.fields.location.country) ? this.form.fields.location.country : ""
         
+        //countdown
+        this.form.fields.countDownTime = this.form.fields.countDownTime;
+
         // prices
         if (this.quest.type === 'room') {
           this.form.fields.priceForPlayer = this.quest.premiumPrice.manual
@@ -1762,11 +1785,13 @@ export default {
         if (this.showTierPaymentBox) {
           this.form.fields.premiumPrice.tier = true
         }
+        
         let quest = Object.assign({}, this.form.fields, commonProperties)
         if (!quest.questId) {
           quest.questId = this.questId
         }
-
+        
+        console.log(quest);
         // save to DB (or update, if property '_id' is defined)
         this.$q.loading.show()
         let res = await QuestService.save(quest)
