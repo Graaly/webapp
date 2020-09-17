@@ -7,21 +7,23 @@
         v-if="
           this.step.countDownTime !== undefined &&
           this.step.countDownTime.enabled === true && 
-          this.step.countDownTime.time > 0"
+          this.step.countDownTime.time !== ''"
         show-value
-        class="text-white q-ma-md absolute-top-right"
+        class="text-white q-ma-md fixed-top-right"
         :value="this.countdowntimeleft"
         size="80px"
         :thickness="0.4"
         color="orange"
         center-color="grey-8"
         track-color="transparent"
-        :max="step.countDownTime.time"
         :min="0"
       >
       </q-circular-progress>
-
-      <!------------------ COMPONENT TO KEEP THE SCREEN ON ----------------------
+      <q-linear-progress stripe size="2.5px" :value="0.4">
+        <div class="absolute-full flex flex-center">
+          <q-badge color="white" text-color="accent" :label="this.countdowntimeleft" />
+        </div>
+      </q-linear-progress>      <!------------------ COMPONENT TO KEEP THE SCREEN ON ----------------------
       <video v-if="step.type === 'geolocation'" id="keep-screen-on" autoplay loop style="width: 0px; height: 0px;">
         <source src="statics/videos/empty.mp4" type="video/mp4" />
       </video>
@@ -3807,7 +3809,7 @@ export default {
       if (this.step && 
       this.step.countDownTime !== undefined &&
       this.step.countDownTime.enabled === true && 
-      this.step.countDownTime.time > 0) {
+      utils.timeStringToSeconds(this.step.countDownTime.time) > 0) {
         console.log("this step has a timer")
         return true
       } else {
@@ -3819,7 +3821,7 @@ export default {
       console.log("launching countdown");
       if (this.isTimerAvailable()) { 
         //set up the seconds to the initial value
-        var seconds = this.step.countDownTime.time;
+        var seconds = utils.timeStringToSeconds(this.step.countDownTime.time);
         var countdown = setInterval(function() {
           seconds--;
           _this.countdowntimeleft = seconds;

@@ -926,8 +926,19 @@
       <q-list bordered>
         <q-expansion-item icon="access_time" :label="$t('label.CountDownLabel')">
           <div class="q-pa-sm"> 
-            <q-toggle v-model="selectedStep.form.countDownTime.enabled" :label="$t('label.CountDownIsActive')" />
-            <q-slider v-model="selectedStep.form.countDownTime.time" :min="0" :max="900" :step="10" label label-always/>
+            <q-toggle 
+            v-model="selectedStep.form.countDownTime.enabled" 
+            :label="$t('label.CountDownIsActive')"
+            @input="activateCountDown"
+            />
+            <q-input
+              filled
+              v-model="selectedStep.form.countDownTime.time"
+              label="Timer limitssssssssssssssssssssse"
+              mask="##h##m##s"
+              fill-mask="0"
+              value="12h34m56s" 
+            />
           </div>
         </q-expansion-item>
       </q-list>
@@ -956,8 +967,14 @@
           {{ $t('label.ConfirmSaveChanges') }}
         </div>
         <q-card-actions>
-          <q-btn color="primary" @click="submitStep(false)" :label="$t('label.Yes')" />
-          <q-btn color="primary" @click="$emit('close')" :label="$t('label.No')" />
+          <q-btn 
+            color="primary" 
+            @click="submitStep(false)" 
+            :label="$t('label.Yes')" />
+          <q-btn 
+            color="primary" 
+            @click="$emit('close')" 
+            :label="$t('label.No')" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -1200,7 +1217,7 @@ export default {
       questItems: [],
       isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
       serverUrl: process.env.SERVER_URL,
-      
+
       unformatedAnswer: null,
 
       premium: {
@@ -2750,6 +2767,19 @@ export default {
           break
         default:
           throw new Error("unknown IoT object code '" + this.selectedStep.form.options.object + "'")
+      }
+    },
+    async activateCountDown (param) {
+     var _this = this;
+      if (param === true) {
+         this.$q.dialog({
+          dark: true,
+          message: this.$t('label.AreYouSureYouWantToMoveToAdvancedMode'),
+          ok: true,
+          cancel: true
+        }).onCancel(async () => {
+          _this.selectedStep.form.countDownTime.enabled = false;
+        })
       }
     }
   },

@@ -129,8 +129,16 @@
           {{ $t('label.QuestType') }} 
           <q-icon name="help" @click.native="showHelpPopup('helpQuestType')" />
           <div class="q-gutter-sm">
-            <q-radio :disable="readOnly || editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="simple" :label="$t('label.basicEditor')" @input="changeEditorMode" />
-            <q-radio :disable="readOnly || editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="advanced" :label="$t('label.advancedEditor')" @input="changeEditorMode" />
+            <q-radio 
+              :disable="readOnly || editor.initMode === 'advanced'" 
+              v-model="form.fields.editorMode" val="simple" 
+              :label="$t('label.basicEditor')" 
+              @input="changeEditorMode" />
+            <q-radio 
+              :disable="readOnly || editor.initMode === 'advanced'" 
+              v-model="form.fields.editorMode" val="advanced" 
+              :label="$t('label.advancedEditor')" 
+              @input="changeEditorMode" />
           </div>
         </div>
         
@@ -160,7 +168,7 @@
           />
         </div>
 
-        <!--countdown stuff-->
+        <!--countdown/timer stuff
         {{ "countdown"}} <br>
 
         <q-toggle 
@@ -174,7 +182,7 @@
           mask="##h##m##s"
           fill-mask="0"
           value="12h34m56s"
-        />
+        />-->
 
         <div v-if="!isIOs">
           <div class="location-gps" style="display: none">

@@ -72,21 +72,61 @@
         </div>
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
           <div class="text-center dark-banner q-pb-xl q-pt-md fixed-bottom">
-            <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title : $t('label.NoTitle') }}</p>
-            <p v-if="run && run.team && run.team.name">{{ $t('Team') }} : {{ run.team.name }}</p>
+            <p class="title">
+              {{ (info.quest && info.quest.title) ? info.quest.title : $t('label.NoTitle') }}
+            </p>
+            <p v-if="run && run.team && run.team.name">
+              {{ $t('Team') }} : {{ run.team.name }}
+            </p>
+           <!-- <p v-if="info.quest.countDownTime.enabled">
+              {{ "temspsms tresetran: " }} : {{ info.quest.countDownTime.time }}
+            </p>-->
+
             <!--<q-linear-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-linear-progress>-->
             <!--<p class="q-pa-md score-text" v-show="info && !offline.active && (!info.quest.customization || !info.quest.customization.removeScoring)">{{ $t('label.CurrentScore') }}: {{ info.score }} <q-icon color="white" name="fas fa-trophy" />-</p>-->
             <p>
-              <q-btn v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring" class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="backToMap"><span>{{ $t('label.LeaveQuest') }}</span></q-btn>
+              <q-btn 
+              v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring" 
+              class="glossy large-button" 
+              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" 
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" 
+              @click="backToMap">
+                <span>
+                  {{ $t('label.LeaveQuest') }}
+                </span>
+              </q-btn>
             </p>
             <p>
-              <q-btn v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2" class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="restartGame"><span>{{ $t('label.RestartQuest') }}</span></q-btn>
+              <q-btn
+                v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2" class="glossy large-button" 
+                :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" 
+                :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" 
+                @click="restartGame">
+                <span>
+                  {{ $t('label.RestartQuest') }}
+                </span>
+              </q-btn>
             </p>
             <p>
-              <q-btn v-if="!offline.active" class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="showFeedback"><span>{{ $t('label.Feedback') }}</span></q-btn>
+              <q-btn 
+              v-if="!offline.active" class="glossy large-button" 
+              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" 
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" 
+              @click="showFeedback">
+                <span>
+                  {{ $t('label.Feedback') }}
+                </span>
+              </q-btn>
             </p>
             <p class="q-pb-xl">
-              <q-btn class="glossy large-button" color="secondary" @click="openInfo"><span>{{ $t('label.BackToQuest') }}</span></q-btn>
+              <q-btn 
+              class="glossy large-button" 
+              color="secondary" 
+              @click="openInfo">
+                <span>
+                  {{ $t('label.BackToQuest') }}
+                </span>
+              </q-btn>
             </p>
             <p class="q-pb-lg">
             </p>
