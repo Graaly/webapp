@@ -365,14 +365,13 @@ export default {
     } else {
       AppStoreRatingService.initLocalStorage();
       //test for the review
-      AppStoreRatingService.resetAlreadyAsked();
+      //AppStoreRatingService.resetAlreadyAsked();
       var questsFinished = this.$store.state.user.statistics.nbQuestsSuccessful;
-      console.log(questsFinished);
-      console.log(AppStoreRatingService.hasAlreadyHavePopup())
+      //console.log(questsFinished);
+      //console.log(AppStoreRatingService.hasAlreadyHavePopup())
       if (questsFinished >= 1 && AppStoreRatingService.hasAlreadyHavePopup() === "false") {
-        console.log("the user has do at least one quest");
+        console.log("the user has done at least one quest");
         AppStoreRatingService.launchpopup();
-        AppStoreRatingService.addAlreadyAskedForRating();
       }
 
       this.initPage()
