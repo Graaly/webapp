@@ -19,13 +19,16 @@ export default {
         AppRate.preferences.callbacks.onButtonClicked = function (buttonIndex) {
             console.log("onButtonClicked -> " + buttonIndex);
             switch (buttonIndex) {
-                case 1: //no
+                case 1:
+                    // no, don't remind me again
                     _this.addAlreadyAskedForRating();
                     break;
-                case 2: //later
-                    _this.addAlreadyAskedForRating(7);
+                case 2:
+                    // yes but remind me later
+                    _this.addLater(7)
                     break;
-                case 3: //nows
+                case 3:
+                    // rate now
                     break;
                 default:
                     break;
@@ -41,52 +44,59 @@ export default {
         if (window.localStorage.getItem("alreadyAsked") === null) {
             //Locale storage only stores strings, not booleans
             window.localStorage.setItem("alreadyAsked", "false");
-           // window.localStorage.setItem("futuredate", "")
+        }
+        if (window.localStorage.getItem("futuredate") === null) {
+            window.localStorage.setItem("futuredate", "");
         }
     },
     /**
      * Added to the local storage the fact taht we have asked him
      */
-    addAlreadyAskedForRating(days) {
+    addAlreadyAskedForRating() {
         window.localStorage.setItem("alreadyAsked", "true");
-      /*  if (days === null) {
-            window.localStorage.setItem("alreadyAsked", "true");
-        }
-        else {
-            var future = new Date();
-            future.setDate(new Date().getDate() + 7);
-            console.log(future);
-            window.localStorage.setItem("alreadyAsked", "true");
-            window.localStorage.setItem("futuredate", future.toDateString());
-        }*/
+    },
+    /**
+     * Add in the database the fact that the user wants to be reminded later on
+     * @param {*} days in how many days should we re remind him ? 
+     */
+    addLater(days) {
+        var today = new Date();
+        var future = new Date();
+        future.setDate(today.getDate() + days); //create the furet date 
+        window.localStorage.setItem("alreadyAsked", "later");
+        window.localStorage.setItem("futuredate", future.toString());
     },
     /**
      * Return the value of the local storage if we have already asked the user 
      * to rate
      */
     hasAlreadyHavePopup() {
-        if (window.localStorage.getItem("alreadyAsked") === null) {
-            this.initLocalStorage();
-            return "false";
+        var already = window.localStorage.getItem("alreadyAsked")
+        if (already === "true" || already === "false") {
+            console.log("has already awensered")
+            return already;
         }
-        /*else if (window.localStorage.getItem("futuredate") !== "") {
-            var futureDate = new Date(window.localStorage.getItem("futuredate"));
-            console.log(futureDate + "   ");
-            if (futureDate > new Date()) {
-                //we are pas the date, we need toa ska again
-                return false;
+        else if (already === "later") {
+            //awwensered to do it later
+            var storedDate = window.localStorage.getItem("futuredate")
+            //If the stored date is before the current date
+            if (new Date(storedDate) < new Date()) {
+                //we are passed the store date, send popup
+                return "false";
+            }
+            else {
+                //we are NOT passed the storedate, DO NOT send popup
+                return "true";
             }
         }
-        else {
-            return window.localStorage.getItem("alreadyAsked");
-        }*/
     },
     /**
+     * /!\ DEBUG ONLY /!\
      * Reset the value of already ask to false 
      * (will pop up at the next startup)
      */
     resetAlreadyAsked() {
         window.localStorage.setItem("alreadyAsked", "false");
-    // window.localStorage.setItem("futuredate", "");
+        window.localStorage.setItem("futuredate", "");
     }
 }

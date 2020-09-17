@@ -367,8 +367,6 @@ export default {
       //test for the review
       //AppStoreRatingService.resetAlreadyAsked();
       var questsFinished = this.$store.state.user.statistics.nbQuestsSuccessful;
-      //console.log(questsFinished);
-      //console.log(AppStoreRatingService.hasAlreadyHavePopup())
       if (questsFinished >= 1 && AppStoreRatingService.hasAlreadyHavePopup() === "false") {
         console.log("the user has done at least one quest");
         AppStoreRatingService.launchpopup();
