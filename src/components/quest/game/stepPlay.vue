@@ -2,28 +2,37 @@
 
   <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor')}">
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
-      <!-- countdown timer -->
-      <q-circular-progress
-        v-if="
-          this.step.countDownTime !== undefined &&
-          this.step.countDownTime.enabled === true && 
-          this.step.countDownTime.time !== ''"
-        show-value
-        class="text-white q-ma-md fixed-top-right"
-        :value="this.countdowntimeleft"
-        size="80px"
-        :thickness="0.4"
-        color="orange"
-        center-color="grey-8"
-        track-color="transparent"
-        :min="0"
-      >
-      </q-circular-progress>
-      <q-linear-progress stripe size="2.5px" :value="0.4">
-        <div class="absolute-full flex flex-center">
-          <q-badge color="white" text-color="accent" :label="this.countdowntimeleft" />
-        </div>
-      </q-linear-progress>      <!------------------ COMPONENT TO KEEP THE SCREEN ON ----------------------
+     <div style="all: revert;">  
+        <!-- countdown timer -->
+        <!-- <q-circular-progress
+          v-if="
+            this.step.countDownTime !== undefined &&
+            this.step.countDownTime.enabled === true && 
+            this.step.countDownTime.time !== ''"
+          show-value
+          class="text-white q-ma-md fixed-top-right"
+          :value="this.countdowntimeleft"
+          size="80px"
+          :thickness="0.4"
+          color="orange"
+          center-color="grey-8"
+          track-color="transparent"
+          :min="0"
+        >
+        </q-circular-progress> -->
+        <!-- <q-linear-progress :value="progress" color="warning" class="q-mt-sm" /> -->
+ 
+        <q-linear-progress 
+          size="15px"
+          :value="0.45"
+          :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
+        > 
+       <!--   <div class="absolute-full flex flex-center">
+            <q-badge color="white" text-color="accent" :label="this.countdowntimeleft" />
+          </div>-->
+        </q-linear-progress>       
+      </div>
+      <!------------------ COMPONENT TO KEEP THE SCREEN ON ----------------------
       <video v-if="step.type === 'geolocation'" id="keep-screen-on" autoplay loop style="width: 0px; height: 0px;">
         <source src="statics/videos/empty.mp4" type="video/mp4" />
       </video>
@@ -134,7 +143,10 @@
           </div>
           <div class="actions q-mt-sm q-mb-md" v-show="playerResult === null">
             <div>
-              <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
+              <q-btn class="glossy small-button" 
+              :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
+               :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
+                icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
               <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
             </div>
           </div>
@@ -3829,6 +3841,8 @@ export default {
           if (seconds <= 0) {
             clearInterval(countdown);
             console.log("times up !");   
+            this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
+
             Notification(/*this.$t('label.StepSettingsFormError')*/ 'times up !', 'warning')
           }
         }, 1000);
