@@ -928,17 +928,17 @@
           <div class="q-pa-sm"> 
             <q-toggle 
             v-model="selectedStep.form.countDownTime.enabled" 
-            :label="$t('label.CountDownIsActive')"
+            :label="$t('label.CountDownLabel')"
             @input="activateCountDown"
             />
             <q-input
               filled
               v-model="selectedStep.form.countDownTime.time"
-              label="Timer limitssssssssssssssssssssse"
+              :label="$t('label.CountDownIsActive')"
               mask="##h##m##s"
-              fill-mask="0"
-              value="12h34m56s" 
-            />
+              fill-mask=""
+              value="00h00m00s"
+            /><!--##h##m##s-->
           </div>
         </q-expansion-item>
       </q-list>

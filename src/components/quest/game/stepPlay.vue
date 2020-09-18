@@ -24,7 +24,7 @@
  
         <q-linear-progress 
           size="15px"
-          :value="0.45"
+          :value="map(this.countdowntimeleft,0,this.step.countDownTime.time,0,1)"
           :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
         > 
        <!--   <div class="absolute-full flex flex-center">
@@ -3830,20 +3830,19 @@ export default {
     },
     countdown() {
       let _this = this
-      console.log("launching countdown");
+      //console.log("launching countdown");
       if (this.isTimerAvailable()) { 
         //set up the seconds to the initial value
         var seconds = utils.timeStringToSeconds(this.step.countDownTime.time);
         var countdown = setInterval(function() {
           seconds--;
           _this.countdowntimeleft = seconds;
-          console.log(_this.countdowntimeleft);
+          //console.log(_this.countdowntimeleft);
           if (seconds <= 0) {
             clearInterval(countdown);
-            console.log("times up !");   
-            this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
-
-            Notification(/*this.$t('label.StepSettingsFormError')*/ 'times up !', 'warning')
+            console.log("times up  !");  
+       //     Notification(/*this.$t('label.StepSettingsFormError')*/ 'times up !', 'warning')
+            this.submitWrongAnswer(true, this.step.displayRightAnswer)
           }
         }, 1000);
         return countdown;
@@ -3856,6 +3855,10 @@ export default {
     },
     stopcountdown(countdown) {
       clearInterval(countdown);
+    },
+    map(x, inMin, inMax, outMin, outMax) {
+      var l = utils.map(x, inMin, utils.timeStringToSeconds(inMax), outMin, outMax);
+      return l;
     }
   }
 }

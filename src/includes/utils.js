@@ -178,7 +178,7 @@ var self = {
         return true
     }
     return false
-  },
+  },  
   /**
    * Works like native setTimeout() function, except that it keeps the timeout ID
    * in Vue store for easier cleaning with clearAllTimeouts(),
@@ -875,8 +875,14 @@ var self = {
     console.log("min " + minutes);
     console.log("sec " + seconds);
     */
+  },
+  /**
+  * Re-maps a number from one range to another.
+  * That is, a value of fromLow would get mapped to toLow, a value of fromHigh to toHigh, values in-between to values in-between, etc.
+  */
+  map: function(x, inMin, inMax, outMin, outMax) {
+    return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
   }
-
 }
 
 export default self
