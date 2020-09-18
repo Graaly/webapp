@@ -12,8 +12,8 @@
  */
 
 import { execSync, spawn } from 'child_process'
-import testUtils from './testUtils'
-import console from './consoleColor'
+import testUtils from './testUtils.mjs'
+import console from './consoleColor.mjs'
 
 const config = {
     RUN: {
