@@ -8,8 +8,8 @@ module.exports = function (ctx) {
   return {
     // app boot (/src/boot)
     boot: [
-      'SentryMonitoring',
-      'FirebaseMonitoring',
+      ctx.dev ? '' : 'SentryMonitoring',
+      //'FirebaseMonitoring',
       'CustomDirectives',
       'DateFormatFilter',
       'RouterAuthentication',
@@ -39,7 +39,7 @@ module.exports = function (ctx) {
       // gzip: true,
       // analyze: true,
       // extractCSS: false,
-      extendWebpack (cfg) {
+      extendWebpack(cfg) {
         // custom directory aliases:
         // see https://quasar-framework.org/guide/app-quasar.conf.js.html#Adding-your-own-alias-to-Webpack
         cfg.resolve.alias = {
@@ -50,7 +50,7 @@ module.exports = function (ctx) {
           data: path.resolve(__dirname, './data'),
           services: path.resolve(__dirname, './src/services')
         }
-        
+
         // UGLY HACK to avoid "babel" processing src/includes/ar.js
         // (error "Module Build Failed: TypeError: Cannot read property 'code' of null")
         // mixing include & exclude do not work well => doing all necessary includes...
@@ -58,13 +58,13 @@ module.exports = function (ctx) {
         // => erase "include" property (default being: '/src', '/.quasar')
         cfg.module.rules[1].include = [
           path.resolve(__dirname, "src/i18n"),
-          
+
           // DO NOT INCLUDE "src/includes/ar.js" BUT INCLUDE ALL OTHER FILES IN "src/includes"
           path.resolve(__dirname, "src/includes/simi.js"),
           path.resolve(__dirname, "src/includes/utils.js"),
           path.resolve(__dirname, "src/includes/motion-sensors.js"),
           path.resolve(__dirname, "src/includes/sensor.js"),
-          
+
           path.resolve(__dirname, "src/boot"),
           path.resolve(__dirname, "src/components"),
           path.resolve(__dirname, "src/i18n"),
@@ -77,7 +77,7 @@ module.exports = function (ctx) {
           //path.resolve(__dirname, "node_modules/ip-regex"), // otherwise not compatible with Android 4.4 webview
           path.resolve(__dirname, "node_modules/quasar") // otherwise src/plugins/platform.js is not transpiled and contains ES6 specific code 
         ]
-        
+
         // linter
         cfg.module.rules.push({
           enforce: 'pre',
@@ -134,7 +134,7 @@ module.exports = function (ctx) {
         'QIcon',
         'QImg',
         'QInfiniteScroll',
-        'QInput', 
+        'QInput',
         'QItem',
         'QItemLabel',
         'QItemSection',
@@ -237,12 +237,12 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: "2.0.12"
+      version: "2.0.14"
       // id: 'org.cordova.quasar.app'
     },
     electron: {
       // bundler: 'builder', // or 'packager'
-      extendWebpack (cfg) {
+      extendWebpack(cfg) {
         // do something with Electron process Webpack cfg
       },
       packager: {

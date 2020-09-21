@@ -52,9 +52,12 @@
       <div class="character" v-if="step.type == 'character'">
         <div class="fixed-bottom story" @click="nextCharacterBubbleText()">
           <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
-          <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
-            <p class="carrier-return" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
-            <p class="text" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
+          <div class="bubble-middle" style="font-size: 0.9em; background: url(statics/icons/story/sticker-middle.png) repeat-y;">
+            <div v-if="character.needToScroll" class="scroll-indicator">
+              <q-icon class="flashing" size="2.5em" name="arrow_drop_down_circle" />
+            </div>
+            <p ref="bubbleText" class="carrier-return" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
+            <p ref="bubbleTextHtml" class="text" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
             <p class="text text-grey" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ClickHere') }}</p>
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
@@ -329,9 +332,9 @@
       <!------------------ SUPERIMPOSE IMAGE AND CAMERA STEP AREA ------------------------>
       
       <div class="image-over-flow" v-if="step.type == 'image-over-flow'">
-        <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
+        <!--<transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">-->
           <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled"></video>
-        </transition>
+        <!--</transition>-->
         <div>
           <div v-if="isHybrid && !takingSnapshot && (step.options && step.options.snapshotAllowed)" style="position: absolute; top: 8px; right: 8px;z-index: 1990;">
             <q-btn 
@@ -655,7 +658,8 @@ export default {
         character: {
           bubbleText: [],
           numberOfBubble: 1,
-          bubbleNumber: 0
+          bubbleNumber: 0,
+          needToScroll: false
         },
         // for step 'choose'
         answerType: 'text', // 'text' or 'image'
@@ -871,6 +875,7 @@ export default {
             if (this.character.numberOfBubble === 1) {
               this.checkAnswer()
             }
+            utils.setTimeout(this.checkIfTextIsHidden, 1500)
           } else {
             this.checkAnswer()
           }
@@ -1114,8 +1119,10 @@ export default {
         
         if (this.step.type === 'image-over-flow') {
           this.$emit('pass')
+          
           // video stream
           if (this.isIOs && CameraPreview) {
+          //if (CameraPreview) {
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
             CameraPreview.startCamera(options)
             //CameraPreview.setColorEffect("redfilter")
@@ -1351,7 +1358,7 @@ export default {
     * Init QR Codes
     */
     initQRCodes() {
-      for (var i = 1; i <= 16; i++) {
+      for (var i = 1; i <= 60; i++) {
         let code = i.toString()
         code = code.padStart(3, "0")
         this.locateMarker.markerControls[code] = {detected: false}
@@ -2220,9 +2227,25 @@ export default {
     nextCharacterBubbleText() {
       if (this.character.bubbleNumber < (this.character.numberOfBubble - 1)) {
         this.character.bubbleNumber++
+        this.character.needToScroll = false
+        utils.setTimeout(this.checkIfTextIsHidden, 500)
       }
       if (this.character.bubbleNumber >= (this.character.numberOfBubble - 1)) {
         this.checkAnswer()
+      }
+    },
+    async checkIfTextIsHidden() {
+      if (!this.$refs.bubbleText) {
+        return
+      }
+
+      // check if height > max size of the box
+      const bubbleHeight = this.$refs.bubbleText ? this.$refs.bubbleText.clientHeight : 0
+      const bubbleHTMLHeight = this.$refs.bubbleTextHtml ? this.$refs.bubbleTextHtml.clientHeight : 0
+      const realBubbleHeight = Math.max(bubbleHeight, bubbleHTMLHeight)
+      
+      if (realBubbleHeight > '177') {
+        this.character.needToScroll = true
       }
     },
     /*
@@ -2545,28 +2568,26 @@ export default {
       }
       
       let previousGPSdistance = this.geolocation.GPSdistance
-console.log("1" + previousGPSdistance)
+
       // compute distance between two coordinates
       // note: current.accuracy contains the result accuracy in meters
       this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
-console.log("2 " + this.geolocation.GPSdistance)
       let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
-console.log("3 " + rawDirection)      
       if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
-        this.geolocation.distance = this.geolocation.GPSdistance
-console.log("4 " + this.geolocation.distance)
+        // avoid to change distance too much
+        if (!this.geolocation.distance || this.geolocation.GPSdistance < this.geolocation.distance || this.geolocation.GPSdistance > (this.geolocation.distance + 4)) {
+          this.geolocation.distance = this.geolocation.GPSdistance
+        }
         this.geolocation.rawDirection = rawDirection
       }
       
       let finalDirection = utils.degreesToRadians(rawDirection)
-console.log("5 " + finalDirection)      
       if (!this.deviceHasGyroscope) {
         // consider that the object to find is always in front of the device 
         finalDirection = 0
         // avoid to be too close from the object, set minimal distance
         const minDistanceFromObject = 2 + (this.geolocation.target !== null ? this.geolocation.target.size : 0) // in meters
         this.geolocation.GPSdistance = Math.max(minDistanceFromObject, this.geolocation.GPSdistance)
-console.log("6 " + this.geolocation.GPSdistance)
       }
       
       // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))

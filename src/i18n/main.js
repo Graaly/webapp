@@ -329,7 +329,7 @@ module.exports = {
       StepSaved: "Step saved",
       TechnicalIssue: "Technical issue, please try again later",
       TechnicalProblem: "Technical issue",
-      SaveThisStep: "Save this step",
+      SaveThisStep: "Save this step without testing",
       SaveAndTestThisStep: "Save and test this step",
       GraalyIsOptimizedForSmallerScreens: "The application is optimized for mobile device. Please use your mobile vertically, or resize your screen",
       Overview: "Overview",
@@ -689,7 +689,7 @@ module.exports = {
       Statistics: "Statistics",
       colons: ": ",
       TotalNumberOfPlayers: "Total number of players",
-      NumberOfPlayersYesterday: "Number of players yesterday",
+      NumberOfPlayersYesterday: "Yesterday",
       NumberOfPlayersByAge: "Number of players by age",
       NumberOfPlayersBySex: "Number of player by gender",
       AverageScore: "Average score",
@@ -945,7 +945,8 @@ module.exports = {
       ErrorMessageForNewTeamMember: "Technical issue or number of players reached",
       YouNeedToUnpublishYourQuestToRemoveIt: "You need to unpublish your quest to remove it",
       PleaseEnterYourTeamName: "Please enter your team name",
-      Version: "Version"
+      Version: "Version",
+      MaxScore: "Max score"
     }
   },
   fr: {
@@ -1265,7 +1266,7 @@ module.exports = {
       StepSaved: "Etape enregistrée",
       TechnicalIssue: "Problème technique, veuillez vérifier que vous avez du réseau et ré-essayer plus tard",
       TechnicalProblem: "Problème technique",
-      SaveThisStep: "Enregistrer cette étape",
+      SaveThisStep: "Enregistrer cette étape sans tester",
       SaveAndTestThisStep: "Enregistrer et tester cette étape",
       GraalyIsOptimizedForSmallerScreens: "L'application est optimisée pour des appareils mobiles. Veuillez tenir votre mobile verticalement ou redimensionner votre page",
       Overview: "Aperçu",
@@ -1348,7 +1349,7 @@ module.exports = {
       Select: "Selectionner",
       Add: "Ajouter",
       Administrate: "Administrer l'app",
-      QuestUnderValidation: "Votre escape game n'est plus modifiable. Votre escape game va être validée par nos game masters. Cela peut prendre quelques jours. Veuillez vérifier votre boîte mail pour plus d'information",
+      QuestUnderValidation: "Votre escape game n'est plus modifiable. Votre escape game va être validé par nos game masters. Cela peut prendre quelques jours. Veuillez vérifier votre boîte mail pour plus d'information",
       PublicationRequested: "En cours de validation",
       PublicationRejected: "Publication rejetée. Appuyez ici pour savoir pourquoi",
       QuestPublicationRejected: "Votre escape game n'a pas été publiée. Vous allez recevoir un email vous expliquant comment l'améliorer pour permettre sa publication",
@@ -1555,7 +1556,7 @@ module.exports = {
       NoPlayersYetForThisQuest: "Encore aucun joueur pour cet escape game",
       PrivateQuestDesc1: "Votre escape game est destiné à votre groupe d'amis ou des personnes que vous choisissez, et n'est pas visible par les autres.",
       PublicQuestDesc1: "Vous créez un escape game pour faire découvrir un lieu, une activité, une entreprise.",
-      PublicQuestDesc2: "Une fois validée par les games masters, cet escape game sera visible et jouable par tous",
+      PublicQuestDesc2: "Une fois validé par les games masters, cet escape game sera visible et jouable par tous",
       PublicProQuestDesc1: "Votre escape game est jouable par tous les joueurs Graaly. Vous payez un petit montant par joueur ou partagez les revenus avec nous.<p>Contactez-nous à contact@graaly.com pour plus d'information</p>",
       PublicProQuestDesc2: "<p>Si votre escape game est payant pour les joueurs, vous pouvez soit utiliser le système de paiement intégré à Graaly soit gérer vous même le paiement</p><p>Concernant le système de paiement intégré, Google/Apple prennent 30% des revenus</p><p>Dans tous les cas Graaly conserve 30% des revenus</p><p>Le reste est pour vous, soit de 40% à 70% des revenus.</p><p>Graaly vous reverse votre part mensuellement</p><p>Si votre jeu est gratuit pour les joueurs, Graaly vous facture mensuellement 0,25 € HT par joueur, soit moins que le facicule papier que vous devrier acheter sans application mobile</p><p>Vous pouvez désactiver votre escape game à tout moment</p><p>Contactez-nous à contact@graaly.com pour plus d'information</p>",
       PrivateProQuestDesc1: "Votre escape game est dédié à des joueurs définis. Le prix est lié au nombre de joueurs. Contactez-nous à contact@graaly.com pour plus d'information",
@@ -1625,7 +1626,7 @@ module.exports = {
       Statistics: "Statistiques",
       colons: " : ",
       TotalNumberOfPlayers: "Nombre total de joueurs",
-      NumberOfPlayersYesterday: "Nombre de joueurs hier",
+      NumberOfPlayersYesterday: "Hier",
       NumberOfPlayersByAge: "Nombre de joueurs par age",
       NumberOfPlayersBySex: "Nombre de joueur par sexe",
       AverageScore: "Score moyen",
@@ -1881,7 +1882,8 @@ module.exports = {
       ErrorMessageForNewTeamMember: "Problème technique ou nombre de joueurs atteint",
       YouNeedToUnpublishYourQuestToRemoveIt: "Vous devez dépublier vote jeu pour le supprimer",
       PleaseEnterYourTeamName: "Veuillez entrer le nom de votre équipe",
-      Version: "Version"
+      Version: "Version",
+      MaxScore: "Score maxi"
     }
   }
 }

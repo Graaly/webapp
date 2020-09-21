@@ -921,11 +921,13 @@
         </q-expansion-item>
       </q-list>
       
-      <div class="centered q-pa-md q-pb-xl">
+      <!------------------ SAVE BUTTONS ------------------------>
+      
+      <div class="centered q-pa-md q-pt-lg q-pb-sm">
         <q-btn class="glossy large-button" color="primary" @click="submitStep(true)" test-id="btn-save-step">{{ $t('label.SaveAndTestThisStep') }}</q-btn>
       </div>
-      <div class="centered q-pa-md q-pb-xl">
-        <q-btn class="glossy large-button" color="primary" @click="submitStep(false)" test-id="btn-save-step-no-test">{{ $t('label.SaveThisStep') }}</q-btn>
+      <div class="centered q-px-md q-pb-xl">
+        <a class="text-primary" @click="submitStep(false)" test-id="btn-save-step-no-test">{{ $t('label.SaveThisStep') }}</a>
       </div>
     </div>
     
@@ -1483,6 +1485,9 @@ export default {
       } else if (this.options.type.code === 'geolocation') {
         if (!this.selectedStep.form.options.hasOwnProperty('distance')) {
           this.$set(this.selectedStep.form.options, 'distance', '20')
+        }
+        if (!this.selectedStep.form.options.hasOwnProperty('showHelp')) {
+          this.$set(this.selectedStep.form.options, 'showHelp', true)
         }
       } else if (this.options.type.code === 'locate-item-ar') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
