@@ -12,8 +12,8 @@
  */
 
 import { execSync, spawn } from 'child_process'
-import testUtils from './testUtils'
-import console from './consoleColor'
+import testUtils from './testUtils.mjs'
+import console from './consoleColor.mjs'
 
 const config = {
     RUN: {
@@ -28,7 +28,7 @@ const config = {
     DB_NAME: 'graaly-test',
     WEBAPP_URL: 'https-get://localhost:8080', // "https-get" instead of "https" is required for utility wait-on, used by utility start-server-and-test
     SERVER_HOST: 'localhost',
-    SERVER_PORT: 3000,
+    SERVER_PORT: 80,
     SERVER_PATH: '../server', // relative to webapp root dir
     DUMP_FILE: 'test/graaly-db.gz'
 }

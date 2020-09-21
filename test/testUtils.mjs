@@ -1,5 +1,5 @@
 import net from 'net'
-import console from './consoleColor'
+import console from './consoleColor.mjs'
 
 export default {
     checkConnection: async (host, port, timeout) => {
