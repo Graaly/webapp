@@ -485,7 +485,7 @@
     <!--====================== WIN POINTS ANIMATION =================================-->
     
     <!--<div v-show="playerResult === true && score >= 1" class="fadein-message">+{{ score }}</div>-->
-    <div v-show="playerResult === true && score >= 1" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
+    <div v-show="playerResult === true && displaySuccessIcon" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
     
     <!--====================== STORY =================================-->
@@ -653,6 +653,7 @@ export default {
         isHybrid: window.cordova,
         isIOs: utils.isIOS(),
         isNetworkLow: false,
+        displaySuccessIcon: false,
         
         // for step 'character'
         character: {
@@ -2100,7 +2101,7 @@ export default {
       } else {
         this.playerResult = null
       }
-      
+
       this.stepPlayed = true
       
       this.$emit('success', score, offlineMode, showResult)
@@ -3351,6 +3352,7 @@ export default {
     * Display the success message
     */
     displaySuccessMessage (success, message, actions) {
+      this.displaySuccessIcon = true
       Notification(message, (success ? 'rightAnswer' : 'wrongAnswer'), actions)
     },
     /*

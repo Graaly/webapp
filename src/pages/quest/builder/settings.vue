@@ -33,7 +33,7 @@
       <q-tab :disable="tabs.progress < 1 || isReadOnly()" name="steps" :icon="getTabIcon(2)" :label="$t('label.Steps') + ' (' + languages.current + ')'" v-if="quest.type === 'quest'" />
       <q-tab :disable="tabs.progress < 2" name="publish" :icon="getTabIcon(3)" :label="$t('label.Publish')" />
       <q-tab name="payments" :icon="getTabIcon(5)" @click="listPayments" :label="$t('label.Payments')" v-if="quest && quest.premiumPrice && quest.premiumPrice.tier" />
-      <q-tab name="reviews" :icon="getTabIcon(6)" :label="$t('label.ReviewsAndStats')" v-if="isEdition && quest.access === 'public'" />
+      <q-tab name="reviews" :icon="getTabIcon(6)" :label="$t('label.ReviewsAndStats')" v-if="isEdition" />
       <q-tab name="results" :icon="getTabIcon(7)" :label="$t('label.Results')" v-if="quest.status !== 'draft' && quest.access === 'private'" />
     </q-tabs>
 
