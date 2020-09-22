@@ -739,6 +739,8 @@
         <q-item-section side top>
           <q-icon name="chat_bubble_outline" class="left-icon" />
         </q-item-section>
+      </q-item>
+      <q-item>
         <q-item-section>
           <q-item-label class="big-label">{{ $t('label.Reviews') }}</q-item-label>
           <!--<q-infinite-scroll :handler="getReviews">-->
@@ -782,7 +784,7 @@
                 <q-avatar>
                   <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
                   <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
-                  <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
+                  <img v-if="!rank.picture || rank.picture === ''" src="statics/profiles/noprofile.png" />
                 </q-avatar>
               </q-item-section>
               <q-item-section>
@@ -818,7 +820,7 @@
                 <q-avatar>
                   <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
                   <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
-                  <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
+                  <img v-if="!rank.picture || rank.picture === ''" src="statics/profiles/noprofile.png" />
                 </q-avatar>
               </q-item-section>
             </q-item>
@@ -3207,7 +3209,7 @@ export default {
           return this.serverUrl + '/upload/profile/' + filename
         }
       } else {
-        return '/statics/profiles/noprofile.png'
+        return 'statics/profiles/noprofile.png'
       }
     },
     /*
