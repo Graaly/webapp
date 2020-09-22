@@ -2774,7 +2774,7 @@ export default {
       if (param === true) {
          this.$q.dialog({
           dark: true,
-          message: this.$t('label.AreYouSureYouWantToMoveToAdvancedMode'),
+          message: this.$t('label.CountDownWarning'),
           ok: true,
           cancel: true
         }).onCancel(async () => {

@@ -947,7 +947,8 @@ module.exports = {
       PleaseEnterYourTeamName: "Please enter your team name",
       Version: "Version",
       CountDownLabel: "Time limite for this step",
-      CountDownIsActive: "Activate the time limit"
+      CountDownIsActive: "Activate the time limit",
+      CountDownWarning: "Etes-vous certain(e) d'activé la limite de temps ? Assurez vous de ne pas mettre un temps trop court pour ne pas presser l'utilisateur !"
     }
   },
   fr: {
@@ -1885,7 +1886,8 @@ module.exports = {
       PleaseEnterYourTeamName: "Veuillez entrer le nom de votre équipe",
       Version: "Version",
       CountDownLabel: "Limite de temps de l'enigme",
-      CountDownIsActive: "Activer la limite de temps pour cete enigme"
+      CountDownIsActive: "Activer la limite de temps pour cete enigme",
+      CountDownWarning: "Are you sure you want to activate the time limite ? Make sure to not put a time that is too short for the user!"
     }
   }
 }
