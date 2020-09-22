@@ -948,7 +948,8 @@ module.exports = {
       Version: "Version",
       CountDownLabel: "Time limite for this step",
       CountDownIsActive: "Activate the time limit",
-      CountDownWarning: "Etes-vous certain(e) d'activé la limite de temps ? Assurez vous de ne pas mettre un temps trop court pour ne pas presser l'utilisateur !"
+      CountDownWarning: "Are you sure you want to activate the time limite ? Make sure to not put a time that is too short for the user!",
+      CountDownPopupfail: "Vous ne pouvez plus répondre à cette énigme, le temps est écoulé vous ne gagnerez pas de points !"
     }
   },
   fr: {
@@ -1885,9 +1886,10 @@ module.exports = {
       YouNeedToUnpublishYourQuestToRemoveIt: "Vous devez dépublier vote jeu pour le supprimer",
       PleaseEnterYourTeamName: "Veuillez entrer le nom de votre équipe",
       Version: "Version",
-      CountDownLabel: "Limite de temps de l'enigme",
-      CountDownIsActive: "Activer la limite de temps pour cete enigme",
-      CountDownWarning: "Are you sure you want to activate the time limite ? Make sure to not put a time that is too short for the user!"
+      CountDownLabel: "Limite de temps de l’énigme",
+      CountDownIsActive: "Entrez la limite de durée pour cette énigme",
+      CountDownWarning: "Etes-vous certain(e) d'activé la limite de temps ? Assurez vous de ne pas mettre un temps trop court pour ne pas presser l'utilisateur !",
+      CountDownPopupfail: "Vous ne pouvez plus répondre à cette énigme, le temps est écoulé vous ne gagnerez pas de points !"
     }
   }
 }

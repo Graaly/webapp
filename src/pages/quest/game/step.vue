@@ -28,7 +28,8 @@
       @success="trackStepSuccess" 
       @fail="trackStepFail" 
       @pass="trackStepPass"
-      @msg="trackMessage">
+      @msg="trackMessage"
+      @timeup="timeup">
     </stepPlay>
       
     <!------------------ INVENTORY PAGE AREA ------------------------>
@@ -1002,6 +1003,22 @@ export default {
           await this.moveToNextStep('pass')
         }).onCancel(() => {})
       }
+    },
+    /** 
+     * when time is up
+     */
+    async timeup () {
+       if (!this.offline.active) {
+          await RunService.passStep(this.run._id, this.step.id, this.player)
+        }
+        
+        //if (!passSuccess) {
+          // offline treatment
+        await this.passOfflineStep(this.step.id)
+        //}
+        
+        // TODO: manage if pass failed
+        await this.moveToNextStep('pass')
     },
     /*
      * Move to next step

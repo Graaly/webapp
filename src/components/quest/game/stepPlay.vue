@@ -500,7 +500,21 @@
     <!--<div v-show="playerResult === true && score >= 1" class="fadein-message">+{{ score }}</div>-->
     <div v-show="playerResult === true && score >= 1" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
-    
+    <div 
+    v-show="
+      this.countdowntimeleft === 60 ||
+      this.countdowntimeleft === 30 || 
+      this.countdowntimeleft === 15 || 
+      this.countdowntimeleft === 10 || 
+      this.countdowntimeleft === 5 
+      " 
+    class="fadein-message" 
+    style="padding-left: 40%">
+      <p style="color:'red'">
+        {{ this.countdowntimeleft }}
+      </p>
+    </div>
+
     <!--====================== STORY =================================-->
     
     <div class="fixed-bottom over-map" v-if="story.step !== null && story.step !== 'end'">
@@ -1784,7 +1798,7 @@ export default {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           }
           break
-          
+
         case 'image-recognition':
           const comparison = this.checkPhoto()
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: comparison}, true)
@@ -3823,17 +3837,13 @@ export default {
           //console.log(_this.countdowntimeleft);
           if (seconds <= 0) {
             clearInterval(countdown);
-            console.log("times up  !");  
-       //     Notification(/*this.$t('label.StepSettingsFormError')*/ 'times up !', 'warning')
-            this.submitWrongAnswer(true, this.step.displayRightAnswer)
+            Notification(_this.$t('label.CountDownPopupfail'), 'warning');
+            setTimeout(function() { 
+              _this.$emit('timeup');
+            }, 2000);
           }
         }, 1000);
         return countdown;
-        /*window.addEventListener('popstate', function (event) {
-          console.log(event)
-          console.log("page changed");
-          clearInterval(countdown);
-        });*/ 
       }
     },
     stopcountdown(countdown) {
