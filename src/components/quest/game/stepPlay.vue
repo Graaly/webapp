@@ -2,9 +2,10 @@
 
   <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor')}">
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
-    <div 
-    v-if="step.countDownTime!== null && step.countDownTime!== undefined && step.countDownTime.enabled === true"
-    style="all: revert;">  
+      <div 
+        v-if="step.countDownTime!== null && step.countDownTime!== undefined && step.countDownTime.enabled === true"
+        style="all: revert;"
+        >  
         <q-linear-progress 
           size="15px"
           :value="map(this.countdowntimeleft,0,this.step.countDownTime.time,0,1)"
