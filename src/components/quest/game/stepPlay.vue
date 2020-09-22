@@ -2,26 +2,9 @@
 
   <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor')}">
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
-     <div style="all: revert;">  
-        <!-- countdown timer -->
-        <!-- <q-circular-progress
-          v-if="
-            this.step.countDownTime !== undefined &&
-            this.step.countDownTime.enabled === true && 
-            this.step.countDownTime.time !== ''"
-          show-value
-          class="text-white q-ma-md fixed-top-right"
-          :value="this.countdowntimeleft"
-          size="80px"
-          :thickness="0.4"
-          color="orange"
-          center-color="grey-8"
-          track-color="transparent"
-          :min="0"
-        >
-        </q-circular-progress> -->
-        <!-- <q-linear-progress :value="progress" color="warning" class="q-mt-sm" /> -->
- 
+    <div 
+    v-if="step.countDownTime!== null && step.countDownTime!== undefined && step.countDownTime.enabled === true"
+    style="all: revert;">  
         <q-linear-progress 
           size="15px"
           :value="map(this.countdowntimeleft,0,this.step.countDownTime.time,0,1)"
