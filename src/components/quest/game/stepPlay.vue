@@ -554,6 +554,7 @@
 import { colors, QCircularProgress } from 'quasar'
 
 import StepService from 'services/StepService'
+import TimerStorageService from 'services/TimerStorageService'
 import simi from 'src/includes/simi' // for image similarity
 import utils from 'src/includes/utils'
 
@@ -891,8 +892,6 @@ export default {
         
         this.resetDrawDirectionInterval()
         
-        console.log(this.step)
-
         if (this.isTimerAvailable()) {
          this.currentcountdown = this.countdown();
         }
@@ -3830,11 +3829,23 @@ export default {
       let _this = this
       //console.log("launching countdown");
       if (this.isTimerAvailable()) { 
+            var seconds =0;
+            if (TimerStorageService.getTimeLeft() === null) {
+              // no time in storage
+              seconds = utils.timeStringToSeconds(this.step.countDownTime.time);
+            }
+            else {
+              seconds = TimerStorageService.getTimeLeft();
+            }
+
         //set up the seconds to the initial value
-        var seconds = utils.timeStringToSeconds(this.step.countDownTime.time);
         var countdown = setInterval(function() {
           seconds--;
           _this.countdowntimeleft = seconds;
+          if (seconds % 2 === 0) {
+            //this is for performace, save it every 2 second not every seconds
+            TimerStorageService.storeTimeLeft(_this.step._id, _this.step._id, seconds)
+          }
           //console.log(_this.countdowntimeleft);
           if (seconds <= 0) {
             clearInterval(countdown);
