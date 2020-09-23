@@ -3827,16 +3827,17 @@ export default {
     },
     countdown() {
       let _this = this
+      console.log()
       //console.log("launching countdown");
       if (this.isTimerAvailable()) { 
-            var seconds =0;
-            if (TimerStorageService.getTimeLeft() === null) {
-              // no time in storage
-              seconds = utils.timeStringToSeconds(this.step.countDownTime.time);
-            }
-            else {
-              seconds = TimerStorageService.getTimeLeft();
-            }
+        var seconds =0;
+        if (TimerStorageService.getTimeLeft() === null) {
+          // no time in storage
+          seconds = utils.timeStringToSeconds(this.step.countDownTime.time);
+        }
+        else {
+          seconds = TimerStorageService.getTimeLeft(runId, _this.step._id);
+        }
 
         //set up the seconds to the initial value
         var countdown = setInterval(function() {
@@ -3844,7 +3845,7 @@ export default {
           _this.countdowntimeleft = seconds;
           if (seconds % 2 === 0) {
             //this is for performace, save it every 2 second not every seconds
-            TimerStorageService.storeTimeLeft(_this.step._id, _this.step._id, seconds)
+            TimerStorageService.storeTimeLeft(_this.runId, _this.step._id, seconds)
           }
           //console.log(_this.countdowntimeleft);
           if (seconds <= 0) {
