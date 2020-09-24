@@ -119,7 +119,7 @@ See also [this Quasar doc page about setting up Cordova environment for iOS](htt
 
 ### Android app
 
-:warning: Change the version in the **config/prod.env.js** file
+:warning: Change the version in the **config/prod.env.js** and **quasar.conf.js** files
   If needed change the client required version in **/server/routes/main.js** & **webapp/src/plugins/RouterAuthentication.js**
 
 `$ quasar build -m cordova -T android`

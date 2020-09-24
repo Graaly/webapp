@@ -689,7 +689,7 @@ module.exports = {
       Statistics: "Statistics",
       colons: ": ",
       TotalNumberOfPlayers: "Total number of players",
-      NumberOfPlayersYesterday: "Number of players yesterday",
+      NumberOfPlayersYesterday: "Yesterday",
       NumberOfPlayersByAge: "Number of players by age",
       NumberOfPlayersBySex: "Number of player by gender",
       AverageScore: "Average score",
@@ -945,7 +945,8 @@ module.exports = {
       ErrorMessageForNewTeamMember: "Technical issue or number of players reached",
       YouNeedToUnpublishYourQuestToRemoveIt: "You need to unpublish your quest to remove it",
       PleaseEnterYourTeamName: "Please enter your team name",
-      Version: "Version"
+      Version: "Version",
+      MaxScore: "Max score"
     }
   },
   fr: {
@@ -1625,7 +1626,7 @@ module.exports = {
       Statistics: "Statistiques",
       colons: " : ",
       TotalNumberOfPlayers: "Nombre total de joueurs",
-      NumberOfPlayersYesterday: "Nombre de joueurs hier",
+      NumberOfPlayersYesterday: "Hier",
       NumberOfPlayersByAge: "Nombre de joueurs par age",
       NumberOfPlayersBySex: "Nombre de joueur par sexe",
       AverageScore: "Score moyen",
@@ -1881,7 +1882,8 @@ module.exports = {
       ErrorMessageForNewTeamMember: "Problème technique ou nombre de joueurs atteint",
       YouNeedToUnpublishYourQuestToRemoveIt: "Vous devez dépublier vote jeu pour le supprimer",
       PleaseEnterYourTeamName: "Veuillez entrer le nom de votre équipe",
-      Version: "Version"
+      Version: "Version",
+      MaxScore: "Score maxi"
     }
   }
 }

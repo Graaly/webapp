@@ -609,22 +609,22 @@ export default {
     async getQuests() {
       this.isQuestsLoaded = null // to prevent multiple call of reload map if onNewUserPosition is called too often
       this.showBottomMenu = false
+
       if (!this.offline.active) {
         if (this.user.position === null) {
           Notification(this.$t('label.LocationSearching'), 'warning')
           this.isQuestsLoaded = false
           return
         }
-        
         let response = await QuestService.listHomeQuests({ lng: this.user.position.longitude, lat: this.user.position.latitude })
-        
+
         if (!response || !response.data) {
           Notification(this.$t('label.TechnicalIssue'), 'error')
           this.isQuestsLoaded = false
           return
         }
         this.isQuestsLoaded = true
-        
+
         if (!response.data.message || response.data.message !== 'No quest') {
           if (response.data.best) {
             this.bestQuest = response.data.best

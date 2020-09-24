@@ -38,7 +38,7 @@ export default ({ app, router, Vue }) => {
           
           next()
         } else {
-          let response = await AuthService.getAccount()
+          const response = await AuthService.getAccount()
 
           if (response && response.data && response.data.name) {
             if (response.data.clientSupportedVersion && response.data.clientSupportedVersion > "2.0.12") {
