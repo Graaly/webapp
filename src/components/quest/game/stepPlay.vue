@@ -2154,9 +2154,20 @@ export default {
         this.playerResult = null
       }
       
-      if (this.step.countDownTime !== null && this.step.countDownTime.enabled === true)
+      if (
+        this.step.countDownTime !== null &&
+        this.step.countDownTime.enabled === true)
       {
-        this.step.countDownTime.enabled = false;
+        if (this.step.type ==='character' ||
+        this.step.type ==='new-item' ||
+        this.step.type ==='info-text' ||
+        this.step.type ==='end-chapter' ||
+        this.step.type ==='info-video' ||
+        this.step.type ==='image-over-flow') {
+          // do not hide the timer beacause on theses steps it is automaticly senda s a right awenser
+        } else {
+          this.step.countDownTime.enabled = false;
+        }
       }  
 
       this.stepPlayed = true
