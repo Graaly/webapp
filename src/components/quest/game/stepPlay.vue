@@ -3,7 +3,9 @@
   <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor')}">
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
       <div 
-        v-if="step.countDownTime!== null && step.countDownTime!== undefined && step.countDownTime.enabled === true"
+        v-if="step.countDownTime !== null && 
+        step.countDownTime !== undefined && 
+        step.countDownTime.enabled === true"
         style="all: revert;"
         >  
         <q-linear-progress 
@@ -3826,38 +3828,47 @@ export default {
       }
     },
     countdown() {
-      let _this = this;
-      //console.log("launching countdown");
-      if (this.isTimerAvailable()) { 
-        var seconds = 0;
-        if (TimerStorageService.getTimeLeft(_this.runId, _this.step._id) === null) {
-          console.log("no time found in storage");
-          // no time in storage
-          seconds = utils.timeStringToSeconds(this.step.countDownTime.time);
-        }
-        else {
-          console.log("time found in staorage");
-          seconds = TimerStorageService.getTimeLeft(_this.runId, _this.step._id);
-        }
+      try {
+        let _this = this;
+        //console.log("launching countdown");
+        if (this.isTimerAvailable() === true) {       
+          var seconds = 0;
+          var n = TimerStorageService.getTimeLeft(_this.runId, _this.step._id);
+          if (n === null) {
+            // no time in storage
+            seconds = utils.timeStringToSeconds(this.step.countDownTime.time);
+            // console.log("no time found in storage")
+          }
+          else {
+            seconds =n;
+            // console.log("found time in storage : "+seconds)
+          }
 
-        //set up the seconds to the initial value
-        var countdown = setInterval(function() {
-          seconds--;
-          _this.countdowntimeleft = seconds;
-          if (seconds % 2 === 0) {
-            //this is for performace, save it every 2 second not every seconds
-            TimerStorageService.storeTimeLeft(_this.runId, _this.step._id, seconds);
-          }
-          //console.log(_this.countdowntimeleft);
-          if (seconds <= 0) {
-            clearInterval(countdown);
-            Notification(_this.$t('label.CountDownPopupfail'), 'warning');
-            setTimeout(function() { 
-              _this.$emit('timeup');
-            }, 2000);
-          }
-        }, 1000);
-        return countdown;
+          //set up the seconds to the initial value
+          var countdown = setInterval(function() {
+            seconds--;
+            _this.countdowntimeleft = seconds;
+            if (seconds % 2 === 0) {
+              //this is for performace, save it every 2 second not every seconds
+              TimerStorageService.storeTimeLeft(_this.runId, _this.step._id, seconds);
+            }
+            //console.log(_this.countdowntimeleft);
+            if (seconds <= 0) {
+              _this.step.countDownTime.enabled = false;
+              _this.stopcountdown(countdown);
+              Notification(_this.$t('label.CountDownPopupfail'), 'warning');
+              setTimeout(function() { 
+                // THis time should be longer
+                _this.$emit('timeup');
+              }, 2000);
+              console.log("times up")
+            }
+          }, 1000);
+          return countdown;
+        }
+      }
+      catch (e) {
+        console.log(e);
       }
     },
     stopcountdown(countdown) {

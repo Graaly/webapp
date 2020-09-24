@@ -41,16 +41,21 @@ export default {
      * @param {*} stepid 
      */
     getTimeLeft(runid, stepid) {
-        console.log(runid, stepid)
         var timers = this.allStorage();
-        timers.forEach(t => {
+        for (const t of timers) {
             var val = JSON.parse(t.value);
-            console.log(val);
             if (val.runid === runid && val.stepid === stepid) {
-                console.log(val.timeleft + "for" + val.stepid);
+                console.log(val.timeleft + " for " + val.stepid);
+                if (val.timeleft < 0) {
+                    //this should not appear offten but we never know
+                    val.timeleft = 0;
+                }
                 return val.timeleft;
             }
-        })
+        };
+        console.log("null")
+        //if we found nothing retunr null
+        return null;
     },
 
     /**
