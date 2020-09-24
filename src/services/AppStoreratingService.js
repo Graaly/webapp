@@ -8,7 +8,7 @@ export default {
         var _this = this;
         AppRate.preferences.useLanguage = 'fr';
         AppRate.preferences.storeAppURL = {
-            ios: 'id1448284225  ',
+            ios: 'id1448284225',
             android: 'market://details?id=graaly.app'
         };
         AppRate.preferences.reviewType = {
@@ -25,7 +25,7 @@ export default {
                     break;
                 case 2:
                     // yes but remind me later
-                    _this.addLater(7)
+                    _this.addLater(7) // 7 here is the number of days to ask him later
                     break;
                 case 3:
                     // rate now
@@ -50,7 +50,7 @@ export default {
         }
     },
     /**
-     * Added to the local storage the fact taht we have asked him
+     * Added to the local storage the fact that we have asked him
      */
     addAlreadyAskedForRating() {
         window.localStorage.setItem("alreadyAsked", "true");
@@ -62,7 +62,7 @@ export default {
     addLater(days) {
         var today = new Date();
         var future = new Date();
-        future.setDate(today.getDate() + days); //create the furet date 
+        future.setDate(today.getDate() + days); //create the future date 
         window.localStorage.setItem("alreadyAsked", "later");
         window.localStorage.setItem("futuredate", future.toString());
     },
