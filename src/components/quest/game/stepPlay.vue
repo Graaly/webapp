@@ -564,6 +564,7 @@ import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
 import markersList from 'data/markers.json'
 import iotObjectsList from 'data/iotObjects.json'
+import stepTypes from 'data/stepTypes.json'
 
 import Notification from 'boot/NotifyHelper'
 
@@ -689,6 +690,7 @@ export default {
         isHybrid: window.cordova,
         isIOs: utils.isIOS(),
         isNetworkLow: false,
+        isTimeUp: false,
         
         // for step 'character'
         character: {
@@ -893,7 +895,6 @@ export default {
         }
         
         this.resetDrawDirectionInterval()
-        
         if (this.isTimerAvailable()) {
          this.currentcountdown = this.countdown();
         }
@@ -1766,22 +1767,30 @@ export default {
             Vue.set(this.step.options.items, answer, selectedAnswer)
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
-            let selectedAnswer = this.step.options.items[answer]
-            if (this.step.displayRightAnswer === false) {
-              selectedAnswer.class = 'rightorwrong'
-            } else {
-              selectedAnswer.icon = 'clear' // "x" icon
-              selectedAnswer.class = 'wrong'
+            if (!this.isTimeUp) {
+              let selectedAnswer = this.step.options.items[answer]
+              if (this.step.displayRightAnswer === false) {
+                selectedAnswer.class = 'rightorwrong'
+              } else {
+                selectedAnswer.icon = 'clear' // "x" icon
+                selectedAnswer.class = 'wrong'
+              }
+              Vue.set(this.step.options.items, answer, selectedAnswer)
+            }
+            
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
+            if (this.step.displayRightAnswer === true) {
               // indicate the right answer
               if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
                 let selectedAnswer = this.step.options.items[checkAnswerResult.answer]
                 selectedAnswer.icon = 'done'
                 selectedAnswer.class = 'right'
-                Vue.set(this.step.options.items, answer, selectedAnswer)
                 Vue.set(this.step.options.items, checkAnswerResult.answer, selectedAnswer)
               }
             }
-            Vue.set(this.step.options.items, answer, selectedAnswer)
             
             this.nbTry++
             if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
@@ -2218,7 +2227,9 @@ export default {
       
       this.displayReadMoreAlert()
       
-      if (showResult) {
+      if (this.isTimeUp === true) {
+        this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'))
+      } else if (showResult) {
         if (this.step.type === 'image-recognition') {
           this.displaySuccessMessage(false, this.$t('label.PhotosDoesntMatch'))
         } else {
@@ -3843,9 +3854,13 @@ export default {
             seconds = n;
             // console.log("found time in storage : "+seconds)
           }
-
+          
+          if (seconds <= 0) {
+            this.step.countDownTime.enabled = false;
+          }
+          
           //set up the seconds to the initial value
-          var countdown = setInterval(function() {
+          var countdown = setInterval(async function() {
             seconds--;
             _this.countdowntimeleft = seconds;
             if (seconds % 2 === 0) {
@@ -3854,21 +3869,27 @@ export default {
             }
             //console.log(_this.countdowntimeleft);
             if (seconds <= 0) {
-              _this.step.countDownTime.enabled = false;
-              _this.stopcountdown(countdown);
-              Notification(_this.$t('label.CountDownPopupfail'), 'warning');
-              setTimeout(function() { 
-                // THis time should be longer
-                _this.$emit('timeup');
-              }, 2000);
-              console.log("times up")
+              await _this.handleTimeUp()
             }
-          }, 1000);
+          }, 1000)
+          
           return countdown;
         }
       }
       catch (e) {
-        console.log(e);
+        console.error('error in countdown()', e);
+      }
+    },
+    async handleTimeUp() {
+      this.isTimeUp = true
+      this.stopcountdown(this.currentcountdown)
+      this.step.countDownTime.enabled = false;
+      let stepType = this.getStepType(this.step.type)
+      if (stepType.category === 'enigma') {
+        // checkAnswer() has a specific behavior when this.isTimeUp has been set to true
+        // in particular, submitWrongAnswer() show a specific message in its notification
+        // for step types 'transition' (code 'info-text', etc.) checkAnswer() is already done at loading
+        await this.checkAnswer()
       }
     },
     stopcountdown(countdown) {
@@ -3877,6 +3898,18 @@ export default {
     map(x, inMin, inMax, outMin, outMax) {
       var l = utils.map(x, inMin, utils.timeStringToSeconds(inMax), outMin, outMax);
       return l;
+    },
+    /**
+     * Get step type (enigma or transition) from step code
+     */
+    getStepType(code) {
+      for (let stepType of stepTypes) {
+        if (stepType.code === code) {
+          return stepType
+        }
+      }
+      console.warn("Could not retrieve step type from code '" + code + "'")
+      return null
     }
   }
 }
