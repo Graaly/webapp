@@ -369,7 +369,7 @@
       </div>
       
       <!------------------ STEP : IMAGE RECOGNITION ------------------------>
-      
+      <!-- MPA 2020-09-24 not used
       <div v-if="options.type.code == 'image-recognition'" class="image-recognition">
         <div v-if="!isIOs">
           <q-btn class="full-width" :label="$t('label.UploadThePictureOfTheObjectToFind')" @click="$refs['image-to-recognize'].click()" />
@@ -384,7 +384,7 @@
           <p>{{ $t('label.UploadedPicture') }} :</p>
           <img :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + selectedStep.form.answers" />
         </div>
-      </div>
+      </div>-->
       
       <!------------------ STEP : JIGSAW PUZZLE ------------------------>
       
@@ -1465,11 +1465,11 @@ export default {
         if (this.options.type.code === 'character' && !this.selectedStep.form.options.character) {
           Vue.set(this.selectedStep.form.options, 'character', '1')
         }
-      } else if (this.options.type.code === 'image-recognition') {
+      } /*else if (this.options.type.code === 'image-recognition') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.selectedStep.form.answers = ""
         }
-      } else if (this.options.type.code === 'find-item') {
+      }*/ else if (this.options.type.code === 'find-item') {
         if (this.selectedStep.form.answers.hasOwnProperty('top')) {
           this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers
           this.$nextTick(function () {
@@ -1881,7 +1881,7 @@ export default {
      */
     async changeNewConditionType() {
       this.selectedStep.newCondition.values.length = 0
-      const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', 'image-recognition', 'jigsaw-puzzle', 'memory']
+      const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', /*'image-recognition',*/ 'jigsaw-puzzle', 'memory']
       if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail') {
         const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version, 'all')
         if (response && response.data && response.data.length > 0) {
@@ -2818,9 +2818,9 @@ export default {
       case 'info-video':
         fieldsToValidate.videoStream = { required }
         break
-      case 'image-recognition':
+      /*case 'image-recognition':
         fieldsToValidate.answers = { required }
-        break
+        break*/
       case 'jigsaw-puzzle':
         fieldsToValidate.options = { picture: { required } }
         break
@@ -2877,7 +2877,7 @@ p { margin-bottom: 0.5rem; }
 .add-answer { margin: 0.5rem auto; }
 
 .background-upload { padding-bottom: 10px; margin-bottom: 10px; background: #efefef; text-align: center;}
-.background-upload img, .image-recognition img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }
+/*.background-upload img, .image-recognition img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }*/
 
 .code-color h2 { margin-bottom: 0; }
 .code-color table { margin: auto; }

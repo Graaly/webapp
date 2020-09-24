@@ -195,7 +195,7 @@
       </div>
       
       <!------------------ IMAGE RECOGNITION STEP AREA ------------------------>
-      
+      <!-- MPA 2020-09-24 not used
       <div class="image-recognition" v-if="step.type == 'image-recognition'">
         <div>
           <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
@@ -213,7 +213,7 @@
             <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="checkAnswer()" icon="done">{{ $t('label.Check') }}</q-btn>
           </div>
         </div>
-      </div>
+      </div>-->
       
       <!------------------ GEOLOCALISATION STEP AREA ------------------------>
       
@@ -557,7 +557,7 @@ import { colors, QCircularProgress } from 'quasar'
 
 import StepService from 'services/StepService'
 import TimerStorageService from 'services/TimerStorageService'
-import simi from 'src/includes/simi' // for image similarity
+//import simi from 'src/includes/simi' // for image similarity - MPA 2020-09-24 not used since several months (for steps 'image-recognition')
 import utils from 'src/includes/utils'
 
 import colorsForCode from 'data/colorsForCode.json'
@@ -712,9 +712,9 @@ export default {
         showKeypad: true,
         codeColors: {},
         
-        // for step type 'image-recognition'
-        photoComparisonThreshold: 70,
-        photoTaken: false,
+        // for step type 'image-recognition' - MPA 2020-09-24
+        //photoComparisonThreshold: 70,
+        //photoTaken: false,
         
         // for step types 'geoloc' and 'locate-item-ar'
         geolocation: {
@@ -1659,9 +1659,9 @@ export default {
       const type = this.step.type
       if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'image-over-flow') {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }
-      } else if (type === 'image-recognition') {
+      } /*else if (type === 'image-recognition') {
         return { result: answer, answer: this.answer, score: 0, reward: 0, offline: true }
-      } else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle') {
+      }*/ else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle') {
         //TODO: find a way to check server side
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
       } else if (type === 'use-item') {
@@ -1811,7 +1811,8 @@ export default {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           }
           break
-
+        // MPA 2020-09-24 not used
+        /*
         case 'image-recognition':
           const comparison = this.checkPhoto()
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: comparison}, true)
@@ -1822,7 +1823,7 @@ export default {
             this.submitWrongAnswer(checkAnswerResult.offline, true)
           }
           break
-          
+          */
         case 'code-keypad':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('')}, true)
 
@@ -2194,7 +2195,7 @@ export default {
           case 'code-image':
             this.displaySuccessMessage(true, this.$t('label.GoodAnswer'))
             break
-          case 'image-recognition':
+          //case 'image-recognition':
           case 'write-text':
           case 'jigsaw-puzzle':
           case 'memory':
@@ -2248,11 +2249,13 @@ export default {
       if (this.isTimeUp === true) {
         this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'))
       } else if (showResult) {
-        if (this.step.type === 'image-recognition') {
+        // MPA 2020-09-24 image-recognition is not used since several months
+        /*if (this.step.type === 'image-recognition') {
           this.displaySuccessMessage(false, this.$t('label.PhotosDoesntMatch'))
         } else {
           this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
-        }
+        }*/
+        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
       }
       // advise user to move to next step
       utils.setTimeout(this.alertToPassToNextStep, 15000)
@@ -2487,7 +2490,9 @@ export default {
     },
     /*
      * Check if a photo is similar to the one expected
+     * MPA image-recognition steps are not used since several months
      */
+    /*
     checkPhoto() {
       // take photo & stop camera flow
       let photoBuffer = this.$refs['photo-buffer']
@@ -2518,7 +2523,7 @@ export default {
           return simi.compare(photoBuffer, canvasOriginalPhoto) >= this.photoComparisonThreshold
         }
       }
-    },
+    },*/
     /*
      * Stop the video tracking
      */
@@ -4023,11 +4028,12 @@ export default {
   .code-image td img { width: 100% }
   .code-image td .q-icon { font-size: 2em }
 
-  /* image recognition specific */
-  
-  .image-recognition .photo { flex-grow: 1; overflow-y: hidden; margin-top: 1rem; display: flex; flex-flow: column nowrap; justify-content: center; padding: 0.5rem; margin: -0.5rem; } /* negative margin required to have image shadow visible on sides */
+  /* image recognition specific - MPA 2020-04-29 not used since several months */
+  /*
+  .image-recognition .photo { flex-grow: 1; overflow-y: hidden; margin-top: 1rem; display: flex; flex-flow: column nowrap; justify-content: center; padding: 0.5rem; margin: -0.5rem; } // negative margin required to have image shadow visible on sides
   .image-recognition .photo img, 
   .image-recognition .photo > video { width: 100%; border-radius: 0.5rem; }
+  */
   
   /* geolocation specific */
   .geolocation .text { margin-bottom: 0.5rem; }
