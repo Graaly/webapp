@@ -3821,7 +3821,7 @@ export default {
       this.step.countDownTime !== undefined &&
       this.step.countDownTime.enabled === true && 
       utils.timeStringToSeconds(this.step.countDownTime.time) > 0) {
-        console.log("this step has a timer");
+        // console.log("this step has a timer");
         return true;
       } else {
         return false;
@@ -3840,7 +3840,7 @@ export default {
             // console.log("no time found in storage")
           }
           else {
-            seconds =n;
+            seconds = n;
             // console.log("found time in storage : "+seconds)
           }
 
