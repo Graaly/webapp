@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 export default {
     /**
      * Store in local storage the time left of a specifique step on a specifique run
@@ -13,8 +12,7 @@ export default {
             timeleft: timeleft
         }
         l = JSON.stringify(l);
-        console.log(l);
-        localStorage.setItem("timer-" + uuidv4(), l)
+        localStorage.setItem("timer-" + runid + "-" + stepid, l)
     },
 
     /**
@@ -33,7 +31,7 @@ export default {
                 values.push(l);
             }
         }
-        console.log(values);
+        //console.log(values);
         return values;
     },
 
@@ -43,15 +41,16 @@ export default {
      * @param {*} stepid 
      */
     getTimeLeft(runid, stepid) {
+        console.log(runid, stepid)
         var timers = this.allStorage();
         timers.forEach(t => {
             var val = JSON.parse(t.value);
+            console.log(val);
             if (val.runid === runid && val.stepid === stepid) {
-                console.log("nljsdjflsdjfksjdlf")
+                console.log(val.timeleft + "for" + val.stepid);
                 return val.timeleft;
             }
         })
-        return null;
     },
 
     /**
