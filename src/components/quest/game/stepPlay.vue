@@ -2152,6 +2152,11 @@ export default {
         this.playerResult = null
       }
       
+      if (this.step.countDownTime !== null && this.step.countDownTime.enabled === true)
+      {
+        this.step.countDownTime.enabled = false;
+      }  
+
       this.stepPlayed = true
       
       this.$emit('success', score, offlineMode, showResult)
