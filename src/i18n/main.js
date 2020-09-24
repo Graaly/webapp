@@ -949,7 +949,7 @@ module.exports = {
       CountDownLabel: "Time limite for this step",
       CountDownIsActive: "Activate the time limit",
       CountDownWarning: "Are you sure you want to activate the time limite ? Make sure to not put a time that is too short for the user!",
-      CountDownPopupfail: "Time is up ! Here is the right answer."
+      CountDownPopupfail: "Time is up !"
     }
   },
   fr: {
@@ -1889,7 +1889,7 @@ module.exports = {
       CountDownLabel: "Limite de temps de l’énigme",
       CountDownIsActive: "Entrez la limite de durée pour cette énigme",
       CountDownWarning: "Etes-vous certain(e) d'activé la limite de temps ? Assurez vous de ne pas mettre un temps trop court pour ne pas presser l'utilisateur !",
-      CountDownPopupfail: "Le temps est écoulé ! Voici la bonne réponse."
+      CountDownPopupfail: "Temps écoulé !"
     }
   }
 }

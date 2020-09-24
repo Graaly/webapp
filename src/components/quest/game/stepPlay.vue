@@ -1805,7 +1805,9 @@ export default {
         case 'geolocation':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, false)
 
-          if (checkAnswerResult.result === true) {
+          if (this.isTimeUp) {
+            this.submitWrongAnswer(checkAnswerResult.offline, true)
+          } else if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           }
           break
