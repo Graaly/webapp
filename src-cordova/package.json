@@ -71,12 +71,18 @@
       "cordova-plugin-ionic-webview": {},
       "com.darktalker.cordova.screenshot": {},
       "cordova-plugin-battery-status": {},
-      "cordova-plugin-ble-central": {}
+      "cordova-plugin-ble-central": {},
+      "cordova-plugin-apprate": {},
+      "cordova-plugin-inappbrowser": {}
     },
     "platforms": [
       "android",
       "ios"
     ]
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "cordova-plugin-apprate": "^1.5.0",
+    "cordova-plugin-inappbrowser": "^4.0.0",
+    "cordova-plugin-nativestorage": "^2.3.2"
+  }
 }
