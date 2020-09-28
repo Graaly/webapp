@@ -669,10 +669,8 @@ export default {
     if (this.bluetooth.enabled) {
       this.bluetoothDisconnect(this.bluetooth.deviceId)
     }
-
-    if (this.currentcountdown !== null) {
-      this.stopcountdown(this.currentcountdown);
-    }
+    
+    this.stopcountdown()
   },
   methods: {
     initialState () {
@@ -1793,7 +1791,7 @@ export default {
             }
             
             this.nbTry++
-            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
@@ -1830,8 +1828,12 @@ export default {
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
             this.nbTry++
-            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial > 0) {
               // reset code
               this.resetKeypadCode()
               this.submitRetry(checkAnswerResult.remainingTrial)
@@ -1847,10 +1849,12 @@ export default {
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
             this.nbTry++
-            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
-              // reset code
-              this.resetColorCode()
+            if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
@@ -1864,10 +1868,12 @@ export default {
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
             this.nbTry++
-            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
-              // reset code
-              this.resetImageCode()
+            if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
@@ -1904,8 +1910,12 @@ export default {
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
             this.nbTry++
-            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial > 0) {
               // reset field
               this.writetext.playerAnswer = ""
               this.submitRetry(checkAnswerResult.remainingTrial)
@@ -1917,6 +1927,10 @@ export default {
           break
         
         case 'use-item':
+          if (this.isTimeUp) {
+            answer = { isTimeUp: true }
+          }
+          
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
           
           if (checkAnswerResult.result === true) {
@@ -1930,8 +1944,12 @@ export default {
             
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
             this.nbTry++
-            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial > 0) {
               Notification(this.$t('label.UseItemNothingHappens'), 'error')
             } else {
               if (this.step.displayRightAnswer) {
@@ -1945,7 +1963,12 @@ export default {
           break
           
         case 'find-item':
+          if (this.isTimeUp) {
+            answer = { isTimeUp: true }
+          }
+          
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
+          
           if (checkAnswerResult.result === true) {
             if (this.step.displayRightAnswer) {
               this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
@@ -1956,8 +1979,12 @@ export default {
             }
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
             this.nbTry++
-            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial > 0) {
               Notification(this.$t('label.FindItemNothingHappens'), 'error')
             } else {
               if (this.step.displayRightAnswer) {
@@ -2146,7 +2173,7 @@ export default {
       utils.setTimeout(this.alertToPassToNextStep, 15000)
     },
     /*
-     * Send good andwer  
+     * Send good answer  
      */
     submitGoodAnswer(score, offlineMode, showResult) {
       if (showResult) {
@@ -2159,15 +2186,12 @@ export default {
         this.step.countDownTime !== null &&
         this.step.countDownTime.enabled === true)
       {
-        if (this.step.type ==='character' ||
-        this.step.type ==='new-item' ||
-        this.step.type ==='info-text' ||
-        this.step.type ==='end-chapter' ||
-        this.step.type ==='info-video' ||
-        this.step.type ==='image-over-flow') {
-          // do not hide the timer beacause on theses steps it is automaticly senda s a right awenser
-        } else {
+        let stepType = this.getStepType(this.step.type) // this.step.type contains step code
+        
+        // do not hide the timer on 'transition' steps because they automatically call 'submitGoodAnswer()' at loading
+        if (stepType.category === 'enigma') {
           this.step.countDownTime.enabled = false;
+          this.stopcountdown()
         }
       }  
 
@@ -2234,6 +2258,12 @@ export default {
      * Send wrong answer 
      */
     submitWrongAnswer(offlineMode, showResult) {
+      // remove timer
+      if (this.step.countDownTime !== null) {
+        this.step.countDownTime.enabled = false
+        this.stopcountdown()
+      }
+      
       if (showResult) {
         this.playerResult = false
       } else {
@@ -2325,7 +2355,10 @@ export default {
      * Reset the image code pad
      */
     resetImageCode() {
-      this.playerCode.length = 0
+      const length = ((this.step.options && this.step.options.codeLength && this.step.options.codeLength > 0) ? this.step.options.codeLength : 4)
+      this.playerCode = Array(length).fill(0)
+      // MPA 2020-09-28 this shows the right answer
+      /*this.playerCode.length = 0
       var imagePositionInCode = 0
       var nbImagePositionInCode = this.getNbImageUploadedForCode()
       for (var i = 0; i < ((this.step.options && this.step.options.codeLength && this.step.options.codeLength > 0) ? this.step.options.codeLength : 4); i++) {
@@ -2336,7 +2369,7 @@ export default {
           imagePositionInCode = 0
         }
         this.forceImageRefresh(i)
-      }
+      }*/
     },
     /*
      * Display next image in the image code pad
@@ -3905,7 +3938,7 @@ export default {
     },
     async handleTimeUp() {
       this.isTimeUp = true
-      this.stopcountdown(this.currentcountdown)
+      this.stopcountdown()
       this.step.countDownTime.enabled = false;
       let stepType = this.getStepType(this.step.type)
       if (stepType.category === 'enigma') {
@@ -3915,9 +3948,17 @@ export default {
         await this.checkAnswer()
       }
     },
-    stopcountdown(countdown) {
-      clearInterval(countdown);
+    /**
+     * Stops current countdown
+     */
+    stopcountdown() {
+      if (this.currentcountdown !== null) {
+        clearInterval(this.currentcountdown)
+      }
     },
+    /**
+     * used by timer's <q-linear-progress> component
+     */
     map(x, inMin, inMax, outMin, outMax) {
       var l = utils.map(x, inMin, utils.timeStringToSeconds(inMax), outMin, outMax);
       return l;
