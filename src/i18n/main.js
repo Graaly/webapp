@@ -107,7 +107,9 @@ module.exports = {
     },
     story: {
       hint: "Hello, here is a hint: <br /><b>{hint}</b>",
-      readMore: "{readMore}"
+      readMore: "{readMore}",
+      FindMarkerHelp: "Target the correct QR code with your phone camera. Good luck!",
+      TouchObjectOnMarkerHelp: "Point your phone camera towards the right QR code. A QR code is a square picture with dark dots. Good luck!"
     },
     iotObjects: {
       keypad: "Keypad",
@@ -946,7 +948,8 @@ module.exports = {
       YouNeedToUnpublishYourQuestToRemoveIt: "You need to unpublish your quest to remove it",
       PleaseEnterYourTeamName: "Please enter your team name",
       Version: "Version",
-      MaxScore: "Max score"
+      MaxScore: "Max score",
+      YouMustTestThisStepOnMobile: "You must test this step on a mobile device"
     }
   },
   fr: {
@@ -1044,7 +1047,9 @@ module.exports = {
     },
     story: {
       hint: "Salut, voici un indice :<br /><b>{hint}</b>",
-      readMore: "{readMore}"
+      readMore: "{readMore}",
+      FindMarkerHelp: "Visez le bon QR code avec la caméra de votre téléphone. Bonne chance !",
+      TouchObjectOnMarkerHelp: "Visez le bon QR code avec la caméra de votre téléphone. Un QR code est une figure carrée composée de point noirs. Bonne chance !"
     },
     iotObjects: {
       keypad: "Digicode",
@@ -1883,7 +1888,8 @@ module.exports = {
       YouNeedToUnpublishYourQuestToRemoveIt: "Vous devez dépublier vote jeu pour le supprimer",
       PleaseEnterYourTeamName: "Veuillez entrer le nom de votre équipe",
       Version: "Version",
-      MaxScore: "Score maxi"
+      MaxScore: "Score maxi",
+      YouMustTestThisStepOnMobile: "Vous devez tester ce type d'étape sur un appareil mobile"
     }
   }
 }

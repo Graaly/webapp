@@ -395,7 +395,7 @@
           <canvas id="marker-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
         <div class="fixed-bottom over-map" style="height: 100%" v-if="locateMarker.showHelp">
-          <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? $t('label.FindMarkerHelp') : $t('label.TouchObjectOnMarkerHelp') }" @next="locateMarker.showHelp = false"></story>
+          <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? 'FindMarkerHelp' : 'TouchObjectOnMarkerHelp' }" @next="locateMarker.showHelp = false"></story>
         </div>
       </div>
       
@@ -928,63 +928,74 @@ export default {
         
         // common process to 'geolocation' and 'locate-item-ar'
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
-          let requestPermissionResult
-          
-          // user can pass
-          this.$emit('pass')
-          
-          // ask user to calibrate gps
-          this.askUserToCalibrateGPS()
-          
-          // Start absolute orientation sensor
-          // ---------------------------------
-          // Required to make camera orientation follow device orientation 
-          // It is different from 'deviceorientationabsolute' listener whose values are not
-          // reliable when device is held vertically
-          try {
-            if ("AbsoluteOrientationSensor" in window) {
-              // Android
-              let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
-              sensor.onerror = event => console.error(event.error.name, event.error.message)
-              sensor.onreading = this.onAbsoluteOrientationSensorReading
-              sensor.start()
-              this.geolocation.absoluteOrientationSensor = sensor
+          if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+            // if run as builder, get the remainingTrial
+            if (this.runId === "0") {
+              Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
             } else {
-              // iOS
-              this.geolocation.absoluteOrientationSensor = {
-                stop: this.stopAlternateAbsoluteOrientationSensor
+              // user can pass
+              this.$emit('pass')
+              this.$emit('forceMoveNext')
+            }
+          } else {
+            let requestPermissionResult
+            
+            // user can pass
+            this.$emit('pass')
+            
+            // ask user to calibrate gps
+            this.askUserToCalibrateGPS()
+            
+            // Start absolute orientation sensor
+            // ---------------------------------
+            // Required to make camera orientation follow device orientation 
+            // It is different from 'deviceorientationabsolute' listener whose values are not
+            // reliable when device is held vertically
+            try {
+              if ("AbsoluteOrientationSensor" in window) {
+                // Android
+                let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
+                sensor.onerror = event => console.error(event.error.name, event.error.message)
+                sensor.onreading = this.onAbsoluteOrientationSensorReading
+                sensor.start()
+                this.geolocation.absoluteOrientationSensor = sensor
+              } else {
+                // iOS
+                this.geolocation.absoluteOrientationSensor = {
+                  stop: this.stopAlternateAbsoluteOrientationSensor
+                }
+                
+                // ask user to access to his device orientation
+                requestPermissionResult = await utils.requestDeviceOrientationPermission()
+                
+                if (requestPermissionResult !== 'granted') {
+                  Notification(this.$t('label.PleaseAcceptDeviceOrientationPermissionRequest'), 'error')
+                  return
+                }
+                window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
               }
-              
-              // ask user to access to his device orientation
-              requestPermissionResult = await utils.requestDeviceOrientationPermission()
+            } catch (error) {
+              console.error(error)
+            }
+            
+            if (this.step.type === 'locate-item-ar') {
+              // ask user to access to his device motion
+              requestPermissionResult = await utils.requestDeviceMotionPermission()
               
               if (requestPermissionResult !== 'granted') {
-                Notification(this.$t('label.PleaseAcceptDeviceOrientationPermissionRequest'), 'error')
+                Notification(this.$t('label.PleaseAcceptDeviceMotionPermissionRequest'), 'error')
                 return
               }
-              window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
-            }
-          } catch (error) {
-            console.error(error)
-          }
-          
-          if (this.step.type === 'locate-item-ar') {
-            // ask user to access to his device motion
-            requestPermissionResult = await utils.requestDeviceMotionPermission()
+              
+              // start accelerometer sensor
+              window.addEventListener("devicemotion", this.handleMotionEvent, true)
             
-            if (requestPermissionResult !== 'granted') {
-              Notification(this.$t('label.PleaseAcceptDeviceMotionPermissionRequest'), 'error')
-              return
-            }
+              await this.waitForGyroscopeDetection()
             
-            // start accelerometer sensor
-            window.addEventListener("devicemotion", this.handleMotionEvent, true)
-          
-            await this.waitForGyroscopeDetection()
-          
-            if (!this.deviceHasGyroscope) {
-              // only a warning because step can still be played
-              Notification(this.$t('label.CouldNotEnableAR'), 'warning')
+              if (!this.deviceHasGyroscope) {
+                // only a warning because step can still be played
+                Notification(this.$t('label.CouldNotEnableAR'), 'warning')
+              }
             }
           }
           
