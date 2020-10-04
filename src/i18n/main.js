@@ -946,9 +946,9 @@ module.exports = {
       YouNeedToUnpublishYourQuestToRemoveIt: "You need to unpublish your quest to remove it",
       PleaseEnterYourTeamName: "Please enter your team name",
       Version: "Version",
-      CountDownLabel: "Time limite for this step",
+      CountDownLabel: "Time limit for this step",
       CountDownIsActive: "Activate the time limit",
-      CountDownWarning: "Are you sure you want to activate the time limite ? Make sure to not put a time that is too short for the user!",
+      CountDownWarning: "Are you sure you want to activate the time limit ? Make sure to not put a time that is too short for the user!",
       CountDownPopupfail: "Time is up !"
     }
   },

@@ -922,8 +922,8 @@
       </q-list>
        
       <!------------------ TIMER ------------------------>
-    
-      <q-list bordered>
+      
+      <q-list bordered v-show="options.type.category === 'enigma' && options.type.code !== 'image-over-flow' && !['image-over-flow', 'trigger-event'].includes(options.type.code)">
         <q-expansion-item icon="access_time" :label="$t('label.CountDownLabel')">
           <div class="q-pa-sm"> 
             <q-toggle 
@@ -1609,8 +1609,6 @@ export default {
      * Submit step data
      */
     async submitStep(test) {
-      console.log(this.selectedStep.form);
-
       this.$v.selectedStep.form.$touch()
 
       // treat form errors (based on validation rules)

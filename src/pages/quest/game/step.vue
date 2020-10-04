@@ -17,6 +17,7 @@
     <stepPlay 
       :step="step" 
       :runId="run._id" 
+      :inventory="inventory"
       :itemUsed="selectedItem" 
       :reload="loadStepData" 
       :lang="lang" 
@@ -266,8 +267,6 @@ import Notification from 'boot/NotifyHelper'
 import story from 'components/story'
 import utils from 'src/includes/utils'
 
-import { QCircularProgress } from 'quasar'
-
 import Vue from 'vue'
 import Sortable from 'sortablejs'
 Vue.directive('sortable', {
@@ -279,8 +278,7 @@ Vue.directive('sortable', {
 export default {
   components: {
     stepPlay,
-    story,
-    QCircularProgress
+    story
   },
   data () {
     return this.initialState()
@@ -412,6 +410,11 @@ export default {
       
       // manage history
       this.updateHistory()
+      
+      // fill inventory at loading when necessary
+      if (this.step.type === 'use-item') {
+        await this.fillInventory()
+      }
       
       this.$q.loading.hide()
 

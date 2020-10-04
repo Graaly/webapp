@@ -168,22 +168,6 @@
           />
         </div>
 
-        <!--countdown/timer stuff
-        {{ "countdown"}} <br>
-
-        <q-toggle 
-          :label="$t('label.CountDownIsActive')"
-          v-model="form.fields.countDownTime.enabled"
-        />
-        <q-input
-          filled
-          v-model="form.fields.countDownTime.time"
-          label="Timer limite"
-          mask="##h##m##s"
-          fill-mask="0"
-          value="12h34m56s"
-        />-->
-
         <div v-if="!isIOs">
           <div class="location-gps" style="display: none">
             <input :readonly="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" step="any" />
@@ -894,7 +878,8 @@
         <stepPlay 
           :step="chapters.newStep.overviewData" 
           runId="0" 
-          :customization="quest.customization ? quest.customization : {color: 'primary'}" 
+          :customization="quest.customization ? quest.customization : {color: 'primary'}"
+          :inventory="inventory"
           :itemUsed="selectedItem" 
           :reload="chapters.reloadStepPlay" 
           :lang="languages.current" 
@@ -2762,6 +2747,11 @@ export default {
         
         // refresh quest media size
         await this.refreshMediaSize()
+        
+        // load inventory for steps use-item
+        if (this.chapters.newStep.overviewData.type === 'use-item') {
+          await this.fillInventory()
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
