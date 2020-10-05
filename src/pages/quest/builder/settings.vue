@@ -887,7 +887,8 @@
           @success="trackStepSuccess" 
           @fail="trackStepFail" 
           @pass="trackStepPass"
-          @msg="trackMessage" >
+          @msg="trackMessage"
+          @closeAllPanels="closeAllPanels">
         </stepPlay>
         <div v-show="overview.tabSelected" class="step-menu fixed-bottom">
           <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->

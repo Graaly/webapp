@@ -891,9 +891,6 @@ export default {
         }
         
         this.resetDrawDirectionInterval()
-        if (this.isTimerAvailable()) {
-         this.currentcountdown = this.countdown();
-        }
 
         //iOS Hack : all iphone have gyroscope
         if (this.isIOs) {
@@ -1317,6 +1314,10 @@ export default {
           if (this.bluetooth.enabled) {
             this.bluetoothDisconnect(this.bluetooth.deviceId)
           }
+        }
+        
+        if (this.isTimerAvailable()) {
+          this.currentcountdown = this.countdown()
         }
       })
     },
@@ -3955,7 +3956,7 @@ export default {
           var countdown = setInterval(async function() {
             seconds--;
             _this.countdowntimeleft = seconds;
-            if (seconds % 2 === 0) {
+            if (seconds % 2 === 0 && _this.runId !== '0') { // runId is set to 0 when step is played as "single step test" from builder
               //this is for performace, save it every 2 second not every seconds
               TimerStorageService.storeTimeLeft(_this.runId, _this.step._id, seconds);
             }
@@ -3977,6 +3978,7 @@ export default {
       this.stopcountdown()
       this.step.countDownTime.enabled = false;
       let stepType = this.getStepType(this.step.type)
+      this.$emit('closeAllPanels')
       if (stepType.category === 'enigma') {
         // checkAnswer() has a specific behavior when this.isTimeUp has been set to true
         // in particular, submitWrongAnswer() show a specific message in its notification

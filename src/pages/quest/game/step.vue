@@ -29,7 +29,8 @@
       @success="trackStepSuccess" 
       @fail="trackStepFail" 
       @pass="trackStepPass"
-      @msg="trackMessage">
+      @msg="trackMessage"
+      @closeAllPanels="closeAllPanels">
     </stepPlay>
       
     <!------------------ INVENTORY PAGE AREA ------------------------>
