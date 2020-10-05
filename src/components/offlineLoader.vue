@@ -194,13 +194,14 @@ export default {
                   return false
                 }
               }
-              if (step.type === 'image-recognition' && step.answers && step.answers !== '') {
+              // MPA 2020-09-24 not used
+              /*if (step.type === 'image-recognition' && step.answers && step.answers !== '') {
                 const imageRecognitionSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/image-recognition/', step.answers)
                 if (!imageRecognitionSuccess) {
                   this.throwSaveError()
                   return false
                 }
-              }
+              }*/
               if (step.type === 'choose' && step.options && step.options.items) {
                 var chooseImageSuccess = true
                 for (var k = 0; k < step.options.items.length; k++) {

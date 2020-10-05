@@ -369,7 +369,7 @@
       </div>
       
       <!------------------ STEP : IMAGE RECOGNITION ------------------------>
-      
+      <!-- MPA 2020-09-24 not used
       <div v-if="options.type.code == 'image-recognition'" class="image-recognition">
         <div v-if="!isIOs">
           <q-btn class="full-width" :label="$t('label.UploadThePictureOfTheObjectToFind')" @click="$refs['image-to-recognize'].click()" />
@@ -384,7 +384,7 @@
           <p>{{ $t('label.UploadedPicture') }} :</p>
           <img :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + selectedStep.form.answers" />
         </div>
-      </div>
+      </div>-->
       
       <!------------------ STEP : JIGSAW PUZZLE ------------------------>
       
@@ -920,8 +920,30 @@
           </div>
         </q-expansion-item>
       </q-list>
+       
+      <!------------------ TIMER ------------------------>
       
-      <!------------------ SAVE BUTTONS ------------------------>
+      <q-list bordered v-show="options.type.category === 'enigma' && options.type.code !== 'image-over-flow' && !['image-over-flow', 'trigger-event'].includes(options.type.code)">
+        <q-expansion-item icon="access_time" :label="$t('label.CountDownLabel')">
+          <div class="q-pa-sm"> 
+            <q-toggle 
+            v-model="selectedStep.form.countDownTime.enabled" 
+            :label="$t('label.CountDownLabel')"
+            @input="activateCountDown"
+            />
+            <q-input
+              filled
+              v-model="selectedStep.form.countDownTime.time"
+              :label="$t('label.CountDownIsActive')"
+              mask="##h##m##s"
+              fill-mask=""
+              value="00h00m00s"
+            /><!--##h##m##s-->
+          </div>
+        </q-expansion-item>
+      </q-list>
+
+    <!------------------ SAVE BUTTONS ------------------------>
       
       <div class="centered q-pa-md q-pt-lg q-pb-sm">
         <q-btn class="glossy large-button" color="primary" @click="submitStep(true)" test-id="btn-save-step">{{ $t('label.SaveAndTestThisStep') }}</q-btn>
@@ -945,8 +967,14 @@
           {{ $t('label.ConfirmSaveChanges') }}
         </div>
         <q-card-actions>
-          <q-btn color="primary" @click="submitStep(false)" :label="$t('label.Yes')" />
-          <q-btn color="primary" @click="$emit('close')" :label="$t('label.No')" />
+          <q-btn 
+            color="primary" 
+            @click="submitStep(false)" 
+            :label="$t('label.Yes')" />
+          <q-btn 
+            color="primary" 
+            @click="$emit('close')" 
+            :label="$t('label.No')" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -1076,6 +1104,9 @@ export default {
           conditions: [],
           startDate: {
             enabled: false
+          },
+          countDownTime: {
+            enabled: false
           }
         },
         formatedConditions: [],
@@ -1186,7 +1217,7 @@ export default {
       questItems: [],
       isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
       serverUrl: process.env.SERVER_URL,
-      
+
       unformatedAnswer: null,
 
       premium: {
@@ -1265,7 +1296,12 @@ export default {
           type: 'none'
         },
         hint: {}, // {fr: 'un indice', en: 'a hint', ...}
-        startDate: { enabled: false },
+        startDate: { 
+          enabled: false 
+        },
+        countDownTime: { 
+          enabled: false
+        },
         number: null
       }
       // reset upload item (after document fully loaded)
@@ -1429,11 +1465,11 @@ export default {
         if (this.options.type.code === 'character' && !this.selectedStep.form.options.character) {
           Vue.set(this.selectedStep.form.options, 'character', '1')
         }
-      } else if (this.options.type.code === 'image-recognition') {
+      } /*else if (this.options.type.code === 'image-recognition') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.selectedStep.form.answers = ""
         }
-      } else if (this.options.type.code === 'find-item') {
+      }*/ else if (this.options.type.code === 'find-item') {
         if (this.selectedStep.form.answers.hasOwnProperty('top')) {
           this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers
           this.$nextTick(function () {
@@ -1581,6 +1617,7 @@ export default {
       // treat form errors (based on validation rules)
       if (this.$v.selectedStep.form.$error) {    
         Notification(this.$t('label.StepSettingsFormError'), 'error')
+        console.log(this.$v.selectedStep.form)
         return
       }
 
@@ -1845,7 +1882,7 @@ export default {
      */
     async changeNewConditionType() {
       this.selectedStep.newCondition.values.length = 0
-      const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', 'image-recognition', 'jigsaw-puzzle', 'memory']
+      const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', /*'image-recognition',*/ 'jigsaw-puzzle', 'memory']
       if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail') {
         const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version, 'all')
         if (response && response.data && response.data.length > 0) {
@@ -2732,6 +2769,19 @@ export default {
         default:
           throw new Error("unknown IoT object code '" + this.selectedStep.form.options.object + "'")
       }
+    },
+    async activateCountDown (param) {
+     var _this = this;
+      if (param === true) {
+         this.$q.dialog({
+          dark: true,
+          message: this.$t('label.CountDownWarning'),
+          ok: true,
+          cancel: true
+        }).onCancel(async () => {
+          _this.selectedStep.form.countDownTime.enabled = false;
+        })
+      }
     }
   },
   validations() {
@@ -2769,9 +2819,9 @@ export default {
       case 'info-video':
         fieldsToValidate.videoStream = { required }
         break
-      case 'image-recognition':
+      /*case 'image-recognition':
         fieldsToValidate.answers = { required }
-        break
+        break*/
       case 'jigsaw-puzzle':
         fieldsToValidate.options = { picture: { required } }
         break
@@ -2828,7 +2878,7 @@ p { margin-bottom: 0.5rem; }
 .add-answer { margin: 0.5rem auto; }
 
 .background-upload { padding-bottom: 10px; margin-bottom: 10px; background: #efefef; text-align: center;}
-.background-upload img, .image-recognition img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }
+/*.background-upload img, .image-recognition img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }*/
 
 .code-color h2 { margin-bottom: 0; }
 .code-color table { margin: auto; }

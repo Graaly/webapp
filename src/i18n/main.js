@@ -1,4 +1,4 @@
-const websiteBaseURL = "https://graaly.com" 
+const websiteBaseURL = "https://graaly.com"
 const salesEmail = "sales@graaly.com"
 const URLs = {
   privacy: {
@@ -97,11 +97,11 @@ module.exports = {
       fr: "French"
     },
     status: {
-      published: "published", 
-      draft: "draft", 
-      old: "old", 
-      tovalidate: "under validation", 
-      unpublished: "unpublished", 
+      published: "published",
+      draft: "draft",
+      old: "old",
+      tovalidate: "under validation",
+      unpublished: "unpublished",
       rejected: "rejected",
       new: "new"
     },
@@ -948,6 +948,10 @@ module.exports = {
       YouNeedToUnpublishYourQuestToRemoveIt: "You need to unpublish your quest to remove it",
       PleaseEnterYourTeamName: "Please enter your team name",
       Version: "Version",
+      CountDownLabel: "Time limit for this step",
+      CountDownIsActive: "Activate the time limit",
+      CountDownWarning: "Are you sure you want to activate the time limit ? Make sure to not put a time that is too short for the user!",
+      CountDownPopupfail: "Time is up !",
       MaxScore: "Max score",
       YouMustTestThisStepOnMobile: "You must test this step on a mobile device"
     }
@@ -1037,11 +1041,11 @@ module.exports = {
       fr: "Français"
     },
     status: {
-      published: "publié", 
-      draft: "brouillon", 
-      old: "ancien", 
-      tovalidate: "en validation", 
-      unpublished: "dépublié", 
+      published: "publié",
+      draft: "brouillon",
+      old: "ancien",
+      tovalidate: "en validation",
+      unpublished: "dépublié",
       rejected: "rejeté",
       new: "nouveau"
     },
@@ -1888,6 +1892,10 @@ module.exports = {
       YouNeedToUnpublishYourQuestToRemoveIt: "Vous devez dépublier vote jeu pour le supprimer",
       PleaseEnterYourTeamName: "Veuillez entrer le nom de votre équipe",
       Version: "Version",
+      CountDownLabel: "Limite de temps de l’énigme",
+      CountDownIsActive: "Entrez la limite de durée pour cette énigme",
+      CountDownWarning: "Etes-vous certain(e) d'activé la limite de temps ? Assurez vous de ne pas mettre un temps trop court pour ne pas presser l'utilisateur !",
+      CountDownPopupfail: "Temps écoulé !",
       MaxScore: "Score maxi",
       YouMustTestThisStepOnMobile: "Vous devez tester ce type d'étape sur un appareil mobile"
     }
