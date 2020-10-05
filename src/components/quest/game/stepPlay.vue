@@ -65,9 +65,12 @@
       <div class="character" v-if="step.type == 'character'">
         <div class="fixed-bottom story" @click="nextCharacterBubbleText()">
           <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
-          <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
-            <p class="carrier-return" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
-            <p class="text" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
+          <div class="bubble-middle" style="font-size: 0.9em; background: url(statics/icons/story/sticker-middle.png) repeat-y;">
+            <div v-if="character.needToScroll" class="scroll-indicator">
+              <q-icon class="flashing" size="2.5em" name="arrow_drop_down_circle" />
+            </div>
+            <p ref="bubbleText" class="carrier-return" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
+            <p ref="bubbleTextHtml" class="text" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
             <p class="text text-grey" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ClickHere') }}</p>
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
@@ -408,7 +411,7 @@
           <canvas id="marker-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
         <div class="fixed-bottom over-map" style="height: 100%" v-if="locateMarker.showHelp">
-          <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? $t('label.FindMarkerHelp') : $t('label.TouchObjectOnMarkerHelp') }" @next="locateMarker.showHelp = false"></story>
+          <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? 'FindMarkerHelp' : 'TouchObjectOnMarkerHelp' }" @next="locateMarker.showHelp = false"></story>
         </div>
       </div>
       
@@ -498,7 +501,7 @@
     <!--====================== WIN POINTS ANIMATION =================================-->
     
     <!--<div v-show="playerResult === true && score >= 1" class="fadein-message">+{{ score }}</div>-->
-    <div v-show="playerResult === true && score >= 1" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
+    <div v-show="playerResult === true && displaySuccessIcon" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
     <div 
     v-show="
@@ -685,12 +688,14 @@ export default {
         isIOs: utils.isIOS(),
         isNetworkLow: false,
         isTimeUp: false,
+        displaySuccessIcon: false,
         
         // for step 'character'
         character: {
           bubbleText: [],
           numberOfBubble: 1,
-          bubbleNumber: 0
+          bubbleNumber: 0,
+          needToScroll: false
         },
         // for step 'choose'
         answerType: 'text', // 'text' or 'image'
@@ -912,6 +917,7 @@ export default {
             if (this.character.numberOfBubble === 1) {
               this.checkAnswer()
             }
+            utils.setTimeout(this.checkIfTextIsHidden, 1500)
           } else {
             this.checkAnswer()
           }
@@ -959,63 +965,74 @@ export default {
         
         // common process to 'geolocation' and 'locate-item-ar'
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
-          let requestPermissionResult
-          
-          // user can pass
-          this.$emit('pass')
-          
-          // ask user to calibrate gps
-          this.askUserToCalibrateGPS()
-          
-          // Start absolute orientation sensor
-          // ---------------------------------
-          // Required to make camera orientation follow device orientation 
-          // It is different from 'deviceorientationabsolute' listener whose values are not
-          // reliable when device is held vertically
-          try {
-            if ("AbsoluteOrientationSensor" in window) {
-              // Android
-              let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
-              sensor.onerror = event => console.error(event.error.name, event.error.message)
-              sensor.onreading = this.onAbsoluteOrientationSensorReading
-              sensor.start()
-              this.geolocation.absoluteOrientationSensor = sensor
+          if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+            // if run as builder, get the remainingTrial
+            if (this.runId === "0") {
+              Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
             } else {
-              // iOS
-              this.geolocation.absoluteOrientationSensor = {
-                stop: this.stopAlternateAbsoluteOrientationSensor
+              // user can pass
+              this.$emit('pass')
+              this.$emit('forceMoveNext')
+            }
+          } else {
+            let requestPermissionResult
+            
+            // user can pass
+            this.$emit('pass')
+            
+            // ask user to calibrate gps
+            this.askUserToCalibrateGPS()
+            
+            // Start absolute orientation sensor
+            // ---------------------------------
+            // Required to make camera orientation follow device orientation 
+            // It is different from 'deviceorientationabsolute' listener whose values are not
+            // reliable when device is held vertically
+            try {
+              if ("AbsoluteOrientationSensor" in window) {
+                // Android
+                let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
+                sensor.onerror = event => console.error(event.error.name, event.error.message)
+                sensor.onreading = this.onAbsoluteOrientationSensorReading
+                sensor.start()
+                this.geolocation.absoluteOrientationSensor = sensor
+              } else {
+                // iOS
+                this.geolocation.absoluteOrientationSensor = {
+                  stop: this.stopAlternateAbsoluteOrientationSensor
+                }
+                
+                // ask user to access to his device orientation
+                requestPermissionResult = await utils.requestDeviceOrientationPermission()
+                
+                if (requestPermissionResult !== 'granted') {
+                  Notification(this.$t('label.PleaseAcceptDeviceOrientationPermissionRequest'), 'error')
+                  return
+                }
+                window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
               }
-              
-              // ask user to access to his device orientation
-              requestPermissionResult = await utils.requestDeviceOrientationPermission()
+            } catch (error) {
+              console.error(error)
+            }
+            
+            if (this.step.type === 'locate-item-ar') {
+              // ask user to access to his device motion
+              requestPermissionResult = await utils.requestDeviceMotionPermission()
               
               if (requestPermissionResult !== 'granted') {
-                Notification(this.$t('label.PleaseAcceptDeviceOrientationPermissionRequest'), 'error')
+                Notification(this.$t('label.PleaseAcceptDeviceMotionPermissionRequest'), 'error')
                 return
               }
-              window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
-            }
-          } catch (error) {
-            console.error(error)
-          }
-          
-          if (this.step.type === 'locate-item-ar') {
-            // ask user to access to his device motion
-            requestPermissionResult = await utils.requestDeviceMotionPermission()
+              
+              // start accelerometer sensor
+              window.addEventListener("devicemotion", this.handleMotionEvent, true)
             
-            if (requestPermissionResult !== 'granted') {
-              Notification(this.$t('label.PleaseAcceptDeviceMotionPermissionRequest'), 'error')
-              return
-            }
+              await this.waitForGyroscopeDetection()
             
-            // start accelerometer sensor
-            window.addEventListener("devicemotion", this.handleMotionEvent, true)
-          
-            await this.waitForGyroscopeDetection()
-          
-            if (!this.deviceHasGyroscope) {
-              // only a warning because step can still be played
-              Notification(this.$t('label.CouldNotEnableAR'), 'warning')
+              if (!this.deviceHasGyroscope) {
+                // only a warning because step can still be played
+                Notification(this.$t('label.CouldNotEnableAR'), 'warning')
+              }
             }
           }
           
@@ -2221,7 +2238,7 @@ export default {
           this.step.countDownTime.enabled = false;
           this.stopcountdown()
         }
-      }  
+      }
 
       this.stepPlayed = true
       
@@ -2359,9 +2376,25 @@ export default {
     nextCharacterBubbleText() {
       if (this.character.bubbleNumber < (this.character.numberOfBubble - 1)) {
         this.character.bubbleNumber++
+        this.character.needToScroll = false
+        utils.setTimeout(this.checkIfTextIsHidden, 500)
       }
       if (this.character.bubbleNumber >= (this.character.numberOfBubble - 1)) {
         this.checkAnswer()
+      }
+    },
+    async checkIfTextIsHidden() {
+      if (!this.$refs.bubbleText) {
+        return
+      }
+
+      // check if height > max size of the box
+      const bubbleHeight = this.$refs.bubbleText ? this.$refs.bubbleText.clientHeight : 0
+      const bubbleHTMLHeight = this.$refs.bubbleTextHtml ? this.$refs.bubbleTextHtml.clientHeight : 0
+      const realBubbleHeight = Math.max(bubbleHeight, bubbleHTMLHeight)
+      
+      if (realBubbleHeight > '177') {
+        this.character.needToScroll = true
       }
     },
     /*
@@ -2695,7 +2728,10 @@ export default {
       this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
       let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
       if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
-        this.geolocation.distance = this.geolocation.GPSdistance
+        // avoid to change distance too much
+        if (!this.geolocation.distance || this.geolocation.GPSdistance < this.geolocation.distance || this.geolocation.GPSdistance > (this.geolocation.distance + 4)) {
+          this.geolocation.distance = this.geolocation.GPSdistance
+        }
         this.geolocation.rawDirection = rawDirection
       }
       
@@ -3472,6 +3508,7 @@ export default {
     * Display the success message
     */
     displaySuccessMessage (success, message, actions) {
+      this.displaySuccessIcon = true
       Notification(message, (success ? 'rightAnswer' : 'wrongAnswer'), actions)
     },
     /*
@@ -3925,7 +3962,6 @@ export default {
       this.step.countDownTime !== undefined &&
       this.step.countDownTime.enabled === true && 
       utils.timeStringToSeconds(this.step.countDownTime.time) > 0) {
-        // console.log("this step has a timer");
         return true;
       } else {
         return false;
@@ -3934,18 +3970,15 @@ export default {
     countdown() {
       try {
         let _this = this;
-        //console.log("launching countdown");
-        if (this.isTimerAvailable() === true) {       
+        if (this.isTimerAvailable() === true) {
           var seconds = 0;
           var n = TimerStorageService.getTimeLeft(_this.runId, _this.step._id);
           if (n === null) {
             // no time in storage
             seconds = utils.timeStringToSeconds(this.step.countDownTime.time);
-            // console.log("no time found in storage")
           }
           else {
             seconds = n;
-            // console.log("found time in storage : "+seconds)
           }
           
           if (seconds <= 0) {

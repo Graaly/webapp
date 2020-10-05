@@ -29,8 +29,9 @@
       @success="trackStepSuccess" 
       @fail="trackStepFail" 
       @pass="trackStepPass"
-      @msg="trackMessage"
-      @closeAllPanels="closeAllPanels">
+      @closeAllPanels="closeAllPanels"
+      @forceMoveNext="nextStep(true)"
+      @msg="trackMessage">
     </stepPlay>
       
     <!------------------ INVENTORY PAGE AREA ------------------------>
@@ -970,7 +971,7 @@ export default {
     /*
      * Move to next step
      */
-    async nextStep() {
+    async nextStep(force) {
       this.$store.state.history.index++
       // if moving in history
       if (this.$store.state.history.items && this.$store.state.history.index < this.$store.state.history.items.length) {
@@ -987,42 +988,33 @@ export default {
         */
         await this.moveToNextStep('success')
       } else if (this.next.canPass) {
-        this.$q.dialog({
-          dark: true,
-          message: this.$t('label.ConfirmPass'),
-          ok: this.$t('label.Ok'),
-          cancel: this.$t('label.Cancel')
-        }).onOk(async () => {          
-          if (!this.offline.active) {
-            await RunService.passStep(this.run._id, this.step.id, this.player)
-          }
-          
-          //if (!passSuccess) {
-            // offline treatment
-          await this.passOfflineStep(this.step.id)
-          //}
-          
-          // TODO: manage if pass failed
-          await this.moveToNextStep('pass')
-        }).onCancel(() => {})
+        if (force) {
+          await this.passStep()
+        } else {
+          this.$q.dialog({
+            dark: true,
+            message: this.$t('label.ConfirmPass'),
+            ok: this.$t('label.Ok'),
+            cancel: this.$t('label.Cancel')
+          }).onOk(async () => {          
+            await this.passStep()
+          }).onCancel(() => {})
+        }
       }
     },
-    /** 
-     * when time is up
-     */
-    /*async timeup () {
-       if (!this.offline.active) {
-          await RunService.passStep(this.run._id, this.step.id, this.player)
-        }
-        
-        //if (!passSuccess) {
-          // offline treatment
-        await this.passOfflineStep(this.step.id)
-        //}
-        
-        // TODO: manage if pass failed
-        await this.moveToNextStep('pass')
-    },*/
+    async passStep() {
+      if (!this.offline.active) {
+        await RunService.passStep(this.run._id, this.step.id, this.player)
+      }
+      
+      //if (!passSuccess) {
+        // offline treatment
+      await this.passOfflineStep(this.step.id)
+      //}
+      
+      // TODO: manage if pass failed
+      await this.moveToNextStep('pass')
+    },
     /*
      * Move to next step
      */

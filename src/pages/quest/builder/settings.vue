@@ -33,7 +33,7 @@
       <q-tab :disable="tabs.progress < 1 || isReadOnly()" name="steps" :icon="getTabIcon(2)" :label="$t('label.Steps') + ' (' + languages.current + ')'" v-if="quest.type === 'quest'" />
       <q-tab :disable="tabs.progress < 2" name="publish" :icon="getTabIcon(3)" :label="$t('label.Publish')" />
       <q-tab name="payments" :icon="getTabIcon(5)" @click="listPayments" :label="$t('label.Payments')" v-if="quest && quest.premiumPrice && quest.premiumPrice.tier" />
-      <q-tab name="reviews" :icon="getTabIcon(6)" :label="$t('label.ReviewsAndStats')" v-if="isEdition && quest.access === 'public'" />
+      <q-tab name="reviews" :icon="getTabIcon(6)" :label="$t('label.ReviewsAndStats')" v-if="isEdition" />
       <q-tab name="results" :icon="getTabIcon(7)" :label="$t('label.Results')" v-if="quest.status !== 'draft' && quest.access === 'private'" />
     </q-tabs>
 
@@ -694,33 +694,61 @@
         </q-item-section>
         <q-item-section v-if="statistics && statistics.statistics">
           <q-item-label class="big-label">{{ $t('label.Statistics') }}</q-item-label>
-          <p>{{ $t('label.TotalNumberOfPlayers') }}{{ $t('label.colons') }}{{ statistics.statistics.nbPlayers }}</p>
-          <p>{{ $t('label.TotalNumberOfPlaysNotFinished') }}{{ $t('label.colons') }}{{ statistics.statistics.notFinished }}</p>
-          <p>{{ $t('label.NumberOfPlayersYesterday') }}{{ $t('label.colons') }}{{ statistics.statistics.dailyNbPlayers }}</p>
-          <p v-if="statistics && statistics.statistics && statistics.statistics.ageRepartition && statistics.statistics.ageRepartition.length > 0">
-            {{ $t('label.NumberOfPlayersByAge') }}
-              <q-list class="shadow-2 rounded-borders">
-                <q-item v-for="statistic in statistics.statistics.ageRepartition" :key="statistic._id">
-                  <q-item-section v-if="statistic && !statistic._id">{{ $t('label.null') }}{{ $t('label.colons') }}{{ statistic.nb }}</q-item-section>
-                  <q-item-section v-if="statistic && statistic._id">{{ $t('label.Age' + (statistic._id.replace('-', '').replace('+', ''))) }}{{ $t('label.colons') }}{{ statistic.nb }}</q-item-section>
-                </q-item>
-              </q-list>
-          </p>
-          <p v-if="statistics && statistics.statistics && statistics.statistics.sexRepartition && statistics.statistics.sexRepartition.length > 0">
-            {{ $t('label.NumberOfPlayersBySex') }}
-              <q-list class="shadow-2 rounded-borders">
-                <q-item v-for="statistic in statistics.statistics.sexRepartition" :key="statistic._id">
-                  <q-item-section>{{ $t('label.' + statistic._id) }}{{ $t('label.colons') }}{{ statistic.nb }}</q-item-section>
-                </q-item>
-              </q-list>
-          </p>
-          <p>{{ $t('label.AverageScore') }}{{ $t('label.colons') }}{{ statistics.statistics.averageScore }}</p>
         </q-item-section>
       </q-item>
+      <q-card bordered class="my-card q-mb-md">
+        <q-card-section>
+          <div class="subtitle3">{{ $t('label.TotalNumberOfPlayers') }}</div>
+        </q-card-section>
+        <q-separator inset />
+        <q-card-section>
+          <div class="title1 text-primary centered">{{ statistics.statistics.nbPlayers + statistics.statistics.notFinished }}</div>
+          <div class="centered">{{ $t('label.NumberOfPlayersYesterday') }}{{ $t('label.colons') }}{{ statistics.statistics.dailyNbPlayers }} </div>
+        </q-card-section>
+      </q-card>
+      <q-card bordered class="my-card q-mb-md">
+        <q-card-section>
+          <div class="subtitle3">{{ $t('label.AverageScore') }}</div>
+        </q-card-section>
+        <q-separator inset />
+        <q-card-section>
+          <div class="title1 text-primary centered">{{ Math.ceil(statistics.statistics.averageScore) }}</div>
+          <div class="centered">{{ $t('label.MaxScore') }}{{ $t('label.colons') }}{{ quest.availablePoints.score }} </div>
+        </q-card-section>
+      </q-card>
+      <q-expansion-item
+        v-if="statistics && statistics.statistics && statistics.statistics.ageRepartition && statistics.statistics.ageRepartition.length > 0"
+        dense
+        dense-toggle
+        expand-separator
+        :label="$t('label.NumberOfPlayersByAge')"
+      >
+        <q-list class="shadow-2 rounded-borders">
+          <q-item v-for="statistic in statistics.statistics.ageRepartition" :key="statistic._id">
+            <q-item-section v-if="statistic && !statistic._id">{{ $t('label.null') }}{{ $t('label.colons') }}{{ statistic.nb }}</q-item-section>
+            <q-item-section v-if="statistic && statistic._id">{{ $t('label.Age' + (statistic._id.replace('-', '').replace('+', ''))) }}{{ $t('label.colons') }}{{ statistic.nb }}</q-item-section>
+          </q-item>
+        </q-list>
+      </q-expansion-item>
+      <q-expansion-item
+        v-if="statistics && statistics.statistics && statistics.statistics.sexRepartition && statistics.statistics.sexRepartition.length > 0"
+        dense
+        dense-toggle
+        expand-separator
+        :label="$t('label.NumberOfPlayersBySex')"
+      >    
+        <q-list class="shadow-2 rounded-borders">
+          <q-item v-for="statistic in statistics.statistics.sexRepartition" :key="statistic._id">
+            <q-item-section>{{ $t('label.' + statistic._id) }}{{ $t('label.colons') }}{{ statistic.nb }}</q-item-section>
+          </q-item>
+        </q-list>
+      </q-expansion-item>
       <q-item v-if="reviews.length > 0">
         <q-item-section side top>
           <q-icon name="chat_bubble_outline" class="left-icon" />
         </q-item-section>
+      </q-item>
+      <q-item>
         <q-item-section>
           <q-item-label class="big-label">{{ $t('label.Reviews') }}</q-item-label>
           <!--<q-infinite-scroll :handler="getReviews">-->
@@ -764,7 +792,7 @@
                 <q-avatar>
                   <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
                   <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
-                  <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
+                  <img v-if="!rank.picture || rank.picture === ''" src="statics/profiles/noprofile.png" />
                 </q-avatar>
               </q-item-section>
               <q-item-section>
@@ -800,7 +828,7 @@
                 <q-avatar>
                   <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
                   <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
-                  <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
+                  <img v-if="!rank.picture || rank.picture === ''" src="statics/profiles/noprofile.png" />
                 </q-avatar>
               </q-item-section>
             </q-item>
@@ -3205,7 +3233,7 @@ export default {
           return this.serverUrl + '/upload/profile/' + filename
         }
       } else {
-        return '/statics/profiles/noprofile.png'
+        return 'statics/profiles/noprofile.png'
       }
     },
     /*

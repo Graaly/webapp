@@ -1522,6 +1522,9 @@ export default {
         if (!this.selectedStep.form.options.hasOwnProperty('distance')) {
           this.$set(this.selectedStep.form.options, 'distance', '20')
         }
+        if (!this.selectedStep.form.options.hasOwnProperty('showHelp')) {
+          this.$set(this.selectedStep.form.options, 'showHelp', true)
+        }
       } else if (this.options.type.code === 'locate-item-ar') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
           this.$set(this.selectedStep.form.options, 'picture', null)

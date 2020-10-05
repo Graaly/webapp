@@ -107,7 +107,9 @@ module.exports = {
     },
     story: {
       hint: "Hello, here is a hint: <br /><b>{hint}</b>",
-      readMore: "{readMore}"
+      readMore: "{readMore}",
+      FindMarkerHelp: "Target the correct QR code with your phone camera. Good luck!",
+      TouchObjectOnMarkerHelp: "Point your phone camera towards the right QR code. A QR code is a square picture with dark dots. Good luck!"
     },
     iotObjects: {
       keypad: "Keypad",
@@ -689,7 +691,7 @@ module.exports = {
       Statistics: "Statistics",
       colons: ": ",
       TotalNumberOfPlayers: "Total number of players",
-      NumberOfPlayersYesterday: "Number of players yesterday",
+      NumberOfPlayersYesterday: "Yesterday",
       NumberOfPlayersByAge: "Number of players by age",
       NumberOfPlayersBySex: "Number of player by gender",
       AverageScore: "Average score",
@@ -949,7 +951,9 @@ module.exports = {
       CountDownLabel: "Time limit for this step",
       CountDownIsActive: "Activate the time limit",
       CountDownWarning: "Are you sure you want to activate the time limit ? Make sure to not put a time that is too short for the user!",
-      CountDownPopupfail: "Time is up !"
+      CountDownPopupfail: "Time is up !",
+      MaxScore: "Max score",
+      YouMustTestThisStepOnMobile: "You must test this step on a mobile device"
     }
   },
   fr: {
@@ -1047,7 +1051,9 @@ module.exports = {
     },
     story: {
       hint: "Salut, voici un indice :<br /><b>{hint}</b>",
-      readMore: "{readMore}"
+      readMore: "{readMore}",
+      FindMarkerHelp: "Visez le bon QR code avec la caméra de votre téléphone. Bonne chance !",
+      TouchObjectOnMarkerHelp: "Visez le bon QR code avec la caméra de votre téléphone. Un QR code est une figure carrée composée de point noirs. Bonne chance !"
     },
     iotObjects: {
       keypad: "Digicode",
@@ -1629,7 +1635,7 @@ module.exports = {
       Statistics: "Statistiques",
       colons: " : ",
       TotalNumberOfPlayers: "Nombre total de joueurs",
-      NumberOfPlayersYesterday: "Nombre de joueurs hier",
+      NumberOfPlayersYesterday: "Hier",
       NumberOfPlayersByAge: "Nombre de joueurs par age",
       NumberOfPlayersBySex: "Nombre de joueur par sexe",
       AverageScore: "Score moyen",
@@ -1889,7 +1895,9 @@ module.exports = {
       CountDownLabel: "Limite de temps de l’énigme",
       CountDownIsActive: "Entrez la limite de durée pour cette énigme",
       CountDownWarning: "Etes-vous certain(e) d'activé la limite de temps ? Assurez vous de ne pas mettre un temps trop court pour ne pas presser l'utilisateur !",
-      CountDownPopupfail: "Temps écoulé !"
+      CountDownPopupfail: "Temps écoulé !",
+      MaxScore: "Score maxi",
+      YouMustTestThisStepOnMobile: "Vous devez tester ce type d'étape sur un appareil mobile"
     }
   }
 }

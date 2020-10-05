@@ -5,7 +5,7 @@
       <!-- remove temporaly by EMA on 18/11/2019<div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh" v-click-outside="onBackgroundTouch">-->
       <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh">
         <div v-if="needToScroll" class="scroll-indicator">
-          <q-icon size="2.5em" name="arrow_drop_down_circle" />
+          <q-icon class="flashing" size="2.5em" name="arrow_drop_down_circle" />
         </div>
         <p class="tilt" ref="bubbleText" v-html="$t('story.' + steps[currentStep.id].discussions[currentStep.discussionId].text, data)"></p>
         <div class="text-right">
@@ -52,7 +52,7 @@ export default {
         // Help
         'help': {
           discussions: [
-            {character: "2", text: "help", button: {label: "OkThanks"}, condition: null}
+            {character: "2", text: this.data.help, button: {label: "OkThanks"}, condition: null}
           ],
           bottom: 0,
           allowSkip: false
@@ -326,7 +326,6 @@ export default {
     this.moreToValidStep()
     
     await this.saveStepPassed()
-    
     utils.setTimeout(this.checkIfTextIsHidden, 500)
   },
   methods: {
@@ -349,7 +348,7 @@ export default {
       
       // check if height > max size of the box
       let bubbleHeight = this.$refs.bubbleText.clientHeight
-      if (bubbleHeight > '165') {
+      if (bubbleHeight > '140') {
         this.needToScroll = true
       }
     },
