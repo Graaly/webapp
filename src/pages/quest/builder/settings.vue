@@ -708,6 +708,15 @@
           <div class="centered">{{ $t('label.MaxScore') }}{{ $t('label.colons') }}{{ quest.availablePoints.score }} </div>
         </q-card-section>
       </q-card>
+      <q-card bordered class="my-card q-mb-md">
+        <q-card-section>
+          <div class="subtitle3">{{ $t('label.AverageDuration') }}</div>
+        </q-card-section>
+        <q-separator inset />
+        <q-card-section>
+          <div class="title1 text-primary centered">{{ Math.ceil(statistics.statistics.averageDuration) }}</div>
+        </q-card-section>
+      </q-card>
       <q-expansion-item
         v-if="statistics && statistics.statistics && statistics.statistics.ageRepartition && statistics.statistics.ageRepartition.length > 0"
         dense
