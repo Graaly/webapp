@@ -129,8 +129,16 @@
           {{ $t('label.QuestType') }} 
           <q-icon name="help" @click.native="showHelpPopup('helpQuestType')" />
           <div class="q-gutter-sm">
-            <q-radio :disable="readOnly || editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="simple" :label="$t('label.basicEditor')" @input="changeEditorMode" />
-            <q-radio :disable="readOnly || editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="advanced" :label="$t('label.advancedEditor')" @input="changeEditorMode" />
+            <q-radio 
+              :disable="readOnly || editor.initMode === 'advanced'" 
+              v-model="form.fields.editorMode" val="simple" 
+              :label="$t('label.basicEditor')" 
+              @input="changeEditorMode" />
+            <q-radio 
+              :disable="readOnly || editor.initMode === 'advanced'" 
+              v-model="form.fields.editorMode" val="advanced" 
+              :label="$t('label.advancedEditor')" 
+              @input="changeEditorMode" />
           </div>
         </div>
         
@@ -159,7 +167,7 @@
             class="full-width"
           />
         </div>
-        
+
         <div v-if="!isIOs">
           <div class="location-gps" style="display: none">
             <input :readonly="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" step="any" />
@@ -907,7 +915,8 @@
         <stepPlay 
           :step="chapters.newStep.overviewData" 
           runId="0" 
-          :customization="quest.customization ? quest.customization : {color: 'primary'}" 
+          :customization="quest.customization ? quest.customization : {color: 'primary'}"
+          :inventory="inventory"
           :itemUsed="selectedItem" 
           :reload="chapters.reloadStepPlay" 
           :lang="languages.current" 
@@ -915,7 +924,8 @@
           @success="trackStepSuccess" 
           @fail="trackStepFail" 
           @pass="trackStepPass"
-          @msg="trackMessage" >
+          @msg="trackMessage"
+          @closeAllPanels="closeAllPanels">
         </stepPlay>
         <div v-show="overview.tabSelected" class="step-menu fixed-bottom">
           <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
@@ -1141,7 +1151,11 @@ export default {
           customization: { color: '', logo: '', character: '', removeScoring: false, endMessage: '' },
           rewardPicture: '',
           readMoreLink: '',
-          limitNumberOfPlayer: 0
+          limitNumberOfPlayer: 0,
+          countDownTime: {
+            enabled: false,
+            time: 0
+          }
         },
         categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }, this.$t),
         languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
@@ -1350,6 +1364,9 @@ export default {
         this.form.fields.town = (this.form.fields.location && this.form.fields.location.town) ? this.form.fields.location.town : ""
         this.form.fields.country = (this.form.fields.location && this.form.fields.location.country) ? this.form.fields.location.country : ""
         
+        //countdown
+        this.form.fields.countDownTime = this.form.fields.countDownTime;
+
         // prices
         if (this.quest.type === 'room') {
           this.form.fields.priceForPlayer = this.quest.premiumPrice.manual
@@ -1799,11 +1816,13 @@ export default {
         if (this.showTierPaymentBox) {
           this.form.fields.premiumPrice.tier = true
         }
+        
         let quest = Object.assign({}, this.form.fields, commonProperties)
         if (!quest.questId) {
           quest.questId = this.questId
         }
-
+        
+        console.log(quest);
         // save to DB (or update, if property '_id' is defined)
         this.$q.loading.show()
         let res = await QuestService.save(quest)
@@ -2766,6 +2785,11 @@ export default {
         
         // refresh quest media size
         await this.refreshMediaSize()
+        
+        // load inventory for steps use-item
+        if (this.chapters.newStep.overviewData.type === 'use-item') {
+          await this.fillInventory()
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
