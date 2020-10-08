@@ -349,11 +349,31 @@ export default {
         return false
       }     
     },
+    /**
+     * In case there is an error on download
+     */
     async throwSaveError() {
       Notification(this.$t('label.ErrorOfflineSaving'), 'error')
       this.error.raised = true
       this.error.nb++
+      let _this =this;
+      this.$q.dialog({
+          dark: true,
+          message: this.$t('label.CountDownWarning'),
+          ok: true,
+          cancel: true
+      }).onCancel(async () => {
+        
+      }).onOk(async () => {
+        //stop the loading
+        _this.cancelOfflineLoading();
+        //if there is an error, remove all offline data
+        _this.removeOfflineData();
+        //relaunch the download
+        _this.saveQuestData(quest)
+      })
     },
+
     async cancelSavingTooLong() {
       if (this.offline.progress !== 0 && this.offline.progress !== 1 && !this.error.raised) {
         Notification(this.$t('label.ErrorOfflineSaving'), 'error')
@@ -381,7 +401,7 @@ export default {
       return success
     },
     /*
-     * Add the quest in the offline quests list
+     * remove the quest in the offline quests list
      */
     async removeQuestFromOfflineList(questId) {
       // check if quests file exists
