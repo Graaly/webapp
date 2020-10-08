@@ -564,6 +564,7 @@ import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
 import markersList from 'data/markers.json'
 import iotObjectsList from 'data/iotObjects.json'
+//import iotOptions from 'data/iotOptions.json'
 import stepTypes from 'data/stepTypes.json'
 
 import Notification from 'boot/NotifyHelper'
@@ -2228,7 +2229,6 @@ export default {
       }
       
       if (
-        this.step.countDownTime !== undefined &&
         this.step.countDownTime !== null &&
         this.step.countDownTime.enabled === true)
       {
@@ -3739,14 +3739,18 @@ export default {
         switch (this.step.options.object) {
           case 'lcd':
             finalData = this.step.options.message
-            break
+            break;
           case 'buzzer':
             finalData = this.step.options.duration + ',' + this.step.options.frequency
-            break
+            break;
           case 'chest':
             this.iot.chest.disableActionButtons = true
             finalData = data
-            break
+            break;
+          case 'relay':
+            this.iot.chest.disableActionButtons = true
+            finalData = data
+            break;
           default:
             throw new Error("Object '" + this.step.options.object + "' not supported")
         }
@@ -3786,7 +3790,7 @@ export default {
     },
     bluetoothScanResult: function(data) {
       console.log("Device discovered", data)
-      if (data.name === this.iotObject.deviceName) {
+      if (data.name === this.step.options.deviceid) {
         this.stopBluetoothScan()
         console.log("Graaly IoT BT device discovered")
         this.bluetooth.deviceId = data.id;
@@ -3809,7 +3813,12 @@ export default {
       }
       
       if (this.step.type === 'trigger-event' && (!this.step.options.triggerMode || this.step.options.triggerMode === 'auto')) {
-        this.triggerIotEvent(this.step.options.object === 'chest' ? 'open' : '')
+        if (this.step.options.object === 'chest' || this.step.options.object === 'relay') {
+          this.triggerIotEvent('open')
+        }
+        else {
+          this.triggerIotEvent('')
+        }
       }
     },
     bluetoothDeviceDisonnected: function(err) {
@@ -3911,8 +3920,8 @@ export default {
         console.log("sendMessageToBluetoothServer: " + stringToSend)
         ble.writeWithoutResponse(
           _this.bluetooth.deviceId,
-          _this.iotObject.bleServiceId,
-          _this.iotObject.bleCharacteristicId,
+          _this.iotOptions.baseServiceID,
+          _this.iotOptions.baseChara + "2462ABCA5120",
           utils.stringToBytes(stringToSend),
           data => {
             console.log("BLE write success", data)

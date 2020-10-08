@@ -659,13 +659,50 @@
       
       <div v-if="options.type.code === 'wait-for-event' || options.type.code === 'trigger-event'">
         
-        <q-select emit-value map-options :label="$t('label.Protocol')" v-model="selectedStep.form.options.protocol" :options="config.iot.protocols" />
+        <q-select 
+          emit-value 
+          map-options
+          :label="$t('label.Protocol')"
+          v-model="selectedStep.form.options.protocol"
+          :options="config.iot.protocols"
+        />
         
-        <q-select v-if="options.type.code === 'wait-for-event'" emit-value map-options :label="$t('label.IotObject')" v-model="selectedStep.form.options.object" :options="config.iot.waitForEvent.iotObjectsAsOptions" @input="updateIotStepOptions()" />
+        <q-input 
+          emit-value 
+          map-options
+          v-model="selectedStep.form.options.deviceid"
+          :label="'DeviceID (plug the device in)'"
+          :options="config.iot.triggerEvent.modes" 
+        />
+
+        <q-select
+          v-if="options.type.code === 'wait-for-event'"
+          emit-value
+          map-options
+          :label="$t('label.IotObject')"
+          v-model="selectedStep.form.options.object" 
+          :options="config.iot.waitForEvent.iotObjectsAsOptions"
+          @input="updateIotStepOptions()" 
+        />
         
-        <q-select v-if="options.type.code === 'trigger-event'" emit-value map-options :label="$t('label.IotObject')" v-model="selectedStep.form.options.object" :options="config.iot.triggerEvent.iotObjectsAsOptions" @input="updateIotStepOptions()" />
+        <q-select
+          v-if="options.type.code === 'trigger-event'" 
+          emit-value 
+          map-options 
+          :label="$t('label.IotObject')"
+          v-model="selectedStep.form.options.object"
+          :options="config.iot.triggerEvent.iotObjectsAsOptions"
+          @input="updateIotStepOptions()" 
+        />
         
-        <q-select v-if="options.type.code === 'trigger-event'" emit-value map-options v-model="selectedStep.form.options.triggerMode" :label="$t('label.TriggerMode')" :options="config.iot.triggerEvent.modes" />
+        <q-select 
+          v-if="options.type.code === 'trigger-event'"
+          emit-value 
+          map-options
+          v-model="selectedStep.form.options.triggerMode"
+          :label="$t('label.TriggerMode')" 
+          :options="config.iot.triggerEvent.modes" 
+        />
         
         <!-- distance mode -->
         <div v-if="selectedStep.form.options.object === 'distance'">
@@ -1207,6 +1244,7 @@ export default {
           waitForEvent: {
             iotObjectsAsOptions: this.getIotObjectsAsOptions('wait-for-event')
           },
+          DeviceID: '0000000000',
           protocols: [
             { label: 'MQTT', value: 'mqtt' },
             { label: 'Bluetooth', value: 'bluetooth' }

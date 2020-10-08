@@ -120,7 +120,8 @@ module.exports = {
       buzzer: "Buzzer",
       escapebox: "Escape Box",
       chest: "Chest",
-      button: "Button"
+      button: "Button",
+      relay: "Relay"
     },
     label: {
       shortLang: "en",
@@ -1065,7 +1066,8 @@ module.exports = {
       buzzer: "Buzzer",
       escapebox: "Escape Box",
       chest: "Coffre",
-      button: "Bouton"
+      button: "Bouton",
+      relay: "Relais"
     },
     label: {
       shortLang: "fr",
