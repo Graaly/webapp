@@ -9,7 +9,6 @@ module.exports = function (ctx) {
     // app boot (/src/boot)
     boot: [
       ctx.dev ? '' : 'SentryMonitoring',
-      //'FirebaseMonitoring',
       'CustomDirectives',
       'DateFormatFilter',
       'RouterAuthentication',
