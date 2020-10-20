@@ -356,21 +356,23 @@ export default {
       Notification(this.$t('label.ErrorOfflineSaving'), 'error')
       this.error.raised = true
       this.error.nb++
-      let _this =this;
+      let _this = this;
       this.$q.dialog({
           dark: true,
-          message: this.$t('label.CountDownWarning'),
+          message: _this.$t('label.ErrorDownloadNeedsToRestart'),
           ok: true,
           cancel: true
       }).onCancel(async () => {
-        
+        _this.$router.push('/home')
       }).onOk(async () => {
         //stop the loading
         _this.cancelOfflineLoading();
         //if there is an error, remove all offline data
         _this.removeOfflineData();
         //relaunch the download
-        _this.saveQuestData(quest)
+        _this.saveQuestData(quest);
+        //reload the loading page
+        location.reload(); 
       })
     },
 

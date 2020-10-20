@@ -667,12 +667,16 @@
           :options="config.iot.protocols"
         />
         
+       <!-- example mac : 24:62:AB:CA:51:20-->
         <q-input 
           emit-value 
           map-options
           v-model="selectedStep.form.options.deviceid"
           :label="'DeviceID (plug the device in)'"
           :options="config.iot.triggerEvent.modes" 
+          mask="NN:NN:NN:NN:NN:NN"
+          fill-mask=""
+          value="00:00:00:00:00:00"
         />
 
         <q-select
@@ -2803,6 +2807,8 @@ export default {
           this.$set(this.selectedStep.form.options, 'frequency', 440)
           break
         case 'chest':
+          break
+        case 'relay':
           break
         default:
           throw new Error("unknown IoT object code '" + this.selectedStep.form.options.object + "'")
