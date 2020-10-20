@@ -107,7 +107,7 @@ jobs:
 
       - name: build android
         run : echo "test"
-        #   run : quasar build -m cordova -T android
+      #run : quasar build -m cordova -T android
 
       - name: Artifact creation
         uses: actions/upload-artifact@v1

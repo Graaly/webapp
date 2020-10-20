@@ -10,6 +10,7 @@
         :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
         :value="map(this.countdowntimeleft,0,this.step.countDownTime.time,0,1)"
         :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
+       :instant-feedback = true
       />
       <!--   <div class="absolute-full flex flex-center">
           <q-badge color="white" text-color="accent" :label="this.countdowntimeleft" />
@@ -251,7 +252,9 @@
         </div>
         <div id="pieces">
             <div draggable="true"
-              v-for="piece in puzzle.pieces" :key="piece.pos" :id="'piece-' + piece.pos"
+              v-for="piece in puzzle.pieces" 
+              :key="piece.pos" 
+              :id="'piece-' + piece.pos"
               @dragstart="handleDragStart($event)"
               @dragover="handleDragOver($event)"
               @drop="handleDrop($event)"
@@ -456,14 +459,32 @@
       
       <div v-if="step.type == 'trigger-event'" class="trigger-event">
         <p class="text" style="flex-grow: 1" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
-        <div v-if="step.options.object !== 'chest'">
-          <q-btn v-if="step.options.triggerMode && step.options.triggerMode === 'manual'" class="full-width" color="primary" :label="$t('label.TriggerTheEvent')" size="xl" @click="triggerIotEvent()" :disable="bluetooth.deviceId === null" />
+        <div v-if="step.options.object !== 'chest' || step.options.object === 'relay'">
+          <q-btn 
+            v-if="step.options.triggerMode && step.options.triggerMode === 'manual'" 
+            class="full-width" color="primary" 
+            :label="$t('label.TriggerTheEvent')" 
+            size="xl" 
+            @click="triggerIotEvent()" 
+            :disable="bluetooth.deviceId === null" 
+          />
         </div>
-        <div v-if="step.options.object === 'chest'">
+        <div v-if="step.options.object === 'chest' || step.options.object === 'relay'">
           <p>{{ $t('label.ChestActions') }}</p>
           <div style="display:flex; ">
-            <q-btn style="flex-grow:1; margin-right: 1rem;" color="primary" :label="$t('label.Open')" size="xl" @click="triggerIotEvent('open')" :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons" />
-            <q-btn style="flex-grow:1" color="primary" :label="$t('label.Close')" size="xl" @click="triggerIotEvent('close')" :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons" />
+            <q-btn 
+              style="flex-grow:1; margin-right: 1rem;"
+              color="primary" :label="$t('label.Open')" 
+              size="xl" @click="triggerIotEvent('open')" 
+              :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons || iot.relay.disableActionButtons" 
+            />
+            <q-btn 
+              style="flex-grow:1" color="primary"
+              :label="$t('label.Close')" 
+              size="xl"
+              @click="triggerIotEvent('close')" 
+              :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons || iot.relay.disableActionButtons"
+            />
           </div>
         </div>
         <p v-if="step.options.protocol === 'bluetooth' && bluetooth.deviceId === null">{{ $t('label.SearchingBluetoothDevice') }}</p>
@@ -564,6 +585,7 @@ import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
 import markersList from 'data/markers.json'
 import iotObjectsList from 'data/iotObjects.json'
+import iotOptions from 'data/iotOptions.json'
 import stepTypes from 'data/stepTypes.json'
 
 import Notification from 'boot/NotifyHelper'
@@ -815,7 +837,8 @@ export default {
           keypadAnswer: null,
           axisX: null,
           axisY: null,
-          chest: { disableActionButtons: false }
+          chest: { disableActionButtons: false },
+          relay: { disableActionButtons: false }
         },
         // for story/tutorial
         story: {
@@ -2228,7 +2251,6 @@ export default {
       }
       
       if (
-        this.step.countDownTime !== undefined &&
         this.step.countDownTime !== null &&
         this.step.countDownTime.enabled === true)
       {
@@ -3739,14 +3761,18 @@ export default {
         switch (this.step.options.object) {
           case 'lcd':
             finalData = this.step.options.message
-            break
+            break;
           case 'buzzer':
             finalData = this.step.options.duration + ',' + this.step.options.frequency
-            break
+            break;
           case 'chest':
             this.iot.chest.disableActionButtons = true
             finalData = data
-            break
+            break;
+          case 'relay':
+            this.iot.relay.disableActionButtons = true
+            finalData = data
+            break;
           default:
             throw new Error("Object '" + this.step.options.object + "' not supported")
         }
@@ -3754,6 +3780,10 @@ export default {
         if (this.step.options.object === 'chest') {
           await utils.sleep(2000)
           this.iot.chest.disableActionButtons = false
+        }
+        if (this.step.options.object === 'relay') {
+          await utils.sleep(2000)
+          this.iot.relay.disableActionButtons = false
         }
       } else {
         throw new Error('IoT protocol not supported: ' + this.step.options.protocol)
@@ -3786,7 +3816,8 @@ export default {
     },
     bluetoothScanResult: function(data) {
       console.log("Device discovered", data)
-      if (data.name === this.iotObject.deviceName) {
+      console.log(this.step.options.deviceid)
+      if (data.name === this.step.options.deviceid) {
         this.stopBluetoothScan()
         console.log("Graaly IoT BT device discovered")
         this.bluetooth.deviceId = data.id;
@@ -3809,7 +3840,12 @@ export default {
       }
       
       if (this.step.type === 'trigger-event' && (!this.step.options.triggerMode || this.step.options.triggerMode === 'auto')) {
-        this.triggerIotEvent(this.step.options.object === 'chest' ? 'open' : '')
+        if (this.step.options.object === 'chest' || this.step.options.object === 'relay') {
+          this.triggerIotEvent('open')
+        }
+        else {
+          this.triggerIotEvent('')
+        }
       }
     },
     bluetoothDeviceDisonnected: function(err) {
@@ -3911,8 +3947,8 @@ export default {
         console.log("sendMessageToBluetoothServer: " + stringToSend)
         ble.writeWithoutResponse(
           _this.bluetooth.deviceId,
-          _this.iotObject.bleServiceId,
-          _this.iotObject.bleCharacteristicId,
+          iotOptions.baseServiceID,
+          _this.createIotCara(_this.bluetooth.deviceId),
           utils.stringToBytes(stringToSend),
           data => {
             console.log("BLE write success", data)
@@ -3943,8 +3979,8 @@ export default {
       return new Promise((resolve, reject) => {
         ble.stopNotification(
           _this.bluetooth.deviceId,
-          _this.iotObject.bleServiceId,
-          _this.iotObject.bleCharacteristicId,
+          iotOptions.baseServiceID,
+          _this.createIotCara(_this.bluetooth.deviceId),
           () => { resolve() },
           (err) => { reject(new Error("Could not stop bluetooth notifications. error: " + err)) })
       })
@@ -3956,6 +3992,16 @@ export default {
         }
       }
       throw new Error("Unknown object code '" + code + "'")
+    },
+    /**
+     * Transform a normal mac A2:B4:F5...
+     * into a single string a2b4f5...
+     */
+    createIotCara(mac) {
+      console.log(mac);
+      let p = iotOptions.baseCara + mac.toLowerCase().replaceAll(':', '');
+      console.log(p);
+      return p;
     },
     //Timer & countdown
     isTimerAvailable() {

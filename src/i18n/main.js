@@ -83,10 +83,11 @@ module.exports = {
       GraalyCharacterDesc: "Make a character speak",
       EndOfChapter: "End of chapter",
       EndOfChapterDesc: "This transition send player to next chapter",
-      TriggerEvent: "Graaly > your material",
+      TriggerEvent: "Graaly -> your material",
       TriggerEventDesc: "Graaly physical a physical action (using an electronic board)",
-      WaitForEvent: "Your material > Graaly",
-      WaitForEventDesc: "A physical action activate a step (using an electronic card)"
+      WaitForEvent: "Your material -> Graaly",
+      WaitForEventDesc: "A physical action activate a step (using an electronic card)",
+      ErrorDownloadNeedsToRestart: "Error while downloading, do you want to restart ?"
     },
     layersForMarkers: {
       Magnifier: 'Magnifier',
@@ -120,7 +121,8 @@ module.exports = {
       buzzer: "Buzzer",
       escapebox: "Escape Box",
       chest: "Chest",
-      button: "Button"
+      button: "Button",
+      relay: "Relay"
     },
     label: {
       shortLang: "en",
@@ -1028,10 +1030,11 @@ module.exports = {
       GraalyCharacterDesc: "Faire parler un personnage",
       EndOfChapter: "Fin de chapitre",
       EndOfChapterDesc: "Cette transition fait passer le joueur au chapitre suivant",
-      TriggerEvent: "Graaly > Votre matériel",
+      TriggerEvent: "Graaly -> Votre matériel",
       TriggerEventDesc: "Graaly déclenche une action sur votre matériel physique (utilisation d'une carte électronique)",
-      WaitForEvent: "Votre matériel > Graaly",
-      WaitForEventDesc: "Votre matériel active une étape Graaly (utilisation d'une carte électronique)"
+      WaitForEvent: "Votre matériel -> Graaly",
+      WaitForEventDesc: "Votre matériel active une étape Graaly (utilisation d'une carte électronique)",
+      ErrorDownloadNeedsToRestart: "Erreur lors du telechargement de l'enquete, voulez vous recommencé ?"
     },
     layersForMarkers: {
       Magnifier: 'Loupe',
@@ -1065,7 +1068,8 @@ module.exports = {
       buzzer: "Buzzer",
       escapebox: "Escape Box",
       chest: "Coffre",
-      button: "Bouton"
+      button: "Bouton",
+      relay: "Relais"
     },
     label: {
       shortLang: "fr",

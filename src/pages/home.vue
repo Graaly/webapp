@@ -363,15 +363,16 @@ export default {
     if (!this.$store || !this.$store.state || !this.$store.state.user || !this.$store.state.user.name) {
       this.backToLogin();
     } else {
-      AppStoreRatingService.initLocalStorage();
-      //test for the review
-      //AppStoreRatingService.resetAlreadyAsked();
-      var questsFinished = this.$store.state.user.statistics.nbQuestsSuccessful;
-      if (questsFinished >= 1 && AppStoreRatingService.hasAlreadyHavePopup() === "false") {
-        console.log("the user has done at least one quest");
-        AppStoreRatingService.launchpopup();
+      if (window.cordova) {
+        AppStoreRatingService.initLocalStorage();
+        //test for the review
+        //AppStoreRatingService.resetAlreadyAsked();
+        var questsFinished = this.$store.state.user.statistics.nbQuestsSuccessful;
+        if (questsFinished >= 1 && AppStoreRatingService.hasAlreadyHavePopup() === "false") {
+          console.log("the user has done at least one quest");
+          AppStoreRatingService.launchpopup();
+        }
       }
-
       this.initPage()
 
       this.$nextTick(() => {
