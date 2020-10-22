@@ -1,8 +1,8 @@
 // VueJS custom directives
 
 export default ({ Vue }) => {
-    // detect click outside an element, from https://stackoverflow.com/a/42389266/488666
-    /*Vue.directive('click-outside', {
+  // detect click outside an element, from https://stackoverflow.com/a/42389266/488666
+  /*Vue.directive('click-outside', {
         bind: function (el, binding, vnode) {
             el.clickOutsideEvent = function (event) {
                 // here I check that click was outside the el and his childrens
@@ -17,4 +17,4 @@ export default ({ Vue }) => {
             document.body.removeEventListener('click', el.clickOutsideEvent)
         }
     });*/
-}
+};
