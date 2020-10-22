@@ -1,12 +1,6 @@
 //import * as ctx from  '../../../quasar.conf.js'
 
 describe('Account actions', () => {
-  it('defaults to "first usage" page', () => {
-    cy.clearCookies()
-    cy.visit('/')
-    cy.title().should('contain', 'Graaly')
-    cy.url().should('contain', '/#/firstusage')
-  })
   
   it('lands on login page after touching right arrow several times', () => {
     let nbTouches = 4
