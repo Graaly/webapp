@@ -1,4 +1,4 @@
-const websiteBaseURL = "https://graaly.com" 
+const websiteBaseURL = "https://graaly.com"
 const salesEmail = "sales@graaly.com"
 const URLs = {
   privacy: {
@@ -83,10 +83,11 @@ module.exports = {
       GraalyCharacterDesc: "Make a character speak",
       EndOfChapter: "End of chapter",
       EndOfChapterDesc: "This transition send player to next chapter",
-      TriggerEvent: "Graaly > your material",
+      TriggerEvent: "Graaly -> your material",
       TriggerEventDesc: "Graaly physical a physical action (using an electronic board)",
-      WaitForEvent: "Your material > Graaly",
-      WaitForEventDesc: "A physical action activate a step (using an electronic card)"
+      WaitForEvent: "Your material -> Graaly",
+      WaitForEventDesc: "A physical action activate a step (using an electronic card)",
+      ErrorDownloadNeedsToRestart: "Error while downloading, do you want to restart ?"
     },
     layersForMarkers: {
       Magnifier: 'Magnifier',
@@ -97,17 +98,19 @@ module.exports = {
       fr: "French"
     },
     status: {
-      published: "published", 
-      draft: "draft", 
-      old: "old", 
-      tovalidate: "under validation", 
-      unpublished: "unpublished", 
+      published: "published",
+      draft: "draft",
+      old: "old",
+      tovalidate: "under validation",
+      unpublished: "unpublished",
       rejected: "rejected",
       new: "new"
     },
     story: {
       hint: "Hello, here is a hint: <br /><b>{hint}</b>",
-      readMore: "{readMore}"
+      readMore: "{readMore}",
+      FindMarkerHelp: "Target the correct QR code with your phone camera. Good luck!",
+      TouchObjectOnMarkerHelp: "Point your phone camera towards the right QR code. A QR code is a square picture with dark dots. Good luck!"
     },
     iotObjects: {
       keypad: "Keypad",
@@ -118,7 +121,8 @@ module.exports = {
       buzzer: "Buzzer",
       escapebox: "Escape Box",
       chest: "Chest",
-      button: "Button"
+      button: "Button",
+      relay: "Relay"
     },
     label: {
       shortLang: "en",
@@ -693,6 +697,7 @@ module.exports = {
       NumberOfPlayersByAge: "Number of players by age",
       NumberOfPlayersBySex: "Number of player by gender",
       AverageScore: "Average score",
+      AverageDuration: "Average duration (min)",
       Age1325: "Between 13 and 25 y.o.",
       Age2639: "Between 26 and 39 y.o.",
       Age4049: "Between 40 and 49 y.o.",
@@ -946,7 +951,12 @@ module.exports = {
       YouNeedToUnpublishYourQuestToRemoveIt: "You need to unpublish your quest to remove it",
       PleaseEnterYourTeamName: "Please enter your team name",
       Version: "Version",
-      MaxScore: "Max score"
+      CountDownLabel: "Time limit for this step",
+      CountDownIsActive: "Activate the time limit",
+      CountDownWarning: "Are you sure you want to activate the time limit ? Make sure to not put a time that is too short for the user!",
+      CountDownPopupfail: "Time is up !",
+      MaxScore: "Max score",
+      YouMustTestThisStepOnMobile: "You must test this step on a mobile device"
     }
   },
   fr: {
@@ -1020,10 +1030,11 @@ module.exports = {
       GraalyCharacterDesc: "Faire parler un personnage",
       EndOfChapter: "Fin de chapitre",
       EndOfChapterDesc: "Cette transition fait passer le joueur au chapitre suivant",
-      TriggerEvent: "Graaly > Votre matériel",
+      TriggerEvent: "Graaly -> Votre matériel",
       TriggerEventDesc: "Graaly déclenche une action sur votre matériel physique (utilisation d'une carte électronique)",
-      WaitForEvent: "Votre matériel > Graaly",
-      WaitForEventDesc: "Votre matériel active une étape Graaly (utilisation d'une carte électronique)"
+      WaitForEvent: "Votre matériel -> Graaly",
+      WaitForEventDesc: "Votre matériel active une étape Graaly (utilisation d'une carte électronique)",
+      ErrorDownloadNeedsToRestart: "Erreur lors du telechargement de l'enquete, voulez vous recommencé ?"
     },
     layersForMarkers: {
       Magnifier: 'Loupe',
@@ -1034,17 +1045,19 @@ module.exports = {
       fr: "Français"
     },
     status: {
-      published: "publié", 
-      draft: "brouillon", 
-      old: "ancien", 
-      tovalidate: "en validation", 
-      unpublished: "dépublié", 
+      published: "publié",
+      draft: "brouillon",
+      old: "ancien",
+      tovalidate: "en validation",
+      unpublished: "dépublié",
       rejected: "rejeté",
       new: "nouveau"
     },
     story: {
       hint: "Salut, voici un indice :<br /><b>{hint}</b>",
-      readMore: "{readMore}"
+      readMore: "{readMore}",
+      FindMarkerHelp: "Visez le bon QR code avec la caméra de votre téléphone. Bonne chance !",
+      TouchObjectOnMarkerHelp: "Visez le bon QR code avec la caméra de votre téléphone. Un QR code est une figure carrée composée de point noirs. Bonne chance !"
     },
     iotObjects: {
       keypad: "Digicode",
@@ -1055,7 +1068,8 @@ module.exports = {
       buzzer: "Buzzer",
       escapebox: "Escape Box",
       chest: "Coffre",
-      button: "Bouton"
+      button: "Bouton",
+      relay: "Relais"
     },
     label: {
       shortLang: "fr",
@@ -1630,6 +1644,7 @@ module.exports = {
       NumberOfPlayersByAge: "Nombre de joueurs par age",
       NumberOfPlayersBySex: "Nombre de joueur par sexe",
       AverageScore: "Score moyen",
+      AverageDuration: "Durée moyenne (min)",
       Age1325: "Entre 13 et 25 ans",
       Age2639: "Entre 26 et 39 ans",
       Age4049: "Entre 40 et 49 ans",
@@ -1883,7 +1898,12 @@ module.exports = {
       YouNeedToUnpublishYourQuestToRemoveIt: "Vous devez dépublier vote jeu pour le supprimer",
       PleaseEnterYourTeamName: "Veuillez entrer le nom de votre équipe",
       Version: "Version",
-      MaxScore: "Score maxi"
+      CountDownLabel: "Limite de temps de l’énigme",
+      CountDownIsActive: "Entrez la limite de durée pour cette énigme",
+      CountDownWarning: "Etes-vous certain(e) d'activé la limite de temps ? Assurez vous de ne pas mettre un temps trop court pour ne pas presser l'utilisateur !",
+      CountDownPopupfail: "Temps écoulé !",
+      MaxScore: "Score maxi",
+      YouMustTestThisStepOnMobile: "Vous devez tester ce type d'étape sur un appareil mobile"
     }
   }
 }

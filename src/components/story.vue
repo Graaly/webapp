@@ -52,7 +52,7 @@ export default {
         // Help
         'help': {
           discussions: [
-            {character: "2", text: "help", button: {label: "OkThanks"}, condition: null}
+            {character: "2", text: this.data.help, button: {label: "OkThanks"}, condition: null}
           ],
           bottom: 0,
           allowSkip: false

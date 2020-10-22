@@ -11,20 +11,26 @@
       <div class="text-h6">{{ $t('label.ThisStepIsAvailableIn') }}</div>
       <div class="text-h5">{{ $t('label.TimeRemainingHoursMin', {day: startDate.remainingDays, hour: startDate.remainingHours, min: startDate.remainingMinutes, sec: startDate.remainingSeconds}) }}</div>
     </div>
+
+    <!------------------ HEADER AREA ------------------------>
     
     <stepPlay 
       :step="step" 
       :runId="run._id" 
+      :inventory="inventory"
       :itemUsed="selectedItem" 
       :reload="loadStepData" 
       :lang="lang" 
       :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}" 
       :answer="offline.answer" 
       :player="player"
+      :countDownTime="countDownTime.timer"
       @played="trackStepPlayed" 
       @success="trackStepSuccess" 
       @fail="trackStepFail" 
       @pass="trackStepPass"
+      @closeAllPanels="closeAllPanels"
+      @forceMoveNext="nextStep(true)"
       @msg="trackMessage">
     </stepPlay>
       
@@ -69,21 +75,61 @@
         </div>
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
           <div class="text-center dark-banner q-pb-xl q-pt-md fixed-bottom">
-            <p class="title">{{ (info.quest && info.quest.title) ? info.quest.title : $t('label.NoTitle') }}</p>
-            <p v-if="run && run.team && run.team.name">{{ $t('Team') }} : {{ run.team.name }}</p>
+            <p class="title">
+              {{ (info.quest && info.quest.title) ? info.quest.title : $t('label.NoTitle') }}
+            </p>
+            <p v-if="run && run.team && run.team.name">
+              {{ $t('label.Team') }} : {{ run.team.name }}
+            </p>
+           <!-- <p v-if="info.quest.countDownTime.enabled">
+              {{ "temspsms tresetran: " }} : {{ info.quest.countDownTime.time }}
+            </p>-->
+
             <!--<q-linear-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-linear-progress>-->
             <!--<p class="q-pa-md score-text" v-show="info && !offline.active && (!info.quest.customization || !info.quest.customization.removeScoring)">{{ $t('label.CurrentScore') }}: {{ info.score }} <q-icon color="white" name="fas fa-trophy" />-</p>-->
             <p>
-              <q-btn v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring" class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="backToMap"><span>{{ $t('label.LeaveQuest') }}</span></q-btn>
+              <q-btn 
+              v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring" 
+              class="glossy large-button" 
+              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" 
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" 
+              @click="backToMap">
+                <span>
+                  {{ $t('label.LeaveQuest') }}
+                </span>
+              </q-btn>
             </p>
             <p>
-              <q-btn v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2" class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="restartGame"><span>{{ $t('label.RestartQuest') }}</span></q-btn>
+              <q-btn
+                v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2" class="glossy large-button" 
+                :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" 
+                :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" 
+                @click="restartGame">
+                <span>
+                  {{ $t('label.RestartQuest') }}
+                </span>
+              </q-btn>
             </p>
             <p>
-              <q-btn v-if="!offline.active" class="glossy large-button" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" @click="showFeedback"><span>{{ $t('label.Feedback') }}</span></q-btn>
+              <q-btn 
+              v-if="!offline.active" class="glossy large-button" 
+              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" 
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" 
+              @click="showFeedback">
+                <span>
+                  {{ $t('label.Feedback') }}
+                </span>
+              </q-btn>
             </p>
             <p class="q-pb-xl">
-              <q-btn class="glossy large-button" color="secondary" @click="openInfo"><span>{{ $t('label.BackToQuest') }}</span></q-btn>
+              <q-btn 
+              class="glossy large-button" 
+              color="secondary" 
+              @click="openInfo">
+                <span>
+                  {{ $t('label.BackToQuest') }}
+                </span>
+              </q-btn>
             </p>
             <p class="q-pb-lg">
             </p>
@@ -187,6 +233,7 @@
             size="lg" 
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}" 
+            :disable="$store.state.history.index === 0"
             icon="arrow_back" 
             v-show="previousStepId !== ''" 
             @click="previousStep()"
@@ -302,7 +349,7 @@ export default {
         controlsAreDisplayed: false,
         lang: this.$route.params.lang,
         offline: {
-          active: false,
+          active: true,
           answer: null
         },
         warnings: {
@@ -324,7 +371,8 @@ export default {
         },
         previousStepId: '',
         isIOs: utils.isIOS(),
-        
+        // timer 
+        countDownTime: {},
         // for step type 'use-item'
         selectedItem: null
       }
@@ -339,6 +387,7 @@ export default {
       this.warnings = defaultVars.warnings
       this.selectedItem = defaultVars.selectItem
       this.loadStepData = defaultVars.loadStepData
+      this.countDownTime = defaultVars.countDownTime
     },
     /*
      * Init step data
@@ -346,8 +395,7 @@ export default {
     async initData () {
       this.$q.loading.show()
       // get quest information
-      //await this.getQuest(this.questId) // remove await to speed up loading
-      this.getQuest(this.questId)
+      await this.getQuest(this.questId)
       
       this.loadStepData = false
 
@@ -364,6 +412,11 @@ export default {
       // manage history
       this.updateHistory()
       
+      // fill inventory at loading when necessary
+      if (this.step.type === 'use-item') {
+        await this.fillInventory()
+      }
+      
       this.$q.loading.hide()
 
       // get quest number to compute progression
@@ -374,7 +427,7 @@ export default {
         utils.setTimeout(this.alertOnHint, 12000)
         this.hint.show = true
       }
-      
+
       // next button blink if user did not succeed after 3 minutes
       utils.setTimeout(this.alertOnNext, 180000)      
       
@@ -503,8 +556,8 @@ export default {
       }
     },
     /*
-     * Get the player number
-     */
+    * Get the player number
+    */
     async getPlayer () {
       if (this.run.team && this.run.team.members) {
         for (var i = 0; i < this.run.team.members.length; i++) {
@@ -580,8 +633,8 @@ export default {
             return false
           }
         }
-      }
-      
+      }    
+
       if (stepId === 'locationMarker') {
         // QR Code scanner step
         this.step = {
@@ -657,7 +710,7 @@ export default {
               this.warnings.stepDataMissing = true
             }
           }
-
+          /* MPA 2020-09-04 not used since several months
           if (tempStep.type === 'image-recognition' && tempStep.answers && tempStep.answers !== '') {
             const imageRecognitionUrl = await utils.readBinaryFile(this.questId, tempStep.answers)
             if (imageRecognitionUrl) {
@@ -665,7 +718,7 @@ export default {
             } else {
               this.warnings.stepDataMissing = true
             }
-          }
+          }*/
           if (tempStep.type === 'choose' && tempStep.options) {
             for (var k = 0; k < tempStep.options.length; k++) {
               if (tempStep.options[k].imagePath) {
@@ -753,11 +806,10 @@ export default {
       //this.footer.show = false
       this.next.enabled = false
       this.next.canPass = false
-      utils.setTimeout(this.refreshWaitingPage, 15000)
-    },
-    refreshWaitingPage() {
-      //this.$router.push('/quest/play/' + this.questId)
-      this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/pass_' + this.step.stepId + '_' + utils.randomId() + '/' + this.$route.params.lang)
+      setTimeout(async () => {
+        this.getStep()
+      } 
+      , 15000);
     },
     /*
      * update history
@@ -917,7 +969,7 @@ export default {
     /*
      * Move to next step
      */
-    async nextStep() {
+    async nextStep(force) {
       this.$store.state.history.index++
       // if moving in history
       if (this.$store.state.history.items && this.$store.state.history.index < this.$store.state.history.items.length) {
@@ -934,25 +986,32 @@ export default {
         */
         await this.moveToNextStep('success')
       } else if (this.next.canPass) {
-        this.$q.dialog({
-          dark: true,
-          message: this.$t('label.ConfirmPass'),
-          ok: this.$t('label.Ok'),
-          cancel: this.$t('label.Cancel')
-        }).onOk(async () => {          
-          if (!this.offline.active) {
-            await RunService.passStep(this.run._id, this.step.id, this.player)
-          }
-          
-          //if (!passSuccess) {
-            // offline treatment
-          await this.passOfflineStep(this.step.id)
-          //}
-          
-          // TODO: manage if pass failed
-          await this.moveToNextStep('pass')
-        }).onCancel(() => {})
+        if (force) {
+          await this.passStep()
+        } else {
+          this.$q.dialog({
+            dark: true,
+            message: this.$t('label.ConfirmPass'),
+            ok: this.$t('label.Ok'),
+            cancel: this.$t('label.Cancel')
+          }).onOk(async () => {          
+            await this.passStep()
+          }).onCancel(() => {})
+        }
       }
+    },
+    async passStep() {
+      if (!this.offline.active) {
+        await RunService.passStep(this.run._id, this.step.id, this.player)
+      }
+      
+      //if (!passSuccess) {
+        // offline treatment
+      await this.passOfflineStep(this.step.id)
+      //}
+      
+      // TODO: manage if pass failed
+      await this.moveToNextStep('pass')
     },
     /*
      * Move to next step
@@ -979,7 +1038,7 @@ export default {
     /*
      * Return to previous step
      */
-async previousStep() {
+    async previousStep() {
       let previousOK = true
       this.$store.state.history.index--
       if (this.$store.state.history.index < 0) {

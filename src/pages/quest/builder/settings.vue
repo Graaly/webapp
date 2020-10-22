@@ -33,7 +33,7 @@
       <q-tab :disable="tabs.progress < 1 || isReadOnly()" name="steps" :icon="getTabIcon(2)" :label="$t('label.Steps') + ' (' + languages.current + ')'" v-if="quest.type === 'quest'" />
       <q-tab :disable="tabs.progress < 2" name="publish" :icon="getTabIcon(3)" :label="$t('label.Publish')" />
       <q-tab name="payments" :icon="getTabIcon(5)" @click="listPayments" :label="$t('label.Payments')" v-if="quest && quest.premiumPrice && quest.premiumPrice.tier" />
-      <q-tab name="reviews" :icon="getTabIcon(6)" :label="$t('label.ReviewsAndStats')" v-if="isEdition && quest.access === 'public'" />
+      <q-tab name="reviews" :icon="getTabIcon(6)" :label="$t('label.ReviewsAndStats')" v-if="isEdition" />
       <q-tab name="results" :icon="getTabIcon(7)" :label="$t('label.Results')" v-if="quest.status !== 'draft' && quest.access === 'private'" />
     </q-tabs>
 
@@ -129,8 +129,16 @@
           {{ $t('label.QuestType') }} 
           <q-icon name="help" @click.native="showHelpPopup('helpQuestType')" />
           <div class="q-gutter-sm">
-            <q-radio :disable="readOnly || editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="simple" :label="$t('label.basicEditor')" @input="changeEditorMode" />
-            <q-radio :disable="readOnly || editor.initMode === 'advanced'" v-model="form.fields.editorMode" val="advanced" :label="$t('label.advancedEditor')" @input="changeEditorMode" />
+            <q-radio 
+              :disable="readOnly || editor.initMode === 'advanced'" 
+              v-model="form.fields.editorMode" val="simple" 
+              :label="$t('label.basicEditor')" 
+              @input="changeEditorMode" />
+            <q-radio 
+              :disable="readOnly || editor.initMode === 'advanced'" 
+              v-model="form.fields.editorMode" val="advanced" 
+              :label="$t('label.advancedEditor')" 
+              @input="changeEditorMode" />
           </div>
         </div>
         
@@ -159,7 +167,7 @@
             class="full-width"
           />
         </div>
-        
+
         <div v-if="!isIOs">
           <div class="location-gps" style="display: none">
             <input :readonly="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" step="any" />
@@ -708,6 +716,15 @@
           <div class="centered">{{ $t('label.MaxScore') }}{{ $t('label.colons') }}{{ quest.availablePoints.score }} </div>
         </q-card-section>
       </q-card>
+      <q-card bordered class="my-card q-mb-md">
+        <q-card-section>
+          <div class="subtitle3">{{ $t('label.AverageDuration') }}</div>
+        </q-card-section>
+        <q-separator inset />
+        <q-card-section>
+          <div class="title1 text-primary centered">{{ Math.ceil(statistics.statistics.averageDuration) }}</div>
+        </q-card-section>
+      </q-card>
       <q-expansion-item
         v-if="statistics && statistics.statistics && statistics.statistics.ageRepartition && statistics.statistics.ageRepartition.length > 0"
         dense
@@ -739,6 +756,8 @@
         <q-item-section side top>
           <q-icon name="chat_bubble_outline" class="left-icon" />
         </q-item-section>
+      </q-item>
+      <q-item>
         <q-item-section>
           <q-item-label class="big-label">{{ $t('label.Reviews') }}</q-item-label>
           <!--<q-infinite-scroll :handler="getReviews">-->
@@ -782,7 +801,7 @@
                 <q-avatar>
                   <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
                   <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
-                  <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
+                  <img v-if="!rank.picture || rank.picture === ''" src="statics/profiles/noprofile.png" />
                 </q-avatar>
               </q-item-section>
               <q-item-section>
@@ -818,7 +837,7 @@
                 <q-avatar>
                   <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
                   <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
-                  <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
+                  <img v-if="!rank.picture || rank.picture === ''" src="statics/profiles/noprofile.png" />
                 </q-avatar>
               </q-item-section>
             </q-item>
@@ -896,7 +915,8 @@
         <stepPlay 
           :step="chapters.newStep.overviewData" 
           runId="0" 
-          :customization="quest.customization ? quest.customization : {color: 'primary'}" 
+          :customization="quest.customization ? quest.customization : {color: 'primary'}"
+          :inventory="inventory"
           :itemUsed="selectedItem" 
           :reload="chapters.reloadStepPlay" 
           :lang="languages.current" 
@@ -904,7 +924,8 @@
           @success="trackStepSuccess" 
           @fail="trackStepFail" 
           @pass="trackStepPass"
-          @msg="trackMessage" >
+          @msg="trackMessage"
+          @closeAllPanels="closeAllPanels">
         </stepPlay>
         <div v-show="overview.tabSelected" class="step-menu fixed-bottom">
           <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
@@ -1130,7 +1151,11 @@ export default {
           customization: { color: '', logo: '', character: '', removeScoring: false, endMessage: '' },
           rewardPicture: '',
           readMoreLink: '',
-          limitNumberOfPlayer: 0
+          limitNumberOfPlayer: 0,
+          countDownTime: {
+            enabled: false,
+            time: 0
+          }
         },
         categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }, this.$t),
         languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
@@ -1339,6 +1364,9 @@ export default {
         this.form.fields.town = (this.form.fields.location && this.form.fields.location.town) ? this.form.fields.location.town : ""
         this.form.fields.country = (this.form.fields.location && this.form.fields.location.country) ? this.form.fields.location.country : ""
         
+        //countdown
+        this.form.fields.countDownTime = this.form.fields.countDownTime;
+
         // prices
         if (this.quest.type === 'room') {
           this.form.fields.priceForPlayer = this.quest.premiumPrice.manual
@@ -1788,11 +1816,13 @@ export default {
         if (this.showTierPaymentBox) {
           this.form.fields.premiumPrice.tier = true
         }
+        
         let quest = Object.assign({}, this.form.fields, commonProperties)
         if (!quest.questId) {
           quest.questId = this.questId
         }
-
+        
+        console.log(quest);
         // save to DB (or update, if property '_id' is defined)
         this.$q.loading.show()
         let res = await QuestService.save(quest)
@@ -2755,6 +2785,11 @@ export default {
         
         // refresh quest media size
         await this.refreshMediaSize()
+        
+        // load inventory for steps use-item
+        if (this.chapters.newStep.overviewData.type === 'use-item') {
+          await this.fillInventory()
+        }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -3207,7 +3242,7 @@ export default {
           return this.serverUrl + '/upload/profile/' + filename
         }
       } else {
-        return '/statics/profiles/noprofile.png'
+        return 'statics/profiles/noprofile.png'
       }
     },
     /*

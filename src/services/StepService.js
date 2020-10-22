@@ -179,18 +179,18 @@ export default {
     return res
   },
   /*
-   * upload an image to recognize (for steps 'image-recognition')
+   * upload an image to recognize (for steps 'image-recognition') - MPA 2020-09-24 not used since several months
    * @param   {String}    questId        ID of the quest
    * @param   {Object}    data           upload data
    */
-  async uploadImageToRecognize (questId, data) {
+  /*async uploadImageToRecognize (questId, data) {
     let res = await Api().post('/quest/' + questId + '/step/image-recognition/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
     
     // clears cached data if there is any
     await QuestService.removeFromCache(questId)
     
     return res
-  },
+  },*/
   /*
    * upload an "answer image" (for step 'choose') 
    * @param   {String}    questId        ID of the quest

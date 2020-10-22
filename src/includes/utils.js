@@ -178,7 +178,7 @@ var self = {
         return true
     }
     return false
-  },
+  },  
   /**
    * Works like native setTimeout() function, except that it keeps the timeout ID
    * in Vue store for easier cleaning with clearAllTimeouts(),
@@ -832,6 +832,56 @@ var self = {
    */
   sleep: function (ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
+  },
+
+  /**
+   * takes in a string of the format xxhxxmxxs  and transforms it to only seconds
+   * @param {*} str 
+   */
+  timeStringToSeconds: function(str) {
+    var resh = str.split("h");
+    var resm = resh[1].split("m");
+    var ress = resm[1].split("s");
+    var hour = resh[0]*3600;
+    var min = resm[0]*60;
+    var sec = ress[0]*1;//*1 is just to transform it into a number, in case it was a string
+    var total = hour + min + sec;
+
+    /*
+    //debugging
+    console.log(str);
+    console.log("hour " + hour);
+    console.log("min " + min);
+    console.log("sec " + sec);
+    console.log("total " + total);
+    this.secondsToTimeString(total);
+    */
+    return total;
+  },
+  /**
+   * Takes in a number in seconds and resturns a string of format xxhxxmxxs
+   * @param {*} seconds 
+   */
+  secondsToTimeString: function(totalSeconds) {
+    var hours = Math.floor(totalSeconds / 3600);
+    totalSeconds = totalSeconds % 3600;
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+
+    return hours + "h" + minutes + "m" + seconds + "s";
+    /*
+    //debugging
+    console.log("hour " + hours);
+    console.log("min " + minutes);
+    console.log("sec " + seconds);
+    */
+  },
+  /**
+  * Re-maps a number from one range to another.
+  * That is, a value of fromLow would get mapped to toLow, a value of fromHigh to toHigh, values in-between to values in-between, etc.
+  */
+  map: function(x, inMin, inMax, outMin, outMax) {
+    return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
   }
 }
 
