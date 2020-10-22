@@ -555,13 +555,12 @@
     </q-dialog>
     
     <!--====================== GPS CALIBRATION =================================-->
-    
-    <q-dialog v-model="geolocation.showCalibration">
-      <div class="bg-black centered q-pa-md">
-        <img style="width: 100%" src="statics/icons/game/wave-phone.gif">
-        <span class="text-white">{{ $t('label.WaveThePhoneForGPSPrecision') }}</span>
-      </div>
-    </q-dialog>
+    <gpscalibration
+      ref="gpscal"
+      :geolocation = "geolocation"
+      :step = "this.step"
+      @endvertical="this.askUserToHandleMobileVertically">
+    </gpscalibration>
     <q-dialog v-model="geolocation.takeMobileVertically">
       <div class="bg-black centered q-pa-md">
         <img style="width: 100%" src="statics/icons/game/take-mobile-vertically.gif">
@@ -591,6 +590,7 @@ import stepTypes from 'data/stepTypes.json'
 import Notification from 'boot/NotifyHelper'
 
 import geolocation from 'components/geolocation'
+import gpscalibration from 'components/gpsCalibration'
 import story from 'components/story'
 
 import Vue from 'vue'
@@ -621,6 +621,7 @@ export default {
    */
   props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player', 'inventory'],
   components: {
+    gpscalibration,
     geolocation,
     story
   },
@@ -1004,8 +1005,8 @@ export default {
             this.$emit('pass')
             
             // ask user to calibrate gps
-            this.askUserToCalibrateGPS()
-            
+            this.$refs.gpscal.askUserToCalibrateGPS()
+
             // Start absolute orientation sensor
             // ---------------------------------
             // Required to make camera orientation follow device orientation 
@@ -1404,21 +1405,6 @@ export default {
               t: new Date()
           }
       })
-    },
-    /*
-    * Open GPS calibration popin
-    */
-    askUserToCalibrateGPS() {
-      if (this.step.options && this.step.options.showHelp) {
-        this.geolocation.showCalibration = true
-        utils.setTimeout(this.closeGPSCalibration, 7000)
-      }
-    },
-    closeGPSCalibration() {
-      this.geolocation.showCalibration = false
-      if (this.step.type === 'locate-item-ar') {
-        this.askUserToHandleMobileVertically()
-      }
     },
     /*
     * Show the user that he needs to take his mobile vertically
