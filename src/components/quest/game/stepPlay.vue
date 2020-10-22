@@ -2251,6 +2251,7 @@ export default {
       }
       
       if (
+        this.step.countDownTime !== undefined &&
         this.step.countDownTime !== null &&
         this.step.countDownTime.enabled === true)
       {
