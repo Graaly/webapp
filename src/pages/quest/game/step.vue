@@ -807,11 +807,10 @@ export default {
       //this.footer.show = false
       this.next.enabled = false
       this.next.canPass = false
-      utils.setTimeout(this.refreshWaitingPage, 15000)
-    },
-    refreshWaitingPage() {
-      //this.$router.push('/quest/play/' + this.questId)
-      this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/pass_' + this.step.stepId + '_' + utils.randomId() + '/' + this.$route.params.lang)
+      setTimeout(async () => {
+        this.getStep()
+      } 
+      , 15000);
     },
     /*
      * update history
