@@ -79,7 +79,7 @@
               {{ (info.quest && info.quest.title) ? info.quest.title : $t('label.NoTitle') }}
             </p>
             <p v-if="run && run.team && run.team.name">
-              {{ $t('Team') }} : {{ run.team.name }}
+              {{ $t('label.Team') }} : {{ run.team.name }}
             </p>
            <!-- <p v-if="info.quest.countDownTime.enabled">
               {{ "temspsms tresetran: " }} : {{ info.quest.countDownTime.time }}
@@ -395,8 +395,7 @@ export default {
     async initData () {
       this.$q.loading.show()
       // get quest information
-      //await this.getQuest(this.questId) // remove await to speed up loading
-      this.getQuest(this.questId)
+      await this.getQuest(this.questId)
       
       this.loadStepData = false
 

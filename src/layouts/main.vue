@@ -22,8 +22,8 @@ export default {
         name: "--",
         picture: "",
         id: "",
-        team: { currentId: 0, profile: { score: { total: 0, members: 0 } } },
-      },
+        team: { currentId: 0, profile: { score: { total: 0, members: 0 } } }
+      }
     };
   },
   mounted() {
@@ -41,8 +41,8 @@ export default {
         // french default language
         this.$i18n.locale = "fr";
       }
-    },
+    }
   },
-  methods: {},
+  methods: {}
 };
 </script>
