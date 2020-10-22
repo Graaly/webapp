@@ -559,17 +559,16 @@
       ref="gpscal"
       :geolocation = "geolocation"
       :step = "this.step"
-      @endvertical="this.askUserToHandleMobileVertically">
+      @endvertical="$refs.phonevertical.askUserToHandleMobileVertically()">
     </gpscalibration>
-    <q-dialog v-model="geolocation.takeMobileVertically">
-      <div class="bg-black centered q-pa-md">
-        <img style="width: 100%" src="statics/icons/game/take-mobile-vertically.gif">
-        <span class="text-white">{{ $t('label.TakeMobileVertically') }}</span>
-      </div>
-    </q-dialog>
+
+    <!--====================== HOLD PHONE VERTICAL =================================-->
+    <holdphonevertically
+      ref="phonevertical"
+      :geolocation = "geolocation">
+    </holdphonevertically>
     
   </div>
-  
 </template>
 
 <script>
@@ -591,6 +590,7 @@ import Notification from 'boot/NotifyHelper'
 
 import geolocation from 'components/geolocation'
 import gpscalibration from 'components/gpsCalibration'
+import holdphonevertically from 'components/holdPhoneVertically'
 import story from 'components/story'
 
 import Vue from 'vue'
@@ -621,6 +621,7 @@ export default {
    */
   props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player', 'inventory'],
   components: {
+    holdphonevertically,
     gpscalibration,
     geolocation,
     story
@@ -1405,16 +1406,6 @@ export default {
               t: new Date()
           }
       })
-    },
-    /*
-    * Show the user that he needs to take his mobile vertically
-    */
-    askUserToHandleMobileVertically() {
-      this.geolocation.takeMobileVertically = true
-      utils.setTimeout(this.closeHandleMobileVertically, 5000)
-    },
-    closeHandleMobileVertically() {
-      this.geolocation.takeMobileVertically = false
     },
     /*
     * Init QR Codes
