@@ -909,7 +909,6 @@ export default {
         if (this.isHybrid) {
           this.offline.show = true
         } else {
-  console.log("Issue *****")
           var _this = this
           setTimeout(function() { _this.startQuest(questId, lang) }, 7000)
         }
