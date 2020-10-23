@@ -17,6 +17,10 @@
         {{ $t('label.TooMuchOfflineLoadingErrors') }} 
       </div>
     </div>
+    <gpscalibration
+      ref="gpscal"
+      :geolocationshowCalibration = "false">
+    </gpscalibration>
   </div>
 </template>
 
@@ -25,9 +29,13 @@ import QuestService from 'services/QuestService'
 import StepService from 'services/StepService'
 import Notification from 'boot/NotifyHelper'
 import utils from 'src/includes/utils'
+import gpscalibration from 'components/gpsCalibration'
 
 export default {
   props: ['quest', 'design', 'lang'],
+  components: [
+    gpscalibration
+  ],
   watch: { 
     // refresh component if questId change
     quest: async function(newVal, oldVal) {

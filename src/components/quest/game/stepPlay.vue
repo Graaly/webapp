@@ -131,9 +131,15 @@
           <div class="actions q-mt-sm q-mb-md" v-show="playerResult === null">
             <div>
               <q-btn class="glossy small-button" 
-              :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
-               :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
-                icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
+                :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
+                :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
+                icon="clear" 
+                :disable="playerCode[0] === ''"
+                @click="clearLastCodeChar()">
+                <div>
+                  {{ $t('label.Clear') }}
+                </div>
+              </q-btn>
               <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
             </div>
           </div>
@@ -557,8 +563,7 @@
     <!--====================== GPS CALIBRATION =================================-->
     <gpscalibration
       ref="gpscal"
-      :geolocation = "geolocation"
-      :step = "this.step"
+      :geolocationshowCalibration = "false"
       @endvertical="$refs.phonevertical.askUserToHandleMobileVertically()">
     </gpscalibration>
 
@@ -1006,7 +1011,9 @@ export default {
             this.$emit('pass')
             
             // ask user to calibrate gps
-            this.$refs.gpscal.askUserToCalibrateGPS()
+            if (this.step.options && this.step.options.showHelp) {
+              this.$refs.gpscal.askUserToCalibrateGPS(this.step.type);
+            }
 
             // Start absolute orientation sensor
             // ---------------------------------
