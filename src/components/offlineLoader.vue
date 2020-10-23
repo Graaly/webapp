@@ -62,17 +62,13 @@ export default {
       
       // check if quest is not already loaded
       const isQuestOfflineLoaded = await QuestService.isCached(quest.questId)
-   
-      if (!isQuestOfflineLoaded) {
-        this.offline.progress = 0.1
-        await this.saveQuestData(quest)
-        this.offline.progress = 0.1
-        this.$emit('end')
-      } else {
-        this.offline.progress = 1
-        var _this = this
-        setTimeout(function() { _this.$emit('end') }, 7000)
+      this.offline.progress = 0.1;
+      if (!isQuestOfflineLoaded) {  
+        await this.saveQuestData(quest);
       }
+      this.offline.progress = 1;
+      let _this = this;
+      setTimeout(function() { _this.$emit('end') }, 3000);
     },
     /*
      * Add the quest in the offline quests list

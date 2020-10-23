@@ -143,7 +143,13 @@
             -->
             <q-btn v-if="!isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary" class="glossy large-btn"><span>{{ $t('label.BuyCoinsToPlay') }}</span></q-btn>
             <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary" class="glossy large-btn"><span>{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</span></q-btn>
-            <q-btn v-if="quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="playQuest(quest.questId, getLanguage())" color="primary" class="glossy large-btn"><span>{{ $t('label.SolveThisQuest') }}</span></q-btn>
+            <q-btn
+             v-if="quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)"
+              @click="playQuest(quest.questId, getLanguage())" 
+              color="primary"
+               class="glossy large-btn">
+               <span>{{ $t('label.SolveThisQuest') }}</span>
+               </q-btn>
             <q-btn v-if="shop.premiumQuest.priceCode === 'notplayableonweb'" disabled color="primary" class="glossy large-btn"><span>{{ $t('label.QuestPlayableOnMobile') }}</span></q-btn>
           </p>
         </div>
@@ -909,7 +915,6 @@ export default {
         if (this.isHybrid) {
           this.offline.show = true
         } else {
-  console.log("Issue *****")
           var _this = this
           setTimeout(function() { _this.startQuest(questId, lang) }, 7000)
         }
