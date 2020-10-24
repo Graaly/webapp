@@ -1013,11 +1013,6 @@ export default {
             // user can pass
             this.$emit('pass')
             
-            // ask user to calibrate gps
-            if (this.step.options && this.step.options.showHelp) {
-              this.$refs.gpscal.askUserToCalibrateGPS()
-            }
-            
             // Start absolute orientation sensor
             // ---------------------------------
             // Required to make camera orientation follow device orientation 
