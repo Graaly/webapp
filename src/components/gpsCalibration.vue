@@ -19,10 +19,8 @@ export default {
      * Open GPS calibration popup
      */
     askUserToCalibrateGPS() {
-      if (this.step.options && this.step.options.showHelp) {
-        this.geolocation.showCalibration = true;
-        utils.setTimeout(this.closeGPSCalibration, 7000);
-      }
+      this.geolocation.showCalibration = true;
+      utils.setTimeout(this.closeGPSCalibration, 7000);
     },
     /*
      * Close GPS calibration popup
