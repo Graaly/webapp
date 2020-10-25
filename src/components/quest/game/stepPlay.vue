@@ -563,10 +563,9 @@
     <!--====================== GPS CALIBRATION =================================-->
     <gpscalibration
       ref="gpscal"
-      :geolocationshowCalibration = "false"
       @endvertical="$refs.phonevertical.askUserToHandleMobileVertically()">
     </gpscalibration>
-
+<!--:geolocationshowCalibration="false"-->
     <!--====================== HOLD PHONE VERTICAL =================================-->
     <holdphonevertically
       ref="phonevertical"
@@ -1003,7 +1002,7 @@ export default {
         
         // common process to 'geolocation' and 'locate-item-ar'
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
-          if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+        if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
             // if run as builder, get the remainingTrial
             if (this.runId === "0") {
               Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
@@ -1017,12 +1016,6 @@ export default {
             
             // user can pass
             this.$emit('pass')
-            
-            // ask user to calibrate gps
-            if (this.step.options && this.step.options.showHelp) {
-              this.$refs.gpscal.askUserToCalibrateGPS(this.step.type);
-            }
-
             // Start absolute orientation sensor
             // ---------------------------------
             // Required to make camera orientation follow device orientation 
@@ -1081,6 +1074,7 @@ export default {
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
           
           if (this.isHybrid && !this.isIOS) {
+            // IOS is not tested for now, hence why we are not using it 
             cordova.plugins.headingcalibration.watchCalibration(
               (accuracy) => {
                 if (accuracy <= 1) {
