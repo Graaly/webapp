@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="geolocation.showCalibration">
+  <q-dialog v-model="geolocationshowCalibration">
     <div class="bg-black centered q-pa-md">
       <img style="width: 100%" src="statics/icons/game/wave-phone.gif" />
       <span class="text-white">{{
@@ -10,25 +10,35 @@
 </template>
 
 <script>
-import utils from "src/includes/utils";
-
 export default {
-  props: ["geolocation", "step"],
+  data: function () {
+    return {
+      geolocationshowCalibration: false
+    };
+  },
   methods: {
     /*
      * Open GPS calibration popup
      */
-    askUserToCalibrateGPS() {
-      this.geolocation.showCalibration = true;
-      utils.setTimeout(this.closeGPSCalibration, 7000);
+    askUserToCalibrateGPS(steptype) {
+      this.geolocationshowCalibration = true;
+      setTimeout(() => {
+        this.closeGPSCalibration(steptype);
+      }, 5500);
     },
     /*
      * Close GPS calibration popup
      */
-    closeGPSCalibration() {
-      this.geolocation.showCalibration = false;
-      if (this.step.type === "locate-item-ar") {
+    closeGPSCalibration(steptype) {
+      this.geolocationshowCalibration = false;
+      if (
+        steptype !== null &&
+        steptype !== undefined &&
+        steptype === "locate-item-ar"
+      ) {
         this.$emit("endvertical");
+      } else {
+        this.$emit("end");
       }
     }
   }

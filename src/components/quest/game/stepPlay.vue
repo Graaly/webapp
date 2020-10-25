@@ -131,9 +131,15 @@
           <div class="actions q-mt-sm q-mb-md" v-show="playerResult === null">
             <div>
               <q-btn class="glossy small-button" 
-              :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
-               :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
-                icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
+                :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
+                :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
+                icon="clear" 
+                :disable="playerCode[0] === ''"
+                @click="clearLastCodeChar()">
+                <div>
+                  {{ $t('label.Clear') }}
+                </div>
+              </q-btn>
               <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
             </div>
           </div>
@@ -557,11 +563,9 @@
     <!--====================== GPS CALIBRATION =================================-->
     <gpscalibration
       ref="gpscal"
-      :geolocation = "geolocation"
-      :step = "this.step"
       @endvertical="$refs.phonevertical.askUserToHandleMobileVertically()">
     </gpscalibration>
-
+<!--:geolocationshowCalibration="false"-->
     <!--====================== HOLD PHONE VERTICAL =================================-->
     <holdphonevertically
       ref="phonevertical"
@@ -998,7 +1002,7 @@ export default {
         
         // common process to 'geolocation' and 'locate-item-ar'
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
-          if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+        if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
             // if run as builder, get the remainingTrial
             if (this.runId === "0") {
               Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
@@ -1012,7 +1016,6 @@ export default {
             
             // user can pass
             this.$emit('pass')
-            
             // Start absolute orientation sensor
             // ---------------------------------
             // Required to make camera orientation follow device orientation 
@@ -1071,6 +1074,7 @@ export default {
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
           
           if (this.isHybrid && !this.isIOS) {
+            // IOS is not tested for now, hence why we are not using it 
             cordova.plugins.headingcalibration.watchCalibration(
               (accuracy) => {
                 if (accuracy <= 1) {

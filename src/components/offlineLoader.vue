@@ -28,6 +28,7 @@ import utils from 'src/includes/utils'
 
 export default {
   props: ['quest', 'design', 'lang'],
+  components: [],
   watch: { 
     // refresh component if questId change
     quest: async function(newVal, oldVal) {
@@ -68,7 +69,9 @@ export default {
       }
       this.offline.progress = 1;
       let _this = this;
-      setTimeout(function() { _this.$emit('end') }, 3000);
+      setTimeout(function() {
+        _this.$emit('end');
+      }, 3000);
     },
     /*
      * Add the quest in the offline quests list
