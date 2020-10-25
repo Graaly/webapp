@@ -699,6 +699,12 @@ export default {
     }
     
     this.stopcountdown()
+    
+    if (['geolocation', 'locate-item-ar'].includes(this.step.type)) {
+      try {
+        cordova.plugins.headingcalibration.stopWatchCalibration();
+      } catch (err) {}
+    }
   },
   methods: {
     initialState () {
@@ -764,7 +770,9 @@ export default {
           primaryColor: colors.getBrand('primary'),
           showCalibration: false,
           takeMobileVertically: false,
-          gyroscopeDetectionCounter: 0
+          gyroscopeDetectionCounter: 0,
+          lowCompassAccuracy: false,
+          compassAccuracyTimeout: null
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -1071,6 +1079,33 @@ export default {
           // must store object returned by setInterval() in Vue store instead of component properties,
           // otherwise it is reset when route changes & component is reloaded
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
+          
+          if (this.isHybrid && !this.isIOS) {
+            cordova.plugins.headingcalibration.watchCalibration(
+              (accuracy) => {
+                if (accuracy <= 1) {
+                  this.geolocation.lowCompassAccuracy = true
+                  // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
+                  if (this.geolocation.compassAccuracyTimeout === null && !this.geolocation.showCalibration) {
+                    this.geolocation.compassAccuracyTimeout = utils.setTimeout(() => {
+                      this.$refs.gpscal.askUserToCalibrateGPS();
+                      if (this.geolocation.compassAccuracyTimeout !== null) {
+                        clearTimeout(this.geolocation.compassAccuracyTimeout);
+                        this.geolocation.compassAccuracyTimeout = null;
+                      }
+                    }, 10000)
+                  }
+                } else {
+                  this.geolocation.lowCompassAccuracy = false
+                  if (this.geolocation.compassAccuracyTimeout !== null) {
+                    clearTimeout(this.geolocation.compassAccuracyTimeout);
+                    this.geolocation.compassAccuracyTimeout = null;
+                  }
+                }
+              },
+              (err) => { console.error('watch calibration: failure', err) }
+            );
+          }
         }
         
         if (this.step.type === 'locate-item-ar'  && !this.playerResult) {
