@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - dev
+      - tests
   pull_request:
     branches:
       - master

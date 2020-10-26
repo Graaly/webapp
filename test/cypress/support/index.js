@@ -15,7 +15,7 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands'
-
+/*
 Cypress.on('uncaught:exception', () => {
   // returning false here prevents Cypress from
   // failing the test
@@ -24,4 +24,4 @@ Cypress.on('uncaught:exception', () => {
 
 Cypress.Cookies.defaults({
   whitelist: ['_ga', 'cb-enabled', 'connect.sid', 'vuex']
-})
+})*/
