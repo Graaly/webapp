@@ -19,6 +19,7 @@
           <div>
             
             <q-input
+              id="loginemail"
               outlined
               type="email"
               :label="$t('label.YourEmail')"
@@ -30,6 +31,7 @@
               />
             
             <q-input 
+              id="loginPass"
               outlined
               type="password" 
               v-model="form.password" 
