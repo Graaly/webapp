@@ -143,7 +143,13 @@
             -->
             <q-btn v-if="!isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary" class="glossy large-btn"><span>{{ $t('label.BuyCoinsToPlay') }}</span></q-btn>
             <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary" class="glossy large-btn"><span>{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</span></q-btn>
-            <q-btn v-if="quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="playQuest(quest.questId, getLanguage())" color="primary" class="glossy large-btn"><span>{{ $t('label.SolveThisQuest') }}</span></q-btn>
+            <q-btn
+             v-if="quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)"
+              @click="playQuest(quest.questId, getLanguage())" 
+              color="primary"
+               class="glossy large-btn">
+               <span>{{ $t('label.SolveThisQuest') }}</span>
+               </q-btn>
             <q-btn v-if="shop.premiumQuest.priceCode === 'notplayableonweb'" disabled color="primary" class="glossy large-btn"><span>{{ $t('label.QuestPlayableOnMobile') }}</span></q-btn>
           </p>
         </div>
@@ -183,8 +189,17 @@
           </div>
         </div>
         <div class="centered" v-if="offline.show">
-          <offlineLoader :quest="this.quest" :design="'prepare'" :lang="getLanguage()" @end="startQuest(quest.questId, getLanguage())"></offlineLoader>
+          <offlineLoader 
+            :quest="this.quest"
+            :design="'prepare'"
+            :lang="getLanguage()"
+            @end="showCalibrationAndStartQuest()">
+          </offlineLoader>
         </div>
+        <gpscalibration
+          ref="gpscal"
+          @end="startQuest(quest.questId, getLanguage())">
+        </gpscalibration>
       </div>
     </transition>
     
@@ -353,7 +368,6 @@
         <q-spinner-puff class="on-left" /> {{ $t('label.WarningNoLocation') }}
       </div>
     </div>
-    
   </div>
 </template>
 
@@ -369,11 +383,13 @@ import { openURL } from 'quasar'
 //import Vue from 'vue'
 import utils from 'src/includes/utils'
 import Notification from 'boot/NotifyHelper'
+import gpscalibration from 'components/gpsCalibration'
 
 export default {
   components: {
     shop,
-    offlineLoader
+    offlineLoader,
+    gpscalibration
   },
   data () {
     return {
@@ -566,6 +582,17 @@ export default {
         }
       }
       return true
+    },
+    /**
+     * Show the calibration gif (if the quest has at least one geolocationn (or AR) step)
+     * then start the quest
+     */
+    showCalibrationAndStartQuest() {
+      if (this.quest.hasGeolocationSteps) {
+        this.$refs.gpscal.askUserToCalibrateGPS();
+      } else {
+        this.startQuest(this.quest.questId, getLanguage());
+      }
     },
     /*
      * Get the connected user information about previous runs for this quest
@@ -909,8 +936,10 @@ export default {
         if (this.isHybrid) {
           this.offline.show = true
         } else {
-          var _this = this
-          setTimeout(function() { _this.startQuest(questId, lang) }, 7000)
+          var _this = this;
+          setTimeout(function() { 
+           _this.showCalibrationAndStartQuest()
+          }, 3000)
         }
       }
     },

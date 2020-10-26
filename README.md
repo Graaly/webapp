@@ -1,6 +1,6 @@
 # Graaly Web App
 
-
+![Graaly Build Test & Build](https://github.com/Graaly/webapp/workflows/Graaly%20Build%20Test%20&%20Build/badge.svg)
 
 ## Build Setup
 
@@ -47,11 +47,11 @@ $ quasar lint
   - [COMMON ISSUES](#common-issues)
     - [Cordova Android Build unsuccessful](#cordova-android-build-unsuccessful)
       - [Error message `Failed to execute aapt`](#error-message-failed-to-execute-aapt)
-      - [Error "Element ... at  AndroidManifest.xml:... duplicated with element declared at  AndroidManifest.xml:..."](#error-%22element--at-androidmanifestxml-duplicated-with-element-declared-at-androidmanifestxml%22)
+      - [Error "Element ... at  AndroidManifest.xml:... duplicated with element declared at  AndroidManifest.xml:..."](#error-element--at-androidmanifestxml-duplicated-with-element-declared-at-androidmanifestxml)
       - [Error `Unable to merge dex`](#error-unable-to-merge-dex)
       - [Error message `No target specified and no devices found`](#error-message-no-target-specified-and-no-devices-found)
       - [Error message `Failed to execute tools\android.bat`](#error-message-failed-to-execute-toolsandroidbat)
-      - [Error "Can not find symbol"](#error-%22can-not-find-symbol%22)
+      - [Error "Can not find symbol"](#error-can-not-find-symbol)
 
 ## Known issues
 
