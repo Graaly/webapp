@@ -217,7 +217,12 @@
       
       <div class="fixed-bottom over-map" v-if="!offline.active">
         <div v-if="offline.show">
-          <offlineLoader :quest="offline.quest" :design="'download'" :lang="$t('label.shortLang')" @end="questLoadedInCache()"></offlineLoader>
+          <offlineLoader 
+          :quest="offline.quest" 
+          :design="'download'"
+          :lang="$t('label.shortLang')"
+          @end="questLoadedInCache()">
+          </offlineLoader>
         </div>
       </div>
       
@@ -236,7 +241,6 @@ import UserService from 'services/UserService'
 import AppStoreRatingService from 'services/AppStoreRatingService'
 
 import geolocation from 'components/geolocation'
-//import newfriend from 'components/newfriend'
 import shop from 'components/shop'
 import suggest from 'components/quest/suggest'
 import titleBar from 'components/titleBar'
@@ -246,8 +250,6 @@ import usersList from 'components/user/usersList'
 //import offlineLoader from 'components/offlineLoader'
 
 import utils from 'src/includes/utils'
-//import { required, email } from 'vuelidate/lib/validators'
-//import checkPhone from 'boot/CheckPhone'
 import { QSpinnerDots, QInfiniteScroll } from 'quasar'
 
 import Notification from 'boot/NotifyHelper'
@@ -258,7 +260,6 @@ export default {
     QInfiniteScroll,
     QSpinnerDots,
     geolocation,
-    //newfriend,
     shop,
     suggest,
     //offlineLoader,
@@ -363,15 +364,16 @@ export default {
     if (!this.$store || !this.$store.state || !this.$store.state.user || !this.$store.state.user.name) {
       this.backToLogin();
     } else {
-      AppStoreRatingService.initLocalStorage();
-      //test for the review
-      //AppStoreRatingService.resetAlreadyAsked();
-      var questsFinished = this.$store.state.user.statistics.nbQuestsSuccessful;
-      if (questsFinished >= 1 && AppStoreRatingService.hasAlreadyHavePopup() === "false") {
-        console.log("the user has done at least one quest");
-        AppStoreRatingService.launchpopup();
+      if (window.cordova) {
+        AppStoreRatingService.initLocalStorage();
+        //test for the review
+        //AppStoreRatingService.resetAlreadyAsked();
+        var questsFinished = this.$store.state.user.statistics.nbQuestsSuccessful;
+        if (questsFinished >= 1 && AppStoreRatingService.hasAlreadyHavePopup() === "false") {
+          console.log("the user has done at least one quest");
+          AppStoreRatingService.launchpopup();
+        }
       }
-
       this.initPage()
 
       this.$nextTick(() => {

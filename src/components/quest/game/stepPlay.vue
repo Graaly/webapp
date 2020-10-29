@@ -10,6 +10,7 @@
         :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
         :value="map(this.countdowntimeleft,0,this.step.countDownTime.time,0,1)"
         :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
+       :instant-feedback = true
       />
       <!--   <div class="absolute-full flex flex-center">
           <q-badge color="white" text-color="accent" :label="this.countdowntimeleft" />
@@ -130,9 +131,15 @@
           <div class="actions q-mt-sm q-mb-md" v-show="playerResult === null">
             <div>
               <q-btn class="glossy small-button" 
-              :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
-               :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
-                icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
+                :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
+                :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
+                icon="clear" 
+                :disable="playerCode[0] === ''"
+                @click="clearLastCodeChar()">
+                <div>
+                  {{ $t('label.Clear') }}
+                </div>
+              </q-btn>
               <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
             </div>
           </div>
@@ -251,7 +258,9 @@
         </div>
         <div id="pieces">
             <div draggable="true"
-              v-for="piece in puzzle.pieces" :key="piece.pos" :id="'piece-' + piece.pos"
+              v-for="piece in puzzle.pieces" 
+              :key="piece.pos" 
+              :id="'piece-' + piece.pos"
               @dragstart="handleDragStart($event)"
               @dragover="handleDragOver($event)"
               @drop="handleDrop($event)"
@@ -459,14 +468,32 @@
       
       <div v-if="step.type == 'trigger-event'" class="trigger-event">
         <p class="text" style="flex-grow: 1" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
-        <div v-if="step.options.object !== 'chest'">
-          <q-btn v-if="step.options.triggerMode && step.options.triggerMode === 'manual'" class="full-width" color="primary" :label="$t('label.TriggerTheEvent')" size="xl" @click="triggerIotEvent()" :disable="bluetooth.deviceId === null" />
+        <div v-if="step.options.object !== 'chest' || step.options.object === 'relay'">
+          <q-btn 
+            v-if="step.options.triggerMode && step.options.triggerMode === 'manual'" 
+            class="full-width" color="primary" 
+            :label="$t('label.TriggerTheEvent')" 
+            size="xl" 
+            @click="triggerIotEvent()" 
+            :disable="bluetooth.deviceId === null" 
+          />
         </div>
-        <div v-if="step.options.object === 'chest'">
+        <div v-if="step.options.object === 'chest' || step.options.object === 'relay'">
           <p>{{ $t('label.ChestActions') }}</p>
           <div style="display:flex; ">
-            <q-btn style="flex-grow:1; margin-right: 1rem;" color="primary" :label="$t('label.Open')" size="xl" @click="triggerIotEvent('open')" :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons" />
-            <q-btn style="flex-grow:1" color="primary" :label="$t('label.Close')" size="xl" @click="triggerIotEvent('close')" :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons" />
+            <q-btn 
+              style="flex-grow:1; margin-right: 1rem;"
+              color="primary" :label="$t('label.Open')" 
+              size="xl" @click="triggerIotEvent('open')" 
+              :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons || iot.relay.disableActionButtons" 
+            />
+            <q-btn 
+              style="flex-grow:1" color="primary"
+              :label="$t('label.Close')" 
+              size="xl"
+              @click="triggerIotEvent('close')" 
+              :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons || iot.relay.disableActionButtons"
+            />
           </div>
         </div>
         <p v-if="step.options.protocol === 'bluetooth' && bluetooth.deviceId === null">{{ $t('label.SearchingBluetoothDevice') }}</p>
@@ -537,22 +564,18 @@
     </q-dialog>
     
     <!--====================== GPS CALIBRATION =================================-->
-    
-    <q-dialog v-model="geolocation.showCalibration">
-      <div class="bg-black centered q-pa-md">
-        <img style="width: 100%" src="statics/icons/game/wave-phone.gif">
-        <span class="text-white">{{ $t('label.WaveThePhoneForGPSPrecision') }}</span>
-      </div>
-    </q-dialog>
-    <q-dialog v-model="geolocation.takeMobileVertically">
-      <div class="bg-black centered q-pa-md">
-        <img style="width: 100%" src="statics/icons/game/take-mobile-vertically.gif">
-        <span class="text-white">{{ $t('label.TakeMobileVertically') }}</span>
-      </div>
-    </q-dialog>
+    <gpscalibration
+      ref="gpscal"
+      @endvertical="$refs.phonevertical.askUserToHandleMobileVertically()">
+    </gpscalibration>
+<!--:geolocationshowCalibration="false"-->
+    <!--====================== HOLD PHONE VERTICAL =================================-->
+    <holdphonevertically
+      ref="phonevertical"
+      :geolocation = "geolocation">
+    </holdphonevertically>
     
   </div>
-  
 </template>
 
 <script>
@@ -567,11 +590,14 @@ import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
 import markersList from 'data/markers.json'
 import iotObjectsList from 'data/iotObjects.json'
+import iotOptions from 'data/iotOptions.json'
 import stepTypes from 'data/stepTypes.json'
 
 import Notification from 'boot/NotifyHelper'
 
 import geolocation from 'components/geolocation'
+import gpscalibration from 'components/gpsCalibration'
+import holdphonevertically from 'components/holdPhoneVertically'
 import story from 'components/story'
 
 import Vue from 'vue'
@@ -602,6 +628,8 @@ export default {
    */
   props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player', 'inventory'],
   components: {
+    holdphonevertically,
+    gpscalibration,
     geolocation,
     story
   },
@@ -673,6 +701,12 @@ export default {
     }
     
     this.stopcountdown()
+    
+    if (['geolocation', 'locate-item-ar'].includes(this.step.type)) {
+      try {
+        cordova.plugins.headingcalibration.stopWatchCalibration();
+      } catch (err) {}
+    }
   },
   methods: {
     initialState () {
@@ -738,7 +772,9 @@ export default {
           primaryColor: colors.getBrand('primary'),
           showCalibration: false,
           takeMobileVertically: false,
-          gyroscopeDetectionCounter: 0
+          gyroscopeDetectionCounter: 0,
+          lowCompassAccuracy: false,
+          compassAccuracyTimeout: null
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -819,7 +855,8 @@ export default {
           keypadAnswer: null,
           axisX: null,
           axisY: null,
-          chest: { disableActionButtons: false }
+          chest: { disableActionButtons: false },
+          relay: { disableActionButtons: false }
         },
         // for story/tutorial
         story: {
@@ -969,7 +1006,7 @@ export default {
         
         // common process to 'geolocation' and 'locate-item-ar'
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
-          if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+        if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
             // if run as builder, get the remainingTrial
             if (this.runId === "0") {
               Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
@@ -983,10 +1020,6 @@ export default {
             
             // user can pass
             this.$emit('pass')
-            
-            // ask user to calibrate gps
-            this.askUserToCalibrateGPS()
-            
             // Start absolute orientation sensor
             // ---------------------------------
             // Required to make camera orientation follow device orientation 
@@ -1043,6 +1076,34 @@ export default {
           // must store object returned by setInterval() in Vue store instead of component properties,
           // otherwise it is reset when route changes & component is reloaded
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
+          
+          if (this.isHybrid && !this.isIOS) {
+            // IOS is not tested for now, hence why we are not using it 
+            cordova.plugins.headingcalibration.watchCalibration(
+              (accuracy) => {
+                if (accuracy <= 1) {
+                  this.geolocation.lowCompassAccuracy = true
+                  // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
+                  if (this.geolocation.compassAccuracyTimeout === null && !this.geolocation.showCalibration) {
+                    this.geolocation.compassAccuracyTimeout = utils.setTimeout(() => {
+                      this.$refs.gpscal.askUserToCalibrateGPS();
+                      if (this.geolocation.compassAccuracyTimeout !== null) {
+                        clearTimeout(this.geolocation.compassAccuracyTimeout);
+                        this.geolocation.compassAccuracyTimeout = null;
+                      }
+                    }, 10000)
+                  }
+                } else {
+                  this.geolocation.lowCompassAccuracy = false
+                  if (this.geolocation.compassAccuracyTimeout !== null) {
+                    clearTimeout(this.geolocation.compassAccuracyTimeout);
+                    this.geolocation.compassAccuracyTimeout = null;
+                  }
+                }
+              },
+              (err) => { console.error('watch calibration: failure', err) }
+            );
+          }
         }
         
         if (this.step.type === 'locate-item-ar'  && !this.playerResult) {
@@ -1385,31 +1446,6 @@ export default {
               t: new Date()
           }
       })
-    },
-    /*
-    * Open GPS calibration popin
-    */
-    askUserToCalibrateGPS() {
-      if (this.step.options && this.step.options.showHelp) {
-        this.geolocation.showCalibration = true
-        utils.setTimeout(this.closeGPSCalibration, 7000)
-      }
-    },
-    closeGPSCalibration() {
-      this.geolocation.showCalibration = false
-      if (this.step.type === 'locate-item-ar') {
-        this.askUserToHandleMobileVertically()
-      }
-    },
-    /*
-    * Show the user that he needs to take his mobile vertically
-    */
-    askUserToHandleMobileVertically() {
-      this.geolocation.takeMobileVertically = true
-      utils.setTimeout(this.closeHandleMobileVertically, 5000)
-    },
-    closeHandleMobileVertically() {
-      this.geolocation.takeMobileVertically = false
     },
     /*
     * Init QR Codes
@@ -3734,14 +3770,18 @@ export default {
         switch (this.step.options.object) {
           case 'lcd':
             finalData = this.step.options.message
-            break
+            break;
           case 'buzzer':
             finalData = this.step.options.duration + ',' + this.step.options.frequency
-            break
+            break;
           case 'chest':
             this.iot.chest.disableActionButtons = true
             finalData = data
-            break
+            break;
+          case 'relay':
+            this.iot.relay.disableActionButtons = true
+            finalData = data
+            break;
           default:
             throw new Error("Object '" + this.step.options.object + "' not supported")
         }
@@ -3749,6 +3789,10 @@ export default {
         if (this.step.options.object === 'chest') {
           await utils.sleep(2000)
           this.iot.chest.disableActionButtons = false
+        }
+        if (this.step.options.object === 'relay') {
+          await utils.sleep(2000)
+          this.iot.relay.disableActionButtons = false
         }
       } else {
         throw new Error('IoT protocol not supported: ' + this.step.options.protocol)
@@ -3781,7 +3825,8 @@ export default {
     },
     bluetoothScanResult: function(data) {
       console.log("Device discovered", data)
-      if (data.name === this.iotObject.deviceName) {
+      console.log(this.step.options.deviceid)
+      if (data.name === this.step.options.deviceid) {
         this.stopBluetoothScan()
         console.log("Graaly IoT BT device discovered")
         this.bluetooth.deviceId = data.id;
@@ -3804,7 +3849,12 @@ export default {
       }
       
       if (this.step.type === 'trigger-event' && (!this.step.options.triggerMode || this.step.options.triggerMode === 'auto')) {
-        this.triggerIotEvent(this.step.options.object === 'chest' ? 'open' : '')
+        if (this.step.options.object === 'chest' || this.step.options.object === 'relay') {
+          this.triggerIotEvent('open')
+        }
+        else {
+          this.triggerIotEvent('')
+        }
       }
     },
     bluetoothDeviceDisonnected: function(err) {
@@ -3906,8 +3956,8 @@ export default {
         console.log("sendMessageToBluetoothServer: " + stringToSend)
         ble.writeWithoutResponse(
           _this.bluetooth.deviceId,
-          _this.iotObject.bleServiceId,
-          _this.iotObject.bleCharacteristicId,
+          iotOptions.baseServiceID,
+          _this.createIotCara(_this.bluetooth.deviceId),
           utils.stringToBytes(stringToSend),
           data => {
             console.log("BLE write success", data)
@@ -3938,8 +3988,8 @@ export default {
       return new Promise((resolve, reject) => {
         ble.stopNotification(
           _this.bluetooth.deviceId,
-          _this.iotObject.bleServiceId,
-          _this.iotObject.bleCharacteristicId,
+          iotOptions.baseServiceID,
+          _this.createIotCara(_this.bluetooth.deviceId),
           () => { resolve() },
           (err) => { reject(new Error("Could not stop bluetooth notifications. error: " + err)) })
       })
@@ -3951,6 +4001,16 @@ export default {
         }
       }
       throw new Error("Unknown object code '" + code + "'")
+    },
+    /**
+     * Transform a normal mac A2:B4:F5...
+     * into a single string a2b4f5...
+     */
+    createIotCara(mac) {
+      console.log(mac);
+      let p = iotOptions.baseCara + mac.toLowerCase().replaceAll(':', '');
+      console.log(p);
+      return p;
     },
     //Timer & countdown
     isTimerAvailable() {
