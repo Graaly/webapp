@@ -472,9 +472,38 @@
       <!------------------ STEP : FIND ITEM ------------------------>
 
       <div class="find-item" v-if="options.type.code === 'find-item' && (selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '')">
+        <q-select
+          :label="$t('label.AreasNumber')"
+          v-model="selectedStep.form.options.nbAreas"
+          :options="config.findItem.numberOfAreas"
+          emit-value
+          map-options
+          bottom-slots
+          options-cover
+          @input="changeNbAreas"
+          />
         <p>{{ $t('label.ClickOnTheItemThatIsToFind') }} :</p>
-        <div @click="getClickCoordinates($event)" id="findItemPicture" ref="findItemPicture" :style="'overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
-          <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="statics/icons/game/find-item-locator.png" />
+        <div 
+          v-if="selectedStep && selectedStep.form && selectedStep.form.answers"
+          @click="getClickCoordinatesFindItem($event)" 
+          id="findItemPicture" ref="findItemPicture" 
+          :style="'position: relative; overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
+          <img 
+            id="cross0" 
+            style="position: absolute; z-index: 500; top: 10vw; left: 10vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            @click="selectFindItemArea(0)" src="statics/icons/game/find-item-locator.png" />
+          <img 
+            id="cross1" 
+            style="display: none; position: absolute; z-index: 500; top: 30vw; left: 10vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            @click="selectFindItemArea(1)" src="statics/icons/game/find-item-locator.png" />
+          <img 
+            id="cross2" 
+            style="display: none; position: absolute; z-index: 500; top: 30vw; left: 10vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            @click="selectFindItemArea(2)" src="statics/icons/game/find-item-locator.png" />
+          <img 
+            id="cross3" 
+            style="display: none; position: absolute; z-index: 500; top: 30vw; left: 30vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            @click="selectFindItemArea(3)" src="statics/icons/game/find-item-locator.png" />
         </div>
         <div>
           <div v-if="!isIOs">
@@ -1186,6 +1215,15 @@ export default {
         useItem: {
           questItemsAsOptions: []
         },
+        findItem: {
+          numberOfAreas: [
+            { value: 1, label: "1" },
+            { value: 2, label: "2" },
+            { value: 3, label: "3" },
+            { value: 4, label: "4" }
+          ],
+          currentArea: 0
+        },
         locateItem: {
           selectModel3DOptions: [],
           zoom: 60,
@@ -1470,12 +1508,16 @@ export default {
           this.selectedStep.form.answers = ""
         }
       }*/ else if (this.options.type.code === 'find-item') {
-        if (this.selectedStep.form.answers.hasOwnProperty('top')) {
-          this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers
+        if (this.selectedStep.form.options.hasOwnProperty('nbAreas')) {
+          //this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers
           this.$nextTick(function () {
             // Code that will run only after the entire view has been rendered
             this.positionFindItemPointer()
           })
+        } else {
+          this.selectedStep.form.options.nbAreas = 1
+          this.selectedStep.form.options.coordinates = [{top: 50, left: 50}]
+          //this.positionFindItemPointer()
         }
         if (!this.selectedStep.form.options) {
           this.selectedStep.form.options = {}
@@ -1485,7 +1527,7 @@ export default {
           this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers.coordinates
           this.$nextTick(function () {
             // Code that will run only after the entire view has been rendered
-            this.positionFindItemPointer()
+            this.positionUseItemPointer()
           })
         }
         if (this.selectedStep.form.answers && this.selectedStep.form.answers.item) {
@@ -1671,7 +1713,7 @@ export default {
         }
       }
       if (this.options.type.code === 'find-item') {
-        this.selectedStep.form.answers = this.selectedStep.form.answerPointerCoordinates
+        //Coordinates are already set
       }
       if (this.options.type.code === 'use-item') {
         this.selectedStep.form.answers = {coordinates: this.selectedStep.form.answerPointerCoordinates, item: this.selectedStep.form.answerItem}
@@ -2533,22 +2575,59 @@ export default {
       let posX = ev.clientX - rect.left
       let posY = ev.clientY - rect.top
       
-      let picture = this.options.type.code === 'use-item' ? this.$refs['useItemPicture'] : this.$refs['findItemPicture']
+      let picture = this.$refs['useItemPicture']
       
       // relative position between 0 to 100
       this.selectedStep.form.answerPointerCoordinates.left = Math.round(posX / picture.clientWidth * 100)
       this.selectedStep.form.answerPointerCoordinates.top = Math.round(posY / picture.clientHeight * 100)
+      this.positionUseItemPointer()
+    },
+    /*
+     * Get the coordinate of a touch on the screen
+     * @param   {Object}    ev            Touch event data
+     */
+    getClickCoordinatesFindItem(ev) {
+      // see https://stackoverflow.com/a/42111623/488666
+      const rect = ev.currentTarget.getBoundingClientRect()
+      const posX = ev.clientX - rect.left
+      const posY = ev.clientY - rect.top
+      
+      const picture = this.$refs['findItemPicture']
+      
+      // relative position between 0 to 100
+      this.selectedStep.form.options.coordinates[this.config.findItem.currentArea].left = Math.round(posX / picture.clientWidth * 100)
+      this.selectedStep.form.options.coordinates[this.config.findItem.currentArea].top = Math.round(posY / picture.clientHeight * 100)
+
       this.positionFindItemPointer()
     },
     /*
      * Position the pointer to locate the item for the find item step
      */
     positionFindItemPointer() {
+      const vw = window.innerWidth / 100 // in px
+      
+      // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
+      const solutionAreaRadius = Math.round(8 * vw)
+      for (var i = 0; i < 4; i++) {
+        if (document.getElementById("cross" + i)) {
+          if (i < this.selectedStep.form.options.nbAreas) {
+            document.getElementById("cross" + i).style.display = 'block'
+            document.getElementById("cross" + i).style.left = Math.round(this.selectedStep.form.options.coordinates[i].left * 90 * vw / 100 - solutionAreaRadius) + "px"
+            document.getElementById("cross" + i).style.top = Math.round(this.selectedStep.form.options.coordinates[i].top * 120 * vw / 100 - solutionAreaRadius) + "px"
+          } else {
+            document.getElementById("cross" + i).style.display = 'none'
+          }
+        }
+      }
+    },
+    /*
+     * Position the pointer to locate the item for the find item step
+     */
+    positionUseItemPointer() {
       let vw = window.innerWidth / 100 // in px
       
       // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
       let solutionAreaRadius = Math.round(8 * vw)
-      
       document.getElementById("cross").style.left = Math.round(this.selectedStep.form.answerPointerCoordinates.left * 90 * vw / 100 - solutionAreaRadius) + "px"
       document.getElementById("cross").style.top = Math.round(this.selectedStep.form.answerPointerCoordinates.top * 120 * vw / 100 - solutionAreaRadius) + "px"
     },
@@ -2782,6 +2861,34 @@ export default {
           _this.selectedStep.form.countDownTime.enabled = false;
         })
       }
+    },
+    selectFindItemArea (index) {
+      for (var i = 0; i < this.selectedStep.form.options.nbAreas; i++) {
+        if (document.getElementById('cross' + i)) {
+          document.getElementById('cross' + i).style.opacity = 0.5
+        }
+      }
+      if (document.getElementById('cross' + index)) {
+        document.getElementById('cross' + index).style.opacity = 1
+      }
+      this.config.findItem.currentArea = index
+    },
+    changeNbAreas () {
+      if (this.selectedStep.form.options && this.selectedStep.form.options.coordinates) {
+        if (this.selectedStep.form.options.coordinates.length < this.selectedStep.form.options.nbAreas) {
+          for (var i = this.selectedStep.form.options.coordinates.length; i < this.selectedStep.form.options.nbAreas; i++) {
+            this.selectedStep.form.options.coordinates.push({top: 50, left: 50})
+          }
+          //this.selectedStep.form.answers.coordinates.length = this.selectedStep.form.options.nbAreas          
+          this.config.findItem.currentArea = this.selectedStep.form.options.coordinates.length - 1
+          this.selectFindItemArea(this.config.findItem.currentArea - 1)
+        } else {
+          this.selectedStep.form.options.coordinates.length = this.selectedStep.form.options.nbAreas
+          this.config.findItem.currentArea = this.selectedStep.form.options.coordinates.length - 1
+        }
+      }
+      this.positionFindItemPointer()
+      return true
     }
   },
   validations() {

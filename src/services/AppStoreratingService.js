@@ -5,36 +5,38 @@ export default {
      * Launch the rating popup
      */
     launchpopup() {
-        var _this = this;
-        AppRate.preferences.useLanguage = 'fr';
-        AppRate.preferences.storeAppURL = {
-            ios: 'id1448284225',
-            android: 'market://details?id=graaly.app'
-        };
-        AppRate.preferences.reviewType = {
-            ios: 'InAppReview',
-            android: 'InAppReview'
-        };
-        AppRate.preferences.simpleMode = true;
-        AppRate.preferences.callbacks.onButtonClicked = function (buttonIndex) {
-            console.log("onButtonClicked -> " + buttonIndex);
-            switch (buttonIndex) {
-                case 1:
-                    // no, don't remind me again
-                    _this.addAlreadyAskedForRating();
-                    break;
-                case 2:
-                    // yes but remind me later
-                    _this.addLater(7) // 7 here is the number of days to ask him later
-                    break;
-                case 3:
-                    // rate now
-                    break;
-                default:
-                    break;
-            }
-        };
-        AppRate.promptForRating();
+        if (AppRate) {
+          var _this = this;
+          AppRate.preferences.useLanguage = 'fr';
+          AppRate.preferences.storeAppURL = {
+              ios: 'id1448284225',
+              android: 'market://details?id=graaly.app'
+          };
+          AppRate.preferences.reviewType = {
+              ios: 'InAppReview',
+              android: 'InAppReview'
+          };
+          AppRate.preferences.simpleMode = true;
+          AppRate.preferences.callbacks.onButtonClicked = function (buttonIndex) {
+              console.log("onButtonClicked -> " + buttonIndex);
+              switch (buttonIndex) {
+                  case 1:
+                      // no, don't remind me again
+                      _this.addAlreadyAskedForRating();
+                      break;
+                  case 2:
+                      // yes but remind me later
+                      _this.addLater(7) // 7 here is the number of days to ask him later
+                      break;
+                  case 3:
+                      // rate now
+                      break;
+                  default:
+                      break;
+              }
+          };
+          AppRate.promptForRating();
+        }
     },
     /**
      * Initialise the local storage to keep in mind if we have already

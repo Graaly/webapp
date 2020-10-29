@@ -319,8 +319,11 @@
         <div>
           <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
-        <div ref="findItemPicture" @click="findItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="find-item-picture">
-          <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
+        <div ref="findItemPicture" @click="findItem($event)" :style="'position: relative; overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="find-item-picture">
+          <img id="cross-play0" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play1" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play2" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play3" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
       
@@ -797,6 +800,7 @@ export default {
           disabled: false
         },
         // for step type 'find-item'
+        nbItemsFound: 0,
         readMoreNotif: null,
         // for step type 'use-item'
         itemUsedComputed: null,
@@ -1697,21 +1701,14 @@ export default {
           return { result: false, answer: this.answer, score: 0, reward: 0, offline: true }
         }
         
-        let answerPixelCoordinates = {
-          left: Math.round(this.answer.left / 100 * 100 * answer.windowWidth),
-          top: Math.round(this.answer.top / 100 * 133 * answer.windowWidth)
-        }
-        
-        // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
-        let solutionAreaRadius = Math.round(8 * answer.windowWidth)
-        
-        let distanceToSolution = Math.sqrt(Math.pow(answerPixelCoordinates.left - answer.posX, 2) + Math.pow(answerPixelCoordinates.top - answer.posY, 2))
-
-        if (distanceToSolution <= solutionAreaRadius) {
-          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
-        }
+        //if (this.step.options && this.step.options.coordinates && this.step.options.coordinates.length > 0) {
+          //const checkIfFound = this.findItemIsFound()
+          //if (checkIfFound.all) {
+        return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+          //}
+        //}
       } else if (type === 'write-text') {
-        for (var i = 0; i < this.answer.length; i++) {
+        for (i = 0; i < this.answer.length; i++) {
           if (utils.removeAccents(answer) === utils.removeAccents(this.answer[i])) {
             return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
           }
@@ -1999,9 +1996,10 @@ export default {
           break
           
         case 'find-item':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
-          
-          if (checkAnswerResult.result === true) {
+          const checkIfFound = this.findItemIsFound(answer)
+          if (checkIfFound.all) {
+            checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
+            
             if (this.step.displayRightAnswer) {
               this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
             }
@@ -2011,18 +2009,15 @@ export default {
             }
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
-            if (this.isTimeUp) {
-              checkAnswerResult.remainingTrial = 0
-            }
+            const remainingTrial = this.isTimeUp ? 0 : (this.step.nbTrial - this.nbTry - 1)
             
-            this.nbTry++
-            if (checkAnswerResult.remainingTrial > 0) {
-              Notification(this.$t('label.FindItemNothingHappens'), 'error')
-            } else {
-              if (this.step.displayRightAnswer) {
-                this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
+            if (!checkIfFound.one) {
+              this.nbTry++
+              if (remainingTrial > 0) {
+                Notification(this.$t('label.FindItemNothingHappens'), 'error')
+              } else {
+                this.submitWrongAnswer(false, this.step.displayRightAnswer)
               }
-              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
           
@@ -4046,6 +4041,37 @@ export default {
       }
       console.warn("Could not retrieve step type from code '" + code + "'")
       return null
+    },
+    /**
+     * check if all find item areas are found
+     */
+    findItemIsFound(data) {
+      var notAllFound = false
+      var oneFound = false
+      for (var i = 0; i < this.step.options.coordinates.length; i++) {
+        if (!this.step.options.coordinates[i].found) {
+          let answerPixelCoordinates = {
+            left: Math.round(this.step.options.coordinates[i].left / 100 * 100 * data.windowWidth),
+            top: Math.round(this.step.options.coordinates[i].top / 100 * 133 * data.windowWidth)
+          }
+          
+          // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
+          let solutionAreaRadius = Math.round(8 * data.windowWidth)
+          
+          let distanceToSolution = Math.sqrt(Math.pow(answerPixelCoordinates.left - data.posX, 2) + Math.pow(answerPixelCoordinates.top - data.posY, 2))
+
+          if (distanceToSolution <= solutionAreaRadius) {
+            this.step.options.coordinates[i].found = true
+            oneFound = true
+            document.getElementById("cross-play" + i).style.left = answerPixelCoordinates.left - solutionAreaRadius + "px"
+            document.getElementById("cross-play" + i).style.top = answerPixelCoordinates.top - solutionAreaRadius + "px"
+            document.getElementById("cross-play" + i).style.display = 'block'
+          } else {
+            notAllFound = true
+          }
+        }
+      }
+      return {all: !notAllFound, one: oneFound}
     }
   }
 }

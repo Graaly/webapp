@@ -954,7 +954,8 @@ module.exports = {
       CountDownWarning: "Are you sure you want to activate the time limit ? Make sure to not put a time that is too short for the user!",
       CountDownPopupfail: "Time is up !",
       MaxScore: "Max score",
-      YouMustTestThisStepOnMobile: "You must test this step on a mobile device"
+      YouMustTestThisStepOnMobile: "You must test this step on a mobile device",
+      AreasNumber: "Number of areas to find"
     }
   },
   fr: {
@@ -1899,7 +1900,8 @@ module.exports = {
       CountDownWarning: "Etes-vous certain(e) d'activé la limite de temps ? Assurez vous de ne pas mettre un temps trop court pour ne pas presser l'utilisateur !",
       CountDownPopupfail: "Temps écoulé !",
       MaxScore: "Score maxi",
-      YouMustTestThisStepOnMobile: "Vous devez tester ce type d'étape sur un appareil mobile"
+      YouMustTestThisStepOnMobile: "Vous devez tester ce type d'étape sur un appareil mobile",
+      AreasNumber: "Nombre de zones à trouver"
     }
   }
 }
