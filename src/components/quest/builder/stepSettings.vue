@@ -41,7 +41,11 @@
         </q-btn>
         <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
           <p>{{ $t('label.YourPicture') }} :</p>
-          <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
+          <img 
+            v-if="questId !== null" 
+            class="full-width"
+            :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" 
+            /> <br />
           <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
         </div>
       </div>
@@ -118,7 +122,7 @@
         <h2>{{ $t('label.Character') }}</h2>
         <div v-if="quest.customization.character && quest.customization.character !== ''">
           <q-radio v-model="selectedStep.form.options.character" val="usequestcharacter" />
-          <p><img :src="serverUrl + '/upload/quest/' + quest.customization.character" /></p>
+          <p><img class="full-width" :src="serverUrl + '/upload/quest/' + quest.customization.character" /></p>
         </div>
         <div class="answer" v-for="n in 6" :key="n">
           <q-radio v-model="selectedStep.form.options.character" :val="n.toString()" />
@@ -304,7 +308,11 @@
                 </q-icon>
               </template>
             </q-input>
-            <div class="centered"><q-btn :label="$t('label.Add')" color="secondary" @click="addColor()" /></div>
+            <div class="centered">
+              <q-btn class="glossy normal-button" color="secondary" @click="addColor()">
+                {{ $t('label.Add') }}
+              </q-btn>
+            </div>
           </q-expansion-item>
         </q-list>
         <q-select emit-value map-options :label="$t('label.NumberOfColorsInTheCode')" :options="config.colorCode.numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-colors" />
@@ -369,7 +377,7 @@
       </div>
       
       <!------------------ STEP : IMAGE RECOGNITION ------------------------>
-      
+      <!-- MPA 2020-09-24 not used
       <div v-if="options.type.code == 'image-recognition'" class="image-recognition">
         <div v-if="!isIOs">
           <q-btn class="full-width" :label="$t('label.UploadThePictureOfTheObjectToFind')" @click="$refs['image-to-recognize'].click()" />
@@ -384,7 +392,7 @@
           <p>{{ $t('label.UploadedPicture') }} :</p>
           <img :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + selectedStep.form.answers" />
         </div>
-      </div>
+      </div>-->
       
       <!------------------ STEP : JIGSAW PUZZLE ------------------------>
       
@@ -402,7 +410,7 @@
           <p v-if="!selectedStep.form.options.picture">{{ $t('label.WarningImageSizeSquare') }}</p>
           <div v-if="selectedStep.form.options.picture">
             <p>{{ $t('label.YourPuzzlePicture') }} :</p>
-            <img :src="serverUrl + '/upload/quest/' + questId + '/step/jigsaw-puzzle/' + selectedStep.form.options.picture" />
+            <img class="full-width" :src="serverUrl + '/upload/quest/' + questId + '/step/jigsaw-puzzle/' + selectedStep.form.options.picture" />
           </div>
         </div>
         <div>
@@ -472,9 +480,38 @@
       <!------------------ STEP : FIND ITEM ------------------------>
 
       <div class="find-item" v-if="options.type.code === 'find-item' && (selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '')">
+        <q-select
+          :label="$t('label.AreasNumber')"
+          v-model="selectedStep.form.options.nbAreas"
+          :options="config.findItem.numberOfAreas"
+          emit-value
+          map-options
+          bottom-slots
+          options-cover
+          @input="changeNbAreas"
+          />
         <p>{{ $t('label.ClickOnTheItemThatIsToFind') }} :</p>
-        <div @click="getClickCoordinates($event)" id="findItemPicture" ref="findItemPicture" :style="'overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
-          <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="statics/icons/game/find-item-locator.png" />
+        <div 
+          v-if="selectedStep && selectedStep.form && selectedStep.form.answers"
+          @click="getClickCoordinatesFindItem($event)" 
+          id="findItemPicture" ref="findItemPicture" 
+          :style="'position: relative; overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
+          <img 
+            id="cross0" 
+            style="position: absolute; z-index: 500; top: 10vw; left: 10vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            @click="selectFindItemArea(0)" src="statics/icons/game/find-item-locator.png" />
+          <img 
+            id="cross1" 
+            style="display: none; position: absolute; z-index: 500; top: 30vw; left: 10vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            @click="selectFindItemArea(1)" src="statics/icons/game/find-item-locator.png" />
+          <img 
+            id="cross2" 
+            style="display: none; position: absolute; z-index: 500; top: 30vw; left: 10vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            @click="selectFindItemArea(2)" src="statics/icons/game/find-item-locator.png" />
+          <img 
+            id="cross3" 
+            style="display: none; position: absolute; z-index: 500; top: 30vw; left: 30vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            @click="selectFindItemArea(3)" src="statics/icons/game/find-item-locator.png" />
         </div>
         <div>
           <div v-if="!isIOs">
@@ -603,7 +640,9 @@
         <p>
           <img :src="'statics/markers/' + selectedStep.form.answers + '/marker.png'" />
           <span>{{ selectedStep.form.answers }}</span>
-          <q-btn color="primary" :label="$t('label.Choose')" @click="openChooseMarkerModal()" test-id="btn-open-choose-marker-modal" />
+          <q-btn class="glossy normal-button" color="primary" @click="openChooseMarkerModal()" test-id="btn-open-choose-marker-modal">
+            {{ $t('label.Choose') }}
+          </q-btn>
         </p>
         
         <!--
@@ -659,13 +698,54 @@
       
       <div v-if="options.type.code === 'wait-for-event' || options.type.code === 'trigger-event'">
         
-        <q-select emit-value map-options :label="$t('label.Protocol')" v-model="selectedStep.form.options.protocol" :options="config.iot.protocols" />
+        <q-select 
+          emit-value 
+          map-options
+          :label="$t('label.Protocol')"
+          v-model="selectedStep.form.options.protocol"
+          :options="config.iot.protocols"
+        />
         
-        <q-select v-if="options.type.code === 'wait-for-event'" emit-value map-options :label="$t('label.IotObject')" v-model="selectedStep.form.options.object" :options="config.iot.waitForEvent.iotObjectsAsOptions" @input="updateIotStepOptions()" />
+       <!-- example mac : 24:62:AB:CA:51:20-->
+        <q-input 
+          emit-value 
+          map-options
+          v-model="selectedStep.form.options.deviceid"
+          :label="'DeviceID (plug the device in)'"
+          :options="config.iot.triggerEvent.modes" 
+          mask="NN:NN:NN:NN:NN:NN"
+          fill-mask=""
+          value="00:00:00:00:00:00"
+        />
+
+        <q-select
+          v-if="options.type.code === 'wait-for-event'"
+          emit-value
+          map-options
+          :label="$t('label.IotObject')"
+          v-model="selectedStep.form.options.object" 
+          :options="config.iot.waitForEvent.iotObjectsAsOptions"
+          @input="updateIotStepOptions()" 
+        />
         
-        <q-select v-if="options.type.code === 'trigger-event'" emit-value map-options :label="$t('label.IotObject')" v-model="selectedStep.form.options.object" :options="config.iot.triggerEvent.iotObjectsAsOptions" @input="updateIotStepOptions()" />
+        <q-select
+          v-if="options.type.code === 'trigger-event'" 
+          emit-value 
+          map-options 
+          :label="$t('label.IotObject')"
+          v-model="selectedStep.form.options.object"
+          :options="config.iot.triggerEvent.iotObjectsAsOptions"
+          @input="updateIotStepOptions()" 
+        />
         
-        <q-select v-if="options.type.code === 'trigger-event'" emit-value map-options v-model="selectedStep.form.options.triggerMode" :label="$t('label.TriggerMode')" :options="config.iot.triggerEvent.modes" />
+        <q-select 
+          v-if="options.type.code === 'trigger-event'"
+          emit-value 
+          map-options
+          v-model="selectedStep.form.options.triggerMode"
+          :label="$t('label.TriggerMode')" 
+          :options="config.iot.triggerEvent.modes" 
+        />
         
         <!-- distance mode -->
         <div v-if="selectedStep.form.options.object === 'distance'">
@@ -832,7 +912,6 @@
             <div v-if="options.type.code == 'geolocation' || options.type.code == 'locate-item-ar'" class="location-gps">
               <q-toggle v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
               <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
-              <q-toggle v-model="selectedStep.form.options.showHelp" :label="$t('label.DisplayGeolocationHelp')" />
             </div>
             <div v-if="options.type.code == 'geolocation'">
               <q-input v-model="selectedStep.form.options.distance" :label="$t('label.DistanceToWin')" />
@@ -872,7 +951,11 @@
               <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>-->
               <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
                 <p>{{ $t('label.YourPicture') }} :</p>
-                <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
+                <img 
+                  v-if="questId !== null" 
+                  class="full-width"
+                  :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" 
+                  /> <br />
                 <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
               </div>
             </div>
@@ -920,8 +1003,30 @@
           </div>
         </q-expansion-item>
       </q-list>
+       
+      <!------------------ TIMER ------------------------>
       
-      <!------------------ SAVE BUTTONS ------------------------>
+      <q-list bordered v-show="options.type.category === 'enigma' && options.type.code !== 'image-over-flow' && !['image-over-flow', 'trigger-event'].includes(options.type.code)">
+        <q-expansion-item icon="access_time" :label="$t('label.CountDownLabel')">
+          <div class="q-pa-sm"> 
+            <q-toggle 
+            v-model="selectedStep.form.countDownTime.enabled" 
+            :label="$t('label.CountDownLabel')"
+            @input="activateCountDown"
+            />
+            <q-input
+              filled
+              v-model="selectedStep.form.countDownTime.time"
+              :label="$t('label.CountDownIsActive')"
+              mask="##h##m##s"
+              fill-mask=""
+              value="00h00m00s"
+            /><!--##h##m##s-->
+          </div>
+        </q-expansion-item>
+      </q-list>
+
+    <!------------------ SAVE BUTTONS ------------------------>
       
       <div class="centered q-pa-md q-pt-lg q-pb-sm">
         <q-btn class="glossy large-button" color="primary" @click="submitStep(true)" test-id="btn-save-step">{{ $t('label.SaveAndTestThisStep') }}</q-btn>
@@ -945,8 +1050,14 @@
           {{ $t('label.ConfirmSaveChanges') }}
         </div>
         <q-card-actions>
-          <q-btn color="primary" @click="submitStep(false)" :label="$t('label.Yes')" />
-          <q-btn color="primary" @click="$emit('close')" :label="$t('label.No')" />
+          <q-btn 
+            color="primary" 
+            @click="submitStep(false)" 
+            :label="$t('label.Yes')" />
+          <q-btn 
+            color="primary" 
+            @click="$emit('close')" 
+            :label="$t('label.No')" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -1076,6 +1187,9 @@ export default {
           conditions: [],
           startDate: {
             enabled: false
+          },
+          countDownTime: {
+            enabled: false
           }
         },
         formatedConditions: [],
@@ -1155,6 +1269,15 @@ export default {
         useItem: {
           questItemsAsOptions: []
         },
+        findItem: {
+          numberOfAreas: [
+            { value: 1, label: "1" },
+            { value: 2, label: "2" },
+            { value: 3, label: "3" },
+            { value: 4, label: "4" }
+          ],
+          currentArea: 0
+        },
         locateItem: {
           selectModel3DOptions: [],
           zoom: 60,
@@ -1176,6 +1299,7 @@ export default {
           waitForEvent: {
             iotObjectsAsOptions: this.getIotObjectsAsOptions('wait-for-event')
           },
+          DeviceID: '0000000000',
           protocols: [
             { label: 'MQTT', value: 'mqtt' },
             { label: 'Bluetooth', value: 'bluetooth' }
@@ -1186,7 +1310,7 @@ export default {
       questItems: [],
       isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
       serverUrl: process.env.SERVER_URL,
-      
+
       unformatedAnswer: null,
 
       premium: {
@@ -1265,7 +1389,12 @@ export default {
           type: 'none'
         },
         hint: {}, // {fr: 'un indice', en: 'a hint', ...}
-        startDate: { enabled: false },
+        startDate: { 
+          enabled: false 
+        },
+        countDownTime: { 
+          enabled: false
+        },
         number: null
       }
       // reset upload item (after document fully loaded)
@@ -1429,17 +1558,21 @@ export default {
         if (this.options.type.code === 'character' && !this.selectedStep.form.options.character) {
           Vue.set(this.selectedStep.form.options, 'character', '1')
         }
-      } else if (this.options.type.code === 'image-recognition') {
+      } /*else if (this.options.type.code === 'image-recognition') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.selectedStep.form.answers = ""
         }
-      } else if (this.options.type.code === 'find-item') {
-        if (this.selectedStep.form.answers.hasOwnProperty('top')) {
-          this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers
+      }*/ else if (this.options.type.code === 'find-item') {
+        if (this.selectedStep.form.options.hasOwnProperty('nbAreas')) {
+          //this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers
           this.$nextTick(function () {
             // Code that will run only after the entire view has been rendered
             this.positionFindItemPointer()
           })
+        } else {
+          this.selectedStep.form.options.nbAreas = 1
+          this.selectedStep.form.options.coordinates = [{top: 50, left: 50}]
+          //this.positionFindItemPointer()
         }
         if (!this.selectedStep.form.options) {
           this.selectedStep.form.options = {}
@@ -1449,7 +1582,7 @@ export default {
           this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers.coordinates
           this.$nextTick(function () {
             // Code that will run only after the entire view has been rendered
-            this.positionFindItemPointer()
+            this.positionUseItemPointer()
           })
         }
         if (this.selectedStep.form.answers && this.selectedStep.form.answers.item) {
@@ -1581,6 +1714,7 @@ export default {
       // treat form errors (based on validation rules)
       if (this.$v.selectedStep.form.$error) {    
         Notification(this.$t('label.StepSettingsFormError'), 'error')
+        console.log(this.$v.selectedStep.form)
         return
       }
 
@@ -1634,7 +1768,7 @@ export default {
         }
       }
       if (this.options.type.code === 'find-item') {
-        this.selectedStep.form.answers = this.selectedStep.form.answerPointerCoordinates
+        //Coordinates are already set
       }
       if (this.options.type.code === 'use-item') {
         this.selectedStep.form.answers = {coordinates: this.selectedStep.form.answerPointerCoordinates, item: this.selectedStep.form.answerItem}
@@ -1845,7 +1979,7 @@ export default {
      */
     async changeNewConditionType() {
       this.selectedStep.newCondition.values.length = 0
-      const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', 'image-recognition', 'jigsaw-puzzle', 'memory']
+      const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', /*'image-recognition',*/ 'jigsaw-puzzle', 'memory']
       if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail') {
         const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version, 'all')
         if (response && response.data && response.data.length > 0) {
@@ -2141,7 +2275,9 @@ export default {
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
           this.selectedStep.form.options.picture = uploadResult.data.file
-          this.selectedStep.form.options.pictures[this.lang] = uploadResult.data.file
+          if (this.selectedStep.form.options.pictures) {
+            this.selectedStep.form.options.pictures[this.lang] = uploadResult.data.file
+          }
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -2496,22 +2632,59 @@ export default {
       let posX = ev.clientX - rect.left
       let posY = ev.clientY - rect.top
       
-      let picture = this.options.type.code === 'use-item' ? this.$refs['useItemPicture'] : this.$refs['findItemPicture']
+      let picture = this.$refs['useItemPicture']
       
       // relative position between 0 to 100
       this.selectedStep.form.answerPointerCoordinates.left = Math.round(posX / picture.clientWidth * 100)
       this.selectedStep.form.answerPointerCoordinates.top = Math.round(posY / picture.clientHeight * 100)
+      this.positionUseItemPointer()
+    },
+    /*
+     * Get the coordinate of a touch on the screen
+     * @param   {Object}    ev            Touch event data
+     */
+    getClickCoordinatesFindItem(ev) {
+      // see https://stackoverflow.com/a/42111623/488666
+      const rect = ev.currentTarget.getBoundingClientRect()
+      const posX = ev.clientX - rect.left
+      const posY = ev.clientY - rect.top
+      
+      const picture = this.$refs['findItemPicture']
+      
+      // relative position between 0 to 100
+      this.selectedStep.form.options.coordinates[this.config.findItem.currentArea].left = Math.round(posX / picture.clientWidth * 100)
+      this.selectedStep.form.options.coordinates[this.config.findItem.currentArea].top = Math.round(posY / picture.clientHeight * 100)
+
       this.positionFindItemPointer()
     },
     /*
      * Position the pointer to locate the item for the find item step
      */
     positionFindItemPointer() {
+      const vw = window.innerWidth / 100 // in px
+      
+      // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
+      const solutionAreaRadius = Math.round(8 * vw)
+      for (var i = 0; i < 4; i++) {
+        if (document.getElementById("cross" + i)) {
+          if (i < this.selectedStep.form.options.nbAreas) {
+            document.getElementById("cross" + i).style.display = 'block'
+            document.getElementById("cross" + i).style.left = Math.round(this.selectedStep.form.options.coordinates[i].left * 90 * vw / 100 - solutionAreaRadius) + "px"
+            document.getElementById("cross" + i).style.top = Math.round(this.selectedStep.form.options.coordinates[i].top * 120 * vw / 100 - solutionAreaRadius) + "px"
+          } else {
+            document.getElementById("cross" + i).style.display = 'none'
+          }
+        }
+      }
+    },
+    /*
+     * Position the pointer to locate the item for the find item step
+     */
+    positionUseItemPointer() {
       let vw = window.innerWidth / 100 // in px
       
       // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
       let solutionAreaRadius = Math.round(8 * vw)
-      
       document.getElementById("cross").style.left = Math.round(this.selectedStep.form.answerPointerCoordinates.left * 90 * vw / 100 - solutionAreaRadius) + "px"
       document.getElementById("cross").style.top = Math.round(this.selectedStep.form.answerPointerCoordinates.top * 120 * vw / 100 - solutionAreaRadius) + "px"
     },
@@ -2729,9 +2902,52 @@ export default {
           break
         case 'chest':
           break
+        case 'relay':
+          break
         default:
           throw new Error("unknown IoT object code '" + this.selectedStep.form.options.object + "'")
       }
+    },
+    async activateCountDown (param) {
+     var _this = this;
+      if (param === true) {
+         this.$q.dialog({
+          dark: true,
+          message: this.$t('label.CountDownWarning'),
+          ok: true,
+          cancel: true
+        }).onCancel(async () => {
+          _this.selectedStep.form.countDownTime.enabled = false;
+        })
+      }
+    },
+    selectFindItemArea (index) {
+      for (var i = 0; i < this.selectedStep.form.options.nbAreas; i++) {
+        if (document.getElementById('cross' + i)) {
+          document.getElementById('cross' + i).style.opacity = 0.5
+        }
+      }
+      if (document.getElementById('cross' + index)) {
+        document.getElementById('cross' + index).style.opacity = 1
+      }
+      this.config.findItem.currentArea = index
+    },
+    changeNbAreas () {
+      if (this.selectedStep.form.options && this.selectedStep.form.options.coordinates) {
+        if (this.selectedStep.form.options.coordinates.length < this.selectedStep.form.options.nbAreas) {
+          for (var i = this.selectedStep.form.options.coordinates.length; i < this.selectedStep.form.options.nbAreas; i++) {
+            this.selectedStep.form.options.coordinates.push({top: 50, left: 50})
+          }
+          //this.selectedStep.form.answers.coordinates.length = this.selectedStep.form.options.nbAreas          
+          this.config.findItem.currentArea = this.selectedStep.form.options.coordinates.length - 1
+          this.selectFindItemArea(this.config.findItem.currentArea - 1)
+        } else {
+          this.selectedStep.form.options.coordinates.length = this.selectedStep.form.options.nbAreas
+          this.config.findItem.currentArea = this.selectedStep.form.options.coordinates.length - 1
+        }
+      }
+      this.positionFindItemPointer()
+      return true
     }
   },
   validations() {
@@ -2769,9 +2985,9 @@ export default {
       case 'info-video':
         fieldsToValidate.videoStream = { required }
         break
-      case 'image-recognition':
+      /*case 'image-recognition':
         fieldsToValidate.answers = { required }
-        break
+        break*/
       case 'jigsaw-puzzle':
         fieldsToValidate.options = { picture: { required } }
         break
@@ -2828,7 +3044,7 @@ p { margin-bottom: 0.5rem; }
 .add-answer { margin: 0.5rem auto; }
 
 .background-upload { padding-bottom: 10px; margin-bottom: 10px; background: #efefef; text-align: center;}
-.background-upload img, .image-recognition img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }
+/*.background-upload img, .image-recognition img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }*/
 
 .code-color h2 { margin-bottom: 0; }
 .code-color table { margin: auto; }

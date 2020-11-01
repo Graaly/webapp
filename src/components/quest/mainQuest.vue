@@ -7,7 +7,7 @@
       />
     </div>
     <div v-if="quest">
-      <div class="centered main-quest-banner q-pa-md">
+      <div class="centered main-quest-banner q-pa-md" style="background: linear-gradient(to bottom, transparent, #323232);">
         <div class="title2">
           {{ quest.title }}
         </div>

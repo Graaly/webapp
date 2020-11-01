@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper background-map">
-    <div class="page-content">
+    <div class="page-content" style="padding-bottom: 100px">
       <div class="desktop-only centered q-pa-md warning bg-warning">
         {{ $t('label.OnDesktopDisplayMessage') }}
       </div>
@@ -19,6 +19,7 @@
           <div>
             
             <q-input
+              id="loginemail"
               outlined
               type="email"
               :label="$t('label.YourEmail')"
@@ -30,6 +31,7 @@
               />
             
             <q-input 
+              id="loginPass"
               outlined
               type="password" 
               v-model="form.password" 
@@ -72,8 +74,8 @@
               :loading="submitting" 
               />
           </div>
-          <div class="centered q-mt-sm q-mb-lg">
-            <a @click="goToSubscribe()">{{ $t('label.Subscribe') }}</a>
+          <div class="centered q-mt-sm q-mb-xl">
+            <q-btn flat @click="goToSubscribe()">{{ $t('label.Subscribe') }}</q-btn>
           </div>
           
         </form>
@@ -96,7 +98,7 @@
             class="glossy large-btn" 
             color="accent" 
             @click="validateTerms()"
-            :label="$t('label.LetsPlay')"
+            :label="$t('label.LetsPlayWithoutAccount')"
             />
         </div>
         
@@ -321,7 +323,7 @@ export default {
       }
       this.submitting = false
     },
-    
+
     /*
      * sign in user
      * @param   {string}    email            user email

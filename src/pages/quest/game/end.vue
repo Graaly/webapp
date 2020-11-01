@@ -111,7 +111,7 @@
         <q-dialog v-model="showReviewText" class="over-map">
           <div class="q-pa-md q-pt-lg centered bg-grey">
             <div class="subtitle4">{{ $t('label.ReviewThisQuest') }}</div>
-            <div class="q-py-sm"><q-rating v-model="rating" :max="5" size="1rem" class="end-rating" color="white" :disable="reviewSent" /></div>
+            <div class="q-py-sm"><q-rating v-model="rating" :max="5" size="1rem" class="end-rating" color="secondary" :disable="reviewSent" /></div>
             <div class="subtitle6 q-pt-lg">{{ $t('label.CommentThisQuest') }} ({{ $t('label.Optional') }}){{ $t('label.Colon') }}</div>
             <textarea class="shadowed full-width q-my-sm" v-model="comment" :placeholder="$t('label.Feedback')" rows="4" :disabled="reviewSent" />
             <q-btn class="glossy large-button" color="primary" :label="$t('label.Send')" @click="addReview()" :disabled="reviewSent" />

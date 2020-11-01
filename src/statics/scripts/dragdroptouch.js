@@ -1,3 +1,4 @@
+/* eslint-disable */
 // adapted from https://github.com/Bernardo-Castilho/dragdroptouch
 var DragDropTouch;
 (function (DragDropTouch1) {
