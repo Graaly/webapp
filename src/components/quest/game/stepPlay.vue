@@ -4,13 +4,14 @@
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
       <q-linear-progress 
         v-if="step.countDownTime !== null && 
-        step.countDownTime !== undefined && 
-        step.countDownTime.enabled === true"
+          step.countDownTime !== undefined && 
+          step.countDownTime.enabled === true"
         class="timer-progress-bar"
         :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
         :value="map(this.countdowntimeleft,0,this.step.countDownTime.time,0,1)"
-        :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
-       :instant-feedback = true
+        :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : 'white'"
+        :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" 
+        :instant-feedback = true
       />
       <!--   <div class="absolute-full flex flex-center">
           <q-badge color="white" text-color="accent" :label="this.countdowntimeleft" />
@@ -162,7 +163,7 @@
           <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
         </div>
         
-        <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
+        <div class="actions q-mt-lg q-mx-md" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
@@ -194,7 +195,7 @@
         </table>
         <div class="centered text-grey q-py-md">{{ $t('label.ClickToEnlargePictures') }}</div>
         
-        <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
+        <div class="actions q-mt-lg q-mx-md" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
@@ -237,7 +238,7 @@
         <div>
           <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
-        <div class="answer-text" style="padding-bottom: 100px">
+        <div class="answer-text q-pa-md" style="padding-bottom: 100px">
           <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
           <input 
             class="subtitle6" 
@@ -368,18 +369,19 @@
             <q-btn 
               round 
               size="lg"
+              class="text-white"
               :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
               :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}" 
               icon="photo_camera"  
-              @click="takeSnapshot()"
+              @click="prepareSnapshot()"
             />
           </div>
-          <img id="snapshotImage" v-if="!isIOs && takingSnapshot" style="transform: rotate(90deg); position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />
+          <img id="snapshotImage" v-if="!isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; height: 100%; width: auto; z-index: 1980;" />
           <img id="snapshotImageIos" v-if="isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />
           <div>
             <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
           </div>
-          <div v-if="!step.options || (!step.options.fullWidthPicture && !step.options.redFilter)" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
+          <div v-if="!step.options || (!step.options.fullWidthPicture && !step.options.redFilter)" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw; z-index: 1985;'">
           </div>
           <img v-if="step.options && step.options.fullWidthPicture && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985;" />
           <img v-if="step.options && step.options.redFilter" src="statics/images/background/red.png" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985; mix-blend-mode: multiply; opacity: 0.8;" />
@@ -413,14 +415,24 @@
           {{ $t('label.ScanTheMarkersLikeThat') }}
           <div><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
           {{ $t('label.ScanTheMarkersLikeThat2') }}
-          <div><q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="startScanQRCode()"><div>{{ $t('label.LaunchTheScanner') }}</div></q-btn></div>
+          <div>
+            <q-btn 
+              class="glossy large-button" 
+              :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" 
+              :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" 
+              @click="startScanQRCode()">
+                <div>{{ $t('label.LaunchTheScanner') }}</div>
+            </q-btn>
+          </div>
         </div>
-        <div v-if="!locateMarker.compliant">
-          {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
-        </div>
-        <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant && step.options.mode == 'scan'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
-        <div class="marker-view" v-show="locateMarker.compliant">
-          <canvas id="marker-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
+        <div class="text-center">
+          <div v-if="!locateMarker.compliant">
+            {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
+          </div>
+          <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant && step.options.mode == 'scan'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
+          <div class="marker-view" v-show="locateMarker.compliant">
+            <canvas id="marker-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
+          </div>
         </div>
         <div class="fixed-bottom over-map" style="height: 100%" v-if="locateMarker.showHelp">
           <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? 'FindMarkerHelp' : 'TouchObjectOnMarkerHelp' }" @next="locateMarker.showHelp = false"></story>
@@ -534,18 +546,17 @@
     <div v-show="playerResult === true && displaySuccessIcon" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
     <div 
-    v-show="
-      this.countdowntimeleft === 60 ||
-      this.countdowntimeleft === 30 || 
-      this.countdowntimeleft === 15 || 
-      this.countdowntimeleft === 10 || 
-      this.countdowntimeleft === 5 
-      " 
-    class="fadein-message" 
-    style="padding-left: 40%">
-      <p style="color:'red'">
-        {{ this.countdowntimeleft }}
-      </p>
+      v-show="
+        this.countdowntimeleft === 60 ||
+        this.countdowntimeleft === 30 || 
+        this.countdowntimeleft === 15 || 
+        this.countdowntimeleft === 10 || 
+        this.countdowntimeleft === 5 
+        " 
+      class="fadein-message text-center" 
+      >
+        <div style="font-size: 0.6em;">{{ $t('label.ItRemains') }}</div>
+        {{ this.countdowntimeleft }} {{ $t('label.s') }}
     </div>
 
     <!--====================== STORY =================================-->
@@ -2036,9 +2047,9 @@ export default {
           if (checkIfFound.all) {
             checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
             
-            if (this.step.displayRightAnswer) {
+            /*if (this.step.displayRightAnswer) {
               this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
-            }
+            }*/
             // if alt picture
             if (this.step.options && this.step.options.altFile) {
               this.step.backgroundImage = this.step.options.altFile
@@ -2910,9 +2921,9 @@ export default {
       await this.checkAnswer(data)
     },
     /*
-     * take a snapshot of the screen
+     * prepare page before snapshot
      */
-    takeSnapshot() {
+    prepareSnapshot() {
       this.takingSnapshot = true
       var _this = this
       if (this.isIOs && CameraPreview) {
@@ -2920,47 +2931,93 @@ export default {
           imageSrcData = 'data:image/jpeg;base64,' +base64PictureData
           const image = document.getElementById('snapshotImageIos')
           image.src = imageSrcData
-          setTimeout(function () { 
-            // save snapshot
-            navigator.screenshot.save(function (error, res) {
-              if (error) {
-                console.error(error)
-              } else {
-                console.log('ok', res.filePath)
-              }
-              _this.takingSnapshot = false
-              Notification(_this.$t('label.SnapshotTaken'), 'info')
-            })
-          }, 2000)
+          setTimeout(function () { _this.takeSnapshot() }, 2000)
         });
       } else {
         // generate a snapshot of the video flow
         this.imageCapture.takePhoto()
           .then(blob => {
-            const image = document.getElementById('snapshotImage')
+            var image = document.getElementById('snapshotImage')
             image.src = URL.createObjectURL(blob)
-            // rotate image (exif issue)
-            const width = image.width
-            const height = image.height
-            image.style.width = height + "px"
-            image.style.height = width + "px"
-            image.style.top = ((height - width) / 2) + "px"
-            image.style.left = ((width - height) / 2) + "px"
-            
-            setTimeout(function () { 
-              // save snapshot
-              navigator.screenshot.save(function (error, res) {
-                if (error) {
-                  console.error(error)
-                } else {
-                  console.log('ok', res.filePath)
-                }
-                _this.takingSnapshot = false
-                Notification(_this.$t('label.SnapshotTaken'), 'info')
-              })
-            }, 2000)
+            image.onload = function() {
+              const width = image.width
+              const height = image.height
+              // check if picture has to be rotated
+              if (width > height) {
+                image.style.transform = 'rotate(90deg)'
+              }
+              // keep image ratio
+              const vw = _this.getScreenWidth()
+              const vh = _this.getScreenHeight()
+              image.style.height = vh + "px"
+              image.style.width = ((height / vh) * width) + "px"
+              image.style.left = ((vw - parseInt(image.style.width, 10)) / 2) + "px"
+  
+              // rotate image (exif issue)
+              /*
+              image.style.width = height + "px"
+              image.style.height = width + "px"
+              image.style.top = ((height - width) / 2) + "px"
+              image.style.left = ((width - height) / 2) + "px"*/
+              
+              setTimeout(function () { _this.takeSnapshot() }, 2000)
+            }
           })
           .catch(err => { Notification(_this.$t('label.SnapshotTakenIssue'), 'info'); console.log(err) })
+      }
+    },
+    /*
+     * take a snapshot of the screen
+     */
+    takeSnapshot() {
+      var _this = this
+      navigator.screenshot.save(function (error, res) {
+        if (error) {
+          console.error(error)
+          Notification(_this.$t('label.ErrorTakingSnapshot'), 'info')
+        } else {
+          var permissions = cordova.plugins.permissions
+          permissions.requestPermission(permissions.READ_EXTERNAL_STORAGE, function(status) {
+            if (status.hasPermission) {
+              _this.saveSnapshot(res)
+            } else {
+              Notification(_this.$t('label.ErrorTakingSnapshot'), 'info')
+            }
+          }, alert)
+        }
+        _this.takingSnapshot = false
+      })
+    },
+    async saveSnapshot(mediaFile) {
+      try {
+        const fileEntry = await new Promise(resolve =>
+          window.resolveLocalFileSystemURL('file://' + mediaFile.filePath, resolve, function(err) { console.log('Error '  + err) })
+        );
+        const fileBinary = await new Promise((resolve, reject) =>
+          fileEntry.file(function (file) {
+            var reader = new FileReader()
+
+            reader.onloadend = function(e) {
+              resolve(reader.result)
+            }
+            reader.readAsArrayBuffer(file)
+          })
+        )
+        // convert binary to blob of the image content
+        const picture = new Blob([new Uint8Array(fileBinary)], { type: "image/jpg" })
+        var data = new FormData()
+        data.append('image', picture)
+        var _this = this
+        StepService.uploadSnapshot(this.step.questId, data, function(err, result) {
+          if (err) {
+            Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
+          } else {
+            Notification(_this.$t('label.SnapshotTaken'), 'info')
+          }
+        })
+      } catch (error) {
+        Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
+        console.log("Error: " + error)
       }
     },
     /*
@@ -2988,6 +3045,10 @@ export default {
         vw = 500
       }
       return vw
+    },
+    getScreenHeight() {
+      const vh = window.innerHeight
+      return vh
     },
     /*
      * Show the item location after success / failure

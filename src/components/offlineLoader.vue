@@ -63,14 +63,18 @@ export default {
       
       // check if quest is not already loaded
       const isQuestOfflineLoaded = await QuestService.isCached(quest.questId)
-      this.offline.progress = 0.1;
+      this.offline.progress = 0.1
+console.log("is already loaded: " + isQuestOfflineLoaded)
       if (!isQuestOfflineLoaded) {  
-        await this.saveQuestData(quest);
+        const isSaved = await this.saveQuestData(quest)
+        if (!isSaved) {
+          return
+        }
       }
       this.offline.progress = 1;
       let _this = this;
       setTimeout(function() {
-        _this.$emit('end');
+        _this.$emit('end')
       }, 3000);
     },
     /*
@@ -260,7 +264,7 @@ export default {
                 }
               }
               if (step.type === 'character' && step.options && step.options.character && step.options.character !== ''  && step.options.character !== 'usequestcharacter') {
-                if (step.options.character.length !== 1) {
+                if (step.options.character.length > 3) {
                   const characterImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/character/', step.options.character)
                   if (!characterImageSuccess) {
                     this.throwSaveError()
@@ -269,7 +273,7 @@ export default {
                 }
               }
               if ((step.type === 'find-item' || step.type === 'use-item') && step.options && step.options.altFile && step.options.altFile !== '') {
-                if (step.options.altFile.length !== 1) {
+                if (step.options.altFile.length > 3) {
                   const altImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/background/', step.options.altFile)
                   if (!altImageSuccess) {
                     this.throwSaveError()
@@ -369,9 +373,9 @@ export default {
         //if there is an error, remove all offline data
         _this.removeOfflineData();
         //relaunch the download
-        _this.saveQuestData(quest);
+        _this.saveOfflineQuest(quest);
         //reload the loading page
-        location.reload(); 
+        //location.reload(); 
       })
     },
 

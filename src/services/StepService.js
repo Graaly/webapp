@@ -455,5 +455,15 @@ export default {
     await QuestService.removeFromCache(questId);
 
     return res;
+  },
+  /*
+   * upload a player snapshot for 'image-over-flow' step
+   * @param   {String}    questId        ID of the quest
+   * @param   {Object}    data           upload data
+   */
+  async uploadSnapshot(questId, data, done) {
+    return Api().post("/quest/" + questId + "/snapshot/upload", data, { timeout: 600000, headers: { 'Content-Type': 'multipart/form-data' } }).then(function (response) {
+      done(false, response)
+    })
   }
 };

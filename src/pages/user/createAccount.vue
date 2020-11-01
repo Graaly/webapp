@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper background-map">
-    <div class="page-content">
+    <div class="page-content" style="padding-bottom: 100px">
       
       <div class="centered q-pt-lg q-pb-md">
         <img src="statics/images/logo/logo-home.png" class="logo-top" />

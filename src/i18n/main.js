@@ -86,8 +86,7 @@ module.exports = {
       TriggerEvent: "Graaly -> your material",
       TriggerEventDesc: "Graaly physical a physical action (using an electronic board)",
       WaitForEvent: "Your material -> Graaly",
-      WaitForEventDesc: "A physical action activate a step (using an electronic card)",
-      ErrorDownloadNeedsToRestart: "Error while downloading, do you want to restart ?"
+      WaitForEventDesc: "A physical action activate a step (using an electronic card)"
     },
     layersForMarkers: {
       Magnifier: 'Magnifier',
@@ -952,11 +951,17 @@ module.exports = {
       Version: "Version",
       CountDownLabel: "Time limit for this step",
       CountDownIsActive: "Activate the time limit",
-      CountDownWarning: "Are you sure you want to activate the time limit ? Make sure to not put a time that is too short for the user!",
+      CountDownWarning: "Are you sure you want to activate the timer ? Make sure that there are no risks for the player, like a road to cross!",
       CountDownPopupfail: "Time is up !",
       MaxScore: "Max score",
       YouMustTestThisStepOnMobile: "You must test this step on a mobile device",
-      AreasNumber: "Number of areas to find"
+      AreasNumber: "Number of areas to find",
+      ItRemains: "It remains",
+      s: "s",
+      LetsPlayWithoutAccount: "Play without account",
+      ErrorDownloadNeedsToRestart: "Error while downloading, do you want to restart?",
+      StartCreation: "Start creation?",
+      ErrorTakingSnapshot: "Snapshot has not been taken"
     }
   },
   fr: {
@@ -1033,8 +1038,7 @@ module.exports = {
       TriggerEvent: "Graaly -> Votre matériel",
       TriggerEventDesc: "Graaly déclenche une action sur votre matériel physique (utilisation d'une carte électronique)",
       WaitForEvent: "Votre matériel -> Graaly",
-      WaitForEventDesc: "Votre matériel active une étape Graaly (utilisation d'une carte électronique)",
-      ErrorDownloadNeedsToRestart: "Erreur lors du telechargement de l'enquete, voulez vous recommencé ?"
+      WaitForEventDesc: "Votre matériel active une étape Graaly (utilisation d'une carte électronique)"
     },
     layersForMarkers: {
       Magnifier: 'Loupe',
@@ -1899,11 +1903,17 @@ module.exports = {
       Version: "Version",
       CountDownLabel: "Limite de temps de l’énigme",
       CountDownIsActive: "Entrez la limite de durée pour cette énigme",
-      CountDownWarning: "Etes-vous certain(e) d'activé la limite de temps ? Assurez vous de ne pas mettre un temps trop court pour ne pas presser l'utilisateur !",
+      CountDownWarning: "Etes-vous certain(e) d'activer un compte à rebours ? Assurez-vous qu'il n'y a aucun risque pour le joueur, comme une route à traverser !",
       CountDownPopupfail: "Temps écoulé !",
       MaxScore: "Score maxi",
       YouMustTestThisStepOnMobile: "Vous devez tester ce type d'étape sur un appareil mobile",
-      AreasNumber: "Nombre de zones à trouver"
+      AreasNumber: "Nombre de zones à trouver",
+      ItRemains: "Il reste",
+      s: "s",
+      LetsPlayWithoutAccount: "Jouer sans compte",
+      ErrorDownloadNeedsToRestart: "Erreur lors du telechargement de l'enquete, voulez vous recommencer ?",
+      StartCreation: "Devenir créateur ?",
+      ErrorTakingSnapshot: "Impossible de faire la capture d'écran"
     }
   }
 }

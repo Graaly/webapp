@@ -114,7 +114,7 @@
         <img src="statics/images/other/creator.jpg" class="full-width" />
         <div class="bg-accent subtitle2 q-pa-md full-width" style="bottom: 0px; position: absolute; line-height: 0.8em;">
           <div class="float-right"><img src="statics/images/icon/puzzle-big.svg" style="width: 32px" /></div>
-          <span>Devenir créateur ?</span>
+          <span>{{ $t('label.StartCreation') }}</span>
         </div>
       </div>
       
@@ -130,7 +130,7 @@
       
       <div class="fixed-top">
         <div class="home-header row no-wrap" :class="{'disabled': offline.active}">
-          <img src="statics/images/logo/logo-header.png" class="logo" />
+          <img src="statics/images/logo/logo-header-color.png" class="logo" />
           <q-space />
           <img v-if="$store.state.user.isAdmin" src="statics/images/icon/tools.png" class="header-button q-mr-md" @click="openAdminPage" />
           <img src="statics/images/icon/search.svg" class="header-button q-mr-md" @click="openSearch" />

@@ -41,7 +41,11 @@
         </q-btn>
         <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
           <p>{{ $t('label.YourPicture') }} :</p>
-          <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
+          <img 
+            v-if="questId !== null" 
+            class="full-width"
+            :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" 
+            /> <br />
           <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
         </div>
       </div>
@@ -118,7 +122,7 @@
         <h2>{{ $t('label.Character') }}</h2>
         <div v-if="quest.customization.character && quest.customization.character !== ''">
           <q-radio v-model="selectedStep.form.options.character" val="usequestcharacter" />
-          <p><img :src="serverUrl + '/upload/quest/' + quest.customization.character" /></p>
+          <p><img class="full-width" :src="serverUrl + '/upload/quest/' + quest.customization.character" /></p>
         </div>
         <div class="answer" v-for="n in 6" :key="n">
           <q-radio v-model="selectedStep.form.options.character" :val="n.toString()" />
@@ -304,7 +308,11 @@
                 </q-icon>
               </template>
             </q-input>
-            <div class="centered"><q-btn :label="$t('label.Add')" color="secondary" @click="addColor()" /></div>
+            <div class="centered">
+              <q-btn class="glossy normal-button" color="secondary" @click="addColor()">
+                {{ $t('label.Add') }}
+              </q-btn>
+            </div>
           </q-expansion-item>
         </q-list>
         <q-select emit-value map-options :label="$t('label.NumberOfColorsInTheCode')" :options="config.colorCode.numberOfDigitsOptions" v-model="selectedStep.form.options.codeLength" @input="changeDigitsNumberInCode" test-id="select-nb-colors" />
@@ -402,7 +410,7 @@
           <p v-if="!selectedStep.form.options.picture">{{ $t('label.WarningImageSizeSquare') }}</p>
           <div v-if="selectedStep.form.options.picture">
             <p>{{ $t('label.YourPuzzlePicture') }} :</p>
-            <img :src="serverUrl + '/upload/quest/' + questId + '/step/jigsaw-puzzle/' + selectedStep.form.options.picture" />
+            <img class="full-width" :src="serverUrl + '/upload/quest/' + questId + '/step/jigsaw-puzzle/' + selectedStep.form.options.picture" />
           </div>
         </div>
         <div>
@@ -632,7 +640,9 @@
         <p>
           <img :src="'statics/markers/' + selectedStep.form.answers + '/marker.png'" />
           <span>{{ selectedStep.form.answers }}</span>
-          <q-btn color="primary" :label="$t('label.Choose')" @click="openChooseMarkerModal()" test-id="btn-open-choose-marker-modal" />
+          <q-btn class="glossy normal-button" color="primary" @click="openChooseMarkerModal()" test-id="btn-open-choose-marker-modal">
+            {{ $t('label.Choose') }}
+          </q-btn>
         </p>
         
         <!--
@@ -941,7 +951,11 @@
               <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>-->
               <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
                 <p>{{ $t('label.YourPicture') }} :</p>
-                <img v-if="questId !== null" :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" /> <br />
+                <img 
+                  v-if="questId !== null" 
+                  class="full-width"
+                  :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" 
+                  /> <br />
                 <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
               </div>
             </div>
@@ -2261,7 +2275,9 @@ export default {
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
           this.selectedStep.form.options.picture = uploadResult.data.file
-          this.selectedStep.form.options.pictures[this.lang] = uploadResult.data.file
+          if (this.selectedStep.form.options.pictures) {
+            this.selectedStep.form.options.pictures[this.lang] = uploadResult.data.file
+          }
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
