@@ -2928,8 +2928,8 @@ export default {
       var _this = this
       if (this.isIOs && CameraPreview) {
         CameraPreview.takePicture({quality: 85}, function(base64PictureData) {
-          imageSrcData = 'data:image/jpeg;base64,' +base64PictureData
-          const image = document.getElementById('snapshotImageIos')
+          const imageSrcData = 'data:image/jpeg;base64,' +base64PictureData
+          var image = document.getElementById('snapshotImageIos')
           image.src = imageSrcData
           setTimeout(function () { _this.takeSnapshot() }, 2000)
         });

@@ -1,3 +1,4 @@
+/* eslint-disable */
 export default {
   logEvent(category, action, label, sessionId = null) {
     dataLayer.push({
