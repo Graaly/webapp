@@ -1,3 +1,4 @@
+/* eslint-disable */
 if (!Object.entries) {
     console.log('Polyfill on object.entries RUN !!!')
     Object.entries = function (obj) {
