@@ -12,6 +12,15 @@
       <div class="text-h5">{{ $t('label.TimeRemainingHoursMin', {day: startDate.remainingDays, hour: startDate.remainingHours, min: startDate.remainingMinutes, sec: startDate.remainingSeconds}) }}</div>
     </div>
 
+    <!------------------ AUDIO ------------------------>
+    
+    <audio 
+      v-if="info && info.quest && info.quest.customization && info.quest.customization.audio && info.quest.customization.audio !== ''"
+      id="background-music" 
+      autoplay loop 
+      :src="getAudioSound()"
+    />
+    
     <!------------------ HEADER AREA ------------------------>
     
     <stepPlay 
@@ -24,13 +33,14 @@
       :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}" 
       :answer="offline.answer" 
       :player="player"
-      :countDownTime="countDownTime.timer"
       @played="trackStepPlayed" 
       @success="trackStepSuccess" 
       @fail="trackStepFail" 
       @pass="trackStepPass"
       @closeAllPanels="closeAllPanels"
       @forceMoveNext="nextStep(true)"
+      @hideButtons="hideFooterButtons"
+      @showButtons="showFooterButtons"
       @msg="trackMessage">
     </stepPlay>
       
@@ -74,6 +84,10 @@
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
+          <div class="fixed-top align-right full-width q-pa-lg">
+            <q-btn v-if="sound.status === 'play'" flat color="white" @click="cutSound" icon="volume_off"></q-btn>
+            <q-btn v-if="sound.status === 'pause'" flat color="white" @click="cutSound" icon="volume_up"></q-btn>
+          </div>
           <div class="text-center dark-banner q-pb-xl q-pt-md fixed-bottom">
             <p class="title">
               {{ (info.quest && info.quest.title) ? info.quest.title : $t('label.NoTitle') }}
@@ -330,6 +344,9 @@ export default {
           enabled: false,
           canPass: false
         },
+        sound: {
+          status: 'play'
+        },
         questId: this.$route.params.questId,
         questVersion: this.$route.params.version,
         step: {},
@@ -372,7 +389,7 @@ export default {
         previousStepId: '',
         isIOs: utils.isIOS(),
         // timer 
-        countDownTime: {},
+        //countDownTime: {},
         // for step type 'use-item'
         selectedItem: null
       }
@@ -385,9 +402,11 @@ export default {
       this.next = defaultVars.next
       this.nbTry = defaultVars.nbTry
       this.warnings = defaultVars.warnings
-      this.selectedItem = defaultVars.selectItem
+      this.selectedItem = defaultVars.selectedItem
       this.loadStepData = defaultVars.loadStepData
-      this.countDownTime = defaultVars.countDownTime
+      //this.countDownTime = defaultVars.countDownTime
+      this.startDate = defaultVars.startDate
+      this.footer = defaultVars.footer
     },
     /*
      * Init step data
@@ -433,6 +452,49 @@ export default {
       
       // check if story needs to start
       //await this.startStory()
+      
+      // load component data
+      this.loadStepData = true
+    },
+    /*
+     * Move to a step
+     *
+     */
+    async moveToStep(forceStepId) {
+      utils.clearAllRunningProcesses()
+      this.resetData()
+      this.$q.loading.show()
+      
+      this.loadStepData = false
+
+      // get current run or create it
+      //await this.getRun() // on sync mode to load step while run is checked
+      await this.getRun()
+      
+      // get Player number
+      this.player = await this.getPlayer()
+      
+      // get current step
+      await this.getStep(false, forceStepId)
+      
+      // manage history
+      this.updateHistory()
+      
+      // fill inventory at loading when necessary
+      if (this.step.type === 'use-item') {
+        await this.fillInventory()
+      }
+      
+      this.$q.loading.hide()
+
+      // display hint
+      if (this.isHintAvailable()) {
+        utils.setTimeout(this.alertOnHint, 12000)
+        this.hint.show = true
+      }
+
+      // next button blink if user did not succeed after 3 minutes
+      utils.setTimeout(this.alertOnNext, 180000)
       
       // load component data
       this.loadStepData = true
@@ -571,12 +633,13 @@ export default {
     /*
      * Get the step data
      */
-    async getStep (forceNetworkLoading) {
+    async getStep (forceNetworkLoading, forceStepId) {
       this.warnings.stepDataMissing = false   
       var stepId
       // if no stepId given, load the next one
-      if (this.$route.params.stepId && this.$route.params.stepId !== '0' && this.$route.params.stepId.indexOf('success_') === -1 && this.$route.params.stepId.indexOf('pass_') === -1) {
-        stepId = this.$route.params.stepId
+      //if (this.$route.params.stepId && this.$route.params.stepId !== '0' && this.$route.params.stepId.indexOf('success_') === -1 && this.$route.params.stepId.indexOf('pass_') === -1) {
+      if (forceStepId) {
+        stepId = forceStepId
       } else {
         var response
         if (!this.offline.active) {
@@ -676,7 +739,7 @@ export default {
           if (forceNetworkLoading) {
             this.warnings.questDataMissing = true 
           } else {
-            var stepLoadingStatus = await this.getStep(true)
+            var stepLoadingStatus = await this.getStep(true, forceStepId)
             return stepLoadingStatus
           }
         } else {
@@ -807,7 +870,7 @@ export default {
       this.next.enabled = false
       this.next.canPass = false
       setTimeout(async () => {
-        this.getStep()
+        this.moveToStep()
       } 
       , 15000);
     },
@@ -850,7 +913,9 @@ export default {
       }
       
       // hide hint
-      this.hideHint()
+      if (this.step.type !== 'image-over-flow') {
+        this.hideHint()
+      }
       
       // save offline run
       await this.saveOfflineAnswer(true)
@@ -867,9 +932,9 @@ export default {
         this.next.enabled = true
         if (this.step.type !== 'image-over-flow') {
           this.next.suggest = true
+          this.hint.show = false
+          this.hint.suggest = false
         }
-        this.hint.suggest = false
-        this.hint.show = false
         this.inventory.show = false
         this.footer.tabSelected = 'next'
       }
@@ -934,7 +999,8 @@ export default {
             return this.$router.push('/quest/' + this.questId + '/end')
           }
         } else {
-          this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + next + '/' + this.$route.params.lang)
+          //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + next + '/' + this.$route.params.lang)
+          this.moveToStep(next)
           //this.stopMarkersSensors()
         }        
       }
@@ -967,13 +1033,24 @@ export default {
       }
     },
     /*
+     * get audio sound
+     */
+    getAudioSound () {
+      if (this.info.quest.customization && this.info.quest.customization.audio && this.info.quest.customization.audio.indexOf('blob:') !== -1) {
+        return this.info.quest.customization.audio
+      } else {
+        return this.serverUrl + '/upload/quest/' + this.info.quest.customization.audio
+      }
+    },
+    /*
      * Move to next step
      */
     async nextStep(force) {
       this.$store.state.history.index++
       // if moving in history
       if (this.$store.state.history.items && this.$store.state.history.index < this.$store.state.history.items.length) {
-        this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
+        this.moveToStep(this.$store.state.history.items[this.$store.state.history.index])
+        //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
         return
       } 
       // reload step to remove notifications
@@ -1019,7 +1096,6 @@ export default {
     async moveToNextStep(type) {
       // sync offline run
       await this.saveOfflineRun(this.questId, this.run)
-    
       //hide button
       this.next.enabled = false
       this.next.suggest = false
@@ -1033,7 +1109,8 @@ export default {
         }
       }
       
-      this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + type + '_' + this.step.stepId + '_' + utils.randomId() + '/' + this.$route.params.lang)
+      //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + type + '_' + this.step.stepId + '_' + utils.randomId() + '/' + this.$route.params.lang)
+      this.moveToStep()
     },
     /*
      * Return to previous step
@@ -1048,7 +1125,8 @@ export default {
         this.$store.state.history.index = this.$store.state.history.items.length
       }
       if (previousOK) {
-        this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
+        //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
+        this.moveToStep(this.$store.state.history.items[this.$store.state.history.index]) 
       }
     },
     /*
@@ -1113,6 +1191,12 @@ export default {
       this.info.isOpened = false
       this.hint.isOpened = false
       this.footer.tabSelected = 'none'
+    },
+    hideFooterButtons() {
+      this.footer.show = false
+    },
+    showFooterButtons() {
+      this.footer.show = true
     },
     keepScreenAwake() {
       if (window.cordova) {
@@ -1281,6 +1365,13 @@ export default {
             const logoUrl = await utils.readBinaryFile(id, this.info.quest.customization.logo)
             if (logoUrl) {
               this.info.quest.customization.logo = logoUrl
+            }
+          }
+          // get customized sound
+          if (this.info.quest.customization && this.info.quest.customization.audio && this.info.quest.customization.audio !== '') {
+            const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio)
+            if (audioUrl) {
+              this.info.quest.customization.audio = audioUrl
             }
           }
           // get customized hint character
@@ -1980,6 +2071,21 @@ export default {
       
       this.run.currentChapter = nextChapter
       return nextChapter
+    },
+    /*
+     * cut sound
+     */
+    cutSound () {
+      var audio = document.getElementById("background-music")
+      if (audio) {
+        if (this.sound.status === 'play') {
+          audio.pause()
+          this.sound.status = 'pause'
+        } else {
+          audio.play()
+          this.sound.status = 'play'
+        }
+      }
     }
   }
 }

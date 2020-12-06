@@ -961,7 +961,10 @@ module.exports = {
       LetsPlayWithoutAccount: "Play without account",
       ErrorDownloadNeedsToRestart: "Error while downloading, do you want to restart?",
       StartCreation: "Start creation?",
-      ErrorTakingSnapshot: "Snapshot has not been taken"
+      ErrorTakingSnapshot: "Snapshot has not been taken",
+      YourAudioFile: "Your background music",
+      AddAnAudioFile: "Add a background music",
+      ObjectNeedToBeAppliedOnPicture: "The object is applied on a picture area"
     }
   },
   fr: {
@@ -1913,7 +1916,10 @@ module.exports = {
       LetsPlayWithoutAccount: "Jouer sans compte",
       ErrorDownloadNeedsToRestart: "Erreur lors du telechargement de l'enquete, voulez vous recommencer ?",
       StartCreation: "Devenir créateur ?",
-      ErrorTakingSnapshot: "Impossible de faire la capture d'écran"
+      ErrorTakingSnapshot: "Impossible de faire la capture d'écran",
+      YourAudioFile: "Votre musique de fond",
+      AddAnAudioFile: "Ajouter une musique de fond",
+      ObjectNeedToBeAppliedOnPicture: "L'objet est appliqué sur une partie de l'image"
     }
   }
 }

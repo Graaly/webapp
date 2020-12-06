@@ -227,6 +227,21 @@
           <input @change="uploadThumb" ref="thumbfile" type="file" accept="image/*" />
         </div>
         
+        <div v-if="form.fields.customization && form.fields.customization.audio && form.fields.customization.audio !== ''">
+            <div>{{ $t('label.YourAudioFile') }} : {{ form.fields.customization.audio }}</div>
+            <div class="centered"><a class="dark" @click="removeAudio">{{$t('label.Remove')}}</a></div>
+          </div>
+          <div v-if="!isIOs && !readOnly">
+            <q-btn-group class="full-width">
+              <q-btn class="full-width" @click="$refs['audiofile'].click()">{{ $t('label.AddAnAudioFile') }}</q-btn>
+            </q-btn-group>
+            <input @change="uploadAudio" ref="audiofile" type="file" accept="audio/mp3" hidden />
+          </div>
+          <div v-if="isIOs && !readOnly">
+            {{ $t('label.AddAnAudioFile') }}:
+            <input @change="uploadAudio" ref="audiofile" type="file" accept="audio/mp3" />
+          </div>
+        
         <div v-if="this.quest.type === 'room'">
           <q-input
             :disable="readOnly"
@@ -319,7 +334,7 @@
           <div v-if="form.fields.customization && form.fields.customization.logo && form.fields.customization.logo !== ''">
             <p>{{ $t('label.YourLogo') }} :</p>
             <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.customization.logo" />
-            <div class="centered"><a @click="removeLogo">{{$t('label.Remove')}}</a></div>
+            <div class="centered"><a class="dark" @click="removeLogo">{{$t('label.Remove')}}</a></div>
           </div>
           <div v-if="!isIOs && !readOnly">
             <q-btn-group class="full-width">
@@ -337,7 +352,7 @@
             <p>{{ $t('label.Reward') }} :</p>
             <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.rewardPicture" style="background-color: #f00" />
             <div>{{ $t('label.RewardPictureWarning')}}</div>
-            <div class="centered"><a @click="removeReward">{{ $t('label.Remove') }}</a></div>
+            <div class="centered"><a class="dark" @click="removeReward">{{ $t('label.Remove') }}</a></div>
           </div>
           <div v-if="!isIOs && !readOnly" class="q-mt-md">
             <q-btn-group class="full-width">
@@ -354,7 +369,7 @@
           <div v-if="form.fields.customization && form.fields.customization.character && form.fields.customization.character !== ''">
             <p>{{ $t('label.YourCharacter') }} :</p>
             <img class="full-width" :src="serverUrl + '/upload/quest/' + form.fields.customization.character" />
-            <div class="centered"><a @click="removeCharacter">{{ $t('label.Remove') }}</a></div>
+            <div class="centered"><a class="dark" @click="removeCharacter">{{ $t('label.Remove') }}</a></div>
           </div>
           <div v-if="!isIOs && !readOnly">
             <q-btn-group class="full-width">
@@ -1148,7 +1163,7 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { color: '', logo: '', character: '', removeScoring: false, endMessage: '' },
+          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '' },
           rewardPicture: '',
           readMoreLink: '',
           limitNumberOfPlayer: 0,
@@ -1940,6 +1955,37 @@ export default {
     async removeLogo() {
       this.form.fields.customization.logo = null
     },
+    
+    /*
+     * Upload a music
+     */
+    async uploadAudio(e) {
+      this.$q.loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('audio', files[0])
+      let uploadAudioResult = await QuestService.uploadAudio(data)
+      if (uploadAudioResult && uploadAudioResult.hasOwnProperty('data')) {
+        if (uploadAudioResult.data.file) {
+          this.form.fields.customization.audio = uploadAudioResult.data.file
+          this.$forceUpdate()
+        } else if (uploadAudioResult.data.message && uploadAudioResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    async removeAudio() {
+      this.form.fields.customization.audio = null
+    },
+    
     /*
      * Upload a custo character for the quest
      */
