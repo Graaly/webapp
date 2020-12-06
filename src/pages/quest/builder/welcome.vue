@@ -108,7 +108,7 @@
         <div class="q-pa-md">
           {{ $t('label.BuilderIntro') }}
         </div>
-        <div class="q-pa-md">
+        <!--<div class="q-pa-md">
           <q-card class="my-card bg-primary text-white">
             <q-card-section class="centered">
               <div class="subtitle2">{{ $t('label.PublicQuest') }}</div>
@@ -129,7 +129,7 @@
               <q-btn flat color="white" @click="changeAccess('public')">{{ $t('label.CreatePublicQuest') }}</q-btn>
             </q-card-actions>
           </q-card>
-        </div>
+        </div>-->
         <div class="q-pa-md">
           <q-card class="my-card bg-primary text-white">
             <q-card-section class="centered">

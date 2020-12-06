@@ -389,6 +389,18 @@ export default {
       .catch(error => console.log(error.request));
   },
   /*
+   * Upload a quest music
+   * @param   {Object}    data                audio data
+   */
+  uploadAudio(data) {
+    return Api()
+      .post("/quest/audio/upload", data, {
+        timeout: 60000,
+        headers: { "Content-Type": "multipart/form-data" }
+      })
+      .catch(error => console.log(error.request));
+  },
+  /*
    * Upload a quest character
    * @param   {Object}    data                picture data
    */

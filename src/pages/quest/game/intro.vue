@@ -150,7 +150,20 @@
                class="glossy large-btn">
                <span>{{ $t('label.SolveThisQuest') }}</span>
                </q-btn>
-            <q-btn v-if="shop.premiumQuest.priceCode === 'notplayableonweb'" disabled color="primary" class="glossy large-btn"><span>{{ $t('label.QuestPlayableOnMobile') }}</span></q-btn>
+            <q-btn 
+              v-if="shop.premiumQuest.priceCode === 'notplayableonweb' && !isAdmin && !isOwner" 
+              disabled 
+              color="primary" 
+              class="glossy large-btn">
+              <span>{{ $t('label.QuestPlayableOnMobile') }}</span>
+            </q-btn>
+            <q-btn 
+              v-if="shop.premiumQuest.priceCode === 'notplayableonweb' && (isAdmin || isOwner)" 
+              @click="playQuest(quest.questId, getLanguage())"
+              color="primary" 
+              class="glossy large-btn">
+              <span>{{ $t('label.TestYourQuest') }}</span>
+            </q-btn>
           </p>
         </div>
       </div>
@@ -591,7 +604,7 @@ export default {
       if (this.quest.hasGeolocationSteps) {
         this.$refs.gpscal.askUserToCalibrateGPS();
       } else {
-        this.startQuest(this.quest.questId, getLanguage());
+        this.startQuest(this.quest.questId, this.getLanguage());
       }
     },
     /*
@@ -701,7 +714,9 @@ export default {
       // init Store pay
       //if (!window.store) {
       if (!window.cordova) {
-        Notification(this.$t('label.YouMustPlayThisKindOfQuestOnAMobileDevice'), 'error')
+        if (!this.isAdmin && !this.isOwner) {
+          Notification(this.$t('label.YouMustPlayThisKindOfQuestOnAMobileDevice'), 'error')
+        }
         this.shop.premiumQuest.priceCode = 'notplayableonweb'
         return
       }
