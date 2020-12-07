@@ -1,16 +1,16 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import createPersistedState from 'vuex-persistedstate'
-import * as Cookies from 'js-cookie'
+import Vue from "vue";
+import Vuex from "vuex";
+import createPersistedState from "vuex-persistedstate";
+import * as Cookies from "js-cookie";
 
-import AuthService from 'services/AuthService'
+import AuthService from "services/AuthService";
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 // root state object.
 // each Vuex instance is just a single state tree.
 const state = {
-  isLoggedIn: !!localStorage.getItem('isLoggedIn'),
+  isLoggedIn: !!localStorage.getItem("isLoggedIn"),
   loginPending: false,
   questSteps: {
     geolocation: {
@@ -27,7 +27,7 @@ const state = {
   runningIntervalIds: [],
   runningTimeoutsIds: [],
   mediaStreams: []
-}
+};
 
 // mutations are operations that actually mutates the state.
 // each mutation handler gets the entire state tree as the
@@ -35,107 +35,114 @@ const state = {
 // mutations must be synchronous and can be recorded by plugins
 // for debugging purposes.
 const mutations = {
-  loginStart (state) {
-    state.loginPending = true
+  loginStart(state) {
+    state.loginPending = true;
   },
-  loginSuccess (state, user) {
-    state.isLoggedIn = true
-    state.loginPending = false
-    state.user = user
+  loginSuccess(state, user) {
+    state.isLoggedIn = true;
+    state.loginPending = false;
+    state.user = user;
   },
-  logout (state) {
-    state.user = null
+  logout(state) {
+    state.user = null;
   },
   setLastLoadedRoute(state, route) {
-    state.lastLoadedRoute = route
+    state.lastLoadedRoute = route;
   },
-  setDrawDirectionInterval (state, intervalObject) {
+  setDrawDirectionInterval(state, intervalObject) {
     state.questSteps.geolocation.drawDirectionInterval = intervalObject;
   },
   setCurrentEditedQuest(state, quest) {
-    state.currentEditedQuest = quest
+    state.currentEditedQuest = quest;
   },
   setCurrentEditedStep(state, step) {
-    state.currentEditedStep = step
+    state.currentEditedStep = step;
   },
   setErrorMessage(state, message) {
-    state.errorMessage = message
+    state.errorMessage = message;
   },
   setCurrentRun(state, run) {
-    state.currentRun = run
+    state.currentRun = run;
   },
   addTimeoutId(state, timeoutId) {
-    state.runningTimeoutsIds.push(timeoutId)
+    state.runningTimeoutsIds.push(timeoutId);
   },
   clearTimeoutIds(state) {
-    state.runningTimeoutsIds = []
+    state.runningTimeoutsIds = [];
   },
   addIntervalId(state, intervalId) {
-    state.runningIntervalIds.push(intervalId)
+    state.runningIntervalIds.push(intervalId);
   },
   clearIntervalIds(state) {
-    state.runningIntervalIds = []
+    state.runningIntervalIds = [];
   },
   addMediaStream(state, stream) {
-    state.mediaStreams.push(stream)
+    state.mediaStreams.push(stream);
   },
   clearMediaStreams(state) {
     for (let stream of state.mediaStreams) {
-      if (!stream || !stream.getTracks) { continue }
-      stream.getTracks().forEach(track => track.stop())
+      if (!stream || !stream.getTracks) {
+        continue;
+      }
+      stream.getTracks().forEach(track => track.stop());
     }
-    state.mediaStreams = []
+    state.mediaStreams = [];
   }
-}
+};
 
 // actions are functions that cause side effects and can involve
 // asynchronous operations.
 const actions = {
   login: async ({ commit }, creds) => {
-    commit('loginStart'); // show spinner
-    let result = await AuthService.login(creds.email, creds.password)
+    commit("loginStart"); // show spinner
+    let result = await AuthService.login(creds.email, creds.password);
     if (result.status === 200) {
-      commit('loginSuccess', result.data.user)
-      localStorage.setItem('isLoggedIn', true)
+      commit("loginSuccess", result.data.user);
+      localStorage.setItem("isLoggedIn", true);
     }
-    return result
+    return result;
   },
   logout: async ({ commit }) => {
     // TODO ON SERVER: calling logout should blacklist the JWT, see https://medium.com/devgorilla/how-to-log-out-when-using-jwt-a8c7823e8a6
-    let result = await AuthService.logout()
-    commit('logout')
-    return result
+    let result = await AuthService.logout();
+    commit("logout");
+    return result;
   },
-  setLastLoadedRoute: ({ commit }, route) => commit('setLastLoadedRoute', route),
+  setLastLoadedRoute: ({ commit }, route) =>
+    commit("setLastLoadedRoute", route),
   // for step geolocation
   setDrawDirectionInterval: ({ commit, state }, intervalObject) => {
     if (intervalObject === null) {
       // call clearInterval first, if any is defined (avoids issues with hot reloading during dev)
-      let drawDirectionInterval = state.questSteps.geolocation.drawDirectionInterval
+      let drawDirectionInterval =
+        state.questSteps.geolocation.drawDirectionInterval;
       if (drawDirectionInterval !== null) {
-        window.clearInterval(drawDirectionInterval)
+        window.clearInterval(drawDirectionInterval);
       }
     }
-    commit('setDrawDirectionInterval', intervalObject)
+    commit("setDrawDirectionInterval", intervalObject);
   },
   // for quest creation/edition
-  setCurrentEditedQuest: ({ commit }, quest) => commit('setCurrentEditedQuest', quest),
-  setCurrentEditedStep: ({ commit }, step) => commit('setCurrentEditedStep', step),
-  setErrorMessage: ({ commit }, message) => commit('setErrorMessage', message),
+  setCurrentEditedQuest: ({ commit }, quest) =>
+    commit("setCurrentEditedQuest", quest),
+  setCurrentEditedStep: ({ commit }, step) =>
+    commit("setCurrentEditedStep", step),
+  setErrorMessage: ({ commit }, message) => commit("setErrorMessage", message),
   // for quest playing
-  setCurrentRun: ({ commit }, run) => commit('setCurrentRun', run),
+  setCurrentRun: ({ commit }, run) => commit("setCurrentRun", run),
   // for timeouts handling
-  addTimeoutId: ({ commit }, timeoutId) => commit('addTimeoutId', timeoutId),
-  clearTimeoutIds: ({ commit }) => commit('clearTimeoutIds'),
+  addTimeoutId: ({ commit }, timeoutId) => commit("addTimeoutId", timeoutId),
+  clearTimeoutIds: ({ commit }) => commit("clearTimeoutIds"),
   // for intervals handling
-  addIntervalId: ({ commit }, intervalId) => commit('addIntervalId', intervalId),
-  clearIntervalIds: ({ commit }) => commit('clearIntervalIds'),
-  addMediaStream: ({ commit }, stream) => commit('addMediaStream', stream),
-  clearMediaStreams: ({ commit }) => commit('clearMediaStreams')
-}
+  addIntervalId: ({ commit }, intervalId) =>
+    commit("addIntervalId", intervalId),
+  clearIntervalIds: ({ commit }) => commit("clearIntervalIds"),
+  addMediaStream: ({ commit }, stream) => commit("addMediaStream", stream),
+  clearMediaStreams: ({ commit }) => commit("clearMediaStreams")
+};
 
 // getters are functions
-const getters = {}
+const getters = {};
 
 // A Vuex instance is created by combining the state, mutations, actions,
 // and getters.
@@ -146,8 +153,13 @@ export default new Vuex.Store({
   mutations,
   plugins: [
     createPersistedState({
-      getState: (key) => Cookies.getJSON(key),
-      setState: (key, state) => { Cookies.set(key, state, { expires: parseInt(process.env.PERSIST_STATE_COOKIE_DURATION, 10), secure: true }) }
+      getState: key => Cookies.getJSON(key),
+      setState: (key, state) => {
+        Cookies.set(key, state, {
+          expires: parseInt(process.env.PERSIST_STATE_COOKIE_DURATION, 10),
+          secure: true
+        });
+      }
     })
   ]
-})
+});

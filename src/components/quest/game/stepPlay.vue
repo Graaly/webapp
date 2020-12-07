@@ -1,7 +1,22 @@
 <template>
+
   <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor')}">
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
-      
+      <q-linear-progress 
+        v-if="step.countDownTime !== null && 
+          step.countDownTime !== undefined && 
+          step.countDownTime.enabled === true"
+        class="timer-progress-bar"
+        :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
+        :value="map(this.countdowntimeleft,0,this.step.countDownTime.time,0,1)"
+        :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : 'white'"
+        :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" 
+        :instant-feedback = true
+      />
+      <!--   <div class="absolute-full flex flex-center">
+          <q-badge color="white" text-color="accent" :label="this.countdowntimeleft" />
+        </div>
+      </q-linear-progress>   -->
       <!------------------ COMPONENT TO KEEP THE SCREEN ON ----------------------
       <video v-if="step.type === 'geolocation'" id="keep-screen-on" autoplay loop style="width: 0px; height: 0px;">
         <source src="statics/videos/empty.mp4" type="video/mp4" />
@@ -52,9 +67,12 @@
       <div class="character" v-if="step.type == 'character'">
         <div class="fixed-bottom story" @click="nextCharacterBubbleText()">
           <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
-          <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y;">
-            <p class="carrier-return" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
-            <p class="text" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
+          <div class="bubble-middle" style="font-size: 0.9em; background: url(statics/icons/story/sticker-middle.png) repeat-y;">
+            <div v-if="character.needToScroll" class="scroll-indicator">
+              <q-icon class="flashing" size="2.5em" name="arrow_drop_down_circle" />
+            </div>
+            <p ref="bubbleText" class="carrier-return" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
+            <p ref="bubbleTextHtml" class="text" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
             <p class="text text-grey" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ClickHere') }}</p>
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
@@ -113,7 +131,16 @@
           </div>
           <div class="actions q-mt-sm q-mb-md" v-show="playerResult === null">
             <div>
-              <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="clear" :disable="playerCode[0] === ''" @click="clearLastCodeChar()"><div>{{ $t('label.Clear') }}</div></q-btn>
+              <q-btn class="glossy small-button" 
+                :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
+                :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
+                icon="clear" 
+                :disable="playerCode[0] === ''"
+                @click="clearLastCodeChar()">
+                <div>
+                  {{ $t('label.Clear') }}
+                </div>
+              </q-btn>
               <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
             </div>
           </div>
@@ -136,7 +163,7 @@
           <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
         </div>
         
-        <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
+        <div class="actions q-mt-lg q-mx-md" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
@@ -152,7 +179,7 @@
         <table>
           <tr>
             <td v-for="(code, index) in playerCode" :key="index" class="text-center">
-              <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_up" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index" />
+              <q-btn :disabled="stepPlayed" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_up" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index" />
             </td>
           </tr>
           <tr>
@@ -162,13 +189,13 @@
           </tr>
           <tr>
             <td v-for="(code, index) in playerCode" :key="index" class="text-center">
-              <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
+              <q-btn :disabled="stepPlayed" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
             </td>
           </tr>
         </table>
         <div class="centered text-grey q-py-md">{{ $t('label.ClickToEnlargePictures') }}</div>
         
-        <div class="actions q-mt-lg" style="padding-bottom: 100px" v-show="playerResult === null">
+        <div class="actions q-mt-lg q-mx-md" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
@@ -176,7 +203,7 @@
       </div>
       
       <!------------------ IMAGE RECOGNITION STEP AREA ------------------------>
-      
+      <!-- MPA 2020-09-24 not used
       <div class="image-recognition" v-if="step.type == 'image-recognition'">
         <div>
           <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
@@ -194,7 +221,7 @@
             <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="checkAnswer()" icon="done">{{ $t('label.Check') }}</q-btn>
           </div>
         </div>
-      </div>
+      </div>-->
       
       <!------------------ GEOLOCALISATION STEP AREA ------------------------>
       
@@ -211,7 +238,7 @@
         <div>
           <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
-        <div class="answer-text" style="padding-bottom: 100px">
+        <div class="answer-text q-pa-md" style="padding-bottom: 100px">
           <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
           <input 
             class="subtitle6" 
@@ -232,7 +259,9 @@
         </div>
         <div id="pieces">
             <div draggable="true"
-              v-for="piece in puzzle.pieces" :key="piece.pos" :id="'piece-' + piece.pos"
+              v-for="piece in puzzle.pieces" 
+              :key="piece.pos" 
+              :id="'piece-' + piece.pos"
               @dragstart="handleDragStart($event)"
               @dragover="handleDragOver($event)"
               @drop="handleDrop($event)"
@@ -267,10 +296,10 @@
             v-for="(item, key) in memory.items" 
             :key="key" 
             class="card" 
-            :class="{ open: item.isClicked, show: item.isClicked, disabled: item.isFound, match: item.isFound }" 
+            :class="{ open: item.isClicked, show: item.isClicked, disabled: item.isFound || stepPlayed, match: item.isFound }" 
             @click="selectMemoryCard(key)"
           >
-            <img :src="item.imagePath.indexOf('blob:') !== -1 ? item.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
+            <img v-if="item.imagePath" :src="item.imagePath.indexOf('blob:') !== -1 ? item.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
           </li>
         </ul>
       </div>
@@ -300,8 +329,11 @@
         <div>
           <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
         </div>
-        <div ref="findItemPicture" @click="findItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="find-item-picture">
-          <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
+        <div ref="findItemPicture" @click="findItem($event)" :style="'position: relative; overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="find-item-picture">
+          <img id="cross-play0" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play1" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play2" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play3" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
       
@@ -320,7 +352,7 @@
             <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
           </div>
         </div>
-        <div class="target-view" v-show="(playerResult === null) || (playerResult && step.options && step.options.is3D)">
+        <div class="target-view" v-show="(playerResult === null) || (playerResult !== null && step.options && step.options.is3D)">
           <canvas id="target-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
         <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
@@ -337,18 +369,19 @@
             <q-btn 
               round 
               size="lg"
+              class="text-white"
               :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
               :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}" 
               icon="photo_camera"  
-              @click="takeSnapshot()"
+              @click="prepareSnapshot()"
             />
           </div>
-          <img id="snapshotImage" v-if="!isIOs && takingSnapshot" style="transform: rotate(90deg); position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />
+          <img id="snapshotImage" v-if="!isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; height: 100%; width: auto; z-index: 1980;" />
           <img id="snapshotImageIos" v-if="isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />
           <div>
             <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
           </div>
-          <div v-if="!step.options || (!step.options.fullWidthPicture && !step.options.redFilter)" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'">
+          <div v-if="!step.options || (!step.options.fullWidthPicture && !step.options.redFilter)" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw; z-index: 1985;'">
           </div>
           <img v-if="step.options && step.options.fullWidthPicture && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985;" />
           <img v-if="step.options && step.options.redFilter" src="statics/images/background/red.png" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985; mix-blend-mode: multiply; opacity: 0.8;" />
@@ -382,17 +415,27 @@
           {{ $t('label.ScanTheMarkersLikeThat') }}
           <div><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
           {{ $t('label.ScanTheMarkersLikeThat2') }}
-          <div><q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="startScanQRCode()"><div>{{ $t('label.LaunchTheScanner') }}</div></q-btn></div>
+          <div>
+            <q-btn 
+              class="glossy large-button" 
+              :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" 
+              :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" 
+              @click="startScanQRCode()">
+                <div>{{ $t('label.LaunchTheScanner') }}</div>
+            </q-btn>
+          </div>
         </div>
-        <div v-if="!locateMarker.compliant">
-          {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
-        </div>
-        <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant && step.options.mode == 'scan'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
-        <div class="marker-view" v-show="locateMarker.compliant">
-          <canvas id="marker-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
+        <div class="text-center">
+          <div v-if="!locateMarker.compliant">
+            {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
+          </div>
+          <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant && step.options.mode == 'scan'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
+          <div class="marker-view" v-show="locateMarker.compliant">
+            <canvas id="marker-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
+          </div>
         </div>
         <div class="fixed-bottom over-map" style="height: 100%" v-if="locateMarker.showHelp">
-          <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? $t('label.FindMarkerHelp') : $t('label.TouchObjectOnMarkerHelp') }" @next="locateMarker.showHelp = false"></story>
+          <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? 'FindMarkerHelp' : 'TouchObjectOnMarkerHelp' }" @next="locateMarker.showHelp = false"></story>
         </div>
       </div>
       
@@ -437,14 +480,32 @@
       
       <div v-if="step.type == 'trigger-event'" class="trigger-event">
         <p class="text" style="flex-grow: 1" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
-        <div v-if="step.options.object !== 'chest'">
-          <q-btn v-if="step.options.triggerMode && step.options.triggerMode === 'manual'" class="full-width" color="primary" :label="$t('label.TriggerTheEvent')" size="xl" @click="triggerIotEvent()" :disable="bluetooth.deviceId === null" />
+        <div v-if="step.options.object !== 'chest' || step.options.object === 'relay'">
+          <q-btn 
+            v-if="step.options.triggerMode && step.options.triggerMode === 'manual'" 
+            class="full-width" color="primary" 
+            :label="$t('label.TriggerTheEvent')" 
+            size="xl" 
+            @click="triggerIotEvent()" 
+            :disable="bluetooth.deviceId === null" 
+          />
         </div>
-        <div v-if="step.options.object === 'chest'">
+        <div v-if="step.options.object === 'chest' || step.options.object === 'relay'">
           <p>{{ $t('label.ChestActions') }}</p>
           <div style="display:flex; ">
-            <q-btn style="flex-grow:1; margin-right: 1rem;" color="primary" :label="$t('label.Open')" size="xl" @click="triggerIotEvent('open')" :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons" />
-            <q-btn style="flex-grow:1" color="primary" :label="$t('label.Close')" size="xl" @click="triggerIotEvent('close')" :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons" />
+            <q-btn 
+              style="flex-grow:1; margin-right: 1rem;"
+              color="primary" :label="$t('label.Open')" 
+              size="xl" @click="triggerIotEvent('open')" 
+              :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons || iot.relay.disableActionButtons" 
+            />
+            <q-btn 
+              style="flex-grow:1" color="primary"
+              :label="$t('label.Close')" 
+              size="xl"
+              @click="triggerIotEvent('close')" 
+              :disable="bluetooth.deviceId === null || iot.chest.disableActionButtons || iot.relay.disableActionButtons"
+            />
           </div>
         </div>
         <p v-if="step.options.protocol === 'bluetooth' && bluetooth.deviceId === null">{{ $t('label.SearchingBluetoothDevice') }}</p>
@@ -473,7 +534,7 @@
     
     <!------------------ COMMON COMPONENTS ------------------>
     
-    <div class="direction-helper" v-show="(step.type == 'geolocation' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && geolocation.active" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem !important' }">
+    <div class="direction-helper" v-show="(step.type == 'geolocation' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && geolocation.active">
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
@@ -482,9 +543,22 @@
     <!--====================== WIN POINTS ANIMATION =================================-->
     
     <!--<div v-show="playerResult === true && score >= 1" class="fadein-message">+{{ score }}</div>-->
-    <div v-show="playerResult === true && score >= 1" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
+    <div v-show="playerResult === true && displaySuccessIcon" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
-    
+    <div 
+      v-show="
+        this.countdowntimeleft === 60 ||
+        this.countdowntimeleft === 30 || 
+        this.countdowntimeleft === 15 || 
+        this.countdowntimeleft === 10 || 
+        this.countdowntimeleft === 5 
+        " 
+      class="fadein-message text-center" 
+      >
+        <div style="font-size: 0.6em;">{{ $t('label.ItRemains') }}</div>
+        {{ this.countdowntimeleft }} {{ $t('label.s') }}
+    </div>
+
     <!--====================== STORY =================================-->
     
     <div class="fixed-bottom over-map" v-if="story.step !== null && story.step !== 'end'">
@@ -501,39 +575,40 @@
     </q-dialog>
     
     <!--====================== GPS CALIBRATION =================================-->
-    
-    <q-dialog v-model="geolocation.showCalibration">
-      <div class="bg-black centered q-pa-md">
-        <img style="width: 100%" src="statics/icons/game/wave-phone.gif">
-        <span class="text-white">{{ $t('label.WaveThePhoneForGPSPrecision') }}</span>
-      </div>
-    </q-dialog>
-    <q-dialog v-model="geolocation.takeMobileVertically">
-      <div class="bg-black centered q-pa-md">
-        <img style="width: 100%" src="statics/icons/game/take-mobile-vertically.gif">
-        <span class="text-white">{{ $t('label.TakeMobileVertically') }}</span>
-      </div>
-    </q-dialog>
+    <gpscalibration
+      ref="gpscal"
+      @endvertical="$refs.phonevertical.askUserToHandleMobileVertically()">
+    </gpscalibration>
+<!--:geolocationshowCalibration="false"-->
+    <!--====================== HOLD PHONE VERTICAL =================================-->
+    <holdphonevertically
+      ref="phonevertical"
+      :geolocation = "geolocation">
+    </holdphonevertically>
     
   </div>
-  
 </template>
 
 <script>
 import { colors } from 'quasar'
 
 import StepService from 'services/StepService'
-import simi from 'src/includes/simi' // for image similarity
+import TimerStorageService from 'services/TimerStorageService'
+//import simi from 'src/includes/simi' // for image similarity - MPA 2020-09-24 not used since several months (for steps 'image-recognition')
 import utils from 'src/includes/utils'
 
 import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
 import markersList from 'data/markers.json'
 import iotObjectsList from 'data/iotObjects.json'
+import iotOptions from 'data/iotOptions.json'
+import stepTypes from 'data/stepTypes.json'
 
 import Notification from 'boot/NotifyHelper'
 
 import geolocation from 'components/geolocation'
+import gpscalibration from 'components/gpsCalibration'
+import holdphonevertically from 'components/holdPhoneVertically'
 import story from 'components/story'
 
 import Vue from 'vue'
@@ -562,8 +637,10 @@ export default {
    * itemUsed : item of the inventory used
    * lang : language of the step (fr, en, ...)
    */
-  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player'],
+  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player', 'inventory'],
   components: {
+    holdphonevertically,
+    gpscalibration,
     geolocation,
     story
   },
@@ -633,6 +710,14 @@ export default {
     if (this.bluetooth.enabled) {
       this.bluetoothDisconnect(this.bluetooth.deviceId)
     }
+    
+    this.stopcountdown()
+    
+    if (['geolocation', 'locate-item-ar'].includes(this.step.type)) {
+      try {
+        cordova.plugins.headingcalibration.stopWatchCalibration();
+      } catch (err) {}
+    }
   },
   methods: {
     initialState () {
@@ -650,12 +735,15 @@ export default {
         isHybrid: window.cordova,
         isIOs: utils.isIOS(),
         isNetworkLow: false,
+        isTimeUp: false,
+        displaySuccessIcon: false,
         
         // for step 'character'
         character: {
           bubbleText: [],
           numberOfBubble: 1,
-          bubbleNumber: 0
+          bubbleNumber: 0,
+          needToScroll: false
         },
         // for step 'choose'
         answerType: 'text', // 'text' or 'image'
@@ -671,9 +759,9 @@ export default {
         showKeypad: true,
         codeColors: {},
         
-        // for step type 'image-recognition'
-        photoComparisonThreshold: 70,
-        photoTaken: false,
+        // for step type 'image-recognition' - MPA 2020-09-24
+        //photoComparisonThreshold: 70,
+        //photoTaken: false,
         
         // for step types 'geoloc' and 'locate-item-ar'
         geolocation: {
@@ -695,7 +783,9 @@ export default {
           primaryColor: colors.getBrand('primary'),
           showCalibration: false,
           takeMobileVertically: false,
-          gyroscopeDetectionCounter: 0
+          gyroscopeDetectionCounter: 0,
+          lowCompassAccuracy: false,
+          compassAccuracyTimeout: null
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -757,7 +847,10 @@ export default {
           disabled: false
         },
         // for step type 'find-item'
+        nbItemsFound: 0,
         readMoreNotif: null,
+        // for step type 'use-item'
+        itemUsedComputed: null,
         // for step types 'wait-for-event', 'trigger-event'
         mqttClient: null,
         bluetooth: {
@@ -773,7 +866,8 @@ export default {
           keypadAnswer: null,
           axisX: null,
           axisY: null,
-          chest: { disableActionButtons: false }
+          chest: { disableActionButtons: false },
+          relay: { disableActionButtons: false }
         },
         // for story/tutorial
         story: {
@@ -786,7 +880,11 @@ export default {
         },
         
         // for cleanup
-        latestRequestAnimationId: null
+        latestRequestAnimationId: null,
+
+        //timer
+        countdowntimeleft: 0,
+        currentcountdown: null
       }
     },
     /*
@@ -850,7 +948,7 @@ export default {
         }
         
         this.resetDrawDirectionInterval()
-        
+
         //iOS Hack : all iphone have gyroscope
         if (this.isIOs) {
           this.deviceHasGyroscope = true
@@ -871,6 +969,7 @@ export default {
             if (this.character.numberOfBubble === 1) {
               this.checkAnswer()
             }
+            utils.setTimeout(this.checkIfTextIsHidden, 1500)
           } else {
             this.checkAnswer()
           }
@@ -906,10 +1005,6 @@ export default {
           //await this.addItemToInventory(this.step.answers)
         }
         
-        /*if (this.step.type === 'use-item') {
-          await this.fillInventory()
-        }*/
-        
         if (this.step.type === 'jigsaw-puzzle') {
           await this.initPuzzle()
           this.$emit('pass')
@@ -922,69 +1017,104 @@ export default {
         
         // common process to 'geolocation' and 'locate-item-ar'
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
-          let requestPermissionResult
-          
-          // user can pass
-          this.$emit('pass')
-          
-          // ask user to calibrate gps
-          this.askUserToCalibrateGPS()
-          
-          // Start absolute orientation sensor
-          // ---------------------------------
-          // Required to make camera orientation follow device orientation 
-          // It is different from 'deviceorientationabsolute' listener whose values are not
-          // reliable when device is held vertically
-          try {
-            if ("AbsoluteOrientationSensor" in window) {
-              // Android
-              let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
-              sensor.onerror = event => console.error(event.error.name, event.error.message)
-              sensor.onreading = this.onAbsoluteOrientationSensorReading
-              sensor.start()
-              this.geolocation.absoluteOrientationSensor = sensor
+        if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+            // if run as builder, get the remainingTrial
+            if (this.runId === "0") {
+              Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
             } else {
-              // iOS
-              this.geolocation.absoluteOrientationSensor = {
-                stop: this.stopAlternateAbsoluteOrientationSensor
+              // user can pass
+              this.$emit('pass')
+              this.$emit('forceMoveNext')
+            }
+          } else {
+            let requestPermissionResult
+            
+            // user can pass
+            this.$emit('pass')
+            // Start absolute orientation sensor
+            // ---------------------------------
+            // Required to make camera orientation follow device orientation 
+            // It is different from 'deviceorientationabsolute' listener whose values are not
+            // reliable when device is held vertically
+            try {
+              if ("AbsoluteOrientationSensor" in window) {
+                // Android
+                let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
+                sensor.onerror = event => console.error(event.error.name, event.error.message)
+                sensor.onreading = this.onAbsoluteOrientationSensorReading
+                sensor.start()
+                this.geolocation.absoluteOrientationSensor = sensor
+              } else {
+                // iOS
+                this.geolocation.absoluteOrientationSensor = {
+                  stop: this.stopAlternateAbsoluteOrientationSensor
+                }
+                
+                // ask user to access to his device orientation
+                requestPermissionResult = await utils.requestDeviceOrientationPermission()
+                
+                if (requestPermissionResult !== 'granted') {
+                  Notification(this.$t('label.PleaseAcceptDeviceOrientationPermissionRequest'), 'error')
+                  return
+                }
+                window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
               }
-              
-              // ask user to access to his device orientation
-              requestPermissionResult = await utils.requestDeviceOrientationPermission()
+            } catch (error) {
+              console.error(error)
+            }
+            
+            if (this.step.type === 'locate-item-ar') {
+              // ask user to access to his device motion
+              requestPermissionResult = await utils.requestDeviceMotionPermission()
               
               if (requestPermissionResult !== 'granted') {
-                Notification(this.$t('label.PleaseAcceptDeviceOrientationPermissionRequest'), 'error')
+                Notification(this.$t('label.PleaseAcceptDeviceMotionPermissionRequest'), 'error')
                 return
               }
-              window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
-            }
-          } catch (error) {
-            console.error(error)
-          }
-          
-          if (this.step.type === 'locate-item-ar') {
-            // ask user to access to his device motion
-            requestPermissionResult = await utils.requestDeviceMotionPermission()
+              
+              // start accelerometer sensor
+              window.addEventListener("devicemotion", this.handleMotionEvent, true)
             
-            if (requestPermissionResult !== 'granted') {
-              Notification(this.$t('label.PleaseAcceptDeviceMotionPermissionRequest'), 'error')
-              return
-            }
+              await this.waitForGyroscopeDetection()
             
-            // start accelerometer sensor
-            window.addEventListener("devicemotion", this.handleMotionEvent, true)
-          
-            await this.waitForGyroscopeDetection()
-          
-            if (!this.deviceHasGyroscope) {
-              // only a warning because step can still be played
-              Notification(this.$t('label.CouldNotEnableAR'), 'warning')
+              if (!this.deviceHasGyroscope) {
+                // only a warning because step can still be played
+                Notification(this.$t('label.CouldNotEnableAR'), 'warning')
+              }
             }
           }
           
           // must store object returned by setInterval() in Vue store instead of component properties,
           // otherwise it is reset when route changes & component is reloaded
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
+          
+          if (this.isHybrid && !this.isIOS) {
+            // IOS is not tested for now, hence why we are not using it 
+            cordova.plugins.headingcalibration.watchCalibration(
+              (accuracy) => {
+                if (accuracy <= 1) {
+                  this.geolocation.lowCompassAccuracy = true
+                  // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
+                  if (this.geolocation.compassAccuracyTimeout === null && !this.geolocation.showCalibration) {
+                    this.geolocation.compassAccuracyTimeout = utils.setTimeout(() => {
+                      this.$refs.gpscal.askUserToCalibrateGPS();
+                      if (this.geolocation.compassAccuracyTimeout !== null) {
+                        clearTimeout(this.geolocation.compassAccuracyTimeout);
+                        this.geolocation.compassAccuracyTimeout = null;
+                      }
+                    }, 10000)
+                  }
+                } else {
+                  this.geolocation.lowCompassAccuracy = false
+                  if (this.geolocation.compassAccuracyTimeout !== null) {
+                    clearTimeout(this.geolocation.compassAccuracyTimeout);
+                    this.geolocation.compassAccuracyTimeout = null;
+                  }
+                }
+              },
+              (err) => { console.error('watch calibration: failure', err) }
+            );
+          }
         }
         
         if (this.step.type === 'locate-item-ar'  && !this.playerResult) {
@@ -1278,6 +1408,10 @@ export default {
             this.bluetoothDisconnect(this.bluetooth.deviceId)
           }
         }
+        
+        if (this.isTimerAvailable()) {
+          this.currentcountdown = this.countdown()
+        }
       })
     },
     /**
@@ -1323,31 +1457,6 @@ export default {
               t: new Date()
           }
       })
-    },
-    /*
-    * Open GPS calibration popin
-    */
-    askUserToCalibrateGPS() {
-      if (this.step.options && this.step.options.showHelp) {
-        this.geolocation.showCalibration = true
-        utils.setTimeout(this.closeGPSCalibration, 7000)
-      }
-    },
-    closeGPSCalibration() {
-      this.geolocation.showCalibration = false
-      if (this.step.type === 'locate-item-ar') {
-        this.askUserToHandleMobileVertically()
-      }
-    },
-    /*
-    * Show the user that he needs to take his mobile vertically
-    */
-    askUserToHandleMobileVertically() {
-      this.geolocation.takeMobileVertically = true
-      utils.setTimeout(this.closeHandleMobileVertically, 5000)
-    },
-    closeHandleMobileVertically() {
-      this.geolocation.takeMobileVertically = false
     },
     /*
     * Init QR Codes
@@ -1611,12 +1720,16 @@ export default {
       const type = this.step.type
       if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'image-over-flow') {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }
-      } else if (type === 'image-recognition') {
+      } /*else if (type === 'image-recognition') {
         return { result: answer, answer: this.answer, score: 0, reward: 0, offline: true }
-      } else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle') {
+      }*/ else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle') {
         //TODO: find a way to check server side
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
       } else if (type === 'use-item') {
+        if (this.isTimeUp === true) {
+          return { result: false, answer: this.answer, score: 0, reward: 0, offline: true }
+        }
+        
         let answerPixelCoordinates = {
           left: Math.round(this.answer.coordinates.left / 100 * 100 * answer.windowWidth),
           top: Math.round(this.answer.coordinates.top / 100 * 133 * answer.windowWidth)
@@ -1631,21 +1744,18 @@ export default {
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       } else if (type === 'find-item') {
-        let answerPixelCoordinates = {
-          left: Math.round(this.answer.left / 100 * 100 * answer.windowWidth),
-          top: Math.round(this.answer.top / 100 * 133 * answer.windowWidth)
+        if (this.isTimeUp === true) {
+          return { result: false, answer: this.answer, score: 0, reward: 0, offline: true }
         }
         
-        // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
-        let solutionAreaRadius = Math.round(8 * answer.windowWidth)
-        
-        let distanceToSolution = Math.sqrt(Math.pow(answerPixelCoordinates.left - answer.posX, 2) + Math.pow(answerPixelCoordinates.top - answer.posY, 2))
-
-        if (distanceToSolution <= solutionAreaRadius) {
-          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
-        }
+        //if (this.step.options && this.step.options.coordinates && this.step.options.coordinates.length > 0) {
+          //const checkIfFound = this.findItemIsFound()
+          //if (checkIfFound.all) {
+        return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+          //}
+        //}
       } else if (type === 'write-text') {
-        for (var i = 0; i < this.answer.length; i++) {
+        for (i = 0; i < this.answer.length; i++) {
           if (utils.removeAccents(answer) === utils.removeAccents(this.answer[i])) {
             return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
           }
@@ -1659,7 +1769,7 @@ export default {
       }
       // answers not found
       // check if nb trials is met or not
-      if (this.step.nbTrial && this.step.nbTrial > 0 && (this.nbTry + 1) < this.step.nbTrial) {
+      if (!this.isTimeUp && this.step.nbTrial && this.step.nbTrial > 0 && (this.nbTry + 1) < this.step.nbTrial) {
         return { result: false, remainingTrial: (this.step.nbTrial - this.nbTry - 1), offline: true }
       } else {
         return { result: false, answer: this.answer, score: 0, reward: 0, offline: true }
@@ -1706,7 +1816,7 @@ export default {
           break
           
         case 'choose':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
           
           if (checkAnswerResult.result === true) {
             let selectedAnswer = this.step.options.items[answer]
@@ -1719,25 +1829,33 @@ export default {
             Vue.set(this.step.options.items, answer, selectedAnswer)
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
-            let selectedAnswer = this.step.options.items[answer]
-            if (this.step.displayRightAnswer === false) {
-              selectedAnswer.class = 'rightorwrong'
-            } else {
-              selectedAnswer.icon = 'clear' // "x" icon
-              selectedAnswer.class = 'wrong'
+            if (!this.isTimeUp) {
+              let selectedAnswer = this.step.options.items[answer]
+              if (this.step.displayRightAnswer === false) {
+                selectedAnswer.class = 'rightorwrong'
+              } else {
+                selectedAnswer.icon = 'clear' // "x" icon
+                selectedAnswer.class = 'wrong'
+              }
+              Vue.set(this.step.options.items, answer, selectedAnswer)
+            }
+            
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
+            if (this.step.displayRightAnswer === true) {
               // indicate the right answer
               if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
                 let selectedAnswer = this.step.options.items[checkAnswerResult.answer]
                 selectedAnswer.icon = 'done'
                 selectedAnswer.class = 'right'
-                Vue.set(this.step.options.items, answer, selectedAnswer)
                 Vue.set(this.step.options.items, checkAnswerResult.answer, selectedAnswer)
               }
             }
-            Vue.set(this.step.options.items, answer, selectedAnswer)
             
             this.nbTry++
-            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
@@ -1747,16 +1865,19 @@ export default {
           break
         
         case 'geolocation':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, false)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, false)
 
-          if (checkAnswerResult.result === true) {
+          if (this.isTimeUp) {
+            this.submitWrongAnswer(checkAnswerResult.offline, true)
+          } else if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           }
           break
-          
+        // MPA 2020-09-24 not used
+        /*
         case 'image-recognition':
           const comparison = this.checkPhoto()
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: comparison}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: comparison, isTimeUp: this.isTimeUp}, true)
 
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
@@ -1764,15 +1885,19 @@ export default {
             this.submitWrongAnswer(checkAnswerResult.offline, true)
           }
           break
-          
+          */
         case 'code-keypad':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('')}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join(''), isTimeUp: this.isTimeUp}, true)
 
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
             this.nbTry++
-            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial > 0) {
               // reset code
               this.resetKeypadCode()
               this.submitRetry(checkAnswerResult.remainingTrial)
@@ -1783,15 +1908,17 @@ export default {
           break
         
         case 'code-color':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|')}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|'), isTimeUp: this.isTimeUp}, true)
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
             this.nbTry++
-            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
-              // reset code
-              this.resetColorCode()
+            if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
@@ -1800,15 +1927,17 @@ export default {
           break
           
         case 'code-image':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|')}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|'), isTimeUp: this.isTimeUp}, true)
           
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
             this.nbTry++
-            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
-              // reset code
-              this.resetImageCode()
+            if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
@@ -1821,17 +1950,21 @@ export default {
           // consider that puzzle is solved when checkAnswer() is called.
           
           // call to sendAnswer() is required to get score & offline info
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: ''}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: '', isTimeUp: this.isTimeUp}, true)
           
-          if (checkAnswerResult.result === true) {
+          if (this.isTimeUp === true) {
+            this.submitWrongAnswer(checkAnswerResult.offline, true)
+          } else if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           }
           break
           
         case 'memory':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
-          
-          if (checkAnswerResult.result === true) {
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {isTimeUp: this.isTimeUp}, false)
+                    
+          if (this.isTimeUp === true) {
+            this.submitWrongAnswer(checkAnswerResult.offline, true)
+          } else if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           }
           break
@@ -1841,12 +1974,16 @@ export default {
           // https://www.w3schools.com/jsref/jsref_trim_string.asp
           this.writetext.playerAnswer = this.writetext.playerAnswer.trim()
 
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.writetext.playerAnswer}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.writetext.playerAnswer, isTimeUp: this.isTimeUp}, true)
           if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
             this.nbTry++
-            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial > 0) {
               // reset field
               this.writetext.playerAnswer = ""
               this.submitRetry(checkAnswerResult.remainingTrial)
@@ -1858,7 +1995,23 @@ export default {
           break
         
         case 'use-item':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
+          
+          if (this.isTimeUp) {
+            // automatically set selectedItem to the right one
+            if (!this.inventory || !this.inventory.items || !Array.isArray(this.inventory.items)) {
+              throw new Error("Could not retrieve inventory items. Inventory content: ", this.inventory)
+            }
+            // this.inventory.items is an Observer
+            // https://stackoverflow.com/questions/47388040/how-can-i-loop-object-observer-on-vue-js-2
+            Array.from(this.inventory.items).forEach(item => {
+              let useItemAnswer = item.originalPicture ? item.originalPicture : item.picture
+              if (useItemAnswer === checkAnswerResult.answer.item) {
+                // cannot override property 'itemUsed'
+                this.itemUsedComputed = item
+              }
+            })
+          }
           
           if (checkAnswerResult.result === true) {
             if (this.step.displayRightAnswer) {
@@ -1871,8 +2024,12 @@ export default {
             
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
             this.nbTry++
-            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
+            if (checkAnswerResult.remainingTrial > 0) {
               Notification(this.$t('label.UseItemNothingHappens'), 'error')
             } else {
               if (this.step.displayRightAnswer) {
@@ -1886,25 +2043,28 @@ export default {
           break
           
         case 'find-item':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
-          if (checkAnswerResult.result === true) {
-            if (this.step.displayRightAnswer) {
+          const checkIfFound = this.findItemIsFound(answer)
+          if (checkIfFound.all) {
+            checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
+            
+            /*if (this.step.displayRightAnswer) {
               this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
-            }
+            }*/
             // if alt picture
             if (this.step.options && this.step.options.altFile) {
               this.step.backgroundImage = this.step.options.altFile
             }
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
-            this.nbTry++
-            if (checkAnswerResult.remainingTrial && this.step.displayRightAnswer) {
-              Notification(this.$t('label.FindItemNothingHappens'), 'error')
-            } else {
-              if (this.step.displayRightAnswer) {
-                this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
+            const remainingTrial = this.isTimeUp ? 0 : (this.step.nbTrial - this.nbTry - 1)
+            
+            if (!checkIfFound.one) {
+              this.nbTry++
+              if (remainingTrial > 0) {
+                Notification(this.$t('label.FindItemNothingHappens'), 'error')
+              } else {
+                this.submitWrongAnswer(false, this.step.displayRightAnswer)
               }
-              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
           
@@ -1913,8 +2073,8 @@ export default {
         case 'locate-item-ar':
         case 'locate-marker':
           if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
-            checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, false)
-            if (checkAnswerResult.result === true) {
+            checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, false)
+            if (checkAnswerResult && checkAnswerResult.hasOwnProperty('result')) {
               if (this.step.type === 'locate-item-ar') {
                 // stop listening to motion events
                 window.removeEventListener("devicemotion", this.handleMotionEvent, true)
@@ -1968,7 +2128,11 @@ export default {
                     object.scale.set(0, 0, 0)
                     object.position.set(0, cameraDistance, size.z / 2)
                     object.rotation.set(0, 0, 0)
-                    this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+                    if (checkAnswerResult.result === true) {
+                      this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+                    } else {
+                      this.submitWrongAnswer(checkAnswerResult.offline, true)
+                    }
                   })
                 
                 let appearAnimation = new TWEEN.Tween(object.scale).to({ x: startScale.x, y: startScale.y, z: startScale.z }, 1000)
@@ -1981,7 +2145,11 @@ export default {
                   
                 disappearAnimation.chain(appearAnimation, rotationAnimation).start()
               } else { // 2D image on plane
-                this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+                if (checkAnswerResult.result === true) {
+                  this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+                } else {
+                  this.submitWrongAnswer(checkAnswerResult.offline, true)
+                }
               }
             }
           } else { // locate-marker, mode scan
@@ -2017,7 +2185,7 @@ export default {
             }
             
             if (markerDetected) {
-              checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer}, true)
+              checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
               
               if (checkAnswerResult.result === true) {
                 this.submitGoodAnswer(checkAnswerResult.score, checkAnswerResult.offline, true)
@@ -2025,7 +2193,7 @@ export default {
                 this.locateMarker.playerAnswer = answer // for display
               } else {
                 this.nbTry++
-                if (this.nbTry === 2) {
+                if (this.nbTry === 2 || this.isTimeUp) {
                   this.submitWrongAnswer(checkAnswerResult.offline, true)
                   this.stopMarkersSensors()
                 } else {
@@ -2037,22 +2205,27 @@ export default {
           break
         
         case 'wait-for-event':
-          // reaching this line means that the correct event (code + mac address) has been retrieved from the IoT board
-          
           // otherwise, this.onBluetoothNotification() can still be called a lot of times while the call to this.sendAnswer() below is waiting for a reply from web API
           await this.stopBluetoothNotification()
           
           // call to sendAnswer() is required to get score & offline info
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: ''}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: '', isTimeUp: this.isTimeUp}, true)
           
-          // server should always return true, otherwise user may be cheating
-          // TODO check on server side if same MQTT event has been retrieved
-          if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
-          } else {
-            Notification(this.$t('label.TechnicalIssue'), 'error')
+          if (this.isTimeUp) {
+            this.submitWrongAnswer(checkAnswerResult.offline, true)
+          } else {            
+            // reaching this line means that the correct event (code + mac address) has been retrieved from the IoT board
+            
+            // server should always return true, otherwise user may be cheating
+            // TODO check on server side if same MQTT event has been retrieved
+            if (checkAnswerResult.result === true) {
+              this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+            } else {
+              Notification(this.$t('label.TechnicalIssue'), 'error')
+            }
           }
           
+          // clear connection with IoT device
           if (this.step.options.protocol === 'mqtt') {
             let _this = this
             this.mqttClient.end(false, {}, () => {
@@ -2087,7 +2260,7 @@ export default {
       utils.setTimeout(this.alertToPassToNextStep, 15000)
     },
     /*
-     * Send good andwer  
+     * Send good answer  
      */
     submitGoodAnswer(score, offlineMode, showResult) {
       if (showResult) {
@@ -2096,6 +2269,20 @@ export default {
         this.playerResult = null
       }
       
+      if (
+        this.step.countDownTime !== undefined &&
+        this.step.countDownTime !== null &&
+        this.step.countDownTime.enabled === true)
+      {
+        let stepType = this.getStepType(this.step.type) // this.step.type contains step code
+        
+        // do not hide the timer on 'transition' steps because they automatically call 'submitGoodAnswer()' at loading
+        if (stepType.category === 'enigma') {
+          this.step.countDownTime.enabled = false;
+          this.stopcountdown()
+        }
+      }
+
       this.stepPlayed = true
       
       this.$emit('success', score, offlineMode, showResult)
@@ -2120,7 +2307,7 @@ export default {
           case 'code-image':
             this.displaySuccessMessage(true, this.$t('label.GoodAnswer'))
             break
-          case 'image-recognition':
+          //case 'image-recognition':
           case 'write-text':
           case 'jigsaw-puzzle':
           case 'memory':
@@ -2159,6 +2346,12 @@ export default {
      * Send wrong answer 
      */
     submitWrongAnswer(offlineMode, showResult) {
+      // remove timer
+      if (this.step.countDownTime !== null) {
+        this.step.countDownTime.enabled = false
+        this.stopcountdown()
+      }
+      
       if (showResult) {
         this.playerResult = false
       } else {
@@ -2171,12 +2364,16 @@ export default {
       
       this.displayReadMoreAlert()
       
-      if (showResult) {
-        if (this.step.type === 'image-recognition') {
+      if (this.isTimeUp === true) {
+        this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'))
+      } else if (showResult) {
+        // MPA 2020-09-24 image-recognition is not used since several months
+        /*if (this.step.type === 'image-recognition') {
           this.displaySuccessMessage(false, this.$t('label.PhotosDoesntMatch'))
         } else {
           this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
-        }
+        }*/
+        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
       }
       // advise user to move to next step
       utils.setTimeout(this.alertToPassToNextStep, 15000)
@@ -2222,9 +2419,25 @@ export default {
     nextCharacterBubbleText() {
       if (this.character.bubbleNumber < (this.character.numberOfBubble - 1)) {
         this.character.bubbleNumber++
+        this.character.needToScroll = false
+        utils.setTimeout(this.checkIfTextIsHidden, 500)
       }
       if (this.character.bubbleNumber >= (this.character.numberOfBubble - 1)) {
         this.checkAnswer()
+      }
+    },
+    async checkIfTextIsHidden() {
+      if (!this.$refs.bubbleText) {
+        return
+      }
+
+      // check if height > max size of the box
+      const bubbleHeight = this.$refs.bubbleText ? this.$refs.bubbleText.clientHeight : 0
+      const bubbleHTMLHeight = this.$refs.bubbleTextHtml ? this.$refs.bubbleTextHtml.clientHeight : 0
+      const realBubbleHeight = Math.max(bubbleHeight, bubbleHTMLHeight)
+      
+      if (realBubbleHeight > '177') {
+        this.character.needToScroll = true
       }
     },
     /*
@@ -2246,7 +2459,10 @@ export default {
      * Reset the image code pad
      */
     resetImageCode() {
-      this.playerCode.length = 0
+      const length = ((this.step.options && this.step.options.codeLength && this.step.options.codeLength > 0) ? this.step.options.codeLength : 4)
+      this.playerCode = Array(length).fill(0)
+      // MPA 2020-09-28 this shows the right answer
+      /*this.playerCode.length = 0
       var imagePositionInCode = 0
       var nbImagePositionInCode = this.getNbImageUploadedForCode()
       for (var i = 0; i < ((this.step.options && this.step.options.codeLength && this.step.options.codeLength > 0) ? this.step.options.codeLength : 4); i++) {
@@ -2257,7 +2473,7 @@ export default {
           imagePositionInCode = 0
         }
         this.forceImageRefresh(i)
-      }
+      }*/
     },
     /*
      * Display next image in the image code pad
@@ -2411,7 +2627,9 @@ export default {
     },
     /*
      * Check if a photo is similar to the one expected
+     * MPA image-recognition steps are not used since several months
      */
+    /*
     checkPhoto() {
       // take photo & stop camera flow
       let photoBuffer = this.$refs['photo-buffer']
@@ -2442,7 +2660,7 @@ export default {
           return simi.compare(photoBuffer, canvasOriginalPhoto) >= this.photoComparisonThreshold
         }
       }
-    },
+    },*/
     /*
      * Stop the video tracking
      */
@@ -2553,7 +2771,10 @@ export default {
       this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
       let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
       if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
-        this.geolocation.distance = this.geolocation.GPSdistance
+        // avoid to change distance too much
+        if (!this.geolocation.distance || this.geolocation.GPSdistance < this.geolocation.distance || this.geolocation.GPSdistance > (this.geolocation.distance + 4)) {
+          this.geolocation.distance = this.geolocation.GPSdistance
+        }
         this.geolocation.rawDirection = rawDirection
       }
       
@@ -2661,11 +2882,14 @@ export default {
       cross.style.left = (answerPixelCoordinates.left - solutionAreaRadius) + "px"
       cross.style.display = "block"
       var crossPicture = cross.src
+      // this.itemUsedComputed is filled when timer is enabled and time is up
+      // (could not override the 'prop' this.itemUsed, coming from step.vue or settings.vue)
+      let itemUsed = this.itemUsedComputed !== null ? this.itemUsedComputed : this.itemUsed
       var self = this
       utils.setInterval(function() {
         if (cross.src === crossPicture) {
-          if (self.itemUsed.pictures && self.itemUsed.pictures[self.lang] && self.itemUsed.pictures[self.lang] !== '') {
-            cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.itemUsed.picture : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.itemUsed.picture)
+          if (itemUsed.pictures && itemUsed.pictures[self.lang] && itemUsed.pictures[self.lang] !== '') {
+            cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? itemUsed.picture : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + itemUsed.picture)
           } else {
             cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.step.answers.item : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
           }
@@ -2697,57 +2921,103 @@ export default {
       await this.checkAnswer(data)
     },
     /*
-     * take a snapshot of the screen
+     * prepare page before snapshot
      */
-    takeSnapshot() {
+    prepareSnapshot() {
       this.takingSnapshot = true
       var _this = this
       if (this.isIOs && CameraPreview) {
         CameraPreview.takePicture({quality: 85}, function(base64PictureData) {
-          imageSrcData = 'data:image/jpeg;base64,' +base64PictureData
-          const image = document.getElementById('snapshotImageIos')
+          const imageSrcData = 'data:image/jpeg;base64,' +base64PictureData
+          var image = document.getElementById('snapshotImageIos')
           image.src = imageSrcData
-          setTimeout(function () { 
-            // save snapshot
-            navigator.screenshot.save(function (error, res) {
-              if (error) {
-                console.error(error)
-              } else {
-                console.log('ok', res.filePath)
-              }
-              _this.takingSnapshot = false
-              Notification(_this.$t('label.SnapshotTaken'), 'info')
-            })
-          }, 2000)
+          setTimeout(function () { _this.takeSnapshot() }, 2000)
         });
       } else {
         // generate a snapshot of the video flow
         this.imageCapture.takePhoto()
           .then(blob => {
-            const image = document.getElementById('snapshotImage')
+            var image = document.getElementById('snapshotImage')
             image.src = URL.createObjectURL(blob)
-            // rotate image (exif issue)
-            const width = image.width
-            const height = image.height
-            image.style.width = height + "px"
-            image.style.height = width + "px"
-            image.style.top = ((height - width) / 2) + "px"
-            image.style.left = ((width - height) / 2) + "px"
-            
-            setTimeout(function () { 
-              // save snapshot
-              navigator.screenshot.save(function (error, res) {
-                if (error) {
-                  console.error(error)
-                } else {
-                  console.log('ok', res.filePath)
-                }
-                _this.takingSnapshot = false
-                Notification(_this.$t('label.SnapshotTaken'), 'info')
-              })
-            }, 2000)
+            image.onload = function() {
+              const width = image.width
+              const height = image.height
+              // check if picture has to be rotated
+              if (width > height) {
+                image.style.transform = 'rotate(90deg)'
+              }
+              // keep image ratio
+              const vw = _this.getScreenWidth()
+              const vh = _this.getScreenHeight()
+              image.style.height = vh + "px"
+              image.style.width = ((height / vh) * width) + "px"
+              image.style.left = ((vw - parseInt(image.style.width, 10)) / 2) + "px"
+  
+              // rotate image (exif issue)
+              /*
+              image.style.width = height + "px"
+              image.style.height = width + "px"
+              image.style.top = ((height - width) / 2) + "px"
+              image.style.left = ((width - height) / 2) + "px"*/
+              
+              setTimeout(function () { _this.takeSnapshot() }, 2000)
+            }
           })
           .catch(err => { Notification(_this.$t('label.SnapshotTakenIssue'), 'info'); console.log(err) })
+      }
+    },
+    /*
+     * take a snapshot of the screen
+     */
+    takeSnapshot() {
+      var _this = this
+      navigator.screenshot.save(function (error, res) {
+        if (error) {
+          console.error(error)
+          Notification(_this.$t('label.ErrorTakingSnapshot'), 'info')
+        } else {
+          var permissions = cordova.plugins.permissions
+          permissions.requestPermission(permissions.READ_EXTERNAL_STORAGE, function(status) {
+            if (status.hasPermission) {
+              _this.saveSnapshot(res)
+            } else {
+              Notification(_this.$t('label.ErrorTakingSnapshot'), 'info')
+            }
+          }, alert)
+        }
+        _this.takingSnapshot = false
+      })
+    },
+    async saveSnapshot(mediaFile) {
+      try {
+        const fileEntry = await new Promise(resolve =>
+          window.resolveLocalFileSystemURL('file://' + mediaFile.filePath, resolve, function(err) { console.log('Error '  + err) })
+        );
+        const fileBinary = await new Promise((resolve, reject) =>
+          fileEntry.file(function (file) {
+            var reader = new FileReader()
+
+            reader.onloadend = function(e) {
+              resolve(reader.result)
+            }
+            reader.readAsArrayBuffer(file)
+          })
+        )
+        // convert binary to blob of the image content
+        const picture = new Blob([new Uint8Array(fileBinary)], { type: "image/jpg" })
+        var data = new FormData()
+        data.append('image', picture)
+        var _this = this
+        StepService.uploadSnapshot(this.step.questId, data, function(err, result) {
+          if (err) {
+            Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
+          } else {
+            Notification(_this.$t('label.SnapshotTaken'), 'info')
+          }
+        })
+      } catch (error) {
+        Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
+        console.log("Error: " + error)
       }
     },
     /*
@@ -2775,6 +3045,10 @@ export default {
         vw = 500
       }
       return vw
+    },
+    getScreenHeight() {
+      const vh = window.innerHeight
+      return vh
     },
     /*
      * Show the item location after success / failure
@@ -3327,6 +3601,7 @@ export default {
     * Display the success message
     */
     displaySuccessMessage (success, message, actions) {
+      this.displaySuccessIcon = true
       Notification(message, (success ? 'rightAnswer' : 'wrongAnswer'), actions)
     },
     /*
@@ -3556,14 +3831,18 @@ export default {
         switch (this.step.options.object) {
           case 'lcd':
             finalData = this.step.options.message
-            break
+            break;
           case 'buzzer':
             finalData = this.step.options.duration + ',' + this.step.options.frequency
-            break
+            break;
           case 'chest':
             this.iot.chest.disableActionButtons = true
             finalData = data
-            break
+            break;
+          case 'relay':
+            this.iot.relay.disableActionButtons = true
+            finalData = data
+            break;
           default:
             throw new Error("Object '" + this.step.options.object + "' not supported")
         }
@@ -3571,6 +3850,10 @@ export default {
         if (this.step.options.object === 'chest') {
           await utils.sleep(2000)
           this.iot.chest.disableActionButtons = false
+        }
+        if (this.step.options.object === 'relay') {
+          await utils.sleep(2000)
+          this.iot.relay.disableActionButtons = false
         }
       } else {
         throw new Error('IoT protocol not supported: ' + this.step.options.protocol)
@@ -3583,6 +3866,9 @@ export default {
       this.searchForBluetoothPeripheral()
     },
     bluetoothDisconnect: function(deviceId) {
+      if (!this.isHybrid) {
+        return
+      }
       console.log("Disconnecting BLE")
       let _this = this
       ble.disconnect(deviceId, () => {
@@ -3600,7 +3886,8 @@ export default {
     },
     bluetoothScanResult: function(data) {
       console.log("Device discovered", data)
-      if (data.name === this.iotObject.deviceName) {
+      console.log(this.step.options.deviceid)
+      if (data.name === this.step.options.deviceid) {
         this.stopBluetoothScan()
         console.log("Graaly IoT BT device discovered")
         this.bluetooth.deviceId = data.id;
@@ -3623,7 +3910,12 @@ export default {
       }
       
       if (this.step.type === 'trigger-event' && (!this.step.options.triggerMode || this.step.options.triggerMode === 'auto')) {
-        this.triggerIotEvent(this.step.options.object === 'chest' ? 'open' : '')
+        if (this.step.options.object === 'chest' || this.step.options.object === 'relay') {
+          this.triggerIotEvent('open')
+        }
+        else {
+          this.triggerIotEvent('')
+        }
       }
     },
     bluetoothDeviceDisonnected: function(err) {
@@ -3725,8 +4017,8 @@ export default {
         console.log("sendMessageToBluetoothServer: " + stringToSend)
         ble.writeWithoutResponse(
           _this.bluetooth.deviceId,
-          _this.iotObject.bleServiceId,
-          _this.iotObject.bleCharacteristicId,
+          iotOptions.baseServiceID,
+          _this.createIotCara(_this.bluetooth.deviceId),
           utils.stringToBytes(stringToSend),
           data => {
             console.log("BLE write success", data)
@@ -3750,12 +4042,15 @@ export default {
       );
     },
     stopBluetoothNotification: function() {
+      if (!this.isHybrid) {
+        return
+      }
       let _this = this
       return new Promise((resolve, reject) => {
         ble.stopNotification(
           _this.bluetooth.deviceId,
-          _this.iotObject.bleServiceId,
-          _this.iotObject.bleCharacteristicId,
+          iotOptions.baseServiceID,
+          _this.createIotCara(_this.bluetooth.deviceId),
           () => { resolve() },
           (err) => { reject(new Error("Could not stop bluetooth notifications. error: " + err)) })
       })
@@ -3767,6 +4062,137 @@ export default {
         }
       }
       throw new Error("Unknown object code '" + code + "'")
+    },
+    /**
+     * Transform a normal mac A2:B4:F5...
+     * into a single string a2b4f5...
+     */
+    createIotCara(mac) {
+      console.log(mac);
+      let p = iotOptions.baseCara + mac.toLowerCase().replaceAll(':', '');
+      console.log(p);
+      return p;
+    },
+    //Timer & countdown
+    isTimerAvailable() {
+      if (this.step && 
+      this.step.countDownTime !== undefined &&
+      this.step.countDownTime.enabled === true && 
+      utils.timeStringToSeconds(this.step.countDownTime.time) > 0) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    countdown() {
+      try {
+        let _this = this;
+        if (this.isTimerAvailable() === true) {
+          var seconds = 0;
+          var n = TimerStorageService.getTimeLeft(_this.runId, _this.step._id);
+          if (n === null) {
+            // no time in storage
+            seconds = utils.timeStringToSeconds(this.step.countDownTime.time);
+          }
+          else {
+            seconds = n;
+          }
+          
+          if (seconds <= 0) {
+            this.step.countDownTime.enabled = false;
+          }
+          
+          //set up the seconds to the initial value
+          var countdown = setInterval(async function() {
+            seconds--;
+            _this.countdowntimeleft = seconds;
+            if (seconds % 2 === 0 && _this.runId !== '0') { // runId is set to 0 when step is played as "single step test" from builder
+              //this is for performace, save it every 2 second not every seconds
+              TimerStorageService.storeTimeLeft(_this.runId, _this.step._id, seconds);
+            }
+            //console.log(_this.countdowntimeleft);
+            if (seconds <= 0) {
+              await _this.handleTimeUp()
+            }
+          }, 1000)
+          
+          return countdown;
+        }
+      }
+      catch (e) {
+        console.error('error in countdown()', e);
+      }
+    },
+    async handleTimeUp() {
+      this.isTimeUp = true
+      this.stopcountdown()
+      this.step.countDownTime.enabled = false;
+      let stepType = this.getStepType(this.step.type)
+      this.$emit('closeAllPanels')
+      if (stepType.category === 'enigma') {
+        // checkAnswer() has a specific behavior when this.isTimeUp has been set to true
+        // in particular, submitWrongAnswer() show a specific message in its notification
+        // for step types 'transition' (code 'info-text', etc.) checkAnswer() is already done at loading
+        await this.checkAnswer()
+      }
+    },
+    /**
+     * Stops current countdown
+     */
+    stopcountdown() {
+      if (this.currentcountdown !== null) {
+        clearInterval(this.currentcountdown)
+      }
+    },
+    /**
+     * used by timer's <q-linear-progress> component
+     */
+    map(x, inMin, inMax, outMin, outMax) {
+      var l = utils.map(x, inMin, utils.timeStringToSeconds(inMax), outMin, outMax);
+      return l;
+    },
+    /**
+     * Get step type (enigma or transition) from step code
+     */
+    getStepType(code) {
+      for (let stepType of stepTypes) {
+        if (stepType.code === code) {
+          return stepType
+        }
+      }
+      console.warn("Could not retrieve step type from code '" + code + "'")
+      return null
+    },
+    /**
+     * check if all find item areas are found
+     */
+    findItemIsFound(data) {
+      var notAllFound = false
+      var oneFound = false
+      for (var i = 0; i < this.step.options.coordinates.length; i++) {
+        if (!this.step.options.coordinates[i].found) {
+          let answerPixelCoordinates = {
+            left: Math.round(this.step.options.coordinates[i].left / 100 * 100 * data.windowWidth),
+            top: Math.round(this.step.options.coordinates[i].top / 100 * 133 * data.windowWidth)
+          }
+          
+          // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
+          let solutionAreaRadius = Math.round(8 * data.windowWidth)
+          
+          let distanceToSolution = Math.sqrt(Math.pow(answerPixelCoordinates.left - data.posX, 2) + Math.pow(answerPixelCoordinates.top - data.posY, 2))
+
+          if (distanceToSolution <= solutionAreaRadius) {
+            this.step.options.coordinates[i].found = true
+            oneFound = true
+            document.getElementById("cross-play" + i).style.left = answerPixelCoordinates.left - solutionAreaRadius + "px"
+            document.getElementById("cross-play" + i).style.top = answerPixelCoordinates.top - solutionAreaRadius + "px"
+            document.getElementById("cross-play" + i).style.display = 'block'
+          } else {
+            notAllFound = true
+          }
+        }
+      }
+      return {all: !notAllFound, one: oneFound}
     }
   }
 }
@@ -3780,7 +4206,8 @@ export default {
   #play-view { padding: 0rem; height: inherit; min-height: inherit; }
   
   #play-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; /*padding-bottom: 4rem;*/ }
-  #play-view > div > div:not(.story) { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; /*padding-bottom: 8rem;*/ }
+/* MPA 2020-10-04 removed because conflicts with timer div
+  #play-view > div > div:not(.story) { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; } */
   #play-view > div > div.find-item, #play-view > div > div.use-item { padding: 0px }
   #play-view > div > div.locate-item-ar { padding-bottom: 1rem; }
   
@@ -3862,11 +4289,12 @@ export default {
   .code-image td img { width: 100% }
   .code-image td .q-icon { font-size: 2em }
 
-  /* image recognition specific */
-  
-  .image-recognition .photo { flex-grow: 1; overflow-y: hidden; margin-top: 1rem; display: flex; flex-flow: column nowrap; justify-content: center; padding: 0.5rem; margin: -0.5rem; } /* negative margin required to have image shadow visible on sides */
+  /* image recognition specific - MPA 2020-04-29 not used since several months */
+  /*
+  .image-recognition .photo { flex-grow: 1; overflow-y: hidden; margin-top: 1rem; display: flex; flex-flow: column nowrap; justify-content: center; padding: 0.5rem; margin: -0.5rem; } // negative margin required to have image shadow visible on sides
   .image-recognition .photo img, 
   .image-recognition .photo > video { width: 100%; border-radius: 0.5rem; }
+  */
   
   /* geolocation specific */
   .geolocation .text { margin-bottom: 0.5rem; }
@@ -4068,7 +4496,12 @@ export default {
   /*
   * direction helper: width and height are computed properties (depending on the current step type)
   */  
-  .direction-helper { position: absolute; bottom: 20vw; left: 0; right: 0; margin-left: auto; margin-right: auto; z-index: 30; min-height: initial !important; pointer-events: none; }
+  .direction-helper { position: absolute; bottom: 20vw; left: 0; right: 0; margin-left: auto; margin-right: auto; z-index: 30; min-height: initial !important; pointer-events: none; width: 100vw; height: auto !important; }
   .direction-helper canvas { margin: auto; }
+  
+  /* timer */
+  .timer-progress-bar { height: 15px !important; padding: 0 !important; }
+  .timer-progress-bar.with-camera-stream { top: 0; left: 0; width:100vw; z-index: 30; }
+  .timer-progress-bar > .q-linear-progress__track, .timer-progress-bar > .q-linear-progress__model { all: reset; height: 15px !important; line-height: 15px !important; }
   
 </style>

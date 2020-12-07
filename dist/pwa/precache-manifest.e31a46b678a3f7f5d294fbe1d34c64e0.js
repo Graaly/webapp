@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "36f423b1c5e20092c705",
-    "url": "css/app.8dc2d6cd.css"
+    "revision": "8841754128f41532ec6f",
+    "url": "css/app.62654713.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -72,7 +72,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.9d8eecdb.gif"
   },
   {
-    "revision": "dc249b67fd86c170c633a846ad589886",
+    "revision": "9b01e974406070133d1aa3c84ebe461e",
     "url": "index.html"
   },
   {
@@ -80,16 +80,16 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2d230c65.f2c84fb9.js"
   },
   {
-    "revision": "36f423b1c5e20092c705",
-    "url": "js/app.b0a10e8f.js"
+    "revision": "8841754128f41532ec6f",
+    "url": "js/app.20ffa109.js"
   },
   {
-    "revision": "b768b1cdaa7eda457272",
-    "url": "js/vendor.24479e80.js"
+    "revision": "9c4781bd8748f86a9ea9",
+    "url": "js/vendor.7cba78c4.js"
   },
   {
     "revision": "3cf046bd9ea37450aa4fa55f9dd26d71",
-    "url": "js/vendor.24479e80.js.LICENSE"
+    "url": "js/vendor.7cba78c4.js.LICENSE"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
@@ -408,7 +408,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/story/character9_attitude1.png"
   },
   {
-    "revision": "d99f4e347e20e727c94e2ff3be84dad8",
+    "revision": "9bf1331d673af7ae2a25c4cfe54560c0",
     "url": "statics/icons/story/sticker-bottom.png"
   },
   {
@@ -562,6 +562,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "70278947b80316e0c9397b6006143531",
     "url": "statics/images/icon/wonpoint.png"
+  },
+  {
+    "revision": "6d06c7a8ef82d6fb592760f777e5261a",
+    "url": "statics/images/logo/logo-header-color.png"
   },
   {
     "revision": "7b22e579a38320bac5ef9c0e2294d847",
@@ -1704,23 +1708,23 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/profiles/noprofile.png"
   },
   {
-    "revision": "59571ba5caab663842f969bbc40472b6",
+    "revision": "eaf1797891e6969a739fe2cb3a257f7f",
     "url": "statics/scripts/addtohomescreen.js"
   },
   {
-    "revision": "4cb59ee58612d1c448ea5bdb4ad2d176",
+    "revision": "30b9c7e88fe983d54877c64bcf6d815f",
     "url": "statics/scripts/addtohomescreen.min.js"
   },
   {
-    "revision": "f51ea437fbe61da6ba0c9a82dd2e61ee",
+    "revision": "415388c0d7d5e5fb52ba01ee67136e30",
     "url": "statics/scripts/analytics.js"
   },
   {
-    "revision": "bfd4b9de8cd329130e5e46084594bdd6",
+    "revision": "001dd61ba096259339790589a8234698",
     "url": "statics/scripts/dragdroptouch.js"
   },
   {
-    "revision": "85b6bc57918f4882292f2bd8f0b15c12",
+    "revision": "251268eb7a72a94ef5003af38329937e",
     "url": "statics/scripts/polyfills.js"
   },
   {

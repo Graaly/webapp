@@ -28,6 +28,7 @@ import utils from 'src/includes/utils'
 
 export default {
   props: ['quest', 'design', 'lang'],
+  components: [],
   watch: { 
     // refresh component if questId change
     quest: async function(newVal, oldVal) {
@@ -62,17 +63,19 @@ export default {
       
       // check if quest is not already loaded
       const isQuestOfflineLoaded = await QuestService.isCached(quest.questId)
-   
-      if (!isQuestOfflineLoaded) {
-        this.offline.progress = 0.1
-        await this.saveQuestData(quest)
-        this.offline.progress = 0.1
-        this.$emit('end')
-      } else {
-        this.offline.progress = 1
-        var _this = this
-        setTimeout(function() { _this.$emit('end') }, 7000)
+      this.offline.progress = 0.1
+console.log("is already loaded: " + isQuestOfflineLoaded)
+      if (!isQuestOfflineLoaded) {  
+        const isSaved = await this.saveQuestData(quest)
+        if (!isSaved) {
+          return
+        }
       }
+      this.offline.progress = 1;
+      let _this = this;
+      setTimeout(function() {
+        _this.$emit('end')
+      }, 3000);
     },
     /*
      * Add the quest in the offline quests list
@@ -194,13 +197,14 @@ export default {
                   return false
                 }
               }
-              if (step.type === 'image-recognition' && step.answers && step.answers !== '') {
+              // MPA 2020-09-24 not used
+              /*if (step.type === 'image-recognition' && step.answers && step.answers !== '') {
                 const imageRecognitionSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/image-recognition/', step.answers)
                 if (!imageRecognitionSuccess) {
                   this.throwSaveError()
                   return false
                 }
-              }
+              }*/
               if (step.type === 'choose' && step.options && step.options.items) {
                 var chooseImageSuccess = true
                 for (var k = 0; k < step.options.items.length; k++) {
@@ -260,7 +264,7 @@ export default {
                 }
               }
               if (step.type === 'character' && step.options && step.options.character && step.options.character !== ''  && step.options.character !== 'usequestcharacter') {
-                if (step.options.character.length !== 1) {
+                if (step.options.character.length > 3) {
                   const characterImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/character/', step.options.character)
                   if (!characterImageSuccess) {
                     this.throwSaveError()
@@ -269,7 +273,7 @@ export default {
                 }
               }
               if ((step.type === 'find-item' || step.type === 'use-item') && step.options && step.options.altFile && step.options.altFile !== '') {
-                if (step.options.altFile.length !== 1) {
+                if (step.options.altFile.length > 3) {
                   const altImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/background/', step.options.altFile)
                   if (!altImageSuccess) {
                     this.throwSaveError()
@@ -348,11 +352,33 @@ export default {
         return false
       }     
     },
+    /**
+     * In case there is an error on download
+     */
     async throwSaveError() {
       Notification(this.$t('label.ErrorOfflineSaving'), 'error')
       this.error.raised = true
       this.error.nb++
+      let _this = this;
+      this.$q.dialog({
+          dark: true,
+          message: _this.$t('label.ErrorDownloadNeedsToRestart'),
+          ok: true,
+          cancel: true
+      }).onCancel(async () => {
+        _this.$router.push('/home')
+      }).onOk(async () => {
+        //stop the loading
+        _this.cancelOfflineLoading();
+        //if there is an error, remove all offline data
+        _this.removeOfflineData();
+        //relaunch the download
+        _this.saveOfflineQuest(quest);
+        //reload the loading page
+        //location.reload(); 
+      })
     },
+
     async cancelSavingTooLong() {
       if (this.offline.progress !== 0 && this.offline.progress !== 1 && !this.error.raised) {
         Notification(this.$t('label.ErrorOfflineSaving'), 'error')
@@ -380,7 +406,7 @@ export default {
       return success
     },
     /*
-     * Add the quest in the offline quests list
+     * remove the quest in the offline quests list
      */
     async removeQuestFromOfflineList(questId) {
       // check if quests file exists

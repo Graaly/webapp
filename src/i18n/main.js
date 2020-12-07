@@ -1,4 +1,4 @@
-const websiteBaseURL = "https://graaly.com" 
+const websiteBaseURL = "https://graaly.com"
 const salesEmail = "sales@graaly.com"
 const URLs = {
   privacy: {
@@ -83,9 +83,9 @@ module.exports = {
       GraalyCharacterDesc: "Make a character speak",
       EndOfChapter: "End of chapter",
       EndOfChapterDesc: "This transition send player to next chapter",
-      TriggerEvent: "Graaly > your material",
+      TriggerEvent: "Graaly -> your material",
       TriggerEventDesc: "Graaly physical a physical action (using an electronic board)",
-      WaitForEvent: "Your material > Graaly",
+      WaitForEvent: "Your material -> Graaly",
       WaitForEventDesc: "A physical action activate a step (using an electronic card)"
     },
     layersForMarkers: {
@@ -97,17 +97,19 @@ module.exports = {
       fr: "French"
     },
     status: {
-      published: "published", 
-      draft: "draft", 
-      old: "old", 
-      tovalidate: "under validation", 
-      unpublished: "unpublished", 
+      published: "published",
+      draft: "draft",
+      old: "old",
+      tovalidate: "under validation",
+      unpublished: "unpublished",
       rejected: "rejected",
       new: "new"
     },
     story: {
       hint: "Hello, here is a hint: <br /><b>{hint}</b>",
-      readMore: "{readMore}"
+      readMore: "{readMore}",
+      FindMarkerHelp: "Target the correct QR code with your phone camera. Good luck!",
+      TouchObjectOnMarkerHelp: "Point your phone camera towards the right QR code. A QR code is a square picture with dark dots. Good luck!"
     },
     iotObjects: {
       keypad: "Keypad",
@@ -118,7 +120,8 @@ module.exports = {
       buzzer: "Buzzer",
       escapebox: "Escape Box",
       chest: "Chest",
-      button: "Button"
+      button: "Button",
+      relay: "Relay"
     },
     label: {
       shortLang: "en",
@@ -689,10 +692,11 @@ module.exports = {
       Statistics: "Statistics",
       colons: ": ",
       TotalNumberOfPlayers: "Total number of players",
-      NumberOfPlayersYesterday: "Number of players yesterday",
+      NumberOfPlayersYesterday: "Yesterday",
       NumberOfPlayersByAge: "Number of players by age",
       NumberOfPlayersBySex: "Number of player by gender",
       AverageScore: "Average score",
+      AverageDuration: "Average duration (min)",
       Age1325: "Between 13 and 25 y.o.",
       Age2639: "Between 26 and 39 y.o.",
       Age4049: "Between 40 and 49 y.o.",
@@ -756,7 +760,6 @@ module.exports = {
       UnknowUploadError: "An error occured. Maybe your file is too big or not the right format. Please try again with a smaller picture",
       helpQuestLogo: "Your logo will be display in a bubble on the bottom of the game screen. Depending on the screen sizes, the bubble can be small, please use a picture with few details.",
       helpQuestReward: "The player will win a badge as a reward at the end of your quest. This will motivate them to play your quest. To create this badge, upload a picture of this reward, with a transparent background (.gif or .png format)",
-      DisplayGeolocationHelp: "Display the GPS calibration animation",
       LoadingContacts: "Loading contacts",
       LoadContactsFromPhone: "Search in my address book",
       NoMoreContactFound: "No more contact found",
@@ -945,7 +948,20 @@ module.exports = {
       ErrorMessageForNewTeamMember: "Technical issue or number of players reached",
       YouNeedToUnpublishYourQuestToRemoveIt: "You need to unpublish your quest to remove it",
       PleaseEnterYourTeamName: "Please enter your team name",
-      Version: "Version"
+      Version: "Version",
+      CountDownLabel: "Time limit for this step",
+      CountDownIsActive: "Activate the time limit",
+      CountDownWarning: "Are you sure you want to activate the timer ? Make sure that there are no risks for the player, like a road to cross!",
+      CountDownPopupfail: "Time is up !",
+      MaxScore: "Max score",
+      YouMustTestThisStepOnMobile: "You must test this step on a mobile device",
+      AreasNumber: "Number of areas to find",
+      ItRemains: "It remains",
+      s: "s",
+      LetsPlayWithoutAccount: "Play without account",
+      ErrorDownloadNeedsToRestart: "Error while downloading, do you want to restart?",
+      StartCreation: "Start creation?",
+      ErrorTakingSnapshot: "Snapshot has not been taken"
     }
   },
   fr: {
@@ -1019,9 +1035,9 @@ module.exports = {
       GraalyCharacterDesc: "Faire parler un personnage",
       EndOfChapter: "Fin de chapitre",
       EndOfChapterDesc: "Cette transition fait passer le joueur au chapitre suivant",
-      TriggerEvent: "Graaly > Votre matériel",
+      TriggerEvent: "Graaly -> Votre matériel",
       TriggerEventDesc: "Graaly déclenche une action sur votre matériel physique (utilisation d'une carte électronique)",
-      WaitForEvent: "Votre matériel > Graaly",
+      WaitForEvent: "Votre matériel -> Graaly",
       WaitForEventDesc: "Votre matériel active une étape Graaly (utilisation d'une carte électronique)"
     },
     layersForMarkers: {
@@ -1033,17 +1049,19 @@ module.exports = {
       fr: "Français"
     },
     status: {
-      published: "publié", 
-      draft: "brouillon", 
-      old: "ancien", 
-      tovalidate: "en validation", 
-      unpublished: "dépublié", 
+      published: "publié",
+      draft: "brouillon",
+      old: "ancien",
+      tovalidate: "en validation",
+      unpublished: "dépublié",
       rejected: "rejeté",
       new: "nouveau"
     },
     story: {
       hint: "Salut, voici un indice :<br /><b>{hint}</b>",
-      readMore: "{readMore}"
+      readMore: "{readMore}",
+      FindMarkerHelp: "Visez le bon QR code avec la caméra de votre téléphone. Bonne chance !",
+      TouchObjectOnMarkerHelp: "Visez le bon QR code avec la caméra de votre téléphone. Un QR code est une figure carrée composée de point noirs. Bonne chance !"
     },
     iotObjects: {
       keypad: "Digicode",
@@ -1054,7 +1072,8 @@ module.exports = {
       buzzer: "Buzzer",
       escapebox: "Escape Box",
       chest: "Coffre",
-      button: "Bouton"
+      button: "Bouton",
+      relay: "Relais"
     },
     label: {
       shortLang: "fr",
@@ -1625,10 +1644,11 @@ module.exports = {
       Statistics: "Statistiques",
       colons: " : ",
       TotalNumberOfPlayers: "Nombre total de joueurs",
-      NumberOfPlayersYesterday: "Nombre de joueurs hier",
+      NumberOfPlayersYesterday: "Hier",
       NumberOfPlayersByAge: "Nombre de joueurs par age",
       NumberOfPlayersBySex: "Nombre de joueur par sexe",
       AverageScore: "Score moyen",
+      AverageDuration: "Durée moyenne (min)",
       Age1325: "Entre 13 et 25 ans",
       Age2639: "Entre 26 et 39 ans",
       Age4049: "Entre 40 et 49 ans",
@@ -1692,7 +1712,6 @@ module.exports = {
       UnknowUploadError: "Une erreur est survenue. Votre fichier est peut être trop gros ou n'a pas le bon format. Veuillez réessayer avec une image plus petite",
       helpQuestLogo: "Votre logo apparaîtra dans un bulle en bas de l'écran de jeu. Suivant les écrans, la bulle peut être assez petite, choisissez une image avec peu de détails.",
       helpQuestReward: "Les joueurs pourront gagner un badge à la fin de l'escape game. Cela les motive à jouer à votre escape game. Pour proposer un badge en récompense, téléchargez une image représentant le badge, avec un fond transparent (format .gif ou .png)",
-      DisplayGeolocationHelp: "Afficher l'animation de calibrage GPS",
       LoadingContacts: "Chargement des contacts",
       LoadContactsFromPhone: "Rechercher dans mon carnet d'adresse",
       NoMoreContactFound: "Aucun autre contact trouvé",
@@ -1881,7 +1900,20 @@ module.exports = {
       ErrorMessageForNewTeamMember: "Problème technique ou nombre de joueurs atteint",
       YouNeedToUnpublishYourQuestToRemoveIt: "Vous devez dépublier vote jeu pour le supprimer",
       PleaseEnterYourTeamName: "Veuillez entrer le nom de votre équipe",
-      Version: "Version"
+      Version: "Version",
+      CountDownLabel: "Limite de temps de l’énigme",
+      CountDownIsActive: "Entrez la limite de durée pour cette énigme",
+      CountDownWarning: "Etes-vous certain(e) d'activer un compte à rebours ? Assurez-vous qu'il n'y a aucun risque pour le joueur, comme une route à traverser !",
+      CountDownPopupfail: "Temps écoulé !",
+      MaxScore: "Score maxi",
+      YouMustTestThisStepOnMobile: "Vous devez tester ce type d'étape sur un appareil mobile",
+      AreasNumber: "Nombre de zones à trouver",
+      ItRemains: "Il reste",
+      s: "s",
+      LetsPlayWithoutAccount: "Jouer sans compte",
+      ErrorDownloadNeedsToRestart: "Erreur lors du telechargement de l'enquete, voulez vous recommencer ?",
+      StartCreation: "Devenir créateur ?",
+      ErrorTakingSnapshot: "Impossible de faire la capture d'écran"
     }
   }
 }

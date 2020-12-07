@@ -1,4 +1,6 @@
-import * as firebase from "firebase";
+// AR 08/10/2020
+// Since we now use sentry, i removed eveything firebase related (no use, takes lesss space)
+/*import * as firebase from "firebase/app";
 
 import "firebase/performance";
 
@@ -8,4 +10,4 @@ var firebaseConfig = require('./../../config/firebase.json');
 firebase.initializeApp(firebaseConfig);
 
 // Initialize Performance Monitoring and get a reference to the service
-//firebase.performance();
+firebase.performance();*/

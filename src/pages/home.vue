@@ -114,7 +114,7 @@
         <img src="statics/images/other/creator.jpg" class="full-width" />
         <div class="bg-accent subtitle2 q-pa-md full-width" style="bottom: 0px; position: absolute; line-height: 0.8em;">
           <div class="float-right"><img src="statics/images/icon/puzzle-big.svg" style="width: 32px" /></div>
-          <span>Devenir créateur ?</span>
+          <span>{{ $t('label.StartCreation') }}</span>
         </div>
       </div>
       
@@ -130,7 +130,7 @@
       
       <div class="fixed-top">
         <div class="home-header row no-wrap" :class="{'disabled': offline.active}">
-          <img src="statics/images/logo/logo-header.png" class="logo" />
+          <img src="statics/images/logo/logo-header-color.png" class="logo" />
           <q-space />
           <img v-if="$store.state.user.isAdmin" src="statics/images/icon/tools.png" class="header-button q-mr-md" @click="openAdminPage" />
           <img src="statics/images/icon/search.svg" class="header-button q-mr-md" @click="openSearch" />
@@ -217,7 +217,12 @@
       
       <div class="fixed-bottom over-map" v-if="!offline.active">
         <div v-if="offline.show">
-          <offlineLoader :quest="offline.quest" :design="'download'" :lang="$t('label.shortLang')" @end="questLoadedInCache()"></offlineLoader>
+          <offlineLoader 
+          :quest="offline.quest" 
+          :design="'download'"
+          :lang="$t('label.shortLang')"
+          @end="questLoadedInCache()">
+          </offlineLoader>
         </div>
       </div>
       
@@ -233,9 +238,9 @@
 <script>
 import QuestService from 'services/QuestService'
 import UserService from 'services/UserService'
+import AppStoreRatingService from 'services/AppStoreRatingService'
 
 import geolocation from 'components/geolocation'
-//import newfriend from 'components/newfriend'
 import shop from 'components/shop'
 import suggest from 'components/quest/suggest'
 import titleBar from 'components/titleBar'
@@ -245,8 +250,6 @@ import usersList from 'components/user/usersList'
 //import offlineLoader from 'components/offlineLoader'
 
 import utils from 'src/includes/utils'
-//import { required, email } from 'vuelidate/lib/validators'
-//import checkPhone from 'boot/CheckPhone'
 import { QSpinnerDots, QInfiniteScroll } from 'quasar'
 
 import Notification from 'boot/NotifyHelper'
@@ -257,7 +260,6 @@ export default {
     QInfiniteScroll,
     QSpinnerDots,
     geolocation,
-    //newfriend,
     shop,
     suggest,
     //offlineLoader,
@@ -360,8 +362,18 @@ export default {
   },
   mounted() {
     if (!this.$store || !this.$store.state || !this.$store.state.user || !this.$store.state.user.name) {
-      this.backToLogin()
+      this.backToLogin();
     } else {
+      if (window.cordova) {
+        AppStoreRatingService.initLocalStorage();
+        //test for the review
+        //AppStoreRatingService.resetAlreadyAsked();
+        var questsFinished = this.$store.state.user.statistics.nbQuestsSuccessful;
+        if (questsFinished >= 1 && AppStoreRatingService.hasAlreadyHavePopup() === "false") {
+          console.log("the user has done at least one quest");
+          AppStoreRatingService.launchpopup();
+        }
+      }
       this.initPage()
 
       this.$nextTick(() => {
@@ -599,22 +611,22 @@ export default {
     async getQuests() {
       this.isQuestsLoaded = null // to prevent multiple call of reload map if onNewUserPosition is called too often
       this.showBottomMenu = false
+
       if (!this.offline.active) {
         if (this.user.position === null) {
           Notification(this.$t('label.LocationSearching'), 'warning')
           this.isQuestsLoaded = false
           return
         }
-        
         let response = await QuestService.listHomeQuests({ lng: this.user.position.longitude, lat: this.user.position.latitude })
-        
+
         if (!response || !response.data) {
           Notification(this.$t('label.TechnicalIssue'), 'error')
           this.isQuestsLoaded = false
           return
         }
         this.isQuestsLoaded = true
-        
+
         if (!response.data.message || response.data.message !== 'No quest') {
           if (response.data.best) {
             this.bestQuest = response.data.best

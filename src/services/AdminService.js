@@ -1,54 +1,60 @@
-import Api from 'services/Api'
+import Api from "services/Api";
 
 export default {
-    
   /*
    * List quests to validate
    */
-  ListQuestsToValidate () {
-    return Api().get('admin/quests/tovalidate')
+  ListQuestsToValidate() {
+    return Api().get("admin/quests/tovalidate");
   },
   /*
    * List quests rejected
    */
-  ListQuestsRejected () {
-    return Api().get('admin/quests/rejected')
+  ListQuestsRejected() {
+    return Api().get("admin/quests/rejected");
   },
   /*
    * List the towns
    */
-  ListTowns () {
-    return Api().get('admin/towns')
+  ListTowns() {
+    return Api().get("admin/towns");
   },
   /*
    * List the statistics of best games
    */
-  ListBestGames () {
-    return Api().get('admin/bestgames')
+  ListBestGames() {
+    return Api().get("admin/bestgames");
   },
   /*
    * Validate a quest
    */
-  publish (id) {
-    return Api().get('admin/quests/publish/' + id)
+  publish(id) {
+    return Api().get("admin/quests/publish/" + id);
   },
   /*
    * Add a town
    */
-  CreateTown (data) {
-    return Api().post('admin/town/add/', data).catch(error => console.log(error.request))
+  CreateTown(data) {
+    return Api()
+      .post("admin/town/add/", data)
+      .catch(error => console.log(error.request));
   },
   /*
    * Reject a quest
    */
-  reject (id) {
-    return Api().get('admin/quests/reject/' + id)
+  reject(id) {
+    return Api().get("admin/quests/reject/" + id);
   },
   /*
    * Upload a place picture
    * @param   {Object}    data                picture data
    */
   uploadPlaceImage(data) {
-    return Api().post('/admin/town/place/picture/upload', data, { timeout: 60000, headers: { 'Content-Type': 'multipart/form-data' } }).catch(error => console.log(error.request))
+    return Api()
+      .post("/admin/town/place/picture/upload", data, {
+        timeout: 60000,
+        headers: { "Content-Type": "multipart/form-data" }
+      })
+      .catch(error => console.log(error.request));
   }
-}
+};
