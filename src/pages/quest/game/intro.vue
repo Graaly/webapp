@@ -316,7 +316,7 @@
         <div class="q-pa-lg centered subtitle2">
           {{ $t('label.BuyThisQuest') }}
         </div>
-        <div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.tier">
+        <div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.tier && !isIOs">
           <q-card class="my-card">
             <q-card-section class="bg-primary text-white centered text-uppercase">
               <div class="text-h6">{{ $t('label.YouHaveReceivedAQrCodeFrom', {author: quest.author.name}) }}</div>
@@ -327,7 +327,7 @@
           </q-card>
         </div>
         
-        <div class="centered" v-if="quest.premiumPrice && quest.premiumPrice.tier && quest.premiumPrice.active">
+        <div class="centered" v-if="quest.premiumPrice && quest.premiumPrice.tier && quest.premiumPrice.active && !isIOs">
           -
           <span>{{ $t('label.Or') }}</span>
           -
@@ -446,7 +446,8 @@ export default {
       isUserTooFar: false,
       continueQuest: false,
       distanceFromStart: 0,
-      isHybrid: window.cordova
+      isHybrid: window.cordova,
+      isIOs: utils.isIOS()
     }
   },
   async mounted() {

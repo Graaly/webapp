@@ -992,6 +992,9 @@ export default {
           if (this.step.type && this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker' && this.step.id !== 'sensor') {        
             background.style.background = 'none'
             background.style.backgroundColor = '#fff'
+          } else {
+            background.style.background = 'none'
+            background.style.backgroundColor = 'transparent'
           }
           this.showControls()
         }
@@ -3498,14 +3501,14 @@ export default {
       }
       
       // every 100ms, update geolocation direction
-      if (!this.waitForNextQuaternionRead) {
+      if (!this.geolocation.waitForNextQuaternionRead) {
         let rotationZXY = new THREE.Euler().setFromQuaternion(quaternion, 'ZXY')
         let rotationXZY = new THREE.Euler().setFromQuaternion(quaternion, 'XZY')
         let tmpAlpha = (rotationZXY.x < Math.PI / 4 ? rotationZXY.z : rotationXZY.y)
         let newAlpha = JSON.stringify((360 - utils.radiansToDegrees(tmpAlpha)) % 360)
         this.geolocation.direction = (this.geolocation.rawDirection - newAlpha + 360) % 360 
-        this.waitForNextQuaternionRead = true
-        utils.setTimeout(() => { this.waitForNextQuaternionRead = false }, 100)
+        this.geolocation.waitForNextQuaternionRead = true
+        utils.setTimeout(() => { this.geolocation.waitForNextQuaternionRead = false }, 100)
       }
     },
     /*
