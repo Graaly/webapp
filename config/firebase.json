@@ -1,9 +1,8 @@
-/*{
-    "apiKey": "AIzaSyBcimUc3bxmhauTxCxYWkxfsqyfjm8c_f8",
-    "authDomain": "graaly-app.firebaseapp.com",
-    "databaseURL": "https://graaly-app.firebaseio.com",
-    "projectId": "graaly-app",
-    "storageBucket": "graaly-app.appspot.com",
-    "messagingSenderId": "805193003092",
-    "appId": "1:805193003092:web:c1856fb49f88ea28e93dc1"
-}*/
+{
+    "apiKey": "AIzaSyD8kgUTRTeuXTQ2kIq1KvJ7WxAJr5GUsPM",
+    "authDomain": "graaly-test-app.firebaseapp.com",
+    "projectId": "graaly-test-app",
+    "storageBucket": "graaly-test-app.appspot.com",
+    "messagingSenderId": "422702806633",
+    "appId": "1:422702806633:web:e0fed6457a7068407bd4f8"
+  }
