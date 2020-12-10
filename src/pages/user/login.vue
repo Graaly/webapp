@@ -290,26 +290,28 @@ export default {
           break*/
         case 'password':
           // sign in user
-          console.log("signin in with password");
-          await this.signIn(this.form.email, this.form.password);
-          if (result.status) {
-            if (result.status === 'success') {
-              console.log("success")
-              //window.localStorage.setItem('jwt', result.user.jwt)
-              axios.defaults.headers.common['Authorization'] = await firebase.auth().currentUser.getIdToken();
-              
-              let destination = '/home';
-              if (this.$route.query.hasOwnProperty('redirect')) {
-                destination = this.$route.query.redirect
-              }
-              this.$router.push(destination)
-            }     
-            if (result.status === 'failed') {
+          firebase.auth().signInWithEmailAndPassword(this.form.email, this.form.password)
+          .then((res) => {
+            //this is a little wierd but it is actualy to retreive the JWT TOken
+            let FBID = res.user.ya; 
+            //set thhe firebase token in the headers
+            axios.defaults.headers.common['Authorization'] = FBID;
+            
+            let destination = '/home';
+            if (this.$route.query.hasOwnProperty('redirect')) {
+              destination = this.$route.query.redirect;
+            }
+            this.$router.push(destination);
+          }).catch((err) => {
+            //console.error(err)
+            // see : https://firebase.google.com/docs/auth/admin/errors
+            if (err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
               Notification(this.$t('label.IncorrectLoginPleaseRetry'), 'warning')
             }
-          } else {
-            Notification(this.$t('label.ErrorStandardMessage'), 'error')
-          }
+            else {
+              Notification(this.$t('label.ErrorStandardMessage'), 'error')
+            }
+          });             
           break
         case 'forgottenpassword':
           if (!this.$v.form.newPassword.$error) {
@@ -345,18 +347,9 @@ export default {
      * @param   {string}    password         user password
      */
     async signIn(email, password) {
-      await AuthService.login(email, password);
-      return {status: 'success', user: result.data.user}
-      /*
-      if (result.status === 200) {
-        return {status: 'success', user: result.data.user}
-      } else if (result.status === 401) {
-        return {status: 'failed', error: 'incorrect login'}
-      } else {
-        return {error: 'technical issue'}
-      }*/
+      var res = await AuthService.login(email, password);
+      return res;
     },
-    
     /*
      * validate an account with the link provided in the welcome email
      * @param   {string}    email            user email
@@ -375,7 +368,7 @@ export default {
     /*
      * manage google login
      */
-    googleLogin() {
+ /*   googleLogin() {
       window.location = this.serverUrl + '/auth/google'
       localStorage.setItem('isLoggedIn', true)
     },
@@ -393,11 +386,11 @@ export default {
           }
         });
       });
-    },
+    },*/
     /*
      * manage facebook login
      */
-    facebookLogin() {
+   /* facebookLogin() {
       var _this = this
       // check if hybrid app and if cordova plugin is installed
       if (window.cordova && facebookConnectPlugin) {
@@ -411,7 +404,7 @@ export default {
         window.location = this.serverUrl + '/auth/facebook'
         localStorage.setItem('isLoggedIn', true)
       }
-    },
+    },*/
     /*
     * start the scanner for hybrid app
     */

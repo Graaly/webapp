@@ -1,4 +1,4 @@
-import ApiUser from 'services/ApiUser'
+//import ApiUser from 'services/ApiUser'
 import firebase from 'firebase/app'
 import Api from 'services/Api'
 
@@ -19,15 +19,18 @@ export default {
    * @param   {String}    email         User email
    * @param   {String}    password      User password
    */
-  login (email, password) {
-    return Api().post('login', {email: email, password: password}).catch(error => console.log(error.request))
+  login(email, password) {
+    console.log("authservive login")
+    let l = Api().post('login', {email: email, password: password}).catch(error => console.log(error.request))
+    console.log(l);
+    return l;
   },
   /*
    * Check the user facebook Id and facebook token, and sign him in
    * @param   {String}    fbId          Facebook Id
    * @param   {String}    token         Facebook Access Token
    */
-  checkFacebookToken (fbId, token, done) {
+ /* checkFacebookToken(fbId, token, done) {
     return Api().post('login/facebook', {id: fbId, token: token}).then(function (response) {
       done(false, response)
     })
