@@ -74,6 +74,11 @@
                 <q-item-label caption v-if="quest.status == 'unpublished'">
                   {{ $t("label.Unpublished") }}
                 </q-item-label>
+                <q-item-label caption v-if="quest.status === 'tovalidate'">
+                  UserId : {{ quest.authorUserId }}<br />
+                  access : {{ quest.access }}<br />
+                  {{ quest.isPremium ? "premium" : "individual" }}
+                </q-item-label>
               </q-item-section>
               <q-item-section side>
                 <q-btn

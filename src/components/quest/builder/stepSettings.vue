@@ -444,9 +444,12 @@
       <!------------------ STEP : USE INVENTORY ITEM ------------------------>
       
       <div class="find-item" v-if="options.type.code == 'use-item' && selectedStep.form.backgroundImage">
-        <p>{{ $t('label.ClickOnTheLocationTheItemMustBeUsed') }} :</p>
-        <div @click="getClickCoordinates($event)" id="useItemPicture" ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
-          <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="statics/icons/game/find-item-locator.png" />
+        <p><q-toggle v-model="selectedStep.form.options.touchLocation" :label="$t('label.ObjectNeedToBeAppliedOnPicture')" /></p>
+        <div v-if="selectedStep.form.options.touchLocation">
+          <p>{{ $t('label.ClickOnTheLocationTheItemMustBeUsed') }} :</p>
+          <div @click="getClickCoordinates($event)" id="useItemPicture" ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
+            <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="statics/icons/game/find-item-locator.png" />
+          </div>
         </div>
       </div>
       <div class="inventory" v-if="options.type.code == 'use-item'">
@@ -1589,8 +1592,8 @@ export default {
           this.selectedStep.form.answerItem = this.selectedStep.form.answers.item
         }
         this.getQuestItemsAsOptions()
-        if (!this.selectedStep.form.options) {
-          this.selectedStep.form.options = {}
+        if (!this.selectedStep.form.options || !this.selectedStep.form.options.hasOwnProperty("touchLocation")) {
+          this.selectedStep.form.options = { touchLocation: true }
         }
       } else if (this.options.type.code === 'new-item') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
@@ -1714,7 +1717,6 @@ export default {
       // treat form errors (based on validation rules)
       if (this.$v.selectedStep.form.$error) {    
         Notification(this.$t('label.StepSettingsFormError'), 'error')
-        console.log(this.$v.selectedStep.form)
         return
       }
 
@@ -1808,7 +1810,7 @@ export default {
         }   
       }
       else if (test === false) {
-        Notification('Step saved !', 'success')
+        Notification(this.$t('label.StepSaved'), 'success')
         this.$emit('close');
       }
     },

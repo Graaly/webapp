@@ -129,7 +129,7 @@
               </div>
             </div>
           </div>
-          <div class="actions q-mt-sm q-mb-md" v-show="playerResult === null">
+          <div class="actions q-mt-sm q-mb-md q-px-md" v-show="playerResult === null">
             <div>
               <q-btn class="glossy small-button" 
                 :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
@@ -141,7 +141,11 @@
                   {{ $t('label.Clear') }}
                 </div>
               </q-btn>
-              <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer"><div>{{ $t('label.Confirm') }}</div></q-btn>
+              <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()" test-id="btn-check-keypad-answer">
+                <div>
+                  {{ $t('label.Confirm') }}
+                </div>
+              </q-btn>
             </div>
           </div>
           <div class="centered" style="padding-bottom: 100px">
@@ -314,6 +318,7 @@
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
+
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
         <q-btn round :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color">
           <!--<img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />-->
@@ -412,8 +417,9 @@
         <!-- HELP -->
         <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null && !isHybrid" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
         <div v-if="locateMarker.compliant && playerResult === null && isHybrid" class="text-white centered q-mt-md">
-          {{ $t('label.ScanTheMarkersLikeThat') }}
-          <div><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
+          <div v-if="customization.qrCodeMessage && customization.qrCodeMessage !== '' && lang">{{ customization.qrCodeMessage[lang] }}</div>
+          <div v-if="!customization.qrCodeMessage || customization.qrCodeMessage === '' || !lang">{{ $t('label.ScanTheMarkersLikeThat') }}</div>
+          <div class="q-mt-md"><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
           {{ $t('label.ScanTheMarkersLikeThat2') }}
           <div>
             <q-btn 
@@ -654,6 +660,12 @@ export default {
       if (newVal === false || newVal === 'false') {
         this.hideReadMoreAlert()
       }
+    },
+    // check if item used is the right one
+    itemUsed: async function(newVal, oldVal) {
+      if (this.step && this.step.type === "use-item" && this.step.options && this.step.options.hasOwnProperty("touchLocation") && this.step.options.touchLocation === false) {
+        this.useItem()
+      }
     }
   },
   data: function () {
@@ -883,9 +895,45 @@ export default {
         latestRequestAnimationId: null,
 
         //timer
-        countdowntimeleft: 0,
-        currentcountdown: null
+        countdowntimeleft: 0
+        //,currentcountdown: null
       }
+    },
+    resetData () {
+      const defaultVars = this.initialState()
+      this.playerResult = defaultVars.playerResult
+      this.stepPlayed = defaultVars.stepPlayed
+      this.cameraStreamEnabled = defaultVars.cameraStreamEnabled
+      this.imageCapture = defaultVars.imageCapture
+      this.takingSnapshot = defaultVars.takingSnapshot
+      this.nbTry = defaultVars.nbTry
+      this.score = defaultVars.score
+      this.reward = defaultVars.reward
+      this.controlsAreDisplayed = defaultVars.controlsAreDisplayed
+      this.isNetworkLow = defaultVars.isNetworkLow
+      this.isTimeUp = defaultVars.isTimeUp
+      this.displaySuccessIcon = defaultVars.displaySuccessIcon
+      this.character = defaultVars.character
+      this.playerCode = defaultVars.playerCode
+      this.showKeypad = defaultVars.showKeypad
+      this.geolocation = defaultVars.geolocation
+      this.deviceMotion = defaultVars.deviceMotion
+      this.locateMarker = defaultVars.locateMarker
+      this.writetext = defaultVars.writetext
+      this.puzzle = defaultVars.puzzle
+      this.memory = defaultVars.memory
+      this.nbItemsFound = defaultVars.nbItemsFound
+      this.readMoreNotif = defaultVars.readMoreNotif
+      this.itemUsedComputed = defaultVars.itemUsedComputed
+      this.mqttClient = defaultVars.mqttClient
+      this.bluetooth = defaultVars.bluetooth
+      this.iotObject = defaultVars.iotObject
+      this.iot = defaultVars.iot
+      this.story = defaultVars.story
+      this.enlargePicture = defaultVars.enlargePicture
+      this.latestRequestAnimationId = defaultVars.latestRequestAnimationId
+      this.countdowntimeleft = defaultVars.countdowntimeleft
+      //this.currentcountdown = defaultVars.currentcountdown
     },
     /*
      * get background image
@@ -903,6 +951,7 @@ export default {
      * Init the component data
      */
     async initData () {
+      this.resetData()
       TWEEN.removeAll()
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
@@ -943,6 +992,9 @@ export default {
           if (this.step.type && this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker' && this.step.id !== 'sensor') {        
             background.style.background = 'none'
             background.style.backgroundColor = '#fff'
+          } else {
+            background.style.background = 'none'
+            background.style.backgroundColor = 'transparent'
           }
           this.showControls()
         }
@@ -1410,7 +1462,8 @@ export default {
         }
         
         if (this.isTimerAvailable()) {
-          this.currentcountdown = this.countdown()
+          await this.startCountdown()
+          //this.currentcountdown = this.countdown()
         }
       })
     },
@@ -1730,18 +1783,24 @@ export default {
           return { result: false, answer: this.answer, score: 0, reward: 0, offline: true }
         }
         
-        let answerPixelCoordinates = {
-          left: Math.round(this.answer.coordinates.left / 100 * 100 * answer.windowWidth),
-          top: Math.round(this.answer.coordinates.top / 100 * 133 * answer.windowWidth)
-        }
-        
-        // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
-        let solutionAreaRadius = Math.round(8 * answer.windowWidth)
-        
-        let distanceToSolution = Math.sqrt(Math.pow(answerPixelCoordinates.left - answer.posX, 2) + Math.pow(answerPixelCoordinates.top - answer.posY, 2))
+        if (this.step.options && this.step.options.hasOwnProperty("touchLocation") && this.step.options.touchLocation === false) {
+          if (this.answer.item === answer.item) {
+            return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+          }
+        } else {
+          let answerPixelCoordinates = {
+            left: Math.round(this.answer.coordinates.left / 100 * 100 * answer.windowWidth),
+            top: Math.round(this.answer.coordinates.top / 100 * 133 * answer.windowWidth)
+          }
+          
+          // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
+          let solutionAreaRadius = Math.round(8 * answer.windowWidth)
+          
+          let distanceToSolution = Math.sqrt(Math.pow(answerPixelCoordinates.left - answer.posX, 2) + Math.pow(answerPixelCoordinates.top - answer.posY, 2))
 
-        if (distanceToSolution <= solutionAreaRadius && this.answer.item === answer.item) {
-          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+          if (distanceToSolution <= solutionAreaRadius && this.answer.item === answer.item) {
+            return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+          }
         }
       } else if (type === 'find-item') {
         if (this.isTimeUp === true) {
@@ -1781,7 +1840,6 @@ export default {
      */
     async checkAnswer(answer) {
       var checkAnswerResult
-      
       if (this.playerResult !== null) {
         return
       }
@@ -1817,7 +1875,6 @@ export default {
           
         case 'choose':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
-          
           if (checkAnswerResult.result === true) {
             let selectedAnswer = this.step.options.items[answer]
             if (this.step.displayRightAnswer === false) {
@@ -1843,7 +1900,6 @@ export default {
             if (this.isTimeUp) {
               checkAnswerResult.remainingTrial = 0
             }
-            
             if (this.step.displayRightAnswer === true) {
               // indicate the right answer
               if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
@@ -1853,7 +1909,6 @@ export default {
                 Vue.set(this.step.options.items, checkAnswerResult.answer, selectedAnswer)
               }
             }
-            
             this.nbTry++
             if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
@@ -1861,7 +1916,6 @@ export default {
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
             }
           }
-          
           break
         
         case 'geolocation':
@@ -2057,12 +2111,13 @@ export default {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             const remainingTrial = this.isTimeUp ? 0 : (this.step.nbTrial - this.nbTry - 1)
-            
             if (!checkIfFound.one) {
               this.nbTry++
               if (remainingTrial > 0) {
                 Notification(this.$t('label.FindItemNothingHappens'), 'error')
               } else {
+                checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
+                
                 this.submitWrongAnswer(false, this.step.displayRightAnswer)
               }
             }
@@ -2284,7 +2339,6 @@ export default {
       }
 
       this.stepPlayed = true
-      
       this.$emit('success', score, offlineMode, showResult)
       this.$emit('played')
       
@@ -2747,13 +2801,23 @@ export default {
       let current = pos.coords
       
       // if lat and lng are not set, compute to have the object close to the current user position
-      if (this.step.options.lat === 0 && this.step.options.lng === 0) {
-        if (this.step.type === 'locate-item-ar') {
-          this.step.options.lat = current.latitude + 0.00005
-          this.step.options.lng = current.longitude 
+      if (this.step.options.lat === 0 && parseInt(this.step.options.lng, 10) === this.step.options.lng) {
+        if (this.step.options.lng === 0) {
+          if (this.step.type === 'locate-item-ar') {
+            this.step.options.lat = current.latitude + 0.00005
+            this.step.options.lng = current.longitude 
+          } else {
+            this.step.options.lat = current.latitude + 0.0005
+            this.step.options.lng = current.longitude + 0.0005 
+          }
         } else {
-          this.step.options.lat = current.latitude + 0.0005
-          this.step.options.lng = current.longitude + 0.0005 
+          if (this.step.type === 'locate-item-ar') {
+            this.step.options.lat = current.latitude + (0.00001 * this.step.options.lng)
+            this.step.options.lng = current.longitude 
+          } else {
+            this.step.options.lat = current.latitude + (0.0001 * this.step.options.lng)
+            this.step.options.lng = current.longitude + (0.0001 * this.step.options.lng)
+          }
         }
       }
       
@@ -2856,9 +2920,11 @@ export default {
       
       var data = {
         windowWidth: vw,
-        posX: ev.offsetX,
-        posY: ev.offsetY,
         item: this.itemUsed.originalPicture ? this.itemUsed.originalPicture : this.itemUsed.picture
+      }
+      if (ev) {
+        data.posX = ev.offsetX
+        data.posY = ev.offsetY
       }
       
       await this.checkAnswer(data)
@@ -2925,6 +2991,8 @@ export default {
      */
     prepareSnapshot() {
       this.takingSnapshot = true
+      this.$q.loading.show()
+      this.$emit('hideButtons')
       var _this = this
       if (this.isIOs && CameraPreview) {
         CameraPreview.takePicture({quality: 85}, function(base64PictureData) {
@@ -2963,7 +3031,11 @@ export default {
               setTimeout(function () { _this.takeSnapshot() }, 2000)
             }
           })
-          .catch(err => { Notification(_this.$t('label.SnapshotTakenIssue'), 'info'); console.log(err) })
+          .catch(err => { 
+            Notification(_this.$t('label.SnapshotTakenIssue'), 'info'); console.log(err) 
+            _this.$q.loading.hide()
+            _this.$emit('showButtons')
+          })
       }
     },
     /*
@@ -2971,6 +3043,7 @@ export default {
      */
     takeSnapshot() {
       var _this = this
+      this.$q.loading.hide()
       navigator.screenshot.save(function (error, res) {
         if (error) {
           console.error(error)
@@ -2986,6 +3059,7 @@ export default {
           }, alert)
         }
         _this.takingSnapshot = false
+        _this.$emit('showButtons')
       })
     },
     async saveSnapshot(mediaFile) {
@@ -3427,14 +3501,14 @@ export default {
       }
       
       // every 100ms, update geolocation direction
-      if (!this.waitForNextQuaternionRead) {
+      if (!this.geolocation.waitForNextQuaternionRead) {
         let rotationZXY = new THREE.Euler().setFromQuaternion(quaternion, 'ZXY')
         let rotationXZY = new THREE.Euler().setFromQuaternion(quaternion, 'XZY')
         let tmpAlpha = (rotationZXY.x < Math.PI / 4 ? rotationZXY.z : rotationXZY.y)
         let newAlpha = JSON.stringify((360 - utils.radiansToDegrees(tmpAlpha)) % 360)
         this.geolocation.direction = (this.geolocation.rawDirection - newAlpha + 360) % 360 
-        this.waitForNextQuaternionRead = true
-        utils.setTimeout(() => { this.waitForNextQuaternionRead = false }, 100)
+        this.geolocation.waitForNextQuaternionRead = true
+        utils.setTimeout(() => { this.geolocation.waitForNextQuaternionRead = false }, 100)
       }
     },
     /*
@@ -4068,65 +4142,84 @@ export default {
      * into a single string a2b4f5...
      */
     createIotCara(mac) {
-      console.log(mac);
-      let p = iotOptions.baseCara + mac.toLowerCase().replaceAll(':', '');
-      console.log(p);
-      return p;
+      let p = iotOptions.baseCara + mac.toLowerCase().replaceAll(':', '')
+      return p
     },
     //Timer & countdown
-    isTimerAvailable() {
+    isTimerAvailable() {   
       if (this.step && 
       this.step.countDownTime !== undefined &&
       this.step.countDownTime.enabled === true && 
       utils.timeStringToSeconds(this.step.countDownTime.time) > 0) {
-        return true;
+        return true
       } else {
-        return false;
+        return false
       }
     },
-    countdown() {
+    async startCountdown() {
       try {
-        let _this = this;
         if (this.isTimerAvailable() === true) {
-          var seconds = 0;
-          var n = TimerStorageService.getTimeLeft(_this.runId, _this.step._id);
+          var seconds = 0
+          // Get remaining time from the cookies
+          var n = TimerStorageService.getTimeLeft(this.runId, this.step._id)
           if (n === null) {
             // no time in storage
-            seconds = utils.timeStringToSeconds(this.step.countDownTime.time);
-          }
-          else {
-            seconds = n;
-          }
-          
-          if (seconds <= 0) {
-            this.step.countDownTime.enabled = false;
+            seconds = utils.timeStringToSeconds(this.step.countDownTime.time)
+          } else {
+            seconds = n
           }
           
-          //set up the seconds to the initial value
-          var countdown = setInterval(async function() {
-            seconds--;
-            _this.countdowntimeleft = seconds;
-            if (seconds % 2 === 0 && _this.runId !== '0') { // runId is set to 0 when step is played as "single step test" from builder
-              //this is for performace, save it every 2 second not every seconds
-              TimerStorageService.storeTimeLeft(_this.runId, _this.step._id, seconds);
-            }
-            //console.log(_this.countdowntimeleft);
-            if (seconds <= 0) {
-              await _this.handleTimeUp()
-            }
-          }, 1000)
+          //var countdown
+          if (seconds < 0) {
+            this.step.countDownTime.enabled = false
+          } else {
+            /*
+            //set up the seconds to the initial value
+            countdown = setInterval(async function() {
+              if (seconds <= 0) {      
+                await _this.handleTimeUp()
+              } else {
+                seconds--;
+                _this.countdowntimeleft = seconds
+                if (seconds % 2 === 0 && _this.runId !== '0') { // runId is set to 0 when step is played as "single step test" from builder
+                  //this is for performace, save it every 2 second not every seconds
+                  TimerStorageService.storeTimeLeft(_this.runId, _this.step._id, seconds)
+                }
+                //console.log(_this.countdowntimeleft);
+              }
+            }, 1000)*/
+            await this.manageCountDown(seconds, this.step._id)
+          }
           
-          return countdown;
+          //return countdown
         }
       }
       catch (e) {
-        console.error('error in countdown()', e);
+        console.error('error in countdown()', e)
+      }
+    },
+    async manageCountDown(seconds, stepId) {
+      var _this = this;
+      if (this.step.countDownTime.enabled && stepId === this.step._id) {
+        setTimeout(async function() {
+          if (seconds <= 0) {
+            await _this.handleTimeUp()
+          } else {
+            seconds--;
+            _this.countdowntimeleft = seconds
+            if (seconds % 2 === 0 && _this.runId !== '0') { // runId is set to 0 when step is played as "single step test" from builder
+              //this is for performace, save it every 2 second not every seconds
+              TimerStorageService.storeTimeLeft(_this.runId, _this.step._id, seconds)
+            }
+            await _this.manageCountDown(seconds, stepId)
+          }
+        }, 1000)
       }
     },
     async handleTimeUp() {
       this.isTimeUp = true
       this.stopcountdown()
-      this.step.countDownTime.enabled = false;
+      this.step.countDownTime.enabled = false
       let stepType = this.getStepType(this.step.type)
       this.$emit('closeAllPanels')
       if (stepType.category === 'enigma') {
@@ -4140,16 +4233,14 @@ export default {
      * Stops current countdown
      */
     stopcountdown() {
-      if (this.currentcountdown !== null) {
-        clearInterval(this.currentcountdown)
-      }
+      this.step.countDownTime.enabled = false
     },
     /**
      * used by timer's <q-linear-progress> component
      */
     map(x, inMin, inMax, outMin, outMax) {
-      var l = utils.map(x, inMin, utils.timeStringToSeconds(inMax), outMin, outMax);
-      return l;
+      var l = utils.map(x, inMin, utils.timeStringToSeconds(inMax), outMin, outMax)
+      return l
     },
     /**
      * Get step type (enigma or transition) from step code
@@ -4169,17 +4260,18 @@ export default {
     findItemIsFound(data) {
       var notAllFound = false
       var oneFound = false
+      const ww = (data && data.windowWidth) ? data.windowWidth : (this.getScreenWidth() / 100)
       for (var i = 0; i < this.step.options.coordinates.length; i++) {
         if (!this.step.options.coordinates[i].found) {
           let answerPixelCoordinates = {
-            left: Math.round(this.step.options.coordinates[i].left / 100 * 100 * data.windowWidth),
-            top: Math.round(this.step.options.coordinates[i].top / 100 * 133 * data.windowWidth)
+            left: Math.round(this.step.options.coordinates[i].left / 100 * 100 * ww),
+            top: Math.round(this.step.options.coordinates[i].top / 100 * 133 * ww)
           }
           
           // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
-          let solutionAreaRadius = Math.round(8 * data.windowWidth)
+          let solutionAreaRadius = Math.round(8 * ww)
           
-          let distanceToSolution = Math.sqrt(Math.pow(answerPixelCoordinates.left - data.posX, 2) + Math.pow(answerPixelCoordinates.top - data.posY, 2))
+          let distanceToSolution = data ? Math.sqrt(Math.pow(answerPixelCoordinates.left - data.posX, 2) + Math.pow(answerPixelCoordinates.top - data.posY, 2)) : 100
 
           if (distanceToSolution <= solutionAreaRadius) {
             this.step.options.coordinates[i].found = true

@@ -11,8 +11,8 @@ export default {
       stepid: stepid,
       timeleft: timeleft
     };
-    l = JSON.stringify(l);
-    localStorage.setItem("timer-" + runid + "-" + stepid, l);
+    l = JSON.stringify(l)
+    localStorage.setItem("timer-" + runid + "-" + stepid, l)
   },
 
   /**
@@ -21,18 +21,18 @@ export default {
   allStorage() {
     let values = [];
     for (var j = 0, len = localStorage.length; j < len; j++) {
-      var key = localStorage.key(j);
-      var value = localStorage[key];
+      var key = localStorage.key(j)
+      var value = localStorage[key]
       if (key.includes("timer-")) {
         var l = {
           key: key,
           value: value
         };
-        values.push(l);
+        values.push(l)
       }
     }
     //console.log(values);
-    return values;
+    return values
   },
 
   /**
@@ -41,29 +41,28 @@ export default {
    * @param {*} stepid
    */
   getTimeLeft(runid, stepid) {
-    var timers = this.allStorage();
+    var timers = this.allStorage()
     for (const t of timers) {
-      var val = JSON.parse(t.value);
+      var val = JSON.parse(t.value)
       if (val.runid === runid && val.stepid === stepid) {
-        // console.log(val.timeleft + " for " + val.stepid);
         if (val.timeleft < 0) {
           //this should not appear offten but we never know
-          val.timeleft = 0;
+          val.timeleft = 0
         }
-        return val.timeleft;
+        return val.timeleft
       }
     }
     //if we found nothing retunr null
-    return null;
+    return null
   },
 
   /**
    * Clear all the stored timers in the localstorage
    */
   clearStoredTimers() {
-    var timers = this.allStorage();
+    var timers = this.allStorage()
     timers.forEach(t => {
-      localStorage.removeItem(t.key);
+      localStorage.removeItem(t.key)
     });
   }
 };

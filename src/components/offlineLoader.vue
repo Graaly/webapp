@@ -166,6 +166,11 @@ console.log("is already loaded: " + isQuestOfflineLoaded)
           if (quest.customization && quest.customization.logo && quest.customization.logo !== '') {
             await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/', quest.customization.logo)
           }
+          
+          // Save customized sound
+          if (quest.customization && quest.customization.audio && quest.customization.audio !== '') {
+            await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/', quest.customization.audio)
+          }
 
           // save steps
           if (stepsData && stepsData.data) {
