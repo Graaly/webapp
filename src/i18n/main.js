@@ -797,7 +797,7 @@ module.exports = {
       UserCanPass: "Player can pass this step",
       Welcome: "Welcome!",
       SignIn: "Sign-in",
-      Subscribe: "Subscribe",
+      Subscribe: "Sign-Up",
       EmailAlreadyUsed: "This email address is already used. Please sign-in or ask to modify your password",
       AroundYou: "Close to you",
       SeeMore: "See more",
