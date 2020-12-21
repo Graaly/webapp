@@ -137,6 +137,7 @@ import questsList from 'components/quest/questsList'
 import usersList from 'components/user/usersList'
 import badgesList from 'components/user/badgesList'
 import Vue from 'vue'
+import firebase from 'firebase/app';
 
 export default {
   components: {
@@ -406,7 +407,8 @@ export default {
      * Disconnection
      */
     disconnect() {
-      this.$router.push('/user/logout')
+      firebase.auth().signOut();
+      this.$router.push('/user/logout');
     },
     /*
      * Stop following a friend
