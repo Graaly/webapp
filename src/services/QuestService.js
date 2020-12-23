@@ -11,7 +11,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get(
         "quests/nearest/" +
           location.longitude +
@@ -26,7 +26,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get(
         "quests/nearest/" +
           location.longitude +
@@ -51,7 +51,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quests/home/" + location.lng + "-" + location.lat + "/lang/" + lang)
       .catch(error => console.log(error.request));
   },
@@ -59,7 +59,7 @@ export default {
    * list quests for a country
    */
   listAllForCountry() {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quests/country/FR")
       .catch(error => console.log(error.request));
   },
@@ -71,7 +71,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quests/friends/played/0/lang/" + lang)
       .catch(error => console.log(error.request));
   },
@@ -79,7 +79,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quests/friends/played/" + skip + "/lang/" + lang)
       .then(function(response) {
         done(false, response);
@@ -95,7 +95,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + id + "/version/" + version + "/lang/" + lang)
       .catch(error => console.log(error.request));
   },
@@ -105,7 +105,7 @@ export default {
    * @param   {Number}    version             version of the quest
    */
   getSize(id, version) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + id + "/version/" + version + "/size")
       .catch(error => console.log(error.request));
   },
@@ -118,7 +118,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + id + "/version/999/lang/" + lang)
       .catch(error =>
         console.log("getLastById(): could not retrieve quest data", error)
@@ -135,7 +135,7 @@ export default {
       lang = "default";
     }
     // to update : better filter with position and keyword
-    return Api().get(
+    return Api(process.env.QUEST_SERVERLESS_URL).get(
       "quests/find/" +
         keyword +
         "/nearest/" +
@@ -151,7 +151,7 @@ export default {
       lang = "default";
     }
     // to update : better filter with position and keyword
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get(
         "quests/find/" +
           keyword +
@@ -176,7 +176,7 @@ export default {
    * @param   {String}    questType           quest / room
    */
   create(data, access, userType, questType) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("quest/create/" + questType + "/" + access + "/" + userType, data)
       .catch(error => console.log(error.request));
   },
@@ -185,7 +185,7 @@ export default {
    * @param   {String}    id                Quest Id
    */
   createNewVersion(id) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("quest/" + id + "/clone/draft")
       .catch(error => console.log(error.request));
   },
@@ -194,7 +194,7 @@ export default {
    * @param   {Object}    data                Quest data to update
    */
   save(data) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .put(
         "quest/" + data.questId + "/version/" + data.version + "/update",
         data
@@ -207,7 +207,7 @@ export default {
    * @param   {Number}    version             version of the quest
    */
   remove(id, version) {
-    return Api().delete("quest/" + id + "/version/" + version + "/remove");
+    return Api(process.env.QUEST_SERVERLESS_URL).delete("quest/" + id + "/version/" + version + "/remove");
   },
   /*
    * Duplicate a quest
@@ -215,7 +215,7 @@ export default {
    * @param   {Number}    version             version of the quest
    */
   clone(id, version) {
-    return Api().post("quest/" + id + "/version/" + version + "/clone");
+    return Api(process.env.QUEST_SERVERLESS_URL).post("quest/" + id + "/version/" + version + "/clone");
   },
   /*
    * Close a private quest
@@ -223,7 +223,7 @@ export default {
    * @param   {Number}    version             version of the quest
    */
   closePrivate(id, version) {
-    return Api().post("quest/" + id + "/version/" + version + "/close");
+    return Api(process.env.QUEST_SERVERLESS_URL).post("quest/" + id + "/version/" + version + "/close");
   },
   /*
    * Set the main language of a quest
@@ -231,7 +231,7 @@ export default {
    * @param   {String}    lang                language of the quest (en, fr, ...)
    */
   /*setFirstLanguage (questId, lang) {
-    return Api().put('quest/' + questId + '/lang/set/' + lang)
+    return Api(process.env.QUEST_SERVERLESS_URL).put('quest/' + questId + '/lang/set/' + lang)
   },*/
   /*
    * Add a language for the quest
@@ -239,7 +239,7 @@ export default {
    * @param   {String}    lang                language of the quest (en, fr, ...)
    */
   addLanguage(questId, lang) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .put("quest/" + questId + "/lang/add/" + lang)
       .catch(error =>
         console.log("addLanguage(): could not retrieve quest data", error)
@@ -251,7 +251,7 @@ export default {
    * @param   {String}    lang                Language concerned
    */
   publish(id, lang) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .put("quest/" + id + "/publish/" + lang)
       .catch(error => console.log(error.request));
   },
@@ -261,7 +261,7 @@ export default {
    * @param   {String}    lang                Language concerned
    */
   unpublish(id, lang) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .put("quest/" + id + "/unpublish/" + lang)
       .catch(error => console.log(error.request));
   },
@@ -270,7 +270,7 @@ export default {
    * @param   {String}    id                  ID of the user
    */
   countForUser(id) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("user/" + id + "/quests/created/count")
       .catch(error => console.log(error.request));
   },
@@ -283,7 +283,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("user/" + id + "/quests/created/lang/" + lang)
       .catch(error => console.log(error.request));
   },
@@ -296,7 +296,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("user/" + id + "/quests/played/0/lang/" + lang)
       .catch(error => console.log(error.request));
   },
@@ -304,7 +304,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("user/" + id + "/quests/played/" + skip + "/lang/" + lang)
       .then(function(response) {
         done(false, response);
@@ -320,7 +320,7 @@ export default {
     if (!type) {
       type = "all";
     }
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + id + "/version/" + version + "/media/" + type + "/list")
       .catch(error => console.log(error.request));
   },
@@ -331,7 +331,7 @@ export default {
    * @param   {String}    mediaId           Media Id
    */
   removeMedia(id, version, mediaId) {
-    return Api().delete(
+    return Api(process.env.QUEST_SERVERLESS_URL).delete(
       "quest/" + id + "/version/" + version + "/media/" + mediaId + "/remove"
     );
   },
@@ -341,7 +341,7 @@ export default {
    * @param   {String}    model               name of the model
    */
   listObjectFiles(model, questId) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + questId + "/offline/object/" + model + "/files")
       .catch(error => console.log(error.request));
   },
@@ -352,7 +352,7 @@ export default {
    * @param   {Date}      date              Date
    */
   getStatistics(questId, version, date) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + questId + "/version/" + version + "/statistics/" + date)
       .catch(error => console.log(error.request));
   },
@@ -360,7 +360,7 @@ export default {
    * list user invitations to private quests
    */
   getInvitations() {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("user/quests/invitations/list")
       .catch(error => console.log(error.request));
   },
@@ -369,7 +369,7 @@ export default {
    * @param   {Object}    data                picture data
    */
   uploadPicture(data) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("/quest/picture/upload", data, {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
@@ -381,7 +381,7 @@ export default {
    * @param   {Object}    data                picture data
    */
   uploadLogo(data) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("/quest/logo/upload", data, {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
@@ -393,7 +393,7 @@ export default {
    * @param   {Object}    data                audio data
    */
   uploadAudio(data) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("/quest/audio/upload", data, {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
@@ -405,7 +405,7 @@ export default {
    * @param   {Object}    data                picture data
    */
   uploadCharacter(data) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("/quest/character/upload", data, {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
@@ -417,7 +417,7 @@ export default {
    * @param   {Object}    data                picture data
    */
   uploadReward(data) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("/quest/reward/upload", data, {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
@@ -429,7 +429,7 @@ export default {
    * @param   {Object}    data                picture data
    */
   uploadThumb(data) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("/quest/thumb/upload", data, {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
@@ -442,7 +442,7 @@ export default {
    * @param   {String}    questId              questId
    */
   CheckIfCanBeMovedPremium(questId) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + questId + "/premium/check")
       .catch(error => console.log(error.request));
   },
@@ -451,7 +451,7 @@ export default {
    * @param   {String}    questId              questId
    */
   MoveToPremium(questId) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("quest/" + questId + "/premium/set")
       .catch(error => console.log(error.request));
   },
@@ -461,7 +461,7 @@ export default {
    * @param   {String}    price               price
    */
   createTierPayment(questId, price) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("quest/" + questId + "/payment/tier/add", { price: price })
       .catch(error => console.log(error.request));
   },
@@ -471,7 +471,7 @@ export default {
    * @param   {String}    codeId              Id of the code to remove
    */
   removeTierPayment(questId, code) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .delete("quest/" + questId + "/payment/tier/remove/" + code)
       .catch(error => console.log(error.request));
   },
@@ -480,7 +480,7 @@ export default {
    * @param   {String}    questId              questId
    */
   listTierPayments(questId) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + questId + "/payment/tier/list")
       .catch(error => console.log(error.request));
   },
@@ -490,7 +490,7 @@ export default {
    * @param   {String}    code                user language
    */
   useTierPaymentCode(questId, code) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("quest/" + questId + "/payment/tier/use", { code: code })
       .catch(error => console.log(error.request));
   },
@@ -500,7 +500,7 @@ export default {
    * @param   {String}    product              product buyed
    */
   purchasePremium(questId, product) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("quest/" + questId + "/premium/buy", product)
       .catch(error => console.log(error.request));
   },
@@ -509,7 +509,7 @@ export default {
    * @param   {String}    questId              questId
    */
   purchasePrivateQuest(questId, product) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("quest/" + questId + "/private/buy", product)
       .catch(error => console.log(error.request));
   },
@@ -518,7 +518,7 @@ export default {
    * @param   {String}    questId              questId
    */
   hasPayed(questId) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + questId + "/premium/ispayed")
       .catch(error => console.log(error.request));
   },
@@ -530,7 +530,7 @@ export default {
   checkLoginQRCode(questId, lang) {
     // replace / sign
     questId = questId.replace(/\//g, "-slash-");
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + questId + "/connectandplay/qrcode/lang/" + lang)
       .catch(error => console.log(error.request));
   },
@@ -542,7 +542,7 @@ export default {
   checkQRCode(questId, lang) {
     // replace / sign
     questId = questId.replace(/\//g, "-slash-");
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + questId + "/play/qrcode/lang/" + lang)
       .catch(error => console.log(error.request));
   },
@@ -551,7 +551,7 @@ export default {
    * @param   {Object}    place              place for the quest
    */
   submitSuggestion(place) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("quest/suggest", place)
       .catch(error => console.log(error.request));
   },
@@ -562,7 +562,7 @@ export default {
    * @param   {Number}    version             version of the quest
    */
   listEditors(questId, version) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + questId + "/version/" + version + "/editor/list")
       .catch(error => console.log(error.request));
   },
@@ -573,7 +573,7 @@ export default {
    * @param   {String}    email           email of the editor
    */
   addEditor(questId, version, email) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .put("quest/" + questId + "/version/" + version + "/editor/add/" + email)
       .catch(error => console.log(error.request));
   },
@@ -584,7 +584,7 @@ export default {
    * @param   {String}    editorId            Editor Id
    */
   removeEditor(questId, version, editorId) {
-    return Api().delete(
+    return Api(process.env.QUEST_SERVERLESS_URL).delete(
       "quest/" + questId + "/version/" + version + "/editor/remove/" + editorId
     );
   },
@@ -595,7 +595,7 @@ export default {
    * @param   {Number}    version              version of the quest
    */
   listInvitees(questId, version) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + questId + "/version/" + version + "/invitee/list")
       .catch(error => console.log(error.request));
   },
@@ -606,7 +606,7 @@ export default {
    * @param   {String}    email               email of the invitee
    */
   addInvitee(questId, version, email) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .put("quest/" + questId + "/version/" + version + "/invitee/add/" + email)
       .catch(error => console.log(error.request));
   },
@@ -617,7 +617,7 @@ export default {
    * @param   {String}    inviteeId              Invitee Id
    */
   removeInvitee(questId, version, inviteeId) {
-    return Api().delete(
+    return Api(process.env.QUEST_SERVERLESS_URL).delete(
       "quest/" +
         questId +
         "/version/" +
@@ -694,6 +694,6 @@ export default {
    * MP 2019-05-21 seems not used, maybe remove after a few weeks?
    */
   /*checkNetwork () {
-    return Api().get('check').catch(error => console.log(error.request))
+    return Api(process.env.QUEST_SERVERLESS_URL).get('check').catch(error => console.log(error.request))
   }*/
 };
