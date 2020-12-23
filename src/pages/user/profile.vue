@@ -138,6 +138,7 @@ import usersList from 'components/user/usersList'
 import badgesList from 'components/user/badgesList'
 import Vue from 'vue'
 import firebase from 'firebase/app';
+import 'firebase/auth';
 
 export default {
   components: {

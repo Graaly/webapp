@@ -1,6 +1,8 @@
 //import ApiUser from 'services/ApiUser'
-import firebase from 'firebase/app'
-import Api from 'services/Api'
+import firebase from 'firebase/app';
+import 'firebase/auth';
+
+import Api from 'services/Api';
 
 export default {
   /*

@@ -211,7 +211,8 @@ import { required, minLength, email } from 'vuelidate/lib/validators'
 import checkPasswordComplexity from 'boot/PasswordComplexity'
 import Notification from 'boot/NotifyHelper'
 import utils from 'src/includes/utils'
-import firebase from 'firebase';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 
 export default {
   data() {
@@ -296,7 +297,6 @@ export default {
             let FBID = res.user.ya; 
             //set thhe firebase token in the headers
             axios.defaults.headers.common['Authorization'] = FBID;
-            
             let destination = '/home';
             if (this.$route.query.hasOwnProperty('redirect')) {
               destination = this.$route.query.redirect;

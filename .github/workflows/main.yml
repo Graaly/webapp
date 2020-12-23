@@ -5,6 +5,7 @@ on:
       - master
       - dev
       - tests
+      - lambda
   pull_request:
     branches:
       - master
