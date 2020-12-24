@@ -944,7 +944,7 @@ export default {
      * @param   {String}    lang               lang of the quest
      */
     playQuest(questId, lang) {
-      if (this.playStep === 0 && this.quest.premiumPrice && (this.quest.premiumPrice.tier || this.quest.premiumPrice.active) && !this.isAdmin && !this.isOwner && !isRunFinished && !isRunStarted) {
+      if (this.playStep === 0 && this.quest.premiumPrice && (this.quest.premiumPrice.tier || this.quest.premiumPrice.active) && !this.isAdmin && !this.isOwner && !this.isRunFinished && !this.isRunStarted) {
         // ask to pay only if quest is not free and not already purchased
         this.shop.show = true
       } else if (this.playStep <= 1 && this.quest.playersNumber > 1 && !this.continueQuest) {
