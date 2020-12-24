@@ -964,7 +964,9 @@ module.exports = {
       ErrorTakingSnapshot: "Snapshot has not been taken",
       YourAudioFile: "Your background music",
       AddAnAudioFile: "Add a background music",
-      ObjectNeedToBeAppliedOnPicture: "The object is applied on a picture area"
+      ObjectNeedToBeAppliedOnPicture: "The object is applied on a picture area",
+      ReadNext: "Read more",
+      AlreadyPaied: "Purchased" 
     }
   },
   fr: {
@@ -1919,7 +1921,9 @@ module.exports = {
       ErrorTakingSnapshot: "Impossible de faire la capture d'écran",
       YourAudioFile: "Votre musique de fond",
       AddAnAudioFile: "Ajouter une musique de fond",
-      ObjectNeedToBeAppliedOnPicture: "L'objet est appliqué sur une partie de l'image"
+      ObjectNeedToBeAppliedOnPicture: "L'objet est appliqué sur une partie de l'image",
+      ReadNext: "Lire la suite",
+      AlreadyPaied: "Acheté"
     }
   }
 }
