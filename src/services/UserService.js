@@ -8,12 +8,12 @@ export default {
    * @param   {Number}    number              number of results
    */
   listFriends(id, start, number) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("user/" + id + "/friends/list/" + start + "/" + number)
       .catch(error => console.log(error.request));
   },
   listFriendsSync(id, start, number, done) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("user/" + id + "/friends/list/" + start + "/" + number)
       .then(function(response) {
         done(false, response);
@@ -25,7 +25,7 @@ export default {
    * @param   {Number}    number              number of results
    */
   listSuggestions(location, number) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .get(
         "user/suggestions/" +
           location.lng +
@@ -43,7 +43,7 @@ export default {
    * @param   {Number}    number              number of results
    */
   listSuggestionsSync(location, number, skip, done) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .get(
         "user/suggestions/" +
           location.lng +
@@ -63,7 +63,7 @@ export default {
    * @param   {Number}    number              number of results
    */
   listFollowersSync(number, skip, done) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("user/followers/" + number + "/" + skip)
       .then(function(response) {
         done(false, response);
@@ -75,12 +75,12 @@ export default {
    * @param   {String}    filter          String to find
    */
   find(type, filter) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("user/type/" + type + "/filter/" + filter + "/0")
       .catch(error => console.log(error.request));
   },
   findSync(type, filter, skip, done) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("user/type/" + type + "/filter/" + filter + "/" + skip)
       .then(function(response) {
         done(false, response);
@@ -90,7 +90,7 @@ export default {
    * List news of user's friend
    */
   listNews(limit, skip, done) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("user/friends/news/list/" + limit + "/" + skip)
       .then(function(response) {
         done(false, response);
@@ -101,7 +101,7 @@ export default {
    * @param   {String}    id                  ID of the news
    */
   likeNews(id) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .put("user/friends/news/" + id + "/like")
       .catch(error => console.log(error.request));
   },
@@ -110,7 +110,7 @@ export default {
    * @param   {String}    id                  ID of the news
    */
   unlikeNews(id) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .put("user/friends/news/" + id + "/unlike")
       .catch(error => console.log(error.request));
   },
@@ -119,7 +119,7 @@ export default {
    * @param   {String}    id                  ID of the friend
    */
   getFriend(id) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("user/" + id + "/profile")
       .catch(error => console.log(error.request));
   },
@@ -127,13 +127,13 @@ export default {
    * Get current user ranking data
    *
   getRanking (id) {
-    return Api().get('user/' + id + '/ranking').catch(error => console.log(error.request))
+    return Api(process.env.USER_SERVERLESS_URL).get('user/' + id + '/ranking').catch(error => console.log(error.request))
   },
   /*
    * Get ranking for a specific range
    */
   getRangeRanking(range) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("ranking/" + range)
       .catch(error => console.log(error.request));
   },
@@ -141,7 +141,7 @@ export default {
    * Get current user rewards
    */
   getRewards(id, filter) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("user/" + id + "/reward/list/" + filter)
       .catch(error => console.log(error.request));
   },
@@ -151,7 +151,7 @@ export default {
    * @param   {String}    runId                 ID of the run concerned
    */
   challengeFriend(friendId, runId) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .post("user/friend/" + friendId + "/challenge/" + runId)
       .catch(error => console.log(error.request));
   },
@@ -159,7 +159,7 @@ export default {
    * Get current user's best friends)
    */
   getBestFriends() {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("user/bestfriends")
       .catch(error => console.log(error.request));
   },
@@ -167,7 +167,7 @@ export default {
    * Get organization data
    */
   getOrganization() {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("user/organization")
       .catch(error => console.log(error.request));
   },
@@ -176,7 +176,7 @@ export default {
    * @param   {String}    offer                  ID of the offer
    */
   buy(offer) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .post("user/buy/offer/" + offer)
       .catch(error => console.log(error.request));
   },
@@ -185,7 +185,7 @@ export default {
    * @param   {number}    step                  ID of the next story step
    */
   nextStoryStep(step) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .post("user/story/step/" + step)
       .catch(error => console.log(error.request));
   },
@@ -195,15 +195,15 @@ export default {
    */
   addFriend(friendData) {
     if (friendData.email && friendData.email.length > 0) {
-      return Api()
+      return Api(process.env.USER_SERVERLESS_URL)
         .post("user/friends/add/email/" + friendData.email)
         .catch(error => console.log(error.request));
     } else if (friendData.phone && friendData.phone.length > 0) {
-      return Api()
+      return Api(process.env.USER_SERVERLESS_URL)
         .post("user/friends/add/phone/" + friendData.phone)
         .catch(error => console.log(error.request));
     } else {
-      return Api()
+      return Api(process.env.USER_SERVERLESS_URL)
         .post("user/friend/add/" + friendData)
         .catch(error => console.log(error.request));
     }
@@ -213,14 +213,14 @@ export default {
    * @param   {String}    friendId          Id of the friend
    */
   removeFriend(id) {
-    return Api().delete("user/friend/remove/" + id);
+    return Api(process.env.USER_SERVERLESS_URL).delete("user/friend/remove/" + id);
   },
   /*
    * check if contacts are app accounts
    * @param   {Array}    contacts          Array of contacts
    */
   checkContacts(contacts) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .post("user/friends/contacts/check", { contacts: contacts })
       .catch(error => console.log(error.request));
   },
@@ -230,7 +230,7 @@ export default {
    * @param   {Object}   context          Context of the page the feedback is sent from
    */
   sendFeedback(message, context) {
-    return Api()
+    return Api(process.env.USER_SERVERLESS_URL)
       .post("user/feedback/send", { message: message, context: context })
       .catch(error => console.log(error.request));
   }

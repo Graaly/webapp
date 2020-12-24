@@ -1,12 +1,6 @@
 import axios from "axios";
 
-// otherwise cookies are not sent back to server
-//axios.defaults.withCredentials = true; // THIS LINE IS THE DEVIL IT SHOUDL BE REMOUVED
 axios.defaults.timeout = 15000;
-/*axios.defaults.headers.common["Authorization"] = `Bearer ${
-  localStorage["jwt"]
-}`;
-*/
 // Note: HTTPS is mandatory here because HTTPS is required for front (geolocation)
 
 export default (url) => {

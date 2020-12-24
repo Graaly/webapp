@@ -270,7 +270,7 @@ export default {
    * @param   {String}    id                  ID of the user
    */
   countForUser(id) {
-    return Api(process.env.QUEST_SERVERLESS_URL)
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("user/" + id + "/quests/created/count")
       .catch(error => console.log(error.request));
   },
@@ -283,7 +283,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    return Api(process.env.QUEST_SERVERLESS_URL)
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("user/" + id + "/quests/created/lang/" + lang)
       .catch(error => console.log(error.request));
   },
@@ -296,7 +296,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    return Api(process.env.QUEST_SERVERLESS_URL)
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("user/" + id + "/quests/played/0/lang/" + lang)
       .catch(error => console.log(error.request));
   },
@@ -304,7 +304,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    return Api(process.env.QUEST_SERVERLESS_URL)
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("user/" + id + "/quests/played/" + skip + "/lang/" + lang)
       .then(function(response) {
         done(false, response);
@@ -360,7 +360,7 @@ export default {
    * list user invitations to private quests
    */
   getInvitations() {
-    return Api(process.env.QUEST_SERVERLESS_URL)
+    return Api(process.env.USER_SERVERLESS_URL)
       .get("user/quests/invitations/list")
       .catch(error => console.log(error.request));
   },
