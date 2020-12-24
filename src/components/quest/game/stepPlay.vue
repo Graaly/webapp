@@ -73,7 +73,7 @@
             </div>
             <p ref="bubbleText" class="carrier-return" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
             <p ref="bubbleTextHtml" class="text" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
-            <p class="text text-grey" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ClickHere') }}</p>
+            <p class="text text-grey" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ReadNext') }}</p>
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
@@ -992,6 +992,9 @@ export default {
           if (this.step.type && this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker' && this.step.id !== 'sensor') {        
             background.style.background = 'none'
             background.style.backgroundColor = '#fff'
+          } else {
+            background.style.background = 'none'
+            background.style.backgroundColor = 'transparent'
           }
           this.showControls()
         }
@@ -3498,14 +3501,14 @@ export default {
       }
       
       // every 100ms, update geolocation direction
-      if (!this.waitForNextQuaternionRead) {
+      if (!this.geolocation.waitForNextQuaternionRead) {
         let rotationZXY = new THREE.Euler().setFromQuaternion(quaternion, 'ZXY')
         let rotationXZY = new THREE.Euler().setFromQuaternion(quaternion, 'XZY')
         let tmpAlpha = (rotationZXY.x < Math.PI / 4 ? rotationZXY.z : rotationXZY.y)
         let newAlpha = JSON.stringify((360 - utils.radiansToDegrees(tmpAlpha)) % 360)
         this.geolocation.direction = (this.geolocation.rawDirection - newAlpha + 360) % 360 
-        this.waitForNextQuaternionRead = true
-        utils.setTimeout(() => { this.waitForNextQuaternionRead = false }, 100)
+        this.geolocation.waitForNextQuaternionRead = true
+        utils.setTimeout(() => { this.geolocation.waitForNextQuaternionRead = false }, 100)
       }
     },
     /*

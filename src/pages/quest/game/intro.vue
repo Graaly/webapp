@@ -68,7 +68,8 @@
           <div v-if="quest.type === 'quest' && (!quest.customization || !quest.customization.removeScoring)" class="q-mr-lg">
             <span v-if="!quest.premiumPrice.tier && shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">
               <img src="statics/images/icon/cost.svg" class="medium-icon" />
-              <span>{{ $t('label.Free') }}</span>
+              <span v-if="!shop.premiumQuest.alreadyPayed">{{ $t('label.Free') }}</span>
+              <span v-if="shop.premiumQuest.alreadyPayed">{{ $t('label.AlreadyPaied') }}</span>
             </span>
             <span v-if="shop.premiumQuest.priceCode !== 'free' && quest.type === 'quest'">
               <img src="statics/images/icon/cost.svg" class="medium-icon" />
@@ -109,6 +110,8 @@
           <a class="concertone" @click="$router.push('/user/ranking/ranking/' + quest.questId)">{{ $t('label.Ranking') }}</a>
         </div>
       </div>
+      
+      <!-- =========================== PLAY BUTTON ========================== -->
       <div class="quest-home-button">
         <div class="text-center q-pt-md">
           <p>
@@ -316,7 +319,7 @@
         <div class="q-pa-lg centered subtitle2">
           {{ $t('label.BuyThisQuest') }}
         </div>
-        <div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.tier">
+        <div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.tier && !isIOs">
           <q-card class="my-card">
             <q-card-section class="bg-primary text-white centered text-uppercase">
               <div class="text-h6">{{ $t('label.YouHaveReceivedAQrCodeFrom', {author: quest.author.name}) }}</div>
@@ -327,7 +330,7 @@
           </q-card>
         </div>
         
-        <div class="centered" v-if="quest.premiumPrice && quest.premiumPrice.tier && quest.premiumPrice.active">
+        <div class="centered" v-if="quest.premiumPrice && quest.premiumPrice.tier && quest.premiumPrice.active && !isIOs">
           -
           <span>{{ $t('label.Or') }}</span>
           -
@@ -417,7 +420,8 @@ export default {
         premiumQuest: {
           priceCode: 'free',
           priceValue: '0',
-          buyable: false
+          buyable: false,
+          alreadyPayed: false
         }
       },
       offline: {
@@ -446,7 +450,8 @@ export default {
       isUserTooFar: false,
       continueQuest: false,
       distanceFromStart: 0,
-      isHybrid: window.cordova
+      isHybrid: window.cordova,
+      isIOs: utils.isIOS()
     }
   },
   async mounted() {
@@ -728,6 +733,7 @@ export default {
       const isPayed = await QuestService.hasPayed(this.quest.questId)
       if (isPayed && isPayed.data && isPayed.data.status && isPayed.data.status === 'paied') {
         this.shop.premiumQuest.priceCode = 'free'
+        this.shop.premiumQuest.alreadyPayed = true
         return "free"
       }
       this.shop.premiumQuest.priceCode = this.quest.premiumPrice.androidId
@@ -894,8 +900,7 @@ export default {
      * open in google maps
      */
     goToLocationWithMaps(lat, lon) {
-      console.log(lat + " " + lon);
-      openURL(`https://maps.google.com/?daddr=${lon},${lat}`);
+      openURL(`https://maps.google.com/?daddr=${lon},${lat}`)
     },
     /*
      * Get all the published language for this quest
@@ -939,7 +944,8 @@ export default {
      * @param   {String}    lang               lang of the quest
      */
     playQuest(questId, lang) {
-      if (this.playStep === 0 && this.quest.premiumPrice && (this.quest.premiumPrice.tier || this.quest.premiumPrice.active) && !this.isAdmin && !this.isOwner) {
+      if (this.playStep === 0 && this.quest.premiumPrice && (this.quest.premiumPrice.tier || this.quest.premiumPrice.active) && !this.isAdmin && !this.isOwner && !isRunFinished && !isRunStarted) {
+        // ask to pay only if quest is not free and not already purchased
         this.shop.show = true
       } else if (this.playStep <= 1 && this.quest.playersNumber > 1 && !this.continueQuest) {
         this.shop.show = false

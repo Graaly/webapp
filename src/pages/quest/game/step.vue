@@ -15,10 +15,10 @@
     <!------------------ AUDIO ------------------------>
     
     <audio 
-      v-if="info && info.quest && info.quest.customization && info.quest.customization.audio && info.quest.customization.audio !== ''"
+      v-if="info && info.audio !== ''"
       id="background-music" 
       autoplay loop 
-      :src="getAudioSound()"
+      :src="info.audio"
     />
     
     <!------------------ HEADER AREA ------------------------>
@@ -84,7 +84,7 @@
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
-          <div class="fixed-top align-right full-width q-pa-lg">
+          <div class="fixed-top align-right full-width q-pa-lg" v-if="info && info.audio !== ''">
             <q-btn v-if="sound.status === 'play'" flat color="white" @click="cutSound" icon="volume_off"></q-btn>
             <q-btn v-if="sound.status === 'pause'" flat color="white" @click="cutSound" icon="volume_up"></q-btn>
           </div>
@@ -337,7 +337,8 @@ export default {
         info: {
           isOpened: false,
           score: 0,
-          quest: {}
+          quest: {},
+          audio: ''
         },
         next: {
           suggest: false,
@@ -415,6 +416,8 @@ export default {
       this.$q.loading.show()
       // get quest information
       await this.getQuest(this.questId)
+      
+      this.getAudioSound()
       
       this.loadStepData = false
 
@@ -1037,9 +1040,9 @@ export default {
      */
     getAudioSound () {
       if (this.info.quest.customization && this.info.quest.customization.audio && this.info.quest.customization.audio.indexOf('blob:') !== -1) {
-        return this.info.quest.customization.audio
+        this.info.audio = this.info.quest.customization.audio
       } else {
-        return this.serverUrl + '/upload/quest/' + this.info.quest.customization.audio
+        this.info.audio = this.serverUrl + '/upload/quest/' + this.info.quest.customization.audio
       }
     },
     /*
@@ -1368,7 +1371,7 @@ export default {
             }
           }
           // get customized sound
-          if (this.info.quest.customization && this.info.quest.customization.audio && this.info.quest.customization.audio !== '') {
+          if (this.info.quest.customization && this.info.quest.customization.audio && this.info.quest.customization.audio !== '' && !this.isIOs) {
             const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio)
             if (audioUrl) {
               this.info.quest.customization.audio = audioUrl
