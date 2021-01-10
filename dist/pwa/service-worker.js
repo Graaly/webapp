@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.97cb68c476f5d527bedea275656ca698.js"
+  "precache-manifest.33c61fe3be64ca7bed890ac035ae9de9.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "graaly-frontend"});

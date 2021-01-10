@@ -227,20 +227,20 @@
           <input @change="uploadThumb" ref="thumbfile" type="file" accept="image/*" />
         </div>
         
-        <div v-if="form.fields.customization && form.fields.customization.audio && form.fields.customization.audio !== ''">
-            <div>{{ $t('label.YourAudioFile') }} : {{ form.fields.customization.audio }}</div>
-            <div class="centered"><a class="dark" @click="removeAudio">{{$t('label.Remove')}}</a></div>
-          </div>
-          <div v-if="!isIOs && !readOnly">
-            <q-btn-group class="full-width">
-              <q-btn class="full-width" @click="$refs['audiofile'].click()">{{ $t('label.AddAnAudioFile') }}</q-btn>
-            </q-btn-group>
-            <input @change="uploadAudio" ref="audiofile" type="file" accept="audio/mp3" hidden />
-          </div>
-          <div v-if="isIOs && !readOnly">
-            {{ $t('label.AddAnAudioFile') }}:
-            <input @change="uploadAudio" ref="audiofile" type="file" accept="audio/mp3" />
-          </div>
+        <div v-if="this.quest.isPremium && form.fields.customization && form.fields.customization.audio && form.fields.customization.audio !== ''">
+          <div>{{ $t('label.YourAudioFile') }} : {{ form.fields.customization.audio }}</div>
+          <div class="centered"><a class="dark" @click="removeAudio">{{$t('label.Remove')}}</a></div>
+        </div>
+        <div v-if="this.quest.isPremium && !isIOs && !readOnly">
+          <q-btn-group class="full-width">
+            <q-btn class="full-width" @click="$refs['audiofile'].click()">{{ $t('label.AddAnAudioFile') }}</q-btn>
+          </q-btn-group>
+          <input @change="uploadAudio" ref="audiofile" type="file" accept="audio/mp3" hidden />
+        </div>
+        <div v-if="this.quest.isPremium && isIOs && !readOnly">
+          {{ $t('label.AddAnAudioFile') }}:
+          <input @change="uploadAudio" ref="audiofile" type="file" accept="audio/mp3" />
+        </div>
         
         <div v-if="this.quest.type === 'room'">
           <q-input
@@ -272,6 +272,17 @@
               <q-btn round dense flat icon="help" @click="showHelpPopup('helpQuestMultiplayer')" />
             </template>
           </q-select>
+        </div>
+        <div v-if="this.quest.type === 'quest' && form.fields.editorMode === 'advanced'">
+          <q-input
+            :disable="readOnly"
+            v-model="form.fields.customization.qrCodeMessage[languages.current]"
+            type="textarea"
+            :label="$t('label.QRCodeMessage') + ' ' + currentLanguageForLabels"
+            :max-height="100"
+            :min-rows="4"
+            class="full-width"
+          />
         </div>
         <div v-if="this.quest.isPremium && this.quest.type === 'quest'">
           <q-toggle
@@ -711,6 +722,17 @@
           <q-item-label class="big-label">{{ $t('label.Statistics') }}</q-item-label>
         </q-item-section>
       </q-item>
+      <q-card bordered class="my-card q-mb-md" v-if="statistics && statistics.statistics && statistics.statistics.sellings">
+        <q-card-section>
+          <div class="subtitle3">{{ $t('label.TotalSellings') }}</div>
+        </q-card-section>
+        <q-separator inset />
+        <q-card-section>
+          <div class="title1 text-primary centered">{{ parseInt(statistics.statistics.sellings * 70) / 100 }} €</div>
+          <div class="centered">{{ $t('label.YourRevenues') }}{{ $t('label.colons') }}{{ parseInt(statistics.statistics.sellings * 40) / 100 }}€ TTC</div>
+          <div class="centered">{{ $t('label.RevenuesPayedFloor') }}</div>
+        </q-card-section>
+      </q-card>
       <q-card bordered class="my-card q-mb-md">
         <q-card-section>
           <div class="subtitle3">{{ $t('label.TotalNumberOfPlayers') }}</div>
@@ -1163,7 +1185,7 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '' },
+          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '', qrCodeMessage: {fr: '', en: ''} },
           rewardPicture: '',
           readMoreLink: '',
           limitNumberOfPlayer: 0,

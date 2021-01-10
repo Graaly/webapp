@@ -456,6 +456,15 @@ export default {
       .catch(error => console.log(error.request));
   },
   /*
+   * Check a tier payment for the user
+   * @param   {String}    questId             questId
+   */
+  checkTierPayment(questId) {
+    return Api()
+      .get("quest/" + questId + "/payment/tier/check")
+      .catch(error => console.log(error.request));
+  },
+  /*
    * Create a tier payment
    * @param   {String}    questId             questId
    * @param   {String}    price               price
@@ -466,7 +475,7 @@ export default {
       .catch(error => console.log(error.request));
   },
   /*
-   * Create a tier payment
+   * Remove a tier payment
    * @param   {String}    questId             questId
    * @param   {String}    codeId              Id of the code to remove
    */

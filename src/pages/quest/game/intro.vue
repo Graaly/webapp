@@ -1,6 +1,6 @@
 <template>
   <div class="scroll background-dark">
-    <div id="teaser">
+    <div id="teaser" :class="{'loaded': pageReady}">
       <!------------------ MAIN INFORMATION AREA ------------------------>
       
       <div v-if="(!quest || !quest.status) && !warning.questNotLoaded" class="centered q-pa-lg">
@@ -16,7 +16,8 @@
         </div>
       </div>
       <!-- =========================== PICTURE & AUTHOR ========================== -->
-      <div v-if="quest && quest.status" class="relative-position" :style="'width: 100vw; height: 50vh; background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
+      <div v-if="quest && quest.status" class="relative-position image-banner">
+        <div class="effect-kenburns" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat ;'"></div>
         <div class="q-py-sm q-px-md dark-banner fixed-top">
           <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         </div>
@@ -400,6 +401,7 @@ import { openURL } from 'quasar'
 import utils from 'src/includes/utils'
 import Notification from 'boot/NotifyHelper'
 import gpscalibration from 'components/gpsCalibration'
+import debounce from 'lodash/debounce'
 
 export default {
   components: {
@@ -450,13 +452,14 @@ export default {
       isUserTooFar: false,
       continueQuest: false,
       distanceFromStart: 0,
+      pageReady: false,
       isHybrid: window.cordova,
       isIOs: utils.isIOS()
     }
   },
   async mounted() {
     utils.clearAllRunningProcesses()
-
+    
     // check if battery is enough charged to play
     window.addEventListener("batterystatus", this.checkBattery, false);
 
@@ -465,6 +468,11 @@ export default {
     // reset user history
     this.$store.state.history = {items: [], index: 0}
   },
+  updated: debounce(function () {
+    this.$nextTick(() => {
+      this.pageReady = true
+    })
+  }, 250),
   methods: {
     /*
      * Sort based on the score
@@ -943,25 +951,38 @@ export default {
      * @param   {String}    questId            ID of the quest
      * @param   {String}    lang               lang of the quest
      */
-    playQuest(questId, lang) {
+    async playQuest(questId, lang) {
       if (this.playStep === 0 && this.quest.premiumPrice && (this.quest.premiumPrice.tier || this.quest.premiumPrice.active) && !this.isAdmin && !this.isOwner && !this.isRunFinished && !this.isRunStarted) {
-        // ask to pay only if quest is not free and not already purchased
-        this.shop.show = true
+        // if tier paiement, check first that user has not already payed
+        if (this.quest.premiumPrice.tier) {
+          const isPayed = await QuestService.checkTierPayment(questId)
+          if (isPayed.status === 200) {
+            this.startPreloader()
+          } else {
+            this.shop.show = true
+          }
+        } else {
+          // ask to pay only if quest is not free and not already purchased
+          this.shop.show = true
+        }
       } else if (this.playStep <= 1 && this.quest.playersNumber > 1 && !this.continueQuest) {
         this.shop.show = false
         this.multiplayer.show = true
       } else {
-        this.shop.show = false
-        this.multiplayer.show = false
-        this.showPreloaderPopup = true
-        if (this.isHybrid) {
-          this.offline.show = true
-        } else {
-          var _this = this;
-          setTimeout(function() { 
-           _this.showCalibrationAndStartQuest()
-          }, 3000)
-        }
+        this.startPreloader()
+      }
+    },
+    startPreloader() {
+      this.shop.show = false
+      this.multiplayer.show = false
+      this.showPreloaderPopup = true
+      if (this.isHybrid) {
+        this.offline.show = true
+      } else {
+        var _this = this;
+        setTimeout(function() { 
+         _this.showCalibrationAndStartQuest()
+        }, 3000)
       }
     },
     /*
