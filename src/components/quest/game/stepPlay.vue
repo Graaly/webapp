@@ -30,9 +30,15 @@
       <!------------------ TRANSITION AREA ------------------------>
 
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video' || step.type == 'help'">
-        <div id="info-clickable" :class="{ grow: !step.videoStream }" @click="hideControlsTemporaly">
+        <div v-if="showTools && getTranslatedText() != ''" id="info-clickable" :class="{ grow: !step.videoStream }">
           <p class="text" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" v-if="getTranslatedText() != '' && step.options && step.options.html" v-html="getTranslatedText()"></p>
+          <div v-if="step.type !== 'help'" class="centered" style="padding-bottom: 100px">
+            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+          </div>
+        </div>
+        <div v-if="!showTools" class="centered">
+          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
         <div class="video" v-if="step.videoStream">
           <video class="full-width" controls controlsList="nodownload" autoplay>
@@ -118,11 +124,11 @@
             </div>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -167,11 +173,11 @@
             </div>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -192,11 +198,11 @@
             </div>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -232,11 +238,11 @@
             </div>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -289,11 +295,11 @@
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer"><div>{{ $t('label.ConfirmTheAnswer') }}</div></q-btn>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -1010,10 +1016,22 @@ export default {
       }
     },
     /*
+     * reset background image between steps
+     */
+    resetBackgroundImage () {
+      let background = document.getElementById('play-view')
+      background.style.background = 'none'
+      background.style.backgroundColor = 'transparent'
+      let backgroundImage = document.getElementById('background-image')
+      backgroundImage.style.background = 'none'
+      backgroundImage.style.backgroundColor = 'transparent'
+    },
+    /*
      * Init the component data
      */
     async initData () {
       this.resetData()
+      this.resetBackgroundImage()
       TWEEN.removeAll()
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
@@ -4436,10 +4454,11 @@ export default {
   
   /* color code specific */
   
-  .code-color .color-bubbles { margin-top: 5rem; display: flex; flex-flow: row nowrap; justify-content: center; }
+  .code-color .color-bubbles { margin-top: 5rem; display: flex; flex-flow: row nowrap; justify-content: center; position: relative; }
   .code-color .color-bubbles div { display: block; width: 4rem; height: 4rem; border: 4px solid black; border-radius: 2rem; margin: 0.3rem; transition: background-color 0.3s; }
   
   /* image code specific */
+  .code-image { position: relative; }
   .code-image td { width: 20% }
   .code-image td img { width: 100% }
   .code-image td .q-icon { font-size: 2em }
@@ -4456,6 +4475,9 @@ export default {
   
   /* jigsaw puzzle specific */
   
+  .puzzle {
+    position: relative;
+  }
   #pieces { 
     padding: 0; 
     margin: 0; 
@@ -4485,7 +4507,7 @@ export default {
     
   /* new-item specific */
   
-  .new-item .item { text-align: center; }
+  .new-item .item { text-align: center; position: relative;}
   .new-item .item p { font-size: 2rem; }
   
   /* locate-item-ar specific */
@@ -4506,6 +4528,7 @@ export default {
   
   /* locate-marker specific */
   
+  .locate-marker { position: relative; }
   .locate-marker video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .locate-marker .marker-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
   .locate-marker #marker-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }
