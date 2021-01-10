@@ -53,6 +53,19 @@
   },
   {
     "category": "transition",
+    "code": "help",
+    "icon": "question",
+    "title": "HelpStep",
+    "description": "HelpStepDesc",
+    "showTrick": "no",
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": false
+  },
+  {
+    "category": "transition",
     "code": "end-chapter",
     "icon": "step-forward",
     "title": "EndOfChapter",
