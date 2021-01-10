@@ -4392,6 +4392,7 @@ export default {
   #play-view div.find-item,
   #play-view div.use-item {
     padding-bottom: 3rem;
+    position: relative;
   }
   
   .text,
