@@ -984,7 +984,9 @@ module.exports = {
       Hide: "Hide",
       TotalSellings: "Game sells",
       RevenuesPayedFloor: "Revenues payed when over 50€",
-      QRCodeMessage: "Message displayed when user needs to scan a QR code (escape game mode)"
+      QRCodeMessage: "Message displayed when user needs to scan a QR code (escape game mode)",
+      TeamID: "Team ID",
+      PleaseFillThisForm: "Please fill this field"
     }
   },
   fr: {
@@ -1959,7 +1961,9 @@ module.exports = {
       Hide: "Cacher",
       TotalSellings: "Ventes du jeu",
       RevenuesPayedFloor: "Paiement quand gains > 50€",
-      QRCodeMessage: "Message affiché quand le joueur doit flasher un QR code (mode Escape game)"
+      QRCodeMessage: "Message affiché quand le joueur doit flasher un QR code (mode Escape game)",
+      TeamID: "Identifiant équipe",
+      PleaseFillThisForm: "Veuillez compléter ce champ"
     }
   }
 }

@@ -6,6 +6,7 @@ import Map from 'pages/quest/map'
 import QuestPlayHome from 'pages/quest/game/intro'
 import QuestPlayStep from 'pages/quest/game/step'
 import QuestEnd from 'pages/quest/game/end'
+import TeamPlay from 'pages/user/teamplay'
 
 import QuestManage from 'pages/quest/builder/redirection'
 import QuestManageWelcome from 'pages/quest/builder/welcome'
@@ -46,6 +47,12 @@ export default [
         name: 'firstusage',
         //component: UserFirstUsage,
         redirect: '/user/login',
+        meta: { requiresAuth: false }
+      },
+      {
+        path: 'teamplay/:id(\\w{24})/:lang',
+        name: 'teamplay',
+        component: TeamPlay,
         meta: { requiresAuth: false }
       },
       {

@@ -1,0 +1,135 @@
+<template>
+  <div class="wrapper background-map">
+    <div class="page-content" style="padding-bottom: 100px">
+
+      <!------------------ TITLE AREA ------------------------>
+      
+      <div class="centered q-pt-lg q-pb-md">
+        <img src="statics/images/logo/logo-home.png" class="logo-top" />
+      </div>
+      
+      <div class="q-pa-md">
+        <div class="centered title2 q-mb-lg">{{ $t('label.Welcome') }}</div>
+        
+        <!------------------ FORM AREA ------------------------>
+        <form @submit.prevent="formSubmit">
+          
+          <div>
+            
+            <q-input
+              outlined
+              :label="$t('label.TeamID')"
+              v-model="form.teamId"
+              @blur="$v.form.teamId.$touch"
+              :error="$v.form.teamId.$error"
+              :error-message="$t('label.PleaseFillThisForm')"
+              />
+            
+            <q-input
+              outlined
+              :label="$t('label.TeamName')"
+              v-model="form.teamName"
+              @blur="$v.form.teamName.$touch"
+              :error="$v.form.teamName.$error"
+              :error-message="$t('label.PleaseFillThisForm')"
+              />
+            
+            <q-input
+              outlined
+              :label="$t('label.YourName')"
+              v-model="form.name"
+              @blur="$v.form.name.$touch"
+              :error="$v.form.name.$error"
+              :error-message="$t('label.PleaseFillThisForm')"
+              />
+          </div>
+          <div class="text-center">
+            <q-btn 
+              type="submit"
+              class="glossy large-btn"
+              color="primary" 
+              :label="$t('label.SignIn')"
+              :loading="submitting" 
+              />
+          </div>
+          
+        </form>
+
+        <div class="centered smaller version secondary-font">Version {{ version }}</div>
+      
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from 'axios'
+import AuthService from 'services/AuthService'
+import QuestService from 'services/QuestService'
+import RunService from 'services/RunService'
+import { required } from 'vuelidate/lib/validators'
+import Notification from 'boot/NotifyHelper'
+//import utils from 'src/includes/utils'
+
+export default {
+  data() {
+    return {
+      questId: this.$route.params.id,
+      lang: this.$route.params.lang,
+      form: {
+        teamId: '',
+        teamName: '',
+        name: ''
+      },
+      isHybrid: window.cordova,
+      serverUrl: process.env.SERVER_URL,
+      submitting: false,
+      version: process.env.VERSION
+    }
+  },
+  mounted () {
+    
+  },
+  methods: {
+    /*
+     * Manage login
+     */
+    async formSubmit() {
+      this.$v.$touch()
+      this.submitting = true
+      
+      // create account
+      let checkStatus = await AuthService.playAnonymous(this.$t('label.shortLang'))
+      if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
+        if (checkStatus.data.user) {
+          window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
+          axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
+          // get quest version
+          const quest = await QuestService.getById(this.questId, '999', this.lang)
+          let version = 1
+          if (quest && quest.data) {
+            version = quest.data.version
+          }
+          
+          // Init runID
+          await RunService.init(this.questId, version, this.lang, 'true', this.form.teamId + "|" + this.form.teamName + "|" + this.form.name)
+          
+          // launch game
+          this.$router.push('/quest/play/' + this.questId + '/version/' + version + '/step/0/' + this.lang)
+        } else {
+          Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+    }
+  },
+  validations: {
+    form: {
+      teamId: { required },
+      teamName: { required },
+      name: { required }
+    }
+  }
+}
+</script>
