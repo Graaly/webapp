@@ -108,7 +108,7 @@ export default {
           
           if (run && run.data) {
             // launch game
-            this.$router.push('/quest/play/' + this.questId + '/version/' + run.data.version + '/step/0/' + this.lang)
+            this.$router.push('/quest/play/' + this.questId + '/version/' + run.data.version + '/step/0/undefined?remoteplay=false')
           }
           /* get quest version
           const quest = await QuestService.getById(this.questId, '999', this.lang)
