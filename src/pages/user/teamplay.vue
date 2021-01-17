@@ -65,7 +65,6 @@
 <script>
 import axios from 'axios'
 import AuthService from 'services/AuthService'
-import QuestService from 'services/QuestService'
 import RunService from 'services/RunService'
 import { required } from 'vuelidate/lib/validators'
 import Notification from 'boot/NotifyHelper'
@@ -104,7 +103,14 @@ export default {
         if (checkStatus.data.user) {
           window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
           axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
-          // get quest version
+          // Init runID
+          const run = await RunService.initTeamPlay(this.questId, this.lang, this.form.teamId, this.form.teamName, this.form.name)
+          
+          if (run && run.data) {
+            // launch game
+            this.$router.push('/quest/play/' + this.questId + '/version/' + run.data.version + '/step/0/' + this.lang)
+          }
+          /* get quest version
           const quest = await QuestService.getById(this.questId, '999', this.lang)
           let version = 1
           if (quest && quest.data) {
@@ -113,9 +119,7 @@ export default {
           
           // Init runID
           await RunService.init(this.questId, version, this.lang, 'true', this.form.teamId + "|" + this.form.teamName + "|" + this.form.name)
-          
-          // launch game
-          this.$router.push('/quest/play/' + this.questId + '/version/' + version + '/step/0/' + this.lang)
+          */
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }

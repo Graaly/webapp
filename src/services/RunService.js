@@ -140,6 +140,30 @@ export default {
       .catch(error => console.log(error.request));
   },
   /*
+   * init a new run for a teamplay
+   * @param   {String}    questId             ID of the quest
+   * @param   {String}    lang                Language concerned
+   * @param   {String}    teamId              ID of the team
+   * @param   {String}    teamName            Name of the team
+   * @param   {String}    name                Name of the player
+   */
+  initTeamPlay(questId, lang, teamId, teamName, name) {
+    return Api()
+      .post(
+        "run/teamplay/quest/" +
+          questId +
+          "/init/" +
+          lang +
+          "/" +
+          teamId +
+          "/" +
+          teamName +
+          "/" +
+          name
+      )
+      .catch(error => console.log(error.request));
+  },
+  /*
    * add a team player
    * @param   {String}    code                Code to join
    */
