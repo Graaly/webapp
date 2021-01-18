@@ -84,7 +84,7 @@
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
-          <div class="fixed-top align-right full-width q-pa-lg">
+          <div class="fixed-top align-right full-width q-pa-lg" v-if="info && info.audio !== ''">
             <q-btn v-if="sound.status === 'play'" flat color="white" @click="cutSound" icon="volume_off"></q-btn>
             <q-btn v-if="sound.status === 'pause'" flat color="white" @click="cutSound" icon="volume_up"></q-btn>
           </div>

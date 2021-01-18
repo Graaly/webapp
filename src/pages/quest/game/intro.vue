@@ -1,6 +1,6 @@
 <template>
   <div class="scroll background-dark">
-    <div id="teaser">
+    <div id="teaser" :class="{'loaded': pageReady}">
       <!------------------ MAIN INFORMATION AREA ------------------------>
       
       <div v-if="(!quest || !quest.status) && !warning.questNotLoaded" class="centered q-pa-lg">
@@ -16,7 +16,8 @@
         </div>
       </div>
       <!-- =========================== PICTURE & AUTHOR ========================== -->
-      <div v-if="quest && quest.status" class="relative-position" :style="'width: 100vw; height: 50vh; background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
+      <div v-if="quest && quest.status" class="relative-position image-banner">
+        <div class="effect-kenburns" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat ;'"></div>
         <div class="q-py-sm q-px-md dark-banner fixed-top">
           <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         </div>
@@ -68,7 +69,8 @@
           <div v-if="quest.type === 'quest' && (!quest.customization || !quest.customization.removeScoring)" class="q-mr-lg">
             <span v-if="!quest.premiumPrice.tier && shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">
               <img src="statics/images/icon/cost.svg" class="medium-icon" />
-              <span>{{ $t('label.Free') }}</span>
+              <span v-if="!shop.premiumQuest.alreadyPayed">{{ $t('label.Free') }}</span>
+              <span v-if="shop.premiumQuest.alreadyPayed">{{ $t('label.AlreadyPaied') }}</span>
             </span>
             <span v-if="shop.premiumQuest.priceCode !== 'free' && quest.type === 'quest'">
               <img src="statics/images/icon/cost.svg" class="medium-icon" />
@@ -109,6 +111,8 @@
           <a class="concertone" @click="$router.push('/user/ranking/ranking/' + quest.questId)">{{ $t('label.Ranking') }}</a>
         </div>
       </div>
+      
+      <!-- =========================== PLAY BUTTON ========================== -->
       <div class="quest-home-button">
         <div class="text-center q-pt-md">
           <p>
@@ -397,6 +401,7 @@ import { openURL } from 'quasar'
 import utils from 'src/includes/utils'
 import Notification from 'boot/NotifyHelper'
 import gpscalibration from 'components/gpsCalibration'
+import debounce from 'lodash/debounce'
 
 export default {
   components: {
@@ -417,7 +422,8 @@ export default {
         premiumQuest: {
           priceCode: 'free',
           priceValue: '0',
-          buyable: false
+          buyable: false,
+          alreadyPayed: false
         }
       },
       offline: {
@@ -446,13 +452,14 @@ export default {
       isUserTooFar: false,
       continueQuest: false,
       distanceFromStart: 0,
+      pageReady: false,
       isHybrid: window.cordova,
       isIOs: utils.isIOS()
     }
   },
   async mounted() {
     utils.clearAllRunningProcesses()
-
+    
     // check if battery is enough charged to play
     window.addEventListener("batterystatus", this.checkBattery, false);
 
@@ -461,6 +468,11 @@ export default {
     // reset user history
     this.$store.state.history = {items: [], index: 0}
   },
+  updated: debounce(function () {
+    this.$nextTick(() => {
+      this.pageReady = true
+    })
+  }, 250),
   methods: {
     /*
      * Sort based on the score
@@ -729,6 +741,7 @@ export default {
       const isPayed = await QuestService.hasPayed(this.quest.questId)
       if (isPayed && isPayed.data && isPayed.data.status && isPayed.data.status === 'paied') {
         this.shop.premiumQuest.priceCode = 'free'
+        this.shop.premiumQuest.alreadyPayed = true
         return "free"
       }
       this.shop.premiumQuest.priceCode = this.quest.premiumPrice.androidId
@@ -895,8 +908,7 @@ export default {
      * open in google maps
      */
     goToLocationWithMaps(lat, lon) {
-      console.log(lat + " " + lon);
-      openURL(`https://maps.google.com/?daddr=${lon},${lat}`);
+      openURL(`https://maps.google.com/?daddr=${lon},${lat}`)
     },
     /*
      * Get all the published language for this quest
@@ -939,24 +951,38 @@ export default {
      * @param   {String}    questId            ID of the quest
      * @param   {String}    lang               lang of the quest
      */
-    playQuest(questId, lang) {
-      if (this.playStep === 0 && this.quest.premiumPrice && (this.quest.premiumPrice.tier || this.quest.premiumPrice.active) && !this.isAdmin && !this.isOwner) {
-        this.shop.show = true
+    async playQuest(questId, lang) {
+      if (this.playStep === 0 && this.quest.premiumPrice && (this.quest.premiumPrice.tier || this.quest.premiumPrice.active) && !this.isAdmin && !this.isOwner && !this.isRunFinished && !this.isRunStarted) {
+        // if tier paiement, check first that user has not already payed
+        if (this.quest.premiumPrice.tier) {
+          const isPayed = await QuestService.checkTierPayment(questId)
+          if (isPayed.status === 200) {
+            this.startPreloader()
+          } else {
+            this.shop.show = true
+          }
+        } else {
+          // ask to pay only if quest is not free and not already purchased
+          this.shop.show = true
+        }
       } else if (this.playStep <= 1 && this.quest.playersNumber > 1 && !this.continueQuest) {
         this.shop.show = false
         this.multiplayer.show = true
       } else {
-        this.shop.show = false
-        this.multiplayer.show = false
-        this.showPreloaderPopup = true
-        if (this.isHybrid) {
-          this.offline.show = true
-        } else {
-          var _this = this;
-          setTimeout(function() { 
-           _this.showCalibrationAndStartQuest()
-          }, 3000)
-        }
+        this.startPreloader()
+      }
+    },
+    startPreloader() {
+      this.shop.show = false
+      this.multiplayer.show = false
+      this.showPreloaderPopup = true
+      if (this.isHybrid) {
+        this.offline.show = true
+      } else {
+        var _this = this;
+        setTimeout(function() { 
+         _this.showCalibrationAndStartQuest()
+        }, 3000)
       }
     },
     /*

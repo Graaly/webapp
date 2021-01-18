@@ -26,6 +26,12 @@ export default {
     return Api().get("admin/bestgames");
   },
   /*
+   * List the earnings
+   */
+  ListEarnings() {
+    return Api().get("admin/earnings");
+  },
+  /*
    * Validate a quest
    */
   publish(id) {

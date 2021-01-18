@@ -16,14 +16,15 @@
         <q-tab
           name="validation"
           icon="check_box"
-          label="Quests validation"
+          label="Validation"
           default
         />
         <q-tab
           name="rejected"
           icon="sentiment_very_dissatisfied"
-          label="Quests rejected"
+          label="Rejected"
         />
+        <q-tab name="earnings" icon="price" label="Earnings" />
         <q-tab name="statistics" icon="stats" label="Statistics" />
       </q-tabs>
 
@@ -143,6 +144,35 @@
             </q-item>
           </q-list>
         </q-tab-panel>
+        
+        <!------------------ EARNINGS TAB ------------------------>
+
+        <q-tab-panel name="earnings">
+          Eearnings of games:
+          <q-list highlight>
+            <q-item v-for="earning in earnings.items" :key="earning.questId">
+              <q-item-section>
+                <q-item-label v-if="earning.title.fr">
+                  {{earning.title.fr}}
+                </q-item-label>
+                <q-item-label v-if="!earning.title.fr && earning.title.en">
+                  {{ earning.title.en }}
+                </q-item-label>
+                <q-item-label caption>
+                  revenues:{{ earning.earnings }} | QR codes used:{{ earning.tierEarnings }} <span v-if="earning.premiumPrice && earning.premiumPrice.manual">(x{{ earning.premiumPrice.manual }})</span>
+                </q-item-label
+                >
+              </q-item-section>
+              <!--<q-item-section side>
+                <q-btn>Update</q-btn>
+              </q-item-section>-->
+            </q-item>
+            <q-item v-if="games.items.length === 0">
+              <q-item-label>No game played during 1 month</q-item-label>
+            </q-item>
+          </q-list>
+        </q-tab-panel>
+      
         <!------------------ MINI GAMES TAB ------------------------>
 
         <q-tab-panel name="statistics">
@@ -194,14 +224,18 @@ export default {
       games: {
         items: []
       },
+      earnings: {
+        items: []
+      },
       adminTab: "validation",
       serverUrl: process.env.SERVER_URL
     };
   },
   mounted() {
-    this.loadQuestsToValidate();
-    this.loadQuestsRejected();
-    this.loadStatistics();
+    this.loadQuestsToValidate()
+    this.loadQuestsRejected()
+    this.loadStatistics()
+    this.loadEarnings()
     //this.loadTowns()
   },
   methods: {
@@ -227,8 +261,15 @@ export default {
     async loadStatistics() {
       // get quests to validate
       let response = await AdminService.ListBestGames();
-      console.log(response.data);
       this.games.items = response.data.games;
+    },
+    /*
+     * List the earnings
+     */
+    async loadEarnings() {
+      // get quests to validate
+      let response = await AdminService.ListEarnings();
+      this.earnings.items = response.data.earnings;
     },
     /*
      * validate a quest

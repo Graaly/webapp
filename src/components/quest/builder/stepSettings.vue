@@ -922,6 +922,12 @@
             <div v-if="options.type.code === 'memory'">
               <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
             </div>
+            <div v-if="options.type.code === 'help'">
+              <q-toggle v-model="selectedStep.form.options.helpInventory" :label="$t('label.HelpStepMessageInventory')" />
+              <q-toggle v-model="selectedStep.form.options.helpHint" :label="$t('label.HelpStepMessageHint')" />
+              <q-toggle v-model="selectedStep.form.options.helpPrevious" :label="$t('label.HelpStepMessagePrevious')" />
+              <q-toggle v-model="selectedStep.form.options.helpNext" :label="$t('label.HelpStepMessageNext')" />
+            </div>
             <div v-if="options.type.nbTrials > 0">
               <q-input v-model="selectedStep.form.nbTrial" :label="$t('label.NbTrials')" />
             </div>
@@ -961,6 +967,9 @@
                   /> <br />
                 <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
               </div>
+            </div>
+            <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
+              <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" />
             </div>
             <q-input
               :label="$t('label.ExtraTextFieldLabel')"
@@ -1263,7 +1272,8 @@ export default {
             { value: 4, label: "4" }
           ],
           defaultNbAnswers: 4,
-          imagesForCode: this.getImagesForCodeOptions()
+          imagesForCode: this.getImagesForCodeOptions(),
+          maxNbAnswers: 10
         },
         memory: {
           minNbAnswers: 3,
@@ -1490,7 +1500,7 @@ export default {
       }
       
       // define players select list
-      if (this.options.type.code === 'info-text' || this.options.type.code === 'info-video' || this.options.type.code === 'new-item' || this.options.type.code === 'character' || this.options.type.code === 'end-chapter') {
+      if (this.options.type.code === 'info-text' || this.options.type.code === 'info-video' || this.options.type.code === 'new-item' || this.options.type.code === 'character' || this.options.type.code === 'help' || this.options.type.code === 'end-chapter') {
         this.players.push({ label: this.$t('label.All'), value: 'All' })
       }
       for (var p = 0; p < this.quest.playersNumber; p++) {
@@ -1515,6 +1525,13 @@ export default {
               }
             }
           }          
+        }
+      } else if (this.options.type.code === 'help') {
+        if (!this.selectedStep.form.options || !this.selectedStep.form.options.hasOwnProperty("helpInventory")) {
+          this.selectedStep.form.options.helpHint = true
+          this.selectedStep.form.options.helpInventory = true
+          this.selectedStep.form.options.helpNext = true
+          this.selectedStep.form.options.helpPrevious = true
         }
       } else if (this.options.type.code === 'code-color') {
         if (this.selectedStep.form.answers && typeof this.selectedStep.form.answers === 'string' && this.selectedStep.form.answers.indexOf('|') !== -1) {
@@ -1846,8 +1863,8 @@ export default {
      * Add a picture answer in the multiple choice step
      */
     addCodeAnswer: function () {
-      if (this.selectedStep.form.options.images.length >= this.config.choose.maxNbAnswers) {
-        Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.config.choose.maxNbAnswers }), 'error')
+      if (this.selectedStep.form.options.images.length >= this.config.imageCode.maxNbAnswers) {
+        Notification(this.$t('label.YouCantAddMoreThanNbAnswers', { nb: this.config.imageCode.maxNbAnswers }), 'error')
       } else {
         this.selectedStep.form.options.images.push({
           imagePath: null // image default data

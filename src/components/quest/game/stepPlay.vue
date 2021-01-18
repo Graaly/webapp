@@ -1,6 +1,8 @@
 <template>
 
-  <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor')}">
+  <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor'), 'loaded': pageReady}">
+    <div id="background-image" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect)}" style="width: 100%; height: 100%; position: absolute; left: 0; top: 0;">
+    </div>
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
       <q-linear-progress 
         v-if="step.countDownTime !== null && 
@@ -27,10 +29,16 @@
     
       <!------------------ TRANSITION AREA ------------------------>
 
-      <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video'">
-        <div id="info-clickable" :class="{ grow: !step.videoStream }" @click="hideControlsTemporaly">
+      <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video' || step.type == 'help'">
+        <div v-if="showTools && getTranslatedText() != ''" id="info-clickable" :class="{ grow: !step.videoStream }">
           <p class="text" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" v-if="getTranslatedText() != '' && step.options && step.options.html" v-html="getTranslatedText()"></p>
+          <div v-if="step.type !== 'help'" class="centered" style="padding-bottom: 100px">
+            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+          </div>
+        </div>
+        <div v-if="!showTools" class="centered">
+          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
         <div class="video" v-if="step.videoStream">
           <video class="full-width" controls controlsList="nodownload" autoplay>
@@ -42,6 +50,14 @@
           <source :src="step.audioStream" type="audio/mpeg" />
         </audio>
         -->
+      </div>
+      <div v-if="step.type == 'help'" style="overflow: auto; margin-bottom: 80px;">
+        <p class="text" v-html="$t('label.HelpStepMessage')"></p>
+        <p v-if="step.options && step.options.helpNext" class="text" v-html="$t('label.HelpStepMessageNextMessage')"></p>
+        <p v-if="step.options && step.options.helpPrevious" class="text" v-html="$t('label.HelpStepMessagePreviousMessage')"></p>
+        <p v-if="step.options && step.options.helpInventory" class="text" v-html="$t('label.HelpStepMessageInventoryMessage')"></p>
+        <p v-if="step.options && step.options.helpHint" class="text" v-html="$t('label.HelpStepMessageHintMessage')"></p>
+        <p class="text" v-html="$t('label.HelpStepMessageEnd')"></p>
       </div>
       
       <!------------------ WIN ITEM STEP AREA ------------------------>
@@ -73,7 +89,7 @@
             </div>
             <p ref="bubbleText" class="carrier-return" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
             <p ref="bubbleTextHtml" class="text" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
-            <p class="text text-grey" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ClickHere') }}</p>
+            <p class="text text-grey" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ReadNext') }}</p>
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
@@ -89,29 +105,37 @@
       <!------------------ CHOOSE STEP AREA ------------------------>
       
       <div class="choose" v-if="step.type == 'choose'" style="overflow: auto; margin-bottom: 80px;">
-        <div @click="hideControlsTemporaly">
-           <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
-        </div>
-        <div class="answers-text" v-if="answerType === 'text'">
-          <q-btn v-for="(option, key) in step.options.items" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
-            <span v-if="!option.textLanguage || !option.textLanguage[lang]">{{ option.text }}</span>
-            <span v-if="option.textLanguage && option.textLanguage[lang]">{{ option.textLanguage[lang] }}</span>
-          </q-btn>
-        </div>
-        <div class="answers-images" style="padding-bottom: 100px" v-if="answerType === 'image'">
-          <div class="images-block">
-            <div v-for="(option, key) in step.options.items" :key="key" :class="option.class" @click="checkAnswer(key)" :test-id="'answer-image-' + key">
-              <img :src="option.imagePath.indexOf('blob:') !== -1 ? option.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/choose-image/' + option.imagePath" :class="option.class" />
-              <q-btn v-if="option.class !== null" round :class="option.class" :icon="option.icon" disable />
+        <div v-if="showTools">
+          <div @click="hideControlsTemporaly">
+             <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          </div>
+          <div class="answers-text" v-if="answerType === 'text'">
+            <q-btn v-for="(option, key) in step.options.items" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
+              <span v-if="!option.textLanguage || !option.textLanguage[lang]">{{ option.text }}</span>
+              <span v-if="option.textLanguage && option.textLanguage[lang]">{{ option.textLanguage[lang] }}</span>
+            </q-btn>
+          </div>
+          <div class="answers-images" v-if="answerType === 'image'">
+            <div class="images-block">
+              <div v-for="(option, key) in step.options.items" :key="key" :class="option.class" @click="checkAnswer(key)" :test-id="'answer-image-' + key">
+                <img :src="option.imagePath.indexOf('blob:') !== -1 ? option.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/choose-image/' + option.imagePath" :class="option.class" />
+                <q-btn v-if="option.class !== null" round :class="option.class" :icon="option.icon" disable />
+              </div>
             </div>
           </div>
+          <div class="centered" style="padding-bottom: 100px">
+            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+          </div>
+        </div>
+        <div v-if="!showTools" class="centered">
+          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
       <!------------------ KEYPAD STEP AREA ------------------------>
       
       <div class="code" v-if="step.type == 'code-keypad'">
-        <div v-if="showKeypad">
+        <div v-if="showTools">
           <div>
             <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
           </div>
@@ -149,60 +173,76 @@
             </div>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-icon size="xl" name="expand_less" @click="showKeypad = false" />
+            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
-        <div v-if="!showKeypad" class="centered">
-          <q-icon size="xl" name="expand_more" @click="showKeypad = true" />
+        <div v-if="!showTools" class="centered">
+          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
       <!------------------ CODE COLOR STEP AREA ------------------------>
       
       <div class="code code-color" v-if="step.type == 'code-color'">
-        <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
-        </div>
-        <div class="color-bubbles">
-          <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
-        </div>
-        
-        <div class="actions q-mt-lg q-mx-md" style="padding-bottom: 100px" v-show="playerResult === null">
+        <div v-if="showTools">
           <div>
-            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
+            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
           </div>
+          <div class="color-bubbles">
+            <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
+          </div>
+          
+          <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
+            <div>
+              <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
+            </div>
+          </div>
+          <div class="centered" style="padding-bottom: 100px">
+            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+          </div>
+        </div>
+        <div v-if="!showTools" class="centered">
+          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
       <!------------------ IMAGE CODE STEP AREA ------------------------>
       
       <div class="code code-image" v-if="step.type == 'code-image'">
-        <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
-        </div>
-        <table>
-          <tr>
-            <td v-for="(code, index) in playerCode" :key="index" class="text-center">
-              <q-btn :disabled="stepPlayed" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_up" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index" />
-            </td>
-          </tr>
-          <tr>
-            <td v-for="(code, index) in playerCode" :key="index">
-              <img :id="'image-code-' + index" @click="enlargeThePicture(index)" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
-            </td>
-          </tr>
-          <tr>
-            <td v-for="(code, index) in playerCode" :key="index" class="text-center">
-              <q-btn :disabled="stepPlayed" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
-            </td>
-          </tr>
-        </table>
-        <div class="centered text-grey q-py-md">{{ $t('label.ClickToEnlargePictures') }}</div>
-        
-        <div class="actions q-mt-lg q-mx-md" style="padding-bottom: 100px" v-show="playerResult === null">
+        <div v-if="showTools">
           <div>
-            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
+            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
           </div>
+          <table>
+            <tr>
+              <td v-for="(code, index) in playerCode" :key="index" class="text-center">
+                <q-btn :disabled="stepPlayed" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_up" @click="previousCodeAnswer(index)" :test-id="'previous-image-' + index" />
+              </td>
+            </tr>
+            <tr>
+              <td v-for="(code, index) in playerCode" :key="index">
+                <img :id="'image-code-' + index" @click="enlargeThePicture(index)" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
+              </td>
+            </tr>
+            <tr>
+              <td v-for="(code, index) in playerCode" :key="index" class="text-center">
+                <q-btn :disabled="stepPlayed" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
+              </td>
+            </tr>
+          </table>
+          <div class="centered text-grey q-py-md">{{ $t('label.ClickToEnlargePictures') }}</div>
+          
+          <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
+            <div>
+              <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
+            </div>
+          </div>
+          <div class="centered" style="padding-bottom: 100px">
+            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+          </div>
+        </div>
+        <div v-if="!showTools" class="centered">
+          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -239,19 +279,27 @@
       <!------------------ SIMPLE TEXT INPUT STEP AREA ------------------------>
       
       <div class="write-text" v-if="step.type == 'write-text'">
-        <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+        <div v-if="showTools">
+          <div>
+            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          </div>
+          <div class="answer-text q-pa-md">
+            <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
+            <input 
+              class="subtitle6" 
+              v-bind:value="writetext.playerAnswer" 
+              v-on:input="writetext.playerAnswer = $event.target.value" 
+              :placeholder="$t('label.YourAnswer')" 
+              :class="{right: playerResult === true, wrong: playerResult === false}" 
+              :disabled="stepPlayed" />
+            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer"><div>{{ $t('label.ConfirmTheAnswer') }}</div></q-btn>
+          </div>
+          <div class="centered" style="padding-bottom: 100px">
+            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+          </div>
         </div>
-        <div class="answer-text q-pa-md" style="padding-bottom: 100px">
-          <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
-          <input 
-            class="subtitle6" 
-            v-bind:value="writetext.playerAnswer" 
-            v-on:input="writetext.playerAnswer = $event.target.value" 
-            :placeholder="$t('label.YourAnswer')" 
-            :class="{right: playerResult === true, wrong: playerResult === false}" 
-            :disabled="stepPlayed" />
-          <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer"><div>{{ $t('label.ConfirmTheAnswer') }}</div></q-btn>
+        <div v-if="!showTools" class="centered">
+          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -370,8 +418,18 @@
           <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled"></video>
         <!--</transition>-->
         <div>
-          <div v-if="isHybrid && !takingSnapshot && (step.options && step.options.snapshotAllowed)" style="position: absolute; top: 8px; right: 8px;z-index: 1990;">
+          <div v-if="isHybrid && !takingSnapshot" style="position: absolute; top: 8px; right: 8px;z-index: 1990;">
             <q-btn 
+              round 
+              size="lg"
+              class="text-white q-mr-md"
+              :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
+              :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}" 
+              icon="flip_camera_ios"  
+              @click="switchCamera()"
+            />
+            <q-btn 
+              v-if="step.options && step.options.snapshotAllowed"
               round 
               size="lg"
               class="text-white"
@@ -618,6 +676,7 @@ import holdphonevertically from 'components/holdPhoneVertically'
 import story from 'components/story'
 
 import Vue from 'vue'
+import debounce from 'lodash/debounce'
 
 // required for step 'locate-item-ar'
 import * as THREE from 'three'
@@ -680,6 +739,11 @@ export default {
     // seems always already done by "watch" on "reload" key // Uncommented by EMA on 122018, in some case watcher does not work
     //this.initData()
   },
+  updated: debounce(function () {
+    this.$nextTick(() => {
+      this.pageReady = true
+    })
+  }, 250),
   beforeDestroy() {
     // this is called every time route changes => cleanup all memory & CPU intensive tasks here
     
@@ -739,6 +803,7 @@ export default {
         cameraStreamEnabled: false,
         imageCapture: null,
         takingSnapshot: false,
+        cameraUsed: "environment",
         serverUrl: process.env.SERVER_URL,
         nbTry: 0,
         score: 0,
@@ -768,7 +833,7 @@ export default {
           ["7", "8", "9"],
           ["*", "0", "#"]
         ],
-        showKeypad: true,
+        showTools: true,
         codeColors: {},
         
         // for step type 'image-recognition' - MPA 2020-09-24
@@ -893,6 +958,8 @@ export default {
         
         // for cleanup
         latestRequestAnimationId: null,
+        
+        pageReady: false,
 
         //timer
         countdowntimeleft: 0
@@ -915,7 +982,6 @@ export default {
       this.displaySuccessIcon = defaultVars.displaySuccessIcon
       this.character = defaultVars.character
       this.playerCode = defaultVars.playerCode
-      this.showKeypad = defaultVars.showKeypad
       this.geolocation = defaultVars.geolocation
       this.deviceMotion = defaultVars.deviceMotion
       this.locateMarker = defaultVars.locateMarker
@@ -933,6 +999,8 @@ export default {
       this.enlargePicture = defaultVars.enlargePicture
       this.latestRequestAnimationId = defaultVars.latestRequestAnimationId
       this.countdowntimeleft = defaultVars.countdowntimeleft
+      this.pageReady = defaultVars.pageReady
+      this.showTools = defaultVars.showTools
       //this.currentcountdown = defaultVars.currentcountdown
     },
     /*
@@ -948,10 +1016,22 @@ export default {
       }
     },
     /*
+     * reset background image between steps
+     */
+    resetBackgroundImage () {
+      let background = document.getElementById('play-view')
+      background.style.background = 'none'
+      background.style.backgroundColor = 'transparent'
+      let backgroundImage = document.getElementById('background-image')
+      backgroundImage.style.background = 'none'
+      backgroundImage.style.backgroundColor = 'transparent'
+    },
+    /*
      * Init the component data
      */
     async initData () {
       this.resetData()
+      this.resetBackgroundImage()
       TWEEN.removeAll()
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
@@ -972,7 +1052,9 @@ export default {
           } else {
             // define if background image is a generic one or user defined one
             let backgroundUrl = this.getBackgroundImage()
-            background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+            let backgroundImage = document.getElementById('background-image')
+            //background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+            backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             // all background clickable for transitions
             //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
               //let clickable = document.getElementById('info-clickable')
@@ -1177,26 +1259,7 @@ export default {
               CameraPreview.startCamera(options)
               CameraPreview.show()
             } else {
-              var cameraStream = this.$refs['camera-stream-for-locate-item-ar']
-              // enable rear camera stream
-              // -------------------------
-              navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-              
-                .then((stream) => {
-                  // Hacks for Safari iOS
-                  cameraStream.setAttribute("muted", true)
-                  cameraStream.setAttribute("playsinline", true)
-                                  
-                  cameraStream.srcObject = stream
-                  cameraStream.play()
-                  this.cameraStreamEnabled = true
-                  this.$store.dispatch('addMediaStream', stream)
-                })
-                .catch((err) => {
-                  // TODO friendly behavior/message for user
-                  console.warn("No camera stream available")
-                  console.log(err)
-                });
+              this.launchVideoStreamForAndroid('camera-stream-for-locate-item-ar')
             }
           }
           
@@ -1305,30 +1368,7 @@ export default {
             //CameraPreview.setColorEffect("redfilter")
             CameraPreview.show()
           } else {
-            var cameraStream2 = this.$refs['camera-stream-for-image-over-flow']
-            // enable rear camera stream
-            // -------------------------
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-              .then((stream) => {
-                // Hacks for Safari iOS
-                cameraStream2.setAttribute("muted", true)
-                cameraStream2.setAttribute("playsinline", true)
-                                
-                cameraStream2.srcObject = stream
-                cameraStream2.play()
-                this.cameraStreamEnabled = true
-                this.$store.dispatch('addMediaStream', stream)
-                
-                // init video capturing
-                const track = stream.getVideoTracks()[0];
-                this.imageCapture = new ImageCapture(track);
-              })
-              .catch((err) => {
-                // TODO friendly behavior/message for user
-                console.warn("No camera stream available")
-                console.log(err)
-              }
-            )
+            this.launchVideoStreamForAndroid('camera-stream-for-image-over-flow', true)
           }
         }
         
@@ -1588,6 +1628,7 @@ export default {
       // if transition step, next button is clickable when controls are displayed
       if (this.step.type === 'info-text' || 
         this.step.type === 'info-video' || 
+        this.step.type === 'help' || 
         //this.step.type === 'character' || 
         this.step.type === 'image-over-flow' || 
         this.step.type === 'new-item' || 
@@ -1771,7 +1812,7 @@ export default {
      */
     async checkOfflineAnswer(answer) {
       const type = this.step.type
-      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'image-over-flow') {
+      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'help' || type === 'image-over-flow') {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }
       } /*else if (type === 'image-recognition') {
         return { result: answer, answer: this.answer, score: 0, reward: 0, offline: true }
@@ -1859,6 +1900,7 @@ export default {
         case 'info-text':
         case 'info-video':
         case 'new-item':
+        case 'help':
         case 'end-chapter':
         case 'character':
         case 'image-over-flow':
@@ -2349,6 +2391,7 @@ export default {
           case 'character': 
           case 'new-item': 
           case 'info-text': 
+          case 'help': 
           case 'end-chapter': 
           case 'info-video': 
           case 'image-over-flow': 
@@ -2470,14 +2513,18 @@ export default {
     /*
      * Display next text 
      */
-    nextCharacterBubbleText() {
+    async nextCharacterBubbleText() {
       if (this.character.bubbleNumber < (this.character.numberOfBubble - 1)) {
         this.character.bubbleNumber++
         this.character.needToScroll = false
         utils.setTimeout(this.checkIfTextIsHidden, 500)
       }
       if (this.character.bubbleNumber >= (this.character.numberOfBubble - 1)) {
-        this.checkAnswer()
+        if (!this.stepPlayed) {
+          await this.checkAnswer()
+        } else {
+          this.$emit('forceMoveNext')
+        }
       }
     },
     async checkIfTextIsHidden() {
@@ -2643,19 +2690,10 @@ export default {
       
       // otherwise, enable
       
-      let cameraStream = this.$refs['camera-stream-for-recognition']
       let photoBuffer = this.$refs['photo-buffer']
       let playerPhoto = this.$refs['player-photo']
       
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-        .then((stream) => {
-          cameraStream.srcObject = stream
-          cameraStream.play()
-          this.$store.dispatch('addMediaStream', stream)
-        })
-        .catch((err) => {
-          console.log("An error occured! " + err)
-        });
+      let cameraStream = this.launchVideoStreamForAndroid('camera-stream-for-recognition')
       
       cameraStream.addEventListener('canplay', (ev) => {
         if (!this.cameraStreamEnabled) {
@@ -2678,6 +2716,36 @@ export default {
           this.cameraStreamEnabled = true
         }
       }, false);
+    },
+    
+    launchVideoStreamForAndroid(container, initCapture, facingMode) {
+      if (!facingMode) {
+        facingMode = this.cameraUsed
+      }
+      let cameraStream = this.$refs[container]
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode }, audio: false })
+        .then((stream) => {
+          // Hacks for Safari iOS
+          cameraStream.setAttribute("muted", true)
+          cameraStream.setAttribute("playsinline", true)
+                          
+          cameraStream.srcObject = stream
+          cameraStream.play()
+          this.cameraStreamEnabled = true
+          this.$store.dispatch('addMediaStream', stream)
+          
+          if (initCapture) {
+            // init video capturing
+            const track = stream.getVideoTracks()[0];
+            this.imageCapture = new ImageCapture(track);
+          }
+        })
+        .catch((err) => {
+          // TODO friendly behavior/message for user
+          console.warn("No camera stream available")
+          console.log(err)
+        });
+      return cameraStream
     },
     /*
      * Check if a photo is similar to the one expected
@@ -3036,6 +3104,19 @@ export default {
             _this.$q.loading.hide()
             _this.$emit('showButtons')
           })
+      }
+    },
+    switchCamera() {
+      if (this.cameraUsed === 'environment') {
+        this.cameraUsed = 'user'
+      } else {
+          this.cameraUsed = 'environment'
+      }
+      if (this.isIOs && CameraPreview) {
+        CameraPreview.switchCamera()
+      } else {
+        this.clearAllCameraStreams()
+        this.launchVideoStreamForAndroid('camera-stream-for-image-over-flow', true)
       }
     },
     /*
@@ -4311,6 +4392,7 @@ export default {
   #play-view div.find-item,
   #play-view div.use-item {
     padding-bottom: 3rem;
+    position: relative;
   }
   
   .text,
@@ -4363,7 +4445,7 @@ export default {
   
   /* keypad specific (code) */
   .code { overflow: auto; }
-  .typed-code { text-align: center; margin: 1rem auto; }
+  .typed-code { text-align: center; margin: 1rem auto; position: relative; }
   .typed-code table { margin: auto; border-collapse: collapse; background-color: rgba(255, 255, 255, 0.6); }
   .typed-code td { width: 2rem; height: 3rem; border: 1px solid black; vertical-align: middle; text-align: center; line-height: 3rem; }
   .typed-code td.typed { font-weight: bold; font-size: 1.7rem; }
@@ -4373,10 +4455,11 @@ export default {
   
   /* color code specific */
   
-  .code-color .color-bubbles { margin-top: 5rem; display: flex; flex-flow: row nowrap; justify-content: center; }
+  .code-color .color-bubbles { margin-top: 5rem; display: flex; flex-flow: row nowrap; justify-content: center; position: relative; }
   .code-color .color-bubbles div { display: block; width: 4rem; height: 4rem; border: 4px solid black; border-radius: 2rem; margin: 0.3rem; transition: background-color 0.3s; }
   
   /* image code specific */
+  .code-image { position: relative; }
   .code-image td { width: 20% }
   .code-image td img { width: 100% }
   .code-image td .q-icon { font-size: 2em }
@@ -4393,6 +4476,9 @@ export default {
   
   /* jigsaw puzzle specific */
   
+  .puzzle {
+    position: relative;
+  }
   #pieces { 
     padding: 0; 
     margin: 0; 
@@ -4422,7 +4508,7 @@ export default {
     
   /* new-item specific */
   
-  .new-item .item { text-align: center; }
+  .new-item .item { text-align: center; position: relative;}
   .new-item .item p { font-size: 2rem; }
   
   /* locate-item-ar specific */
@@ -4443,6 +4529,7 @@ export default {
   
   /* locate-marker specific */
   
+  .locate-marker { position: relative; }
   .locate-marker video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .locate-marker .marker-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
   .locate-marker #marker-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }
