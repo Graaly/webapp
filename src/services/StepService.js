@@ -12,7 +12,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    let res = await Api()
+    let res = await Api(process.env.STEP_SERVERLESS_URL)
       .get("quest/" + questId + "/version/" + version + "/steps/lang/" + lang)
       .catch(error => console.log(error.request));
     return res;
@@ -28,7 +28,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    let res = await Api()
+    let res = await Api(process.env.STEP_SERVERLESS_URL)
       .get(
         "quest/" +
           questId +
@@ -49,7 +49,7 @@ export default {
    * @param   {Number}    version        version of the quest
    */
   async listWonObjects(questId, stepId, version) {
-    let res = await Api()
+    let res = await Api(process.env.STEP_SERVERLESS_URL)
       .get(
         "quest/" +
           questId +
@@ -72,7 +72,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    let res = await Api()
+    let res = await Api(process.env.STEP_SERVERLESS_URL)
       .get("step/" + stepId + "/version/" + version + "/lang/" + lang)
       .catch(error => console.log(error.request));
     return res;
@@ -83,7 +83,7 @@ export default {
    * @param   {String}    number         Number of the step
    *
   async getByNumber (questId, number) {
-    let res = await Api().get('quest/' + questId + '/step/number/' + number).catch(error => console.log(error.request))
+    let res = await Api(process.env.STEP_SERVERLESS_URL).get('quest/' + questId + '/step/number/' + number).catch(error => console.log(error.request))
     return res
   },*/
   /*
@@ -95,7 +95,7 @@ export default {
    * @param   {String}    player          Player number ('P1', 'P2', ...)
    */
   async checkAnswer(questId, stepId, version, runId, answer, player) {
-    let res = await Api()
+    let res = await Api(process.env.STEP_SERVERLESS_URL)
       .post(
         "quest/" +
           questId +
@@ -118,7 +118,7 @@ export default {
    * @param   {Number}    version        version of the quest
    */
   async countForAQuest(questId, version) {
-    let res = await Api()
+    let res = await Api(process.env.STEP_SERVERLESS_URL)
       .get("quest/" + questId + "/version/" + version + "/steps/count")
       .catch(error => console.log(error.request));
     return res;

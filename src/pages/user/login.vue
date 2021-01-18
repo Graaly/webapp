@@ -19,7 +19,6 @@
           <div>
             
             <q-input
-              id="loginemail"
               outlined
               type="email"
               :label="$t('label.YourEmail')"
@@ -27,17 +26,16 @@
               @blur="$v.form.email.$touch"
               :error="$v.form.email.$error"
               :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
-              test-id="login"
+              test-id="emailLogin"
               />
             
             <q-input 
-              id="loginPass"
               outlined
               type="password" 
               v-model="form.password" 
               :label="$t('label.YourPassword')" 
               v-if="step !== 'forgottenpassword'"
-              test-id="password"
+              test-id="passLogin"
               />
             
             <!------------------ FORGOTTEN PASS AREA ------------------------>
@@ -74,21 +72,24 @@
               :loading="submitting" 
               />
           </div>
+      <!--THIS WILL BE USED IN THE FUTURE
           <div class="centered q-mt-sm q-mb-lg">
             <img 
+              id="googleLogin"
               @click="goToGoogleLogin()" 
               src="statics/images/login/google.png" 
               class="logo-top" 
               style="cursor: pointer;"
             />
             <img 
+              id="facebookLogin"
               @click="goToFacebookLogin()" 
               src="statics/images/login/fb.png" 
               class="logo-top" 
               style="cursor: pointer;" 
             />
           </div>
-
+-->
           <div class="centered q-mt-sm q-mb-xl">
             <q-btn flat @click="goToSubscribe()">{{ $t('label.Subscribe') }}</q-btn>
           </div>
@@ -102,6 +103,7 @@
             color="accent"
             @click="startScanQRCode()"
             :label="$t('label.ScanQRCodeToStartQuest')"
+            test-id="qrcodestart"
             />
         </div>
         
@@ -155,6 +157,7 @@
             bottom-slots
             :error="$v.form.email.$error"
             :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
+            test-id="forgotpassInput"
             />
           
           <q-btn 

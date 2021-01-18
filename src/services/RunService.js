@@ -6,7 +6,7 @@ export default {
    * @param   {String}    id                  ID of the run
    */
   getById(id) {
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
       .get("run/" + id)
       .catch(error => console.log(error.request));
   },
@@ -15,7 +15,7 @@ export default {
    * @param   {String}    questId                  ID of the quest
    */
   listForAQuest(questId) {
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
       .get("run/quest/" + questId)
       .catch(error => console.log(error.request));
   },
@@ -24,7 +24,7 @@ export default {
    * @param   {String}    questId                  ID of the quest
    */
   listPlayersForThisQuest(questId) {
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
       .get("run/quest/" + questId + "/ranking/friends")
       .catch(error => console.log(error.request));
   },
@@ -33,7 +33,7 @@ export default {
    * @param   {String}    questId                  ID of the quest
    */
   checkNumberOfPlayers(questId) {
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
       .get("run/quest/" + questId + "/players/number")
       .catch(error => console.log(error.request));
   },
@@ -42,7 +42,7 @@ export default {
    * @param   {String}    questId                  ID of the quest
    */
   getRankingForAQuest(questId) {
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
       .get("run/quest/" + questId + "/ranking")
       .catch(error => console.log(error.request));
   },
@@ -51,7 +51,7 @@ export default {
    * @param   {Object}    data        Data of the step
    */
   updateFromOffline(data) {
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
       .put("run/" + data._id + "/quest/" + data.questId + "/update", data)
       .catch(error => console.log(error.request));
   },
@@ -61,7 +61,8 @@ export default {
    * @param   {String}    player                 Player number ('P1', 'P2', ...)
    */
   getNextStep(questId, player) {
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
+    //TODO : this is still bugging, idk why
       .get("run/" + questId + "/step/next/player/" + player)
       .catch(error => console.log(error.request));
   },
@@ -72,7 +73,7 @@ export default {
    * @param   {String}    player                 Player number ('P1', 'P2', ...)
    */
   getMarkerNextStep(questId, markerCode, player) {
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
       .get(
         "run/" + questId + "/marker/" + markerCode + "/next/player/" + player
       )
@@ -84,7 +85,7 @@ export default {
    * @param   {String}    runId          ID of the run
    */
   async listWonObjects(questId, runId) {
-    let res = await Api()
+    let res = await Api(STEP_SERVERLESS_URL)
       .get("quest/" + questId + "/runs/" + runId + "/objectswon")
       .catch(error => console.log(error.request));
     return res;
@@ -100,7 +101,7 @@ export default {
     if (!lang) {
       lang = "default";
     }
-    let res = await Api().get(
+    let res = await Api(process.env.RUN_SERVERLESS_URL).get(
       "run/" +
         runId +
         "/step/" +
@@ -124,7 +125,7 @@ export default {
     if (!teamName) {
       teamName = "noteamnamedefined";
     }
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
       .post(
         "run/quest/" +
           questId +
@@ -168,7 +169,7 @@ export default {
    * @param   {String}    code                Code to join
    */
   addTeamPlayer(code) {
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
       .post("run/join/" + code)
       .catch(error => console.log(error.request));
   },
@@ -178,7 +179,7 @@ export default {
    * @param   {String}    name                Team name
    */
   createATeam(runId, name) {
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
       .post(
         "run/quest/" +
           questId +
@@ -196,7 +197,7 @@ export default {
    * @param   {String}    runId               ID of the run
    */
   checkTeamIsReady(runId) {
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
       .get("run/" + runId + "/check/team/ready")
       .catch(error => console.log(error.request));
   },
@@ -209,7 +210,7 @@ export default {
    * @param   {String}    lang                Language concerned
    */
   endRun(id, offlineRunData, questId, version, language) {
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
       .put(
         "run/" +
           id +
@@ -231,7 +232,7 @@ export default {
    * @param   {String}    player              Player number ('P1', 'P2', ...)
    */
   passStep(id, stepId, player) {
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
       .put("run/" + id + "/passstep/" + stepId + "/player/" + player)
       .catch(error => console.log(error.request));
   },
@@ -240,7 +241,7 @@ export default {
    * @param   {String}    id                  ID of the quest
    */
   closeInProgressRuns(id) {
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
       .post("run/quest/" + id + "/close")
       .catch(error => console.log(error.request));
   },
@@ -249,7 +250,7 @@ export default {
    * @param   {String}    id                  ID of the quest
    */
   createMultiplayerRunForTesters(id) {
-    return Api()
+    return Api(process.env.RUN_SERVERLESS_URL)
       .post("run/quest/" + id + "/test/create")
       .catch(error => console.log(error.request));
   }

@@ -68,11 +68,11 @@ export default {
    */
   getAccount(id) {
     if (id && id !== "me") {
-      return Api()
+      return Api(process.env.USER_SERVERLESS_URL)
         .get("user/" + id + "/profile")
         .catch(error => console.log(error.request));
     } else {
-      return Api()
+      return Api(process.env.AUTH_SERVERLESS_URL)
         .get("account")
         .catch(error => console.log(error.request));
     }
