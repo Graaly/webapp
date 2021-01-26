@@ -1039,10 +1039,14 @@ export default {
      * get audio sound
      */
     getAudioSound () {
-      if (this.info.quest.customization && this.info.quest.customization.audio && this.info.quest.customization.audio.indexOf('blob:') !== -1) {
-        this.info.audio = this.info.quest.customization.audio
+      if (this.info.quest.customization && this.info.quest.customization.audio) {
+        if (this.info.quest.customization.audio.indexOf('blob:') !== -1) {
+          this.info.audio = this.info.quest.customization.audio
+        } else {
+          this.info.audio = this.serverUrl + '/upload/quest/' + this.info.quest.customization.audio
+        }
       } else {
-        this.info.audio = this.serverUrl + '/upload/quest/' + this.info.quest.customization.audio
+        this.info.audio = null
       }
     },
     /*
@@ -1060,10 +1064,6 @@ export default {
       this.loadStepData = false
       
       if (this.next.enabled) {
-        /*utils.clearAllRunningProcesses()
-        this.resetData()
-        await this.initData()
-        */
         await this.moveToNextStep('success')
       } else if (this.next.canPass) {
         if (force) {

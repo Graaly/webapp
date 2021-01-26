@@ -376,24 +376,6 @@
         </div>
       </div>
       
-      <!------------------ STEP : IMAGE RECOGNITION ------------------------>
-      <!-- MPA 2020-09-24 not used
-      <div v-if="options.type.code == 'image-recognition'" class="image-recognition">
-        <div v-if="!isIOs">
-          <q-btn class="full-width" :label="$t('label.UploadThePictureOfTheObjectToFind')" @click="$refs['image-to-recognize'].click()" />
-          <input @change="uploadImageToRecognize" ref="image-to-recognize" id="image-to-recognize" type="file" accept="image/*" hidden />
-        </div>
-        <div v-if="isIOs">
-          {{ $t('label.UploadThePictureOfTheObjectToFind') }}:
-          <input @change="uploadImageToRecognize" ref="image-to-recognize" id="image-to-recognize" type="file" accept="image/*" />
-        </div>
-        <p v-show="$v.selectedStep.form.answers.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-        <div v-if="selectedStep.form.answers != ''">
-          <p>{{ $t('label.UploadedPicture') }} :</p>
-          <img :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + selectedStep.form.answers" />
-        </div>
-      </div>-->
-      
       <!------------------ STEP : JIGSAW PUZZLE ------------------------>
       
       <div v-if="options.type.code === 'jigsaw-puzzle'">
@@ -988,8 +970,8 @@
       
       <q-list v-show="options.type.showTrick == 'yes'" bordered>
         <q-expansion-item icon="lightbulb" :label="$t('label.Hints')">
-          <div class="q-pa-sm">
-            <div v-if="selectedStep.form.hint && selectedStep.form.hint[lang] && selectedStep.form.hint[lang].length > 0" v-for="(item, key) in selectedStep.form.hint[lang]" :key="key">
+          <div class="q-pa-sm" v-if="selectedStep.form.hint && selectedStep.form.hint[lang] && selectedStep.form.hint[lang].length > 0">
+            <div v-for="(item, key) in selectedStep.form.hint[lang]" :key="key">
               <q-btn class="float-right" @click="removeHint(key)"><q-icon name="delete" /></q-btn>
               <div class="text-subtitle1">{{ $t('label.Hint') + " " + (key + 1) }}</div>
               {{ item }}
@@ -1578,11 +1560,7 @@ export default {
         if (this.options.type.code === 'character' && !this.selectedStep.form.options.character) {
           Vue.set(this.selectedStep.form.options, 'character', '1')
         }
-      } /*else if (this.options.type.code === 'image-recognition') {
-        if (typeof this.selectedStep.form.answers !== 'string') {
-          this.selectedStep.form.answers = ""
-        }
-      }*/ else if (this.options.type.code === 'find-item') {
+      } else if (this.options.type.code === 'find-item') {
         if (this.selectedStep.form.options.hasOwnProperty('nbAreas')) {
           //this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers
           this.$nextTick(function () {
@@ -1998,7 +1976,7 @@ export default {
      */
     async changeNewConditionType() {
       this.selectedStep.newCondition.values.length = 0
-      const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', /*'image-recognition',*/ 'jigsaw-puzzle', 'memory']
+      const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', 'jigsaw-puzzle', 'memory']
       if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail') {
         const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version, 'all')
         if (response && response.data && response.data.length > 0) {
@@ -3004,9 +2982,6 @@ export default {
       case 'info-video':
         fieldsToValidate.videoStream = { required }
         break
-      /*case 'image-recognition':
-        fieldsToValidate.answers = { required }
-        break*/
       case 'jigsaw-puzzle':
         fieldsToValidate.options = { picture: { required } }
         break
@@ -3063,7 +3038,6 @@ p { margin-bottom: 0.5rem; }
 .add-answer { margin: 0.5rem auto; }
 
 .background-upload { padding-bottom: 10px; margin-bottom: 10px; background: #efefef; text-align: center;}
-/*.background-upload img, .image-recognition img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }*/
 
 .code-color h2 { margin-bottom: 0; }
 .code-color table { margin: auto; }
