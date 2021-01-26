@@ -776,15 +776,6 @@ export default {
               this.warnings.stepDataMissing = true
             }
           }
-          /* MPA 2020-09-04 not used since several months
-          if (tempStep.type === 'image-recognition' && tempStep.answers && tempStep.answers !== '') {
-            const imageRecognitionUrl = await utils.readBinaryFile(this.questId, tempStep.answers)
-            if (imageRecognitionUrl) {
-              tempStep.answers = imageRecognitionUrl
-            } else {
-              this.warnings.stepDataMissing = true
-            }
-          }*/
           if (tempStep.type === 'choose' && tempStep.options) {
             for (var k = 0; k < tempStep.options.length; k++) {
               if (tempStep.options[k].imagePath) {

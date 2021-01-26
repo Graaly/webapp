@@ -276,7 +276,6 @@ After running `npm install` in project folder, you can install latest version of
 * for *choose*, array of objects `{ text: <String>, isRightAnswer: <bool> }` (for text)
                              or `{ imagePath: <String>, isRightAnswer: <bool> }` (for images)
 * for *code*, a `Number`
-* for *image-recognition*, a `String` (path of the image to recognize)
 * for *geolocation*, a position object `{ lat: Number, lng: Number }`
 * for *write-text*, a `String`
 * for *new-item*, a `String` (item code)
