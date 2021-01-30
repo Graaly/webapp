@@ -962,6 +962,7 @@ export default {
       
       if (['geolocation', 'locate-item-ar'].includes(this.step.type)) {
         try {
+          // can trigger an error in console which cannot be avoided
           cordova.plugins.headingcalibration.stopWatchCalibration();
         } catch (err) {}
       }
@@ -1738,7 +1739,7 @@ export default {
       
       // alert if the network is low
       var _this = this
-      var lowNetworkTimeout = setTimeout(function () { _this.isNetworkLow = true }, 8000)
+      var lowNetworkTimeout = utils.setTimeout(function () { _this.isNetworkLow = true }, 8000)
 
       var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player)
 
@@ -1760,14 +1761,8 @@ export default {
         if (displaySpinner) {
           this.$q.loading.hide()
         }
-        // check offline answer
-        //if (this.answer) {
-          let checkAnswerOfflineResult = await this.checkOfflineAnswer(answerData.answer)
-          return checkAnswerOfflineResult
-        //} else {
-        //  Notification(this.$t('label.ErrorStandardMessage'), 'error')
-        //  return false
-        //}
+        
+        return this.checkOfflineAnswer(answerData.answer)
       }
     },
     /*
@@ -1791,9 +1786,11 @@ export default {
             return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
           }
         } else {
+          const ww = (answer && answer.windowWidth) ? answer.windowWidth : (this.getScreenWidth() / 100)
+          
           let answerPixelCoordinates = {
-            left: Math.round(this.answer.coordinates.left / 100 * 100 * answer.windowWidth),
-            top: Math.round(this.answer.coordinates.top / 100 * 133 * answer.windowWidth)
+            left: Math.round(this.answer.coordinates.left / 100 * 100 * ww),
+            top: Math.round(this.answer.coordinates.top / 100 * 133 * ww)
           }
           
           // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
@@ -1870,11 +1867,6 @@ export default {
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
           this.submitGoodAnswer(0, checkAnswerResult.offline, false)
-          //if (CameraPreview) {
-          //  CameraPreview.stopCamera()
-          //  CameraPreview.stopCamera() // calling twice is needed
-          //}
-          
           break
           
         case 'choose':

@@ -606,12 +606,6 @@ export default {
         } else {
           // if first step => init run
           await this.updateOfflineRun(this.questId)
-          /*this.$q.dialog({
-            title: this.$t('label.TechnicalProblem'),
-            message: this.$t('label.TechnicalProblemNetworkIssue')
-          }).onOk(() => {
-            this.$router.push('/quest/play/' + this.quest.questId)
-          })*/
         }
       }
       
@@ -699,7 +693,7 @@ export default {
             return false
           }
         }
-      }    
+      }
 
       if (stepId === 'locationMarker') {
         // QR Code scanner step
@@ -711,7 +705,7 @@ export default {
       if (stepId === 'end') {
         return this.$router.push('/quest/' + this.questId + '/end')
       }
-
+      
       // check if the quest data are not already saved on device
       let isStepOfflineLoaded = await this.checkIfStepIsAlreadyLoaded(stepId)
       
@@ -995,7 +989,6 @@ export default {
         } else {
           //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + next + '/' + this.$route.params.lang)
           this.moveToStep(next)
-          //this.stopMarkersSensors()
         }        
       }
     },
@@ -1076,10 +1069,7 @@ export default {
         await RunService.passStep(this.run._id, this.step.id, this.player)
       }
       
-      //if (!passSuccess) {
-        // offline treatment
       await this.passOfflineStep(this.step.id)
-      //}
       
       // TODO: manage if pass failed
       await this.moveToNextStep('pass')
@@ -1378,14 +1368,6 @@ export default {
         }
       }
     },
-    /*
-     * count number of steps in a quest
-     * @param   {string}    id             Quest ID
-     *
-    async countStepsNumber(id) {
-      let response = await StepService.countForAQuest(id, this.run.version)
-      this.info.stepsNumber = (response && response.data && response.data.count) ? response.data.count : 1
-    },*/
     /*
      * Select an item in the inventory
      * @param   {object}    item            Item selected
@@ -1691,16 +1673,6 @@ export default {
       }
     },
     /**
-     * Adds step with <StepId> to run object <run> history and saves it to offline file
-     * /!\ WARNING /!\ copied & adapted from server side file controller/run.js to handle online mode
-     * @param {String} stepId 
-     *
-    async addStepToHistory (stepId) {
-      this.run.history.push(stepId)
-      this.run.historyIndex = this.run.history.length
-      await this.saveOfflineRun(this.questId, this.run)
-    },
-    /*
      * Get the next offline step
      * /!\ WARNING /!\ copied & adapted from server side file controller/run.js to handle online mode
      */

@@ -358,12 +358,12 @@ export default {
   },
   /*
    * list user invitations to private quests
-   */
+   * MPA 2021-01-28 looks unused, remove in a few months?
   getInvitations() {
     return Api()
       .get("user/quests/invitations/list")
       .catch(error => console.log(error.request));
-  },
+  },*/
   /*
    * Upload a quest picture
    * @param   {Object}    data                picture data
@@ -697,12 +697,4 @@ export default {
       return "statics/images/quest/default-quest-picture.png";
     }
   }
-
-  /*
-   * Check if network is ok
-   * MP 2019-05-21 seems not used, maybe remove after a few weeks?
-   */
-  /*checkNetwork () {
-    return Api().get('check').catch(error => console.log(error.request))
-  }*/
 };
