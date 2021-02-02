@@ -1489,6 +1489,11 @@ export default {
         this.players.push({ label: this.$t('label.Player') + " " + (p + 1), value: 'P' + (p + 1) })
       }
       
+      // initialize option for Ken Burns (zoom out) effect on background
+      if (!this.selectedStep.form.options.hasOwnProperty('kenBurnsEffect')) {
+        this.selectedStep.form.options.kenBurnsEffect = false
+      }
+      
       // initialize specific steps
       if (this.options.type.code === 'choose') {
         if (!this.selectedStep.form.options || !this.selectedStep.form.options.items || !Array.isArray(this.selectedStep.form.options.items)) {
@@ -3033,7 +3038,7 @@ p { margin-bottom: 0.5rem; }
 .answer p { min-width: 1rem; margin: 0; }
 .answer img { width: 50vw; max-width: 450px; }
 .answer .q-radio { padding-right: 0.5rem; }
-.answer .q-btn { padding: 0.3rem; margin: 0.2rem; }
+.answer .q-btn { margin: 0.2rem; }
 .answer .error-label { flex-grow: 1; }
 .add-answer { margin: 0.5rem auto; }
 
@@ -3062,7 +3067,7 @@ p { margin-bottom: 0.5rem; }
 .inventory .q-icon { width: 3rem; height: 3rem; font-size: 3rem; }
 
 .error-label { color: #db2828; }
-.answer .error-label { font-size: 0.8rem; white-space: nowrap; }
+.answer .error-label { font-size: 1rem; white-space: nowrap; }
 
 #save-changes-modal .q-card__actions .q-btn { flex-grow: 1; }
 

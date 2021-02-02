@@ -458,7 +458,7 @@
           <q-btn color="primary" icon="fas fa-plus-circle" @click="addStep()" :label="$t('label.AddAStep')" />
         </p>-->
         <!-- using https://github.com/timruffles/ios-html5-drag-drop-shim to allow drag & drop on mobile -->
-        <ul class="list-group" v-sortable="{ onUpdate: onChapterListUpdate, handle: '.handle' }">
+        <ul class="list-group advanced" v-sortable="{ onUpdate: onChapterListUpdate, handle: '.handle' }">
           <li class="step-list list-group-item" v-for="chapter in chapters.items" :key="chapter._id">
             <q-icon v-if="!readOnly" class="handle" name="reorder" />
             <div>

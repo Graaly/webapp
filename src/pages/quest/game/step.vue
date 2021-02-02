@@ -95,12 +95,6 @@
             <p v-if="run && run.team && run.team.name">
               {{ $t('label.Team') }} : {{ run.team.name }}
             </p>
-           <!-- <p v-if="info.quest.countDownTime.enabled">
-              {{ "temspsms tresetran: " }} : {{ info.quest.countDownTime.time }}
-            </p>-->
-
-            <!--<q-linear-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-linear-progress>-->
-            <!--<p class="q-pa-md score-text" v-show="info && !offline.active && (!info.quest.customization || !info.quest.customization.removeScoring)">{{ $t('label.CurrentScore') }}: {{ info.score }} <q-icon color="white" name="fas fa-trophy" />-</p>-->
             <p>
               <q-btn 
               v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring" 
@@ -192,7 +186,6 @@
     <!------------------ FOOTER AREA ------------------------>
     
     <div v-show="footer.show" class="step-menu fixed-bottom">
-      <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
       <div class="row white-buttons">
         <div class="col centered q-pb-md">
           <q-btn 
@@ -218,15 +211,13 @@
         </div>
         <div class="col centered q-pb-md">
           <q-btn 
-            round 
-            size="lg" 
+            round
+            size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="work" 
             :class="{'flashing': inventory.suggest, 'bg-secondary': inventory.isOpened, 'bg-primary': (!inventory.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
             @click="openInventory()" 
-          />  
-            <!--v-show="inventory.show" 
-          />-->
+          />
         </div>
         <div class="col centered q-pb-md">
           <q-btn 
