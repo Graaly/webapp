@@ -1,7 +1,7 @@
 <template>
   <div class="q-px-md">
     <div class="float-right bar-link">
-      <a v-if="link" @click="clickLink">{{link.text}}</a>
+      <a v-if="link" class="cursor-pointer" @click="clickLink">{{link.text}}</a>
     </div>
     <div :class="'title-bar ' + title.type + '-bar'">
       {{ title.text }}

@@ -1,6 +1,5 @@
 <template>
-  <div>
-    
+  <div class="reduce-window-size-desktop">
     <div class="centered bg-warning q-pa-sm" v-if="warnings.stepDataMissing" @click="initData()">
       <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
     </div>
@@ -68,18 +67,32 @@
       </div>
     </transition>
     <q-dialog maximized v-model="inventory.detail.isOpened">
-      <div class="bg-white centered">
-        <img style="width: 100%" :src="inventory.detail.url">
+      <div class="bg-white centered limit-size-desktop">
+        <img v-if="inventory.detail.zoom === 1" style="width: 100%" :src="inventory.detail.url">
+        <div v-if="inventory.detail.zoom === 2" style="width: 100%; height: 100vw; overflow-x: scroll; overflow-y: scroll;">
+          <img style="width: 200%" :src="inventory.detail.url">
+        </div>
+        <div v-if="inventory.detail.zoom === 4" style="width: 100%; height: 100vw; overflow-x: scroll; overflow-y: scroll;">
+          <img style="width: 400%" :src="inventory.detail.url">
+        </div>
         <div class="q-pa-md">{{ inventory.detail.title }}</div>
         <div class="q-pa-md text-grey">{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>
         <q-btn class="glossy normal-button" color="primary" @click="closeInventoryDetail()"><div>{{ $t('label.Close') }}</div></q-btn>
+        <div>
+          <q-btn-group outline>
+            <q-btn flat :label="$t('label.Zoom')"/>
+            <q-btn flat :class="{ 'text-primary': (inventory.detail.zoom === 1) }" label="x1" @click="inventoryZoom(1)" />
+            <q-btn flat :class="{ 'text-primary': (inventory.detail.zoom === 2) }" label="x2" @click="inventoryZoom(2)" />
+            <q-btn flat :class="{ 'text-primary': (inventory.detail.zoom === 4) }" label="x4" @click="inventoryZoom(4)" />
+          </q-btn-group>
+        </div>
       </div>
     </q-dialog>
     
     <!------------------ INFO PAGE AREA ------------------------>
     
     <transition name="slideInBottom">
-      <div v-show="info.isOpened">
+      <div class="reduce-window-size-desktop" v-show="info.isOpened">
         <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="getQuest(questId)">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
@@ -154,20 +167,20 @@
     
     <!--====================== HINT =================================-->
     
-    <div class="fixed-bottom over-map" v-if="hint.isOpened">
+    <div class="mobile-fit over-map" :class="'font-' + info.quest.customization.font" v-if="hint.isOpened">
       <story step="hint" :data="{hint: hint.label, character: (info.quest.customization && info.quest.customization.character && info.quest.customization.character !== '') ? (info.quest.customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + info.quest.customization.character : info.quest.customization.character) : '3'}" @next="askForHint()"></story>
     </div>
     
     <!--====================== STORY =================================-->
     
-    <div class="fixed-bottom over-map" v-if="story.step !== null && story.step !== 'end'">
+    <div class="mobile-fit over-map" :class="'font-' + info.quest.customization.font" v-if="story.step !== null && story.step !== 'end'">
       <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
     </div>
     
     <!--====================== FEEDBACK =================================-->
     
     <q-dialog v-model="feedback.isOpened">
-      <div class="bg-white q-pa-md">
+      <div class="bg-white q-pa-md reduce-window-size-desktop">
         <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.FeedbackTitle') }}</div>
         {{ $t('label.FeedbackIntroduction') }}
         <form @submit.prevent="sendFeedback">
@@ -191,7 +204,7 @@
       
     <!------------------ FOOTER AREA ------------------------>
     
-    <div v-show="footer.show" class="step-menu fixed-bottom">
+    <div v-show="footer.show" class="step-menu step-menu-fixed fixed-bottom">
       <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
       <div class="row white-buttons">
         <div class="col centered q-pb-md">
@@ -322,7 +335,8 @@ export default {
           show: true,
           detail: {
             isOpened: false,
-            url: ''
+            url: '',
+            zoom: 1
           }
         },
         hint: {
@@ -360,6 +374,7 @@ export default {
         player: 'P1',
         isRunFinished: false,
         remotePlay: false,
+        dataSharedWithPartner: false,
         //cameraStreamEnabled: false,
         isHybrid: window.cordova,
         serverUrl: process.env.SERVER_URL,
@@ -514,6 +529,7 @@ export default {
       
       var currentChapter = 0
       var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
+      var dataSharedWithPartner = (this.$route.query.hasOwnProperty('sharepartner') && this.$route.query.sharepartner === 'true')
       
       // check if a run is created on offline mode
       const isRunOfflineLoaded = await this.checkIfRunIsAlreadyLoaded(this.questId)
@@ -563,7 +579,7 @@ export default {
         // init the run on the server
         if (currentChapter === 0) {
           // no 'in-progress' run => create run for current player & current quest
-          let res = await RunService.init(this.questId, this.questVersion, this.$route.params.lang, remotePlay)
+          let res = await RunService.init(this.questId, this.questVersion, this.$route.params.lang, remotePlay, null, dataSharedWithPartner)
           if (res.status === 200 && res.data && res.data._id) {
             if (isRunOfflineLoaded) {
               // if a offline run already exists
@@ -645,6 +661,7 @@ export default {
         stepId = forceStepId
       } else {
         var response
+
         if (!this.offline.active) {
           response = await RunService.getNextStep(this.questId, this.player)
           
@@ -714,7 +731,7 @@ export default {
 
       // check if the quest data are not already saved on device
       let isStepOfflineLoaded = await this.checkIfStepIsAlreadyLoaded(stepId)
-      
+
       if (!isStepOfflineLoaded || forceNetworkLoading) {
         const response2 = await StepService.getById(stepId, this.questVersion, this.lang)
         if (response2 && response2.data && response2.status === 200) {
@@ -786,11 +803,11 @@ export default {
             }
           }*/
           if (tempStep.type === 'choose' && tempStep.options) {
-            for (var k = 0; k < tempStep.options.length; k++) {
-              if (tempStep.options[k].imagePath) {
-                var chooseImageUrl = await utils.readBinaryFile(this.questId, tempStep.options[k].imagePath)
+            for (var k = 0; k < tempStep.options.items.length; k++) {
+              if (tempStep.options.items[k].imagePath) {
+                var chooseImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.items[k].imagePath)
                 if (chooseImageUrl) {
-                  tempStep.options[k].imagePath = chooseImageUrl
+                  tempStep.options.items[k].imagePath = chooseImageUrl
                 } else {
                   this.warnings.stepDataMissing = true
                 }
@@ -1400,6 +1417,7 @@ export default {
      * @param   {object}    item            Item selected
      */
     selectItem(item) {
+      this.inventory.detail.zoom = 1
       if (this.step.type !== 'use-item') {
         this.inventory.detail.isOpened = true
         if (item.pictures && item.pictures[this.lang] && item.pictures[this.lang] !== '') {
@@ -1419,6 +1437,10 @@ export default {
     },
     closeInventoryDetail() {
       this.inventory.detail.isOpened = false
+    },
+    inventoryZoom(zoomLevel) {
+      Vue.set(this.inventory.detail, 'zoom', zoomLevel)
+      this.$forceUpdate()
     },
     /*
      * Show the feedback box
@@ -1530,6 +1552,7 @@ export default {
           stars: 0,
           reward: 0,
           remotePlay: this.remotePlay,
+          dataSharedWithPartner: this.dataSharedWithPartner,
           dateCreated: new Date(),
           dateUpdated: new Date(),
           answers: [],

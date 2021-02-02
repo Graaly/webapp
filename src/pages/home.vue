@@ -110,7 +110,7 @@
       
       <!--====================== CREATE QUEST BUTTON =================================-->
       
-      <div v-if="!offline.active" class="q-ma-md relative-position creator-button" @click="buildQuest">
+      <div v-if="!offline.active" class="q-ma-md relative-position creator-button cursor-pointer" @click="buildQuest">
         <img src="statics/images/other/creator.jpg" class="full-width" />
         <div class="bg-accent subtitle2 q-pa-md full-width" style="bottom: 0px; position: absolute; line-height: 0.8em;">
           <div class="float-right"><img src="statics/images/icon/puzzle-big.svg" style="width: 32px" /></div>
@@ -121,7 +121,7 @@
       <!--====================== MAP BUTTON =================================-->
       
       <div class="q-px-md q-py-lg" v-if="!offline.active">
-        <div class="image-button" @click="openMap" style="background-image: url(statics/images/icon/locator-button.png)">
+        <div class="image-button cursor-pointer" @click="openMap" style="background-image: url(statics/images/icon/locator-button.png)">
           {{ $t('label.OpenTheMap') }}
         </div>
       </div>
@@ -132,10 +132,10 @@
         <div class="home-header row no-wrap" :class="{'disabled': offline.active}">
           <img src="statics/images/logo/logo-header-color.png" class="logo" />
           <q-space />
-          <img v-if="$store.state.user.isAdmin" src="statics/images/icon/tools.png" class="header-button q-mr-md" @click="openAdminPage" />
-          <img src="statics/images/icon/search.svg" class="header-button q-mr-md" @click="openSearch" />
-          <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" class="header-button q-mr-md" @click="openRanking" />
-          <q-avatar @click="openProfile()">
+          <img v-if="$store.state.user.isAdmin" src="statics/images/icon/tools.png" class="header-button q-mr-md cursor-pointer" @click="openAdminPage" />
+          <img src="statics/images/icon/search.svg" class="header-button q-mr-md cursor-pointer" @click="openSearch" />
+          <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" class="header-button q-mr-md cursor-pointer" @click="openRanking" />
+          <q-avatar class="cursor-pointer" @click="openProfile()">
             <img :src="getProfileImage()" />
           </q-avatar>
         </div>

@@ -233,6 +233,22 @@ body {
 .concertone {
   font-family: 'concertone';
 }
+.font-standard {
+  font-family: 'concertone';
+}
+.font-arial {
+  font-family: arial;
+}
+.font-garamond {
+  font-family: Garamond, serif;
+}
+.font-courrier {
+  font-family: 'Courier New', monospace;
+}
+.font-brush {
+  font-family: 'Brush Script MT', cursive;
+}
+
 .opacity50 {
   opacity: 0.5;
 }
@@ -351,6 +367,9 @@ a.no-underline {
 .q-btn--flat {
   line-height: 2em;
 }
+.q-btn-group--outline > .q-btn-item {
+  padding: 4px 16px;
+}
 
 /////////////////////////////// Popup CSS /////////////////////////////////////
 
@@ -384,8 +403,10 @@ a.no-underline {
 .popup-header .q-btn {
   font-size: 10pt;
 }
-.q-dialog__inner > div {
+.mobile .q-dialog__inner > div {
   min-width: 90%;
+}
+.q-dialog__inner > div {
   background-color: #0F2A3C;
   border: 1px solid #215C84;
   color: #fff;
@@ -398,13 +419,16 @@ a.no-underline {
   background-color: #4B4B4B !important;
   border-color: #000;
 }
+.q-dialog__inner .q-checkbox__inner {
+  color: #fff;
+}
 .popup-over-header {
   margin-top: -116px;
 }
 .popup-over-header img {
   width: 50%;
 }
-.full-page-div {
+.mobile .full-page-div {
   position: absolute; 
   top:0; 
   left: 0; 
@@ -413,6 +437,10 @@ a.no-underline {
   z-index: 7003;
   top: constant(safe-area-inset-top); /* iOS 11.0 */
   top: env(safe-area-inset-top); /* iOS 11.2 */
+}
+.desktop .full-page-div {
+  position: relative; 
+  width: 600px;
 }
 .full-page-div .scroll {
   height: 100%;
@@ -801,9 +829,27 @@ a.no-underline {
 
 /////////////////////////////// other CSS /////////////////////////////////////
 
+.mobile .fullscreen-mobile {
+  top: constant(safe-area-inset-top);
+  top: env(safe-area-inset-top);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 6000;
+  border-radius: 0 !important;
+  max-width: 100vw;
+  max-height: 100vh;
+  position: fixed;
+  border: 3px solid #f00;
+}
+.desktop .fullscreen-mobile {
+  width: 600px;
+}
+
 .logo-top {
   width: 40%; 
-  max-width: 400px;
+  max-width: 200px;
   margin-top: 40px;
   margin-bottom: 20px;
 }
@@ -1064,6 +1110,34 @@ a.no-underline {
 }
 .step-menu {
   z-index: 2000;
+}
+.mobile .step-menu-fixed {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.desktop .step-menu-fixed {
+  position: fixed;
+  bottom: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 600px;
+}
+.mobile .header-fixed-top {
+  position: fixed;
+  right: 0;
+  top: 0;
+  left: 0;
+}
+.desktop .header-fixed-top {
+  position: fixed;
+  top: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 600px;
 }
 .reward {
   width: 50%
@@ -1375,6 +1449,108 @@ span .q-icon {
   transition: 6.5s transform;
 }
 
+/////////////////////////////// Desktop Only CSS /////////////////////////////////////
+
+/* manage desktop display
+.desktop #main-view, .desktop .story>div, .desktop .bottom-dark-banner, .desktop .fixed-bottom, 
+.desktop .panel-bottom, .desktop .direction-helper, .desktop .map, .desktop .fullscreen,
+.desktop .q-drawer, .desktop #teaser>div, .desktop .full-page-div {
+  max-width: 500px !important;
+}
+.desktop .q-page-container {
+  max-width: 515px !important;
+}
+.desktop .direction-helper {
+  right: auto !important;
+}
+.desktop .find-item>div {
+  max-width: 500px !important;
+}
+.desktop #cross-play {
+  max-width: 80px !important;
+  height: auto !important;
+}
+.desktop .fixed-top {
+  max-width: 500px;
+}
+*/
+
+.desktop *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.desktop *::-webkit-scrollbar-thumb {
+  background-color: #D60B52;
+}
+body .desktop {
+  scrollbar-width: thin;
+}
+.desktop .reduce-window-size-desktop {
+  max-width: 600px;
+  margin: auto;
+}
+.mobile .fixed-story {
+  width: 100%;
+}
+.desktop .fixed-story {
+  max-width: 600px;
+}
+.mobile .fixed-bottom-character {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  position: fixed;
+}
+.desktop .fixed-bottom-character {
+  position: fixed;
+  bottom: 0;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 600px;
+}
+.mobile .fixed-bottom-story {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.desktop .fixed-bottom-story {
+  width: 100%; 
+  max-width: 600px; 
+  height: 100%;
+  position: fixed; 
+  bottom: 0px;
+}
+.mobile .step-background {
+  width: 100%; 
+  height: 100%; 
+  position: absolute; 
+  left: 0; 
+  top: 0;
+}
+.desktop .step-background {
+  width: 100%; 
+  height: 100%; 
+  position: absolute; 
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.desktop .limit-size-desktop {
+  max-width: 600px;
+}
+.mobile .mobile-fit {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.desktop .mobile-fit {
+  width: 100%;
+  height: 100%;
+}
+
 /////////////////////////////// Other CSS /////////////////////////////////////
 
 .image-banner {
@@ -1391,6 +1567,9 @@ span .q-icon {
   position: absolute;
   left: 0;
   top: 0;
+}
+.desktop .image-banner {
+  max-width: 600px;
 }
 .no-box-shadow {
   box-shadow: none;
@@ -1559,7 +1738,9 @@ span .q-icon {
   float: left; 
   padding: 5px 
   width: 30vw; 
-  height: 40vw; 
+  height: 40vw;
+  max-width: 250px;  
+  max-height: 250px;
   overflow: hidden; 
   text-align: center;
 }
@@ -1696,28 +1877,6 @@ WARNING: introduces bad scrolling behaviors on iOS webapp (Safari) & hybrid
   opacity: 0.4;
 }
 
-// manage desktop display
-.desktop #main-view, .desktop .story>div, .desktop .bottom-dark-banner, .desktop .fixed-bottom, 
-.desktop .panel-bottom, .desktop .direction-helper, .desktop .map, .desktop .fullscreen,
-.desktop .q-drawer, .desktop #teaser>div, .desktop .full-page-div {
-  max-width: 500px !important;
-}
-.desktop .q-page-container {
-  max-width: 515px !important;
-}
-.desktop .direction-helper {
-  right: auto !important;
-}
-.desktop .find-item>div {
-  max-width: 500px !important;
-}
-.desktop #cross-play {
-  max-width: 80px !important;
-  height: auto !important;
-}
-.desktop .fixed-top {
-  max-width: 500px;
-}
 .bg-gray1 {
   background-color: #3e3e3e;
 }

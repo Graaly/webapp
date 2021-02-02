@@ -1,9 +1,17 @@
 <template>
   <div class="bg-white arial step-setting">
     
+    <!------------------ HEADER ------------------------>
+    
+    <div class="q-pa-md background-dark">
+      <a class="float-right no-underline" color="grey" @click="close"><q-icon name="close" class="subtitle4" /></a>
+      
+      <div class="subtitle3" v-if="selectedStep.type !== null">{{ $t('stepType.' + selectedStep.type.title) }}</div>
+    </div>
+    
     <!------------------ COMMON FOR ALL STEPS ------------------------>
     
-    <div class="q-pa-md q-pt-xl q-mt-lg bottom-margin-for-keypad">
+    <div class="q-pa-md q-pt-md q-mt-lg bottom-margin-for-keypad">
       <q-input
         type="text"
         :label="$t('label.Title') + ' ' + currentLanguageForLabels"
@@ -170,7 +178,7 @@
             </div>
             <a class="dark" @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
           </div>
-          <div v-if="isIOs">
+          <div v-if="(isIOs || (selectedStep.form.options.lat && selectedStep.form.options.lat !== ''))">
             {{  $t('label.DefineGPSLocation') }}
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
@@ -189,7 +197,7 @@
               <a class="dark" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
             </div>
           </div>
-          <q-list v-if="!isIOs">
+          <q-list v-if="!(isIOs || (selectedStep.form.options.lat && selectedStep.form.options.lat !== ''))">
             <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
               <div class="location-gps-inputs">
                 <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
@@ -593,7 +601,7 @@
             </div>
             <a class="dark" @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
           </div>
-          <div v-if="isIOs">
+          <div v-if="(isIOs || (selectedStep.form.options.lat && selectedStep.form.options.lat !== ''))">
             {{  $t('label.DefineGPSLocation') }}
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
@@ -612,7 +620,7 @@
               <a class="dark" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
             </div>
           </div>
-          <q-list v-if="!isIOs">
+          <q-list v-if="!(isIOs || (selectedStep.form.options.lat && selectedStep.form.options.lat !== ''))">
             <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
               <div class="location-gps-inputs">
                 <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
@@ -971,6 +979,9 @@
             <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
               <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" />
             </div>
+            <div v-if="options.type.code !== 'help' && options.type.code !== 'end-chapter'">
+              <q-toggle v-model="selectedStep.form.options.html" :label="$t('label.UseHtmlInDescription')" />
+            </div>
             <q-input
               :label="$t('label.ExtraTextFieldLabel')"
               v-model="selectedStep.form.extraText[lang]"
@@ -991,6 +1002,7 @@
           <div class="q-pa-sm">
             <div v-if="selectedStep.form.hint && selectedStep.form.hint[lang] && selectedStep.form.hint[lang].length > 0" v-for="(item, key) in selectedStep.form.hint[lang]" :key="key">
               <q-btn class="float-right" @click="removeHint(key)"><q-icon name="delete" /></q-btn>
+              <q-btn class="float-right q-mr-sm" @click="updateHint(key)"><q-icon name="mode_edit" /></q-btn>
               <div class="text-subtitle1">{{ $t('label.Hint') + " " + (key + 1) }}</div>
               {{ item }}
             </div>
@@ -1046,14 +1058,6 @@
       <div class="centered q-px-md q-pb-xl">
         <a class="text-primary" @click="submitStep(false)" test-id="btn-save-step-no-test">{{ $t('label.SaveThisStep') }}</a>
       </div>
-    </div>
-    
-    <!------------------ HEADER ------------------------>
-    
-    <div class="q-pa-md background-dark fixed-top">
-      <a class="float-right no-underline" color="grey" @click="close"><q-icon name="close" class="subtitle4" /></a>
-      
-      <div class="subtitle3" v-if="selectedStep.type !== null">{{ $t('stepType.' + selectedStep.type.title) }}</div>
     </div>
     
     <q-dialog id="save-changes-modal" class="full-width" v-model="saveChangesModalOpened">
@@ -1494,8 +1498,11 @@ export default {
       
       // define the default hint for the step
       if (!this.selectedStep.form.hint[this.lang] || this.selectedStep.form.hint[this.lang] === '') {
-        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.hint[this.quest.mainLanguage] !== '') {
-          this.$set(this.selectedStep.form.hint, this.lang, this.selectedStep.form.hint[this.quest.mainLanguage])
+        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.hint[this.quest.mainLanguage] && this.selectedStep.form.hint[this.quest.mainLanguage].length > 0) {
+          this.selectedStep.form.hint[this.lang] = []
+          for (var q = 0; q < this.selectedStep.form.hint[this.quest.mainLanguage].length; q++) {
+            this.selectedStep.form.hint[this.lang].push(this.selectedStep.form.hint[this.quest.mainLanguage][q])
+          }
         }
       }
       
@@ -2481,7 +2488,8 @@ export default {
           _this.config.locateItem.renderer = renderer
           
           // Configure renderer size
-          _this.config.locateItem.renderer.setSize(Math.round(window.innerWidth * 0.8), Math.round(window.innerWidth * 0.6))
+          _this.config.locateItem.renderer.setSize(Math.round(canvasItem.clientWidth), Math.round(canvasItem.clientWidth * 0.8))
+          //_this.config.locateItem.renderer.setSize(Math.round(window.innerWidth * 0.8), Math.round(window.innerWidth * 0.6))
           _this.config.locateItem.renderer.gammaOutput = true
           
           // Add "orbit controls"
@@ -2597,6 +2605,24 @@ export default {
      */
     removeHint(index) {
       this.selectedStep.form.hint[this.lang].splice(index, 1)
+      this.$forceUpdate()
+    },
+    /*
+     * update a hint
+     */
+    updateHint(index) {
+      this.$q.dialog({
+        dark: true,
+        message: this.$t('label.ModifyTheHint'),
+        prompt: {
+          model: this.selectedStep.form.hint[this.lang][index],
+          type: 'text'
+        },
+        cancel: true
+      }).onOk(async (data) => {
+        this.selectedStep.form.hint[this.lang][index] = data
+        this.$forceUpdate()
+      }).onCancel(() => {})
     },
     /*
      * add a hint
@@ -2605,7 +2631,9 @@ export default {
       if (this.selectedStep.form.hint && this.selectedStep.form.hint[this.lang]) {
         this.selectedStep.form.hint[this.lang].push(this.newHint)
       } else {
-        this.selectedStep.form.hint = {}
+        if (!this.selectedStep.form.hint) {
+          this.selectedStep.form.hint = {}
+        }
         this.selectedStep.form.hint[this.lang] = []
         this.selectedStep.form.hint[this.lang].push(this.newHint)
       }
