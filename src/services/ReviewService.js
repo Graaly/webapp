@@ -10,7 +10,7 @@ export default {
    * @param   {Number}    rating                 rating between 1 and 5
    */
   add(questId, version, runId, text, rating) {
-    return Api()
+    return Api(process.env.REVIEW_SERVERLESS_URL)
       .put("review/add", { questId, version, runId, text, rating })
       .catch(error => console.log(error.request));
   },
@@ -20,7 +20,7 @@ export default {
    * @param   {Object}    options        Search options accepted by model 'list()' method: sort, limit, etc.
    */
   async list(filter, options) {
-    let result = await Api().get("review/list", {
+    let result = await Api(process.env.REVIEW_SERVERLESS_URL).get("review/list", {
       params: {
         filter: JSON.stringify(filter),
         options: JSON.stringify(options)

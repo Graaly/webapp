@@ -5,43 +5,49 @@ export default {
    * List quests to validate
    */
   ListQuestsToValidate() {
-    return Api().get("admin/quests/tovalidate");
+    return Api(process.env.ADMIN_SERVERLESS_URL)
+    .get("admin/quests/tovalidate");
   },
   /*
    * List quests rejected
    */
   ListQuestsRejected() {
-    return Api().get("admin/quests/rejected");
+    return Api(process.env.ADMIN_SERVERLESS_URL)
+    .get("admin/quests/rejected");
   },
   /*
    * List the towns
    */
   ListTowns() {
-    return Api().get("admin/towns");
+    return Api(process.env.ADMIN_SERVERLESS_URL)
+    .get("admin/towns");
   },
   /*
    * List the statistics of best games
    */
   ListBestGames() {
-    return Api().get("admin/bestgames");
+    return Api(process.env.ADMIN_SERVERLESS_URL)
+    .get("admin/bestgames");
   },
   /*
    * List the earnings
    */
   ListEarnings() {
-    return Api().get("admin/earnings");
+    return Api(process.env.ADMIN_SERVERLESS_URL)
+    .get("admin/earnings");
   },
   /*
    * Validate a quest
    */
   publish(id) {
-    return Api().get("admin/quests/publish/" + id);
+    return Api(process.env.ADMIN_SERVERLESS_URL)
+    .get("admin/quests/publish/" + id);
   },
   /*
    * Add a town
    */
   CreateTown(data) {
-    return Api()
+    return Api(process.env.ADMIN_SERVERLESS_URL)
       .post("admin/town/add/", data)
       .catch(error => console.log(error.request));
   },
@@ -49,7 +55,8 @@ export default {
    * Reject a quest
    */
   reject(id) {
-    return Api().get("admin/quests/reject/" + id);
+    return Api(process.env.ADMIN_SERVERLESS_URL)
+    .get("admin/quests/reject/" + id);
   },
   /*
    * Upload a place picture

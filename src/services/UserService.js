@@ -125,7 +125,7 @@ export default {
   },
   /*
    * Get current user ranking data
-   *
+   */
   getRanking (id) {
     return Api(process.env.USER_SERVERLESS_URL).get('user/' + id + '/ranking').catch(error => console.log(error.request))
   },

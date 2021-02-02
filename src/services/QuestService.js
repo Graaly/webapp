@@ -176,7 +176,7 @@ export default {
    * @param   {String}    questType           quest / room
    */
   create(data, access, userType, questType) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("quest/create/" + questType + "/" + access + "/" + userType, data)
       .catch(error => console.log(error.request));
   },
@@ -185,7 +185,7 @@ export default {
    * @param   {String}    id                Quest Id
    */
   createNewVersion(id) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("quest/" + id + "/clone/draft")
       .catch(error => console.log(error.request));
   },
@@ -194,7 +194,7 @@ export default {
    * @param   {Object}    data                Quest data to update
    */
   save(data) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .put(
         "quest/" + data.questId + "/version/" + data.version + "/update",
         data
@@ -207,7 +207,7 @@ export default {
    * @param   {Number}    version             version of the quest
    */
   remove(id, version) {
-    return Api().delete("quest/" + id + "/version/" + version + "/remove");
+    return Api(process.env.QUEST_SERVERLESS_URL).delete("quest/" + id + "/version/" + version + "/remove");
   },
   /*
    * Duplicate a quest
@@ -215,7 +215,7 @@ export default {
    * @param   {Number}    version             version of the quest
    */
   clone(id, version) {
-    return Api().post("quest/" + id + "/version/" + version + "/clone");
+    return Api(process.env.QUEST_SERVERLESS_URL).post("quest/" + id + "/version/" + version + "/clone");
   },
   /*
    * Close a private quest
@@ -223,7 +223,7 @@ export default {
    * @param   {Number}    version             version of the quest
    */
   closePrivate(id, version) {
-    return Api().post("quest/" + id + "/version/" + version + "/close");
+    return Api(process.env.QUEST_SERVERLESS_URL).post("quest/" + id + "/version/" + version + "/close");
   },
   /*
    * Set the main language of a quest
@@ -239,7 +239,7 @@ export default {
    * @param   {String}    lang                language of the quest (en, fr, ...)
    */
   addLanguage(questId, lang) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .put("quest/" + questId + "/lang/add/" + lang)
       .catch(error =>
         console.log("addLanguage(): could not retrieve quest data", error)
@@ -442,7 +442,7 @@ export default {
    * @param   {String}    questId              questId
    */
   CheckIfCanBeMovedPremium(questId) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + questId + "/premium/check")
       .catch(error => console.log(error.request));
   },
@@ -451,7 +451,7 @@ export default {
    * @param   {String}    questId              questId
    */
   MoveToPremium(questId) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .post("quest/" + questId + "/premium/set")
       .catch(error => console.log(error.request));
   },
@@ -527,7 +527,7 @@ export default {
    * @param   {String}    questId              questId
    */
   hasPayed(questId) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + questId + "/premium/ispayed")
       .catch(error => console.log(error.request));
   },
@@ -539,7 +539,7 @@ export default {
   checkLoginQRCode(questId, lang) {
     // replace / sign
     questId = questId.replace(/\//g, "-slash-");
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + questId + "/connectandplay/qrcode/lang/" + lang)
       .catch(error => console.log(error.request));
   },
@@ -571,7 +571,7 @@ export default {
    * @param   {Number}    version             version of the quest
    */
   listEditors(questId, version) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + questId + "/version/" + version + "/editor/list")
       .catch(error => console.log(error.request));
   },
@@ -604,7 +604,7 @@ export default {
    * @param   {Number}    version              version of the quest
    */
   listInvitees(questId, version) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + questId + "/version/" + version + "/invitee/list")
       .catch(error => console.log(error.request));
   },
@@ -615,7 +615,7 @@ export default {
    * @param   {String}    email               email of the invitee
    */
   addInvitee(questId, version, email) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .put("quest/" + questId + "/version/" + version + "/invitee/add/" + email)
       .catch(error => console.log(error.request));
   },
@@ -626,7 +626,7 @@ export default {
    * @param   {String}    inviteeId              Invitee Id
    */
   removeInvitee(questId, version, inviteeId) {
-    return Api().delete(
+    return Api(process.env.QUEST_SERVERLESS_URL).delete(
       "quest/" +
         questId +
         "/version/" +
