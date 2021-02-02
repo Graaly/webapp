@@ -251,28 +251,6 @@
         </div>
       </div>
       
-      <!------------------ IMAGE RECOGNITION STEP AREA ------------------------>
-      <!-- MPA 2020-09-24 not used
-      <div class="image-recognition" v-if="step.type == 'image-recognition'">
-        <div>
-          <p class="text" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
-          <p class="text" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
-        </div>
-        <div class="photo">
-          <img ref="original-photo" :src="(step.answers && step.answers.indexOf('blob:') !== -1) ? step.answers : serverUrl + '/upload/quest/' + step.questId + '/step/image-recognition/' + step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
-          <video ref="camera-stream-for-recognition" v-show="cameraStreamEnabled"></video>
-          <canvas ref="photo-buffer" class="hidden"></canvas>
-          <img ref="player-photo" v-show="photoTaken" :alt="$t('label.TheScreenCaptureWillAppearInThisBox')" />
-        </div>
-        <div class="actions q-mt-lg">
-          <q-btn @click="toggleCameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color">{{ $t('label.TakeThePicture') }}</q-btn>
-          <div v-show="cameraStreamEnabled">
-            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="toggleCameraStream()" icon="clear">{{ $t('label.Cancel') }}</q-btn>
-            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="checkAnswer()" icon="done">{{ $t('label.Check') }}</q-btn>
-          </div>
-        </div>
-      </div>-->
-      
       <!------------------ GEOLOCALISATION STEP AREA ------------------------>
       
       <div class="geolocation" v-if="step.type == 'geolocation'">
@@ -675,7 +653,6 @@ import { colors } from 'quasar'
 
 import StepService from 'services/StepService'
 import TimerStorageService from 'services/TimerStorageService'
-//import simi from 'src/includes/simi' // for image similarity - MPA 2020-09-24 not used since several months (for steps 'image-recognition')
 import utils from 'src/includes/utils'
 
 import colorsForCode from 'data/colorsForCode.json'
@@ -730,7 +707,6 @@ export default {
     // refresh component if stepId change
     reload: async function(newVal, oldVal) {
       if (newVal === true || newVal === 'true') {
-        this.clearAllCameraStreams()
         await this.initData()
       }
       if (newVal === false || newVal === 'false') {
@@ -762,55 +738,6 @@ export default {
     })
   }, 250),
   beforeDestroy() {
-    // this is called every time route changes => cleanup all memory & CPU intensive tasks here
-    
-    // (camera streams, 3D animations, GPS trackings...)
-    this.clearAllCameraStreams()
-    
-    // cancels recursive 'requestAnimationFrame()' calls
-    // otherwise they continue in the background even when route changes
-    this.stopLatestAnimation()
-    
-    // clean 3D objects/scenes to avoid memory leaks
-    this.geolocation.target = null
-    this.locateMarker.scene = null
-    this.locateMarker.renderer = null
-    this.locateMarker.camera = null
-    this.locateMarker.mixers = [] // animations
-    this.locateMarker.clock = null // animations
-    this.locateMarker.arToolkitContext = null
-    this.locateMarker.arSmoothedControls = null
-    this.locateMarker.markerRoots = {}
-    this.locateMarker.markerControls = {}
-    
-    if (this.geolocation.absoluteOrientationSensor !== null) {
-      this.geolocation.absoluteOrientationSensor.stop()
-    }
-    
-    window.removeEventListener("devicemotion", this.handleMotionEvent, true)
-    
-    utils.clearAllRunningProcesses()
-    
-    TWEEN.removeAll() // 3D animations
-    
-    // close MQTT connection & bluetooth (steps 'wait-for-event', 'trigger-event')
-    if (this.mqttClient !== null) {
-      let _this = this
-      this.mqttClient.end(false, {}, () => {
-        _this.mqttClient = null
-      })
-    }
-    if (this.bluetooth && this.bluetooth.enabled) {
-      this.bluetoothDisconnect(this.bluetooth.deviceId)
-    }
-    
-    this.stopcountdown()
-    
-    if (['geolocation', 'locate-item-ar'].includes(this.step.type)) {
-      try {
-        cordova.plugins.headingcalibration.stopWatchCalibration();
-      } catch (err) {}
-    }
   },
   methods: {
     initialState () {
@@ -852,10 +779,6 @@ export default {
         ],
         showTools: true,
         codeColors: {},
-        
-        // for step type 'image-recognition' - MPA 2020-09-24
-        //photoComparisonThreshold: 70,
-        //photoTaken: false,
         
         // for step types 'geoloc' and 'locate-item-ar'
         geolocation: {
@@ -1020,6 +943,46 @@ export default {
       this.showTools = defaultVars.showTools
       //this.currentcountdown = defaultVars.currentcountdown
     },
+    resetEvents () {
+      // this is called every time step changes => cleanup all memory & CPU intensive tasks here
+      
+      // (camera streams, 3D animations, GPS trackings...)
+      this.clearAllCameraStreams()
+      
+      // cancels recursive 'requestAnimationFrame()' calls
+      // otherwise they continue in the background even when route changes
+      this.stopLatestAnimation()
+      
+      if (this.geolocation.absoluteOrientationSensor !== null) {
+        this.geolocation.absoluteOrientationSensor.stop()
+      }
+      
+      window.removeEventListener("devicemotion", this.handleMotionEvent, true)
+      
+      utils.clearAllRunningProcesses()
+      
+      TWEEN.removeAll() // 3D animations
+      
+      // close MQTT connection & bluetooth (steps 'wait-for-event', 'trigger-event')
+      if (this.mqttClient !== null) {
+        let _this = this
+        this.mqttClient.end(false, {}, () => {
+          _this.mqttClient = null
+        })
+      }
+      if (this.bluetooth.enabled) {
+        this.bluetoothDisconnect(this.bluetooth.deviceId)
+      }
+      
+      this.stopcountdown()
+      
+      if (['geolocation', 'locate-item-ar'].includes(this.step.type)) {
+        try {
+          // can trigger an error in console which cannot be avoided
+          cordova.plugins.headingcalibration.stopWatchCalibration();
+        } catch (err) {}
+      }
+    },
     /*
      * get background image
      */
@@ -1047,6 +1010,7 @@ export default {
      * Init the component data
      */
     async initData () {
+      this.resetEvents()
       this.resetData()
       this.resetBackgroundImage()
       TWEEN.removeAll()
@@ -1791,7 +1755,7 @@ export default {
       
       // alert if the network is low
       var _this = this
-      var lowNetworkTimeout = setTimeout(function () { _this.isNetworkLow = true }, 8000)
+      var lowNetworkTimeout = utils.setTimeout(function () { _this.isNetworkLow = true }, 8000)
 
       var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player)
 
@@ -1813,14 +1777,8 @@ export default {
         if (displaySpinner) {
           this.$q.loading.hide()
         }
-        // check offline answer
-        //if (this.answer) {
-          let checkAnswerOfflineResult = await this.checkOfflineAnswer(answerData.answer)
-          return checkAnswerOfflineResult
-        //} else {
-        //  Notification(this.$t('label.ErrorStandardMessage'), 'error')
-        //  return false
-        //}
+        
+        return this.checkOfflineAnswer(answerData.answer)
       }
     },
     /*
@@ -1831,9 +1789,7 @@ export default {
       const type = this.step.type
       if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'help' || type === 'image-over-flow') {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }
-      } /*else if (type === 'image-recognition') {
-        return { result: answer, answer: this.answer, score: 0, reward: 0, offline: true }
-      }*/ else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle') {
+      } else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle') {
         //TODO: find a way to check server side
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
       } else if (type === 'use-item') {
@@ -1846,9 +1802,11 @@ export default {
             return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
           }
         } else {
+          const ww = (answer && answer.windowWidth) ? answer.windowWidth : (this.getScreenWidth() / 100)
+          
           let answerPixelCoordinates = {
-            left: Math.round(this.answer.coordinates.left / 100 * 100 * answer.windowWidth),
-            top: Math.round(this.answer.coordinates.top / 100 * 133 * answer.windowWidth)
+            left: Math.round(this.answer.coordinates.left / 100 * 100 * ww),
+            top: Math.round(this.answer.coordinates.top / 100 * 133 * ww)
           }
           
           // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
@@ -1928,11 +1886,6 @@ console.log(utils.removeAccents(this.answer[i]))
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
           this.submitGoodAnswer(0, checkAnswerResult.offline, false)
-          //if (CameraPreview) {
-          //  CameraPreview.stopCamera()
-          //  CameraPreview.stopCamera() // calling twice is needed
-          //}
-          
           break
           
         case 'choose':
@@ -1989,19 +1942,7 @@ console.log(utils.removeAccents(this.answer[i]))
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           }
           break
-        // MPA 2020-09-24 not used
-        /*
-        case 'image-recognition':
-          const comparison = this.checkPhoto()
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: comparison, isTimeUp: this.isTimeUp}, true)
-
-          if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
-          } else {
-            this.submitWrongAnswer(checkAnswerResult.offline, true)
-          }
-          break
-          */
+          
         case 'code-keypad':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join(''), isTimeUp: this.isTimeUp}, true)
 
@@ -2424,7 +2365,6 @@ console.log(utils.removeAccents(this.answer[i]))
           case 'code-image':
             this.displaySuccessMessage(true, this.$t('label.GoodAnswer'))
             break
-          //case 'image-recognition':
           case 'write-text':
           case 'jigsaw-puzzle':
           case 'memory':
@@ -2484,12 +2424,6 @@ console.log(utils.removeAccents(this.answer[i]))
       if (this.isTimeUp === true) {
         this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'))
       } else if (showResult) {
-        // MPA 2020-09-24 image-recognition is not used since several months
-        /*if (this.step.type === 'image-recognition') {
-          this.displaySuccessMessage(false, this.$t('label.PhotosDoesntMatch'))
-        } else {
-          this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
-        }*/
         this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
       }
       // advise user to move to next step
@@ -2703,46 +2637,6 @@ console.log(utils.removeAccents(this.answer[i]))
       let nextColorIndex = (currentColorIndex + 1) % this.codeColors.length
       this.$set(this.playerCode, index, this.codeColors[nextColorIndex])
     },
-    /*
-     * Display / hide camera
-     */
-    toggleCameraStream() {
-      // already enabled ? => disable
-      
-      if (this.cameraStreamEnabled) {
-        this.stopVideoTracks('camera-stream-for-recognition')
-        return
-      }
-      
-      // otherwise, enable
-      
-      let photoBuffer = this.$refs['photo-buffer']
-      let playerPhoto = this.$refs['player-photo']
-      
-      let cameraStream = this.launchVideoStreamForAndroid('camera-stream-for-recognition')
-      
-      cameraStream.addEventListener('canplay', (ev) => {
-        if (!this.cameraStreamEnabled) {
-          // get inner parent element with (without margin/padding/border)
-          // see https://stackoverflow.com/a/29881817/488666
-          let parentElement = ev.target.parentElement
-          let style = getComputedStyle(parentElement)
-          let width = parentElement.clientWidth - (parseFloat(style.paddingLeft) + parseFloat(style.paddingRight))
-          let height = Math.floor(cameraStream.videoHeight / (cameraStream.videoWidth / width))
-          
-          cameraStream.setAttribute('width', width)
-          cameraStream.setAttribute('height', height)
-          
-          photoBuffer.setAttribute('width', width)
-          photoBuffer.setAttribute('height', height)
-          
-          playerPhoto.setAttribute('width', width)
-          playerPhoto.setAttribute('height', height)
-          
-          this.cameraStreamEnabled = true
-        }
-      }, false);
-    },
     
     launchVideoStreamForAndroid(container, initCapture, facingMode) {
       if (!facingMode) {
@@ -2773,42 +2667,6 @@ console.log(utils.removeAccents(this.answer[i]))
         });
       return cameraStream
     },
-    /*
-     * Check if a photo is similar to the one expected
-     * MPA image-recognition steps are not used since several months
-     */
-    /*
-    checkPhoto() {
-      // take photo & stop camera flow
-      let photoBuffer = this.$refs['photo-buffer']
-      let context = photoBuffer.getContext('2d')
-      if (this.cameraStreamEnabled) {
-        context.drawImage(this.$refs['camera-stream-for-recognition'], 0, 0, photoBuffer.width, photoBuffer.height)
-        
-        let data = photoBuffer.toDataURL('image/png')
-        this.$refs['player-photo'].setAttribute('src', data)
-        this.stopVideoTracks('camera-stream-for-recognition')
-        
-        let canvasOriginalPhoto = document.createElement('canvas')
-        
-        // reload original photo with attribute 'crossorigin' to 'anonymous' to avoid cross-origin
-        // security error with 'tainted canvas' ; see https://stackoverflow.com/a/18475559/488666
-        
-        let imgOriginalPhoto = new Image()
-        imgOriginalPhoto.crossOrigin = "anonymous";
-        imgOriginalPhoto.src = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/image-recognition/' + this.step.answers
-        
-        imgOriginalPhoto.onload = async () => {
-          canvasOriginalPhoto.width = imgOriginalPhoto.naturalWidth
-          canvasOriginalPhoto.height = imgOriginalPhoto.naturalHeight
-          canvasOriginalPhoto.getContext('2d').drawImage(imgOriginalPhoto, 0, 0, canvasOriginalPhoto.width, canvasOriginalPhoto.height)
-          
-          this.photoTaken = true
-          
-          return simi.compare(photoBuffer, canvasOriginalPhoto) >= this.photoComparisonThreshold
-        }
-      }
-    },*/
     /*
      * Stop the video tracking
      */
@@ -4494,13 +4352,6 @@ console.log(utils.removeAccents(this.answer[i]))
   .code-image td { width: 20% }
   .code-image td img { width: 100% }
   .code-image td .q-icon { font-size: 2em }
-
-  /* image recognition specific - MPA 2020-04-29 not used since several months */
-  /*
-  .image-recognition .photo { flex-grow: 1; overflow-y: hidden; margin-top: 1rem; display: flex; flex-flow: column nowrap; justify-content: center; padding: 0.5rem; margin: -0.5rem; } // negative margin required to have image shadow visible on sides
-  .image-recognition .photo img, 
-  .image-recognition .photo > video { width: 100%; border-radius: 0.5rem; }
-  */
   
   /* geolocation specific */
   .geolocation .text { margin-bottom: 0.5rem; }

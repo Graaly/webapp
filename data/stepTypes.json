@@ -262,19 +262,6 @@
   },
   {
     "category": "enigma",
-    "code": "image-recognition",
-    "icon": "camera",
-    "title": "PhotographAnObject",
-    "description": "PhotographAnObjectDesc",
-    "showTrick": "yes",
-    "enabled": false,
-    "hasBackgroundImage": "option",
-    "hasOptions": true,
-    "nbTrials": 2,
-    "passOption": true
-  },
-  {
-    "category": "enigma",
     "code": "jigsaw-puzzle",
     "icon": "puzzle-piece",
     "title": "JigsawPuzzle",

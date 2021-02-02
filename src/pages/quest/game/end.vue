@@ -36,9 +36,6 @@
           <!------------------ TITLE AREA ------------------------>
           <div class="rounded background-lighter2 centered absolute full-width">    
             <h2 class="text-center title2 q-mt-xl q-mb-sm q-mx-xl text-uppercase">{{ $t('label.YouWin') }}</h2>
-            <!--<h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.score > 0 || run.reward === 0">{{ run.score }} {{ $t('label.points') }} <!--<q-icon color="white" name="fas fa-trophy" />--</h2>-->
-            <!--<h2 class="size-1 q-mt-sm q-mb-sm" v-show="run.reward > 0">{{ run.reward }} <q-icon color="white" name="fas fa-bolt" /></h2>-->
-            <!--<router-link to="/help/points" v-show="run.score > 0">{{ $t('label.WhatCanYouDoWithThesePoints') }}</router-link>-->
             <div class="relative-position progress-box">
               <div class="progress-bar">
                 <div class="progress" :style="'width: ' + Math.floor(level.progress * 100) + '%'">
@@ -161,30 +158,7 @@
             </div>
           </div>
         </div>
-        
-        <!------------------ SHARE AREA ------------------------>
-        
-        <!--<div class="share bg-secondary q-mt-md q-ml-md q-mr-md q-pa-sm centered">
-          <h3 class="size-2 q-ma-sm">{{ $t('label.ShareYourSuccess') }}</h3>
-          <ul>
-            <li>
-              <a @click="utils.openExternalLink('https://www.facebook.com/sharer/sharer.php?u=http://graaly.com')" target="_blank">
-                <img src="statics/icons/social-networks/facebook.png" />
-              </a>
-            </li>
-            <li>
-              <a @click="utils.openExternalLink('https://twitter.com/intent/tweet?text=To%Define&url=http://graaly.com')" target="_blank">
-                <img src="statics/icons/social-networks/twitter.png" />
-              </a>
-            </li>
-            <li>
-              <a @click="utils.openExternalLink('https://plus.google.com/share?url=http://graaly.com')" target="_blank">
-                <img src="statics/icons/social-networks/googleplus.png" />
-              </a>
-            </li>
-          </ul>
-        </div>-->
-     
+             
         <!------------------ BACK TO MAP LINK AREA ------------------------>
         
         <div class="back centered q-pa-md">
@@ -279,7 +253,6 @@ import RunService from 'services/RunService'
 import UserService from 'services/UserService'
 import LevelCompute from 'boot/LevelCompute'
 import Notification from 'boot/NotifyHelper'
-//import { filter } from 'quasar'
 import Vue from 'vue'
 import suggest from 'components/quest/suggest'
 import userCard from 'components/user/userCard'
@@ -588,10 +561,6 @@ export default {
         this.$router.push("/user/updateprofile")
       } else {
         this.showChallenge = true
-        /*var challengers = await UserService.getBestFriends()
-        if (challengers && challengers.data && challengers.data.length > 0) {
-          this.bestFriends = challengers.data
-        }*/
         var allFriends = await UserService.listFriends(this.$store.state.user._id, 0, 100)
         if (allFriends && allFriends.data && allFriends.data.length > 0) {
           this.friends = allFriends.data
@@ -617,18 +586,6 @@ export default {
           Vue.set(this.filteredFriends, i, this.filteredFriends[i])
         }
       }
-      
-      /*if (this.invitedFriends.id.indexOf(friend.friendId) === -1) {
-        this.invitedFriends.name.push(friend.name)
-        this.invitedFriends.id.push(friend.friendId)
-      }
-      // remove challenger from the list & reset the list
-      for (var i = 0; i < this.friends.length; i++) {
-        if (this.friends[i].friendId === friend.friendId) {
-          this.friends.splice(i, 1)
-        }
-      }
-      this.filteredFriends = this.friends*/
     },
     /*
      * Challenge all the user's friends
@@ -765,31 +722,6 @@ export default {
         await utils.writeInFile('', 'quests.json', JSON.stringify(quests), true)
       }
     }
-    /*
-     * Search a friend
-     *
-    searchFriend(name, done) {
-      // if email, add in the friends list, or search in friends list
-      if (utils.isValidEmail(name)) {
-        alert("ajouter email")
-        this.invitedFriends.name.push(name)
-        this.invitedFriends.id.push(name)
-      } else {
-        utils.setTimeout(() => {
-          done(filter(name, {field: 'label', list: this.friends}))
-        }, 1000)
-        //this.filteredFriends = filter(name, {field: 'label', list: this.friends})
-  //      done(this.filteredFriends)
-      }
-    },
-    /*
-     * Select a friend
-     *
-    selectFriend(friend) {
-      if (this.invitedFriends.id.indexOf(friend.friendId) === -1) {
-        this.invitedFriends.id.push(friend.friendId)
-      }
-    }*/
   }
 }
 </script>

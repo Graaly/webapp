@@ -325,9 +325,6 @@ a.no-underline {
 
 .q-btn {
   font-size: 15pt;
-  min-height: 2.1em;
-  line-height: 1em;
-  padding: 5px 0;
 }
 .platform-android .q-btn__content div, .platform-android .q-btn__content span {
   min-height: 30px;
@@ -1692,19 +1689,17 @@ body .desktop {
 .list-group-item { 
   display: flex; 
   flex-flow: row nowrap; 
-  align-items: flex-start; 
-  padding: 0rem 0.2rem 0.4rem 0; 
+  align-items: center;
+  padding: 0 0 0.4rem 0;
 }
 .list-group-item p {
   height: 30px;
-  /*padding: 7px;
-  background-color: #ddd;*/
 }
 .list-group-item div { 
-  flex-grow: 1; 
-  padding: 0; 
-  margin: 0; 
-  /*overflow-x: hidden; */
+  flex-grow: 1;
+  padding: 0;
+  margin: 0;
+  line-height: 3rem;
 }
 .list-group-item div.q-badge { 
   padding: 2px 6px;
@@ -1723,10 +1718,18 @@ body .desktop {
   white-space: nowrap;
 }
 
-.list-group-item div span { 
-  margin-top: 10px;
-  display: inline-block;
+/* specific styles for advanced mode */
+.advanced .list-group-item {
+  align-items: flex-start;
+  padding: 0 0 1rem 0;
 }
+.advanced .list-group-item div {
+  line-height: 2rem;
+}
+.advanced .list-group-item div p .q-icon {
+  padding-top: 0.4rem;
+}
+
 .list-group-item .handle { 
   font-size: 2rem; 
   padding-right: 0.3rem; 

@@ -281,41 +281,6 @@
       </div>
     </transition>
     
-    <!------------------ RANKING AREA ------------------------
-    
-    <transition name="slideInBottom">
-      <div class="panel-bottom q-pa-md" v-show="ranking.show">
-        <a class="float-right no-underline close-btn" color="grey" @click="ranking.show = false"><q-icon name="close" class="medium-icon" /></a>
-        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Ranking') }}</div>
-        {{ $t('label.RankingIntro') }}
-        <q-list>
-          <q-item v-for="rank in ranking.items" :key="rank.position" >
-            <q-item-section avatar>
-              <img :src="'statics/icons/game/medal-' + rank.position + '.png'">
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ rank.name }}</q-item-label>
-              <q-item-label caption>{{ rank.score}} {{ $t('label.points') }}</q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              <q-avatar>
-                <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
-                <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
-                <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
-              </q-avatar>
-            </q-item-section>
-            <q-item-section side v-if="!rank.isFriend" @click.native="addFriend(rank.id)">
-              <q-icon name="person_add" color="primary" />
-            </q-item-section>
-            <q-item-section side v-if="rank.isFriend"></q-item-section>
-          </q-item>
-        </q-list>
-        <div class="centered">
-          <q-btn class="glossy large-button" color="primary" :label="$t('label.CloseQuestRanking')" @click="ranking.show = false" />
-        </div>
-      </div>
-    </transition>-->
-    
     <!--====================== SHOP PAGE =================================-->
     
     <transition name="slideInBottom">
@@ -399,11 +364,9 @@
 import AuthService from 'services/AuthService'
 import QuestService from 'services/QuestService'
 import RunService from 'services/RunService'
-import UserService from 'services/UserService'
 import shop from 'components/shop'
 import offlineLoader from 'components/offlineLoader'
 import { openURL } from 'quasar'
-//import Vue from 'vue'
 import utils from 'src/includes/utils'
 import Notification from 'boot/NotifyHelper'
 import gpscalibration from 'components/gpsCalibration'
@@ -566,7 +529,7 @@ export default {
     async getQuest(id, forceNetworkLoading) {
       // check if the quest data are not already saved on device
       let isQuestOfflineLoaded = await QuestService.isCached(id)
-//forceNetworkLoading = true
+      
       if (!isQuestOfflineLoaded || forceNetworkLoading) {
         this.offline.active = false
         // get the last version accessible by user depending on user access
@@ -633,7 +596,6 @@ export default {
     async getRun() {
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.quest.questId)
-      //var currentRun = 0
       
       if (runs && runs.data && runs.data.length > 0) {
         for (var i = 0; i < runs.data.length; i++) {
@@ -642,25 +604,9 @@ export default {
           }
           if (runs.data[i].status === 'in-progress' && runs.data[i].currentStep) {
             this.isRunStarted = true
-            //currentRun = runs.data[i]._id
           }
         }
         if (this.isRunStarted) {
-          /*var self = this
-          // propose to continue quest on last step played (only if not the creator of the quest)
-          //if (!this.isOwner) {
-            this.$q.dialog({
-              title: this.$t('label.ContinueThisStep'),
-              message: this.$t('label.YouAlreadyStartThisQuest'),
-              ok: this.$t('label.Restart'),
-              cancel: this.$t('label.Continue')
-            }).onOk(() => {
-              self.cancelRun(currentRun)
-            }).onCancel(() => {
-              self.continueQuest = true
-              self.startQuest(self.quest.questId, self.$route.params.lang)
-            })
-          //}*/
           this.continueQuest = true
           if (!this.isOwner) {            
             this.startQuest(this.quest.questId, this.$route.params.lang)
@@ -752,7 +698,6 @@ export default {
         return "free"
       }
       this.shop.premiumQuest.priceCode = this.quest.premiumPrice.androidId
-      //var _this = this
       
       store.register({
         id: this.quest.premiumPrice.androidId,
@@ -812,23 +757,8 @@ export default {
       store.order(this.quest.premiumPrice.androidId)
     },
     /*
-     * Compute the price of the quest
-     *
-    async getPrice() {
-      if (!this.quest || !this.quest.premiumPrice || !this.quest.premiumPrice.prices) {
-        return this.$t('label.Error')
-      }
-      if (this.$store.state.user.language && this.quest.premiumPrice.prices[this.$store.state.user.language]) {
-        return this.quest.premiumPrice.prices[this.$store.state.user.language]
-      } else if (this.quest.premiumPrice.prices[quest.mainLanguage] && this.quest.premiumPrice.prices[quest.mainLanguage] !== '') {
-        return this.quest.premiumPrice.prices[quest.mainLanguage]
-      } else {
-        return this.$t('label.Error')
-      }
-    },*/
-    /*
      * Add a new friend
-     */
+     * MPA 2021-01-28 seems not used
     async addFriend(friendId) {
       this.$q.loading.show()
       var newFriend = await UserService.addFriend(friendId)
@@ -842,10 +772,10 @@ export default {
           }
         }
       }
-    },
+    },*/
     /*
      * Sort based on the score
-     */
+     * MPA 2021-01-28 seems not used
     compareScore(a, b) {
       if (a.score > b.score) {
         return -1
@@ -854,7 +784,7 @@ export default {
         return 1
       }
       return 0
-    },
+    },*/
     /*
      * Get the default language for this quest
      * @param   {object}    quest            quest data
@@ -940,21 +870,7 @@ export default {
       return publishedLanguages
     },
     /*
-     * Launch a quest with default language
-     * @param   {Object}    obj         Swipe object
-     *
-    swipeMgmt(obj) {
-      if (obj.direction === 'right') {
-        this.backToTheMap()
-      }
-      if (obj.direction === 'left') {
-        const languages = this.getAllLanguages(this.quest)
-        const lang = languages[0].lang
-        this.playQuest(this.quest.questId, lang)
-      }
-    },
-    /*
-     * Check if quest can be launched
+     * Launch a quest
      * @param   {String}    questId            ID of the quest
      * @param   {String}    lang               lang of the quest
      */
@@ -1171,7 +1087,6 @@ export default {
      * Open booking link
      */
     openReadMoreLink() {
-      //window.open(this.quest.readMoreLink)
       utils.openExternalLink(this.quest.readMoreLink)
     },
     startQuest(questId, lang) {

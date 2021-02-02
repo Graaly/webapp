@@ -108,12 +108,6 @@
             <p v-if="run && run.team && run.team.name">
               {{ $t('label.Team') }} : {{ run.team.name }}
             </p>
-           <!-- <p v-if="info.quest.countDownTime.enabled">
-              {{ "temspsms tresetran: " }} : {{ info.quest.countDownTime.time }}
-            </p>-->
-
-            <!--<q-linear-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-linear-progress>-->
-            <!--<p class="q-pa-md score-text" v-show="info && !offline.active && (!info.quest.customization || !info.quest.customization.removeScoring)">{{ $t('label.CurrentScore') }}: {{ info.score }} <q-icon color="white" name="fas fa-trophy" />-</p>-->
             <p>
               <q-btn 
               v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring" 
@@ -231,15 +225,13 @@
         </div>
         <div class="col centered q-pb-md">
           <q-btn 
-            round 
-            size="lg" 
+            round
+            size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="work" 
             :class="{'flashing': inventory.suggest, 'bg-secondary': inventory.isOpened, 'bg-primary': (!inventory.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
             @click="openInventory()" 
-          />  
-            <!--v-show="inventory.show" 
-          />-->
+          />
         </div>
         <div class="col centered q-pb-md">
           <q-btn 
@@ -622,12 +614,6 @@ export default {
         } else {
           // if first step => init run
           await this.updateOfflineRun(this.questId)
-          /*this.$q.dialog({
-            title: this.$t('label.TechnicalProblem'),
-            message: this.$t('label.TechnicalProblemNetworkIssue')
-          }).onOk(() => {
-            this.$router.push('/quest/play/' + this.quest.questId)
-          })*/
         }
       }
       
@@ -716,7 +702,7 @@ export default {
             return false
           }
         }
-      }    
+      }
 
       if (stepId === 'locationMarker') {
         // QR Code scanner step
@@ -728,7 +714,7 @@ export default {
       if (stepId === 'end') {
         return this.$router.push('/quest/' + this.questId + '/end')
       }
-
+      
       // check if the quest data are not already saved on device
       let isStepOfflineLoaded = await this.checkIfStepIsAlreadyLoaded(stepId)
 
@@ -793,15 +779,6 @@ export default {
               this.warnings.stepDataMissing = true
             }
           }
-          /* MPA 2020-09-04 not used since several months
-          if (tempStep.type === 'image-recognition' && tempStep.answers && tempStep.answers !== '') {
-            const imageRecognitionUrl = await utils.readBinaryFile(this.questId, tempStep.answers)
-            if (imageRecognitionUrl) {
-              tempStep.answers = imageRecognitionUrl
-            } else {
-              this.warnings.stepDataMissing = true
-            }
-          }*/
           if (tempStep.type === 'choose' && tempStep.options) {
             for (var k = 0; k < tempStep.options.items.length; k++) {
               if (tempStep.options.items[k].imagePath) {
@@ -1021,7 +998,6 @@ export default {
         } else {
           //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + next + '/' + this.$route.params.lang)
           this.moveToStep(next)
-          //this.stopMarkersSensors()
         }        
       }
     },
@@ -1056,10 +1032,14 @@ export default {
      * get audio sound
      */
     getAudioSound () {
-      if (this.info.quest.customization && this.info.quest.customization.audio && this.info.quest.customization.audio.indexOf('blob:') !== -1) {
-        this.info.audio = this.info.quest.customization.audio
+      if (this.info.quest.customization && this.info.quest.customization.audio) {
+        if (this.info.quest.customization.audio.indexOf('blob:') !== -1) {
+          this.info.audio = this.info.quest.customization.audio
+        } else {
+          this.info.audio = this.serverUrl + '/upload/quest/' + this.info.quest.customization.audio
+        }
       } else {
-        this.info.audio = this.serverUrl + '/upload/quest/' + this.info.quest.customization.audio
+        this.info.audio = null
       }
     },
     /*
@@ -1077,10 +1057,6 @@ export default {
       this.loadStepData = false
       
       if (this.next.enabled) {
-        /*utils.clearAllRunningProcesses()
-        this.resetData()
-        await this.initData()
-        */
         await this.moveToNextStep('success')
       } else if (this.next.canPass) {
         if (force) {
@@ -1102,10 +1078,7 @@ export default {
         await RunService.passStep(this.run._id, this.step.id, this.player)
       }
       
-      //if (!passSuccess) {
-        // offline treatment
       await this.passOfflineStep(this.step.id)
-      //}
       
       // TODO: manage if pass failed
       await this.moveToNextStep('pass')
@@ -1404,14 +1377,6 @@ export default {
         }
       }
     },
-    /*
-     * count number of steps in a quest
-     * @param   {string}    id             Quest ID
-     *
-    async countStepsNumber(id) {
-      let response = await StepService.countForAQuest(id, this.run.version)
-      this.info.stepsNumber = (response && response.data && response.data.count) ? response.data.count : 1
-    },*/
     /*
      * Select an item in the inventory
      * @param   {object}    item            Item selected
@@ -1723,16 +1688,6 @@ export default {
       }
     },
     /**
-     * Adds step with <StepId> to run object <run> history and saves it to offline file
-     * /!\ WARNING /!\ copied & adapted from server side file controller/run.js to handle online mode
-     * @param {String} stepId 
-     *
-    async addStepToHistory (stepId) {
-      this.run.history.push(stepId)
-      this.run.historyIndex = this.run.history.length
-      await this.saveOfflineRun(this.questId, this.run)
-    },
-    /*
      * Get the next offline step
      * /!\ WARNING /!\ copied & adapted from server side file controller/run.js to handle online mode
      */
