@@ -735,6 +735,7 @@ var self = {
   openExternalLink(url) {
     if (window.cordova) {
       navigator.app.loadUrl(url, { openExternal: true })
+      // in a quest text, you can use window.location.href = ...
     } else {
       window.open(url, '_blank')
     }

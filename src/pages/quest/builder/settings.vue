@@ -1,7 +1,7 @@
 <template>
   <div class="scroll row" :class="{'bg-white': !chapters.showNewStepOverview}">
     <!--<div class="col-xs-12 col-sm-6 col-md-8 col-lg-9 col-xl-10 bg-white">-->
-    <div class="col bg-white" style="min-width: 260px;">
+    <div class="col bg-white" style="min-width: 260px;" :class="{'desktop-only': chapters.showNewStepOverview}">
       <!------------------ NEW RELEASE BUTTON ---------->
       <div class="settings-bar background-dark" :class="{'desktop-only': chapters.showNewStepOverview}">
         <router-link v-show="!chapters.showNewStepOverview && !chapters.showNewStepPageSettings" :to="{ path: '/profile/me'}" class="float-right no-underline close-btn q-pa-sm"><q-icon name="close" class="subtitle1" /></router-link>
@@ -995,7 +995,7 @@
     </div>
     
     <!--<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">-->
-    <div class="col-auto">
+    <div class="col-auto bg-primary">
       <div v-if="!chapters.showNewStepPageSettings && !chapters.showNewStepOverview && !chapters.showNewStepPage" class="desktop-only background-dark arial full-page-div full-height">
         <div class="q-pa-xl" v-html="$t('label.CreationStudioHelp')">
         </div>
@@ -1057,7 +1057,7 @@
       <!--</q-dialog>-->
       </div>
       
-      <div v-if="chapters.showNewStepOverview" class="fullscreen-mobile">
+      <div v-if="chapters.showNewStepOverview" style="background: none; background-color: transparent;" class="fullscreen-mobile">
       
         <!------------------ STEP SIMULATION ------------------------>
 

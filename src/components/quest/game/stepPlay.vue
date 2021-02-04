@@ -1,7 +1,7 @@
 <template>
 
   <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor'), 'loaded': pageReady}">
-    <div id="background-image" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect)}">
+    <div id="background-image" v-if="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect)}">
     </div>
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
       <q-linear-progress 
@@ -1003,8 +1003,10 @@ export default {
       background.style.background = 'none'
       background.style.backgroundColor = 'transparent'
       let backgroundImage = document.getElementById('background-image')
-      backgroundImage.style.background = 'none'
-      backgroundImage.style.backgroundColor = 'transparent'
+      if (backgroundImage) {
+        backgroundImage.style.background = 'none'
+        backgroundImage.style.backgroundColor = 'transparent'
+      }
     },
     /*
      * Init the component data
@@ -1035,7 +1037,9 @@ export default {
             let backgroundUrl = this.getBackgroundImage()
             let backgroundImage = document.getElementById('background-image')
             //background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
-            backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+            if (backgroundImage) {
+              backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+            }
             // all background clickable for transitions
             //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
               //let clickable = document.getElementById('info-clickable')
