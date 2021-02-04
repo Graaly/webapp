@@ -26,7 +26,12 @@ const state = {
   // for quest steps, keep track of objects given by setInterval() & setTimeout() to clear them properly & avoid useless calls
   runningIntervalIds: [],
   runningTimeoutsIds: [],
-  mediaStreams: []
+  mediaStreams: [],
+  isNetworkStable: null,
+  networkCheckDelay: {
+    initial: 3, // in seconds
+    current: null
+  }
 };
 
 // mutations are operations that actually mutates the state.
@@ -87,6 +92,9 @@ const mutations = {
       stream.getTracks().forEach(track => track.stop());
     }
     state.mediaStreams = [];
+  },
+  setNetworkStatus(status) {
+    state.isNetworkStable = Boolean(status)
   }
 };
 
@@ -123,10 +131,8 @@ const actions = {
     commit("setDrawDirectionInterval", intervalObject);
   },
   // for quest creation/edition
-  setCurrentEditedQuest: ({ commit }, quest) =>
-    commit("setCurrentEditedQuest", quest),
-  setCurrentEditedStep: ({ commit }, step) =>
-    commit("setCurrentEditedStep", step),
+  setCurrentEditedQuest: ({ commit }, quest) => commit("setCurrentEditedQuest", quest),
+  setCurrentEditedStep: ({ commit }, step) => commit("setCurrentEditedStep", step),
   setErrorMessage: ({ commit }, message) => commit("setErrorMessage", message),
   // for quest playing
   setCurrentRun: ({ commit }, run) => commit("setCurrentRun", run),
@@ -134,11 +140,11 @@ const actions = {
   addTimeoutId: ({ commit }, timeoutId) => commit("addTimeoutId", timeoutId),
   clearTimeoutIds: ({ commit }) => commit("clearTimeoutIds"),
   // for intervals handling
-  addIntervalId: ({ commit }, intervalId) =>
-    commit("addIntervalId", intervalId),
+  addIntervalId: ({ commit }, intervalId) => commit("addIntervalId", intervalId),
   clearIntervalIds: ({ commit }) => commit("clearIntervalIds"),
   addMediaStream: ({ commit }, stream) => commit("addMediaStream", stream),
-  clearMediaStreams: ({ commit }) => commit("clearMediaStreams")
+  clearMediaStreams: ({ commit }) => commit("clearMediaStreams"),
+  setNetworkStatus: ({ commit }, status) => commit("setNetworkStatus", status)
 };
 
 // getters are functions

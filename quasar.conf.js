@@ -2,7 +2,7 @@
 
 var loadEnvVars = require('./config/index')
 var path = require('path')
-//var fs = require('fs')
+var fs = require('fs')
 
 module.exports = function (ctx) {
   return {
@@ -10,8 +10,9 @@ module.exports = function (ctx) {
     boot: [
       ctx.dev ? '' : 'SentryMonitoring',
       //'FirebaseMonitoring',
-      'CustomDirectives',
+      //'CustomDirectives',
       'DateFormatFilter',
+      'NetworkInfo',
       'RouterAuthentication',
       'UniversalLinks', // enable to use deep links with Cordova plugin 
       'VueGoogleMaps',
@@ -53,11 +54,10 @@ module.exports = function (ctx) {
       }
     },
     devServer: {
-      https: true,
-      /*https: {
+      https: {
         key: fs.readFileSync('certs/webapp-dev-key.pem'),
         cert: fs.readFileSync('certs/webapp-dev-cert.pem')
-      },*/
+      },
       // port: 8080,
       open: true // opens browser window automatically
     },
