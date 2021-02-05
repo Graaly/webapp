@@ -204,7 +204,7 @@
             </offlineLoader>
           </div>
           <div>
-            <div class="q-pa-lg centered subtitle2">
+            <div class="q-px-lg q-pb-lg q-pt-md centered subtitle2">
               {{ $t('label.Warnings') }}
             </div>
             <div class="q-pa-md subtitle5">

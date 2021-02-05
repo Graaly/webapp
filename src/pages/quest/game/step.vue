@@ -98,8 +98,8 @@
         </div>
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
           <div class="fixed-top align-right full-width q-pa-lg" v-if="info && info.audio !== ''">
-            <q-btn v-if="sound.status === 'play'" flat color="white" @click="cutSound" icon="volume_off"></q-btn>
-            <q-btn v-if="sound.status === 'pause'" flat color="white" @click="cutSound" icon="volume_up"></q-btn>
+            <q-btn v-if="sound && sound.status === 'play'" flat color="white" @click="cutSound" icon="volume_off"></q-btn>
+            <q-btn v-if="sound && sound.status === 'pause'" flat color="white" @click="cutSound" icon="volume_up"></q-btn>
           </div>
           <div class="text-center dark-banner q-pb-xl q-pt-md fixed-bottom">
             <p class="title">
@@ -535,10 +535,10 @@ export default {
         this.offline.active = false
       
         for (var i = 0; i < runs.data.length; i++) {
-          if (runs.data[i].status === 'finished') {
+          if (runs.data[i] && runs.data[i].status && runs.data[i].status === 'finished') {
             this.isRunFinished = true
           }
-          if (runs.data[i].status === 'in-progress') {
+          if (runs.data[i] && runs.data[i].status && runs.data[i].status === 'in-progress') {
             this.run = runs.data[i]
             
             currentChapter = runs.data[i].currentChapter
@@ -572,7 +572,7 @@ export default {
         if (currentChapter === 0) {
           // no 'in-progress' run => create run for current player & current quest
           let res = await RunService.init(this.questId, this.questVersion, this.$route.params.lang, remotePlay, null, dataSharedWithPartner)
-          if (res.status === 200 && res.data && res.data._id) {
+          if (res && res.status === 200 && res.data && res.data._id) {
             if (isRunOfflineLoaded) {
               // if a offline run already exists
               this.run = offlineRun
@@ -2059,7 +2059,7 @@ export default {
     cutSound () {
       var audio = document.getElementById("background-music")
       if (audio) {
-        if (this.sound.status === 'play') {
+        if (this.sound && this.sound.status && this.sound.status === 'play') {
           audio.pause()
           this.sound.status = 'pause'
         } else {
