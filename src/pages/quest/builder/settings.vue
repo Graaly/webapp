@@ -628,18 +628,29 @@
           </q-item-section>
           <q-item-section>
             <q-item-label class="big-label">{{ $t('label.MarkersFile') }}</q-item-label>
-            <div v-if="quest.type === 'quest'">
-              {{ $t('label.MarkersToPrint') }}
-              <!-- for webapp mode -->
-              <q-btn v-if="!isHybrid" color="primary" class="glossy large-button" icon="fa fa-download" type="a" href="statics/markers/all.pdf" download>{{ $t('label.Download') }}</q-btn>
-              <!-- for hybrid mode -->
-              <q-btn v-if="isHybrid" color="primary" class="glossy large-button" icon="fa fa-download" @click="downloadMarkers()">{{ $t('label.Download') }}</q-btn>
-            </div>
             <div v-if="quest.type === 'quest'" class="q-pt-md">
               <div v-html="$t('label.MarkersToStartQuest')" />
               <img :src="serverUrl + '/upload/quest/' + questId + '_qrcode.png'" />
             </div>
             <div v-if="quest.type === 'room'" class="q-pt-md" v-html="$t('label.SaveQuestResultsMarker', {url1: serverUrl + '/upload/quest/' + questId + '_score1_qrcode.png', url2: serverUrl + '/upload/quest/' + questId + '_score2_qrcode.png', url3: serverUrl + '/upload/quest/' + questId + '_score3_qrcode.png'})" />
+          </q-item-section>
+        </q-item>
+        
+        <q-item>
+          <q-item-section side top>
+            <q-icon name="file_download" class="left-icon" />
+          </q-item-section>
+          <q-item-section> 
+            <q-item-label class="big-label">{{ $t('label.Downloads') }}</q-item-label>
+            <div v-if="quest.type === 'quest'">
+              <!-- QR Codes for webapp mode -->
+              <div v-if="!isHybrid"><q-btn color="primary" flat type="a" href="statics/markers/all.pdf" download>{{ $t('label.MarkersToPrint') }}</q-btn></div>
+              <!-- QR Codes for hybrid mode -->
+              <div v-if="isHybrid"><q-btn color="primary" flat @click="downloadMarkers()">{{ $t('label.MarkersToPrint') }}</q-btn></div>
+              <!-- Texts for translation webapp mode -->
+              <div v-if="!isHybrid"><q-btn color="primary" flat @click="downloadTexts()">{{ $t('label.ExportTexts') }}</q-btn></div>
+            </div>
+            
           </q-item-section>
         </q-item>
         
@@ -3251,6 +3262,14 @@ export default {
         Notification(quasarThis.$t('label.TechnicalIssue'), 'error')
         console.error('Could not access to device filesystem', err)
       })
+    },
+    /*
+     * download texts of the game
+     */
+    async downloadTexts() {
+      //const fileData = 
+      await StepService.generateTextsExportFile(this.questId, this.quest.version, this.languages.current)
+      window.open(this.serverUrl + '/upload/quest/' + this.questId + '/texts_fr.csv', "_self")
     },
     /*
      * Create a new QR Code for a player that paied

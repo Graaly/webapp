@@ -69,10 +69,24 @@
     </transition>
     <q-dialog maximized v-model="inventory.detail.isOpened">
       <div class="bg-white centered">
-        <img style="width: 100%" :src="inventory.detail.url">
+        <img v-if="inventory.detail.zoom === 1" style="width: 100%" :src="inventory.detail.url">
+        <div v-if="inventory.detail.zoom === 2" style="width: 100%; height: 100vw; overflow-x: scroll; overflow-y: scroll;">
+          <img style="width: 200%" :src="inventory.detail.url">
+        </div>
+        <div v-if="inventory.detail.zoom === 4" style="width: 100%; height: 100vw; overflow-x: scroll; overflow-y: scroll;">
+          <img style="width: 400%" :src="inventory.detail.url">
+        </div>
         <div class="q-pa-md">{{ inventory.detail.title }}</div>
         <div class="q-pa-md text-grey">{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>
         <q-btn class="glossy normal-button" color="primary" @click="closeInventoryDetail()"><div>{{ $t('label.Close') }}</div></q-btn>
+        <div>
+          <q-btn-group outline>
+            <q-btn flat :label="$t('label.Zoom')"/>
+            <q-btn flat :class="{ 'text-primary': (inventory.detail.zoom === 1) }" label="x1" @click="inventoryZoom(1)" />
+            <q-btn flat :class="{ 'text-primary': (inventory.detail.zoom === 2) }" label="x2" @click="inventoryZoom(2)" />
+            <q-btn flat :class="{ 'text-primary': (inventory.detail.zoom === 4) }" label="x4" @click="inventoryZoom(4)" />
+          </q-btn-group>
+        </div>
       </div>
     </q-dialog>
     
@@ -322,7 +336,8 @@ export default {
           show: true,
           detail: {
             isOpened: false,
-            url: ''
+            url: '',
+            zoom: 1
           }
         },
         hint: {
@@ -1400,6 +1415,7 @@ export default {
      * @param   {object}    item            Item selected
      */
     selectItem(item) {
+      this.inventory.detail.zoom = 1
       if (this.step.type !== 'use-item') {
         this.inventory.detail.isOpened = true
         if (item.pictures && item.pictures[this.lang] && item.pictures[this.lang] !== '') {
@@ -1419,6 +1435,10 @@ export default {
     },
     closeInventoryDetail() {
       this.inventory.detail.isOpened = false
+    },
+    inventoryZoom(zoomLevel) {
+      Vue.set(this.inventory.detail, 'zoom', zoomLevel)
+      this.$forceUpdate()
     },
     /*
      * Show the feedback box

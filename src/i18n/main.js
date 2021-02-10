@@ -749,7 +749,7 @@ module.exports = {
       QRCodeIsNotWorking: "The QR Code is not recognized",
       ScanQRCodeToStartQuest: "Scan a QR Code",
       ScanQRCode: "Scan a QR Code",
-      MarkersToPrint: "Print the game's QR Codes, and place them where you want to",
+      MarkersToPrint: "Game's QR Codes",
       MarkersToStartQuest: "Players can start your game by scanning this QR code on the login page",
       SaveQuestResultsMarker: "Your player can scan a QR Code to save their score with Graaly (scan it on login page or home page). For the players who exited the room in time:<br /><img src='{url3}' /><br />For players who were close to exit the room in time:<br /><img src='{url2}' /><br />For players that did not exit the room<br /><img src='{url1}' />",
       ThisActionCanNotBeCanceled: "This actions can not be canceled",
@@ -986,7 +986,10 @@ module.exports = {
       RevenuesPayedFloor: "Revenues payed when over 50€",
       QRCodeMessage: "Message displayed when user needs to scan a QR code (escape game mode)",
       TeamID: "Team ID",
-      PleaseFillThisForm: "Please fill this field"
+      PleaseFillThisForm: "Please fill this field",
+      Zoom: "Zoom",
+      Downloads: "Downloads",
+      ExportTexts: "Game's texts"
     }
   },
   fr: {
@@ -1726,7 +1729,7 @@ module.exports = {
       QRCodeIsNotWorking: "Le QR Code n'est pas reconnu",
       ScanQRCodeToStartQuest: "Scanner un QR Code",
       ScanQRCode: "Scanner un QR Code",
-      MarkersToPrint: "Imprimez les QR Codes du jeu, à placer aux endroits que vous avez prévu",
+      MarkersToPrint: "QR Codes du jeu",
       MarkersToStartQuest: "Les joueurs peuvent jouer en scannant ce QR Code sur la page de login de Graaly",
       SaveQuestResultsMarker: "Vos joueurs peuvent scanner un QR Code pour enregistrer leur score dans Graaly (sur la page de login ou sur la page d'accueil). Pour les joueurs qui sont sortis de la salle dans les temps<br /><img src='{url3}' /><br />Pour les joueurs qui sont presque sortis dans les temps<br /><img src='{url2}' /><br />Pour les joueurs qui ne sont pas sortis<br /><img src='{url1}' />",
       ThisActionCanNotBeCanceled: "Cette action ne peut être annulée",
@@ -1963,7 +1966,10 @@ module.exports = {
       RevenuesPayedFloor: "Paiement quand gains > 50€",
       QRCodeMessage: "Message affiché quand le joueur doit flasher un QR code (mode Escape game)",
       TeamID: "Identifiant équipe",
-      PleaseFillThisForm: "Veuillez compléter ce champ"
+      PleaseFillThisForm: "Veuillez compléter ce champ",
+      Zoom: "Zoom",
+      Downloads: "Téléchargements",
+      ExportTexts: "Textes du jeu"
     }
   }
 }

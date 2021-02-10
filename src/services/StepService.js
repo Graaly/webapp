@@ -465,5 +465,25 @@ export default {
     return Api().post("/quest/" + questId + "/snapshot/upload", data, { timeout: 600000, headers: { 'Content-Type': 'multipart/form-data' } }).then(function (response) {
       done(false, response)
     })
+  },
+  /*
+   * Export the texts of the game
+   * @param   {String}    questId        ID of the quest
+   * @param   {String}    lang           language concerned
+   * @param   {Number}    version        version of the quest
+   */
+  async generateTextsExportFile(questId, version, lang) {
+    let res = await Api()
+      .get(
+        "quest/" +
+          questId +
+          "/version/" +
+          version +
+          "/" +
+          lang +
+          "/export/texts"
+      )
+      .catch(error => console.log(error.request))
+    return res
   }
 };

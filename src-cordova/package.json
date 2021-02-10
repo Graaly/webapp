@@ -10,10 +10,8 @@
   "author": "Apache Cordova Team",
   "license": "Apache-2.0",
   "dependencies": {
-    "com.darktalker.cordova.screenshot": "git+https://github.com/gitawego/cordova-screenshot.git",
     "cordova": "^9.0.0",
     "cordova-android": "^8.1.0",
-    "cordova-ios": "^5.1.0",
     "cordova-open-native-settings": "^1.5.2",
     "cordova-plugin-add-swift-support": "^2.0.2",
     "cordova-plugin-android-permissions": "1.1.0",
@@ -31,7 +29,6 @@
     "cordova-plugin-geolocation": "4.0.1",
     "cordova-plugin-headingcalibration": "^1.0.0",
     "cordova-plugin-inappbrowser": "^4.0.0",
-    "cordova-plugin-insomnia": "git+https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git",
     "cordova-plugin-ionic-webview": "^4.1.2",
     "cordova-plugin-nativestorage": "^2.3.2",
     "cordova-plugin-network-information": "^2.0.2",
@@ -76,24 +73,29 @@
       "cordova-plugin-ionic-webview": {},
       "com.darktalker.cordova.screenshot": {},
       "cordova-plugin-battery-status": {},
-      "cordova-plugin-ble-central": {},
+      "cordova-plugin-ble-central": {
+        "BLUETOOTH_USAGE_DESCRIPTION": " "
+      },
       "cordova-plugin-apprate": {},
       "cordova-plugin-inappbrowser": {},
       "cordova-plugin-camera": {
         "ANDROID_SUPPORT_V4_VERSION": "27.+"
       },
       "cordova-plugin-headingcalibration": {},
-      "cordova-plugin-android-permissions": {}
+      "cordova-plugin-android-permissions": {},
+      "cordova.plugins.headingcalibration": {}
     },
     "platforms": [
-      "android",
-      "ios"
+      "android"
     ]
   },
   "devDependencies": {
+    "com.darktalker.cordova.screenshot": "git+https://github.com/gitawego/cordova-screenshot.git",
     "cordova-plugin-apprate": "^1.5.0",
     "cordova-plugin-camera": "^4.1.0",
+    "cordova-plugin-dialogs": "^2.0.2",
     "cordova-plugin-inappbrowser": "^4.0.0",
+    "cordova-plugin-insomnia": "git+https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git",
     "cordova-plugin-nativestorage": "^2.3.2"
   }
 }
