@@ -130,7 +130,7 @@ $ cd src-cordova\platforms\android\app\build\outputs\apk\release
 This only needs to be launched if a key has not been generated : $ keytool -genkey -v -keystore graaly-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-alias
 $ jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore graaly-key.jks app-release-unsigned.apk my-alias
 $ rm graaly.apk
-$ E:\logiciels\Android\sdk\build-tools\26.0.2\zipalign -v 4 app-release-unsigned.apk graaly.apk
+$ C:\Users\ericm\AppData\Local\Android\Sdk\build-tools\30.0.3\zipalign -v 4 app-release-unsigned.apk graaly.apk
 ```
 Attention:
 * The keystore (jks file) needs to be saved in a secure location. It can not be built again.
@@ -311,7 +311,7 @@ Check this [solution](https://stackoverflow.com/a/55120122/488666)
 
 #### Error message `No target specified and no devices found`
 
-Open the platform tools folder of your android SDK (e.g. : cd E:\logiciels\Android\sdk\platform-tools)
+Open the platform tools folder of your android SDK (e.g. : cd C:\Users\ericm\AppData\Local\Android\Sdk\platform-tools)
 
 `adb devices` (unplug the device, run "adb kill-server" if device is offline)
 
