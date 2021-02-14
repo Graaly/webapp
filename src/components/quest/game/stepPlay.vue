@@ -348,9 +348,11 @@
 
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
         <q-btn round :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color">
-          <!--<img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />-->
-          <img v-if="itemUsed && itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== ''" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
-          <img v-if="itemUsed && !(itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== '')" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
+          <q-avatar>
+            <!--<img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />-->
+            <img v-if="itemUsed && itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== ''" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
+            <img v-if="itemUsed && !(itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== '')" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
+          </q-avatar>
         </q-btn>
         {{ $t('label.TouchWhereYouUseThisItem') }}
       </p>
@@ -4173,7 +4175,9 @@ export default {
      * Stops current countdown
      */
     stopcountdown() {
-      this.step.countDownTime.enabled = false
+      if (this.step.hasOwnProperty('countDownTime')) {
+        this.step.countDownTime.enabled = false
+      }
     },
     /**
      * used by timer's <q-linear-progress> component
@@ -4277,13 +4281,13 @@ export default {
     display: none
   }
     
-  .q-btn, audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
+  .q-btn, /*audio,*/ .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
   
   .q-btn { margin-top: 1rem; }
   
   /* info specific */
   
-  audio { opacity: 0.9; }
+  /*audio { opacity: 0.9; }*/
   
   .video { flex-grow: 1; display: flex; align-items: center; }
   
@@ -4509,9 +4513,8 @@ export default {
   .actions > div { display: flex; flex-flow: row nowrap; }
   .actions > div > .q-btn { flex-grow: 1; }
   .actions > div > .q-btn:not(:first-child) { flex-grow: 1; margin-left: 1rem; }
-    
+  
   .inventory-btn { position: fixed; bottom: 60px; left: 0.7rem; z-index: 1; color: #fff; }
-  .inventory-btn img { width: 100%; height: 100%; border-radius: 50%; }
   
   [draggable] {
     user-select: none;
