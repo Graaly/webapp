@@ -10,13 +10,14 @@ export default {
       .get("run/" + id)
       .catch(error => console.log(error.request));
   },
-  /*
+  /**
    * list runs for a quest and a user
    * @param   {String}    questId                  ID of the quest
+   * @param   {Object}    axiosRetryConfig         Optional retry options (see Api.js)
    */
-  listForAQuest(questId) {
+  listForAQuest(questId, axiosRetryConfig = {}) {
     return Api()
-      .get("run/quest/" + questId)
+      .get("run/quest/" + questId, { 'axios-retry': axiosRetryConfig })
       .catch(error => console.log(error.request));
   },
   /*

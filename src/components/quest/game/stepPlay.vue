@@ -1741,7 +1741,7 @@ export default {
       var _this = this
       var lowNetworkTimeout = utils.setTimeout(function () { _this.isNetworkLow = true }, 8000)
 
-      var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player)
+      var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player, { retries: 0 })
 
       // clear low network alerte if displayed
       clearTimeout(lowNetworkTimeout)

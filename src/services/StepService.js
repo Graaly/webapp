@@ -77,24 +77,16 @@ export default {
       .catch(error => console.log(error.request));
     return res;
   },
-  /*
-   * get a step by its number
-   * @param   {String}    questId        ID of the quest
-   * @param   {String}    number         Number of the step
-   *
-  async getByNumber (questId, number) {
-    let res = await Api().get('quest/' + questId + '/step/number/' + number).catch(error => console.log(error.request))
-    return res
-  },*/
-  /*
+  /**
    * check an answer
    * @param   {String}    questId        ID of the quest
    * @param   {String}    stepId          ID of the step
    * @param   {String}    runId           ID of the run
    * @param   {Object}    answer          Answer to the step
    * @param   {String}    player          Player number ('P1', 'P2', ...)
+   * @param   {Object}    axiosRetryConfig Optional Axios Retry options (see Api.js)
    */
-  async checkAnswer(questId, stepId, version, runId, answer, player) {
+  async checkAnswer(questId, stepId, version, runId, answer, player, axiosRetryConfig = {}) {
     let res = await Api()
       .post(
         "quest/" +
@@ -107,7 +99,8 @@ export default {
           runId +
           "/player/" +
           player,
-        answer
+        answer,
+        {'axios-retry': axiosRetryConfig}
       )
       .catch(error => console.log(error.request));
     return res;

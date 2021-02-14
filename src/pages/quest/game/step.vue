@@ -501,7 +501,7 @@ export default {
      */
     async getRun() {
       // List all run for this quest for current user
-      var runs = await RunService.listForAQuest(this.questId, null, this.lang)
+      var runs = await RunService.listForAQuest(this.questId, { retries: 0 })
       
       var currentChapter = 0
       var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
