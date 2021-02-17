@@ -80,11 +80,11 @@
     <plugin name="cordova-plugin-geolocation" spec="^4.0.1" />
     <plugin name="cordova-plugin-contacts" spec="^3.0.1" />
     <plugin name="cordova-plugin-battery-status" spec="^2.0.3" />
-    <plugin name="cordova-plugin-facebook4" spec="6.0.0">
+    <!--<plugin name="cordova-plugin-facebook4" spec="6.0.0">
         <variable name="APP_ID" value="591912491155447" />
         <variable name="APP_NAME" value="graaly" />
         <variable name="FACEBOOK_ANDROID_SDK_VERSION" value="4.25.0" />
-    </plugin>
+    </plugin>-->
     <plugin name="cordova-plugin-camera-preview" spec="^0.10.0" />
     <plugin name="phonegap-plugin-media-stream" spec="^1.2.1" />
     <plugin name="cordova-plugin-insomnia" spec="https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git" />

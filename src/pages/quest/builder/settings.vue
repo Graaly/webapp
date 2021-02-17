@@ -325,13 +325,13 @@
                 v-model="form.fields.customization.removeScoring"
                 />
             </div>
-            <div>
+            <!--<div>
               <q-toggle
                 :readonly="readOnly"
                 :label="$t('label.ForcePlayerToHaveAccount')"
                 v-model="form.fields.forcePlayerToHaveAccount"
                 /> <q-icon name="help" @click.native="showHelpPopup('ForcePlayerToHaveAccountHelp')" />
-            </div>
+            </div>-->
             <div>
               <q-toggle
                 :readonly="readOnly"
@@ -1294,7 +1294,9 @@ export default {
           { label: '45 ' + this.$t('label.minutes'), value: 45 },
           { label: '60 ' + this.$t('label.minutes'), value: 60 },
           { label: '90 ' + this.$t('label.minutes'), value: 90 },
-          { label: '120 ' + this.$t('label.minutes'), value: 120 }
+          { label: '120 ' + this.$t('label.minutes'), value: 120 },
+          { label: '240 ' + this.$t('label.minutes'), value: 240 },
+          { label: this.$t('label.DoNotDisplay'), value: 999 }
         ]
       },
       quest: {

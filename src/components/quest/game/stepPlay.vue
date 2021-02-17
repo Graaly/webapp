@@ -34,11 +34,11 @@
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && step.options && step.options.html" v-html="getTranslatedText()"></p>
           <div v-if="step.type !== 'help' && step.type !== 'info-video'" class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
         <div class="video" v-if="step.videoStream">
           <video class="full-width" controls controlsList="nodownload" autoplay>
@@ -126,11 +126,11 @@
             </div>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -176,11 +176,11 @@
             </div>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -202,11 +202,11 @@
             </div>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -243,11 +243,11 @@
             </div>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -281,11 +281,11 @@
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer"><div>{{ $t('label.ConfirmTheAnswer') }}</div></q-btn>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -609,6 +609,7 @@
     
     <!--<div v-show="playerResult === true && score >= 1" class="fadein-message">+{{ score }}</div>-->
     <div v-show="playerResult === true && displaySuccessIcon" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
+    <div v-show="geolocation.foundStep" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="check_box" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
     <div 
       v-show="
@@ -635,14 +636,12 @@
     
     <!--====================== GPS CALIBRATION =================================-->
     <gpscalibration
-      ref="gpscal"
-      @endvertical="$refs.phonevertical.askUserToHandleMobileVertically()">
+      ref="gpscal">
     </gpscalibration>
 <!--:geolocationshowCalibration="false"-->
     <!--====================== HOLD PHONE VERTICAL =================================-->
     <holdphonevertically
-      ref="phonevertical"
-      :geolocation = "geolocation">
+      :show="geolocation.showARHelp">
     </holdphonevertically>
     
   </div>
@@ -802,7 +801,10 @@ export default {
           takeMobileVertically: false,
           gyroscopeDetectionCounter: 0,
           lowCompassAccuracy: false,
-          compassAccuracyTimeout: null
+          compassAccuracyTimeout: null,
+          showARHelp: false,
+          currentIndex: 0,
+          foundStep: false
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -1183,6 +1185,9 @@ export default {
             }
             
             if (this.step.type === 'locate-item-ar') {
+              // show help
+              this.geolocation.showARHelp = true
+              
               // ask user to access to his device motion
               requestPermissionResult = await utils.requestDeviceMotionPermission()
               
@@ -2785,6 +2790,12 @@ console.log(utils.removeAccents(this.answer[i]))
       }
       
       let previousGPSdistance = this.geolocation.GPSdistance
+      
+      let destinationPosition = { lat: options.lat, lng: options.lng }
+      if (this.step.type === 'geolocation' && options.locations && options.locations.length > 0) {
+        destinationPosition.lat = options.locations[this.geolocation.currentIndex].lat
+        destinationPosition.lng = options.locations[this.geolocation.currentIndex].lng
+      }
 
       // compute distance between two coordinates
       // note: current.accuracy contains the result accuracy in meters
@@ -2844,10 +2855,17 @@ console.log(utils.removeAccents(this.answer[i]))
       }
       
       if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.distance <= parseInt(options.distance, 10)) || this.geolocation.distance <= 20)) {
-        this.$refs['geolocation-component'].disabled = true
-        this.geolocation.active = false
-        this.resetDrawDirectionInterval()
-        await this.checkAnswer(current)
+        //check if other locations are defined
+        this.geolocation.currentIndex ++
+        if (options.locations && options.locations.length > 0 && this.geolocation.currentIndex < options.locations.length) {
+          this.geolocation.foundStep = false
+          this.geolocation.foundStep = true
+        } else {
+          this.$refs['geolocation-component'].disabled = true
+          this.geolocation.active = false
+          this.resetDrawDirectionInterval()
+          await this.checkAnswer(current)
+        }
       }
     },
     /*

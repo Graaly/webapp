@@ -61,7 +61,7 @@
           <div class="q-mr-lg">
             <img src="statics/images/icon/difficulty.svg" class="medium-icon" />{{ $t('label.Difficulty' + quest.level) }}
           </div>
-          <div class="q-mr-lg">
+          <div v-if="quest.duration && quest.duration < 999" class="q-mr-lg">
             <img src="statics/images/icon/duration.svg" class="medium-icon" />
             <span v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</span>
             <span v-if="quest.duration && quest.duration >= 60">{{ quest.duration / 60 }}{{ $t('label.hoursSimplified') }}</span>

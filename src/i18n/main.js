@@ -625,7 +625,7 @@ module.exports = {
       PublicQuestDesc2: "Once validated by our game master, your game will be visible and playable by every body",
       PublicProQuestDesc1: "Your game is playable by all users. You pay a small fee by player or you share the revenues with us.<p>Please contact us at contact@graaly.com for more details</p>",
       PublicProQuestDesc2: "<p>If your game is not free, you can either use the in-app payment, or manage the payment your self</p><p>For the in-app payment, Google/Apple take 30% of the revenues</p><p>In all cases, Graaly takes 30% of the revenues</p><p>The rest is for you, so from 40% to 70% of the net revenues.</p><p>Graaly will send you money monthly</p><p>If your game is free for the end users, Graaly will charge you monthly 0,25 € (excl. taxes) per player</p><p>You can disable your game when you want</p><p>Please contact us at contact@graaly.com for more details</p>",
-      PrivateProQuestDesc1: "Your game is dedicated to a list of people. You are only charged for the number of players",
+      PrivateProQuestDesc1: "Your game is dedicated to a list of people. You pay a fee by player or you share the revenues with us.<p>Please contact us at contact@graaly.com for more details</p>",
       CreatePrivateQuest: "Create a private game",
       BuyPrivateQuest: "Buy a private game",
       OnlyBuyableOnMobile: "Only buyable on mobile",
@@ -1000,7 +1000,9 @@ module.exports = {
       YouNeedToCreateYourAccountToPlay: "You need to create your account to play this game",
       ShareDataWithPartner: "Share your data with the game creator",
       PartnerAskForYouData: "The creator of this game want to access your data (email address, name). The reason can be to organize a draw, or a competition, or to give you a voucher. Please read the game description for more information",
-      UseHtmlInDescription: "Use HTML tags in the question"
+      UseHtmlInDescription: "Use HTML tags in the question",
+      DoNotDisplay: "Do not display",
+      AddAnGPSLocation: "Add a GPS location"
     } 
   },
   fr: {
@@ -1616,7 +1618,7 @@ module.exports = {
       PublicQuestDesc2: "Une fois validé par les games masters, ce jeu sera visible et jouable par tous",
       PublicProQuestDesc1: "Votre jeu est jouable par tous les joueurs Graaly. Vous payez un petit montant par joueur ou partagez les revenus avec nous.<p>Contactez-nous à contact@graaly.com pour plus d'information</p>",
       PublicProQuestDesc2: "<p>Si votre jeu est payant pour les joueurs, vous pouvez soit utiliser le système de paiement intégré à Graaly soit gérer vous même le paiement</p><p>Concernant le système de paiement intégré, Google/Apple prennent 30% des revenus</p><p>Dans tous les cas Graaly conserve 30% des revenus</p><p>Le reste est pour vous, soit de 40% à 70% des revenus.</p><p>Graaly vous reverse votre part mensuellement</p><p>Si votre jeu est gratuit pour les joueurs, Graaly vous facture mensuellement 0,25 € HT par joueur, soit moins que le facicule papier que vous devrier acheter sans application mobile</p><p>Vous pouvez désactiver votre jeu à tout moment</p><p>Contactez-nous à contact@graaly.com pour plus d'information</p>",
-      PrivateProQuestDesc1: "Votre jeu est dédié à des joueurs définis. Le prix est lié au nombre de joueurs. Contactez-nous à contact@graaly.com pour plus d'information",
+      PrivateProQuestDesc1: "Votre jeu est dédié à des joueurs définis. Vous payez un montant par joueur ou partagez les revenus avec nous. Contactez-nous à contact@graaly.com pour plus d'information",
       CreatePrivateQuest: "Créer un jeu privé",
       BuyPrivateQuest: "Acheter un jeu privé",
       OnlyBuyableOnMobile: "Seulement disponible sur mobile",
@@ -1991,7 +1993,9 @@ module.exports = {
       YouNeedToCreateYourAccountToPlay: "Vous devez créer votre compte pour joueur à ce jeu",
       ShareDataWithPartner: "Partager vos données avec le créateur du jeu",
       PartnerAskForYouData: "Le créateur du jeu souhaiterais accéder à vos données (adresse email, nom). Cela peut être pour vous permettre de participer à un tirage au sort, un jeu concours ou vous faire gagner un bon de réduction. Veuillez lire la description du jeu pour en savoir plus",
-      UseHtmlInDescription: "Utiliser des balises HTML dans la question"
+      UseHtmlInDescription: "Utiliser des balises HTML dans la question",
+      DoNotDisplay: "Ne pas afficher",
+      AddAnGPSLocation: "Ajouter un point GPS"
     }
   }
 }
