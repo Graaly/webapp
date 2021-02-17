@@ -1,5 +1,5 @@
-import Api from "services/Api";
-import QuestService from "services/QuestService";
+import Api from "services/Api"
+import QuestService from "services/QuestService"
 
 export default {
   /*
@@ -10,12 +10,12 @@ export default {
    */
   async listForAQuest(questId, version, lang) {
     if (!lang) {
-      lang = "default";
+      lang = "default"
     }
     let res = await Api()
       .get("quest/" + questId + "/version/" + version + "/steps/lang/" + lang)
-      .catch(error => console.log(error.request));
-    return res;
+      .catch(error => console.log(error.request))
+    return res
   },
   /*
    * list the steps of a chapter
@@ -26,7 +26,7 @@ export default {
    */
   async listForAChapter(questId, chapterId, version, lang) {
     if (!lang) {
-      lang = "default";
+      lang = "default"
     }
     let res = await Api()
       .get(
@@ -39,8 +39,8 @@ export default {
           "/steps/lang/" +
           lang
       )
-      .catch(error => console.log(error.request));
-    return res;
+      .catch(error => console.log(error.request))
+    return res
   },
   /*
    * list the objects won until a specific step of a quest
@@ -59,8 +59,8 @@ export default {
           stepId +
           "/objectswon"
       )
-      .catch(error => console.log(error.request));
-    return res;
+      .catch(error => console.log(error.request))
+    return res
   },
   /*
    * get a step by its ID
@@ -70,12 +70,12 @@ export default {
    */
   async getById(stepId, version, lang) {
     if (!lang) {
-      lang = "default";
+      lang = "default"
     }
     let res = await Api()
       .get("step/" + stepId + "/version/" + version + "/lang/" + lang)
-      .catch(error => console.log(error.request));
-    return res;
+      .catch(error => console.log(error.request))
+    return res
   },
   /**
    * check an answer
@@ -102,8 +102,8 @@ export default {
         answer,
         {'axios-retry': axiosRetryConfig}
       )
-      .catch(error => console.log(error.request));
-    return res;
+      .catch(error => console.log(error.request))
+    return res
   },
   /*
    * count the steps for a quest
@@ -113,8 +113,8 @@ export default {
   async countForAQuest(questId, version) {
     let res = await Api()
       .get("quest/" + questId + "/version/" + version + "/steps/count")
-      .catch(error => console.log(error.request));
-    return res;
+      .catch(error => console.log(error.request))
+    return res
   },
   /*
    * Save a step settings (or create if the step is not existing)
@@ -132,13 +132,13 @@ export default {
           "/update",
         data
       )
-      .catch(error => console.log(error.request));
+      .catch(error => console.log(error.request))
 
     // clears cached data if there is any
     // TODO: clear + store new data only for current step
-    await QuestService.removeFromCache(data.questId);
+    await QuestService.removeFromCache(data.questId)
 
-    return res;
+    return res
   },
   /*
    * Save a chapter settings (or create if the channel is not existing)
@@ -156,13 +156,13 @@ export default {
           "/update",
         data
       )
-      .catch(error => console.log(error.request));
+      .catch(error => console.log(error.request))
 
     // clears cached data if there is any
     // TODO: clear + store new data only for current chapter
-    await QuestService.removeFromCache(data.questId);
+    await QuestService.removeFromCache(data.questId)
 
-    return res;
+    return res
   },
   /*
    * Remove a step
@@ -172,12 +172,12 @@ export default {
   async remove(questId, stepId, version) {
     let res = await Api().delete(
       "quest/" + questId + "/version/" + version + "/step/" + stepId + "/remove"
-    );
+    )
 
     // clears cached data if there is any
-    await QuestService.removeFromCache(questId);
+    await QuestService.removeFromCache(questId)
 
-    return res;
+    return res
   },
   /*
    * Remove a chapter
@@ -194,12 +194,12 @@ export default {
         "/chapter/" +
         chapterId +
         "/remove"
-    );
+    )
 
     // clears cached data if there is any
-    await QuestService.removeFromCache(questId);
+    await QuestService.removeFromCache(questId)
 
-    return res;
+    return res
   },
   /*
    * Move a step
@@ -220,12 +220,12 @@ export default {
           "/move/" +
           newPosition
       )
-      .catch(error => console.log(error.request));
+      .catch(error => console.log(error.request))
 
     // clears cached data if there is any
-    await QuestService.removeFromCache(questId);
+    await QuestService.removeFromCache(questId)
 
-    return res;
+    return res
   },
   /*
    * Move a chapter
@@ -246,12 +246,12 @@ export default {
           "/move/" +
           newPosition
       )
-      .catch(error => console.log(error.request));
+      .catch(error => console.log(error.request))
 
     // clears cached data if there is any
-    await QuestService.removeFromCache(questId);
+    await QuestService.removeFromCache(questId)
 
-    return res;
+    return res
   },
   /*
    * upload a background image for step
@@ -264,12 +264,12 @@ export default {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
       })
-      .catch(error => console.log(error.request));
+      .catch(error => console.log(error.request))
 
     // clears cached data if there is any
-    await QuestService.removeFromCache(questId);
+    await QuestService.removeFromCache(questId)
 
-    return res;
+    return res
   },
   /*
    * upload an "answer image" (for step 'choose')
@@ -282,12 +282,12 @@ export default {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
       })
-      .catch(error => console.log(error.request));
+      .catch(error => console.log(error.request))
 
     // clears cached data if there is any
-    await QuestService.removeFromCache(questId);
+    await QuestService.removeFromCache(questId)
 
-    return res;
+    return res
   },
   /*
    * upload an "image" (for step 'memory')
@@ -300,12 +300,12 @@ export default {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
       })
-      .catch(error => console.log(error.request));
+      .catch(error => console.log(error.request))
 
     // clears cached data if there is any
-    await QuestService.removeFromCache(questId);
+    await QuestService.removeFromCache(questId)
 
-    return res;
+    return res
   },
   /*
    * upload an "answer image" (for step 'code-image')
@@ -318,12 +318,12 @@ export default {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
       })
-      .catch(error => console.log(error.request));
+      .catch(error => console.log(error.request))
 
     // clears cached data if there is any
-    await QuestService.removeFromCache(questId);
+    await QuestService.removeFromCache(questId)
 
-    return res;
+    return res
   },
   /*
    * upload a video for 'info-video' step
@@ -336,12 +336,12 @@ export default {
         timeout: 120000,
         headers: { "Content-Type": "multipart/form-data" }
       })
-      .catch(error => console.log(error.request));
+      .catch(error => console.log(error.request))
 
     // clears cached data if there is any
-    await QuestService.removeFromCache(questId);
+    await QuestService.removeFromCache(questId)
 
-    return res;
+    return res
   },
   /*
    * upload a jigsaw picture 'jigsaw puzzle' step
@@ -354,12 +354,12 @@ export default {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
       })
-      .catch(error => console.log(error.request));
+      .catch(error => console.log(error.request))
 
     // clears cached data if there is any
-    await QuestService.removeFromCache(questId);
+    await QuestService.removeFromCache(questId)
 
-    return res;
+    return res
   },
   /*
    * upload a item picture for 'new item' step
@@ -373,12 +373,12 @@ export default {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
       })
-      .catch(error => console.log(error.request));
+      .catch(error => console.log(error.request))
 
     // clears cached data if there is any
-    await QuestService.removeFromCache(questId);
+    await QuestService.removeFromCache(questId)
 
-    return res;
+    return res
   },
   /*
    * upload a 3D object for 'locate item ar' step
@@ -391,12 +391,12 @@ export default {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
       })
-      .catch(error => console.log(error.request));
+      .catch(error => console.log(error.request))
 
     // clears cached data if there is any
-    await QuestService.removeFromCache(questId);
+    await QuestService.removeFromCache(questId)
 
-    return res;
+    return res
   },
   /*
    * upload a picture for 'character' step
@@ -410,12 +410,12 @@ export default {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
       })
-      .catch(error => console.log(error.request));
+      .catch(error => console.log(error.request))
 
     // clears cached data if there is any
-    await QuestService.removeFromCache(questId);
+    await QuestService.removeFromCache(questId)
 
-    return res;
+    return res
   },
   /*
    * upload alt picture for 'use-item' and 'find-item' step
@@ -429,12 +429,12 @@ export default {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
       })
-      .catch(error => console.log(error.request));
+      .catch(error => console.log(error.request))
 
     // clears cached data if there is any
-    await QuestService.removeFromCache(questId);
+    await QuestService.removeFromCache(questId)
 
-    return res;
+    return res
   },
   /*
    * upload a player snapshot for 'image-over-flow' step
@@ -445,5 +445,25 @@ export default {
     return Api().post("/quest/" + questId + "/snapshot/upload", data, { timeout: 600000, headers: { 'Content-Type': 'multipart/form-data' } }).then(function (response) {
       done(false, response)
     })
+  },
+  /*
+   * Export the texts of the game
+   * @param   {String}    questId        ID of the quest
+   * @param   {String}    lang           language concerned
+   * @param   {Number}    version        version of the quest
+   */
+  async generateTextsExportFile(questId, version, lang) {
+    let res = await Api()
+      .get(
+        "quest/" +
+          questId +
+          "/version/" +
+          version +
+          "/" +
+          lang +
+          "/export/texts"
+      )
+      .catch(error => console.log(error.request))
+    return res
   }
-};
+}

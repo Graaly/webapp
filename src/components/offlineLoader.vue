@@ -63,7 +63,7 @@ export default {
       // check if quest is not already loaded
       const isQuestOfflineLoaded = await QuestService.isCached(quest.questId)
       this.offline.progress = 0.1
-      console.log("is already loaded: " + isQuestOfflineLoaded)
+
       if (!isQuestOfflineLoaded) {  
         const isSaved = await this.saveQuestData(quest)
         if (!isSaved) {

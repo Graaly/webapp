@@ -1,7 +1,7 @@
 <template>
 
   <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor'), 'loaded': pageReady}">
-    <div id="background-image" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect)}" style="width: 100%; height: 100%; position: absolute; left: 0; top: 0;">
+    <div id="background-image" v-if="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect)}">
     </div>
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
       <q-linear-progress 
@@ -31,9 +31,9 @@
 
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video' || step.type == 'help'">
         <div v-if="showTools && getTranslatedText() != ''" id="info-clickable" :class="{ grow: !step.videoStream }">
-          <p class="text" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
-          <p class="text" v-if="getTranslatedText() != '' && step.options && step.options.html" v-html="getTranslatedText()"></p>
-          <div v-if="step.type !== 'help'" class="centered" style="padding-bottom: 100px">
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && step.options && step.options.html" v-html="getTranslatedText()"></p>
+          <div v-if="step.type !== 'help' && step.type !== 'info-video'" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
@@ -42,7 +42,7 @@
         </div>
         <div class="video" v-if="step.videoStream">
           <video class="full-width" controls controlsList="nodownload" autoplay>
-            <source :src="step.videoStream.indexOf('blob:') !== -1 ? step.videoStream : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
+            <source :src="(step.videoStream && step.videoStream.indexOf('blob:') !== -1) ? step.videoStream : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
           </video>
         </div>
         <!--
@@ -64,7 +64,8 @@
       
       <div class="new-item" v-if="step.type == 'new-item'">
         <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
         <div class="item">
           <img style="width: 80%" :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
@@ -81,14 +82,14 @@
       <!------------------ CHARACTER STEP AREA ------------------------>
       
       <div class="character" v-if="step.type == 'character'">
-        <div class="fixed-bottom story" @click="nextCharacterBubbleText()">
+        <div class="fixed-bottom-character story" @click="nextCharacterBubbleText()">
           <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
           <div class="bubble-middle" style="font-size: 0.9em; background: url(statics/icons/story/sticker-middle.png) repeat-y;">
             <div v-if="character.needToScroll" class="scroll-indicator">
               <q-icon class="flashing" size="2.5em" name="arrow_drop_down_circle" />
             </div>
-            <p ref="bubbleText" class="carrier-return" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
-            <p ref="bubbleTextHtml" class="text" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
+            <p ref="bubbleText" class="carrier-return" :class="'font-' + customization.font" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
+            <p ref="bubbleTextHtml" class="text" :class="'font-' + customization.font" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
             <p class="text text-grey" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ReadNext') }}</p>
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
@@ -107,12 +108,13 @@
       <div class="choose" v-if="step.type == 'choose'" style="overflow: auto; margin-bottom: 80px;">
         <div v-if="showTools">
           <div @click="hideControlsTemporaly">
-             <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
           <div class="answers-text" v-if="answerType === 'text'">
             <q-btn v-for="(option, key) in step.options.items" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
-              <span v-if="!option.textLanguage || !option.textLanguage[lang]">{{ option.text }}</span>
-              <span v-if="option.textLanguage && option.textLanguage[lang]">{{ option.textLanguage[lang] }}</span>
+              <span :class="'font-' + customization.font" v-if="!option.textLanguage || !option.textLanguage[lang]">{{ option.text }}</span>
+              <span :class="'font-' + customization.font" v-if="option.textLanguage && option.textLanguage[lang]">{{ option.textLanguage[lang] }}</span>
             </q-btn>
           </div>
           <div class="answers-images" v-if="answerType === 'image'">
@@ -137,7 +139,8 @@
       <div class="code" v-if="step.type == 'code-keypad'">
         <div v-if="showTools">
           <div>
-            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
           <div class="typed-code">
             <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
@@ -186,7 +189,8 @@
       <div class="code code-color" v-if="step.type == 'code-color'">
         <div v-if="showTools">
           <div>
-            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
           <div class="color-bubbles">
             <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
@@ -211,7 +215,8 @@
       <div class="code code-image" v-if="step.type == 'code-image'">
         <div v-if="showTools">
           <div>
-            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
           <table>
             <tr>
@@ -250,8 +255,9 @@
       
       <div class="geolocation" v-if="step.type == 'geolocation'">
         <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
-          <p class="text" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
+          <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
         </div>
       </div>
       
@@ -260,7 +266,8 @@
       <div class="write-text" v-if="step.type == 'write-text'">
         <div v-if="showTools">
           <div>
-            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
           <div class="answer-text q-pa-md">
             <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
@@ -286,7 +293,8 @@
       
       <div class="puzzle" v-if="step.type === 'jigsaw-puzzle'">
         <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
         <div id="pieces">
             <div draggable="true"
@@ -320,7 +328,8 @@
       
       <div class="puzzle" v-if="step.type === 'memory'">
         <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
         <ul class="memory" id="card-deck">
           <li 
@@ -339,7 +348,8 @@
       
       <div class="use-item" v-if="step.type == 'use-item'">
         <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
         <div ref="useItemPicture" @click="useItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="use-item-picture">
           <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
@@ -349,9 +359,9 @@
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
         <q-btn round :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color">
           <q-avatar>
-            <!--<img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />-->
-            <img v-if="itemUsed && itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== ''" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
-            <img v-if="itemUsed && !(itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== '')" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
+          <!--<img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />-->
+          <img v-if="itemUsed && itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== ''" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
+          <img v-if="itemUsed && !(itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== '')" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
           </q-avatar>
         </q-btn>
         {{ $t('label.TouchWhereYouUseThisItem') }}
@@ -361,7 +371,8 @@
       
       <div class="find-item" v-if="step.type == 'find-item'">
         <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
         <div ref="findItemPicture" @click="findItem($event)" :style="'position: relative; overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="find-item-picture">
           <img id="cross-play0" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
@@ -378,8 +389,9 @@
           <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && geolocation.active"></video>
         </transition>
         <div v-show="playerResult === null && this.geolocation.active">
-          <div class="text">
-            <p>{{ getTranslatedText() }}</p>
+          <div class="text" :class="'font-' + customization.font">
+            <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
             <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
             <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
             <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
@@ -423,7 +435,8 @@
           <img id="snapshotImage" v-if="!isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; height: 100%; width: auto; z-index: 1980;" />
           <img id="snapshotImageIos" v-if="isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />
           <div>
-            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
           <div v-if="!step.options || (!step.options.fullWidthPicture && !step.options.redFilter)" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw; z-index: 1985;'">
           </div>
@@ -447,8 +460,9 @@
         </div>
         -->
         <div v-show="playerResult === null">
-          <div class="text" v-show="getTranslatedText() != ''">
-            <p>{{ getTranslatedText() }}</p>
+          <div class="text" :class="'font-' + customization.font" v-show="getTranslatedText() != ''">
+            <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
             <p v-if="!isHybrid">{{ $t('label.ThisStepOnlyWorkOnMobile') }}</p>
           </div>
         </div>
@@ -479,7 +493,7 @@
             <canvas id="marker-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
           </div>
         </div>
-        <div class="fixed-bottom over-map" style="height: 100%" v-if="locateMarker.showHelp">
+        <div class="over-map mobile-fit" :class="'font-' + customization.font" style="height: 100%" v-if="locateMarker.showHelp">
           <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? 'FindMarkerHelp' : 'TouchObjectOnMarkerHelp' }" @next="locateMarker.showHelp = false"></story>
         </div>
       </div>
@@ -488,7 +502,8 @@
       
       <div v-if="step.type == 'wait-for-event'">
         <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           
           <!-- distance -->
           <h2 v-if="step.options.object === 'distance' && iot.distance !== null" class="centered big q-pb-lg" :class="{'right': playerResult === true}">
@@ -524,7 +539,8 @@
       <!------------------ TRIGGER IOT EVENT ------------------------>
       
       <div v-if="step.type == 'trigger-event'" class="trigger-event">
-        <p class="text" style="flex-grow: 1" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+        <p class="text" :class="'font-' + customization.font" style="flex-grow: 1" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+        <p class="text" :class="'font-' + customization.font" style="flex-grow: 1" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         <div v-if="step.options.object !== 'chest' || step.options.object === 'relay'">
           <q-btn 
             v-if="step.options.triggerMode && step.options.triggerMode === 'manual'" 
@@ -556,12 +572,18 @@
         <p v-if="step.options.protocol === 'bluetooth' && bluetooth.deviceId === null">{{ $t('label.SearchingBluetoothDevice') }}</p>
       </div>
       
+      <!--====================== STORY =================================-->
+    
+      <div class="over-map mobile-fit" :class="'font-' + customization.font" v-if="story.step !== null && story.step !== 'end'">
+        <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
+      </div>
+      
       <!------------------ WAITING SCREEN (if waiting for another player actions) ------------------------>
       
       <transition name="slideInBottom">
         <div class="panel-bottom background-dark" v-show="step.id == 'waiting'">
           <div class="centered q-pa-lg title4 text-primary">
-            <div class="q-pa-lg text-uppercase">{{ $t('label.WaitingForOtherUsersActions') }}</div>
+            <div class="q-pa-lg text-uppercase" :class="'font-' + customization.font">{{ $t('label.WaitingForOtherUsersActions') }}</div>
             <img src="statics/images/animation/map.gif" class="full-width q-mb-lg" />
           </div>
           <div>
@@ -989,8 +1011,10 @@ export default {
       background.style.background = 'none'
       background.style.backgroundColor = 'transparent'
       let backgroundImage = document.getElementById('background-image')
+      if (backgroundImage) {
       backgroundImage.style.background = 'none'
       backgroundImage.style.backgroundColor = 'transparent'
+      }
     },
     /*
      * Init the component data
@@ -1021,7 +1045,9 @@ export default {
             let backgroundUrl = this.getBackgroundImage()
             let backgroundImage = document.getElementById('background-image')
             //background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+            if (backgroundImage) {
             backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+            }
             // all background clickable for transitions
             //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
               //let clickable = document.getElementById('info-clickable')
@@ -1463,7 +1489,7 @@ export default {
               _this.mqttClient = null
             })
           }
-          if (this.bluetooth.enabled) {
+          if (this.bluetooth && this.bluetooth.enabled) {
             this.bluetoothDisconnect(this.bluetooth.deviceId)
           }
         }
@@ -1816,7 +1842,7 @@ export default {
           //}
         //}
       } else if (type === 'write-text') {
-        for (i = 0; i < this.answer.length; i++) {
+        for (let i = 0; i < this.answer.length; i++) {
           if (utils.removeAccents(answer) === utils.removeAccents(this.answer[i])) {
             return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
           }
@@ -2319,7 +2345,7 @@ export default {
         
         // do not hide the timer on 'transition' steps because they automatically call 'submitGoodAnswer()' at loading
         if (stepType.category === 'enigma') {
-          this.step.countDownTime.enabled = false;
+          this.step.countDownTime.enabled = false
           this.stopcountdown()
         }
       }
@@ -2567,6 +2593,9 @@ export default {
      * @param   {string}    char            Number to display
      */
     addCodeChar(char) {
+      if (!this.playerCode) {
+        return
+      }
       // find next empty char in typed code
       let nextEmptyCharIndex = this.playerCode.indexOf('');
       
@@ -2580,6 +2609,9 @@ export default {
      * Clear the latest char in the pad
      */
     clearLastCodeChar() {
+      if (!this.playerCode) {
+        return
+      }
       // find next non empty char in typed code
       let lastTypedCharIndex = this.playerCode.indexOf('')
       lastTypedCharIndex = (lastTypedCharIndex === -1 ? this.playerCode.length - 1 : lastTypedCharIndex - 1)
@@ -2595,7 +2627,7 @@ export default {
      * @param   {number}    index            Index in the colors array
      */
     changeColorForCode(index) {
-      if (this.playerResult !== null) {
+      if (this.playerResult !== null || !this.codeColors) {
         return
       }
       let currentColorIndex = this.codeColors.indexOf(this.playerCode[index])
@@ -2607,7 +2639,7 @@ export default {
      * @param   {number}    index            Index in the images array
      */
     changeImageForCode(index) {
-      if (this.playerResult !== null) {
+      if (this.playerResult !== null || !this.codeColors) {
         return
       }
       let currentColorIndex = this.codeColors.indexOf(this.playerCode[index])
@@ -2882,7 +2914,7 @@ export default {
       let itemUsed = this.itemUsedComputed !== null ? this.itemUsedComputed : this.itemUsed
       var self = this
       utils.setInterval(function() {
-        if (cross.src === crossPicture) {
+        if (cross.src === crossPicture && self.step.answers && self.step.answers.item) {
           if (itemUsed.pictures && itemUsed.pictures[self.lang] && itemUsed.pictures[self.lang] !== '') {
             cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? itemUsed.picture : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + itemUsed.picture)
           } else {
@@ -3109,9 +3141,9 @@ export default {
      */
     async initPuzzle() {
       let picture
-      if (this.step.options.picture.indexOf('blob:') !== -1) {
+      if (this.step.options.picture && this.step.options.picture.indexOf('blob:') !== -1) {
         picture = this.step.options.picture
-      } else if (this.step.options.picture.indexOf('upload/') === -1) {
+      } else if (this.step.options.picture && this.step.options.picture.indexOf('upload/') === -1) {
         picture = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + this.step.options.picture
       } else {
         picture = this.serverUrl + this.step.options.picture
@@ -3163,7 +3195,7 @@ export default {
      */
     handleDragStart(e) {
       if (this.puzzle.mode === 'drag') {
-        if (e.target.className.indexOf('piece') !== -1) {
+        if (e.target.className && e.target.className.indexOf('piece') !== -1) {
           this.puzzle.dragSrcEl = e.target
         }
         return true
@@ -3584,7 +3616,7 @@ export default {
       return new Promise((resolve, reject) => {
         let gltfLoader = new GLTFLoader()
         // loads automatically .bin and textures files if necessary
-        if (objName.indexOf('blob:') !== -1) {
+        if (objName && objName.indexOf('blob:') !== -1) {
           gltfLoader.load(objName, resolve, progress, reject)
         } else {
           if (offlineObject) {
@@ -3832,7 +3864,7 @@ export default {
     enlargeThePicture (index) {
       this.enlargePicture.show = true
       var pictureUrl = this.step.options.images[this.playerCode[index]].imagePath
-      this.enlargePicture.url = pictureUrl.indexOf('blob:') !== -1 ? pictureUrl : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + pictureUrl
+      this.enlargePicture.url = (pictureUrl && pictureUrl.indexOf('blob:') !== -1) ? pictureUrl : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + pictureUrl
     },
     /**
      * Triggers an IoT event
@@ -4091,6 +4123,7 @@ export default {
     isTimerAvailable() {   
       if (this.step && 
       this.step.countDownTime !== undefined &&
+      this.step.countDownTime !== null &&
       this.step.countDownTime.enabled === true && 
       utils.timeStringToSeconds(this.step.countDownTime.time) > 0) {
         return true
@@ -4112,7 +4145,7 @@ export default {
           }
           
           //var countdown
-          if (seconds < 0) {
+          if (seconds < 0 && this.step.countDownTime) {
             this.step.countDownTime.enabled = false
           } else {
             /*
@@ -4142,7 +4175,7 @@ export default {
     },
     async manageCountDown(seconds, stepId) {
       var _this = this;
-      if (this.step.countDownTime.enabled && stepId === this.step._id) {
+      if (this.step.countDownTime && this.step.countDownTime.enabled && stepId === this.step._id) {
         setTimeout(async function() {
           if (seconds <= 0) {
             await _this.handleTimeUp()
@@ -4161,7 +4194,9 @@ export default {
     async handleTimeUp() {
       this.isTimeUp = true
       this.stopcountdown()
+      if (this.step.countDownTime) {
       this.step.countDownTime.enabled = false
+      }
       let stepType = this.getStepType(this.step.type)
       this.$emit('closeAllPanels')
       if (stepType.category === 'enigma') {
@@ -4175,8 +4210,8 @@ export default {
      * Stops current countdown
      */
     stopcountdown() {
-      if (this.step.hasOwnProperty('countDownTime')) {
-        this.step.countDownTime.enabled = false
+      if (this.step.countDownTime) {
+      	this.step.countDownTime.enabled = false
       }
     },
     /**
@@ -4289,7 +4324,7 @@ export default {
   
   /*audio { opacity: 0.9; }*/
   
-  .video { flex-grow: 1; display: flex; align-items: center; }
+  .video { margin: auto; flex-grow: 1; display: flex; align-items: center; position: relative; }
   
   .character {
     text-align: right;
@@ -4411,9 +4446,9 @@ export default {
   .memory .card {
     height: 15vw;
     width: 15vw;
-    max-width: 110px;
-    max-height: 110px;
-    margin: 2vw 2vw;
+    max-width: 60px;
+    max-height: 60px;
+    margin: 12px;
     background: url(/statics/icons/game/card-back.png) no-repeat;
     background-size: 100%;
     color: #ffffff;
@@ -4513,7 +4548,7 @@ export default {
   .actions > div { display: flex; flex-flow: row nowrap; }
   .actions > div > .q-btn { flex-grow: 1; }
   .actions > div > .q-btn:not(:first-child) { flex-grow: 1; margin-left: 1rem; }
-  
+    
   .inventory-btn { position: fixed; bottom: 60px; left: 0.7rem; z-index: 1; color: #fff; }
   
   [draggable] {

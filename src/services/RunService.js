@@ -119,9 +119,10 @@ export default {
    * @param   {Number}    version             version of the quest
    * @param   {String}    lang                Language concerned
    * @param   {Boolean}   remotePlay          is the player playing remotely
+   * @param   {Boolean}   dataSharedWithPartner          are the user data shared with partner
    * @param   {String}    teamNam             Name of the team (optional)
    */
-  init(questId, version, lang, remotePlay, teamName) {
+  init(questId, version, lang, remotePlay, teamName, dataSharedWithPartner) {
     if (!teamName) {
       teamName = "noteamnamedefined";
     }
@@ -136,7 +137,9 @@ export default {
           "/remote/" +
           remotePlay +
           "/team/" +
-          teamName
+          teamName + 
+          "/datashared/" +
+          dataSharedWithPartner
       )
       .catch(error => console.log(error.request));
   },

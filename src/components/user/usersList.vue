@@ -14,7 +14,7 @@
           <q-icon name="add" style="font-size: 3em;" />
         </div>
       </div>
-      <div v-for="user in users" :key="user._id">
+      <div v-for="user in users" :key="user._id" class="cursor-pointer">
         <userCard :user="user" size="small" :showName="true" @click="openProfile"></userCard>
       </div>
     </div>
@@ -24,7 +24,7 @@
           <q-icon name="add" style="font-size: 3em;" />
         </div>
       </div>
-      <div v-for="user in users" :key="user._id">
+      <div v-for="user in users" :key="user._id" class="cursor-pointer">
         <userCard :user="user" size="small" :showName="true" @click="openProfile"></userCard>
       </div>
     </div>
