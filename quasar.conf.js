@@ -12,7 +12,6 @@ module.exports = function (ctx) {
       //'FirebaseMonitoring',
       //'CustomDirectives',
       'DateFormatFilter',
-      //'NetworkInfo',
       'RouterAuthentication',
       'UniversalLinks', // enable to use deep links with Cordova plugin 
       'VueGoogleMaps',
