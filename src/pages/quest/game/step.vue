@@ -21,27 +21,28 @@
     />
     
     <!------------------ HEADER AREA ------------------------>
-    
-    <stepPlay 
-      :step="step" 
-      :runId="run._id" 
-      :inventory="inventory"
-      :itemUsed="selectedItem" 
-      :reload="loadStepData" 
-      :lang="lang" 
-      :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}" 
-      :answer="offline.answer" 
-      :player="player"
-      @played="trackStepPlayed" 
-      @success="trackStepSuccess" 
-      @fail="trackStepFail" 
-      @pass="trackStepPass"
-      @closeAllPanels="closeAllPanels"
-      @forceMoveNext="nextStep(true)"
-      @hideButtons="hideFooterButtons"
-      @showButtons="showFooterButtons"
-      @msg="trackMessage">
-    </stepPlay>
+    <div><!-- Keep this div for iphone, for red filter display -->
+      <stepPlay 
+        :step="step" 
+        :runId="run._id" 
+        :inventory="inventory"
+        :itemUsed="selectedItem" 
+        :reload="loadStepData" 
+        :lang="lang" 
+        :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}" 
+        :answer="offline.answer" 
+        :player="player"
+        @played="trackStepPlayed" 
+        @success="trackStepSuccess" 
+        @fail="trackStepFail" 
+        @pass="trackStepPass"
+        @closeAllPanels="closeAllPanels"
+        @forceMoveNext="nextStep(true)"
+        @hideButtons="hideFooterButtons"
+        @showButtons="showFooterButtons"
+        @msg="trackMessage">
+      </stepPlay>
+    </div>
       
     <!------------------ INVENTORY PAGE AREA ------------------------>
     

@@ -13,7 +13,7 @@
     "com.darktalker.cordova.screenshot": "git+https://github.com/gitawego/cordova-screenshot.git",
     "cordova": "^10.0.0",
     "cordova-android": "^9.0.0",
-    "cordova-ios": "^5.1.0",
+    "cordova-ios": "6.0.0",
     "cordova-open-native-settings": "^1.5.2",
     "cordova-plugin-add-swift-support": "^2.0.2",
     "cordova-plugin-android-permissions": "1.1.0",
@@ -33,7 +33,6 @@
     "cordova-plugin-headingcalibration": "^1.0.0",
     "cordova-plugin-inappbrowser": "^4.0.0",
     "cordova-plugin-insomnia": "git+https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git",
-    "cordova-plugin-ionic-webview": "^4.1.2",
     "cordova-plugin-nativestorage": "^2.3.2",
     "cordova-plugin-network-information": "^2.0.2",
     "cordova-plugin-purchase": "^8.1.1",
@@ -74,9 +73,6 @@
         "ANDROID_SUPPORT_V4_VERSION": "27.+"
       },
       "cordova-plugin-deeplinks": {},
-      "cordova-plugin-ionic-webview": {
-        "ANDROID_SUPPORT_ANNOTATIONS_VERSION": "27.+"
-      },
       "com.darktalker.cordova.screenshot": {},
       "cordova-plugin-battery-status": {},
       "cordova-plugin-ble-central": {},
