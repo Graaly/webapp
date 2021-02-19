@@ -174,7 +174,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+//import axios from 'axios'
 import AuthService from 'services/AuthService'
 import { required, minLength, email, sameAs } from 'vuelidate/lib/validators'
 import Notification from 'boot/NotifyHelper'
@@ -256,8 +256,10 @@ export default {
             if (creationStatus.status && creationStatus.status === 200) {
               //this.step = 'validation' // EMA : remove code validation step
               if (creationStatus.data && creationStatus.data.user) {
-                window.localStorage.setItem('jwt', creationStatus.data.user.jwt)
-                axios.defaults.headers.common['Authorization'] = `Bearer ${creationStatus.data.user.jwt}`
+                //TODO : create account
+                // AR 01/2021  : remouved for Firebase
+              //window.localStorage.setItem('jwt', creationStatus.data.user.jwt)
+              //axios.defaults.headers.common['Authorization'] = `Bearer ${creationStatus.data.user.jwt}`
                 this.openHome()
               } else {
                 Notification(this.$t('label.ErrorStandardMessage'), 'error')

@@ -64,7 +64,7 @@ export default {
    */
   uploadPlaceImage(data) {
     return Api()
-      .post("/admin/town/place/picture/upload", data, {
+      .post("admin/town/place/picture/upload", data, {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
       })

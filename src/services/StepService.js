@@ -128,7 +128,8 @@ export default {
    * @param   {Object}    data        Data of the step
    */
   async save(data) {
-    let res = await Api()
+    console.log(data);
+    let res = await Api(process.env.STEP_SERVERLESS_URL)
       .put(
         "quest/" +
           data.questId +
@@ -152,7 +153,7 @@ export default {
    * @param   {Object}    data        Data of the step
    */
   async modifyChapter(data) {
-    let res = await Api()
+    let res = await Api(process.env.STEP_SERVERLESS_URL)
       .put(
         "quest/" +
           data.questId +
@@ -177,7 +178,7 @@ export default {
    * @param   {String}    stepId         ID of the step
    */
   async remove(questId, stepId, version) {
-    let res = await Api().delete(
+    let res = await Api(process.env.STEP_SERVERLESS_URL).delete(
       "quest/" + questId + "/version/" + version + "/step/" + stepId + "/remove"
     );
 
@@ -193,7 +194,7 @@ export default {
    * @param   {Number}    version        version of the quest
    */
   async removeChapter(questId, chapterId, version) {
-    let res = await Api().delete(
+    let res = await Api(process.env.STEP_SERVERLESS_URL).delete(
       "quest/" +
         questId +
         "/version/" +
@@ -216,7 +217,7 @@ export default {
    * @param   {Number}    version        version of the quest
    */
   async move(questId, version, oldPosition, newPosition) {
-    let res = await Api()
+    let res = await Api(process.env.STEP_SERVERLESS_URL)
       .put(
         "quest/" +
           questId +
@@ -242,7 +243,7 @@ export default {
    * @param   {Number}    version        version of the quest
    */
   async moveChapter(questId, version, oldPosition, newPosition) {
-    let res = await Api()
+    let res = await Api(process.env.STEP_SERVERLESS_URL)
       .put(
         "quest/" +
           questId +
@@ -266,10 +267,28 @@ export default {
    * @param   {Object}    data           upload data
    */
   async uploadBackgroundImage(questId, data) {
-    let res = await Api()
+    let res = await Api(process.env.FILE_SERVERLESS_URL)
       .post("/quest/" + questId + "/step/background/upload", data, {
         timeout: 60000,
         headers: { "Content-Type": "multipart/form-data" }
+      })
+      .catch(error => console.log(error.request));
+
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId);
+
+    return res;
+  },
+  async uploadBackgroundImageBASE64(questId, data) {
+    var d = {
+      img: data
+    }
+    let res = await Api(process.env.FILE_SERVERLESS_URL)
+      .post("/quest/" + questId + "/step/background/upload", 
+      JSON.stringify(d),
+      {
+        'Content-Type': 'application/json',
+        timeout: 60000
       })
       .catch(error => console.log(error.request));
 

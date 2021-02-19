@@ -320,7 +320,7 @@ export default {
     if (!type) {
       type = "all";
     }
-    return Api()
+    return Api(process.env.STEP_SERVERLESS_URL)
       .get("quest/" + id + "/version/" + version + "/media/" + type + "/list")
       .catch(error => console.log(error.request));
   },
@@ -331,7 +331,7 @@ export default {
    * @param   {String}    mediaId           Media Id
    */
   removeMedia(id, version, mediaId) {
-    return Api().delete(
+    return Api(process.env.STEP_SERVERLESS_URL).delete(
       "quest/" + id + "/version/" + version + "/media/" + mediaId + "/remove"
     );
   },
@@ -352,7 +352,7 @@ export default {
    * @param   {Date}      date              Date
    */
   getStatistics(questId, version, date) {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("quest/" + questId + "/version/" + version + "/statistics/" + date)
       .catch(error => console.log(error.request));
   },
@@ -360,7 +360,7 @@ export default {
    * list user invitations to private quests
    */
   getInvitations() {
-    return Api()
+    return Api(process.env.QUEST_SERVERLESS_URL)
       .get("user/quests/invitations/list")
       .catch(error => console.log(error.request));
   },

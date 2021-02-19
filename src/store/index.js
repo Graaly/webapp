@@ -2,6 +2,8 @@ import Vue from "vue";
 import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
 import * as Cookies from "js-cookie";
+import firebase from 'firebase/app';
+import 'firebase/auth';
 
 import AuthService from "services/AuthService";
 
@@ -103,6 +105,7 @@ const actions = {
     return result;
   },
   logout: async ({ commit }) => {
+    firebase.auth().signOut();
     // TODO ON SERVER: calling logout should blacklist the JWT, see https://medium.com/devgorilla/how-to-log-out-when-using-jwt-a8c7823e8a6
     let result = await AuthService.logout();
     commit("logout");

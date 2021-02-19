@@ -1092,11 +1092,11 @@
           <q-btn class="full-width" type="button" @click="$refs['backgroundfile'].click()">
             <q-icon name="cloud_upload" /> <label for="picturefile1">{{ $t('label.UploadABackgroundImage') }}</label>
           </q-btn>
-          <input @change="uploadBackgroundImage" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" test-id="background-upload" />
+          <input @change="uploadBackgroundImageB64" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" test-id="background-upload" />
         </div>
         <div v-if="isIOs">
           {{ $t('label.UploadABackgroundImage') }}:
-          <input @change="uploadBackgroundImage" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" test-id="background-upload" />
+          <input @change="uploadBackgroundImageB64" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" test-id="background-upload" />
         </div>
         <div class="centered" v-if="media.isSimulated">
           <div :style="'width: 105px; height: 180px; background: url(' + media.simulationPicture + ') center center / cover no-repeat; display: inline-block; margin-right: 6px;'" />
@@ -2056,6 +2056,46 @@ export default {
       this.$q.dialog({
         message: this.$t('label.' + message)
       })
+    },
+    /**
+     * upload using base64
+     */
+    async uploadBackgroundImageB64(e) {
+      const _this = this; //keep this as a reference
+
+      //check that files exist
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+     // this.$q.loading.show()
+
+      // get the base64
+      var reader = new FileReader();
+      reader.readAsDataURL(files[0]);
+      //when we have the Base64
+      reader.onload = async function () {
+        var base64image = reader.result;
+        let uploadResult = await StepService.uploadBackgroundImageBASE64(_this.questId, base64image)
+        console.log(uploadResult);
+      /*  if (uploadResult && uploadResult.hasOwnProperty('data')) {
+          if (uploadResult.data.file) {
+            this.selectedStep.form.backgroundImage = uploadResult.data.file
+            this.displayBackgroundImageSize(this.selectedStep.form.backgroundImage)
+          } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+            Notification(this.$t('label.FileTooLarge'), 'error')
+          } else {
+            Notification(this.$t('label.UnknowUploadError'), 'error')
+          }
+        } else {
+          Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        }*/
+        this.$q.loading.hide()
+      };
+      reader.onerror = function (error) {
+        console.log('Error: ', error);
+        Notification(this.$t('label.ErrorStandardMessage'), error)
+      };
     },
     /*
      * Upload the background image

@@ -294,27 +294,32 @@ export default {
           break*/
         case 'password':
           // sign in user
-          firebase.auth().signInWithEmailAndPassword(this.form.email, this.form.password)
-          .then((res) => {
-            //this is a little wierd but it is actualy to retreive the JWT TOken
-            let FBID = res.user.ya; 
-            //set thhe firebase token in the headers
-            axios.defaults.headers.common['Authorization'] = FBID;
-            let destination = '/home';
-            if (this.$route.query.hasOwnProperty('redirect')) {
-              destination = this.$route.query.redirect;
-            }
-            this.$router.push(destination);
-          }).catch((err) => {
-            //console.error(err)
-            // see : https://firebase.google.com/docs/auth/admin/errors
-            if (err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
-              Notification(this.$t('label.IncorrectLoginPleaseRetry'), 'warning')
-            }
-            else {
-              Notification(this.$t('label.ErrorStandardMessage'), 'error')
-            }
-          });             
+          // https://firebase.google.com/docs/auth/web/auth-state-persistence#modifying_the_auth_state_persistence
+          firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+          .then(() => {
+            firebase.auth().signInWithEmailAndPassword(this.form.email, this.form.password)
+            .then((res) => {
+              //this is a little wierd but it is actualy to retreive the JWT TOken
+              let FBID = res.user.ya; 
+              //set thhe firebase token in the headers
+              window.localStorage.setItem('jwt', FBID);
+              axios.defaults.headers.common['Authorization'] = FBID;
+              let destination = '/home';
+              if (this.$route.query.hasOwnProperty('redirect')) {
+                destination = this.$route.query.redirect;
+              }
+              this.$router.push(destination);
+            }).catch((err) => {
+              //console.error(err)
+              // see : https://firebase.google.com/docs/auth/admin/errors
+              if (err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
+                Notification(this.$t('label.IncorrectLoginPleaseRetry'), 'warning')
+              }
+              else {
+                Notification(this.$t('label.ErrorStandardMessage'), 'error')
+              }
+            });  
+          });         
           break
         case 'forgottenpassword':
           if (!this.$v.form.newPassword.$error) {

@@ -2367,9 +2367,7 @@ export default {
       }
       
       if (
-        this.step.countDownTime !== undefined &&
-        this.step.countDownTime !== null &&
-        this.step.countDownTime.enabled === true)
+        this.isTimerAvailable() === true)
       {
         let stepType = this.getStepType(this.step.type) // this.step.type contains step code
         
@@ -2444,7 +2442,7 @@ export default {
      */
     submitWrongAnswer(offlineMode, showResult) {
       // remove timer
-      if (this.step.countDownTime !== null) {
+      if (this.isTimerAvailable === true) {
         this.step.countDownTime.enabled = false
         this.stopcountdown()
       }
@@ -4281,7 +4279,7 @@ export default {
     },
     async manageCountDown(seconds, stepId) {
       var _this = this;
-      if (this.step.countDownTime.enabled && stepId === this.step._id) {
+      if (this.isTimerAvailable() === true && stepId === this.step._id) {
         setTimeout(async function() {
           if (seconds <= 0) {
             await _this.handleTimeUp()
@@ -4314,7 +4312,9 @@ export default {
      * Stops current countdown
      */
     stopcountdown() {
-      this.step.countDownTime.enabled = false
+      if (this.isTimerAvailable() === true) {
+        this.step.countDownTime.enabled = false
+      }
     },
     /**
      * used by timer's <q-linear-progress> component
