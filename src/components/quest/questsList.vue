@@ -17,7 +17,7 @@
       <div 
         v-for="quest in quests" 
         :key="quest._id" 
-        class="quest-small relative-position q-mr-md" 
+        class="quest-small relative-position q-mr-md cursor-pointer" 
         :style="'background: url(' + getBackgroundImage(quest.thumb) + ' ) center center / cover no-repeat '"
         @click="$router.push('/quest/play/' + quest.questId)">
         <div v-if="quest.status && quest.status !== 'published'">
@@ -80,7 +80,7 @@
       <div 
         v-for="quest in quests" 
         :key="quest._id" 
-        class="quest-big relative-position q-mr-md" 
+        class="quest-big relative-position q-mr-md cursor-pointer" 
         :style="'background: url(' + getBackgroundImage(quest.thumb) + ' ) center center / cover no-repeat '"
         @click="$router.push('/quest/play/' + quest.questId)">
         <div class="info-banner">

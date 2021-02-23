@@ -1,6 +1,6 @@
 <template>
-  <div class="story fit" v-if="currentStep.id !== null && steps[currentStep.id]" :class="{fadeout: hide}" style="background: rgba(0,0,0,0.5); height: 100%;">
-    <div :style="'position: fixed; width: 100%; bottom: ' + ((steps && steps[currentStep.id]) ? steps[currentStep.id].bottom :  0) + 'px;'">
+  <div class="story fit reduce-window-size-desktop" v-if="currentStep.id !== null && steps[currentStep.id]" :class="{fadeout: hide}" style="background: rgba(0,0,0,0.5); height: 100%;" @click="closeBubble">
+    <div class="fixed-story" :style="'position: fixed; width: 100%; bottom: ' + ((steps && steps[currentStep.id]) ? steps[currentStep.id].bottom :  0) + 'px;'">
       <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" style="min-height: 5vh" /></div>
       <!-- remove temporaly by EMA on 18/11/2019<div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh" v-click-outside="onBackgroundTouch">-->
       <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh">
@@ -8,7 +8,7 @@
           <q-icon class="flashing" size="2.5em" name="arrow_drop_down_circle" />
         </div>
         <p class="tilt" ref="bubbleText" v-html="$t('story.' + steps[currentStep.id].discussions[currentStep.discussionId].text, data)"></p>
-        <div class="text-right">
+        <div class="text-right font-standard">
           <a v-if="steps[currentStep.id].discussions[currentStep.discussionId].link" @click="linkAction">
             {{ $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].link.label) }}
           </a> &nbsp;
@@ -25,7 +25,7 @@
         <img v-if="steps[currentStep.id].discussions[currentStep.discussionId].character.indexOf('blob:') === -1 && steps[currentStep.id].discussions[currentStep.discussionId].character.indexOf('.') === -1" :src="'statics/icons/story/character' + steps[currentStep.id].discussions[currentStep.discussionId].character + '_attitude1.png'" style="min-height: 30vh" />
         <img v-if="steps[currentStep.id].discussions[currentStep.discussionId].character.indexOf('blob:') !== -1 || steps[currentStep.id].discussions[currentStep.discussionId].character.indexOf('.') !== -1" :src="steps[currentStep.id].discussions[currentStep.discussionId].character" style="min-height: 20vh; max-height: 30vh;" />
       </div>
-      <div class="fixed-bottom-left q-pa-md" v-if="steps[currentStep.id].allowSkip">
+      <div class="fixed-bottom-left q-pa-md font-standard" v-if="steps[currentStep.id].allowSkip">
         <a class="text-white" @click="skipTutorial">{{ $t('label.SkipTutorial') }}</a>
       </div>
     </div>
@@ -400,6 +400,12 @@ export default {
     },
     emitNext() {
       this.$emit('next', this.nextStep)
+    },
+    closeBubble() {
+      // only for read more
+      if (this.currentStep.id === 6) {
+        this.$emit('next', this.nextStep)
+      }
     },
     async linkAction() {
       if (this.steps[this.currentStep.id].discussions[this.currentStep.discussionId].link.hasOwnProperty("action")) {

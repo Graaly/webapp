@@ -1,8 +1,8 @@
 <template>
   <div class="scroll background-dark">
-    <div id="teaser">
+    <div id="teaser" class="reduce-window-size-desktop">
       <div v-if="!userType">
-        <h1 class="subtitle3 text-uppercase q-pa-md q-mt-xl q-pt-lg">{{ $t('label.CreateYourQuest') }}</h1>
+        <h1 class="subtitle3 text-uppercase q-px-md q-mt-xl q-pt-lg">{{ $t('label.CreateYourQuest') }}</h1>
         <div class="q-pa-md">
           {{ $t('label.BuilderChooseUserType') }}
         </div>
@@ -33,33 +33,12 @@
         </div>
       </div>
       <div v-if="userType==='pro' && !access">
-        <h1 class="subtitle3 text-uppercase q-pa-md q-mt-xl q-pt-lg">{{ $t('label.CreateYourQuest') }}</h1>
-        <div class="q-pa-md">
-          {{ $t('label.AddYourRoomInTheDirectory') }}
-        </div>
-        <div class="q-pa-md">
-          <q-card class="my-card bg-primary text-white">
-            <q-card-section class="centered">
-              <div class="subtitle2">{{ $t('label.AddYourRoom') }}</div>
-              <div class="subtitle4">{{ $t('label.Free') }}</div>
-            </q-card-section>
-
-            <q-card-section class="subtitle5">
-              <div v-html="$t('label.ProAddYourRoom')"></div>
-            </q-card-section>
-
-            <q-separator />
-
-            <q-card-actions align="right">
-              <q-btn flat color="white" @click="changeAccess('public'); changeQuestType('room')">{{ $t('label.Add') }}</q-btn>
-            </q-card-actions>
-          </q-card>
-        </div>
+        <h1 class="subtitle3 text-uppercase q-px-md q-mt-xl q-pt-lg">{{ $t('label.CreateYourQuest') }}</h1>
         <div class="q-pa-md">
           {{ $t('label.BuilderProIntro') }}
         </div>
         <div class="q-pa-md">
-          <q-card class="my-card bg-primary text-white">
+          <q-card class="my-card bg-primary text-white" @click="changeAccess('public')">
             <q-card-section class="centered">
               <div class="subtitle2">{{ $t('label.PublicQuest') }}</div>
               <div class="subtitle4">{{ $t('label.PaymentOnUsage') }}</div>
@@ -77,15 +56,15 @@
             <q-separator />
 
             <q-card-actions align="right">
-              <q-btn flat color="white" @click="changeAccess('public')">{{ $t('label.TryForFree') }}</q-btn>
+              <q-btn flat color="white">{{ $t('label.TryForFree') }}</q-btn>
             </q-card-actions>
           </q-card>
         </div>
         <div class="q-pa-md">
-          <q-card class="my-card bg-primary text-white">
+          <q-card class="my-card bg-primary text-white" @click="changeAccess('private')">
             <q-card-section class="centered">
               <div class="subtitle2">{{ $t('label.PrivateQuest') }}</div>
-              <div class="subtitle4">{{ $t('label.FromPrice') }} 499 €</div>
+              <div class="subtitle4">{{ $t('label.PaymentOnUsage') }}</div>
             </q-card-section>
 
             <q-card-section class="subtitle5">
@@ -95,7 +74,28 @@
             <q-separator />
 
             <q-card-actions align="right">
-              <q-btn flat color="white" @click="changeAccess('private')">{{ $t('label.TryForFree') }}</q-btn>
+              <q-btn flat color="white">{{ $t('label.TryForFree') }}</q-btn>
+            </q-card-actions>
+          </q-card>
+        </div>
+        <div class="q-pa-md">
+          {{ $t('label.AddYourRoomInTheDirectory') }}
+        </div>
+        <div class="q-pa-md">
+          <q-card class="my-card bg-primary text-white" @click="changeAccess('public'); changeQuestType('room')">
+            <q-card-section class="centered">
+              <div class="subtitle2">{{ $t('label.AddYourRoom') }}</div>
+              <div class="subtitle4">{{ $t('label.Free') }}</div>
+            </q-card-section>
+
+            <q-card-section class="subtitle5">
+              <div v-html="$t('label.ProAddYourRoom')"></div>
+            </q-card-section>
+
+            <q-separator />
+
+            <q-card-actions align="right">
+              <q-btn flat color="white">{{ $t('label.Add') }}</q-btn>
             </q-card-actions>
           </q-card>
         </div>

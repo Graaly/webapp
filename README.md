@@ -72,10 +72,11 @@ configurations {
     compile.exclude group: 'com.google.zxing'
 }
 ```
-* If it still does not work, Open file `src-cordova/plugins/phonegap-plugin-barcodescanner/plugin.xml
-* Remove android:required="true" from <uses-feature android:name="android.hardware.camera" android:required="true"/>
-* Opens \src-cordova\platforms\android\app\src\main\java\org\apache\cordova\facebook\ConnectPlugin.java
-* Comment AppEventsLogger.augmentWebView((WebView) this.webView.getView(), appContext);
+If it still does not work:
+* Open file **src-cordova/plugins/phonegap-plugin-barcodescanner/plugin.xml**
+* Remove `android:required="true"` from `<uses-feature android:name="android.hardware.camera" android:required="true"/>`
+* Open **\src-cordova\platforms\android\app\src\main\java\org\apache\cordova\facebook\ConnectPlugin.java**
+* Comment `AppEventsLogger.augmentWebView((WebView) this.webView.getView(), appContext);` (see [Ionic doc](https://enappd-apps.gitbook.io/apps/ionic-4-full-app/troubleshoot#5-error-cannot-find-symbol-appeventslogger-augmentwebview-webview-this-webview-getview-appcontext))
 
 :warning: npm package **ip-regex** is not compatible with Android 4.4 webview "as is". Quasar configuration (in version 1.0.0 beta 23) does not works for transpiling **ip-regex** using Babel. We have to do it manually for the moment.
 
@@ -277,7 +278,6 @@ After running `npm install` in project folder, you can install latest version of
 * for *choose*, array of objects `{ text: <String>, isRightAnswer: <bool> }` (for text)
                              or `{ imagePath: <String>, isRightAnswer: <bool> }` (for images)
 * for *code*, a `Number`
-* for *image-recognition*, a `String` (path of the image to recognize)
 * for *geolocation*, a position object `{ lat: Number, lng: Number }`
 * for *write-text*, a `String`
 * for *new-item*, a `String` (item code)
@@ -321,12 +321,10 @@ Check the solutions [here](https://stackoverflow.com/questions/19015587/failed-t
 
 #### Error "Can not find symbol"
 
-Replace in the file 
+Replace in the file **webapp\src-cordova\platforms\android\app\src\main\java\com\smartmobilesoftware\util\IabHelper.java**:
 
-webapp\src-cordova\platforms\android\app\src\main\java\com\smartmobilesoftware\util\IabHelper.java 
-
-buyIntentBundle = mService.getBuyIntentToReplaceSkus(5, mContext.getPackageName(), oldPurchasedSkus, sku, itemType, extraData)
+`buyIntentBundle = mService.getBuyIntentToReplaceSkus(5, mContext.getPackageName(), oldPurchasedSkus, sku, itemType, extraData)`
 
 by 
 
-buyIntentBundle = mService.getBuyIntent(3, mContext.getPackageName(), sku, itemType, extraData)
+`buyIntentBundle = mService.getBuyIntent(3, mContext.getPackageName(), sku, itemType, extraData)`

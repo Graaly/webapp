@@ -5,6 +5,7 @@ on:
       - master
       - dev
       - tests
+      - check-network-quality
   pull_request:
     branches:
       - master

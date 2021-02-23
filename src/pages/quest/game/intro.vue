@@ -1,6 +1,6 @@
 <template>
   <div class="scroll background-dark">
-    <div id="teaser" :class="{'loaded': pageReady}">
+    <div id="teaser" class="reduce-window-size-desktop" :class="{'loaded': pageReady}">
       <!------------------ MAIN INFORMATION AREA ------------------------>
       
       <div v-if="(!quest || !quest.status) && !warning.questNotLoaded" class="centered q-pa-lg">
@@ -17,11 +17,11 @@
       </div>
       <!-- =========================== PICTURE & AUTHOR ========================== -->
       <div v-if="quest && quest.status" class="relative-position image-banner">
-        <div class="effect-kenburns" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat ;'"></div>
+        <div class="effect-kenburns limit-size-desktop" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat ;'"></div>
         <div class="q-py-sm q-px-md dark-banner fixed-top">
           <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         </div>
-        <div class="q-py-sm dark-banner absolute-bottom">
+        <div class="q-py-sm dark-banner absolute-bottom limit-size-desktop">
           <q-item clickable v-ripple @click="openProfile(quest.authorUserId)">
             <q-item-section side>
               <q-avatar size="50px">
@@ -61,7 +61,7 @@
           <div class="q-mr-lg">
             <img src="statics/images/icon/difficulty.svg" class="medium-icon" />{{ $t('label.Difficulty' + quest.level) }}
           </div>
-          <div class="q-mr-lg">
+          <div v-if="quest.duration && quest.duration < 999" class="q-mr-lg">
             <img src="statics/images/icon/duration.svg" class="medium-icon" />
             <span v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</span>
             <span v-if="quest.duration && quest.duration >= 60">{{ quest.duration / 60 }}{{ $t('label.hoursSimplified') }}</span>
@@ -197,33 +197,35 @@
     
     <transition name="slideInBottom">
       <div class="panel-bottom background-dark" v-show="showPreloaderPopup">
-        <div class="centered q-pa-lg title2 text-primary background-lighter">
-          <div class="q-pa-lg text-uppercase">{{ $t('label.InProgressPreparation') }}</div>
-          <img src="statics/images/animation/map.gif" class="full-width q-mb-lg" />
-        </div>
-        <div>
-          <div class="q-pa-lg centered subtitle2">
-            {{ $t('label.Warnings') }}
+        <div class="reduce-window-size-desktop">
+          <div class="centered q-pa-lg title2 text-primary background-lighter">
+            <div class="q-pa-lg text-uppercase">{{ $t('label.InProgressPreparation') }}</div>
+            <img src="statics/images/animation/map.gif" class="full-width q-mb-lg" />
           </div>
-          <div class="q-pa-md subtitle5">
-            <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.GeneralWarning')" />
+          <div class="centered" v-if="offline.show">
+            <offlineLoader 
+              :quest="this.quest"
+              :design="'prepare'"
+              :lang="getLanguage()"
+              @end="showCalibrationAndStartQuest()">
+            </offlineLoader>
           </div>
-          <div v-if="isRunFinished" class="q-pa-md subtitle5">
-            <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.YouAlreadyDidThisQuest')" />
+          <div>
+            <div class="q-px-lg q-pb-lg q-pt-md centered subtitle2">
+              {{ $t('label.Warnings') }}
+            </div>
+            <div class="q-pa-md subtitle5">
+              <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.GeneralWarning')" />
+            </div>
+            <div v-if="isRunFinished" class="q-pa-md subtitle5">
+              <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.YouAlreadyDidThisQuest')" />
+            </div>
           </div>
+          <gpscalibration
+            ref="gpscal"
+            @end="startQuest(quest.questId, getLanguage())">
+          </gpscalibration>
         </div>
-        <div class="centered" v-if="offline.show">
-          <offlineLoader 
-            :quest="this.quest"
-            :design="'prepare'"
-            :lang="getLanguage()"
-            @end="showCalibrationAndStartQuest()">
-          </offlineLoader>
-        </div>
-        <gpscalibration
-          ref="gpscal"
-          @end="startQuest(quest.questId, getLanguage())">
-        </gpscalibration>
       </div>
     </transition>
     
@@ -231,133 +233,102 @@
     
     <transition name="slideInBottom">
       <div class="panel-bottom background-dark" v-show="multiplayer.show">
-        <div class="bottom-margin-for-keypad">
-          <div class="q-pa-lg centered subtitle2">
-            {{ $t('label.ThisIsAMultiplayerGame') }}
-          </div>
-          <div class="q-pa-md">
-            <q-card class="my-card">
-              <q-card-section class="bg-primary text-white centered text-uppercase">
-                <div class="text-h6">{{ $t('label.JoinATeam') }}</div>
-              </q-card-section>
-              <q-card-section class="bg-primary subtitle5 q-pa-md centered">
-                <q-btn class="glossy large-button text-primary bg-white" @click="scanMultiplayerQRCode"><span>{{ $t('label.ScanTheLeaderQRCode') }}</span></q-btn>
-              </q-card-section>
-            </q-card>
-          </div>
-          
-          <div class="centered">
-            -
-            <span>{{ $t('label.Or') }}</span>
-            -
-          </div>
-          
-          <div class="q-pa-md">
-            <q-card class="my-card">
-              <q-card-section class="bg-primary text-white centered text-uppercase">
-                <div class="text-h6">{{ $t('label.CreateATeam') }}</div>
-              </q-card-section>
-              <q-card-section class="bg-primary subtitle5 q-pa-md centered">
-                <div v-if="multiplayer.qrcode === ''" class="centered">
-                  <q-input
-                    dark
-                    type="text"
-                    :label="$t('label.TeamName')"
-                    v-model="multiplayer.team"
-                    bottom-slots
-                    counter
-                    maxlength="20"
-                    />
-                  <q-btn class="glossy large-button text-primary bg-white" @click="createTeam"><span>{{ $t('label.CreateTeam') }}</span></q-btn>
-                </div>
-                <div v-if="multiplayer.qrcode !== ''" class="centered">
-                  <div>{{ $t('label.OtherPlayersMustScanThisQRCode') }}</div>
-                  <div class="q-pa-md">
-                    <img :src="serverUrl + '/upload/teams/' + multiplayer.qrcode + '.png'" />
+        <div class="reduce-window-size-desktop">
+          <div class="bottom-margin-for-keypad">
+            <div class="q-pa-lg centered subtitle2">
+              {{ $t('label.ThisIsAMultiplayerGame') }}
+            </div>
+            <div class="q-pa-md">
+              <q-card class="my-card">
+                <q-card-section class="bg-primary text-white centered text-uppercase">
+                  <div class="text-h6">{{ $t('label.JoinATeam') }}</div>
+                </q-card-section>
+                <q-card-section class="bg-primary subtitle5 q-pa-md centered">
+                  <q-btn class="glossy large-button text-primary bg-white" @click="scanMultiplayerQRCode"><span>{{ $t('label.ScanTheLeaderQRCode') }}</span></q-btn>
+                </q-card-section>
+              </q-card>
+            </div>
+            
+            <div class="centered">
+              -
+              <span>{{ $t('label.Or') }}</span>
+              -
+            </div>
+            
+            <div class="q-pa-md">
+              <q-card class="my-card">
+                <q-card-section class="bg-primary text-white centered text-uppercase">
+                  <div class="text-h6">{{ $t('label.CreateATeam') }}</div>
+                </q-card-section>
+                <q-card-section class="bg-primary subtitle5 q-pa-md centered">
+                  <div v-if="multiplayer.qrcode === ''" class="centered">
+                    <q-input
+                      dark
+                      type="text"
+                      :label="$t('label.TeamName')"
+                      v-model="multiplayer.team"
+                      bottom-slots
+                      counter
+                      maxlength="20"
+                      />
+                    <q-btn class="glossy large-button text-primary bg-white" @click="createTeam"><span>{{ $t('label.CreateTeam') }}</span></q-btn>
                   </div>
-                  <div><q-btn class="glossy large-button text-primary bg-white" @click="checkTeamAndStart"><span>{{ $t('label.MyTeamIsCompleteLetsGo') }}</span></q-btn></div>
-                </div>
-              </q-card-section>
-            </q-card>
+                  <div v-if="multiplayer.qrcode !== ''" class="centered">
+                    <div>{{ $t('label.OtherPlayersMustScanThisQRCode') }}</div>
+                    <div class="q-pa-md">
+                      <img :src="serverUrl + '/upload/teams/' + multiplayer.qrcode + '.png'" />
+                    </div>
+                    <div><q-btn class="glossy large-button text-primary bg-white" @click="checkTeamAndStart"><span>{{ $t('label.MyTeamIsCompleteLetsGo') }}</span></q-btn></div>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </div>
           </div>
         </div>
       </div>
     </transition>
     
-    <!------------------ RANKING AREA ------------------------
-    
-    <transition name="slideInBottom">
-      <div class="panel-bottom q-pa-md" v-show="ranking.show">
-        <a class="float-right no-underline close-btn" color="grey" @click="ranking.show = false"><q-icon name="close" class="medium-icon" /></a>
-        <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Ranking') }}</div>
-        {{ $t('label.RankingIntro') }}
-        <q-list>
-          <q-item v-for="rank in ranking.items" :key="rank.position" >
-            <q-item-section avatar>
-              <img :src="'statics/icons/game/medal-' + rank.position + '.png'">
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ rank.name }}</q-item-label>
-              <q-item-label caption>{{ rank.score}} {{ $t('label.points') }}</q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              <q-avatar>
-                <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
-                <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
-                <img v-if="!rank.picture || rank.picture === ''" src="/statics/icons/game/profile-small.png" />
-              </q-avatar>
-            </q-item-section>
-            <q-item-section side v-if="!rank.isFriend" @click.native="addFriend(rank.id)">
-              <q-icon name="person_add" color="primary" />
-            </q-item-section>
-            <q-item-section side v-if="rank.isFriend"></q-item-section>
-          </q-item>
-        </q-list>
-        <div class="centered">
-          <q-btn class="glossy large-button" color="primary" :label="$t('label.CloseQuestRanking')" @click="ranking.show = false" />
-        </div>
-      </div>
-    </transition>-->
-    
     <!--====================== SHOP PAGE =================================-->
     
     <transition name="slideInBottom">
       <div class="panel-bottom background-dark" v-show="shop.show">
-        <a class="float-right no-underline close-btn" color="grey" @click="closeShop"><q-icon name="close" /></a>
-        <div class="q-pa-lg centered subtitle2">
-          {{ $t('label.BuyThisQuest') }}
+        <div class="reduce-window-size-desktop">
+          <a class="float-right no-underline close-btn" color="grey" @click="closeShop"><q-icon name="close" /></a>
+          <div class="q-pa-lg centered subtitle2">
+            {{ $t('label.BuyThisQuest') }}
+          </div>
+          <div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.tier && !isIOs">
+            <q-card class="my-card">
+              <q-card-section class="bg-primary text-white centered text-uppercase">
+                <div class="text-h6">{{ $t('label.YouHaveReceivedAQrCodeFrom', {author: quest.author.name}) }}</div>
+              </q-card-section>
+              <q-card-section class="bg-primary subtitle5 q-pa-md centered">
+                <q-btn class="glossy large-button text-primary bg-white" @click="scanTierPaymentQRCode"><span>{{ $t('label.ScanTheUniqueQRCode') }}</span></q-btn>
+              </q-card-section>
+            </q-card>
+          </div>
+          
+          <div class="centered" v-if="quest.premiumPrice && quest.premiumPrice.tier && quest.premiumPrice.active && !isIOs">
+            -
+            <span>{{ $t('label.Or') }}</span>
+            -
+          </div>
+          
+          <div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.active">
+            <q-card class="my-card">
+              <q-card-section class="bg-primary text-white centered text-uppercase">
+                <div class="text-h6">{{ $t('label.BuyInOneClick') }}</div>
+              </q-card-section>
+              <q-card-section class="bg-primary subtitle5 q-pa-md centered">
+                <q-btn @click="buyQuest()" class="glossy large-button text-primary bg-white" v-if="quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)" :disabled="!shop.premiumQuest.buyable"><span>{{ $t('label.Buy') }} ({{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }})</span></q-btn>
+              </q-card-section>
+            </q-card>
+          </div>
+          <div class="centered">
+            <q-btn flat color="primary" @click="closeShop">{{ $t('label.Cancel') }}</q-btn>
+          </div>
+          <!--<shop></shop>-->
         </div>
-        <div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.tier && !isIOs">
-          <q-card class="my-card">
-            <q-card-section class="bg-primary text-white centered text-uppercase">
-              <div class="text-h6">{{ $t('label.YouHaveReceivedAQrCodeFrom', {author: quest.author.name}) }}</div>
-            </q-card-section>
-            <q-card-section class="bg-primary subtitle5 q-pa-md centered">
-              <q-btn class="glossy large-button text-primary bg-white" @click="scanTierPaymentQRCode"><span>{{ $t('label.ScanTheUniqueQRCode') }}</span></q-btn>
-            </q-card-section>
-          </q-card>
-        </div>
-        
-        <div class="centered" v-if="quest.premiumPrice && quest.premiumPrice.tier && quest.premiumPrice.active && !isIOs">
-          -
-          <span>{{ $t('label.Or') }}</span>
-          -
-        </div>
-        
-        <div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.active">
-          <q-card class="my-card">
-            <q-card-section class="bg-primary text-white centered text-uppercase">
-              <div class="text-h6">{{ $t('label.BuyInOneClick') }}</div>
-            </q-card-section>
-            <q-card-section class="bg-primary subtitle5 q-pa-md centered">
-              <q-btn @click="buyQuest()" class="glossy large-button text-primary bg-white" v-if="quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)" :disabled="!shop.premiumQuest.buyable"><span>{{ $t('label.Buy') }} ({{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }})</span></q-btn>
-            </q-card-section>
-          </q-card>
-        </div>
-        <div class="centered">
-          <q-btn flat color="primary" @click="closeShop">{{ $t('label.Cancel') }}</q-btn>
-        </div>
-        <!--<shop></shop>-->
       </div>
     </transition>
     
@@ -400,11 +371,9 @@
 import AuthService from 'services/AuthService'
 import QuestService from 'services/QuestService'
 import RunService from 'services/RunService'
-import UserService from 'services/UserService'
 import shop from 'components/shop'
 import offlineLoader from 'components/offlineLoader'
 import { openURL } from 'quasar'
-//import Vue from 'vue'
 import utils from 'src/includes/utils'
 import Notification from 'boot/NotifyHelper'
 import gpscalibration from 'components/gpsCalibration'
@@ -447,6 +416,7 @@ export default {
       isRunStarted: false,
       isRunPlayable: true,
       isQuestOpen: true,
+      isSharedWithPartners: false,
       isOwner: false,
       isAdmin: false,
       showRewardsPopup: false,
@@ -595,7 +565,7 @@ console.log("test5")
     async getQuest(id, forceNetworkLoading) {
       // check if the quest data are not already saved on device
       let isQuestOfflineLoaded = await QuestService.isCached(id)
-//forceNetworkLoading = true
+      
       if (!isQuestOfflineLoaded || forceNetworkLoading) {
         this.offline.active = false
         // get the last version accessible by user depending on user access
@@ -651,9 +621,9 @@ console.log("test5")
      */
     showCalibrationAndStartQuest() {
       if (this.quest.hasGeolocationSteps) {
-        this.$refs.gpscal.askUserToCalibrateGPS();
+        this.$refs.gpscal.askUserToCalibrateGPS()
       } else {
-        this.startQuest(this.quest.questId, this.getLanguage());
+        this.startQuest(this.quest.questId, this.getLanguage())
       }
     },
     /*
@@ -662,7 +632,6 @@ console.log("test5")
     async getRun() {
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.quest.questId)
-      //var currentRun = 0
       
       if (runs && runs.data && runs.data.length > 0) {
         for (var i = 0; i < runs.data.length; i++) {
@@ -671,25 +640,9 @@ console.log("test5")
           }
           if (runs.data[i].status === 'in-progress' && runs.data[i].currentStep) {
             this.isRunStarted = true
-            //currentRun = runs.data[i]._id
           }
         }
         if (this.isRunStarted) {
-          /*var self = this
-          // propose to continue quest on last step played (only if not the creator of the quest)
-          //if (!this.isOwner) {
-            this.$q.dialog({
-              title: this.$t('label.ContinueThisStep'),
-              message: this.$t('label.YouAlreadyStartThisQuest'),
-              ok: this.$t('label.Restart'),
-              cancel: this.$t('label.Continue')
-            }).onOk(() => {
-              self.cancelRun(currentRun)
-            }).onCancel(() => {
-              self.continueQuest = true
-              self.startQuest(self.quest.questId, self.$route.params.lang)
-            })
-          //}*/
           this.continueQuest = true
           if (!this.isOwner) {            
             this.startQuest(this.quest.questId, this.$route.params.lang)
@@ -781,7 +734,6 @@ console.log("test5")
         return "free"
       }
       this.shop.premiumQuest.priceCode = this.quest.premiumPrice.androidId
-      //var _this = this
       
       store.register({
         id: this.quest.premiumPrice.androidId,
@@ -841,23 +793,8 @@ console.log("test5")
       store.order(this.quest.premiumPrice.androidId)
     },
     /*
-     * Compute the price of the quest
-     *
-    async getPrice() {
-      if (!this.quest || !this.quest.premiumPrice || !this.quest.premiumPrice.prices) {
-        return this.$t('label.Error')
-      }
-      if (this.$store.state.user.language && this.quest.premiumPrice.prices[this.$store.state.user.language]) {
-        return this.quest.premiumPrice.prices[this.$store.state.user.language]
-      } else if (this.quest.premiumPrice.prices[quest.mainLanguage] && this.quest.premiumPrice.prices[quest.mainLanguage] !== '') {
-        return this.quest.premiumPrice.prices[quest.mainLanguage]
-      } else {
-        return this.$t('label.Error')
-      }
-    },*/
-    /*
      * Add a new friend
-     */
+     * MPA 2021-01-28 seems not used
     async addFriend(friendId) {
       this.$q.loading.show()
       var newFriend = await UserService.addFriend(friendId)
@@ -871,10 +808,10 @@ console.log("test5")
           }
         }
       }
-    },
+    },*/
     /*
      * Sort based on the score
-     */
+     * MPA 2021-01-28 seems not used
     compareScore(a, b) {
       if (a.score > b.score) {
         return -1
@@ -883,7 +820,7 @@ console.log("test5")
         return 1
       }
       return 0
-    },
+    },*/
     /*
      * Get the default language for this quest
      * @param   {object}    quest            quest data
@@ -969,17 +906,46 @@ console.log("test5")
       return publishedLanguages
     },
     /*
-     * Launch a quest with default language
-     * @param   {Object}    obj         Swipe object
-     *
-    swipeMgmt(obj) {
-      if (obj.direction === 'right') {
-        this.backToTheMap()
+     * Launch a quest
+     * @param   {String}    questId            ID of the quest
+     * @param   {String}    lang               lang of the quest
+     */
+    async playQuest(questId, lang) {
+      //check if user must create his account
+      if (this.quest.forcePlayerToHaveAccount && this.$store.state.user.name === '-') {
+        this.$q.dialog({
+          message: this.$t('label.YouNeedToCreateYourAccountToPlay'),
+          ok: this.$t('label.Ok'),
+          cancel: this.$t('label.Cancel')
+        }).onOk(() => {
+          this.$router.push('/profile/' + this.$store.state.user.id)
+        }).onCancel(() => {
+          return false
+        })
+        return false
       }
-      if (obj.direction === 'left') {
-        const languages = this.getAllLanguages(this.quest)
-        const lang = languages[0].lang
-        this.playQuest(this.quest.questId, lang)
+      if (this.quest.shareUserDataWithCreator && this.$store.state.user.name !== '-' && !this.isSharedWithPartners) {
+        this.$q.dialog({
+          message: this.$t('label.PartnerAskForYouData'),
+          options: {
+            type: 'checkbox',
+            model: [],
+            items: [
+              { label: this.$t('label.ShareDataWithPartner'), value: 'ok' }
+            ]
+          },
+          ok: this.$t('label.Ok'),
+          cancel: this.$t('label.Cancel')
+        }).onOk(data => {        
+          if (data.length > 0 && data[0] === 'ok') {
+            this.isSharedWithPartners = true
+          }
+          this.playQuestLaunch(questId, lang)
+        }).onCancel(() => {
+          return false
+        })
+      } else {
+        await this.playQuestLaunch(questId, lang)
       }
     },
     /*
@@ -987,7 +953,8 @@ console.log("test5")
      * @param   {String}    questId            ID of the quest
      * @param   {String}    lang               lang of the quest
      */
-    async playQuest(questId, lang) {
+    async playQuestLaunch(questId, lang) {
+      // Check if your must pay
       if (this.playStep === 0 && this.quest.premiumPrice && (this.quest.premiumPrice.tier || this.quest.premiumPrice.active) && !this.isAdmin && !this.isOwner && !this.isRunFinished && !this.isRunStarted) {
         // if tier paiement, check first that user has not already payed
         if (this.quest.premiumPrice.tier) {
@@ -1122,7 +1089,7 @@ console.log("test5")
      */
     async createTeam() {
       if (this.multiplayer.team && this.multiplayer.team !== '') {
-        let res = await RunService.init(this.quest.questId, this.quest.version, this.$route.params.lang, this.isUserTooFar, this.multiplayer.team)
+        let res = await RunService.init(this.quest.questId, this.quest.version, this.$route.params.lang, this.isUserTooFar, this.multiplayer.team, this.isSharedWithPartners)
         if (res.status === 200 && res.data && res.data._id) {
           //Vue.set(this.multiplayer, qrcode, res.data._id)
           this.multiplayer.runId = res.data._id
@@ -1156,11 +1123,10 @@ console.log("test5")
      * Open booking link
      */
     openReadMoreLink() {
-      //window.open(this.quest.readMoreLink)
       utils.openExternalLink(this.quest.readMoreLink)
     },
     startQuest(questId, lang) {
-      this.$router.push('/quest/play/' + questId + '/version/' + this.quest.version + '/step/0/' + lang + '?remoteplay=' + this.isUserTooFar)
+      this.$router.push('/quest/play/' + questId + '/version/' + this.quest.version + '/step/0/' + lang + '?remoteplay=' + this.isUserTooFar + '&sharepartner=' + this.isSharedWithPartners)
     },
     /*
      * Show rewards for this quest

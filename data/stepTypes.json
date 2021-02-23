@@ -21,7 +21,7 @@
     "showTrick": "no",
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": false,
+    "hasOptions": true,
     "nbTrials": 0,
     "passOption": false
   },
@@ -259,19 +259,6 @@
     "hasOptions": true,
     "nbTrials": 2,
     "passOption": false
-  },
-  {
-    "category": "enigma",
-    "code": "image-recognition",
-    "icon": "camera",
-    "title": "PhotographAnObject",
-    "description": "PhotographAnObjectDesc",
-    "showTrick": "yes",
-    "enabled": false,
-    "hasBackgroundImage": "option",
-    "hasOptions": true,
-    "nbTrials": 2,
-    "passOption": true
   },
   {
     "category": "enigma",

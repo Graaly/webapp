@@ -1,9 +1,17 @@
 <template>
   <div class="bg-white arial step-setting">
     
+    <!------------------ HEADER ------------------------>
+    
+    <div class="q-pa-md background-dark">
+      <a class="float-right no-underline" color="grey" @click="close"><q-icon name="close" class="subtitle4" /></a>
+      
+      <div class="subtitle3" v-if="selectedStep.type !== null">{{ $t('stepType.' + selectedStep.type.title) }}</div>
+    </div>
+    
     <!------------------ COMMON FOR ALL STEPS ------------------------>
     
-    <div class="q-pa-md q-pt-xl q-mt-lg bottom-margin-for-keypad">
+    <div class="q-pa-md q-pt-md q-mt-lg bottom-margin-for-keypad">
       <q-input
         type="text"
         :label="$t('label.Title') + ' ' + currentLanguageForLabels"
@@ -162,54 +170,56 @@
       
       <div v-if="options.type.code == 'geolocation'" class="location-gps">
         <h2>{{ $t('label.AddressToFind') }}</h2>
-        <div class="fields-group">
+        <div 
+          v-for="(location, index) in selectedStep.form.options.locations"
+          :key="index"
+          class="fields-group">
           <div v-if="!isIOs" class="location-address">
             <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
               <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
-              <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value" />
+              <gmap-autocomplete :id="'destination' + index" :placeholder="$t('label.Address')" :value="location.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="config.geolocation.currentIndex = index; value = $event.target.value" />
             </div>
-            <a class="dark" @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
+            <a class="dark" @click="getCurrentLocation(index)"><img src="statics/icons/game/location.png" /></a>
           </div>
-          <div v-if="isIOs">
+          <div v-if="(isIOs || (location.lat && location.lat !== ''))">
             {{  $t('label.DefineGPSLocation') }}
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
               <div>
                 <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" @input="$v.selectedStep.form.options.lat.$touch" @blur="$v.selectedStep.form.options.lat.$touch" />
-                <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
+                <input type="number" id="answer-latitude" v-model.number="location.lat" placeholder="ex. 5,65487" step="any" />
               </div>
               <div>
                 <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" @input="$v.selectedStep.form.options.lng.$touch" @blur="$v.selectedStep.form.options.lng.$touch" />
-                <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
+                <input type="number" id="answer-longitude" v-model.number="location.lng" placeholder="ex. 45,49812" step="any" />
               </div>
             </div>
             <div>
-              <a class="dark" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+              <a class="dark" @click="getMyGPSLocation(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
             </div>
           </div>
-          <q-list v-if="!isIOs">
-            <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
+          <q-list v-if="!(isIOs || (location.lat && location.lat !== ''))">
+            <q-expansion-item 
+              icon="explore" 
+              :label="$t('label.OrDefineGPSLocation')">
               <div class="location-gps-inputs">
                 <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
                 <div>
                   <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                  <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" @input="$v.selectedStep.form.options.lat.$touch" @blur="$v.selectedStep.form.options.lat.$touch" />
-                  <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
+                  <input type="number" id="answer-latitude" v-model.number="location.lat" placeholder="ex. 5,65487" step="any" />
                 </div>
                 <div>
                   <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                  <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" @input="$v.selectedStep.form.options.lng.$touch" @blur="$v.selectedStep.form.options.lng.$touch" />
-                  <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
+                  <input type="number" id="answer-longitude" v-model.number="location.lng" placeholder="ex. 45,49812" step="any" />
                 </div>
               </div>
               <div>
-                <a class="dark" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+                <a class="dark" @click="getMyGPSLocation(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
               </div>
             </q-expansion-item>
           </q-list>
         </div>
+        <q-btn class="full-width" :label="$t('label.AddAnGPSLocation')" @click="addGPSLocation()" />
       </div>
       
       <!------------------ STEP : MULTIPLE CHOICE ------------------------>
@@ -375,24 +385,6 @@
           </table>
         </div>
       </div>
-      
-      <!------------------ STEP : IMAGE RECOGNITION ------------------------>
-      <!-- MPA 2020-09-24 not used
-      <div v-if="options.type.code == 'image-recognition'" class="image-recognition">
-        <div v-if="!isIOs">
-          <q-btn class="full-width" :label="$t('label.UploadThePictureOfTheObjectToFind')" @click="$refs['image-to-recognize'].click()" />
-          <input @change="uploadImageToRecognize" ref="image-to-recognize" id="image-to-recognize" type="file" accept="image/*" hidden />
-        </div>
-        <div v-if="isIOs">
-          {{ $t('label.UploadThePictureOfTheObjectToFind') }}:
-          <input @change="uploadImageToRecognize" ref="image-to-recognize" id="image-to-recognize" type="file" accept="image/*" />
-        </div>
-        <p v-show="$v.selectedStep.form.answers.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-        <div v-if="selectedStep.form.answers != ''">
-          <p>{{ $t('label.UploadedPicture') }} :</p>
-          <img :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + selectedStep.form.answers" />
-        </div>
-      </div>-->
       
       <!------------------ STEP : JIGSAW PUZZLE ------------------------>
       
@@ -589,11 +581,11 @@
           <div v-if="!isIOs" class="location-address">
             <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
               <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
-              <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value" />
+              <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="config.geolocation.currentIndex = -1; value = $event.target.value" />
             </div>
-            <a class="dark" @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
+            <a class="dark" @click="getCurrentLocation(-1)"><img src="statics/icons/game/location.png" /></a>
           </div>
-          <div v-if="isIOs">
+          <div v-if="(isIOs || (selectedStep.form.options.lat && selectedStep.form.options.lat !== ''))">
             {{  $t('label.DefineGPSLocation') }}
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
@@ -609,10 +601,10 @@
               </div>
             </div>
             <div>
-              <a class="dark" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+              <a class="dark" @click="getMyGPSLocation(-1)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
             </div>
           </div>
-          <q-list v-if="!isIOs">
+          <q-list v-if="!(isIOs || (selectedStep.form.options.lat && selectedStep.form.options.lat !== ''))">
             <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
               <div class="location-gps-inputs">
                 <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
@@ -628,7 +620,7 @@
                 </div>
               </div>
               <div>
-                <a class="dark" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+                <a class="dark" @click="getMyGPSLocation(-1)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
               </div>
             </q-expansion-item>
           </q-list>
@@ -971,6 +963,9 @@
             <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
               <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" />
             </div>
+            <div v-if="options.type.code !== 'help' && options.type.code !== 'end-chapter'">
+              <q-toggle v-model="selectedStep.form.options.html" :label="$t('label.UseHtmlInDescription')" />
+            </div>
             <q-input
               :label="$t('label.ExtraTextFieldLabel')"
               v-model="selectedStep.form.extraText[lang]"
@@ -988,9 +983,10 @@
       
       <q-list v-show="options.type.showTrick == 'yes'" bordered>
         <q-expansion-item icon="lightbulb" :label="$t('label.Hints')">
-          <div class="q-pa-sm">
-            <div v-if="selectedStep.form.hint && selectedStep.form.hint[lang] && selectedStep.form.hint[lang].length > 0" v-for="(item, key) in selectedStep.form.hint[lang]" :key="key">
+          <div class="q-pa-sm" v-if="selectedStep.form.hint && selectedStep.form.hint[lang] && selectedStep.form.hint[lang].length > 0">
+            <div v-for="(item, key) in selectedStep.form.hint[lang]" :key="key">
               <q-btn class="float-right" @click="removeHint(key)"><q-icon name="delete" /></q-btn>
+              <q-btn class="float-right q-mr-sm" @click="updateHint(key)"><q-icon name="mode_edit" /></q-btn>
               <div class="text-subtitle1">{{ $t('label.Hint') + " " + (key + 1) }}</div>
               {{ item }}
             </div>
@@ -1046,14 +1042,6 @@
       <div class="centered q-px-md q-pb-xl">
         <a class="text-primary" @click="submitStep(false)" test-id="btn-save-step-no-test">{{ $t('label.SaveThisStep') }}</a>
       </div>
-    </div>
-    
-    <!------------------ HEADER ------------------------>
-    
-    <div class="q-pa-md background-dark fixed-top">
-      <a class="float-right no-underline" color="grey" @click="close"><q-icon name="close" class="subtitle4" /></a>
-      
-      <div class="subtitle3" v-if="selectedStep.type !== null">{{ $t('stepType.' + selectedStep.type.title) }}</div>
     </div>
     
     <q-dialog id="save-changes-modal" class="full-width" v-model="saveChangesModalOpened">
@@ -1263,6 +1251,9 @@ export default {
             label: "",
             value: ""
           }
+        },
+        geolocation: {
+          currentIndex: 0
         },
         imageCode: {
           numberOfDigitsOptions: [
@@ -1494,8 +1485,11 @@ export default {
       
       // define the default hint for the step
       if (!this.selectedStep.form.hint[this.lang] || this.selectedStep.form.hint[this.lang] === '') {
-        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.hint[this.quest.mainLanguage] !== '') {
-          this.$set(this.selectedStep.form.hint, this.lang, this.selectedStep.form.hint[this.quest.mainLanguage])
+        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.hint[this.quest.mainLanguage] && this.selectedStep.form.hint[this.quest.mainLanguage].length > 0) {
+          this.selectedStep.form.hint[this.lang] = []
+          for (var q = 0; q < this.selectedStep.form.hint[this.quest.mainLanguage].length; q++) {
+            this.selectedStep.form.hint[this.lang].push(this.selectedStep.form.hint[this.quest.mainLanguage][q])
+          }
         }
       }
       
@@ -1505,6 +1499,11 @@ export default {
       }
       for (var p = 0; p < this.quest.playersNumber; p++) {
         this.players.push({ label: this.$t('label.Player') + " " + (p + 1), value: 'P' + (p + 1) })
+      }
+      
+      // initialize option for Ken Burns (zoom out) effect on background
+      if (!this.selectedStep.form.options.hasOwnProperty('kenBurnsEffect')) {
+        this.selectedStep.form.options.kenBurnsEffect = false
       }
       
       // initialize specific steps
@@ -1578,11 +1577,7 @@ export default {
         if (this.options.type.code === 'character' && !this.selectedStep.form.options.character) {
           Vue.set(this.selectedStep.form.options, 'character', '1')
         }
-      } /*else if (this.options.type.code === 'image-recognition') {
-        if (typeof this.selectedStep.form.answers !== 'string') {
-          this.selectedStep.form.answers = ""
-        }
-      }*/ else if (this.options.type.code === 'find-item') {
+      } else if (this.options.type.code === 'find-item') {
         if (this.selectedStep.form.options.hasOwnProperty('nbAreas')) {
           //this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers
           this.$nextTick(function () {
@@ -1641,6 +1636,9 @@ export default {
         }
         if (!this.selectedStep.form.options.hasOwnProperty('showHelp')) {
           this.$set(this.selectedStep.form.options, 'showHelp', true)
+        }
+        if (!this.selectedStep.form.options.hasOwnProperty('locations')) {
+          this.$set(this.selectedStep.form.options, 'locations', [{lat: '', lng: '', destination: ''}])
         }
       } else if (this.options.type.code === 'locate-item-ar') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
@@ -1998,7 +1996,7 @@ export default {
      */
     async changeNewConditionType() {
       this.selectedStep.newCondition.values.length = 0
-      const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', /*'image-recognition',*/ 'jigsaw-puzzle', 'memory']
+      const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', 'jigsaw-puzzle', 'memory']
       if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail') {
         const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version, 'all')
         if (response && response.data && response.data.length > 0) {
@@ -2481,7 +2479,8 @@ export default {
           _this.config.locateItem.renderer = renderer
           
           // Configure renderer size
-          _this.config.locateItem.renderer.setSize(Math.round(window.innerWidth * 0.8), Math.round(window.innerWidth * 0.6))
+          _this.config.locateItem.renderer.setSize(Math.round(canvasItem.clientWidth), Math.round(canvasItem.clientWidth * 0.8))
+          //_this.config.locateItem.renderer.setSize(Math.round(window.innerWidth * 0.8), Math.round(window.innerWidth * 0.6))
           _this.config.locateItem.renderer.gammaOutput = true
           
           // Add "orbit controls"
@@ -2597,6 +2596,24 @@ export default {
      */
     removeHint(index) {
       this.selectedStep.form.hint[this.lang].splice(index, 1)
+      this.$forceUpdate()
+    },
+    /*
+     * update a hint
+     */
+    updateHint(index) {
+      this.$q.dialog({
+        dark: true,
+        message: this.$t('label.ModifyTheHint'),
+        prompt: {
+          model: this.selectedStep.form.hint[this.lang][index],
+          type: 'text'
+        },
+        cancel: true
+      }).onOk(async (data) => {
+        this.selectedStep.form.hint[this.lang][index] = data
+        this.$forceUpdate()
+      }).onCancel(() => {})
     },
     /*
      * add a hint
@@ -2605,7 +2622,9 @@ export default {
       if (this.selectedStep.form.hint && this.selectedStep.form.hint[this.lang]) {
         this.selectedStep.form.hint[this.lang].push(this.newHint)
       } else {
-        this.selectedStep.form.hint = {}
+        if (!this.selectedStep.form.hint) {
+          this.selectedStep.form.hint = {}
+        }
         this.selectedStep.form.hint[this.lang] = []
         this.selectedStep.form.hint[this.lang].push(this.newHint)
       }
@@ -2712,16 +2731,23 @@ export default {
      * @param   {Object}    place            Position & address data
      */
     async setLocation(place) {
-      this.selectedStep.form.options.lat = parseFloat(place.geometry.location.lat())
-      this.selectedStep.form.options.lng = parseFloat(place.geometry.location.lng())
-      this.selectedStep.form.options.destination = (place.formatted_address || '')
-      this.$v.selectedStep.form.options.lat.$touch()
-      this.$v.selectedStep.form.options.lng.$touch()
+      if (this.config.geolocation.currentIndex !== -1 && this.selectedStep.form.options.locations && this.selectedStep.form.options.locations.length > 0) {
+        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lat = parseFloat(place.geometry.location.lat())
+        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lng = parseFloat(place.geometry.location.lng())
+        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].destination = (place.formatted_address || '')
+      } else {
+        this.selectedStep.form.options.lat = parseFloat(place.geometry.location.lat())
+        this.selectedStep.form.options.lng = parseFloat(place.geometry.location.lng())
+        this.selectedStep.form.options.destination = (place.formatted_address || '')
+        this.$v.selectedStep.form.options.lat.$touch()
+        this.$v.selectedStep.form.options.lng.$touch()
+      }
     },
     /*
      * Get current user location
      */
-    async getCurrentLocation() {
+    async getCurrentLocation(index) {
+      this.config.geolocation.currentIndex = index
       this.$q.loading.show()
       // get the current coords
       navigator.geolocation.getCurrentPosition(this.fillLocation, this.getLocationError, {timeout: 5000, maximumAge: 10000});
@@ -2739,18 +2765,29 @@ export default {
      * @param   {Object}    pos            Position data
      */
     fillLocation(pos) {
-      this.selectedStep.form.options.lat = pos.coords.latitude
-      this.selectedStep.form.options.lng = pos.coords.longitude
-      this.$v.selectedStep.form.options.lat.$touch()
-      this.$v.selectedStep.form.options.lng.$touch()
+      if (this.config.geolocation.currentIndex !== -1 && this.selectedStep.form.options.locations && this.selectedStep.form.options.locations.length > 0) {
+        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lat = pos.coords.latitude
+        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lng = pos.coords.longitude
+      } else {
+        this.selectedStep.form.options.lat = pos.coords.latitude
+        this.selectedStep.form.options.lng = pos.coords.longitude
+        this.$v.selectedStep.form.options.lat.$touch()
+        this.$v.selectedStep.form.options.lng.$touch()
+      }
+      
       // get the address
       var geocoder = new google.maps.Geocoder();
       geocoder.geocode({'location': {lat: pos.coords.latitude, lng: pos.coords.longitude}}, (results, status) => {
         this.$q.loading.hide()
         if (status === 'OK' && results[0].formatted_address) {
-          this.selectedStep.form.options.destination = results[0].formatted_address
-          // force field to be refreshed
-          document.getElementById("destination").value = this.selectedStep.form.options.destination
+          if (this.config.geolocation.currentIndex !== -1 && this.selectedStep.form.options.locations && this.selectedStep.form.options.locations.length > 0) {
+            this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].destination = results[0].formatted_address
+            document.getElementById("destination" + this.config.geolocation.currentIndex).value = this.selectedStep.form.options.destination
+          } else {
+            this.selectedStep.form.options.destination = results[0].formatted_address
+            // force field to be refreshed
+            document.getElementById("destination").value = this.selectedStep.form.options.destination
+          }
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
@@ -2760,14 +2797,19 @@ export default {
      * Get the GPS location based on user location
      * @param   {Object}    pos            Position data
      */
-    getMyGPSLocation() {
+    getMyGPSLocation(index) {
       this.$q.loading.show()
       var _this = this
       navigator.geolocation.getCurrentPosition(function (position) {
-        _this.$set(_this.selectedStep.form.options, 'lat', position.coords.latitude)
-        _this.$set(_this.selectedStep.form.options, 'lng', position.coords.longitude)
-        _this.$v.selectedStep.form.options.lat.$touch()
-        _this.$v.selectedStep.form.options.lng.$touch()
+        if (index !== -1 && _this.selectedStep.form.options.locations && _this.selectedStep.form.options.locations.length > 0) {
+          _this.$set(_this.selectedStep.form.options.locations[index], 'lat', position.coords.latitude)
+          _this.$set(_this.selectedStep.form.options.locations[index], 'lng', position.coords.longitude)
+        } else {
+          _this.$set(_this.selectedStep.form.options, 'lat', position.coords.latitude)
+          _this.$set(_this.selectedStep.form.options, 'lng', position.coords.longitude)
+          _this.$v.selectedStep.form.options.lat.$touch()
+          _this.$v.selectedStep.form.options.lng.$touch()
+        }
         _this.$q.loading.hide()
       }, 
       this.getLocationError, 
@@ -2775,6 +2817,16 @@ export default {
         timeout: 5000, 
         maximumAge: 10000 
       });
+    },
+    /*
+     * Add a GPS location field
+     */
+    addGPSLocation() {
+      if (this.selectedStep.form.options.locations) {
+        this.selectedStep.form.options.locations.push({lat: '', lng: '', destination: ''})
+      } else {
+        this.selectedStep.form.options.locations = [{lat: '', lng: '', destination: ''}]
+      }
     },
     /*
      * Check the length of the text input
@@ -2999,14 +3051,11 @@ export default {
         fieldsToValidate.backgroundImage = { required }
         break
       case 'geolocation':
-        fieldsToValidate.options = { lat: { required }, lng: { required } }
+        //fieldsToValidate.options = { lat: { required }, lng: { required } }
         break
       case 'info-video':
         fieldsToValidate.videoStream = { required }
         break
-      /*case 'image-recognition':
-        fieldsToValidate.answers = { required }
-        break*/
       case 'jigsaw-puzzle':
         fieldsToValidate.options = { picture: { required } }
         break
@@ -3058,12 +3107,11 @@ p { margin-bottom: 0.5rem; }
 .answer p { min-width: 1rem; margin: 0; }
 .answer img { width: 50vw; max-width: 450px; }
 .answer .q-radio { padding-right: 0.5rem; }
-.answer .q-btn { padding: 0.3rem; margin: 0.2rem; }
+.answer .q-btn { margin: 0.2rem; }
 .answer .error-label { flex-grow: 1; }
 .add-answer { margin: 0.5rem auto; }
 
 .background-upload { padding-bottom: 10px; margin-bottom: 10px; background: #efefef; text-align: center;}
-/*.background-upload img, .image-recognition img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }*/
 
 .code-color h2 { margin-bottom: 0; }
 .code-color table { margin: auto; }
@@ -3088,7 +3136,7 @@ p { margin-bottom: 0.5rem; }
 .inventory .q-icon { width: 3rem; height: 3rem; font-size: 3rem; }
 
 .error-label { color: #db2828; }
-.answer .error-label { font-size: 0.8rem; white-space: nowrap; }
+.answer .error-label { font-size: 1rem; white-space: nowrap; }
 
 #save-changes-modal .q-card__actions .q-btn { flex-grow: 1; }
 

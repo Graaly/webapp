@@ -1,23 +1,29 @@
-import axios from "axios";
-
-// otherwise cookies are not sent back to server
-axios.defaults.withCredentials = true;
-axios.defaults.timeout = 15000;
-axios.defaults.headers.common["Authorization"] = `Bearer ${
-  localStorage["jwt"]
-}`;
+import axios from "axios"
+import axiosRetry from 'axios-retry'
 
 // Note: HTTPS is mandatory here because HTTPS is required for front (geolocation)
 
+let baseUrl = process.env.SERVER_URL;
+let myAxios = axios.create({
+  baseURL: baseUrl,
+  validateStatus: function(status) {
+    return true; // let app also treat 500 error
+    //return status < 500 //let app treat 3xx and 4xx errors
+  }
+});
+
+myAxios.defaults.timeout = 4500 // slightly before axiosRetry delay
+myAxios.defaults.headers.common["Authorization"] = `Bearer ${localStorage["jwt"]}`
+
+axiosRetry(myAxios, {
+  retries: 10,
+  retryCondition: (err) => {
+    return err.code && err.code === 'ECONNABORTED' // any other error than timeout: no retry
+  },
+  shouldResetTimeout: true,
+  retryDelay: () => { return 5000 }
+})
+
 export default () => {
-  var baseUrl = process.env.SERVER_URL;
-  return axios.create({
-    // currently for proto, API will be always available from same host as webapp
-    // => localhost, 78.247.66.31, etc.
-    baseURL: baseUrl,
-    validateStatus: function(status) {
-      return true; // let app also treat 500 error
-      //return status < 500 //let app treat 3xx and 4xx errors
-    }
-  });
-};
+  return myAxios
+}
