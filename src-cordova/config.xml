@@ -74,7 +74,7 @@
     <preference name="StatusBarStyle" value="lightcontent" />
     <preference name="Orientation" value="portrait" />
     <preference name="AndroidPersistentFileLocation" value="Compatibility" />
-    <preference name="android-minSdkVersion" value="19" />
+    <preference name="android-minSdkVersion" value="22" />
     <plugin name="cordova-open-native-settings" spec="^1.5.1" />
     <plugin name="cordova-plugin-purchase" spec="^8.1.1" />
     <plugin name="cordova-plugin-geolocation" spec="^4.0.1" />

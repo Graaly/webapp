@@ -125,6 +125,15 @@ module.exports = {
       button: "Button",
       relay: "Relay"
     },
+    days: {
+      day0: "Sunday",
+      day1: "Monday",
+      day2: "Tuesday",
+      day3: "Wednesday",
+      day4: "Thursday",
+      day5: "Friday",
+      day6: "Saturday"
+    },
     label: {
       shortLang: "en",
       letsGo: "Let's Go!",
@@ -989,7 +998,14 @@ module.exports = {
       PleaseFillThisForm: "Please fill this field",
       Zoom: "Zoom",
       Downloads: "Downloads",
-      ExportTexts: "Game's texts"
+      ExportTexts: "Game's texts",
+      ScheduleGame: "Schedule the game",
+      GameSchedule: "Game schedule",
+      Reset: "Reset",
+      SchedulingDescription: "The game is playable :",
+      From: "From",
+      To: "To",
+      QuestIsNotPlayableNow: "The game is not playable now"
     }
   },
   fr: {
@@ -1104,6 +1120,15 @@ module.exports = {
       chest: "Coffre",
       button: "Bouton",
       relay: "Relais"
+    },
+    days: {
+      day0: "Dimanche",
+      day1: "Lundi",
+      day2: "Mardi",
+      day3: "Mercredi",
+      day4: "Jeudi",
+      day5: "Vendredi",
+      day6: "Samedi"
     },
     label: {
       shortLang: "fr",
@@ -1969,7 +1994,14 @@ module.exports = {
       PleaseFillThisForm: "Veuillez compléter ce champ",
       Zoom: "Zoom",
       Downloads: "Téléchargements",
-      ExportTexts: "Textes du jeu"
+      ExportTexts: "Textes du jeu",
+      ScheduleGame: "Planifier le jeu",
+      GameSchedule: "Planification du jeu",
+      Reset: "Réinitialiser",
+      SchedulingDescription: "Le jeu est jouable sur les créneaux :",
+      From: "De",
+      To: "A",
+      QuestIsNotPlayableNow: "Le jeu n'est pas disponible actuellement"
     }
   }
 }
