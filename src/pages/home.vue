@@ -54,6 +54,14 @@
         <questsList format="small" :quests="onTopQuests"></questsList>
       </div>
       
+      <!--====================== EXTRA QUEST =================================-->
+      
+      <div v-if="!offline.active && extraQuests && extraQuests.items && extraQuests.items.length > 0">
+        <titleBar v-if="extraQuests.title && extraQuests.title[$t('label.shortLang')]" :title="{text: extraQuests.title[$t('label.shortLang')], type: 'key'}"></titleBar>
+
+        <questsList format="small" :quests="extraQuests.items"></questsList>
+      </div>
+      
       <!--====================== QR CODE BUTTON =================================-->
       
       <div class="q-px-md q-pt-lg" v-if="isHybrid && !offline.active">
@@ -261,6 +269,7 @@ export default {
       nearestQuests: null,
       invitationQuests: null,
       onTopQuests: null,
+      extraQuests: null,
       friendQuests: null,
       users: null,
       search: {
@@ -520,6 +529,9 @@ export default {
           }
           if (response.data.invitations) {
             this.invitationQuests = response.data.invitations
+          }
+          if (response.data.extra) {
+            this.extraQuests = response.data.extra
           }
         }
       } else {

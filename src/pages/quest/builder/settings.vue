@@ -86,7 +86,7 @@
               {{ $t('label.PublicQuest') }}
             </q-chip>
           </div>
-          
+
           <div v-if="this.quest.isPremium">
             <q-chip color="secondary" text-color="white" icon="star">
               {{ $t('label.PremiumQuest') }}
@@ -347,6 +347,41 @@
                   class="full-width"
                 />
             </div>
+            <q-btn v-if="form.fields.scheduling && form.fields.scheduling.length === 0" class="full-width" @click="startSchedule">{{ $t('label.ScheduleGame') }}</q-btn>
+          <div v-if="form.fields.scheduling && form.fields.scheduling.length > 0">
+            <div class="centered"><strong>{{ $t('label.GameSchedule') }}</strong></div>
+            <div class="centered">{{ $t('label.SchedulingDescription') }}</div>
+            <div class="row" v-for="(schedule, index) in form.fields.scheduling" :key="index">
+              <div class="col">{{ $t('days.day' + index) }}</div>
+              <div class="col">
+                <q-select
+                  :readonly="readOnly"
+                  :label="$t('label.From')"
+                  v-model="schedule[0]"
+                  :options="form.times"
+                  emit-value
+                  map-options
+                  bottom-slots
+                  options-cover
+                  dense
+                  />
+              </div>
+              <div class="col">
+                <q-select
+                  :readonly="readOnly"
+                  :label="$t('label.To')"
+                  v-model="schedule[1]"
+                  :options="form.times"
+                  emit-value
+                  map-options
+                  bottom-slots
+                  options-cover
+                  dense
+                  />
+              </div>
+            </div>
+            <q-btn flat class="full-width" @click="resetSchedule">{{ $t('label.Reset') }}</q-btn>
+          </div>
             <div v-if="form.fields.customization.removeScoring">
               <q-input
                 :disable="readOnly"
@@ -1253,6 +1288,7 @@ export default {
           rewardPicture: '',
           readMoreLink: '',
           limitNumberOfPlayer: 0,
+          scheduling: [],
           forcePlayerToHaveAccount: false,
           shareUserDataWithCreator: false,
           countDownTime: {
@@ -1287,6 +1323,33 @@ export default {
           { label: "4", value: '4' },
           { label: "5", value: '5' },
           { label: "6", value: '6' }
+        ],
+        times: [
+          { label: '00h', value: 0 },
+          { label: '01h', value: 1 },
+          { label: '02h', value: 2 },
+          { label: '03h', value: 3 },
+          { label: '04h', value: 4 },
+          { label: '05h', value: 5 },
+          { label: '06h', value: 6 },
+          { label: '07h', value: 7 },
+          { label: '08h', value: 8 },
+          { label: '09h', value: 9 },
+          { label: '10h', value: 10 },
+          { label: '11h', value: 11 },
+          { label: '12h', value: 12 },
+          { label: '13h', value: 13 },
+          { label: '14h', value: 14 },
+          { label: '15h', value: 15 },
+          { label: '16h', value: 16 },
+          { label: '17h', value: 17 },
+          { label: '18h', value: 18 },
+          { label: '19h', value: 19 },
+          { label: '20h', value: 20 },
+          { label: '21h', value: 21 },
+          { label: '22h', value: 22 },
+          { label: '23h', value: 23 },
+          { label: '24h', value: 24 }
         ],
         durations: [
           { label: '15 ' + this.$t('label.minutes'), value: 15 },
@@ -1469,6 +1532,7 @@ export default {
         this.form.fields.rewardPicture = this.quest.rewardPicture
         this.form.fields.readMoreLink = this.quest.readMoreLink
         this.form.fields.limitNumberOfPlayer = this.quest.limitNumberOfPlayer
+        this.form.fields.scheduling = this.quest.scheduling
         this.form.fields.forcePlayerToHaveAccount = this.quest.forcePlayerToHaveAccount
         this.form.fields.shareUserDataWithCreator = this.quest.shareUserDataWithCreator
         this.form.fields.playersNumber = this.quest.playersNumber
@@ -3290,6 +3354,15 @@ export default {
     async hideMedia() {
       await this.refreshMediaSize()
       this.media.isOpened = false
+    },
+    /*
+     * Start scheduling
+     */
+    startSchedule() {
+      this.form.fields.scheduling = [[0, 24], [0, 24], [0, 24], [0, 24], [0, 24], [0, 24], [0, 24]]
+    },
+    resetSchedule() {
+      this.form.fields.scheduling = []
     },
     /*
      * download PDF file containing all AR markers

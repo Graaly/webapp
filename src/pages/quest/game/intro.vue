@@ -130,7 +130,7 @@
                 </q-item>
               </q-list>
             </q-<btn-dropdown>-->
-            <q-btn v-if="quest.type === 'quest' && !(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages()" @click="playQuest(quest.questId, getLanguage())" color="primary" class="glossy large-btn">
+            <q-btn v-if="isQuestOpen && quest.type === 'quest' && !(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages()" @click="playQuest(quest.questId, getLanguage())" color="primary" class="glossy large-btn">
               <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
               <span v-if="!continueQuest && isRunFinished">{{ $t('label.SolveAgainThisQuest') }}</span>
               <span v-if="!continueQuest && !isRunFinished">{{ $t('label.SolveThisQuest') }}</span>
@@ -145,28 +145,35 @@
               <br /><span v-if="quest.price && quest.price > 0">{{ quest.price }} <q-icon name="fas fa-bolt" /></span>
             </button>
             -->
-            <q-btn v-if="!isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary" class="glossy large-btn"><span>{{ $t('label.BuyCoinsToPlay') }}</span></q-btn>
-            <q-btn v-if="this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary" class="glossy large-btn"><span>{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</span></q-btn>
+            <q-btn v-if="isQuestOpen && !isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary" class="glossy large-btn"><span>{{ $t('label.BuyCoinsToPlay') }}</span></q-btn>
+            <q-btn v-if="isQuestOpen && this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary" class="glossy large-btn"><span>{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</span></q-btn>
             <q-btn
-             v-if="quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)"
+             v-if="isQuestOpen && quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)"
               @click="playQuest(quest.questId, getLanguage())" 
               color="primary"
                class="glossy large-btn">
                <span>{{ $t('label.SolveThisQuest') }}</span>
                </q-btn>
             <q-btn 
-              v-if="shop.premiumQuest.priceCode === 'notplayableonweb' && !isAdmin && !isOwner" 
+              v-if="isQuestOpen && shop.premiumQuest.priceCode === 'notplayableonweb' && !isAdmin && !isOwner" 
               disabled 
               color="primary" 
               class="glossy large-btn">
               <span>{{ $t('label.QuestPlayableOnMobile') }}</span>
             </q-btn>
             <q-btn 
-              v-if="shop.premiumQuest.priceCode === 'notplayableonweb' && (isAdmin || isOwner)" 
+              v-if="isQuestOpen && shop.premiumQuest.priceCode === 'notplayableonweb' && (isAdmin || isOwner)" 
               @click="playQuest(quest.questId, getLanguage())"
               color="primary" 
               class="glossy large-btn">
               <span>{{ $t('label.TestYourQuest') }}</span>
+            </q-btn>
+            <q-btn 
+              v-if="!isQuestOpen" 
+              disabled
+              color="primary" 
+              class="glossy large-btn">
+              <span>{{ $t('label.QuestIsNotPlayableNow') }}</span>
             </q-btn>
           </p>
         </div>
@@ -408,6 +415,7 @@ export default {
       isRunFinished: false,
       isRunStarted: false,
       isRunPlayable: true,
+      isQuestOpen: true,
       isSharedWithPartners: false,
       isOwner: false,
       isAdmin: false,
@@ -445,7 +453,7 @@ export default {
   }, 250),
   methods: {
     /*
-     * Sort based on the score
+     * Check if the user is next to the starting point
      */
     checkUserIsCloseFromStartingPoint() {
       //check if location tracking is turned on
@@ -471,6 +479,30 @@ export default {
       }
     },
     /*
+     * Check if quest is currently closed
+     */
+    checkIfQuestIsOpened() {
+console.log("test1")
+console.log(this.isAdmin)
+console.log(this.isOwner)
+      if (this.quest.scheduling && this.quest.scheduling.length > 0 && !this.isAdmin && !this.isOwner) {
+        const today = new Date()
+        const currentDay = today.getDay()
+console.log("test2")
+        if (this.quest.scheduling[currentDay] && this.quest.scheduling[currentDay].length === 2) {
+          const currentHour = today.getHours()
+console.log("test3")
+          if (this.quest.scheduling[currentDay][0] <= currentHour &&  this.quest.scheduling[currentDay][1] > currentHour) {
+            this.isQuestOpen = true
+console.log("test4")
+          } else {
+            this.isQuestOpen = false
+console.log("test5")
+          }
+        }
+      }
+    },
+    /*
      * Init quest data
      */
     async initQuest() {
@@ -482,6 +514,7 @@ export default {
         this.$router.go(0)
       }
       
+      // check if user is close from starting point
       this.checkUserIsCloseFromStartingPoint()
           
       // check user access rights
@@ -500,6 +533,9 @@ export default {
           this.isOwner = true
         }
       }
+      
+      // check if quest is open (opening hours)
+      this.checkIfQuestIsOpened()
       
       // if the user is the author => force network play
       if (this.offline.active && (this.isOwner || this.isAdmin)) {

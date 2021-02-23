@@ -123,6 +123,15 @@ module.exports = {
       button: "Button",
       relay: "Relay"
     },
+    days: {
+      day0: "Sunday",
+      day1: "Monday",
+      day2: "Tuesday",
+      day3: "Wednesday",
+      day4: "Thursday",
+      day5: "Friday",
+      day6: "Saturday"
+    },
     label: {
       shortLang: "en",
       letsGo: "Let's Go!",
@@ -747,7 +756,7 @@ module.exports = {
       QRCodeIsNotWorking: "The QR Code is not recognized",
       ScanQRCodeToStartQuest: "Scan a QR Code",
       ScanQRCode: "Scan a QR Code",
-      MarkersToPrint: "game's QR Codes",
+      MarkersToPrint: "Game's QR Codes",
       MarkersToStartQuest: "Players can start your game by scanning this QR code on the login page",
       SaveQuestResultsMarker: "Your player can scan a QR Code to save their score with Graaly (scan it on login page or home page). For the players who exited the room in time:<br /><img src='{url3}' /><br />For players who were close to exit the room in time:<br /><img src='{url2}' /><br />For players that did not exit the room<br /><img src='{url1}' />",
       ThisActionCanNotBeCanceled: "This actions can not be canceled",
@@ -988,6 +997,13 @@ module.exports = {
       TeamID: "Team ID",
       PleaseFillThisForm: "Please fill this field",
       Zoom: "Zoom",
+      ScheduleGame: "Schedule the game",
+      GameSchedule: "Game schedule",
+      Reset: "Reset",
+      SchedulingDescription: "The game is playable :",
+      From: "From",
+      To: "To",
+      QuestIsNotPlayableNow: "The game is not playable now",
       CreationStudioHelp: "<h3>Help</h3>We propose you several resources to help you using the creation studio:<ul><li><a href='https://graaly.com/wp-content/uploads/2021/01/La-dameuse-infernale-Jeu-Graaly-Présentation-1.pdf' target='_blank'>Builder guide (fr)</a></li><li>Some <a href='https://www.youtube.com/channel/UCAHXs8JuuV3bBDyggUelK2Q' target='_blank'>video tutorials (fr)</a> to build steps of your game</li></ul>If you meet any issue or if you have questions, do not hesitate to contact us at support@graaly.com.<br /><br />To test your game, we advise you to:<ul><li>test on your phone with the Graaly app</li><li>test on your web browser <a href='https://developers.google.com/web/tools/chrome-devtools/device-mode' target='_blank'>developer mode</a> (to make it short, click on f12 key, and on the tablet icon). Warning: some steps are not working on this mode (Augmented reality, geolocation, QR code flashing, superimpose image and camera)</li></ul>",
       TestWithSimulatorWarning: "You will test with the simulator. Some step types are not working on it. For a real test, please use the Graaly mobile application",
       FontFamily: "Font used for texts",
@@ -1115,6 +1131,15 @@ module.exports = {
       chest: "Coffre",
       button: "Bouton",
       relay: "Relais"
+    },
+    days: {
+      day0: "Dimanche",
+      day1: "Lundi",
+      day2: "Mardi",
+      day3: "Mercredi",
+      day4: "Jeudi",
+      day5: "Vendredi",
+      day6: "Samedi"
     },
     label: {
       shortLang: "fr",
@@ -1981,6 +2006,13 @@ module.exports = {
       TeamID: "Identifiant équipe",
       PleaseFillThisForm: "Veuillez compléter ce champ",
       Zoom: "Zoom",
+      ScheduleGame: "Planifier le jeu",
+      GameSchedule: "Planification du jeu",
+      Reset: "Réinitialiser",
+      SchedulingDescription: "Le jeu est jouable sur les créneaux :",
+      From: "De",
+      To: "A",
+      QuestIsNotPlayableNow: "Le jeu n'est pas disponible actuellement",
       CreationStudioHelp: "<h3>Aide</h3>Nous vous proposons plusieurs ressources pour vous aider à utiliser le studio de création :<ul><li><a href='https://graaly.com/wp-content/uploads/2021/01/La-dameuse-infernale-Jeu-Graaly-Présentation-1.pdf' target='_blank'>Guide d'utilisation du studio</a></li><li>Des <a href='https://www.youtube.com/channel/UCAHXs8JuuV3bBDyggUelK2Q' target='_blank'>tutoriels vidéo</a> d'utilisation du studio de création</li></ul>Si vous rencontrez des problèmes ou si vous avez des questions complémentaires, n'hésitez pas à nous contacter à support@graaly.com.<br /><br />Pour tester votre jeu, nous vous conseillons de :<ul><li>tester sur votre téléphone avec l'application Graaly</li><li>tester dans votre navigateur en <a href='https://developers.google.com/web/tools/chrome-devtools/device-mode' target='_blank'>mode développeur</a> (pour faire simple, cliquez sur la touche f12, puis sur l'icône en forme de tablette). Attention, certaines étapes ne fonctionnent pas dans ce mode (réalité augmentée, géolocalisation, scanne de QR code, superposition image et caméra)</li></ul>",
       TestWithSimulatorWarning: "Vous allez tester avec le simulateur. Certains types d'étapes ne sont pas fonctionnels. Pour un vrai test, utilisez l'application mobile Graaly",
       FontFamily: "Police de caractère pour les textes",

@@ -123,7 +123,7 @@ See also [this Quasar doc page about setting up Cordova environment for iOS](htt
 :warning: Change the version in the **config/prod.env.js** and **quasar.conf.js** files
   If needed change the client required version in **/server/routes/main.js** & **webapp/src/plugins/RouterAuthentication.js**
 
-`$ quasar build -m cordova -T android`
+`$ quasar build -m cordova -T android --packageType=bundle`
 
 Sign the apk
 ```
@@ -131,7 +131,7 @@ $ cd src-cordova\platforms\android\app\build\outputs\apk\release
 This only needs to be launched if a key has not been generated : $ keytool -genkey -v -keystore graaly-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-alias
 $ jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore graaly-key.jks app-release-unsigned.apk my-alias
 $ rm graaly.apk
-$ E:\logiciels\Android\sdk\build-tools\26.0.2\zipalign -v 4 app-release-unsigned.apk graaly.apk
+$ C:\Users\ericm\AppData\Local\Android\Sdk\build-tools\30.0.3\zipalign -v 4 app-release-unsigned.apk graaly.apk
 ```
 Attention:
 * The keystore (jks file) needs to be saved in a secure location. It can not be built again.
@@ -213,8 +213,10 @@ Remove the cache of your browser (if you renew the certificate)
 
 Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to easily create a custom Certification Authority, generate certificates for any IP/domain, and make all your dev devices trust them :
 
+```bash
 $ mkcert -install
 $ mkcert "dev.graaly.com" localhost 127.0.0.1 ::1
+```
 Move the 2 files created in the /webapp/certs folder, and rename as webapp-dev-cert.pem and webapp-dev-key.pem
 
 Optional: For Chrome Desktop, follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
@@ -309,7 +311,7 @@ Check this [solution](https://stackoverflow.com/a/55120122/488666)
 
 #### Error message `No target specified and no devices found`
 
-Open the platform tools folder of your android SDK (e.g. : cd E:\logiciels\Android\sdk\platform-tools)
+Open the platform tools folder of your android SDK (e.g. : cd C:\Users\ericm\AppData\Local\Android\Sdk\platform-tools)
 
 `adb devices` (unplug the device, run "adb kill-server" if device is offline)
 
