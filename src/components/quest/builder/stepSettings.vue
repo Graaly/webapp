@@ -689,6 +689,50 @@
         </q-dialog>
       </div>
       
+      <!------------------ STEP : PORTRAIT ROBOT ------------------------>
+      
+      <div class="portrait-robot" v-if="options.type.code === 'portrait-robot' && selectedStep.form.answers && selectedStep.form.answers.items">
+        <h2>{{ $t('label.BuildThePortraitRobot') }}</h2>
+        
+        <div class="relative-position">
+          <div>
+            <img :src="'statics/portrait-robot/face-' + selectedStep.form.answers.items.face + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/eye-' + selectedStep.form.answers.items.eye + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/mouth-' + selectedStep.form.answers.items.mouth + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/nose-' + selectedStep.form.answers.items.nose + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/hair-' + selectedStep.form.answers.items.hair + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/beard-' + selectedStep.form.answers.items.beard + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/glass-' + selectedStep.form.answers.items.glass + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/hat-' + selectedStep.form.answers.items.hat + '.png'" />
+          </div>
+        </div>
+        <table class="portrait-parts">
+          <tr>
+            <td><img @click="changePortraitPart('face')" src="statics/portrait-robot/face-1.png" /></td>
+            <td><img @click="changePortraitPart('eye')" src="statics/portrait-robot/eye-1.png" /></td>
+            <td><img @click="changePortraitPart('nose')" src="statics/portrait-robot/nose-1.png" /></td>
+            <td><img @click="changePortraitPart('hair')" src="statics/portrait-robot/hair-1.png" /></td>
+            <td><img @click="changePortraitPart('beard')" src="statics/portrait-robot/beard-2.png" /></td>
+            <td><img @click="changePortraitPart('glass')" src="statics/portrait-robot/glass-2.png" /></td>
+            <td><img @click="changePortraitPart('hat')" src="statics/portrait-robot/hat-4.png" /></td>
+          </tr>
+        </table>
+      </div>
+      
       <!---------- STEPS IOT : WAIT FOR EVENT / TRIGGER EVENT  ------------>
       
       <div v-if="options.type.code === 'wait-for-event' || options.type.code === 'trigger-event'">
@@ -1292,6 +1336,16 @@ export default {
           markerModalOpened: false,
           layersForMarkersOptions: []
         },
+        portrait: {
+          face: { number: 4 },
+          eye: { number: 16 },
+          mouth: { number: 1 },
+          nose: { number: 5 },
+          hair: { number: 26 },
+          beard: { number: 31 },
+          glass: { number: 5 },
+          hat: { number: 4 }
+        },
         iot: {
           triggerEvent: {
             iotObjectsAsOptions: this.getIotObjectsAsOptions('trigger-event'),
@@ -1630,6 +1684,10 @@ export default {
           }
           this.$set(this.selectedStep.form.options, 'items', defaultItems)
         }
+      } else if (this.options.type.code === 'portrait-robot') {
+        if (!this.selectedStep.form.answers.hasOwnProperty('items')) {
+          this.$set(this.selectedStep.form.answers, 'items', {type: 1, face: 1, eye: 1, mouth: 1, nose: 1, hair: 1, beard: 1, glass: 1, hat: 1})
+        }
       } else if (this.options.type.code === 'geolocation') {
         if (!this.selectedStep.form.options.hasOwnProperty('distance')) {
           this.$set(this.selectedStep.form.options, 'distance', '20')
@@ -1783,6 +1841,9 @@ export default {
             this.selectedStep.form.options.items[this.selectedStep.form.options.items.length - 1].single = true
           }
         }
+      }
+      if (this.options.type.code === 'portrait-robot') {
+        //no specific action
       }
       if (this.options.type.code === 'find-item') {
         //Coordinates are already set
@@ -1945,6 +2006,18 @@ export default {
       }
       // force src refresh
       document.getElementById('image-code-setting-' + key).src = this.serverUrl + '/upload/quest/' + this.questId + '/step/code-image/' + this.selectedStep.form.options.images[this.unformatedAnswer[key]].imagePath
+    },
+    /*
+     * change item in portrait robot
+     * @param   {String}    type    type of item to change
+     */
+    changePortraitPart: function(type) {
+      if (this.selectedStep.form.answers.items) {
+        Vue.set(this.selectedStep.form.answers.items, type, this.selectedStep.form.answers.items[type] + 1)
+        if (this.selectedStep.form.answers.items[type] > this.config.portrait[type].number) {
+          Vue.set(this.selectedStep.form.answers.items, type, 1)
+        }
+      }
     },
     /*
      * Get number of images in the image code step
@@ -3122,6 +3195,11 @@ p { margin-bottom: 0.5rem; }
 .code-image td img { width: 100% }
 .code-image td .q-icon { font-size: 2em }
 .code-image .answer p { flex-grow: 1 }
+
+.portrait-robot div img { width: 90vw; }
+.portrait-robot .absolute { top: 0; left: 0; }
+.portrait-robot .portrait-parts { margin-left: auto; margin-right: auto; }
+.portrait-robot .portrait-parts img { width: 10vw; border: 1px solid #666; }
 
 .locate-item-ar .q-radio { padding:0.5rem 1rem; }
 

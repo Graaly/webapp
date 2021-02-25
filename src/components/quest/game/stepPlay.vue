@@ -344,6 +344,57 @@
         </ul>
       </div>
       
+      <!------------------ PORTRAIT ROBOT STEP AREA ------------------------>
+      
+      <div class="portrait-robot" v-if="step.type === 'portrait-robot'">
+        <div>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
+        </div>
+        <div class="relative-position" style="margin-left: 5vw;">
+          <div>
+            <img :src="'statics/portrait-robot/face-' + portrait.face.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/eye-' + portrait.eye.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/mouth-' + portrait.mouth.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/nose-' + portrait.nose.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/hair-' + portrait.hair.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/beard-' + portrait.beard.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/glass-' + portrait.glass.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/hat-' + portrait.hat.position + '.png'" />
+          </div>
+        </div>
+        <table class="portrait-parts relative-position">
+          <tr>
+            <td><img @click="changePortraitPart('face')" src="statics/portrait-robot/face-1.png" /></td>
+            <td><img @click="changePortraitPart('eye')" src="statics/portrait-robot/eye-1.png" /></td>
+            <td><img @click="changePortraitPart('nose')" src="statics/portrait-robot/nose-1.png" /></td>
+            <td><img @click="changePortraitPart('hair')" src="statics/portrait-robot/hair-1.png" /></td>
+            <td><img @click="changePortraitPart('beard')" src="statics/portrait-robot/beard-2.png" /></td>
+            <td><img @click="changePortraitPart('glass')" src="statics/portrait-robot/glass-2.png" /></td>
+            <td><img @click="changePortraitPart('hat')" src="statics/portrait-robot/hat-4.png" /></td>
+          </tr>
+        </table>
+        <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
+          <div>
+            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()"><div>{{ $t('label.Confirm') }}</div></q-btn>
+          </div>
+        </div>
+      </div>
+      
       <!------------------ USE ITEM STEP AREA ------------------------>
       
       <div class="use-item" v-if="step.type == 'use-item'">
@@ -873,6 +924,16 @@ export default {
           selectedKey: null,
           disabled: false
         },
+        portrait: {
+          face: { position: 1, number: 4 },
+          eye: { position: 1, number: 16 },
+          mouth: { position: 1, number: 1 },
+          nose: { position: 1, number: 5 },
+          hair: { position: 1, number: 26 },
+          beard: { position: 1, number: 31 },
+          glass: { position: 1, number: 5 },
+          hat: { position: 1, number: 4 }
+        },
         // for step type 'find-item'
         nbItemsFound: 0,
         readMoreNotif: null,
@@ -938,6 +999,7 @@ export default {
       this.writetext = defaultVars.writetext
       this.puzzle = defaultVars.puzzle
       this.memory = defaultVars.memory
+      this.portrait = defaultVars.portrait
       this.nbItemsFound = defaultVars.nbItemsFound
       this.readMoreNotif = defaultVars.readMoreNotif
       this.itemUsedComputed = defaultVars.itemUsedComputed
@@ -1854,6 +1916,10 @@ export default {
         }
       } else if (type === 'memory') {
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+      } else if (type === 'portrait-robot') {
+        if (JSON.stringify(answer) === JSON.stringify(this.answer)) {
+          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+        }
       } else {
         if (answer === this.answer) {
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
@@ -2037,6 +2103,26 @@ export default {
             this.submitWrongAnswer(checkAnswerResult.offline, true)
           } else if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+          }
+          break
+        
+        case 'portrait-robot':
+          let portraitAnswer = {items: {type: 1, face: this.portrait.face.position, eye: this.portrait.eye.position, mouth: this.portrait.mouth.position, nose: this.portrait.nose.position, hair: this.portrait.hair.position, beard: this.portrait.beard.position, glass: this.portrait.glass.position, hat: this.portrait.hat.position}}
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: portraitAnswer, isTimeUp: this.isTimeUp}, false)
+                    
+          if (checkAnswerResult.result === true) {
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
+          } else {
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
+            this.nbTry++
+            if (checkAnswerResult.remainingTrial > 0) {
+              this.submitRetry(checkAnswerResult.remainingTrial)
+            } else {
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
+            }
           }
           break
         
@@ -2382,6 +2468,7 @@ export default {
           case 'write-text':
           case 'jigsaw-puzzle':
           case 'memory':
+          case 'portrait-robot':
           case 'use-item':
           case 'find-item':
           case 'geolocation':
@@ -3401,6 +3488,16 @@ export default {
       } else {
         this.memory.nbTry++
         this.memory.selectedKey = key
+      }
+    },
+    /*
+     * change item in portrait robot
+     * @param   {String}    type    type of item to change
+     */
+    changePortraitPart: function(type) {
+      Vue.set(this.portrait[type], "position", this.portrait[type].position + 1)
+      if (this.portrait[type].position > this.portrait[type].number) {
+        Vue.set(this.portrait[type], "position", 1)
       }
     },
     
@@ -4516,6 +4613,11 @@ export default {
     animation-duration: .75s;
     background: #e2043b;
   }
+  
+  .portrait-robot div img { width: 90vw; }
+  .portrait-robot .absolute { top: 0; left: 0; }
+  .portrait-robot .portrait-parts { margin-left: auto; margin-right: auto; }
+  .portrait-robot .portrait-parts img { width: 10vw; border: 1px solid #666; }
   
   /* IoT steps */
   

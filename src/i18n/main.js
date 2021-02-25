@@ -86,7 +86,9 @@ module.exports = {
       WaitForEvent: "Your material -> Graaly",
       WaitForEventDesc: "A physical action activate a step (using an electronic card)",
       HelpStep: "Help page",
-      HelpStepDesc: "How to use Graaly, presentation of the buttons for the players."
+      HelpStepDesc: "How to use Graaly, presentation of the buttons for the players.",
+      PortraitRobot: "Portrait robot",
+      PortraitRobotDesc: "Create suspect face based on face items"
     },
     layersForMarkers: {
       Magnifier: 'Magnifier',
@@ -394,7 +396,7 @@ module.exports = {
       TouchWhereYouUseThisItem: "Touch where you use this item",
       YourLanguage: "Your language",
       NoFriend: "You have no friend yet",
-      YourRanking: "My ranking",
+      YourRanking: "Your ranking",
       Ranking: "Ranking",
       Like: "Like",
       NoNews: "No news yet",
@@ -1004,6 +1006,7 @@ module.exports = {
       From: "From",
       To: "To",
       QuestIsNotPlayableNow: "The game is not playable now",
+      OpeningHours: "Opening hours",
       CreationStudioHelp: "<h3>Help</h3>We propose you several resources to help you using the creation studio:<ul><li><a href='https://graaly.com/wp-content/uploads/2021/01/La-dameuse-infernale-Jeu-Graaly-Présentation-1.pdf' target='_blank'>Builder guide (fr)</a></li><li>Some <a href='https://www.youtube.com/channel/UCAHXs8JuuV3bBDyggUelK2Q' target='_blank'>video tutorials (fr)</a> to build steps of your game</li></ul>If you meet any issue or if you have questions, do not hesitate to contact us at support@graaly.com.<br /><br />To test your game, we advise you to:<ul><li>test on your phone with the Graaly app</li><li>test on your web browser <a href='https://developers.google.com/web/tools/chrome-devtools/device-mode' target='_blank'>developer mode</a> (to make it short, click on f12 key, and on the tablet icon). Warning: some steps are not working on this mode (Augmented reality, geolocation, QR code flashing, superimpose image and camera)</li></ul>",
       TestWithSimulatorWarning: "You will test with the simulator. Some step types are not working on it. For a real test, please use the Graaly mobile application",
       FontFamily: "Font used for texts",
@@ -1018,7 +1021,8 @@ module.exports = {
       PartnerAskForYouData: "The creator of this game want to access your data (email address, name). The reason can be to organize a draw, or a competition, or to give you a voucher. Please read the game description for more information",
       UseHtmlInDescription: "Use HTML tags in the question",
       DoNotDisplay: "Do not display",
-      AddAnGPSLocation: "Add a GPS location"
+      AddAnGPSLocation: "Add a GPS location",
+      BuildThePortraitRobot: "Build the portrait to find"
     } 
   },
   fr: {
@@ -1095,7 +1099,9 @@ module.exports = {
       WaitForEvent: "Votre matériel -> Graaly",
       WaitForEventDesc: "Votre matériel active une étape Graaly (utilisation d'une carte électronique)",
       HelpStep: "Page d'aide",
-      HelpStepDesc: "Aide à l'utilisation de Graaly, présentation des boutons."
+      HelpStepDesc: "Aide à l'utilisation de Graaly, présentation des boutons.",
+      PortraitRobot: "Portrait robot",
+      PortraitRobotDesc: "Reconstituez le visage des suspects"
     },
     layersForMarkers: {
       Magnifier: 'Loupe',
@@ -1403,7 +1409,7 @@ module.exports = {
       TouchWhereYouUseThisItem: "Touchez l'endroit où vous utilisez cet objet",
       YourLanguage: "Votre langue",
       NoFriend: "Vous n'avez encore aucun ami",
-      YourRanking: "Mon classement",
+      YourRanking: "Votre classement",
       Ranking: "Classement",
       Like: "J'aime",
       NoNews: "Aucune actualité pour le moment",
@@ -2013,6 +2019,7 @@ module.exports = {
       From: "De",
       To: "A",
       QuestIsNotPlayableNow: "Le jeu n'est pas disponible actuellement",
+      OpeningHours: "Heures d'ouverture",
       CreationStudioHelp: "<h3>Aide</h3>Nous vous proposons plusieurs ressources pour vous aider à utiliser le studio de création :<ul><li><a href='https://graaly.com/wp-content/uploads/2021/01/La-dameuse-infernale-Jeu-Graaly-Présentation-1.pdf' target='_blank'>Guide d'utilisation du studio</a></li><li>Des <a href='https://www.youtube.com/channel/UCAHXs8JuuV3bBDyggUelK2Q' target='_blank'>tutoriels vidéo</a> d'utilisation du studio de création</li></ul>Si vous rencontrez des problèmes ou si vous avez des questions complémentaires, n'hésitez pas à nous contacter à support@graaly.com.<br /><br />Pour tester votre jeu, nous vous conseillons de :<ul><li>tester sur votre téléphone avec l'application Graaly</li><li>tester dans votre navigateur en <a href='https://developers.google.com/web/tools/chrome-devtools/device-mode' target='_blank'>mode développeur</a> (pour faire simple, cliquez sur la touche f12, puis sur l'icône en forme de tablette). Attention, certaines étapes ne fonctionnent pas dans ce mode (réalité augmentée, géolocalisation, scanne de QR code, superposition image et caméra)</li></ul>",
       TestWithSimulatorWarning: "Vous allez tester avec le simulateur. Certains types d'étapes ne sont pas fonctionnels. Pour un vrai test, utilisez l'application mobile Graaly",
       FontFamily: "Police de caractère pour les textes",
@@ -2027,7 +2034,8 @@ module.exports = {
       PartnerAskForYouData: "Le créateur du jeu souhaiterais accéder à vos données (adresse email, nom). Cela peut être pour vous permettre de participer à un tirage au sort, un jeu concours ou vous faire gagner un bon de réduction. Veuillez lire la description du jeu pour en savoir plus",
       UseHtmlInDescription: "Utiliser des balises HTML dans la question",
       DoNotDisplay: "Ne pas afficher",
-      AddAnGPSLocation: "Ajouter un point GPS"
+      AddAnGPSLocation: "Ajouter un point GPS",
+      BuildThePortraitRobot: "Construisez le portrait à trouver"
     }
   }
 }

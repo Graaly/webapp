@@ -296,6 +296,23 @@
   },
   {
     "category": "enigma",
+    "code": "portrait-robot",
+    "icon": "user-circle",
+    "title": "PortraitRobot",
+    "description": "PortraitRobotDesc",
+    "showTrick": "no",
+    "textRules": {
+      "maxNbChars": 100,
+      "maxNbCarriageReturns": 1
+    },
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true,
+    "nbTrials": 1,
+    "passOption": true
+  },
+  {
+    "category": "enigma",
     "code": "trigger-event",
     "icon": "bolt",
     "title": "TriggerEvent",

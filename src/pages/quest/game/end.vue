@@ -30,31 +30,39 @@
       <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
     </div>
         
-    <div class="q-pa-md" style="margin-top: 50px;" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
+    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
       <div v-if="run && run._id">
         <div class="relative-position header-point-box">
-          <!------------------ TITLE AREA ------------------------>
-          <div class="rounded background-lighter2 centered absolute full-width">    
-            <h2 class="text-center title2 q-mt-xl q-mb-sm q-mx-xl text-uppercase">{{ $t('label.YouWin') }}</h2>
-            <div class="relative-position progress-box">
-              <div class="progress-bar">
-                <div class="progress" :style="'width: ' + Math.floor(level.progress * 100) + '%'">
-                </div>
-                <div class="value">
-                  {{ Math.floor(level.progress * 100) }}%
-                </div>
-              </div>
-              <div class="rank-level">
-                <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" />
-              </div>
-            </div>
-            <div class="centered q-mb-md" v-if="run && run.duration">
-              {{ $t('label.YourTime') }}: {{ run.duration.h }}h {{ run.duration.m }}m 
-            </div>
-          </div>
           <div class="full-width centered header-point absolute">
             <img src="statics/images/icon/wonpoint.png" />
             <div>+{{ run.stars }}</div>
+          </div>
+          <!------------------ TITLE AREA ------------------------>
+          <div style="padding-top: 100px">
+            <div style="padding-top: 35px" class="rounded background-lighter2 centered full-width">    
+              <h2 class="text-center title2 q-mt-xl q-mb-sm q-mx-xl text-uppercase">{{ $t('label.YouWin') }}</h2>
+              <div class="relative-position progress-box">
+                <div class="progress-bar">
+                  <div class="progress" :style="'width: ' + Math.floor(level.progress * 100) + '%'">
+                  </div>
+                  <div class="value">
+                    {{ Math.floor(level.progress * 100) }}%
+                  </div>
+                </div>
+                <div class="rank-level">
+                  <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" />
+                </div>
+              </div>
+              <div class="centered q-pb-sm" v-if="run && run.duration">
+                {{ $t('label.YourTime') }}: {{ run.duration.h }}h {{ run.duration.m }}m 
+              </div>
+              <div class="centered q-pb-sm" v-if="run && run.score && run.score > 0">
+                {{ $t('label.YourScore') }}: {{ run.score }} {{ $t('label.pts') }}
+              </div>
+              <div class="centered q-pb-md" v-if="run && ranking && ranking.position && ranking.position !== '-'">
+                {{ $t('label.YourRanking') }}: {{ ranking.position }} 
+              </div>
+            </div>
           </div>
         </div>
         
@@ -270,7 +278,8 @@ export default {
       comment: '',
       ranking: {
         show: false,
-        items: []
+        items: [],
+        position: "-"
       },
       score: {},
       level: {
@@ -464,13 +473,16 @@ export default {
       if (this.questId !== '5b7303ec4efbcd1f8cb101c6') {
         var scores = await RunService.listPlayersForThisQuest(this.questId)
         
-        if (scores && scores.data && scores.data.length > 1) {
+        if (scores && scores.data) {
+          this.ranking.position = scores.data
+        }
+        /*if (scores && scores.data && scores.data.length > 1) {
           this.ranking.items = scores.data
           this.ranking.items.sort(this.compareScore)
           // compute position
           this.refreshPosition()
           utils.setTimeout(this.showRanking, 5000)
-        }
+        }*/
       }
     },
     /*

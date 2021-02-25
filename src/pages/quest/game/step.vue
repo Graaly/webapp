@@ -68,7 +68,6 @@
       </div>
     </transition>
     <q-dialog maximized v-model="inventory.detail.isOpened">
-      <div class="bg-white centered">
       <div class="bg-white centered limit-size-desktop">
         <img v-if="inventory.detail.zoom === 1" style="width: 100%" :src="inventory.detail.url">
         <div v-if="inventory.detail.zoom === 2" style="width: 100%; height: 100vw; overflow-x: scroll; overflow-y: scroll;">

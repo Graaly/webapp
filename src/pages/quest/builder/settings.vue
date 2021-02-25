@@ -348,40 +348,40 @@
                 />
             </div>
             <q-btn v-if="form.fields.scheduling && form.fields.scheduling.length === 0" class="full-width" @click="startSchedule">{{ $t('label.ScheduleGame') }}</q-btn>
-          <div v-if="form.fields.scheduling && form.fields.scheduling.length > 0">
-            <div class="centered"><strong>{{ $t('label.GameSchedule') }}</strong></div>
-            <div class="centered">{{ $t('label.SchedulingDescription') }}</div>
-            <div class="row" v-for="(schedule, index) in form.fields.scheduling" :key="index">
-              <div class="col">{{ $t('days.day' + index) }}</div>
-              <div class="col">
-                <q-select
-                  :readonly="readOnly"
-                  :label="$t('label.From')"
-                  v-model="schedule[0]"
-                  :options="form.times"
-                  emit-value
-                  map-options
-                  bottom-slots
-                  options-cover
-                  dense
-                  />
+            <div v-if="form.fields.scheduling && form.fields.scheduling.length > 0">
+              <div class="centered"><strong>{{ $t('label.GameSchedule') }}</strong></div>
+              <div class="centered">{{ $t('label.SchedulingDescription') }}</div>
+              <div class="row" v-for="(schedule, index) in form.fields.scheduling" :key="index">
+                <div class="col">{{ $t('days.day' + index) }}</div>
+                <div class="col">
+                  <q-select
+                    :readonly="readOnly"
+                    :label="$t('label.From')"
+                    v-model="schedule[0]"
+                    :options="form.times"
+                    emit-value
+                    map-options
+                    bottom-slots
+                    options-cover
+                    dense
+                    />
+                </div>
+                <div class="col">
+                  <q-select
+                    :readonly="readOnly"
+                    :label="$t('label.To')"
+                    v-model="schedule[1]"
+                    :options="form.times"
+                    emit-value
+                    map-options
+                    bottom-slots
+                    options-cover
+                    dense
+                    />
+                </div>
               </div>
-              <div class="col">
-                <q-select
-                  :readonly="readOnly"
-                  :label="$t('label.To')"
-                  v-model="schedule[1]"
-                  :options="form.times"
-                  emit-value
-                  map-options
-                  bottom-slots
-                  options-cover
-                  dense
-                  />
-              </div>
+              <q-btn flat class="full-width" @click="resetSchedule">{{ $t('label.Reset') }}</q-btn>
             </div>
-            <q-btn flat class="full-width" @click="resetSchedule">{{ $t('label.Reset') }}</q-btn>
-          </div>
             <div v-if="form.fields.customization.removeScoring">
               <q-input
                 :disable="readOnly"
