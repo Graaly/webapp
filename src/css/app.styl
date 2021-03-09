@@ -1545,6 +1545,26 @@ body .desktop {
   height: 100%;
 }
 
+/////////////////////////////// STEPS CSS /////////////////////////////////////
+
+.portrait-robot div img { 
+  width: 100%;
+}
+.portrait-robot .absolute {
+  top: 0;
+  left: 0;
+}
+.portrait-robot .portrait-parts { 
+  width: 100%; 
+  margin-left: auto; 
+  margin-right: auto;
+}
+.portrait-robot .portrait-parts img {
+  width: 100%;
+  border: 1px solid #666;
+  background-color: #fff;
+}
+
 /////////////////////////////// Other CSS /////////////////////////////////////
 
 .image-banner {
@@ -1879,4 +1899,10 @@ WARNING: introduces bad scrolling behaviors on iOS webapp (Safari) & hybrid
 
 .bg-gray1 {
   background-color: #3e3e3e;
+}
+.no-mouse-event {
+  pointer-events: none;
+}
+.align-top {
+  align-items: baseline;
 }

@@ -344,14 +344,14 @@
         </ul>
       </div>
       
-      <!------------------ PORTRAIT ROBOT STEP AREA ------------------------>
+      <!------------------ COMPOSITE DRAWING STEP AREA ------------------------>
       
       <div class="portrait-robot" v-if="step.type === 'portrait-robot'">
         <div>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
-        <div class="relative-position" style="margin-left: 5vw;">
+        <div class="relative-position">
           <div>
             <img :src="'statics/portrait-robot/face-' + portrait.face.position + '.png'" />
           </div>
@@ -395,6 +395,39 @@
         </div>
       </div>
       
+      <!------------------ BINOCULAR STEP AREA ------------------------>
+      
+      <div class="binocular" v-if="step.type === 'binocular'">
+        <div>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
+        </div>
+        <div class="relative-position">
+          <div style="width: 100%; height: 100vw; overflow-x: scroll; overflow-y: scroll;">
+            <img style="width: 400%" :src="getBackgroundImage()" />
+          </div>
+          <div class="absolute no-mouse-event" style="top: 0px; width: 100%;">
+            <img class="no-mouse-event" style="width: 100%; " src="statics/icons/game/binoculars.png">
+          </div>
+        </div>  
+      </div>
+      
+      <!------------------ PHONE CALL STEP AREA ------------------------>
+      
+      <div class="phone-call fit" v-if="step.type === 'phone-call'">
+        <div class="fit bg-black">
+          <div class="q-pb-xxl">
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
+          </div>
+          <div class="fixed-bottom q-pb-xxl q-pl-xl q-pr-xl">
+            <q-btn round color="positive" icon="call" @click="phoneCall()" />
+            <q-btn class="float-right" round color="negative" icon="call_end" @click="forceNextStep()" />
+              <!--<q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="phoneCall()"><div>{{ $t('label.Call') }}</div></q-btn>-->
+          </div>  
+        </div>
+      </div>
+      
       <!------------------ USE ITEM STEP AREA ------------------------>
       
       <div class="use-item" v-if="step.type == 'use-item'">
@@ -402,8 +435,8 @@
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
-        <div ref="useItemPicture" @click="useItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="use-item-picture">
-          <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
+        <div ref="useItemPicture" @click="checkUseItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100%; height: ' + useItem.imageHeight + 'px;'" test-id="use-item-picture">
+          <img id="cross-play" :style="'position: relative; z-index: 500; width: ' + useItem.crossSize + 'px; height: ' + useItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
 
@@ -425,11 +458,11 @@
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
-        <div ref="findItemPicture" @click="findItem($event)" :style="'position: relative; overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="find-item-picture">
-          <img id="cross-play0" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
-          <img id="cross-play1" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
-          <img id="cross-play2" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
-          <img id="cross-play3" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
+        <div ref="findItemPicture" @click="checkFindItem($event)" :style="'position: relative; overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100%; height: ' + findItem.imageHeight + 'px;'" test-id="find-item-picture">
+          <img id="cross-play0" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play1" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play2" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play3" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
       
@@ -774,7 +807,7 @@ export default {
     // check if item used is the right one
     itemUsed: async function(newVal, oldVal) {
       if (this.step && this.step.type === "use-item" && this.step.options && this.step.options.hasOwnProperty("touchLocation") && this.step.options.touchLocation === false) {
-        this.useItem()
+        this.checkUseItem()
       }
     }
   },
@@ -935,7 +968,17 @@ export default {
           hat: { position: 1, number: 4 }
         },
         // for step type 'find-item'
-        nbItemsFound: 0,
+        findItem: {
+          nbItemsFound: 0,
+          crossSize: 30,
+          imageWidth: 900,
+          imageHeight: 1200
+        },
+        useItem: {
+          crossSize: 30,
+          imageWidth: 900,
+          imageHeight: 1200
+        },  
         readMoreNotif: null,
         // for step type 'use-item'
         itemUsedComputed: null,
@@ -1045,8 +1088,9 @@ export default {
       if (this.bluetooth.enabled) {
         this.bluetoothDisconnect(this.bluetooth.deviceId)
       }
-      
-      this.stopcountdown()
+      if (!this.step.countDownTime || !this.step.countDownTime.enabled) {
+        this.stopcountdown()
+      }
       
       if (['geolocation', 'locate-item-ar'].includes(this.step.type)) {
         try {
@@ -1092,7 +1136,7 @@ export default {
       this.$nextTick(async () => {
         let background = document.getElementById('play-view')
         if (this.step.backgroundImage) {
-          if (this.step.type === 'find-item' || this.step.type === 'use-item') {
+          if (this.step.type === 'find-item' || this.step.type === 'use-item' || this.step.type === 'binocular' || this.step.type === 'phone-call') {
             background.style.background = 'none'
             background.style.backgroundColor = '#000'
             this.showControls()
@@ -1110,7 +1154,7 @@ export default {
             let backgroundImage = document.getElementById('background-image')
             //background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             if (backgroundImage) {
-            backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+              backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             }
             // all background clickable for transitions
             //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
@@ -1186,6 +1230,13 @@ export default {
           this.resetImageCode()
         }
         
+        if (this.step.type === 'find-item') {
+          utils.setTimeout(this.initFindItemElements, 2000)
+        }
+        if (this.step.type === 'use-item') {
+          utils.setTimeout(this.initUseItemElements, 2000)
+        }
+        
         if (this.step.type === 'new-item') {
           if (this.step.options.hasOwnProperty('pictures') && this.step.options.pictures[this.lang]) {
             this.step.options.picture = this.step.options.pictures[this.lang]
@@ -1206,12 +1257,27 @@ export default {
           this.$emit('pass')
         }
         
+        if (this.step.type === 'binocular') {
+          if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+            Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
+          }
+          this.$emit('pass')
+        }
+        
+        if (this.step.type === 'phone-call') {
+          if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+            Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
+          }
+          this.$emit('pass')
+        }
+        
         // common process to 'geolocation' and 'locate-item-ar'
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
         if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
             // if run as builder, get the remainingTrial
             if (this.runId === "0") {
               Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
+              this.$emit('pass')
             } else {
               // user can pass
               this.$emit('pass')
@@ -1691,6 +1757,8 @@ export default {
         this.step.type === 'help' || 
         //this.step.type === 'character' || 
         this.step.type === 'image-over-flow' || 
+        this.step.type === 'binocular' || 
+        this.step.type === 'phone-call' || 
         this.step.type === 'new-item' || 
         this.step.type === 'trigger-event') {
         this.checkAnswer()
@@ -1866,7 +1934,7 @@ export default {
      */
     async checkOfflineAnswer(answer) {
       const type = this.step.type
-      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'help' || type === 'image-over-flow') {
+      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'help' || type === 'image-over-flow' || type === 'binocular' || type === 'phone-call') {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }
       } else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle') {
         //TODO: find a way to check server side
@@ -1881,7 +1949,7 @@ export default {
             return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
           }
         } else {
-          const ww = (answer && answer.windowWidth) ? answer.windowWidth : (this.getScreenWidth() / 100)
+          const ww = (answer && answer.windowWidth) ? answer.windowWidth : (this.getFindItemPictureSize() / 100)
           
           let answerPixelCoordinates = {
             left: Math.round(this.answer.coordinates.left / 100 * 100 * ww),
@@ -1962,6 +2030,8 @@ export default {
         case 'end-chapter':
         case 'character':
         case 'image-over-flow':
+        case 'binocular':
+        case 'phone-call':
         case 'trigger-event':
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
@@ -2456,6 +2526,8 @@ export default {
           case 'end-chapter': 
           case 'info-video': 
           case 'image-over-flow': 
+          case 'binocular': 
+          case 'phone-call': 
             
             break
           case 'choose':
@@ -2565,6 +2637,9 @@ export default {
     
     ////////////////////////////////////////////// MANAGEMENT OF THE ENIGMA COMPONENTS /////////////////////////////////////////////
     
+    forceNextStep() {    
+      this.$emit('forceMoveNext')
+    },
     /*
      * Display next text 
      */
@@ -2578,7 +2653,7 @@ export default {
         if (!this.stepPlayed) {
           await this.checkAnswer()
         } else {
-          this.$emit('forceMoveNext')
+          this.forceNextStep()
         }
       }
     },
@@ -2970,7 +3045,7 @@ export default {
      * Use an item
      * @param   {object}    ev            Event when user touch screen to get location
      */
-    async useItem(ev) {
+    async checkUseItem(ev) {
       if (this.playerResult === true) {
         return
       }
@@ -2982,7 +3057,7 @@ export default {
         return
       }
       
-      let vw = this.getScreenWidth() / 100 // in px
+      let vw = this.getUseItemPictureSize() / 100 // in px
       
       var data = {
         windowWidth: vw,
@@ -2999,7 +3074,7 @@ export default {
      * Show the item location after success / failure
      */
     async showItemLocation(posX, posY) {
-      let vw = this.getScreenWidth() / 100
+      let vw = this.getUseItemPictureSize() / 100
 
       let answerPixelCoordinates = {
         left: Math.round(posX / 100 * 100 * vw),
@@ -3007,7 +3082,7 @@ export default {
       }
       
       // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
-      let solutionAreaRadius = Math.round(8 * vw)
+      let solutionAreaRadius = this.useItem.crossSize / 2
       // display the right solution
       var cross = document.getElementById('cross-play')
       cross.style.top = (answerPixelCoordinates.top - solutionAreaRadius) + "px"
@@ -3033,16 +3108,25 @@ export default {
         }
       }, 1000);
     },
+    initUseItemElements() {
+      this.useItem.imageWidth = this.getUseItemPictureSize()
+      this.useItem.crossSize = this.useItem.imageWidth / 8
+      this.useItem.imageHeight = this.useItem.imageWidth * 4 / 3
+    },
+    getUseItemPictureSize() {
+      const picture = this.$refs['useItemPicture']
+      return picture.clientWidth
+    },
     /*
      * Check if user find the item in the picture
      * @param   {object}    ev            Event when user touch the screen
      */
-    async findItem(ev) {
+    async checkFindItem(ev) {
       if (this.playerResult === true) {
         return
       }
       
-      let vw = this.getScreenWidth() / 100 // in px
+      let vw = this.getFindItemPictureSize() / 100 // in px
       
       var data = {
         windowWidth: vw,
@@ -3051,6 +3135,15 @@ export default {
       }
       
       await this.checkAnswer(data)
+    },
+    initFindItemElements() {
+      this.findItem.imageWidth = this.getFindItemPictureSize()
+      this.findItem.crossSize = this.findItem.imageWidth / 8
+      this.findItem.imageHeight = this.findItem.imageWidth * 4 / 3
+    },
+    getFindItemPictureSize() {
+      const picture = this.$refs['findItemPicture']
+      return picture.clientWidth
     },
     /*
      * prepare page before snapshot
@@ -3207,14 +3300,14 @@ export default {
      * Show the item location after success / failure
      */
     async showFoundLocation(posX, posY) {
-      let vw = this.getScreenWidth() / 100
+      let vw = this.getFindItemPictureSize() / 100
       let answerPixelCoordinates = {
         left: Math.round(posX / 100 * 100 * vw),
         top: Math.round(posY / 100 * 133 * vw)
       }
       
       // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
-      let solutionAreaRadius = Math.round(8 * vw)
+      let solutionAreaRadius = this.findItem.crossSize / 2
       
       var cross = document.getElementById('cross-play')
       cross.style.top = (answerPixelCoordinates.top - solutionAreaRadius) + "px"
@@ -3499,6 +3592,22 @@ export default {
       if (this.portrait[type].position > this.portrait[type].number) {
         Vue.set(this.portrait[type], "position", 1)
       }
+    },
+    /*
+     * call a number
+     * @param   {String}    type    type of item to change
+     */
+    phoneCall: function() {
+      let number = "0668666194"
+      cordova.plugins.phonedialer.dial(
+        number, 
+        function(success) { console.log('Dialing succeeded') },
+        function(err) {
+          if (err == "empty") console.log("Unknown phone number")
+          else console.log("Dialer Error:" + err)
+        },
+        false
+       )
     },
     
     /*
@@ -4310,7 +4419,7 @@ export default {
       this.isTimeUp = true
       this.stopcountdown()
       if (this.step.countDownTime) {
-      this.step.countDownTime.enabled = false
+        this.step.countDownTime.enabled = false
       }
       let stepType = this.getStepType(this.step.type)
       this.$emit('closeAllPanels')
@@ -4354,7 +4463,7 @@ export default {
     findItemIsFound(data) {
       var notAllFound = false
       var oneFound = false
-      const ww = (data && data.windowWidth) ? data.windowWidth : (this.getScreenWidth() / 100)
+      const ww = (data && data.windowWidth) ? data.windowWidth : (this.getFindItemPictureSize() / 100)
       for (var i = 0; i < this.step.options.coordinates.length; i++) {
         if (!this.step.options.coordinates[i].found) {
           let answerPixelCoordinates = {
@@ -4613,11 +4722,6 @@ export default {
     animation-duration: .75s;
     background: #e2043b;
   }
-  
-  .portrait-robot div img { width: 90vw; }
-  .portrait-robot .absolute { top: 0; left: 0; }
-  .portrait-robot .portrait-parts { margin-left: auto; margin-right: auto; }
-  .portrait-robot .portrait-parts img { width: 10vw; border: 1px solid #666; }
   
   /* IoT steps */
   

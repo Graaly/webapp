@@ -214,7 +214,7 @@
         <q-btn class="q-my-md glossy" color="negative" :label="$t('label.IConfirmIWantToRemoveMyAccount')" @click="removeAccount()" />
       </div>
       <div>
-        <div class="centered q-mt-xl q-mb-sm"><a @click="disconnect()">{{ $t('label.SignOut') }}</a></div>
+        <div class="centered q-mt-xl q-mb-sm cursor-pointer"><a @click="disconnect()">{{ $t('label.SignOut') }}</a></div>
         <div class="centered q-mb-sm" v-html="$t('label.TermsAndConditionsLink')"></div>
         <div class="centered q-mb-xl" v-html="$t('label.PrivacyPolicyLink')"></div>
       </div>

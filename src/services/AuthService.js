@@ -70,7 +70,7 @@ export default {
         .catch(error => console.log(error.request));
     } else {
       return Api()
-        .get("account")
+        .post("account", {})
         .catch(error => console.log(error.request));
     }
   },

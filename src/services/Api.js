@@ -3,7 +3,7 @@ import axiosRetry from 'axios-retry'
 
 // Note: HTTPS is mandatory here because HTTPS is required for front (geolocation)
 
-let baseUrl = process.env.SERVER_URL;
+let baseUrl = process.env.SERVER_URL
 let myAxios = axios.create({
   baseURL: baseUrl,
   validateStatus: function(status) {

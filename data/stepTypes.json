@@ -313,6 +313,32 @@
   },
   {
     "category": "enigma",
+    "code": "binocular",
+    "icon": "binoculars",
+    "title": "Binocular",
+    "description": "BinocularDesc",
+    "showTrick": "no",
+    "enabled": true,
+    "hasBackgroundImage": "main",
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": false
+  },
+  {
+    "category": "enigma",
+    "code": "phone-call",
+    "icon": "phone-volume",
+    "title": "PhoneCall",
+    "description": "PhoneCallDesc",
+    "showTrick": "no",
+    "enabled": true,
+    "hasBackgroundImage": "main",
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": false
+  },
+  {
+    "category": "enigma",
     "code": "trigger-event",
     "icon": "bolt",
     "title": "TriggerEvent",

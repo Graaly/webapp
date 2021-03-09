@@ -75,23 +75,17 @@
       
         <form @submit.prevent="submitSettings()" v-if="this.quest.languages.length > 0">
           
-          <div v-if="this.quest.access === 'private'">
-            <q-chip color="primary" text-color="white" icon="lock">
-              {{ $t('label.PrivateQuest') }}
-            </q-chip>
-          </div>
+          <q-chip v-if="this.quest.access === 'private'" color="primary" text-color="white" icon="lock">
+            {{ $t('label.PrivateQuest') }}
+          </q-chip>
           
-          <div v-if="this.quest.access === 'public'">
-            <q-chip color="primary" text-color="white" icon="public">
-              {{ $t('label.PublicQuest') }}
-            </q-chip>
-          </div>
+          <q-chip v-if="this.quest.access === 'public'" color="primary" text-color="white" icon="public">
+            {{ $t('label.PublicQuest') }}
+          </q-chip>
 
-          <div v-if="this.quest.isPremium">
-            <q-chip color="secondary" text-color="white" icon="star">
-              {{ $t('label.PremiumQuest') }}
-            </q-chip>
-          </div>
+          <q-chip v-if="this.quest.isPremium" color="secondary" text-color="white" icon="star">
+            {{ $t('label.PremiumQuest') }}
+          </q-chip>
           
           <q-select outlined :readonly="readOnly" emit-value map-options v-model="languages.current" :label="$t('label.Language')" :options="form.languages" :dense="true" @input="changeLanguage">
             <template v-slot:prepend>
@@ -130,7 +124,7 @@
           <div v-if="quest.type === 'quest'">
             {{ $t('label.QuestType') }} 
             <q-icon name="help" @click.native="showHelpPopup('helpQuestType')" />
-            <div class="q-gutter-sm">
+            <div class="q-gutter-md">
               <q-radio 
                 :disable="readOnly || editor.initMode === 'advanced'" 
                 v-model="form.fields.editorMode" val="simple" 
@@ -325,13 +319,22 @@
                 v-model="form.fields.customization.removeScoring"
                 />
             </div>
-            <!--<div>
+            <div v-if="form.fields.customization.removeScoring">
+              <q-input
+                :disable="readOnly"
+                v-model="form.fields.customization.endMessage"
+                :label="$t('label.TypeEndMessage')"
+                class="full-width"
+                type="textarea"
+              />
+            </div>
+            <div>
               <q-toggle
                 :readonly="readOnly"
                 :label="$t('label.ForcePlayerToHaveAccount')"
                 v-model="form.fields.forcePlayerToHaveAccount"
                 /> <q-icon name="help" @click.native="showHelpPopup('ForcePlayerToHaveAccountHelp')" />
-            </div>-->
+            </div>
             <div>
               <q-toggle
                 :readonly="readOnly"
@@ -381,15 +384,6 @@
                 </div>
               </div>
               <q-btn flat class="full-width" @click="resetSchedule">{{ $t('label.Reset') }}</q-btn>
-            </div>
-            <div v-if="form.fields.customization.removeScoring">
-              <q-input
-                :disable="readOnly"
-                v-model="form.fields.customization.endMessage"
-                :label="$t('label.TypeEndMessage')"
-                class="full-width"
-                type="textarea"
-              />
             </div>
             <div v-if="form.fields.customization">
               <q-select
@@ -538,15 +532,15 @@
           </p>-->
           <!-- using https://github.com/timruffles/ios-html5-drag-drop-shim to allow drag & drop on mobile -->
           <ul class="list-group" v-sortable="{ onUpdate: onChapterListUpdate, handle: '.handle' }">
-            <li class="step-list list-group-item" v-for="chapter in chapters.items" :key="chapter._id">
-              <q-icon v-if="!readOnly" class="handle" name="reorder" />
+            <li class="step-list list-group-item align-top" v-for="chapter in chapters.items" :key="chapter._id">
+              <q-icon v-if="!readOnly" name="reorder" />
               <div>
                 <p class="bigger">
                   {{ chapter.title[languages.current] || chapter.title[quest.mainLanguage] }}
-                  <q-icon v-if="!readOnly" name="add_box" class="float-right q-ml-md size-1" @click.native="addStep(chapter.chapterId)" />
-                  <q-icon v-if="!readOnly" name="delete" class="float-right q-ml-md a-bit-bigger" @click.native="removeChapter(chapter.chapterId)" />
-                  <q-icon v-if="!readOnly" name="mode_edit" class="float-right q-ml-md a-bit-bigger" @click.native="modifyChapter(chapter.chapterId)" />
-                  <q-icon name="warning" color="primary" class="float-right a-bit-bigger" v-if="chapter.warnings && chapter.warnings.length > 0" @click.native="showChapterWarnings(chapter.warnings)" />
+                  <q-icon v-if="!readOnly" name="add_box" class="float-right q-mt-sm q-ml-md size-1" @click.native="addStep(chapter.chapterId)" />
+                  <q-icon v-if="!readOnly" name="delete" class="float-right q-mt-sm q-ml-md a-bit-bigger" @click.native="removeChapter(chapter.chapterId)" />
+                  <q-icon v-if="!readOnly" name="mode_edit" class="float-right q-mt-sm q-ml-md a-bit-bigger" @click.native="modifyChapter(chapter.chapterId)" />
+                  <q-icon name="warning" color="primary" class="float-right q-mt-sm a-bit-bigger" v-if="chapter.warnings && chapter.warnings.length > 0" @click.native="showChapterWarnings(chapter.warnings)" />
                 </p>
                 <div v-if="!chapter.steps || chapter.steps.length === 0">
                   {{ $t('label.ClickOnButtonToAddStep') }}
@@ -1030,7 +1024,7 @@
     </div>
     
     <!--<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">-->
-    <div class="col-auto bg-primary">
+    <div class="col-auto">
       <div v-if="!chapters.showNewStepPageSettings && !chapters.showNewStepOverview && !chapters.showNewStepPage" class="desktop-only background-dark arial full-page-div full-height">
         <div class="q-pa-xl" v-html="$t('label.CreationStudioHelp')">
         </div>
@@ -1109,7 +1103,8 @@
           @fail="trackStepFail" 
           @pass="trackStepPass"
           @msg="trackMessage"
-          @closeAllPanels="closeAllPanels">
+          @closeAllPanels="closeAllPanels"
+          @forceMoveNext="closeOverview()">
         </stepPlay>
         <div v-show="overview.tabSelected" class="step-menu step-menu-fixed">
           <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
@@ -2632,6 +2627,7 @@ export default {
         }, 500)
       }
       this.closeAllPanels()
+      this.closeStepTypePage()
       this.chapters.showNewStepOverview = false
       this.chapters.showNewStep = false
       this.chapters.reloadStepPlay = false
@@ -2682,7 +2678,6 @@ export default {
     async closeOverview() {
       this.resetStepData()
       this.closeAllPanels()
-      await this.refreshStepsList()
       this.moveToPosition(this.chapters.newStep.scrollPosition)
       this.chapters.showNewStepOverview = false
       this.tabs.selected = 'steps'
@@ -2991,6 +2986,7 @@ export default {
       this.chapters.showNewStepPage = false
       if (step.type === 'end-chapter') {
         await this.closeOverview()
+        await this.refreshStepsList()
         return false
       }
       this.chapters.showNewStepOverview = true
@@ -3011,6 +3007,8 @@ export default {
         
         // refresh quest media size
         await this.refreshMediaSize()
+        
+        await this.refreshStepsList()
         
         // load inventory for steps use-item
         if (this.chapters.newStep.overviewData.type === 'use-item') {

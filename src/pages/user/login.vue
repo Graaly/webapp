@@ -281,14 +281,14 @@ export default {
             if (result.status === 'success') {
               window.localStorage.setItem('jwt', result.user.jwt)
               axios.defaults.headers.common['Authorization'] = `Bearer ${result.user.jwt}`
-              
+
               let destination = '/home';
               if (this.$route.query.hasOwnProperty('redirect')) {
                 destination = this.$route.query.redirect
               }
               this.$router.push(destination)
             }
-            
+
             if (result.status === 'failed') {
               Notification(this.$t('label.IncorrectLoginPleaseRetry'), 'warning')
             }
