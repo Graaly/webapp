@@ -13,7 +13,6 @@ let myAxios = axios.create({
 });
 
 myAxios.defaults.timeout = 4500 // slightly before axiosRetry delay
-myAxios.defaults.headers.common["Authorization"] = `Bearer ${localStorage["jwt"]}`
 
 axiosRetry(myAxios, {
   retries: 10,
@@ -23,6 +22,23 @@ axiosRetry(myAxios, {
   shouldResetTimeout: true,
   retryDelay: () => { return 5000 }
 })
+
+// Send the JWT token from local storage every time an HTTP request is made
+// Could not use this to change the authorization header:
+// myAxios.defaults.headers.common["Authorization"] = `Bearer ${localStorage["jwt"]}`
+// Instead, use an interceptor (see https://forum.vuejs.org/t/add-header-token-to-axios-requests-after-login-action-in-vuex/38834)
+myAxios.interceptors.request.use(
+  (config) => {
+    let token = localStorage.getItem('jwt')
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
 
 export default () => {
   return myAxios
