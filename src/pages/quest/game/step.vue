@@ -640,6 +640,11 @@ export default {
      * Get the step data
      */
     async getStep (forceNetworkLoading, forceStepId) {
+      let userIsAuthor = this.$store.state.user._id === this.info.quest.authorUserId
+      let userIsEditor = Array.isArray(this.info.quest.editorsUserId) && this.info.quest.editorsUserId.includes(this.$store.state.user._id)
+      
+      let forceOnline = this.$store.state.user.isAdmin || userIsAuthor || userIsEditor
+      
       this.warnings.stepDataMissing = false   
       var stepId
       // if no stepId given, load the next one
@@ -649,7 +654,7 @@ export default {
       } else {
         var response
 
-        if (!this.offline.active) {
+        if (!this.offline.active || forceOnline) {
           response = await RunService.getNextStep(this.questId, this.player)
           
           if (response && response.status !== 200) {
