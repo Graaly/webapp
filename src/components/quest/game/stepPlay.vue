@@ -312,13 +312,13 @@
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
         <div class="q-mt-lg background-lighter4 q-pa-md">
-          <div class="centered arial" v-if="puzzle.mode === 'drag'">
+          <div class="centered arial" v-if="puzzle && puzzle.mode === 'drag'">
             {{ $t('label.PuzzleHelpText') }}
           </div>
           <div class="centered text-primary q-pt-lg arial" v-if="puzzle.mode === 'click'">
             {{ $t('label.PuzzleHelpTextClick') }}
           </div>
-          <div class="centeredq-pt-sm" v-if="puzzle.mode === 'drag'">
+          <div class="centeredq-pt-sm" v-if="puzzle && puzzle.mode === 'drag'">
             <a class="text-black" @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
           </div>
         </div>
@@ -572,13 +572,13 @@
           <div v-if="!locateMarker.compliant">
             {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
           </div>
-          <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant && step.options.mode == 'scan'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
+          <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant && step.options && step.options.mode == 'scan'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
           <div class="marker-view" v-show="locateMarker.compliant">
             <canvas id="marker-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
           </div>
         </div>
         <div class="over-map mobile-fit" :class="'font-' + customization.font" style="height: 100%" v-if="locateMarker.showHelp">
-          <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? 'FindMarkerHelp' : 'TouchObjectOnMarkerHelp' }" @next="locateMarker.showHelp = false"></story>
+          <story step="help" :data="{ help: step.type == 'locate-marker' && step.options && step.options.mode === 'scan' ? 'FindMarkerHelp' : 'TouchObjectOnMarkerHelp' }" @next="locateMarker.showHelp = false"></story>
         </div>
       </div>
       
@@ -1725,7 +1725,7 @@ export default {
       let arToolkitContext = this.locateMarker.arToolkitContext
       let markerRoot
       
-      if (this.step.options.mode === 'scan') {
+      if (this.step.options && this.step.options.mode === 'scan') {
         markerRoot = this.locateMarker.markerRoots['commonRoot']
       } else {
         markerRoot = this.locateMarker.markerRoots[markerCode]
@@ -1738,7 +1738,7 @@ export default {
       marker.code = markerCode
       
       marker.addEventListener('markerFound', (ev) => {
-        if (this.step.options.mode === 'scan') {
+        if (this.step.options && this.step.options.mode === 'scan') {
           this.checkAnswer(ev.target.code)
         }
       })
@@ -1836,7 +1836,7 @@ export default {
       
       this.locateMarker.markerCodeAnswer = this.step.answers
       
-      if (this.step.options.mode === 'scan') {
+      if (this.step.options && this.step.options.mode === 'scan') {
         // only one marker root is enough
         let markerRoot = new THREE.Group()
         scene.add(markerRoot)
@@ -1853,7 +1853,7 @@ export default {
       }
       
       markersList.forEach((markerCode) => {
-        if (this.step.options.mode === 'touch') {
+        if (this.step.options && this.step.options.mode === 'touch') {
           // one marker root per marker
           let markerRoot = new THREE.Group()
           scene.add(markerRoot)
@@ -1862,7 +1862,7 @@ export default {
         this.locateMarker.markerControls[markerCode] = this.createMarkerControl(markerCode)
       })
       
-      if (this.step.options.mode === 'touch') {
+      if (this.step.options && this.step.options.mode === 'touch') {
         let object, animations
         //let data = await this.loadAndPrepare3DModel(this.step.options.model)
         let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.questId, this.step.options.customModel || false)
@@ -2300,7 +2300,7 @@ export default {
           
         case 'locate-item-ar':
         case 'locate-marker':
-          if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
+          if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'touch')) {
             checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, false)
             if (checkAnswerResult && checkAnswerResult.hasOwnProperty('result')) {
               if (this.step.type === 'locate-item-ar') {
@@ -2548,7 +2548,7 @@ export default {
             break
           case 'locate-item-ar':
           case 'locate-marker':
-            if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
+            if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'touch')) {
               this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'))
             } else { // locate marker, mode scan
               this.displaySuccessMessage(true, this.$t('label.WellDone'))
@@ -2966,8 +2966,8 @@ export default {
 
       // compute distance between two coordinates
       // note: current.accuracy contains the result accuracy in meters
-      this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
-      let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
+      this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(destinationPosition.lat, destinationPosition.lng, current.latitude, current.longitude) * 1000 // meters
+      let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, destinationPosition.lat, destinationPosition.lng)
       if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
         // avoid to change distance too much
         if (!this.geolocation.distance || this.geolocation.GPSdistance < this.geolocation.distance || this.geolocation.GPSdistance > (this.geolocation.distance + 4)) {
@@ -3392,7 +3392,7 @@ export default {
      * @param   {object}    e            Event when user touch puzzle piece
      */
     handleDragStart(e) {
-      if (this.puzzle.mode === 'drag') {
+      if (this.puzzle && this.puzzle.mode === 'drag') {
         if (e.target.className && e.target.className.indexOf('piece') !== -1) {
           this.puzzle.dragSrcEl = e.target
         }
@@ -3409,7 +3409,7 @@ export default {
      * @param   {object}    e            Event when user move puzzle piece over
      */
     handleDragOver(e) {
-      if (this.puzzle.mode === 'drag') {
+      if (this.puzzle && this.puzzle.mode === 'drag') {
         if (this.puzzle.dragSrcEl) {
           e.preventDefault();
           e.dataTransfer.dropEffect = 'move';
@@ -3421,7 +3421,7 @@ export default {
      * @param   {object}    e            Event when user stop moving puzzle piece
      */
     handleDragEnd(e) {
-      if (this.puzzle.mode === 'drag') {
+      if (this.puzzle && this.puzzle.mode === 'drag') {
         this.puzzle.dragSrcEl = null
         var cols = document.querySelectorAll('#pieces .piece');
         [].forEach.call(cols, function (col) {
@@ -3436,7 +3436,7 @@ export default {
      * @param   {object}    e            Event when user drop puzzle piece
      */
     handleDrop(e) {
-      if (this.puzzle.mode === 'drag') {
+      if (this.puzzle && this.puzzle.mode === 'drag') {
         if (this.puzzle.dragSrcEl && e.cancelable) {
           e.stopPropagation()
           e.stopImmediatePropagation()
@@ -3482,7 +3482,7 @@ export default {
      * Change the piece move mode for puzzle
      */
     changePuzzleMode() {
-      if (this.puzzle.mode === 'drag') {
+      if (this.puzzle && this.puzzle.mode === 'drag') {
         this.puzzle.mode = 'click'
       } else {
         this.puzzle.mode = 'drag'
@@ -3493,7 +3493,7 @@ export default {
      */
     movePieceWithClick(pos) {
       this.puzzle.dragSrcEl = null
-      if (this.puzzle.mode === 'click') {
+      if (this.puzzle && this.puzzle.mode === 'click') {
         if (this.puzzle.clickModeSelected === null) {
           for (let i = 0; i < this.puzzle.pieces.length; i++) {
             if (this.puzzle.pieces[i].pos === pos) {
@@ -3651,7 +3651,7 @@ export default {
         // => adjust camera orientation & object position according to detected marker position
         this.locateMarker.arToolkitContext.update(this.$refs['camera-stream-for-locate-marker'])
 
-        if ((this.step.type === 'locate-marker' && this.step.options.mode === 'scan') || this.step.id === 'sensor') {
+        if ((this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'scan') || this.step.id === 'sensor') {
           // any marker is "recognized"
           for (let markerCode in this.locateMarker.markerRoots) {
             this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoots[markerCode])
@@ -3715,7 +3715,7 @@ export default {
     */
     onTargetCanvasClick(event) {
       // handle touch only for specific steps & modes
-      if (!(this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch'))) {
+      if (!(this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'touch'))) {
         return
       }
       
@@ -4668,11 +4668,11 @@ export default {
   }
 
   .memory .card {
-    height: 15vw;
-    width: 15vw;
+    height: 20vw;
+    width: 20vw;
     max-width: 60px;
     max-height: 60px;
-    margin: 12px;
+    margin: 10px;
     background: url(/statics/icons/game/card-back.png) no-repeat;
     background-size: 100%;
     color: #ffffff;

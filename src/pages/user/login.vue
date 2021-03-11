@@ -75,7 +75,13 @@
               />
           </div>
           <div class="centered q-mt-sm q-mb-xl">
-            <q-btn flat @click="goToSubscribe()">{{ $t('label.Subscribe') }}</q-btn>
+            <q-btn 
+              class="large-btn" 
+              outline 
+              color="primary"
+              :label="$t('label.Subscribe')"
+              @click="goToSubscribe()"
+              />
           </div>
           
         </form>

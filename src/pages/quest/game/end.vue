@@ -349,10 +349,7 @@ export default {
             }
           }
         }
-        
-        // get ranking without the user (status of run is still in-progress)
-        await this.getRanking()
-        
+
         // get quest data
         var quest
         if (this.run && this.run.version) {
@@ -423,6 +420,10 @@ export default {
           this.$store.state.user.points = this.score.new
           utils.setTimeout(this.updateProgression, 3000)
         }
+        
+        // get ranking without the user (status of run is still in-progress)
+        await this.getRanking()
+        
         
         // get duration
         const duration = utils.getDurationFromNow(this.run.dateCreated)

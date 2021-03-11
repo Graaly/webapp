@@ -21,7 +21,7 @@
     />
     
     <!------------------ HEADER AREA ------------------------>
-    <div><!-- Keep this div for iphone, for red filter display -->
+    <div class="fit"><!-- Keep this div for iphone, for red filter display -->
       <stepPlay 
         :step="step" 
         :runId="run._id" 
