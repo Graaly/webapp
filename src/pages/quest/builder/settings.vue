@@ -825,7 +825,9 @@
           </q-card-section>
           <q-separator inset />
           <q-card-section>
-            <div class="title1 text-primary centered">{{ statistics.statistics.nbPlayers + statistics.statistics.notFinished }}</div>
+            <div class="title1 text-primary centered">
+              {{ statistics.statistics.nbPlayers + statistics.statistics.notFinished }}<span class="smaller" :class="{'text-red': (quest.limitations && quest.limitations.nbPlays && quest.limitations.nbPlays <= (statistics.statistics.nbPlayers + statistics.statistics.notFinished)), 'text-grey': (quest.limitations && quest.limitations.nbPlays && quest.limitations.nbPlays > (statistics.statistics.nbPlayers + statistics.statistics.notFinished))}" v-if="quest.limitations && quest.limitations.nbPlays && quest.limitations.nbPlays > 0">/{{ quest.limitations.nbPlays }}</span>
+            </div>
             <div class="centered">{{ $t('label.NumberOfPlayersYesterday') }}{{ $t('label.colons') }}{{ statistics.statistics.dailyNbPlayers }} </div>
           </q-card-section>
         </q-card>

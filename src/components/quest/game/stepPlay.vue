@@ -69,7 +69,7 @@
         </div>
         <div class="item">
           <img style="width: 80%" :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
-          <p>{{ step.options.title }}</p>
+          <p><span>{{ step.options.title }}</span></p>
         </div>
       </div>
             
@@ -2517,6 +2517,11 @@ export default {
       
       this.displayReadMoreAlert()
       
+      // if no display of the answer move to next step
+      if (this.step.displayRightAnswer === false) {
+        this.forceNextStep()
+      }
+      
       if (showResult) {
         switch (this.step.type) {
           case 'character': 
@@ -2599,8 +2604,14 @@ export default {
       } else if (showResult) {
         this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
       }
-      // advise user to move to next step
-      utils.setTimeout(this.alertToPassToNextStep, 15000)
+      
+      // if no display of the answer move to next step
+      if (this.step.displayRightAnswer === false) {
+        this.forceNextStep()
+      } else {      
+        // advise user to move to next step
+        utils.setTimeout(this.alertToPassToNextStep, 15000)
+      }
     },
     alertToPassToNextStep() {
       this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'))
@@ -4624,7 +4635,7 @@ export default {
   /* new-item specific */
   
   .new-item .item { text-align: center; position: relative;}
-  .new-item .item p { font-size: 2rem; }
+  .new-item .item p span { font-size: 2rem; background-color: rgba(255, 255, 255, 0.5); border-radius: 8px; padding: 4px 8px; }
   
   /* locate-item-ar specific */
   
