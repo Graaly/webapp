@@ -21,7 +21,7 @@
     />
     
     <!------------------ HEADER AREA ------------------------>
-    <div><!-- Keep this div for iphone, for red filter display -->
+    <div class="fit"><!-- Keep this div for iphone, for red filter display -->
       <stepPlay 
         :step="step" 
         :runId="run._id" 
@@ -68,7 +68,6 @@
       </div>
     </transition>
     <q-dialog maximized v-model="inventory.detail.isOpened">
-      <div class="bg-white centered">
       <div class="bg-white centered limit-size-desktop">
         <img v-if="inventory.detail.zoom === 1" style="width: 100%" :src="inventory.detail.url">
         <div v-if="inventory.detail.zoom === 2" style="width: 100%; height: 100vw; overflow-x: scroll; overflow-y: scroll;">
@@ -641,6 +640,11 @@ export default {
      * Get the step data
      */
     async getStep (forceNetworkLoading, forceStepId) {
+      let userIsAuthor = this.$store.state.user._id === this.info.quest.authorUserId
+      let userIsEditor = Array.isArray(this.info.quest.editorsUserId) && this.info.quest.editorsUserId.includes(this.$store.state.user._id)
+      
+      let forceOnline = this.$store.state.user.isAdmin || userIsAuthor || userIsEditor
+      
       this.warnings.stepDataMissing = false   
       var stepId
       // if no stepId given, load the next one
@@ -650,7 +654,7 @@ export default {
       } else {
         var response
 
-        if (!this.offline.active) {
+        if (!this.offline.active || forceOnline) {
           response = await RunService.getNextStep(this.questId, this.player)
           
           if (response && response.status !== 200) {

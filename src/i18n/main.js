@@ -86,7 +86,13 @@ module.exports = {
       WaitForEvent: "Your material -> Graaly",
       WaitForEventDesc: "A physical action activate a step (using an electronic card)",
       HelpStep: "Help page",
-      HelpStepDesc: "How to use Graaly, presentation of the buttons for the players."
+      HelpStepDesc: "How to use Graaly, presentation of the buttons for the players.",
+      PortraitRobot: "Composite picture - BETA",
+      PortraitRobotDesc: "Create suspect face based on face items",
+      PhoneCall: "Pnone call - BETA",
+      PhoneCallDesc: "Launch a phone call to a defined number",
+      Binocular: "Binoculars - BETA",
+      BinocularDesc: "Search in a picture using binoculars"
     },
     layersForMarkers: {
       Magnifier: 'Magnifier',
@@ -106,7 +112,7 @@ module.exports = {
       new: "new"
     },
     story: {
-      hint: "Hello, here is a hint: <br /><b>{hint}</b>",
+      hint: "Hint: <br /><b>{hint}</b>",
       readMore: "{readMore}",
       FindMarkerHelp: "Target the correct QR code with your phone camera. Good luck!",
       TouchObjectOnMarkerHelp: "Point your phone camera towards the right QR code. A QR code is a square picture with dark dots. Good luck!"
@@ -394,7 +400,7 @@ module.exports = {
       TouchWhereYouUseThisItem: "Touch where you use this item",
       YourLanguage: "Your language",
       NoFriend: "You have no friend yet",
-      YourRanking: "My ranking",
+      YourRanking: "Your ranking",
       Ranking: "Ranking",
       Like: "Like",
       NoNews: "No news yet",
@@ -700,7 +706,7 @@ module.exports = {
       PremiumWarning: "To use this feature, you need to move your game to premium mode (look at your game settings)",
       Statistics: "Statistics",
       colons: ": ",
-      TotalNumberOfPlayers: "Total number of players",
+      TotalNumberOfPlayers: "Total number of game played",
       NumberOfPlayersYesterday: "Yesterday",
       NumberOfPlayersByAge: "Number of players by age",
       NumberOfPlayersBySex: "Number of player by gender",
@@ -983,10 +989,10 @@ module.exports = {
       HelpStepMessagePrevious: "Display Previous button help",
       HelpStepMessageNext: "Display Next button help",
       HelpStepMessage: "Welcome in your game interface!\n\nTo play your game, just follow the indications on screen.",
-      HelpStepMessageInventoryMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><div class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>work</i></div></button></div>With the suitcase, you can access and use the objects won during the game.",
-      HelpStepMessageHintMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><div class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>lightbulb</i></div></button></div>With the light bulb, you can access the hints.",
-      HelpStepMessagePreviousMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><div class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>arrow_back</i></div></button></div>Press the back button to move back to the previous step.",
-      HelpStepMessageNextMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><div class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>arrow_forward</i></div></button></div>Press the next button to move to the next step.",
+      HelpStepMessageInventoryMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>work</i></span></span></button></div>With the suitcase, you can access and use the objects won during the game.",
+      HelpStepMessageHintMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>lightbulb</i></span></span></button></div>With the light bulb, you can access the hints.",
+      HelpStepMessagePreviousMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>arrow_back</i></span></span></button></div>Press the back button to move back to the previous step.",
+      HelpStepMessageNextMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>arrow_forward</i></span></span></button></div>Press the next button to move to the next step.",
       HelpStepMessageEnd: "If any problem, do not hesitate to close the application, you will restart to the latest step you played.\n\nGood luck and have fun!",
       KenBurnsEffect: "Zoom out effect on picture",
       Show: "Show",
@@ -1004,7 +1010,8 @@ module.exports = {
       From: "From",
       To: "To",
       QuestIsNotPlayableNow: "The game is not playable now",
-      CreationStudioHelp: "<h3>Help</h3>We propose you several resources to help you using the creation studio:<ul><li><a href='https://graaly.com/wp-content/uploads/2021/01/La-dameuse-infernale-Jeu-Graaly-Présentation-1.pdf' target='_blank'>Builder guide (fr)</a></li><li>Some <a href='https://www.youtube.com/channel/UCAHXs8JuuV3bBDyggUelK2Q' target='_blank'>video tutorials (fr)</a> to build steps of your game</li></ul>If you meet any issue or if you have questions, do not hesitate to contact us at support@graaly.com.<br /><br />To test your game, we advise you to:<ul><li>test on your phone with the Graaly app</li><li>test on your web browser <a href='https://developers.google.com/web/tools/chrome-devtools/device-mode' target='_blank'>developer mode</a> (to make it short, click on f12 key, and on the tablet icon). Warning: some steps are not working on this mode (Augmented reality, geolocation, QR code flashing, superimpose image and camera)</li></ul>",
+      OpeningHours: "Opening hours",
+      CreationStudioHelp: "<h3>Help</h3>We propose you several resources to help you using the creation studio:<ul><li><a href='https://graaly.com/wp-content/uploads/2021/02/Graaly-Pr%C3%A9sentation-du-studio-de-cr%C3%A9ation-jan-2021.pdf' target='_blank'>Builder guide (fr)</a></li><li>Some <a href='https://www.youtube.com/channel/UCAHXs8JuuV3bBDyggUelK2Q' target='_blank'>video tutorials (fr)</a> to build steps of your game</li></ul>If you meet any issue or if you have questions, do not hesitate to contact us at support@graaly.com.<br /><br />To test your game, we advise you to:<ul><li>test on your phone with the Graaly app</li><li>test on your web browser <a href='https://developers.google.com/web/tools/chrome-devtools/device-mode' target='_blank'>developer mode</a> (to make it short, click on f12 key, and on the tablet icon). Warning: some steps are not working on this mode (Augmented reality, geolocation, QR code flashing, superimpose image and camera)</li></ul>",
       TestWithSimulatorWarning: "You will test with the simulator. Some step types are not working on it. For a real test, please use the Graaly mobile application",
       FontFamily: "Font used for texts",
       ExportTexts: "Game's texts",
@@ -1018,7 +1025,11 @@ module.exports = {
       PartnerAskForYouData: "The creator of this game want to access your data (email address, name). The reason can be to organize a draw, or a competition, or to give you a voucher. Please read the game description for more information",
       UseHtmlInDescription: "Use HTML tags in the question",
       DoNotDisplay: "Do not display",
-      AddAnGPSLocation: "Add a GPS location"
+      AddAnGPSLocation: "Add a GPS location",
+      BuildThePortraitRobot: "Build the picture to find",
+      Education: "Education",
+      EducationDesc: "We do not have an education plan yet, but you can use the professional mode and contact us at contact@graaly.com.",
+      Call: "Call"
     } 
   },
   fr: {
@@ -1095,7 +1106,13 @@ module.exports = {
       WaitForEvent: "Votre matériel -> Graaly",
       WaitForEventDesc: "Votre matériel active une étape Graaly (utilisation d'une carte électronique)",
       HelpStep: "Page d'aide",
-      HelpStepDesc: "Aide à l'utilisation de Graaly, présentation des boutons."
+      HelpStepDesc: "Aide à l'utilisation de Graaly, présentation des boutons.",
+      PortraitRobot: "Portrait robot - BETA",
+      PortraitRobotDesc: "Reconstituez le visage des suspects",
+      PhoneCall: "Appel téléphonique - BETA",
+      PhoneCallDesc: "Lancez un appel téléphonique vers un numéro défini",
+      Binocular: "Jumelles - BETA",
+      BinocularDesc: "Rechercher dans une image en utilisant des jumelles"
     },
     layersForMarkers: {
       Magnifier: 'Loupe',
@@ -1115,7 +1132,7 @@ module.exports = {
       new: "nouveau"
     },
     story: {
-      hint: "Salut, voici un indice :<br /><b>{hint}</b>",
+      hint: "Indice :<br /><b>{hint}</b>",
       readMore: "{readMore}",
       FindMarkerHelp: "Visez le bon QR code avec la caméra de votre téléphone. Bonne chance !",
       TouchObjectOnMarkerHelp: "Visez le bon QR code avec la caméra de votre téléphone. Un QR code est une figure carrée composée de point noirs. Bonne chance !"
@@ -1249,7 +1266,7 @@ module.exports = {
       Start: "Commencer",
       AcceptTheRules: "Accepter les règles",
       SomeMoney: "De l'argent",
-      BuilderWelcomeMessage: "<p>En appuyant sur le bouton Démarrer, vous acceptez les règles suivantes :<ul><li>Cette application peut être utilisée par un jeune public, votre jeu ne doit pas contenir de la violence, des images effrayantes, ou des références au sexe, aux drogues, à l'alcool, au tabac, etc.</li><li>Si le lieu ne vous appartient pas, ne demandez pas aux joueurs de toucher, déplacer, dégrader les lieux visités</li><li>L'histoire de votre jeu ne doit pas porter atteinte à des personnes vivantes ou ayant existé</li><li>Votre jeu ne doit pas concerner un lieu pour lequel un jeu existe déjà, sauf si le thême est suffisamment différent</li><li>Votre jeu doit faire plus de 6 étapes. Nous vous conseillons d'en créer moins de 70.</li><li>Vous devez posséder les droits des images que vous utilisez.</li><li>Les visuels doivent être homogènes (photos réalistes, desssins, ...).</li><li>Notre équipe de modérateurs validera si votre jeu respecte ces règles et atteint un niveau de qualité suffisant. Dans le cas contraire, il vous sera demandé d'améliorer votre jeu, ou il sera refusé</li></ul></p>",
+      BuilderWelcomeMessage: "<p>En appuyant sur le bouton Démarrer, vous acceptez les règles suivantes :<ul><li>Cette application peut être utilisée par un jeune public, votre jeu ne doit pas contenir de la violence, des images effrayantes, ou des références au sexe, aux drogues, à l'alcool, au tabac, etc.</li><li>Si le lieu ne vous appartient pas, ne demandez pas aux joueurs de toucher, déplacer, dégrader les lieux visités</li><li>L'histoire de votre jeu ne doit pas porter atteinte à des personnes vivantes ou ayant existé</li><li>Votre jeu ne doit pas concerner un lieu pour lequel un jeu existe déjà, sauf si le thême est suffisamment différent</li><li>Votre jeu doit faire plus de 6 étapes. Nous vous conseillons d'en créer moins de 70.</li><li>Vous devez posséder les droits des images, vidéos et sons que vous utilisez.</li><li>Les visuels doivent être homogènes (photos réalistes, desssins, ...).</li><li>Notre équipe de modérateurs validera si votre jeu respecte ces règles et atteint un niveau de qualité suffisant. Dans le cas contraire, il vous sera demandé d'améliorer votre jeu, ou il sera refusé</li></ul></p>",
       BuilderPrivateWelcomeMessage: "<p>En appuyant sur le bouton Démarrer, vous acceptez les règles suivantes :<ul><li>Si le lieu du jeu ne vous appartient pas, ne demandez pas aux joueurs de toucher, déplacer, dégrader les lieux visités</li><li>L'histoire de votre jeu ne doit pas porter atteinte à des personnes vivantes ou ayant existé</li><li>Vous êtes limité à 20 invités (pour plus d'invités, veuillez nous contacter)</li></ul></p>",
       BuilderPrivateProWelcomeMessage: "<p>En appuyant sur le bouton Démarrer, vous acceptez les règles suivantes :<ul><li>Si le lieu du jeu ne vous appartient pas, ne demandez pas aux joueurs de toucher, déplacer, dégrader les lieux visités</li><li>L'histoire de votre jeu ne doit pas porter atteinte à des personnes vivantes ou ayant existé</li><li>Vous êtes limité à 200 invités (pour plus d'invités, veuillez nous contacter)</li></ul></p>",
       BuilderIntro: "Graaly vous permet de créer très simplement, et pas à pas, des jeux ludiques pour les autres joueurs. Ces jeux peuvent être des jeux de piste ou des escape games",
@@ -1403,7 +1420,7 @@ module.exports = {
       TouchWhereYouUseThisItem: "Touchez l'endroit où vous utilisez cet objet",
       YourLanguage: "Votre langue",
       NoFriend: "Vous n'avez encore aucun ami",
-      YourRanking: "Mon classement",
+      YourRanking: "Votre classement",
       Ranking: "Classement",
       Like: "J'aime",
       NoNews: "Aucune actualité pour le moment",
@@ -1709,7 +1726,7 @@ module.exports = {
       PremiumWarning: "Pour utiliser cette fonctionnalité, vous devez passer ce jeu en mode premium (voir dans les paramètres de votre jeu)",
       Statistics: "Statistiques",
       colons: " : ",
-      TotalNumberOfPlayers: "Nombre total de joueurs",
+      TotalNumberOfPlayers: "Nombre total de parties jouées",
       NumberOfPlayersYesterday: "Hier",
       NumberOfPlayersByAge: "Nombre de joueurs par age",
       NumberOfPlayersBySex: "Nombre de joueur par sexe",
@@ -1992,10 +2009,10 @@ module.exports = {
       HelpStepMessagePrevious: "Afficher l'aide pour le bouton Retour",
       HelpStepMessageNext: "Afficher l'aide pour le bouton Suivant",
       HelpStepMessage: "Bienvenue dans votre interface de jeu !\n\nPour jouer, il vous suffira de suivre les indications à l'écran.",
-      HelpStepMessageInventoryMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><div class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>work</i></div></button></div>La valise vous sert à utiliser des objets que vous avez récupérés durant le jeu",
-      HelpStepMessageHintMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><div class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>lightbulb</i></div></button></div>L'ampoule vous sert à obtenir des indices.",
-      HelpStepMessagePreviousMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><div class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>arrow_back</i></div></button></div>Pour revenir à l'étape précédente, appuyez sur la flèche de gauche.",
-      HelpStepMessageNextMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><div class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>arrow_forward</i></div></button></div>Pour passer à l'étape suivante, appuyez sur la flèche de droite.",
+      HelpStepMessageInventoryMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>work</i></span></span></button></div>La valise vous sert à utiliser des objets que vous avez récupérés durant le jeu",
+      HelpStepMessageHintMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>lightbulb</i></span></span></button></div>L'ampoule vous sert à obtenir des indices.",
+      HelpStepMessagePreviousMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>arrow_back</i></span></span></button></div>Pour revenir à l'étape précédente, appuyez sur la flèche de gauche.",
+      HelpStepMessageNextMessage: "<div class='centered'><button type='button' class='q-btn q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>arrow_forward</i></span></span></button></div>Pour passer à l'étape suivante, appuyez sur la flèche de droite.",
       HelpStepMessageEnd: "En cas de problème, n'hésitez pas à fermer l'application et à la redémarrer, vous reviendrez à la dernière étape réussie.\n\nBon jeu, et bonne chance !",
       KenBurnsEffect: "Effet de zoom arrière sur l'image",
       Show: "Montrer",
@@ -2013,7 +2030,8 @@ module.exports = {
       From: "De",
       To: "A",
       QuestIsNotPlayableNow: "Le jeu n'est pas disponible actuellement",
-      CreationStudioHelp: "<h3>Aide</h3>Nous vous proposons plusieurs ressources pour vous aider à utiliser le studio de création :<ul><li><a href='https://graaly.com/wp-content/uploads/2021/01/La-dameuse-infernale-Jeu-Graaly-Présentation-1.pdf' target='_blank'>Guide d'utilisation du studio</a></li><li>Des <a href='https://www.youtube.com/channel/UCAHXs8JuuV3bBDyggUelK2Q' target='_blank'>tutoriels vidéo</a> d'utilisation du studio de création</li></ul>Si vous rencontrez des problèmes ou si vous avez des questions complémentaires, n'hésitez pas à nous contacter à support@graaly.com.<br /><br />Pour tester votre jeu, nous vous conseillons de :<ul><li>tester sur votre téléphone avec l'application Graaly</li><li>tester dans votre navigateur en <a href='https://developers.google.com/web/tools/chrome-devtools/device-mode' target='_blank'>mode développeur</a> (pour faire simple, cliquez sur la touche f12, puis sur l'icône en forme de tablette). Attention, certaines étapes ne fonctionnent pas dans ce mode (réalité augmentée, géolocalisation, scanne de QR code, superposition image et caméra)</li></ul>",
+      OpeningHours: "Heures d'ouverture",
+      CreationStudioHelp: "<h3>Aide</h3>Nous vous proposons plusieurs ressources pour vous aider à utiliser le studio de création :<ul><li><a href='https://graaly.com/wp-content/uploads/2021/02/Graaly-Pr%C3%A9sentation-du-studio-de-cr%C3%A9ation-jan-2021.pdf' target='_blank'>Guide d'utilisation du studio</a></li><li>Des <a href='https://www.youtube.com/channel/UCAHXs8JuuV3bBDyggUelK2Q' target='_blank'>tutoriels vidéo</a> d'utilisation du studio de création</li></ul>Si vous rencontrez des problèmes ou si vous avez des questions complémentaires, n'hésitez pas à nous contacter à support@graaly.com.<br /><br />Pour tester votre jeu, nous vous conseillons de :<ul><li>tester sur votre téléphone avec l'application Graaly</li><li>tester dans votre navigateur en <a href='https://developers.google.com/web/tools/chrome-devtools/device-mode' target='_blank'>mode développeur</a> (pour faire simple, cliquez sur la touche f12, puis sur l'icône en forme de tablette). Attention, certaines étapes ne fonctionnent pas dans ce mode (réalité augmentée, géolocalisation, scanne de QR code, superposition image et caméra)</li></ul>",
       TestWithSimulatorWarning: "Vous allez tester avec le simulateur. Certains types d'étapes ne sont pas fonctionnels. Pour un vrai test, utilisez l'application mobile Graaly",
       FontFamily: "Police de caractère pour les textes",
       ExportTexts: "Textes du jeu",
@@ -2027,7 +2045,11 @@ module.exports = {
       PartnerAskForYouData: "Le créateur du jeu souhaiterais accéder à vos données (adresse email, nom). Cela peut être pour vous permettre de participer à un tirage au sort, un jeu concours ou vous faire gagner un bon de réduction. Veuillez lire la description du jeu pour en savoir plus",
       UseHtmlInDescription: "Utiliser des balises HTML dans la question",
       DoNotDisplay: "Ne pas afficher",
-      AddAnGPSLocation: "Ajouter un point GPS"
+      AddAnGPSLocation: "Ajouter un point GPS",
+      BuildThePortraitRobot: "Construisez le portrait à trouver",
+      Education: "Education",
+      EducationDesc: "Nous ne proposons pas encore d'offre éducation, mais vous pouvez utiliser le mode professionnel, et nous contacter à contact@graaly.com pour plus d'information.",
+      Call: "Appeler"
     }
   }
 }

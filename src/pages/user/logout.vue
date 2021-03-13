@@ -13,6 +13,7 @@ export default {
     await this.$store.dispatch('logout')
     window.localStorage.removeItem('jwt')
     delete axios.defaults.headers.common['Authorization']
+    //this.$router.go(0)
     this.$router.push('/user/login')
   }
 }

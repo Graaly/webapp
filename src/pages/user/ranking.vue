@@ -41,7 +41,8 @@
             </div>
             <div v-if="range === 'quest' && ranking && ranking.length > 0" v-for="(run, index) in ranking" :key="index" class="q-pa-md rank-box">
               <div>
-                <userCard :user="run.userData" size="medium" @click="openProfile"></userCard>
+                <!-- here we guess that is should be the first element : TODO : FIX ME-->
+                <userCard :user="run.userData" size="medium" @click="openProfile(run.userId[0])"></userCard>
               </div>
               <div class="full-width">
                 <div class="subtitle5">{{ run.userData.name }}</div>

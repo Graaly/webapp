@@ -69,7 +69,7 @@
         </div>
         <div class="item">
           <img style="width: 80%" :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
-          <p>{{ step.options.title }}</p>
+          <p><span>{{ step.options.title }}</span></p>
         </div>
       </div>
             
@@ -312,13 +312,13 @@
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
         <div class="q-mt-lg background-lighter4 q-pa-md">
-          <div class="centered arial" v-if="puzzle.mode === 'drag'">
+          <div class="centered arial" v-if="puzzle && puzzle.mode === 'drag'">
             {{ $t('label.PuzzleHelpText') }}
           </div>
           <div class="centered text-primary q-pt-lg arial" v-if="puzzle.mode === 'click'">
             {{ $t('label.PuzzleHelpTextClick') }}
           </div>
-          <div class="centeredq-pt-sm" v-if="puzzle.mode === 'drag'">
+          <div class="centeredq-pt-sm" v-if="puzzle && puzzle.mode === 'drag'">
             <a class="text-black" @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
           </div>
         </div>
@@ -344,6 +344,90 @@
         </ul>
       </div>
       
+      <!------------------ COMPOSITE DRAWING STEP AREA ------------------------>
+      
+      <div class="portrait-robot" v-if="step.type === 'portrait-robot'">
+        <div>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
+        </div>
+        <div class="relative-position">
+          <div>
+            <img :src="'statics/portrait-robot/face-' + portrait.face.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/eye-' + portrait.eye.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/mouth-' + portrait.mouth.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/nose-' + portrait.nose.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/hair-' + portrait.hair.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/beard-' + portrait.beard.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/glass-' + portrait.glass.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/hat-' + portrait.hat.position + '.png'" />
+          </div>
+        </div>
+        <table class="portrait-parts relative-position">
+          <tr>
+            <td><img @click="changePortraitPart('face')" src="statics/portrait-robot/face-1.png" /></td>
+            <td><img @click="changePortraitPart('eye')" src="statics/portrait-robot/eye-1.png" /></td>
+            <td><img @click="changePortraitPart('nose')" src="statics/portrait-robot/nose-1.png" /></td>
+            <td><img @click="changePortraitPart('hair')" src="statics/portrait-robot/hair-1.png" /></td>
+            <td><img @click="changePortraitPart('beard')" src="statics/portrait-robot/beard-2.png" /></td>
+            <td><img @click="changePortraitPart('glass')" src="statics/portrait-robot/glass-2.png" /></td>
+            <td><img @click="changePortraitPart('hat')" src="statics/portrait-robot/hat-4.png" /></td>
+          </tr>
+        </table>
+        <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
+          <div>
+            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()"><div>{{ $t('label.Confirm') }}</div></q-btn>
+          </div>
+        </div>
+      </div>
+      
+      <!------------------ BINOCULAR STEP AREA ------------------------>
+      
+      <div class="binocular" v-if="step.type === 'binocular'">
+        <div>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
+        </div>
+        <div class="relative-position">
+          <div style="width: 100%; height: 100vw; overflow-x: scroll; overflow-y: scroll;">
+            <img style="width: 400%" :src="getBackgroundImage()" />
+          </div>
+          <div class="absolute no-mouse-event" style="top: 0px; width: 100%;">
+            <img class="no-mouse-event" style="width: 100%; " src="statics/icons/game/binoculars.png">
+          </div>
+        </div>  
+      </div>
+      
+      <!------------------ PHONE CALL STEP AREA ------------------------>
+      
+      <div class="phone-call fit" v-if="step.type === 'phone-call'">
+        <div class="fit bg-black">
+          <div class="q-pb-xxl">
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
+          </div>
+          <div class="fixed-bottom q-pb-xxl q-pl-xl q-pr-xl">
+            <q-btn round color="positive" icon="call" @click="phoneCall()" />
+            <q-btn class="float-right" round color="negative" icon="call_end" @click="forceNextStep()" />
+              <!--<q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="phoneCall()"><div>{{ $t('label.Call') }}</div></q-btn>-->
+          </div>  
+        </div>
+      </div>
+      
       <!------------------ USE ITEM STEP AREA ------------------------>
       
       <div class="use-item" v-if="step.type == 'use-item'">
@@ -351,8 +435,8 @@
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
-        <div ref="useItemPicture" @click="useItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="use-item-picture">
-          <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
+        <div ref="useItemPicture" @click="checkUseItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100%; height: ' + useItem.imageHeight + 'px;'" test-id="use-item-picture">
+          <img id="cross-play" :style="'position: relative; z-index: 500; width: ' + useItem.crossSize + 'px; height: ' + useItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
 
@@ -374,11 +458,11 @@
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
-        <div ref="findItemPicture" @click="findItem($event)" :style="'position: relative; overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="find-item-picture">
-          <img id="cross-play0" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
-          <img id="cross-play1" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
-          <img id="cross-play2" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
-          <img id="cross-play3" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
+        <div ref="findItemPicture" @click="checkFindItem($event)" :style="'position: relative; overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100%; height: ' + findItem.imageHeight + 'px;'" test-id="find-item-picture">
+          <img id="cross-play0" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play1" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play2" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play3" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
       
@@ -488,13 +572,13 @@
           <div v-if="!locateMarker.compliant">
             {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
           </div>
-          <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant && step.options.mode == 'scan'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
+          <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant && step.options && step.options.mode == 'scan'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
           <div class="marker-view" v-show="locateMarker.compliant">
             <canvas id="marker-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
           </div>
         </div>
         <div class="over-map mobile-fit" :class="'font-' + customization.font" style="height: 100%" v-if="locateMarker.showHelp">
-          <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? 'FindMarkerHelp' : 'TouchObjectOnMarkerHelp' }" @next="locateMarker.showHelp = false"></story>
+          <story step="help" :data="{ help: step.type == 'locate-marker' && step.options && step.options.mode === 'scan' ? 'FindMarkerHelp' : 'TouchObjectOnMarkerHelp' }" @next="locateMarker.showHelp = false"></story>
         </div>
       </div>
       
@@ -723,7 +807,7 @@ export default {
     // check if item used is the right one
     itemUsed: async function(newVal, oldVal) {
       if (this.step && this.step.type === "use-item" && this.step.options && this.step.options.hasOwnProperty("touchLocation") && this.step.options.touchLocation === false) {
-        this.useItem()
+        this.checkUseItem()
       }
     }
   },
@@ -873,8 +957,28 @@ export default {
           selectedKey: null,
           disabled: false
         },
+        portrait: {
+          face: { position: 1, number: 4 },
+          eye: { position: 1, number: 16 },
+          mouth: { position: 1, number: 1 },
+          nose: { position: 1, number: 5 },
+          hair: { position: 1, number: 26 },
+          beard: { position: 1, number: 31 },
+          glass: { position: 1, number: 5 },
+          hat: { position: 1, number: 4 }
+        },
         // for step type 'find-item'
-        nbItemsFound: 0,
+        findItem: {
+          nbItemsFound: 0,
+          crossSize: 30,
+          imageWidth: 900,
+          imageHeight: 1200
+        },
+        useItem: {
+          crossSize: 30,
+          imageWidth: 900,
+          imageHeight: 1200
+        },  
         readMoreNotif: null,
         // for step type 'use-item'
         itemUsedComputed: null,
@@ -938,6 +1042,7 @@ export default {
       this.writetext = defaultVars.writetext
       this.puzzle = defaultVars.puzzle
       this.memory = defaultVars.memory
+      this.portrait = defaultVars.portrait
       this.nbItemsFound = defaultVars.nbItemsFound
       this.readMoreNotif = defaultVars.readMoreNotif
       this.itemUsedComputed = defaultVars.itemUsedComputed
@@ -983,8 +1088,9 @@ export default {
       if (this.bluetooth.enabled) {
         this.bluetoothDisconnect(this.bluetooth.deviceId)
       }
-      
-      this.stopcountdown()
+      if (!this.step.countDownTime || !this.step.countDownTime.enabled) {
+        this.stopcountdown()
+      }
       
       if (['geolocation', 'locate-item-ar'].includes(this.step.type)) {
         try {
@@ -1030,7 +1136,7 @@ export default {
       this.$nextTick(async () => {
         let background = document.getElementById('play-view')
         if (this.step.backgroundImage) {
-          if (this.step.type === 'find-item' || this.step.type === 'use-item') {
+          if (this.step.type === 'find-item' || this.step.type === 'use-item' || this.step.type === 'binocular' || this.step.type === 'phone-call') {
             background.style.background = 'none'
             background.style.backgroundColor = '#000'
             this.showControls()
@@ -1048,7 +1154,7 @@ export default {
             let backgroundImage = document.getElementById('background-image')
             //background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             if (backgroundImage) {
-            backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+              backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             }
             // all background clickable for transitions
             //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
@@ -1124,6 +1230,13 @@ export default {
           this.resetImageCode()
         }
         
+        if (this.step.type === 'find-item') {
+          utils.setTimeout(this.initFindItemElements, 2000)
+        }
+        if (this.step.type === 'use-item') {
+          utils.setTimeout(this.initUseItemElements, 2000)
+        }
+        
         if (this.step.type === 'new-item') {
           if (this.step.options.hasOwnProperty('pictures') && this.step.options.pictures[this.lang]) {
             this.step.options.picture = this.step.options.pictures[this.lang]
@@ -1144,12 +1257,27 @@ export default {
           this.$emit('pass')
         }
         
+        if (this.step.type === 'binocular') {
+          if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+            Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
+          }
+          this.$emit('pass')
+        }
+        
+        if (this.step.type === 'phone-call') {
+          if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+            Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
+          }
+          this.$emit('pass')
+        }
+        
         // common process to 'geolocation' and 'locate-item-ar'
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
         if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
             // if run as builder, get the remainingTrial
             if (this.runId === "0") {
               Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
+              this.$emit('pass')
             } else {
               // user can pass
               this.$emit('pass')
@@ -1597,7 +1725,7 @@ export default {
       let arToolkitContext = this.locateMarker.arToolkitContext
       let markerRoot
       
-      if (this.step.options.mode === 'scan') {
+      if (this.step.options && this.step.options.mode === 'scan') {
         markerRoot = this.locateMarker.markerRoots['commonRoot']
       } else {
         markerRoot = this.locateMarker.markerRoots[markerCode]
@@ -1610,7 +1738,7 @@ export default {
       marker.code = markerCode
       
       marker.addEventListener('markerFound', (ev) => {
-        if (this.step.options.mode === 'scan') {
+        if (this.step.options && this.step.options.mode === 'scan') {
           this.checkAnswer(ev.target.code)
         }
       })
@@ -1629,6 +1757,8 @@ export default {
         this.step.type === 'help' || 
         //this.step.type === 'character' || 
         this.step.type === 'image-over-flow' || 
+        this.step.type === 'binocular' || 
+        this.step.type === 'phone-call' || 
         this.step.type === 'new-item' || 
         this.step.type === 'trigger-event') {
         this.checkAnswer()
@@ -1706,7 +1836,7 @@ export default {
       
       this.locateMarker.markerCodeAnswer = this.step.answers
       
-      if (this.step.options.mode === 'scan') {
+      if (this.step.options && this.step.options.mode === 'scan') {
         // only one marker root is enough
         let markerRoot = new THREE.Group()
         scene.add(markerRoot)
@@ -1723,7 +1853,7 @@ export default {
       }
       
       markersList.forEach((markerCode) => {
-        if (this.step.options.mode === 'touch') {
+        if (this.step.options && this.step.options.mode === 'touch') {
           // one marker root per marker
           let markerRoot = new THREE.Group()
           scene.add(markerRoot)
@@ -1732,7 +1862,7 @@ export default {
         this.locateMarker.markerControls[markerCode] = this.createMarkerControl(markerCode)
       })
       
-      if (this.step.options.mode === 'touch') {
+      if (this.step.options && this.step.options.mode === 'touch') {
         let object, animations
         //let data = await this.loadAndPrepare3DModel(this.step.options.model)
         let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.questId, this.step.options.customModel || false)
@@ -1804,7 +1934,7 @@ export default {
      */
     async checkOfflineAnswer(answer) {
       const type = this.step.type
-      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'help' || type === 'image-over-flow') {
+      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'help' || type === 'image-over-flow' || type === 'binocular' || type === 'phone-call') {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }
       } else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle') {
         //TODO: find a way to check server side
@@ -1819,7 +1949,7 @@ export default {
             return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
           }
         } else {
-          const ww = (answer && answer.windowWidth) ? answer.windowWidth : (this.getScreenWidth() / 100)
+          const ww = (answer && answer.windowWidth) ? answer.windowWidth : (this.getFindItemPictureSize() / 100)
           
           let answerPixelCoordinates = {
             left: Math.round(this.answer.coordinates.left / 100 * 100 * ww),
@@ -1854,6 +1984,10 @@ export default {
         }
       } else if (type === 'memory') {
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+      } else if (type === 'portrait-robot') {
+        if (JSON.stringify(answer) === JSON.stringify(this.answer)) {
+          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+        }
       } else {
         if (answer === this.answer) {
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
@@ -1896,6 +2030,8 @@ export default {
         case 'end-chapter':
         case 'character':
         case 'image-over-flow':
+        case 'binocular':
+        case 'phone-call':
         case 'trigger-event':
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
@@ -2040,6 +2176,26 @@ export default {
           }
           break
         
+        case 'portrait-robot':
+          let portraitAnswer = {items: {type: 1, face: this.portrait.face.position, eye: this.portrait.eye.position, mouth: this.portrait.mouth.position, nose: this.portrait.nose.position, hair: this.portrait.hair.position, beard: this.portrait.beard.position, glass: this.portrait.glass.position, hat: this.portrait.hat.position}}
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: portraitAnswer, isTimeUp: this.isTimeUp}, false)
+                    
+          if (checkAnswerResult.result === true) {
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
+          } else {
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
+            this.nbTry++
+            if (checkAnswerResult.remainingTrial > 0) {
+              this.submitRetry(checkAnswerResult.remainingTrial)
+            } else {
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
+            }
+          }
+          break
+        
         case 'write-text':
           // remove the trailing space if ther is one 
           // https://www.w3schools.com/jsref/jsref_trim_string.asp
@@ -2144,7 +2300,7 @@ export default {
           
         case 'locate-item-ar':
         case 'locate-marker':
-          if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
+          if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'touch')) {
             checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, false)
             if (checkAnswerResult && checkAnswerResult.hasOwnProperty('result')) {
               if (this.step.type === 'locate-item-ar') {
@@ -2361,6 +2517,11 @@ export default {
       
       this.displayReadMoreAlert()
       
+      // if no display of the answer move to next step
+      if (this.step.displayRightAnswer === false) {
+        this.forceNextStep()
+      }
+      
       if (showResult) {
         switch (this.step.type) {
           case 'character': 
@@ -2370,6 +2531,8 @@ export default {
           case 'end-chapter': 
           case 'info-video': 
           case 'image-over-flow': 
+          case 'binocular': 
+          case 'phone-call': 
             
             break
           case 'choose':
@@ -2382,6 +2545,7 @@ export default {
           case 'write-text':
           case 'jigsaw-puzzle':
           case 'memory':
+          case 'portrait-robot':
           case 'use-item':
           case 'find-item':
           case 'geolocation':
@@ -2389,7 +2553,7 @@ export default {
             break
           case 'locate-item-ar':
           case 'locate-marker':
-            if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
+            if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'touch')) {
               this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'))
             } else { // locate marker, mode scan
               this.displaySuccessMessage(true, this.$t('label.WellDone'))
@@ -2440,8 +2604,14 @@ export default {
       } else if (showResult) {
         this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
       }
-      // advise user to move to next step
-      utils.setTimeout(this.alertToPassToNextStep, 15000)
+      
+      // if no display of the answer move to next step
+      if (this.step.displayRightAnswer === false) {
+        this.forceNextStep()
+      } else {      
+        // advise user to move to next step
+        utils.setTimeout(this.alertToPassToNextStep, 15000)
+      }
     },
     alertToPassToNextStep() {
       this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'))
@@ -2478,6 +2648,9 @@ export default {
     
     ////////////////////////////////////////////// MANAGEMENT OF THE ENIGMA COMPONENTS /////////////////////////////////////////////
     
+    forceNextStep() {    
+      this.$emit('forceMoveNext')
+    },
     /*
      * Display next text 
      */
@@ -2491,7 +2664,7 @@ export default {
         if (!this.stepPlayed) {
           await this.checkAnswer()
         } else {
-          this.$emit('forceMoveNext')
+          this.forceNextStep()
         }
       }
     },
@@ -2804,8 +2977,8 @@ export default {
 
       // compute distance between two coordinates
       // note: current.accuracy contains the result accuracy in meters
-      this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
-      let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
+      this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(destinationPosition.lat, destinationPosition.lng, current.latitude, current.longitude) * 1000 // meters
+      let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, destinationPosition.lat, destinationPosition.lng)
       if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
         // avoid to change distance too much
         if (!this.geolocation.distance || this.geolocation.GPSdistance < this.geolocation.distance || this.geolocation.GPSdistance > (this.geolocation.distance + 4)) {
@@ -2883,7 +3056,7 @@ export default {
      * Use an item
      * @param   {object}    ev            Event when user touch screen to get location
      */
-    async useItem(ev) {
+    async checkUseItem(ev) {
       if (this.playerResult === true) {
         return
       }
@@ -2895,7 +3068,7 @@ export default {
         return
       }
       
-      let vw = this.getScreenWidth() / 100 // in px
+      let vw = this.getUseItemPictureSize() / 100 // in px
       
       var data = {
         windowWidth: vw,
@@ -2912,7 +3085,7 @@ export default {
      * Show the item location after success / failure
      */
     async showItemLocation(posX, posY) {
-      let vw = this.getScreenWidth() / 100
+      let vw = this.getUseItemPictureSize() / 100
 
       let answerPixelCoordinates = {
         left: Math.round(posX / 100 * 100 * vw),
@@ -2920,7 +3093,7 @@ export default {
       }
       
       // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
-      let solutionAreaRadius = Math.round(8 * vw)
+      let solutionAreaRadius = this.useItem.crossSize / 2
       // display the right solution
       var cross = document.getElementById('cross-play')
       cross.style.top = (answerPixelCoordinates.top - solutionAreaRadius) + "px"
@@ -2946,16 +3119,25 @@ export default {
         }
       }, 1000);
     },
+    initUseItemElements() {
+      this.useItem.imageWidth = this.getUseItemPictureSize()
+      this.useItem.crossSize = this.useItem.imageWidth / 8
+      this.useItem.imageHeight = this.useItem.imageWidth * 4 / 3
+    },
+    getUseItemPictureSize() {
+      const picture = this.$refs['useItemPicture']
+      return picture.clientWidth
+    },
     /*
      * Check if user find the item in the picture
      * @param   {object}    ev            Event when user touch the screen
      */
-    async findItem(ev) {
+    async checkFindItem(ev) {
       if (this.playerResult === true) {
         return
       }
       
-      let vw = this.getScreenWidth() / 100 // in px
+      let vw = this.getFindItemPictureSize() / 100 // in px
       
       var data = {
         windowWidth: vw,
@@ -2964,6 +3146,15 @@ export default {
       }
       
       await this.checkAnswer(data)
+    },
+    initFindItemElements() {
+      this.findItem.imageWidth = this.getFindItemPictureSize()
+      this.findItem.crossSize = this.findItem.imageWidth / 8
+      this.findItem.imageHeight = this.findItem.imageWidth * 4 / 3
+    },
+    getFindItemPictureSize() {
+      const picture = this.$refs['findItemPicture']
+      return picture.clientWidth
     },
     /*
      * prepare page before snapshot
@@ -3120,14 +3311,14 @@ export default {
      * Show the item location after success / failure
      */
     async showFoundLocation(posX, posY) {
-      let vw = this.getScreenWidth() / 100
+      let vw = this.getFindItemPictureSize() / 100
       let answerPixelCoordinates = {
         left: Math.round(posX / 100 * 100 * vw),
         top: Math.round(posY / 100 * 133 * vw)
       }
       
       // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
-      let solutionAreaRadius = Math.round(8 * vw)
+      let solutionAreaRadius = this.findItem.crossSize / 2
       
       var cross = document.getElementById('cross-play')
       cross.style.top = (answerPixelCoordinates.top - solutionAreaRadius) + "px"
@@ -3212,7 +3403,7 @@ export default {
      * @param   {object}    e            Event when user touch puzzle piece
      */
     handleDragStart(e) {
-      if (this.puzzle.mode === 'drag') {
+      if (this.puzzle && this.puzzle.mode === 'drag') {
         if (e.target.className && e.target.className.indexOf('piece') !== -1) {
           this.puzzle.dragSrcEl = e.target
         }
@@ -3229,7 +3420,7 @@ export default {
      * @param   {object}    e            Event when user move puzzle piece over
      */
     handleDragOver(e) {
-      if (this.puzzle.mode === 'drag') {
+      if (this.puzzle && this.puzzle.mode === 'drag') {
         if (this.puzzle.dragSrcEl) {
           e.preventDefault();
           e.dataTransfer.dropEffect = 'move';
@@ -3241,7 +3432,7 @@ export default {
      * @param   {object}    e            Event when user stop moving puzzle piece
      */
     handleDragEnd(e) {
-      if (this.puzzle.mode === 'drag') {
+      if (this.puzzle && this.puzzle.mode === 'drag') {
         this.puzzle.dragSrcEl = null
         var cols = document.querySelectorAll('#pieces .piece');
         [].forEach.call(cols, function (col) {
@@ -3256,7 +3447,7 @@ export default {
      * @param   {object}    e            Event when user drop puzzle piece
      */
     handleDrop(e) {
-      if (this.puzzle.mode === 'drag') {
+      if (this.puzzle && this.puzzle.mode === 'drag') {
         if (this.puzzle.dragSrcEl && e.cancelable) {
           e.stopPropagation()
           e.stopImmediatePropagation()
@@ -3302,7 +3493,7 @@ export default {
      * Change the piece move mode for puzzle
      */
     changePuzzleMode() {
-      if (this.puzzle.mode === 'drag') {
+      if (this.puzzle && this.puzzle.mode === 'drag') {
         this.puzzle.mode = 'click'
       } else {
         this.puzzle.mode = 'drag'
@@ -3313,7 +3504,7 @@ export default {
      */
     movePieceWithClick(pos) {
       this.puzzle.dragSrcEl = null
-      if (this.puzzle.mode === 'click') {
+      if (this.puzzle && this.puzzle.mode === 'click') {
         if (this.puzzle.clickModeSelected === null) {
           for (let i = 0; i < this.puzzle.pieces.length; i++) {
             if (this.puzzle.pieces[i].pos === pos) {
@@ -3403,6 +3594,32 @@ export default {
         this.memory.selectedKey = key
       }
     },
+    /*
+     * change item in portrait robot
+     * @param   {String}    type    type of item to change
+     */
+    changePortraitPart: function(type) {
+      Vue.set(this.portrait[type], "position", this.portrait[type].position + 1)
+      if (this.portrait[type].position > this.portrait[type].number) {
+        Vue.set(this.portrait[type], "position", 1)
+      }
+    },
+    /*
+     * call a number
+     * @param   {String}    type    type of item to change
+     */
+    phoneCall: function() {
+      let number = "0668666194"
+      cordova.plugins.phonedialer.dial(
+        number, 
+        function(success) { console.log('Dialing succeeded') },
+        function(err) {
+          if (err == "empty") console.log("Unknown phone number")
+          else console.log("Dialer Error:" + err)
+        },
+        false
+       )
+    },
     
     /*
     * Animate canvas showing item (target) to find, for step type "locate-item-ar"
@@ -3445,7 +3662,7 @@ export default {
         // => adjust camera orientation & object position according to detected marker position
         this.locateMarker.arToolkitContext.update(this.$refs['camera-stream-for-locate-marker'])
 
-        if ((this.step.type === 'locate-marker' && this.step.options.mode === 'scan') || this.step.id === 'sensor') {
+        if ((this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'scan') || this.step.id === 'sensor') {
           // any marker is "recognized"
           for (let markerCode in this.locateMarker.markerRoots) {
             this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoots[markerCode])
@@ -3509,7 +3726,7 @@ export default {
     */
     onTargetCanvasClick(event) {
       // handle touch only for specific steps & modes
-      if (!(this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch'))) {
+      if (!(this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'touch'))) {
         return
       }
       
@@ -4213,7 +4430,7 @@ export default {
       this.isTimeUp = true
       this.stopcountdown()
       if (this.step.countDownTime) {
-      this.step.countDownTime.enabled = false
+        this.step.countDownTime.enabled = false
       }
       let stepType = this.getStepType(this.step.type)
       this.$emit('closeAllPanels')
@@ -4257,7 +4474,7 @@ export default {
     findItemIsFound(data) {
       var notAllFound = false
       var oneFound = false
-      const ww = (data && data.windowWidth) ? data.windowWidth : (this.getScreenWidth() / 100)
+      const ww = (data && data.windowWidth) ? data.windowWidth : (this.getFindItemPictureSize() / 100)
       for (var i = 0; i < this.step.options.coordinates.length; i++) {
         if (!this.step.options.coordinates[i].found) {
           let answerPixelCoordinates = {
@@ -4418,7 +4635,7 @@ export default {
   /* new-item specific */
   
   .new-item .item { text-align: center; position: relative;}
-  .new-item .item p { font-size: 2rem; }
+  .new-item .item p span { font-size: 2rem; background-color: rgba(255, 255, 255, 0.5); border-radius: 8px; padding: 4px 8px; }
   
   /* locate-item-ar specific */
   
@@ -4462,11 +4679,11 @@ export default {
   }
 
   .memory .card {
-    height: 15vw;
-    width: 15vw;
+    height: 20vw;
+    width: 20vw;
     max-width: 60px;
     max-height: 60px;
-    margin: 12px;
+    margin: 10px;
     background: url(/statics/icons/game/card-back.png) no-repeat;
     background-size: 100%;
     color: #ffffff;

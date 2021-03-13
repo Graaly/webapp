@@ -296,6 +296,49 @@
   },
   {
     "category": "enigma",
+    "code": "portrait-robot",
+    "icon": "user-circle",
+    "title": "PortraitRobot",
+    "description": "PortraitRobotDesc",
+    "showTrick": "no",
+    "textRules": {
+      "maxNbChars": 100,
+      "maxNbCarriageReturns": 1
+    },
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true,
+    "nbTrials": 1,
+    "passOption": true
+  },
+  {
+    "category": "enigma",
+    "code": "binocular",
+    "icon": "binoculars",
+    "title": "Binocular",
+    "description": "BinocularDesc",
+    "showTrick": "no",
+    "enabled": true,
+    "hasBackgroundImage": "main",
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": false
+  },
+  {
+    "category": "enigma",
+    "code": "phone-call",
+    "icon": "phone-volume",
+    "title": "PhoneCall",
+    "description": "PhoneCallDesc",
+    "showTrick": "no",
+    "enabled": true,
+    "hasBackgroundImage": "main",
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": false
+  },
+  {
+    "category": "enigma",
     "code": "trigger-event",
     "icon": "bolt",
     "title": "TriggerEvent",

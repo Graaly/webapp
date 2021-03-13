@@ -433,14 +433,30 @@
         </q-btn>
       </div>
       
+      <!------------------ STEP : CODE KEYPAD ------------------------>
+      
+      <div v-if="options.type.code == 'phone-call'">
+        <q-input
+          v-model="selectedStep.form.options.number"
+          :label="$t('label.PhoneNumber')"
+          min-length="2"
+          max-length="10"
+          bottom-slots
+        />
+      </div>
+      
       <!------------------ STEP : USE INVENTORY ITEM ------------------------>
       
       <div class="find-item" v-if="options.type.code == 'use-item' && selectedStep.form.backgroundImage">
         <p><q-toggle v-model="selectedStep.form.options.touchLocation" :label="$t('label.ObjectNeedToBeAppliedOnPicture')" /></p>
-        <div v-if="selectedStep.form.options.touchLocation">
+        <div>
           <p>{{ $t('label.ClickOnTheLocationTheItemMustBeUsed') }} :</p>
-          <div @click="getClickCoordinates($event)" id="useItemPicture" ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
-            <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="statics/icons/game/find-item-locator.png" />
+          <div @click="getClickCoordinates($event)" id="useItemPicture" ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100%; height: ' + config.useItem.imageHeight + 'px; margin: auto;'">
+            <img 
+              v-if="selectedStep.form.options.touchLocation"
+              id="cross" 
+              :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: ' + config.useItem.crossSize + 'px; height: ' + config.useItem.crossSize + 'px;'" 
+              src="statics/icons/game/find-item-locator.png" />
           </div>
         </div>
       </div>
@@ -490,22 +506,22 @@
           v-if="selectedStep && selectedStep.form && selectedStep.form.answers"
           @click="getClickCoordinatesFindItem($event)" 
           id="findItemPicture" ref="findItemPicture" 
-          :style="'position: relative; overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
+          :style="'position: relative; overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100%; height: ' + config.findItem.imageHeight + 'px; margin: auto;'">
           <img 
             id="cross0" 
-            style="position: absolute; z-index: 500; top: 10vw; left: 10vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            :style="'position: absolute; z-index: 500; top: 100px; left: 100px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
             @click="selectFindItemArea(0)" src="statics/icons/game/find-item-locator.png" />
           <img 
             id="cross1" 
-            style="display: none; position: absolute; z-index: 500; top: 30vw; left: 10vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            :style="'display: none; position: absolute; z-index: 500; top: 200px; left: 100px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
             @click="selectFindItemArea(1)" src="statics/icons/game/find-item-locator.png" />
           <img 
             id="cross2" 
-            style="display: none; position: absolute; z-index: 500; top: 30vw; left: 10vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            :style="'display: none; position: absolute; z-index: 500; top: 200px; left: 100px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
             @click="selectFindItemArea(2)" src="statics/icons/game/find-item-locator.png" />
           <img 
             id="cross3" 
-            style="display: none; position: absolute; z-index: 500; top: 30vw; left: 30vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            :style="'display: none; position: absolute; z-index: 500; top: 200px; left: 200px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
             @click="selectFindItemArea(3)" src="statics/icons/game/find-item-locator.png" />
         </div>
         <div>
@@ -687,6 +703,50 @@
             </q-card-actions>
           </q-card>
         </q-dialog>
+      </div>
+      
+      <!------------------ STEP : PORTRAIT ROBOT ------------------------>
+      
+      <div class="portrait-robot" v-if="options.type.code === 'portrait-robot' && selectedStep.form.answers && selectedStep.form.answers.items">
+        <h2>{{ $t('label.BuildThePortraitRobot') }}</h2>
+        
+        <div class="relative-position">
+          <div>
+            <img :src="'statics/portrait-robot/face-' + selectedStep.form.answers.items.face + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/eye-' + selectedStep.form.answers.items.eye + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/mouth-' + selectedStep.form.answers.items.mouth + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/nose-' + selectedStep.form.answers.items.nose + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/hair-' + selectedStep.form.answers.items.hair + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/beard-' + selectedStep.form.answers.items.beard + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/glass-' + selectedStep.form.answers.items.glass + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/hat-' + selectedStep.form.answers.items.hat + '.png'" />
+          </div>
+        </div>
+        <table class="portrait-parts">
+          <tr>
+            <td><img @click="changePortraitPart('face')" src="statics/portrait-robot/face-1.png" /></td>
+            <td><img @click="changePortraitPart('eye')" src="statics/portrait-robot/eye-1.png" /></td>
+            <td><img @click="changePortraitPart('nose')" src="statics/portrait-robot/nose-1.png" /></td>
+            <td><img @click="changePortraitPart('hair')" src="statics/portrait-robot/hair-1.png" /></td>
+            <td><img @click="changePortraitPart('beard')" src="statics/portrait-robot/beard-2.png" /></td>
+            <td><img @click="changePortraitPart('glass')" src="statics/portrait-robot/glass-2.png" /></td>
+            <td><img @click="changePortraitPart('hat')" src="statics/portrait-robot/hat-4.png" /></td>
+          </tr>
+        </table>
       </div>
       
       <!---------- STEPS IOT : WAIT FOR EVENT / TRIGGER EVENT  ------------>
@@ -983,12 +1043,14 @@
       
       <q-list v-show="options.type.showTrick == 'yes'" bordered>
         <q-expansion-item icon="lightbulb" :label="$t('label.Hints')">
-          <div class="q-pa-sm" v-if="selectedStep.form.hint && selectedStep.form.hint[lang] && selectedStep.form.hint[lang].length > 0">
-            <div v-for="(item, key) in selectedStep.form.hint[lang]" :key="key">
-              <q-btn class="float-right" @click="removeHint(key)"><q-icon name="delete" /></q-btn>
-              <q-btn class="float-right q-mr-sm" @click="updateHint(key)"><q-icon name="mode_edit" /></q-btn>
-              <div class="text-subtitle1">{{ $t('label.Hint') + " " + (key + 1) }}</div>
-              {{ item }}
+          <div class="q-pa-sm">
+            <div v-if="selectedStep.form.hint && selectedStep.form.hint[lang] && selectedStep.form.hint[lang].length > 0">
+              <div v-for="(item, key) in selectedStep.form.hint[lang]" :key="key">
+                <q-btn class="float-right" @click="removeHint(key)"><q-icon name="delete" /></q-btn>
+                <q-btn class="float-right q-mr-sm" @click="updateHint(key)"><q-icon name="mode_edit" /></q-btn>
+                <div class="text-subtitle1">{{ $t('label.Hint') + " " + (key + 1) }}</div>
+                {{ item }}
+              </div>
             </div>
             <div>
               <q-input v-model="newHint" :label="$t('label.NewHint')">
@@ -1040,7 +1102,7 @@
         <q-btn class="glossy large-button" color="primary" @click="submitStep(true)" test-id="btn-save-step">{{ $t('label.SaveAndTestThisStep') }}</q-btn>
       </div>
       <div class="centered q-px-md q-pb-xl">
-        <a class="text-primary" @click="submitStep(false)" test-id="btn-save-step-no-test">{{ $t('label.SaveThisStep') }}</a>
+        <q-btn flat color="primary" @click="submitStep(false)">{{ $t('label.SaveThisStep') }}</q-btn>
       </div>
     </div>
     
@@ -1111,7 +1173,7 @@
         
         <div v-if="media && media.items && media.items.length > 0 && !media.isSimulated">
           <div class="centered q-pa-md">{{ $t('label.OrSelectAnImageInTheList') }}</div>
-          <img v-for="(item, index) in media.items" :key="item.id" :src="serverUrl + '/upload/quest/' + questId + item.type + item.file" style="width: 30vw; height: 40vw;" @click="selectMedia(index)">
+          <img v-for="(item, index) in media.items" :key="item.id" :src="serverUrl + '/upload/quest/' + questId + item.type + item.file" style="width: 30vw; max-width: 300px; height: 40vw; max-height: 400px;" @click="selectMedia(index)">
         </div>
         <div class="centered q-ma-md">
           <q-btn class="q-mb-xl glossy large-button" color="primary" @click="hideMedia()">{{ $t('label.Close') }}</q-btn>
@@ -1271,7 +1333,10 @@ export default {
           maxNbAnswers: 10
         },
         useItem: {
-          questItemsAsOptions: []
+          questItemsAsOptions: [],
+          crossSize: 40,
+          imageHeight: 1200,
+          imageWidth: 900
         },
         findItem: {
           numberOfAreas: [
@@ -1280,7 +1345,10 @@ export default {
             { value: 3, label: "3" },
             { value: 4, label: "4" }
           ],
-          currentArea: 0
+          currentArea: 0,
+          crossSize: 40,
+          imageHeight: 1200,
+          imageWidth: 900
         },
         locateItem: {
           selectModel3DOptions: [],
@@ -1291,6 +1359,16 @@ export default {
         locateMarker: {
           markerModalOpened: false,
           layersForMarkersOptions: []
+        },
+        portrait: {
+          face: { number: 4 },
+          eye: { number: 16 },
+          mouth: { number: 1 },
+          nose: { number: 5 },
+          hair: { number: 26 },
+          beard: { number: 31 },
+          glass: { number: 5 },
+          hat: { number: 4 }
         },
         iot: {
           triggerEvent: {
@@ -1582,11 +1660,13 @@ export default {
           //this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers
           this.$nextTick(function () {
             // Code that will run only after the entire view has been rendered
+            this.initFindItemElements()
             this.positionFindItemPointer()
           })
         } else {
           this.selectedStep.form.options.nbAreas = 1
           this.selectedStep.form.options.coordinates = [{top: 50, left: 50}]
+          //this.initFindItemElements()
           //this.positionFindItemPointer()
         }
         if (!this.selectedStep.form.options) {
@@ -1597,6 +1677,7 @@ export default {
           this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers.coordinates
           this.$nextTick(function () {
             // Code that will run only after the entire view has been rendered
+            this.initUseItemElements()
             this.positionUseItemPointer()
           })
         }
@@ -1629,6 +1710,14 @@ export default {
             defaultItems.push({ imagePath: null, single: false })
           }
           this.$set(this.selectedStep.form.options, 'items', defaultItems)
+        }
+      } else if (this.options.type.code === 'portrait-robot') {
+        if (!this.selectedStep.form.answers.hasOwnProperty('items')) {
+          this.$set(this.selectedStep.form.answers, 'items', {type: 1, face: 1, eye: 1, mouth: 1, nose: 1, hair: 1, beard: 1, glass: 1, hat: 1})
+        }
+      } else if (this.options.type.code === 'phone-call') {
+        if (!this.selectedStep.form.options.hasOwnProperty('number')) {
+          this.$set(this.selectedStep.form.options, 'number', '000000000')
         }
       } else if (this.options.type.code === 'geolocation') {
         if (!this.selectedStep.form.options.hasOwnProperty('distance')) {
@@ -1783,6 +1872,9 @@ export default {
             this.selectedStep.form.options.items[this.selectedStep.form.options.items.length - 1].single = true
           }
         }
+      }
+      if (this.options.type.code === 'portrait-robot') {
+        //no specific action
       }
       if (this.options.type.code === 'find-item') {
         //Coordinates are already set
@@ -1945,6 +2037,18 @@ export default {
       }
       // force src refresh
       document.getElementById('image-code-setting-' + key).src = this.serverUrl + '/upload/quest/' + this.questId + '/step/code-image/' + this.selectedStep.form.options.images[this.unformatedAnswer[key]].imagePath
+    },
+    /*
+     * change item in portrait robot
+     * @param   {String}    type    type of item to change
+     */
+    changePortraitPart: function(type) {
+      if (this.selectedStep.form.answers.items) {
+        Vue.set(this.selectedStep.form.answers.items, type, this.selectedStep.form.answers.items[type] + 1)
+        if (this.selectedStep.form.answers.items[type] > this.config.portrait[type].number) {
+          Vue.set(this.selectedStep.form.answers.items, type, 1)
+        }
+      }
     },
     /*
      * Get number of images in the image code step
@@ -2670,11 +2774,11 @@ export default {
       let posX = ev.clientX - rect.left
       let posY = ev.clientY - rect.top
       
-      let picture = this.$refs['useItemPicture']
+      const pictureWidth = this.getUseItemPictureWidth()
       
       // relative position between 0 to 100
-      this.selectedStep.form.answerPointerCoordinates.left = Math.round(posX / picture.clientWidth * 100)
-      this.selectedStep.form.answerPointerCoordinates.top = Math.round(posY / picture.clientHeight * 100)
+      this.selectedStep.form.answerPointerCoordinates.left = Math.round(posX * 100 / pictureWidth )
+      this.selectedStep.form.answerPointerCoordinates.top = Math.round(posY * (300 / 4) / pictureWidth)
       this.positionUseItemPointer()
     },
     /*
@@ -2687,11 +2791,11 @@ export default {
       const posX = ev.clientX - rect.left
       const posY = ev.clientY - rect.top
       
-      const picture = this.$refs['findItemPicture']
+      const pictureWidth = this.getFindItemPictureWidth()
       
       // relative position between 0 to 100
-      this.selectedStep.form.options.coordinates[this.config.findItem.currentArea].left = Math.round(posX / picture.clientWidth * 100)
-      this.selectedStep.form.options.coordinates[this.config.findItem.currentArea].top = Math.round(posY / picture.clientHeight * 100)
+      this.selectedStep.form.options.coordinates[this.config.findItem.currentArea].left = Math.round(posX * 100 / pictureWidth)
+      this.selectedStep.form.options.coordinates[this.config.findItem.currentArea].top = Math.round(posY * (300 / 4) / pictureWidth)
 
       this.positionFindItemPointer()
     },
@@ -2699,32 +2803,51 @@ export default {
      * Position the pointer to locate the item for the find item step
      */
     positionFindItemPointer() {
-      const vw = window.innerWidth / 100 // in px
+      const vw = this.getFindItemPictureWidth() / 100 // in px
       
       // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
-      const solutionAreaRadius = Math.round(8 * vw)
+      const solutionAreaRadius = this.config.findItem.crossSize / 2
       for (var i = 0; i < 4; i++) {
         if (document.getElementById("cross" + i)) {
           if (i < this.selectedStep.form.options.nbAreas) {
             document.getElementById("cross" + i).style.display = 'block'
-            document.getElementById("cross" + i).style.left = Math.round(this.selectedStep.form.options.coordinates[i].left * 90 * vw / 100 - solutionAreaRadius) + "px"
-            document.getElementById("cross" + i).style.top = Math.round(this.selectedStep.form.options.coordinates[i].top * 120 * vw / 100 - solutionAreaRadius) + "px"
+            document.getElementById("cross" + i).style.left = Math.round(this.selectedStep.form.options.coordinates[i].left * vw - solutionAreaRadius) + "px"
+            document.getElementById("cross" + i).style.top = Math.round(this.selectedStep.form.options.coordinates[i].top * (4 * vw / 3) - solutionAreaRadius) + "px"
           } else {
             document.getElementById("cross" + i).style.display = 'none'
           }
         }
       }
     },
+    getFindItemPictureWidth() {
+      const picture = this.$refs['findItemPicture']
+      return picture.clientWidth
+    },
+    initFindItemElements() {
+      this.config.findItem.imageWidth = this.getFindItemPictureWidth()
+      this.config.findItem.crossSize = this.config.findItem.imageWidth / 8
+      this.config.findItem.imageHeight = this.config.findItem.imageWidth * 4 / 3
+    },
+    getUseItemPictureWidth() {
+      const picture = this.$refs['useItemPicture']
+      return picture.clientWidth
+    },
+    initUseItemElements() {
+      this.config.useItem.imageWidth = this.getUseItemPictureWidth()
+      this.config.useItem.crossSize = this.config.useItem.imageWidth / 8
+      this.config.useItem.imageHeight = this.config.useItem.imageWidth * 4 / 3
+    },
     /*
      * Position the pointer to locate the item for the find item step
      */
     positionUseItemPointer() {
-      let vw = window.innerWidth / 100 // in px
+      let vw = this.getUseItemPictureWidth() / 100 // in px
       
       // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
-      let solutionAreaRadius = Math.round(8 * vw)
-      document.getElementById("cross").style.left = Math.round(this.selectedStep.form.answerPointerCoordinates.left * 90 * vw / 100 - solutionAreaRadius) + "px"
-      document.getElementById("cross").style.top = Math.round(this.selectedStep.form.answerPointerCoordinates.top * 120 * vw / 100 - solutionAreaRadius) + "px"
+      const solutionAreaRadius = this.config.useItem.crossSize / 2
+
+      document.getElementById("cross").style.left = Math.round(this.selectedStep.form.answerPointerCoordinates.left * vw - solutionAreaRadius) + "px"
+      document.getElementById("cross").style.top = Math.round(this.selectedStep.form.answerPointerCoordinates.top * (4 * vw / 3) - solutionAreaRadius) + "px"
     },
     /*
      * Fill the GPS location in the settings
@@ -2911,6 +3034,12 @@ export default {
     async hideMedia() {
       this.media.isOpened = false
       this.media.isSimulated = false
+      if (this.options.type.code === 'use-item') {
+        utils.setTimeout(this.initUseItemElements, 2000)
+      }
+      if (this.options.type.code === 'find-item') {
+        utils.setTimeout(this.initFindItemElements, 2000)
+      }
     },
     /**
      * Get iot objects list as options for <q-select>

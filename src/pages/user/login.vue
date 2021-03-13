@@ -75,7 +75,13 @@
               />
           </div>
           <div class="centered q-mt-sm q-mb-xl">
-            <q-btn flat @click="goToSubscribe()">{{ $t('label.Subscribe') }}</q-btn>
+            <q-btn 
+              class="large-btn" 
+              outline 
+              color="primary"
+              :label="$t('label.Subscribe')"
+              @click="goToSubscribe()"
+              />
           </div>
           
         </form>
@@ -281,14 +287,14 @@ export default {
             if (result.status === 'success') {
               window.localStorage.setItem('jwt', result.user.jwt)
               axios.defaults.headers.common['Authorization'] = `Bearer ${result.user.jwt}`
-              
+
               let destination = '/home';
               if (this.$route.query.hasOwnProperty('redirect')) {
                 destination = this.$route.query.redirect
               }
               this.$router.push(destination)
             }
-            
+
             if (result.status === 'failed') {
               Notification(this.$t('label.IncorrectLoginPleaseRetry'), 'warning')
             }

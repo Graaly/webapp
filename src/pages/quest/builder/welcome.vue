@@ -6,7 +6,7 @@
         <div class="q-pa-md">
           {{ $t('label.BuilderChooseUserType') }}
         </div>
-        <div class="q-pa-md" @click="changeUserType('pro')" test-id="btn-create-public-quest">
+        <div class="q-pa-md cursor-pointer" @click="changeUserType('pro')" test-id="btn-create-public-quest">
           <q-card class="my-card">
             <q-card-section class="bg-accent text-white centered text-uppercase">
               <div class="text-h6">{{ $t('label.AProfessional') }}</div>
@@ -17,7 +17,7 @@
             </q-card-section>
           </q-card>
         </div>
-        <div class="q-pa-md" @click="changeUserType('individual')">
+        <div class="q-pa-md cursor-pointer" @click="changeUserType('individual')">
           <q-card class="my-card">
             <q-card-section class="bg-accent text-white centered text-uppercase">
               <div class="text-h6">{{ $t('label.AnIndividual') }}</div>
@@ -25,6 +25,17 @@
 
             <q-card-section class="bg-accent text-white subtitle5">
               {{ $t('label.AnIndividualDesc1') }}
+            </q-card-section>
+          </q-card>
+        </div>
+        <div class="q-pa-md">
+          <q-card class="my-card">
+            <q-card-section class="bg-accent text-white centered text-uppercase">
+              <div class="text-h6">{{ $t('label.Education') }}</div>
+            </q-card-section>
+
+            <q-card-section class="bg-accent text-white subtitle5">
+              {{ $t('label.EducationDesc') }}
             </q-card-section>
           </q-card>
         </div>

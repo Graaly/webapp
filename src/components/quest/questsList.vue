@@ -9,7 +9,7 @@
       </div>
     </div>
     <div v-if="quests && (quests.length > 0 || add) && format === 'small'" class="horizontal-scroll-wrapper quests-horizontal-scroll-wrapper" :class="{'quest-red': (color === 'red')}">
-      <div v-if="add" class="quest-add-button relative-position q-mr-md" @click="buildQuest()">
+      <div v-if="add" class="quest-add-button relative-position q-mr-md cursor-pointer" @click="buildQuest()">
         <div>
           <q-icon name="add" style="font-size: 3em;" />
         </div>
