@@ -799,7 +799,7 @@
         
       <!------------------ REVIEWS TAB ------------------------>
         
-      <div v-if="tabs.selected === 'reviews' && isEdition && quest.access === 'public'" class="q-pa-md arial" :class="{'desktop-only': chapters.showNewStepOverview}">
+      <div v-if="tabs.selected === 'reviews' && isEdition" class="q-pa-md arial" :class="{'desktop-only': chapters.showNewStepOverview}">
         <q-item>
           <q-item-section side top>
             <q-icon name="timeline" class="left-icon" />
