@@ -190,7 +190,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: "2.1.9"
+      version: "2.1.11"
       // id: 'org.cordova.quasar.app'
     },
     electron: {
