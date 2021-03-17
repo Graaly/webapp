@@ -1,9 +1,9 @@
 <template>
   <div class="wrapper background-map">
     <div class="page-content" style="padding-bottom: 100px">
-      <div class="desktop-only centered q-pa-md warning bg-warning">
+      <!--<div class="desktop-only centered q-pa-md warning bg-warning">
         {{ $t('label.OnDesktopDisplayMessage') }}
-      </div>
+      </div>-->
       <!------------------ TITLE AREA ------------------------>
       
       <div class="centered q-pt-lg q-pb-md">

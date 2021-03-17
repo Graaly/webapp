@@ -24,7 +24,7 @@
     <div :class="{'fit': (step.type !== 'image-over-flow')}"><!-- Keep this div for iphone, for red filter display -->
       <stepPlay 
         :step="step" 
-        :runId="run._id" 
+        :runId="runId" 
         :inventory="inventory"
         :itemUsed="selectedItem" 
         :reload="loadStepData" 
@@ -364,6 +364,7 @@ export default {
         },
         loadStepData: false,
         run: {},
+        runId: 0,
         player: 'P1',
         isRunFinished: false,
         remotePlay: false,
@@ -519,7 +520,7 @@ export default {
     async getRun() {
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.questId, { retries: 0 })
-      
+
       var currentChapter = 0
       var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
       var dataSharedWithPartner = (this.$route.query.hasOwnProperty('sharepartner') && this.$route.query.sharepartner === 'true')
@@ -541,6 +542,7 @@ export default {
           }
           if (runs.data[i] && runs.data[i].status && runs.data[i].status === 'in-progress') {
             this.run = runs.data[i]
+            this.runId = this.run._id
             
             currentChapter = runs.data[i].currentChapter
             
@@ -552,6 +554,7 @@ export default {
                 // fix when id is not set
                 if (!this.run._id) {
                   this.run._id = tempId
+                  this.runId = tempId
                 }
                 if (!this.run.questId) {
                   this.run.questId = this.questId
@@ -578,6 +581,7 @@ export default {
               // if a offline run already exists
               this.run = offlineRun
               this.run._id = res.data._id
+              this.runId = this.run._id
               if (!this.run.questId) {
                 this.run.questId = this.questId
                 this.run.version = this.questVersion
@@ -585,6 +589,7 @@ export default {
               await RunService.updateFromOffline(this.run)
             } else {
               this.run = res.data
+              this.runId = this.run._id
             }
           } else {
             this.$q.dialog({
@@ -607,6 +612,9 @@ export default {
         if (isRunOfflineLoaded) {
           if (offlineRun) {
             this.run = offlineRun
+            if (this.run._id) {
+              this.runId = this.run._id
+            }
             // get current score
             this.info.score = this.run.tempScore
             // set chapter
@@ -922,6 +930,11 @@ export default {
       
       // save offline run
       await this.saveOfflineAnswer(true)
+      
+      // move to next step if right answer not displayed
+      if (this.step.displayRightAnswer === false) {
+        this.nextStep()
+      }
     },
     /*
      * Track step played
@@ -958,6 +971,11 @@ export default {
         
       // save offline run
       await this.saveOfflineAnswer(false)
+      
+      // move to next step if right answer not displayed
+      if (this.step.displayRightAnswer === false) {
+        this.nextStep()
+      }
     },
     /*
      * Track message sent 
@@ -1061,7 +1079,6 @@ export default {
       } 
       // reload step to remove notifications
       this.loadStepData = false
-      
       if (this.next.enabled) {
         await this.moveToNextStep('success')
       } else if (this.next.canPass) {
@@ -1081,7 +1098,7 @@ export default {
     },
     async passStep() {
       if (!this.offline.active) {
-        await RunService.passStep(this.run._id, this.step.id, this.player)
+        await RunService.passStep(this.runId, this.step.id, this.player)
       }
       
       await this.passOfflineStep(this.step.id)
@@ -1161,7 +1178,7 @@ export default {
     async getHint() {
       var hintLabel 
       if (!this.offline.active) {
-        hintLabel = await RunService.getHint(this.run._id, this.step.stepId, this.run.version)
+        hintLabel = await RunService.getHint(this.runId, this.step.stepId, this.run.version)
       }
 
       if (hintLabel && hintLabel.hint) {
@@ -1210,7 +1227,7 @@ export default {
       // load items won on previous steps
       var response
       if (!this.offline.active) {
-        response = await RunService.listWonObjects(this.questId, this.run._id)
+        response = await RunService.listWonObjects(this.questId, this.runId)
       }
       
       if (response && response.data) {
@@ -1289,7 +1306,7 @@ export default {
      * Cancel a run
      */
     async cancelRun() {
-      await RunService.endRun(this.run._id, null, this.questId, this.questVersion, this.info.quest.mainLanguage)
+      await RunService.endRun(this.runId, null, this.questId, this.questVersion, this.info.quest.mainLanguage)
       // remove run offline data
       await utils.writeInFile(this.questId, 'run_' + this.questId + '.json', JSON.stringify({}), false)
       // return to the home
@@ -1510,6 +1527,7 @@ export default {
         // init the offline file with the server one
       } else {
         this.run = {
+          _id: this.runId,
           userId: this.$store.state.user._id,
           questId: questId,
           version: this.questVersion,
@@ -1566,6 +1584,7 @@ export default {
       var score = 0
       var stepStatus
       var removedStatus
+
       if (success) {
         // if answer is not displayed => player must be able to play again the step and the step before
         if (this.step.displayRightAnswer === false) {
@@ -1686,7 +1705,9 @@ export default {
         return false
       }
       run.dateUpdated = new Date()
+      
       let status = await utils.writeInFile(this.questId, 'run_' + questId + '.json', JSON.stringify(run), true)
+
       if (status) {
         return true
       } else {
