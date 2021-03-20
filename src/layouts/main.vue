@@ -28,21 +28,28 @@ export default {
   },
   mounted() {
     if (this.$store.state.user && this.$store.state.user.language) {
-      this.$i18n.locale = this.$store.state.user.language;
+      this.$i18n.locale = this.$store.state.user.language
     } else {
-      this.$i18n.locale = "fr";
+      if ((navigator.language && navigator.language.substr(0, 2) === 'fr') || (navigator.userLanguage && navigator.userLanguage.substr(0, 2) === 'fr')) {
+        this.$i18n.locale = "fr"
+      } else {
+        this.$i18n.locale = "en"
+      }
     }
   },
   watch: {
     $route: function (value) {
       if (this.$store.state.user && this.$store.state.user.language) {
-        this.$i18n.locale = this.$store.state.user.language;
+        this.$i18n.locale = this.$store.state.user.language
       } else {
-        // french default language
-        this.$i18n.locale = "fr";
+        if ((navigator.language && navigator.language.substr(0, 2) === 'fr') || (navigator.userLanguage && navigator.userLanguage.substr(0, 2) === 'fr')) {
+          this.$i18n.locale = "fr"
+        } else {
+          this.$i18n.locale = "en"
+        }
       }
     }
   },
   methods: {}
-};
+}
 </script>

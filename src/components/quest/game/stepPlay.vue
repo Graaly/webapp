@@ -1903,7 +1903,6 @@ export default {
       // alert if the network is low
       var _this = this
       var lowNetworkTimeout = utils.setTimeout(function () { _this.isNetworkLow = true }, 8000)
-
       var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player, { retries: 0 })
 
       // clear low network alerte if displayed
@@ -1925,7 +1924,8 @@ export default {
           this.$q.loading.hide()
         }
         
-        return this.checkOfflineAnswer(answerData.answer)
+        let offlineAnswer = this.checkOfflineAnswer(answerData.answer)
+        return offlineAnswer
       }
     },
     /*
@@ -2512,15 +2512,11 @@ export default {
       }
 
       this.stepPlayed = true
+      
       this.$emit('success', score, offlineMode, showResult)
       this.$emit('played')
       
       this.displayReadMoreAlert()
-      
-      // if no display of the answer move to next step
-      if (this.step.displayRightAnswer === false) {
-        this.forceNextStep()
-      }
       
       if (showResult) {
         switch (this.step.type) {
@@ -2606,9 +2602,7 @@ export default {
       }
       
       // if no display of the answer move to next step
-      if (this.step.displayRightAnswer === false) {
-        this.forceNextStep()
-      } else {      
+      if (this.step.displayRightAnswer === true) {
         // advise user to move to next step
         utils.setTimeout(this.alertToPassToNextStep, 15000)
       }
