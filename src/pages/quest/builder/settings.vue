@@ -533,7 +533,7 @@
           <!-- using https://github.com/timruffles/ios-html5-drag-drop-shim to allow drag & drop on mobile -->
           <ul class="list-group" v-sortable="{ onUpdate: onChapterListUpdate, handle: '.handle' }">
             <li class="step-list list-group-item align-top" v-for="chapter in chapters.items" :key="chapter._id">
-              <q-icon v-if="!readOnly" name="reorder" />
+              <q-icon v-if="!readOnly" class="handle" style="font-size: 1.3rem;" name="reorder" />
               <div>
                 <p class="bigger">
                   {{ chapter.title[languages.current] || chapter.title[quest.mainLanguage] }}
