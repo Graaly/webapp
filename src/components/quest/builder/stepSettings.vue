@@ -564,7 +564,7 @@
             </div>
             <div>
               <p>{{ $t('label.ObjectSize') }}</p>
-              <q-slider v-if="typeof selectedStep.form.options.objectSize !== 'undefined'" v-model="selectedStep.form.options.objectSize" :min="0.5" :max="10" :step="0.1" label-always :label-value="(selectedStep.form.options.objectSize || 0.5) + 'm'" />
+              <q-slider v-if="selectedStep.form.options.hasOwnProperty('objectSize')" v-model="selectedStep.form.options.objectSize" :min="0.5" :max="10" :step="0.1" label-always :label-value="(selectedStep.form.options.objectSize || 0.5) + 'm'" />
             </div>
           </div>
           <div v-if="selectedStep.form.options.is3D">
@@ -655,31 +655,7 @@
             {{ $t('label.Choose') }}
           </q-btn>
         </p>
-        
-        <!--
-        <h2>{{ $t('label.Mode') }}</h2>
-        
-        <div class="fields-group">
-          
-          <q-option-group
-            type="radio"
-            color="secondary"
-            v-model="selectedStep.form.options.mode"
-            :options="[
-              { label: $t('label.TouchA3DObjectOnTheMarker'), value: 'touch' },
-              { label: $t('label.ScanTheMarker'), value: 'scan' }
-            ]"
-          />
-          
-          <div v-if="selectedStep.form.options.mode === 'touch'">
-            <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
-            <p class="error-label" v-show="$v.selectedStep.form.options && $v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
-          </div>
-          
-          <q-select emit-value map-options v-if="selectedStep.form.options.mode === 'scan'" :label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
-        
-        </div>-->
-        
+                
         <q-dialog id="choose-marker-modal" v-model="config.locateMarker.markerModalOpened">
           <q-card>
             <q-card-section>
@@ -1198,7 +1174,6 @@ import modelsList from 'data/3DModels.json'
 import objectsList from 'data/2Dobjects.json'
 import markersList from 'data/markers.json'
 import iotObjectsList from 'data/iotObjects.json'
-import layersForMarkers from 'data/layersForMarkers.json'
 
 import StepService from 'services/StepService'
 import QuestService from 'services/QuestService'
@@ -1357,8 +1332,7 @@ export default {
           object: null
         },
         locateMarker: {
-          markerModalOpened: false,
-          layersForMarkersOptions: []
+          markerModalOpened: false
         },
         portrait: {
           face: { number: 4 },
@@ -1761,18 +1735,6 @@ export default {
       } else if (this.options.type.code === 'locate-marker') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.$set(this.selectedStep.form, 'answers', markersList[0])
-        }
-        // create options for layer above camera stream selection
-        for (let layer of layersForMarkers) {
-          this.config.locateMarker.layersForMarkersOptions.push({ label: this.$t('layersForMarkers.' + layer.label), value: layer.code })
-        }
-        // sort options in alphabetical order
-        this.config.locateMarker.layersForMarkersOptions = this.config.locateMarker.layersForMarkersOptions.sort((a, b) => {
-          return a.label.localeCompare(b.label)
-        })
-        // default layer = first
-        if (!this.selectedStep.form.options.hasOwnProperty('layerCode')) {
-          this.$set(this.selectedStep.form.options, 'layerCode', layersForMarkers[0].code)
         }
         
         // create options for 3D Model selection
@@ -2777,7 +2739,7 @@ export default {
       const pictureWidth = this.getUseItemPictureWidth()
       
       // relative position between 0 to 100
-      this.selectedStep.form.answerPointerCoordinates.left = Math.round(posX * 100 / pictureWidth )
+      this.selectedStep.form.answerPointerCoordinates.left = Math.round(posX * 100 / pictureWidth)
       this.selectedStep.form.answerPointerCoordinates.top = Math.round(posY * (300 / 4) / pictureWidth)
       this.positionUseItemPointer()
     },

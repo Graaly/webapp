@@ -277,7 +277,6 @@
 </template>
 
 <script>
-//import simi from 'src/includes/simi' // for image similarity
 import RunService from 'services/RunService'
 import StepService from 'services/StepService'
 import QuestService from 'services/QuestService'
