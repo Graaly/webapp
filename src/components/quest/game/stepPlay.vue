@@ -1318,26 +1318,27 @@ export default {
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
           
           if (this.isHybrid && !this.isIOS) {
+            let _this = this
             // IOS is not tested for now, hence why we are not using it 
             cordova.plugins.headingcalibration.watchCalibration(
               (accuracy) => {
                 if (accuracy <= 1) {
-                  this.geolocation.lowCompassAccuracy = true
+                  _this.geolocation.lowCompassAccuracy = true
                   // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
-                  if (this.geolocation.compassAccuracyTimeout === null && !this.geolocation.showCalibration) {
-                    this.geolocation.compassAccuracyTimeout = utils.setTimeout(() => {
-                      this.$refs.gpscal.askUserToCalibrateGPS();
-                      if (this.geolocation.compassAccuracyTimeout !== null) {
-                        clearTimeout(this.geolocation.compassAccuracyTimeout);
-                        this.geolocation.compassAccuracyTimeout = null;
+                  if (_this.geolocation.compassAccuracyTimeout === null && !_this.geolocation.showCalibration) {
+                    _this.geolocation.compassAccuracyTimeout = utils.setTimeout(() => {
+                      _this.$refs.gpscal.askUserToCalibrateGPS();
+                      if (_this.geolocation.compassAccuracyTimeout !== null) {
+                        clearTimeout(_this.geolocation.compassAccuracyTimeout);
+                        _this.geolocation.compassAccuracyTimeout = null;
                       }
                     }, 10000)
                   }
                 } else {
-                  this.geolocation.lowCompassAccuracy = false
-                  if (this.geolocation.compassAccuracyTimeout !== null) {
-                    clearTimeout(this.geolocation.compassAccuracyTimeout);
-                    this.geolocation.compassAccuracyTimeout = null;
+                  _this.geolocation.lowCompassAccuracy = false
+                  if (_this.geolocation.compassAccuracyTimeout !== null) {
+                    clearTimeout(_this.geolocation.compassAccuracyTimeout);
+                    _this.geolocation.compassAccuracyTimeout = null;
                   }
                 }
               },
