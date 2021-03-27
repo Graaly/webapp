@@ -3603,7 +3603,7 @@ export default {
      * @param   {String}    type    type of item to change
      */
     phoneCall: function() {
-      let number = "0668666194"
+      let number = this.step.options.number
       cordova.plugins.phonedialer.dial(
         number, 
         function(success) { console.log('Dialing succeeded') },

@@ -2519,6 +2519,8 @@ export default {
         ok: true,
         cancel: true
       }).onOk(async () => {
+        // avoid to create twice new version
+        this.quest.status = 'draft'
         await QuestService.createNewVersion(_this.questId)
         // reload quest data with new version
         this.$router.push('/quest/builder/' + _this.questId)
