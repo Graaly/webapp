@@ -1089,8 +1089,8 @@ export default {
       background.style.backgroundColor = 'transparent'
       let backgroundImage = document.getElementById('background-image')
       if (backgroundImage) {
-      backgroundImage.style.background = 'none'
-      backgroundImage.style.backgroundColor = 'transparent'
+        backgroundImage.style.background = 'none'
+        backgroundImage.style.backgroundColor = 'transparent'
       }
     },
     /*
@@ -1147,6 +1147,13 @@ export default {
           } else {
             background.style.background = 'none'
             background.style.backgroundColor = 'transparent'
+            if (this.step.type === 'locate-item-ar') {
+              let backgroundImage = document.getElementById('background-image')
+              if (backgroundImage) {
+                backgroundImage.style.background = 'none'
+                backgroundImage.style.backgroundColor = 'transparent'
+              }
+            }
           }
           this.showControls()
         }
