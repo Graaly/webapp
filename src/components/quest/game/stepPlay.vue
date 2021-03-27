@@ -1,7 +1,7 @@
 <template>
 
   <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor'), 'loaded': pageReady}">
-    <div id="background-image" v-if="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect)}">
+    <div id="background-image" v-show="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect)}">
     </div>
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
       <q-linear-progress 
