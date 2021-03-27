@@ -42,7 +42,6 @@ $ quasar lint
     - [Installing](#installing)
     - [Running](#running)
     - [Readings](#readings)
-  - [Generate AR.js pattern files to detect markers](#generate-arjs-pattern-files-to-detect-markers)
   - [Technical specs](#technical-specs)
   - [COMMON ISSUES](#common-issues)
     - [Cordova Android Build unsuccessful](#cordova-android-build-unsuccessful)
@@ -265,11 +264,6 @@ After running `npm install` in project folder, you can install latest version of
 
   * [Google Firebase Test Lab](https://firebase.google.com/docs/test-lab/) (maybe for native Android apps only)
   * [Saucelabs mobile app testing](https://saucelabs.com/products/mobile-app-testing) (paid service)
-
-## Generate AR.js pattern files to detect markers
-
-* Follow [this procedure](https://medium.com/arjs/how-to-create-your-own-marker-44becbec1105)
-* Warning: set pattern ratio to 0.80 instead of 0.50 (ratio pattern size / black border size)
 
 ## Technical specs
 
