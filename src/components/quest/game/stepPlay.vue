@@ -776,9 +776,7 @@ export default {
   watch: { 
     // refresh component if stepId change
     reload: async function(newVal, oldVal) {
-console.log("test21")
       if (newVal === true || newVal === 'true') {
-console.log("test22")
         await this.initData()
       }
       if (newVal === false || newVal === 'false') {
@@ -828,6 +826,7 @@ console.log("test22")
         controlsAreDisplayed: false,
         isHybrid: window.cordova,
         isIOs: utils.isIOS(),
+        isPageInit: false,
         isNetworkLow: false,
         isTimeUp: false,
         displaySuccessIcon: false,
@@ -1002,7 +1001,6 @@ console.log("test22")
       this.nbTry = defaultVars.nbTry
       this.score = defaultVars.score
       this.reward = defaultVars.reward
-console.log("test20")
       this.controlsAreDisplayed = defaultVars.controlsAreDisplayed
       this.isNetworkLow = defaultVars.isNetworkLow
       this.isTimeUp = defaultVars.isTimeUp
@@ -1101,35 +1099,28 @@ console.log("test20")
      * Init the component data
      */
     async initData () {
-console.log("test1")
+      this.isPageInit = true
       this.resetEvents()
       this.resetData()
       this.resetBackgroundImage()
-console.log("test2")
       TWEEN.removeAll()
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
-console.log("test3")
         let background = document.getElementById('play-view')
         if (this.step.backgroundImage) {
-console.log("test4")
           if (this.step.type === 'find-item' || this.step.type === 'use-item' || this.step.type === 'binocular' || this.step.type === 'phone-call') {
-console.log("test5")
             background.style.background = 'none'
             background.style.backgroundColor = '#000'
             this.showControls()
           } else if (this.step.type === 'image-over-flow') {
-console.log("test6")
             this.showControls()
             background.style.background = 'none'
             background.style.backgroundColor = 'transparent'
           } else if (this.step.type === 'jigsaw-puzzle') {
-console.log("test7")
             let backgroundUrl = this.getBackgroundImage()
             background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             this.showControls()
           } else {
-console.log("test8")
             // define if background image is a generic one or user defined one
             let backgroundUrl = this.getBackgroundImage()
             let backgroundImage = document.getElementById('background-image')
@@ -1146,26 +1137,20 @@ console.log("test8")
             
             // display controls after some seconds to let user see background
             if (this.step.options && this.step.options.hasOwnProperty('initDuration')) {
-console.log("test9")
               utils.setTimeout(this.showControls, parseInt(this.step.options.initDuration, 10) * 1000)
             } else {
-console.log("test10")
               utils.setTimeout(this.showControls, 1000)
             }
           }
         } else {
-console.log("test11")
           // no background on some steps to display camera stream
           if (this.step.type && this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker' && this.step.id !== 'sensor') {        
-console.log("test12")
             background.style.background = 'none'
             background.style.backgroundColor = '#fff'
           } else {
-console.log("test13")
             background.style.background = 'none'
             background.style.backgroundColor = 'transparent'
             if (this.step.type === 'locate-item-ar') {
-console.log("test14")
               let backgroundImage = document.getElementById('background-image')
               if (backgroundImage) {
                 backgroundImage.style.background = 'none'
@@ -1173,7 +1158,6 @@ console.log("test14")
               }
             }
           }
-console.log("test15")
           this.showControls()
         }
         
@@ -1683,7 +1667,6 @@ console.log("test15")
      * Show controls buttons
      */
     showControls () {
-console.log("showcontrols")
       this.controlsAreDisplayed = true // !this.controlsAreDisplayed
       // if transition step, next button is clickable when controls are displayed
       if (this.step.type === 'info-text' || 
@@ -1695,7 +1678,6 @@ console.log("showcontrols")
         this.step.type === 'phone-call' || 
         this.step.type === 'new-item' || 
         this.step.type === 'trigger-event') {
-console.log("sc2")
         this.checkAnswer()
       }
     },
@@ -1703,14 +1685,12 @@ console.log("sc2")
      * Switch controls display
      */
     switchControls () {
-console.log("test18")
       this.controlsAreDisplayed = !this.controlsAreDisplayed
     },
     checkIfDataAreInit() {
-console.log("test30")
-console.log(this.controlsAreDisplayed)
-      if (this.controlsAreDisplayed === null) {
-console.log("test31")
+      console.log("check if data must be loaded")
+      if (!this.isPageInit) {
+        console.log("Reload all data")
         this.initData()
       }
     },
@@ -1718,7 +1698,6 @@ console.log("test31")
      * Hide controls temporaly
      */
     hideControlsTemporaly () {
-console.log("test19")
       this.controlsAreDisplayed = false
       utils.setTimeout(this.showControls, 4000)
     },
