@@ -1,7 +1,7 @@
 <template>
 
   <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor'), 'loaded': pageReady}">
-    <div id="background-image" v-if="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect)}">
+    <div id="background-image" v-show="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect)}">
     </div>
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
       <q-linear-progress 
@@ -535,14 +535,7 @@
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-marker"  webkit-playsinline playsinline src="" autoplay v-show="cameraStreamEnabled && playerResult === null"></video>
         </transition>
-        <!-- MP 2019-09-30 now we use phonegap-plugin-barcodescanner for compatibility reasons, and cannot use any "layer" above camera stream -->
-        <!--
-        <div v-if="((step.type == 'locate-marker' && step.options.mode === 'scan') || step.id == 'sensor') && locateMarker.layer !== null &&  locateMarker.compliant">
-          <transition appear :enter-active-class="'animated ' + locateMarker.layer.animationShow" :leave-active-class="'animated ' + locateMarker.layer.animationHide">
-            <img class="locate-marker-layer" :src="'statics/images/find-marker-layers/' + step.options.layerCode + '.png'" v-show="step.id === 'sensor' || (playerResult === null || (playerResult === false && nbTry < 2))" />
-          </transition>
-        </div>
-        -->
+        
         <div v-show="playerResult === null">
           <div class="text" :class="'font-' + customization.font" v-show="getTranslatedText() != ''">
             <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
@@ -552,8 +545,8 @@
         </div>
         
         <!-- HELP -->
-        <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null && !isHybrid" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
-        <div v-if="locateMarker.compliant && playerResult === null && isHybrid" class="text-white centered q-mt-md">
+        <q-btn round size="lg" v-if="playerResult === null && !isHybrid" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
+        <div v-if="playerResult === null && isHybrid" class="text-white centered q-mt-md">
           <div v-if="customization.qrCodeMessage && customization.qrCodeMessage !== '' && lang">{{ customization.qrCodeMessage[lang] }}</div>
           <div v-if="!customization.qrCodeMessage || customization.qrCodeMessage === '' || !lang">{{ $t('label.ScanTheMarkersLikeThat') }}</div>
           <div class="q-mt-md"><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
@@ -569,13 +562,7 @@
           </div>
         </div>
         <div class="text-center">
-          <div v-if="!locateMarker.compliant">
-            {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
-          </div>
-          <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant && step.options && step.options.mode == 'scan'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
-          <div class="marker-view" v-show="locateMarker.compliant">
-            <canvas id="marker-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
-          </div>
+          <img class="locate-marker-answer" v-if="playerResult && step.options && step.options.mode == 'scan'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
         </div>
         <div class="over-map mobile-fit" :class="'font-' + customization.font" style="height: 100%" v-if="locateMarker.showHelp">
           <story step="help" :data="{ help: step.type == 'locate-marker' && step.options && step.options.mode === 'scan' ? 'FindMarkerHelp' : 'TouchObjectOnMarkerHelp' }" @next="locateMarker.showHelp = false"></story>
@@ -748,7 +735,6 @@ import utils from 'src/includes/utils'
 
 import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
-import markersList from 'data/markers.json'
 import iotObjectsList from 'data/iotObjects.json'
 import iotOptions from 'data/iotOptions.json'
 import stepTypes from 'data/stepTypes.json'
@@ -767,13 +753,6 @@ import debounce from 'lodash/debounce'
 import * as THREE from 'three'
 import TWEEN from '@tweenjs/tween.js'
 import GLTFLoader from 'three-gltf-loader'
-
-// required for step 'locate-marker'
-// currently (AR.js 1.6.2) MODULE IMPORT IS NOT SUPPORTED.
-// => adapted AR.js to work as a module (from file three.js/build/ar.js of the original package).
-// see https://github.com/jeromeetienne/AR.js/issues/428
-import { THREEx } from 'src/includes/ar' // import * as ARjs from 'ar.js' in future versions?
-import { promisify } from 'es6-promisify'
 
 // required for steps 'wait-for-event' and 'trigger-event' (IoT):
 import * as mqtt from 'mqtt'
@@ -917,20 +896,10 @@ export default {
         
         // for step type 'locate-marker'
         locateMarker: {
-          renderer: null,
-          scene: null,
-          camera: null,
-          mixers: [], // animations
-          clock: null, // animations
-          arToolkitContext: null,
-          arSmoothedControls: null,
-          markerRoots: {},
           markerControls: {},
           playerAnswer: '',
-          layer: null,
           flash: false,
-          showHelp: false,
-          compliant: true //!(window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios')
+          showHelp: false
         },
         
         // for step type 'write-text'
@@ -1030,6 +999,7 @@ export default {
       this.nbTry = defaultVars.nbTry
       this.score = defaultVars.score
       this.reward = defaultVars.reward
+console.log("test20")
       this.controlsAreDisplayed = defaultVars.controlsAreDisplayed
       this.isNetworkLow = defaultVars.isNetworkLow
       this.isTimeUp = defaultVars.isTimeUp
@@ -1120,35 +1090,43 @@ export default {
       background.style.backgroundColor = 'transparent'
       let backgroundImage = document.getElementById('background-image')
       if (backgroundImage) {
-      backgroundImage.style.background = 'none'
-      backgroundImage.style.backgroundColor = 'transparent'
+        backgroundImage.style.background = 'none'
+        backgroundImage.style.backgroundColor = 'transparent'
       }
     },
     /*
      * Init the component data
      */
     async initData () {
+console.log("test1")
       this.resetEvents()
       this.resetData()
       this.resetBackgroundImage()
+console.log("test2")
       TWEEN.removeAll()
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
+console.log("test3")
         let background = document.getElementById('play-view')
         if (this.step.backgroundImage) {
+console.log("test4")
           if (this.step.type === 'find-item' || this.step.type === 'use-item' || this.step.type === 'binocular' || this.step.type === 'phone-call') {
+console.log("test5")
             background.style.background = 'none'
             background.style.backgroundColor = '#000'
             this.showControls()
           } else if (this.step.type === 'image-over-flow') {
+console.log("test6")
             this.showControls()
             background.style.background = 'none'
             background.style.backgroundColor = 'transparent'
           } else if (this.step.type === 'jigsaw-puzzle') {
+console.log("test7")
             let backgroundUrl = this.getBackgroundImage()
             background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             this.showControls()
           } else {
+console.log("test8")
             // define if background image is a generic one or user defined one
             let backgroundUrl = this.getBackgroundImage()
             let backgroundImage = document.getElementById('background-image')
@@ -1165,20 +1143,34 @@ export default {
             
             // display controls after some seconds to let user see background
             if (this.step.options && this.step.options.hasOwnProperty('initDuration')) {
+console.log("test9")
               utils.setTimeout(this.showControls, parseInt(this.step.options.initDuration, 10) * 1000)
             } else {
+console.log("test10")
               utils.setTimeout(this.showControls, 1000)
             }
           }
         } else {
+console.log("test11")
           // no background on some steps to display camera stream
           if (this.step.type && this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker' && this.step.id !== 'sensor') {        
+console.log("test12")
             background.style.background = 'none'
             background.style.backgroundColor = '#fff'
           } else {
+console.log("test13")
             background.style.background = 'none'
             background.style.backgroundColor = 'transparent'
+            if (this.step.type === 'locate-item-ar') {
+console.log("test14")
+              let backgroundImage = document.getElementById('background-image')
+              if (backgroundImage) {
+                backgroundImage.style.background = 'none'
+                backgroundImage.style.backgroundColor = 'transparent'
+              }
+            }
           }
+console.log("test15")
           this.showControls()
         }
         
@@ -1349,26 +1341,27 @@ export default {
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
           
           if (this.isHybrid && !this.isIOS) {
+            let _this = this
             // IOS is not tested for now, hence why we are not using it 
             cordova.plugins.headingcalibration.watchCalibration(
               (accuracy) => {
                 if (accuracy <= 1) {
-                  this.geolocation.lowCompassAccuracy = true
+                  _this.geolocation.lowCompassAccuracy = true
                   // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
-                  if (this.geolocation.compassAccuracyTimeout === null && !this.geolocation.showCalibration) {
-                    this.geolocation.compassAccuracyTimeout = utils.setTimeout(() => {
-                      this.$refs.gpscal.askUserToCalibrateGPS();
-                      if (this.geolocation.compassAccuracyTimeout !== null) {
-                        clearTimeout(this.geolocation.compassAccuracyTimeout);
-                        this.geolocation.compassAccuracyTimeout = null;
+                  if (_this.geolocation.compassAccuracyTimeout === null && !_this.geolocation.showCalibration) {
+                    _this.geolocation.compassAccuracyTimeout = utils.setTimeout(() => {
+                      _this.$refs.gpscal.askUserToCalibrateGPS();
+                      if (_this.geolocation.compassAccuracyTimeout !== null) {
+                        clearTimeout(_this.geolocation.compassAccuracyTimeout);
+                        _this.geolocation.compassAccuracyTimeout = null;
                       }
                     }, 10000)
                   }
                 } else {
-                  this.geolocation.lowCompassAccuracy = false
-                  if (this.geolocation.compassAccuracyTimeout !== null) {
-                    clearTimeout(this.geolocation.compassAccuracyTimeout);
-                    this.geolocation.compassAccuracyTimeout = null;
+                  _this.geolocation.lowCompassAccuracy = false
+                  if (_this.geolocation.compassAccuracyTimeout !== null) {
+                    clearTimeout(_this.geolocation.compassAccuracyTimeout);
+                    _this.geolocation.compassAccuracyTimeout = null;
                   }
                 }
               },
@@ -1511,43 +1504,8 @@ export default {
             this.$emit('pass')
           }
           
-          // MP 2019-09-30 using phonegap-plugin-barcodescanner prevents using any kind of "layer" above camera stream
-          /*import layersForMarkers from 'data/layersForMarkers.json'
-          if (this.step.options.mode === 'scan') {
-            for (let layer of layersForMarkers) {
-              if (layer.code === this.step.options.layerCode) {
-                this.locateMarker.layer = layer
-                break
-              }
-            }
-          }*/
-          
           if (this.isHybrid) {
             this.initQRCodes()
-          } else {
-            // with plugin phonegap-plugin-media-stream
-            let cameraStream = this.$refs['camera-stream-for-locate-marker']
-            // enable rear camera stream
-            // ------------------------- 
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-              .then((stream) => {
-                cameraStream.srcObject = stream
-                cameraStream.play()
-                cameraStream.onloadeddata = async (e) => {
-                  this.cameraStreamEnabled = true
-                  let sceneCanvas = document.getElementById('marker-canvas')
-                  sceneCanvas.height = window.screen.height
-                  sceneCanvas.width = window.screen.width
-                  
-                  await this.displayMarkers(sceneCanvas)
-                }
-                this.$store.dispatch('addMediaStream', stream)
-              })
-              .catch((err) => {
-                // TODO friendly behavior/message for user
-                console.warn("No camera stream available")
-                console.log(err)
-              })
           }
         }
         
@@ -1719,37 +1677,10 @@ export default {
       }
     },
     /*
-    * creates a marker control for step type 'locate-marker'
-    */
-    createMarkerControl (markerCode) {
-      let arToolkitContext = this.locateMarker.arToolkitContext
-      let markerRoot
-      
-      if (this.step.options && this.step.options.mode === 'scan') {
-        markerRoot = this.locateMarker.markerRoots['commonRoot']
-      } else {
-        markerRoot = this.locateMarker.markerRoots[markerCode]
-      }
-      
-      let marker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
-        type: 'pattern',
-        patternUrl: 'statics/markers/' + markerCode + '/pattern-marker.patt'
-      })
-      marker.code = markerCode
-      
-      marker.addEventListener('markerFound', (ev) => {
-        if (this.step.options && this.step.options.mode === 'scan') {
-          this.checkAnswer(ev.target.code)
-        }
-      })
-      marker.detected = false
-      
-      return marker
-    },
-    /*
      * Show controls buttons
      */
     showControls () {
+console.log("showcontrols")
       this.controlsAreDisplayed = true // !this.controlsAreDisplayed
       // if transition step, next button is clickable when controls are displayed
       if (this.step.type === 'info-text' || 
@@ -1761,6 +1692,7 @@ export default {
         this.step.type === 'phone-call' || 
         this.step.type === 'new-item' || 
         this.step.type === 'trigger-event') {
+console.log("sc2")
         this.checkAnswer()
       }
     },
@@ -1768,128 +1700,16 @@ export default {
      * Switch controls display
      */
     switchControls () {
+console.log("test18")
       this.controlsAreDisplayed = !this.controlsAreDisplayed
     },
     /*
      * Hide controls temporaly
      */
     hideControlsTemporaly () {
+console.log("test19")
       this.controlsAreDisplayed = false
       utils.setTimeout(this.showControls, 4000)
-    },
-    /*
-     * Display markers controls
-     * @param   {Object}    sceneCanvas            Scene canvas object
-     */
-    async displayMarkers(sceneCanvas) {
-      this.locateMarker.markerRoots = {}
-      
-      let renderer = new THREE.WebGLRenderer({
-        canvas: sceneCanvas,
-        antialias: true,
-        alpha: true,
-        logarithmicDepthBuffer: true // workaround for AR.js z-fighting issue, see https://github.com/jeromeetienne/AR.js/issues/146 and https://github.com/jeromeetienne/AR.js/issues/410
-      })
-      
-      let scene = new THREE.Scene()
-      
-      let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000) // 0.01, 100
-      scene.add(camera)
-      
-      // --- Light ---
-      
-      this.addDefaultLightTo3DScene(scene)
-      
-      // --- initialize arToolkitContext ---
-      
-      // create atToolkitContext
-      let arToolkitContext = new THREEx.ArToolkitContext({
-        cameraParametersUrl: 'statics/markers/camera_para.dat',
-        detectionMode: 'mono',
-        maxDetectionRate: 30,
-        // sampling size, always 4:3 ratio...
-        canvasWidth: 640,
-        canvasHeight: 480,
-        patternRatio: 0.8
-      })
-      // initialize it
-      arToolkitContext.initAsync = promisify(arToolkitContext.init)
-      await arToolkitContext.initAsync()
-      
-      // --- Create ArMarkerControls / ArSmoothedControls ---
-      
-      // build a smoothedControls
-      let smoothedRoot = new THREE.Group()
-      scene.add(smoothedRoot)
-      let arSmoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
-        lerpPosition: 0.4,
-        lerpQuaternion: 0.3,
-        lerpScale: 1
-      })
-      
-      this.locateMarker.arToolkitContext = arToolkitContext
-      this.locateMarker.arSmoothedControls = arSmoothedControls
-      
-      this.locateMarker.renderer = renderer
-      this.locateMarker.scene = scene
-      this.locateMarker.camera = camera
-      
-      this.locateMarker.markerCodeAnswer = this.step.answers
-      
-      if (this.step.options && this.step.options.mode === 'scan') {
-        // only one marker root is enough
-        let markerRoot = new THREE.Group()
-        scene.add(markerRoot)
-        this.locateMarker.markerRoots['commonRoot'] = markerRoot
-        
-        // add a transparent plane, common for all markers
-        // (helps to detect if marker "touches" the center of the screen)
-        let geometry = new THREE.PlaneGeometry(1, 1)
-        let material = new THREE.MeshNormalMaterial({ transparent: true, opacity: 0, side: THREE.DoubleSide })
-        let mesh  = new THREE.Mesh(geometry, material)
-        mesh.rotateX(Math.PI / 2)
-        smoothedRoot.add(mesh)
-        smoothedRoot.name = 'markerObject'
-      }
-      
-      markersList.forEach((markerCode) => {
-        if (this.step.options && this.step.options.mode === 'touch') {
-          // one marker root per marker
-          let markerRoot = new THREE.Group()
-          scene.add(markerRoot)
-          this.locateMarker.markerRoots[markerCode] = markerRoot
-        }
-        this.locateMarker.markerControls[markerCode] = this.createMarkerControl(markerCode)
-      })
-      
-      if (this.step.options && this.step.options.mode === 'touch') {
-        let object, animations
-        //let data = await this.loadAndPrepare3DModel(this.step.options.model)
-        let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.questId, this.step.options.customModel || false)
-        object = data.object
-        animations = data.animations
-        
-        object.rotateX(-Math.PI / 2)
-        
-        // add offset to make 3D object "sit on the ground" by default (y = 0 at the bottom of the object)
-        let box = new THREE.Box3().setFromObject(object)
-        let onGroundOffset = (box.max.y - box.min.y) / 2
-        object.applyMatrix(new THREE.Matrix4().makeTranslation(0, onGroundOffset, 0))
-        
-        object.name = 'targetObject'
-        
-        // animations ? play first animation
-        if (animations.length > 0) {
-          let mixer = new THREE.AnimationMixer(object)
-          mixer.clipAction(animations[0]).play()
-          this.locateMarker.mixers.push(mixer)
-        }
-        this.locateMarker.clock = new THREE.Clock()
-        
-        smoothedRoot.add(object)
-      }
-      
-      this.animateMarkerCanvas()
     },
     /*
      * Send answer server side 
@@ -2388,28 +2208,6 @@ export default {
                 this.locateMarker.markerControls[answer].detected = true
                 markerDetected = true
               }
-            } else {
-              if (!this.locateMarker.markerControls[answer].detected) {
-                let object = this.locateMarker.scene.getObjectByName('markerObject')
-                
-                let raycaster = new THREE.Raycaster()
-                
-                // imaginary line starting from screen center
-                raycaster.setFromCamera(new THREE.Vector2(0, 0), this.locateMarker.camera)
-                
-                // second parameter set to true so that intersectObject() traverses recursively the object
-                // and its children geometries
-                let intersects = raycaster.intersectObject(object, true)
-                
-                // EMA on 04/03 : to discuss with MPA why detected was not triggered if no intersect
-                if (intersects.length > 0) {
-                  this.locateMarker.markerControls[answer].detected = true
-                  markerDetected = true
-                } else {
-                  this.locateMarker.markerControls[answer].detected = true
-                  markerDetected = true
-                }
-              }
             }
             
             if (markerDetected) {
@@ -2417,13 +2215,11 @@ export default {
               
               if (checkAnswerResult.result === true) {
                 this.submitGoodAnswer(checkAnswerResult.score, checkAnswerResult.offline, true)
-                this.stopMarkersSensors()
                 this.locateMarker.playerAnswer = answer // for display
               } else {
                 this.nbTry++
                 if (this.nbTry === 2 || this.isTimeUp) {
                   this.submitWrongAnswer(checkAnswerResult.offline, true)
-                  this.stopMarkersSensors()
                 } else {
                   this.submitRetry(1)
                 }
@@ -2562,16 +2358,6 @@ export default {
       }
       // advise user to move to next step
       //utils.setTimeout(this.alertToPassToNextStep, 15000)
-    },
-    /*
-     * stop the markers sensors
-     */
-    stopMarkersSensors() {
-      if (!this.isHybrid) {
-        this.stopVideoTracks('camera-stream-for-locate-marker')
-        this.locateMarker.scene = new THREE.Scene()
-        this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
-      }
     },
     /*
      * Send wrong answer 
@@ -3028,7 +2814,7 @@ export default {
       
       if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.distance <= parseInt(options.distance, 10)) || this.geolocation.distance <= 20)) {
         //check if other locations are defined
-        this.geolocation.currentIndex ++
+        this.geolocation.currentIndex++
         if (options.locations && options.locations.length > 0 && this.geolocation.currentIndex < options.locations.length) {
           this.geolocation.foundStep = false
           this.geolocation.foundStep = true
@@ -3603,12 +3389,12 @@ export default {
      * @param   {String}    type    type of item to change
      */
     phoneCall: function() {
-      let number = "0668666194"
+      let number = this.step.options.number
       cordova.plugins.phonedialer.dial(
         number, 
         function(success) { console.log('Dialing succeeded') },
         function(err) {
-          if (err == "empty") console.log("Unknown phone number")
+          if (err === "empty") console.log("Unknown phone number")
           else console.log("Dialer Error:" + err)
         },
         false
@@ -3639,47 +3425,6 @@ export default {
       target.renderer.render(target.scene, target.camera)
       TWEEN.update()
       this.latestRequestAnimationId = requestAnimationFrame(this.animateTargetCanvas)
-    },
-    /*
-    * Animate canvas where AR markers are detected, for step type "locate-marker"
-    */
-    animateMarkerCanvas() {   
-      if (typeof this.step === 'undefined' || (this.step.id !== 'sensor' && typeof this.step.type === 'undefined')) {
-        this.stopLatestAnimation()
-        return
-      }
-      
-      let mixers = this.locateMarker.mixers
-
-      if (this.locateMarker.arToolkitContext !== null) {
-        // player has not found object yet ?
-        // => adjust camera orientation & object position according to detected marker position
-        this.locateMarker.arToolkitContext.update(this.$refs['camera-stream-for-locate-marker'])
-
-        if ((this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'scan') || this.step.id === 'sensor') {
-          // any marker is "recognized"
-          for (let markerCode in this.locateMarker.markerRoots) {
-            this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoots[markerCode])
-          }
-        } else {
-          // touch object step type => only one marker is "recognized"
-          this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoots[this.step.answers])
-        }
-      }
-      
-      if (this.locateMarker.renderer !== null) {
-        this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
-      }
-      
-      // animation
-      if (mixers.length > 0) {
-        for (let i = 0; i < mixers.length; i++) {
-          mixers[i].update(this.locateMarker.clock.getDelta());
-        }
-      }
-      
-      TWEEN.update()
-      this.latestRequestAnimationId = requestAnimationFrame(this.animateMarkerCanvas)
     },
     /*
     * stop latest animation
@@ -4440,7 +4185,7 @@ export default {
      */
     stopcountdown() {
       if (this.step.countDownTime) {
-      	this.step.countDownTime.enabled = false
+        this.step.countDownTime.enabled = false
       }
     },
     /**
@@ -4506,8 +4251,6 @@ export default {
   #play-view { padding: 0rem; height: inherit; min-height: inherit; }
   
   #play-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; /*padding-bottom: 4rem;*/ }
-/* MPA 2020-10-04 removed because conflicts with timer div
-  #play-view > div > div:not(.story) { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; } */
   #play-view > div > div.find-item, #play-view > div > div.use-item { padding: 0px }
   #play-view > div > div.locate-item-ar { padding-bottom: 1rem; }
   
@@ -4526,10 +4269,8 @@ export default {
   .answers-text .q-btn {
     opacity: 0.9;
     background-color: #fff;
-    /*border-radius: 0.5rem;*/
     padding: 0.5rem;
     margin: 0;
-    /*box-shadow: 0px 0px 0.1rem 0.1rem #fff;*/
   }
   .text { 
     white-space: pre-wrap; 
@@ -4550,8 +4291,6 @@ export default {
   .q-btn { margin-top: 1rem; }
   
   /* info specific */
-  
-  /*audio { opacity: 0.9; }*/
   
   .video { margin: auto; flex-grow: 1; display: flex; align-items: center; position: relative; }
   
@@ -4651,10 +4390,6 @@ export default {
   
   .locate-marker { position: relative; }
   .locate-marker video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-  .locate-marker .marker-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-  .locate-marker #marker-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }
-  .locate-marker .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
-  .locate-marker img.locate-marker-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 30; padding: 0; margin: 0; }
   .locate-marker img.locate-marker-answer { width: 60vw; margin: 30vw auto; }
   .locate-marker .q-btn { margin-bottom: 17vw; margin-left: 4vw; z-index: 50; }
   .locate-marker .q-btn span { font-size: 36px; }

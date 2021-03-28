@@ -120,7 +120,11 @@
         </div>
         -->
 
-        <div class="centered smaller version secondary-font">Version {{ version }}</div>
+        <div class="centered smaller version secondary-font">
+          Version {{ version }} - 
+          <img src="statics/icons/game/flag-en.png" @click="switchLanguage('en')" /> -
+          <img src="statics/icons/game/flag-fr.png" @click="switchLanguage('fr')" />
+        </div>
       
       </div>
     </div>
@@ -517,6 +521,9 @@ export default {
       }
       
       this.submitting = false
+    },
+    switchLanguage(lang) {
+      this.$i18n.locale = lang
     }
   },
   validations: {
