@@ -5,7 +5,7 @@
       <!------------------ TITLE AREA ------------------------>
       
       <div class="centered q-pt-lg q-pb-md">
-        <img src="statics/images/logo/logo-home.png" class="logo-top" />
+        <img src="statics/images/logo/logo-home.png" class="logo-top" style="width: 30%; max-width: 200px; margin-bottom: 0px; margin-top: 20px;" />
       </div>
       
       <div class="q-pa-md">

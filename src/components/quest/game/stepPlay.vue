@@ -776,7 +776,9 @@ export default {
   watch: { 
     // refresh component if stepId change
     reload: async function(newVal, oldVal) {
+console.log("test21")
       if (newVal === true || newVal === 'true') {
+console.log("test22")
         await this.initData()
       }
       if (newVal === false || newVal === 'false') {
@@ -801,6 +803,7 @@ export default {
   mounted () {
     // seems always already done by "watch" on "reload" key // Uncommented by EMA on 122018, in some case watcher does not work
     //this.initData()
+    utils.setTimeout(this.checkIfDataAreInit, 5000)
   },
   updated: debounce(function () {
     this.$nextTick(() => {
@@ -1702,6 +1705,14 @@ console.log("sc2")
     switchControls () {
 console.log("test18")
       this.controlsAreDisplayed = !this.controlsAreDisplayed
+    },
+    checkIfDataAreInit() {
+console.log("test30")
+console.log(this.controlsAreDisplayed)
+      if (this.controlsAreDisplayed === null) {
+console.log("test31")
+        this.initData()
+      }
     },
     /*
      * Hide controls temporaly
