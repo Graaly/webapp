@@ -66,10 +66,7 @@
             :options="sexes"
             emit-value
             map-options
-            @blur="$v.form.sex.$touch"
             bottom-slots
-            :error="$v.form.sex.$error"
-            :error-message="$t('label.PleaseSelectYourSex')"
             test-id="sex"
             />
           
@@ -232,11 +229,11 @@ export default {
           this.$v.form.country.$touch()
           this.$v.form.zipCode.$touch()
           // check if sex and age are set
-          this.$v.form.sex.$touch()
+          //this.$v.form.sex.$touch()
           this.$v.form.age.$touch()
           this.$v.form.terms.$touch()
           this.$v.form.privacy.$touch()
-          if (!this.$v.form.country.$error && !this.$v.form.zipCode.$error && !this.$v.form.sex.$error && 
+          if (!this.$v.form.country.$error && !this.$v.form.zipCode.$error && //!this.$v.form.sex.$error && 
             !this.$v.form.age.$error && !this.$v.form.terms.$error && !this.$v.form.privacy.$error) {
             // sign in user
             let newAccount = {
@@ -385,7 +382,6 @@ export default {
       country: { required },
       zipCode: { required },
       age: { required },
-      sex: { required },
       terms: {
         sameAs: sameAs(() => true)
       },
