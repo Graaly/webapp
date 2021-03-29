@@ -1687,10 +1687,11 @@ export default {
     switchControls () {
       this.controlsAreDisplayed = !this.controlsAreDisplayed
     },
+    /*
+     * If a bug occur and data are not init, force it !
+     */
     checkIfDataAreInit() {
-      console.log("check if data must be loaded")
       if (!this.isPageInit) {
-        console.log("Reload all data")
         this.initData()
       }
     },
