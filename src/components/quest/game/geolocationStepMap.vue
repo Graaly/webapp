@@ -1,7 +1,7 @@
 <template>
   <div class="geolocation-step-map">
     <gmap-map
-      v-if="isMounted && this.targetPosition !== null"
+      v-if="isMounted"
       :center="map.center"
       :zoom="map.zoom"
       map-type-id="roadmap"
@@ -12,9 +12,9 @@
       @dragend="dragEnd($event)"
     >
       <!-- next destination marker -->
-      <gmap-marker v-if="targetPosition !== null" :position="targetPosition" :icon="getNextDestinationMapIcon()"/>
+      <gmap-marker v-if="position.target !== null" :position="position.target" :icon="getNextDestinationMapIcon()"/>
       <!-- user marker -->
-      <gmap-marker v-if="playerPosition !== null" :position="{ lng: playerPosition.longitude, lat: playerPosition.latitude }" :icon="getUserMapIcon()"/>
+      <gmap-marker v-if="position.player !== null" :position="{ lng: position.player.longitude, lat: position.player.latitude }" :icon="getUserMapIcon()"/>
     </gmap-map>
   </div>
 </template>
@@ -29,11 +29,15 @@ export default {
   props: ['targetPosition', 'playerPosition'],
   watch: { 
     targetPosition: function (newVal, oldVal) {
-      console.log('targetPosition has changed', oldVal, newVal)
+      if (newVal !== null && newVal !== oldVal) {
+        this.position.target = newVal
+      }
       this.reloadMap()
     },
     playerPosition: function (newVal, oldVal) {
-      console.log('playerPosition has changed', oldVal, newVal)
+      if (newVal !== null && newVal !== oldVal) {
+        this.position.player = newVal
+      }
       this.reloadMap()
     }
   },
@@ -45,6 +49,10 @@ export default {
         centerTmp: { lat: 0, lng: 0 },
         loaded: false
       },
+      position: {
+        player: null,
+        target: null
+      },
       isMounted: false
     }
   },
@@ -52,8 +60,6 @@ export default {
     google: gmapApi
   },
   mounted () {
-    console.log('target', this.targetPosition)
-    console.log('player', this.playerPosition)
     this.$nextTick(() => {
       this.isMounted = true
       this.reloadMap()
@@ -83,7 +89,7 @@ export default {
       this.map.loaded = null // to prevent multiple call of reload map if onNewUserPosition is called too often
       
       // adjust zoom / pan to next destination & user position
-      if (this.$refs.mapRef && (this.targetPosition !== null || this.playerPosition !== null)) {
+      if (this.$refs.mapRef && (this.position.target !== null || this.position.target !== null)) {
         this.$refs.mapRef.$mapPromise.then((map) => {
           const bounds = new google.maps.LatLngBounds()
           
@@ -91,8 +97,8 @@ export default {
             bounds.extend(this.targetPosition)
           }
           
-          if (this.playerPosition !== null) {
-            bounds.extend({ lng: this.playerPosition.longitude, lat: this.playerPosition.latitude })
+          if (this.position.player !== null) {
+            bounds.extend({ lng: this.position.player.longitude, lat: this.position.player.latitude })
           }
           map.fitBounds(bounds)
         })
@@ -103,12 +109,10 @@ export default {
       }
     },
     centerOnUserPosition() {
-      if (this.playerPosition === null) {
-        Notification(this.$t('label.LocationSearching'), 'warning')
-        return
+      if (this.position.player !== null) {
+        this.$data.map.center = {lat: this.position.player.latitude, lng: this.position.player.longitude}
       }
-      this.$data.map.center = {lat: this.playerPosition.latitude, lng: this.playerPosition.longitude}
-      this.map.zoom = 15
+      this.map.zoom = 14
     },
     updateCenter (ev) {
       let newLat = ev.lat();
