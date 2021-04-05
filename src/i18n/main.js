@@ -866,7 +866,7 @@ module.exports = {
       ReadMoreLink: "Link to the booking page",
       SmallPicture: "Small picture",
       SeeYourQuestPage: "Preview the page",
-      FromPricePerPlayer: "From {price} per player",
+      FromPricePerPlayer: "From {price} per player or game",
       Book: "Book",
       YourBadges: "Your badges",
       YouDoNotHaveBadgesYet: "You do not have badges yet. To win badges, you need to play games with rewards.",
@@ -1029,7 +1029,8 @@ module.exports = {
       BuildThePortraitRobot: "Build the picture to find",
       Education: "Education",
       EducationDesc: "We do not have an education plan yet, but you can use the professional mode and contact us at contact@graaly.com.",
-      Call: "Call"
+      Call: "Call",
+      BlurEffect: "Blur effect"
     } 
   },
   fr: {
@@ -1658,7 +1659,7 @@ module.exports = {
       PrivateQuestDesc1: "Votre jeu est destiné à votre groupe d'amis ou des personnes que vous choisissez, et n'est pas visible par les autres.",
       PublicQuestDesc1: "Vous créez un jeu pour faire découvrir un lieu, une activité, une entreprise.",
       PublicQuestDesc2: "Une fois validé par les games masters, ce jeu sera visible et jouable par tous",
-      PublicProQuestDesc1: "Votre jeu est jouable par tous les joueurs Graaly. Vous payez un petit montant par joueur ou partagez les revenus avec nous.<p>Contactez-nous à contact@graaly.com pour plus d'information</p>",
+      PublicProQuestDesc1: "Votre jeu est jouable par tous les joueurs Graaly. Vous payez un petit montant par partie ou partagez les revenus avec nous.<p>Contactez-nous à contact@graaly.com pour plus d'information</p>",
       PublicProQuestDesc2: "<p>Si votre jeu est payant pour les joueurs, vous pouvez soit utiliser le système de paiement intégré à Graaly soit gérer vous même le paiement</p><p>Concernant le système de paiement intégré, Google/Apple prennent 30% des revenus</p><p>Dans tous les cas Graaly conserve 30% des revenus</p><p>Le reste est pour vous, soit de 40% à 70% des revenus.</p><p>Graaly vous reverse votre part mensuellement</p><p>Si votre jeu est gratuit pour les joueurs, Graaly vous facture mensuellement 0,25 € HT par joueur, soit moins que le facicule papier que vous devrier acheter sans application mobile</p><p>Vous pouvez désactiver votre jeu à tout moment</p><p>Contactez-nous à contact@graaly.com pour plus d'information</p>",
       PrivateProQuestDesc1: "Votre jeu est dédié à des joueurs définis. Vous payez un montant par joueur ou partagez les revenus avec nous. Contactez-nous à contact@graaly.com pour plus d'information",
       CreatePrivateQuest: "Créer un jeu privé",
@@ -1886,7 +1887,7 @@ module.exports = {
       ReadMoreLink: "Lien vers la page de réservation",
       SmallPicture: "Petite image",
       SeeYourQuestPage: "Visualiser la page",
-      FromPricePerPlayer: "A partir de {price} par joueur",
+      FromPricePerPlayer: "A partir de {price} par joueur ou partie",
       Book: "Réserver",
       YourBadges: "Vos badges",
       YouDoNotHaveBadgesYet: "Vous n'avez pas encore de badges. Pour gagner des badges, il vous faut résoudre des jeux qui proposent des récompenses.",
@@ -2049,7 +2050,8 @@ module.exports = {
       BuildThePortraitRobot: "Construisez le portrait à trouver",
       Education: "Education",
       EducationDesc: "Nous ne proposons pas encore d'offre éducation, mais vous pouvez utiliser le mode professionnel, et nous contacter à contact@graaly.com pour plus d'information.",
-      Call: "Appeler"
+      Call: "Appeler",
+      BlurEffect: "Effet de flou"
     }
   }
 }

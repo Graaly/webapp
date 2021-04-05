@@ -523,6 +523,10 @@
             id="cross3" 
             :style="'display: none; position: absolute; z-index: 500; top: 200px; left: 200px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
             @click="selectFindItemArea(3)" src="statics/icons/game/find-item-locator.png" />
+          <img 
+            id="cross4" 
+            :style="'display: none; position: absolute; z-index: 500; top: 300px; left: 100px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
+            @click="selectFindItemArea(4)" src="statics/icons/game/find-item-locator.png" />
         </div>
         <div>
           <div v-if="!isIOs">
@@ -997,7 +1001,8 @@
               </div>
             </div>
             <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
-              <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" />
+              <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" /><br />
+              <q-toggle v-model="selectedStep.form.options.blurEffect" :label="$t('label.BlurEffect')" />
             </div>
             <div v-if="options.type.code !== 'help' && options.type.code !== 'end-chapter'">
               <q-toggle v-model="selectedStep.form.options.html" :label="$t('label.UseHtmlInDescription')" />
@@ -1318,7 +1323,8 @@ export default {
             { value: 1, label: "1" },
             { value: 2, label: "2" },
             { value: 3, label: "3" },
-            { value: 4, label: "4" }
+            { value: 4, label: "4" },
+            { value: 5, label: "5" }
           ],
           currentArea: 0,
           crossSize: 40,
@@ -1556,6 +1562,9 @@ export default {
       // initialize option for Ken Burns (zoom out) effect on background
       if (!this.selectedStep.form.options.hasOwnProperty('kenBurnsEffect')) {
         this.selectedStep.form.options.kenBurnsEffect = false
+      }
+      if (!this.selectedStep.form.options.hasOwnProperty('blurEffect')) {
+        this.selectedStep.form.options.blurEffect = false
       }
       
       // initialize specific steps
@@ -2769,7 +2778,7 @@ export default {
       
       // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
       const solutionAreaRadius = this.config.findItem.crossSize / 2
-      for (var i = 0; i < 4; i++) {
+      for (var i = 0; i < 5; i++) {
         if (document.getElementById("cross" + i)) {
           if (i < this.selectedStep.form.options.nbAreas) {
             document.getElementById("cross" + i).style.display = 'block'
