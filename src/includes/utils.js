@@ -235,12 +235,6 @@ var self = {
     this.clearAllTimeouts()
     this.clearAllIntervals()
     this.clearAllNotifications()
-    /* hide QR Code scanner
-    if (window.cordova && QRScanner) {
-      QRScanner.destroy(function(status) {
-        console.log(status)
-      })
-    }*/
   },
   getDurationFromNow: function(date) {
     const oldDate = new Date(date)

@@ -923,7 +923,7 @@ module.exports = {
       Team: "Team",
       WaitingForOtherUsersActions: "Waiting for other players",
       WaitingForOtherUsersActionsDesc: "You can not go forward until other players solve their puzzles",
-      CheckIfICanMoveFoward: "Check if I can move forward now!",
+      //CheckIfICanMoveFoward: "Check if I can move forward now!",
       Player: "Player",
       All: "All",
       YouNeedToBeXPlayers: "You need to be at least {nb} to play",
@@ -1030,8 +1030,14 @@ module.exports = {
       Education: "Education",
       EducationDesc: "We do not have an education plan yet, but you can use the professional mode and contact us at contact@graaly.com.",
       Call: "Call",
-      BlurEffect: "Blur effect"
-    } 
+      BlurEffect: "Blur effect",
+      CheckpointReached: "You have reached a checkpoint! The map now shows the next target's position.",
+      DefaultMode: "Default display mode",
+      CompassMode: "Classic",
+      CompassModeHelp: "Shows a direction arrow and the remaining distance to reach the target",
+      MapMode: "Map",
+      MapModeHelp: "Shows a Google map with player & target positions"
+    }
   },
   fr: {
     color: {
@@ -1944,7 +1950,7 @@ module.exports = {
       Team: "Equipe",
       WaitingForOtherUsersActions: "En attente des autres joueurs",
       WaitingForOtherUsersActionsDesc: "Vous ne pouvez pas avancer tant que les autres joueurs n'ont pas réussi leurs énigmes",
-      CheckIfICanMoveFoward: "Vérifier si c'est ok maintenant !",
+      //CheckIfICanMoveFoward: "Vérifier si c'est ok maintenant !",
       Player: "Joueur",
       All: "Tous",
       YouNeedToBeXPlayers: "Vous devez être au moins {nb} pour jouer",
@@ -2051,7 +2057,13 @@ module.exports = {
       Education: "Education",
       EducationDesc: "Nous ne proposons pas encore d'offre éducation, mais vous pouvez utiliser le mode professionnel, et nous contacter à contact@graaly.com pour plus d'information.",
       Call: "Appeler",
-      BlurEffect: "Effet de flou"
+      BlurEffect: "Effet de flou",
+      CheckpointReached: "Vous avez atteint un objectif intermédiaire ! La carte montre désormais le prochain lieu à atteindre.",
+      DefaultMode: "Mode d'affichage par défaut",
+      CompassMode: "Classique",
+      CompassModeHelp: "Affichage d'une flèche de direction et de la distance à l'objectif",
+      MapMode: "Carte",
+      MapModeHelp: "Affiche une carte Google Maps avec les positions du joueur et de l'objectif"
     }
   }
 }

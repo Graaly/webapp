@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "268421c6bf0556805e14",
-    "url": "css/app.52f0ada8.css"
+    "revision": "13fc2afc6ff93ed5e443",
+    "url": "css/app.2fd81333.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -72,7 +72,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "f0508efec7e8ecabe5cd878f47cc760a",
+    "revision": "fe7770fd603afe477d35694b3f119829",
     "url": "index.html"
   },
   {
@@ -80,8 +80,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2.5af11629.js"
   },
   {
-    "revision": "268421c6bf0556805e14",
-    "url": "js/app.258e7915.js"
+    "revision": "13fc2afc6ff93ed5e443",
+    "url": "js/app.1f61f7d0.js"
   },
   {
     "revision": "3c217f4e38b2ebdef0c3",
@@ -222,6 +222,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "9d347758fc296c2afaf832364eb93476",
     "url": "statics/icons/game/take-mobile-vertically.gif"
+  },
+  {
+    "revision": "17501d4d08c35938fdc05546f3627da2",
+    "url": "statics/icons/game/target.png"
   },
   {
     "revision": "4f4ef1c9ff27e32a8bdc10aedf878620",
