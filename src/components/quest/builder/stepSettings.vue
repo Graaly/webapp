@@ -972,6 +972,7 @@
               <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
             </div>
             <div v-if="options.type.code == 'geolocation'">
+              <q-toggle v-model="selectedStep.form.options.switchmode" :label="$t('label.AllowToSwitchGeolocationMode')" />
               <q-input v-model="selectedStep.form.options.distance" :label="$t('label.DistanceToWin')" />
             </div>
             <div v-if="options.type.code === 'memory'">

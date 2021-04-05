@@ -1,7 +1,7 @@
 <template>
   <div class="geolocation-layer" v-if="!isSupported || !isActive">
     <div v-if="!isActive" class="search-geolocation fixed-bottom"> 
-      <div class="centered q-pa-md">
+      <div class="centered q-pa-md" v-if="nbFails >= 1">
         <q-spinner-puff color="primary" size="25px" /> &nbsp;{{ $t('label.LocationSearching') }}
       </div>
       <div v-if="askUserToEnableGeolocation">
@@ -59,7 +59,8 @@ export default {
       nbFails: 0,
       disabled: false,
       alreadyWorked: false,
-      method: utils.isIOS() ? 'getCurrentPosition' : 'watchPosition',
+      //method: utils.isIOS() ? 'getCurrentPosition' : 'watchPosition',
+      method: 'watchPosition',
       // specific to method 'watchPosition'
       geolocationWatchId: null,
       // specific to method 'getCurrentPosition' (not currently used)
@@ -101,7 +102,7 @@ export default {
         return false;
       }
     },
-    askUserToEnableGeolocation() { return (this.nbFails >= 1 && !this.alreadyWorked) || this.userDeniedGeolocation }
+    askUserToEnableGeolocation() { return (this.nbFails >= 2 && !this.alreadyWorked) || this.userDeniedGeolocation }
   },
   mounted() {
     if (!navigator || !navigator.geolocation) {

@@ -245,13 +245,22 @@
       <!------------------ GEOLOCALISATION STEP AREA ------------------------>
       
       <div class="geolocation" v-if="step.type == 'geolocation'">
-        <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
-        <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
-        <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+        <div>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
+          <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+        </div>
         
         <geolocationStepMap class="geolocation-step-map" :class="'font-' + customization.font" v-show="geolocation.mode === 'map' && playerResult === null && geolocation.active" :target-position="geolocation.destinationPosition" :player-position="geolocation.playerPosition" />
         
-        <q-btn id="mode-switch" color="primary" :icon="getGeolocationStepSwitchButtonIcon()" round size="lg" @click="switchModeForGeolocationStep()" />
+        <q-btn 
+          id="mode-switch" 
+          v-if="step.options.switchmode"
+          :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" 
+          :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" 
+          :icon="getGeolocationStepSwitchButtonIcon()" 
+          round size="lg" 
+          @click="switchModeForGeolocationStep()" />
       </div>
       
       <!------------------ SIMPLE TEXT INPUT STEP AREA ------------------------>
