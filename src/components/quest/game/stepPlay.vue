@@ -1,7 +1,7 @@
 <template>
 
   <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor'), 'loaded': pageReady}">
-    <div id="background-image" v-show="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect)}">
+    <div id="background-image" v-show="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect), 'effect-blur': (step.options && step.options.blurEffect)}">
     </div>
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
       <q-linear-progress 
@@ -15,15 +15,6 @@
         :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" 
         :instant-feedback = true
       />
-      <!--   <div class="absolute-full flex flex-center">
-          <q-badge color="white" text-color="accent" :label="this.countdowntimeleft" />
-        </div>
-      </q-linear-progress>   -->
-      <!------------------ COMPONENT TO KEEP THE SCREEN ON ----------------------
-      <video v-if="step.type === 'geolocation'" id="keep-screen-on" autoplay loop style="width: 0px; height: 0px;">
-        <source src="statics/videos/empty.mp4" type="video/mp4" />
-      </video>
-      -->
       
       <div class="bg-accent text-white q-pa-md" v-if="isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     
@@ -254,11 +245,13 @@
       <!------------------ GEOLOCALISATION STEP AREA ------------------------>
       
       <div class="geolocation" v-if="step.type == 'geolocation'">
-        <div>
-          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
-          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
-          <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
-        </div>
+        <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+        <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
+        <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+        
+        <geolocationStepMap class="geolocation-step-map" :class="'font-' + customization.font" v-show="geolocation.mode === 'map' && playerResult === null && geolocation.active" :target-position="geolocation.destinationPosition" :player-position="geolocation.playerPosition" />
+        
+        <q-btn id="mode-switch" color="primary" :icon="getGeolocationStepSwitchButtonIcon()" round size="lg" @click="switchModeForGeolocationStep()" />
       </div>
       
       <!------------------ SIMPLE TEXT INPUT STEP AREA ------------------------>
@@ -463,6 +456,7 @@
           <img id="cross-play1" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
           <img id="cross-play2" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
           <img id="cross-play3" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play4" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
       
@@ -661,9 +655,6 @@
             <div class="q-pa-lg centered">
               {{ $t('label.WaitingForOtherUsersActionsDesc') }}
             </div>
-            <!--<div class="q-pa-md centered">
-              <q-btn flat icon="refresh"><span>{{ $t('label.CheckIfICanMoveFoward') }}</span></q-btn>
-            </div>-->
           </div>
         </div>
       </transition>
@@ -672,7 +663,7 @@
     
     <!------------------ COMMON COMPONENTS ------------------>
     
-    <div class="direction-helper" v-show="(step.type == 'geolocation' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && geolocation.active">
+    <div class="direction-helper" v-show="(step.type == 'geolocation' && geolocation.mode === 'compass' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && geolocation.active">
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
@@ -717,7 +708,7 @@
     <gpscalibration
       ref="gpscal">
     </gpscalibration>
-<!--:geolocationshowCalibration="false"-->
+    
     <!--====================== HOLD PHONE VERTICAL =================================-->
     <holdphonevertically
       :show="geolocation.showARHelp">
@@ -745,6 +736,7 @@ import geolocation from 'components/geolocation'
 import gpscalibration from 'components/gpsCalibration'
 import holdphonevertically from 'components/holdPhoneVertically'
 import story from 'components/story'
+import geolocationStepMap from 'components/quest/game/geolocationStepMap'
 
 import Vue from 'vue'
 import debounce from 'lodash/debounce'
@@ -771,7 +763,8 @@ export default {
     holdphonevertically,
     gpscalibration,
     geolocation,
-    story
+    story,
+    geolocationStepMap
   },
   watch: { 
     // refresh component if stepId change
@@ -863,6 +856,9 @@ export default {
           waitForNextQuaternionRead: false,
           // object position relative to device
           position: { x: null, y: null },
+          // player position (properties: latitude & longitude, from native call to navigator.geolocation.watchLocation())
+          playerPosition: null,
+          destinationPosition: null,
           // for 'locate-item-ar'
           absoluteOrientationSensor: null,
           initialBearingAngle: null,
@@ -877,7 +873,8 @@ export default {
           compassAccuracyTimeout: null,
           showARHelp: false,
           currentIndex: 0,
-          foundStep: false
+          foundStep: false,
+          mode: 'compass'
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -1250,9 +1247,17 @@ export default {
           this.$emit('pass')
         }
         
+        if (this.step.type === 'geolocation') {
+          if (this.step.options.hasOwnProperty('mode') && ['compass', 'map'].includes(this.step.options.mode)) {
+            this.geolocation.mode = this.step.options.mode
+          } else {
+            this.geolocation.mode = 'compass'
+          }
+        }
+        
         // common process to 'geolocation' and 'locate-item-ar'
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
-        if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+          if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
             // if run as builder, get the remainingTrial
             if (this.runId === "0") {
               Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
@@ -1687,10 +1692,11 @@ export default {
     switchControls () {
       this.controlsAreDisplayed = !this.controlsAreDisplayed
     },
+    /*
+     * If a bug occur and data are not init, force it !
+     */
     checkIfDataAreInit() {
-      console.log("check if data must be loaded")
       if (!this.isPageInit) {
-        console.log("Reload all data")
         this.initData()
       }
     },
@@ -2707,6 +2713,7 @@ export default {
      */
     async onNewUserPosition(pos) {
       this.geolocation.active = true
+      this.geolocation.playerPosition = pos.coords
       let current = pos.coords
       
       // if lat and lng are not set, compute to have the object close to the current user position
@@ -2744,6 +2751,7 @@ export default {
         destinationPosition.lat = options.locations[this.geolocation.currentIndex].lat
         destinationPosition.lng = options.locations[this.geolocation.currentIndex].lng
       }
+      this.geolocation.destinationPosition = destinationPosition
 
       // compute distance between two coordinates
       // note: current.accuracy contains the result accuracy in meters
@@ -2806,6 +2814,7 @@ export default {
         //check if other locations are defined
         this.geolocation.currentIndex++
         if (options.locations && options.locations.length > 0 && this.geolocation.currentIndex < options.locations.length) {
+          Notification(this.$t('label.CheckpointReached'), 'info')
           this.geolocation.foundStep = false
           this.geolocation.foundStep = true
         } else {
@@ -2821,6 +2830,27 @@ export default {
      */
     onUserPositionError(ret) {
       console.error('UserPositionError', ret)
+    },
+    /*
+     * switch mode map/compass for geolocation step
+     */
+    switchModeForGeolocationStep() {
+      if (this.geolocation.mode === 'compass') {
+        this.geolocation.mode = 'map'
+      } else {
+        this.geolocation.mode = 'compass'
+      }
+    },
+    /**
+     * returns icon code for geolocation step "switch button",
+     * depending on current mode (compass or map)
+     */
+    getGeolocationStepSwitchButtonIcon() {
+      if (this.geolocation.mode === 'compass') {
+        return 'map'
+      } else {
+        return 'explore'
+      }
     },
     /*
      * Use an item
@@ -4321,7 +4351,10 @@ export default {
   .code-image td .q-icon { font-size: 2em }
   
   /* geolocation specific */
-  .geolocation .text { margin-bottom: 0.5rem; }
+  .geolocation .text { margin-bottom: 0.5rem; position: relative; z-index: 10; }
+  .geolocation #mode-switch { position: absolute; bottom: 6rem; right: 0.6rem; }
+  .geolocation-step-map { position: absolute; opacity: 1; top: 0; left: 0; width: 100%; height: 100%; background-color: yellow; }
+  .geolocation .q-btn { box-shadow: none;  }
   
   /* jigsaw puzzle specific */
   

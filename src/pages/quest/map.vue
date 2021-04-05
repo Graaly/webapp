@@ -19,7 +19,7 @@
       >
         <!-- quest markers -->
         <gmap-marker v-for="(quest, index) in questList" :key="quest._id" :position="{ lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }" :icon="setMapIcon(quest)" @click="openQuestSummary(quest, index)" ref="questMarkers" />
-        <!-- user markers -->
+        <!-- user marker -->
         <gmap-marker v-if="map.loaded" :position="{ lng: user.position.longitude, lat: user.position.latitude }" :icon="setMapIcon()"/>
         <!-- markers tooltips -->
         <gmap-info-window :options="map.infoWindow.options" :position="map.infoWindow.location" :opened="map.infoWindow.isOpen" @closeclick="map.infoWindow.isOpen=false">
@@ -95,10 +95,10 @@ export default {
       currentQuestIndex: null,
       currentQuest: null,
       questList: [],
-      serverUrl: process.env.SERVER_URL,
-      isMounted: false,
-      isHybrid: window.cordova,
-      loadingMap: true
+      //serverUrl: process.env.SERVER_URL,
+      isMounted: false
+      //isHybrid: window.cordova,
+      //loadingMap: true
     }
   },
   computed: {
@@ -119,23 +119,21 @@ export default {
       utils.clearAllRunningProcesses()
     },
     async onNewUserPosition(position) {
-      //let positionNeedsUpdate = (this.user.position === null || this.questList.length === 0)
       this.$set(this.user, 'position', position.coords)
-      //if (positionNeedsUpdate) {
       if (this.map.loaded === false) {
         await this.reloadMap()
       }
     },
     centerOnUserPosition() {
-      this.showBottomMenu = false
+      //this.showBottomMenu = false
       if (this.user.position === null) {
         Notification(this.$t('label.LocationSearching'), 'warning')
         return
       }
-      this.CenterMapOnPosition(this.user.position.latitude, this.user.position.longitude)
+      this.centerMapOnPosition(this.user.position.latitude, this.user.position.longitude)
       this.map.zoom = 15
     },
-    CenterMapOnPosition(lat, lng) {
+    centerMapOnPosition(lat, lng) {
       this.$data.map.center = {lat: lat, lng: lng}
     },
     /*
@@ -186,18 +184,6 @@ export default {
             'premiumprice20': "19,99 €"
           }
           this.currentQuest.displayPrice = prices[quest.premiumPrice.androidId]
-          /*store.register({
-            id: quest.premiumPrice.androidId,
-            alias: quest.premiumPrice.androidId,
-            type: store.CONSUMABLE
-          })
-          var _this = this
-console.log(quest.premiumPrice.androidId)
-          store.when(quest.premiumPrice.androidId).updated(function(product) {
-            _this.currentQuest.displayPrice = product.price
-          })
-          
-          store.refresh()*/
         }
       }
     },
@@ -234,14 +220,14 @@ console.log(quest.premiumPrice.androidId)
         this.centerOnUserPosition()
         this.map.loaded = true
       }
-      this.loadingMap = false
+      //this.loadingMap = false
       this.$q.loading.hide()
     },
      /*
      * Get the list of quests near the location of the user
      */
     async getQuests(type) {
-      this.showBottomMenu = false
+      //this.showBottomMenu = false
       
       if (this.user.position === null) {
         Notification(this.$t('label.LocationSearching'), 'warning')
@@ -325,35 +311,23 @@ console.log(quest.premiumPrice.androidId)
     },
     
     setMapIcon(quest) {
-      /*let marker = {
-        url: 'statics/icons/game/pointer-done-undefined.png',
-        size: {width: 64, height: 64, f: 'px', b: 'px'},
-        scaledSize: {width: 40, height: 40, f: 'px', b: 'px'},
-        origin: {x: 0, y: 0},
-        anchor: {x: 20, y: 40}
-      }
       if (quest) {
-        if (quest.authorUserId === this.$store.state.user._id) {
-          marker.url = 'statics/icons/game/pointer-mine-' + quest.category + '.png'
-        } else {
-          if (quest.status !== 'played') {
-            if (quest.type === 'quest') {
-              marker.url = 'statics/icons/game/pointer-done-' + quest.category + '.png'
-            } else {
-              marker.url = 'statics/icons/game/pointer-' + quest.editorMode + '-' + quest.category + '.png'
-            }
-          }
-        }
-        return marker
-      } else {*/
         return {
           url: 'statics/images/icon/place.svg',
           size: {width: 60, height: 60, f: 'px', b: 'px'},
           scaledSize: {width: 30, height: 30, f: 'px', b: 'px'},
           origin: {x: 0, y: 0},
+          anchor: {x: 15, y: 30}
+        }
+      } else { // player position
+        return {
+          url: 'statics/icons/game/pointer-me.svg',
+          size: {width: 60, height: 60, f: 'px', b: 'px'},
+          scaledSize: {width: 30, height: 30, f: 'px', b: 'px'},
+          origin: {x: 0, y: 0},
           anchor: {x: 15, y: 15}
         }
-      //}
+      }
     },
     /*
      * Prevent mobile player to use back button here

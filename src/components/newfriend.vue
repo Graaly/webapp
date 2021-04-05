@@ -68,9 +68,7 @@
             </div>
           </form>
         </div>
-      </div>
     </div>
-    
   </div>
 </template>
 
@@ -81,19 +79,6 @@ import Notification from 'boot/NotifyHelper'
 import checkPhone from 'boot/CheckPhone'
 
 export default {
-  /*props: ['load'],
-  watch: { 
-    // load contacts
-    load: async function(newVal, oldVal) {
-      if (newVal === true || newVal === 'true') {
-        if (this.isHybrid) {
-          await this.getContacts()
-        } else {
-          this.newFriendMode = "addFriend"
-        }
-      }
-    }
-  },*/
   data() {
     return {
       form: {

@@ -85,6 +85,9 @@ body {
   min-height: 100%;
   height: 100%;
 }
+.q-btn {
+  font-size: 14pt;
+}
 .wrapper {
   overflow-y: scroll;
   height: 100%;
@@ -247,6 +250,7 @@ body {
 }
 .font-brush {
   font-family: 'Brush Script MT', cursive;
+  font-size: 1.3em;
 }
 
 .opacity50 {
@@ -1443,6 +1447,19 @@ span .q-icon {
   transition: 6.5s transform;
 }
 
+.effect-blur {
+  filter: blur(1rem);
+}
+.loaded .effect-blur {
+  filter: blur(1rem);
+  animation: blur 2s linear forwards;
+}
+@keyframes blur {
+  to {
+    filter: blur(0);
+  }
+}
+
 /////////////////////////////// Desktop Only CSS /////////////////////////////////////
 
 /* manage desktop display
@@ -1727,6 +1744,8 @@ body .desktop {
 .step-list.list-group-item div .step-button {
   /*width: 144px;*/
   flex: none;
+  overflow: hidden;
+  margin-top: -4px;
 }
 .step-list.list-group-item div .step-text {
   flex: 1;

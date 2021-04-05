@@ -168,7 +168,30 @@
       
       <!------------------ STEP : GEOLOCATION ------------------------>
       
-      <div v-if="options.type.code == 'geolocation'" class="location-gps">
+      <div v-if="options.type.code === 'geolocation'" class="location-gps">
+        
+        <h2>{{ $t('label.DefaultMode') }}</h2>
+        <div class="fields-group">
+          <q-list>
+            <q-item>
+              <q-item-section>
+                <q-radio v-model="selectedStep.form.options.mode" val="compass" :label="$t('label.CompassMode')" />
+              </q-item-section>
+              <q-item-section>
+                <q-icon round size="md" class="text-primary" name="help" @click="showGeolocationModeHelp('CompassMode')" />
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+                <q-radio v-model="selectedStep.form.options.mode" val="map" :label="$t('label.MapMode')" />
+              </q-item-section>
+              <q-item-section>
+                <q-icon round size="md" class="text-primary" name="help" @click="showGeolocationModeHelp('MapMode')" />
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+        
         <h2>{{ $t('label.AddressToFind') }}</h2>
         <div 
           v-for="(location, index) in selectedStep.form.options.locations"
@@ -187,11 +210,11 @@
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
               <div>
                 <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                <input type="number" id="answer-latitude" v-model.number="location.lat" placeholder="ex. 5,65487" step="any" />
+                <input type="number" id="answer-latitude" v-model.number="location.lat" placeholder="ex. 45,49812" step="any" />
               </div>
               <div>
                 <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                <input type="number" id="answer-longitude" v-model.number="location.lng" placeholder="ex. 45,49812" step="any" />
+                <input type="number" id="answer-longitude" v-model.number="location.lng" placeholder="ex. 5,65487" step="any" />
               </div>
             </div>
             <div>
@@ -206,11 +229,11 @@
                 <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
                 <div>
                   <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                  <input type="number" id="answer-latitude" v-model.number="location.lat" placeholder="ex. 5,65487" step="any" />
+                  <input type="number" id="answer-latitude" v-model.number="location.lat" placeholder="ex. 45,49812" step="any" />
                 </div>
                 <div>
                   <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                  <input type="number" id="answer-longitude" v-model.number="location.lng" placeholder="ex. 45,49812" step="any" />
+                  <input type="number" id="answer-longitude" v-model.number="location.lng" placeholder="ex. 5,65487" step="any" />
                 </div>
               </div>
               <div>
@@ -523,6 +546,10 @@
             id="cross3" 
             :style="'display: none; position: absolute; z-index: 500; top: 200px; left: 200px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
             @click="selectFindItemArea(3)" src="statics/icons/game/find-item-locator.png" />
+          <img 
+            id="cross4" 
+            :style="'display: none; position: absolute; z-index: 500; top: 300px; left: 100px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
+            @click="selectFindItemArea(4)" src="statics/icons/game/find-item-locator.png" />
         </div>
         <div>
           <div v-if="!isIOs">
@@ -626,12 +653,12 @@
                 <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
                 <div>
                   <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                  <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+                  <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="ex. 45,49812" step="any" />
                   <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
                 </div>
                 <div>
                   <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                  <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+                  <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="ex. 5,65487" step="any" />
                   <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
                 </div>
               </div>
@@ -997,7 +1024,8 @@
               </div>
             </div>
             <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
-              <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" />
+              <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" /><br />
+              <q-toggle v-model="selectedStep.form.options.blurEffect" :label="$t('label.BlurEffect')" />
             </div>
             <div v-if="options.type.code !== 'help' && options.type.code !== 'end-chapter'">
               <q-toggle v-model="selectedStep.form.options.html" :label="$t('label.UseHtmlInDescription')" />
@@ -1318,7 +1346,8 @@ export default {
             { value: 1, label: "1" },
             { value: 2, label: "2" },
             { value: 3, label: "3" },
-            { value: 4, label: "4" }
+            { value: 4, label: "4" },
+            { value: 5, label: "5" }
           ],
           currentArea: 0,
           crossSize: 40,
@@ -1557,6 +1586,9 @@ export default {
       if (!this.selectedStep.form.options.hasOwnProperty('kenBurnsEffect')) {
         this.selectedStep.form.options.kenBurnsEffect = false
       }
+      if (!this.selectedStep.form.options.hasOwnProperty('blurEffect')) {
+        this.selectedStep.form.options.blurEffect = false
+      }
       
       // initialize specific steps
       if (this.options.type.code === 'choose') {
@@ -1699,6 +1731,9 @@ export default {
         }
         if (!this.selectedStep.form.options.hasOwnProperty('showHelp')) {
           this.$set(this.selectedStep.form.options, 'showHelp', true)
+        }
+        if (!this.selectedStep.form.options.hasOwnProperty('mode')) {
+          this.$set(this.selectedStep.form.options, 'mode', 'compass')
         }
         if (!this.selectedStep.form.options.hasOwnProperty('locations')) {
           this.$set(this.selectedStep.form.options, 'locations', [{lat: '', lng: '', destination: ''}])
@@ -2769,7 +2804,7 @@ export default {
       
       // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
       const solutionAreaRadius = this.config.findItem.crossSize / 2
-      for (var i = 0; i < 4; i++) {
+      for (var i = 0; i < 5; i++) {
         if (document.getElementById("cross" + i)) {
           if (i < this.selectedStep.form.options.nbAreas) {
             document.getElementById("cross" + i).style.display = 'block'
@@ -3110,6 +3145,15 @@ export default {
       }
       this.positionFindItemPointer()
       return true
+    },
+    /**
+     * @param modeLabel {String} geolocation mode label ('CompassMode' or 'MapMode')
+     */
+    showGeolocationModeHelp (modeLabel) {
+      this.$q.dialog({
+        title: this.$t('label.' + modeLabel),
+        message: this.$t('label.' + modeLabel + 'Help')
+      })
     }
   },
   validations() {
@@ -3187,7 +3231,7 @@ export default {
 <style scoped>
 
 h1 { margin-top: 0; }
-h2 { font-size: 1.2rem; color: grey; }
+h2 { font-size: 1.2rem; color: grey; line-height: 3rem; margin-bottom: 0; }
 p { margin-bottom: 0.5rem; }
 
 .q-item { padding-top: 0; padding-bottom: 0; min-height: 2rem; }
