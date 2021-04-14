@@ -37,6 +37,12 @@ export default {
     .get("admin/earnings");
   },
   /*
+   * List the limitations (nb games buyed, ...)
+   */
+  ListLimitations() {
+    return Api().get("admin/limitations");
+  },
+  /*
    * Validate a quest
    */
   publish(id) {

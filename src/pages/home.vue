@@ -54,6 +54,14 @@
         <questsList format="small" :quests="onTopQuests"></questsList>
       </div>
       
+      <!--====================== EXTRA QUEST =================================-->
+      
+      <div v-if="!offline.active && extraQuests && extraQuests.items && extraQuests.items.length > 0">
+        <titleBar v-if="extraQuests.title && extraQuests.title[$t('label.shortLang')]" :title="{text: extraQuests.title[$t('label.shortLang')], type: 'key'}"></titleBar>
+
+        <questsList format="small" :quests="extraQuests.items"></questsList>
+      </div>
+      
       <!--====================== QR CODE BUTTON =================================-->
       
       <div class="q-px-md q-pt-lg" v-if="isHybrid && !offline.active">
@@ -88,10 +96,6 @@
         </div>
       </div>
       
-      <!--====================== QUEST CREATED BY GRAALY =================================--
-      
-      <titleBar :title="{text: $t('label.CreatedByGraaly'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMore"></titleBar>
-      
       <!--====================== QUEST PLAYED OR CREATED BY GRAALY =================================-->
       
       <div v-if="!offline.active && (!friendQuests || friendQuests.length > 0)">
@@ -110,7 +114,7 @@
       
       <!--====================== CREATE QUEST BUTTON =================================-->
       
-      <div v-if="!offline.active" class="q-ma-md relative-position creator-button" @click="buildQuest">
+      <div v-if="!offline.active" class="q-ma-md relative-position creator-button cursor-pointer" @click="buildQuest">
         <img src="statics/images/other/creator.jpg" class="full-width" />
         <div class="bg-accent subtitle2 q-pa-md full-width" style="bottom: 0px; position: absolute; line-height: 0.8em;">
           <div class="float-right"><img src="statics/images/icon/puzzle-big.svg" style="width: 32px" /></div>
@@ -121,7 +125,7 @@
       <!--====================== MAP BUTTON =================================-->
       
       <div class="q-px-md q-py-lg" v-if="!offline.active">
-        <div class="image-button" @click="openMap" style="background-image: url(statics/images/icon/locator-button.png)">
+        <div class="image-button cursor-pointer" @click="openMap" style="background-image: url(statics/images/icon/locator-button.png)">
           {{ $t('label.OpenTheMap') }}
         </div>
       </div>
@@ -132,10 +136,10 @@
         <div class="home-header row no-wrap" :class="{'disabled': offline.active}">
           <img src="statics/images/logo/logo-header-color.png" class="logo" />
           <q-space />
-          <img v-if="$store.state.user.isAdmin" src="statics/images/icon/tools.png" class="header-button q-mr-md" @click="openAdminPage" />
-          <img src="statics/images/icon/search.svg" class="header-button q-mr-md" @click="openSearch" />
-          <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" class="header-button q-mr-md" @click="openRanking" />
-          <q-avatar @click="openProfile()">
+          <img v-if="$store.state.user.isAdmin" src="statics/images/icon/tools.png" class="header-button q-mr-md cursor-pointer" @click="openAdminPage" />
+          <img src="statics/images/icon/search.svg" class="header-button q-mr-md cursor-pointer" @click="openSearch" />
+          <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" class="header-button q-mr-md cursor-pointer" @click="openRanking" />
+          <q-avatar class="cursor-pointer" @click="openProfile()">
             <img :src="getProfileImage()" />
           </q-avatar>
         </div>
@@ -145,14 +149,6 @@
       
       <geolocation v-if="!offline.active" ref="geolocation-component" @success="onLocationSuccess($event)" @error="onLocationError()" />
       
-      <!--====================== SHOP PAGE =================================-->
-      <!--
-      <q-dialog maximized v-model="shop.show" class="over-map">
-        <a class="float-right no-underline close-btn" color="grey" @click="closeShop"><q-icon name="close" class="medium-icon" /></a>
-        <h1 class="size-3 q-pl-md">{{ $t('label.Shop') }}</h1>
-        <shop @close="closeShop"></shop>
-      </q-dialog>
-      -->
       <!--====================== RANKING PAGE =================================-->
       
       <q-dialog maximized v-model="ranking.show" class="over-map">
@@ -247,7 +243,6 @@ import titleBar from 'components/titleBar'
 import mainQuest from 'components/quest/mainQuest'
 import questsList from 'components/quest/questsList'
 import usersList from 'components/user/usersList'
-//import offlineLoader from 'components/offlineLoader'
 
 import utils from 'src/includes/utils'
 import { QSpinnerDots, QInfiniteScroll } from 'quasar'
@@ -274,6 +269,7 @@ export default {
       nearestQuests: null,
       invitationQuests: null,
       onTopQuests: null,
+      extraQuests: null,
       friendQuests: null,
       users: null,
       search: {
@@ -317,18 +313,6 @@ export default {
         level: {},
         organization: {},
         progress: 0.1,
-        /*form: {
-          name: "--", 
-          picture: "", 
-          email: "", 
-          phone: "",
-          zipCode: "", 
-          country: "", 
-          oldPassword: "", 
-          newPassword: "", 
-          language: "en"
-        },
-        countries: [],*/
         userCanChangeEmail: true,
         userCanChangePhone: true,
         userCanChangePassword: true
@@ -418,7 +402,6 @@ export default {
       this.$router.push('/user/updateprofile')
     },
     async onLocationSuccess(position) {
-      //let positionNeedsUpdate = (this.user.position === null || this.questList.length === 0)
       this.$set(this.user, 'position', position.coords)
       
       // reload quests if quests are not loaded or are based on user default position
@@ -429,6 +412,7 @@ export default {
         await this.getCreators()
       }
       this.user.positionType = "userCurrentLocation"
+      this.$refs['geolocation-component'].stopTracking()
     },
     /*
     * start the scanner for hybrid app
@@ -483,43 +467,6 @@ export default {
       }
     },
     /*
-     * start the story
-     *
-    startStory() {
-      if (this.$store.state.user.story) {
-        if (this.$store.state.user.story.step === 0) {
-          this.story.step = 0
-        }
-        if (this.$store.state.user.story.step === 10) {
-          this.warnings.score = true
-          this.story.data = {
-            score: this.$store.state.user.score
-          }
-          this.story.step = 10
-        }
-      }
-    },
-    /*
-     * Quest the quests that are 
-     *
-    getClosestQuestUnplayed() {
-      var distance = 300 // 200 meters
-      var questSelected = null
-      // get the closest quest
-      for (var i = 0; i < this.questList.length; i++) {
-        // get only the quest unplayed (and which the user is not the owner)
-        if (this.questList[i].authorUserId !== this.$store.state.user._id && this.questList[i].status !== 'played' && this.questList[i].type === 'quest') {
-          // compute the min distance
-          let newDistance = 111320 * Math.sqrt(Math.pow(Math.abs(this.user.position.longitude - this.questList[i].location.coordinates[0]), 2) + Math.pow(Math.abs(this.user.position.latitude - this.questList[i].location.coordinates[1]), 2))
-          if (newDistance < distance) {
-            distance = newDistance
-            questSelected = this.questList[i]
-          }
-        }
-      }
-      return questSelected
-    },
-    /*
      * Check network
      */
     async checkNetwork() {
@@ -536,67 +483,6 @@ export default {
       }
       
       utils.setTimeout(this.checkNetwork, 5000)
-    },
-    
-    /*
-     * Open the summary box on quest click on the map
-     * @param   {object}    quest           quest data
-     * @param   {string}    idx             uniq index
-     *
-    openQuestSummary(quest, idx) {
-      let infoWindow = this.map.infoWindow
-      let questCoordinates = { lng: quest.location.coordinates[0], lat: quest.location.coordinates[1] }
-      this.map.infoWindow.location = questCoordinates
-      
-      if (!(this.currentQuestIndex === idx && infoWindow.isOpen)) {
-        // bounce marker animation
-        let markerObject = this.$refs.questMarkers[idx].$markerObject
-        markerObject.setAnimation(google.maps.Animation.BOUNCE)
-        utils.setTimeout(() => { markerObject.setAnimation(null) }, 700) // found at https://stackoverflow.com/a/18411125/488666
-      }
-      
-      //check if its the same marker that was selected if yes toggle
-      if (this.currentQuestIndex === idx) {
-        infoWindow.isOpen = !infoWindow.isOpen
-      }
-      //if different marker, set infowindow to open and reset current marker index
-      else {
-        this.currentQuestIndex = idx
-        this.currentQuest = this.questList[idx]
-        this.currentQuest.displayPrice = ''
-        infoWindow.isOpen = true
-        // center map on last clicked quest
-        this.panTo(questCoordinates)
-      }
-      
-      // get Quest price from store
-      if (!quest.premiumPrice || !quest.premiumPrice.androidId || quest.premiumPrice.androidId === 'free') {
-        this.currentQuest.displayPrice = this.$t('label.Free')
-      } else {
-        if (!window.store) {
-          this.currentQuest.displayPrice = this.$t('label.QuestPlayableOnMobile')
-        } else {
-          // updated EMA => Connection to store to get prices impact prices display in home.vue page
-          let prices = {
-            'premiumprice1': "0,99 €",
-            'premiumprice2': "1,99 €",
-            'premiumprice3': "2,99 €",
-            'premiumprice5': "4,99 €",
-            'premiumprice10': "9,99 €",
-            'premiumprice20': "19,99 €"
-          }
-          this.currentQuest.displayPrice = prices[quest.premiumPrice.androidId]
-        }
-      }
-    },
-    /*
-     * Open the summary box for the discovery quest
-     *
-    openDiscoveryQuestSummary() {
-      let infoWindow = this.map.infoWindow
-      let questCoordinates = { lng: this.user.position.longitude, lat: this.user.position.latitude }
-      this.map.infoWindow.location = questCoordinates
-      infoWindow.isOpen = true
     },
     /*
      * reload the map
@@ -644,25 +530,10 @@ export default {
           if (response.data.invitations) {
             this.invitationQuests = response.data.invitations
           }
-        }
-        
-        /*if ((this.$store.state.user.story.step === 16 ||  this.$store.state.user.story.step >= 23) && this.user.proposeAQuest) {
-          // Alert if the user is very close to a quest
-          var closestQuest = this.getClosestQuestUnplayed()
-
-          if (closestQuest !== null) {
-            this.story.data = {
-              questId: closestQuest.questId,
-              quest: this.getQuestTitle(closestQuest, false)
-            }
-            this.story.step = 16
-          } else {
-            this.story.data = null
+          if (response.data.extra) {
+            this.extraQuests = response.data.extra
           }
-          
-          // avoid the notification to appear when user filter on quests
-          this.user.proposeAQuest = false
-        }*/
+        }
       } else {
         // check if quests are available offline
         const offlineQuestsFile = await utils.readFile('', 'quests.json')
@@ -738,17 +609,6 @@ export default {
         this.users = response.data
       }
     },
-     /*
-     * Get user invitation to private quests
-     *
-    async checkInvitations() {
-      let response = await QuestService.getInvitations()
-
-      if (response && response.data) {
-        this.invitations = response.data
-      }
-    },
-    
     /*
      * Get current user ranking data
      */
@@ -763,13 +623,13 @@ export default {
         this.warnings.rankingMissing = true
       }
     },
-       
+    /* MPA 2021-01-28 seems not used
     displayNetworkIssueMessage() {
       this.$q.dialog({
         title: this.$t('label.TechnicalProblem'),
         message: this.$t('label.TechnicalProblemNetworkIssue')
       })
-    },
+    },*/
     openAdminPage() {
       if (!this.offline.active) {
         this.$router.push('/admin')
@@ -777,7 +637,7 @@ export default {
     },
     /*
      * Open How to popup
-     */
+     * MPA 2021-01-28 seems not used
     openHowTo() {
       this.$q.dialog({
         //title: 'Positioned',
@@ -804,25 +664,25 @@ export default {
     },
     /*
      * Open shop
-     */
+     * MPA 2021-01-28 seems not used
     buyCoins () {
       this.shop.show = true
     },
     /*
      * Close shop
-     */
+     * MPA 2021-01-28 seems not used
     closeShop () {
       this.shop.show = false
     },
     /*
      * Open new friends page
-     */
+     * MPA 2021-01-28 seems not used
     openAddFriendsModal () {
       this.friends.new.show = true
     },
     /*
      * Close new friends page
-     */
+     * MPA 2021-01-28 seems not used
     async closeAddFriends () {
       this.friends.new.show = false
       // reload friend list
@@ -830,21 +690,11 @@ export default {
     },
     /*
      * Reset the friends' activity list
-     */
+     * MPA 2021-01-28 seems not used
     async updateFriendsActivity() {
       this.friends.news.skip = 0
       this.friends.news.items = []
       this.friends.news.items.length = 0
-    },
-    /*
-     * Restart tutorial
-     *
-    async restartTutorial () {
-      await UserService.nextStoryStep(0)
-      this.$store.state.user.story.step = 0
-      this.backToMap()
-      
-      await this.initPage()
     },
     /*
      * Prevent mobile player to use back button here
@@ -861,16 +711,18 @@ export default {
         this.user.position === null
       ) {
         this.$set(this.user, 'position', {longitude: this.$store.state.user.location.geometry.coordinates[0], latitude: this.$store.state.user.location.geometry.coordinates[1]})
-
-        if (this.isQuestsLoaded === false && !this.offline.active) {
+      }
+      
+      if (this.user.position !== null && !this.offline.active) {
+        if (this.isQuestsLoaded === false) {
           await this.loadQuests()
         }
         if (this.users === null) {
           await this.getCreators()
         }
         this.user.positionType = 'defaultProfilePosition'
-      } else {
-        this.user.position = null
+        
+        this.$refs['geolocation-component'].stopTracking()
       }
     },
     /*
@@ -980,18 +832,7 @@ export default {
         return 'statics/images/icon/profile-small.png'
       }
     }
-  }/*,
-  validations: {
-    profile: {
-      form: {
-        email: { required, email },
-        name: { required },
-        country: { required },
-        zipCode: { required },
-        phone: { checkPhone }
-      }
-    }
-  }*/
+  }
 }
 </script>
 

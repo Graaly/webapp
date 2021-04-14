@@ -358,12 +358,12 @@ export default {
   },
   /*
    * list user invitations to private quests
-   */
+   * MPA 2021-01-28 looks unused, remove in a few months?
   getInvitations() {
     return Api(process.env.QUEST_SERVERLESS_URL)
       .get("user/quests/invitations/list")
       .catch(error => console.log(error.request));
-  },
+  },*/
   /*
    * Upload a quest picture
    * @param   {Object}    data                picture data

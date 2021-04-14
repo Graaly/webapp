@@ -90,7 +90,7 @@ const mutations = {
     }
     state.mediaStreams = [];
   }
-};
+}
 
 // actions are functions that cause side effects and can involve
 // asynchronous operations.
@@ -126,10 +126,8 @@ const actions = {
     commit("setDrawDirectionInterval", intervalObject);
   },
   // for quest creation/edition
-  setCurrentEditedQuest: ({ commit }, quest) =>
-    commit("setCurrentEditedQuest", quest),
-  setCurrentEditedStep: ({ commit }, step) =>
-    commit("setCurrentEditedStep", step),
+  setCurrentEditedQuest: ({ commit }, quest) => commit("setCurrentEditedQuest", quest),
+  setCurrentEditedStep: ({ commit }, step) => commit("setCurrentEditedStep", step),
   setErrorMessage: ({ commit }, message) => commit("setErrorMessage", message),
   // for quest playing
   setCurrentRun: ({ commit }, run) => commit("setCurrentRun", run),
@@ -137,8 +135,7 @@ const actions = {
   addTimeoutId: ({ commit }, timeoutId) => commit("addTimeoutId", timeoutId),
   clearTimeoutIds: ({ commit }) => commit("clearTimeoutIds"),
   // for intervals handling
-  addIntervalId: ({ commit }, intervalId) =>
-    commit("addIntervalId", intervalId),
+  addIntervalId: ({ commit }, intervalId) => commit("addIntervalId", intervalId),
   clearIntervalIds: ({ commit }) => commit("clearIntervalIds"),
   addMediaStream: ({ commit }, stream) => commit("addMediaStream", stream),
   clearMediaStreams: ({ commit }) => commit("clearMediaStreams")

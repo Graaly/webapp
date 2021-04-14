@@ -5,7 +5,7 @@
       <!------------------ TITLE AREA ------------------------>
       
       <div class="centered q-pt-lg q-pb-md">
-        <img src="statics/images/logo/logo-home.png" class="logo-top" />
+        <img src="statics/images/logo/logo-home.png" class="logo-top" style="width: 30%; max-width: 200px; margin-bottom: 0px; margin-top: 20px;" />
       </div>
       
       <div class="q-pa-md">
@@ -108,7 +108,8 @@ export default {
           
           if (run && run.data) {
             // launch game
-            this.$router.push('/quest/play/' + this.questId + '/version/' + run.data.version + '/step/0/undefined?remoteplay=false')
+            //this.$router.push('/quest/play/' + this.questId + '/version/' + run.data.version + '/step/0/undefined?remoteplay=false')
+            this.$router.push('/quest/play/' + this.questId + '/version/' + run.data.version + '/step/0/' + this.lang + '?remoteplay=false')
           }
           /* get quest version
           const quest = await QuestService.getById(this.questId, '999', this.lang)

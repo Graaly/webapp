@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.904a4c8cb88f1ca5ef7d96ebd13021bb.js"
+  "precache-manifest.3370d2faa77f6c098626c14e58fd3c8e.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "graaly-frontend"});
@@ -32,3 +32,5 @@ self.addEventListener('message', (event) => {
  */
 self.__precacheManifest = [].concat(self.__precacheManifest || []);
 workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
+
+workbox.routing.registerNavigationRoute(workbox.precaching.getCacheKeyForURL("index.html"));

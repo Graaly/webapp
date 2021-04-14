@@ -1,7 +1,7 @@
 <template>
 
   <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor'), 'loaded': pageReady}">
-    <div id="background-image" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect)}" style="width: 100%; height: 100%; position: absolute; left: 0; top: 0;">
+    <div id="background-image" v-show="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect), 'effect-blur': (step.options && step.options.blurEffect)}">
     </div>
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
       <q-linear-progress 
@@ -15,15 +15,6 @@
         :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" 
         :instant-feedback = true
       />
-      <!--   <div class="absolute-full flex flex-center">
-          <q-badge color="white" text-color="accent" :label="this.countdowntimeleft" />
-        </div>
-      </q-linear-progress>   -->
-      <!------------------ COMPONENT TO KEEP THE SCREEN ON ----------------------
-      <video v-if="step.type === 'geolocation'" id="keep-screen-on" autoplay loop style="width: 0px; height: 0px;">
-        <source src="statics/videos/empty.mp4" type="video/mp4" />
-      </video>
-      -->
       
       <div class="bg-accent text-white q-pa-md" v-if="isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     
@@ -31,18 +22,18 @@
 
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video' || step.type == 'help'">
         <div v-if="showTools && getTranslatedText() != ''" id="info-clickable" :class="{ grow: !step.videoStream }">
-          <p class="text" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
-          <p class="text" v-if="getTranslatedText() != '' && step.options && step.options.html" v-html="getTranslatedText()"></p>
-          <div v-if="step.type !== 'help'" class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && step.options && step.options.html" v-html="getTranslatedText()"></p>
+          <div v-if="step.type !== 'help' && step.type !== 'info-video'" class="centered" style="padding-bottom: 100px">
+            <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
         <div class="video" v-if="step.videoStream">
           <video class="full-width" controls controlsList="nodownload" autoplay>
-            <source :src="step.videoStream.indexOf('blob:') !== -1 ? step.videoStream : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
+            <source :src="(step.videoStream && step.videoStream.indexOf('blob:') !== -1) ? step.videoStream : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
           </video>
         </div>
         <!--
@@ -64,11 +55,12 @@
       
       <div class="new-item" v-if="step.type == 'new-item'">
         <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
         <div class="item">
           <img style="width: 80%" :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
-          <p>{{ step.options.title }}</p>
+          <p><span>{{ step.options.title }}</span></p>
         </div>
       </div>
             
@@ -81,14 +73,14 @@
       <!------------------ CHARACTER STEP AREA ------------------------>
       
       <div class="character" v-if="step.type == 'character'">
-        <div class="fixed-bottom story" @click="nextCharacterBubbleText()">
+        <div class="fixed-bottom-character story" @click="nextCharacterBubbleText()">
           <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" /></div>
           <div class="bubble-middle" style="font-size: 0.9em; background: url(statics/icons/story/sticker-middle.png) repeat-y;">
             <div v-if="character.needToScroll" class="scroll-indicator">
               <q-icon class="flashing" size="2.5em" name="arrow_drop_down_circle" />
             </div>
-            <p ref="bubbleText" class="carrier-return" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
-            <p ref="bubbleTextHtml" class="text" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
+            <p ref="bubbleText" class="carrier-return" :class="'font-' + customization.font" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
+            <p ref="bubbleTextHtml" class="text" :class="'font-' + customization.font" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
             <p class="text text-grey" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ReadNext') }}</p>
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
@@ -107,12 +99,13 @@
       <div class="choose" v-if="step.type == 'choose'" style="overflow: auto; margin-bottom: 80px;">
         <div v-if="showTools">
           <div @click="hideControlsTemporaly">
-             <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
           <div class="answers-text" v-if="answerType === 'text'">
             <q-btn v-for="(option, key) in step.options.items" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
-              <span v-if="!option.textLanguage || !option.textLanguage[lang]">{{ option.text }}</span>
-              <span v-if="option.textLanguage && option.textLanguage[lang]">{{ option.textLanguage[lang] }}</span>
+              <span :class="'font-' + customization.font" v-if="!option.textLanguage || !option.textLanguage[lang]">{{ option.text }}</span>
+              <span :class="'font-' + customization.font" v-if="option.textLanguage && option.textLanguage[lang]">{{ option.textLanguage[lang] }}</span>
             </q-btn>
           </div>
           <div class="answers-images" v-if="answerType === 'image'">
@@ -124,11 +117,11 @@
             </div>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -137,7 +130,8 @@
       <div class="code" v-if="step.type == 'code-keypad'">
         <div v-if="showTools">
           <div>
-            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
           <div class="typed-code">
             <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
@@ -173,11 +167,11 @@
             </div>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -186,7 +180,8 @@
       <div class="code code-color" v-if="step.type == 'code-color'">
         <div v-if="showTools">
           <div>
-            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
           <div class="color-bubbles">
             <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
@@ -198,11 +193,11 @@
             </div>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -211,7 +206,8 @@
       <div class="code code-image" v-if="step.type == 'code-image'">
         <div v-if="showTools">
           <div>
-            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
           <table>
             <tr>
@@ -238,42 +234,33 @@
             </div>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
-      
-      <!------------------ IMAGE RECOGNITION STEP AREA ------------------------>
-      <!-- MPA 2020-09-24 not used
-      <div class="image-recognition" v-if="step.type == 'image-recognition'">
-        <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
-        </div>
-        <div class="photo">
-          <img ref="original-photo" :src="(step.answers && step.answers.indexOf('blob:') !== -1) ? step.answers : serverUrl + '/upload/quest/' + step.questId + '/step/image-recognition/' + step.answers" class="shadow-8" v-show="!cameraStreamEnabled && !photoTaken" />
-          <video ref="camera-stream-for-recognition" v-show="cameraStreamEnabled"></video>
-          <canvas ref="photo-buffer" class="hidden"></canvas>
-          <img ref="player-photo" v-show="photoTaken" :alt="$t('label.TheScreenCaptureWillAppearInThisBox')" />
-        </div>
-        <div class="actions q-mt-lg">
-          <q-btn @click="toggleCameraStream()" class="full-width" v-show="!cameraStreamEnabled && !photoTaken" icon="photo camera" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color">{{ $t('label.TakeThePicture') }}</q-btn>
-          <div v-show="cameraStreamEnabled">
-            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="toggleCameraStream()" icon="clear">{{ $t('label.Cancel') }}</q-btn>
-            <q-btn :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="checkAnswer()" icon="done">{{ $t('label.Check') }}</q-btn>
-          </div>
-        </div>
-      </div>-->
       
       <!------------------ GEOLOCALISATION STEP AREA ------------------------>
       
       <div class="geolocation" v-if="step.type == 'geolocation'">
         <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
-          <p class="text" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
+          <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
         </div>
+        
+        <geolocationStepMap class="geolocation-step-map" :class="'font-' + customization.font" v-show="geolocation.mode === 'map' && playerResult === null && geolocation.active" :target-position="geolocation.destinationPosition" :player-position="geolocation.playerPosition" />
+        
+        <q-btn 
+          id="mode-switch" 
+          v-if="step.options.switchmode"
+          :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" 
+          :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" 
+          :icon="getGeolocationStepSwitchButtonIcon()" 
+          round size="lg" 
+          @click="switchModeForGeolocationStep()" />
       </div>
       
       <!------------------ SIMPLE TEXT INPUT STEP AREA ------------------------>
@@ -281,7 +268,8 @@
       <div class="write-text" v-if="step.type == 'write-text'">
         <div v-if="showTools">
           <div>
-            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
           <div class="answer-text q-pa-md">
             <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
@@ -295,11 +283,11 @@
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer"><div>{{ $t('label.ConfirmTheAnswer') }}</div></q-btn>
           </div>
           <div class="centered" style="padding-bottom: 100px">
-            <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+            <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
         <div v-if="!showTools" class="centered">
-          <q-btn flat class="no-box-shadow hide-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'color: ' + customization.color" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
+          <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
       </div>
       
@@ -307,7 +295,8 @@
       
       <div class="puzzle" v-if="step.type === 'jigsaw-puzzle'">
         <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
         <div id="pieces">
             <div draggable="true"
@@ -325,13 +314,13 @@
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
         <div class="q-mt-lg background-lighter4 q-pa-md">
-          <div class="centered arial" v-if="puzzle.mode === 'drag'">
+          <div class="centered arial" v-if="puzzle && puzzle.mode === 'drag'">
             {{ $t('label.PuzzleHelpText') }}
           </div>
           <div class="centered text-primary q-pt-lg arial" v-if="puzzle.mode === 'click'">
             {{ $t('label.PuzzleHelpTextClick') }}
           </div>
-          <div class="centeredq-pt-sm" v-if="puzzle.mode === 'drag'">
+          <div class="centeredq-pt-sm" v-if="puzzle && puzzle.mode === 'drag'">
             <a class="text-black" @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
           </div>
         </div>
@@ -341,7 +330,8 @@
       
       <div class="puzzle" v-if="step.type === 'memory'">
         <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
         <ul class="memory" id="card-deck">
           <li 
@@ -356,22 +346,109 @@
         </ul>
       </div>
       
+      <!------------------ COMPOSITE DRAWING STEP AREA ------------------------>
+      
+      <div class="portrait-robot" v-if="step.type === 'portrait-robot'">
+        <div>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
+        </div>
+        <div class="relative-position">
+          <div>
+            <img :src="'statics/portrait-robot/face-' + portrait.face.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/eye-' + portrait.eye.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/mouth-' + portrait.mouth.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/nose-' + portrait.nose.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/hair-' + portrait.hair.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/beard-' + portrait.beard.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/glass-' + portrait.glass.position + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/hat-' + portrait.hat.position + '.png'" />
+          </div>
+        </div>
+        <table class="portrait-parts relative-position">
+          <tr>
+            <td><img @click="changePortraitPart('face')" src="statics/portrait-robot/face-1.png" /></td>
+            <td><img @click="changePortraitPart('eye')" src="statics/portrait-robot/eye-1.png" /></td>
+            <td><img @click="changePortraitPart('nose')" src="statics/portrait-robot/nose-1.png" /></td>
+            <td><img @click="changePortraitPart('hair')" src="statics/portrait-robot/hair-1.png" /></td>
+            <td><img @click="changePortraitPart('beard')" src="statics/portrait-robot/beard-2.png" /></td>
+            <td><img @click="changePortraitPart('glass')" src="statics/portrait-robot/glass-2.png" /></td>
+            <td><img @click="changePortraitPart('hat')" src="statics/portrait-robot/hat-4.png" /></td>
+          </tr>
+        </table>
+        <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
+          <div>
+            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()"><div>{{ $t('label.Confirm') }}</div></q-btn>
+          </div>
+        </div>
+      </div>
+      
+      <!------------------ BINOCULAR STEP AREA ------------------------>
+      
+      <div class="binocular" v-if="step.type === 'binocular'">
+        <div>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
+        </div>
+        <div class="relative-position">
+          <div style="width: 100%; height: 100vw; overflow-x: scroll; overflow-y: scroll;">
+            <img style="width: 400%" :src="getBackgroundImage()" />
+          </div>
+          <div class="absolute no-mouse-event" style="top: 0px; width: 100%;">
+            <img class="no-mouse-event" style="width: 100%; " src="statics/icons/game/binoculars.png">
+          </div>
+        </div>  
+      </div>
+      
+      <!------------------ PHONE CALL STEP AREA ------------------------>
+      
+      <div class="phone-call fit" v-if="step.type === 'phone-call'">
+        <div class="fit bg-black">
+          <div class="q-pb-xxl">
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
+          </div>
+          <div class="fixed-bottom q-pb-xxl q-pl-xl q-pr-xl">
+            <q-btn round color="positive" icon="call" @click="phoneCall()" />
+            <q-btn class="float-right" round color="negative" icon="call_end" @click="forceNextStep()" />
+              <!--<q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="phoneCall()"><div>{{ $t('label.Call') }}</div></q-btn>-->
+          </div>  
+        </div>
+      </div>
+      
       <!------------------ USE ITEM STEP AREA ------------------------>
       
       <div class="use-item" v-if="step.type == 'use-item'">
         <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
-        <div ref="useItemPicture" @click="useItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="use-item-picture">
-          <img id="cross-play" style="position: relative; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
+        <div ref="useItemPicture" @click="checkUseItem($event)" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100%; height: ' + useItem.imageHeight + 'px;'" test-id="use-item-picture">
+          <img id="cross-play" :style="'position: relative; z-index: 500; width: ' + useItem.crossSize + 'px; height: ' + useItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
 
       <p v-if="step.type == 'use-item' && nbTry < 2 && playerResult === null && itemUsed !== null" class="inventory-btn" >
         <q-btn round :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color">
+          <q-avatar>
           <!--<img v-if="itemUsed" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />-->
           <img v-if="itemUsed && itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== ''" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
           <img v-if="itemUsed && !(itemUsed.pictures && itemUsed.pictures[lang] && itemUsed.pictures[lang] !== '')" :src="((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + itemUsed.picture)" />
+          </q-avatar>
         </q-btn>
         {{ $t('label.TouchWhereYouUseThisItem') }}
       </p>
@@ -380,13 +457,15 @@
       
       <div class="find-item" v-if="step.type == 'find-item'">
         <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
-        <div ref="findItemPicture" @click="findItem($event)" :style="'position: relative; overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw;'" test-id="find-item-picture">
-          <img id="cross-play0" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
-          <img id="cross-play1" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
-          <img id="cross-play2" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
-          <img id="cross-play3" style="position: absolute; z-index: 500; width: 16vw; height: 16vw; display: none;" src="statics/icons/game/find-item-locator.png" />
+        <div ref="findItemPicture" @click="checkFindItem($event)" :style="'position: relative; overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100%; height: ' + findItem.imageHeight + 'px;'" test-id="find-item-picture">
+          <img id="cross-play0" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play1" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play2" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play3" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
+          <img id="cross-play4" :style="'position: absolute; z-index: 500; width: ' + findItem.crossSize + 'px; height: ' + findItem.crossSize + 'px; display: none;'" src="statics/icons/game/find-item-locator.png" />
         </div>
       </div>
       
@@ -397,8 +476,9 @@
           <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && geolocation.active"></video>
         </transition>
         <div v-show="playerResult === null && this.geolocation.active">
-          <div class="text">
-            <p>{{ getTranslatedText() }}</p>
+          <div class="text" :class="'font-' + customization.font">
+            <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
             <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
             <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
             <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
@@ -442,7 +522,8 @@
           <img id="snapshotImage" v-if="!isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; height: 100%; width: auto; z-index: 1980;" />
           <img id="snapshotImageIos" v-if="isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />
           <div>
-            <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
           <div v-if="!step.options || (!step.options.fullWidthPicture && !step.options.redFilter)" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw; z-index: 1985;'">
           </div>
@@ -457,24 +538,18 @@
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-marker"  webkit-playsinline playsinline src="" autoplay v-show="cameraStreamEnabled && playerResult === null"></video>
         </transition>
-        <!-- MP 2019-09-30 now we use phonegap-plugin-barcodescanner for compatibility reasons, and cannot use any "layer" above camera stream -->
-        <!--
-        <div v-if="((step.type == 'locate-marker' && step.options.mode === 'scan') || step.id == 'sensor') && locateMarker.layer !== null &&  locateMarker.compliant">
-          <transition appear :enter-active-class="'animated ' + locateMarker.layer.animationShow" :leave-active-class="'animated ' + locateMarker.layer.animationHide">
-            <img class="locate-marker-layer" :src="'statics/images/find-marker-layers/' + step.options.layerCode + '.png'" v-show="step.id === 'sensor' || (playerResult === null || (playerResult === false && nbTry < 2))" />
-          </transition>
-        </div>
-        -->
+        
         <div v-show="playerResult === null">
-          <div class="text" v-show="getTranslatedText() != ''">
-            <p>{{ getTranslatedText() }}</p>
+          <div class="text" :class="'font-' + customization.font" v-show="getTranslatedText() != ''">
+            <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+            <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
             <p v-if="!isHybrid">{{ $t('label.ThisStepOnlyWorkOnMobile') }}</p>
           </div>
         </div>
         
         <!-- HELP -->
-        <q-btn round size="lg" v-if="locateMarker.compliant && playerResult === null && !isHybrid" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
-        <div v-if="locateMarker.compliant && playerResult === null && isHybrid" class="text-white centered q-mt-md">
+        <q-btn round size="lg" v-if="playerResult === null && !isHybrid" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
+        <div v-if="playerResult === null && isHybrid" class="text-white centered q-mt-md">
           <div v-if="customization.qrCodeMessage && customization.qrCodeMessage !== '' && lang">{{ customization.qrCodeMessage[lang] }}</div>
           <div v-if="!customization.qrCodeMessage || customization.qrCodeMessage === '' || !lang">{{ $t('label.ScanTheMarkersLikeThat') }}</div>
           <div class="q-mt-md"><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
@@ -490,16 +565,10 @@
           </div>
         </div>
         <div class="text-center">
-          <div v-if="!locateMarker.compliant">
-            {{ $t('label.YourPhoneIsNotCompliantWithThisStepType') }}
-          </div>
-          <img class="locate-marker-answer" v-if="playerResult && locateMarker.compliant && step.options.mode == 'scan'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
-          <div class="marker-view" v-show="locateMarker.compliant">
-            <canvas id="marker-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
-          </div>
+          <img class="locate-marker-answer" v-if="playerResult && step.options && step.options.mode == 'scan'" :src="'statics/markers/' + locateMarker.playerAnswer + '/marker.png'" />
         </div>
-        <div class="fixed-bottom over-map" style="height: 100%" v-if="locateMarker.showHelp">
-          <story step="help" :data="{ help: step.type == 'locate-marker' && step.options.mode === 'scan' ? 'FindMarkerHelp' : 'TouchObjectOnMarkerHelp' }" @next="locateMarker.showHelp = false"></story>
+        <div class="over-map mobile-fit" :class="'font-' + customization.font" style="height: 100%" v-if="locateMarker.showHelp">
+          <story step="help" :data="{ help: step.type == 'locate-marker' && step.options && step.options.mode === 'scan' ? 'FindMarkerHelp' : 'TouchObjectOnMarkerHelp' }" @next="locateMarker.showHelp = false"></story>
         </div>
       </div>
       
@@ -507,7 +576,8 @@
       
       <div v-if="step.type == 'wait-for-event'">
         <div>
-          <p class="text" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           
           <!-- distance -->
           <h2 v-if="step.options.object === 'distance' && iot.distance !== null" class="centered big q-pb-lg" :class="{'right': playerResult === true}">
@@ -543,7 +613,8 @@
       <!------------------ TRIGGER IOT EVENT ------------------------>
       
       <div v-if="step.type == 'trigger-event'" class="trigger-event">
-        <p class="text" style="flex-grow: 1" v-if="getTranslatedText() != ''">{{ getTranslatedText() }}</p>
+        <p class="text" :class="'font-' + customization.font" style="flex-grow: 1" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+        <p class="text" :class="'font-' + customization.font" style="flex-grow: 1" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         <div v-if="step.options.object !== 'chest' || step.options.object === 'relay'">
           <q-btn 
             v-if="step.options.triggerMode && step.options.triggerMode === 'manual'" 
@@ -575,21 +646,24 @@
         <p v-if="step.options.protocol === 'bluetooth' && bluetooth.deviceId === null">{{ $t('label.SearchingBluetoothDevice') }}</p>
       </div>
       
+      <!--====================== STORY =================================-->
+    
+      <div class="over-map mobile-fit" :class="'font-' + customization.font" v-if="story.step !== null && story.step !== 'end'">
+        <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
+      </div>
+      
       <!------------------ WAITING SCREEN (if waiting for another player actions) ------------------------>
       
       <transition name="slideInBottom">
         <div class="panel-bottom background-dark" v-show="step.id == 'waiting'">
           <div class="centered q-pa-lg title4 text-primary">
-            <div class="q-pa-lg text-uppercase">{{ $t('label.WaitingForOtherUsersActions') }}</div>
+            <div class="q-pa-lg text-uppercase" :class="'font-' + customization.font">{{ $t('label.WaitingForOtherUsersActions') }}</div>
             <img src="statics/images/animation/map.gif" class="full-width q-mb-lg" />
           </div>
           <div>
             <div class="q-pa-lg centered">
               {{ $t('label.WaitingForOtherUsersActionsDesc') }}
             </div>
-            <!--<div class="q-pa-md centered">
-              <q-btn flat icon="refresh"><span>{{ $t('label.CheckIfICanMoveFoward') }}</span></q-btn>
-            </div>-->
           </div>
         </div>
       </transition>
@@ -598,7 +672,7 @@
     
     <!------------------ COMMON COMPONENTS ------------------>
     
-    <div class="direction-helper" v-show="(step.type == 'geolocation' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && geolocation.active">
+    <div class="direction-helper" v-show="(step.type == 'geolocation' && geolocation.mode === 'compass' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && geolocation.active">
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
@@ -608,6 +682,7 @@
     
     <!--<div v-show="playerResult === true && score >= 1" class="fadein-message">+{{ score }}</div>-->
     <div v-show="playerResult === true && displaySuccessIcon" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
+    <div v-show="geolocation.foundStep" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="check_box" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
     <div 
       v-show="
@@ -640,14 +715,12 @@
     
     <!--====================== GPS CALIBRATION =================================-->
     <gpscalibration
-      ref="gpscal"
-      @endvertical="$refs.phonevertical.askUserToHandleMobileVertically()">
+      ref="gpscal">
     </gpscalibration>
-<!--:geolocationshowCalibration="false"-->
+    
     <!--====================== HOLD PHONE VERTICAL =================================-->
     <holdphonevertically
-      ref="phonevertical"
-      :geolocation = "geolocation">
+      :show="geolocation.showARHelp">
     </holdphonevertically>
     
   </div>
@@ -658,12 +731,10 @@ import { colors } from 'quasar'
 
 import StepService from 'services/StepService'
 import TimerStorageService from 'services/TimerStorageService'
-//import simi from 'src/includes/simi' // for image similarity - MPA 2020-09-24 not used since several months (for steps 'image-recognition')
 import utils from 'src/includes/utils'
 
 import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
-import markersList from 'data/markers.json'
 import iotObjectsList from 'data/iotObjects.json'
 import iotOptions from 'data/iotOptions.json'
 import stepTypes from 'data/stepTypes.json'
@@ -674,6 +745,7 @@ import geolocation from 'components/geolocation'
 import gpscalibration from 'components/gpsCalibration'
 import holdphonevertically from 'components/holdPhoneVertically'
 import story from 'components/story'
+import geolocationStepMap from 'components/quest/game/geolocationStepMap'
 
 import Vue from 'vue'
 import debounce from 'lodash/debounce'
@@ -682,13 +754,6 @@ import debounce from 'lodash/debounce'
 import * as THREE from 'three'
 import TWEEN from '@tweenjs/tween.js'
 import GLTFLoader from 'three-gltf-loader'
-
-// required for step 'locate-marker'
-// currently (AR.js 1.6.2) MODULE IMPORT IS NOT SUPPORTED.
-// => adapted AR.js to work as a module (from file three.js/build/ar.js of the original package).
-// see https://github.com/jeromeetienne/AR.js/issues/428
-import { THREEx } from 'src/includes/ar' // import * as ARjs from 'ar.js' in future versions?
-import { promisify } from 'es6-promisify'
 
 // required for steps 'wait-for-event' and 'trigger-event' (IoT):
 import * as mqtt from 'mqtt'
@@ -707,13 +772,13 @@ export default {
     holdphonevertically,
     gpscalibration,
     geolocation,
-    story
+    story,
+    geolocationStepMap
   },
   watch: { 
     // refresh component if stepId change
     reload: async function(newVal, oldVal) {
       if (newVal === true || newVal === 'true') {
-        this.clearAllCameraStreams()
         await this.initData()
       }
       if (newVal === false || newVal === 'false') {
@@ -723,7 +788,7 @@ export default {
     // check if item used is the right one
     itemUsed: async function(newVal, oldVal) {
       if (this.step && this.step.type === "use-item" && this.step.options && this.step.options.hasOwnProperty("touchLocation") && this.step.options.touchLocation === false) {
-        this.useItem()
+        this.checkUseItem()
       }
     }
   },
@@ -738,6 +803,7 @@ export default {
   mounted () {
     // seems always already done by "watch" on "reload" key // Uncommented by EMA on 122018, in some case watcher does not work
     //this.initData()
+    utils.setTimeout(this.checkIfDataAreInit, 5000)
   },
   updated: debounce(function () {
     this.$nextTick(() => {
@@ -745,55 +811,6 @@ export default {
     })
   }, 250),
   beforeDestroy() {
-    // this is called every time route changes => cleanup all memory & CPU intensive tasks here
-    
-    // (camera streams, 3D animations, GPS trackings...)
-    this.clearAllCameraStreams()
-    
-    // cancels recursive 'requestAnimationFrame()' calls
-    // otherwise they continue in the background even when route changes
-    this.stopLatestAnimation()
-    
-    // clean 3D objects/scenes to avoid memory leaks
-    this.geolocation.target = null
-    this.locateMarker.scene = null
-    this.locateMarker.renderer = null
-    this.locateMarker.camera = null
-    this.locateMarker.mixers = [] // animations
-    this.locateMarker.clock = null // animations
-    this.locateMarker.arToolkitContext = null
-    this.locateMarker.arSmoothedControls = null
-    this.locateMarker.markerRoots = {}
-    this.locateMarker.markerControls = {}
-    
-    if (this.geolocation.absoluteOrientationSensor !== null) {
-      this.geolocation.absoluteOrientationSensor.stop()
-    }
-    
-    window.removeEventListener("devicemotion", this.handleMotionEvent, true)
-    
-    utils.clearAllRunningProcesses()
-    
-    TWEEN.removeAll() // 3D animations
-    
-    // close MQTT connection & bluetooth (steps 'wait-for-event', 'trigger-event')
-    if (this.mqttClient !== null) {
-      let _this = this
-      this.mqttClient.end(false, {}, () => {
-        _this.mqttClient = null
-      })
-    }
-    if (this.bluetooth.enabled) {
-      this.bluetoothDisconnect(this.bluetooth.deviceId)
-    }
-    
-    this.stopcountdown()
-    
-    if (['geolocation', 'locate-item-ar'].includes(this.step.type)) {
-      try {
-        cordova.plugins.headingcalibration.stopWatchCalibration();
-      } catch (err) {}
-    }
   },
   methods: {
     initialState () {
@@ -811,6 +828,7 @@ export default {
         controlsAreDisplayed: false,
         isHybrid: window.cordova,
         isIOs: utils.isIOS(),
+        isPageInit: false,
         isNetworkLow: false,
         isTimeUp: false,
         displaySuccessIcon: false,
@@ -836,10 +854,6 @@ export default {
         showTools: true,
         codeColors: {},
         
-        // for step type 'image-recognition' - MPA 2020-09-24
-        //photoComparisonThreshold: 70,
-        //photoTaken: false,
-        
         // for step types 'geoloc' and 'locate-item-ar'
         geolocation: {
           active: false,
@@ -851,6 +865,9 @@ export default {
           waitForNextQuaternionRead: false,
           // object position relative to device
           position: { x: null, y: null },
+          // player position (properties: latitude & longitude, from native call to navigator.geolocation.watchLocation())
+          playerPosition: null,
+          destinationPosition: null,
           // for 'locate-item-ar'
           absoluteOrientationSensor: null,
           initialBearingAngle: null,
@@ -862,7 +879,11 @@ export default {
           takeMobileVertically: false,
           gyroscopeDetectionCounter: 0,
           lowCompassAccuracy: false,
-          compassAccuracyTimeout: null
+          compassAccuracyTimeout: null,
+          showARHelp: false,
+          currentIndex: 0,
+          foundStep: false,
+          mode: 'compass'
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -883,20 +904,10 @@ export default {
         
         // for step type 'locate-marker'
         locateMarker: {
-          renderer: null,
-          scene: null,
-          camera: null,
-          mixers: [], // animations
-          clock: null, // animations
-          arToolkitContext: null,
-          arSmoothedControls: null,
-          markerRoots: {},
           markerControls: {},
           playerAnswer: '',
-          layer: null,
           flash: false,
-          showHelp: false,
-          compliant: true //!(window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios')
+          showHelp: false
         },
         
         // for step type 'write-text'
@@ -923,8 +934,28 @@ export default {
           selectedKey: null,
           disabled: false
         },
+        portrait: {
+          face: { position: 1, number: 4 },
+          eye: { position: 1, number: 16 },
+          mouth: { position: 1, number: 1 },
+          nose: { position: 1, number: 5 },
+          hair: { position: 1, number: 26 },
+          beard: { position: 1, number: 31 },
+          glass: { position: 1, number: 5 },
+          hat: { position: 1, number: 4 }
+        },
         // for step type 'find-item'
-        nbItemsFound: 0,
+        findItem: {
+          nbItemsFound: 0,
+          crossSize: 30,
+          imageWidth: 900,
+          imageHeight: 1200
+        },
+        useItem: {
+          crossSize: 30,
+          imageWidth: 900,
+          imageHeight: 1200
+        },  
         readMoreNotif: null,
         // for step type 'use-item'
         itemUsedComputed: null,
@@ -988,6 +1019,7 @@ export default {
       this.writetext = defaultVars.writetext
       this.puzzle = defaultVars.puzzle
       this.memory = defaultVars.memory
+      this.portrait = defaultVars.portrait
       this.nbItemsFound = defaultVars.nbItemsFound
       this.readMoreNotif = defaultVars.readMoreNotif
       this.itemUsedComputed = defaultVars.itemUsedComputed
@@ -1002,6 +1034,47 @@ export default {
       this.pageReady = defaultVars.pageReady
       this.showTools = defaultVars.showTools
       //this.currentcountdown = defaultVars.currentcountdown
+    },
+    resetEvents () {
+      // this is called every time step changes => cleanup all memory & CPU intensive tasks here
+      
+      // (camera streams, 3D animations, GPS trackings...)
+      this.clearAllCameraStreams()
+      
+      // cancels recursive 'requestAnimationFrame()' calls
+      // otherwise they continue in the background even when route changes
+      this.stopLatestAnimation()
+      
+      if (this.geolocation.absoluteOrientationSensor !== null) {
+        this.geolocation.absoluteOrientationSensor.stop()
+      }
+      
+      window.removeEventListener("devicemotion", this.handleMotionEvent, true)
+      
+      utils.clearAllRunningProcesses()
+      
+      TWEEN.removeAll() // 3D animations
+      
+      // close MQTT connection & bluetooth (steps 'wait-for-event', 'trigger-event')
+      if (this.mqttClient !== null) {
+        let _this = this
+        this.mqttClient.end(false, {}, () => {
+          _this.mqttClient = null
+        })
+      }
+      if (this.bluetooth.enabled) {
+        this.bluetoothDisconnect(this.bluetooth.deviceId)
+      }
+      if (!this.step.countDownTime || !this.step.countDownTime.enabled) {
+        this.stopcountdown()
+      }
+      
+      if (['geolocation', 'locate-item-ar'].includes(this.step.type)) {
+        try {
+          // can trigger an error in console which cannot be avoided
+          cordova.plugins.headingcalibration.stopWatchCalibration();
+        } catch (err) {}
+      }
     },
     /*
      * get background image
@@ -1023,13 +1096,17 @@ export default {
       background.style.background = 'none'
       background.style.backgroundColor = 'transparent'
       let backgroundImage = document.getElementById('background-image')
-      backgroundImage.style.background = 'none'
-      backgroundImage.style.backgroundColor = 'transparent'
+      if (backgroundImage) {
+        backgroundImage.style.background = 'none'
+        backgroundImage.style.backgroundColor = 'transparent'
+      }
     },
     /*
      * Init the component data
      */
     async initData () {
+      this.isPageInit = true
+      this.resetEvents()
       this.resetData()
       this.resetBackgroundImage()
       TWEEN.removeAll()
@@ -1037,7 +1114,7 @@ export default {
       this.$nextTick(async () => {
         let background = document.getElementById('play-view')
         if (this.step.backgroundImage) {
-          if (this.step.type === 'find-item' || this.step.type === 'use-item') {
+          if (this.step.type === 'find-item' || this.step.type === 'use-item' || this.step.type === 'binocular' || this.step.type === 'phone-call') {
             background.style.background = 'none'
             background.style.backgroundColor = '#000'
             this.showControls()
@@ -1054,7 +1131,9 @@ export default {
             let backgroundUrl = this.getBackgroundImage()
             let backgroundImage = document.getElementById('background-image')
             //background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
-            backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+            if (backgroundImage) {
+              backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+            }
             // all background clickable for transitions
             //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
               //let clickable = document.getElementById('info-clickable')
@@ -1077,6 +1156,13 @@ export default {
           } else {
             background.style.background = 'none'
             background.style.backgroundColor = 'transparent'
+            if (this.step.type === 'locate-item-ar') {
+              let backgroundImage = document.getElementById('background-image')
+              if (backgroundImage) {
+                backgroundImage.style.background = 'none'
+                backgroundImage.style.backgroundColor = 'transparent'
+              }
+            }
           }
           this.showControls()
         }
@@ -1129,6 +1215,13 @@ export default {
           this.resetImageCode()
         }
         
+        if (this.step.type === 'find-item') {
+          utils.setTimeout(this.initFindItemElements, 2000)
+        }
+        if (this.step.type === 'use-item') {
+          utils.setTimeout(this.initUseItemElements, 2000)
+        }
+        
         if (this.step.type === 'new-item') {
           if (this.step.options.hasOwnProperty('pictures') && this.step.options.pictures[this.lang]) {
             this.step.options.picture = this.step.options.pictures[this.lang]
@@ -1149,12 +1242,35 @@ export default {
           this.$emit('pass')
         }
         
+        if (this.step.type === 'binocular') {
+          if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+            Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
+          }
+          this.$emit('pass')
+        }
+        
+        if (this.step.type === 'phone-call') {
+          if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+            Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
+          }
+          this.$emit('pass')
+        }
+        
+        if (this.step.type === 'geolocation') {
+          if (this.step.options.hasOwnProperty('mode') && ['compass', 'map'].includes(this.step.options.mode)) {
+            this.geolocation.mode = this.step.options.mode
+          } else {
+            this.geolocation.mode = 'compass'
+          }
+        }
+        
         // common process to 'geolocation' and 'locate-item-ar'
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
-        if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+          if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
             // if run as builder, get the remainingTrial
             if (this.runId === "0") {
               Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
+              this.$emit('pass')
             } else {
               // user can pass
               this.$emit('pass')
@@ -1198,6 +1314,9 @@ export default {
             }
             
             if (this.step.type === 'locate-item-ar') {
+              // show help
+              this.geolocation.showARHelp = true
+              
               // ask user to access to his device motion
               requestPermissionResult = await utils.requestDeviceMotionPermission()
               
@@ -1223,26 +1342,27 @@ export default {
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
           
           if (this.isHybrid && !this.isIOS) {
+            let _this = this
             // IOS is not tested for now, hence why we are not using it 
             cordova.plugins.headingcalibration.watchCalibration(
               (accuracy) => {
                 if (accuracy <= 1) {
-                  this.geolocation.lowCompassAccuracy = true
+                  _this.geolocation.lowCompassAccuracy = true
                   // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
-                  if (this.geolocation.compassAccuracyTimeout === null && !this.geolocation.showCalibration) {
-                    this.geolocation.compassAccuracyTimeout = utils.setTimeout(() => {
-                      this.$refs.gpscal.askUserToCalibrateGPS();
-                      if (this.geolocation.compassAccuracyTimeout !== null) {
-                        clearTimeout(this.geolocation.compassAccuracyTimeout);
-                        this.geolocation.compassAccuracyTimeout = null;
+                  if (_this.geolocation.compassAccuracyTimeout === null && !_this.geolocation.showCalibration) {
+                    _this.geolocation.compassAccuracyTimeout = utils.setTimeout(() => {
+                      _this.$refs.gpscal.askUserToCalibrateGPS();
+                      if (_this.geolocation.compassAccuracyTimeout !== null) {
+                        clearTimeout(_this.geolocation.compassAccuracyTimeout);
+                        _this.geolocation.compassAccuracyTimeout = null;
                       }
                     }, 10000)
                   }
                 } else {
-                  this.geolocation.lowCompassAccuracy = false
-                  if (this.geolocation.compassAccuracyTimeout !== null) {
-                    clearTimeout(this.geolocation.compassAccuracyTimeout);
-                    this.geolocation.compassAccuracyTimeout = null;
+                  _this.geolocation.lowCompassAccuracy = false
+                  if (_this.geolocation.compassAccuracyTimeout !== null) {
+                    clearTimeout(_this.geolocation.compassAccuracyTimeout);
+                    _this.geolocation.compassAccuracyTimeout = null;
                   }
                 }
               },
@@ -1385,43 +1505,8 @@ export default {
             this.$emit('pass')
           }
           
-          // MP 2019-09-30 using phonegap-plugin-barcodescanner prevents using any kind of "layer" above camera stream
-          /*import layersForMarkers from 'data/layersForMarkers.json'
-          if (this.step.options.mode === 'scan') {
-            for (let layer of layersForMarkers) {
-              if (layer.code === this.step.options.layerCode) {
-                this.locateMarker.layer = layer
-                break
-              }
-            }
-          }*/
-          
           if (this.isHybrid) {
             this.initQRCodes()
-          } else {
-            // with plugin phonegap-plugin-media-stream
-            let cameraStream = this.$refs['camera-stream-for-locate-marker']
-            // enable rear camera stream
-            // ------------------------- 
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-              .then((stream) => {
-                cameraStream.srcObject = stream
-                cameraStream.play()
-                cameraStream.onloadeddata = async (e) => {
-                  this.cameraStreamEnabled = true
-                  let sceneCanvas = document.getElementById('marker-canvas')
-                  sceneCanvas.height = window.screen.height
-                  sceneCanvas.width = window.screen.width
-                  
-                  await this.displayMarkers(sceneCanvas)
-                }
-                this.$store.dispatch('addMediaStream', stream)
-              })
-              .catch((err) => {
-                // TODO friendly behavior/message for user
-                console.warn("No camera stream available")
-                console.log(err)
-              })
           }
         }
         
@@ -1496,7 +1581,7 @@ export default {
               _this.mqttClient = null
             })
           }
-          if (this.bluetooth.enabled) {
+          if (this.bluetooth && this.bluetooth.enabled) {
             this.bluetoothDisconnect(this.bluetooth.deviceId)
           }
         }
@@ -1593,34 +1678,6 @@ export default {
       }
     },
     /*
-    * creates a marker control for step type 'locate-marker'
-    */
-    createMarkerControl (markerCode) {
-      let arToolkitContext = this.locateMarker.arToolkitContext
-      let markerRoot
-      
-      if (this.step.options.mode === 'scan') {
-        markerRoot = this.locateMarker.markerRoots['commonRoot']
-      } else {
-        markerRoot = this.locateMarker.markerRoots[markerCode]
-      }
-      
-      let marker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
-        type: 'pattern',
-        patternUrl: 'statics/markers/' + markerCode + '/pattern-marker.patt'
-      })
-      marker.code = markerCode
-      
-      marker.addEventListener('markerFound', (ev) => {
-        if (this.step.options.mode === 'scan') {
-          this.checkAnswer(ev.target.code)
-        }
-      })
-      marker.detected = false
-      
-      return marker
-    },
-    /*
      * Show controls buttons
      */
     showControls () {
@@ -1631,6 +1688,8 @@ export default {
         this.step.type === 'help' || 
         //this.step.type === 'character' || 
         this.step.type === 'image-over-flow' || 
+        this.step.type === 'binocular' || 
+        this.step.type === 'phone-call' || 
         this.step.type === 'new-item' || 
         this.step.type === 'trigger-event') {
         this.checkAnswer()
@@ -1643,125 +1702,19 @@ export default {
       this.controlsAreDisplayed = !this.controlsAreDisplayed
     },
     /*
+     * If a bug occur and data are not init, force it !
+     */
+    checkIfDataAreInit() {
+      if (!this.isPageInit) {
+        this.initData()
+      }
+    },
+    /*
      * Hide controls temporaly
      */
     hideControlsTemporaly () {
       this.controlsAreDisplayed = false
       utils.setTimeout(this.showControls, 4000)
-    },
-    /*
-     * Display markers controls
-     * @param   {Object}    sceneCanvas            Scene canvas object
-     */
-    async displayMarkers(sceneCanvas) {
-      this.locateMarker.markerRoots = {}
-      
-      let renderer = new THREE.WebGLRenderer({
-        canvas: sceneCanvas,
-        antialias: true,
-        alpha: true,
-        logarithmicDepthBuffer: true // workaround for AR.js z-fighting issue, see https://github.com/jeromeetienne/AR.js/issues/146 and https://github.com/jeromeetienne/AR.js/issues/410
-      })
-      
-      let scene = new THREE.Scene()
-      
-      let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000) // 0.01, 100
-      scene.add(camera)
-      
-      // --- Light ---
-      
-      this.addDefaultLightTo3DScene(scene)
-      
-      // --- initialize arToolkitContext ---
-      
-      // create atToolkitContext
-      let arToolkitContext = new THREEx.ArToolkitContext({
-        cameraParametersUrl: 'statics/markers/camera_para.dat',
-        detectionMode: 'mono',
-        maxDetectionRate: 30,
-        // sampling size, always 4:3 ratio...
-        canvasWidth: 640,
-        canvasHeight: 480,
-        patternRatio: 0.8
-      })
-      // initialize it
-      arToolkitContext.initAsync = promisify(arToolkitContext.init)
-      await arToolkitContext.initAsync()
-      
-      // --- Create ArMarkerControls / ArSmoothedControls ---
-      
-      // build a smoothedControls
-      let smoothedRoot = new THREE.Group()
-      scene.add(smoothedRoot)
-      let arSmoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
-        lerpPosition: 0.4,
-        lerpQuaternion: 0.3,
-        lerpScale: 1
-      })
-      
-      this.locateMarker.arToolkitContext = arToolkitContext
-      this.locateMarker.arSmoothedControls = arSmoothedControls
-      
-      this.locateMarker.renderer = renderer
-      this.locateMarker.scene = scene
-      this.locateMarker.camera = camera
-      
-      this.locateMarker.markerCodeAnswer = this.step.answers
-      
-      if (this.step.options.mode === 'scan') {
-        // only one marker root is enough
-        let markerRoot = new THREE.Group()
-        scene.add(markerRoot)
-        this.locateMarker.markerRoots['commonRoot'] = markerRoot
-        
-        // add a transparent plane, common for all markers
-        // (helps to detect if marker "touches" the center of the screen)
-        let geometry = new THREE.PlaneGeometry(1, 1)
-        let material = new THREE.MeshNormalMaterial({ transparent: true, opacity: 0, side: THREE.DoubleSide })
-        let mesh  = new THREE.Mesh(geometry, material)
-        mesh.rotateX(Math.PI / 2)
-        smoothedRoot.add(mesh)
-        smoothedRoot.name = 'markerObject'
-      }
-      
-      markersList.forEach((markerCode) => {
-        if (this.step.options.mode === 'touch') {
-          // one marker root per marker
-          let markerRoot = new THREE.Group()
-          scene.add(markerRoot)
-          this.locateMarker.markerRoots[markerCode] = markerRoot
-        }
-        this.locateMarker.markerControls[markerCode] = this.createMarkerControl(markerCode)
-      })
-      
-      if (this.step.options.mode === 'touch') {
-        let object, animations
-        //let data = await this.loadAndPrepare3DModel(this.step.options.model)
-        let data = await this.loadAndPrepare3DModel(this.step.options.customModel ? this.step.options.customModel : this.step.options.model, this.step.questId, this.step.options.customModel || false)
-        object = data.object
-        animations = data.animations
-        
-        object.rotateX(-Math.PI / 2)
-        
-        // add offset to make 3D object "sit on the ground" by default (y = 0 at the bottom of the object)
-        let box = new THREE.Box3().setFromObject(object)
-        let onGroundOffset = (box.max.y - box.min.y) / 2
-        object.applyMatrix(new THREE.Matrix4().makeTranslation(0, onGroundOffset, 0))
-        
-        object.name = 'targetObject'
-        
-        // animations ? play first animation
-        if (animations.length > 0) {
-          let mixer = new THREE.AnimationMixer(object)
-          mixer.clipAction(animations[0]).play()
-          this.locateMarker.mixers.push(mixer)
-        }
-        this.locateMarker.clock = new THREE.Clock()
-        
-        smoothedRoot.add(object)
-      }
-      
-      this.animateMarkerCanvas()
     },
     /*
      * Send answer server side 
@@ -1774,9 +1727,8 @@ export default {
       
       // alert if the network is low
       var _this = this
-      var lowNetworkTimeout = setTimeout(function () { _this.isNetworkLow = true }, 8000)
-
-      var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player)
+      var lowNetworkTimeout = utils.setTimeout(function () { _this.isNetworkLow = true }, 8000)
+      var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player, { retries: 0 })
 
       // clear low network alerte if displayed
       clearTimeout(lowNetworkTimeout)
@@ -1796,14 +1748,9 @@ export default {
         if (displaySpinner) {
           this.$q.loading.hide()
         }
-        // check offline answer
-        //if (this.answer) {
-          let checkAnswerOfflineResult = await this.checkOfflineAnswer(answerData.answer)
-          return checkAnswerOfflineResult
-        //} else {
-        //  Notification(this.$t('label.ErrorStandardMessage'), 'error')
-        //  return false
-        //}
+        
+        let offlineAnswer = this.checkOfflineAnswer(answerData.answer)
+        return offlineAnswer
       }
     },
     /*
@@ -1812,11 +1759,9 @@ export default {
      */
     async checkOfflineAnswer(answer) {
       const type = this.step.type
-      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'help' || type === 'image-over-flow') {
+      if (type === 'info-text' || type === 'info-video' || type === 'new-item' || type === 'character' || type === 'help' || type === 'image-over-flow' || type === 'binocular' || type === 'phone-call') {
         return { result: true, answer: true, score: 0, reward: 0, offline: true }
-      } /*else if (type === 'image-recognition') {
-        return { result: answer, answer: this.answer, score: 0, reward: 0, offline: true }
-      }*/ else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle') {
+      } else if (type === 'geolocation' || type === 'locate-item-ar' || type === 'jigsaw-puzzle') {
         //TODO: find a way to check server side
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
       } else if (type === 'use-item') {
@@ -1829,9 +1774,11 @@ export default {
             return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
           }
         } else {
+          const ww = (answer && answer.windowWidth) ? answer.windowWidth : (this.getFindItemPictureSize() / 100)
+          
           let answerPixelCoordinates = {
-            left: Math.round(this.answer.coordinates.left / 100 * 100 * answer.windowWidth),
-            top: Math.round(this.answer.coordinates.top / 100 * 133 * answer.windowWidth)
+            left: Math.round(this.answer.coordinates.left / 100 * 100 * ww),
+            top: Math.round(this.answer.coordinates.top / 100 * 133 * ww)
           }
           
           // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
@@ -1855,13 +1802,17 @@ export default {
           //}
         //}
       } else if (type === 'write-text') {
-        for (i = 0; i < this.answer.length; i++) {
+        for (let i = 0; i < this.answer.length; i++) {
           if (utils.removeAccents(answer) === utils.removeAccents(this.answer[i])) {
             return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
           }
         }
       } else if (type === 'memory') {
         return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+      } else if (type === 'portrait-robot') {
+        if (JSON.stringify(answer) === JSON.stringify(this.answer)) {
+          return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+        }
       } else {
         if (answer === this.answer) {
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
@@ -1904,15 +1855,12 @@ export default {
         case 'end-chapter':
         case 'character':
         case 'image-over-flow':
+        case 'binocular':
+        case 'phone-call':
         case 'trigger-event':
           // save step automatic success
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {}, false)
           this.submitGoodAnswer(0, checkAnswerResult.offline, false)
-          //if (CameraPreview) {
-          //  CameraPreview.stopCamera()
-          //  CameraPreview.stopCamera() // calling twice is needed
-          //}
-          
           break
           
         case 'choose':
@@ -1969,19 +1917,7 @@ export default {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
           }
           break
-        // MPA 2020-09-24 not used
-        /*
-        case 'image-recognition':
-          const comparison = this.checkPhoto()
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: comparison, isTimeUp: this.isTimeUp}, true)
-
-          if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
-          } else {
-            this.submitWrongAnswer(checkAnswerResult.offline, true)
-          }
-          break
-          */
+          
         case 'code-keypad':
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join(''), isTimeUp: this.isTimeUp}, true)
 
@@ -2062,6 +1998,26 @@ export default {
             this.submitWrongAnswer(checkAnswerResult.offline, true)
           } else if (checkAnswerResult.result === true) {
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+          }
+          break
+        
+        case 'portrait-robot':
+          let portraitAnswer = {items: {type: 1, face: this.portrait.face.position, eye: this.portrait.eye.position, mouth: this.portrait.mouth.position, nose: this.portrait.nose.position, hair: this.portrait.hair.position, beard: this.portrait.beard.position, glass: this.portrait.glass.position, hat: this.portrait.hat.position}}
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: portraitAnswer, isTimeUp: this.isTimeUp}, false)
+                    
+          if (checkAnswerResult.result === true) {
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
+          } else {
+            if (this.isTimeUp) {
+              checkAnswerResult.remainingTrial = 0
+            }
+            
+            this.nbTry++
+            if (checkAnswerResult.remainingTrial > 0) {
+              this.submitRetry(checkAnswerResult.remainingTrial)
+            } else {
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
+            }
           }
           break
         
@@ -2169,7 +2125,7 @@ export default {
           
         case 'locate-item-ar':
         case 'locate-marker':
-          if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
+          if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'touch')) {
             checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, false)
             if (checkAnswerResult && checkAnswerResult.hasOwnProperty('result')) {
               if (this.step.type === 'locate-item-ar') {
@@ -2257,28 +2213,6 @@ export default {
                 this.locateMarker.markerControls[answer].detected = true
                 markerDetected = true
               }
-            } else {
-              if (!this.locateMarker.markerControls[answer].detected) {
-                let object = this.locateMarker.scene.getObjectByName('markerObject')
-                
-                let raycaster = new THREE.Raycaster()
-                
-                // imaginary line starting from screen center
-                raycaster.setFromCamera(new THREE.Vector2(0, 0), this.locateMarker.camera)
-                
-                // second parameter set to true so that intersectObject() traverses recursively the object
-                // and its children geometries
-                let intersects = raycaster.intersectObject(object, true)
-                
-                // EMA on 04/03 : to discuss with MPA why detected was not triggered if no intersect
-                if (intersects.length > 0) {
-                  this.locateMarker.markerControls[answer].detected = true
-                  markerDetected = true
-                } else {
-                  this.locateMarker.markerControls[answer].detected = true
-                  markerDetected = true
-                }
-              }
             }
             
             if (markerDetected) {
@@ -2286,13 +2220,11 @@ export default {
               
               if (checkAnswerResult.result === true) {
                 this.submitGoodAnswer(checkAnswerResult.score, checkAnswerResult.offline, true)
-                this.stopMarkersSensors()
                 this.locateMarker.playerAnswer = answer // for display
               } else {
                 this.nbTry++
                 if (this.nbTry === 2 || this.isTimeUp) {
                   this.submitWrongAnswer(checkAnswerResult.offline, true)
-                  this.stopMarkersSensors()
                 } else {
                   this.submitRetry(1)
                 }
@@ -2373,12 +2305,13 @@ export default {
         
         // do not hide the timer on 'transition' steps because they automatically call 'submitGoodAnswer()' at loading
         if (stepType.category === 'enigma') {
-          this.step.countDownTime.enabled = false;
+          this.step.countDownTime.enabled = false
           this.stopcountdown()
         }
       }
 
       this.stepPlayed = true
+      
       this.$emit('success', score, offlineMode, showResult)
       this.$emit('played')
       
@@ -2393,6 +2326,8 @@ export default {
           case 'end-chapter': 
           case 'info-video': 
           case 'image-over-flow': 
+          case 'binocular': 
+          case 'phone-call': 
             
             break
           case 'choose':
@@ -2402,10 +2337,10 @@ export default {
           case 'code-image':
             this.displaySuccessMessage(true, this.$t('label.GoodAnswer'))
             break
-          //case 'image-recognition':
           case 'write-text':
           case 'jigsaw-puzzle':
           case 'memory':
+          case 'portrait-robot':
           case 'use-item':
           case 'find-item':
           case 'geolocation':
@@ -2413,7 +2348,7 @@ export default {
             break
           case 'locate-item-ar':
           case 'locate-marker':
-            if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch')) {
+            if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'touch')) {
               this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'))
             } else { // locate marker, mode scan
               this.displaySuccessMessage(true, this.$t('label.WellDone'))
@@ -2426,16 +2361,6 @@ export default {
       }
       // advise user to move to next step
       //utils.setTimeout(this.alertToPassToNextStep, 15000)
-    },
-    /*
-     * stop the markers sensors
-     */
-    stopMarkersSensors() {
-      if (!this.isHybrid) {
-        this.stopVideoTracks('camera-stream-for-locate-marker')
-        this.locateMarker.scene = new THREE.Scene()
-        this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
-      }
     },
     /*
      * Send wrong answer 
@@ -2462,16 +2387,14 @@ export default {
       if (this.isTimeUp === true) {
         this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'))
       } else if (showResult) {
-        // MPA 2020-09-24 image-recognition is not used since several months
-        /*if (this.step.type === 'image-recognition') {
-          this.displaySuccessMessage(false, this.$t('label.PhotosDoesntMatch'))
-        } else {
-          this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
-        }*/
         this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
       }
-      // advise user to move to next step
-      utils.setTimeout(this.alertToPassToNextStep, 15000)
+      
+      // if no display of the answer move to next step
+      if (this.step.displayRightAnswer === true) {
+        // advise user to move to next step
+        utils.setTimeout(this.alertToPassToNextStep, 15000)
+      }
     },
     alertToPassToNextStep() {
       this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'))
@@ -2508,6 +2431,9 @@ export default {
     
     ////////////////////////////////////////////// MANAGEMENT OF THE ENIGMA COMPONENTS /////////////////////////////////////////////
     
+    forceNextStep() {    
+      this.$emit('forceMoveNext')
+    },
     /*
      * Display next text 
      */
@@ -2521,7 +2447,7 @@ export default {
         if (!this.stepPlayed) {
           await this.checkAnswer()
         } else {
-          this.$emit('forceMoveNext')
+          this.forceNextStep()
         }
       }
     },
@@ -2628,6 +2554,9 @@ export default {
      * @param   {string}    char            Number to display
      */
     addCodeChar(char) {
+      if (!this.playerCode) {
+        return
+      }
       // find next empty char in typed code
       let nextEmptyCharIndex = this.playerCode.indexOf('');
       
@@ -2641,6 +2570,9 @@ export default {
      * Clear the latest char in the pad
      */
     clearLastCodeChar() {
+      if (!this.playerCode) {
+        return
+      }
       // find next non empty char in typed code
       let lastTypedCharIndex = this.playerCode.indexOf('')
       lastTypedCharIndex = (lastTypedCharIndex === -1 ? this.playerCode.length - 1 : lastTypedCharIndex - 1)
@@ -2656,7 +2588,7 @@ export default {
      * @param   {number}    index            Index in the colors array
      */
     changeColorForCode(index) {
-      if (this.playerResult !== null) {
+      if (this.playerResult !== null || !this.codeColors) {
         return
       }
       let currentColorIndex = this.codeColors.indexOf(this.playerCode[index])
@@ -2668,52 +2600,12 @@ export default {
      * @param   {number}    index            Index in the images array
      */
     changeImageForCode(index) {
-      if (this.playerResult !== null) {
+      if (this.playerResult !== null || !this.codeColors) {
         return
       }
       let currentColorIndex = this.codeColors.indexOf(this.playerCode[index])
       let nextColorIndex = (currentColorIndex + 1) % this.codeColors.length
       this.$set(this.playerCode, index, this.codeColors[nextColorIndex])
-    },
-    /*
-     * Display / hide camera
-     */
-    toggleCameraStream() {
-      // already enabled ? => disable
-      
-      if (this.cameraStreamEnabled) {
-        this.stopVideoTracks('camera-stream-for-recognition')
-        return
-      }
-      
-      // otherwise, enable
-      
-      let photoBuffer = this.$refs['photo-buffer']
-      let playerPhoto = this.$refs['player-photo']
-      
-      let cameraStream = this.launchVideoStreamForAndroid('camera-stream-for-recognition')
-      
-      cameraStream.addEventListener('canplay', (ev) => {
-        if (!this.cameraStreamEnabled) {
-          // get inner parent element with (without margin/padding/border)
-          // see https://stackoverflow.com/a/29881817/488666
-          let parentElement = ev.target.parentElement
-          let style = getComputedStyle(parentElement)
-          let width = parentElement.clientWidth - (parseFloat(style.paddingLeft) + parseFloat(style.paddingRight))
-          let height = Math.floor(cameraStream.videoHeight / (cameraStream.videoWidth / width))
-          
-          cameraStream.setAttribute('width', width)
-          cameraStream.setAttribute('height', height)
-          
-          photoBuffer.setAttribute('width', width)
-          photoBuffer.setAttribute('height', height)
-          
-          playerPhoto.setAttribute('width', width)
-          playerPhoto.setAttribute('height', height)
-          
-          this.cameraStreamEnabled = true
-        }
-      }, false);
     },
     
     launchVideoStreamForAndroid(container, initCapture, facingMode) {
@@ -2745,42 +2637,6 @@ export default {
         });
       return cameraStream
     },
-    /*
-     * Check if a photo is similar to the one expected
-     * MPA image-recognition steps are not used since several months
-     */
-    /*
-    checkPhoto() {
-      // take photo & stop camera flow
-      let photoBuffer = this.$refs['photo-buffer']
-      let context = photoBuffer.getContext('2d')
-      if (this.cameraStreamEnabled) {
-        context.drawImage(this.$refs['camera-stream-for-recognition'], 0, 0, photoBuffer.width, photoBuffer.height)
-        
-        let data = photoBuffer.toDataURL('image/png')
-        this.$refs['player-photo'].setAttribute('src', data)
-        this.stopVideoTracks('camera-stream-for-recognition')
-        
-        let canvasOriginalPhoto = document.createElement('canvas')
-        
-        // reload original photo with attribute 'crossorigin' to 'anonymous' to avoid cross-origin
-        // security error with 'tainted canvas' ; see https://stackoverflow.com/a/18475559/488666
-        
-        let imgOriginalPhoto = new Image()
-        imgOriginalPhoto.crossOrigin = "anonymous";
-        imgOriginalPhoto.src = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/image-recognition/' + this.step.answers
-        
-        imgOriginalPhoto.onload = async () => {
-          canvasOriginalPhoto.width = imgOriginalPhoto.naturalWidth
-          canvasOriginalPhoto.height = imgOriginalPhoto.naturalHeight
-          canvasOriginalPhoto.getContext('2d').drawImage(imgOriginalPhoto, 0, 0, canvasOriginalPhoto.width, canvasOriginalPhoto.height)
-          
-          this.photoTaken = true
-          
-          return simi.compare(photoBuffer, canvasOriginalPhoto) >= this.photoComparisonThreshold
-        }
-      }
-    },*/
     /*
      * Stop the video tracking
      */
@@ -2864,6 +2720,7 @@ export default {
      */
     async onNewUserPosition(pos) {
       this.geolocation.active = true
+      this.geolocation.playerPosition = pos.coords
       let current = pos.coords
       
       // if lat and lng are not set, compute to have the object close to the current user position
@@ -2895,11 +2752,18 @@ export default {
       }
       
       let previousGPSdistance = this.geolocation.GPSdistance
+      
+      let destinationPosition = { lat: options.lat, lng: options.lng }
+      if (this.step.type === 'geolocation' && options.locations && options.locations.length > 0) {
+        destinationPosition.lat = options.locations[this.geolocation.currentIndex].lat
+        destinationPosition.lng = options.locations[this.geolocation.currentIndex].lng
+      }
+      this.geolocation.destinationPosition = destinationPosition
 
       // compute distance between two coordinates
       // note: current.accuracy contains the result accuracy in meters
-      this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(options.lat, options.lng, current.latitude, current.longitude) * 1000 // meters
-      let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, options.lat, options.lng)
+      this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(destinationPosition.lat, destinationPosition.lng, current.latitude, current.longitude) * 1000 // meters
+      let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, destinationPosition.lat, destinationPosition.lng)
       if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
         // avoid to change distance too much
         if (!this.geolocation.distance || this.geolocation.GPSdistance < this.geolocation.distance || this.geolocation.GPSdistance > (this.geolocation.distance + 4)) {
@@ -2954,10 +2818,18 @@ export default {
       }
       
       if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.distance <= parseInt(options.distance, 10)) || this.geolocation.distance <= 20)) {
-        this.$refs['geolocation-component'].disabled = true
-        this.geolocation.active = false
-        this.resetDrawDirectionInterval()
-        await this.checkAnswer(current)
+        //check if other locations are defined
+        this.geolocation.currentIndex++
+        if (options.locations && options.locations.length > 0 && this.geolocation.currentIndex < options.locations.length) {
+          Notification(this.$t('label.CheckpointReached'), 'info')
+          this.geolocation.foundStep = false
+          this.geolocation.foundStep = true
+        } else {
+          this.$refs['geolocation-component'].disabled = true
+          this.geolocation.active = false
+          this.resetDrawDirectionInterval()
+          await this.checkAnswer(current)
+        }
       }
     },
     /*
@@ -2967,10 +2839,31 @@ export default {
       console.error('UserPositionError', ret)
     },
     /*
+     * switch mode map/compass for geolocation step
+     */
+    switchModeForGeolocationStep() {
+      if (this.geolocation.mode === 'compass') {
+        this.geolocation.mode = 'map'
+      } else {
+        this.geolocation.mode = 'compass'
+      }
+    },
+    /**
+     * returns icon code for geolocation step "switch button",
+     * depending on current mode (compass or map)
+     */
+    getGeolocationStepSwitchButtonIcon() {
+      if (this.geolocation.mode === 'compass') {
+        return 'map'
+      } else {
+        return 'explore'
+      }
+    },
+    /*
      * Use an item
      * @param   {object}    ev            Event when user touch screen to get location
      */
-    async useItem(ev) {
+    async checkUseItem(ev) {
       if (this.playerResult === true) {
         return
       }
@@ -2982,7 +2875,7 @@ export default {
         return
       }
       
-      let vw = this.getScreenWidth() / 100 // in px
+      let vw = this.getUseItemPictureSize() / 100 // in px
       
       var data = {
         windowWidth: vw,
@@ -2999,7 +2892,7 @@ export default {
      * Show the item location after success / failure
      */
     async showItemLocation(posX, posY) {
-      let vw = this.getScreenWidth() / 100
+      let vw = this.getUseItemPictureSize() / 100
 
       let answerPixelCoordinates = {
         left: Math.round(posX / 100 * 100 * vw),
@@ -3007,7 +2900,7 @@ export default {
       }
       
       // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
-      let solutionAreaRadius = Math.round(8 * vw)
+      let solutionAreaRadius = this.useItem.crossSize / 2
       // display the right solution
       var cross = document.getElementById('cross-play')
       cross.style.top = (answerPixelCoordinates.top - solutionAreaRadius) + "px"
@@ -3019,7 +2912,7 @@ export default {
       let itemUsed = this.itemUsedComputed !== null ? this.itemUsedComputed : this.itemUsed
       var self = this
       utils.setInterval(function() {
-        if (cross.src === crossPicture) {
+        if (cross.src === crossPicture && self.step.answers && self.step.answers.item) {
           if (itemUsed.pictures && itemUsed.pictures[self.lang] && itemUsed.pictures[self.lang] !== '') {
             cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? itemUsed.picture : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + itemUsed.picture)
           } else {
@@ -3033,16 +2926,25 @@ export default {
         }
       }, 1000);
     },
+    initUseItemElements() {
+      this.useItem.imageWidth = this.getUseItemPictureSize()
+      this.useItem.crossSize = this.useItem.imageWidth / 8
+      this.useItem.imageHeight = this.useItem.imageWidth * 4 / 3
+    },
+    getUseItemPictureSize() {
+      const picture = this.$refs['useItemPicture']
+      return picture.clientWidth
+    },
     /*
      * Check if user find the item in the picture
      * @param   {object}    ev            Event when user touch the screen
      */
-    async findItem(ev) {
+    async checkFindItem(ev) {
       if (this.playerResult === true) {
         return
       }
       
-      let vw = this.getScreenWidth() / 100 // in px
+      let vw = this.getFindItemPictureSize() / 100 // in px
       
       var data = {
         windowWidth: vw,
@@ -3051,6 +2953,15 @@ export default {
       }
       
       await this.checkAnswer(data)
+    },
+    initFindItemElements() {
+      this.findItem.imageWidth = this.getFindItemPictureSize()
+      this.findItem.crossSize = this.findItem.imageWidth / 8
+      this.findItem.imageHeight = this.findItem.imageWidth * 4 / 3
+    },
+    getFindItemPictureSize() {
+      const picture = this.$refs['findItemPicture']
+      return picture.clientWidth
     },
     /*
      * prepare page before snapshot
@@ -3207,14 +3118,14 @@ export default {
      * Show the item location after success / failure
      */
     async showFoundLocation(posX, posY) {
-      let vw = this.getScreenWidth() / 100
+      let vw = this.getFindItemPictureSize() / 100
       let answerPixelCoordinates = {
         left: Math.round(posX / 100 * 100 * vw),
         top: Math.round(posY / 100 * 133 * vw)
       }
       
       // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
-      let solutionAreaRadius = Math.round(8 * vw)
+      let solutionAreaRadius = this.findItem.crossSize / 2
       
       var cross = document.getElementById('cross-play')
       cross.style.top = (answerPixelCoordinates.top - solutionAreaRadius) + "px"
@@ -3246,9 +3157,9 @@ export default {
      */
     async initPuzzle() {
       let picture
-      if (this.step.options.picture.indexOf('blob:') !== -1) {
+      if (this.step.options.picture && this.step.options.picture.indexOf('blob:') !== -1) {
         picture = this.step.options.picture
-      } else if (this.step.options.picture.indexOf('upload/') === -1) {
+      } else if (this.step.options.picture && this.step.options.picture.indexOf('upload/') === -1) {
         picture = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + this.step.options.picture
       } else {
         picture = this.serverUrl + this.step.options.picture
@@ -3299,8 +3210,8 @@ export default {
      * @param   {object}    e            Event when user touch puzzle piece
      */
     handleDragStart(e) {
-      if (this.puzzle.mode === 'drag') {
-        if (e.target.className.indexOf('piece') !== -1) {
+      if (this.puzzle && this.puzzle.mode === 'drag') {
+        if (e.target.className && e.target.className.indexOf('piece') !== -1) {
           this.puzzle.dragSrcEl = e.target
         }
         return true
@@ -3316,7 +3227,7 @@ export default {
      * @param   {object}    e            Event when user move puzzle piece over
      */
     handleDragOver(e) {
-      if (this.puzzle.mode === 'drag') {
+      if (this.puzzle && this.puzzle.mode === 'drag') {
         if (this.puzzle.dragSrcEl) {
           e.preventDefault();
           e.dataTransfer.dropEffect = 'move';
@@ -3328,7 +3239,7 @@ export default {
      * @param   {object}    e            Event when user stop moving puzzle piece
      */
     handleDragEnd(e) {
-      if (this.puzzle.mode === 'drag') {
+      if (this.puzzle && this.puzzle.mode === 'drag') {
         this.puzzle.dragSrcEl = null
         var cols = document.querySelectorAll('#pieces .piece');
         [].forEach.call(cols, function (col) {
@@ -3343,7 +3254,7 @@ export default {
      * @param   {object}    e            Event when user drop puzzle piece
      */
     handleDrop(e) {
-      if (this.puzzle.mode === 'drag') {
+      if (this.puzzle && this.puzzle.mode === 'drag') {
         if (this.puzzle.dragSrcEl && e.cancelable) {
           e.stopPropagation()
           e.stopImmediatePropagation()
@@ -3389,7 +3300,7 @@ export default {
      * Change the piece move mode for puzzle
      */
     changePuzzleMode() {
-      if (this.puzzle.mode === 'drag') {
+      if (this.puzzle && this.puzzle.mode === 'drag') {
         this.puzzle.mode = 'click'
       } else {
         this.puzzle.mode = 'drag'
@@ -3400,7 +3311,7 @@ export default {
      */
     movePieceWithClick(pos) {
       this.puzzle.dragSrcEl = null
-      if (this.puzzle.mode === 'click') {
+      if (this.puzzle && this.puzzle.mode === 'click') {
         if (this.puzzle.clickModeSelected === null) {
           for (let i = 0; i < this.puzzle.pieces.length; i++) {
             if (this.puzzle.pieces[i].pos === pos) {
@@ -3490,6 +3401,32 @@ export default {
         this.memory.selectedKey = key
       }
     },
+    /*
+     * change item in portrait robot
+     * @param   {String}    type    type of item to change
+     */
+    changePortraitPart: function(type) {
+      Vue.set(this.portrait[type], "position", this.portrait[type].position + 1)
+      if (this.portrait[type].position > this.portrait[type].number) {
+        Vue.set(this.portrait[type], "position", 1)
+      }
+    },
+    /*
+     * call a number
+     * @param   {String}    type    type of item to change
+     */
+    phoneCall: function() {
+      let number = this.step.options.number
+      cordova.plugins.phonedialer.dial(
+        number, 
+        function(success) { console.log('Dialing succeeded') },
+        function(err) {
+          if (err === "empty") console.log("Unknown phone number")
+          else console.log("Dialer Error:" + err)
+        },
+        false
+       )
+    },
     
     /*
     * Animate canvas showing item (target) to find, for step type "locate-item-ar"
@@ -3515,47 +3452,6 @@ export default {
       target.renderer.render(target.scene, target.camera)
       TWEEN.update()
       this.latestRequestAnimationId = requestAnimationFrame(this.animateTargetCanvas)
-    },
-    /*
-    * Animate canvas where AR markers are detected, for step type "locate-marker"
-    */
-    animateMarkerCanvas() {   
-      if (typeof this.step === 'undefined' || (this.step.id !== 'sensor' && typeof this.step.type === 'undefined')) {
-        this.stopLatestAnimation()
-        return
-      }
-      
-      let mixers = this.locateMarker.mixers
-
-      if (this.locateMarker.arToolkitContext !== null) {
-        // player has not found object yet ?
-        // => adjust camera orientation & object position according to detected marker position
-        this.locateMarker.arToolkitContext.update(this.$refs['camera-stream-for-locate-marker'])
-
-        if ((this.step.type === 'locate-marker' && this.step.options.mode === 'scan') || this.step.id === 'sensor') {
-          // any marker is "recognized"
-          for (let markerCode in this.locateMarker.markerRoots) {
-            this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoots[markerCode])
-          }
-        } else {
-          // touch object step type => only one marker is "recognized"
-          this.locateMarker.arSmoothedControls.update(this.locateMarker.markerRoots[this.step.answers])
-        }
-      }
-      
-      if (this.locateMarker.renderer !== null) {
-        this.locateMarker.renderer.render(this.locateMarker.scene, this.locateMarker.camera)
-      }
-      
-      // animation
-      if (mixers.length > 0) {
-        for (let i = 0; i < mixers.length; i++) {
-          mixers[i].update(this.locateMarker.clock.getDelta());
-        }
-      }
-      
-      TWEEN.update()
-      this.latestRequestAnimationId = requestAnimationFrame(this.animateMarkerCanvas)
     },
     /*
     * stop latest animation
@@ -3596,7 +3492,7 @@ export default {
     */
     onTargetCanvasClick(event) {
       // handle touch only for specific steps & modes
-      if (!(this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options.mode === 'touch'))) {
+      if (!(this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'touch'))) {
         return
       }
       
@@ -3721,7 +3617,7 @@ export default {
       return new Promise((resolve, reject) => {
         let gltfLoader = new GLTFLoader()
         // loads automatically .bin and textures files if necessary
-        if (objName.indexOf('blob:') !== -1) {
+        if (objName && objName.indexOf('blob:') !== -1) {
           gltfLoader.load(objName, resolve, progress, reject)
         } else {
           if (offlineObject) {
@@ -3969,7 +3865,7 @@ export default {
     enlargeThePicture (index) {
       this.enlargePicture.show = true
       var pictureUrl = this.step.options.images[this.playerCode[index]].imagePath
-      this.enlargePicture.url = pictureUrl.indexOf('blob:') !== -1 ? pictureUrl : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + pictureUrl
+      this.enlargePicture.url = (pictureUrl && pictureUrl.indexOf('blob:') !== -1) ? pictureUrl : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + pictureUrl
     },
     /**
      * Triggers an IoT event
@@ -4228,6 +4124,7 @@ export default {
     isTimerAvailable() {   
       if (this.step && 
       this.step.countDownTime !== undefined &&
+      this.step.countDownTime !== null &&
       this.step.countDownTime.enabled === true && 
       utils.timeStringToSeconds(this.step.countDownTime.time) > 0) {
         return true
@@ -4249,7 +4146,7 @@ export default {
           }
           
           //var countdown
-          if (seconds < 0) {
+          if (seconds < 0 && this.step.countDownTime) {
             this.step.countDownTime.enabled = false
           } else {
             /*
@@ -4279,7 +4176,7 @@ export default {
     },
     async manageCountDown(seconds, stepId) {
       var _this = this;
-      if (this.isTimerAvailable() === true && stepId === this.step._id) {
+      if (this.step.countDownTime && this.step.countDownTime.enabled && stepId === this.step._id) {
         setTimeout(async function() {
           if (seconds <= 0) {
             await _this.handleTimeUp()
@@ -4298,7 +4195,9 @@ export default {
     async handleTimeUp() {
       this.isTimeUp = true
       this.stopcountdown()
-      this.step.countDownTime.enabled = false
+      if (this.step.countDownTime) {
+        this.step.countDownTime.enabled = false
+      }
       let stepType = this.getStepType(this.step.type)
       this.$emit('closeAllPanels')
       if (stepType.category === 'enigma') {
@@ -4312,7 +4211,7 @@ export default {
      * Stops current countdown
      */
     stopcountdown() {
-      if (this.isTimerAvailable() === true) {
+      if (this.step.countDownTime) {
         this.step.countDownTime.enabled = false
       }
     },
@@ -4341,7 +4240,7 @@ export default {
     findItemIsFound(data) {
       var notAllFound = false
       var oneFound = false
-      const ww = (data && data.windowWidth) ? data.windowWidth : (this.getScreenWidth() / 100)
+      const ww = (data && data.windowWidth) ? data.windowWidth : (this.getFindItemPictureSize() / 100)
       for (var i = 0; i < this.step.options.coordinates.length; i++) {
         if (!this.step.options.coordinates[i].found) {
           let answerPixelCoordinates = {
@@ -4379,8 +4278,6 @@ export default {
   #play-view { padding: 0rem; height: inherit; min-height: inherit; }
   
   #play-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; /*padding-bottom: 4rem;*/ }
-/* MPA 2020-10-04 removed because conflicts with timer div
-  #play-view > div > div:not(.story) { height: inherit; min-height: inherit; padding: 1rem; display: flex; flex-flow: column nowrap; } */
   #play-view > div > div.find-item, #play-view > div > div.use-item { padding: 0px }
   #play-view > div > div.locate-item-ar { padding-bottom: 1rem; }
   
@@ -4399,10 +4296,8 @@ export default {
   .answers-text .q-btn {
     opacity: 0.9;
     background-color: #fff;
-    /*border-radius: 0.5rem;*/
     padding: 0.5rem;
     margin: 0;
-    /*box-shadow: 0px 0px 0.1rem 0.1rem #fff;*/
   }
   .text { 
     white-space: pre-wrap; 
@@ -4418,15 +4313,13 @@ export default {
     display: none
   }
     
-  .q-btn, audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
+  .q-btn, /*audio,*/ .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
   
   .q-btn { margin-top: 1rem; }
   
   /* info specific */
   
-  audio { opacity: 0.9; }
-  
-  .video { flex-grow: 1; display: flex; align-items: center; }
+  .video { margin: auto; flex-grow: 1; display: flex; align-items: center; position: relative; }
   
   .character {
     text-align: right;
@@ -4463,16 +4356,12 @@ export default {
   .code-image td { width: 20% }
   .code-image td img { width: 100% }
   .code-image td .q-icon { font-size: 2em }
-
-  /* image recognition specific - MPA 2020-04-29 not used since several months */
-  /*
-  .image-recognition .photo { flex-grow: 1; overflow-y: hidden; margin-top: 1rem; display: flex; flex-flow: column nowrap; justify-content: center; padding: 0.5rem; margin: -0.5rem; } // negative margin required to have image shadow visible on sides
-  .image-recognition .photo img, 
-  .image-recognition .photo > video { width: 100%; border-radius: 0.5rem; }
-  */
   
   /* geolocation specific */
-  .geolocation .text { margin-bottom: 0.5rem; }
+  .geolocation .text { margin-bottom: 0.5rem; position: relative; z-index: 10; }
+  .geolocation #mode-switch { position: absolute; bottom: 6rem; right: 0.6rem; }
+  .geolocation-step-map { position: absolute; opacity: 1; top: 0; left: 0; width: 100%; height: 100%; background-color: yellow; }
+  .geolocation .q-btn { box-shadow: none;  }
   
   /* jigsaw puzzle specific */
   
@@ -4509,7 +4398,7 @@ export default {
   /* new-item specific */
   
   .new-item .item { text-align: center; position: relative;}
-  .new-item .item p { font-size: 2rem; }
+  .new-item .item p span { font-size: 2rem; background-color: rgba(255, 255, 255, 0.5); border-radius: 8px; padding: 4px 8px; }
   
   /* locate-item-ar specific */
   
@@ -4531,10 +4420,6 @@ export default {
   
   .locate-marker { position: relative; }
   .locate-marker video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-  .locate-marker .marker-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-  .locate-marker #marker-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }
-  .locate-marker .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
-  .locate-marker img.locate-marker-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 30; padding: 0; margin: 0; }
   .locate-marker img.locate-marker-answer { width: 60vw; margin: 30vw auto; }
   .locate-marker .q-btn { margin-bottom: 17vw; margin-left: 4vw; z-index: 50; }
   .locate-marker .q-btn span { font-size: 36px; }
@@ -4553,11 +4438,11 @@ export default {
   }
 
   .memory .card {
-    height: 15vw;
-    width: 15vw;
-    max-width: 110px;
-    max-height: 110px;
-    margin: 2vw 2vw;
+    height: 20vw;
+    width: 20vw;
+    max-width: 60px;
+    max-height: 60px;
+    margin: 10px;
     background: url(/statics/icons/game/card-back.png) no-repeat;
     background-size: 100%;
     color: #ffffff;
@@ -4659,7 +4544,6 @@ export default {
   .actions > div > .q-btn:not(:first-child) { flex-grow: 1; margin-left: 1rem; }
     
   .inventory-btn { position: fixed; bottom: 60px; left: 0.7rem; z-index: 1; color: #fff; }
-  .inventory-btn img { width: 100%; height: 100%; border-radius: 50%; }
   
   [draggable] {
     user-select: none;

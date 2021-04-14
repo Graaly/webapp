@@ -9,7 +9,7 @@
       </div>
     </div>
     <div v-if="quests && (quests.length > 0 || add) && format === 'small'" class="horizontal-scroll-wrapper quests-horizontal-scroll-wrapper" :class="{'quest-red': (color === 'red')}">
-      <div v-if="add" class="quest-add-button relative-position q-mr-md" @click="buildQuest()">
+      <div v-if="add" class="quest-add-button relative-position q-mr-md cursor-pointer" @click="buildQuest()">
         <div>
           <q-icon name="add" style="font-size: 3em;" />
         </div>
@@ -17,7 +17,7 @@
       <div 
         v-for="quest in quests" 
         :key="quest._id" 
-        class="quest-small relative-position q-mr-md" 
+        class="quest-small relative-position q-mr-md cursor-pointer" 
         :style="'background: url(' + getBackgroundImage(quest.thumb) + ' ) center center / cover no-repeat '"
         @click="$router.push('/quest/play/' + quest.questId)">
         <div v-if="quest.status && quest.status !== 'published'">
@@ -34,7 +34,7 @@
           </q-chip>
         </div>
         <div class="info-banner">
-          <div v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</div²>
+          <div v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</div>
           <div v-if="quest.duration && quest.duration >= 60">{{ quest.duration / 60 }}{{ $t('label.hoursSimplified') }}</div>
           <div v-if="quest.level">{{ $t('label.Difficulty' + quest.level) }}</div>
           <div v-if="quest.premiumPrice && !(quest.premiumPrice.androidId && quest.premiumPrice.active) && !quest.premiumPrice.manual">
@@ -80,11 +80,11 @@
       <div 
         v-for="quest in quests" 
         :key="quest._id" 
-        class="quest-big relative-position q-mr-md" 
+        class="quest-big relative-position q-mr-md cursor-pointer" 
         :style="'background: url(' + getBackgroundImage(quest.thumb) + ' ) center center / cover no-repeat '"
         @click="$router.push('/quest/play/' + quest.questId)">
         <div class="info-banner">
-          <div v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</div²>
+          <div v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</div>
           <div v-if="quest.duration && quest.duration >= 60">{{ quest.duration / 60 }}{{ $t('label.hoursSimplified') }}</div>
           <div v-if="quest.level">{{ $t('label.Difficulty' + quest.level) }}</div>
           <div v-if="quest.premiumPrice && !(quest.premiumPrice.androidId && quest.premiumPrice.active) && !quest.premiumPrice.manual">

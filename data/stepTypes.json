@@ -21,7 +21,7 @@
     "showTrick": "no",
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": false,
+    "hasOptions": true,
     "nbTrials": 0,
     "passOption": false
   },
@@ -262,24 +262,11 @@
   },
   {
     "category": "enigma",
-    "code": "image-recognition",
-    "icon": "camera",
-    "title": "PhotographAnObject",
-    "description": "PhotographAnObjectDesc",
-    "showTrick": "yes",
-    "enabled": false,
-    "hasBackgroundImage": "option",
-    "hasOptions": true,
-    "nbTrials": 2,
-    "passOption": true
-  },
-  {
-    "category": "enigma",
     "code": "jigsaw-puzzle",
     "icon": "puzzle-piece",
     "title": "JigsawPuzzle",
     "description": "JigsawPuzzleDesc",
-    "showTrick": "no",
+    "showTrick": "yes",
     "textRules": {
       "maxNbChars": 100,
       "maxNbCarriageReturns": 1
@@ -296,7 +283,7 @@
     "icon": "clone",
     "title": "Memory",
     "description": "MemoryDesc",
-    "showTrick": "no",
+    "showTrick": "yes",
     "textRules": {
       "maxNbChars": 100,
       "maxNbCarriageReturns": 1
@@ -306,6 +293,49 @@
     "hasOptions": true,
     "nbTrials": 0,
     "passOption": true
+  },
+  {
+    "category": "enigma",
+    "code": "portrait-robot",
+    "icon": "user-circle",
+    "title": "PortraitRobot",
+    "description": "PortraitRobotDesc",
+    "showTrick": "yes",
+    "textRules": {
+      "maxNbChars": 100,
+      "maxNbCarriageReturns": 1
+    },
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": true,
+    "nbTrials": 1,
+    "passOption": true
+  },
+  {
+    "category": "enigma",
+    "code": "binocular",
+    "icon": "binoculars",
+    "title": "Binocular",
+    "description": "BinocularDesc",
+    "showTrick": "yes",
+    "enabled": true,
+    "hasBackgroundImage": "main",
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": false
+  },
+  {
+    "category": "enigma",
+    "code": "phone-call",
+    "icon": "phone-volume",
+    "title": "PhoneCall",
+    "description": "PhoneCallDesc",
+    "showTrick": "yes",
+    "enabled": true,
+    "hasBackgroundImage": "main",
+    "hasOptions": true,
+    "nbTrials": 0,
+    "passOption": false
   },
   {
     "category": "enigma",

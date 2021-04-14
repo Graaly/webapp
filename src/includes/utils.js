@@ -235,12 +235,6 @@ var self = {
     this.clearAllTimeouts()
     this.clearAllIntervals()
     this.clearAllNotifications()
-    /* hide QR Code scanner
-    if (window.cordova && QRScanner) {
-      QRScanner.destroy(function(status) {
-        console.log(status)
-      })
-    }*/
   },
   getDurationFromNow: function(date) {
     const oldDate = new Date(date)
@@ -735,6 +729,7 @@ var self = {
   openExternalLink(url) {
     if (window.cordova) {
       navigator.app.loadUrl(url, { openExternal: true })
+      // in a quest text, you can use window.location.href = ...
     } else {
       window.open(url, '_blank')
     }

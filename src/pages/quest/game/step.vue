@@ -1,6 +1,5 @@
 <template>
-  <div>
-    
+  <div class="reduce-window-size-desktop">
     <div class="centered bg-warning q-pa-sm" v-if="warnings.stepDataMissing" @click="initData()">
       <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
     </div>
@@ -22,27 +21,28 @@
     />
     
     <!------------------ HEADER AREA ------------------------>
-    
-    <stepPlay 
-      :step="step" 
-      :runId="run._id" 
-      :inventory="inventory"
-      :itemUsed="selectedItem" 
-      :reload="loadStepData" 
-      :lang="lang" 
-      :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}" 
-      :answer="offline.answer" 
-      :player="player"
-      @played="trackStepPlayed" 
-      @success="trackStepSuccess" 
-      @fail="trackStepFail" 
-      @pass="trackStepPass"
-      @closeAllPanels="closeAllPanels"
-      @forceMoveNext="nextStep(true)"
-      @hideButtons="hideFooterButtons"
-      @showButtons="showFooterButtons"
-      @msg="trackMessage">
-    </stepPlay>
+    <div :class="{'fit': (step.type !== 'image-over-flow')}"><!-- Keep this div for iphone, for red filter display -->
+      <stepPlay 
+        :step="step" 
+        :runId="runId" 
+        :inventory="inventory"
+        :itemUsed="selectedItem" 
+        :reload="loadStepData" 
+        :lang="lang" 
+        :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}" 
+        :answer="offline.answer" 
+        :player="player"
+        @played="trackStepPlayed" 
+        @success="trackStepSuccess" 
+        @fail="trackStepFail" 
+        @pass="trackStepPass"
+        @closeAllPanels="closeAllPanels"
+        @forceMoveNext="nextStep(true)"
+        @hideButtons="hideFooterButtons"
+        @showButtons="showFooterButtons"
+        @msg="trackMessage">
+      </stepPlay>
+    </div>
       
     <!------------------ INVENTORY PAGE AREA ------------------------>
     
@@ -68,25 +68,39 @@
       </div>
     </transition>
     <q-dialog maximized v-model="inventory.detail.isOpened">
-      <div class="bg-white centered">
-        <img style="width: 100%" :src="inventory.detail.url">
+      <div class="bg-white centered limit-size-desktop">
+        <img v-if="inventory.detail.zoom === 1" style="width: 100%" :src="inventory.detail.url">
+        <div v-if="inventory.detail.zoom === 2" style="width: 100%; height: 100vw; overflow-x: scroll; overflow-y: scroll;">
+          <img style="width: 200%" :src="inventory.detail.url">
+        </div>
+        <div v-if="inventory.detail.zoom === 4" style="width: 100%; height: 100vw; overflow-x: scroll; overflow-y: scroll;">
+          <img style="width: 400%" :src="inventory.detail.url">
+        </div>
         <div class="q-pa-md">{{ inventory.detail.title }}</div>
         <div class="q-pa-md text-grey">{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>
         <q-btn class="glossy normal-button" color="primary" @click="closeInventoryDetail()"><div>{{ $t('label.Close') }}</div></q-btn>
+        <div>
+          <q-btn-group outline>
+            <q-btn flat :label="$t('label.Zoom')"/>
+            <q-btn flat :class="{ 'text-primary': (inventory.detail.zoom === 1) }" label="x1" @click="inventoryZoom(1)" />
+            <q-btn flat :class="{ 'text-primary': (inventory.detail.zoom === 2) }" label="x2" @click="inventoryZoom(2)" />
+            <q-btn flat :class="{ 'text-primary': (inventory.detail.zoom === 4) }" label="x4" @click="inventoryZoom(4)" />
+          </q-btn-group>
+        </div>
       </div>
     </q-dialog>
     
     <!------------------ INFO PAGE AREA ------------------------>
     
     <transition name="slideInBottom">
-      <div v-show="info.isOpened">
+      <div class="reduce-window-size-desktop" v-show="info.isOpened">
         <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="getQuest(questId)">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
           <div class="fixed-top align-right full-width q-pa-lg" v-if="info && info.audio !== ''">
-            <q-btn v-if="sound.status === 'play'" flat color="white" @click="cutSound" icon="volume_off"></q-btn>
-            <q-btn v-if="sound.status === 'pause'" flat color="white" @click="cutSound" icon="volume_up"></q-btn>
+            <q-btn v-if="sound && sound.status === 'play'" flat color="white" @click="cutSound" icon="volume_off"></q-btn>
+            <q-btn v-if="sound && sound.status === 'pause'" flat color="white" @click="cutSound" icon="volume_up"></q-btn>
           </div>
           <div class="text-center dark-banner q-pb-xl q-pt-md fixed-bottom">
             <p class="title">
@@ -95,12 +109,6 @@
             <p v-if="run && run.team && run.team.name">
               {{ $t('label.Team') }} : {{ run.team.name }}
             </p>
-           <!-- <p v-if="info.quest.countDownTime.enabled">
-              {{ "temspsms tresetran: " }} : {{ info.quest.countDownTime.time }}
-            </p>-->
-
-            <!--<q-linear-progress :percentage="this.step.number * 100 / info.stepsNumber" stripe animate height="30px" color="primary"></q-linear-progress>-->
-            <!--<p class="q-pa-md score-text" v-show="info && !offline.active && (!info.quest.customization || !info.quest.customization.removeScoring)">{{ $t('label.CurrentScore') }}: {{ info.score }} <q-icon color="white" name="fas fa-trophy" />-</p>-->
             <p>
               <q-btn 
               v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring" 
@@ -154,20 +162,20 @@
     
     <!--====================== HINT =================================-->
     
-    <div class="fixed-bottom over-map" v-if="hint.isOpened">
+    <div class="mobile-fit over-map" :class="'font-' + info.quest.customization.font" v-if="hint.isOpened">
       <story step="hint" :data="{hint: hint.label, character: (info.quest.customization && info.quest.customization.character && info.quest.customization.character !== '') ? (info.quest.customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + info.quest.customization.character : info.quest.customization.character) : '3'}" @next="askForHint()"></story>
     </div>
     
     <!--====================== STORY =================================-->
     
-    <div class="fixed-bottom over-map" v-if="story.step !== null && story.step !== 'end'">
+    <div class="mobile-fit over-map" :class="'font-' + info.quest.customization.font" v-if="story.step !== null && story.step !== 'end'">
       <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
     </div>
     
     <!--====================== FEEDBACK =================================-->
     
     <q-dialog v-model="feedback.isOpened">
-      <div class="bg-white q-pa-md">
+      <div class="bg-white q-pa-md reduce-window-size-desktop">
         <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.FeedbackTitle') }}</div>
         {{ $t('label.FeedbackIntroduction') }}
         <form @submit.prevent="sendFeedback">
@@ -191,7 +199,7 @@
       
     <!------------------ FOOTER AREA ------------------------>
     
-    <div v-show="footer.show" class="step-menu fixed-bottom">
+    <div v-show="footer.show" class="step-menu step-menu-fixed fixed-bottom">
       <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
       <div class="row white-buttons">
         <div class="col centered q-pb-md">
@@ -218,15 +226,13 @@
         </div>
         <div class="col centered q-pb-md">
           <q-btn 
-            round 
-            size="lg" 
+            round
+            size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="work" 
             :class="{'flashing': inventory.suggest, 'bg-secondary': inventory.isOpened, 'bg-primary': (!inventory.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
             @click="openInventory()" 
-          />  
-            <!--v-show="inventory.show" 
-          />-->
+          />
         </div>
         <div class="col centered q-pb-md">
           <q-btn 
@@ -271,7 +277,6 @@
 </template>
 
 <script>
-//import simi from 'src/includes/simi' // for image similarity
 import RunService from 'services/RunService'
 import StepService from 'services/StepService'
 import QuestService from 'services/QuestService'
@@ -322,7 +327,8 @@ export default {
           show: true,
           detail: {
             isOpened: false,
-            url: ''
+            url: '',
+            zoom: 1
           }
         },
         hint: {
@@ -357,9 +363,11 @@ export default {
         },
         loadStepData: false,
         run: {},
+        runId: 0,
         player: 'P1',
         isRunFinished: false,
         remotePlay: false,
+        dataSharedWithPartner: false,
         //cameraStreamEnabled: false,
         isHybrid: window.cordova,
         serverUrl: process.env.SERVER_URL,
@@ -510,10 +518,11 @@ export default {
      */
     async getRun() {
       // List all run for this quest for current user
-      var runs = await RunService.listForAQuest(this.questId, null, this.lang)
-      
+      var runs = await RunService.listForAQuest(this.questId, { retries: 0 })
+
       var currentChapter = 0
       var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
+      var dataSharedWithPartner = (this.$route.query.hasOwnProperty('sharepartner') && this.$route.query.sharepartner === 'true')
       
       // check if a run is created on offline mode
       const isRunOfflineLoaded = await this.checkIfRunIsAlreadyLoaded(this.questId)
@@ -527,11 +536,12 @@ export default {
         this.offline.active = false
       
         for (var i = 0; i < runs.data.length; i++) {
-          if (runs.data[i].status === 'finished') {
+          if (runs.data[i] && runs.data[i].status && runs.data[i].status === 'finished') {
             this.isRunFinished = true
           }
-          if (runs.data[i].status === 'in-progress') {
+          if (runs.data[i] && runs.data[i].status && runs.data[i].status === 'in-progress') {
             this.run = runs.data[i]
+            this.runId = this.run._id
             
             currentChapter = runs.data[i].currentChapter
             
@@ -543,6 +553,7 @@ export default {
                 // fix when id is not set
                 if (!this.run._id) {
                   this.run._id = tempId
+                  this.runId = tempId
                 }
                 if (!this.run.questId) {
                   this.run.questId = this.questId
@@ -563,12 +574,13 @@ export default {
         // init the run on the server
         if (currentChapter === 0) {
           // no 'in-progress' run => create run for current player & current quest
-          let res = await RunService.init(this.questId, this.questVersion, this.$route.params.lang, remotePlay)
-          if (res.status === 200 && res.data && res.data._id) {
+          let res = await RunService.init(this.questId, this.questVersion, this.$route.params.lang, remotePlay, null, dataSharedWithPartner)
+          if (res && res.status === 200 && res.data && res.data._id) {
             if (isRunOfflineLoaded) {
               // if a offline run already exists
               this.run = offlineRun
               this.run._id = res.data._id
+              this.runId = this.run._id
               if (!this.run.questId) {
                 this.run.questId = this.questId
                 this.run.version = this.questVersion
@@ -576,6 +588,7 @@ export default {
               await RunService.updateFromOffline(this.run)
             } else {
               this.run = res.data
+              this.runId = this.run._id
             }
           } else {
             this.$q.dialog({
@@ -598,6 +611,9 @@ export default {
         if (isRunOfflineLoaded) {
           if (offlineRun) {
             this.run = offlineRun
+            if (this.run._id) {
+              this.runId = this.run._id
+            }
             // get current score
             this.info.score = this.run.tempScore
             // set chapter
@@ -606,12 +622,6 @@ export default {
         } else {
           // if first step => init run
           await this.updateOfflineRun(this.questId)
-          /*this.$q.dialog({
-            title: this.$t('label.TechnicalProblem'),
-            message: this.$t('label.TechnicalProblemNetworkIssue')
-          }).onOk(() => {
-            this.$router.push('/quest/play/' + this.quest.questId)
-          })*/
         }
       }
       
@@ -637,6 +647,11 @@ export default {
      * Get the step data
      */
     async getStep (forceNetworkLoading, forceStepId) {
+      let userIsAuthor = this.$store.state.user._id === this.info.quest.authorUserId
+      let userIsEditor = Array.isArray(this.info.quest.editorsUserId) && this.info.quest.editorsUserId.includes(this.$store.state.user._id)
+      
+      let forceOnline = this.$store.state.user.isAdmin || userIsAuthor || userIsEditor
+      
       this.warnings.stepDataMissing = false   
       var stepId
       // if no stepId given, load the next one
@@ -645,7 +660,8 @@ export default {
         stepId = forceStepId
       } else {
         var response
-        if (!this.offline.active) {
+
+        if (!this.offline.active || forceOnline) {
           response = await RunService.getNextStep(this.questId, this.player)
           
           if (response && response.status !== 200) {
@@ -699,7 +715,7 @@ export default {
             return false
           }
         }
-      }    
+      }
 
       if (stepId === 'locationMarker') {
         // QR Code scanner step
@@ -711,10 +727,10 @@ export default {
       if (stepId === 'end') {
         return this.$router.push('/quest/' + this.questId + '/end')
       }
-
+      
       // check if the quest data are not already saved on device
       let isStepOfflineLoaded = await this.checkIfStepIsAlreadyLoaded(stepId)
-      
+
       if (!isStepOfflineLoaded || forceNetworkLoading) {
         const response2 = await StepService.getById(stepId, this.questVersion, this.lang)
         if (response2 && response2.data && response2.status === 200) {
@@ -776,21 +792,12 @@ export default {
               this.warnings.stepDataMissing = true
             }
           }
-          /* MPA 2020-09-04 not used since several months
-          if (tempStep.type === 'image-recognition' && tempStep.answers && tempStep.answers !== '') {
-            const imageRecognitionUrl = await utils.readBinaryFile(this.questId, tempStep.answers)
-            if (imageRecognitionUrl) {
-              tempStep.answers = imageRecognitionUrl
-            } else {
-              this.warnings.stepDataMissing = true
-            }
-          }*/
           if (tempStep.type === 'choose' && tempStep.options) {
-            for (var k = 0; k < tempStep.options.length; k++) {
-              if (tempStep.options[k].imagePath) {
-                var chooseImageUrl = await utils.readBinaryFile(this.questId, tempStep.options[k].imagePath)
+            for (var k = 0; k < tempStep.options.items.length; k++) {
+              if (tempStep.options.items[k].imagePath) {
+                var chooseImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.items[k].imagePath)
                 if (chooseImageUrl) {
-                  tempStep.options[k].imagePath = chooseImageUrl
+                  tempStep.options.items[k].imagePath = chooseImageUrl
                 } else {
                   this.warnings.stepDataMissing = true
                 }
@@ -922,6 +929,11 @@ export default {
       
       // save offline run
       await this.saveOfflineAnswer(true)
+      
+      // move to next step if right answer not displayed
+      if (this.step.displayRightAnswer === false) {
+        this.nextStep()
+      }
     },
     /*
      * Track step played
@@ -958,6 +970,11 @@ export default {
         
       // save offline run
       await this.saveOfflineAnswer(false)
+      
+      // move to next step if right answer not displayed
+      if (this.step.displayRightAnswer === false) {
+        this.nextStep()
+      }
     },
     /*
      * Track message sent 
@@ -1004,7 +1021,6 @@ export default {
         } else {
           //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + next + '/' + this.$route.params.lang)
           this.moveToStep(next)
-          //this.stopMarkersSensors()
         }        
       }
     },
@@ -1039,10 +1055,14 @@ export default {
      * get audio sound
      */
     getAudioSound () {
-      if (this.info.quest.customization && this.info.quest.customization.audio && this.info.quest.customization.audio.indexOf('blob:') !== -1) {
-        this.info.audio = this.info.quest.customization.audio
+      if (this.info.quest.customization && this.info.quest.customization.audio) {
+        if (this.info.quest.customization.audio.indexOf('blob:') !== -1) {
+          this.info.audio = this.info.quest.customization.audio
+        } else {
+          this.info.audio = this.serverUrl + '/upload/quest/' + this.info.quest.customization.audio
+        }
       } else {
-        this.info.audio = this.serverUrl + '/upload/quest/' + this.info.quest.customization.audio
+        this.info.audio = null
       }
     },
     /*
@@ -1058,12 +1078,7 @@ export default {
       } 
       // reload step to remove notifications
       this.loadStepData = false
-      
       if (this.next.enabled) {
-        /*utils.clearAllRunningProcesses()
-        this.resetData()
-        await this.initData()
-        */
         await this.moveToNextStep('success')
       } else if (this.next.canPass) {
         if (force) {
@@ -1082,13 +1097,10 @@ export default {
     },
     async passStep() {
       if (!this.offline.active) {
-        await RunService.passStep(this.run._id, this.step.id, this.player)
+        await RunService.passStep(this.runId, this.step.id, this.player)
       }
       
-      //if (!passSuccess) {
-        // offline treatment
       await this.passOfflineStep(this.step.id)
-      //}
       
       // TODO: manage if pass failed
       await this.moveToNextStep('pass')
@@ -1165,7 +1177,7 @@ export default {
     async getHint() {
       var hintLabel 
       if (!this.offline.active) {
-        hintLabel = await RunService.getHint(this.run._id, this.step.stepId, this.run.version)
+        hintLabel = await RunService.getHint(this.runId, this.step.stepId, this.run.version)
       }
 
       if (hintLabel && hintLabel.hint) {
@@ -1214,7 +1226,7 @@ export default {
       // load items won on previous steps
       var response
       if (!this.offline.active) {
-        response = await RunService.listWonObjects(this.questId, this.run._id)
+        response = await RunService.listWonObjects(this.questId, this.runId)
       }
       
       if (response && response.data) {
@@ -1293,7 +1305,7 @@ export default {
      * Cancel a run
      */
     async cancelRun() {
-      await RunService.endRun(this.run._id, null, this.questId, this.questVersion, this.info.quest.mainLanguage)
+      await RunService.endRun(this.runId, null, this.questId, this.questVersion, this.info.quest.mainLanguage)
       // remove run offline data
       await utils.writeInFile(this.questId, 'run_' + this.questId + '.json', JSON.stringify({}), false)
       // return to the home
@@ -1388,18 +1400,11 @@ export default {
       }
     },
     /*
-     * count number of steps in a quest
-     * @param   {string}    id             Quest ID
-     *
-    async countStepsNumber(id) {
-      let response = await StepService.countForAQuest(id, this.run.version)
-      this.info.stepsNumber = (response && response.data && response.data.count) ? response.data.count : 1
-    },*/
-    /*
      * Select an item in the inventory
      * @param   {object}    item            Item selected
      */
     selectItem(item) {
+      this.inventory.detail.zoom = 1
       if (this.step.type !== 'use-item') {
         this.inventory.detail.isOpened = true
         if (item.pictures && item.pictures[this.lang] && item.pictures[this.lang] !== '') {
@@ -1419,6 +1424,10 @@ export default {
     },
     closeInventoryDetail() {
       this.inventory.detail.isOpened = false
+    },
+    inventoryZoom(zoomLevel) {
+      Vue.set(this.inventory.detail, 'zoom', zoomLevel)
+      this.$forceUpdate()
     },
     /*
      * Show the feedback box
@@ -1517,6 +1526,7 @@ export default {
         // init the offline file with the server one
       } else {
         this.run = {
+          _id: this.runId,
           userId: this.$store.state.user._id,
           questId: questId,
           version: this.questVersion,
@@ -1530,6 +1540,7 @@ export default {
           stars: 0,
           reward: 0,
           remotePlay: this.remotePlay,
+          dataSharedWithPartner: this.dataSharedWithPartner,
           dateCreated: new Date(),
           dateUpdated: new Date(),
           answers: [],
@@ -1572,6 +1583,7 @@ export default {
       var score = 0
       var stepStatus
       var removedStatus
+
       if (success) {
         // if answer is not displayed => player must be able to play again the step and the step before
         if (this.step.displayRightAnswer === false) {
@@ -1692,7 +1704,9 @@ export default {
         return false
       }
       run.dateUpdated = new Date()
+      
       let status = await utils.writeInFile(this.questId, 'run_' + questId + '.json', JSON.stringify(run), true)
+
       if (status) {
         return true
       } else {
@@ -1700,16 +1714,6 @@ export default {
       }
     },
     /**
-     * Adds step with <StepId> to run object <run> history and saves it to offline file
-     * /!\ WARNING /!\ copied & adapted from server side file controller/run.js to handle online mode
-     * @param {String} stepId 
-     *
-    async addStepToHistory (stepId) {
-      this.run.history.push(stepId)
-      this.run.historyIndex = this.run.history.length
-      await this.saveOfflineRun(this.questId, this.run)
-    },
-    /*
      * Get the next offline step
      * /!\ WARNING /!\ copied & adapted from server side file controller/run.js to handle online mode
      */
@@ -2081,7 +2085,7 @@ export default {
     cutSound () {
       var audio = document.getElementById("background-music")
       if (audio) {
-        if (this.sound.status === 'play') {
+        if (this.sound && this.sound.status && this.sound.status === 'play') {
           audio.pause()
           this.sound.status = 'pause'
         } else {

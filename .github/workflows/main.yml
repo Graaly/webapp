@@ -5,6 +5,7 @@ on:
       - master
       - dev
       - tests
+      - check-network-quality
       - lambda
   pull_request:
     branches:

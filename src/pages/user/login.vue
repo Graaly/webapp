@@ -1,9 +1,9 @@
 <template>
   <div class="wrapper background-map">
     <div class="page-content" style="padding-bottom: 100px">
-      <div class="desktop-only centered q-pa-md warning bg-warning">
+      <!--<div class="desktop-only centered q-pa-md warning bg-warning">
         {{ $t('label.OnDesktopDisplayMessage') }}
-      </div>
+      </div>-->
       <!------------------ TITLE AREA ------------------------>
       
       <div class="centered q-pt-lg q-pb-md">
@@ -91,7 +91,13 @@
           </div>
 -->
           <div class="centered q-mt-sm q-mb-xl">
-            <q-btn flat @click="goToSubscribe()">{{ $t('label.Subscribe') }}</q-btn>
+            <q-btn 
+              class="large-btn" 
+              outline 
+              color="primary"
+              :label="$t('label.Subscribe')"
+              @click="goToSubscribe()"
+              />
           </div>
         </form>
         
@@ -130,7 +136,11 @@
         </div>
         -->
 
-        <div class="centered smaller version secondary-font">Version {{ version }}</div>
+        <div class="centered smaller version secondary-font">
+          Version {{ version }} - 
+          <img src="statics/icons/game/flag-en.png" @click="switchLanguage('en')" /> -
+          <img src="statics/icons/game/flag-fr.png" @click="switchLanguage('fr')" />
+        </div>
       
       </div>
     </div>
@@ -540,6 +550,9 @@ export default {
       }
       
       this.submitting = false
+    },
+    switchLanguage(lang) {
+      this.$i18n.locale = lang
     }
   },
   validations: {

@@ -26,6 +26,7 @@
         />
         <q-tab name="earnings" icon="price" label="Earnings" />
         <q-tab name="statistics" icon="stats" label="Statistics" />
+        <q-tab name="limitations" icon="stats" label="Limitations" />
       </q-tabs>
 
       <q-separator />
@@ -172,6 +173,34 @@
             </q-item>
           </q-list>
         </q-tab-panel>
+        
+        <!------------------ LIMITATIONS TAB ------------------------>
+
+        <q-tab-panel name="limitations">
+          Published games with limitations:
+          <q-list highlight>
+            <q-item v-for="limitation in limitations.items" :key="limitation.questId">
+              <q-item-section>
+                <q-item-label v-if="limitation.title.fr">
+                  {{limitation.title.fr}}
+                </q-item-label>
+                <q-item-label v-if="!limitation.title.fr && limitation.title.en">
+                  {{ limitation.title.en }}
+                </q-item-label>
+                <q-item-label caption>
+                  <span :class="{'text-red': (limitation.limitations.nbPlays <= limitation.nbPlayers)}">Crédits disponibles:{{ limitation.limitations.nbPlays }} | Parties jouées:{{ limitation.nbPlayers }}</span>
+                </q-item-label
+                >
+              </q-item-section>
+              <!--<q-item-section side>
+                <q-btn>Update</q-btn>
+              </q-item-section>-->
+            </q-item>
+            <q-item v-if="games.items.length === 0">
+              <q-item-label>No game played during 1 month</q-item-label>
+            </q-item>
+          </q-list>
+        </q-tab-panel>
       
         <!------------------ MINI GAMES TAB ------------------------>
 
@@ -227,6 +256,9 @@ export default {
       earnings: {
         items: []
       },
+      limitations: {
+        items: []
+      },
       adminTab: "validation",
       serverUrl: process.env.SERVER_URL
     };
@@ -236,6 +268,7 @@ export default {
     this.loadQuestsRejected()
     this.loadStatistics()
     this.loadEarnings()
+    this.loadLimitations()
     //this.loadTowns()
   },
   methods: {
@@ -251,7 +284,6 @@ export default {
      * List the towns
      */
     async loadTowns() {
-      // get quests to validate
       let response = await AdminService.ListTowns();
       this.towns.items = response.data.towns;
     },
@@ -259,7 +291,6 @@ export default {
      * Get the statistics of best games
      */
     async loadStatistics() {
-      // get quests to validate
       let response = await AdminService.ListBestGames();
       this.games.items = response.data.games;
     },
@@ -267,9 +298,15 @@ export default {
      * List the earnings
      */
     async loadEarnings() {
-      // get quests to validate
       let response = await AdminService.ListEarnings();
       this.earnings.items = response.data.earnings;
+    },
+    /*
+     * List the limitations
+     */
+    async loadLimitations() {
+      let response = await AdminService.ListLimitations();
+      this.limitations.items = response.data.limitations;
     },
     /*
      * validate a quest

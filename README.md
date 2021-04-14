@@ -42,7 +42,6 @@ $ quasar lint
     - [Installing](#installing)
     - [Running](#running)
     - [Readings](#readings)
-  - [Generate AR.js pattern files to detect markers](#generate-arjs-pattern-files-to-detect-markers)
   - [Technical specs](#technical-specs)
   - [COMMON ISSUES](#common-issues)
     - [Cordova Android Build unsuccessful](#cordova-android-build-unsuccessful)
@@ -72,10 +71,11 @@ configurations {
     compile.exclude group: 'com.google.zxing'
 }
 ```
-* If it still does not work, Open file `src-cordova/plugins/phonegap-plugin-barcodescanner/plugin.xml
-* Remove android:required="true" from <uses-feature android:name="android.hardware.camera" android:required="true"/>
-* Opens \src-cordova\platforms\android\app\src\main\java\org\apache\cordova\facebook\ConnectPlugin.java
-* Comment AppEventsLogger.augmentWebView((WebView) this.webView.getView(), appContext);
+If it still does not work:
+* Open file **src-cordova/plugins/phonegap-plugin-barcodescanner/plugin.xml**
+* Remove `android:required="true"` from `<uses-feature android:name="android.hardware.camera" android:required="true"/>`
+* Open **\src-cordova\platforms\android\app\src\main\java\org\apache\cordova\facebook\ConnectPlugin.java**
+* Comment `AppEventsLogger.augmentWebView((WebView) this.webView.getView(), appContext);` (see [Ionic doc](https://enappd-apps.gitbook.io/apps/ionic-4-full-app/troubleshoot#5-error-cannot-find-symbol-appeventslogger-augmentwebview-webview-this-webview-getview-appcontext))
 
 :warning: npm package **ip-regex** is not compatible with Android 4.4 webview "as is". Quasar configuration (in version 1.0.0 beta 23) does not works for transpiling **ip-regex** using Babel. We have to do it manually for the moment.
 
@@ -122,7 +122,7 @@ See also [this Quasar doc page about setting up Cordova environment for iOS](htt
 :warning: Change the version in the **config/prod.env.js** and **quasar.conf.js** files
   If needed change the client required version in **/server/routes/main.js** & **webapp/src/plugins/RouterAuthentication.js**
 
-`$ quasar build -m cordova -T android`
+`$ quasar build -m cordova -T android --packageType=bundle`
 
 Sign the apk
 ```
@@ -130,7 +130,7 @@ $ cd src-cordova\platforms\android\app\build\outputs\apk\release
 This only needs to be launched if a key has not been generated : $ keytool -genkey -v -keystore graaly-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-alias
 $ jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore graaly-key.jks app-release-unsigned.apk my-alias
 $ rm graaly.apk
-$ E:\logiciels\Android\sdk\build-tools\26.0.2\zipalign -v 4 app-release-unsigned.apk graaly.apk
+$ C:\Users\ericm\AppData\Local\Android\Sdk\build-tools\30.0.3\zipalign -v 4 app-release-unsigned.apk graaly.apk
 ```
 Attention:
 * The keystore (jks file) needs to be saved in a secure location. It can not be built again.
@@ -212,8 +212,10 @@ Remove the cache of your browser (if you renew the certificate)
 
 Use utility [**mkcert**](https://github.com/FiloSottile/mkcert). It allows to easily create a custom Certification Authority, generate certificates for any IP/domain, and make all your dev devices trust them :
 
+```bash
 $ mkcert -install
 $ mkcert "dev.graaly.com" localhost 127.0.0.1 ::1
+```
 Move the 2 files created in the /webapp/certs folder, and rename as webapp-dev-cert.pem and webapp-dev-key.pem
 
 Optional: For Chrome Desktop, follow [this procedure](https://stackoverflow.com/a/15076602/488666) to install certificate in "trusted root certification authorities" store.
@@ -263,11 +265,6 @@ After running `npm install` in project folder, you can install latest version of
   * [Google Firebase Test Lab](https://firebase.google.com/docs/test-lab/) (maybe for native Android apps only)
   * [Saucelabs mobile app testing](https://saucelabs.com/products/mobile-app-testing) (paid service)
 
-## Generate AR.js pattern files to detect markers
-
-* Follow [this procedure](https://medium.com/arjs/how-to-create-your-own-marker-44becbec1105)
-* Warning: set pattern ratio to 0.80 instead of 0.50 (ratio pattern size / black border size)
-
 ## Technical specs
 
 `step.answers` types, depending on `step.type` value:
@@ -275,7 +272,6 @@ After running `npm install` in project folder, you can install latest version of
 * for *choose*, array of objects `{ text: <String>, isRightAnswer: <bool> }` (for text)
                              or `{ imagePath: <String>, isRightAnswer: <bool> }` (for images)
 * for *code*, a `Number`
-* for *image-recognition*, a `String` (path of the image to recognize)
 * for *geolocation*, a position object `{ lat: Number, lng: Number }`
 * for *write-text*, a `String`
 * for *new-item*, a `String` (item code)
@@ -309,7 +305,7 @@ Check this [solution](https://stackoverflow.com/a/55120122/488666)
 
 #### Error message `No target specified and no devices found`
 
-Open the platform tools folder of your android SDK (e.g. : cd E:\logiciels\Android\sdk\platform-tools)
+Open the platform tools folder of your android SDK (e.g. : cd C:\Users\ericm\AppData\Local\Android\Sdk\platform-tools)
 
 `adb devices` (unplug the device, run "adb kill-server" if device is offline)
 
@@ -319,12 +315,10 @@ Check the solutions [here](https://stackoverflow.com/questions/19015587/failed-t
 
 #### Error "Can not find symbol"
 
-Replace in the file 
+Replace in the file **webapp\src-cordova\platforms\android\app\src\main\java\com\smartmobilesoftware\util\IabHelper.java**:
 
-webapp\src-cordova\platforms\android\app\src\main\java\com\smartmobilesoftware\util\IabHelper.java 
-
-buyIntentBundle = mService.getBuyIntentToReplaceSkus(5, mContext.getPackageName(), oldPurchasedSkus, sku, itemType, extraData)
+`buyIntentBundle = mService.getBuyIntentToReplaceSkus(5, mContext.getPackageName(), oldPurchasedSkus, sku, itemType, extraData)`
 
 by 
 
-buyIntentBundle = mService.getBuyIntent(3, mContext.getPackageName(), sku, itemType, extraData)
+`buyIntentBundle = mService.getBuyIntent(3, mContext.getPackageName(), sku, itemType, extraData)`

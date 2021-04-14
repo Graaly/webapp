@@ -1,9 +1,17 @@
 <template>
   <div class="bg-white arial step-setting">
     
+    <!------------------ HEADER ------------------------>
+    
+    <div class="q-pa-md background-dark">
+      <a class="float-right no-underline" color="grey" @click="close"><q-icon name="close" class="subtitle4" /></a>
+      
+      <div class="subtitle3" v-if="selectedStep.type !== null">{{ $t('stepType.' + selectedStep.type.title) }}</div>
+    </div>
+    
     <!------------------ COMMON FOR ALL STEPS ------------------------>
     
-    <div class="q-pa-md q-pt-xl q-mt-lg bottom-margin-for-keypad">
+    <div class="q-pa-md q-pt-md q-mt-lg bottom-margin-for-keypad">
       <q-input
         type="text"
         :label="$t('label.Title') + ' ' + currentLanguageForLabels"
@@ -160,56 +168,81 @@
       
       <!------------------ STEP : GEOLOCATION ------------------------>
       
-      <div v-if="options.type.code == 'geolocation'" class="location-gps">
-        <h2>{{ $t('label.AddressToFind') }}</h2>
+      <div v-if="options.type.code === 'geolocation'" class="location-gps">
+        
+        <h2>{{ $t('label.DefaultMode') }}</h2>
         <div class="fields-group">
+          <q-list>
+            <q-item>
+              <q-item-section>
+                <q-radio v-model="selectedStep.form.options.mode" val="compass" :label="$t('label.CompassMode')" />
+              </q-item-section>
+              <q-item-section>
+                <q-icon round size="md" class="text-primary" name="help" @click="showGeolocationModeHelp('CompassMode')" />
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+                <q-radio v-model="selectedStep.form.options.mode" val="map" :label="$t('label.MapMode')" />
+              </q-item-section>
+              <q-item-section>
+                <q-icon round size="md" class="text-primary" name="help" @click="showGeolocationModeHelp('MapMode')" />
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+        
+        <h2>{{ $t('label.AddressToFind') }}</h2>
+        <div 
+          v-for="(location, index) in selectedStep.form.options.locations"
+          :key="index"
+          class="fields-group">
           <div v-if="!isIOs" class="location-address">
             <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
               <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
-              <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value" />
+              <gmap-autocomplete :id="'destination' + index" :placeholder="$t('label.Address')" :value="location.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="config.geolocation.currentIndex = index; value = $event.target.value" />
             </div>
-            <a class="dark" @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
+            <a class="dark" @click="getCurrentLocation(index)"><img src="statics/icons/game/location.png" /></a>
           </div>
-          <div v-if="isIOs">
+          <div v-if="(isIOs || (location.lat && location.lat !== ''))">
             {{  $t('label.DefineGPSLocation') }}
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
               <div>
                 <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" @input="$v.selectedStep.form.options.lat.$touch" @blur="$v.selectedStep.form.options.lat.$touch" />
-                <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
+                <input type="number" id="answer-latitude" v-model.number="location.lat" placeholder="ex. 45,49812" step="any" />
               </div>
               <div>
                 <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" @input="$v.selectedStep.form.options.lng.$touch" @blur="$v.selectedStep.form.options.lng.$touch" />
-                <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
+                <input type="number" id="answer-longitude" v-model.number="location.lng" placeholder="ex. 5,65487" step="any" />
               </div>
             </div>
             <div>
-              <a class="dark" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+              <a class="dark" @click="getMyGPSLocation(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
             </div>
           </div>
-          <q-list v-if="!isIOs">
-            <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
+          <q-list v-if="!(isIOs || (location.lat && location.lat !== ''))">
+            <q-expansion-item 
+              icon="explore" 
+              :label="$t('label.OrDefineGPSLocation')">
               <div class="location-gps-inputs">
                 <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
                 <div>
                   <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                  <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" @input="$v.selectedStep.form.options.lat.$touch" @blur="$v.selectedStep.form.options.lat.$touch" />
-                  <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
+                  <input type="number" id="answer-latitude" v-model.number="location.lat" placeholder="ex. 45,49812" step="any" />
                 </div>
                 <div>
                   <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                  <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" @input="$v.selectedStep.form.options.lng.$touch" @blur="$v.selectedStep.form.options.lng.$touch" />
-                  <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
+                  <input type="number" id="answer-longitude" v-model.number="location.lng" placeholder="ex. 5,65487" step="any" />
                 </div>
               </div>
               <div>
-                <a class="dark" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+                <a class="dark" @click="getMyGPSLocation(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
               </div>
             </q-expansion-item>
           </q-list>
         </div>
+        <q-btn class="full-width" :label="$t('label.AddAnGPSLocation')" @click="addGPSLocation()" />
       </div>
       
       <!------------------ STEP : MULTIPLE CHOICE ------------------------>
@@ -376,24 +409,6 @@
         </div>
       </div>
       
-      <!------------------ STEP : IMAGE RECOGNITION ------------------------>
-      <!-- MPA 2020-09-24 not used
-      <div v-if="options.type.code == 'image-recognition'" class="image-recognition">
-        <div v-if="!isIOs">
-          <q-btn class="full-width" :label="$t('label.UploadThePictureOfTheObjectToFind')" @click="$refs['image-to-recognize'].click()" />
-          <input @change="uploadImageToRecognize" ref="image-to-recognize" id="image-to-recognize" type="file" accept="image/*" hidden />
-        </div>
-        <div v-if="isIOs">
-          {{ $t('label.UploadThePictureOfTheObjectToFind') }}:
-          <input @change="uploadImageToRecognize" ref="image-to-recognize" id="image-to-recognize" type="file" accept="image/*" />
-        </div>
-        <p v-show="$v.selectedStep.form.answers.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-        <div v-if="selectedStep.form.answers != ''">
-          <p>{{ $t('label.UploadedPicture') }} :</p>
-          <img :src="serverUrl + '/upload/quest/' + questId + '/step/image-recognition/' + selectedStep.form.answers" />
-        </div>
-      </div>-->
-      
       <!------------------ STEP : JIGSAW PUZZLE ------------------------>
       
       <div v-if="options.type.code === 'jigsaw-puzzle'">
@@ -441,14 +456,30 @@
         </q-btn>
       </div>
       
+      <!------------------ STEP : CODE KEYPAD ------------------------>
+      
+      <div v-if="options.type.code == 'phone-call'">
+        <q-input
+          v-model="selectedStep.form.options.number"
+          :label="$t('label.PhoneNumber')"
+          min-length="2"
+          max-length="10"
+          bottom-slots
+        />
+      </div>
+      
       <!------------------ STEP : USE INVENTORY ITEM ------------------------>
       
       <div class="find-item" v-if="options.type.code == 'use-item' && selectedStep.form.backgroundImage">
         <p><q-toggle v-model="selectedStep.form.options.touchLocation" :label="$t('label.ObjectNeedToBeAppliedOnPicture')" /></p>
-        <div v-if="selectedStep.form.options.touchLocation">
+        <div>
           <p>{{ $t('label.ClickOnTheLocationTheItemMustBeUsed') }} :</p>
-          <div @click="getClickCoordinates($event)" id="useItemPicture" ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
-            <img id="cross" :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: 16vw; height: 16vw;'" src="statics/icons/game/find-item-locator.png" />
+          <div @click="getClickCoordinates($event)" id="useItemPicture" ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100%; height: ' + config.useItem.imageHeight + 'px; margin: auto;'">
+            <img 
+              v-if="selectedStep.form.options.touchLocation"
+              id="cross" 
+              :style="'position: relative; z-index: 500; top: 52vw; left: 37vw; width: ' + config.useItem.crossSize + 'px; height: ' + config.useItem.crossSize + 'px;'" 
+              src="statics/icons/game/find-item-locator.png" />
           </div>
         </div>
       </div>
@@ -498,23 +529,27 @@
           v-if="selectedStep && selectedStep.form && selectedStep.form.answers"
           @click="getClickCoordinatesFindItem($event)" 
           id="findItemPicture" ref="findItemPicture" 
-          :style="'position: relative; overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 90vw; height: 120vw; margin: auto;'">
+          :style="'position: relative; overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100%; height: ' + config.findItem.imageHeight + 'px; margin: auto;'">
           <img 
             id="cross0" 
-            style="position: absolute; z-index: 500; top: 10vw; left: 10vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            :style="'position: absolute; z-index: 500; top: 100px; left: 100px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
             @click="selectFindItemArea(0)" src="statics/icons/game/find-item-locator.png" />
           <img 
             id="cross1" 
-            style="display: none; position: absolute; z-index: 500; top: 30vw; left: 10vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            :style="'display: none; position: absolute; z-index: 500; top: 200px; left: 100px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
             @click="selectFindItemArea(1)" src="statics/icons/game/find-item-locator.png" />
           <img 
             id="cross2" 
-            style="display: none; position: absolute; z-index: 500; top: 30vw; left: 10vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            :style="'display: none; position: absolute; z-index: 500; top: 200px; left: 100px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
             @click="selectFindItemArea(2)" src="statics/icons/game/find-item-locator.png" />
           <img 
             id="cross3" 
-            style="display: none; position: absolute; z-index: 500; top: 30vw; left: 30vw; width: 16vw; height: 16vw; opacity: 0.5" 
+            :style="'display: none; position: absolute; z-index: 500; top: 200px; left: 200px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
             @click="selectFindItemArea(3)" src="statics/icons/game/find-item-locator.png" />
+          <img 
+            id="cross4" 
+            :style="'display: none; position: absolute; z-index: 500; top: 300px; left: 100px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
+            @click="selectFindItemArea(4)" src="statics/icons/game/find-item-locator.png" />
         </div>
         <div>
           <div v-if="!isIOs">
@@ -556,7 +591,7 @@
             </div>
             <div>
               <p>{{ $t('label.ObjectSize') }}</p>
-              <q-slider v-if="typeof selectedStep.form.options.objectSize !== 'undefined'" v-model="selectedStep.form.options.objectSize" :min="0.5" :max="10" :step="0.1" label-always :label-value="(selectedStep.form.options.objectSize || 0.5) + 'm'" />
+              <q-slider v-if="selectedStep.form.options.hasOwnProperty('objectSize')" v-model="selectedStep.form.options.objectSize" :min="0.5" :max="10" :step="0.1" label-always :label-value="(selectedStep.form.options.objectSize || 0.5) + 'm'" />
             </div>
           </div>
           <div v-if="selectedStep.form.options.is3D">
@@ -589,11 +624,11 @@
           <div v-if="!isIOs" class="location-address">
             <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
               <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
-              <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value" />
+              <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="config.geolocation.currentIndex = -1; value = $event.target.value" />
             </div>
-            <a class="dark" @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
+            <a class="dark" @click="getCurrentLocation(-1)"><img src="statics/icons/game/location.png" /></a>
           </div>
-          <div v-if="isIOs">
+          <div v-if="(isIOs || (selectedStep.form.options.lat && selectedStep.form.options.lat !== ''))">
             {{  $t('label.DefineGPSLocation') }}
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
@@ -609,26 +644,26 @@
               </div>
             </div>
             <div>
-              <a class="dark" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+              <a class="dark" @click="getMyGPSLocation(-1)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
             </div>
           </div>
-          <q-list v-if="!isIOs">
+          <q-list v-if="!(isIOs || (selectedStep.form.options.lat && selectedStep.form.options.lat !== ''))">
             <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
               <div class="location-gps-inputs">
                 <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
                 <div>
                   <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                  <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="par ex. 5,65487" step="any" />
+                  <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="ex. 45,49812" step="any" />
                   <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
                 </div>
                 <div>
                   <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                  <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="par ex. 45,49812" step="any" />
+                  <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="ex. 5,65487" step="any" />
                   <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
                 </div>
               </div>
               <div>
-                <a class="dark" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+                <a class="dark" @click="getMyGPSLocation(-1)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
               </div>
             </q-expansion-item>
           </q-list>
@@ -647,31 +682,7 @@
             {{ $t('label.Choose') }}
           </q-btn>
         </p>
-        
-        <!--
-        <h2>{{ $t('label.Mode') }}</h2>
-        
-        <div class="fields-group">
-          
-          <q-option-group
-            type="radio"
-            color="secondary"
-            v-model="selectedStep.form.options.mode"
-            :options="[
-              { label: $t('label.TouchA3DObjectOnTheMarker'), value: 'touch' },
-              { label: $t('label.ScanTheMarker'), value: 'scan' }
-            ]"
-          />
-          
-          <div v-if="selectedStep.form.options.mode === 'touch'">
-            <q-select emit-value map-options v-model="selectedStep.form.options.model" :label="$t('label.Choose3DModel')" :options="selectModel3DOptions" />
-            <p class="error-label" v-show="$v.selectedStep.form.options && $v.selectedStep.form.options.model.$error">{{ $t('label.RequiredField') }}</p>
-          </div>
-          
-          <q-select emit-value map-options v-if="selectedStep.form.options.mode === 'scan'" :label="$t('label.TransparentImageAboveCameraStream')" :options="layersForMarkersOptions" v-model="selectedStep.form.options.layerCode" />
-        
-        </div>-->
-        
+                
         <q-dialog id="choose-marker-modal" v-model="config.locateMarker.markerModalOpened">
           <q-card>
             <q-card-section>
@@ -695,6 +706,50 @@
             </q-card-actions>
           </q-card>
         </q-dialog>
+      </div>
+      
+      <!------------------ STEP : PORTRAIT ROBOT ------------------------>
+      
+      <div class="portrait-robot" v-if="options.type.code === 'portrait-robot' && selectedStep.form.answers && selectedStep.form.answers.items">
+        <h2>{{ $t('label.BuildThePortraitRobot') }}</h2>
+        
+        <div class="relative-position">
+          <div>
+            <img :src="'statics/portrait-robot/face-' + selectedStep.form.answers.items.face + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/eye-' + selectedStep.form.answers.items.eye + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/mouth-' + selectedStep.form.answers.items.mouth + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/nose-' + selectedStep.form.answers.items.nose + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/hair-' + selectedStep.form.answers.items.hair + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/beard-' + selectedStep.form.answers.items.beard + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/glass-' + selectedStep.form.answers.items.glass + '.png'" />
+          </div>
+          <div class="absolute">
+            <img :src="'statics/portrait-robot/hat-' + selectedStep.form.answers.items.hat + '.png'" />
+          </div>
+        </div>
+        <table class="portrait-parts">
+          <tr>
+            <td><img @click="changePortraitPart('face')" src="statics/portrait-robot/face-1.png" /></td>
+            <td><img @click="changePortraitPart('eye')" src="statics/portrait-robot/eye-1.png" /></td>
+            <td><img @click="changePortraitPart('nose')" src="statics/portrait-robot/nose-1.png" /></td>
+            <td><img @click="changePortraitPart('hair')" src="statics/portrait-robot/hair-1.png" /></td>
+            <td><img @click="changePortraitPart('beard')" src="statics/portrait-robot/beard-2.png" /></td>
+            <td><img @click="changePortraitPart('glass')" src="statics/portrait-robot/glass-2.png" /></td>
+            <td><img @click="changePortraitPart('hat')" src="statics/portrait-robot/hat-4.png" /></td>
+          </tr>
+        </table>
       </div>
       
       <!---------- STEPS IOT : WAIT FOR EVENT / TRIGGER EVENT  ------------>
@@ -917,6 +972,7 @@
               <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
             </div>
             <div v-if="options.type.code == 'geolocation'">
+              <q-toggle v-model="selectedStep.form.options.switchmode" :label="$t('label.AllowToSwitchGeolocationMode')" />
               <q-input v-model="selectedStep.form.options.distance" :label="$t('label.DistanceToWin')" />
             </div>
             <div v-if="options.type.code === 'memory'">
@@ -969,7 +1025,11 @@
               </div>
             </div>
             <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
-              <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" />
+              <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" /><br />
+              <q-toggle v-model="selectedStep.form.options.blurEffect" :label="$t('label.BlurEffect')" />
+            </div>
+            <div v-if="options.type.code !== 'help' && options.type.code !== 'end-chapter'">
+              <q-toggle v-model="selectedStep.form.options.html" :label="$t('label.UseHtmlInDescription')" />
             </div>
             <q-input
               :label="$t('label.ExtraTextFieldLabel')"
@@ -989,10 +1049,13 @@
       <q-list v-show="options.type.showTrick == 'yes'" bordered>
         <q-expansion-item icon="lightbulb" :label="$t('label.Hints')">
           <div class="q-pa-sm">
-            <div v-if="selectedStep.form.hint && selectedStep.form.hint[lang] && selectedStep.form.hint[lang].length > 0" v-for="(item, key) in selectedStep.form.hint[lang]" :key="key">
-              <q-btn class="float-right" @click="removeHint(key)"><q-icon name="delete" /></q-btn>
-              <div class="text-subtitle1">{{ $t('label.Hint') + " " + (key + 1) }}</div>
-              {{ item }}
+            <div v-if="selectedStep.form.hint && selectedStep.form.hint[lang] && selectedStep.form.hint[lang].length > 0">
+              <div v-for="(item, key) in selectedStep.form.hint[lang]" :key="key">
+                <q-btn class="float-right" @click="removeHint(key)"><q-icon name="delete" /></q-btn>
+                <q-btn class="float-right q-mr-sm" @click="updateHint(key)"><q-icon name="mode_edit" /></q-btn>
+                <div class="text-subtitle1">{{ $t('label.Hint') + " " + (key + 1) }}</div>
+                {{ item }}
+              </div>
             </div>
             <div>
               <q-input v-model="newHint" :label="$t('label.NewHint')">
@@ -1044,16 +1107,8 @@
         <q-btn class="glossy large-button" color="primary" @click="submitStep(true)" test-id="btn-save-step">{{ $t('label.SaveAndTestThisStep') }}</q-btn>
       </div>
       <div class="centered q-px-md q-pb-xl">
-        <a class="text-primary" @click="submitStep(false)" test-id="btn-save-step-no-test">{{ $t('label.SaveThisStep') }}</a>
+        <q-btn flat color="primary" @click="submitStep(false)">{{ $t('label.SaveThisStep') }}</q-btn>
       </div>
-    </div>
-    
-    <!------------------ HEADER ------------------------>
-    
-    <div class="q-pa-md background-dark fixed-top">
-      <a class="float-right no-underline" color="grey" @click="close"><q-icon name="close" class="subtitle4" /></a>
-      
-      <div class="subtitle3" v-if="selectedStep.type !== null">{{ $t('stepType.' + selectedStep.type.title) }}</div>
     </div>
     
     <q-dialog id="save-changes-modal" class="full-width" v-model="saveChangesModalOpened">
@@ -1123,7 +1178,7 @@
         
         <div v-if="media && media.items && media.items.length > 0 && !media.isSimulated">
           <div class="centered q-pa-md">{{ $t('label.OrSelectAnImageInTheList') }}</div>
-          <img v-for="(item, index) in media.items" :key="item.id" :src="serverUrl + '/upload/quest/' + questId + item.type + item.file" style="width: 30vw; height: 40vw;" @click="selectMedia(index)">
+          <img v-for="(item, index) in media.items" :key="item.id" :src="serverUrl + '/upload/quest/' + questId + item.type + item.file" style="width: 30vw; max-width: 300px; height: 40vw; max-height: 400px;" @click="selectMedia(index)">
         </div>
         <div class="centered q-ma-md">
           <q-btn class="q-mb-xl glossy large-button" color="primary" @click="hideMedia()">{{ $t('label.Close') }}</q-btn>
@@ -1148,7 +1203,6 @@ import modelsList from 'data/3DModels.json'
 import objectsList from 'data/2Dobjects.json'
 import markersList from 'data/markers.json'
 import iotObjectsList from 'data/iotObjects.json'
-import layersForMarkers from 'data/layersForMarkers.json'
 
 import StepService from 'services/StepService'
 import QuestService from 'services/QuestService'
@@ -1264,6 +1318,9 @@ export default {
             value: ""
           }
         },
+        geolocation: {
+          currentIndex: 0
+        },
         imageCode: {
           numberOfDigitsOptions: [
             { value: 1, label: "1" },
@@ -1280,16 +1337,23 @@ export default {
           maxNbAnswers: 10
         },
         useItem: {
-          questItemsAsOptions: []
+          questItemsAsOptions: [],
+          crossSize: 40,
+          imageHeight: 1200,
+          imageWidth: 900
         },
         findItem: {
           numberOfAreas: [
             { value: 1, label: "1" },
             { value: 2, label: "2" },
             { value: 3, label: "3" },
-            { value: 4, label: "4" }
+            { value: 4, label: "4" },
+            { value: 5, label: "5" }
           ],
-          currentArea: 0
+          currentArea: 0,
+          crossSize: 40,
+          imageHeight: 1200,
+          imageWidth: 900
         },
         locateItem: {
           selectModel3DOptions: [],
@@ -1298,8 +1362,17 @@ export default {
           object: null
         },
         locateMarker: {
-          markerModalOpened: false,
-          layersForMarkersOptions: []
+          markerModalOpened: false
+        },
+        portrait: {
+          face: { number: 4 },
+          eye: { number: 16 },
+          mouth: { number: 1 },
+          nose: { number: 5 },
+          hair: { number: 26 },
+          beard: { number: 31 },
+          glass: { number: 5 },
+          hat: { number: 4 }
         },
         iot: {
           triggerEvent: {
@@ -1494,8 +1567,11 @@ export default {
       
       // define the default hint for the step
       if (!this.selectedStep.form.hint[this.lang] || this.selectedStep.form.hint[this.lang] === '') {
-        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.hint[this.quest.mainLanguage] !== '') {
-          this.$set(this.selectedStep.form.hint, this.lang, this.selectedStep.form.hint[this.quest.mainLanguage])
+        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.hint[this.quest.mainLanguage] && this.selectedStep.form.hint[this.quest.mainLanguage].length > 0) {
+          this.selectedStep.form.hint[this.lang] = []
+          for (var q = 0; q < this.selectedStep.form.hint[this.quest.mainLanguage].length; q++) {
+            this.selectedStep.form.hint[this.lang].push(this.selectedStep.form.hint[this.quest.mainLanguage][q])
+          }
         }
       }
       
@@ -1505,6 +1581,14 @@ export default {
       }
       for (var p = 0; p < this.quest.playersNumber; p++) {
         this.players.push({ label: this.$t('label.Player') + " " + (p + 1), value: 'P' + (p + 1) })
+      }
+      
+      // initialize option for Ken Burns (zoom out) effect on background
+      if (!this.selectedStep.form.options.hasOwnProperty('kenBurnsEffect')) {
+        this.selectedStep.form.options.kenBurnsEffect = false
+      }
+      if (!this.selectedStep.form.options.hasOwnProperty('blurEffect')) {
+        this.selectedStep.form.options.blurEffect = false
       }
       
       // initialize specific steps
@@ -1578,20 +1662,18 @@ export default {
         if (this.options.type.code === 'character' && !this.selectedStep.form.options.character) {
           Vue.set(this.selectedStep.form.options, 'character', '1')
         }
-      } /*else if (this.options.type.code === 'image-recognition') {
-        if (typeof this.selectedStep.form.answers !== 'string') {
-          this.selectedStep.form.answers = ""
-        }
-      }*/ else if (this.options.type.code === 'find-item') {
+      } else if (this.options.type.code === 'find-item') {
         if (this.selectedStep.form.options.hasOwnProperty('nbAreas')) {
           //this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers
           this.$nextTick(function () {
             // Code that will run only after the entire view has been rendered
+            this.initFindItemElements()
             this.positionFindItemPointer()
           })
         } else {
           this.selectedStep.form.options.nbAreas = 1
           this.selectedStep.form.options.coordinates = [{top: 50, left: 50}]
+          //this.initFindItemElements()
           //this.positionFindItemPointer()
         }
         if (!this.selectedStep.form.options) {
@@ -1602,6 +1684,7 @@ export default {
           this.selectedStep.form.answerPointerCoordinates = this.selectedStep.form.answers.coordinates
           this.$nextTick(function () {
             // Code that will run only after the entire view has been rendered
+            this.initUseItemElements()
             this.positionUseItemPointer()
           })
         }
@@ -1635,12 +1718,26 @@ export default {
           }
           this.$set(this.selectedStep.form.options, 'items', defaultItems)
         }
+      } else if (this.options.type.code === 'portrait-robot') {
+        if (!this.selectedStep.form.answers.hasOwnProperty('items')) {
+          this.$set(this.selectedStep.form.answers, 'items', {type: 1, face: 1, eye: 1, mouth: 1, nose: 1, hair: 1, beard: 1, glass: 1, hat: 1})
+        }
+      } else if (this.options.type.code === 'phone-call') {
+        if (!this.selectedStep.form.options.hasOwnProperty('number')) {
+          this.$set(this.selectedStep.form.options, 'number', '000000000')
+        }
       } else if (this.options.type.code === 'geolocation') {
         if (!this.selectedStep.form.options.hasOwnProperty('distance')) {
           this.$set(this.selectedStep.form.options, 'distance', '20')
         }
         if (!this.selectedStep.form.options.hasOwnProperty('showHelp')) {
           this.$set(this.selectedStep.form.options, 'showHelp', true)
+        }
+        if (!this.selectedStep.form.options.hasOwnProperty('mode')) {
+          this.$set(this.selectedStep.form.options, 'mode', 'compass')
+        }
+        if (!this.selectedStep.form.options.hasOwnProperty('locations')) {
+          this.$set(this.selectedStep.form.options, 'locations', [{lat: '', lng: '', destination: ''}])
         }
       } else if (this.options.type.code === 'locate-item-ar') {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
@@ -1674,18 +1771,6 @@ export default {
       } else if (this.options.type.code === 'locate-marker') {
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.$set(this.selectedStep.form, 'answers', markersList[0])
-        }
-        // create options for layer above camera stream selection
-        for (let layer of layersForMarkers) {
-          this.config.locateMarker.layersForMarkersOptions.push({ label: this.$t('layersForMarkers.' + layer.label), value: layer.code })
-        }
-        // sort options in alphabetical order
-        this.config.locateMarker.layersForMarkersOptions = this.config.locateMarker.layersForMarkersOptions.sort((a, b) => {
-          return a.label.localeCompare(b.label)
-        })
-        // default layer = first
-        if (!this.selectedStep.form.options.hasOwnProperty('layerCode')) {
-          this.$set(this.selectedStep.form.options, 'layerCode', layersForMarkers[0].code)
         }
         
         // create options for 3D Model selection
@@ -1785,6 +1870,9 @@ export default {
             this.selectedStep.form.options.items[this.selectedStep.form.options.items.length - 1].single = true
           }
         }
+      }
+      if (this.options.type.code === 'portrait-robot') {
+        //no specific action
       }
       if (this.options.type.code === 'find-item') {
         //Coordinates are already set
@@ -1949,6 +2037,18 @@ export default {
       document.getElementById('image-code-setting-' + key).src = this.serverUrl + '/upload/quest/' + this.questId + '/step/code-image/' + this.selectedStep.form.options.images[this.unformatedAnswer[key]].imagePath
     },
     /*
+     * change item in portrait robot
+     * @param   {String}    type    type of item to change
+     */
+    changePortraitPart: function(type) {
+      if (this.selectedStep.form.answers.items) {
+        Vue.set(this.selectedStep.form.answers.items, type, this.selectedStep.form.answers.items[type] + 1)
+        if (this.selectedStep.form.answers.items[type] > this.config.portrait[type].number) {
+          Vue.set(this.selectedStep.form.answers.items, type, 1)
+        }
+      }
+    },
+    /*
      * Get number of images in the image code step
      */
     getNbImageUploadedForCode() {
@@ -1998,7 +2098,7 @@ export default {
      */
     async changeNewConditionType() {
       this.selectedStep.newCondition.values.length = 0
-      const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', /*'image-recognition',*/ 'jigsaw-puzzle', 'memory']
+      const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', 'jigsaw-puzzle', 'memory']
       if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail') {
         const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version, 'all')
         if (response && response.data && response.data.length > 0) {
@@ -2521,7 +2621,8 @@ export default {
           _this.config.locateItem.renderer = renderer
           
           // Configure renderer size
-          _this.config.locateItem.renderer.setSize(Math.round(window.innerWidth * 0.8), Math.round(window.innerWidth * 0.6))
+          _this.config.locateItem.renderer.setSize(Math.round(canvasItem.clientWidth), Math.round(canvasItem.clientWidth * 0.8))
+          //_this.config.locateItem.renderer.setSize(Math.round(window.innerWidth * 0.8), Math.round(window.innerWidth * 0.6))
           _this.config.locateItem.renderer.gammaOutput = true
           
           // Add "orbit controls"
@@ -2637,6 +2738,24 @@ export default {
      */
     removeHint(index) {
       this.selectedStep.form.hint[this.lang].splice(index, 1)
+      this.$forceUpdate()
+    },
+    /*
+     * update a hint
+     */
+    updateHint(index) {
+      this.$q.dialog({
+        dark: true,
+        message: this.$t('label.ModifyTheHint'),
+        prompt: {
+          model: this.selectedStep.form.hint[this.lang][index],
+          type: 'text'
+        },
+        cancel: true
+      }).onOk(async (data) => {
+        this.selectedStep.form.hint[this.lang][index] = data
+        this.$forceUpdate()
+      }).onCancel(() => {})
     },
     /*
      * add a hint
@@ -2645,7 +2764,9 @@ export default {
       if (this.selectedStep.form.hint && this.selectedStep.form.hint[this.lang]) {
         this.selectedStep.form.hint[this.lang].push(this.newHint)
       } else {
-        this.selectedStep.form.hint = {}
+        if (!this.selectedStep.form.hint) {
+          this.selectedStep.form.hint = {}
+        }
         this.selectedStep.form.hint[this.lang] = []
         this.selectedStep.form.hint[this.lang].push(this.newHint)
       }
@@ -2691,11 +2812,11 @@ export default {
       let posX = ev.clientX - rect.left
       let posY = ev.clientY - rect.top
       
-      let picture = this.$refs['useItemPicture']
+      const pictureWidth = this.getUseItemPictureWidth()
       
       // relative position between 0 to 100
-      this.selectedStep.form.answerPointerCoordinates.left = Math.round(posX / picture.clientWidth * 100)
-      this.selectedStep.form.answerPointerCoordinates.top = Math.round(posY / picture.clientHeight * 100)
+      this.selectedStep.form.answerPointerCoordinates.left = Math.round(posX * 100 / pictureWidth)
+      this.selectedStep.form.answerPointerCoordinates.top = Math.round(posY * (300 / 4) / pictureWidth)
       this.positionUseItemPointer()
     },
     /*
@@ -2708,11 +2829,11 @@ export default {
       const posX = ev.clientX - rect.left
       const posY = ev.clientY - rect.top
       
-      const picture = this.$refs['findItemPicture']
+      const pictureWidth = this.getFindItemPictureWidth()
       
       // relative position between 0 to 100
-      this.selectedStep.form.options.coordinates[this.config.findItem.currentArea].left = Math.round(posX / picture.clientWidth * 100)
-      this.selectedStep.form.options.coordinates[this.config.findItem.currentArea].top = Math.round(posY / picture.clientHeight * 100)
+      this.selectedStep.form.options.coordinates[this.config.findItem.currentArea].left = Math.round(posX * 100 / pictureWidth)
+      this.selectedStep.form.options.coordinates[this.config.findItem.currentArea].top = Math.round(posY * (300 / 4) / pictureWidth)
 
       this.positionFindItemPointer()
     },
@@ -2720,48 +2841,74 @@ export default {
      * Position the pointer to locate the item for the find item step
      */
     positionFindItemPointer() {
-      const vw = window.innerWidth / 100 // in px
+      const vw = this.getFindItemPictureWidth() / 100 // in px
       
       // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
-      const solutionAreaRadius = Math.round(8 * vw)
-      for (var i = 0; i < 4; i++) {
+      const solutionAreaRadius = this.config.findItem.crossSize / 2
+      for (var i = 0; i < 5; i++) {
         if (document.getElementById("cross" + i)) {
           if (i < this.selectedStep.form.options.nbAreas) {
             document.getElementById("cross" + i).style.display = 'block'
-            document.getElementById("cross" + i).style.left = Math.round(this.selectedStep.form.options.coordinates[i].left * 90 * vw / 100 - solutionAreaRadius) + "px"
-            document.getElementById("cross" + i).style.top = Math.round(this.selectedStep.form.options.coordinates[i].top * 120 * vw / 100 - solutionAreaRadius) + "px"
+            document.getElementById("cross" + i).style.left = Math.round(this.selectedStep.form.options.coordinates[i].left * vw - solutionAreaRadius) + "px"
+            document.getElementById("cross" + i).style.top = Math.round(this.selectedStep.form.options.coordinates[i].top * (4 * vw / 3) - solutionAreaRadius) + "px"
           } else {
             document.getElementById("cross" + i).style.display = 'none'
           }
         }
       }
     },
+    getFindItemPictureWidth() {
+      const picture = this.$refs['findItemPicture']
+      return picture.clientWidth
+    },
+    initFindItemElements() {
+      this.config.findItem.imageWidth = this.getFindItemPictureWidth()
+      this.config.findItem.crossSize = this.config.findItem.imageWidth / 8
+      this.config.findItem.imageHeight = this.config.findItem.imageWidth * 4 / 3
+    },
+    getUseItemPictureWidth() {
+      const picture = this.$refs['useItemPicture']
+      return picture.clientWidth
+    },
+    initUseItemElements() {
+      this.config.useItem.imageWidth = this.getUseItemPictureWidth()
+      this.config.useItem.crossSize = this.config.useItem.imageWidth / 8
+      this.config.useItem.imageHeight = this.config.useItem.imageWidth * 4 / 3
+    },
     /*
      * Position the pointer to locate the item for the find item step
      */
     positionUseItemPointer() {
-      let vw = window.innerWidth / 100 // in px
+      let vw = this.getUseItemPictureWidth() / 100 // in px
       
       // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
-      let solutionAreaRadius = Math.round(8 * vw)
-      document.getElementById("cross").style.left = Math.round(this.selectedStep.form.answerPointerCoordinates.left * 90 * vw / 100 - solutionAreaRadius) + "px"
-      document.getElementById("cross").style.top = Math.round(this.selectedStep.form.answerPointerCoordinates.top * 120 * vw / 100 - solutionAreaRadius) + "px"
+      const solutionAreaRadius = this.config.useItem.crossSize / 2
+
+      document.getElementById("cross").style.left = Math.round(this.selectedStep.form.answerPointerCoordinates.left * vw - solutionAreaRadius) + "px"
+      document.getElementById("cross").style.top = Math.round(this.selectedStep.form.answerPointerCoordinates.top * (4 * vw / 3) - solutionAreaRadius) + "px"
     },
     /*
      * Fill the GPS location in the settings
      * @param   {Object}    place            Position & address data
      */
     async setLocation(place) {
-      this.selectedStep.form.options.lat = parseFloat(place.geometry.location.lat())
-      this.selectedStep.form.options.lng = parseFloat(place.geometry.location.lng())
-      this.selectedStep.form.options.destination = (place.formatted_address || '')
-      this.$v.selectedStep.form.options.lat.$touch()
-      this.$v.selectedStep.form.options.lng.$touch()
+      if (this.config.geolocation.currentIndex !== -1 && this.selectedStep.form.options.locations && this.selectedStep.form.options.locations.length > 0) {
+        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lat = parseFloat(place.geometry.location.lat())
+        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lng = parseFloat(place.geometry.location.lng())
+        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].destination = (place.formatted_address || '')
+      } else {
+        this.selectedStep.form.options.lat = parseFloat(place.geometry.location.lat())
+        this.selectedStep.form.options.lng = parseFloat(place.geometry.location.lng())
+        this.selectedStep.form.options.destination = (place.formatted_address || '')
+        this.$v.selectedStep.form.options.lat.$touch()
+        this.$v.selectedStep.form.options.lng.$touch()
+      }
     },
     /*
      * Get current user location
      */
-    async getCurrentLocation() {
+    async getCurrentLocation(index) {
+      this.config.geolocation.currentIndex = index
       this.$q.loading.show()
       // get the current coords
       navigator.geolocation.getCurrentPosition(this.fillLocation, this.getLocationError, {timeout: 5000, maximumAge: 10000});
@@ -2779,18 +2926,29 @@ export default {
      * @param   {Object}    pos            Position data
      */
     fillLocation(pos) {
-      this.selectedStep.form.options.lat = pos.coords.latitude
-      this.selectedStep.form.options.lng = pos.coords.longitude
-      this.$v.selectedStep.form.options.lat.$touch()
-      this.$v.selectedStep.form.options.lng.$touch()
+      if (this.config.geolocation.currentIndex !== -1 && this.selectedStep.form.options.locations && this.selectedStep.form.options.locations.length > 0) {
+        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lat = pos.coords.latitude
+        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lng = pos.coords.longitude
+      } else {
+        this.selectedStep.form.options.lat = pos.coords.latitude
+        this.selectedStep.form.options.lng = pos.coords.longitude
+        this.$v.selectedStep.form.options.lat.$touch()
+        this.$v.selectedStep.form.options.lng.$touch()
+      }
+      
       // get the address
       var geocoder = new google.maps.Geocoder();
       geocoder.geocode({'location': {lat: pos.coords.latitude, lng: pos.coords.longitude}}, (results, status) => {
         this.$q.loading.hide()
         if (status === 'OK' && results[0].formatted_address) {
-          this.selectedStep.form.options.destination = results[0].formatted_address
-          // force field to be refreshed
-          document.getElementById("destination").value = this.selectedStep.form.options.destination
+          if (this.config.geolocation.currentIndex !== -1 && this.selectedStep.form.options.locations && this.selectedStep.form.options.locations.length > 0) {
+            this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].destination = results[0].formatted_address
+            document.getElementById("destination" + this.config.geolocation.currentIndex).value = this.selectedStep.form.options.destination
+          } else {
+            this.selectedStep.form.options.destination = results[0].formatted_address
+            // force field to be refreshed
+            document.getElementById("destination").value = this.selectedStep.form.options.destination
+          }
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
@@ -2800,14 +2958,19 @@ export default {
      * Get the GPS location based on user location
      * @param   {Object}    pos            Position data
      */
-    getMyGPSLocation() {
+    getMyGPSLocation(index) {
       this.$q.loading.show()
       var _this = this
       navigator.geolocation.getCurrentPosition(function (position) {
-        _this.$set(_this.selectedStep.form.options, 'lat', position.coords.latitude)
-        _this.$set(_this.selectedStep.form.options, 'lng', position.coords.longitude)
-        _this.$v.selectedStep.form.options.lat.$touch()
-        _this.$v.selectedStep.form.options.lng.$touch()
+        if (index !== -1 && _this.selectedStep.form.options.locations && _this.selectedStep.form.options.locations.length > 0) {
+          _this.$set(_this.selectedStep.form.options.locations[index], 'lat', position.coords.latitude)
+          _this.$set(_this.selectedStep.form.options.locations[index], 'lng', position.coords.longitude)
+        } else {
+          _this.$set(_this.selectedStep.form.options, 'lat', position.coords.latitude)
+          _this.$set(_this.selectedStep.form.options, 'lng', position.coords.longitude)
+          _this.$v.selectedStep.form.options.lat.$touch()
+          _this.$v.selectedStep.form.options.lng.$touch()
+        }
         _this.$q.loading.hide()
       }, 
       this.getLocationError, 
@@ -2815,6 +2978,16 @@ export default {
         timeout: 5000, 
         maximumAge: 10000 
       });
+    },
+    /*
+     * Add a GPS location field
+     */
+    addGPSLocation() {
+      if (this.selectedStep.form.options.locations) {
+        this.selectedStep.form.options.locations.push({lat: '', lng: '', destination: ''})
+      } else {
+        this.selectedStep.form.options.locations = [{lat: '', lng: '', destination: ''}]
+      }
     },
     /*
      * Check the length of the text input
@@ -2899,6 +3072,12 @@ export default {
     async hideMedia() {
       this.media.isOpened = false
       this.media.isSimulated = false
+      if (this.options.type.code === 'use-item') {
+        utils.setTimeout(this.initUseItemElements, 2000)
+      }
+      if (this.options.type.code === 'find-item') {
+        utils.setTimeout(this.initFindItemElements, 2000)
+      }
     },
     /**
      * Get iot objects list as options for <q-select>
@@ -3007,6 +3186,15 @@ export default {
       }
       this.positionFindItemPointer()
       return true
+    },
+    /**
+     * @param modeLabel {String} geolocation mode label ('CompassMode' or 'MapMode')
+     */
+    showGeolocationModeHelp (modeLabel) {
+      this.$q.dialog({
+        title: this.$t('label.' + modeLabel),
+        message: this.$t('label.' + modeLabel + 'Help')
+      })
     }
   },
   validations() {
@@ -3039,14 +3227,11 @@ export default {
         fieldsToValidate.backgroundImage = { required }
         break
       case 'geolocation':
-        fieldsToValidate.options = { lat: { required }, lng: { required } }
+        //fieldsToValidate.options = { lat: { required }, lng: { required } }
         break
       case 'info-video':
         fieldsToValidate.videoStream = { required }
         break
-      /*case 'image-recognition':
-        fieldsToValidate.answers = { required }
-        break*/
       case 'jigsaw-puzzle':
         fieldsToValidate.options = { picture: { required } }
         break
@@ -3087,7 +3272,7 @@ export default {
 <style scoped>
 
 h1 { margin-top: 0; }
-h2 { font-size: 1.2rem; color: grey; }
+h2 { font-size: 1.2rem; color: grey; line-height: 3rem; margin-bottom: 0; }
 p { margin-bottom: 0.5rem; }
 
 .q-item { padding-top: 0; padding-bottom: 0; min-height: 2rem; }
@@ -3098,12 +3283,11 @@ p { margin-bottom: 0.5rem; }
 .answer p { min-width: 1rem; margin: 0; }
 .answer img { width: 50vw; max-width: 450px; }
 .answer .q-radio { padding-right: 0.5rem; }
-.answer .q-btn { padding: 0.3rem; margin: 0.2rem; }
+.answer .q-btn { margin: 0.2rem; }
 .answer .error-label { flex-grow: 1; }
 .add-answer { margin: 0.5rem auto; }
 
 .background-upload { padding-bottom: 10px; margin-bottom: 10px; background: #efefef; text-align: center;}
-/*.background-upload img, .image-recognition img { max-height: 8rem; max-width: 8rem; width: auto; height: auto; }*/
 
 .code-color h2 { margin-bottom: 0; }
 .code-color table { margin: auto; }
@@ -3128,7 +3312,7 @@ p { margin-bottom: 0.5rem; }
 .inventory .q-icon { width: 3rem; height: 3rem; font-size: 3rem; }
 
 .error-label { color: #db2828; }
-.answer .error-label { font-size: 0.8rem; white-space: nowrap; }
+.answer .error-label { font-size: 1rem; white-space: nowrap; }
 
 #save-changes-modal .q-card__actions .q-btn { flex-grow: 1; }
 

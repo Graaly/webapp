@@ -51,7 +51,7 @@ export default ({ app, router, Vue }) => {
           if (response && response.data && response.data.name) {
             if (
               response.data.clientSupportedVersion &&
-              response.data.clientSupportedVersion > "2.1.1"
+              response.data.clientSupportedVersion > "2.1.9"
             ) {
               next({
                 path: "/error/upgraderequired"
