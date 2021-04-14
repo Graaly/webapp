@@ -1037,7 +1037,8 @@ module.exports = {
       CompassModeHelp: "Shows a direction arrow and the remaining distance to reach the target",
       MapMode: "Map",
       MapModeHelp: "Shows a Google map with player & target positions",
-      AllowToSwitchGeolocationMode: "Button to switch display mode"
+      AllowToSwitchGeolocationMode: "Button to switch display mode",
+      ApplyRedFilter: "Apply red filter"
     }
   },
   fr: {
@@ -2065,7 +2066,8 @@ module.exports = {
       CompassModeHelp: "Affichage d'une flèche de direction et de la distance à l'objectif",
       MapMode: "Carte",
       MapModeHelp: "Affiche une carte Google Maps avec les positions du joueur et de l'objectif",
-      AllowToSwitchGeolocationMode: "Bouton pour changer le mode d'affichage"
+      AllowToSwitchGeolocationMode: "Bouton pour changer le mode d'affichage",
+      ApplyRedFilter: "Appliquer le filtre rouge"
     }
   }
 }
