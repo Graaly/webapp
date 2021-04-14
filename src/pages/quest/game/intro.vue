@@ -411,6 +411,7 @@ import utils from 'src/includes/utils'
 import Notification from 'boot/NotifyHelper'
 import gpscalibration from 'components/gpsCalibration'
 import debounce from 'lodash/debounce'
+import GMMS from 'services/GameMasterMonitoringService'
 
 export default {
   components: {
@@ -537,7 +538,7 @@ export default {
     async initQuest() {
       // get quest information
       await this.getQuest(this.$route.params.id)
-      
+
       // Fix EMA on 18/12/2019 - products in store remains if I open several paying quests
       if (window.cordova && this.quest.premiumPrice && this.quest.premiumPrice.androidId && store.products.length > 0) {
         this.$router.go(0)
@@ -585,6 +586,10 @@ export default {
       
       // check number of simultaneous users
       await this.checkSimultaneousPlayers()
+
+      setTimeout ( function() {
+          GMMS.Send('questInjest', this.quest)
+      }, 1500)
     },
     /*
      * Get a quest information

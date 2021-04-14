@@ -90,6 +90,19 @@
       </div>
     </q-dialog>
     
+    <!------------------ CHAT PAGE AREA ------------------------>
+    
+    <transition name="slideInBottom">
+      <div v-show="chat.isOpened" class="bg-graaly-blue-dark text-white inventory panel-bottom">
+        <div class="q-pa-md">
+          <a class="float-right no-underline" color="grey" @click="chat.isOpened = false"><q-icon name="close" class="subtitle3" /></a>
+          <div class="subtitle3 q-pb-lg">Chat</div>
+          <p>coucou je suis le chat</p>
+        </div>
+        <q-btn flat label="send message" @click="SendChatMessage" />
+      </div>
+    </transition>
+  
     <!------------------ INFO PAGE AREA ------------------------>
     
     <transition name="slideInBottom">
@@ -140,6 +153,17 @@
               @click="showFeedback">
                 <span>
                   {{ $t('label.Feedback') }}
+                </span>
+              </q-btn>
+            </p>
+            <p class="q-pb-xl">
+              <q-btn 
+              v-if="!offline.active" class="glossy large-button" 
+              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" 
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" 
+              @click="openChat">
+                <span>
+                 Ask for help (Chat with GM)
                 </span>
               </q-btn>
             </p>
@@ -288,6 +312,8 @@ import Notification from 'boot/NotifyHelper'
 import story from 'components/story'
 import utils from 'src/includes/utils'
 
+import GMMS from 'services/GameMasterMonitoringService'
+
 import Vue from 'vue'
 import Sortable from 'sortablejs'
 Vue.directive('sortable', {
@@ -345,6 +371,9 @@ export default {
           score: 0,
           quest: {},
           audio: ''
+        },
+        chat: {
+          isOpened: false
         },
         next: {
           suggest: false,
@@ -435,9 +464,36 @@ export default {
       
       // get Player number
       this.player = await this.getPlayer()
-      
+  
       // get current step
       await this.getStep()
+
+      console.log(this.run)
+
+      setInterval(() => {
+        //console.log(this.step)
+        //console.log(this.run)
+        GMMS.Send('questInjest', {
+          'player': {
+            'id': this.run.userId[0],
+            'name': this.run.userData.name
+          },
+          'questId': this.run.questId,
+          'stepId': this.step.id,
+          'run': {
+            'id': this.run._id,
+            'currentStep': this.run.currentStep,
+            'currentChapter': this.run.currentChapter,
+            'score': this.run.score,
+            'status': this.run.status
+          },
+          'position': {
+            'lat': Math.random() + 45.1667,
+            'lng': Math.random() + 5.7167
+          },
+          'lastPing': Date.now()
+        })
+      }, 25000);
       
       // manage history
       this.updateHistory()
@@ -466,6 +522,28 @@ export default {
       
       // load component data
       this.loadStepData = true
+    },
+    /**
+     * Send a chat message
+     */
+    SendChatMessage() {
+      console.log('Sending chat message')
+      GMMS.Send('sendMessage', {
+        'correspondant': 'GM',
+        'text': 'coucoutest'
+      })
+    },
+    /*
+    * Open the chat box
+    */
+    async openChat() {
+      if (this.chat.isOpened) {
+        this.closeAllPanels()
+      } else {
+        this.closeAllPanels()
+        this.chat.isOpened = true
+        this.footer.tabSelected = 'info'
+      }
     },
     /*
      * Move to a step
