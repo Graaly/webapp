@@ -23,7 +23,7 @@
 
 import { gmapApi } from 'vue2-google-maps'
 
-import Notification from 'boot/NotifyHelper'
+//import Notification from 'boot/NotifyHelper'
 
 export default {
   props: ['targetPosition', 'playerPosition'],

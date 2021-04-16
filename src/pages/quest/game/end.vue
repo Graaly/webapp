@@ -423,8 +423,7 @@ export default {
         
         // get ranking without the user (status of run is still in-progress)
         await this.getRanking()
-        
-        
+
         // get duration
         const duration = utils.getDurationFromNow(this.run.dateCreated)
         this.run.duration = {h: duration.h, m: duration.m}
