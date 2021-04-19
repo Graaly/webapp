@@ -266,7 +266,7 @@
     "icon": "puzzle-piece",
     "title": "JigsawPuzzle",
     "description": "JigsawPuzzleDesc",
-    "showTrick": "no",
+    "showTrick": "yes",
     "textRules": {
       "maxNbChars": 100,
       "maxNbCarriageReturns": 1
@@ -283,7 +283,7 @@
     "icon": "clone",
     "title": "Memory",
     "description": "MemoryDesc",
-    "showTrick": "no",
+    "showTrick": "yes",
     "textRules": {
       "maxNbChars": 100,
       "maxNbCarriageReturns": 1
@@ -300,7 +300,7 @@
     "icon": "user-circle",
     "title": "PortraitRobot",
     "description": "PortraitRobotDesc",
-    "showTrick": "no",
+    "showTrick": "yes",
     "textRules": {
       "maxNbChars": 100,
       "maxNbCarriageReturns": 1
@@ -317,7 +317,7 @@
     "icon": "binoculars",
     "title": "Binocular",
     "description": "BinocularDesc",
-    "showTrick": "no",
+    "showTrick": "yes",
     "enabled": true,
     "hasBackgroundImage": "main",
     "hasOptions": true,
@@ -330,7 +330,7 @@
     "icon": "phone-volume",
     "title": "PhoneCall",
     "description": "PhoneCallDesc",
-    "showTrick": "no",
+    "showTrick": "yes",
     "enabled": true,
     "hasBackgroundImage": "main",
     "hasOptions": true,
