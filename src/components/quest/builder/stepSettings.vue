@@ -959,6 +959,24 @@
         </q-expansion-item>
       </q-list>
       
+      <!------------------ CHAPTERS ------------------------>
+      
+      <q-list bordered v-if="options && options.mode && options.mode === 'advanced'">
+        <q-expansion-item icon="add_box" :label="$t('label.Chapters')">
+          <div class="q-pa-md">
+            <div>
+              {{ $t("label.ChapterChangeWarning") }}
+            </div>
+            <q-select 
+              emit-value map-options 
+              :label="$t('label.Chapter')" 
+              v-model="selectedStep.form.chapterId" 
+              :options="selectedStep.chapters" 
+              @input="changeChapter" />
+          </div>
+        </q-expansion-item>
+      </q-list>
+      
       <!------------------ OTHER OPTIONS ------------------------>
       
       <q-list v-show="options.type.hasOptions" bordered>
@@ -1268,7 +1286,8 @@ export default {
           ],
           selectedValue: '',
           values: []
-        }
+        },
+        chapters: []
       },
       media: {
         isOpened: false,
@@ -1809,6 +1828,9 @@ export default {
       
       // init the conditions form
       await this.changeNewConditionType()
+      
+      // init the chapters list
+      await this.listChapters(this.questId, this.quest.version, this.lang)
     },
     /*
      * Submit step data
@@ -2151,6 +2173,27 @@ export default {
       this.selectedStep.newCondition.selectedType = 'stepDone'
       await this.changeNewConditionType()
       this.selectedStep.newCondition.selectedValue = ''
+    },
+    /*
+     * Reset condition form
+     */
+    async listChapters(id, version, lang) {
+      let chapters = await StepService.listChapters(id, version, lang)
+      if (chapters && chapters.data) {
+        for (var i = 0; i < chapters.data.length; i++) {
+          this.selectedStep.chapters.push({label: chapters.data[i].title, value: chapters.data[i].chapterId})
+        }
+      }
+    },
+    async changeChapter(chapterId) {
+      //this.selectedStep.form.chapterId = chapterId
+      Vue.set(this.selectedStep.form, 'chapterId', chapterId)
+      Vue.set(this.options, 'chapterId', chapterId)
+      this.$forceUpdate()
+      // reset the conditions form
+      for (var i = 0; i < this.selectedStep.form.conditions.length; i++) {
+        this.deleteCondition(0)
+      }
     },
     showHelpPopup (message) {
       this.$q.dialog({

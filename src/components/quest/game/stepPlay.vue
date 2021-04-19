@@ -530,14 +530,14 @@
           <img v-if="step.options && step.options.fullWidthPicture && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985;" />
           
           <!-- Red filter & alternate button for iOS -->
-          <div v-if="isIOs && imageOverFlow.snapshot === ''" class="centered">
+          <div v-if="isIOs && imageOverFlow.snapshot === '' && step.options && step.options.redFilter" class="centered" style="background: transparent; position: absolute; bottom: 200px; width: 100%; z-index: 1980;">
             <q-btn 
               class="glossy large-button" 
               :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" 
               :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" 
-              @click="takeVideoSnapShot()">{{ $t('label.applyRedFilter') }}</q-btn>
+              @click="takeVideoSnapShot()">{{ $t('label.ApplyRedFilter') }}</q-btn>
           </div>
-          <img v-if="isIOs && imageOverFlow.snapshot !== ''" :src="imageOverFlow.snapshot" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1980;" />
+          <img v-if="isIOs && imageOverFlow.snapshot !== ''" :src="imageOverFlow.snapshot" style="object-fit: cover; position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1980;" />
           <img v-if="((isIOs && imageOverFlow.snapshot !== '') || !isIOs) && step.options && step.options.redFilter" src="statics/images/background/red.png" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985; mix-blend-mode: multiply; opacity: 0.8;" />
         </div>
       </div>
@@ -1497,9 +1497,12 @@ export default {
           if (this.isIOs && CameraPreview) {
           //if (CameraPreview) {
             let options = {x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: CameraPreview.CAMERA_DIRECTION.BACK, toBack: true, tapPhoto: false, tapFocus: false, previewDrag: false} 
+            this.$q.loading.show()
             CameraPreview.startCamera(options)
             //CameraPreview.setColorEffect("redfilter")
             CameraPreview.show()
+            let _this = this
+            setTimeout(function() {this.$q.loading.hide()}, 5000)
           } else {
             this.launchVideoStreamForAndroid('camera-stream-for-image-over-flow', true)
           }
@@ -3045,7 +3048,7 @@ export default {
     },
     takeVideoSnapShot() {
       var _this = this
-      CameraPreview.takePicture({ width:640, height:640, quality: 85 }, function(base64PictureData) {
+      CameraPreview.takePicture({ quality: 85 }, function(base64PictureData) {
         _this.imageOverFlow.snapshot = 'data:image/jpeg;base64,' + base64PictureData
         setTimeout(function () { _this.cancelTakeVideoSnapShot() }, 3000)
       })

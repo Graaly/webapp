@@ -1038,7 +1038,10 @@ module.exports = {
       MapMode: "Map",
       MapModeHelp: "Shows a Google map with player & target positions",
       AllowToSwitchGeolocationMode: "Button to switch display mode",
-      ApplyRedFilter: "Apply red filter"
+      ApplyRedFilter: "Apply red filter",
+      Chapters: "Chapters",
+      Chapter: "Chapter",
+      ChapterChangeWarning: "Changing the chapter will remove his triggers and create inconsistencies in triggers. You will need to update the steps that depend on it."
     }
   },
   fr: {
@@ -2067,7 +2070,10 @@ module.exports = {
       MapMode: "Carte",
       MapModeHelp: "Affiche une carte Google Maps avec les positions du joueur et de l'objectif",
       AllowToSwitchGeolocationMode: "Bouton pour changer le mode d'affichage",
-      ApplyRedFilter: "Appliquer le filtre rouge"
+      ApplyRedFilter: "Appliquer le filtre rouge",
+      Chapters: "Chapitres",
+      Chapter: "Chapitre",
+      ChapterChangeWarning: "Attention, si vous changez le chapitre, vous supprimez tous ses déclencheurs et risquez d'avoir des incohérences au niveau des déclencheurs des autres étapes. Il faudra les modifier aussi dans les étapes qui en dépendent."
     }
   }
 }
