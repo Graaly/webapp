@@ -135,9 +135,14 @@
           </div>
           <div class="typed-code">
             <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
-            <tr>
-              <td v-for="(sign, key) in playerCode" :key="key" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
-            </tr>
+              <tr>
+                <td v-for="(sign, key) in playerCode" :key="key" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
+              </tr>
+            </table>
+            <table v-if="rightAnswer" class="shadow-8 right">
+              <tr>
+                <td v-for="(sign, key) in rightAnswer" :key="key" class="typed">{{ sign }}</td>
+              </tr>
             </table>
           </div>
           <div class="keypad">
@@ -183,8 +188,11 @@
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
-          <div class="color-bubbles">
+          <div class="color-bubbles" style="margin-top: 5rem;">
             <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
+          </div>
+          <div class="color-bubbles" v-if="rightAnswer">
+            <div v-for="(color, index) in rightAnswer" :key="index" :style="'background-color: ' + color" class="shadow-8 right">&nbsp;</div>
           </div>
           
           <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
@@ -220,12 +228,18 @@
                 <img :id="'image-code-' + index" @click="enlargeThePicture(index)" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
               </td>
             </tr>
+            <tr v-show="rightAnswer">
+              <td v-for="(code, index) in rightAnswer" :key="index" class="right">
+                <img :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
+              </td>
+            </tr>
             <tr>
               <td v-for="(code, index) in playerCode" :key="index" class="text-center">
                 <q-btn :disabled="stepPlayed" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
               </td>
             </tr>
           </table>
+            
           <div class="centered text-grey q-py-md">{{ $t('label.ClickToEnlargePictures') }}</div>
           
           <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
@@ -280,6 +294,11 @@
               :placeholder="$t('label.YourAnswer')" 
               :class="{right: playerResult === true, wrong: playerResult === false}" 
               :disabled="stepPlayed" />
+            <input 
+              v-if="rightAnswer"
+              class="subtitle6 right" 
+              v-bind:value="rightAnswer" 
+              disabled />
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer"><div>{{ $t('label.ConfirmTheAnswer') }}</div></q-btn>
           </div>
           <div class="centered" style="padding-bottom: 100px">
@@ -424,7 +443,7 @@
           </div>
           <div class="fixed-bottom q-pb-xxl q-pl-xl q-pr-xl">
             <q-btn round color="positive" icon="call" @click="phoneCall()" />
-            <q-btn class="float-right" round color="negative" icon="call_end" @click="forceNextStep()" />
+            <q-btn class="float-right" round color="negative" icon="call_end" @click="cancelPhoneCall()" />
               <!--<q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="phoneCall()"><div>{{ $t('label.Call') }}</div></q-btn>-->
           </div>  
         </div>
@@ -842,6 +861,7 @@ export default {
         isNetworkLow: false,
         isTimeUp: false,
         displaySuccessIcon: false,
+        rightAnswer: null,
         
         // for step 'character'
         character: {
@@ -1046,6 +1066,7 @@ export default {
       this.countdowntimeleft = defaultVars.countdowntimeleft
       this.pageReady = defaultVars.pageReady
       this.showTools = defaultVars.showTools
+      this.rightAnswer = defaultVars.rightAnswer
       //this.currentcountdown = defaultVars.currentcountdown
     },
     resetEvents () {
@@ -1266,7 +1287,8 @@ export default {
           if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
             Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
           }
-          this.$emit('pass')
+          //this.$emit('hideButtons')
+          //this.$emit('pass')
         }
         
         if (this.step.type === 'geolocation') {
@@ -1705,7 +1727,7 @@ export default {
         //this.step.type === 'character' || 
         this.step.type === 'image-over-flow' || 
         this.step.type === 'binocular' || 
-        this.step.type === 'phone-call' || 
+        //this.step.type === 'phone-call' || 
         this.step.type === 'new-item' || 
         this.step.type === 'trigger-event') {
         this.checkAnswer()
@@ -1943,6 +1965,12 @@ export default {
             if (this.isTimeUp) {
               checkAnswerResult.remainingTrial = 0
             }
+            if (this.step.displayRightAnswer === true) {
+              // indicate the right answer
+              if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
+                this.rightAnswer = checkAnswerResult.answer
+              }
+            }
             
             this.nbTry++
             if (checkAnswerResult.remainingTrial > 0) {
@@ -1964,6 +1992,12 @@ export default {
             if (this.isTimeUp) {
               checkAnswerResult.remainingTrial = 0
             }
+            if (this.step.displayRightAnswer === true) {
+              // indicate the right answer
+              if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
+                this.rightAnswer = checkAnswerResult.answer.split('|')
+              }
+            }
             
             this.nbTry++
             if (checkAnswerResult.remainingTrial > 0) {
@@ -1982,6 +2016,12 @@ export default {
           } else {
             if (this.isTimeUp) {
               checkAnswerResult.remainingTrial = 0
+            }
+            if (this.step.displayRightAnswer === true) {
+              // indicate the right answer
+              if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
+                this.rightAnswer = checkAnswerResult.answer.split('|')
+              }
             }
             
             this.nbTry++
@@ -2048,6 +2088,12 @@ export default {
           } else {
             if (this.isTimeUp) {
               checkAnswerResult.remainingTrial = 0
+            }
+            if (this.step.displayRightAnswer === true) {
+              // indicate the right answer
+              if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
+                this.rightAnswer = checkAnswerResult.answer
+              }
             }
             
             this.nbTry++
@@ -3443,7 +3489,7 @@ export default {
      * call a number
      * @param   {String}    type    type of item to change
      */
-    phoneCall: function() {
+    async phoneCall() {
       let number = this.step.options.number
       cordova.plugins.phonedialer.dial(
         number, 
@@ -3454,6 +3500,11 @@ export default {
         },
         false
        )
+       this.checkAnswer()
+    },
+    async cancelPhoneCall() {
+      await this.checkAnswer()
+      this.forceNextStep()
     },
     
     /*
@@ -4376,7 +4427,7 @@ export default {
   
   /* color code specific */
   
-  .code-color .color-bubbles { margin-top: 5rem; display: flex; flex-flow: row nowrap; justify-content: center; position: relative; }
+  .code-color .color-bubbles { display: flex; flex-flow: row nowrap; justify-content: center; position: relative; }
   .code-color .color-bubbles div { display: block; width: 4rem; height: 4rem; border: 4px solid black; border-radius: 2rem; margin: 0.3rem; transition: background-color 0.3s; }
   
   /* image code specific */

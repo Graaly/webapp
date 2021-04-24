@@ -442,6 +442,9 @@ export default {
       // manage history
       this.updateHistory()
       
+      // check if user already played the step
+      this.checkIfAlreadyPlayed()
+      
       // fill inventory at loading when necessary
       if (this.step.type === 'use-item') {
         await this.fillInventory()
@@ -490,6 +493,9 @@ export default {
       
       // manage history
       this.updateHistory()
+      
+      // check if user already played the step
+      this.checkIfAlreadyPlayed()
       
       // fill inventory at loading when necessary
       if (this.step.type === 'use-item') {
@@ -883,6 +889,15 @@ export default {
         this.moveToStep()
       } 
       , 15000);
+    },
+    /*
+     * Check if the user has already played the step
+     */
+    checkIfAlreadyPlayed() {
+      const conditions = this.run.conditionsDone
+      if (conditions.indexOf('stepDone_' + this.step.stepId) !== -1) { 
+        this.next.canPass = true
+      }
     },
     /*
      * update history
@@ -1586,16 +1601,16 @@ export default {
 
       if (success) {
         // if answer is not displayed => player must be able to play again the step and the step before
-        if (this.step.displayRightAnswer === false) {
+        /*if (this.step.displayRightAnswer === false) {
           removedStatus = await this.removeConditionsUntilLastMarker(conditions, this.step.stepId, this.run.version)
           if (removedStatus.found) {
             conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, false, this.player)
           } else {
             conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player)
           }
-        } else {
+        } else {*/
           conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player)
-        }
+        /*}*/
         ended = true
         
         if (this.hint.used || this.nbTry > 1) {
@@ -1607,16 +1622,16 @@ export default {
       } else {
         ended = true
         stepStatus = 'fail'
-        if (this.step.displayRightAnswer === false) {
+        /*if (this.step.displayRightAnswer === false) {
           removedStatus = await this.removeConditionsUntilLastMarker(conditions, this.step.stepId, this.run.version)
           if (removedStatus.found) {
             conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, false, this.player)
           } else {
             conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player)
           }
-        } else {
+        } else {*/
           conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player)
-        }
+        /*}*/
       }
       
       // compute nb points
