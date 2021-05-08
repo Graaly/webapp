@@ -16,6 +16,15 @@
         :instant-feedback = true
       />
       
+      <!------------------ AUDIO ------------------------>
+    
+      <audio 
+        v-if="audio && audio !== ''"
+        id="step-music" 
+        autoplay 
+        :src="audio"
+      />
+      
       <div class="bg-accent text-white q-pa-md" v-if="isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     
       <!------------------ TRANSITION AREA ------------------------>
@@ -135,9 +144,14 @@
           </div>
           <div class="typed-code">
             <table class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}">
-            <tr>
-              <td v-for="(sign, key) in playerCode" :key="key" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
-            </tr>
+              <tr>
+                <td v-for="(sign, key) in playerCode" :key="key" :class="{ typed: sign !== '' }">{{ sign == '' ? '?' : sign }}</td>
+              </tr>
+            </table>
+            <table v-if="rightAnswer" class="shadow-8 right">
+              <tr>
+                <td v-for="(sign, key) in rightAnswer" :key="key" class="typed">{{ sign }}</td>
+              </tr>
             </table>
           </div>
           <div class="keypad">
@@ -183,8 +197,11 @@
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
-          <div class="color-bubbles">
+          <div class="color-bubbles" style="margin-top: 5rem;">
             <div v-for="(color, index) in playerCode" :key="index" :style="'background-color: ' + playerCode[index]" @click="changeColorForCode(index)" class="shadow-8" :class="{right: playerResult === true, wrong: playerResult === false}" :test-id="'color-code-' + index">&nbsp;</div>
+          </div>
+          <div class="color-bubbles" v-if="rightAnswer">
+            <div v-for="(color, index) in rightAnswer" :key="index" :style="'background-color: ' + color" class="shadow-8 right">&nbsp;</div>
           </div>
           
           <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
@@ -220,12 +237,18 @@
                 <img :id="'image-code-' + index" @click="enlargeThePicture(index)" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
               </td>
             </tr>
+            <tr v-show="rightAnswer">
+              <td v-for="(code, index) in rightAnswer" :key="index" class="right">
+                <img :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
+              </td>
+            </tr>
             <tr>
               <td v-for="(code, index) in playerCode" :key="index" class="text-center">
                 <q-btn :disabled="stepPlayed" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" round icon="keyboard_arrow_down" @click="nextCodeAnswer(index)" :test-id="'next-image-' + index" />
               </td>
             </tr>
           </table>
+            
           <div class="centered text-grey q-py-md">{{ $t('label.ClickToEnlargePictures') }}</div>
           
           <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
@@ -280,6 +303,11 @@
               :placeholder="$t('label.YourAnswer')" 
               :class="{right: playerResult === true, wrong: playerResult === false}" 
               :disabled="stepPlayed" />
+            <input 
+              v-if="rightAnswer"
+              class="subtitle6 right" 
+              v-bind:value="rightAnswer" 
+              disabled />
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer"><div>{{ $t('label.ConfirmTheAnswer') }}</div></q-btn>
           </div>
           <div class="centered" style="padding-bottom: 100px">
@@ -333,17 +361,20 @@
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
-        <ul class="memory" id="card-deck">
-          <li 
+        <div class="row memory" id="card-deck">
+          <div
             v-for="(item, key) in memory.items" 
             :key="key" 
-            class="card" 
-            :class="{ open: item.isClicked, show: item.isClicked, disabled: item.isFound || stepPlayed, match: item.isFound }" 
-            @click="selectMemoryCard(key)"
-          >
-            <img v-if="item.imagePath" :src="item.imagePath.indexOf('blob:') !== -1 ? item.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
-          </li>
-        </ul>
+            class="col-3 q-pa-sm">
+            <div
+              class="card" 
+              :class="{ open: item.isClicked, show: item.isClicked, disabled: item.isFound || stepPlayed, match: item.isFound }" 
+              @click="selectMemoryCard(key)"
+            >
+              <img style="display: block; position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;" v-if="item.imagePath" :src="item.imagePath.indexOf('blob:') !== -1 ? item.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
+            </div>
+          </div>
+        </div>
       </div>
       
       <!------------------ COMPOSITE DRAWING STEP AREA ------------------------>
@@ -424,7 +455,7 @@
           </div>
           <div class="fixed-bottom q-pb-xxl q-pl-xl q-pr-xl">
             <q-btn round color="positive" icon="call" @click="phoneCall()" />
-            <q-btn class="float-right" round color="negative" icon="call_end" @click="forceNextStep()" />
+            <q-btn class="float-right" round color="negative" icon="call_end" @click="cancelPhoneCall()" />
               <!--<q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="phoneCall()"><div>{{ $t('label.Call') }}</div></q-btn>-->
           </div>  
         </div>
@@ -525,9 +556,12 @@
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
-          <div v-if="!step.options || (!step.options.fullWidthPicture && !step.options.redFilter)" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw; z-index: 1985;'">
-          </div>
+          <!-- background image -normal -->
+          <div v-if="!step.options || (!step.options.fullWidthPicture && !step.options.redFilter)" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw; z-index: 1985;'"></div>
+          <!-- background image -fullwidth -->
           <img v-if="step.options && step.options.fullWidthPicture && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985;" />
+          <!-- background image -fullheight -->
+          <img v-if="step.options && !step.options.fullWidthPicture && step.options.fullHeightPicture  && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; height: 100%; width: auto; z-index: 1985; left: 50%; top: 50%; -webkit-transform: translateY(-50%) translateX(-50%);" />
           
           <!-- Red filter & alternate button for iOS -->
           <div v-if="isIOs && imageOverFlow.snapshot === '' && step.options && step.options.redFilter" class="centered" style="background: transparent; position: absolute; bottom: 200px; width: 100%; z-index: 1980;">
@@ -842,6 +876,8 @@ export default {
         isNetworkLow: false,
         isTimeUp: false,
         displaySuccessIcon: false,
+        rightAnswer: null,
+        audio: null,
         
         // for step 'character'
         character: {
@@ -1046,6 +1082,8 @@ export default {
       this.countdowntimeleft = defaultVars.countdowntimeleft
       this.pageReady = defaultVars.pageReady
       this.showTools = defaultVars.showTools
+      this.rightAnswer = defaultVars.rightAnswer
+      this.audio = defaultVars.audio
       //this.currentcountdown = defaultVars.currentcountdown
     },
     resetEvents () {
@@ -1180,6 +1218,8 @@ export default {
           this.showControls()
         }
         
+        utils.setTimeout(this.getAudioSound, 2500)
+        
         this.resetDrawDirectionInterval()
 
         //iOS Hack : all iphone have gyroscope
@@ -1266,7 +1306,8 @@ export default {
           if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
             Notification(this.$t('label.YouMustTestThisStepOnMobile'), 'error')
           }
-          this.$emit('pass')
+          //this.$emit('hideButtons')
+          //this.$emit('pass')
         }
         
         if (this.step.type === 'geolocation') {
@@ -1705,7 +1746,7 @@ export default {
         //this.step.type === 'character' || 
         this.step.type === 'image-over-flow' || 
         this.step.type === 'binocular' || 
-        this.step.type === 'phone-call' || 
+        //this.step.type === 'phone-call' || 
         this.step.type === 'new-item' || 
         this.step.type === 'trigger-event') {
         this.checkAnswer()
@@ -1943,6 +1984,12 @@ export default {
             if (this.isTimeUp) {
               checkAnswerResult.remainingTrial = 0
             }
+            if (this.step.displayRightAnswer === true) {
+              // indicate the right answer
+              if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
+                this.rightAnswer = checkAnswerResult.answer
+              }
+            }
             
             this.nbTry++
             if (checkAnswerResult.remainingTrial > 0) {
@@ -1964,6 +2011,12 @@ export default {
             if (this.isTimeUp) {
               checkAnswerResult.remainingTrial = 0
             }
+            if (this.step.displayRightAnswer === true) {
+              // indicate the right answer
+              if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
+                this.rightAnswer = checkAnswerResult.answer.split('|')
+              }
+            }
             
             this.nbTry++
             if (checkAnswerResult.remainingTrial > 0) {
@@ -1982,6 +2035,12 @@ export default {
           } else {
             if (this.isTimeUp) {
               checkAnswerResult.remainingTrial = 0
+            }
+            if (this.step.displayRightAnswer === true) {
+              // indicate the right answer
+              if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
+                this.rightAnswer = checkAnswerResult.answer.split('|')
+              }
             }
             
             this.nbTry++
@@ -2048,6 +2107,12 @@ export default {
           } else {
             if (this.isTimeUp) {
               checkAnswerResult.remainingTrial = 0
+            }
+            if (this.step.displayRightAnswer === true) {
+              // indicate the right answer
+              if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
+                this.rightAnswer = checkAnswerResult.answer
+              }
             }
             
             this.nbTry++
@@ -2835,7 +2900,7 @@ export default {
         this.updatePlayerCanTouchTarget()
       }
       
-      if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.distance <= parseInt(options.distance, 10)) || this.geolocation.distance <= 20)) {
+      if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.distance <= parseInt(options.distance, 10)) || (!options.distance && this.geolocation.distance <= 20))) {
         //check if other locations are defined
         this.geolocation.currentIndex++
         if (options.locations && options.locations.length > 0 && this.geolocation.currentIndex < options.locations.length) {
@@ -3443,7 +3508,7 @@ export default {
      * call a number
      * @param   {String}    type    type of item to change
      */
-    phoneCall: function() {
+    async phoneCall() {
       let number = this.step.options.number
       cordova.plugins.phonedialer.dial(
         number, 
@@ -3454,6 +3519,11 @@ export default {
         },
         false
        )
+       this.checkAnswer()
+    },
+    async cancelPhoneCall() {
+      await this.checkAnswer()
+      this.forceNextStep()
     },
     
     /*
@@ -4293,7 +4363,21 @@ export default {
         }
       }
       return {all: !notAllFound, one: oneFound}
-    }
+    },
+    /*
+     * get audio sound
+     */
+    getAudioSound () {
+      if (this.step.audioStream && this.step.audioStream !== '') {
+        if (this.step.audioStream.indexOf('blob:') !== -1) {
+          this.audio = this.step.audioStream
+        } else {
+          this.audio = this.serverUrl + '/upload/quest/' + this.step.questId + '/audio/' + this.step.audioStream
+        }
+      } else {
+        this.audio = null
+      }
+    },
   }
 }
 </script>
@@ -4376,7 +4460,7 @@ export default {
   
   /* color code specific */
   
-  .code-color .color-bubbles { margin-top: 5rem; display: flex; flex-flow: row nowrap; justify-content: center; position: relative; }
+  .code-color .color-bubbles { display: flex; flex-flow: row nowrap; justify-content: center; position: relative; }
   .code-color .color-bubbles div { display: block; width: 4rem; height: 4rem; border: 4px solid black; border-radius: 2rem; margin: 0.3rem; transition: background-color 0.3s; }
   
   /* image code specific */
@@ -4455,32 +4539,20 @@ export default {
   /* memory specific */
   
   .memory {
-    width: 100%;
-    padding: 1rem;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    align-items: center;
-    margin: 0 0 3em;
-    list-style-type: none;
+    /*justify-content: space-around;
+    align-items: center;*/
   }
 
   .memory .card {
-    height: 20vw;
-    width: 20vw;
-    max-width: 60px;
-    max-height: 60px;
-    margin: 10px;
     background: url(/statics/icons/game/card-back.png) no-repeat;
     background-size: 100%;
     color: #ffffff;
     border-radius: 5px;
-    border: 3px solid #07275A;
     cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     box-shadow: 5px 2px 20px 0 rgba(46, 61, 73, 0.5);
+    width: 100%; 
+    padding-top: 100%; 
+    position: relative;
   }
   .memory .card img {
     width: 0;

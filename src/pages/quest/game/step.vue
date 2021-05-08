@@ -442,6 +442,9 @@ export default {
       // manage history
       this.updateHistory()
       
+      // check if user already played the step
+      this.checkIfAlreadyPlayed()
+      
       // fill inventory at loading when necessary
       if (this.step.type === 'use-item') {
         await this.fillInventory()
@@ -490,6 +493,9 @@ export default {
       
       // manage history
       this.updateHistory()
+      
+      // check if user already played the step
+      this.checkIfAlreadyPlayed()
       
       // fill inventory at loading when necessary
       if (this.step.type === 'use-item') {
@@ -695,6 +701,10 @@ export default {
             } else {
               stepId = response.data.next
             }
+            // check if history must be remove
+            if (response.data.extra && response.data.extra === 'removehistory') {
+              this.removeHistory()
+            }
           } else {
             // display waiting screen
             if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
@@ -792,6 +802,14 @@ export default {
               this.warnings.stepDataMissing = true
             }
           }
+          if (tempStep.audioStream && tempStep.audioStream !== '') {
+            const audioUrl = await utils.readBinaryFile(this.questId, tempStep.audioStream)
+            if (audioUrl) {
+              tempStep.audioStream = audioUrl
+            } else {
+              this.warnings.stepDataMissing = true
+            }
+          }
           if (tempStep.type === 'choose' && tempStep.options) {
             for (var k = 0; k < tempStep.options.items.length; k++) {
               if (tempStep.options.items[k].imagePath) {
@@ -885,16 +903,28 @@ export default {
       , 15000);
     },
     /*
+     * Check if the user has already played the step
+     */
+    checkIfAlreadyPlayed() {
+      const conditions = this.run.conditionsDone
+      if (conditions.indexOf('stepDone_' + this.step.stepId) !== -1) { 
+        this.next.canPass = true
+      }
+    },
+    /*
      * update history
      */
     updateHistory() {
       if (!this.$store.state.history || !this.$store.state.history.items) {
-        this.$store.state.history = {items: [], index: 0}
+        this.removeHistory()
       }
       //this.$store.state.history.index++
       if (this.$store.state.history.items.indexOf(this.step.stepId) === -1 && this.step.stepId) {
         this.$store.state.history.items.push(this.step.stepId)
       }
+    },
+    removeHistory() {
+      this.$store.state.history = {items: [], index: 0}
     },
     /*
      * Get the previous step ID
@@ -1586,16 +1616,16 @@ export default {
 
       if (success) {
         // if answer is not displayed => player must be able to play again the step and the step before
-        if (this.step.displayRightAnswer === false) {
+        /*if (this.step.displayRightAnswer === false) {
           removedStatus = await this.removeConditionsUntilLastMarker(conditions, this.step.stepId, this.run.version)
           if (removedStatus.found) {
             conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, false, this.player)
           } else {
             conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player)
           }
-        } else {
+        } else {*/
           conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player)
-        }
+        /*}*/
         ended = true
         
         if (this.hint.used || this.nbTry > 1) {
@@ -1607,16 +1637,16 @@ export default {
       } else {
         ended = true
         stepStatus = 'fail'
-        if (this.step.displayRightAnswer === false) {
+        /*if (this.step.displayRightAnswer === false) {
           removedStatus = await this.removeConditionsUntilLastMarker(conditions, this.step.stepId, this.run.version)
           if (removedStatus.found) {
             conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, false, this.player)
           } else {
             conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player)
           }
-        } else {
+        } else {*/
           conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player)
-        }
+        /*}*/
       }
       
       // compute nb points
@@ -1830,7 +1860,16 @@ export default {
             }
             // if step is end of chapter 
             if (stepsofChapter[i].type === 'end-chapter') {
-              let nextStepId = await this.moveToNextChapter()
+              if (stepsofChapter[i].options && stepsofChapter[i].options.resetHistory) {
+                this.removeHistory()
+              }
+              let nextStepId
+              
+              if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
+                this.removeAllConditionsOfAChapter(steps, this.run.conditionsDone, stepsofChapter[i].chapterId)
+              } else {
+                nextStepId = await this.moveToNextChapter()
+              }
               if (nextStepId !== 'end') {
                 // get next step by running the process again for new chapter
                 nextStepId = await this.getNextOfflineStep(questId, markerCode, player)
@@ -1887,7 +1926,7 @@ export default {
       var specificSteps = []
       if (steps) {
         for (var i = 0; i < steps.length; i++) {
-          if (steps[i].chapterId === chapter && (steps[i].player === 'All' || steps[i].player === player)) {
+          if (steps[i].chapterId === chapter && (steps[i].player === 'All' || steps[i].player === player || !player)) {
             specificSteps.push(steps[i])
           }
         }
@@ -2054,6 +2093,21 @@ export default {
       }
       
       return {found: true, updatedCondition: currentConditions}
+    },
+    /*
+     * If bad answer remove previous conditions done until marker
+     * @param   {Array}     steps             All steps
+     * @param   {Array}     currentConditions Current conditions array
+     * @param   {String}    chapterId          ID of the chapter
+     */
+    async removeAllConditionsOfAChapter(steps, currentConditions, chapterId) {    
+      const stepsofChapter = await this.listForAChapter(steps, chapterId)
+      if (stepsofChapter && stepsofChapter.length > 0) {
+        for (i = 0; i < stepsofChapter.length; i++) {
+          currentConditions = this.removeStepFromConditions(currentConditions, stepsofChapter[i].stepId)
+        }
+      }
+      this.run.conditionsDone = currentConditions
     },
     /*
      * Move to the next chapter
