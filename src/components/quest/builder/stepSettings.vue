@@ -1010,13 +1010,18 @@
             </div>
             <div v-if="options.type.code === 'image-over-flow'">
               <q-toggle v-model="selectedStep.form.options.fullWidthPicture" :label="$t('label.EnlargePictureToFullWidth')" />
+              <q-toggle v-model="selectedStep.form.options.fullHeightPicture" :label="$t('label.EnlargePictureToFullHeight')" />
               <q-toggle v-model="selectedStep.form.options.snapshotAllowed" :label="$t('label.PlayerCanTakeSnapshot')" />
               <q-toggle v-model="selectedStep.form.options.redFilter" :label="$t('label.ReplacePictureByRedFilter')" />
             </div>
             <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
               <q-input v-model="selectedStep.form.options.initDuration" :label="$t('label.DurationBeforeTextAppearAbovePicture')" />
             </div>
-            <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
+            <div v-if="options.type.code === 'end-chapter'">
+              <q-toggle v-model="selectedStep.form.options.resetHistory" :label="$t('label.ResetHistoryAfter')" />
+              <q-toggle v-model="selectedStep.form.options.resetChapterProgression" :label="$t('label.RestartChapterAfterStep')" />
+            </div>
+            <div class="background-upload" v-show="options.type.code !== 'end-chapter' && options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
               <q-btn class="full-width" type="button" @click="showMedia">
                 {{ $t('label.AddABackgroundImage') }}
               </q-btn>
@@ -1042,6 +1047,16 @@
                 <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
               </div>
             </div>
+            <div v-show="options.type.code !== 'end-chapter'">
+              <div v-if="selectedStep.form.audioStream && selectedStep.form.audioStream !== ''">
+                <div>{{ $t('label.YourAudioFile') }} : {{ selectedStep.form.audioStream }}</div>
+                <div class="centered"><a class="dark" @click="removeAudio">{{$t('label.Remove')}}</a></div>
+              </div>
+              <div v-if="!selectedStep.form.audioStream || selectedStep.form.audioStream === ''">
+                {{ $t('label.AddAnAudioFile') }}:
+                <input @change="uploadAudio" ref="audiofile" type="file" accept="audio/mp3" />
+              </div>
+            </div>
             <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
               <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" /><br />
               <q-toggle v-model="selectedStep.form.options.blurEffect" :label="$t('label.BlurEffect')" />
@@ -1049,15 +1064,16 @@
             <div v-if="options.type.code !== 'help' && options.type.code !== 'end-chapter'">
               <q-toggle v-model="selectedStep.form.options.html" :label="$t('label.UseHtmlInDescription')" />
             </div>
-            <q-input
-              :label="$t('label.ExtraTextFieldLabel')"
-              v-model="selectedStep.form.extraText[lang]"
-              type="textarea"
-              :max-height="100"
-              :min-rows="4"
-              class="full-width"
-            />
-            
+            <div v-show="options.type.code !== 'end-chapter'">
+              <q-input
+                :label="$t('label.ExtraTextFieldLabel')"
+                v-model="selectedStep.form.extraText[lang]"
+                type="textarea"
+                :max-height="100"
+                :min-rows="4"
+                class="full-width"
+              />
+            </div>
           </div>
         </q-expansion-item>
       </q-list>
@@ -1478,6 +1494,7 @@ export default {
         backgroundImage: null,
         // info-video step specific
         videoStream: null,
+        audioStream: null,
         // geoloc step specific
         answerPointerCoordinates: {top: 50, left: 50},
         answerItem: null,
@@ -3198,6 +3215,35 @@ export default {
         title: this.$t('label.' + modeLabel),
         message: this.$t('label.' + modeLabel + 'Help')
       })
+    },
+    /*
+     * Upload a music
+     */
+    async uploadAudio(e) {
+      this.$q.loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('audio', files[0])
+      let uploadAudioResult = await StepService.uploadAudio(this.quest.questId, data)
+      if (uploadAudioResult && uploadAudioResult.hasOwnProperty('data')) {
+        if (uploadAudioResult.data.file) {
+          this.selectedStep.form.audioStream = uploadAudioResult.data.file
+          this.$forceUpdate()
+        } else if (uploadAudioResult.data.message && uploadAudioResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    async removeAudio() {
+      this.selectedStep.form.audioStream = null
     }
   },
   validations() {

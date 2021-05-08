@@ -284,6 +284,18 @@ export default {
     return res
   },
   /*
+   * Upload a step music
+   * @param   {Object}    data                audio data
+   */
+  uploadAudio(questId, data) {
+    return Api()
+      .post("/quest/" + questId + "/step/audio/upload", data, {
+        timeout: 60000,
+        headers: { "Content-Type": "multipart/form-data" }
+      })
+      .catch(error => console.log(error.request));
+  },
+  /*
    * upload an "answer image" (for step 'choose')
    * @param   {String}    questId        ID of the quest
    * @param   {Object}    data           upload data

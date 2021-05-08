@@ -701,6 +701,10 @@ export default {
             } else {
               stepId = response.data.next
             }
+            // check if history must be remove
+            if (response.data.extra && response.data.extra === 'removehistory') {
+              this.removeHistory()
+            }
           } else {
             // display waiting screen
             if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
@@ -794,6 +798,14 @@ export default {
             const videoUrl = await utils.readBinaryFile(this.questId, tempStep.videoStream)
             if (videoUrl) {
               tempStep.videoStream = videoUrl
+            } else {
+              this.warnings.stepDataMissing = true
+            }
+          }
+          if (tempStep.audioStream && tempStep.audioStream !== '') {
+            const audioUrl = await utils.readBinaryFile(this.questId, tempStep.audioStream)
+            if (audioUrl) {
+              tempStep.audioStream = audioUrl
             } else {
               this.warnings.stepDataMissing = true
             }
@@ -904,12 +916,15 @@ export default {
      */
     updateHistory() {
       if (!this.$store.state.history || !this.$store.state.history.items) {
-        this.$store.state.history = {items: [], index: 0}
+        this.removeHistory()
       }
       //this.$store.state.history.index++
       if (this.$store.state.history.items.indexOf(this.step.stepId) === -1 && this.step.stepId) {
         this.$store.state.history.items.push(this.step.stepId)
       }
+    },
+    removeHistory() {
+      this.$store.state.history = {items: [], index: 0}
     },
     /*
      * Get the previous step ID
@@ -1845,7 +1860,16 @@ export default {
             }
             // if step is end of chapter 
             if (stepsofChapter[i].type === 'end-chapter') {
-              let nextStepId = await this.moveToNextChapter()
+              if (stepsofChapter[i].options && stepsofChapter[i].options.resetHistory) {
+                this.removeHistory()
+              }
+              let nextStepId
+              
+              if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
+                this.removeAllConditionsOfAChapter(steps, this.run.conditionsDone, stepsofChapter[i].chapterId)
+              } else {
+                nextStepId = await this.moveToNextChapter()
+              }
               if (nextStepId !== 'end') {
                 // get next step by running the process again for new chapter
                 nextStepId = await this.getNextOfflineStep(questId, markerCode, player)
@@ -1902,7 +1926,7 @@ export default {
       var specificSteps = []
       if (steps) {
         for (var i = 0; i < steps.length; i++) {
-          if (steps[i].chapterId === chapter && (steps[i].player === 'All' || steps[i].player === player)) {
+          if (steps[i].chapterId === chapter && (steps[i].player === 'All' || steps[i].player === player || !player)) {
             specificSteps.push(steps[i])
           }
         }
@@ -2069,6 +2093,21 @@ export default {
       }
       
       return {found: true, updatedCondition: currentConditions}
+    },
+    /*
+     * If bad answer remove previous conditions done until marker
+     * @param   {Array}     steps             All steps
+     * @param   {Array}     currentConditions Current conditions array
+     * @param   {String}    chapterId          ID of the chapter
+     */
+    async removeAllConditionsOfAChapter(steps, currentConditions, chapterId) {    
+      const stepsofChapter = await this.listForAChapter(steps, chapterId)
+      if (stepsofChapter && stepsofChapter.length > 0) {
+        for (i = 0; i < stepsofChapter.length; i++) {
+          currentConditions = this.removeStepFromConditions(currentConditions, stepsofChapter[i].stepId)
+        }
+      }
+      this.run.conditionsDone = currentConditions
     },
     /*
      * Move to the next chapter

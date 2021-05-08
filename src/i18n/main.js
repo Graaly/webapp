@@ -805,6 +805,7 @@ module.exports = {
       TypeEndMessage: "Text replacing the scoring and rating final screen",
       ThanksForPlaying: "Thanks for playing this game. See you later with new games!",
       EnlargePictureToFullWidth: "Enlarge the picture to full screen",
+      EnlargePictureToFullHeight: "Enlarge the picture to full height",
       PlayerCanTakeSnapshot: "Player can take snapshots",
       SnapshotTaken: "Screenshot saved on your mobile",
       SnapshotTakenIssue: "Error with the screenshot",
@@ -1041,7 +1042,9 @@ module.exports = {
       ApplyRedFilter: "Apply red filter",
       Chapters: "Chapters",
       Chapter: "Chapter",
-      ChapterChangeWarning: "Changing the chapter will remove his triggers and create inconsistencies in triggers. You will need to update the steps that depend on it."
+      ChapterChangeWarning: "Changing the chapter will remove his triggers and create inconsistencies in triggers. You will need to update the steps that depend on it.",
+      ResetHistoryAfter: "Prevent back button after this step",
+      RestartChapterAfterStep: "Restart chapter after this step"
     }
   },
   fr: {
@@ -1836,7 +1839,8 @@ module.exports = {
       RemoveScoringAndRating: "Cacher le score et la notation",
       TypeEndMessage: "Texte de fin qui remplace l'écran de score et de notation",
       ThanksForPlaying: "Merci d'avoir joué à ce jeu. A bientôt pour d'autres jeux !",
-      EnlargePictureToFullWidth: "Elargir l'image en plein écran",
+      EnlargePictureToFullWidth: "Elargir l'image en plein écran (déformer)",
+      EnlargePictureToFullHeight: "Elargir l'image en pleine hauteur",
       PlayerCanTakeSnapshot: "Le joueur peut prendre des captures d'écran",
       SnapshotTaken: "Capture enregistrée dans vos photos",
       SnapshotTakenIssue: "Impossible de faire une capture",
@@ -2020,7 +2024,7 @@ module.exports = {
       HelpStepMessageHint: "Afficher l'aide pour le bouton Indice",
       HelpStepMessagePrevious: "Afficher l'aide pour le bouton Retour",
       HelpStepMessageNext: "Afficher l'aide pour le bouton Suivant",
-      HelpStepMessage: "Bienvenue dans votre interface de jeu !\n\nPour jouer, il vous suffira de suivre les indications à l'écran.",
+      HelpStepMessage: "Bienvenu.e.s dans votre interface de jeu !\n\nPour jouer, il vous suffira de suivre les indications à l'écran.",
       HelpStepMessageInventoryMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>work</i></span></span></button></div>La valise vous sert à utiliser des objets que vous avez récupérés durant le jeu",
       HelpStepMessageHintMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>lightbulb</i></span></span></button></div>L'ampoule vous sert à obtenir des indices.",
       HelpStepMessagePreviousMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>arrow_back</i></span></span></button></div>Pour revenir à l'étape précédente, appuyez sur la flèche de gauche.",
@@ -2073,7 +2077,9 @@ module.exports = {
       ApplyRedFilter: "Appliquer le filtre rouge",
       Chapters: "Chapitres",
       Chapter: "Chapitre",
-      ChapterChangeWarning: "Attention, si vous changez le chapitre, vous supprimez tous ses déclencheurs et risquez d'avoir des incohérences au niveau des déclencheurs des autres étapes. Il faudra les modifier aussi dans les étapes qui en dépendent."
+      ChapterChangeWarning: "Attention, si vous changez le chapitre, vous supprimez tous ses déclencheurs et risquez d'avoir des incohérences au niveau des déclencheurs des autres étapes. Il faudra les modifier aussi dans les étapes qui en dépendent.",
+      ResetHistoryAfter: "Empécher le retour arrière après cette étape",
+      RestartChapterAfterStep: "Redémarrer le chapitre après cette étape"
     }
   }
 }

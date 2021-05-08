@@ -201,6 +201,13 @@ export default {
                   return false
                 }
               }
+              if (step.audioStream && step.audioStream !== '') {
+                const audioStreamSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/audio/', step.audioStream)
+                if (!audioStreamSuccess) {
+                  this.throwSaveError('Could not save audio for quest ' + quest.questId + ' and step ' + step.stepId)
+                  return false
+                }
+              }
               if (step.type === 'choose' && step.options && step.options.items) {
                 var chooseImageSuccess = true
                 for (var k = 0; k < step.options.items.length; k++) {
