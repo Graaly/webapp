@@ -16,6 +16,15 @@
         :instant-feedback = true
       />
       
+      <!------------------ AUDIO ------------------------>
+    
+      <audio 
+        v-if="audio && audio !== ''"
+        id="step-music" 
+        autoplay 
+        :src="audio"
+      />
+      
       <div class="bg-accent text-white q-pa-md" v-if="isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     
       <!------------------ TRANSITION AREA ------------------------>
@@ -352,17 +361,20 @@
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
-        <ul class="memory" id="card-deck">
-          <li 
+        <div class="row memory" id="card-deck">
+          <div
             v-for="(item, key) in memory.items" 
             :key="key" 
-            class="card" 
-            :class="{ open: item.isClicked, show: item.isClicked, disabled: item.isFound || stepPlayed, match: item.isFound }" 
-            @click="selectMemoryCard(key)"
-          >
-            <img v-if="item.imagePath" :src="item.imagePath.indexOf('blob:') !== -1 ? item.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
-          </li>
-        </ul>
+            class="col-3 q-pa-sm">
+            <div
+              class="card" 
+              :class="{ open: item.isClicked, show: item.isClicked, disabled: item.isFound || stepPlayed, match: item.isFound }" 
+              @click="selectMemoryCard(key)"
+            >
+              <img style="display: block; position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;" v-if="item.imagePath" :src="item.imagePath.indexOf('blob:') !== -1 ? item.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
+            </div>
+          </div>
+        </div>
       </div>
       
       <!------------------ COMPOSITE DRAWING STEP AREA ------------------------>
@@ -544,9 +556,12 @@
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
-          <div v-if="!step.options || (!step.options.fullWidthPicture && !step.options.redFilter)" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw; z-index: 1985;'">
-          </div>
+          <!-- background image -normal -->
+          <div v-if="!step.options || (!step.options.fullWidthPicture && !step.options.redFilter)" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw; z-index: 1985;'"></div>
+          <!-- background image -fullwidth -->
           <img v-if="step.options && step.options.fullWidthPicture && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985;" />
+          <!-- background image -fullheight -->
+          <img v-if="step.options && !step.options.fullWidthPicture && step.options.fullHeightPicture  && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; height: 100%; width: auto; z-index: 1985; left: 50%; top: 50%; -webkit-transform: translateY(-50%) translateX(-50%);" />
           
           <!-- Red filter & alternate button for iOS -->
           <div v-if="isIOs && imageOverFlow.snapshot === '' && step.options && step.options.redFilter" class="centered" style="background: transparent; position: absolute; bottom: 200px; width: 100%; z-index: 1980;">
@@ -862,6 +877,7 @@ export default {
         isTimeUp: false,
         displaySuccessIcon: false,
         rightAnswer: null,
+        audio: null,
         
         // for step 'character'
         character: {
@@ -1067,6 +1083,7 @@ export default {
       this.pageReady = defaultVars.pageReady
       this.showTools = defaultVars.showTools
       this.rightAnswer = defaultVars.rightAnswer
+      this.audio = defaultVars.audio
       //this.currentcountdown = defaultVars.currentcountdown
     },
     resetEvents () {
@@ -1200,6 +1217,8 @@ export default {
           }
           this.showControls()
         }
+        
+        utils.setTimeout(this.getAudioSound, 2500)
         
         this.resetDrawDirectionInterval()
 
@@ -2881,7 +2900,7 @@ export default {
         this.updatePlayerCanTouchTarget()
       }
       
-      if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.distance <= parseInt(options.distance, 10)) || this.geolocation.distance <= 20)) {
+      if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.distance <= parseInt(options.distance, 10)) || (!options.distance && this.geolocation.distance <= 20))) {
         //check if other locations are defined
         this.geolocation.currentIndex++
         if (options.locations && options.locations.length > 0 && this.geolocation.currentIndex < options.locations.length) {
@@ -4344,7 +4363,21 @@ export default {
         }
       }
       return {all: !notAllFound, one: oneFound}
-    }
+    },
+    /*
+     * get audio sound
+     */
+    getAudioSound () {
+      if (this.step.audioStream && this.step.audioStream !== '') {
+        if (this.step.audioStream.indexOf('blob:') !== -1) {
+          this.audio = this.step.audioStream
+        } else {
+          this.audio = this.serverUrl + '/upload/quest/' + this.step.questId + '/audio/' + this.step.audioStream
+        }
+      } else {
+        this.audio = null
+      }
+    },
   }
 }
 </script>
@@ -4506,32 +4539,20 @@ export default {
   /* memory specific */
   
   .memory {
-    width: 100%;
-    padding: 1rem;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    align-items: center;
-    margin: 0 0 3em;
-    list-style-type: none;
+    /*justify-content: space-around;
+    align-items: center;*/
   }
 
   .memory .card {
-    height: 20vw;
-    width: 20vw;
-    max-width: 60px;
-    max-height: 60px;
-    margin: 10px;
     background: url(/statics/icons/game/card-back.png) no-repeat;
     background-size: 100%;
     color: #ffffff;
     border-radius: 5px;
-    border: 3px solid #07275A;
     cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     box-shadow: 5px 2px 20px 0 rgba(46, 61, 73, 0.5);
+    width: 100%; 
+    padding-top: 100%; 
+    position: relative;
   }
   .memory .card img {
     width: 0;

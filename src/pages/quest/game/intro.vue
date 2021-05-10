@@ -299,7 +299,8 @@
           <div class="q-pa-lg centered subtitle2">
             {{ $t('label.BuyThisQuest') }}
           </div>
-          <div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.tier && !isIOs">
+          <!--<div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.tier && !isIOs">-->
+          <div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.tier">
             <q-card class="my-card">
               <q-card-section class="bg-primary text-white centered text-uppercase">
                 <div class="text-h6">{{ $t('label.YouHaveReceivedAQrCodeFrom', {author: quest.author.name}) }}</div>
@@ -310,7 +311,8 @@
             </q-card>
           </div>
           
-          <div class="centered" v-if="quest.premiumPrice && quest.premiumPrice.tier && quest.premiumPrice.active && !isIOs">
+          <!--<div class="centered" v-if="quest.premiumPrice && quest.premiumPrice.tier && quest.premiumPrice.active && !isIOs">-->
+          <div class="centered" v-if="quest.premiumPrice && quest.premiumPrice.tier && quest.premiumPrice.active">
             -
             <span>{{ $t('label.Or') }}</span>
             -

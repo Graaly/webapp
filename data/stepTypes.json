@@ -73,7 +73,7 @@
     "showTrick": "no",
     "enabled": true,
     "hasBackgroundImage": "option",
-    "hasOptions": false,
+    "hasOptions": true,
     "nbTrials": 0,
     "passOption": false
   },
