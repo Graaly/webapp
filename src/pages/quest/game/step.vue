@@ -312,7 +312,8 @@ import Notification from 'boot/NotifyHelper'
 import story from 'components/story'
 import utils from 'src/includes/utils'
 
-import GMMS from 'services/GameMasterMonitoringService'
+import GMMS from 'services/GameMasterMonitoringService_mqtt'
+import geolocation from 'components/geolocation'
 
 import Vue from 'vue'
 import Sortable from 'sortablejs'
@@ -471,30 +472,38 @@ export default {
       console.log(this.run)
 
       setInterval(() => {
-        //console.log(this.step)
-        //console.log(this.run)
-        GMMS.Send('questInjest', {
+        // console.log(this.step)
+        // console.log(this.run)
+        GMMS.Send(this.run.questId, {
+          'lastPing': Date.now(),
+          'quest': {
+            'id': this.run.questId
+          },
           'player': {
             'id': this.run.userId[0],
             'name': this.run.userData.name
           },
-          'questId': this.run.questId,
-          'stepId': this.step.id,
+          'step': {
+            'id': this.step.id,
+            'title': this.step.title
+          },
           'run': {
             'id': this.run._id,
             'currentStep': this.run.currentStep,
             'currentChapter': this.run.currentChapter,
             'score': this.run.score,
-            'status': this.run.status
+            'status': this.run.status,
+            'answers': this.run.answers,
+            'conditions': this.run.conditionsDone
           },
           'position': {
-            'lat': Math.random() + 45.1667,
-            'lng': Math.random() + 5.7167
-          },
-          'lastPing': Date.now()
+            'lat': Math.random() + 5.7167,
+            'lng': Math.random() + 45.1667
+          }
         })
+        GMMS.SendChat(this.run.questId)
       }, 25000);
-      
+     // geolocation.
       // manage history
       this.updateHistory()
       
