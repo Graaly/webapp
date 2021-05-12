@@ -2111,7 +2111,7 @@ export default {
             if (this.step.displayRightAnswer === true) {
               // indicate the right answer
               if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
-                this.rightAnswer = checkAnswerResult.answer
+                this.rightAnswer = checkAnswerResult.answer[0]
               }
             }
             
