@@ -1222,6 +1222,8 @@ export default {
         utils.setTimeout(this.getAudioSound, 2500)
         
         this.resetDrawDirectionInterval()
+        
+        var _this = this
 
         //iOS Hack : all iphone have gyroscope
         if (this.isIOs) {
@@ -1397,7 +1399,7 @@ export default {
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
           
           if (this.isHybrid && !this.isIOS) {
-            let _this = this
+
             // IOS is not tested for now, hence why we are not using it 
             cordova.plugins.headingcalibration.watchCalibration(
               (accuracy) => {
@@ -1543,8 +1545,7 @@ export default {
             CameraPreview.startCamera(options)
             //CameraPreview.setColorEffect("redfilter")
             CameraPreview.show()
-            let _this = this
-            setTimeout(function() {this.$q.loading.hide()}, 5000)
+            setTimeout(function() {_this.$q.loading.hide()}, 5000)
           } else {
             this.launchVideoStreamForAndroid('camera-stream-for-image-over-flow', true)
           }
@@ -1577,7 +1578,6 @@ export default {
           
           if (this.step.options.protocol === 'mqtt') {
             // TODO: adapt to match specs at https://github.com/Graaly/iot/blob/master/README.md
-            let _this = this
             
             this.mqttClient = mqtt.connect(process.env.MQTT_URL)
             
@@ -1634,7 +1634,6 @@ export default {
         } else {
           // other steps than IoT? disable MQTT & bluetooth if enabled
           if (this.mqttClient !== null) {
-            let _this = this
             this.mqttClient.end(false, {}, () => {
               _this.mqttClient = null
             })
