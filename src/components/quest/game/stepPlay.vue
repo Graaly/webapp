@@ -1152,6 +1152,7 @@ export default {
         backgroundImage.style.backgroundColor = 'transparent'
       }
     },
+    
     /*
      * Init the component data
      */
