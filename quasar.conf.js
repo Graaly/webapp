@@ -11,7 +11,6 @@ module.exports = function (ctx) {
       ctx.dev ? '' : 'SentryMonitoring',
       //'FirebaseMonitoring',
       //'CustomDirectives',
-      'GameMaster',
       'DateFormatFilter',
       'RouterAuthentication',
       'UniversalLinks', // enable to use deep links with Cordova plugin 

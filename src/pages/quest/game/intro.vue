@@ -413,7 +413,6 @@ import utils from 'src/includes/utils'
 import Notification from 'boot/NotifyHelper'
 import gpscalibration from 'components/gpsCalibration'
 import debounce from 'lodash/debounce'
-import GMMS from 'services/GameMasterMonitoringService'
 
 export default {
   components: {
@@ -588,10 +587,6 @@ export default {
       
       // check number of simultaneous users
       await this.checkSimultaneousPlayers()
-
-      setTimeout ( function() {
-          GMMS.Send('questInjest', this.quest)
-      }, 1500)
     },
     /*
      * Get a quest information

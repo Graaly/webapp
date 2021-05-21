@@ -471,39 +471,14 @@ export default {
 
       console.log(this.run)
 
+      // send once on start 
+      this.SendData();
+      // the every 15 seconds
       setInterval(() => {
-        // console.log(this.step)
-        // console.log(this.run)
-        GMMS.Send(this.run.questId, {
-          'lastPing': Date.now(),
-          'quest': {
-            'id': this.run.questId
-          },
-          'player': {
-            'id': this.run.userId[0],
-            'name': this.run.userData.name
-          },
-          'step': {
-            'id': this.step.id,
-            'title': this.step.title
-          },
-          'run': {
-            'id': this.run._id,
-            'currentStep': this.run.currentStep,
-            'currentChapter': this.run.currentChapter,
-            'score': this.run.score,
-            'status': this.run.status,
-            'answers': this.run.answers,
-            'conditions': this.run.conditionsDone
-          },
-          'position': {
-            'lat': Math.random() + 5.7167,
-            'lng': Math.random() + 45.1667
-          }
-        })
-        GMMS.SendChat(this.run.questId)
-      }, 25000);
-     // geolocation.
+        this.SendData();
+      }, 15000);
+
+      // geolocation.
       // manage history
       this.updateHistory()
       
@@ -539,10 +514,48 @@ export default {
      * Send a chat message
      */
     SendChatMessage() {
-      console.log('Sending chat message')
-      GMMS.Send('sendMessage', {
-        'correspondant': 'GM',
-        'text': 'coucoutest'
+      GMMS.SendChat(this.run.questId, {
+        'time': Date.now(),
+        'player': {
+            'id': this.run.userId[0],
+            'name': this.run.userData.name
+        },
+        'quest': {
+            'id': this.run.questId
+        },
+        'step': {
+            'id': this.step.id,
+            'title': this.step.title
+        }
+      })
+    },
+    SendData() {
+      GMMS.Send(this.run.questId, {
+        'lastPing': Date.now(),
+        'quest': {
+          'id': this.run.questId
+        },
+        'player': {
+          'id': this.run.userId[0],
+          'name': this.run.userData.name
+        },
+        'step': {
+          'id': this.step.id,
+          'title': this.step.title
+        },
+        'run': {
+          'id': this.run._id,
+          'currentStep': this.run.currentStep,
+          'currentChapter': this.run.currentChapter,
+          'score': this.run.score,
+          'status': this.run.status,
+          'answers': this.run.answers,
+          'conditions': this.run.conditionsDone
+        },
+        'position': {
+          'lat': Math.random() + 5.7167, // TODO
+          'lng': Math.random() + 45.1667 // TODO
+        }
       })
     },
     /*
