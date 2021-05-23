@@ -180,6 +180,7 @@ export default {
             'premiumprice2': "1,99 €",
             'premiumprice3': "2,99 €",
             'premiumprice5': "4,99 €",
+            'premiumprice8': "7,99 €",
             'premiumprice10': "9,99 €",
             'premiumprice20': "19,99 €"
           }

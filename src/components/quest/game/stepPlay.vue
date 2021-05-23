@@ -4,17 +4,38 @@
     <div id="background-image" v-show="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect), 'effect-blur': (step.options && step.options.blurEffect)}">
     </div>
     <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
-      <q-linear-progress 
+      <!------------------ QUEST TIMER ------------------------>
+      <div class="row"
+        v-if="timer > 0">
+        <div style="width: 20px; height: 20px; margin-top: -6px;" class="col-auto">
+          <q-icon name="timer" class="text-positive" style="font-size: 20px;" />
+        </div>
+        <q-linear-progress 
+          class="timer-progress-bar bg-white col"
+          :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
+          :value="timer"
+          :color="(timer < 0.1 ? 'negative' : ( timer < 0.25 ? 'warning' : 'positive'))""
+          style="background-color: white; height: 20px !important;" 
+          :instant-feedback = true
+        />
+      </div>
+      <!------------------ STEP TIMER ------------------------>
+      <div class="row"
         v-if="step.countDownTime !== null && 
-          step.countDownTime !== undefined && 
-          step.countDownTime.enabled === true"
-        class="timer-progress-bar"
-        :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
-        :value="map(this.countdowntimeleft,0,this.step.countDownTime.time,0,1)"
-        :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : 'white'"
-        :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" 
-        :instant-feedback = true
-      />
+            step.countDownTime !== undefined && 
+            step.countDownTime.enabled === true">
+        <div style="width: 20px; height: 20px; margin-top: -6px;" class="col-auto">
+          <q-icon name="timer" class="text-positive" style="font-size: 20px;" />
+        </div>
+        <q-linear-progress 
+          class="timer-progress-bar bg-white col"
+          :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
+          :value="map(this.countdowntimeleft,0,this.step.countDownTime.time,0,1)"
+          color="positive"
+          style="background-color: white;" 
+          :instant-feedback = true
+        />
+      </div>
       
       <!------------------ AUDIO ------------------------>
     
@@ -811,7 +832,7 @@ export default {
    * itemUsed : item of the inventory used
    * lang : language of the step (fr, en, ...)
    */
-  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player', 'inventory'],
+  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player', 'inventory', 'timer'],
   components: {
     holdphonevertically,
     gpscalibration,
@@ -1152,6 +1173,7 @@ export default {
         backgroundImage.style.backgroundColor = 'transparent'
       }
     },
+    
     /*
      * Init the component data
      */
@@ -1218,9 +1240,14 @@ export default {
           this.showControls()
         }
         
-        utils.setTimeout(this.getAudioSound, 2500)
+        // start step audio
+        this.getAudioSound()
+        
+        //this.startQuestCountDown()
         
         this.resetDrawDirectionInterval()
+        
+        var _this = this
 
         //iOS Hack : all iphone have gyroscope
         if (this.isIOs) {
@@ -1396,7 +1423,7 @@ export default {
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
           
           if (this.isHybrid && !this.isIOS) {
-            let _this = this
+
             // IOS is not tested for now, hence why we are not using it 
             cordova.plugins.headingcalibration.watchCalibration(
               (accuracy) => {
@@ -1542,8 +1569,7 @@ export default {
             CameraPreview.startCamera(options)
             //CameraPreview.setColorEffect("redfilter")
             CameraPreview.show()
-            let _this = this
-            setTimeout(function() {this.$q.loading.hide()}, 5000)
+            setTimeout(function() {_this.$q.loading.hide()}, 5000)
           } else {
             this.launchVideoStreamForAndroid('camera-stream-for-image-over-flow', true)
           }
@@ -1576,7 +1602,6 @@ export default {
           
           if (this.step.options.protocol === 'mqtt') {
             // TODO: adapt to match specs at https://github.com/Graaly/iot/blob/master/README.md
-            let _this = this
             
             this.mqttClient = mqtt.connect(process.env.MQTT_URL)
             
@@ -1633,7 +1658,6 @@ export default {
         } else {
           // other steps than IoT? disable MQTT & bluetooth if enabled
           if (this.mqttClient !== null) {
-            let _this = this
             this.mqttClient.end(false, {}, () => {
               _this.mqttClient = null
             })
@@ -1931,7 +1955,7 @@ export default {
               selectedAnswer.class = 'right'
             }
             Vue.set(this.step.options.items, answer, selectedAnswer)
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer, answer)
           } else {
             if (!this.isTimeUp) {
               let selectedAnswer = this.step.options.items[answer]
@@ -1960,7 +1984,7 @@ export default {
             if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
-              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer, answer)
             }
           }
           break
@@ -1969,9 +1993,9 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, false)
 
           if (this.isTimeUp) {
-            this.submitWrongAnswer(checkAnswerResult.offline, true)
+            this.submitWrongAnswer(checkAnswerResult.offline, true, answer)
           } else if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true, answer)
           }
           break
           
@@ -1979,7 +2003,7 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join(''), isTimeUp: this.isTimeUp}, true)
 
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer, this.playerCode.join(''))
           } else {
             if (this.isTimeUp) {
               checkAnswerResult.remainingTrial = 0
@@ -1997,7 +2021,7 @@ export default {
               this.resetKeypadCode()
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
-              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer, this.playerCode.join(''))
             }
           }
           break
@@ -2006,7 +2030,7 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|'), isTimeUp: this.isTimeUp}, true)
           
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer, this.playerCode.join('|'))
           } else {
             if (this.isTimeUp) {
               checkAnswerResult.remainingTrial = 0
@@ -2022,7 +2046,7 @@ export default {
             if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
-              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer, this.playerCode.join('|'))
             }
           }
           break
@@ -2031,7 +2055,7 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.playerCode.join('|'), isTimeUp: this.isTimeUp}, true)
           
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer, this.playerCode.join('|'))
           } else {
             if (this.isTimeUp) {
               checkAnswerResult.remainingTrial = 0
@@ -2047,7 +2071,7 @@ export default {
             if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
-              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer, this.playerCode.join('|'))
             }
           }
           break
@@ -2081,7 +2105,7 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: portraitAnswer, isTimeUp: this.isTimeUp}, false)
                     
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer, JSON.stringify(portraitAnswer))
           } else {
             if (this.isTimeUp) {
               checkAnswerResult.remainingTrial = 0
@@ -2091,7 +2115,7 @@ export default {
             if (checkAnswerResult.remainingTrial > 0) {
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
-              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer, JSON.stringify(portraitAnswer))
             }
           }
           break
@@ -2103,7 +2127,7 @@ export default {
 
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: this.writetext.playerAnswer, isTimeUp: this.isTimeUp}, true)
           if (checkAnswerResult.result === true) {
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer, this.writetext.playerAnswer)
           } else {
             if (this.isTimeUp) {
               checkAnswerResult.remainingTrial = 0
@@ -2111,7 +2135,7 @@ export default {
             if (this.step.displayRightAnswer === true) {
               // indicate the right answer
               if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
-                this.rightAnswer = checkAnswerResult.answer
+                this.rightAnswer = checkAnswerResult.answer[0]
               }
             }
             
@@ -2121,7 +2145,7 @@ export default {
               this.writetext.playerAnswer = ""
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
-              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer)
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer, this.writetext.playerAnswer)
             }
           }
           
@@ -2372,7 +2396,7 @@ export default {
     /*
      * Send good answer  
      */
-    submitGoodAnswer(score, offlineMode, showResult) {
+    submitGoodAnswer(score, offlineMode, showResult, answer) {
       if (showResult) {
         this.playerResult = true
       } else {
@@ -2395,7 +2419,7 @@ export default {
 
       this.stepPlayed = true
       
-      this.$emit('success', score, offlineMode, showResult)
+      this.$emit('success', score, offlineMode, showResult, answer)
       this.$emit('played')
       
       this.displayReadMoreAlert()
@@ -2448,7 +2472,7 @@ export default {
     /*
      * Send wrong answer 
      */
-    submitWrongAnswer(offlineMode, showResult) {
+    submitWrongAnswer(offlineMode, showResult, answer) {
       // remove timer
       if (this.step.countDownTime !== null) {
         this.step.countDownTime.enabled = false
@@ -2462,7 +2486,7 @@ export default {
       }
       this.stepPlayed = true
       
-      this.$emit('fail', offlineMode, showResult)
+      this.$emit('fail', offlineMode, showResult, answer)
       this.$emit('played')
       
       this.displayReadMoreAlert()
@@ -4465,7 +4489,7 @@ export default {
   
   /* image code specific */
   .code-image { position: relative; }
-  .code-image td { width: 20% }
+  .code-image table { width: 100% }
   .code-image td img { width: 100% }
   .code-image td .q-icon { font-size: 2em }
   
@@ -4544,7 +4568,7 @@ export default {
   }
 
   .memory .card {
-    background: url(/statics/icons/game/card-back.png) no-repeat;
+    background: url(/statics/icons/game/card-back.png) #1a4567 no-repeat;
     background-size: 100%;
     color: #ffffff;
     border-radius: 5px;

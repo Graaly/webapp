@@ -84,6 +84,7 @@ module.exports = function (ctx) {
         'QDialog',
         'QDrawer',
         'QExpansionItem',
+        'QField',
         'QIcon',
         'QImg',
         'QInfiniteScroll',
@@ -190,7 +191,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: "2.1.21"
+      version: "2.1.23"
       // id: 'org.cordova.quasar.app'
     },
     electron: {
