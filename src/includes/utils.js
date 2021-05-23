@@ -834,23 +834,13 @@ var self = {
    * @param {*} str 
    */
   timeStringToSeconds: function(str) {
-    var resh = str.split("h");
-    var resm = resh[1].split("m");
-    var ress = resm[1].split("s");
-    var hour = resh[0]*3600;
-    var min = resm[0]*60;
-    var sec = ress[0]*1;//*1 is just to transform it into a number, in case it was a string
-    var total = hour + min + sec;
-
-    /*
-    //debugging
-    console.log(str);
-    console.log("hour " + hour);
-    console.log("min " + min);
-    console.log("sec " + sec);
-    console.log("total " + total);
-    this.secondsToTimeString(total);
-    */
+    var resh = str.split("h")
+    var resm = resh[1].split("m")
+    var ress = resm[1].split("s")
+    var hour = resh[0]*3600
+    var min = resm[0]*60
+    var sec = ress[0]*1//*1 is just to transform it into a number, in case it was a string
+    var total = hour + min + sec
     return total;
   },
   /**
@@ -864,12 +854,6 @@ var self = {
     var seconds = totalSeconds % 60;
 
     return hours + "h" + minutes + "m" + seconds + "s";
-    /*
-    //debugging
-    console.log("hour " + hours);
-    console.log("min " + minutes);
-    console.log("sec " + seconds);
-    */
   },
   /**
   * Re-maps a number from one range to another.

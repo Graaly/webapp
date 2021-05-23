@@ -32,6 +32,7 @@
         :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}" 
         :answer="offline.answer" 
         :player="player"
+        :timer="countDownTime.remaining"
         @played="trackStepPlayed" 
         @success="trackStepSuccess" 
         @fail="trackStepFail" 
@@ -172,6 +173,10 @@
       <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
     </div>
     
+    <!--====================== COUNTDOWN MESSAGE =================================-->
+    
+    <div v-show="countDownTime.enabled" class="fadein-message" style="font-size: 48px;"><q-icon color="white" name="timer" /> {{ $t('label.ItRemainsMinutes', {time: countDownTime.remainingMinutes}) }}</div>
+    
     <!--====================== FEEDBACK =================================-->
     
     <q-dialog v-model="feedback.isOpened">
@@ -230,6 +235,7 @@
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="work" 
+            v-if="!info.quest.customization || !info.quest.customization.hideInventory"
             :class="{'flashing': inventory.suggest, 'bg-secondary': inventory.isOpened, 'bg-primary': (!inventory.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
             @click="openInventory()" 
           />
@@ -398,7 +404,9 @@ export default {
         previousStepId: '',
         isIOs: utils.isIOS(),
         // timer 
-        //countDownTime: {},
+        countDownTime: {
+          remaining: 0
+        },
         // for step type 'use-item'
         selectedItem: null
       }
@@ -441,6 +449,9 @@ export default {
       
       // manage history
       this.updateHistory()
+      
+      // start countdown
+      this.startCountDown()
       
       // check if user already played the step
       this.checkIfAlreadyPlayed()
@@ -802,7 +813,7 @@ export default {
               this.warnings.stepDataMissing = true
             }
           }
-          if (tempStep.audioStream && tempStep.audioStream !== '') {
+          if (tempStep.audioStream && tempStep.audioStream !== '' && !this.isIOs) {
             const audioUrl = await utils.readBinaryFile(this.questId, tempStep.audioStream)
             if (audioUrl) {
               tempStep.audioStream = audioUrl
@@ -944,9 +955,29 @@ export default {
       }
     },
     /*
+     * Start the countdown
+     */
+    startCountDown () {
+      if (this.info.quest.countDownTime && this.info.quest.countDownTime.enabled) {
+        // compute minutes remaining based on start & duration
+        const timeSpent = utils.getDurationFromNow(this.run.dateCreated)
+        const remainingDuration = this.info.quest.duration - timeSpent.m
+        if (remainingDuration > 0) {
+          this.countDownTime.enabled = true
+          this.countDownTime.remainingMinutes = remainingDuration
+          this.countDownTime.remaining = remainingDuration / this.info.quest.duration
+          setTimeout(this.startCountDown, 60000)
+        } else {
+          if (this.info.quest.countDownTime.stopGame) {
+            return this.$router.push('/quest/' + this.questId + '/end')
+          }
+        }
+      }
+    },
+    /*
      * Track step success
      */
-    async trackStepSuccess (score, offline, showResult) {
+    async trackStepSuccess (score, offline, showResult, answer) {
       if (showResult) {
         // add step score to general score
         this.info.score += score
@@ -995,11 +1026,11 @@ export default {
     /*
      * Track step fail
      */
-    async trackStepFail (offline, showResult) {
+    async trackStepFail (offline, showResult, answer) {
       this.hideHint()
         
       // save offline run
-      await this.saveOfflineAnswer(false)
+      await this.saveOfflineAnswer(false, answer)
       
       // move to next step if right answer not displayed
       if (this.step.displayRightAnswer === false) {
@@ -1337,9 +1368,40 @@ export default {
     async cancelRun() {
       await RunService.endRun(this.runId, null, this.questId, this.questVersion, this.info.quest.mainLanguage)
       // remove run offline data
-      await utils.writeInFile(this.questId, 'run_' + this.questId + '.json', JSON.stringify({}), false)
+      await utils.removeDirectory(this.questId)
+      await this.removeQuestFromOfflineList(this.questId)
+
       // return to the home
       this.$router.push('/quest/play/' + this.questId)
+    },
+    /*
+     * Add the quest in the offline quests list
+     */
+    async removeQuestFromOfflineList(questId) {
+      // check if quests file exists
+      const isQuestOfflineListExisting = await utils.checkIfFileExists('', 'quests.json')
+      var quests
+
+      if (isQuestOfflineListExisting) {
+        const questFileContent = await utils.readFile('', 'quests.json')
+
+        quests = JSON.parse(questFileContent)
+        
+        // check if quest is already existing in file
+        var questPosition = -1
+        for (var i = 0; i < quests.list.length; i++) {
+          if (quests.list[i].questId === questId) {
+            questPosition = i
+          }
+        }
+        
+        if (questPosition !== -1) {
+          quests.list.splice(questPosition, 1)
+        }
+        
+        // save quests list
+        await utils.writeInFile('', 'quests.json', JSON.stringify(quests), true)
+      }
     },
     /*
      * Display the message that the step is blocked
@@ -1598,7 +1660,7 @@ export default {
     /*
      * save the offline answer for a run
      */
-    async saveOfflineAnswer(success) {
+    async saveOfflineAnswer(success, answer) {
       // offline mode not activated for multiplayer
       if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
         return false

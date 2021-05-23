@@ -93,35 +93,22 @@
             </template>
           </q-select>
           
-          <q-input
-            :readonly="readOnly"
-            type="text"
-            :label="$t('label.Title') + ' ' + currentLanguageForLabels"
-            v-model="form.fields.title[languages.current]"
-            @blur="$v.form.fields.title.$touch"
-            bottom-slots
-            counter
-            :maxlength="titleMaxLength"
-            :error="$v.form.fields.title.$error"
-            :error-message="$t('label.PleaseEnterATitle')"
-            />
+          <div class="outline q-pa-md q-my-sm">
+            <q-input
+              :readonly="readOnly"
+              type="text"
+              :label="$t('label.Title') + ' ' + currentLanguageForLabels"
+              v-model="form.fields.title[languages.current]"
+              @blur="$v.form.fields.title.$touch"
+              bottom-slots
+              counter
+              :maxlength="titleMaxLength"
+              :error="$v.form.fields.title.$error"
+              :error-message="$t('label.PleaseEnterATitle')"
+              />
+          </div>
           
-          <q-select
-            v-if="quest.type === 'quest'"
-            :readonly="readOnly"
-            :label="$t('label.Category')"
-            v-model="form.fields.category"
-            @blur="$v.form.fields.category.$touch"
-            :options="form.categories"
-            emit-value
-            map-options
-            bottom-slots
-            options-cover
-            :error="$v.form.fields.category.$error"
-            :error-message="$t('label.PleaseSelectACategory')"
-            />
-          
-          <div v-if="quest.type === 'quest'">
+          <div class="outline q-pa-md q-my-sm" v-if="quest.type === 'quest'">
             {{ $t('label.QuestType') }} 
             <q-icon name="help" @click.native="showHelpPopup('helpQuestType')" />
             <div class="q-gutter-md">
@@ -136,109 +123,91 @@
                 :label="$t('label.advancedEditor')" 
                 @input="changeEditorMode" />
             </div>
-          </div>
-          
-          <q-select
-            :readonly="readOnly" 
-            :label="$t('label.Difficulty')" 
-            v-model="form.fields.level" 
-            :options="form.levels" 
-            emit-value map-options />
-            
-          <q-select
-            :readonly="readOnly" 
-            :label="$t('label.Duration')" 
-            v-model="form.fields.duration" 
-            :options="form.durations" 
-            emit-value map-options />
-          
-          <div class="description">
-            <q-input
-              :disable="readOnly"
-              v-model="form.fields.description[languages.current]"
-              type="textarea"
-              :label="$t('label.Description') + ' ' + currentLanguageForLabels"
-              :max-height="100"
-              :min-rows="4"
-              class="full-width"
-            />
-          </div>
-
-          <div v-if="!isIOs">
-            <div class="location-gps" style="display: none">
-              <input :readonly="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" step="any" />
-              <input :readonly="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" step="any" />
-              <input :readonly="readOnly" type="text" v-model="form.fields.zipcode" />
-              <input :readonly="readOnly" type="text" v-model="form.fields.town" />
-              <input :readonly="readOnly" type="text" v-model="form.fields.country" />
+            <div v-if="this.quest.type === 'quest' && form.fields.editorMode === 'advanced'">
+              <q-select
+                :readonly="readOnly"
+                :label="$t('label.PlayersNumber')"
+                v-model="form.fields.playersNumber"
+                :options="form.players"
+                emit-value
+                map-options
+                bottom-slots
+                options-cover
+                >
+                <template v-slot:after>
+                  <q-btn round dense flat icon="help" @click="showHelpPopup('helpQuestMultiplayer')" />
+                </template>
+              </q-select>
             </div>
-            
-            <div v-if="!readOnly" class="location-address">
-              <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-                <gmap-autocomplete v-if="tabs.selected === 'settings'" id="startingplace" :placeholder="$t('label.StartingPointOfTheQuest')" :value="form.fields.startingPlace" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value"></gmap-autocomplete>
+          </div>
+          
+          <div class="outline q-pa-md q-my-sm">
+            <q-select
+              :readonly="readOnly" 
+              :label="$t('label.Difficulty')" 
+              v-model="form.fields.level" 
+              :options="form.levels" 
+              emit-value map-options />
+          </div>
+          
+          <div class="outline q-pa-md q-my-sm">          
+            <q-select
+              :readonly="readOnly" 
+              :label="$t('label.Duration')" 
+              v-model="form.fields.duration" 
+              :options="form.durations" 
+              emit-value map-options />
+              
+            <q-toggle
+              :readonly="readOnly"
+              :label="$t('label.ShowCountDown')"
+              v-model="form.fields.countDownTime.enabled"
+              />
+            <q-toggle
+              :readonly="readOnly"
+              :label="$t('label.StopGameAfterCountDown')"
+              v-model="form.fields.countDownTime.stopGame"
+              />
+          </div>
+          
+          <div class="outline q-pa-md q-my-sm">
+            {{ $t('label.StartingPointOfTheQuest') }} 
+            <div v-if="!isIOs">
+              <div class="location-gps" style="display: none">
+                <input :readonly="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" step="any" />
+                <input :readonly="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" step="any" />
+                <input :readonly="readOnly" type="text" v-model="form.fields.zipcode" />
+                <input :readonly="readOnly" type="text" v-model="form.fields.town" />
+                <input :readonly="readOnly" type="text" v-model="form.fields.country" />
               </div>
-              <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
+              
+              <div v-if="!readOnly" class="location-address">
+                <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
+                  <gmap-autocomplete v-if="tabs.selected === 'settings'" id="startingplace" :placeholder="$t('label.StartingPointOfTheQuest')" :value="form.fields.startingPlace" class="col q-input-target text-left" @place_changed="setLocation" @input="value = $event.target.value"></gmap-autocomplete>
+                </div>
+                <a @click="getCurrentLocation()"><img src="statics/icons/game/location.png" /></a>
+              </div>
+            </div>
+            <div v-if="isIOs">
+              <q-input :label="$t('label.StartingPointOfTheQuest')" :disable="readOnly" type="text" v-model="form.fields.startingPlace" class="full-width" />
+              <q-input :label="$t('label.ZipCode')" :disable="readOnly" type="text" v-model="form.fields.zipcode" class="full-width" />
+              <q-input :label="$t('label.Town')" :disable="readOnly" type="text" v-model="form.fields.town" class="full-width" />
+              <q-input :label="$t('label.Country')" :disable="readOnly" type="text" v-model="form.fields.country" class="full-width" />
+              <table>
+                <tr>
+                  <td>
+                    <q-input :label="$t('label.Latitude')" :disable="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" class="full-width" />
+                    <q-input :label="$t('label.Longitude')" :disable="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" class="full-width" />
+                  </td>
+                  <td>
+                    <q-btn class="q-ma-md" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</q-btn>
+                  </td>
+                </tr>
+              </table>
             </div>
           </div>
-          <div v-if="isIOs">
-            <q-input :label="$t('label.StartingPointOfTheQuest')" :disable="readOnly" type="text" v-model="form.fields.startingPlace" class="full-width" />
-            <q-input :label="$t('label.ZipCode')" :disable="readOnly" type="text" v-model="form.fields.zipcode" class="full-width" />
-            <q-input :label="$t('label.Town')" :disable="readOnly" type="text" v-model="form.fields.town" class="full-width" />
-            <q-input :label="$t('label.Country')" :disable="readOnly" type="text" v-model="form.fields.country" class="full-width" />
-            <table>
-              <tr>
-                <td>
-                  <q-input :label="$t('label.Latitude')" :disable="readOnly" type="number" id="latitude" v-model.number="form.fields.location.lat" class="full-width" />
-                  <q-input :label="$t('label.Longitude')" :disable="readOnly" type="number" id="longitude" v-model.number="form.fields.location.lng" class="full-width" />
-                </td>
-                <td>
-                  <q-btn class="q-ma-md" @click="getMyGPSLocation()">{{ $t('label.UseMyCurrentGPSLocation') }}</q-btn>
-                </td>
-              </tr>
-            </table>
-          </div>
-          
-          <div v-if="form.fields.picture !== null">
-            <p>{{ $t('label.Picture') }} :</p>
-            <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.picture" />
-          </div>
-          <div v-if="!isIOs">
-            <q-btn class="full-width" v-if="!readOnly" @click="$refs['picturefile'].click()">{{ $t('label.ModifyThePicture') }}</q-btn>
-            <input @change="uploadImage" ref="picturefile" type="file" accept="image/*" hidden />
-          </div>
-          <div v-if="isIOs">
-            {{ $t('label.ModifyThePicture') }}:
-            <input @change="uploadImage" ref="picturefile" type="file" accept="image/*" />
-          </div>
-          <div v-if="form.fields.thumb !== null">
-            <p>{{ $t('label.SmallPicture') }} :</p>
-            <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.thumb" />
-          </div>
-          <div v-if="!isIOs">
-            <q-btn class="full-width" v-if="!readOnly" @click="$refs['thumbfile'].click()">{{ $t('label.ModifyThePicture') }}</q-btn>
-            <input @change="uploadThumb" ref="thumbfile" type="file" accept="image/*" hidden />
-          </div>
-          <div v-if="isIOs">
-            {{ $t('label.ModifyThePicture') }}:
-            <input @change="uploadThumb" ref="thumbfile" type="file" accept="image/*" />
-          </div>
-          
-          <div v-if="this.quest.isPremium && form.fields.customization && form.fields.customization.audio && form.fields.customization.audio !== ''">
-            <div>{{ $t('label.YourAudioFile') }} : {{ form.fields.customization.audio }}</div>
-            <div class="centered"><a class="dark" @click="removeAudio">{{$t('label.Remove')}}</a></div>
-          </div>
-          <div v-if="this.quest.isPremium && !isIOs && !readOnly">
-            <q-btn-group class="full-width">
-              <q-btn class="full-width" @click="$refs['audiofile'].click()">{{ $t('label.AddAnAudioFile') }}</q-btn>
-            </q-btn-group>
-            <input @change="uploadAudio" ref="audiofile" type="file" accept="audio/mp3" hidden />
-          </div>
-          <div v-if="this.quest.isPremium && isIOs && !readOnly">
-            {{ $t('label.AddAnAudioFile') }}:
-            <input @change="uploadAudio" ref="audiofile" type="file" accept="audio/mp3" />
-          </div>
-          
-          <div v-if="this.quest.type === 'room'">
+    
+          <div class="outline q-pa-md q-my-sm" v-if="this.quest.type === 'room'">
             <q-input
               :disable="readOnly"
               v-model="form.fields.priceForPlayer"
@@ -253,221 +222,339 @@
             />
           </div>
           
-          <div v-if="this.quest.type === 'quest' && form.fields.editorMode === 'advanced'">
-            <q-select
-              :readonly="readOnly"
-              :label="$t('label.PlayersNumber')"
-              v-model="form.fields.playersNumber"
-              :options="form.players"
-              emit-value
-              map-options
-              bottom-slots
-              options-cover
-              >
-              <template v-slot:after>
-                <q-btn round dense flat icon="help" @click="showHelpPopup('helpQuestMultiplayer')" />
-              </template>
-            </q-select>
-          </div>
-          <div v-if="this.quest.type === 'quest' && form.fields.editorMode === 'advanced'">
-            <q-input
-              :disable="readOnly"
-              v-model="form.fields.customization.qrCodeMessage[languages.current]"
-              type="textarea"
-              :label="$t('label.QRCodeMessage') + ' ' + currentLanguageForLabels"
-              :max-height="100"
-              :min-rows="4"
-              class="full-width"
-            />
-          </div>
-          <div v-if="this.quest.isPremium && this.quest.type === 'quest'">
-            <q-toggle
-              :readonly="readOnly"
-              :label="$t('label.PaymentOnMobile')"
-              v-model="showPaymentBox"
-              /> <q-icon name="help" @click.native="showHelpPopup('PaymentOnMobileHelp')" />
-            <q-select
-              v-if="showPaymentBox"
-              :readonly="readOnly"
-              :label="$t('label.PriceForPlayer')"
-              v-model="form.fields.priceForPlayer"
-              :options="form.prices"
-              emit-value
-              map-options
-              bottom-slots
-              options-cover
-              />
-            <div>
-              <q-toggle
-                :readonly="readOnly"
-                :label="$t('label.PaymentOnYourSide')"
-                v-model="showTierPaymentBox"
-                /> <q-icon name="help" @click.native="showHelpPopup('PaymentOnYourSideHelp')" />
-            </div>
-            <div v-if="showTierPaymentBox">
-              <q-input
-                :disable="readOnly"
-                v-model="form.fields.tierPriceForPlayer"
-                :label="$t('label.PriceFrom')"
-                class="full-width"
-              />
-            </div>
-            <div>
-              <q-toggle
-                :readonly="readOnly"
-                :label="$t('label.RemoveScoringAndRating')"
-                v-model="form.fields.customization.removeScoring"
-                />
-            </div>
-            <div v-if="form.fields.customization.removeScoring">
-              <q-input
-                :disable="readOnly"
-                v-model="form.fields.customization.endMessage"
-                :label="$t('label.TypeEndMessage')"
-                class="full-width"
-                type="textarea"
-              />
-            </div>
-            <div>
-              <q-toggle
-                :readonly="readOnly"
-                :label="$t('label.ForcePlayerToHaveAccount')"
-                v-model="form.fields.forcePlayerToHaveAccount"
-                /> <q-icon name="help" @click.native="showHelpPopup('ForcePlayerToHaveAccountHelp')" />
-            </div>
-            <div>
-              <q-toggle
-                :readonly="readOnly"
-                :label="$t('label.ShareUserDataWithCreator')"
-                v-model="form.fields.shareUserDataWithCreator"
-                /> <q-icon name="help" @click.native="showHelpPopup('ShareUserDataWithCreatorHelp')" />
-            </div>
-            <div>
-              <q-input
-                  :disable="readOnly"
-                  v-model="form.fields.limitNumberOfPlayer"
-                  :label="$t('label.LimitNumberOfPlayerInOneHour')"
-                  class="full-width"
-                />
-            </div>
-            <q-btn v-if="form.fields.scheduling && form.fields.scheduling.length === 0" class="full-width" @click="startSchedule">{{ $t('label.ScheduleGame') }}</q-btn>
-            <div v-if="form.fields.scheduling && form.fields.scheduling.length > 0">
-              <div class="centered"><strong>{{ $t('label.GameSchedule') }}</strong></div>
-              <div class="centered">{{ $t('label.SchedulingDescription') }}</div>
-              <div class="row" v-for="(schedule, index) in form.fields.scheduling" :key="index">
-                <div class="col">{{ $t('days.day' + index) }}</div>
-                <div class="col">
-                  <q-select
-                    :readonly="readOnly"
-                    :label="$t('label.From')"
-                    v-model="schedule[0]"
-                    :options="form.times"
-                    emit-value
-                    map-options
-                    bottom-slots
-                    options-cover
-                    dense
+          <q-list bordered class="rounded-borders">
+            <q-expansion-item
+              expand-separator
+              :label="$t('label.GameAvailability')"
+              header-class="bg-secondary text-white"
+              expand-icon-class="text-white"
+            >
+              <div class="q-pa-md">
+                <div>
+                  <q-input
+                      :disable="readOnly"
+                      v-model="form.fields.limitNumberOfPlayer"
+                      :label="$t('label.LimitNumberOfPlayerInOneHour')"
+                      class="full-width"
                     />
                 </div>
-                <div class="col">
-                  <q-select
-                    :readonly="readOnly"
-                    :label="$t('label.To')"
-                    v-model="schedule[1]"
-                    :options="form.times"
-                    emit-value
-                    map-options
-                    bottom-slots
-                    options-cover
-                    dense
-                    />
+                <q-btn v-if="form.fields.scheduling && form.fields.scheduling.length === 0" class="full-width" @click="startSchedule">{{ $t('label.ScheduleGame') }}</q-btn>
+                <div v-if="form.fields.scheduling && form.fields.scheduling.length > 0">
+                  <div class="centered"><strong>{{ $t('label.GameSchedule') }}</strong></div>
+                  <div class="centered">{{ $t('label.SchedulingDescription') }}</div>
+                  <div class="row" v-for="(schedule, index) in form.fields.scheduling" :key="index">
+                    <div class="col">{{ $t('days.day' + index) }}</div>
+                    <div class="col">
+                      <q-select
+                        :readonly="readOnly"
+                        :label="$t('label.From')"
+                        v-model="schedule[0]"
+                        :options="form.times"
+                        emit-value
+                        map-options
+                        bottom-slots
+                        options-cover
+                        dense
+                        />
+                    </div>
+                    <div class="col">
+                      <q-select
+                        :readonly="readOnly"
+                        :label="$t('label.To')"
+                        v-model="schedule[1]"
+                        :options="form.times"
+                        emit-value
+                        map-options
+                        bottom-slots
+                        options-cover
+                        dense
+                        />
+                    </div>
+                  </div>
+                  <q-btn flat class="full-width" @click="resetSchedule">{{ $t('label.Reset') }}</q-btn>
                 </div>
               </div>
-              <q-btn flat class="full-width" @click="resetSchedule">{{ $t('label.Reset') }}</q-btn>
-            </div>
-            <div v-if="form.fields.customization">
-              <q-select
-                v-if="quest.type === 'quest'"
-                :readonly="readOnly"
-                :label="$t('label.FontFamily')"
-                v-model="form.fields.customization.font"
-                :options="form.fonts"
-                emit-value
-                map-options
-                bottom-slots
-                options-cover
-                >
-                <template v-slot:option="{ itemProps, itemEvents, opt, selected }">
-                  <q-item v-bind="itemProps" v-on="itemEvents">
-                    <q-item-section>
-                      <q-item-label v-html="opt.label" :class="'font-' + opt.value" ></q-item-label>
-                    </q-item-section>
-                  </q-item>
-                </template>
-              </q-select>
-            </div>
-            <div v-if="form.fields.customization">
-              <q-input
-                :disable="readOnly"
-                v-model="form.fields.customization.color"
-                :label="$t('label.ButtonsColor')"
-                placeholder="#ffaa00"
-                class="full-width"
-              />
-            </div>
-            <div v-if="form.fields.customization && form.fields.customization.logo && form.fields.customization.logo !== ''">
-              <p>{{ $t('label.YourLogo') }} :</p>
-              <img class="limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.customization.logo" />
-              <div class="centered"><a class="dark" @click="removeLogo">{{$t('label.Remove')}}</a></div>
-            </div>
-            <div v-if="!isIOs && !readOnly">
-              <q-btn-group class="full-width">
-                <q-btn class="full-width" @click="$refs['logofile'].click()">{{ $t('label.AddALogo') }}</q-btn>
-                <q-btn @click="showHelpPopup('helpQuestLogo')" icon="help" />
-              </q-btn-group>
-              <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" hidden />
-            </div>
-            <div v-if="isIOs && !readOnly">
-              {{ $t('label.AddALogo') }}:
-              <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" />
-              <q-icon name="help" @click.native="showHelpPopup('helpQuestLogo')" />
-            </div>
-            <div v-if="form.fields.rewardPicture && form.fields.rewardPicture !== ''">
-              <p>{{ $t('label.Reward') }} :</p>
-              <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.rewardPicture" style="background-color: #f00" />
-              <div>{{ $t('label.RewardPictureWarning')}}</div>
-              <div class="centered"><a class="dark" @click="removeReward">{{ $t('label.Remove') }}</a></div>
-            </div>
-            <div v-if="!isIOs && !readOnly" class="q-mt-md">
-              <q-btn-group class="full-width">
-                <q-btn class="full-width" @click="$refs['rewardfile'].click()">{{ $t('label.AddAReward') }}</q-btn>
-                <q-btn @click.native="showHelpPopup('helpQuestReward')" icon="help" />
-              </q-btn-group>
-              <input @change="uploadReward" ref="rewardfile" type="file" accept="image/*" hidden />
-            </div>
-            <div v-if="isIOs && !readOnly" class="q-mt-md">
-              {{ $t('label.AddAReward') }}:
-              <input @change="uploadReward" ref="rewardfile" type="file" accept="image/*" />
-              <q-icon name="help" @click.native="showHelpPopup('helpQuestReward')" />
-            </div>
-            <div v-if="form.fields.customization && form.fields.customization.character && form.fields.customization.character !== ''">
-              <p>{{ $t('label.YourCharacter') }} :</p>
-              <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.customization.character" />
-              <div class="centered"><a class="dark" @click="removeCharacter">{{ $t('label.Remove') }}</a></div>
-            </div>
-            <div v-if="!isIOs && !readOnly">
-              <q-btn-group class="full-width">
-                <q-btn class="full-width" @click="$refs['characterfile'].click()">{{ $t('label.AddACustomCharacter') }}</q-btn>
-                <q-btn @click="showHelpPopup('helpQuestCharacter')" icon="help" />
-              </q-btn-group>
-              <input @change="uploadCharacter" ref="characterfile" type="file" accept="image/*" hidden />
-            </div>
-            <div v-if="isIOs && !readOnly">
-              {{ $t('label.AddACustomCharacter') }}:
-              <input @change="uploadCharacter" ref="characterfile" type="file" accept="image/*" />
-              <q-icon name="help" @click.native="showHelpPopup('helpQuestCharacter')" />
-            </div>
-          </div>
+            </q-expansion-item>
+            <q-separator />
+            <q-expansion-item
+              expand-separator
+              :label="$t('label.GamePayment')"
+              v-if="this.quest.isPremium && this.quest.type === 'quest'"
+              header-class="bg-secondary text-white"
+              expand-icon-class="text-white"
+            >
+              <div class="q-pa-md">
+                <q-toggle
+                  :readonly="readOnly"
+                  :label="$t('label.PaymentOnMobile')"
+                  v-model="showPaymentBox"
+                  /> <q-icon name="help" @click.native="showHelpPopup('PaymentOnMobileHelp')" />
+                <q-select
+                  v-if="showPaymentBox"
+                  :readonly="readOnly"
+                  :label="$t('label.PriceForPlayer')"
+                  v-model="form.fields.priceForPlayer"
+                  :options="form.prices"
+                  emit-value
+                  map-options
+                  bottom-slots
+                  options-cover
+                  />
+                <div>
+                  <q-toggle
+                    :readonly="readOnly"
+                    :label="$t('label.PaymentOnYourSide')"
+                    v-model="showTierPaymentBox"
+                    /> <q-icon name="help" @click.native="showHelpPopup('PaymentOnYourSideHelp')" />
+                </div>
+                <div v-if="showTierPaymentBox">
+                  <q-input
+                    :disable="readOnly"
+                    v-model="form.fields.tierPriceForPlayer"
+                    :label="$t('label.PriceFrom')"
+                    class="full-width"
+                  />
+                </div>
+              </div>
+            </q-expansion-item>
+            <q-separator />
+            <q-expansion-item
+              expand-separator
+              :label="$t('label.UserData')"
+              v-if="this.quest.isPremium && this.quest.type === 'quest'"
+              header-class="bg-secondary text-white"
+              expand-icon-class="text-white"
+            >
+              <div class="q-pa-md">
+                <div>
+                  <q-toggle
+                    :readonly="readOnly"
+                    :label="$t('label.ForcePlayerToHaveAccount')"
+                    v-model="form.fields.forcePlayerToHaveAccount"
+                    /> <q-icon name="help" @click.native="showHelpPopup('ForcePlayerToHaveAccountHelp')" />
+                </div>
+                <div>
+                  <q-toggle
+                    :readonly="readOnly"
+                    :label="$t('label.ShareUserDataWithCreator')"
+                    v-model="form.fields.shareUserDataWithCreator"
+                    /> <q-icon name="help" @click.native="showHelpPopup('ShareUserDataWithCreatorHelp')" />
+                </div>
+              </div>
+            </q-expansion-item>
+            <q-separator />
+            <q-expansion-item
+              expand-separator
+              :label="$t('label.CustomizeGameIntroduction')"
+              header-class="bg-secondary text-white"
+              expand-icon-class="text-white"
+            >
+              <div class="q-pa-md">
+                <div class="description">
+                  <q-input
+                    :disable="readOnly"
+                    v-model="form.fields.description[languages.current]"
+                    type="textarea"
+                    :label="$t('label.Description') + ' ' + currentLanguageForLabels"
+                    :max-height="100"
+                    :min-rows="4"
+                    class="full-width"
+                  />
+                </div>
+                <q-select
+                  v-if="quest.type === 'quest'"
+                  :readonly="readOnly"
+                  :label="$t('label.Category')"
+                  v-model="form.fields.category"
+                  @blur="$v.form.fields.category.$touch"
+                  :options="form.categories"
+                  emit-value
+                  map-options
+                  bottom-slots
+                  options-cover
+                  :error="$v.form.fields.category.$error"
+                  :error-message="$t('label.PleaseSelectACategory')"
+                  />
+                <div v-if="form.fields.picture !== null">
+                  <p>{{ $t('label.Picture') }} :</p>
+                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.picture" />
+                </div>
+                <div v-if="!isIOs">
+                  <q-btn class="full-width" v-if="!readOnly" @click="$refs['picturefile'].click()">{{ $t('label.ModifyThePicture') }}</q-btn>
+                  <input @change="uploadImage" ref="picturefile" type="file" accept="image/*" hidden />
+                </div>
+                <div v-if="isIOs">
+                  {{ $t('label.ModifyThePicture') }}:
+                  <input @change="uploadImage" ref="picturefile" type="file" accept="image/*" />
+                </div>
+                <div v-if="form.fields.thumb !== null">
+                  <p>{{ $t('label.SmallPicture') }} :</p>
+                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.thumb" />
+                </div>
+                <div v-if="!isIOs">
+                  <q-btn class="full-width" v-if="!readOnly" @click="$refs['thumbfile'].click()">{{ $t('label.ModifyThePicture') }}</q-btn>
+                  <input @change="uploadThumb" ref="thumbfile" type="file" accept="image/*" hidden />
+                </div>
+                <div v-if="isIOs">
+                  {{ $t('label.ModifyThePicture') }}:
+                  <input @change="uploadThumb" ref="thumbfile" type="file" accept="image/*" />
+                </div>
+              </div>
+            </q-expansion-item>
+            <q-separator />
+            <q-expansion-item
+              expand-separator
+              :label="$t('label.CustomizeGameInterface')"
+              header-class="bg-secondary text-white"
+              expand-icon-class="text-white"
+            >
+              <div class="q-pa-md">
+                <div v-if="this.quest.isPremium && form.fields.customization && form.fields.customization.audio && form.fields.customization.audio !== ''">
+                  <div>{{ $t('label.YourAudioFile') }} : {{ form.fields.customization.audio }}</div>
+                  <div class="centered"><a class="dark" @click="removeAudio">{{$t('label.Remove')}}</a></div>
+                </div>
+                <div v-if="this.quest.isPremium && !isIOs && !readOnly">
+                  <q-btn-group class="full-width">
+                    <q-btn class="full-width" @click="$refs['audiofile'].click()">{{ $t('label.AddAnAudioFile') }}</q-btn>
+                  </q-btn-group>
+                  <input @change="uploadAudio" ref="audiofile" type="file" accept="audio/mp3" hidden />
+                </div>
+                <div v-if="this.quest.isPremium && isIOs && !readOnly">
+                  {{ $t('label.AddAnAudioFile') }}:
+                  <input @change="uploadAudio" ref="audiofile" type="file" accept="audio/mp3" />
+                </div>
+                <div v-if="form.fields.customization">
+                  <q-select
+                    v-if="quest.type === 'quest'"
+                    :readonly="readOnly"
+                    :label="$t('label.FontFamily')"
+                    v-model="form.fields.customization.font"
+                    :options="form.fonts"
+                    emit-value
+                    map-options
+                    bottom-slots
+                    options-cover
+                    >
+                    <template v-slot:option="{ itemProps, itemEvents, opt, selected }">
+                      <q-item v-bind="itemProps" v-on="itemEvents">
+                        <q-item-section>
+                          <q-item-label v-html="opt.label" :class="'font-' + opt.value" ></q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </template>
+                  </q-select>
+                </div>
+                <div v-if="form.fields.customization">
+                  <q-input
+                    :disable="readOnly"
+                    v-model="form.fields.customization.color"
+                    :label="$t('label.ButtonsColor')"
+                    placeholder="#ffaa00"
+                    class="full-width"
+                  />
+                </div>
+                <div v-if="this.quest.isPremium && this.quest.type === 'quest'">
+                  <div v-if="form.fields.customization && form.fields.customization.logo && form.fields.customization.logo !== ''">
+                    <p>{{ $t('label.YourLogo') }} :</p>
+                    <img class="limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.customization.logo" />
+                    <div class="centered"><a class="dark" @click="removeLogo">{{$t('label.Remove')}}</a></div>
+                  </div>
+                  <div v-if="!isIOs && !readOnly">
+                    <q-btn-group class="full-width">
+                      <q-btn class="full-width" @click="$refs['logofile'].click()">{{ $t('label.AddALogo') }}</q-btn>
+                      <q-btn @click="showHelpPopup('helpQuestLogo')" icon="help" />
+                    </q-btn-group>
+                    <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" hidden />
+                  </div>
+                  <div v-if="isIOs && !readOnly">
+                    {{ $t('label.AddALogo') }}:
+                    <input @change="uploadLogo" ref="logofile" type="file" accept="image/*" />
+                    <q-icon name="help" @click.native="showHelpPopup('helpQuestLogo')" />
+                  </div>
+                </div>
+                <div v-if="form.fields.customization && form.fields.customization.character && form.fields.customization.character !== ''">
+                  <p>{{ $t('label.YourCharacter') }} :</p>
+                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.customization.character" />
+                  <div class="centered"><a class="dark" @click="removeCharacter">{{ $t('label.Remove') }}</a></div>
+                </div>
+                <div v-if="!isIOs && !readOnly">
+                  <q-btn-group class="full-width">
+                    <q-btn class="full-width" @click="$refs['characterfile'].click()">{{ $t('label.AddACustomCharacter') }}</q-btn>
+                    <q-btn @click="showHelpPopup('helpQuestCharacter')" icon="help" />
+                  </q-btn-group>
+                  <input @change="uploadCharacter" ref="characterfile" type="file" accept="image/*" hidden />
+                </div>
+                <div v-if="isIOs && !readOnly">
+                  {{ $t('label.AddACustomCharacter') }}:
+                  <input @change="uploadCharacter" ref="characterfile" type="file" accept="image/*" />
+                  <q-icon name="help" @click.native="showHelpPopup('helpQuestCharacter')" />
+                </div>
+                <div>
+                  <q-toggle
+                    :readonly="readOnly"
+                    :label="$t('label.HideInventory')"
+                    v-model="form.fields.customization.hideInventory"
+                    />
+                </div>
+                <div v-if="this.quest.type === 'quest' && form.fields.editorMode === 'advanced'">
+                  <q-input
+                    :disable="readOnly"
+                    v-model="form.fields.customization.qrCodeMessage[languages.current]"
+                    type="textarea"
+                    :label="$t('label.QRCodeMessage') + ' ' + currentLanguageForLabels"
+                    :max-height="100"
+                    :min-rows="4"
+                    class="full-width"
+                  />
+                </div>
+              </div>
+            </q-expansion-item>
+            <q-separator />
+            <q-expansion-item
+              expand-separator
+              :label="$t('label.CustomizeEndOfGame')"
+              v-if="this.quest.isPremium && this.quest.type === 'quest'"
+              header-class="bg-secondary text-white"
+              expand-icon-class="text-white"
+            >
+              <div class="q-pa-md">
+                <div v-if="form.fields.rewardPicture && form.fields.rewardPicture !== ''">
+                  <p>{{ $t('label.Reward') }} :</p>
+                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.rewardPicture" style="background-color: #f00" />
+                  <div>{{ $t('label.RewardPictureWarning')}}</div>
+                  <div class="centered"><a class="dark" @click="removeReward">{{ $t('label.Remove') }}</a></div>
+                </div>
+                <div v-if="isIOs && !readOnly" class="q-mt-md">
+                  {{ $t('label.AddAReward') }}:
+                  <input @change="uploadReward" ref="rewardfile" type="file" accept="image/*" />
+                  <q-icon name="help" @click.native="showHelpPopup('helpQuestReward')" />
+                </div>
+                <div v-if="!isIOs && !readOnly" class="q-mt-md">
+                  <q-btn-group class="full-width">
+                    <q-btn class="full-width" @click="$refs['rewardfile'].click()">{{ $t('label.AddAReward') }}</q-btn>
+                    <q-btn @click.native="showHelpPopup('helpQuestReward')" icon="help" />
+                  </q-btn-group>
+                  <input @change="uploadReward" ref="rewardfile" type="file" accept="image/*" hidden />
+                </div>
+                <div>
+                  <q-toggle
+                    :readonly="readOnly"
+                    :label="$t('label.RemoveScoringAndRating')"
+                    v-model="form.fields.customization.removeScoring"
+                    />
+                </div>
+                <div v-if="form.fields.customization.removeScoring">
+                  <q-input
+                    :disable="readOnly"
+                    v-model="form.fields.customization.endMessage"
+                    :label="$t('label.TypeEndMessage')"
+                    class="full-width"
+                    type="textarea"
+                  />
+                </div>
+              </div>
+            </q-expansion-item>
+          </q-list>
           <div>
             {{ $t('label.Version') }}: {{ quest.version }}
           </div>
@@ -498,6 +585,10 @@
       <div v-if="tabs.selected === 'steps'" class="q-pa-md arial" :class="{'desktop-only': chapters.showNewStepOverview}">
         <div class="centered bg-warning q-pa-sm" v-if="warnings.stepsMissing" @click="refreshStepsList">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+        </div>
+        <div v-if="quest.size.limit < quest.size.current" class="text-primary q-pa-md">
+          {{ $t('label.OverQuotaMessage') }}
+          <q-btn color="primary" class="glossy large-btn" @click="showMedia()">{{ $t('label.RemoveFiles') }}</q-btn>
         </div>
         
         <div v-if="form.fields.editorMode === 'simple' && chapters.items && chapters.items.length > 0">
@@ -604,6 +695,15 @@
           <q-banner class="q-mb-md bg-warning">
             {{ $t('label.YourQuestIsClosedAndCanNotBePublishedAnymore') }}
           </q-banner>
+          <q-item v-if="quest.type !== 'room'">
+            <q-item-section side top>
+              <q-icon name="file_copy" class="left-icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="big-label">{{ $t('label.DuplicateThisQuest') }}</q-item-label>
+              <q-btn color="primary" class="glossy large-button q-ma-sm" @click="duplicateQuest()">{{ $t('label.DuplicateThisQuest') }}</q-btn>
+            </q-item-section>
+          </q-item>
         </div>
         <div v-if="quest.access === 'public' || (quest.access === 'private' && quest.status !== 'old')">
           <q-banner class="q-mb-md bg-warning" v-if="quest.status === 'tovalidate'">
@@ -924,13 +1024,13 @@
               <q-item v-for="(rank, index) in ranking.items" :key="index" >
                 <q-item-section top avatar>
                   <q-avatar>
-                    <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
-                    <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
-                    <img v-if="!rank.picture || rank.picture === ''" src="statics/profiles/noprofile.png" />
+                    <img v-if="rank.userData.picture && rank.userData.picture !== '' && rank.userData.picture.indexOf('http') !== -1" :src="rank.userData.picture" />
+                    <img v-if="rank.userData.picture && rank.userData.picture !== '' && rank.userData.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.userData.picture" />
+                    <img v-if="!rank.userData.picture || rank.userData.picture === ''" src="statics/profiles/noprofile.png" />
                   </q-avatar>
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label>{{ rank.name }}</q-item-label>
+                  <q-item-label>{{ rank.userData.name }}</q-item-label>
                   <q-item-label caption v-if="rank.status === 'finished'">{{ $t('label.Succeeded') }}</q-item-label>
                   <q-item-label caption v-if="rank.status !== 'finished'">{{ $t('label.CurrentlyPlaying') }}</q-item-label>
                 </q-item-section>
@@ -952,17 +1052,19 @@
             <q-list>
               <q-item v-for="(rank, index) in ranking.items" :key="index" >
                 <q-item-section avatar>
-                  <img v-if="rank.position <= 10" :src="'statics/icons/game/medal-' + rank.position + '.png'">
+                  <q-avatar color="primary" text-color="white">
+                    {{ index + 1 }}
+                  </q-avatar>                  
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label>{{ rank.name }}</q-item-label>
+                  <q-item-label>{{ rank.userData.name }}</q-item-label>
                   <q-item-label caption>{{ rank.score}} {{ $t('label.points') }}<!--<q-icon name="fas fa-trophy" />--></q-item-label>
                 </q-item-section>
                 <q-item-section side top avatar>
                   <q-avatar>
-                    <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') !== -1" :src="rank.picture" />
-                    <img v-if="rank.picture && rank.picture !== '' && rank.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.picture" />
-                    <img v-if="!rank.picture || rank.picture === ''" src="statics/profiles/noprofile.png" />
+                    <img v-if="rank.userData.picture && rank.userData.picture !== '' && rank.userData.picture.indexOf('http') !== -1" :src="rank.userData.picture" />
+                    <img v-if="rank.userData.picture && rank.userData.picture !== '' && rank.userData.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + rank.userData.picture" />
+                    <img v-if="!rank.userData.picture || rank.userData.picture === ''" src="statics/profiles/noprofile.png" />
                   </q-avatar>
                 </q-item-section>
               </q-item>
@@ -1128,6 +1230,7 @@
                 size="lg" 
                 :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
                 icon="work" 
+                v-if="!quest.customization || !quest.customization.hideInventory"
                 :class="{'flashing': inventory.suggest, 'bg-secondary': (inventory.isOpened && !quest.customization.color), 'bg-primary': (!inventory.isOpened && !quest.customization.color)}" 
                 @click="openInventory()"
                 test-id="btn-inventory"
@@ -1281,7 +1384,7 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '', font: 'standard', qrCodeMessage: {fr: '', en: ''} },
+          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '', font: 'standard', qrCodeMessage: {fr: '', en: ''}, hideInventory: false },
           rewardPicture: '',
           readMoreLink: '',
           limitNumberOfPlayer: 0,
@@ -1290,7 +1393,7 @@ export default {
           shareUserDataWithCreator: false,
           countDownTime: {
             enabled: false,
-            time: 0
+            stopGame: false
           }
         },
         categories: utils.buildOptionsForSelect(questCategories, { valueField: 'id', labelField: 'name' }, this.$t),
@@ -1302,6 +1405,7 @@ export default {
           { label: "1,99 €", value: 'premiumprice2' },
           { label: "2,99 €", value: 'premiumprice3' },
           { label: "4,99 €", value: 'premiumprice5' },
+          { label: "7,99 €", value: 'premiumprice8' },
           { label: "9,99 €", value: 'premiumprice10' },
           { label: "14,99 €", value: 'premiumprice15' },
           { label: "19,99 €", value: 'premiumprice20' }
@@ -1540,7 +1644,9 @@ export default {
         this.form.fields.country = (this.form.fields.location && this.form.fields.location.country) ? this.form.fields.location.country : ""
         
         //countdown
-        this.form.fields.countDownTime = this.form.fields.countDownTime;
+        if (this.quest.countDownTime) {
+          this.form.fields.countDownTime = this.quest.countDownTime
+        }
 
         // prices
         if (this.quest.type === 'room') {

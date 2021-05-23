@@ -87,7 +87,10 @@ export default {
     }
   },
   mounted () {
-    
+    // if user is connected, redirect to the quest - Only for anonymous users
+    if (this.$store && this.$store.state && this.$store.state.user && this.$store.state.user.name && this.$store.state.user.name === '-') {
+      this.$router.push('/quest/play/' + this.questId)
+    }
   },
   methods: {
     /*
