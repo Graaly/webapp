@@ -1342,6 +1342,7 @@ export default {
       this.info.isOpened = false
       this.hint.isOpened = false
       this.footer.tabSelected = 'none'
+      this.chat.isOpened = false
     },
     hideFooterButtons() {
       this.footer.show = false

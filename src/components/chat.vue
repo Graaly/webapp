@@ -28,7 +28,7 @@
       dense
       v-model="messageToSend"
       label="Ecrire un message"
-      style="width: 400px"
+      style="width: calc(100% - 20px); max-width: 550px"
       class="q-mb-sm input-message"
       @keyup.enter="SendChatMessage"
     >
@@ -153,6 +153,9 @@ register('FR-fr', localeFunc)
 <style scoped>
 .chat {
   height: calc(100vh - 170px);
+  width: 100%;
+  max-width: 550px;
+  margin: 0 auto
 }
 .messages{
   height: calc(100vh - 200px);
