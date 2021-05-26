@@ -1058,7 +1058,8 @@ module.exports = {
       CustomizeGameIntroduction: "Customize game presentation",
       RemoveGPSLocation: "Remove this location",
       OverQuotaMessage: "You reach the file storage limit",
-      RemoveFiles: "Remove files"
+      RemoveFiles: "Remove files",
+      InvalidTeamID: "Invalid team ID"
     }
   },
   fr: {
@@ -2107,7 +2108,8 @@ module.exports = {
       CustomizeGameIntroduction: "Personnaliser l'intro du jeu",
       RemoveGPSLocation: "Supprimer cette localisation",
       OverQuotaMessage: "Vous avez atteind la limite de stockage",
-      RemoveFiles: "Supprimer des fichiers"
+      RemoveFiles: "Supprimer des fichiers",
+      InvalidTeamID: "Identifiant d'équipe invalide"
     }
   }
 }
