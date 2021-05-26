@@ -3252,7 +3252,7 @@ export default {
       this.$q.loading.hide()
     },
     async removeAudio() {
-      this.selectedStep.form.audioStream = null
+      this.selectedStep.form.audioStream = ""
     }
   },
   validations() {
