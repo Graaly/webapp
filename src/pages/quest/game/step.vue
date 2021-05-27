@@ -555,12 +555,14 @@ export default {
           'score': this.run.score,
           'status': this.run.status,
           'answers': this.run.answers,
-          'conditions': this.run.conditionsDone
+          'conditions': this.run.conditionsDone,
+          'createdAt': Date.parse(this.run.dateCreated)
         },
         'position': {
           'lat': Math.random() + 5.7167, // TODO
           'lng': Math.random() + 45.1667 // TODO
-        }
+        },
+        'device': this.$q.platform.is
       })
     },
     /*
