@@ -690,7 +690,7 @@
             :disable="bluetooth.deviceId === null" 
           />
         </div>
-        <div v-if="step.options.object === 'chest' || step.options.object === 'relay'">
+        <div v-if="step.options.object === 'chest'"><!-- TODO : this is for yannick , please change when more people will use IOT || step.options.object === 'relay'">-->
           <p>{{ $t('label.ChestActions') }}</p>
           <div style="display:flex; ">
             <q-btn 
@@ -4082,6 +4082,7 @@ export default {
       
       if (this.step.type === 'trigger-event' && (!this.step.options.triggerMode || this.step.options.triggerMode === 'auto')) {
         if (this.step.options.object === 'chest' || this.step.options.object === 'relay') {
+          // Todo : chest and relay by default sends open
           this.triggerIotEvent('open')
         }
         else {
