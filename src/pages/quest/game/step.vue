@@ -535,6 +535,7 @@ export default {
       })
     },
     SendData() {
+      console.log(this.quest)
       GMMS.Send(this.run.questId, {
         'lastPing': Date.now(),
         'quest': {
@@ -556,13 +557,15 @@ export default {
           'status': this.run.status,
           'answers': this.run.answers,
           'conditions': this.run.conditionsDone,
-          'createdAt': Date.parse(this.run.dateCreated)
+          'createdAt': Date.parse(this.run.dateCreated),
+          'version': this.run.version
         },
         'position': {
           'lat': Math.random() + 5.7167, // TODO
           'lng': Math.random() + 45.1667 // TODO
         },
-        'device': this.$q.platform.is
+        'device': this.$q.platform.is,
+        'graaly': process.env.VERSION
       })
     },
     /*
