@@ -4,7 +4,7 @@
     <!------------------ HEADER ------------------------>
     
     <div class="q-pa-md background-dark">
-      <a class="float-right no-underline" color="grey" @click="close"><q-icon name="close" class="subtitle4" /></a>
+      <a class="float-right no-underline clickable" color="grey" @click="close"><q-icon name="close" class="subtitle4" /></a>
       
       <div class="subtitle3" v-if="selectedStep.type !== null">{{ $t('stepType.' + selectedStep.type.title) }}</div>
     </div>
@@ -218,7 +218,8 @@
               </div>
             </div>
             <div>
-              <a class="dark" @click="getMyGPSLocation(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+              <a class="dark clickable" @click="getMyGPSLocation(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a> 
+              <span v-if="selectedStep.form.options.locations.length > 1"> - <a class="dark clickable" @click="removeGPSLocation(index)">{{ $t('label.RemoveGPSLocation') }}</a></span>
             </div>
           </div>
           <q-list v-if="!(isIOs || (location.lat && location.lat !== ''))">
@@ -237,7 +238,8 @@
                 </div>
               </div>
               <div>
-                <a class="dark" @click="getMyGPSLocation(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+                <a class="dark" @click="getMyGPSLocation(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a> 
+                <span v-if="selectedStep.form.options.locations.length > 1"> - <a class="dark clickable" @click="removeGPSLocation(index)">{{ $t('label.RemoveGPSLocation') }}</a></span>
               </div>
             </q-expansion-item>
           </q-list>
@@ -1345,7 +1347,9 @@ export default {
             { value: 1, label: "1" },
             { value: 2, label: "2" },
             { value: 3, label: "3" },
-            { value: 4, label: "4" }
+            { value: 4, label: "4" },
+            { value: 5, label: "5" },
+            { value: 6, label: "6" }
           ],
           colorsForCode: this.getColorsForCodeOptions(),
           newColor: {
@@ -1361,7 +1365,9 @@ export default {
             { value: 1, label: "1" },
             { value: 2, label: "2" },
             { value: 3, label: "3" },
-            { value: 4, label: "4" }
+            { value: 4, label: "4" },
+            { value: 5, label: "5" },
+            { value: 6, label: "6" }
           ],
           defaultNbAnswers: 4,
           imagesForCode: this.getImagesForCodeOptions(),
@@ -3009,6 +3015,9 @@ export default {
         this.selectedStep.form.options.locations = [{lat: '', lng: '', destination: ''}]
       }
     },
+    removeGPSLocation(index) {
+      this.selectedStep.form.options.locations.splice(index, 1)
+    },
     /*
      * Check the length of the text input
      * @param   {String}    value            Value of text typed in the input
@@ -3243,7 +3252,7 @@ export default {
       this.$q.loading.hide()
     },
     async removeAudio() {
-      this.selectedStep.form.audioStream = null
+      this.selectedStep.form.audioStream = ""
     }
   },
   validations() {
@@ -3340,10 +3349,10 @@ p { margin-bottom: 0.5rem; }
 
 .code-color h2 { margin-bottom: 0; }
 .code-color table { margin: auto; }
-.code-color table td { padding: 0rem; width: 6rem; }
+.code-color table td { padding: 0rem; }
 .code-color .color-bubble { display: block; width: 4rem; height: 4rem; border: 4px solid black; border-radius: 2rem; transition: background-color 0.3s; }
 
-.code-image td { width: 20% }
+.code-image table { width: 100% }
 .code-image td img { width: 100% }
 .code-image td .q-icon { font-size: 2em }
 .code-image .answer p { flex-grow: 1 }

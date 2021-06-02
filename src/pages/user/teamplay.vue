@@ -87,7 +87,10 @@ export default {
     }
   },
   mounted () {
-    
+    // if user is connected, redirect to the quest - Only for anonymous users
+    if (this.$store && this.$store.state && this.$store.state.user && this.$store.state.user.name && this.$store.state.user.name === '-') {
+      this.$router.push('/quest/play/' + this.questId)
+    }
   },
   methods: {
     /*
@@ -107,9 +110,13 @@ export default {
           const run = await RunService.initTeamPlay(this.questId, this.lang, this.form.teamId, this.form.teamName, this.form.name)
           
           if (run && run.data) {
-            // launch game
-            //this.$router.push('/quest/play/' + this.questId + '/version/' + run.data.version + '/step/0/undefined?remoteplay=false')
-            this.$router.push('/quest/play/' + this.questId + '/version/' + run.data.version + '/step/0/' + this.lang + '?remoteplay=false')
+            if (run.data.message) {
+              Notification(this.$t('label.' + run.data.message), 'error')
+            } else {
+              // launch game
+              //this.$router.push('/quest/play/' + this.questId + '/version/' + run.data.version + '/step/0/undefined?remoteplay=false')
+              this.$router.push('/quest/play/' + this.questId + '/version/' + run.data.version + '/step/0/' + this.lang + '?remoteplay=false')
+            }
           }
           /* get quest version
           const quest = await QuestService.getById(this.questId, '999', this.lang)

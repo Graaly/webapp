@@ -109,7 +109,8 @@ module.exports = {
       tovalidate: "under validation",
       unpublished: "unpublished",
       rejected: "rejected",
-      new: "new"
+      new: "new",
+      used: "used"
     },
     story: {
       hint: "Hint: <br /><b>{hint}</b>",
@@ -909,7 +910,7 @@ module.exports = {
       SplitMessageWithPipe: "Add pipes '|' if you want to split your text in several bubbles",
       ClickHere: "Click here",
       FollowTheCreator: "Follow the creator",
-      PlayersNumber: "Minimum number of players",
+      PlayersNumber: "Minimum number of players (BETA)",
       helpQuestMultiplayer: "This define the minimum number of players to play the game. Each player will have his phone, and should have specific missions in the game. For more information about multiplayer, please watch our Youtube tutorials",
       ThisIsAMultiplayerGame: "This game is multiplayer",
       JoinATeam: "Join a team",
@@ -1012,7 +1013,7 @@ module.exports = {
       To: "To",
       QuestIsNotPlayableNow: "The game is not playable now",
       OpeningHours: "Opening hours",
-      CreationStudioHelp: "<h3>Help</h3>We propose you several resources to help you using the creation studio:<ul><li><a href='https://graaly.com/wp-content/uploads/2021/02/Graaly-Pr%C3%A9sentation-du-studio-de-cr%C3%A9ation-jan-2021.pdf' target='_blank'>Builder guide (fr)</a></li><li>Some <a href='https://www.youtube.com/channel/UCAHXs8JuuV3bBDyggUelK2Q' target='_blank'>video tutorials (fr)</a> to build steps of your game</li></ul>If you meet any issue or if you have questions, do not hesitate to contact us at support@graaly.com.<br /><br />To test your game, we advise you to:<ul><li>test on your phone with the Graaly app</li><li>test on your web browser <a href='https://developers.google.com/web/tools/chrome-devtools/device-mode' target='_blank'>developer mode</a> (to make it short, click on f12 key, and on the tablet icon). Warning: some steps are not working on this mode (Augmented reality, geolocation, QR code flashing, superimpose image and camera)</li></ul>",
+      CreationStudioHelp: "<h3>Help</h3>We propose you several resources to help you using the creation studio:<ul><li><a href='https://graaly.com/wp-content/uploads/2021/02/Graaly-Pr%C3%A9sentation-du-studio-de-cr%C3%A9ation-jan-2021.pdf' target='_blank'>Builder guide (fr)</a></li><li>Some <a href='https://www.youtube.com/channel/UCAHXs8JuuV3bBDyggUelK2Q' target='_blank'>video tutorials (fr)</a> to build steps of your game</li></ul><div class='text-accent'>New ! Join the <a href='https://www.facebook.com/groups/1931590170321273' target='_blank'>Graaly game designer Facebook group</a> to ask your questions to other game designers and to Graaly developers!</div><br />To test your game, we advise you to:<ul><li>test on your phone with the Graaly app</li><li>test on your web browser <a href='https://developers.google.com/web/tools/chrome-devtools/device-mode' target='_blank'>developer mode</a> (to make it short, click on f12 key, and on the tablet icon). Warning: some steps are not working on this mode (Augmented reality, geolocation, QR code flashing, superimpose image and camera)</li></ul>",
       TestWithSimulatorWarning: "You will test with the simulator. Some step types are not working on it. For a real test, please use the Graaly mobile application",
       FontFamily: "Font used for texts",
       ExportTexts: "Game's texts",
@@ -1044,7 +1045,21 @@ module.exports = {
       Chapter: "Chapter",
       ChapterChangeWarning: "Changing the chapter will remove his triggers and create inconsistencies in triggers. You will need to update the steps that depend on it.",
       ResetHistoryAfter: "Prevent back button after this step",
-      RestartChapterAfterStep: "Restart chapter after this step"
+      RestartChapterAfterStep: "Restart chapter after this step",
+      HideInventory: "Do not use inventory",
+      ShowCountDown: "Display countdown timer",
+      StopGameAfterCountDown: "Stop game when time ends",
+      ItRemainsMinutes: "It remains {time} minutes",
+      CustomizeEndOfGame: "Customize the end of the game",
+      CustomizeGameInterface: "Customize game interface",
+      GameAvailability: "Game availability",
+      GamePayment: "Game payment",
+      UserData: "User data",
+      CustomizeGameIntroduction: "Customize game presentation",
+      RemoveGPSLocation: "Remove this location",
+      OverQuotaMessage: "You reach the file storage limit",
+      RemoveFiles: "Remove files",
+      InvalidTeamID: "Invalid team ID"
     }
   },
   fr: {
@@ -1144,7 +1159,8 @@ module.exports = {
       tovalidate: "en validation",
       unpublished: "dépublié",
       rejected: "rejeté",
-      new: "nouveau"
+      new: "nouveau",
+      used: "utilisé"
     },
     story: {
       hint: "Indice :<br /><b>{hint}</b>",
@@ -1944,7 +1960,7 @@ module.exports = {
       SplitMessageWithPipe: "Ajouter le signe '|' pour séparer votre texte dans plusieurs bulles",
       ClickHere: "Cliquez ici",
       FollowTheCreator: "Suivez le créateur",
-      PlayersNumber: "Nombre de joueurs mini",
+      PlayersNumber: "Nombre de joueurs mini (BETA)",
       helpQuestMultiplayer: "Cela défini le nombre de joueur minimum pour que le jeu soit jouable. Chaque joueur devra avoir un téléphone, et aura un rôle différent dans le jeu. Pour plus d'informations sur le mode multijoueur, regardez nos tutos Youtube",
       ThisIsAMultiplayerGame: "Ce jeu se joue en équipe",
       JoinATeam: "Rejoindre une équipe",
@@ -2047,7 +2063,7 @@ module.exports = {
       To: "A",
       QuestIsNotPlayableNow: "Le jeu n'est pas disponible actuellement",
       OpeningHours: "Heures d'ouverture",
-      CreationStudioHelp: "<h3>Aide</h3>Nous vous proposons plusieurs ressources pour vous aider à utiliser le studio de création :<ul><li><a href='https://graaly.com/wp-content/uploads/2021/02/Graaly-Pr%C3%A9sentation-du-studio-de-cr%C3%A9ation-jan-2021.pdf' target='_blank'>Guide d'utilisation du studio</a></li><li>Des <a href='https://www.youtube.com/channel/UCAHXs8JuuV3bBDyggUelK2Q' target='_blank'>tutoriels vidéo</a> d'utilisation du studio de création</li></ul>Si vous rencontrez des problèmes ou si vous avez des questions complémentaires, n'hésitez pas à nous contacter à support@graaly.com.<br /><br />Pour tester votre jeu, nous vous conseillons de :<ul><li>tester sur votre téléphone avec l'application Graaly</li><li>tester dans votre navigateur en <a href='https://developers.google.com/web/tools/chrome-devtools/device-mode' target='_blank'>mode développeur</a> (pour faire simple, cliquez sur la touche f12, puis sur l'icône en forme de tablette). Attention, certaines étapes ne fonctionnent pas dans ce mode (réalité augmentée, géolocalisation, scanne de QR code, superposition image et caméra)</li></ul>",
+      CreationStudioHelp: "<h3>Aide</h3>Nous vous proposons plusieurs ressources pour vous aider à utiliser le studio de création :<ul><li><a href='https://graaly.com/wp-content/uploads/2021/02/Graaly-Pr%C3%A9sentation-du-studio-de-cr%C3%A9ation-jan-2021.pdf' target='_blank'>Guide d'utilisation du studio</a></li><li>Des <a href='https://www.youtube.com/channel/UCAHXs8JuuV3bBDyggUelK2Q' target='_blank'>tutoriels vidéo</a> d'utilisation du studio de création</li></ul><div class='text-accent'>Nouveau ! Rejoignez le <a href='https://www.facebook.com/groups/1931590170321273' target='_blank'>groupe Facebook des créateurs de jeux Graaly</a> pour échanger sur vos problématiques avec les autres utilisateurs et avec nos développeurs !</div><br />Pour tester votre jeu, nous vous conseillons de :<ul><li>tester sur votre téléphone avec l'application Graaly</li><li>tester dans votre navigateur en <a href='https://developers.google.com/web/tools/chrome-devtools/device-mode' target='_blank'>mode développeur</a> (pour faire simple, cliquez sur la touche f12, puis sur l'icône en forme de tablette). Attention, certaines étapes ne fonctionnent pas dans ce mode (réalité augmentée, géolocalisation, scanne de QR code, superposition image et caméra)</li></ul>",
       TestWithSimulatorWarning: "Vous allez tester avec le simulateur. Certains types d'étapes ne sont pas fonctionnels. Pour un vrai test, utilisez l'application mobile Graaly",
       FontFamily: "Police de caractère pour les textes",
       ExportTexts: "Textes du jeu",
@@ -2079,7 +2095,21 @@ module.exports = {
       Chapter: "Chapitre",
       ChapterChangeWarning: "Attention, si vous changez le chapitre, vous supprimez tous ses déclencheurs et risquez d'avoir des incohérences au niveau des déclencheurs des autres étapes. Il faudra les modifier aussi dans les étapes qui en dépendent.",
       ResetHistoryAfter: "Empécher le retour arrière après cette étape",
-      RestartChapterAfterStep: "Redémarrer le chapitre après cette étape"
+      RestartChapterAfterStep: "Redémarrer le chapitre après cette étape",
+      HideInventory: "Ne pas utiliser l'inventaire",
+      ShowCountDown: "Afficher compte à rebours",
+      StopGameAfterCountDown: "Arrêter le jeu quand le temps est fini",
+      ItRemainsMinutes: "Il vous reste {time} minutes",
+      CustomizeEndOfGame: "Personnaliser la fin du jeu",
+      CustomizeGameInterface: "Personnaliser l'interface de jeu",
+      GameAvailability: "Disponibilité du jeu",
+      GamePayment: "Paiement du jeu",
+      UserData: "Données utilisateurs",
+      CustomizeGameIntroduction: "Personnaliser l'intro du jeu",
+      RemoveGPSLocation: "Supprimer cette localisation",
+      OverQuotaMessage: "Vous avez atteind la limite de stockage",
+      RemoveFiles: "Supprimer des fichiers",
+      InvalidTeamID: "Identifiant d'équipe invalide"
     }
   }
 }
