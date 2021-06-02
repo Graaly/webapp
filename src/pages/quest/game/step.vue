@@ -154,7 +154,7 @@
                 </span>
               </q-btn>
             </p>
-            <p class="q-pb-xl">
+            <p class="q-pb-xl" v-if="(info.quest.customization && info.quest.customization.chatEnabled === true)">
               <q-btn
               v-if="!offline.active" class="glossy large-button"
               :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
