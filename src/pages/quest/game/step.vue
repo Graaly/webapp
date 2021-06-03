@@ -916,10 +916,10 @@ export default {
     sendStepIdToParent () {
       try {
         if (window.self !== window.top) {
-          parent.stepChange(this.step.id)
+          parent.document.getElementById("stepid").value = this.step.id
         }
       } catch (e) {
-        console.log("no parent")
+        console.log(e)
       }
     },
     /*
