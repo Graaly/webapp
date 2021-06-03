@@ -116,8 +116,8 @@
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
             <img style="vertical-align:bottom" v-if="step.options.character.length < 3" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
-            <img style="max-width: 100%; max-height: 200px; vertical-align:bottom;" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
-            <img style="max-width: 100%; max-height: 200px; vertical-align:bottom;" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + customization.character : customization.character" />
+            <img style="max-width: 300px; max-height: 300px; vertical-align:bottom;" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
+            <img style="max-width: 300px; max-height: 300px; vertical-align:bottom;" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + customization.character : customization.character" />
           </div>
           <div class="full-width bg-black" style="height: 70px">
           </div>
@@ -407,39 +407,39 @@
         </div>
         <div class="relative-position">
           <div>
-            <img :src="'statics/portrait-robot/face-' + portrait.face.position + '.png'" />
+            <img :src="'statics/' + portrait.type + '/face-' + portrait.face.position + '.png'" />
           </div>
           <div class="absolute">
-            <img :src="'statics/portrait-robot/eye-' + portrait.eye.position + '.png'" />
+            <img :src="'statics/' + portrait.type + '/eye-' + portrait.eye.position + '.png'" />
           </div>
           <div class="absolute">
-            <img :src="'statics/portrait-robot/mouth-' + portrait.mouth.position + '.png'" />
+            <img :src="'statics/' + portrait.type + '/mouth-' + portrait.mouth.position + '.png'" />
           </div>
           <div class="absolute">
-            <img :src="'statics/portrait-robot/nose-' + portrait.nose.position + '.png'" />
+            <img :src="'statics/' + portrait.type + '/nose-' + portrait.nose.position + '.png'" />
           </div>
           <div class="absolute">
-            <img :src="'statics/portrait-robot/hair-' + portrait.hair.position + '.png'" />
+            <img :src="'statics/' + portrait.type + '/hair-' + portrait.hair.position + '.png'" />
           </div>
           <div class="absolute">
-            <img :src="'statics/portrait-robot/beard-' + portrait.beard.position + '.png'" />
+            <img :src="'statics/' + portrait.type + '/beard-' + portrait.beard.position + '.png'" />
           </div>
           <div class="absolute">
-            <img :src="'statics/portrait-robot/glass-' + portrait.glass.position + '.png'" />
+            <img :src="'statics/' + portrait.type + '/glass-' + portrait.glass.position + '.png'" />
           </div>
           <div class="absolute">
-            <img :src="'statics/portrait-robot/hat-' + portrait.hat.position + '.png'" />
+            <img :src="'statics/' + portrait.type + '/hat-' + portrait.hat.position + '.png'" />
           </div>
         </div>
         <table class="portrait-parts relative-position">
           <tr>
-            <td><img @click="changePortraitPart('face')" src="statics/portrait-robot/face-1.png" /></td>
-            <td><img @click="changePortraitPart('eye')" src="statics/portrait-robot/eye-1.png" /></td>
-            <td><img @click="changePortraitPart('nose')" src="statics/portrait-robot/nose-1.png" /></td>
-            <td><img @click="changePortraitPart('hair')" src="statics/portrait-robot/hair-1.png" /></td>
-            <td><img @click="changePortraitPart('beard')" src="statics/portrait-robot/beard-2.png" /></td>
-            <td><img @click="changePortraitPart('glass')" src="statics/portrait-robot/glass-2.png" /></td>
-            <td><img @click="changePortraitPart('hat')" src="statics/portrait-robot/hat-4.png" /></td>
+            <td><img @click="changePortraitPart('face')" :src="'statics/' + portrait.type + '/face-1.png'" /></td>
+            <td><img @click="changePortraitPart('eye')" :src="'statics/' + portrait.type + '/eye-1.png'" /></td>
+            <td><img @click="changePortraitPart('nose')" :src="'statics/' + portrait.type + '/nose-1.png'" /></td>
+            <td><img @click="changePortraitPart('hair')" :src="'statics/' + portrait.type + '/hair-1.png'" /></td>
+            <td><img @click="changePortraitPart('beard')" :src="'statics/' + portrait.type + '/beard-2.png'" /></td>
+            <td><img @click="changePortraitPart('glass')" :src="'statics/' + portrait.type + '/glass-2.png'" /></td>
+            <td><img @click="changePortraitPart('hat')" :src="'statics/' + portrait.type + '/hat-4.png'" /></td>
           </tr>
         </table>
         <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
@@ -690,7 +690,7 @@
             :disable="bluetooth.deviceId === null" 
           />
         </div>
-        <div v-if="step.options.object === 'chest' || step.options.object === 'relay'">
+        <div v-if="step.options.object === 'chest'"><!-- TODO : this is for yannick , please change when more people will use IOT || step.options.object === 'relay'">-->
           <p>{{ $t('label.ChestActions') }}</p>
           <div style="display:flex; ">
             <q-btn 
@@ -1012,7 +1012,8 @@ export default {
           hair: { position: 1, number: 26 },
           beard: { position: 1, number: 31 },
           glass: { position: 1, number: 5 },
-          hat: { position: 1, number: 4 }
+          hat: { position: 1, number: 4 },
+          type: "portrait-robot"
         },
         // for step type 'find-item'
         findItem: {
@@ -1335,6 +1336,12 @@ export default {
           }
           //this.$emit('hideButtons')
           //this.$emit('pass')
+        }
+        
+        if (this.step.type === 'portrait-robot') {
+          if (this.step.options && this.step.options.customize) {
+            this.portrait = this.step.options.customize
+          }
         }
         
         if (this.step.type === 'geolocation') {
@@ -2466,6 +2473,10 @@ export default {
             break
         }
       }
+      // if no display of the answer move to next step
+      if (this.step.displayRightAnswer === false) {
+        this.forceNextStep()
+      }
       // advise user to move to next step
       //utils.setTimeout(this.alertToPassToNextStep, 15000)
     },
@@ -2501,6 +2512,8 @@ export default {
       if (this.step.displayRightAnswer === true) {
         // advise user to move to next step
         utils.setTimeout(this.alertToPassToNextStep, 15000)
+      } else {
+        this.forceNextStep()
       }
     },
     alertToPassToNextStep() {
@@ -4082,6 +4095,7 @@ export default {
       
       if (this.step.type === 'trigger-event' && (!this.step.options.triggerMode || this.step.options.triggerMode === 'auto')) {
         if (this.step.options.object === 'chest' || this.step.options.object === 'relay') {
+          // Todo : chest and relay by default sends open
           this.triggerIotEvent('open')
         }
         else {
