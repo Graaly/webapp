@@ -3003,7 +3003,7 @@ export default {
      * list the scores
      */
     async getPrivateRanking () {
-      var results = await RunService.listPlayersForThisQuest(this.questId)
+      var results = await RunService.listScoresForThisQuest(this.questId)
       if (results && results.data) {
         this.ranking.items = results.data
         this.ranking.items.sort(this.compareScore)
