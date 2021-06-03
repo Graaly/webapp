@@ -1,0 +1,13 @@
+/* eslint-disable */
+if (!Object.entries) {
+    console.log('Polyfill on object.entries RUN !!!')
+    Object.entries = function (obj) {
+        var ownProps = Object.keys(obj),
+            i = ownProps.length,
+            resArray = new Array(i); // preallocate the Array
+        while (i--) {
+            resArray[i] = [ownProps[i], obj[ownProps[i]]];
+        }
+        return resArray;
+    };
+}
