@@ -106,10 +106,15 @@
         <q-dialog maximized v-model="suggestQuest.show">
           <suggest @close="suggestQuest.show = false"></suggest>
         </q-dialog>
-        
+      </div>
+      
+    </div>
+         
+    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork">
+      <div>
         <!------------------ REVIEW AREA ------------------------>
         
-        <div class="q-mx-md q-mt-xl q-pa-sm centered" v-if="quest.type !== 'discovery' && showAddReview && quest && quest.access === 'public'">
+        <div class="q-mx-md q-mt-xl q-pa-sm centered" v-if="quest.type !== 'discovery' && showAddReview">
           <div class="subtitle4">{{ $t('label.ReviewThisQuest') }}</div>
           <div class="q-py-sm"><q-rating v-model="rating" :max="5" size="1rem" class="end-rating" color="white" :disable="reviewSent" @click="showReviewText = true" /></div>
         </div>
@@ -125,6 +130,7 @@
             </div>
           </div>
         </q-dialog>
+      
         
         <!------------------ REWARD AREA ------------------------>
         
@@ -135,7 +141,11 @@
             <div class="subtitle6">{{ $t('label.WonOtherRewardByPlayingOtherGamesInCity') }}</div>
           </div>
         </div>
+      </div>
+    </div>
         
+    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
+      <div v-if="run && run._id">
         <!------------------ RANKING AREA ------------------------>
     
         <div v-show="ranking.show">
