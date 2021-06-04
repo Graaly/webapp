@@ -17,7 +17,6 @@
         <allow-intent href="market:*" />
         <preference name="loadUrlTimeoutValue" value="700000" />
         <preference name="AndroidExtraFilesystems" value="files,files-external,documents,sdcard,cache,cache-external,assets,root" />
-        <preference name="Fullscreen" value="true" />
         <icon density="ldpi" src="res/icon/android/icon-36-ldpi.png" />
         <icon density="mdpi" src="res/icon/android/icon-48-mdpi.png" />
         <icon density="hdpi" src="res/icon/android/icon-72-hdpi.png" />

@@ -116,8 +116,8 @@
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
             <img style="vertical-align:bottom" v-if="step.options.character.length < 3" :src="'statics/icons/story/character' + step.options.character + '_attitude1.png'" />
-            <img style="max-width: 300px; max-height: 300px; vertical-align:bottom;" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
-            <img style="max-width: 300px; max-height: 300px; vertical-align:bottom;" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + customization.character : customization.character" />
+            <img style="vertical-align:bottom;" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
+            <img style="vertical-align:bottom;" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + customization.character : customization.character" />
           </div>
           <div class="full-width bg-black" style="height: 70px">
           </div>

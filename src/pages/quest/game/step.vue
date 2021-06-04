@@ -434,7 +434,10 @@ export default {
       // get quest information
       await this.getQuest(this.questId)
       
+      // Start audio
       this.getAudioSound()
+      
+      this.startFullScreen()
       
       this.loadStepData = false
 
@@ -505,6 +508,9 @@ export default {
       
       // get current step
       await this.getStep(false, forceStepId)
+      
+      // send stepId to parent if in a frame
+      this.sendStepIdToParent()
       
       // manage history
       this.updateHistory()
@@ -2249,6 +2255,14 @@ export default {
         this.sound.tempMute = true
       } else if (this.sound.tempMute){
         this.cutSound()
+      }
+    },
+    swithFullscreenMode() {
+      AndroidFullScreen.immersiveMode()
+    },
+    startFullScreen() {
+      if (!this.info.quest.customization || !this.info.quest.customization.hideFullScreen) {
+        document.addEventListener("deviceready", this.swithFullscreenMode, false)
       }
     }
   }

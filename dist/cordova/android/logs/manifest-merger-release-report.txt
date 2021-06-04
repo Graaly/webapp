@@ -22,10 +22,10 @@ INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:42:130-201
 manifest
-ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-52:12
-INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-52:12
-INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-52:12
-INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-52:12
+ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-53:12
+INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-53:12
+INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-53:12
+INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-53:12
 MERGED from [:barcodescanner-release-2.1.5:] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\1538ed8bb9c1462d35a1f2a84c777ffa\barcodescanner-release-2.1.5\AndroidManifest.xml:2:1-14:12
 MERGED from [:CordovaLib] E:\graaly\dev\sources\webapp\src-cordova\platforms\android\CordovaLib\build\intermediates\library_manifest\release\AndroidManifest.xml:20:1-27:12
 MERGED from [com.facebook.android:facebook-android-sdk:4.25.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\84a7f9dfb952755c8d4c5cc350ae6b6f\facebook-android-sdk-4.25.0\AndroidManifest.xml:21:1-50:12
@@ -45,9 +45,9 @@ MERGED from [android.arch.lifecycle:runtime:1.1.0] C:\Users\ericm\.gradle\caches
 MERGED from [android.arch.lifecycle:livedata-core:1.1.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\9fc195fe65706d750610a6b0adfd9ae3\livedata-core-1.1.0\AndroidManifest.xml:17:1-22:12
 MERGED from [android.arch.lifecycle:viewmodel:1.1.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\0b9a951eb2f2dfb15534e390fb337cfc\viewmodel-1.1.0\AndroidManifest.xml:17:1-22:12
 MERGED from [android.arch.core:runtime:1.1.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\394c1ac3fe402d6c5b2c52a530e53999\runtime-1.1.0\AndroidManifest.xml:17:1-22:12
-INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-52:12
-INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-52:12
-INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-52:12
+INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-53:12
+INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-53:12
+INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:1-53:12
 	package
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:2:103-123
 		INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml
@@ -151,7 +151,7 @@ ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\ma
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:21:20-70
 application
-ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:3-47:17
+ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:3-48:17
 MERGED from [:barcodescanner-release-2.1.5:] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\1538ed8bb9c1462d35a1f2a84c777ffa\barcodescanner-release-2.1.5\AndroidManifest.xml:11:5-12:19
 MERGED from [:barcodescanner-release-2.1.5:] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\1538ed8bb9c1462d35a1f2a84c777ffa\barcodescanner-release-2.1.5\AndroidManifest.xml:11:5-12:19
 MERGED from [com.facebook.android:facebook-android-sdk:4.25.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\84a7f9dfb952755c8d4c5cc350ae6b6f\facebook-android-sdk-4.25.0\AndroidManifest.xml:28:5-48:19
@@ -280,26 +280,32 @@ ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\ma
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:46:64-99
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:46:16-63
+meta-data#android.max_aspect
+ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:47:5-72
+	android:value
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:47:50-70
+	android:name
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:47:16-49
 uses-feature#android.hardware.camera
-ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:48:3-81
+ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:49:3-81
 	android:required
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:48:56-79
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:49:56-79
 	android:name
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:48:17-55
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:49:17-55
 uses-feature#android.hardware.camera.autofocus
-ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:49:3-67
+ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:50:3-67
 	android:name
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:49:17-65
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:50:17-65
 uses-feature#android.hardware.location.gps
-ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:50:3-63
+ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:51:3-63
 	android:name
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:50:17-61
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:51:17-61
 uses-feature#android.hardware.telephony
-ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:51:3-85
+ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:52:3-85
 	android:required
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:51:59-83
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:52:59-83
 	android:name
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:51:17-58
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:52:17-58
 uses-sdk
 INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml

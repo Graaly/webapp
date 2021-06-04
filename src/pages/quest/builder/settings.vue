@@ -496,6 +496,13 @@
                     v-model="form.fields.customization.hideInventory"
                     />
                 </div>
+                <div>
+                  <q-toggle
+                    :readonly="readOnly"
+                    :label="$t('label.HideFullScreen')"
+                    v-model="form.fields.customization.hideFullScreen"
+                    />
+                </div>
                 <div v-if="this.quest.type === 'quest' && form.fields.editorMode === 'advanced'">
                   <q-input
                     :disable="readOnly"
@@ -1384,7 +1391,7 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '', font: 'standard', qrCodeMessage: {fr: '', en: ''}, hideInventory: false },
+          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '', font: 'standard', qrCodeMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false },
           rewardPicture: '',
           readMoreLink: '',
           limitNumberOfPlayer: 0,
