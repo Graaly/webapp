@@ -539,7 +539,7 @@ export default {
     async initQuest() {
       // get quest information
       await this.getQuest(this.$route.params.id)
-      
+
       // Fix EMA on 18/12/2019 - products in store remains if I open several paying quests
       if (window.cordova && this.quest.premiumPrice && this.quest.premiumPrice.androidId && store.products.length > 0) {
         this.$router.go(0)

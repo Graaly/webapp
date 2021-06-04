@@ -12,25 +12,25 @@
     </div>
 
     <!------------------ AUDIO ------------------------>
-    
-    <audio 
+
+    <audio
       v-if="info && info.audio !== ''"
-      id="background-music" 
-      autoplay loop 
+      id="background-music"
+      autoplay loop
       :src="info.audio"
     />
-    
+
     <!------------------ HEADER AREA ------------------------>
     <div :class="{'fit': (step.type !== 'image-over-flow')}"><!-- Keep this div for iphone, for red filter display -->
-      <stepPlay 
-        :step="step" 
-        :runId="runId" 
+      <stepPlay
+        :step="step"
+        :runId="runId"
         :inventory="inventory"
-        :itemUsed="selectedItem" 
-        :reload="loadStepData" 
-        :lang="lang" 
-        :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}" 
-        :answer="offline.answer" 
+        :itemUsed="selectedItem"
+        :reload="loadStepData"
+        :lang="lang"
+        :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}"
+        :answer="offline.answer"
         :player="player"
         :timer="countDownTime.remaining"
         @played="trackStepPlayed" 
@@ -44,9 +44,9 @@
         @msg="trackMessage">
       </stepPlay>
     </div>
-      
+
     <!------------------ INVENTORY PAGE AREA ------------------------>
-    
+
     <transition name="slideInBottom">
       <div v-show="inventory.isOpened" class="bg-graaly-blue-dark text-white inventory panel-bottom">
         <div class="q-pa-md">
@@ -90,9 +90,20 @@
         </div>
       </div>
     </q-dialog>
-    
+
+    <!------------------ CHAT PAGE AREA ------------------------>
+
+    <transition name="slideInBottom">
+      <div v-show="chat.isOpened" class="bg-graaly-blue-dark text-white inventory panel-bottom">
+        <div class="q-pa-md">
+          <a class="float-right no-underline" color="grey" @click="chat.isOpened = false"><q-icon name="close" class="subtitle3" /></a>
+          <chat :questId="questId" :isOpened="chat.isOpened"></chat>
+        </div>
+      </div>
+    </transition>
+
     <!------------------ INFO PAGE AREA ------------------------>
-    
+
     <transition name="slideInBottom">
       <div class="reduce-window-size-desktop" v-show="info.isOpened">
         <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="getQuest(questId)">
@@ -111,11 +122,11 @@
               {{ $t('label.Team') }} : {{ run.team.name }}
             </p>
             <p>
-              <q-btn 
-              v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring" 
-              class="glossy large-button" 
-              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" 
-              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" 
+              <q-btn
+              v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring"
+              class="glossy large-button"
+              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
               @click="backToMap">
                 <span>
                   {{ $t('label.LeaveQuest') }}
@@ -124,9 +135,9 @@
             </p>
             <p>
               <q-btn
-                v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2" class="glossy large-button" 
-                :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" 
-                :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" 
+                v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2" class="glossy large-button"
+                :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
+                :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
                 @click="restartGame">
                 <span>
                   {{ $t('label.RestartQuest') }}
@@ -134,20 +145,32 @@
               </q-btn>
             </p>
             <p>
-              <q-btn 
-              v-if="!offline.active" class="glossy large-button" 
-              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'" 
-              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''" 
+              <q-btn
+              v-if="!offline.active" class="glossy large-button"
+              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
               @click="showFeedback">
                 <span>
                   {{ $t('label.Feedback') }}
                 </span>
               </q-btn>
             </p>
+            <p class="q-pb-xl" v-if="(info.quest.customization && info.quest.customization.chatEnabled === true)">
+              <q-btn
+              v-if="!offline.active" class="glossy large-button"
+              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+              @click="openChat">
+                <span>
+                 Ask for help (Chat with GM)
+                </span>
+                <q-badge v-if=" this.$store.state.chatNotification > 0"  color="accent" rounded floating>{{ this.$store.state.chatNotification }}</q-badge>
+              </q-btn>
+            </p>
             <p class="q-pb-xl">
-              <q-btn 
-              class="glossy large-button" 
-              color="secondary" 
+              <q-btn
+              class="glossy large-button"
+              color="secondary"
               @click="openInfo">
                 <span>
                   {{ $t('label.BackToQuest') }}
@@ -160,15 +183,15 @@
         </div>
       </div>
     </transition>
-    
+
     <!--====================== HINT =================================-->
-    
+
     <div class="mobile-fit over-map" :class="'font-' + info.quest.customization.font" v-if="hint.isOpened">
       <story step="hint" :data="{hint: hint.label, character: (info.quest.customization && info.quest.customization.character && info.quest.customization.character !== '') ? (info.quest.customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + info.quest.customization.character : info.quest.customization.character) : '3'}" @next="askForHint()"></story>
     </div>
-    
+
     <!--====================== STORY =================================-->
-    
+
     <div class="mobile-fit over-map" :class="'font-' + info.quest.customization.font" v-if="story.step !== null && story.step !== 'end'">
       <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
     </div>
@@ -178,7 +201,7 @@
     <div v-show="countDownTime.enabled" class="fadein-message" style="font-size: 48px;"><q-icon color="white" name="timer" /> {{ $t('label.ItRemainsMinutes', {time: countDownTime.remainingMinutes}) }}</div>
     
     <!--====================== FEEDBACK =================================-->
-    
+
     <q-dialog v-model="feedback.isOpened">
       <div class="bg-white q-pa-md reduce-window-size-desktop">
         <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.FeedbackTitle') }}</div>
@@ -201,22 +224,24 @@
         </div>
       </div>
     </q-dialog>
-      
+
     <!------------------ FOOTER AREA ------------------------>
-    
+
     <div v-show="footer.show" class="step-menu step-menu-fixed fixed-bottom">
       <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
       <div class="row white-buttons">
         <div class="col centered q-pb-md">
-          <q-btn 
-            round 
-            size="lg" 
+          <q-btn
+            round
+            size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            icon="menu" 
-            :class="{'bg-secondary': (info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
+            icon="menu"
+            :class="{'bg-secondary': (info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}"
             @click="openInfo()"
             v-if="!info.quest.customization || !info.quest.customization.logo || info.quest.customization.logo === ''"
-          />
+          >
+            <q-badge v-if=" this.$store.state.chatNotification > 0"  color="accent" rounded floating>{{ this.$store.state.chatNotification }}</q-badge>
+          </q-btn>
           <q-btn
             round
             size="lg"
@@ -230,7 +255,7 @@
           </q-btn>
         </div>
         <div class="col centered q-pb-md">
-          <q-btn 
+          <q-btn
             round
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
@@ -241,45 +266,44 @@
           />
         </div>
         <div class="col centered q-pb-md">
-          <q-btn 
-            round 
-            size="lg" 
+          <q-btn
+            round
+            size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            icon="lightbulb" 
-            :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!hint.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
-            @click="askForHint()" 
-            v-show="hint.show" 
+            icon="lightbulb"
+            :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!hint.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}"
+            @click="askForHint()"
+            v-show="hint.show"
           >
             <q-badge v-if="this.step && this.step.hint" color="secondary" floating>{{ this.hint.remainingNumber }}</q-badge>
           </q-btn>
         </div>
         <div class="col centered q-pb-md">
-          <q-btn 
-            round 
-            size="lg" 
+          <q-btn
+            round
+            size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}" 
+            :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
             :disable="$store.state.history.index === 0"
-            icon="arrow_back" 
-            v-show="previousStepId !== ''" 
+            icon="arrow_back"
+            v-show="previousStepId !== ''"
             @click="previousStep()"
           />
         </div>
         <div class="col centered q-pb-md">
-          <q-btn 
-            round 
-            size="lg" 
+          <q-btn
+            round
+            size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            :class="{'flashing': next.suggest, 'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}" 
-            icon="arrow_forward" 
-            v-show="next.enabled || next.canPass" 
-            @click="nextStep()" 
+            :class="{'flashing': next.suggest, 'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
+            icon="arrow_forward"
+            v-show="next.enabled || next.canPass"
+            @click="nextStep()"
           />
         </div>
       </div>
     </div>
   </div>
-  
 </template>
 
 <script>
@@ -287,12 +311,18 @@ import RunService from 'services/RunService'
 import StepService from 'services/StepService'
 import QuestService from 'services/QuestService'
 import UserService from 'services/UserService'
+import chat from "../../../components/chat";
 //import colorsForCode from 'data/colorsForCode.json'
 //import questItems from 'data/questItems.json'
 import stepPlay from 'components/quest/game/stepPlay'
 import Notification from 'boot/NotifyHelper'
 import story from 'components/story'
 import utils from 'src/includes/utils'
+
+import GMMS from 'services/GameMasterMonitoringService_mqtt'
+import geolocation from 'components/geolocation'
+
+import { Notify } from 'quasar'
 
 import Vue from 'vue'
 import Sortable from 'sortablejs'
@@ -305,7 +335,9 @@ Vue.directive('sortable', {
 export default {
   components: {
     stepPlay,
-    story
+    story,
+    chat,
+    Notify
   },
   data () {
     return this.initialState()
@@ -351,6 +383,9 @@ export default {
           score: 0,
           quest: {},
           audio: ''
+        },
+        chat: {
+          isOpened: false
         },
         next: {
           suggest: false,
@@ -444,16 +479,23 @@ export default {
       // get current run or create it
       //await this.getRun() // on sync mode to load step while run is checked
       await this.getRun()
-      
+
       // get Player number
       this.player = await this.getPlayer()
-      
+
       // get current step
       await this.getStep()
       
       // send stepId to parent if in a frame
       this.sendStepIdToParent()
       
+      // send once on start
+      this.SendData();
+      // the every 15 seconds
+      setInterval(() => {
+        this.SendData();
+      }, 15000);
+
       // manage history
       this.updateHistory()
       
@@ -462,12 +504,12 @@ export default {
       
       // check if user already played the step
       this.checkIfAlreadyPlayed()
-      
+
       // fill inventory at loading when necessary
       if (this.step.type === 'use-item') {
         await this.fillInventory()
       }
-      
+
       this.$q.loading.hide()
 
       // get quest number to compute progression
@@ -480,13 +522,79 @@ export default {
       }
 
       // next button blink if user did not succeed after 3 minutes
-      utils.setTimeout(this.alertOnNext, 180000)      
-      
+      utils.setTimeout(this.alertOnNext, 180000)
+
       // check if story needs to start
       //await this.startStory()
-      
+
       // load component data
       this.loadStepData = true
+    },
+    /**
+     * Send a chat message
+     */
+    SendChatMessage() {
+      GMMS.SendChat(this.run.questId, {
+        'time': Date.now(),
+        'player': {
+            'id': this.run.userId[0],
+            'name': this.run.userData.name
+        },
+        'quest': {
+            'id': this.run.questId
+        },
+        'step': {
+            'id': this.step.id,
+            'title': this.step.title
+        }
+      })
+    },
+    SendData() {
+      console.log(this.quest)
+      GMMS.Send(this.run.questId, {
+        'lastPing': Date.now(),
+        'quest': {
+          'id': this.run.questId
+        },
+        'player': {
+          'id': this.run.userId[0],
+          'name': this.run.userData.name
+        },
+        'step': {
+          'id': this.step.id,
+          'title': this.step.title
+        },
+        'run': {
+          'id': this.run._id,
+          'currentStep': this.run.currentStep,
+          'currentChapter': this.run.currentChapter,
+          'score': this.run.score,
+          'status': this.run.status,
+          'answers': this.run.answers,
+          'conditions': this.run.conditionsDone,
+          'createdAt': Date.parse(this.run.dateCreated),
+          'version': this.run.version
+        },
+        'position': {
+          'lat': Math.random() + 5.7167, // TODO
+          'lng': Math.random() + 45.1667 // TODO
+        },
+        'device': this.$q.platform.is,
+        'graaly': process.env.VERSION
+      })
+    },
+    /*
+    * Open the chat box
+    */
+    async openChat() {
+      if (this.chat.isOpened) {
+        this.closeAllPanels()
+      } else {
+        this.closeAllPanels()
+        this.chat.isOpened = true
+        this.footer.tabSelected = 'info'
+      }
+      this.$store.commit('setChatNotification', 0)
     },
     /*
      * Move to a step
@@ -496,16 +604,16 @@ export default {
       utils.clearAllRunningProcesses()
       this.resetData()
       this.$q.loading.show()
-      
+
       this.loadStepData = false
 
       // get current run or create it
       //await this.getRun() // on sync mode to load step while run is checked
       await this.getRun()
-      
+
       // get Player number
       this.player = await this.getPlayer()
-      
+
       // get current step
       await this.getStep(false, forceStepId)
       
@@ -520,12 +628,12 @@ export default {
       
       // check if user already played the step
       this.checkIfAlreadyPlayed()
-      
+
       // fill inventory at loading when necessary
       if (this.step.type === 'use-item') {
         await this.fillInventory()
       }
-      
+
       this.$q.loading.hide()
 
       // display hint
@@ -536,14 +644,14 @@ export default {
 
       // next button blink if user did not succeed after 3 minutes
       utils.setTimeout(this.alertOnNext, 180000)
-      
+
       // load component data
       this.loadStepData = true
     },
     /*
      * Get the current run or create it
      *
-     * The process try to get the run from server, but if not accessable or older than the offline version, 
+     * The process try to get the run from server, but if not accessable or older than the offline version,
      * the offline run is used
      */
     async getRun() {
@@ -553,18 +661,18 @@ export default {
       var currentChapter = 0
       var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
       var dataSharedWithPartner = (this.$route.query.hasOwnProperty('sharepartner') && this.$route.query.sharepartner === 'true')
-      
+
       // check if a run is created on offline mode
       const isRunOfflineLoaded = await this.checkIfRunIsAlreadyLoaded(this.questId)
       if (isRunOfflineLoaded) {
         // read the run
         var offlineRun = await this.loadOfflineRun(this.questId)
       }
-      
+
       // check if run is accessable from server
       if (runs && runs.data) {
         this.offline.active = false
-      
+
         for (var i = 0; i < runs.data.length; i++) {
           if (runs.data[i] && runs.data[i].status && runs.data[i].status === 'finished') {
             this.isRunFinished = true
@@ -572,9 +680,9 @@ export default {
           if (runs.data[i] && runs.data[i].status && runs.data[i].status === 'in-progress') {
             this.run = runs.data[i]
             this.runId = this.run._id
-            
+
             currentChapter = runs.data[i].currentChapter
-            
+
             // update the offline run or the online depending on the last updated
             if (isRunOfflineLoaded) {
               if (offlineRun.dateUpdated > this.run.dateUpdated) {
@@ -600,7 +708,7 @@ export default {
             }
           }
         }
-        
+
         // init the run on the server
         if (currentChapter === 0) {
           // no 'in-progress' run => create run for current player & current quest
@@ -636,7 +744,7 @@ export default {
         }
       } else {
         this.offline.active = true
-        
+
         // if the run is not accessable, read the offline one
         if (isRunOfflineLoaded) {
           if (offlineRun) {
@@ -654,7 +762,7 @@ export default {
           await this.updateOfflineRun(this.questId)
         }
       }
-      
+
       // init the offline run
       if (currentChapter === 0) {
         await this.updateOfflineRun(this.questId)
@@ -679,10 +787,10 @@ export default {
     async getStep (forceNetworkLoading, forceStepId) {
       let userIsAuthor = this.$store.state.user._id === this.info.quest.authorUserId
       let userIsEditor = Array.isArray(this.info.quest.editorsUserId) && this.info.quest.editorsUserId.includes(this.$store.state.user._id)
-      
+
       let forceOnline = this.$store.state.user.isAdmin || userIsAuthor || userIsEditor
-      
-      this.warnings.stepDataMissing = false   
+
+      this.warnings.stepDataMissing = false
       var stepId
       
       // force network loading based on quest configuration
@@ -698,7 +806,7 @@ export default {
 
         if (!this.offline.active || forceOnline) {
           response = await RunService.getNextStep(this.questId, this.player)
-          
+
           if (response && response.status !== 200) {
             if (response.data.message === "app_quest_data_is_obsolete") {
               this.$q.dialog({
@@ -717,7 +825,7 @@ export default {
             return false
           }
         }
-        
+
         if (response && response.data && response.status === 200) {
           // check if a step is triggered
           if (response.data.next) {
@@ -766,7 +874,7 @@ export default {
       if (stepId === 'end') {
         return this.$router.push('/quest/' + this.questId + '/end')
       }
-      
+
       // check if the quest data are not already saved on device
       let isStepOfflineLoaded = await this.checkIfStepIsAlreadyLoaded(stepId)
 
@@ -795,25 +903,25 @@ export default {
         const step = await utils.readFile(this.questId, 'step_' + stepId + '.json')
         if (!step) {
           if (forceNetworkLoading) {
-            this.warnings.questDataMissing = true 
+            this.warnings.questDataMissing = true
           } else {
             var stepLoadingStatus = await this.getStep(true, forceStepId)
             return stepLoadingStatus
           }
         } else {
           var tempStep = JSON.parse(step)
-          
+
           if (tempStep.hint) {
             this.hint.remainingNumber = tempStep.hint.length
           }
-          
+
           const stepAccess = this.offlineCheckAccess(tempStep)
           if (stepAccess && stepAccess.message) {
             if (stepAccessMessage === 'Step not yet available') {
               this.showStepBlockedMessage(stepAccess.startDate)
             }
           }
-          
+
           // get offline media
           if (tempStep.backgroundImage) {
             const pictureUrl = await utils.readBinaryFile(this.questId, tempStep.backgroundImage)
@@ -908,10 +1016,10 @@ export default {
           this.step.id = this.step.stepId
           // get previous button redirect
           this.getPreviousStep()
-          
+
           // get answer
           this.offline.answer = this.step.answers
-          
+
           return true
         }
       }
@@ -941,7 +1049,7 @@ export default {
       this.next.canPass = false
       setTimeout(async () => {
         this.moveToStep()
-      } 
+      }
       , 15000);
     },
     /*
@@ -949,7 +1057,7 @@ export default {
      */
     checkIfAlreadyPlayed() {
       const conditions = this.run.conditionsDone
-      if (conditions.indexOf('stepDone_' + this.step.stepId) !== -1) { 
+      if (conditions.indexOf('stepDone_' + this.step.stepId) !== -1) {
         this.next.canPass = true
       }
     },
@@ -979,7 +1087,7 @@ export default {
           if (this.step.conditions[i].indexOf('stepDone') !== -1) {
             var stepId = this.step.conditions[i].replace('stepDone_', '')
             this.previousStepId = stepId
-            
+
             return stepId
           }
         }*/
@@ -1013,15 +1121,15 @@ export default {
         // add step score to general score
         this.info.score += score
       }
-      
+
       // hide hint
       if (this.step.type !== 'image-over-flow') {
         this.hideHint()
       }
-      
+
       // save offline run
       await this.saveOfflineAnswer(true)
-      
+
       // move to next step if right answer not displayed
       if (this.step.displayRightAnswer === false) {
         this.nextStep()
@@ -1059,7 +1167,7 @@ export default {
      */
     async trackStepFail (offline, showResult, answer) {
       this.hideHint()
-        
+
       // save offline run
       await this.saveOfflineAnswer(false, answer)
       
@@ -1069,7 +1177,7 @@ export default {
       }
     },
     /*
-     * Track message sent 
+     * Track message sent
      */
     async trackMessage (message) {
       if (message === 'suggestInventory') {
@@ -1086,7 +1194,7 @@ export default {
       if (!this.offline.active) {
         response = await RunService.getMarkerNextStep(this.questId, answer, this.player)
       }
-      
+
       if (response && response.data) {
         // check if a step is triggered
         if (response.data.next) {
@@ -1098,7 +1206,7 @@ export default {
         // try to find step offline
         next = await this.getNextOfflineStep(this.questId, answer, this.player)
       }
-      
+
       if (next) {
         // if quest is finished
         if (next === 'end') {
@@ -1113,7 +1221,7 @@ export default {
         } else {
           //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + next + '/' + this.$route.params.lang)
           this.moveToStep(next)
-        }        
+        }
       }
     },
     hideHint() {
@@ -1167,7 +1275,7 @@ export default {
         this.moveToStep(this.$store.state.history.items[this.$store.state.history.index])
         //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
         return
-      } 
+      }
       // reload step to remove notifications
       this.loadStepData = false
       if (this.next.enabled) {
@@ -1181,7 +1289,7 @@ export default {
             message: this.$t('label.ConfirmPass'),
             ok: this.$t('label.Ok'),
             cancel: this.$t('label.Cancel')
-          }).onOk(async () => {          
+          }).onOk(async () => {
             await this.passStep()
           }).onCancel(() => {})
         }
@@ -1191,9 +1299,9 @@ export default {
       if (!this.offline.active) {
         await RunService.passStep(this.runId, this.step.id, this.player)
       }
-      
+
       await this.passOfflineStep(this.step.id)
-      
+
       // TODO: manage if pass failed
       await this.moveToNextStep('pass')
     },
@@ -1207,7 +1315,7 @@ export default {
       this.next.enabled = false
       this.next.suggest = false
       this.next.canPass = false
-      
+
       // force camera flow to hide
       if (this.step.type === 'locate-item-ar' || this.step.type === 'image-over-flow') {
         if (this.isIOs) {
@@ -1215,7 +1323,7 @@ export default {
           CameraPreview.stopCamera() // calling twice is needed
         }
       }
-      
+
       //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + type + '_' + this.step.stepId + '_' + utils.randomId() + '/' + this.$route.params.lang)
       this.moveToStep()
     },
@@ -1233,7 +1341,7 @@ export default {
       }
       if (previousOK) {
         //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
-        this.moveToStep(this.$store.state.history.items[this.$store.state.history.index]) 
+        this.moveToStep(this.$store.state.history.items[this.$store.state.history.index])
       }
     },
     /*
@@ -1267,7 +1375,7 @@ export default {
      * Get the hint and display
      */
     async getHint() {
-      var hintLabel 
+      var hintLabel
       if (!this.offline.active) {
         hintLabel = await RunService.getHint(this.runId, this.step.stepId, this.run.version)
       }
@@ -1298,6 +1406,7 @@ export default {
       this.info.isOpened = false
       this.hint.isOpened = false
       this.footer.tabSelected = 'none'
+      this.chat.isOpened = false
     },
     hideFooterButtons() {
       this.footer.show = false
@@ -1320,7 +1429,7 @@ export default {
       if (!this.offline.active) {
         response = await RunService.listWonObjects(this.questId, this.runId)
       }
-      
+
       if (response && response.data) {
         this.inventory.items.length = 0
         for (var i = 0; i < response.data.length; i++) {
@@ -1381,7 +1490,7 @@ export default {
      * Restart the game
      */
     async restartGame() {
-      var self = this         
+      var self = this
       this.$q.dialog({
         dark: true,
         message: this.$t('label.AreYouSureToRestartThisQuest'),
@@ -1454,11 +1563,11 @@ export default {
         await this.initData()
         return
       }
-      this.startDate.remainingDays = Math.floor(diff / 86400) 
-      this.startDate.remainingHours = Math.floor((diff - this.startDate.remainingDays * 86400) / 3600) 
-      this.startDate.remainingMinutes = Math.floor((diff - this.startDate.remainingDays * 86400 - this.startDate.remainingHours * 3600) / 60) 
-      this.startDate.remainingSeconds = Math.floor(diff % 60) 
-      
+      this.startDate.remainingDays = Math.floor(diff / 86400)
+      this.startDate.remainingHours = Math.floor((diff - this.startDate.remainingDays * 86400) / 3600)
+      this.startDate.remainingMinutes = Math.floor((diff - this.startDate.remainingDays * 86400 - this.startDate.remainingHours * 3600) / 60)
+      this.startDate.remainingSeconds = Math.floor(diff % 60)
+
       utils.setTimeout(this.computeRemainingTime, 1000)
     },
     /*
@@ -1475,7 +1584,7 @@ export default {
 
       // check if the quest data are not already saved on device
       let isQuestOfflineLoaded = await QuestService.isCached(id)
-      
+
       if (!isQuestOfflineLoaded || forceNetworkLoading) {
         let response = await QuestService.getLastById(id)
         if (response && response.data) {
@@ -1675,7 +1784,7 @@ export default {
           questData: {
             picture: this.info.quest.picture,
             thumb: this.info.quest.thumb || 'default-quest-thumb.png',
-            title: this.info.quest.title, 
+            title: this.info.quest.title,
             type: this.info.quest.type,
             zipcode: this.info.quest.location.zipcode,
             town: this.info.quest.location.town,
@@ -1703,7 +1812,7 @@ export default {
       }
       // check if user has already played this step in current run
       var stepAlreadyPlayed = await this.checkIfStepIsAlreadyPlayedInRun(this.step.stepId, this.player)
-       
+
       // add conditions
       var conditions = this.run.conditionsDone
 
@@ -1725,7 +1834,7 @@ export default {
           conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player)
         /*}*/
         ended = true
-        
+
         if (this.hint.used || this.nbTry > 1) {
           score = this.step.points / 2
         } else {
@@ -1746,9 +1855,9 @@ export default {
           conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player)
         /*}*/
       }
-      
+
       // compute nb points
-      var answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: 1, ended: ended, score: score, reward: 0, status: stepStatus, useHint: false, date: new Date(), online: false} 
+      var answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: 1, ended: ended, score: score, reward: 0, status: stepStatus, useHint: false, date: new Date(), online: false}
       // add new item in inventory
       if (this.step.type === 'new-item') {
         if (this.run.inventory) {
@@ -1760,7 +1869,7 @@ export default {
           conditions.push('objectWon_' + this.step.stepId)
         }
       }
-      
+
       if (!stepAlreadyPlayed) {
         // save answer
         var update = false
@@ -1781,12 +1890,12 @@ export default {
           this.run.answers.push(answer)
         }
       }
-      
+
       // update conditions done
       this.run.conditionsDone = conditions
-      
+
       let updateAnswer = await this.saveOfflineRun(this.questId, this.run)
-     
+
       if (updateAnswer) {
         return true
       }
@@ -1816,7 +1925,7 @@ export default {
         // check if step is available today
         const today = new Date()
         const startDate = Date.UTC(step.startDate.date.substr(0, 4), step.startDate.date.substr(5, 2), step.startDate.date.substr(8, 2), 0, 0, 0)
-        
+
         if (today < startDate) {
           return {message: "Step not yet available", date: step.startDate.date}
         }
@@ -1832,7 +1941,7 @@ export default {
         return false
       }
       run.dateUpdated = new Date()
-      
+
       let status = await utils.writeInFile(this.questId, 'run_' + questId + '.json', JSON.stringify(run), true)
 
       if (status) {
@@ -1847,7 +1956,7 @@ export default {
      */
     async getNextOfflineStep(questId, markerCode, player) {
       var steps = []
-      
+
       // check if user is currently navigating in quest history
       await this.updateOfflineRun(questId)
       if (this.run.history && this.run.historyIndex < this.run.history.length) {
@@ -1855,7 +1964,7 @@ export default {
         await this.saveOfflineRun(questId, this.run)
         return this.run.history[this.run.historyIndex - 1]
       }
-      
+
       // read all steps
       if (this.info.quest.steps) {
         for (var i = 0; i < this.info.quest.steps.length; i++) {
@@ -1863,7 +1972,7 @@ export default {
           steps.push(JSON.parse(step))
         }
       }
-      
+
       // get current chapter
       var chapter = this.run.currentChapter
       if (!chapter) {
@@ -1880,7 +1989,7 @@ export default {
         var markersSteps = await this.listSpecificTypeForAChapter(steps, chapter, 'locate-marker')
         var stepsThatFit = []
         if (markersSteps && markersSteps.length > 0) {
-          markerStepListFor: 
+          markerStepListFor:
           for (i = 0; i < markersSteps.length; i++) {
             // check if marker is not the good one
             if (markerCode && markersSteps[i].answers !== markerCode) {
@@ -1903,7 +2012,7 @@ export default {
             }
           }
         }
-    
+
         // if no condition fit, stop the process
         if (stepsThatFit.length === 0) {
           return false
@@ -1931,12 +2040,12 @@ export default {
           this.run.currentStep = stepId
         }
       }
-      
+
       // list the steps for the chapter
       var stepsofChapter = await this.listForAChapter(steps, chapter, player)
       var locationMarkerFound = false
       if (stepsofChapter && stepsofChapter.length > 0) {
-        stepListFor: 
+        stepListFor:
         for (i = 0; i < stepsofChapter.length; i++) {
           // check if the step is not already done
           if (this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
@@ -1956,13 +2065,13 @@ export default {
                 continue stepListFor
               }
             }
-            // if step is end of chapter 
+            // if step is end of chapter
             if (stepsofChapter[i].type === 'end-chapter') {
               if (stepsofChapter[i].options && stepsofChapter[i].options.resetHistory) {
                 this.removeHistory()
               }
               let nextStepId
-              
+
               if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
                 this.removeAllConditionsOfAChapter(steps, this.run.conditionsDone, stepsofChapter[i].chapterId)
               } else {
@@ -1983,7 +2092,7 @@ export default {
           }
         }
       }
-      
+
       // if no next step, check if the type of the quest is simple => end quest
       if (this.info.quest && this.info.quest.editorMode === 'simple' && !locationMarkerFound) {
         let nextStepId = await this.moveToNextChapter()
@@ -2118,7 +2227,7 @@ export default {
           currentConditions.push('stepFail' + player + '_' + stepId)
         }
       }
-      
+
       return currentConditions
     },
     /*
@@ -2136,11 +2245,11 @@ export default {
           itemsToRemove.push(i)
         }
       }
-      
+
       for (i = itemsToRemove.length - 1; i >= 0; i--) {
         currentConditions.splice(itemsToRemove[i], 1)
       }
-      
+
       return currentConditions
     },
     /*
@@ -2172,7 +2281,7 @@ export default {
               stepId = stepData.conditions[i].replace('stepDone_', '')
               stepsToReset.push(stepId)
               stepFound = true
-            }  
+            }
           }
         }
         // if the step is not found => exit without removing conditions
@@ -2184,12 +2293,12 @@ export default {
         }
         inc++
       }
-      
+
       // reset steps to have the user plays again until he find the right answer
       for (i = 0; i < stepsToReset.length; i++) {
         currentConditions = this.removeStepFromConditions(currentConditions, stepsToReset[i])
       }
-      
+
       return {found: true, updatedCondition: currentConditions}
     },
     /*
@@ -2198,7 +2307,7 @@ export default {
      * @param   {Array}     currentConditions Current conditions array
      * @param   {String}    chapterId          ID of the chapter
      */
-    async removeAllConditionsOfAChapter(steps, currentConditions, chapterId) {    
+    async removeAllConditionsOfAChapter(steps, currentConditions, chapterId) {
       const stepsofChapter = await this.listForAChapter(steps, chapterId)
       if (stepsofChapter && stepsofChapter.length > 0) {
         for (i = 0; i < stepsofChapter.length; i++) {
@@ -2217,17 +2326,17 @@ export default {
           for (var i = 0; i < this.info.quest.chapters.length; i++) {
             if (this.info.quest.chapters[i] === this.run.currentChapter) {
               if (i < this.info.quest.chapters.length - 1) {
-                nextChapter = this.info.quest.chapters[i + 1] 
+                nextChapter = this.info.quest.chapters[i + 1]
               } else {
                 nextChapter = "end"
               }
             }
           }
         } else {
-          nextChapter = this.info.quest.chapters[0] 
+          nextChapter = this.info.quest.chapters[0]
         }
       }
-      
+
       this.run.currentChapter = nextChapter
       return nextChapter
     },
@@ -2265,28 +2374,54 @@ export default {
       if (!this.info.quest.customization || !this.info.quest.customization.hideFullScreen) {
         document.addEventListener("deviceready", this.swithFullscreenMode, false)
       }
+    },
+    showNotif() {
+      this.$q.notify({
+        message: `Vous avez ${this.$store.state.chatNotification === 1? 'un nouveau message' : this.$store.state.chatNotification + ' nouveaux messages'}`,
+        icon: 'chat',
+        position: 'top',
+        timeout: 5000,
+        actions: [
+          { label: 'Voir', color: 'white', handler: () => this.chat.isOpened = true }
+        ]
+      })
+    }
+  },
+  computed: {
+    chatNotification () {
+      return this.$store.state.chatNotification
+    }
+  },
+  watch: {
+    chatNotification () {
+      if (!chat.isOpened) {
+        if (this.$store.state.chatNotification !== 0){
+          this.showNotif()
+        }
+      }
     }
   }
+
 }
 </script>
 
 <style scoped>
 
   #main-view { padding: 0rem; height: inherit; min-height: inherit; }
-  
+
   #main-view > #play-view { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; }
   #main-view > #play-view > div { height: inherit; min-height: inherit; display: flex; flex-flow: column nowrap; padding-bottom: 8rem; }
-  
+
   #controls {
     display: none
   }
-      
+
   .q-btn, audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
-  
+
   .q-btn { margin-top: 1rem; }
-  
+
   /* right/wrong styles */
-  
+
   .right, .q-btn.right { color: #0a0; background-color: #cfc; box-shadow: 0px 0px 0.3rem 0.3rem #9f9; }
   .wrong, .q-btn.wrong { color: #c22; background-color: #fcc; box-shadow: 0px 0px 0.3rem 0.3rem #f99; }
   .images-block > div.right,
@@ -2305,9 +2440,9 @@ export default {
   .images-block > div .q-btn.wrong {
     visibility: visible;
   }
-  
+
   .actions > div { display: flex; flex-flow: row nowrap; }
   .actions > div > .q-btn { flex-grow: 1; }
   .actions > div > .q-btn:not(:first-child) { flex-grow: 1; margin-left: 1rem; }
-  
+
 </style>
