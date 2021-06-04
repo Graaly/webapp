@@ -394,7 +394,7 @@ export default {
         },
         sound: {
           status: 'play',
-          tempMute : false
+          tempMute: false
         },
         questId: this.$route.params.questId,
         questVersion: this.$route.params.version,
@@ -2363,7 +2363,7 @@ export default {
       if (this.step.type === 'info-video' || (this.step.audioStream && this.step.audioStream !== '')) {
         this.cutSound()
         this.sound.tempMute = true
-      } else if (this.sound.tempMute){
+      } else if (this.sound.tempMute) {
         this.cutSound()
       }
     },
