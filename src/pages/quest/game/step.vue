@@ -922,6 +922,7 @@ export default {
     sendStepIdToParent () {
       try {
         if (window.self !== window.top) {
+          document.domain = "graaly.com"
           parent.document.getElementById("stepid").value = this.step.id
         }
       } catch (e) {
