@@ -28,6 +28,7 @@
             <q-input
               outlined
               :label="$t('label.TeamName')"
+              v-if="option !== 'individual'"
               v-model="form.teamName"
               @blur="$v.form.teamName.$touch"
               :error="$v.form.teamName.$error"
@@ -36,7 +37,7 @@
             
             <q-input
               outlined
-              :label="$t('label.YourName')"
+              :label="$t('label.YourFullName')"
               v-model="form.name"
               @blur="$v.form.name.$touch"
               :error="$v.form.name.$error"
@@ -48,7 +49,7 @@
               type="submit"
               class="glossy large-btn"
               color="primary" 
-              :label="$t('label.SignIn')"
+              :label="$t('label.Start')"
               :loading="submitting" 
               />
           </div>
@@ -68,13 +69,14 @@ import AuthService from 'services/AuthService'
 import RunService from 'services/RunService'
 import { required } from 'vuelidate/lib/validators'
 import Notification from 'boot/NotifyHelper'
-//import utils from 'src/includes/utils'
+import utils from 'src/includes/utils'
 
 export default {
   data() {
     return {
       questId: this.$route.params.id,
       lang: this.$route.params.lang,
+      option: this.$route.params.option ? this.$route.params.option : 'none',
       form: {
         teamId: '',
         teamName: '',
@@ -90,6 +92,9 @@ export default {
     // if user is connected, redirect to the quest - Only for anonymous users
     if (this.$store && this.$store.state && this.$store.state.user && this.$store.state.user.name && this.$store.state.user.name === '-') {
       this.$router.push('/quest/play/' + this.questId)
+    }
+    if (this.option === 'individual') {
+      this.form.teamName = utils.randomId()
     }
   },
   methods: {

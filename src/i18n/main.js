@@ -1060,7 +1060,8 @@ module.exports = {
       OverQuotaMessage: "You reach the file storage limit",
       RemoveFiles: "Remove files",
       InvalidTeamID: "Invalid team ID",
-      hideFullScreen: "Do not display full screen (Android)"
+      HideFullScreen: "Do not display full screen (Android)",
+      YourFullName: "Your full name"
     }
   },
   fr: {
@@ -2111,7 +2112,8 @@ module.exports = {
       OverQuotaMessage: "Vous avez atteind la limite de stockage",
       RemoveFiles: "Supprimer des fichiers",
       InvalidTeamID: "Identifiant d'équipe invalide",
-      hideFullScreen: "Ne pas affiche en plein écran (Android)"
+      HideFullScreen: "Ne pas affiche en plein écran (Android)",
+      YourFullName: "Votre nom complet"
     }
   }
 }
