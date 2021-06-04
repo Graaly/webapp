@@ -24,6 +24,15 @@ export default {
    * list players that played this quest
    * @param   {String}    questId                  ID of the quest
    */
+  listScoresForThisQuest(questId) {
+    return Api()
+      .get("run/quest/" + questId + "/ranking/scores")
+      .catch(error => console.log(error.request));
+  },
+  /*
+   * Get user score
+   * @param   {String}    questId                  ID of the quest
+   */
   listPlayersForThisQuest(questId) {
     return Api()
       .get("run/quest/" + questId + "/ranking/friends")

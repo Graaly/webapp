@@ -111,8 +111,8 @@
         </div>
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
           <div class="fixed-top align-right full-width q-pa-lg" v-if="info && info.audio !== ''">
-            <q-btn v-if="sound && sound.status === 'play'" flat color="white" @click="cutSound" icon="volume_off"></q-btn>
-            <q-btn v-if="sound && sound.status === 'pause'" flat color="white" @click="cutSound" icon="volume_up"></q-btn>
+            <q-btn v-if="sound && sound.status === 'play'" color="primary" @click="cutSound" icon="volume_off"></q-btn>
+            <q-btn v-if="sound && sound.status === 'pause'" color="primary" @click="cutSound" icon="volume_up"></q-btn>
           </div>
           <div class="text-center dark-banner q-pb-xl q-pt-md fixed-bottom">
             <p class="title">
@@ -393,7 +393,8 @@ export default {
           canPass: false
         },
         sound: {
-          status: 'play'
+          status: 'play',
+          tempMute : false
         },
         questId: this.$route.params.questId,
         questVersion: this.$route.params.version,
@@ -467,9 +468,12 @@ export default {
       this.$q.loading.show()
       // get quest information
       await this.getQuest(this.questId)
-
+      
+      // Start audio
       this.getAudioSound()
-
+      
+      this.startFullScreen()
+      
       this.loadStepData = false
 
       // get current run or create it
@@ -481,9 +485,10 @@ export default {
 
       // get current step
       await this.getStep()
-
-      console.log(this.run)
-
+      
+      // send stepId to parent if in a frame
+      this.sendStepIdToParent()
+      
       // send once on start
       this.SendData();
       // the every 15 seconds
@@ -491,7 +496,6 @@ export default {
         this.SendData();
       }, 15000);
 
-      // geolocation.
       // manage history
       this.updateHistory()
       
@@ -612,10 +616,16 @@ export default {
 
       // get current step
       await this.getStep(false, forceStepId)
-
+      
+      // send stepId to parent if in a frame
+      this.sendStepIdToParent()
+      
       // manage history
       this.updateHistory()
-
+      
+      // manage audio
+      this.manageAudio()
+      
       // check if user already played the step
       this.checkIfAlreadyPlayed()
 
@@ -782,6 +792,11 @@ export default {
 
       this.warnings.stepDataMissing = false
       var stepId
+      
+      // force network loading based on quest configuration
+      if (this.info.quest.customization && this.info.quest.customization.forceOnline) {
+        forceNetworkLoading = true
+      }
       // if no stepId given, load the next one
       //if (this.$route.params.stepId && this.$route.params.stepId !== '0' && this.$route.params.stepId.indexOf('success_') === -1 && this.$route.params.stepId.indexOf('pass_') === -1) {
       if (forceStepId) {
@@ -1007,6 +1022,19 @@ export default {
 
           return true
         }
+      }
+    },
+    /*
+     * Send stepId to parent frame
+     */
+    sendStepIdToParent () {
+      try {
+        if (window.self !== window.top) {
+          document.domain = "graaly.com"
+          parent.document.getElementById("stepid").value = this.step.id
+        }
+      } catch (e) {
+        console.log(e)
       }
     },
     /*
@@ -1548,6 +1576,11 @@ export default {
      */
     async getQuest(id, forceNetworkLoading) {
       this.warnings.questDataMissing = false
+      
+      // force network loading based on quest configuration
+      if (this.info.quest.customization && this.info.quest.customization.forceOnline) {
+        forceNetworkLoading = true
+      }
 
       // check if the quest data are not already saved on device
       let isQuestOfflineLoaded = await QuestService.isCached(id)
@@ -2319,7 +2352,27 @@ export default {
         } else {
           audio.play()
           this.sound.status = 'play'
+          this.sound.tempMute = false
         }
+      }
+    },
+    /*
+     * cut audio for video or step with audio
+     */
+    manageAudio () {
+      if (this.step.type === 'info-video' || (this.step.audioStream && this.step.audioStream !== '')) {
+        this.cutSound()
+        this.sound.tempMute = true
+      } else if (this.sound.tempMute){
+        this.cutSound()
+      }
+    },
+    swithFullscreenMode() {
+      AndroidFullScreen.immersiveMode()
+    },
+    startFullScreen() {
+      if (!this.info.quest.customization || !this.info.quest.customization.hideFullScreen) {
+        document.addEventListener("deviceready", this.swithFullscreenMode, false)
       }
     },
     showNotif() {

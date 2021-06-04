@@ -910,7 +910,7 @@ module.exports = {
       SplitMessageWithPipe: "Add pipes '|' if you want to split your text in several bubbles",
       ClickHere: "Click here",
       FollowTheCreator: "Follow the creator",
-      PlayersNumber: "Minimum number of players (BETA)",
+      PlayersNumber: "Number of smartphone to play (BETA)",
       helpQuestMultiplayer: "This define the minimum number of players to play the game. Each player will have his phone, and should have specific missions in the game. For more information about multiplayer, please watch our Youtube tutorials",
       ThisIsAMultiplayerGame: "This game is multiplayer",
       JoinATeam: "Join a team",
@@ -1059,7 +1059,8 @@ module.exports = {
       RemoveGPSLocation: "Remove this location",
       OverQuotaMessage: "You reach the file storage limit",
       RemoveFiles: "Remove files",
-      InvalidTeamID: "Invalid team ID"
+      InvalidTeamID: "Invalid team ID",
+      hideFullScreen: "Do not display full screen (Android)"
     }
   },
   fr: {
@@ -1960,7 +1961,7 @@ module.exports = {
       SplitMessageWithPipe: "Ajouter le signe '|' pour séparer votre texte dans plusieurs bulles",
       ClickHere: "Cliquez ici",
       FollowTheCreator: "Suivez le créateur",
-      PlayersNumber: "Nombre de joueurs mini (BETA)",
+      PlayersNumber: "Nombre de téléphones requis pour jouer (BETA)",
       helpQuestMultiplayer: "Cela défini le nombre de joueur minimum pour que le jeu soit jouable. Chaque joueur devra avoir un téléphone, et aura un rôle différent dans le jeu. Pour plus d'informations sur le mode multijoueur, regardez nos tutos Youtube",
       ThisIsAMultiplayerGame: "Ce jeu se joue en équipe",
       JoinATeam: "Rejoindre une équipe",
@@ -2109,7 +2110,8 @@ module.exports = {
       RemoveGPSLocation: "Supprimer cette localisation",
       OverQuotaMessage: "Vous avez atteind la limite de stockage",
       RemoveFiles: "Supprimer des fichiers",
-      InvalidTeamID: "Identifiant d'équipe invalide"
+      InvalidTeamID: "Identifiant d'équipe invalide",
+      hideFullScreen: "Ne pas affiche en plein écran (Android)"
     }
   }
 }

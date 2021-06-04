@@ -1010,7 +1010,7 @@ export default {
       this.shop.show = false
       this.multiplayer.show = false
       this.showPreloaderPopup = true
-      if (this.isHybrid) {
+      if (this.isHybrid && (!this.quest.customization || !this.quest.customization.forceOnline)) {
         this.offline.show = true
       } else {
         var _this = this;

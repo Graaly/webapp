@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "1420e6b2cc93fd78c783",
-    "url": "css/app.8d88690c.css"
+    "revision": "d3f327c383e64652abbf",
+    "url": "css/app.88cfc5f4.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -72,7 +72,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "9a901ca917f70f31c6b8cedf891a6ab3",
+    "revision": "a2150b6f9462cd48a61d1ebcca76c9d7",
     "url": "index.html"
   },
   {
@@ -80,16 +80,208 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2.5af11629.js"
   },
   {
-    "revision": "1420e6b2cc93fd78c783",
-    "url": "js/app.98739c9d.js"
+    "revision": "d3f327c383e64652abbf",
+    "url": "js/app.13c9f745.js"
   },
   {
-    "revision": "01de62e184d3c5323524",
-    "url": "js/vendor.01de62e1.js"
+    "revision": "9eaa325ac78d0638cccc",
+    "url": "js/vendor.9eaa325a.js"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
     "url": "manifest.json"
+  },
+  {
+    "revision": "639c28df389957d65480c05c21c5ee04",
+    "url": "statics/cars/beard-1.png"
+  },
+  {
+    "revision": "7637e671de5e33cf3909282bcda1c9d2",
+    "url": "statics/cars/beard-2.png"
+  },
+  {
+    "revision": "ff1cd289950d8f2e7390c4a394123637",
+    "url": "statics/cars/beard-3.png"
+  },
+  {
+    "revision": "f728e8683b42ff41d8a5d7b50db6e34d",
+    "url": "statics/cars/eye-1.png"
+  },
+  {
+    "revision": "dd823294a364837d662770b334cba905",
+    "url": "statics/cars/eye-2.png"
+  },
+  {
+    "revision": "750ad188d55522369ff1f51d4644e17f",
+    "url": "statics/cars/eye-3.png"
+  },
+  {
+    "revision": "b054a4bb33f00370b6ee9c7e9486b161",
+    "url": "statics/cars/eye-4.png"
+  },
+  {
+    "revision": "1f2196432b0ff9d49d1f6b66d6afa016",
+    "url": "statics/cars/eye-5.png"
+  },
+  {
+    "revision": "e5721a4cc7146a1591e3bf4c19aaa270",
+    "url": "statics/cars/face-1.png"
+  },
+  {
+    "revision": "0e9c6f6b373d5ebf13ab233397870b96",
+    "url": "statics/cars/face-2.png"
+  },
+  {
+    "revision": "29423e976ab2e97a42f21f42cf7db58f",
+    "url": "statics/cars/face-3.png"
+  },
+  {
+    "revision": "b633d1e18e5cdc9c3930515ad4ac131b",
+    "url": "statics/cars/face-4.png"
+  },
+  {
+    "revision": "8e18175fee8dded22d13110d3fdf24c1",
+    "url": "statics/cars/face-5.png"
+  },
+  {
+    "revision": "d15fd3878184f556b24c8d3d5a3328bd",
+    "url": "statics/cars/face-6.png"
+  },
+  {
+    "revision": "9ae00de725b685b4acbac1c634f358c0",
+    "url": "statics/cars/face-7.png"
+  },
+  {
+    "revision": "257ae833d2ceda07d12a5b5d25c37b27",
+    "url": "statics/cars/glass-1.png"
+  },
+  {
+    "revision": "374f7a3269454fdb90c215d75f4102ee",
+    "url": "statics/cars/glass-2.png"
+  },
+  {
+    "revision": "a241b080222f83108f22513b62b9de35",
+    "url": "statics/cars/glass-3.png"
+  },
+  {
+    "revision": "f938dc770ea4ec99f52edf2fc5723f90",
+    "url": "statics/cars/glass-4.png"
+  },
+  {
+    "revision": "f4c8ec14b362d9cf48abc0afc5a7cb1d",
+    "url": "statics/cars/glass-5.png"
+  },
+  {
+    "revision": "b7f326c8564022035898af624a8ae07c",
+    "url": "statics/cars/glass-6.png"
+  },
+  {
+    "revision": "df8bcec3fcd84664cb88068eafbe27db",
+    "url": "statics/cars/glass-7.png"
+  },
+  {
+    "revision": "6fb0e5ae8416bf737a9186bfe7a369e5",
+    "url": "statics/cars/glass-8.png"
+  },
+  {
+    "revision": "0a64ea629d778fa6bd3140b07c4bca07",
+    "url": "statics/cars/hair-1.png"
+  },
+  {
+    "revision": "8d1e105006f727270e839c233d6d0610",
+    "url": "statics/cars/hair-2.png"
+  },
+  {
+    "revision": "b4ae3c00bf622de3e3adb16ca9968691",
+    "url": "statics/cars/hair-3.png"
+  },
+  {
+    "revision": "63a6a38e9d3dfcd977c772e5fb58641e",
+    "url": "statics/cars/hair-4.png"
+  },
+  {
+    "revision": "654b3a5d0f30bf8a851c6a086e542f5a",
+    "url": "statics/cars/hair-5.png"
+  },
+  {
+    "revision": "2522f11ed30590f76e98711d979457bc",
+    "url": "statics/cars/hair-6.png"
+  },
+  {
+    "revision": "60a547c1299633dc144d8124ea198f99",
+    "url": "statics/cars/hair-7.png"
+  },
+  {
+    "revision": "873a74193ab47a19693cfbfe6c433ab2",
+    "url": "statics/cars/hair-8.png"
+  },
+  {
+    "revision": "1cb4b8deee59632f96d19b7230a7d61c",
+    "url": "statics/cars/hat-1.png"
+  },
+  {
+    "revision": "50693d9b8fab9b4b806e336a1e0ca8c0",
+    "url": "statics/cars/hat-2.png"
+  },
+  {
+    "revision": "7e853e892934023c528a4355cc05bddd",
+    "url": "statics/cars/hat-3.png"
+  },
+  {
+    "revision": "5fe8b3dc53480b59e0b2611a3b7957bd",
+    "url": "statics/cars/hat-4.png"
+  },
+  {
+    "revision": "f47a3c0b79f331248e60b5b5ff7d9266",
+    "url": "statics/cars/hat-5.png"
+  },
+  {
+    "revision": "5b0020f20a6d666a59fd9c73b7694077",
+    "url": "statics/cars/hat-6.png"
+  },
+  {
+    "revision": "3503f6cb890d03da4b9b55c82f7b0af1",
+    "url": "statics/cars/mouth-1.png"
+  },
+  {
+    "revision": "df418feed0e8da06d6f237f96a87ad24",
+    "url": "statics/cars/mouth-2.png"
+  },
+  {
+    "revision": "bd0907486dc8eeb624b7ab57361da78a",
+    "url": "statics/cars/mouth-3.png"
+  },
+  {
+    "revision": "243d9a96ec9792f303f8195a8044a113",
+    "url": "statics/cars/mouth-4.png"
+  },
+  {
+    "revision": "f7c1c03100a494ae8dcb29a7327a853c",
+    "url": "statics/cars/mouth-5.png"
+  },
+  {
+    "revision": "f3f7f7479ee9e0117c7308d1c98ef999",
+    "url": "statics/cars/mouth-6.png"
+  },
+  {
+    "revision": "7c74fbd4bfbd492df6077185ecb28124",
+    "url": "statics/cars/mouth-7.png"
+  },
+  {
+    "revision": "5b230c895aa0ee68f0269a2a930bbfef",
+    "url": "statics/cars/mouth-8.png"
+  },
+  {
+    "revision": "314909307f20129c3e4c7ac22099423c",
+    "url": "statics/cars/nose-1.png"
+  },
+  {
+    "revision": "9bf1246e4b92079abbec325298ce1a43",
+    "url": "statics/cars/nose-2.png"
+  },
+  {
+    "revision": "23472d0cb07a3fcd0c325ea01fb654d9",
+    "url": "statics/cars/nose-3.png"
   },
   {
     "revision": "8a03c2a835f6de88c69150700aee1642",
@@ -412,7 +604,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/story/character9_attitude1.png"
   },
   {
-    "revision": "e5b8c8c5e070ae79e3ab38da1773d237",
+    "revision": "4e185ad443665a614a9855349dcca856",
     "url": "statics/icons/story/sticker-bottom.png"
   },
   {

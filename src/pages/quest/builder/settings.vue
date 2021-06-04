@@ -496,6 +496,13 @@
                     v-model="form.fields.customization.hideInventory"
                     />
                 </div>
+                <div>
+                  <q-toggle
+                    :readonly="readOnly"
+                    :label="$t('label.HideFullScreen')"
+                    v-model="form.fields.customization.hideFullScreen"
+                    />
+                </div>
                 <div v-if="this.quest.type === 'quest' && form.fields.editorMode === 'advanced'">
                   <q-input
                     :disable="readOnly"
@@ -1384,7 +1391,7 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '', font: 'standard', qrCodeMessage: {fr: '', en: ''}, hideInventory: false },
+          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '', font: 'standard', qrCodeMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false },
           rewardPicture: '',
           readMoreLink: '',
           limitNumberOfPlayer: 0,
@@ -3003,7 +3010,7 @@ export default {
      * list the scores
      */
     async getPrivateRanking () {
-      var results = await RunService.listPlayersForThisQuest(this.questId)
+      var results = await RunService.listScoresForThisQuest(this.questId)
       if (results && results.data) {
         this.ranking.items = results.data
         this.ranking.items.sort(this.compareScore)
