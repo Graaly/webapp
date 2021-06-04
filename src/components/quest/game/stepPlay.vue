@@ -1430,7 +1430,6 @@ export default {
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
           
           if (this.isHybrid && !this.isIOS) {
-
             // IOS is not tested for now, hence why we are not using it 
             cordova.plugins.headingcalibration.watchCalibration(
               (accuracy) => {
@@ -1576,7 +1575,7 @@ export default {
             CameraPreview.startCamera(options)
             //CameraPreview.setColorEffect("redfilter")
             CameraPreview.show()
-            setTimeout(function() {_this.$q.loading.hide()}, 5000)
+            setTimeout(function() { _this.$q.loading.hide() }, 5000)
           } else {
             this.launchVideoStreamForAndroid('camera-stream-for-image-over-flow', true)
           }
@@ -4415,7 +4414,7 @@ export default {
       } else {
         this.audio = null
       }
-    },
+    }
   }
 }
 </script>

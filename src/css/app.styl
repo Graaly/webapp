@@ -6,7 +6,7 @@
   #main-view {
     display: none
   }
-} 
+}
 @media (max-width: 1620px) {*/
 
 #screen-too-large {
@@ -81,7 +81,7 @@ body {
   top: constant(safe-area-inset-top); /* iOS 11.0 */
   top: env(safe-area-inset-top); /* iOS 11.2 */
 }
-#q-app { 
+#q-app {
   min-height: 100%;
   height: 100%;
 }
@@ -96,17 +96,17 @@ body {
   overflow-y: hidden;
   height: 100%;
 }*/
-#main-view { 
-  padding: 0rem; 
-  height: inherit; 
+#main-view {
+  padding: 0rem;
+  height: inherit;
   min-height: inherit;
 }
 #main-view > div.wrapper {
-  /*height: inherit; 
-  min-height: inherit; 
-  display: flex; 
+  /*height: inherit;
+  min-height: inherit;
+  display: flex;
   flex-flow: column nowrap;*/
-}  
+}
 .grow {
   flex-grow: 1;
 }
@@ -384,7 +384,7 @@ a.no-underline {
  * fix quasar issue with "maximized" property on <q-dialog>, which can prevent scrolling on Android
  * tried to prevent scrolling "above limits" on iOS, using those solutions https://stackoverflow.com/a/39821505/488666, but no luck
  */
- 
+
 .q-dialog__inner--maximized {
   overflow-y: scroll;
   padding: 0.5rem; /* nicer layout / UI */
@@ -435,17 +435,17 @@ a.no-underline {
   width: 50%;
 }
 .mobile .full-page-div {
-  position: absolute; 
-  top:0; 
-  left: 0; 
-  right: 0; 
-  bottom: 0; 
+  position: absolute;
+  top:0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 7003;
   top: constant(safe-area-inset-top); /* iOS 11.0 */
   top: env(safe-area-inset-top); /* iOS 11.2 */
 }
 .desktop .full-page-div {
-  position: relative; 
+  position: relative;
   width: 600px;
 }
 .full-page-div .scroll {
@@ -497,14 +497,14 @@ a.no-underline {
 /////////////////////////////// Panel CSS /////////////////////////////////////
 
 .panel-bottom {
-  position: fixed; 
-  bottom: 0; 
-  left: 0; 
+  position: fixed;
+  bottom: 0;
+  left: 0;
   top: 0;
   top: constant(safe-area-inset-top); /* iOS 11.0 */
   top: env(safe-area-inset-top); /* iOS 11.2 */
-  width: 100%; 
-  height: 100%; 
+  width: 100%;
+  height: 100%;
   overflow-y: scroll;
   z-index: 100;
 }
@@ -853,7 +853,7 @@ a.no-underline {
 }
 
 .logo-top {
-  width: 40%; 
+  width: 40%;
   max-width: 200px;
   margin-top: 40px;
   margin-bottom: 20px;
@@ -1190,17 +1190,17 @@ span .q-icon {
 
 /////////////////////////////// Forms CSS /////////////////////////////////////
 
-.location-address { 
-  display: flex; 
-  flex-flow: row nowrap; 
-  justify-content: center; 
-  align-items: center; 
+.location-address {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
 }
-.location-address .q-input { 
-  flex-grow: 1 
+.location-address .q-input {
+  flex-grow: 1
 }
-.location-address img { 
-  width: 2.5rem; 
+.location-address img {
+  width: 2.5rem;
   height: 2.5rem;
 }
 
@@ -1467,7 +1467,7 @@ span .q-icon {
 /////////////////////////////// Desktop Only CSS /////////////////////////////////////
 
 /* manage desktop display
-.desktop #main-view, .desktop .story>div, .desktop .bottom-dark-banner, .desktop .fixed-bottom, 
+.desktop #main-view, .desktop .story>div, .desktop .bottom-dark-banner, .desktop .fixed-bottom,
 .desktop .panel-bottom, .desktop .direction-helper, .desktop .map, .desktop .fullscreen,
 .desktop .q-drawer, .desktop #teaser>div, .desktop .full-page-div {
   max-width: 500px !important;
@@ -1530,23 +1530,23 @@ body .desktop {
   right: 0;
 }
 .desktop .fixed-bottom-story {
-  width: 100%; 
-  max-width: 600px; 
+  width: 100%;
+  max-width: 600px;
   height: 100%;
-  position: fixed; 
+  position: fixed;
   bottom: 0px;
 }
 .mobile .step-background {
-  width: 100%; 
-  height: 100%; 
-  position: absolute; 
-  left: 0; 
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
   top: 0;
 }
 .desktop .step-background {
-  width: 100%; 
-  height: 100%; 
-  position: absolute; 
+  width: 100%;
+  height: 100%;
+  position: absolute;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
@@ -1568,16 +1568,16 @@ body .desktop {
 
 /////////////////////////////// STEPS CSS /////////////////////////////////////
 
-.portrait-robot div img { 
+.portrait-robot div img {
   width: 100%;
 }
 .portrait-robot .absolute {
   top: 0;
   left: 0;
 }
-.portrait-robot .portrait-parts { 
-  width: 100%; 
-  margin-left: auto; 
+.portrait-robot .portrait-parts {
+  width: 100%;
+  margin-left: auto;
   margin-right: auto;
 }
 .portrait-robot .portrait-parts img {
@@ -1642,8 +1642,8 @@ body .desktop {
   text-shadow: none;
 }
 .map {
-  width: 100%; 
-  height: 100%; 
+  width: 100%;
+  height: 100%;
 }
 .big-avatar, .mid-avatar {
   border-radius: 50%;
@@ -1719,27 +1719,27 @@ body .desktop {
 .q-carousel__navigation {
   z-index: 1; /* otherwise bottom navigation "dots" are not clickable (under the layer containing the left & right arrows) */
 }
-.list-group { 
-  list-style-type: none; 
-  padding: 0; 
-  margin: 0; 
+.list-group {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
 }
-.list-group-item { 
-  display: flex; 
-  flex-flow: row nowrap; 
+.list-group-item {
+  display: flex;
+  flex-flow: row nowrap;
   align-items: center;
   padding: 0 0 0.4rem 0;
 }
 .list-group-item p {
   height: 30px;
 }
-.list-group-item div { 
+.list-group-item div {
   flex-grow: 1;
   padding: 0;
   margin: 0;
   line-height: 3rem;
 }
-.list-group-item div.q-badge { 
+.list-group-item div.q-badge {
   padding: 2px 6px;
 }
 .step-list.list-group-item div {
@@ -1770,26 +1770,26 @@ body .desktop {
   padding-top: 0.4rem;
 }
 
-.list-group-item .handle { 
-  font-size: 2rem; 
-  padding-right: 0.3rem; 
+.list-group-item .handle {
+  font-size: 2rem;
+  padding-right: 0.3rem;
   cursor: move;
 }
-.list-group-item .q-btn { 
+.list-group-item .q-btn {
   width: 3rem
 }
-.inventory-items div { 
-  float: left; 
-  padding: 5px 
-  width: 30vw; 
+.inventory-items div {
+  float: left;
+  padding: 5px
+  width: 30vw;
   height: 40vw;
-  max-width: 250px;  
+  max-width: 250px;
   max-height: 250px;
-  overflow: hidden; 
+  overflow: hidden;
   text-align: center;
 }
-.inventory-items div img { 
-  width: 100%; 
+.inventory-items div img {
+  width: 100%;
 }
 .menu .q-btn .q-icon {
   font-size: 2.4em;
@@ -1913,7 +1913,7 @@ body .desktop {
 }
 /* fix for missing vertical scrolling at end.vue, only for android
 note that .platform-android selector targets both webapp (Chrome) & hybrid on android
-WARNING: introduces bad scrolling behaviors on iOS webapp (Safari) & hybrid 
+WARNING: introduces bad scrolling behaviors on iOS webapp (Safari) & hybrid
 .platform-android .q-layout, .platform-android .q-page-container, .desktop .q-layout, .desktop .q-page-container {
   overflow-y: scroll;
 }
@@ -1931,4 +1931,11 @@ WARNING: introduces bad scrolling behaviors on iOS webapp (Safari) & hybrid
 }
 .align-top {
   align-items: baseline;
+}
+
+  /////////////////////////// CHAT CSS ///////////////////////////////
+.messages .full-width {
+  width: calc(100% - 20px) !important;
+  margin-left: 10px !important;
+  margin-right: 10px !important;
 }

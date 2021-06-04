@@ -26,7 +26,9 @@ const state = {
   // for quest steps, keep track of objects given by setInterval() & setTimeout() to clear them properly & avoid useless calls
   runningIntervalIds: [],
   runningTimeoutsIds: [],
-  mediaStreams: []
+  mediaStreams: [],
+  chatMessages: [],
+  chatNotification: 0
 };
 
 // mutations are operations that actually mutates the state.
@@ -87,6 +89,15 @@ const mutations = {
       stream.getTracks().forEach(track => track.stop());
     }
     state.mediaStreams = [];
+  },
+  setChatMessage (state, data) {
+    state.chatMessages = data
+  },
+  setChatNotification (state, data) {
+    state.chatNotification = data
+  },
+  updateChatNotification (state, data) {
+    state.chatNotification++
   }
 }
 
