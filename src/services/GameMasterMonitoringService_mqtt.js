@@ -23,7 +23,7 @@ let GMMS = {
         chat.getUserMessages(data.userId).then(response => {
           store.commit('setChatMessage', response)
         })
-        if (data.admin){
+        if (data.admin) {
           store.commit('updateChatNotification')
         }
       }

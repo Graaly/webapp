@@ -14,7 +14,7 @@
           class="timer-progress-bar bg-white col"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
           :value="timer"
-          :color="(timer < 0.1 ? 'negative' : ( timer < 0.25 ? 'warning' : 'positive'))""
+          :color="(timer < 0.1 ? 'negative' : ( timer < 0.25 ? 'warning' : 'positive'))"
           style="background-color: white; height: 20px !important;" 
           :instant-feedback = true
         />
@@ -876,6 +876,7 @@ export default {
     })
   }, 250),
   beforeDestroy() {
+    this.resetEvents();
   },
   methods: {
     initialState () {
@@ -4067,11 +4068,11 @@ export default {
       console.log("Searching for BT peripherals...")
       ble.startScan([], this.bluetoothScanResult)
     },
-    bluetoothScanResult: function(data) {
+    bluetoothScanResult: async function(data) {
       console.log("Device discovered", data)
       console.log(this.step.options.deviceid)
-      if (data.name === this.step.options.deviceid) {
-        this.stopBluetoothScan()
+      if (data.id === this.step.options.deviceid) {
+        await this.stopBluetoothScan()
         console.log("Graaly IoT BT device discovered")
         this.bluetooth.deviceId = data.id;
         ble.connect(data.id, this.bluetoothDeviceConnected, this.bluetoothDeviceDisonnected)
@@ -4575,10 +4576,10 @@ export default {
   
   /* memory specific */
   
-  .memory {
-    /*justify-content: space-around;
-    align-items: center;*/
-  }
+  /*.memory {
+    justify-content: space-around;
+    align-items: center;
+  }*/
 
   .memory .card {
     background: url(/statics/icons/game/card-back.png) #1a4567 no-repeat;
