@@ -990,12 +990,12 @@ module.exports = {
       HelpStepMessageHint: "Display Hint button help",
       HelpStepMessagePrevious: "Display Previous button help",
       HelpStepMessageNext: "Display Next button help",
-      HelpStepMessage: "Welcome in your game interface!\n\nTo play your game, just follow the indications on screen.",
+      HelpStepMessage: "Welcome in your interface!\n\nTo participate, just follow the indications on screen.",
       HelpStepMessageInventoryMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>work</i></span></span></button></div>With the suitcase, you can access and use the objects won during the game.",
       HelpStepMessageHintMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>lightbulb</i></span></span></button></div>With the light bulb, you can access the hints.",
       HelpStepMessagePreviousMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>arrow_back</i></span></span></button></div>Press the back button to move back to the previous step.",
       HelpStepMessageNextMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>arrow_forward</i></span></span></button></div>Press the next button to move to the next step.",
-      HelpStepMessageEnd: "If any problem, do not hesitate to close the application, you will restart to the latest step you played.\n\nGood luck and have fun!",
+      HelpStepMessageEnd: "If any problem, do not hesitate to close the application, you will restart to the latest step you played.",
       KenBurnsEffect: "Zoom out effect on picture",
       Show: "Show",
       Hide: "Hide",
@@ -1061,7 +1061,10 @@ module.exports = {
       RemoveFiles: "Remove files",
       InvalidTeamID: "Invalid team ID",
       HideFullScreen: "Do not display full screen (Android)",
-      YourFullName: "Your full name"
+      YourFullName: "Your full name",
+      TextColor: "Text color",
+      GoodAnswersNumber: "Good answers",
+      PleaseEnterFirstNameAndLastName: "Please type your first name and last name"
     }
   },
   fr: {
@@ -2042,12 +2045,12 @@ module.exports = {
       HelpStepMessageHint: "Afficher l'aide pour le bouton Indice",
       HelpStepMessagePrevious: "Afficher l'aide pour le bouton Retour",
       HelpStepMessageNext: "Afficher l'aide pour le bouton Suivant",
-      HelpStepMessage: "Bienvenu.e.s dans votre interface de jeu !\n\nPour jouer, il vous suffira de suivre les indications à l'écran.",
+      HelpStepMessage: "Bienvenu.e.s dans votre interface !\n\nPour participer, il vous suffira de suivre les indications à l'écran.",
       HelpStepMessageInventoryMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>work</i></span></span></button></div>La valise vous sert à utiliser des objets que vous avez récupérés durant le jeu",
       HelpStepMessageHintMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>lightbulb</i></span></span></button></div>L'ampoule vous sert à obtenir des indices.",
       HelpStepMessagePreviousMessage: "<div class='centered'><button type='button' class='q-btn inline q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>arrow_back</i></span></span></button></div>Pour revenir à l'étape précédente, appuyez sur la flèche de gauche.",
       HelpStepMessageNextMessage: "<div class='centered'><button type='button' class='q-btn q-btn-item non-selectable q-btn--standard q-btn--round q-focusable q-hoverable bg-primary' style='font-size: 20px; color: #fff;'><span class='q-btn__wrapper col row'><span class='q-btn__content text-center col items-center q-anchor--skip justify-center row'><i aria-hidden='true' class='material-icons q-icon'>arrow_forward</i></span></span></button></div>Pour passer à l'étape suivante, appuyez sur la flèche de droite.",
-      HelpStepMessageEnd: "En cas de problème, n'hésitez pas à fermer l'application et à la redémarrer, vous reviendrez à la dernière étape réussie.\n\nBon jeu, et bonne chance !",
+      HelpStepMessageEnd: "En cas de problème, n'hésitez pas à fermer l'application et à la redémarrer, vous reviendrez à la dernière étape réussie.",
       KenBurnsEffect: "Effet de zoom arrière sur l'image",
       Show: "Montrer",
       Hide: "Cacher",
@@ -2113,7 +2116,10 @@ module.exports = {
       RemoveFiles: "Supprimer des fichiers",
       InvalidTeamID: "Identifiant d'équipe invalide",
       HideFullScreen: "Ne pas affiche en plein écran (Android)",
-      YourFullName: "Votre nom complet"
+      YourFullName: "Votre nom complet",
+      TextColor: "Couleur du texte",
+      GoodAnswersNumber: "Bonnes réponses",
+      PleaseEnterFirstNameAndLastName: "Veuillez entrer votre prénom et votre nom"
     }
   }
 }

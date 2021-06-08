@@ -17,6 +17,7 @@
       <div class="q-pa-md">
         <h4 v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage !== ''" v-html="quest.customization.endMessage" />
         <h4 v-if="!quest.customization || !quest.customization.endMessage || quest.customization.endMessage === ''">{{ $t('label.ThanksForPlaying') }}</h4>
+        <div>{{ $t('label.GoodAnswersNumber') }}: {{ nbGoodAnwers }} / {{ nbQuestions }}</div>
       </div>
       <div v-if="isUserAuthor" class="back centered q-pa-md">
         <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
@@ -61,6 +62,9 @@
               </div>
               <div class="centered q-pb-md" v-if="run && ranking && ranking.position && ranking.position !== '-'">
                 {{ $t('label.YourRanking') }}: {{ ranking.position }} 
+              </div>
+              <div class="centered q-pb-md" v-if="run">
+                {{ $t('label.GoodAnswersNumber') }}: {{ nbGoodAnwers }} / {{ nbQuestions }}
               </div>
             </div>
           </div>
@@ -292,6 +296,8 @@ export default {
         position: "-"
       },
       score: {},
+      nbQuestions: 0,
+      nbGoodAnwers: 0,
       level: {
         color: "white",
         upgraded: false
@@ -378,6 +384,9 @@ export default {
           const isReviewAlreadySent = results.data && results.data.length >= 1
           this.showAddReview = !this.isUserAdmin && !this.isUserAuthor && !isReviewAlreadySent
         }
+        
+        // compute good answers
+        await this.computeGoodAnswers()
         
         // get user old score
         this.score.old = this.$store.state.user.points
@@ -692,6 +701,24 @@ export default {
       this.reviewSent = true
       this.showReviewText = false
       Notification(this.$t('label.ReviewSent'), 'positive')
+    },
+    /*
+     * Compute number of good answers
+     */
+    async computeGoodAnswers() {
+      const conditionsDone = this.run.conditionsDone
+      let nbQuestions = 0
+      let nbGoodAnwers = 0
+      for (var i = 0; i < conditionsDone.length; i++) {
+        if (conditionsDone[i].indexOf('stepSuccess_') !== -1) {
+          nbQuestions ++
+          nbGoodAnwers ++
+        } else if (conditionsDone[i].indexOf('stepFail_') !== -1) {
+          nbQuestions ++
+        }
+      }
+      this.nbQuestions = nbQuestions
+      this.nbGoodAnwers = nbGoodAnwers
     },
     /*
      * get offline run data

@@ -14,7 +14,7 @@
     <!------------------ AUDIO ------------------------>
 
     <audio
-      v-if="info && info.audio !== ''"
+      v-if="info && info.audio !== '' && info.audio !== null"
       id="background-music"
       autoplay loop
       :src="info.audio"
@@ -110,7 +110,7 @@
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
-          <div class="fixed-top align-right full-width q-pa-lg" v-if="info && info.audio !== ''">
+          <div class="fixed-top align-right full-width q-pa-lg" v-if="info && info.audio !== '' && info.audio !== null">
             <q-btn v-if="sound && sound.status === 'play'" color="primary" @click="cutSound" icon="volume_off"></q-btn>
             <q-btn v-if="sound && sound.status === 'pause'" color="primary" @click="cutSound" icon="volume_up"></q-btn>
           </div>
@@ -1472,6 +1472,11 @@ export default {
      * Open the info box
      */
     async openInfo() {
+      // if menu is disabled for the game
+console.log(this.info.quest.customization)
+      if (this.info.quest.customization && this.info.quest.customization.hideMenu) {
+        return false
+      }
       if (this.info.isOpened) {
         this.closeAllPanels()
       } else {
@@ -2216,7 +2221,7 @@ export default {
           currentConditions.splice(position, 1)
         }
       }
-      const stepsWithoutSuccessTrigger = ['info-text', 'info-video', 'new-item', 'character', 'end-chapter']
+      const stepsWithoutSuccessTrigger = ['info-text', 'info-video', 'new-item', 'character', 'help', 'end-chapter']
       // assign success or fail status
       if (stepsWithoutSuccessTrigger.indexOf(stepType) === -1) {
         if (isSuccess) {

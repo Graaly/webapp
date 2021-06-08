@@ -19,6 +19,7 @@
             <q-input
               outlined
               :label="$t('label.TeamID')"
+              v-if="!this.$route.params.teamId || this.$route.params.teamId === 'none'"
               v-model="form.teamId"
               @blur="$v.form.teamId.$touch"
               :error="$v.form.teamId.$error"
@@ -77,6 +78,7 @@ export default {
       questId: this.$route.params.id,
       lang: this.$route.params.lang,
       option: this.$route.params.option ? this.$route.params.option : 'none',
+      options: [],
       form: {
         teamId: '',
         teamName: '',
@@ -93,8 +95,12 @@ export default {
     if (this.$store && this.$store.state && this.$store.state.user && this.$store.state.user.name && this.$store.state.user.name === '-') {
       this.$router.push('/quest/play/' + this.questId)
     }
-    if (this.option === 'individual') {
+    this.options = this.option.split("-")
+    if (this.options.indexOf('individual') !== -1) {
       this.form.teamName = utils.randomId()
+    }
+    if (this.$route.params.teamId && this.$route.params.teamId !== 'none') {
+      this.form.teamId = this.$route.params.teamId
     }
   },
   methods: {
@@ -104,6 +110,14 @@ export default {
     async formSubmit() {
       this.$v.$touch()
       this.submitting = true
+      
+      // check last name
+      if (this.options.indexOf('checklastname') !== -1) {
+        let nameParts = this.form.name.split(" ")
+        if (nameParts.length < 2) {
+          Notification(this.$t('label.PleaseEnterFirstNameAndLastName'), 'error')
+        }
+      }
       
       // create account
       let checkStatus = await AuthService.playAnonymous(this.$t('label.shortLang'))

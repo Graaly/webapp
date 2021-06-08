@@ -3,7 +3,7 @@
   <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor'), 'loaded': pageReady}">
     <div id="background-image" v-show="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect), 'effect-blur': (step.options && step.options.blurEffect)}">
     </div>
-    <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'">
+    <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'" :style="'color: ' + customization.fontColor">
       <!------------------ QUEST TIMER ------------------------>
       <div class="row"
         v-if="timer > 0">
@@ -14,7 +14,7 @@
           class="timer-progress-bar bg-white col"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
           :value="timer"
-          :color="(timer < 0.1 ? 'negative' : ( timer < 0.25 ? 'warning' : 'positive'))""
+          :color="(timer < 0.1 ? 'negative' : ( timer < 0.25 ? 'warning' : 'positive'))"
           style="background-color: white; height: 20px !important;" 
           :instant-feedback = true
         />
@@ -72,7 +72,7 @@
         </audio>
         -->
       </div>
-      <div v-if="step.type == 'help'" style="overflow: auto; margin-bottom: 80px;">
+      <div v-if="step.type == 'help'" :class="'font-' + customization.font" style="overflow: auto; margin-bottom: 80px;">
         <p class="text" v-html="$t('label.HelpStepMessage')"></p>
         <p v-if="step.options && step.options.helpNext" class="text" v-html="$t('label.HelpStepMessageNextMessage')"></p>
         <p v-if="step.options && step.options.helpPrevious" class="text" v-html="$t('label.HelpStepMessagePreviousMessage')"></p>
@@ -433,13 +433,14 @@
         </div>
         <table class="portrait-parts relative-position">
           <tr>
-            <td><img @click="changePortraitPart('face')" :src="'statics/' + portrait.type + '/face-1.png'" /></td>
-            <td><img @click="changePortraitPart('eye')" :src="'statics/' + portrait.type + '/eye-1.png'" /></td>
-            <td><img @click="changePortraitPart('nose')" :src="'statics/' + portrait.type + '/nose-1.png'" /></td>
-            <td><img @click="changePortraitPart('hair')" :src="'statics/' + portrait.type + '/hair-1.png'" /></td>
-            <td><img @click="changePortraitPart('beard')" :src="'statics/' + portrait.type + '/beard-2.png'" /></td>
-            <td><img @click="changePortraitPart('glass')" :src="'statics/' + portrait.type + '/glass-2.png'" /></td>
-            <td><img @click="changePortraitPart('hat')" :src="'statics/' + portrait.type + '/hat-4.png'" /></td>
+            <td><img @click="changePortraitPart('face')" :src="'statics/' + portrait.type + '/face-0.png'" /></td>
+            <td><img @click="changePortraitPart('eye')" :src="'statics/' + portrait.type + '/eye-0.png'" /></td>
+            <td><img @click="changePortraitPart('mouth')" :src="'statics/' + portrait.type + '/mouth-0.png'" /></td>
+            <td><img @click="changePortraitPart('nose')" :src="'statics/' + portrait.type + '/nose-0.png'" /></td>
+            <td><img @click="changePortraitPart('hair')" :src="'statics/' + portrait.type + '/hair-0.png'" /></td>
+            <td><img @click="changePortraitPart('beard')" :src="'statics/' + portrait.type + '/beard-0.png'" /></td>
+            <td><img @click="changePortraitPart('glass')" :src="'statics/' + portrait.type + '/glass-0.png'" /></td>
+            <td><img @click="changePortraitPart('hat')" :src="'statics/' + portrait.type + '/hat-0.png'" /></td>
           </tr>
         </table>
         <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
@@ -876,6 +877,7 @@ export default {
     })
   }, 250),
   beforeDestroy() {
+    this.resetEvents();
   },
   methods: {
     initialState () {
@@ -4067,11 +4069,11 @@ export default {
       console.log("Searching for BT peripherals...")
       ble.startScan([], this.bluetoothScanResult)
     },
-    bluetoothScanResult: function(data) {
+    bluetoothScanResult: async function(data) {
       console.log("Device discovered", data)
       console.log(this.step.options.deviceid)
-      if (data.name === this.step.options.deviceid) {
-        this.stopBluetoothScan()
+      if (data.id === this.step.options.deviceid) {
+        await this.stopBluetoothScan()
         console.log("Graaly IoT BT device discovered")
         this.bluetooth.deviceId = data.id;
         ble.connect(data.id, this.bluetoothDeviceConnected, this.bluetoothDeviceDisonnected)
@@ -4575,10 +4577,10 @@ export default {
   
   /* memory specific */
   
-  .memory {
-    /*justify-content: space-around;
-    align-items: center;*/
-  }
+  /*.memory {
+    justify-content: space-around;
+    align-items: center;
+  }*/
 
   .memory .card {
     background: url(/statics/icons/game/card-back.png) #1a4567 no-repeat;

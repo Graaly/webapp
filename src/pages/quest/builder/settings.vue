@@ -447,6 +447,15 @@
                 <div v-if="form.fields.customization">
                   <q-input
                     :disable="readOnly"
+                    v-model="form.fields.customization.fontColor"
+                    :label="$t('label.TextColor')"
+                    placeholder="#000000"
+                    class="full-width"
+                  />
+                </div>
+                <div v-if="form.fields.customization">
+                  <q-input
+                    :disable="readOnly"
                     v-model="form.fields.customization.color"
                     :label="$t('label.ButtonsColor')"
                     placeholder="#ffaa00"
@@ -1391,7 +1400,7 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '', font: 'standard', qrCodeMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false },
+          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '', font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false },
           rewardPicture: '',
           readMoreLink: '',
           limitNumberOfPlayer: 0,
