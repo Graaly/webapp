@@ -29,7 +29,7 @@
             <q-input
               outlined
               :label="$t('label.TeamName')"
-              v-if="option !== 'individual'"
+              v-if="options.indexOf('individual') === -1"
               v-model="form.teamName"
               @blur="$v.form.teamName.$touch"
               :error="$v.form.teamName.$error"
