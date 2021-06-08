@@ -1,6 +1,6 @@
 <template>
   <div class="story fit reduce-window-size-desktop" v-if="currentStep.id !== null && steps[currentStep.id]" :class="{fadeout: hide}" style="background: rgba(0,0,0,0.5); height: 100%;" @click="closeBubble">
-    <div class="fixed-story" :style="'position: fixed; width: 100%; bottom: ' + ((steps && steps[currentStep.id]) ? steps[currentStep.id].bottom :  0) + 'px;'">
+    <div class="fixed-story" :style="'position: fixed; z-index: 10000; width: 100%; bottom: ' + ((steps && steps[currentStep.id]) ? steps[currentStep.id].bottom :  0) + 'px;'">
       <div class="bubble-top"><img src="statics/icons/story/sticker-top.png" style="min-height: 5vh" /></div>
       <!-- remove temporaly by EMA on 18/11/2019<div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh" v-click-outside="onBackgroundTouch">-->
       <div class="bubble-middle" style="background: url(statics/icons/story/sticker-middle.png) repeat-y; min-height: 10vh">
