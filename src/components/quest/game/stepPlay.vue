@@ -4072,7 +4072,7 @@ export default {
     bluetoothScanResult: async function(data) {
       console.log("Device discovered", data)
       console.log(this.step.options.deviceid)
-      if (data.id === this.step.options.deviceid) {
+      if (data.name === this.step.options.deviceid) {
         await this.stopBluetoothScan()
         console.log("Graaly IoT BT device discovered")
         this.bluetooth.deviceId = data.id;
