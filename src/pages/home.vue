@@ -1,6 +1,16 @@
 <template>
   <div class="scroll background-dark">
-    <div class="teaser">
+    <div v-if="showNonHybridQRReader">
+      <!--====================== QR CODE READER ON WEBAPP =================================-->
+      <q-toolbar>
+        <q-toolbar-title>
+          {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
+        </q-toolbar-title>
+        <q-btn flat round dense icon="close" @click="closeQRCodeReader" />
+      </q-toolbar>
+      <qrcode-stream @decode="checkCode"></qrcode-stream>
+    </div>
+    <div class="teaser" v-if="!showNonHybridQRReader">
       
       <!--====================== MAIN QUEST =================================-->
       
@@ -64,7 +74,7 @@
       
       <!--====================== QR CODE BUTTON =================================-->
       
-      <div class="q-px-md q-pt-lg" v-if="isHybrid && !offline.active">
+      <div class="q-px-md q-pt-lg cursor-pointer" v-if="!offline.active">
         <div class="image-button" @click="startScanQRCode" style="background-image: url(statics/images/icon/scan-button.png)">
           {{ $t('label.ScanQRCode') }}
         </div>
@@ -246,6 +256,7 @@ import usersList from 'components/user/usersList'
 
 import utils from 'src/includes/utils'
 import { QSpinnerDots, QInfiniteScroll } from 'quasar'
+import { QrcodeStream } from 'vue-qrcode-reader'
 
 import Notification from 'boot/NotifyHelper'
 import LevelCompute from 'boot/LevelCompute'
@@ -261,7 +272,8 @@ export default {
     mainQuest,
     titleBar,
     questsList,
-    usersList
+    usersList,
+    QrcodeStream
   },
   data () {
     return {
@@ -329,6 +341,7 @@ export default {
       //languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
       isMounted: false,
       isHybrid: window.cordova,
+      showNonHybridQRReader: false,
       isQuestsLoaded: false,
       suggestQuest: {
         show: false
@@ -444,7 +457,12 @@ export default {
             disableSuccessBeep: false // iOS and Android
           }
         )
+      } else {
+        this.showNonHybridQRReader = true
       }
+    },
+    closeQRCodeReader () {
+      this.showNonHybridQRReader = false
     },
     /*
      * Check if the quest code is valid

@@ -3,7 +3,17 @@
   <div id="play-view" class="fit" :class="{'bg-black': (step.type === 'locate-marker' || step.id === 'sensor'), 'loaded': pageReady}">
     <div id="background-image" v-show="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect), 'effect-blur': (step.options && step.options.blurEffect)}">
     </div>
-    <div :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'" :style="'color: ' + customization.fontColor">
+    <div v-if="showNonHybridQRReader">
+      <!--====================== QR CODE READER ON WEBAPP =================================-->
+      <q-toolbar class="text-white">
+        <q-toolbar-title>
+          {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
+        </q-toolbar-title>
+        <q-btn flat round dense icon="close" @click="closeQRCodeReader" />
+      </q-toolbar>
+      <qrcode-stream @decode="checkAnswer"></qrcode-stream>
+    </div>
+    <div v-if="!showNonHybridQRReader" :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'" :style="'color: ' + customization.fontColor">
       <!------------------ QUEST TIMER ------------------------>
       <div class="row"
         v-if="timer > 0">
@@ -119,7 +129,7 @@
             <img style="vertical-align:bottom;" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
             <img style="vertical-align:bottom;" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + customization.character : customization.character" />
           </div>
-          <div class="full-width bg-black" style="height: 70px">
+          <div class="full-width" :class="(customization && customization.characterBarColor) ? '' : 'bg-black'" :style="'height: 76px; ' + ((customization && customization.characterBarColor && customization.characterBarColor !== '') ? 'background-color: ' + customization.characterBarColor : '')">
           </div>
         </div>
       </div>
@@ -609,13 +619,12 @@
           <div class="text" :class="'font-' + customization.font" v-show="getTranslatedText() != ''">
             <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
-            <p v-if="!isHybrid">{{ $t('label.ThisStepOnlyWorkOnMobile') }}</p>
           </div>
         </div>
         
         <!-- HELP -->
-        <q-btn round size="lg" v-if="playerResult === null && !isHybrid" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="locateMarker.showHelp = true"><span>?</span></q-btn>
-        <div v-if="playerResult === null && isHybrid" class="text-white centered q-mt-md">
+        <!--<q-btn round size="lg" v-if="playerResult === null && !isHybrid" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" @click="locateMarker.showHelp = true"><span>?</span></q-btn>-->
+        <div v-if="playerResult === null" class="text-white centered q-mt-md">
           <div v-if="customization.qrCodeMessage && customization.qrCodeMessage !== '' && lang">{{ customization.qrCodeMessage[lang] }}</div>
           <div v-if="!customization.qrCodeMessage || customization.qrCodeMessage === '' || !lang">{{ $t('label.ScanTheMarkersLikeThat') }}</div>
           <div class="q-mt-md"><img src="statics/markers/020/marker_full.png" style="width: 50%" /></div>
@@ -812,6 +821,7 @@ import gpscalibration from 'components/gpsCalibration'
 import holdphonevertically from 'components/holdPhoneVertically'
 import story from 'components/story'
 import geolocationStepMap from 'components/quest/game/geolocationStepMap'
+import { QrcodeStream } from 'vue-qrcode-reader'
 
 import Vue from 'vue'
 import debounce from 'lodash/debounce'
@@ -839,7 +849,8 @@ export default {
     gpscalibration,
     geolocation,
     story,
-    geolocationStepMap
+    geolocationStepMap,
+    QrcodeStream
   },
   watch: { 
     // refresh component if stepId change
@@ -894,6 +905,7 @@ export default {
         reward: 0,
         controlsAreDisplayed: false,
         isHybrid: window.cordova,
+        showNonHybridQRReader: false,
         isIOs: utils.isIOS(),
         isPageInit: false,
         isNetworkLow: false,
@@ -1108,6 +1120,7 @@ export default {
       this.showTools = defaultVars.showTools
       this.rightAnswer = defaultVars.rightAnswer
       this.audio = defaultVars.audio
+      this.showNonHybridQRReader = defaultVars.showNonHybridQRReader
       //this.currentcountdown = defaultVars.currentcountdown
     },
     resetEvents () {
@@ -1596,9 +1609,9 @@ export default {
             this.$emit('pass')
           }
           
-          if (this.isHybrid) {
+          //if (this.isHybrid) {
             this.initQRCodes()
-          }
+          //}
         }
         
         if (this.step.type === 'wait-for-event' || this.step.type === 'trigger-event') {
@@ -1764,7 +1777,12 @@ export default {
             disableSuccessBeep: false // iOS and Android
           }
         )
+      } else {
+        this.showNonHybridQRReader = true
       }
+    },
+    closeQRCodeReader () {
+      this.showNonHybridQRReader = false
     },
     /*
      * Show controls buttons
@@ -2320,13 +2338,13 @@ export default {
             }
           } else { // locate-marker, mode scan
             var markerDetected = false
-            if (this.isHybrid) {
+            //if (this.isHybrid) {
             //if (this.isIOs) {
               if (this.locateMarker.markerControls[answer] && !this.locateMarker.markerControls[answer].detected) {
                 this.locateMarker.markerControls[answer].detected = true
                 markerDetected = true
               }
-            }
+            //}
             
             if (markerDetected) {
               checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
@@ -4072,7 +4090,7 @@ export default {
     bluetoothScanResult: async function(data) {
       console.log("Device discovered", data)
       console.log(this.step.options.deviceid)
-      if (data.id === this.step.options.deviceid) {
+      if (data.name === this.step.options.deviceid) {
         await this.stopBluetoothScan()
         console.log("Graaly IoT BT device discovered")
         this.bluetooth.deviceId = data.id;

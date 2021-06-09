@@ -116,6 +116,8 @@ export default {
         let nameParts = this.form.name.split(" ")
         if (nameParts.length < 2) {
           Notification(this.$t('label.PleaseEnterFirstNameAndLastName'), 'error')
+          this.submitting = false
+          return false
         }
       }
       
@@ -131,6 +133,7 @@ export default {
           if (run && run.data) {
             if (run.data.message) {
               Notification(this.$t('label.' + run.data.message), 'error')
+              this.submitting = false
             } else {
               // launch game
               //this.$router.push('/quest/play/' + this.questId + '/version/' + run.data.version + '/step/0/undefined?remoteplay=false')
@@ -149,9 +152,11 @@ export default {
           */
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
+          this.submitting = false
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        this.submitting = false
       }
     }
   },

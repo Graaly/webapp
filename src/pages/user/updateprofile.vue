@@ -211,7 +211,9 @@
       <div class="q-mt-lg q-pa-md q-ma-md background-lighter rounded">
         <div class="centered">{{ $t('label.RemoveYourAccount') }}</div>
         <p class="subtitle6">{{ $t('label.RemoveYourAccountDesc') }}</p>
-        <q-btn class="q-my-md glossy" color="negative" :label="$t('label.IConfirmIWantToRemoveMyAccount')" @click="removeAccount()" />
+        <div class="centered">
+          <q-btn class="q-my-md glossy" color="negative" :label="$t('label.IConfirmIWantToRemoveMyAccount')" @click="removeAccount()" />
+        </div>
       </div>
       <div>
         <div class="centered q-mt-xl q-mb-sm cursor-pointer"><a @click="disconnect()">{{ $t('label.SignOut') }}</a></div>
