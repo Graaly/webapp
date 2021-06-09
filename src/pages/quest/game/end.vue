@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll background-dark">
+  <div class="scroll text-white" :class="quest.customization && quest.customization.endColor ? '' : 'background-dark'" :style="(quest.customization && quest.customization.endColor && quest.customization.endColor !== '') ? 'background-color: ' + quest.customization.endColor : ''">
     <!------------------ NO NETWORK AREA ------------------------>
     <div v-if="warnings.noNetwork">
       <div class="bg-primary">
@@ -14,9 +14,9 @@
     <!------------------ TEXT IF NO SCORING ------------------>
     
     <div class="q-ma-md rounded background-lighter2" v-if="!warnings.noNetwork && quest && quest.customization && quest.customization.removeScoring">
-      <div class="q-pa-md">
-        <h4 v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage !== ''" v-html="quest.customization.endMessage" />
-        <h4 v-if="!quest.customization || !quest.customization.endMessage || quest.customization.endMessage === ''">{{ $t('label.ThanksForPlaying') }}</h4>
+      <div class="q-pa-md" :class="'font-' + quest.customization.font">
+        <div class="text-h4" v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage !== ''" v-html="quest.customization.endMessage" />
+        <div class="text-h4" v-if="!quest.customization || !quest.customization.endMessage || quest.customization.endMessage === ''">{{ $t('label.ThanksForPlaying') }}</div>
         <div>{{ $t('label.GoodAnswersNumber') }}: {{ nbGoodAnwers }} / {{ nbQuestions }}</div>
       </div>
       <div v-if="isUserAuthor" class="back centered q-pa-md">
@@ -376,7 +376,6 @@ export default {
         if (quest && quest.data) {
           this.quest = quest.data
         }
-        
         if (quest && quest.data) {
           // show review part only if player is not author & has not already sent a review for this quest
           this.isUserAuthor = this.$store.state.user._id === this.quest.authorUserId

@@ -392,7 +392,7 @@ module.exports = {
       ConfirmHint: "The hint will cost you points. Are you sure to use it?",
       YouWin: "You have won",
       WhatCanYouDoWithThesePoints: "What can you do with these points?",
-      ReviewThisQuest: "Review this game",
+      ReviewThisQuest: "Review it",
       ShareYourSuccess: "Share your success!",
       YouAlreadyPlayThisQuestSoYouWinNoPoints: "You already won the points of this game in the past",
       ResolveOtherQuestsToWinPoints: "Play new games to win points",
@@ -1063,8 +1063,9 @@ module.exports = {
       HideFullScreen: "Do not display full screen (Android)",
       YourFullName: "Your full name",
       TextColor: "Text color",
-      GoodAnswersNumber: "Good answers",
-      PleaseEnterFirstNameAndLastName: "Please type your first name and last name"
+      GoodAnswersNumber: "Right answers",
+      PleaseEnterFirstNameAndLastName: "Please type your first name and last name",
+      PassTheQRCodeInFrontOfYourCamera: "Pass the QR code in front of your camera"
     }
   },
   fr: {
@@ -1447,7 +1448,7 @@ module.exports = {
       ConfirmHint: "En utilisant l'indice, vous gagnerez moins de points, êtes-vous sûr(e) de vouloir l'utiliser ?",
       YouWin: "Vous avez gagné",
       WhatCanYouDoWithThesePoints: "Que faire avec ces points ?",
-      ReviewThisQuest: "Votre avis sur ce jeu",
+      ReviewThisQuest: "Votre avis",
       ShareYourSuccess: "Partagez votre réussite !",
       YouAlreadyPlayThisQuestSoYouWinNoPoints: "Vous avez déjà gagné précedemment les points de ce jeu",
       ResolveOtherQuestsToWinPoints: "Résolvez de nouveaux jeux pour gagner des points",
@@ -2118,8 +2119,9 @@ module.exports = {
       HideFullScreen: "Ne pas affiche en plein écran (Android)",
       YourFullName: "Votre nom complet",
       TextColor: "Couleur du texte",
-      GoodAnswersNumber: "Bonnes réponses",
-      PleaseEnterFirstNameAndLastName: "Veuillez entrer votre prénom et votre nom"
+      GoodAnswersNumber: "Réponses correctes",
+      PleaseEnterFirstNameAndLastName: "Veuillez entrer votre prénom et votre nom",
+      PassTheQRCodeInFrontOfYourCamera: "Passez le QR code devant votre caméra"
     }
   }
 }
