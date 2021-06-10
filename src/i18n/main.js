@@ -1065,7 +1065,8 @@ module.exports = {
       TextColor: "Text color",
       GoodAnswersNumber: "Right answers",
       PleaseEnterFirstNameAndLastName: "Please type your first name and last name",
-      PassTheQRCodeInFrontOfYourCamera: "Pass the QR code in front of your camera"
+      PassTheQRCodeInFrontOfYourCamera: "Pass the QR code in front of your camera",
+      PleaseHoldYourDeviceFlat: "Please hold your device flat"
     }
   },
   fr: {
@@ -2121,7 +2122,8 @@ module.exports = {
       TextColor: "Couleur du texte",
       GoodAnswersNumber: "Réponses correctes",
       PleaseEnterFirstNameAndLastName: "Veuillez entrer votre prénom et votre nom",
-      PassTheQRCodeInFrontOfYourCamera: "Passez le QR code devant votre caméra"
+      PassTheQRCodeInFrontOfYourCamera: "Passez le QR code devant votre caméra",
+      PleaseHoldYourDeviceFlat: "Veuillez tenir votre appareil à plat"
     }
   }
 }

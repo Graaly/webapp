@@ -1139,6 +1139,8 @@ export default {
       
       window.removeEventListener("devicemotion", this.handleMotionEvent, true)
       
+      window.removeEventListener("deviceorientationabsolute", this.handleDeviceOrientationEvent, true)
+      
       utils.clearAllRunningProcesses()
       
       TWEEN.removeAll() // 3D animations
@@ -1384,36 +1386,49 @@ export default {
             
             // user can pass
             this.$emit('pass')
+            
+            // start accelerometer sensor
+            window.addEventListener("devicemotion", this.handleMotionEvent, true)
+            
+            await this.waitForGyroscopeDetection()
+            
             // Start absolute orientation sensor
             // ---------------------------------
-            // Required to make camera orientation follow device orientation 
-            // It is different from 'deviceorientationabsolute' listener whose values are not
-            // reliable when device is held vertically
-            try {
-              if ("AbsoluteOrientationSensor" in window) {
-                // Android
-                let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
-                sensor.onerror = event => console.error(event.error.name, event.error.message)
-                sensor.onreading = this.onAbsoluteOrientationSensorReading
-                sensor.start()
-                this.geolocation.absoluteOrientationSensor = sensor
-              } else {
-                // iOS
-                this.geolocation.absoluteOrientationSensor = {
-                  stop: this.stopAlternateAbsoluteOrientationSensor
+            
+            // for steps 'geolocation' & Android platforms, without gyroscope use 'deviceorientationabsolute' event + tell players to handle their phone horizontally
+            if (this.step.type === 'geolocation' && this.isHybrid && !this.isIOS && !this.deviceHasGyroscope) {
+              window.addEventListener("deviceorientationabsolute", this.handleDeviceOrientationEvent, true)
+              Notification(this.$t('label.PleaseHoldYourDeviceFlat'))
+            } else {
+              // Required to make camera orientation follow device orientation
+              // It is different from 'deviceorientationabsolute' listener whose values are not
+              // reliable when device is held vertically
+              try {
+                if ("AbsoluteOrientationSensor" in window) {
+                  // Android
+                  let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
+                  sensor.onerror = event => console.error(event.error.name, event.error.message)
+                  sensor.onreading = this.onAbsoluteOrientationSensorReading
+                  sensor.start()
+                  this.geolocation.absoluteOrientationSensor = sensor
+                } else {
+                  // iOS
+                  this.geolocation.absoluteOrientationSensor = {
+                    stop: this.stopAlternateAbsoluteOrientationSensor
+                  }
+                  
+                  // ask user to access to his device orientation
+                  requestPermissionResult = await utils.requestDeviceOrientationPermission()
+                  
+                  if (requestPermissionResult !== 'granted') {
+                    Notification(this.$t('label.PleaseAcceptDeviceOrientationPermissionRequest'), 'error')
+                    return
+                  }
+                  window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
                 }
-                
-                // ask user to access to his device orientation
-                requestPermissionResult = await utils.requestDeviceOrientationPermission()
-                
-                if (requestPermissionResult !== 'granted') {
-                  Notification(this.$t('label.PleaseAcceptDeviceOrientationPermissionRequest'), 'error')
-                  return
-                }
-                window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
+              } catch (error) {
+                console.error(error)
               }
-            } catch (error) {
-              console.error(error)
             }
             
             if (this.step.type === 'locate-item-ar') {
@@ -1428,11 +1443,6 @@ export default {
                 return
               }
               
-              // start accelerometer sensor
-              window.addEventListener("devicemotion", this.handleMotionEvent, true)
-            
-              await this.waitForGyroscopeDetection()
-            
               if (!this.deviceHasGyroscope) {
                 // only a warning because step can still be played
                 Notification(this.$t('label.CouldNotEnableAR'), 'warning')
@@ -1729,6 +1739,14 @@ export default {
     },
     stopAlternateAbsoluteOrientationSensor() {
       window.removeEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
+    },
+    /**
+     * method only used by steps 'geolocation', when no gyroscope is available
+     */
+    handleDeviceOrientationEvent(event) {
+      console.log('event.alpha', event.alpha, 'this.geolocation.rawDirection', this.geolocation.rawDirection)
+      this.geolocation.direction = (this.geolocation.rawDirection + event.alpha) % 360
+      //absoluteHeading = 180 - event.alpha
     },
     reloadPage() {
       this.$router.go({
@@ -3629,7 +3647,7 @@ export default {
         this.geolocation.target.camera.quaternion = quaternion
       }
       
-      // every 100ms, update geolocation direction
+      // every 100ms, update geolocation direction (for drawing the arrow)
       if (!this.geolocation.waitForNextQuaternionRead) {
         let rotationZXY = new THREE.Euler().setFromQuaternion(quaternion, 'ZXY')
         let rotationXZY = new THREE.Euler().setFromQuaternion(quaternion, 'XZY')
@@ -3841,7 +3859,9 @@ export default {
       this.$store.dispatch('setDrawDirectionInterval', null)
     },
     /*
-    * handle motion event (used by step 'locate-item-ar')
+    * handle motion event
+    * - mainly used by steps 'locate-item-ar'
+    * - used as well by steps 'geolocation' (only to detect if device has gyroscope)
     */
     handleMotionEvent (event) {
       let dm = this.deviceMotion
@@ -3852,6 +3872,11 @@ export default {
       // inspired from https://stackoverflow.com/a/33843234/488666
       if (this.deviceHasGyroscope === null && !this.isIOs) {
         this.deviceHasGyroscope = ("rotationRate" in event && "alpha" in event.rotationRate && event.rotationRate.alpha !== null)
+        
+        if (this.step.type === 'geolocation') {
+          window.removeEventListener('devicemotion', this.handleMotionEvent, true)
+          return
+        }
       }
       
       // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
@@ -4000,7 +4025,7 @@ export default {
         if (this.deviceHasGyroscope !== null) {
           resolve()
         } else {
-          if (this.geolocation.gyroscopeDetectionCounter > 100) {
+          if (this.geolocation.gyroscopeDetectionCounter > 40) {
             resolve()
           } else {
             this.geolocation.gyroscopeDetectionCounter++
