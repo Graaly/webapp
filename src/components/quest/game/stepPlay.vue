@@ -4010,7 +4010,14 @@ export default {
     */
     updatePlayerCanTouchTarget () {
       // tell player to touch object + detect touch as soon as device is below a certain distance from the object coordinates
-      if (!this.geolocation.canTouchTarget && this.geolocation.distance <= 10) {
+      
+      let touchDistance = 10 // default
+      
+      if (this.step.options.hasOwnProperty('touchDistance') && typeof this.step.options.touchDistance === 'number' && this.step.options.touchDistance > 0) {
+        touchDistance = this.step.options.touchDistance
+      }
+      
+      if (!this.geolocation.canTouchTarget && this.geolocation.distance <= touchDistance) {
         this.geolocation.canTouchTarget = true
       }
     },

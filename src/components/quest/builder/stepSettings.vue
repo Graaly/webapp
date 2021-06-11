@@ -615,9 +615,13 @@
               <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadTheObjectToFind')" @click="$emit('openPremiumBox')" />
             </div>-->
             <div id="target-canvas"></div>
-            <div>
+            <div class="q-mb-md">
               {{ $t('label.TouchAndDragObject') }}
             </div>
+          </div>
+          <div v-if="selectedStep.form.options.hasOwnProperty('touchDistance')">
+            <p>{{ $t('label.TouchDistance') }}</p>
+            <q-slider v-model="selectedStep.form.options.touchDistance" :min="5" :max="100" :step="1" label-always :label-value="(selectedStep.form.options.touchDistance || 10) + 'm'" />
           </div>
         </div>
         
@@ -1787,6 +1791,9 @@ export default {
         }
         if (!this.selectedStep.form.options.hasOwnProperty('objectSize')) {
           this.$set(this.selectedStep.form.options, 'objectSize', 1)
+        }
+        if (!this.selectedStep.form.options.hasOwnProperty('touchDistance')) {
+          this.$set(this.selectedStep.form.options, 'touchDistance', 10)
         }
         if (!this.selectedStep.form.options.hasOwnProperty('is3D')) {
           this.$set(this.selectedStep.form.options, 'is3D', false)
@@ -3335,6 +3342,7 @@ p { margin-bottom: 0.5rem; }
 
 .q-item { padding-top: 0; padding-bottom: 0; min-height: 2rem; }
 .q-list { padding-top: 0; }
+.q-slider { margin-top: 2rem; }
 
 .answer { display: flex; flex-flow: row nowrap; align-items: center; }
 .answer .q-input { flex-grow: 1; }
