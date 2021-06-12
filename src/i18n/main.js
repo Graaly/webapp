@@ -984,7 +984,7 @@ module.exports = {
       YourAudioFile: "Your background music",
       AddAnAudioFile: "Add a background music",
       ObjectNeedToBeAppliedOnPicture: "The object is applied on a picture area",
-      ReadNext: "Read more",
+      ReadNext: "READ MORE",
       AlreadyPaied: "Purchased",
       HelpStepMessageInventory: "Display Inventory button help",
       HelpStepMessageHint: "Display Hint button help",
@@ -1065,7 +1065,8 @@ module.exports = {
       TextColor: "Text color",
       GoodAnswersNumber: "Right answers",
       PleaseEnterFirstNameAndLastName: "Please type your first name and last name",
-      PassTheQRCodeInFrontOfYourCamera: "Pass the QR code in front of your camera"
+      PassTheQRCodeInFrontOfYourCamera: "Pass the QR code in front of your camera",
+      HideHideButton: "Hide show/hide button"
     }
   },
   fr: {
@@ -2040,7 +2041,7 @@ module.exports = {
       YourAudioFile: "Votre musique de fond",
       AddAnAudioFile: "Ajouter une musique de fond",
       ObjectNeedToBeAppliedOnPicture: "L'objet est appliqué sur une partie de l'image",
-      ReadNext: "Lire la suite",
+      ReadNext: "LIRE LA SUITE",
       AlreadyPaied: "Acheté",
       HelpStepMessageInventory: "Afficher l'aide pour le bouton Inventaire",
       HelpStepMessageHint: "Afficher l'aide pour le bouton Indice",
@@ -2121,7 +2122,8 @@ module.exports = {
       TextColor: "Couleur du texte",
       GoodAnswersNumber: "Réponses correctes",
       PleaseEnterFirstNameAndLastName: "Veuillez entrer votre prénom et votre nom",
-      PassTheQRCodeInFrontOfYourCamera: "Passez le QR code devant votre caméra"
+      PassTheQRCodeInFrontOfYourCamera: "Passez le QR code devant votre caméra",
+      HideHideButton: "Cacher le bouton montrer/cacher"
     }
   }
 }

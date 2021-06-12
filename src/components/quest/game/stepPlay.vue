@@ -119,9 +119,9 @@
             <div v-if="character.needToScroll" class="scroll-indicator">
               <q-icon class="flashing" size="2.5em" name="arrow_drop_down_circle" />
             </div>
-            <p ref="bubbleText" class="carrier-return" :class="'font-' + customization.font" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
-            <p ref="bubbleTextHtml" class="text" :class="'font-' + customization.font" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
-            <p class="text text-grey" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ReadNext') }}</p>
+            <p ref="bubbleText" style="text-align: left;" class="carrier-return" :class="'font-' + customization.font" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && !(step.options && step.options.html)">{{ character.bubbleText[character.bubbleNumber] }}</p>
+            <p ref="bubbleTextHtml" style="text-align: left;" class="text" :class="'font-' + customization.font" v-if="character.bubbleText.length > 0 && character.bubbleText[character.bubbleNumber] != '' && step.options && step.options.html" v-html="character.bubbleText[character.bubbleNumber]"></p>
+            <p class="text-grey" v-if="character.bubbleNumber < (character.numberOfBubble - 1)">{{ $t('label.ReadNext') }}</p>
           </div>
           <div class="bubble-bottom"><img src="statics/icons/story/sticker-bottom.png" /></div>
           <div class="character">
@@ -156,7 +156,7 @@
               </div>
             </div>
           </div>
-          <div class="centered" style="padding-bottom: 100px">
+          <div v-if="!step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
@@ -211,7 +211,7 @@
               </q-btn>
             </div>
           </div>
-          <div class="centered" style="padding-bottom: 100px">
+          <div v-if="!step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
@@ -240,7 +240,7 @@
               <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
             </div>
           </div>
-          <div class="centered" style="padding-bottom: 100px">
+          <div v-if="!step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
@@ -287,7 +287,7 @@
               <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
             </div>
           </div>
-          <div class="centered" style="padding-bottom: 100px">
+          <div v-if="!step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
@@ -341,7 +341,7 @@
               disabled />
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer"><div>{{ $t('label.ConfirmTheAnswer') }}</div></q-btn>
           </div>
-          <div class="centered" style="padding-bottom: 100px">
+          <div v-if="!step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
@@ -4470,7 +4470,7 @@ export default {
   }
   .text { 
     white-space: pre-wrap; 
-    text-align: justify;
+    /*text-align: justify;*/
   }
   .text p { padding: 0.25rem 0; margin: 0; }
   .carrier-return {
