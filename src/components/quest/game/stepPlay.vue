@@ -280,7 +280,9 @@
             </tr>
           </table>
             
-          <div class="no-box-shadow hide-button centered text-grey">{{ $t('label.ClickToEnlargePictures') }}</div>
+          <div class="centered">
+            <q-btn flat class="no-box-shadow hide-button text-black">{{ $t('label.ClickToEnlargePictures') }}</q-btn>
+          </div>
           
           <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
             <div>
