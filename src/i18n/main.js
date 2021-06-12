@@ -437,6 +437,7 @@ module.exports = {
       QuestPublicationRejected: "Your game has not been published. You will receive an email to explain you how to update it to have it published",
       TouchTheObject: "Find the object by looking around and touch it",
       ObjectSize: "Object size",
+      TouchDistance: "Object can be touched nearer than...",
       YouWonABonus: "You won a bonus",
       AddATown: "Add a town",
       Shop: "Shop",
@@ -680,8 +681,8 @@ module.exports = {
       ButtonsColor: "Buttons color (optional)",
       AddALogo: "Add your logo",
       YourLogo: "Your logo",
-      AvailableTomorrow: "Available tomorrow",
       byteCharacter: "B",
+      AvailableTomorrow: "Available tomorrow",
       MoveCloserToTheObject: "Move closer to the object to touch it",
       AddACardPair: "Add a pair of cards",
       AlreadyFriends: "You already follow this person",
@@ -1066,7 +1067,8 @@ module.exports = {
       GoodAnswersNumber: "Right answers",
       PleaseEnterFirstNameAndLastName: "Please type your first name and last name",
       PassTheQRCodeInFrontOfYourCamera: "Pass the QR code in front of your camera",
-      HideHideButton: "Hide show/hide button"
+      HideHideButton: "Hide show/hide button",
+      PleaseHoldYourDeviceFlat: "Please hold your device flat"
     }
   },
   fr: {
@@ -1494,6 +1496,7 @@ module.exports = {
       QuestPublicationRejected: "Votre jeu n'a pas été publiée. Vous allez recevoir un email vous expliquant comment l'améliorer pour permettre sa publication",
       TouchTheObject: "Vous êtes proche de l'objet, regardez autour de vous et touchez le",
       ObjectSize: "Taille de l'objet",
+      TouchDistance: "L'objet peut être touché à moins de...",
       YouWonABonus: "Vous avez gagné un bonus",
       AddATown: "Ajouter une ville",
       Shop: "Boutique",
@@ -2123,7 +2126,8 @@ module.exports = {
       GoodAnswersNumber: "Réponses correctes",
       PleaseEnterFirstNameAndLastName: "Veuillez entrer votre prénom et votre nom",
       PassTheQRCodeInFrontOfYourCamera: "Passez le QR code devant votre caméra",
-      HideHideButton: "Cacher le bouton montrer/cacher"
+      HideHideButton: "Cacher le bouton montrer/cacher",
+      PleaseHoldYourDeviceFlat: "Veuillez tenir votre appareil à plat"
     }
   }
 }
