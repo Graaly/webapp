@@ -280,7 +280,7 @@
             </tr>
           </table>
             
-          <div class="centered text-grey q-py-md">{{ $t('label.ClickToEnlargePictures') }}</div>
+          <div class="no-box-shadow centered text-grey q-py-md">{{ $t('label.ClickToEnlargePictures') }}</div>
           
           <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
             <div>
