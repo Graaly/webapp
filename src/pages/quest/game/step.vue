@@ -122,6 +122,9 @@
               {{ $t('label.Team') }} : {{ run.team.name }}
             </p>
             <p>
+              {{ $t('label.MyScore') }} {{ run.tempScore }} / {{ info.quest.availablePoints.score }}
+            </p>
+            <p>
               <q-btn
               v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring"
               class="glossy large-button"

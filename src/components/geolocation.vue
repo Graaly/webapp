@@ -1,7 +1,7 @@
 <template>
   <div class="geolocation-layer" v-if="!isSupported || !isActive">
-    <div v-if="!isActive" class="search-geolocation fixed-bottom"> 
-      <div class="centered q-pa-md" v-if="nbFails >= 1">
+    <div v-if="!isActive && nbFails >= 2" class="search-geolocation"> 
+      <div class="centered q-pa-md">
         <q-spinner-puff color="primary" size="25px" /> &nbsp;{{ $t('label.LocationSearching') }}
       </div>
       <div v-if="askUserToEnableGeolocation">
@@ -52,7 +52,7 @@ export default {
   data () {
     return {
       isSupported: true,
-      isActive: false,
+      isActive: true,
       nativeSettingsIsEnabled: (window.cordova && window.cordova.plugins.settings),
       userDeniedGeolocation: false,
       timeoutBetweenFailedAttempts: 10000,
@@ -283,7 +283,7 @@ export default {
 .enable-geolocation ul { margin: 0 1rem; padding: 0 }
 
 /*.search-geolocation { position: absolute; width: 100%; height: 10vw !important; min-height: initial !important;  display: flex; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center; justify-content: center; background: orange; }*/
-.search-geolocation { width: 100%; min-height: 50px;  background: orange;}
+.search-geolocation { position: fixed; top: 150px; left: 0px; right: 0px; width: 100%; min-height: 50px;  background: orange;}
 
 .search-geolocation.without-nav-bar { z-index: 7000; bottom: 0; }
 .search-geolocation.with-nav-bar { z-index: 60; bottom: 4vw; }
