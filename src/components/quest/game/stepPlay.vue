@@ -401,7 +401,7 @@
             class="col-3 q-pa-sm">
             <div
               class="card" 
-              :class="{ open: item.isClicked, show: item.isClicked, disabled: item.isFound || stepPlayed, match: item.isFound }" 
+              :class="{ open: item.isClicked, disabled: item.isFound || stepPlayed }" 
               @click="selectMemoryCard(key)"
             >
               <img style="display: block; position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;" v-if="item.imagePath" :src="item.imagePath.indexOf('blob:') !== -1 ? item.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
@@ -4654,14 +4654,12 @@ export default {
     cursor: default;
     animation-name: flipInY;
     animation-duration: .75s;
-    backface-visibility: visible !important;
-    -webkit-backface-visibility: visible !important;
-  }
-  .memory .card.show img {
     width: 100%;
     height: 100%;
     border-radius: 5px;
     background: none;
+    backface-visibility: visible !important;
+    -webkit-backface-visibility: visible !important;
   }
   .memory .card.disabled {
     pointer-events: none;
