@@ -412,7 +412,7 @@
       
       <!------------------ COMPOSITE DRAWING STEP AREA ------------------------>
       
-      <div class="portrait-robot" v-if="step.type === 'portrait-robot'">
+      <div class="portrait-robot" v-if="step.type === 'portrait-robot'" style="overflow: auto; margin-bottom: 80px;">
         <div>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
@@ -455,7 +455,7 @@
             <td><img @click="changePortraitPart('hat')" :src="'statics/' + portrait.type + '/hat-0.png'" /></td>
           </tr>
         </table>
-        <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
+        <div class="actions q-mt-sm q-mx-md" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
@@ -4650,12 +4650,12 @@ export default {
     height: 0;
   }
   .memory .card.open img {
-    transform: rotateY(0);
+    transform: rotateY(180deg);
     cursor: default;
     animation-name: flipInY;
-    -webkit-backface-visibility: visible !important;
-    backface-visibility: visible !important;
     animation-duration: .75s;
+    backface-visibility: visible !important;
+    -webkit-backface-visibility: visible !important;
   }
   .memory .card.show img {
     width: 100%;
@@ -4668,7 +4668,7 @@ export default {
     opacity: 0.9;
   }
 
-  .memory .card.match {
+  /*.memory .card.match {
     cursor: default;
     border-color: #EC6608;
     font-size: 33px;
@@ -4682,7 +4682,7 @@ export default {
     backface-visibility: visible !important;
     animation-duration: .75s;
     background: #e2043b;
-  }
+  }*/
   
   /* IoT steps */
   
