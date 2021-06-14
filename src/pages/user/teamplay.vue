@@ -58,6 +58,11 @@
         </form>
 
         <div class="centered smaller version secondary-font">Version {{ version }}</div>
+        <div class="centered smaller version secondary-font">
+          Version {{ version }} - 
+          <img src="statics/icons/game/flag-en.png" @click="switchLanguage('en')" /> -
+          <img src="statics/icons/game/flag-fr.png" @click="switchLanguage('fr')" />
+        </div>
       
       </div>
     </div>
@@ -102,6 +107,7 @@ export default {
     if (this.$route.params.teamId && this.$route.params.teamId !== 'none') {
       this.form.teamId = this.$route.params.teamId
     }
+    this.switchLanguage(this.lang)
   },
   methods: {
     /*
@@ -158,6 +164,9 @@ export default {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
         this.submitting = false
       }
+    },
+    switchLanguage(lang) {
+      this.$i18n.locale = lang
     }
   },
   validations: {
