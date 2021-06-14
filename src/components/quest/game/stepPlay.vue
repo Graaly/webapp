@@ -280,7 +280,9 @@
             </tr>
           </table>
             
-          <div class="no-box-shadow hide-button centered text-grey">{{ $t('label.ClickToEnlargePictures') }}</div>
+          <div class="centered">
+            <q-btn flat class="no-box-shadow hide-button text-black">{{ $t('label.ClickToEnlargePictures') }}</q-btn>
+          </div>
           
           <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
             <div>
@@ -399,7 +401,7 @@
             class="col-3 q-pa-sm">
             <div
               class="card" 
-              :class="{ open: item.isClicked, show: item.isClicked, disabled: item.isFound || stepPlayed, match: item.isFound }" 
+              :class="{ open: item.isClicked, closed: !item.isClicked, disabled: item.isFound || stepPlayed }" 
               @click="selectMemoryCard(key)"
             >
               <img style="display: block; position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;" v-if="item.imagePath" :src="item.imagePath.indexOf('blob:') !== -1 ? item.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
@@ -410,7 +412,7 @@
       
       <!------------------ COMPOSITE DRAWING STEP AREA ------------------------>
       
-      <div class="portrait-robot" v-if="step.type === 'portrait-robot'">
+      <div class="portrait-robot" v-if="step.type === 'portrait-robot'" style="overflow: auto; margin-bottom: 80px;">
         <div>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
@@ -453,7 +455,7 @@
             <td><img @click="changePortraitPart('hat')" :src="'statics/' + portrait.type + '/hat-0.png'" /></td>
           </tr>
         </table>
-        <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
+        <div class="actions q-mt-sm q-mx-md" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
@@ -4643,30 +4645,28 @@ export default {
     padding-top: 100%; 
     position: relative;
   }
-  .memory .card img {
-    width: 0;
-    height: 0;
-  }
-  .memory .card.open img {
-    transform: rotateY(0);
-    cursor: default;
-    animation-name: flipInY;
-    -webkit-backface-visibility: visible !important;
-    backface-visibility: visible !important;
-    animation-duration: .75s;
-  }
-  .memory .card.show img {
+  .memory .card.closed img {
+    opacity: 0;
     width: 100%;
     height: 100%;
+  }
+  .memory .card.open img {
+    cursor: default;
+    animation-name: fadein;
+    animation-duration: .75s;
     border-radius: 5px;
-    background: none;
+    width: 100%;
+    height: 100%;
   }
   .memory .card.disabled {
     pointer-events: none;
     opacity: 0.9;
   }
+  .memory .card.disabled img {
+    opacity: 1;
+  }
 
-  .memory .card.match {
+  /*.memory .card.match {
     cursor: default;
     border-color: #EC6608;
     font-size: 33px;
@@ -4680,7 +4680,7 @@ export default {
     backface-visibility: visible !important;
     animation-duration: .75s;
     background: #e2043b;
-  }
+  }*/
   
   /* IoT steps */
   
