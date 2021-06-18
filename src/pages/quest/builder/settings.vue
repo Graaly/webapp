@@ -3153,7 +3153,9 @@ export default {
     },
     async trackStepSuccess(stepId) {
       this.canMoveNextStep = true
-      this.hideHint()
+      if (this.chapters.newStep.overviewData.type !== 'image-over-flow' && this.chapters.newStep.overviewData.type !== 'binocular') {
+        this.hideHint()
+      }
     },
     /*
      * Track step passing

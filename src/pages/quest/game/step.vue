@@ -466,6 +466,7 @@ export default {
       //this.countDownTime = defaultVars.countDownTime
       this.startDate = defaultVars.startDate
       this.footer = defaultVars.footer
+      this.offline = defaultVars.offline
     },
     /*
      * Init step data
@@ -1063,7 +1064,7 @@ export default {
      */
     checkIfAlreadyPlayed() {
       const conditions = this.run.conditionsDone
-      if (conditions.indexOf('stepDone_' + this.step.stepId) !== -1) {
+      if (typeof this.step.stepId !== 'undefined' && conditions.indexOf('stepDone_' + this.step.stepId) !== -1) {
         this.next.canPass = true
       }
     },
@@ -1151,7 +1152,7 @@ export default {
         await this.getMarkerStep(returnData)
       } else {
         this.next.enabled = true
-        if (this.step.type !== 'image-over-flow') {
+        if (this.step.type !== 'image-over-flow' && this.step.type !== 'binocular') {
           this.next.suggest = true
           this.hint.show = false
           this.hint.suggest = false
