@@ -1003,6 +1003,7 @@ module.exports = {
       TotalSellings: "Game sells",
       RevenuesPayedFloor: "Revenues payed when over 50€",
       QRCodeMessage: "Message displayed when user needs to scan a QR code (escape game mode)",
+      GeolocationMessage: "Message displayed when user to find several geolocalized places (escape game mode)",
       TeamID: "Team ID",
       PleaseFillThisForm: "Please fill this field",
       Zoom: "Zoom",
@@ -1068,7 +1069,10 @@ module.exports = {
       PleaseEnterFirstNameAndLastName: "Please type your first name and last name",
       PassTheQRCodeInFrontOfYourCamera: "Pass the QR code in front of your camera",
       HideHideButton: "Hide show/hide button",
-      PleaseHoldYourDeviceFlat: "Please hold your device flat"
+      PleaseHoldYourDeviceFlat: "Please hold your device flat",
+      MyLocationWarning: "To get the GPS position, use Google maps (by clicking on a location, a popup is displayed with latitude and longitude), the 'My GPS position' app on Android or iPhone.",
+      FindAllLocationsToStartSteps: "Move and find each location!",
+      ColorIndicatorExplaination: "The indicator turns red when you get close to one location"
     }
   },
   fr: {
@@ -2062,6 +2066,7 @@ module.exports = {
       TotalSellings: "Ventes du jeu",
       RevenuesPayedFloor: "Paiement quand gains > 50€",
       QRCodeMessage: "Message affiché quand le joueur doit flasher un QR code (mode Escape game)",
+      GeolocationMessage: "Message affiché quand le joueur doit rechercher plusieurs lieux en géolocalisation (mode Escape game)",
       TeamID: "Identifiant équipe",
       PleaseFillThisForm: "Veuillez compléter ce champ",
       Zoom: "Zoom",
@@ -2120,14 +2125,17 @@ module.exports = {
       OverQuotaMessage: "Vous avez atteind la limite de stockage",
       RemoveFiles: "Supprimer des fichiers",
       InvalidTeamID: "Identifiant d'équipe invalide",
-      HideFullScreen: "Ne pas affiche en plein écran (Android)",
+      HideFullScreen: "Ne pas afficher en plein écran (Android)",
       YourFullName: "Votre nom complet",
       TextColor: "Couleur du texte",
       GoodAnswersNumber: "Réponses correctes",
       PleaseEnterFirstNameAndLastName: "Veuillez entrer votre prénom et votre nom",
       PassTheQRCodeInFrontOfYourCamera: "Passez le QR code devant votre caméra",
       HideHideButton: "Cacher le bouton montrer/cacher",
-      PleaseHoldYourDeviceFlat: "Veuillez tenir votre appareil à plat"
+      PleaseHoldYourDeviceFlat: "Veuillez tenir votre appareil à plat",
+      MyLocationWarning: "Pour récupérer les coordonnées GPS, utilisez Google maps (en cliquant sur un lieu, une bulle s'affiche avec la latitude et longitude), l'application 'Ma position GPS' sur Android ou l'application 'Mes coordonnées GPS' sur iPhone.",
+      FindAllLocationsToStartSteps: "Déplacez-vous et trouvez chaque lieu !",
+      ColorIndicatorExplaination: "L'indicateur passe au rouge quand vous vous rapprochez d'un lieu"
     }
   }
 }

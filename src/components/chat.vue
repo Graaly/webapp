@@ -113,9 +113,11 @@ export default {
     scrollBottom () {
       setTimeout(() => {
         const scrollArea = this.$refs.scroll;
-        const scrollTarget = scrollArea.getScrollTarget();
-        const duration = 300; // ms - use 0 to instant scroll
-        scrollArea.setScrollPosition(scrollTarget.scrollHeight, duration);
+        if (scrollArea) {
+          const scrollTarget = scrollArea.getScrollTarget();
+          const duration = 300; // ms - use 0 to instant scroll
+          scrollArea.setScrollPosition(scrollTarget.scrollHeight, duration);
+        }
       }, 200)
     }
   },

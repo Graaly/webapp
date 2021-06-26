@@ -1181,6 +1181,15 @@
       </div>
     </q-dialog>
     
+    <!------------------ MY LOCATION POPIN ------------------------>
+    
+    <q-dialog v-model="config.geolocation.showPopup">
+      <div class="q-pa-md centered">
+        <div v-html="$t('label.MyLocationWarning')" />
+        <q-btn class="q-mt-md" color="primary" @click="config.geolocation.showPopup = false">{{ $t('label.Close') }}</q-btn>
+      </div>
+    </q-dialog>
+    
     <!------------------ MEDIA LIST AREA ------------------------>
     
     <transition name="slideInBottom">
@@ -1365,7 +1374,8 @@ export default {
           }
         },
         geolocation: {
-          currentIndex: 0
+          currentIndex: 0,
+          showPopup: false
         },
         imageCode: {
           numberOfDigitsOptions: [
@@ -2995,6 +3005,8 @@ export default {
      * @param   {Object}    pos            Position data
      */
     getMyGPSLocation(index) {
+      this.config.geolocation.showPopup = true
+      /* Hidden by EMA on 24/06/2021 because not accurate enough
       this.$q.loading.show()
       var _this = this
       navigator.geolocation.getCurrentPosition(function (position) {
@@ -3013,7 +3025,7 @@ export default {
       { 
         timeout: 5000, 
         maximumAge: 10000 
-      });
+      });*/
     },
     /*
      * Add a GPS location field

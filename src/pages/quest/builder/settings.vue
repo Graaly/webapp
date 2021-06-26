@@ -522,6 +522,15 @@
                     :min-rows="4"
                     class="full-width"
                   />
+                  <q-input
+                    :disable="readOnly"
+                    v-model="form.fields.customization.geolocationMessage[languages.current]"
+                    type="textarea"
+                    :label="$t('label.GeolocationMessage') + ' ' + currentLanguageForLabels"
+                    :max-height="100"
+                    :min-rows="4"
+                    class="full-width"
+                  />
                 </div>
               </div>
             </q-expansion-item>
@@ -1400,7 +1409,7 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '', font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false },
+          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '', font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, geolocationMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false },
           rewardPicture: '',
           readMoreLink: '',
           limitNumberOfPlayer: 0,
@@ -1908,7 +1917,7 @@ export default {
                   if (stepsWithNoParent.indexOf(stepsOfChapter[k].stepId.toString()) !== -1) {
                     stepsOfChapter[k].error = 'FollowingStepsHaveInvalidCondition'
                   }
-                  if (i === 0 || stepsOfChapter[k].conditions.length === 0 || stepsOfChapter[k].conditions.length > 1 || stepsOfChapter[k].type === 'locate-marker') {
+                  if (i === 0 || stepsOfChapter[k].conditions.length === 0 || stepsOfChapter[k].conditions.length > 1 || stepsOfChapter[k].type === 'locate-marker' || stepsOfChapter[k].type === 'geolocation') {
                     stepsOfChapter[k].level = 1
                   } else {
                     stepsOfChapter[k].level = 2
@@ -3153,7 +3162,9 @@ export default {
     },
     async trackStepSuccess(stepId) {
       this.canMoveNextStep = true
-      this.hideHint()
+      if (this.chapters.newStep.overviewData.type !== 'image-over-flow' && this.chapters.newStep.overviewData.type !== 'binocular') {
+        this.hideHint()
+      }
     },
     /*
      * Track step passing
