@@ -293,7 +293,9 @@ ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\ma
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:49:17-55
 uses-feature#android.hardware.camera.autofocus
-ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:50:3-67
+ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:50:3-92
+	android:required
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:50:66-90
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:50:17-65
 uses-feature#android.hardware.location.gps

@@ -112,6 +112,7 @@ module.exports = function (ctx) {
         'QSpinnerDots',
         'QSpinnerPuff',
         'QSpinnerRadio',
+        'QSpinnerOrbit',
         'QTab',
         'QTabs',
         'QTabPanel',
@@ -191,7 +192,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: "2.1.28"
+      version: "2.1.30"
       // id: 'org.cordova.quasar.app'
     },
     electron: {

@@ -319,6 +319,15 @@
           @click="switchModeForGeolocationStep()" />
       </div>
       
+      <div class="background-map full-width full-height q-pa-md centered" v-if="step.id == 'gpssensor'">
+        <div v-if="customization.geolocationMessage && customization.geolocationMessage !== '' && lang">{{ customization.geolocationMessage[lang] }}</div>
+        <div v-if="!customization.geolocationMessage || customization.geolocationMessage === '' || !lang">{{ $t('label.FindAllLocationsToStartSteps') }}</div>
+        <div class="q-mt-xl centered">
+          <q-spinner-orbit :color="geolocation.colorIndicator" size="50vw" />
+        </div>
+        {{ $t('label.ColorIndicatorExplaination') }}
+      </div>
+      
       <!------------------ SIMPLE TEXT INPUT STEP AREA ------------------------>
       
       <div class="write-text" v-if="step.type == 'write-text'">
@@ -753,7 +762,7 @@
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
-    <geolocation ref="geolocation-component" v-if="step.type == 'geolocation' || step.type == 'locate-item-ar'" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" :withNavBar="true" />
+    <geolocation ref="geolocation-component" v-if="step.type == 'geolocation' || step.type == 'locate-item-ar' || step.id === 'gpssensor'" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" :withNavBar="true" />
     
     <!--====================== WIN POINTS ANIMATION =================================-->
     
@@ -966,7 +975,8 @@ export default {
           showARHelp: false,
           currentIndex: 0,
           foundStep: false,
-          mode: 'compass'
+          mode: 'compass',
+          colorIndicator: 'blue-2'
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -1973,6 +1983,13 @@ export default {
         }
         return 
       }
+      // if generic gps sensor
+      if (this.step.id === 'gpssensor') {
+        checkAnswerResult = await this.sendAnswer(this.step.questId, answer.stepId, this.runId, {answer: answer.position, isTimeUp: this.isTimeUp}, false)
+
+        this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true, answer.position)
+        return 
+      }
       
       switch (this.step.type) {
         case 'info-text':
@@ -2878,116 +2895,140 @@ export default {
      * @param   {object}    pos            User position (from native call to navigator.geolocation.watchLocation())
      */
     async onNewUserPosition(pos) {
-      this.geolocation.active = true
-      this.geolocation.playerPosition = pos.coords
-      let current = pos.coords
-      
-      // if lat and lng are not set, compute to have the object close to the current user position
-      if (this.step.options.lat === 0 && parseInt(this.step.options.lng, 10) === this.step.options.lng) {
-        if (this.step.options.lng === 0) {
-          if (this.step.type === 'locate-item-ar') {
-            this.step.options.lat = current.latitude + 0.00005
-            this.step.options.lng = current.longitude 
-          } else {
-            this.step.options.lat = current.latitude + 0.0005
-            this.step.options.lng = current.longitude + 0.0005 
-          }
-        } else {
-          if (this.step.type === 'locate-item-ar') {
-            this.step.options.lat = current.latitude + (0.00001 * this.step.options.lng)
-            this.step.options.lng = current.longitude 
-          } else {
-            this.step.options.lat = current.latitude + (0.0001 * this.step.options.lng)
-            this.step.options.lng = current.longitude + (0.0001 * this.step.options.lng)
-          }
-        }
-      }
-      
-      let options = this.step.options
-      
-      if (typeof options === 'undefined') {
-        console.warn("variable 'options' is undefined. Could not get latitude & longitude of the target.")
-        return
-      }
-      
-      let previousGPSdistance = this.geolocation.GPSdistance
-      
-      let destinationPosition = { lat: options.lat, lng: options.lng }
-      if (this.step.type === 'geolocation' && options.locations && options.locations.length > 0) {
-        destinationPosition.lat = options.locations[this.geolocation.currentIndex].lat
-        destinationPosition.lng = options.locations[this.geolocation.currentIndex].lng
-      }
-      this.geolocation.destinationPosition = destinationPosition
+      if (this.step.id === 'gpssensor') {
+        // treat case when user can find one of several location to find
+        this.geolocation.active = true
+        let current = pos.coords
+        let closestDistance = 1000
+        // check if user is near one of the locations searched
+        for (var i = 0; i < this.step.locations.length; i++) {
+          let destinationPosition = { lat: this.step.locations[i].lat, lng: this.step.locations[i].lng }
 
-      // compute distance between two coordinates
-      // note: current.accuracy contains the result accuracy in meters
-      this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(destinationPosition.lat, destinationPosition.lng, current.latitude, current.longitude) * 1000 // meters
-      let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, destinationPosition.lat, destinationPosition.lng)
-      if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
-        // avoid to change distance too much
-        if (!this.geolocation.distance || this.geolocation.GPSdistance < this.geolocation.distance || this.geolocation.GPSdistance > (this.geolocation.distance + 4)) {
-          this.geolocation.distance = this.geolocation.GPSdistance
+          // compute distance between two coordinates
+          this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(destinationPosition.lat, destinationPosition.lng, current.latitude, current.longitude) * 1000 // meters
+          closestDistance = Math.min(closestDistance, this.geolocation.GPSdistance)
+console.log(this.geolocation.GPSdistance)
+          // TODO : make distance configurable
+          if (this.geolocation.GPSdistance <= 5) {
+            this.$refs['geolocation-component'].disabled = true
+            this.geolocation.active = false
+            await this.checkAnswer({stepId: this.step.steps[i], position: current})
+          }
         }
-        this.geolocation.rawDirection = rawDirection
-      }
-      
-      let finalDirection = utils.degreesToRadians(rawDirection)
-      if (!this.deviceHasGyroscope) {
-        // consider that the object to find is always in front of the device 
-        finalDirection = 0
-        // avoid to be too close from the object, set minimal distance
-        const minDistanceFromObject = 2 + (this.geolocation.target !== null ? this.geolocation.target.size : 0) // in meters
-        this.geolocation.GPSdistance = Math.max(minDistanceFromObject, this.geolocation.GPSdistance)
-      }
-      
-      // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
-      // note that those properties are also needed when accelerometer is used (method 'handleMotionEvent()')
-      this.geolocation.position.x = Math.sin(finalDirection) * this.geolocation.GPSdistance
-      this.geolocation.position.y = Math.cos(finalDirection) * this.geolocation.GPSdistance
-      
-      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.geolocation.target.scene !== null) {
-        let target = this.geolocation.target
-        let scene = target.scene
-        let object = scene.getObjectByName('targetObject')
+console.log("closest :" + closestDistance)
+        this.updateDistanceIndicatorColor(closestDistance)
+      } else {
+        this.geolocation.active = true
+        this.geolocation.playerPosition = pos.coords
+        let current = pos.coords
         
-        // if target size is 1m, consider that it can be seen at 40m
-        // target size 50cm => seen at 20m, etc.
-        this.geolocation.canSeeTarget = target.size === null || this.geolocation.GPSdistance < target.size * 40
-        
-        // object may not be loaded at first calls => skip part where 3D scene must be loaded
-        if (typeof object === 'undefined') { return }
-        
-        if (!object.visible) {
-          // initialize object position
-          object.position.x = this.geolocation.position.x
-          object.position.y = this.geolocation.position.y
-          object.visible = true
+        // if lat and lng are not set, compute to have the object close to the current user position
+        if (this.step.options.lat === 0 && parseInt(this.step.options.lng, 10) === this.step.options.lng) {
+          if (this.step.options.lng === 0) {
+            if (this.step.type === 'locate-item-ar') {
+              this.step.options.lat = current.latitude + 0.00005
+              this.step.options.lng = current.longitude 
+            } else {
+              this.step.options.lat = current.latitude + 0.0005
+              this.step.options.lng = current.longitude + 0.0005 
+            }
+          } else {
+            if (this.step.type === 'locate-item-ar') {
+              this.step.options.lat = current.latitude + (0.00001 * this.step.options.lng)
+              this.step.options.lng = current.longitude 
+            } else {
+              this.step.options.lat = current.latitude + (0.0001 * this.step.options.lng)
+              this.step.options.lng = current.longitude + (0.0001 * this.step.options.lng)
+            }
+          }
         }
         
-        // if GPS distance to object is greater than value of this.minDistanceForGPS, update target object position only given GPS position. Otherwise, accelerometer is used to track device position for better user experience (avoids object "drifts").
-        if ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || this.deviceHasGyroscope === false) {
-          // smooth position change
-          new TWEEN.Tween(object.position)
-            .to({ x: this.geolocation.position.x, y: this.geolocation.position.y }, 1000)
-            .easing(TWEEN.Easing.Quadratic.InOut)
-            .start()
+        let options = this.step.options
+        
+        if (typeof options === 'undefined') {
+          console.warn("variable 'options' is undefined. Could not get latitude & longitude of the target.")
+          return
         }
         
-        this.updatePlayerCanTouchTarget()
-      }
-      
-      if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.distance <= parseInt(options.distance, 10)) || (!options.distance && this.geolocation.distance <= 20))) {
-        //check if other locations are defined
-        this.geolocation.currentIndex++
-        if (options.locations && options.locations.length > 0 && this.geolocation.currentIndex < options.locations.length) {
-          Notification(this.$t('label.CheckpointReached'), 'info')
-          this.geolocation.foundStep = false
-          this.geolocation.foundStep = true
-        } else {
-          this.$refs['geolocation-component'].disabled = true
-          this.geolocation.active = false
-          this.resetDrawDirectionInterval()
-          await this.checkAnswer(current)
+        let previousGPSdistance = this.geolocation.GPSdistance
+        
+        let destinationPosition = { lat: options.lat, lng: options.lng }
+        if (this.step.type === 'geolocation' && options.locations && options.locations.length > 0) {
+          destinationPosition.lat = options.locations[this.geolocation.currentIndex].lat
+          destinationPosition.lng = options.locations[this.geolocation.currentIndex].lng
+        }
+        this.geolocation.destinationPosition = destinationPosition
+
+        // compute distance between two coordinates
+        // note: current.accuracy contains the result accuracy in meters
+        this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(destinationPosition.lat, destinationPosition.lng, current.latitude, current.longitude) * 1000 // meters
+        let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, destinationPosition.lat, destinationPosition.lng)
+        if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
+          // avoid to change distance too much
+          if (!this.geolocation.distance || this.geolocation.GPSdistance < this.geolocation.distance || this.geolocation.GPSdistance > (this.geolocation.distance + 4)) {
+            this.geolocation.distance = this.geolocation.GPSdistance
+          }
+          this.geolocation.rawDirection = rawDirection
+        }
+        
+        let finalDirection = utils.degreesToRadians(rawDirection)
+        if (!this.deviceHasGyroscope) {
+          // consider that the object to find is always in front of the device 
+          finalDirection = 0
+          // avoid to be too close from the object, set minimal distance
+          const minDistanceFromObject = 2 + (this.geolocation.target !== null ? this.geolocation.target.size : 0) // in meters
+          this.geolocation.GPSdistance = Math.max(minDistanceFromObject, this.geolocation.GPSdistance)
+        }
+        
+        // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
+        // note that those properties are also needed when accelerometer is used (method 'handleMotionEvent()')
+        this.geolocation.position.x = Math.sin(finalDirection) * this.geolocation.GPSdistance
+        this.geolocation.position.y = Math.cos(finalDirection) * this.geolocation.GPSdistance
+        
+        if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.geolocation.target.scene !== null) {
+          let target = this.geolocation.target
+          let scene = target.scene
+          let object = scene.getObjectByName('targetObject')
+          
+          // if target size is 1m, consider that it can be seen at 40m
+          // target size 50cm => seen at 20m, etc.
+          this.geolocation.canSeeTarget = target.size === null || this.geolocation.GPSdistance < target.size * 40
+          
+          // object may not be loaded at first calls => skip part where 3D scene must be loaded
+          if (typeof object === 'undefined') { return }
+          
+          if (!object.visible) {
+            // initialize object position
+            object.position.x = this.geolocation.position.x
+            object.position.y = this.geolocation.position.y
+            object.visible = true
+          }
+          
+          // if GPS distance to object is greater than value of this.minDistanceForGPS, update target object position only given GPS position. Otherwise, accelerometer is used to track device position for better user experience (avoids object "drifts").
+          if ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || this.deviceHasGyroscope === false) {
+            // smooth position change
+            new TWEEN.Tween(object.position)
+              .to({ x: this.geolocation.position.x, y: this.geolocation.position.y }, 1000)
+              .easing(TWEEN.Easing.Quadratic.InOut)
+              .start()
+          }
+          
+          this.updatePlayerCanTouchTarget()
+        }
+        
+        if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.distance <= parseInt(options.distance, 10)) || (!options.distance && this.geolocation.distance <= 20))) {
+          //check if other locations are defined
+          this.geolocation.currentIndex++
+          if (options.locations && options.locations.length > 0 && this.geolocation.currentIndex < options.locations.length) {
+            Notification(this.$t('label.CheckpointReached'), 'info')
+            this.geolocation.foundStep = false
+            this.geolocation.foundStep = true
+          } else {
+            this.$refs['geolocation-component'].disabled = true
+            this.geolocation.active = false
+            this.resetDrawDirectionInterval()
+            await this.checkAnswer(current)
+          }
         }
       }
     },
@@ -2996,6 +3037,44 @@ export default {
      */
     onUserPositionError(ret) {
       console.error('UserPositionError', ret)
+    },
+    /*
+     * Update color indicator for the distance
+     */
+    updateDistanceIndicatorColor(distance) {
+      let color = this.getColorIndicator(10)
+      if (distance < 100) {
+        color = this.getColorIndicator(9)
+      }
+      if (distance < 50) {
+        color = this.getColorIndicator(8)
+      }
+      if (distance < 40) {
+        color = this.getColorIndicator(7)
+      }
+      if (distance < 30) {
+        color = this.getColorIndicator(6)
+      }
+      if (distance < 20) {
+        color = this.getColorIndicator(5)
+      }
+      if (distance < 17) {
+        color = this.getColorIndicator(4)
+      }
+      if (distance < 15) {
+        color = this.getColorIndicator(3)
+      }
+      if (distance < 13) {
+        color = this.getColorIndicator(2)
+      }
+      if (distance < 10) {
+        color = this.getColorIndicator(1)
+      }
+      this.geolocation.colorIndicator = color
+    },
+    getColorIndicator(level) {
+      const colors = ['red-7', 'red-4', 'red-3', 'red-2', 'red-1', 'blue-1', 'blue-2', 'blue-3', 'blue-4', 'blue-5']
+      return colors[level - 1]
     },
     /*
      * switch mode map/compass for geolocation step

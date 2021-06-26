@@ -121,7 +121,7 @@
             <p v-if="run && run.team && run.team.name">
               {{ $t('label.Team') }} : {{ run.team.name }}
             </p>
-            <p>
+            <p v-if="info && info.quest && info.quest.availablePoints">
               {{ $t('label.MyScore') }} {{ run.tempScore }} / {{ info.quest.availablePoints.score }}
             </p>
             <p>
@@ -303,7 +303,7 @@
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             :class="{'flashing': next.suggest, 'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
             icon="arrow_forward"
-            v-show="next.enabled || next.canPass"
+            v-show="step.id && (next.enabled || next.canPass)"
             @click="nextStep()"
           />
         </div>
@@ -497,12 +497,10 @@ export default {
       this.sendStepIdToParent()
       
       // send once on start
-      this.SendData();
-      // the every 15 seconds
-      setInterval(() => {
-        this.SendData();
-      }, 15000);
-
+      if (this.info.quest.customization.chatEnabled) {
+        this.sendDataToGameMaster()
+      }
+      
       // manage history
       this.updateHistory()
       
@@ -556,8 +554,7 @@ export default {
         }
       })
     },
-    SendData() {
-      console.log(this.quest)
+    sendDataToGameMaster() {
       GMMS.Send(this.run.questId, {
         'lastPing': Date.now(),
         'quest': {
@@ -589,6 +586,7 @@ export default {
         'device': this.$q.platform.is,
         'graaly': process.env.VERSION
       })
+      utils.setTimeout(this.sendDataToGameMaster, 15000)
     },
     /*
     * Open the chat box
@@ -664,6 +662,7 @@ export default {
     async getRun() {
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.questId, { retries: 0 })
+//runs = false // move offline
 
       var currentChapter = 0
       var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
@@ -724,6 +723,7 @@ export default {
             if (isRunOfflineLoaded) {
               // if a offline run already exists
               this.run = offlineRun
+
               this.run._id = res.data._id
               this.runId = this.run._id
               if (!this.run.questId) {
@@ -842,6 +842,16 @@ export default {
                 id: "sensor"
               }
               return false
+            } else if (response.data.next === 'geolocation') {
+              // GPS sensor
+              this.step = {
+                id: "gpssensor",
+                locations: response.data.extra.locations,
+                steps: response.data.extra.geosteps,
+                questId: this.questId,
+                version: this.questVersion
+              }
+              return false
             } else {
               stepId = response.data.next
             }
@@ -859,25 +869,39 @@ export default {
           }
         } else {
           // use offline content
-          stepId = await this.getNextOfflineStep(this.questId, null, this.player)
-          if (!stepId) {
+          const stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player)
+
+          if (!stepIdResponse || !stepIdResponse.id) {
             // if no step is triggered, display the waiting screen
             if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
               this.showWaitingPage()
             }
             this.getPreviousStep()
             return false
+          } else {
+            stepId = stepIdResponse.id
+          }
+          if (stepId === 'locationMarker') {
+            // QR Code scanner step
+            this.step = {
+              id: "sensor"
+            }
+            return false
+          }
+          if (stepId === 'geolocation') {
+            // Gps location sensor step
+            this.step = {
+              id: "gpssensor",
+              locations: stepIdResponse.extra.locations,
+              steps: stepIdResponse.extra.geosteps,
+              questId: this.questId,
+              version: this.questVersion
+            }
+            return false
           }
         }
       }
 
-      if (stepId === 'locationMarker') {
-        // QR Code scanner step
-        this.step = {
-          id: "sensor"
-        }
-        return false
-      }
       if (stepId === 'end') {
         return this.$router.push('/quest/' + this.questId + '/end')
       }
@@ -1064,7 +1088,7 @@ export default {
      */
     checkIfAlreadyPlayed() {
       const conditions = this.run.conditionsDone
-      if (typeof this.step.stepId !== 'undefined' && conditions.indexOf('stepDone_' + this.step.stepId) !== -1) {
+      if (conditions && typeof this.step.stepId !== 'undefined' && conditions.indexOf('stepDone_' + this.step.stepId) !== -1) {
         this.next.canPass = true
       }
     },
@@ -1148,6 +1172,8 @@ export default {
     async trackStepPlayed (returnData, offline) {
       if (this.step.id === 'sensor') {
         await this.getMarkerStep(returnData)
+      } else if (this.step.id === 'gpssensor') {
+        await this.getNextGPSStep()
       } else if (this.step.id === 'waiting') {
         await this.getMarkerStep(returnData)
       } else {
@@ -1231,6 +1257,46 @@ export default {
         }
       }
     },
+    /*
+     * Get next step when a GPS step is found in advanced mode
+     */
+    async getNextGPSStep () {
+      var next
+      var response
+      // get the next step after the marker
+      if (!this.offline.active) {
+        response = await RunService.getNextStep(this.questId, this.player)
+      }
+
+      if (response && response.data) {
+        // check if a step is triggered
+        if (response.data.next) {
+          next = response.data.next
+        } else {
+          Notification(this.$t('label.NothingOccurs'), 'info')
+        }
+      } else {
+        // try to find step offline
+        next = await this.getNextOfflineStep(this.questId, null, this.player)
+      }
+
+      if (next) {
+        // if quest is finished
+        if (next === 'end') {
+          // if user is owner of the quest, redirect to toolbox
+          if (this.$store.state.user.isAdmin) {
+            return this.$router.push('/admin/validate/' + this.questId)
+          } else if (this.$store.state.user._id === this.info.quest.authorUserId) {
+            return this.$router.push('/quest/builder/' + this.questId)
+          } else {
+            return this.$router.push('/quest/' + this.questId + '/end')
+          }
+        } else {
+          //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + next + '/' + this.$route.params.lang)
+          this.moveToStep(next)
+        }
+      }
+    },
     hideHint() {
       this.step.hint = {}
     },
@@ -1276,6 +1342,9 @@ export default {
      * Move to next step
      */
     async nextStep(force) {
+      if (!this.step || !this.step.id) {
+        return false
+      }
       this.$store.state.history.index++
       // if moving in history
       if (this.$store.state.history.items && this.$store.state.history.index < this.$store.state.history.items.length) {
@@ -1480,7 +1549,6 @@ export default {
      */
     async openInfo() {
       // if menu is disabled for the game
-console.log(this.info.quest.customization)
       if (this.info.quest.customization && this.info.quest.customization.hideMenu) {
         return false
       }
@@ -1966,15 +2034,19 @@ console.log(this.info.quest.customization)
      * Get the next offline step
      * /!\ WARNING /!\ copied & adapted from server side file controller/run.js to handle online mode
      */
-    async getNextOfflineStep(questId, markerCode, player) {
+    async getNextOfflineStep(questId, markerCode, player, extra) {
       var steps = []
+      
+      if (!player) {
+        player = 'P1'
+      }
 
       // check if user is currently navigating in quest history
       await this.updateOfflineRun(questId)
       if (this.run.history && this.run.historyIndex < this.run.history.length) {
         this.run.historyIndex++
         await this.saveOfflineRun(questId, this.run)
-        return this.run.history[this.run.historyIndex - 1]
+        return {id: this.run.history[this.run.historyIndex - 1], extra: extra}
       }
 
       // read all steps
@@ -2027,7 +2099,7 @@ console.log(this.info.quest.customization)
 
         // if no condition fit, stop the process
         if (stepsThatFit.length === 0) {
-          return false
+          return {id: "", extra: extra}
         }
         // for all markers that fit, use the one with the more condition met
         var maxNbConditions = 0
@@ -2056,6 +2128,8 @@ console.log(this.info.quest.customization)
       // list the steps for the chapter
       var stepsofChapter = await this.listForAChapter(steps, chapter, player)
       var locationMarkerFound = false
+      var geolocationFound = false
+      
       if (stepsofChapter && stepsofChapter.length > 0) {
         stepListFor:
         for (i = 0; i < stepsofChapter.length; i++) {
@@ -2069,38 +2143,69 @@ console.log(this.info.quest.customization)
                 }
               }
             }
+            // if the geoloc is not requested, do not treat geoloc step
+            if (stepsofChapter[i].type === 'geolocation') {
+              // if advanced mode => do not treat this step
+              if (this.info.quest && this.info.quest.editorMode === 'advanced') {
+                geolocationFound = true
+                if (!extra) {
+                  extra = {}
+                }
+                if (!extra.geosteps) {
+                  extra.geosteps = []
+                }
+                extra.geosteps.push(stepsofChapter[i].stepId)
+                if (stepsofChapter[i].options && stepsofChapter[i].options.locations && stepsofChapter[i].options.locations.length > 0) {
+                  if (!extra.locations) {
+                    extra.locations = []
+                  }
+                  extra.locations.push(stepsofChapter[i].options.locations[0])
+                }
+                continue stepListFor
+              }
+            }
             // if the marker is not requested, do not treat marker step
             if (stepsofChapter[i].type === 'locate-marker') {
               // if advanced mode => do not treat this step
               if (this.info.quest && this.info.quest.editorMode === 'advanced') {
                 locationMarkerFound = true
+                if (!extra) {
+                  extra = {}
+                }
+                if (!extra.steps) {
+                  extra.steps = []
+                }
+                extra.steps.push(stepsofChapter[i].stepId)
                 continue stepListFor
               }
             }
-            // if step is end of chapter
-            if (stepsofChapter[i].type === 'end-chapter') {
-              if (stepsofChapter[i].options && stepsofChapter[i].options.resetHistory) {
-                this.removeHistory()
-              }
-              let nextStepId
+            
+            //if (!locationMarkerFound && !geolocationFound) {
+              // if step is end of chapter
+              if (stepsofChapter[i].type === 'end-chapter') {
+                if (stepsofChapter[i].options && stepsofChapter[i].options.resetHistory) {
+                  this.removeHistory()
+                }
+                let nextStepId
 
-              if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
-                this.removeAllConditionsOfAChapter(steps, this.run.conditionsDone, stepsofChapter[i].chapterId)
-              } else {
-                nextStepId = await this.moveToNextChapter()
+                if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
+                  this.removeAllConditionsOfAChapter(steps, this.run.conditionsDone, stepsofChapter[i].chapterId)
+                } else {
+                  nextStepId = await this.moveToNextChapter()
+                }
+                if (nextStepId !== 'end') {
+                  // get next step by running the process again for new chapter
+                  nextStepId = await this.getNextOfflineStep(questId, markerCode, player, extra)
+                }
+                //await this.addStepToHistory(nextStepId)
+                return {id: nextStepId, extra: extra}
+              } else { // if (markerCode || stepsofChapter[i].type !== 'locate-marker') { // if locate marker, do not start the step until user flash the marker
+                // return step if no condition or all conditions met
+                let nextStepId = stepsofChapter[i].stepId
+                //await this.addStepToHistory(nextStepId)
+                return {id: nextStepId, extra: extra}
               }
-              if (nextStepId !== 'end') {
-                // get next step by running the process again for new chapter
-                nextStepId = await this.getNextOfflineStep(questId, markerCode, player)
-              }
-              //await this.addStepToHistory(nextStepId)
-              return nextStepId
-            } else { // if (markerCode || stepsofChapter[i].type !== 'locate-marker') { // if locate marker, do not start the step until user flash the marker
-              // return step if no condition or all conditions met
-              let nextStepId = stepsofChapter[i].stepId
-              //await this.addStepToHistory(nextStepId)
-              return nextStepId
-            }
+            //}
           }
         }
       }
@@ -2110,16 +2215,28 @@ console.log(this.info.quest.customization)
         let nextStepId = await this.moveToNextChapter()
         if (nextStepId !== 'end') {
           // get next step by running the process again for new chapter
-          nextStepId = await this.getNextOfflineStep(questId, markerCode, player)
+          nextStepId = await this.getNextOfflineStep(questId, markerCode, player, extra)
           //await this.addStepToHistory(nextStepId)
         }
-        return nextStepId
+        return {id: nextStepId, extra: extra}
       }
       // if location marker step found in advance mode, return information
-      if (locationMarkerFound && this.info.quest && this.info.quest.editorMode === 'advanced') {
-        return "locationMarker"
+      if (locationMarkerFound && !geolocationFound && this.info.quest && this.info.quest.editorMode === 'advanced') {
+        //if (extra.steps.length === 1) {
+        //  return extra.steps[0]
+        //} else {
+          return {id: "locationMarker", extra: extra}
+        //}
       }
-      return false
+      // if geolocation step found in advance mode, return information
+      if (geolocationFound && this.info.quest && this.info.quest.editorMode === 'advanced') {
+        if (extra.geosteps.length === 1) {
+          return {id: extra.geosteps[0], extra: ""}
+        } else {
+          return {id: "geolocation", extra: extra}
+        }
+      }
+      return {id: "", extra: extra}
     },
     /*
      * Return only steps of a chapter with a specific type
@@ -2203,6 +2320,9 @@ console.log(this.info.quest.customization)
      * WARNING : this function is a duplicate for server function "updateConditions" of run.js controller
      */
     updateConditions(currentConditions, stepId, isSuccess, stepType, addStepDone, player) {
+      if (!stepId) {
+        return currentConditions
+      }
       if (typeof currentConditions === 'undefined') {
         currentConditions = []
       }
