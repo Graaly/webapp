@@ -2907,7 +2907,7 @@ export default {
           // compute distance between two coordinates
           this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(destinationPosition.lat, destinationPosition.lng, current.latitude, current.longitude) * 1000 // meters
           closestDistance = Math.min(closestDistance, this.geolocation.GPSdistance)
-console.log(this.geolocation.GPSdistance)
+
           // TODO : make distance configurable
           if (this.geolocation.GPSdistance <= 5) {
             this.$refs['geolocation-component'].disabled = true
@@ -2915,7 +2915,7 @@ console.log(this.geolocation.GPSdistance)
             await this.checkAnswer({stepId: this.step.steps[i], position: current})
           }
         }
-console.log("closest :" + closestDistance)
+
         this.updateDistanceIndicatorColor(closestDistance)
       } else {
         this.geolocation.active = true
@@ -3152,11 +3152,10 @@ console.log("closest :" + closestDistance)
       utils.setInterval(function() {
         if (cross.src === crossPicture && self.step.answers && self.step.answers.item) {
           if (itemUsed.pictures && itemUsed.pictures[self.lang] && itemUsed.pictures[self.lang] !== '') {
-            cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? itemUsed.picture : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + itemUsed.picture)
+            cross.src = ((itemUsed.picture.indexOf('statics/') > -1 || itemUsed.picture.indexOf('blob:') !== -1) ? itemUsed.picture : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + itemUsed.picture)
           } else {
             cross.src = ((self.step.answers.item.indexOf('statics/') > -1 || self.step.answers.item.indexOf('blob:') !== -1) ? self.step.answers.item : self.serverUrl + '/upload/quest/' + self.step.questId + '/step/new-item/' + self.step.answers.item)
           }
-          
           cross.style.borderRadius = '50%'
         } else {
           cross.src = crossPicture

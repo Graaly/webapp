@@ -110,19 +110,22 @@
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
-          <div class="fixed-top align-right full-width q-pa-lg" v-if="info && info.audio !== '' && info.audio !== null">
-            <q-btn v-if="sound && sound.status === 'play'" color="primary" @click="cutSound" icon="volume_off"></q-btn>
-            <q-btn v-if="sound && sound.status === 'pause'" color="primary" @click="cutSound" icon="volume_up"></q-btn>
-          </div>
+          <q-toolbar class="dark-banner text-white">
+            <q-toolbar-title v-if="info && info.quest && info.quest.availablePoints">
+              {{ $t('label.MyScore') }} {{ run.tempScore }} / {{ info.quest.availablePoints.score }}
+            </q-toolbar-title>
+            <q-icon size="sm" class="q-mr-sm" v-if="info && info.audio !== '' && info.audio !== null && sound && sound.status === 'play'" @click="cutSound" name="volume_up"></q-icon>
+            <q-icon size="sm" class="q-mr-sm" v-if="info && info.audio !== '' && info.audio !== null && sound && sound.status === 'pause'" @click="cutSound" name="volume_off"></q-icon>
+            <q-icon size="sm" class="q-mr-sm" v-if="offline.active" name="cloud_off"></q-icon>
+            <q-icon size="sm" class="q-mr-sm" v-if="!offline.active" name="cloud_done"></q-icon>
+          </q-toolbar>
+          <!--<div class="fixed-top full-width q-pa-lg">-->
           <div class="text-center dark-banner q-pb-xl q-pt-md fixed-bottom">
             <p class="title">
               {{ (info.quest && info.quest.title) ? info.quest.title : $t('label.NoTitle') }}
             </p>
             <p v-if="run && run.team && run.team.name">
               {{ $t('label.Team') }} : {{ run.team.name }}
-            </p>
-            <p v-if="info && info.quest && info.quest.availablePoints">
-              {{ $t('label.MyScore') }} {{ run.tempScore }} / {{ info.quest.availablePoints.score }}
             </p>
             <p>
               <q-btn
@@ -870,7 +873,7 @@ export default {
         } else {
           // use offline content
           const stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player)
-
+          
           if (!stepIdResponse || !stepIdResponse.id) {
             // if no step is triggered, display the waiting screen
             if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
@@ -908,7 +911,7 @@ export default {
 
       // check if the quest data are not already saved on device
       let isStepOfflineLoaded = await this.checkIfStepIsAlreadyLoaded(stepId)
-
+      
       if (!isStepOfflineLoaded || forceNetworkLoading) {
         const response2 = await StepService.getById(stepId, this.questVersion, this.lang)
         if (response2 && response2.data && response2.status === 200) {
@@ -1237,7 +1240,10 @@ export default {
         }
       } else {
         // try to find step offline
-        next = await this.getNextOfflineStep(this.questId, answer, this.player)
+        let response = await this.getNextOfflineStep(this.questId, answer, this.player)
+        if (response) {
+          next = response.id
+        }
       }
 
       if (next) {
@@ -1277,7 +1283,10 @@ export default {
         }
       } else {
         // try to find step offline
-        next = await this.getNextOfflineStep(this.questId, null, this.player)
+        let response = await this.getNextOfflineStep(this.questId, null, this.player)
+        if (response) {
+          next = response.id
+        }
       }
 
       if (next) {
@@ -1554,10 +1563,12 @@ export default {
       }
       if (this.info.isOpened) {
         this.closeAllPanels()
+        this.footer.show = true
       } else {
         this.closeAllPanels()
         this.info.isOpened = true
-        this.footer.tabSelected = 'info'
+        this.footer.show = false
+        //this.footer.tabSelected = 'info'
       }
     },
     /*
@@ -1791,6 +1802,7 @@ export default {
       if (!window.cordova) {
         return false
       }
+
       const isStepOfflineFileExisting = await utils.checkIfFileExists(this.questId, 'step_' + id + '.json')
 
       if (isStepOfflineFileExisting) {
@@ -2195,7 +2207,8 @@ export default {
                 }
                 if (nextStepId !== 'end') {
                   // get next step by running the process again for new chapter
-                  nextStepId = await this.getNextOfflineStep(questId, markerCode, player, extra)
+                  let response = await this.getNextOfflineStep(questId, markerCode, player, extra)
+                  nextStepId = response.id
                 }
                 //await this.addStepToHistory(nextStepId)
                 return {id: nextStepId, extra: extra}
@@ -2215,7 +2228,8 @@ export default {
         let nextStepId = await this.moveToNextChapter()
         if (nextStepId !== 'end') {
           // get next step by running the process again for new chapter
-          nextStepId = await this.getNextOfflineStep(questId, markerCode, player, extra)
+          let response = await this.getNextOfflineStep(questId, markerCode, player, extra)
+          nextStepId = response.id
           //await this.addStepToHistory(nextStepId)
         }
         return {id: nextStepId, extra: extra}
