@@ -47,6 +47,15 @@
         />
       </div>
       
+      <!------------ GEOLOCATION STEPS ------------------>
+      
+      <!-- low GPS accuracy warning -->
+      <div class="centered bg-warning q-pa-sm low-gps-accuracy-warning" v-if="geolocation.lowCompassAccuracy || geolocation.lowGpsAccuracy">
+        <q-icon name="not_listed_location" style="font-size: 30px;" class="flashing" />
+        <span v-if="!geolocation.persistentLowAccuracy">{{ $t('label.WarningLowGpsAccuracy') }}</span>
+        <span v-else>{{ $t('label.PersistentLowGpsAccuracyPleaseSkipStep') }}</span>
+      </div>
+      
       <!------------------ AUDIO ------------------------>
     
       <audio 
@@ -265,12 +274,12 @@
             </tr>
             <tr>
               <td v-for="(code, index) in playerCode" :key="index">
-                <img :id="'image-code-' + index" @click="enlargeThePicture(index)" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
+                <img v-if="step.options.images[code]" :id="'image-code-' + index" @click="enlargeThePicture(index)" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
               </td>
             </tr>
             <tr v-show="rightAnswer">
               <td v-for="(code, index) in rightAnswer" :key="index" class="right">
-                <img :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
+                <img v-if="step.options.images[code]" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
               </td>
             </tr>
             <tr>
@@ -562,7 +571,9 @@
         <div class="target-view" v-show="(playerResult === null) || (playerResult !== null && step.options && step.options.is3D)">
           <canvas id="target-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
-        <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
+        <div style="width:100%; text-align:center;">
+          <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
+        </div>
       </div>
       
       <!------------------ SUPERIMPOSE IMAGE AND CAMERA STEP AREA ------------------------>
@@ -762,7 +773,8 @@
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
-    <geolocation ref="geolocation-component" v-if="step.type == 'geolocation' || step.type == 'locate-item-ar' || step.id === 'gpssensor'" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" :withNavBar="true" />
+    <!-- keep geolocation active during all quest duration -->
+    <geolocation ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />
     
     <!--====================== WIN POINTS ANIMATION =================================-->
     
@@ -970,9 +982,15 @@ export default {
           showCalibration: false,
           takeMobileVertically: false,
           gyroscopeDetectionCounter: 0,
+          gpsAccuracy: null, // in meters
+          lowGpsAccuracyCeiling: 15, // in meters. below this value, we assume GPS accuracy is good enough
+          lowGpsAccuracy: false,
           lowCompassAccuracy: false,
-          compassAccuracyTimeout: null,
+          persistentLowAccuracy: false, // helps to suggest player to skip current step
+          persistentLowAccuracyTimeout: null,
+          gpsAccuracyTimeout: null, // used for both compass & GPS
           showARHelp: false,
+          playerTouchedArObject: false,
           currentIndex: 0,
           foundStep: false,
           mode: 'compass',
@@ -1399,7 +1417,7 @@ export default {
             // user can pass
             this.$emit('pass')
             
-            // start accelerometer sensor
+            // start devicemotion sensor (allows to detect gyroscope)
             window.addEventListener("devicemotion", this.handleMotionEvent, true)
             
             await this.waitForGyroscopeDetection()
@@ -1473,20 +1491,35 @@ export default {
                 if (accuracy <= 1) {
                   _this.geolocation.lowCompassAccuracy = true
                   // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
-                  if (_this.geolocation.compassAccuracyTimeout === null && !_this.geolocation.showCalibration) {
-                    _this.geolocation.compassAccuracyTimeout = utils.setTimeout(() => {
-                      _this.$refs.gpscal.askUserToCalibrateGPS();
-                      if (_this.geolocation.compassAccuracyTimeout !== null) {
-                        clearTimeout(_this.geolocation.compassAccuracyTimeout);
-                        _this.geolocation.compassAccuracyTimeout = null;
+                  if (_this.geolocation.gpsAccuracyTimeout === null && !_this.geolocation.showCalibration && !_this.geolocation.persistentLowAccuracy) {
+                    _this.geolocation.gpsAccuracyTimeout = utils.setTimeout(() => {
+                      _this.$refs.gpscal.askUserToCalibrateGPS()
+                      if (_this.geolocation.gpsAccuracyTimeout !== null) {
+                        clearTimeout(_this.geolocation.gpsAccuracyTimeout)
+                        _this.geolocation.gpsAccuracyTimeout = null
                       }
                     }, 10000)
                   }
+                  // persistent low accuracy: suggest the player to skip step
+                  if (_this.geolocation.persistentLowAccuracyTimeout === null) {
+                    _this.geolocation.persistentLowAccuracyTimeout = utils.setTimeout(() => {
+                      _this.persistentLowAccuracy = true
+                      _this.$emit('msg', 'suggestNext')
+                      if (_this.geolocation.persistentLowAccuracyTimeout !== null) {
+                        clearTimeout(_this.geolocation.persistentLowAccuracyTimeout)
+                        _this.geolocation.persistentLowAccuracyTimeout = null
+                      }
+                    }, 20000)
+                  }
                 } else {
                   _this.geolocation.lowCompassAccuracy = false
-                  if (_this.geolocation.compassAccuracyTimeout !== null) {
-                    clearTimeout(_this.geolocation.compassAccuracyTimeout);
-                    _this.geolocation.compassAccuracyTimeout = null;
+                  // Compass & GPS OK ? cancel timeouts
+                  if (_this.geolocation.gpsAccuracyTimeout !== null && !_this.geolocation.lowGpsAccuracy) {
+                    clearTimeout(_this.geolocation.gpsAccuracyTimeout);
+                    _this.geolocation.gpsAccuracyTimeout = null;
+                    clearTimeout(_this.geolocation.persistentLowAccuracyTimeout);
+                    _this.geolocation.persistentLowAccuracyTimeout = null;
+                    _this.geolocation.persistentLowAccuracy = false;
                   }
                 }
               },
@@ -1616,11 +1649,6 @@ export default {
           } else {
             this.launchVideoStreamForAndroid('camera-stream-for-image-over-flow', true)
           }
-        }
-        
-        // enable geoloc only when 3D scene is fully loaded
-        if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
-          this.$refs['geolocation-component'].disabled = false
         }
         
         if ((this.step.type === 'locate-marker' || this.step.id === 'sensor') && !this.playerResult) {
@@ -2320,7 +2348,6 @@ export default {
                   target = this.geolocation.target
                 } else {
                   target = this.locateMarker
-                  target.arToolkitContext = null // otherwise ending animation is 'erased' by AR.js behavior: 3D object disappears because camera stream is removed and markers are not found anymore !
                 }
                 let camera = target.camera
                 let object = target.scene.getObjectByName('targetObject')
@@ -2337,18 +2364,13 @@ export default {
                 let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
                   .easing(TWEEN.Easing.Back.In)
                   .onComplete(() => {
-                    if (this.step.type === 'locate-marker') {
-                      // detach 3D object (target to find) from arSmoothedControl and attach it directly at scene root, for hassle free manipulation of the 3D object
-                      utils.detachObject3D(object, object.parent, target.scene)
-                      utils.attachObject3D(object, target.scene, target.scene)
-                    }
-                    
-                    camera.position.set(0, 0,  cameraDistance * 2 / 3)
+                    camera.position.set(0, 0, cameraDistance * 2 / 3)
                     camera.lookAt(new THREE.Vector3(0, cameraDistance, size.z / 2))
                     // reset object position/scale/rotation
                     object.scale.set(0, 0, 0)
                     object.position.set(0, cameraDistance, size.z / 2)
                     object.rotation.set(0, 0, 0)
+                    
                     if (checkAnswerResult.result === true) {
                       this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
                     } else {
@@ -2910,19 +2932,20 @@ export default {
 
           // TODO : make distance configurable
           if (this.geolocation.GPSdistance <= 5) {
-            this.$refs['geolocation-component'].disabled = true
+            //this.$refs['geolocation-component'].disabled = true
             this.geolocation.active = false
             await this.checkAnswer({stepId: this.step.steps[i], position: current})
           }
         }
 
         this.updateDistanceIndicatorColor(closestDistance)
-      } else {
+      } else if ((this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') && this.playerResult === null && !this.geolocation.playerTouchedArObject) {
+        this.geolocation.gpsAccuracy = pos.coords.accuracy
         this.geolocation.active = true
         this.geolocation.playerPosition = pos.coords
         let current = pos.coords
         
-        // if lat and lng are not set, compute to have the object close to the current user position
+        // if lat and lng are not set, compute to have the object close to the current user position. frequently used for tests/demos.
         if (this.step.options.lat === 0 && parseInt(this.step.options.lng, 10) === this.step.options.lng) {
           if (this.step.options.lng === 0) {
             if (this.step.type === 'locate-item-ar') {
@@ -2950,7 +2973,43 @@ export default {
           return
         }
         
-        let previousGPSdistance = this.geolocation.GPSdistance
+        // show GPS calibration animation when GPS accuracy in meters is low
+        // this is similar to what is done with compass accuracy (cordova plugin "heading calibration") 
+        if (this.geolocation.gpsAccuracy > this.geolocation.lowGpsAccuracyCeiling) {
+          this.geolocation.lowGpsAccuracy = true
+          // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
+          if (this.geolocation.gpsAccuracyTimeout === null && !this.geolocation.showCalibration && !this.geolocation.persistentLowAccuracy) {
+            this.geolocation.gpsAccuracyTimeout = utils.setTimeout(() => {
+              this.$refs.gpscal.askUserToCalibrateGPS()
+              if (this.geolocation.gpsAccuracyTimeout !== null) {
+                clearTimeout(this.geolocation.gpsAccuracyTimeout)
+                this.geolocation.gpsAccuracyTimeout = null
+              }
+            }, 10000)
+          }
+          if (this.geolocation.persistentLowAccuracyTimeout === null) {
+            this.geolocation.persistentLowAccuracyTimeout = utils.setTimeout(() => {
+              this.geolocation.persistentLowAccuracy = true
+              this.$emit('msg', 'suggestNext')
+              if (this.geolocation.persistentLowAccuracyTimeout !== null) {
+                clearTimeout(this.geolocation.persistentLowAccuracyTimeout)
+                this.geolocation.persistentLowAccuracyTimeout = null
+              }
+            }, 20000)
+          }
+        } else {
+          this.geolocation.lowGpsAccuracy = false
+          // Compass & GPS OK ? cancel timeouts
+          if (this.geolocation.gpsAccuracyTimeout !== null && !this.geolocation.lowCompassAccuracy) {
+            clearTimeout(this.geolocation.gpsAccuracyTimeout) // cancel gps calibration animation
+            this.geolocation.gpsAccuracyTimeout = null
+            clearTimeout(this.geolocation.persistentLowAccuracyTimeout) // cancel "skip step" message in top panel
+            this.geolocation.persistentLowAccuracyTimeout = null
+            this.geolocation.persistentLowAccuracy = false
+          }
+        }
+        
+        //let previousGPSdistance = this.geolocation.GPSdistance
         
         let destinationPosition = { lat: options.lat, lng: options.lng }
         if (this.step.type === 'geolocation' && options.locations && options.locations.length > 0) {
@@ -2963,13 +3022,22 @@ export default {
         // note: current.accuracy contains the result accuracy in meters
         this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(destinationPosition.lat, destinationPosition.lng, current.latitude, current.longitude) * 1000 // meters
         let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, destinationPosition.lat, destinationPosition.lng)
-        if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
+        
+        /*if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
           // avoid to change distance too much
           if (!this.geolocation.distance || this.geolocation.GPSdistance < this.geolocation.distance || this.geolocation.GPSdistance > (this.geolocation.distance + 4)) {
             this.geolocation.distance = this.geolocation.GPSdistance
           }
           this.geolocation.rawDirection = rawDirection
+        }*/
+        this.geolocation.distance = this.geolocation.GPSdistance
+        
+        if (this.geolocation.lowGpsAccuracy || this.geolocation.lowCompassAccuracy) {
+          // avoid using an inaccurate position for the remaining of the process
+          return
         }
+        
+        this.geolocation.rawDirection = rawDirection
         
         let finalDirection = utils.degreesToRadians(rawDirection)
         if (!this.deviceHasGyroscope) {
@@ -3005,29 +3073,29 @@ export default {
           }
           
           // if GPS distance to object is greater than value of this.minDistanceForGPS, update target object position only given GPS position. Otherwise, accelerometer is used to track device position for better user experience (avoids object "drifts").
-          if ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || this.deviceHasGyroscope === false) {
-            // smooth position change
-            new TWEEN.Tween(object.position)
-              .to({ x: this.geolocation.position.x, y: this.geolocation.position.y }, 1000)
-              .easing(TWEEN.Easing.Quadratic.InOut)
-              .start()
-          }
+          //if ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || this.deviceHasGyroscope === false) {
+          // smooth position change
+          new TWEEN.Tween(object.position)
+            .to({ x: this.geolocation.position.x, y: this.geolocation.position.y }, 1000)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .start()
+          //}
           
           this.updatePlayerCanTouchTarget()
-        }
-        
-        if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.distance <= parseInt(options.distance, 10)) || (!options.distance && this.geolocation.distance <= 20))) {
-          //check if other locations are defined
-          this.geolocation.currentIndex++
-          if (options.locations && options.locations.length > 0 && this.geolocation.currentIndex < options.locations.length) {
-            Notification(this.$t('label.CheckpointReached'), 'info')
-            this.geolocation.foundStep = false
-            this.geolocation.foundStep = true
-          } else {
-            this.$refs['geolocation-component'].disabled = true
-            this.geolocation.active = false
-            this.resetDrawDirectionInterval()
-            await this.checkAnswer(current)
+          
+          if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.distance <= parseInt(options.distance, 10)) || (!options.distance && this.geolocation.distance <= 20))) {
+            //check if other locations are defined
+            this.geolocation.currentIndex++
+            if (options.locations && options.locations.length > 0 && this.geolocation.currentIndex < options.locations.length) {
+              Notification(this.$t('label.CheckpointReached'), 'info')
+              this.geolocation.foundStep = false
+              this.geolocation.foundStep = true
+            } else {
+              //this.$refs['geolocation-component'].disabled = true
+              this.geolocation.active = false
+              this.resetDrawDirectionInterval()
+              await this.checkAnswer(current)
+            }
           }
         }
       }
@@ -3782,8 +3850,10 @@ export default {
         if (this.step.type === 'locate-item-ar') {
           this.resetDrawDirectionInterval()
           // stop location watching
-          this.$refs['geolocation-component'].disabled = true
+          //this.$refs['geolocation-component'].disabled = true
           this.geolocation.active = false
+          // stop updating object position
+          this.geolocation.playerTouchedArObject = true
         }
         // stop camera streams
         let cameraStreamRef = (this.step.type === 'locate-item-ar' ? 'camera-stream-for-locate-item-ar' : 'camera-stream-for-locate-marker')
@@ -3944,23 +4014,23 @@ export default {
     * - used as well by steps 'geolocation' (only to detect if device has gyroscope)
     */
     handleMotionEvent (event) {
-      let dm = this.deviceMotion
-      let object
-      let canProcess = true // can this method be entierely run? is all required data available?
+      //let dm = this.deviceMotion
+      //let object
+      //let canProcess = true // can this method be entierely run? is all required data available?
       
       // detect if device has gyroscope
       // inspired from https://stackoverflow.com/a/33843234/488666
       if (this.deviceHasGyroscope === null && !this.isIOs) {
         this.deviceHasGyroscope = ("rotationRate" in event && "alpha" in event.rotationRate && event.rotationRate.alpha !== null)
         
-        if (this.step.type === 'geolocation') {
+        //if (this.step.type === 'geolocation') {
           window.removeEventListener('devicemotion', this.handleMotionEvent, true)
-          return
-        }
+          //return
+        //}
       }
       
       // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
-      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > this.minDistanceForGPS || this.geolocation.absoluteOrientationSensor === null || !this.geolocation.absoluteOrientationSensor.quaternion || isNaN(this.geolocation.position.x) || isNaN(this.geolocation.position.y)) {
+      /*if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > this.minDistanceForGPS || this.geolocation.absoluteOrientationSensor === null || !this.geolocation.absoluteOrientationSensor.quaternion || isNaN(this.geolocation.position.x) || isNaN(this.geolocation.position.y)) {
         canProcess = false
       }
       
@@ -4083,7 +4153,7 @@ export default {
           this.updatePlayerCanTouchTarget()
         }
       }
-      dm.dateLatestEvent = currentTime
+      dm.dateLatestEvent = currentTime*/
     },
     /*
     * updates property this.geolocation.canTouchTarget, given this.geolocation.distance
@@ -4642,7 +4712,8 @@ export default {
   .geolocation .text { margin-bottom: 0.5rem; position: relative; z-index: 10; }
   .geolocation #mode-switch { position: absolute; bottom: 6rem; right: 0.6rem; }
   .geolocation-step-map { position: absolute; opacity: 1; top: 0; left: 0; width: 100%; height: 100%; background-color: yellow; }
-  .geolocation .q-btn { box-shadow: none;  }
+  .geolocation .q-btn { box-shadow: none; }
+  .low-gps-accuracy-warning { z-index: 200; position: absolute; top: 0; left: 0; right: 0; }
   
   /* jigsaw puzzle specific */
   

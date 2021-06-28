@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll text-white" :class="quest.customization && quest.customization.endColor ? '' : 'background-dark'" :style="(quest.customization && quest.customization.endColor && quest.customization.endColor !== '') ? 'background-color: ' + quest.customization.endColor : ''">
+  <div class="scroll text-white" :class="quest && quest.customization && quest.customization.endColor ? '' : 'background-dark'" :style="(quest && quest.customization && quest.customization.endColor && quest.customization.endColor !== '') ? 'background-color: ' + quest.customization.endColor : ''">
     <!------------------ NO NETWORK AREA ------------------------>
     <div v-if="warnings.noNetwork">
       <div class="bg-primary">
@@ -74,7 +74,7 @@
         
         <div class="centered q-mt-md subtitle5">{{ $t('label.YouLikedThisQuest') }}</div>
         <div class="centered q-px-md">
-          <span v-show="quest.type !== 'discovery' && run.score > 0 && quest && quest.access === 'public'">
+          <span v-show="quest && quest.type !== 'discovery' && run.score > 0 && quest && quest.access === 'public'">
             <a class="small" @click="openChallengeBox">{{ $t('label.ChallengeYourFriends') }}</a> <span class="secondary-font-very-small"> {{ $t('label.or') }} </span>
           </span>
           <a class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
@@ -118,7 +118,7 @@
       <div>
         <!------------------ REVIEW AREA ------------------------>
         
-        <div class="q-mx-md q-mt-xl q-pa-sm centered" v-if="quest.type !== 'discovery' && showAddReview">
+        <div class="q-mx-md q-mt-xl q-pa-sm centered" v-if="quest && quest.type !== 'discovery' && showAddReview">
           <div class="subtitle4">{{ $t('label.ReviewThisQuest') }}</div>
           <div class="q-py-sm"><q-rating v-model="rating" :max="5" size="1rem" class="end-rating" color="white" :disable="reviewSent" @click="showReviewText = true" /></div>
         </div>
@@ -134,7 +134,6 @@
             </div>
           </div>
         </q-dialog>
-      
         
         <!------------------ REWARD AREA ------------------------>
         
@@ -710,10 +709,10 @@ export default {
       let nbGoodAnwers = 0
       for (var i = 0; i < conditionsDone.length; i++) {
         if (conditionsDone[i].indexOf('stepSuccess_') !== -1) {
-          nbQuestions ++
-          nbGoodAnwers ++
+          nbQuestions++
+          nbGoodAnwers++
         } else if (conditionsDone[i].indexOf('stepFail_') !== -1) {
-          nbQuestions ++
+          nbQuestions++
         }
       }
       this.nbQuestions = nbQuestions

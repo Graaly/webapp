@@ -40,8 +40,8 @@
       <!--====================== WARNINGS =================================-->
       
       <div class="centered bg-warning q-pa-sm" v-if="warnings.noNetwork">
-          <q-spinner-radio class="on-left" /> {{ $t('label.WarningNoNetwork') }}
-        </div>
+        <q-spinner-radio class="on-left" /> {{ $t('label.WarningNoNetwork') }}
+      </div>
       <div v-if="warnings.noNetwork || warnings.noServerReponse">
         <div class="centered bg-warning q-pa-sm" v-if="!warnings.noNetwork && warnings.noServerReponse">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}

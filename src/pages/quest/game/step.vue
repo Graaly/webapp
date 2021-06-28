@@ -39,6 +39,7 @@
         @pass="trackStepPass"
         @closeAllPanels="closeAllPanels"
         @forceMoveNext="nextStep(true)"
+        @suggestNext="alertOnNext"
         @hideButtons="hideFooterButtons"
         @showButtons="showFooterButtons"
         @msg="trackMessage">
@@ -329,7 +330,6 @@ import story from 'components/story'
 import utils from 'src/includes/utils'
 
 import GMMS from 'services/GameMasterMonitoringService_mqtt'
-import geolocation from 'components/geolocation'
 
 import { Notify } from 'quasar'
 
@@ -1218,6 +1218,8 @@ export default {
     async trackMessage (message) {
       if (message === 'suggestInventory') {
         this.inventory.suggest = true
+      } else if (message === 'suggestNext') {
+        this.next.suggest = true
       }
     },
     /*
@@ -1911,7 +1913,7 @@ export default {
       var ended = false
       var score = 0
       var stepStatus
-      var removedStatus
+      //var removedStatus
 
       if (success) {
         // if answer is not displayed => player must be able to play again the step and the step before
@@ -1949,7 +1951,7 @@ export default {
       }
 
       // compute nb points
-      var answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: 1, ended: ended, score: score, reward: 0, status: stepStatus, useHint: false, date: new Date(), online: false}
+      answer = {stepId: this.step.stepId, stepNumber: this.step.number, nbTry: 1, ended: ended, score: score, reward: 0, status: stepStatus, useHint: false, date: new Date(), online: false}
       // add new item in inventory
       if (this.step.type === 'new-item') {
         if (this.run.inventory) {
@@ -2528,7 +2530,7 @@ export default {
         position: 'top',
         timeout: 5000,
         actions: [
-          { label: 'Voir', color: 'white', handler: () => this.chat.isOpened = true }
+          { label: 'Voir', color: 'white', handler: () => { this.chat.isOpened = true } }
         ]
       })
     }
@@ -2541,7 +2543,7 @@ export default {
   watch: {
     chatNotification () {
       if (!chat.isOpened) {
-        if (this.$store.state.chatNotification !== 0){
+        if (this.$store.state.chatNotification !== 0) {
           this.showNotif()
         }
       }

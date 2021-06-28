@@ -435,7 +435,8 @@
                     bottom-slots
                     options-cover
                     >
-                    <template v-slot:option="{ itemProps, itemEvents, opt, selected }">
+                    <!-- template v-slot:option="{ itemProps, itemEvents, opt, selected }" -->
+                    <template v-slot:option="{ itemProps, itemEvents, opt }">
                       <q-item v-bind="itemProps" v-on="itemEvents">
                         <q-item-section>
                           <q-item-label v-html="opt.label" :class="'font-' + opt.value" ></q-item-label>
@@ -635,10 +636,10 @@
           <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items[0] && chapters.items[0].steps && chapters.items[0].steps.length > 1">
             <q-btn color="primary" class="glossy large-button" icon="play_arrow" @click="testQuest()">{{ $t('label.TestYourQuest') }}</q-btn>
           </p>
-          <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current">
+          <div class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current">
             <div @click="showMedia()">{{ storage }}</div>
             <q-linear-progress rounded style="height: 15px" :value="getPercentStorageUsage()" color="secondary" class="q-mt-sm" />
-          </p>
+          </div>
         </div>
         
         <div v-if="form.fields.editorMode === 'advanced'">
@@ -705,10 +706,10 @@
           <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items.length > 1">
             <q-btn color="primary" class="glossy large-button" icon="play_arrow" @click="testQuest()">{{ $t('label.TestYourQuest') }}</q-btn>
           </p>
-          <p class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current">
+          <div class="smaller" v-if="quest && quest.size && quest.size.limit && quest.size.current">
             <div @click="showMedia()">{{ storage }}</div>
             <q-linear-progress rounded style="height: 15px" :value="getPercentStorageUsage()" color="secondary" class="q-mt-sm" />
-          </p>
+          </div>
         </div>
               
       </div>
@@ -1517,6 +1518,7 @@ export default {
       hint: {
         isOpened: false,
         label: "",
+        suggest: false,
         number: 0
       },
       media: {
@@ -2325,7 +2327,7 @@ export default {
     async getCurrentLocation() {
       this.$q.loading.show()
       // get the current coords
-      navigator.geolocation.getCurrentPosition(this.fillLocation, this.getLocationError, {timeout: 5000, maximumAge: 10000})
+      navigator.geolocation.getCurrentPosition(this.fillLocation, this.getLocationError, {timeout: 5000, maximumAge: 0})
     },
     getLocationError(err) {
       console.log(err)
@@ -3184,6 +3186,8 @@ export default {
     async trackMessage (message) {
       if (message === 'suggestInventory') {
         this.inventory.suggest = true
+      } else if (message === 'suggestNext') {
+        this.canMoveNextStep = true // warning: property 'canMoveNextStep' inconsistent with step.vue
       }
     },
     /*
