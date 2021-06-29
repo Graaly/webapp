@@ -861,6 +861,27 @@ var self = {
   */
   map: function(x, inMin, inMax, outMin, outMax) {
     return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+  },
+  /**
+   * Version comparison function. Adapted from https://stackoverflow.com/a/16187766/488666
+   * @param {String} a e.g. "3.1.21"
+   * @param {String} b e.g. "2.1"
+   * @returns a number < 0 if a < b, a number > 0 if a > b, 0 if a = b
+   */
+  compareVersions (a, b) {
+    let diff;
+    let regExStrip0 = /(\.0+)+$/;
+    let segmentsA = a.replace(regExStrip0, '').split('.');
+    let segmentsB = b.replace(regExStrip0, '').split('.');
+    let l = Math.min(segmentsA.length, segmentsB.length);
+
+    for (let i = 0; i < l; i++) {
+        diff = parseInt(segmentsA[i], 10) - parseInt(segmentsB[i], 10);
+        if (diff) {
+            return diff;
+        }
+    }
+    return segmentsA.length - segmentsB.length;
   }
 }
 
