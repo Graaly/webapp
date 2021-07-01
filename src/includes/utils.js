@@ -209,6 +209,7 @@ var self = {
   setInterval: function (func, duration) {
     let intervalId = setInterval(func, duration)
     store.dispatch('addIntervalId', intervalId)
+    return intervalId
   },
   /**
    * Clear all intervals created in other pages
