@@ -46,8 +46,7 @@ import utils from 'src/includes/utils'
 export default {
   // name: 'ComponentName',
   props: {
-    maximumAge: { type: Number, default: 0 },
-    withNavBar: { type: Boolean, default: false }
+    maximumAge: { type: Number, default: 0 }
   },
   data () {
     return {
@@ -140,23 +139,23 @@ export default {
      * @param   {string}    err            Error string
      */
     locationError(err) {
-      console.log('*** locationError', err)
+      console.warn('Could not get location')
+      console.log(err)
       // avoids to run this method asynchronously (can happen even after component is set to disabled !)
       if (this.disabled) {
         return
       }
       
-      console.warn('Could not get location')
-      console.log(err)
       this.isSupported = true
       this.isActive = false
       this.nbFails++
       this.userDeniedGeolocation = (err.code === 1) // corresponding to PositionError.PERMISSION_DENIED. works only for webapp mode.
       this.$emit('error', !this.alreadyWorked)
       
-      if (this.method === 'watchPosition') {
+      // still attempt to retrieve user position even if it failed
+      /*if (this.method === 'watchPosition') {
         this.stopTracking()
-      }
+      }*/
       
       let timeoutId = utils.setTimeout(this.startTracking, this.timeoutBetweenFailedAttempts)
       
@@ -182,15 +181,17 @@ export default {
       this.nbFails = 0
       this.userDeniedGeolocation = false
       
-      const computedPosition = this.computeRelevantPosition(position)
+      //const computedPosition = this.computeRelevantPosition(position)
 
       this.$emit('success', {
         coords: {
           accuracy: (position.coords && position.coords.accuracy) ? position.coords.accuracy : 10,
           altitude: position.coords ? position.coords.altitude : null,
           speed: position.coords ? position.coords.speed : null,
-          latitude: computedPosition.latitude,
-          longitude: computedPosition.longitude
+          //latitude: computedPosition.latitude,
+          //longitude: computedPosition.longitude
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
         }
       })
 
@@ -217,7 +218,8 @@ export default {
         }
       }
     },
-    computeRelevantPosition (position) {
+    // MPA 2021-06-28 disabled since inaccurate positions are now ignored + it may add lag to position update
+    /*computeRelevantPosition (position) {
       if (position && position.coords) {
         // add position in history
         if (this.positionHistory.length >= 5) {
@@ -244,7 +246,7 @@ export default {
       } else {
         return position
       }
-    },
+    },*/
     openLocationSettings () {
       if (window.cordova && window.cordova.plugins.settings) {
         window.cordova.plugins.settings.open("location", () => {
@@ -273,16 +275,16 @@ export default {
 .geolocation-layer.with-nav-bar { bottom: 14vw; }
 .geolocation-layer.disabled { display: none !important; }
 
-.enable-geolocation, .geolocation-not-supported {
+/*.enable-geolocation, .geolocation-not-supported {*/
+.geolocation-not-supported {
   background: white; z-index: 40; display: flex; align-items: left; justify-content: center; flex-direction: column; padding: 1rem; height: 100% !important; flex-grow: 1;
 }
-
+/*
 .enable-geolocation .text-primary { font-weight: bold; }
 .enable-geolocation p { text-align: justify; margin: 0.5rem; }
 .enable-geolocation li { text-align: justify; margin: 0.5rem; }
 .enable-geolocation ul { margin: 0 1rem; padding: 0 }
-
-/*.search-geolocation { position: absolute; width: 100%; height: 10vw !important; min-height: initial !important;  display: flex; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center; justify-content: center; background: orange; }*/
+*/
 .search-geolocation { position: fixed; top: 150px; left: 0px; right: 0px; width: 100%; min-height: 50px;  background: orange;}
 
 .search-geolocation.without-nav-bar { z-index: 7000; bottom: 0; }

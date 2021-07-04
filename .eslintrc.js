@@ -48,7 +48,6 @@ module.exports = {
     'spaced-comment': 'off',
     'no-multi-spaces': 'off',
     'no-trailing-spaces': 'off',
-    'no-trailing-spaces': 'off',
     'no-undef': 'off',
     'semi': 'off',
     'indent': 'off',
