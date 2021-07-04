@@ -1072,8 +1072,10 @@ module.exports = {
       PleaseHoldYourDeviceFlat: "Please hold your device flat",
       MyLocationWarning: "To get the GPS position, use Google maps (by clicking on a location, a popup is displayed with latitude and longitude), the 'My GPS position' app on Android or iPhone.",
       FindAllLocationsToStartSteps: "Move and find each location!",
-      ColorIndicatorExplaination: "The indicator turns red when you get close to one location",
-      YouWonNewGame: "Congratulations! You unlocked a new game!"
+      ColorIndicatorExplaination: "You are {distance}m from the nearest place",
+      YouWonNewGame: "Congratulations! You unlocked a new game!",
+      WarningLowGpsAccuracy: "Warning: low GPS accuracy",
+      PersistentLowGpsAccuracyPleaseSkipStep: "GPS accuracy is still too low after one minute. We advise to skip this step (bottom right button)."
     }
   },
   fr: {
@@ -2136,8 +2138,10 @@ module.exports = {
       PleaseHoldYourDeviceFlat: "Veuillez tenir votre appareil à plat",
       MyLocationWarning: "Pour récupérer les coordonnées GPS, utilisez Google maps (en cliquant sur un lieu, une bulle s'affiche avec la latitude et longitude), l'application 'Ma position GPS' sur Android ou l'application 'Mes coordonnées GPS' sur iPhone.",
       FindAllLocationsToStartSteps: "Déplacez-vous et trouvez chaque lieu !",
-      ColorIndicatorExplaination: "L'indicateur passe au rouge quand vous vous rapprochez d'un lieu",
-      YouWonNewGame: "Bravo ! Vous avez débloqué un nouveau jeu !"
+      ColorIndicatorExplaination: "Vous êtes à {distance}m d'un des lieux",
+      YouWonNewGame: "Bravo ! Vous avez débloqué un nouveau jeu !",
+      WarningLowGpsAccuracy: "Attention: précision GPS faible",
+      PersistentLowGpsAccuracyPleaseSkipStep: "La précision GPS est toujours faible après plus d'une minute. Nous vous recommandons de passer cette étape (bouton en bas à droite)."
     }
   }
 }

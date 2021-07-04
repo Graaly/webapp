@@ -47,6 +47,15 @@
         />
       </div>
       
+      <!------------ GEOLOCATION STEPS ------------------>
+      
+      <!-- low GPS accuracy warning -->
+      <div class="centered bg-warning q-pa-sm low-gps-accuracy-warning" v-if="geolocation.lowCompassAccuracy || geolocation.lowGpsAccuracy">
+        <q-icon name="not_listed_location" style="font-size: 30px;" class="flashing" />
+        <span v-if="!geolocation.persistentLowAccuracy">{{ $t('label.WarningLowGpsAccuracy') }}</span>
+        <span v-else>{{ $t('label.PersistentLowGpsAccuracyPleaseSkipStep') }}</span>
+      </div>
+      
       <!------------------ AUDIO ------------------------>
     
       <audio 
@@ -265,12 +274,12 @@
             </tr>
             <tr>
               <td v-for="(code, index) in playerCode" :key="index">
-                <img :id="'image-code-' + index" @click="enlargeThePicture(index)" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
+                <img v-if="step.options.images[code]" :id="'image-code-' + index" @click="enlargeThePicture(index)" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
               </td>
             </tr>
             <tr v-show="rightAnswer">
               <td v-for="(code, index) in rightAnswer" :key="index" class="right">
-                <img :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
+                <img v-if="step.options.images[code]" :src="step.options.images[code].imagePath.indexOf('blob:') !== -1 ? step.options.images[code].imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/code-image/' + step.options.images[code].imagePath" />
               </td>
             </tr>
             <tr>
@@ -304,7 +313,7 @@
         <div>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
-          <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.GPSdistance) }) }}</p>
         </div>
         
         <geolocationStepMap class="geolocation-step-map" :class="'font-' + customization.font" v-show="geolocation.mode === 'map' && playerResult === null && geolocation.active" :target-position="geolocation.destinationPosition" :player-position="geolocation.playerPosition" />
@@ -325,7 +334,7 @@
         <div class="q-mt-xl centered">
           <q-spinner-orbit :color="geolocation.colorIndicator" size="50vw" />
         </div>
-        {{ $t('label.ColorIndicatorExplaination') }}
+        {{ $t('label.ColorIndicatorExplaination', {distance: geolocation.closestDistance}) }}
       </div>
       
       <!------------------ SIMPLE TEXT INPUT STEP AREA ------------------------>
@@ -553,7 +562,7 @@
           <div class="text" :class="'font-' + customization.font">
             <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
-            <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.distance) }) }}</p>
+            <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.GPSdistance) }) }}</p>
             <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
             <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
             <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
@@ -562,7 +571,9 @@
         <div class="target-view" v-show="(playerResult === null) || (playerResult !== null && step.options && step.options.is3D)">
           <canvas id="target-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
         </div>
-        <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
+        <div style="width:100%; text-align:center;">
+          <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
+        </div>
       </div>
       
       <!------------------ SUPERIMPOSE IMAGE AND CAMERA STEP AREA ------------------------>
@@ -762,7 +773,8 @@
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
-    <geolocation ref="geolocation-component" v-if="step.type == 'geolocation' || step.type == 'locate-item-ar' || step.id === 'gpssensor'" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" :withNavBar="true" />
+    <!-- keep geolocation active during all quest duration -->
+    <geolocation ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />
     
     <!--====================== WIN POINTS ANIMATION =================================-->
     
@@ -970,13 +982,20 @@ export default {
           showCalibration: false,
           takeMobileVertically: false,
           gyroscopeDetectionCounter: 0,
+          gpsAccuracy: null, // in meters
+          lowGpsAccuracyCeiling: 15, // in meters. below this value, we assume GPS accuracy is good enough
+          lowGpsAccuracy: false,
           lowCompassAccuracy: false,
-          compassAccuracyTimeout: null,
+          persistentLowAccuracy: false, // helps to suggest player to skip current step
+          persistentLowAccuracyTimeout: null,
+          gpsAccuracyTimeout: null, // used for both compass & GPS
           showARHelp: false,
+          playerTouchedArObject: false,
           currentIndex: 0,
           foundStep: false,
           mode: 'compass',
-          colorIndicator: 'blue-2'
+          colorIndicator: 'blue-2',
+          closestDistance: 100
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -984,15 +1003,14 @@ export default {
             raw: { x: 0, y: 0, z: 0 },
             filtered: { x: 0, y: 0 },
             avgData: { x: [], y: [], z: [] },
-            maxAvgItems: 4
+            maxAvgItems: 5
           },
           velocity: { x: 0, y: 0 },
           dateLatestEvent: null,
           isTargetPositionUndefined: true,
           isAccelerationIdle: false,
-          idleAccelerationCounter: 1
+          idleAccelerationInterval: null
         },
-        minDistanceForGPS: 20, // in meters
         deviceHasGyroscope: null,
         
         // for step type 'locate-marker'
@@ -1152,6 +1170,10 @@ export default {
       window.removeEventListener("devicemotion", this.handleMotionEvent, true)
       
       window.removeEventListener("deviceorientationabsolute", this.handleDeviceOrientationEvent, true)
+      
+      if (this.deviceMotion.idleAccelerationInterval !== null) {
+        clearInterval(this.deviceMotion.idleAccelerationInterval)
+      }
       
       utils.clearAllRunningProcesses()
       
@@ -1399,7 +1421,7 @@ export default {
             // user can pass
             this.$emit('pass')
             
-            // start accelerometer sensor
+            // start devicemotion sensor (allows to detect gyroscope)
             window.addEventListener("devicemotion", this.handleMotionEvent, true)
             
             await this.waitForGyroscopeDetection()
@@ -1473,20 +1495,35 @@ export default {
                 if (accuracy <= 1) {
                   _this.geolocation.lowCompassAccuracy = true
                   // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
-                  if (_this.geolocation.compassAccuracyTimeout === null && !_this.geolocation.showCalibration) {
-                    _this.geolocation.compassAccuracyTimeout = utils.setTimeout(() => {
-                      _this.$refs.gpscal.askUserToCalibrateGPS();
-                      if (_this.geolocation.compassAccuracyTimeout !== null) {
-                        clearTimeout(_this.geolocation.compassAccuracyTimeout);
-                        _this.geolocation.compassAccuracyTimeout = null;
+                  if (_this.geolocation.gpsAccuracyTimeout === null && !_this.geolocation.showCalibration && !_this.geolocation.persistentLowAccuracy) {
+                    _this.geolocation.gpsAccuracyTimeout = utils.setTimeout(() => {
+                      _this.$refs.gpscal.askUserToCalibrateGPS()
+                      if (_this.geolocation.gpsAccuracyTimeout !== null) {
+                        clearTimeout(_this.geolocation.gpsAccuracyTimeout)
+                        _this.geolocation.gpsAccuracyTimeout = null
                       }
                     }, 10000)
                   }
+                  // persistent low accuracy: suggest the player to skip step
+                  if (_this.geolocation.persistentLowAccuracyTimeout === null) {
+                    _this.geolocation.persistentLowAccuracyTimeout = utils.setTimeout(() => {
+                      _this.persistentLowAccuracy = true
+                      _this.$emit('msg', 'suggestNext')
+                      if (_this.geolocation.persistentLowAccuracyTimeout !== null) {
+                        clearTimeout(_this.geolocation.persistentLowAccuracyTimeout)
+                        _this.geolocation.persistentLowAccuracyTimeout = null
+                      }
+                    }, 20000)
+                  }
                 } else {
                   _this.geolocation.lowCompassAccuracy = false
-                  if (_this.geolocation.compassAccuracyTimeout !== null) {
-                    clearTimeout(_this.geolocation.compassAccuracyTimeout);
-                    _this.geolocation.compassAccuracyTimeout = null;
+                  // Compass & GPS OK ? cancel timeouts
+                  if (_this.geolocation.gpsAccuracyTimeout !== null && !_this.geolocation.lowGpsAccuracy) {
+                    clearTimeout(_this.geolocation.gpsAccuracyTimeout);
+                    _this.geolocation.gpsAccuracyTimeout = null;
+                    clearTimeout(_this.geolocation.persistentLowAccuracyTimeout);
+                    _this.geolocation.persistentLowAccuracyTimeout = null;
+                    _this.geolocation.persistentLowAccuracy = false;
                   }
                 }
               },
@@ -1616,11 +1653,6 @@ export default {
           } else {
             this.launchVideoStreamForAndroid('camera-stream-for-image-over-flow', true)
           }
-        }
-        
-        // enable geoloc only when 3D scene is fully loaded
-        if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
-          this.$refs['geolocation-component'].disabled = false
         }
         
         if ((this.step.type === 'locate-marker' || this.step.id === 'sensor') && !this.playerResult) {
@@ -2320,7 +2352,6 @@ export default {
                   target = this.geolocation.target
                 } else {
                   target = this.locateMarker
-                  target.arToolkitContext = null // otherwise ending animation is 'erased' by AR.js behavior: 3D object disappears because camera stream is removed and markers are not found anymore !
                 }
                 let camera = target.camera
                 let object = target.scene.getObjectByName('targetObject')
@@ -2337,18 +2368,13 @@ export default {
                 let disappearAnimation = new TWEEN.Tween(object.scale).to({ x: 0, y: 0, z: 0 }, 1000)
                   .easing(TWEEN.Easing.Back.In)
                   .onComplete(() => {
-                    if (this.step.type === 'locate-marker') {
-                      // detach 3D object (target to find) from arSmoothedControl and attach it directly at scene root, for hassle free manipulation of the 3D object
-                      utils.detachObject3D(object, object.parent, target.scene)
-                      utils.attachObject3D(object, target.scene, target.scene)
-                    }
-                    
-                    camera.position.set(0, 0,  cameraDistance * 2 / 3)
+                    camera.position.set(0, 0, cameraDistance * 2 / 3)
                     camera.lookAt(new THREE.Vector3(0, cameraDistance, size.z / 2))
                     // reset object position/scale/rotation
                     object.scale.set(0, 0, 0)
                     object.position.set(0, cameraDistance, size.z / 2)
                     object.rotation.set(0, 0, 0)
+                    
                     if (checkAnswerResult.result === true) {
                       this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, true)
                     } else {
@@ -2900,29 +2926,32 @@ export default {
         this.geolocation.active = true
         let current = pos.coords
         let closestDistance = 1000
+        var limitDistance = 5
         // check if user is near one of the locations searched
         for (var i = 0; i < this.step.locations.length; i++) {
           let destinationPosition = { lat: this.step.locations[i].lat, lng: this.step.locations[i].lng }
 
           // compute distance between two coordinates
           this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(destinationPosition.lat, destinationPosition.lng, current.latitude, current.longitude) * 1000 // meters
-          closestDistance = Math.min(closestDistance, this.geolocation.GPSdistance)
+          closestDistance = Math.min(closestDistance, parseInt(this.geolocation.GPSdistance, 10))
 
-          const limitDistance = (this.step.options.distance ? this.step.options.distance : 5)
+          limitDistance = (this.step.locations[i].distance ? this.step.locations[i].distance : 5)
           if (this.geolocation.GPSdistance <= limitDistance) {
-            this.$refs['geolocation-component'].disabled = true
+            //this.$refs['geolocation-component'].disabled = true
             this.geolocation.active = false
             await this.checkAnswer({stepId: this.step.steps[i], position: current})
           }
         }
 
+        this.geolocation.closestDistance = closestDistance
         this.updateDistanceIndicatorColor(closestDistance)
-      } else {
+      } else if ((this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') && this.playerResult === null && !this.geolocation.playerTouchedArObject) {
+        this.geolocation.gpsAccuracy = pos.coords.accuracy
         this.geolocation.active = true
         this.geolocation.playerPosition = pos.coords
         let current = pos.coords
         
-        // if lat and lng are not set, compute to have the object close to the current user position
+        // if lat and lng are not set, compute to have the object close to the current user position. frequently used for tests/demos.
         if (this.step.options.lat === 0 && parseInt(this.step.options.lng, 10) === this.step.options.lng) {
           if (this.step.options.lng === 0) {
             if (this.step.type === 'locate-item-ar') {
@@ -2950,7 +2979,43 @@ export default {
           return
         }
         
-        let previousGPSdistance = this.geolocation.GPSdistance
+        // show GPS calibration animation when GPS accuracy in meters is low
+        // this is similar to what is done with compass accuracy (cordova plugin "heading calibration") 
+        if (this.geolocation.gpsAccuracy > this.geolocation.lowGpsAccuracyCeiling) {
+          this.geolocation.lowGpsAccuracy = true
+          // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
+          if (this.geolocation.gpsAccuracyTimeout === null && !this.geolocation.showCalibration && !this.geolocation.persistentLowAccuracy) {
+            this.geolocation.gpsAccuracyTimeout = utils.setTimeout(() => {
+              this.$refs.gpscal.askUserToCalibrateGPS()
+              if (this.geolocation.gpsAccuracyTimeout !== null) {
+                clearTimeout(this.geolocation.gpsAccuracyTimeout)
+                this.geolocation.gpsAccuracyTimeout = null
+              }
+            }, 10000)
+          }
+          if (this.geolocation.persistentLowAccuracyTimeout === null) {
+            this.geolocation.persistentLowAccuracyTimeout = utils.setTimeout(() => {
+              this.geolocation.persistentLowAccuracy = true
+              this.$emit('msg', 'suggestNext')
+              if (this.geolocation.persistentLowAccuracyTimeout !== null) {
+                clearTimeout(this.geolocation.persistentLowAccuracyTimeout)
+                this.geolocation.persistentLowAccuracyTimeout = null
+              }
+            }, 20000)
+          }
+        } else {
+          this.geolocation.lowGpsAccuracy = false
+          // Compass & GPS OK ? cancel timeouts
+          if (this.geolocation.gpsAccuracyTimeout !== null && !this.geolocation.lowCompassAccuracy) {
+            clearTimeout(this.geolocation.gpsAccuracyTimeout) // cancel gps calibration animation
+            this.geolocation.gpsAccuracyTimeout = null
+            clearTimeout(this.geolocation.persistentLowAccuracyTimeout) // cancel "skip step" message in top panel
+            this.geolocation.persistentLowAccuracyTimeout = null
+            this.geolocation.persistentLowAccuracy = false
+          }
+        }
+        
+        //let previousGPSdistance = this.geolocation.GPSdistance
         
         let destinationPosition = { lat: options.lat, lng: options.lng }
         if (this.step.type === 'geolocation' && options.locations && options.locations.length > 0) {
@@ -2963,13 +3028,13 @@ export default {
         // note: current.accuracy contains the result accuracy in meters
         this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(destinationPosition.lat, destinationPosition.lng, current.latitude, current.longitude) * 1000 // meters
         let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, destinationPosition.lat, destinationPosition.lng)
-        if (this.geolocation.distance === null || (this.step.type === 'locate-item-ar' && ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || !this.deviceHasGyroscope)) || this.step.type !== 'locate-item-ar') {
-          // avoid to change distance too much
-          if (!this.geolocation.distance || this.geolocation.GPSdistance < this.geolocation.distance || this.geolocation.GPSdistance > (this.geolocation.distance + 4)) {
-            this.geolocation.distance = this.geolocation.GPSdistance
-          }
-          this.geolocation.rawDirection = rawDirection
+        
+        if (this.geolocation.lowGpsAccuracy || this.geolocation.lowCompassAccuracy) {
+          // avoid using an inaccurate position for the remaining of the process
+          return
         }
+        
+        this.geolocation.rawDirection = rawDirection
         
         let finalDirection = utils.degreesToRadians(rawDirection)
         if (!this.deviceHasGyroscope) {
@@ -2980,10 +3045,13 @@ export default {
           this.geolocation.GPSdistance = Math.max(minDistanceFromObject, this.geolocation.GPSdistance)
         }
         
+        // when device is moving enough,
         // compute new X/Y coordinates of the object (considering that camera is always at (0, 0))
         // note that those properties are also needed when accelerometer is used (method 'handleMotionEvent()')
-        this.geolocation.position.x = Math.sin(finalDirection) * this.geolocation.GPSdistance
-        this.geolocation.position.y = Math.cos(finalDirection) * this.geolocation.GPSdistance
+        if (!this.deviceMotion.isAccelerationIdle) {
+          this.geolocation.position.x = Math.sin(finalDirection) * this.geolocation.GPSdistance
+          this.geolocation.position.y = Math.cos(finalDirection) * this.geolocation.GPSdistance
+        }
         
         if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.geolocation.target.scene !== null) {
           let target = this.geolocation.target
@@ -3004,19 +3072,16 @@ export default {
             object.visible = true
           }
           
-          // if GPS distance to object is greater than value of this.minDistanceForGPS, update target object position only given GPS position. Otherwise, accelerometer is used to track device position for better user experience (avoids object "drifts").
-          if ((previousGPSdistance !== null && previousGPSdistance > this.minDistanceForGPS) || this.deviceHasGyroscope === false) {
-            // smooth position change
-            new TWEEN.Tween(object.position)
-              .to({ x: this.geolocation.position.x, y: this.geolocation.position.y }, 1000)
-              .easing(TWEEN.Easing.Quadratic.InOut)
-              .start()
-          }
+          // smooth position change
+          new TWEEN.Tween(object.position)
+            .to({ x: this.geolocation.position.x, y: this.geolocation.position.y }, 1000)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .start()
           
           this.updatePlayerCanTouchTarget()
         }
-        
-        if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.distance <= parseInt(options.distance, 10)) || (!options.distance && this.geolocation.distance <= 20))) {
+          
+        if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.GPSdistance <= parseInt(options.distance, 10)) || (!options.distance && this.geolocation.GPSdistance <= 20))) {
           //check if other locations are defined
           this.geolocation.currentIndex++
           if (options.locations && options.locations.length > 0 && this.geolocation.currentIndex < options.locations.length) {
@@ -3024,7 +3089,7 @@ export default {
             this.geolocation.foundStep = false
             this.geolocation.foundStep = true
           } else {
-            this.$refs['geolocation-component'].disabled = true
+            //this.$refs['geolocation-component'].disabled = true
             this.geolocation.active = false
             this.resetDrawDirectionInterval()
             await this.checkAnswer(current)
@@ -3715,7 +3780,7 @@ export default {
     /*
     * when reading a new value from AbsoluteOrientationSensor, update camera rotation so it matches device orientation
     */
-    onAbsoluteOrientationSensorReading() {      
+    onAbsoluteOrientationSensorReading() {
       if (this.geolocation.absoluteOrientationSensor.activated === false) {
         console.warn('sensor is not activated')
         return
@@ -3782,8 +3847,10 @@ export default {
         if (this.step.type === 'locate-item-ar') {
           this.resetDrawDirectionInterval()
           // stop location watching
-          this.$refs['geolocation-component'].disabled = true
+          //this.$refs['geolocation-component'].disabled = true
           this.geolocation.active = false
+          // stop updating object position
+          this.geolocation.playerTouchedArObject = true
         }
         // stop camera streams
         let cameraStreamRef = (this.step.type === 'locate-item-ar' ? 'camera-stream-for-locate-item-ar' : 'camera-stream-for-locate-marker')
@@ -3945,7 +4012,7 @@ export default {
     */
     handleMotionEvent (event) {
       let dm = this.deviceMotion
-      let object
+      //let object
       let canProcess = true // can this method be entierely run? is all required data available?
       
       // detect if device has gyroscope
@@ -3960,14 +4027,7 @@ export default {
       }
       
       // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
-      if (!this.deviceHasGyroscope || this.geolocation.distance === null || this.geolocation.GPSdistance === null || this.geolocation.GPSdistance > this.minDistanceForGPS || this.geolocation.absoluteOrientationSensor === null || !this.geolocation.absoluteOrientationSensor.quaternion || isNaN(this.geolocation.position.x) || isNaN(this.geolocation.position.y)) {
-        canProcess = false
-      }
-      
-      if (this.geolocation.target  && this.geolocation.target.scene) {
-        object = this.geolocation.target.scene.getObjectByName('targetObject')
-        canProcess = canProcess && typeof object !== 'undefined' && TWEEN.getAll().length === 0
-      } else {
+      if (!this.deviceHasGyroscope || this.geolocation.GPSdistance === null || this.geolocation.absoluteOrientationSensor === null || !this.geolocation.absoluteOrientationSensor.quaternion || isNaN(this.geolocation.position.x) || isNaN(this.geolocation.position.y)) {
         canProcess = false
       }
       
@@ -3978,112 +4038,43 @@ export default {
         return
       }
       
+      // every second default: acceleration is considered as idle
+      if (dm.idleAccelerationInterval === null) {
+        dm.idleAccelerationInterval = utils.setInterval(() => { dm.isAccelerationIdle = true }, 1000)
+      }
+      
       let accel = event.acceleration
       let accelerationVector = new THREE.Vector3(accel.x, accel.y, accel.z)
       
       // "cancel" device rotation on acceleration vector
-      let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
-      accelerationVector.applyQuaternion(quaternion)
+      /*let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
+      accelerationVector.applyQuaternion(quaternion)*/
       
       dm.acceleration.raw = accelerationVector
       
-      // save current time to calculate velocity & position at next motion event
-      let currentTime = new Date()
-      if (dm.dateLatestEvent !== null) {
-        // get time difference in milliseconds
-        let timeDiff = (currentTime.getTime() - dm.dateLatestEvent.getTime()) / 1000
-        
-        // using "moving average" for acceleration sensors noise reduction
-        // (tried kalman filters, but result is much less convincing)
-        dm.acceleration.avgData.x.push(dm.acceleration.raw.x)
-        dm.acceleration.avgData.y.push(dm.acceleration.raw.y)
-        dm.acceleration.avgData.z.push(dm.acceleration.raw.z)
-        
-        if (dm.acceleration.avgData.x.length > dm.acceleration.maxAvgItems) {
-          dm.acceleration.avgData.x.shift()
-        }
-        if (dm.acceleration.avgData.y.length > dm.acceleration.maxAvgItems) {
-          dm.acceleration.avgData.y.shift()
-        }
-        if (dm.acceleration.avgData.z.length > dm.acceleration.maxAvgItems) {
-          dm.acceleration.avgData.z.shift()
-        }
-        
-        dm.acceleration.filtered.x = utils.arrayAverage(dm.acceleration.avgData.x)
-        dm.acceleration.filtered.y = utils.arrayAverage(dm.acceleration.avgData.y)
-        dm.acceleration.filtered.z = utils.arrayAverage(dm.acceleration.avgData.z)
-        
-        dm.isAccelerationIdle = (Math.pow(dm.acceleration.filtered.x, 2) + Math.pow(dm.acceleration.filtered.y, 2) + Math.pow(dm.acceleration.filtered.z, 2)) < 0.08
-        
-        // fix acceleration errors / inaccuracies:
-        let accelBoost = 1.4 // when not idle & same sign as velocity
-        let accelReduction = 0.3 // when acceleration sign & velocity sign are different (otherwise, velocity goes too much beyond the "other side" of 0)
-        if (dm.velocity.x * dm.acceleration.filtered.x < 0) {
-          dm.acceleration.filtered.x *= accelReduction
-        } else if (!dm.isAccelerationIdle) {
-          dm.acceleration.filtered.x *= accelBoost
-        }
-        if (dm.velocity.y * dm.acceleration.filtered.y < 0) {
-          dm.acceleration.filtered.y *= accelReduction
-        } else if (!dm.isAccelerationIdle) {
-          dm.acceleration.filtered.y *= accelBoost
-        }
-        
-        // get velocity from acceleration
-        dm.velocity.x += dm.acceleration.filtered.x * timeDiff
-        dm.velocity.y += dm.acceleration.filtered.y * timeDiff
-        
-        // we consider that the device is hand held by a person, so when acceleration is nearly idle, quickly decrease velocity to avoid position drifting
-        if (dm.isAccelerationIdle) {
-          dm.velocity.x *= 0.99 / Math.pow(dm.idleAccelerationCounter, 2)
-          dm.velocity.y *= 0.99 / Math.pow(dm.idleAccelerationCounter, 2)
-          dm.idleAccelerationCounter = Math.max(100, dm.idleAccelerationCounter + 1) // avoid too high values for the counter
-        } else {
-          dm.idleAccelerationCounter = 1
-        }
-        
-        // normalize velocity under 5km/h to avoid excessive drift when walking for a long time
-        let maxVelocity = 5 * 1000 / 3600 // in m/s
-        let velocityVectorLength = Math.sqrt(Math.pow(dm.velocity.x, 2) + Math.pow(dm.velocity.y, 2))
-        if (velocityVectorLength > maxVelocity) {
-          dm.velocity.x = dm.velocity.x * maxVelocity / velocityVectorLength
-          dm.velocity.y = dm.velocity.y * maxVelocity / velocityVectorLength
-        }
-        
-        // get object position from velocity
-        // relatively to the device, the position variations of the object to find are reversed (positive device velocity on an axis => negative position change of object on that axis, given that the objet is at a fixed position)
-        let currentObjectPosition = { x: object.position.x, y: object.position.y }
-        let deltaFromAccelerometer = {
-          x: -dm.velocity.x * timeDiff,
-          y: -dm.velocity.y * timeDiff
-        }
-        // if we are not in "idle" state, to avoid potential big object jumps in case GPS must be used again (object becomes too far), make a slight move towards the "real" GPS position at each "devicemotion" call
-        let deltaFromGeolocation
-        if (!dm.isAccelerationIdle) {
-          deltaFromGeolocation = {
-            // the "/ 600" factor guarantees that the object won't move faster than about 1.5m/s if its real position is 20m away from current position.
-            x: (this.geolocation.position.x - currentObjectPosition.x) / 600,
-            y: (this.geolocation.position.y - currentObjectPosition.y) / 600
-          }
-        } else {
-          deltaFromGeolocation = { x: 0, y: 0 }
-        }
-        
-        if (this.geolocation.GPSdistance <= this.minDistanceForGPS) {
-          // update object position
-          object.position.x = currentObjectPosition.x + deltaFromAccelerometer.x + deltaFromGeolocation.x
-          object.position.y = currentObjectPosition.y + deltaFromAccelerometer.y + deltaFromGeolocation.y
-          
-          // update object distance shown to user
-          this.geolocation.distance = Math.sqrt(Math.pow(object.position.x, 2) + Math.pow(object.position.y, 2))
-          
-          // update direction arrow angle
-          this.geolocation.rawDirection = (utils.radiansToDegrees(-Math.atan2(object.position.y, object.position.x)) + 90) % 360
-          
-          this.updatePlayerCanTouchTarget()
-        }
+      // using "moving average" for acceleration sensors noise reduction
+      // (tried kalman filters, but result is much less convincing)
+      dm.acceleration.avgData.x.push(dm.acceleration.raw.x)
+      dm.acceleration.avgData.y.push(dm.acceleration.raw.y)
+      dm.acceleration.avgData.z.push(dm.acceleration.raw.z)
+      
+      if (dm.acceleration.avgData.x.length > dm.acceleration.maxAvgItems) {
+        dm.acceleration.avgData.x.shift()
       }
-      dm.dateLatestEvent = currentTime
+      if (dm.acceleration.avgData.y.length > dm.acceleration.maxAvgItems) {
+        dm.acceleration.avgData.y.shift()
+      }
+      if (dm.acceleration.avgData.z.length > dm.acceleration.maxAvgItems) {
+        dm.acceleration.avgData.z.shift()
+      }
+      
+      dm.acceleration.filtered.x = utils.arrayAverage(dm.acceleration.avgData.x)
+      dm.acceleration.filtered.y = utils.arrayAverage(dm.acceleration.avgData.y)
+      dm.acceleration.filtered.z = utils.arrayAverage(dm.acceleration.avgData.z)
+      
+      // Switch 'isAccelerationIdle' to false as soon as enough movement is detected,
+      // and keep it false for 1 second or less (until next occurrence of the 'interval' idleAccelerationInterval)
+      dm.isAccelerationIdle = dm.isAccelerationIdle && ((Math.pow(dm.acceleration.filtered.x, 2) + Math.pow(dm.acceleration.filtered.y, 2) + Math.pow(dm.acceleration.filtered.z, 2)) < 0.5)
     },
     /*
     * updates property this.geolocation.canTouchTarget, given this.geolocation.distance
@@ -4097,7 +4088,7 @@ export default {
         touchDistance = this.step.options.touchDistance
       }
       
-      if (!this.geolocation.canTouchTarget && this.geolocation.distance <= touchDistance) {
+      if (!this.geolocation.canTouchTarget && this.geolocation.GPSdistance <= touchDistance) {
         this.geolocation.canTouchTarget = true
       }
     },
@@ -4642,7 +4633,8 @@ export default {
   .geolocation .text { margin-bottom: 0.5rem; position: relative; z-index: 10; }
   .geolocation #mode-switch { position: absolute; bottom: 6rem; right: 0.6rem; }
   .geolocation-step-map { position: absolute; opacity: 1; top: 0; left: 0; width: 100%; height: 100%; background-color: yellow; }
-  .geolocation .q-btn { box-shadow: none;  }
+  .geolocation .q-btn { box-shadow: none; }
+  .low-gps-accuracy-warning { z-index: 200; position: absolute; top: 0; left: 0; right: 0; }
   
   /* jigsaw puzzle specific */
   

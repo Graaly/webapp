@@ -510,7 +510,7 @@ export default {
         }, () => {
           this.geolocationIsSupported = false
           utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
-        }, { timeout: 10000, maximumAge: 10000 });
+        }, { timeout: 10000, maximumAge: 0 });
       } else {
         this.geolocationIsSupported = false
         utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
