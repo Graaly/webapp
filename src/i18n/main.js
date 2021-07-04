@@ -1072,7 +1072,8 @@ module.exports = {
       PleaseHoldYourDeviceFlat: "Please hold your device flat",
       MyLocationWarning: "To get the GPS position, use Google maps (by clicking on a location, a popup is displayed with latitude and longitude), the 'My GPS position' app on Android or iPhone.",
       FindAllLocationsToStartSteps: "Move and find each location!",
-      ColorIndicatorExplaination: "The indicator turns red when you get close to one location"
+      ColorIndicatorExplaination: "The indicator turns red when you get close to one location",
+      YouWonNewGame: "Congratulations! You unlocked a new game!"
     }
   },
   fr: {
@@ -2135,7 +2136,8 @@ module.exports = {
       PleaseHoldYourDeviceFlat: "Veuillez tenir votre appareil à plat",
       MyLocationWarning: "Pour récupérer les coordonnées GPS, utilisez Google maps (en cliquant sur un lieu, une bulle s'affiche avec la latitude et longitude), l'application 'Ma position GPS' sur Android ou l'application 'Mes coordonnées GPS' sur iPhone.",
       FindAllLocationsToStartSteps: "Déplacez-vous et trouvez chaque lieu !",
-      ColorIndicatorExplaination: "L'indicateur passe au rouge quand vous vous rapprochez d'un lieu"
+      ColorIndicatorExplaination: "L'indicateur passe au rouge quand vous vous rapprochez d'un lieu",
+      YouWonNewGame: "Bravo ! Vous avez débloqué un nouveau jeu !"
     }
   }
 }

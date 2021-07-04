@@ -70,6 +70,13 @@
           </div>
         </div>
         
+        <!------------------ NEW QUEST WON AREA ------------------------>
+        
+        <div v-if="unlockedQuest.show" class="centered q-mt-md subtitle5">{{ $t('label.YouWonNewGame') }}</div>
+        <div class="centered q-px-md">
+          <q-btn color="primary" class="glossy large-button" :label="$t('label.SolveThisQuest')" @click="$router.push('/quest/play/' + unlockedQuest.id)" />
+        </div>
+        
         <!------------------ SUGGESTION AREA ------------------------>
         
         <div class="centered q-mt-md subtitle5">{{ $t('label.YouLikedThisQuest') }}</div>
@@ -313,6 +320,10 @@ export default {
         id: [],
         name: []
       },
+      unlockedQuest: {
+        show: false,
+        id: 0
+      },
       author: null,
       questId: this.$route.params.questId,
       awardPoints: true,
@@ -413,6 +424,11 @@ export default {
             if (this.run.questData && this.run.questData.rewardPicture && this.run.questData.rewardPicture !== '') {
               this.showReward = true
             }
+          }
+          // check if new quest unlocked
+          if (endStatus.data.unlockedQuest) {
+            this.unlockedQuest.show = true
+            this.unlockedQuest.id = endStatus.data.unlockedQuest
           }
           
           // remove offline data

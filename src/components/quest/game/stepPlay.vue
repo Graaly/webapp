@@ -2908,8 +2908,8 @@ export default {
           this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(destinationPosition.lat, destinationPosition.lng, current.latitude, current.longitude) * 1000 // meters
           closestDistance = Math.min(closestDistance, this.geolocation.GPSdistance)
 
-          // TODO : make distance configurable
-          if (this.geolocation.GPSdistance <= 5) {
+          const limitDistance = (this.step.options.distance ? this.step.options.distance : 5)
+          if (this.geolocation.GPSdistance <= limitDistance) {
             this.$refs['geolocation-component'].disabled = true
             this.geolocation.active = false
             await this.checkAnswer({stepId: this.step.steps[i], position: current})
