@@ -218,7 +218,7 @@
               </div>
             </div>
             <div>
-              <a class="dark clickable" @click="getMyGPSLocation(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a> 
+              <a class="dark clickable" @click="openGeolocationPopin(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a> 
               <span v-if="selectedStep.form.options.locations.length > 1"> - <a class="dark clickable" @click="removeGPSLocation(index)">{{ $t('label.RemoveGPSLocation') }}</a></span>
             </div>
           </div>
@@ -238,7 +238,7 @@
                 </div>
               </div>
               <div>
-                <a class="dark" @click="getMyGPSLocation(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a> 
+                <a class="dark" @click="openGeolocationPopin(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a> 
                 <span v-if="selectedStep.form.options.locations.length > 1"> - <a class="dark clickable" @click="removeGPSLocation(index)">{{ $t('label.RemoveGPSLocation') }}</a></span>
               </div>
             </q-expansion-item>
@@ -650,7 +650,7 @@
               </div>
             </div>
             <div>
-              <a class="dark" @click="getMyGPSLocation(-1)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+              <a class="dark" @click="openGeolocationPopin(-1)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
             </div>
           </div>
           <q-list v-if="!(isIOs || (selectedStep.form.options.lat && selectedStep.form.options.lat !== ''))">
@@ -669,7 +669,7 @@
                 </div>
               </div>
               <div>
-                <a class="dark" @click="getMyGPSLocation(-1)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+                <a class="dark" @click="openGeolocationPopin(-1)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
               </div>
             </q-expansion-item>
           </q-list>
@@ -1181,13 +1181,26 @@
       </div>
     </q-dialog>
     
-    <!------------------ MY LOCATION POPIN ------------------------>
+    <!------------------ GEOLOCATION COMPONENT ---------------------->
     
-    <q-dialog v-model="config.geolocation.showPopup">
-      <div class="q-pa-md centered">
-        <div v-html="$t('label.MyLocationWarning')" />
-        <q-btn class="q-mt-md" color="primary" @click="config.geolocation.showPopup = false">{{ $t('label.Close') }}</q-btn>
-      </div>
+    <!-- used to retrieve author position -->
+    <geolocation v-if="options.type.code === 'geolocation' || options.type.code === 'locate-item-ar'" ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />
+    
+    <!------------------ MY LOCATION POPIN ---------------------->
+    <q-dialog v-model="config.geolocation.showPopin">
+      <q-card>
+        <q-card-section>
+          <h1>{{ $t('label.CurrentLocation') }}</h1>
+          <p>{{ $t('label.Latitude') }} : {{ config.geolocation.position.latitude }}</p>
+          <p>{{ $t('label.Longitude') }} : {{ config.geolocation.position.longitude }}</p>
+          <p :class="{ warning: config.geolocation.position.accuracy > 10 }">{{ $t('label.Accuracy') }} : {{ Math.round(config.geolocation.position.accuracy * 10) / 10 }} {{ $t('label.Meters') }}</p>
+        </q-card-section>
+        <q-card-section class="warning" :style="{ visibility: config.geolocation.position.accuracy > 10 ? 'visible' : 'hidden' }" v-html="$t('label.MyLocationWarning')" />
+        <q-card-actions align="right">
+          <q-btn class="q-ma-sm q-px-md" color="primary" @click="saveMyGPSLocation()" :disable="config.geolocation.position.accuracy > 10">{{ $t('label.Save') }}</q-btn>
+          <q-btn class="q-ma-sm q-px-md" color="primary" @click="config.geolocation.showPopin = false">{{ $t('label.Cancel') }}</q-btn>
+        </q-card-actions>
+      </q-card>
     </q-dialog>
     
     <!------------------ MEDIA LIST AREA ------------------------>
@@ -1247,6 +1260,8 @@ import Notification from 'boot/NotifyHelper'
 import hash from 'object-hash'
 import utils from 'src/includes/utils'
 
+import geolocation from 'components/geolocation'
+
 import Vue from 'vue'
 
 import colorsForCode from 'data/colorsForCode.json'
@@ -1275,6 +1290,9 @@ export default {
    * options : configuration
    */
   props: ['quest', 'stepId', 'lang', 'options'],
+  components: {
+    geolocation
+  },
   watch: { 
     // refresh component if stepId change
     stepId: async function (newVal, oldVal) {
@@ -1375,7 +1393,12 @@ export default {
         },
         geolocation: {
           currentIndex: 0,
-          showPopup: false
+          showPopin: false,
+          position: {
+            latitude: null,
+            longitude: null,
+            accuracy: null
+          }
         },
         imageCode: {
           numberOfDigitsOptions: [
@@ -3000,32 +3023,47 @@ export default {
         }
       });
     },
-    /*
-     * Get the GPS location based on user location
+    /**
+     * Opens geolocation popin
+     * @param   {Number}   index   index of the GPS location when there are several 'spots' to locate (used by 'geolocation' step type)
+     */
+    openGeolocationPopin(index) {
+      this.config.geolocation.showPopin = true
+      this.config.geolocation.currentIndex = index
+    },
+    /**
+     * Save author's GPS location as current step goal
      * @param   {Object}    pos            Position data
      */
-    getMyGPSLocation(index) {
-      this.config.geolocation.showPopup = true
-      /* Hidden by EMA on 24/06/2021 because not accurate enough
-      this.$q.loading.show()
-      var _this = this
-      navigator.geolocation.getCurrentPosition(function (position) {
-        if (index !== -1 && _this.selectedStep.form.options.locations && _this.selectedStep.form.options.locations.length > 0) {
-          _this.$set(_this.selectedStep.form.options.locations[index], 'lat', position.coords.latitude)
-          _this.$set(_this.selectedStep.form.options.locations[index], 'lng', position.coords.longitude)
-        } else {
-          _this.$set(_this.selectedStep.form.options, 'lat', position.coords.latitude)
-          _this.$set(_this.selectedStep.form.options, 'lng', position.coords.longitude)
-          _this.$v.selectedStep.form.options.lat.$touch()
-          _this.$v.selectedStep.form.options.lng.$touch()
-        }
-        _this.$q.loading.hide()
-      }, 
-      this.getLocationError, 
-      { 
-        timeout: 5000, 
-        maximumAge: 10000 
-      });*/
+    saveMyGPSLocation() {
+      let index = this.config.geolocation.currentIndex
+      let position = this.config.geolocation.position
+      
+      if (index !== -1 && this.selectedStep.form.options.locations && this.selectedStep.form.options.locations.length > 0) {
+        this.$set(this.selectedStep.form.options.locations[index], 'lat', position.latitude)
+        this.$set(this.selectedStep.form.options.locations[index], 'lng', position.longitude)
+      } else {
+        this.$set(this.selectedStep.form.options, 'lat', position.latitude)
+        this.$set(this.selectedStep.form.options, 'lng', position.longitude)
+        this.$v.selectedStep.form.options.lat.$touch()
+        this.$v.selectedStep.form.options.lng.$touch()
+      }
+      
+      Notification(this.$t('label.LocationSaved'), 'success')
+      this.config.geolocation.showPopin = false
+    },
+    /**
+     * On user GPS position, update his current coordinates
+     * this may look suboptimal, however keeping GPS running for a while helps getting much more accurate coordinates than a single call.
+     */
+    onNewUserPosition(position) {
+      this.$set(this.config.geolocation, 'position', position.coords)
+    },
+    /**
+     * On user GPS position error
+     */
+    onUserPositionError(ret) {
+      console.error('UserPositionError', ret)
     },
     /*
      * Add a GPS location field
@@ -3358,6 +3396,9 @@ p { margin-bottom: 0.5rem; }
 .q-item { padding-top: 0; padding-bottom: 0; min-height: 2rem; }
 .q-list { padding-top: 0; }
 .q-slider { margin-top: 2rem; }
+
+.q-card h1 { font-size: 2rem; line-height: 2rem; }
+.warning { color: #F2C037; }
 
 .answer { display: flex; flex-flow: row nowrap; align-items: center; }
 .answer .q-input { flex-grow: 1; }
