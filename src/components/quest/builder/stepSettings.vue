@@ -192,19 +192,12 @@
           </q-list>
         </div>
         
-        <h2>{{ $t('label.AddressToFind') }}</h2>
+        <h2>{{ $t('label.LocationToFind') }}</h2>
         <div 
           v-for="(location, index) in selectedStep.form.options.locations"
           :key="index"
           class="fields-group">
-          <div v-if="!isIOs" class="location-address">
-            <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-              <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
-              <gmap-autocomplete :id="'destination' + index" :placeholder="$t('label.Address')" :value="location.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="config.geolocation.currentIndex = index; value = $event.target.value" />
-            </div>
-            <a class="dark" @click="getCurrentLocation(index)"><img src="statics/icons/game/location.png" /></a>
-          </div>
-          <div v-if="(isIOs || (location.lat && location.lat !== ''))">
+          <div>
             {{  $t('label.DefineGPSLocation') }}
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
@@ -222,27 +215,6 @@
               <span v-if="selectedStep.form.options.locations.length > 1"> - <a class="dark clickable" @click="removeGPSLocation(index)">{{ $t('label.RemoveGPSLocation') }}</a></span>
             </div>
           </div>
-          <q-list v-if="!(isIOs || (location.lat && location.lat !== ''))">
-            <q-expansion-item 
-              icon="explore" 
-              :label="$t('label.OrDefineGPSLocation')">
-              <div class="location-gps-inputs">
-                <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
-                <div>
-                  <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                  <input type="number" id="answer-latitude" v-model.number="location.lat" placeholder="ex. 45,49812" step="any" />
-                </div>
-                <div>
-                  <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                  <input type="number" id="answer-longitude" v-model.number="location.lng" placeholder="ex. 5,65487" step="any" />
-                </div>
-              </div>
-              <div>
-                <a class="dark" @click="openGeolocationPopin(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a> 
-                <span v-if="selectedStep.form.options.locations.length > 1"> - <a class="dark clickable" @click="removeGPSLocation(index)">{{ $t('label.RemoveGPSLocation') }}</a></span>
-              </div>
-            </q-expansion-item>
-          </q-list>
         </div>
         <q-btn class="full-width" :label="$t('label.AddAnGPSLocation')" @click="addGPSLocation()" />
       </div>
@@ -625,17 +597,10 @@
           </div>
         </div>
         
-        <h2>{{ $t('label.AddressToFind') }}</h2>
-        <div class="fields-group">       
-          <div v-if="!isIOs" class="location-address">
-            <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-              <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
-              <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="config.geolocation.currentIndex = -1; value = $event.target.value" />
-            </div>
-            <a class="dark" @click="getCurrentLocation(-1)"><img src="statics/icons/game/location.png" /></a>
-          </div>
-          <div v-if="(isIOs || (selectedStep.form.options.lat && selectedStep.form.options.lat !== ''))">
-            {{  $t('label.DefineGPSLocation') }}
+        <h2>{{ $t('label.LocationToFind') }}</h2>
+        <div class="fields-group">
+          <div>
+            {{ $t('label.DefineGPSLocation') }}
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
               <div>
@@ -653,26 +618,6 @@
               <a class="dark" @click="openGeolocationPopin(-1)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
             </div>
           </div>
-          <q-list v-if="!(isIOs || (selectedStep.form.options.lat && selectedStep.form.options.lat !== ''))">
-            <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
-              <div class="location-gps-inputs">
-                <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
-                <div>
-                  <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                  <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="ex. 45,49812" step="any" />
-                  <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
-                </div>
-                <div>
-                  <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                  <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="ex. 5,65487" step="any" />
-                  <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
-                </div>
-              </div>
-              <div>
-                <a class="dark" @click="openGeolocationPopin(-1)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
-              </div>
-            </q-expansion-item>
-          </q-list>
         </div>
       </div>
       
@@ -2955,73 +2900,6 @@ export default {
 
       document.getElementById("cross").style.left = Math.round(this.selectedStep.form.answerPointerCoordinates.left * vw - solutionAreaRadius) + "px"
       document.getElementById("cross").style.top = Math.round(this.selectedStep.form.answerPointerCoordinates.top * (4 * vw / 3) - solutionAreaRadius) + "px"
-    },
-    /*
-     * Fill the GPS location in the settings
-     * @param   {Object}    place            Position & address data
-     */
-    async setLocation(place) {
-      if (this.config.geolocation.currentIndex !== -1 && this.selectedStep.form.options.locations && this.selectedStep.form.options.locations.length > 0) {
-        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lat = parseFloat(place.geometry.location.lat())
-        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lng = parseFloat(place.geometry.location.lng())
-        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].destination = (place.formatted_address || '')
-      } else {
-        this.selectedStep.form.options.lat = parseFloat(place.geometry.location.lat())
-        this.selectedStep.form.options.lng = parseFloat(place.geometry.location.lng())
-        this.selectedStep.form.options.destination = (place.formatted_address || '')
-        this.$v.selectedStep.form.options.lat.$touch()
-        this.$v.selectedStep.form.options.lng.$touch()
-      }
-    },
-    /*
-     * Get current user location
-     */
-    async getCurrentLocation(index) {
-      this.config.geolocation.currentIndex = index
-      this.$q.loading.show()
-      // get the current coords
-      navigator.geolocation.getCurrentPosition(this.fillLocation, this.getLocationError, {timeout: 5000, maximumAge: 10000});
-    },
-    getLocationError(err) {
-      this.$q.loading.hide()
-      console.log(err)
-      this.$q.dialog({
-        title: this.$t('label.GeolocationFailed'),
-        message: this.$t('label.GeolocationFailedDesc')
-      })
-    },
-    /*
-     * Get the address based on the position
-     * @param   {Object}    pos            Position data
-     */
-    fillLocation(pos) {
-      if (this.config.geolocation.currentIndex !== -1 && this.selectedStep.form.options.locations && this.selectedStep.form.options.locations.length > 0) {
-        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lat = pos.coords.latitude
-        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lng = pos.coords.longitude
-      } else {
-        this.selectedStep.form.options.lat = pos.coords.latitude
-        this.selectedStep.form.options.lng = pos.coords.longitude
-        this.$v.selectedStep.form.options.lat.$touch()
-        this.$v.selectedStep.form.options.lng.$touch()
-      }
-      
-      // get the address
-      var geocoder = new google.maps.Geocoder();
-      geocoder.geocode({'location': {lat: pos.coords.latitude, lng: pos.coords.longitude}}, (results, status) => {
-        this.$q.loading.hide()
-        if (status === 'OK' && results[0].formatted_address) {
-          if (this.config.geolocation.currentIndex !== -1 && this.selectedStep.form.options.locations && this.selectedStep.form.options.locations.length > 0) {
-            this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].destination = results[0].formatted_address
-            document.getElementById("destination" + this.config.geolocation.currentIndex).value = this.selectedStep.form.options.destination
-          } else {
-            this.selectedStep.form.options.destination = results[0].formatted_address
-            // force field to be refreshed
-            document.getElementById("destination").value = this.selectedStep.form.options.destination
-          }
-        } else {
-          Notification(this.$t('label.ErrorStandardMessage'), 'error')
-        }
-      });
     },
     /**
      * Opens geolocation popin
