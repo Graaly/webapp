@@ -33,9 +33,7 @@
           class="bg-positive"
           v-if="isIOs"
           >
-          <div class="absolute-full flex flex-center">
-            <q-badge color="white" text-color="black" :label="parseInt(timer.remainingMinutes, 10) + ' ' + $t('label.minutes')" />
-          </div>
+          <strong>{{ parseInt(timer.remainingMinutes, 10) + ' ' + $t('label.minutes') }}</strong>
         </div>
       </div>
       <!------------------ STEP TIMER ------------------------>
@@ -58,12 +56,10 @@
         <div 
           style="height: 25px; position: relative;"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
-          class="bg-positive"
+          class="bg-positive text-white centered"
           v-if="isIOs"
           >
-          <div class="absolute-full flex flex-center">
-            <q-badge color="white" text-color="black" :label="parseInt(this.countdowntimeleft, 10) + ' ' + $t('label.secondes')" />
-          </div>
+          <strong>{{ parseInt(this.countdowntimeleft, 10) + ' ' + $t('label.secondes') }}</strong>
         </div>
       </div>
       
