@@ -556,16 +556,16 @@
       
       <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && (geolocation.active || isIOS)"></video>
+          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && (geolocation.active || isIOs)"></video>
         </transition>
-        <div v-show="playerResult === null && (this.geolocation.active || isIOS)">
+        <div v-show="playerResult === null && (this.geolocation.active || isIOs)">
           <div class="text" :class="'font-' + customization.font">
             <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
-            <p v-if="step.showDistanceToTarget && !geolocation.canSeeTarget && (geolocation.active || isIOS)">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.GPSdistance) }) }}</p>
-            <p v-if="!geolocation.canSeeTarget && (geolocation.active || isIOS)">{{ $t('label.ObjectIsTooFar') }}</p>
-            <p v-if="geolocation.canTouchTarget && (geolocation.active || isIOS)" style="color: #f00">{{ $t('label.TouchTheObject') }}</p>
-            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && (geolocation.active || isIOS)">{{ $t('label.MoveCloserToTheObject') }}</p>
+            <p v-if="step.showDistanceToTarget && !geolocation.canSeeTarget && (geolocation.active || isIOs)">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.GPSdistance) }) }}</p>
+            <p v-if="!geolocation.canSeeTarget && (geolocation.active || isIOs)">{{ $t('label.ObjectIsTooFar') }}</p>
+            <p v-if="geolocation.canTouchTarget && (geolocation.active || isIOs)" style="color: #f00">{{ $t('label.TouchTheObject') }}</p>
+            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && (geolocation.active || isIOs)">{{ $t('label.MoveCloserToTheObject') }}</p>
           </div>
         </div>
         <div class="target-view" v-show="(playerResult === null) || (playerResult !== null && step.options && step.options.is3D)">
@@ -768,7 +768,7 @@
     </div>
     
     <!------------------ COMMON COMPONENTS ------------------>
-    <div class="direction-helper" v-show="((step.type == 'geolocation' && geolocation.mode === 'compass') || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && (geolocation.active || isIOS)">
+    <div class="direction-helper" v-show="((step.type == 'geolocation' && geolocation.mode === 'compass') || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && (geolocation.active || isIOs)">
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
@@ -1431,7 +1431,7 @@ export default {
             // ---------------------------------
             
             // for steps 'geolocation' & Android platforms, without gyroscope use 'deviceorientationabsolute' event + tell players to handle their phone horizontally
-            if (this.step.type === 'geolocation' && this.isHybrid && !this.isIOS && !this.deviceHasGyroscope) {
+            if (this.step.type === 'geolocation' && this.isHybrid && !this.isIOs && !this.deviceHasGyroscope) {
               window.addEventListener("deviceorientationabsolute", this.handleDeviceOrientationEvent, true)
               Notification(this.$t('label.PleaseHoldYourDeviceFlat'))
             } else {
@@ -1489,7 +1489,7 @@ export default {
           // otherwise it is reset when route changes & component is reloaded
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
           
-          if (this.isHybrid && !this.isIOS) {
+          if (this.isHybrid && !this.isIOs) {
             try {
               // IOS is not tested for now, hence why we are not using it 
               cordova.plugins.headingcalibration.watchCalibration(
