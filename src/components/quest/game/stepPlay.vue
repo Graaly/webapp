@@ -15,34 +15,35 @@
     </div>
     <div v-if="!showNonHybridQRReader" :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'" :style="'color: ' + customization.fontColor">
       <!------------------ QUEST TIMER ------------------------>
-      <div class="row"
-        v-if="timer > 0">
-        <div style="width: 20px; height: 20px; margin-top: -6px;" class="col-auto">
-          <q-icon name="timer" class="text-positive" style="font-size: 20px;" />
-        </div>
+      <div v-if="timer.remaining > 0">
         <q-linear-progress 
-          class="timer-progress-bar col"
+          size="25px"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
-          :value="timer"
-          :color="(timer < 0.1 ? 'negative' : ( timer < 0.25 ? 'warning' : 'positive'))"
+          :value="timer.remaining"
+          :color="(timer.remaining < 0.1 ? 'negative' : ( timer.remaining < 0.25 ? 'warning' : 'positive'))"
           :instant-feedback = true
-        />
+        >
+          <div class="absolute-full flex flex-center">
+            <q-badge color="white" text-color="black" :label="parseInt(timer.remainingMinutes, 10) + ' ' + $t('label.minutes')" />
+          </div>
+        </q-linear-progress>
       </div>
       <!------------------ STEP TIMER ------------------------>
-      <div class="row"
+      <div
         v-if="step.countDownTime !== null && 
             step.countDownTime !== undefined && 
             step.countDownTime.enabled === true">
-        <div style="width: 20px; height: 20px; margin-top: -6px;" class="col-auto">
-          <q-icon name="timer" class="text-positive" style="font-size: 20px;" />
-        </div>
         <q-linear-progress 
-          class="timer-progress-bar col"
+          size="25px"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
           :value="map(this.countdowntimeleft,0,this.step.countDownTime.time,0,1)"
           color="positive"
           :instant-feedback = true
-        />
+          >
+          <div class="absolute-full flex flex-center">
+            <q-badge color="white" text-color="black" :label="parseInt(this.countdowntimeleft, 10) + ' ' + $t('label.secondes')" />
+          </div>
+        </q-linear-progress>
       </div>
       
       <!------------ GEOLOCATION STEPS ------------------>
@@ -4827,8 +4828,8 @@ export default {
   .direction-helper canvas { margin: auto; }
   
   /* timer */
-  .timer-progress-bar { height: 15px !important; padding: 0 !important; }
+  .timer-progress-bar { height: 25px !important; padding: 0 !important; }
   .timer-progress-bar.with-camera-stream { top: 0; left: 0; width:100vw; z-index: 30; }
-  .timer-progress-bar > .q-linear-progress__track, .timer-progress-bar > .q-linear-progress__model { all: reset; height: 15px !important; line-height: 15px !important; }
+  .timer-progress-bar > .q-linear-progress__track, .timer-progress-bar > .q-linear-progress__model { all: reset; height: 25px !important; line-height: 25px !important; }
   
 </style>

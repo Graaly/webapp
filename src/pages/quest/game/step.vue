@@ -32,7 +32,7 @@
         :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}"
         :answer="offline.answer"
         :player="player"
-        :timer="countDownTime.remaining"
+        :timer="countDownTime"
         @played="trackStepPlayed" 
         @success="trackStepSuccess" 
         @fail="trackStepFail" 

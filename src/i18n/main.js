@@ -1079,7 +1079,8 @@ module.exports = {
       LocationSaved: "Current location set as goal position.",
       CurrentLocation: "Current GPS location",
       Accuracy: "Accuracy",
-      Meters: "meters"
+      Meters: "meters",
+      secondes: "seconde(s)"
     }
   },
   fr: {
@@ -2149,7 +2150,8 @@ module.exports = {
       LocationSaved: "Position de l'objectif mise à jour à partir de la position GPS de l'appareil.",
       CurrentLocation: "Position GPS actuelle",
       Accuracy: "Précision",
-      Meters: "mètres"
+      Meters: "mètres",
+      secondes: "seconde(s)"
     }
   }
 }
