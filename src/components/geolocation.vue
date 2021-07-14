@@ -165,15 +165,15 @@ export default {
       this.$emit('error', !this.alreadyWorked)
       
       // still attempt to retrieve user position even if it failed
-      if (this.method === 'watchPosition') {
+      /*if (this.method === 'watchPosition') {
         this.stopTracking()
-      }
+      }*/
       
       let timeoutId = utils.setTimeout(this.startTracking, this.timeoutBetweenFailedAttempts)
       
-      if (this.method === 'getCurrentPosition') {
+      //if (this.method === 'getCurrentPosition') {
         this.timeoutIds.push(timeoutId)
-      }
+      //}
     },
     /*
      * Handle location tracking success
