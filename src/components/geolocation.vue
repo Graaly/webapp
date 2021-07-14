@@ -1,6 +1,6 @@
 <template>
   <div class="geolocation-layer" v-if="!isSupported || !isActive">
-    <div v-if="!isActive && nbFails >= 2" class="search-geolocation"> 
+    <div v-if="!isActive && nbFails >= 2"> 
       <q-page-sticky position="top-right" style="z-index: 15000;" :offset="[18, 18]">
         <q-btn color="primary" round icon="location_off" style="font-size: 15px;" class="flashing" @click="showHelp = true" />
       </q-page-sticky>
@@ -17,6 +17,7 @@
         <q-separator />
         
         <q-card-section class="subtitle5">
+          {{ $t('label.LocationSearching') }}
           <div v-if="askUserToEnableGeolocation">
             <div class="q-pa-md subtitle6">
               {{ $t('label.CouldNotRetrieveYourPosition') }}
@@ -164,9 +165,9 @@ export default {
       this.$emit('error', !this.alreadyWorked)
       
       // still attempt to retrieve user position even if it failed
-      /*if (this.method === 'watchPosition') {
+      if (this.method === 'watchPosition') {
         this.stopTracking()
-      }*/
+      }
       
       let timeoutId = utils.setTimeout(this.startTracking, this.timeoutBetweenFailedAttempts)
       
@@ -290,15 +291,5 @@ export default {
 .geolocation-not-supported {
   background: white; z-index: 40; display: flex; align-items: left; justify-content: center; flex-direction: column; padding: 1rem; height: 100% !important; flex-grow: 1;
 }
-/*
-.enable-geolocation .text-primary { font-weight: bold; }
-.enable-geolocation p { text-align: justify; margin: 0.5rem; }
-.enable-geolocation li { text-align: justify; margin: 0.5rem; }
-.enable-geolocation ul { margin: 0 1rem; padding: 0 }
-*/
-.search-geolocation { position: fixed; top: 150px; left: 0px; right: 0px; width: 100%; min-height: 50px;  background: orange;}
-
-.search-geolocation.without-nav-bar { z-index: 7000; bottom: 0; }
-.search-geolocation.with-nav-bar { z-index: 60; bottom: 4vw; }
 
 </style>

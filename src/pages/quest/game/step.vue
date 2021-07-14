@@ -1157,7 +1157,7 @@ export default {
       }
 
       // hide hint
-      if (this.step.type !== 'image-over-flow') {
+      if (this.step.type !== 'image-over-flow' && this.step.type !== 'binocular') {
         this.hideHint()
       }
 
@@ -1436,6 +1436,7 @@ export default {
      */
     async askForHint() {
       if (!this.isHintAvailable()) {
+console.log("hint not available")
         return
       }
       // stop suggesting hint if opened
