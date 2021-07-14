@@ -1,41 +1,51 @@
 <template>
   <div class="geolocation-layer" v-if="!isSupported || !isActive">
     <div v-if="!isActive && nbFails >= 2" class="search-geolocation"> 
-      <div class="centered q-pa-md">
-        <q-spinner-puff color="primary" size="25px" /> &nbsp;{{ $t('label.LocationSearching') }}
-      </div>
-      <div v-if="askUserToEnableGeolocation">
-        <div class="q-pa-md subtitle6">
-          {{ $t('label.CouldNotRetrieveYourPosition') }}
-        </div>
-        <q-expansion-item
-          expand-separator
-          :label="$t('label.ReadMore')"
-        >
-          <div class="q-pa-md subtitle6">
-            {{ $t('label.PossibleReasons') }}
-            <ul>
-              <li>{{ $t('label.ClosedEnvironment') }}</li>
-              <li>
-                {{ $t('label.GeolocationDisabled') }}
-                <span v-if="nativeSettingsIsEnabled"><br /><q-btn color="primary" @click="openLocationSettings">{{ $t('label.OpenLocationSettings') }}</q-btn></span>
-              </li>
-            </ul>
-            <div v-if="!nativeSettingsIsEnabled">
-              <div v-if="isChrome">
-                <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
-              </div>
-              <div v-if="!isChrome">
-                <p v-html="$t('label.HowToActivateGeolocationOnIOs')"></p>
+      <q-page-sticky position="top-right" style="z-index: 15000;" :offset="[18, 18]">
+        <q-btn color="primary" round icon="location_off" style="font-size: 15px;" class="flashing" @click="showHelp = true" />
+      </q-page-sticky>
+    </div>  
+      
+    <!------------------ HELP POPUP ------------------------>
+    
+    <q-dialog v-model="showHelp">
+      <q-card>
+        <q-card-section class="popup-header centered">
+          <q-btn class="float-right" icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-separator />
+        
+        <q-card-section class="subtitle5">
+          <div v-if="askUserToEnableGeolocation">
+            <div class="q-pa-md subtitle6">
+              {{ $t('label.CouldNotRetrieveYourPosition') }}
+            </div>
+            <div class="q-pa-md subtitle6">
+              {{ $t('label.PossibleReasons') }}
+              <ul>
+                <li>{{ $t('label.ClosedEnvironment') }}</li>
+                <li>
+                  {{ $t('label.GeolocationDisabled') }}
+                  <span v-if="nativeSettingsIsEnabled"><br /><q-btn color="primary" @click="openLocationSettings">{{ $t('label.OpenLocationSettings') }}</q-btn></span>
+                </li>
+              </ul>
+              <div v-if="!nativeSettingsIsEnabled">
+                <div v-if="isChrome">
+                  <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
+                </div>
+                <div v-if="!isChrome">
+                  <p v-html="$t('label.HowToActivateGeolocationOnIOs')"></p>
+                </div>
               </div>
             </div>
           </div>
-        </q-expansion-item>
-      </div>
-    </div>
-    <div class="geolocation-not-supported" v-if="!isSupported" style="flex-grow: 1">
-      {{ $t('label.GeolocationNotSupported') }}
-    </div>
+          <div class="geolocation-not-supported" v-if="!isSupported" style="flex-grow: 1">
+            {{ $t('label.GeolocationNotSupported') }}
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -58,6 +68,7 @@ export default {
       nbFails: 0,
       disabled: false,
       alreadyWorked: false,
+      showHelp: false,
       //method: utils.isIOS() ? 'getCurrentPosition' : 'watchPosition',
       method: 'watchPosition',
       // specific to method 'watchPosition'

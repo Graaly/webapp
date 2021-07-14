@@ -66,7 +66,7 @@
       <!------------ GEOLOCATION STEPS ------------------>
       
       <!-- low GPS accuracy warning -->
-      <q-page-sticky position="top-right" style="z-index: 15;" :offset="[18, 18]" v-if="geolocation.lowCompassAccuracy || geolocation.lowGpsAccuracy">
+      <q-page-sticky position="top-right" style="z-index: 15000;" :offset="[18, 18]" v-if="geolocation.lowCompassAccuracy || geolocation.lowGpsAccuracy">
         <q-btn color="primary" round icon="location_off" style="font-size: 15px;" class="flashing">
           <q-tooltip class="primary" style="font-size: 16px" :offset="[10, 10]" v-if="!geolocation.persistentLowAccuracy">{{ $t('label.WarningLowGpsAccuracy') }}</q-tooltip>
           <q-tooltip class="primary" style="font-size: 16px" :offset="[10, 10]" v-if="geolocation.persistentLowAccuracy">{{ $t('label.PersistentLowGpsAccuracyPleaseSkipStep') }}</q-tooltip>
