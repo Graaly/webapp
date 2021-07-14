@@ -30,7 +30,7 @@
         <div 
           style="height: 25px; position: relative;"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
-          class="bg-positive"
+          class="bg-positive text-white centered"
           v-if="isIOs"
           >
           <strong>{{ parseInt(timer.remainingMinutes, 10) + ' ' + $t('label.minutes') }}</strong>
