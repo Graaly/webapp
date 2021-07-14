@@ -21,11 +21,10 @@
           <q-icon name="timer" class="text-positive" style="font-size: 20px;" />
         </div>
         <q-linear-progress 
-          class="timer-progress-bar bg-white col"
+          class="timer-progress-bar col"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
           :value="timer"
           :color="(timer < 0.1 ? 'negative' : ( timer < 0.25 ? 'warning' : 'positive'))"
-          style="background-color: white; height: 20px !important;" 
           :instant-feedback = true
         />
       </div>
