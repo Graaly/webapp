@@ -38,11 +38,10 @@
           <q-icon name="timer" class="text-positive" style="font-size: 20px;" />
         </div>
         <q-linear-progress 
-          class="timer-progress-bar bg-white col"
+          class="timer-progress-bar col"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
           :value="map(this.countdowntimeleft,0,this.step.countDownTime.time,0,1)"
           color="positive"
-          style="background-color: white;" 
           :instant-feedback = true
         />
       </div>
@@ -50,11 +49,12 @@
       <!------------ GEOLOCATION STEPS ------------------>
       
       <!-- low GPS accuracy warning -->
-      <div class="centered bg-warning q-pa-sm low-gps-accuracy-warning" v-if="geolocation.lowCompassAccuracy || geolocation.lowGpsAccuracy">
-        <q-icon name="not_listed_location" style="font-size: 30px;" class="flashing" />
-        <span v-if="!geolocation.persistentLowAccuracy">{{ $t('label.WarningLowGpsAccuracy') }}</span>
-        <span v-else>{{ $t('label.PersistentLowGpsAccuracyPleaseSkipStep') }}</span>
-      </div>
+      <q-page-sticky position="top-right" style="z-index: 15;" :offset="[18, 18]" v-if="geolocation.lowCompassAccuracy || geolocation.lowGpsAccuracy">
+        <q-btn color="primary" round icon="location_off" style="font-size: 15px;" class="flashing">
+          <q-tooltip class="primary" style="font-size: 16px" :offset="[10, 10]" v-if="!geolocation.persistentLowAccuracy">{{ $t('label.WarningLowGpsAccuracy') }}</q-tooltip>
+          <q-tooltip class="primary" style="font-size: 16px" :offset="[10, 10]" v-if="geolocation.persistentLowAccuracy">{{ $t('label.PersistentLowGpsAccuracyPleaseSkipStep') }}</q-tooltip>
+        </q-btn>
+      </q-page-sticky>
       
       <!------------------ AUDIO ------------------------>
     
@@ -313,10 +313,10 @@
         <div>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
-          <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.GPSdistance) }) }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.GPSdistance) }) }}</p>
         </div>
         
-        <geolocationStepMap class="geolocation-step-map" :class="'font-' + customization.font" v-show="geolocation.mode === 'map' && playerResult === null && geolocation.active" :target-position="geolocation.destinationPosition" :player-position="geolocation.playerPosition" />
+        <geolocationStepMap class="geolocation-step-map" :class="'font-' + customization.font" v-show="geolocation.mode === 'map' && playerResult === null" :target-position="geolocation.destinationPosition" :player-position="geolocation.playerPosition" />
         
         <q-btn 
           id="mode-switch" 
@@ -556,16 +556,16 @@
       
       <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && geolocation.active"></video>
+          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && (geolocation.active || isIOS)"></video>
         </transition>
-        <div v-show="playerResult === null && this.geolocation.active">
+        <div v-show="playerResult === null && (this.geolocation.active || isIOS)">
           <div class="text" :class="'font-' + customization.font">
             <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
-            <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.GPSdistance) }) }}</p>
-            <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
-            <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
-            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
+            <p v-if="step.showDistanceToTarget && !geolocation.canSeeTarget && (geolocation.active || isIOS)">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.GPSdistance) }) }}</p>
+            <p v-if="!geolocation.canSeeTarget && (geolocation.active || isIOS)">{{ $t('label.ObjectIsTooFar') }}</p>
+            <p v-if="geolocation.canTouchTarget && (geolocation.active || isIOS)" style="color: #f00">{{ $t('label.TouchTheObject') }}</p>
+            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && (geolocation.active || isIOS)">{{ $t('label.MoveCloserToTheObject') }}</p>
           </div>
         </div>
         <div class="target-view" v-show="(playerResult === null) || (playerResult !== null && step.options && step.options.is3D)">
@@ -768,8 +768,7 @@
     </div>
     
     <!------------------ COMMON COMPONENTS ------------------>
-    
-    <div class="direction-helper" v-show="(step.type == 'geolocation' && geolocation.mode === 'compass' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && geolocation.active">
+    <div class="direction-helper" v-show="((step.type == 'geolocation' && geolocation.mode === 'compass') || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && (geolocation.active || isIOS)">
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     
@@ -995,7 +994,8 @@ export default {
           foundStep: false,
           mode: 'compass',
           colorIndicator: 'blue-2',
-          closestDistance: 100
+          closestDistance: 100,
+          isCalibrationWatched: false
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -1193,10 +1193,11 @@ export default {
         this.stopcountdown()
       }
       
-      if (['geolocation', 'locate-item-ar'].includes(this.step.type)) {
+      if (['geolocation', 'locate-item-ar'].includes(this.step.type) && this.geolocation.isCalibrationWatched) {
         try {
           // can trigger an error in console which cannot be avoided
           cordova.plugins.headingcalibration.stopWatchCalibration();
+          this.geolocation.isCalibrationWatched = false
         } catch (err) {}
       }
     },
@@ -1489,46 +1490,51 @@ export default {
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
           
           if (this.isHybrid && !this.isIOS) {
-            // IOS is not tested for now, hence why we are not using it 
-            cordova.plugins.headingcalibration.watchCalibration(
-              (accuracy) => {
-                if (accuracy <= 1) {
-                  _this.geolocation.lowCompassAccuracy = true
-                  // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
-                  if (_this.geolocation.gpsAccuracyTimeout === null && !_this.geolocation.showCalibration && !_this.geolocation.persistentLowAccuracy) {
-                    _this.geolocation.gpsAccuracyTimeout = utils.setTimeout(() => {
-                      _this.$refs.gpscal.askUserToCalibrateGPS()
-                      if (_this.geolocation.gpsAccuracyTimeout !== null) {
-                        clearTimeout(_this.geolocation.gpsAccuracyTimeout)
-                        _this.geolocation.gpsAccuracyTimeout = null
-                      }
-                    }, 10000)
+            try {
+              // IOS is not tested for now, hence why we are not using it 
+              cordova.plugins.headingcalibration.watchCalibration(
+                (accuracy) => {
+                  this.geolocation.isCalibrationWatched = true
+                  if (accuracy <= 1) {
+                    _this.geolocation.lowCompassAccuracy = true
+                    // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
+                    if (_this.geolocation.gpsAccuracyTimeout === null && !_this.geolocation.showCalibration && !_this.geolocation.persistentLowAccuracy) {
+                      _this.geolocation.gpsAccuracyTimeout = utils.setTimeout(() => {
+                        _this.$refs.gpscal.askUserToCalibrateGPS()
+                        if (_this.geolocation.gpsAccuracyTimeout !== null) {
+                          clearTimeout(_this.geolocation.gpsAccuracyTimeout)
+                          _this.geolocation.gpsAccuracyTimeout = null
+                        }
+                      }, 10000)
+                    }
+                    // persistent low accuracy: suggest the player to skip step
+                    if (_this.geolocation.persistentLowAccuracyTimeout === null) {
+                      _this.geolocation.persistentLowAccuracyTimeout = utils.setTimeout(() => {
+                        _this.persistentLowAccuracy = true
+                        _this.$emit('msg', 'suggestNext')
+                        if (_this.geolocation.persistentLowAccuracyTimeout !== null) {
+                          clearTimeout(_this.geolocation.persistentLowAccuracyTimeout)
+                          _this.geolocation.persistentLowAccuracyTimeout = null
+                        }
+                      }, 20000)
+                    }
+                  } else {
+                    _this.geolocation.lowCompassAccuracy = false
+                    // Compass & GPS OK ? cancel timeouts
+                    if (_this.geolocation.gpsAccuracyTimeout !== null && !_this.geolocation.lowGpsAccuracy) {
+                      clearTimeout(_this.geolocation.gpsAccuracyTimeout);
+                      _this.geolocation.gpsAccuracyTimeout = null;
+                      clearTimeout(_this.geolocation.persistentLowAccuracyTimeout);
+                      _this.geolocation.persistentLowAccuracyTimeout = null;
+                      _this.geolocation.persistentLowAccuracy = false;
+                    }
                   }
-                  // persistent low accuracy: suggest the player to skip step
-                  if (_this.geolocation.persistentLowAccuracyTimeout === null) {
-                    _this.geolocation.persistentLowAccuracyTimeout = utils.setTimeout(() => {
-                      _this.persistentLowAccuracy = true
-                      _this.$emit('msg', 'suggestNext')
-                      if (_this.geolocation.persistentLowAccuracyTimeout !== null) {
-                        clearTimeout(_this.geolocation.persistentLowAccuracyTimeout)
-                        _this.geolocation.persistentLowAccuracyTimeout = null
-                      }
-                    }, 20000)
-                  }
-                } else {
-                  _this.geolocation.lowCompassAccuracy = false
-                  // Compass & GPS OK ? cancel timeouts
-                  if (_this.geolocation.gpsAccuracyTimeout !== null && !_this.geolocation.lowGpsAccuracy) {
-                    clearTimeout(_this.geolocation.gpsAccuracyTimeout);
-                    _this.geolocation.gpsAccuracyTimeout = null;
-                    clearTimeout(_this.geolocation.persistentLowAccuracyTimeout);
-                    _this.geolocation.persistentLowAccuracyTimeout = null;
-                    _this.geolocation.persistentLowAccuracy = false;
-                  }
-                }
-              },
-              (err) => { console.error('watch calibration: failure', err) }
-            );
+                },
+                (err) => { console.error('watch calibration: failure', err) }
+              );
+            } catch (e) {
+              console.log("calibration tests not working")
+            }
           }
         }
         
@@ -3334,7 +3340,7 @@ export default {
       var _this = this
       CameraPreview.takePicture({ quality: 85 }, function(base64PictureData) {
         _this.imageOverFlow.snapshot = 'data:image/jpeg;base64,' + base64PictureData
-        setTimeout(function () { _this.cancelTakeVideoSnapShot() }, 3000)
+        setTimeout(function () { _this.cancelTakeVideoSnapShot() }, 5000)
       })
     },
     cancelTakeVideoSnapShot() {
