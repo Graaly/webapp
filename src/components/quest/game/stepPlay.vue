@@ -21,29 +21,50 @@
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
           :value="timer.remaining"
           :color="(timer.remaining < 0.1 ? 'negative' : ( timer.remaining < 0.25 ? 'warning' : 'positive'))"
-          :instant-feedback = true
+          v-if="!isIOs"
         >
           <div class="absolute-full flex flex-center">
             <q-badge color="white" text-color="black" :label="parseInt(timer.remainingMinutes, 10) + ' ' + $t('label.minutes')" />
           </div>
         </q-linear-progress>
+        <div 
+          style="height: 25px; position: relative;"
+          :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
+          class="bg-positive"
+          v-if="isIOs"
+          >
+          <div class="absolute-full flex flex-center">
+            <q-badge color="white" text-color="black" :label="parseInt(timer.remainingMinutes, 10) + ' ' + $t('label.minutes')" />
+          </div>
+        </div>
       </div>
       <!------------------ STEP TIMER ------------------------>
       <div
         v-if="step.countDownTime !== null && 
             step.countDownTime !== undefined && 
-            step.countDownTime.enabled === true">
+            step.countDownTime.enabled === true &&
+            this.countdowntimeleft > 0">
         <q-linear-progress 
           size="25px"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
           :value="map(this.countdowntimeleft,0,this.step.countDownTime.time,0,1)"
           color="positive"
-          :instant-feedback = true
+          v-if="!isIOs"
           >
           <div class="absolute-full flex flex-center">
             <q-badge color="white" text-color="black" :label="parseInt(this.countdowntimeleft, 10) + ' ' + $t('label.secondes')" />
           </div>
         </q-linear-progress>
+        <div 
+          style="height: 25px; position: relative;"
+          :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
+          class="bg-positive"
+          v-if="isIOs"
+          >
+          <div class="absolute-full flex flex-center">
+            <q-badge color="white" text-color="black" :label="parseInt(this.countdowntimeleft, 10) + ' ' + $t('label.secondes')" />
+          </div>
+        </div>
       </div>
       
       <!------------ GEOLOCATION STEPS ------------------>
@@ -4826,10 +4847,5 @@ export default {
   */  
   .direction-helper { position: absolute; bottom: 20vw; left: 0; right: 0; margin-left: auto; margin-right: auto; z-index: 30; min-height: initial !important; pointer-events: none; width: 100vw; height: auto !important; }
   .direction-helper canvas { margin: auto; }
-  
-  /* timer */
-  .timer-progress-bar { height: 25px !important; padding: 0 !important; }
-  .timer-progress-bar.with-camera-stream { top: 0; left: 0; width:100vw; z-index: 30; }
-  .timer-progress-bar > .q-linear-progress__track, .timer-progress-bar > .q-linear-progress__model { all: reset; height: 25px !important; line-height: 25px !important; }
   
 </style>
