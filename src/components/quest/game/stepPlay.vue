@@ -15,7 +15,7 @@
     </div>
     <div v-if="!showNonHybridQRReader" :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'" :style="'color: ' + customization.fontColor">
       <!------------------ QUEST TIMER ------------------------>
-      <div v-if="timer.remaining > 0">
+      <div v-if="timer && timer.remaining > 0">
         <q-linear-progress 
           size="25px"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"

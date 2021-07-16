@@ -221,13 +221,12 @@ export default {
           navigator.geolocation.clearWatch(this.geolocationWatchId)
           this.geolocationWatchId = null
         }
-      } else {
-        if (this.timeoutIds.length > 0) {
-          for (let timeoutId of this.timeoutIds) {
-            clearTimeout(timeoutId)
-          }
-          this.timeoutIds = []
+      }
+      if (this.timeoutIds.length > 0) {
+        for (let timeoutId of this.timeoutIds) {
+          clearTimeout(timeoutId)
         }
+        this.timeoutIds = []
       }
     },
     // MPA 2021-06-28 disabled since inaccurate positions are now ignored + it may add lag to position update
