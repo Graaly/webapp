@@ -169,11 +169,10 @@ export default {
         this.stopTracking()
       }*/
       
-      let timeoutId = utils.setTimeout(this.startTracking, this.timeoutBetweenFailedAttempts)
-      
-      //if (this.method === 'getCurrentPosition') {
+      if (this.method === 'getCurrentPosition') {
+        let timeoutId = utils.setTimeout(this.startTracking, this.timeoutBetweenFailedAttempts)
         this.timeoutIds.push(timeoutId)
-      //}
+      }
     },
     /*
      * Handle location tracking success
