@@ -65,13 +65,13 @@ export default {
       isActive: true,
       nativeSettingsIsEnabled: (window.cordova && window.cordova.plugins.settings),
       userDeniedGeolocation: false,
-      timeoutBetweenFailedAttempts: 10000,
+      timeoutBetweenFailedAttempts: 5000,
       nbFails: 0,
       disabled: false,
       alreadyWorked: false,
       showHelp: false,
-      //method: utils.isIOS() ? 'getCurrentPosition' : 'watchPosition',
-      method: 'watchPosition',
+      method: utils.isIOS() ? 'getCurrentPosition' : 'watchPosition',
+      //method: 'watchPosition',
       // specific to method 'watchPosition'
       geolocationWatchId: null,
       // specific to method 'getCurrentPosition' (not currently used)
@@ -152,7 +152,6 @@ export default {
      */
     locationError(err) {
       console.warn('Could not get location')
-      console.log(err)
       // avoids to run this method asynchronously (can happen even after component is set to disabled !)
       if (this.disabled) {
         return
@@ -170,7 +169,7 @@ export default {
       }*/
       
       if (this.method === 'getCurrentPosition') {
-        let timeoutId = utils.setTimeout(this.startTracking, this.timeoutBetweenFailedAttempts)
+        let timeoutId = setTimeout(this.startTracking, this.timeoutBetweenFailedAttempts)
         this.timeoutIds.push(timeoutId)
       }
     },
@@ -207,7 +206,7 @@ export default {
       })
 
       if (this.method === 'getCurrentPosition') {
-        let timeoutId = utils.setTimeout(this.startTracking, 1000)
+        let timeoutId = setTimeout(this.startTracking, 1000)
         this.timeoutIds.push(timeoutId)
       }
     },
