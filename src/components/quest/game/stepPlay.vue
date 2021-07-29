@@ -108,12 +108,58 @@
         </audio>
         -->
       </div>
+      
+      <!------------------ HELP AREA ------------------------>
       <div v-if="step.type == 'help'" :class="'font-' + customization.font" style="overflow: auto; margin-bottom: 80px;">
         <p class="text" v-html="$t('label.HelpStepMessage')"></p>
-        <p v-if="step.options && step.options.helpNext" class="text" v-html="$t('label.HelpStepMessageNextMessage')"></p>
-        <p v-if="step.options && step.options.helpPrevious" class="text" v-html="$t('label.HelpStepMessagePreviousMessage')"></p>
-        <p v-if="step.options && step.options.helpInventory" class="text" v-html="$t('label.HelpStepMessageInventoryMessage')"></p>
-        <p v-if="step.options && step.options.helpHint" class="text" v-html="$t('label.HelpStepMessageHintMessage')"></p>
+        <div v-if="step.options && step.options.helpNext" class="text centered">
+          <div class="white-buttons">
+            <q-btn
+              round
+              size="lg"
+              :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
+              :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+              icon="arrow_forward"
+            />
+          </div>
+          <div>{{ $t('label.HelpStepMessageNextMessage') }}</div>
+        </div>
+        <div v-if="step.options && step.options.helpPrevious" class="text centered">
+          <div class="white-buttons">
+            <q-btn
+              round
+              size="lg"
+              :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
+              :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+              icon="arrow_back"
+            />
+          </div>
+          <div>{{ $t('label.HelpStepMessagePreviousMessage') }}</div>
+        </div>
+        <div v-if="step.options && step.options.helpInventory" class="text centered">
+          <div class="white-buttons">
+            <q-btn
+              round
+              size="lg"
+              :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
+              :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+              icon="work"
+            />
+          </div>
+          <div>{{ $t('label.HelpStepMessageInventoryMessage') }}</div>
+        </div>
+        <div v-if="step.options && step.options.helpHint" class="text centered">
+          <div class="white-buttons">
+            <q-btn
+              round
+              size="lg"
+              :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
+              :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+              icon="lightbulb"
+            />
+          </div>
+          <div>{{ $t('label.HelpStepMessageHintMessage') }}</div>
+        </div>
         <p class="text" v-html="$t('label.HelpStepMessageEnd')"></p>
       </div>
       
@@ -2909,8 +2955,13 @@ export default {
       ctx.shadowOffsetY = 0
       
       ctx.lineWidth = 1
-      ctx.fillStyle = this.geolocation.primaryColor
-      ctx.strokeStyle = this.geolocation.primaryColor
+      if (this.customization && this.customization.color && this.customization.color !== '') {
+        ctx.fillStyle = this.customization.color
+        ctx.strokeStyle = this.customization.color
+      } else {
+        ctx.fillStyle = this.geolocation.primaryColor
+        ctx.strokeStyle = this.geolocation.primaryColor
+      }
       
       // circle
       ctx.lineWidth = Math.round(this.directionHelperSize * 1.5)

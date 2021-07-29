@@ -71,7 +71,7 @@ export default {
       alreadyWorked: false,
       showHelp: false,
       method: utils.isIOS() ? 'getCurrentPosition' : 'watchPosition',
-      //method: 'watchPosition',
+      //method: 'watchPosition', // not working perfectly for ios
       // specific to method 'watchPosition'
       geolocationWatchId: null,
       // specific to method 'getCurrentPosition' (not currently used)
@@ -169,6 +169,7 @@ export default {
       }*/
       
       if (this.method === 'getCurrentPosition') {
+        // IMPORTANT : do not use utils.setTimeout => Not working for an unknown reason 
         let timeoutId = setTimeout(this.startTracking, this.timeoutBetweenFailedAttempts)
         this.timeoutIds.push(timeoutId)
       }

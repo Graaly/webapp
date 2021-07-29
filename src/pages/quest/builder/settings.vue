@@ -940,9 +940,9 @@
           </q-card-section>
           <q-separator inset />
           <q-card-section>
-            <div class="title1 text-primary centered">{{ parseInt(statistics.statistics.sellings * 70) / 100 }} €</div>
-            <div class="centered">{{ $t('label.YourRevenues') }}{{ $t('label.colons') }}{{ parseInt(statistics.statistics.sellings * 40) / 100 }}€ TTC</div>
-            <div class="centered">{{ $t('label.RevenuesPayedFloor') }}</div>
+            <div class="title1 text-primary centered">{{ parseInt(statistics.statistics.sellings * 85) / 100 }} €</div>
+            <!--<div class="centered">{{ $t('label.YourRevenues') }}{{ $t('label.colons') }}{{ parseInt(statistics.statistics.sellings * 40) / 100 }}€ TTC</div>
+            <div class="centered">{{ $t('label.RevenuesPayedFloor') }}</div>-->
           </q-card-section>
         </q-card>
         <q-card bordered class="my-card q-mb-md">

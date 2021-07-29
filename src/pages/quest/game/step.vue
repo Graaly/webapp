@@ -177,7 +177,8 @@
             <p class="q-pb-xl">
               <q-btn
               class="glossy large-button"
-              color="secondary"
+              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
               @click="openInfo">
                 <span>
                   {{ $t('label.BackToQuest') }}
