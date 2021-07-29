@@ -79,7 +79,7 @@
           <img style="width: 400%" :src="inventory.detail.url">
         </div>
         <div class="q-pa-md">{{ inventory.detail.title }}</div>
-        <div class="q-pa-md text-grey">{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>
+        <!--<div class="q-pa-md text-grey">{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>-->
         <q-btn class="glossy normal-button" color="primary" @click="closeInventoryDetail()"><div>{{ $t('label.Close') }}</div></q-btn>
         <div>
           <q-btn-group outline>
@@ -974,7 +974,7 @@ export default {
               this.warnings.stepDataMissing = true
             }
           }
-          if (tempStep.audioStream && tempStep.audioStream !== '' && !this.isIOs) {
+          if (tempStep.audioStream && tempStep.audioStream !== '') {
             const audioUrl = await utils.readBinaryFile(this.questId, tempStep.audioStream)
             if (audioUrl) {
               tempStep.audioStream = audioUrl
