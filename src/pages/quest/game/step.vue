@@ -16,9 +16,9 @@
     <audio
       v-if="info && info.audio !== '' && info.audio !== null"
       id="background-music"
-      autoplay loop
-      :src="info.audio"
-    />
+      autoplay loop>
+      <source :src="info.audio" type="audio/mpeg">
+    </audio>
 
     <!------------------ HEADER AREA ------------------------>
     <div :class="{'fit': (step.type !== 'image-over-flow')}"><!-- Keep this div for iphone, for red filter display -->

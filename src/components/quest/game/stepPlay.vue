@@ -78,9 +78,9 @@
       <audio 
         v-if="audio && audio !== ''"
         id="step-music" 
-        autoplay 
-        :src="audio"
-      />
+        autoplay>
+        <source :src="audio" type="audio/mpeg">
+      </audio>
       
       <div class="bg-accent text-white q-pa-md" v-if="isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     
