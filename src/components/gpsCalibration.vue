@@ -2,9 +2,9 @@
   <q-dialog v-model="geolocationshowCalibration">
     <div class="bg-black centered q-pa-md">
       <img style="width: 100%; max-width: 500px;" src="statics/icons/game/wave-phone.gif" />
-      <span class="text-white">{{
-        $t("label.WaveThePhoneForGPSPrecision")
-      }}</span>
+      <div class="text-white">
+        {{ $t("label.WaveThePhoneForGPSPrecision") }}
+      </div>
     </div>
   </q-dialog>
 </template>

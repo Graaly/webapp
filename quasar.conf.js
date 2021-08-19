@@ -84,6 +84,7 @@ module.exports = function (ctx) {
         'QDialog',
         'QDrawer',
         'QExpansionItem',
+        'QField',
         'QIcon',
         'QImg',
         'QInfiniteScroll',
@@ -96,6 +97,7 @@ module.exports = function (ctx) {
         'QOptionGroup',
         'QPageContainer',
         'QPage',
+        'QPageSticky',
         'QParallax',
         'QPopupProxy',
         'QLinearProgress',
@@ -111,13 +113,15 @@ module.exports = function (ctx) {
         'QSpinnerDots',
         'QSpinnerPuff',
         'QSpinnerRadio',
+        'QSpinnerOrbit',
         'QTab',
         'QTabs',
         'QTabPanel',
         'QTabPanels',
         'QToggle',
         'QToolbar',
-        'QToolbarTitle'
+        'QToolbarTitle',
+        'QTooltip'
       ],
       directives: [
         'ClosePopup',
@@ -190,7 +194,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: "2.1.13"
+      version: "2.1.37"
       // id: 'org.cordova.quasar.app'
     },
     electron: {

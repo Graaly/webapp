@@ -117,6 +117,18 @@ export default {
     return res
   },
   /*
+   * list the chapters of a quest
+   * @param   {String}    questId        ID of the quest
+   * @param   {Number}    version        version of the quest
+   * @param   {String}    lang           lang of the quest
+   */
+  async listChapters(questId, version, lang) {
+    let res = await Api()
+      .get("quest/" + questId + "/version/" + version + "/lang/" + lang + "/chapter/list")
+      .catch(error => console.log(error.request))
+    return res
+  },
+  /*
    * Save a step settings (or create if the step is not existing)
    * @param   {Object}    data        Data of the step
    */
@@ -270,6 +282,18 @@ export default {
     await QuestService.removeFromCache(questId)
 
     return res
+  },
+  /*
+   * Upload a step music
+   * @param   {Object}    data                audio data
+   */
+  uploadAudio(questId, data) {
+    return Api()
+      .post("/quest/" + questId + "/step/audio/upload", data, {
+        timeout: 60000,
+        headers: { "Content-Type": "multipart/form-data" }
+      })
+      .catch(error => console.log(error.request));
   },
   /*
    * upload an "answer image" (for step 'choose')

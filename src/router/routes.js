@@ -51,6 +51,12 @@ export default [
       },
       {
         path: 'teamplay/:id(\\w{24})/:lang',
+        name: 'teamplayold',
+        component: TeamPlay,
+        meta: { requiresAuth: false }
+      },
+      {
+        path: 'teamplay/:id(\\w{24})/:lang/:option/:teamId',
         name: 'teamplay',
         component: TeamPlay,
         meta: { requiresAuth: false }

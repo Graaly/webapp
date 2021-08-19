@@ -209,6 +209,7 @@ var self = {
   setInterval: function (func, duration) {
     let intervalId = setInterval(func, duration)
     store.dispatch('addIntervalId', intervalId)
+    return intervalId
   },
   /**
    * Clear all intervals created in other pages
@@ -834,23 +835,13 @@ var self = {
    * @param {*} str 
    */
   timeStringToSeconds: function(str) {
-    var resh = str.split("h");
-    var resm = resh[1].split("m");
-    var ress = resm[1].split("s");
-    var hour = resh[0]*3600;
-    var min = resm[0]*60;
-    var sec = ress[0]*1;//*1 is just to transform it into a number, in case it was a string
-    var total = hour + min + sec;
-
-    /*
-    //debugging
-    console.log(str);
-    console.log("hour " + hour);
-    console.log("min " + min);
-    console.log("sec " + sec);
-    console.log("total " + total);
-    this.secondsToTimeString(total);
-    */
+    var resh = str.split("h")
+    var resm = resh[1].split("m")
+    var ress = resm[1].split("s")
+    var hour = resh[0]*3600
+    var min = resm[0]*60
+    var sec = ress[0]*1//*1 is just to transform it into a number, in case it was a string
+    var total = hour + min + sec
     return total;
   },
   /**
@@ -864,12 +855,6 @@ var self = {
     var seconds = totalSeconds % 60;
 
     return hours + "h" + minutes + "m" + seconds + "s";
-    /*
-    //debugging
-    console.log("hour " + hours);
-    console.log("min " + minutes);
-    console.log("sec " + seconds);
-    */
   },
   /**
   * Re-maps a number from one range to another.
@@ -877,6 +862,27 @@ var self = {
   */
   map: function(x, inMin, inMax, outMin, outMax) {
     return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+  },
+  /**
+   * Version comparison function. Adapted from https://stackoverflow.com/a/16187766/488666
+   * @param {String} a e.g. "3.1.21"
+   * @param {String} b e.g. "2.1"
+   * @returns a number < 0 if a < b, a number > 0 if a > b, 0 if a = b
+   */
+  compareVersions (a, b) {
+    let diff;
+    let regExStrip0 = /(\.0+)+$/;
+    let segmentsA = a.replace(regExStrip0, '').split('.');
+    let segmentsB = b.replace(regExStrip0, '').split('.');
+    let l = Math.min(segmentsA.length, segmentsB.length);
+
+    for (let i = 0; i < l; i++) {
+        diff = parseInt(segmentsA[i], 10) - parseInt(segmentsB[i], 10);
+        if (diff) {
+            return diff;
+        }
+    }
+    return segmentsA.length - segmentsB.length;
   }
 }
 

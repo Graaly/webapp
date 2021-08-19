@@ -1,41 +1,52 @@
 <template>
   <div class="geolocation-layer" v-if="!isSupported || !isActive">
-    <div v-if="!isActive" class="search-geolocation fixed-bottom"> 
-      <div class="centered q-pa-md">
-        <q-spinner-puff color="primary" size="25px" /> &nbsp;{{ $t('label.LocationSearching') }}
-      </div>
-      <div v-if="askUserToEnableGeolocation">
-        <div class="q-pa-md subtitle6">
-          {{ $t('label.CouldNotRetrieveYourPosition') }}
-        </div>
-        <q-expansion-item
-          expand-separator
-          :label="$t('label.ReadMore')"
-        >
-          <div class="q-pa-md subtitle6">
-            {{ $t('label.PossibleReasons') }}
-            <ul>
-              <li>{{ $t('label.ClosedEnvironment') }}</li>
-              <li>
-                {{ $t('label.GeolocationDisabled') }}
-                <span v-if="nativeSettingsIsEnabled"><br /><q-btn color="primary" @click="openLocationSettings">{{ $t('label.OpenLocationSettings') }}</q-btn></span>
-              </li>
-            </ul>
-            <div v-if="!nativeSettingsIsEnabled">
-              <div v-if="isChrome">
-                <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
-              </div>
-              <div v-if="!isChrome">
-                <p v-html="$t('label.HowToActivateGeolocationOnIOs')"></p>
+    <div v-if="!isActive && nbFails >= 2"> 
+      <q-page-sticky position="top-right" style="z-index: 15000;" :offset="[18, 18]">
+        <q-btn color="primary" round icon="location_off" style="font-size: 15px;" class="flashing" @click="showHelp = true" />
+      </q-page-sticky>
+    </div>  
+      
+    <!------------------ HELP POPUP ------------------------>
+    
+    <q-dialog v-model="showHelp">
+      <q-card>
+        <q-card-section class="popup-header centered">
+          <q-btn class="float-right" icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-separator />
+        
+        <q-card-section class="subtitle5">
+          {{ $t('label.LocationSearching') }}
+          <div v-if="askUserToEnableGeolocation">
+            <div class="q-pa-md subtitle6">
+              {{ $t('label.CouldNotRetrieveYourPosition') }}
+            </div>
+            <div class="q-pa-md subtitle6">
+              {{ $t('label.PossibleReasons') }}
+              <ul>
+                <li>{{ $t('label.ClosedEnvironment') }}</li>
+                <li>
+                  {{ $t('label.GeolocationDisabled') }}
+                  <span v-if="nativeSettingsIsEnabled"><br /><q-btn color="primary" @click="openLocationSettings">{{ $t('label.OpenLocationSettings') }}</q-btn></span>
+                </li>
+              </ul>
+              <div v-if="!nativeSettingsIsEnabled">
+                <div v-if="isChrome">
+                  <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
+                </div>
+                <div v-if="!isChrome">
+                  <p v-html="$t('label.HowToActivateGeolocationOnIOs')"></p>
+                </div>
               </div>
             </div>
           </div>
-        </q-expansion-item>
-      </div>
-    </div>
-    <div class="geolocation-not-supported" v-if="!isSupported" style="flex-grow: 1">
-      {{ $t('label.GeolocationNotSupported') }}
-    </div>
+          <div class="geolocation-not-supported" v-if="!isSupported" style="flex-grow: 1">
+            {{ $t('label.GeolocationNotSupported') }}
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -46,20 +57,21 @@ import utils from 'src/includes/utils'
 export default {
   // name: 'ComponentName',
   props: {
-    maximumAge: { type: Number, default: 0 },
-    withNavBar: { type: Boolean, default: false }
+    maximumAge: { type: Number, default: 0 }
   },
   data () {
     return {
       isSupported: true,
-      isActive: false,
+      isActive: true,
       nativeSettingsIsEnabled: (window.cordova && window.cordova.plugins.settings),
       userDeniedGeolocation: false,
-      timeoutBetweenFailedAttempts: 10000,
+      timeoutBetweenFailedAttempts: 5000,
       nbFails: 0,
       disabled: false,
       alreadyWorked: false,
+      showHelp: false,
       method: utils.isIOS() ? 'getCurrentPosition' : 'watchPosition',
+      //method: 'watchPosition', // not working perfectly for ios
       // specific to method 'watchPosition'
       geolocationWatchId: null,
       // specific to method 'getCurrentPosition' (not currently used)
@@ -101,7 +113,7 @@ export default {
         return false;
       }
     },
-    askUserToEnableGeolocation() { return (this.nbFails >= 1 && !this.alreadyWorked) || this.userDeniedGeolocation }
+    askUserToEnableGeolocation() { return (this.nbFails >= 2 && !this.alreadyWorked) || this.userDeniedGeolocation }
   },
   mounted() {
     if (!navigator || !navigator.geolocation) {
@@ -139,27 +151,26 @@ export default {
      * @param   {string}    err            Error string
      */
     locationError(err) {
-      console.log('*** locationError', err)
+      console.warn('Could not get location')
       // avoids to run this method asynchronously (can happen even after component is set to disabled !)
       if (this.disabled) {
         return
       }
       
-      console.warn('Could not get location')
-      console.log(err)
       this.isSupported = true
       this.isActive = false
       this.nbFails++
       this.userDeniedGeolocation = (err.code === 1) // corresponding to PositionError.PERMISSION_DENIED. works only for webapp mode.
       this.$emit('error', !this.alreadyWorked)
       
-      if (this.method === 'watchPosition') {
+      // still attempt to retrieve user position even if it failed
+      /*if (this.method === 'watchPosition') {
         this.stopTracking()
-      }
-      
-      let timeoutId = utils.setTimeout(this.startTracking, this.timeoutBetweenFailedAttempts)
+      }*/
       
       if (this.method === 'getCurrentPosition') {
+        // IMPORTANT : do not use utils.setTimeout => Not working for an unknown reason 
+        let timeoutId = setTimeout(this.startTracking, this.timeoutBetweenFailedAttempts)
         this.timeoutIds.push(timeoutId)
       }
     },
@@ -181,20 +192,22 @@ export default {
       this.nbFails = 0
       this.userDeniedGeolocation = false
       
-      const computedPosition = this.computeRelevantPosition(position)
+      //const computedPosition = this.computeRelevantPosition(position)
 
       this.$emit('success', {
         coords: {
           accuracy: (position.coords && position.coords.accuracy) ? position.coords.accuracy : 10,
           altitude: position.coords ? position.coords.altitude : null,
           speed: position.coords ? position.coords.speed : null,
-          latitude: computedPosition.latitude,
-          longitude: computedPosition.longitude
+          //latitude: computedPosition.latitude,
+          //longitude: computedPosition.longitude
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
         }
       })
 
       if (this.method === 'getCurrentPosition') {
-        let timeoutId = utils.setTimeout(this.startTracking, 1000)
+        let timeoutId = setTimeout(this.startTracking, 1000)
         this.timeoutIds.push(timeoutId)
       }
     },
@@ -207,16 +220,16 @@ export default {
           navigator.geolocation.clearWatch(this.geolocationWatchId)
           this.geolocationWatchId = null
         }
-      } else {
-        if (this.timeoutIds.length > 0) {
-          for (let timeoutId of this.timeoutIds) {
-            clearTimeout(timeoutId)
-          }
-          this.timeoutIds = []
+      }
+      if (this.timeoutIds.length > 0) {
+        for (let timeoutId of this.timeoutIds) {
+          clearTimeout(timeoutId)
         }
+        this.timeoutIds = []
       }
     },
-    computeRelevantPosition (position) {
+    // MPA 2021-06-28 disabled since inaccurate positions are now ignored + it may add lag to position update
+    /*computeRelevantPosition (position) {
       if (position && position.coords) {
         // add position in history
         if (this.positionHistory.length >= 5) {
@@ -243,7 +256,7 @@ export default {
       } else {
         return position
       }
-    },
+    },*/
     openLocationSettings () {
       if (window.cordova && window.cordova.plugins.settings) {
         window.cordova.plugins.settings.open("location", () => {
@@ -272,19 +285,9 @@ export default {
 .geolocation-layer.with-nav-bar { bottom: 14vw; }
 .geolocation-layer.disabled { display: none !important; }
 
-.enable-geolocation, .geolocation-not-supported {
+/*.enable-geolocation, .geolocation-not-supported {*/
+.geolocation-not-supported {
   background: white; z-index: 40; display: flex; align-items: left; justify-content: center; flex-direction: column; padding: 1rem; height: 100% !important; flex-grow: 1;
 }
-
-.enable-geolocation .text-primary { font-weight: bold; }
-.enable-geolocation p { text-align: justify; margin: 0.5rem; }
-.enable-geolocation li { text-align: justify; margin: 0.5rem; }
-.enable-geolocation ul { margin: 0 1rem; padding: 0 }
-
-/*.search-geolocation { position: absolute; width: 100%; height: 10vw !important; min-height: initial !important;  display: flex; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center; justify-content: center; background: orange; }*/
-.search-geolocation { width: 100%; min-height: 50px;  background: orange;}
-
-.search-geolocation.without-nav-bar { z-index: 7000; bottom: 0; }
-.search-geolocation.with-nav-bar { z-index: 60; bottom: 4vw; }
 
 </style>

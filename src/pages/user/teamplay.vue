@@ -19,6 +19,7 @@
             <q-input
               outlined
               :label="$t('label.TeamID')"
+              v-if="!this.$route.params.teamId || this.$route.params.teamId === 'none'"
               v-model="form.teamId"
               @blur="$v.form.teamId.$touch"
               :error="$v.form.teamId.$error"
@@ -28,6 +29,7 @@
             <q-input
               outlined
               :label="$t('label.TeamName')"
+              v-if="options.indexOf('individual') === -1"
               v-model="form.teamName"
               @blur="$v.form.teamName.$touch"
               :error="$v.form.teamName.$error"
@@ -36,7 +38,7 @@
             
             <q-input
               outlined
-              :label="$t('label.YourName')"
+              :label="$t('label.YourFullName')"
               v-model="form.name"
               @blur="$v.form.name.$touch"
               :error="$v.form.name.$error"
@@ -48,7 +50,7 @@
               type="submit"
               class="glossy large-btn"
               color="primary" 
-              :label="$t('label.SignIn')"
+              :label="$t('label.Start')"
               :loading="submitting" 
               />
           </div>
@@ -56,6 +58,11 @@
         </form>
 
         <div class="centered smaller version secondary-font">Version {{ version }}</div>
+        <div class="centered smaller version secondary-font">
+          Version {{ version }} - 
+          <img src="statics/icons/game/flag-en.png" @click="switchLanguage('en')" /> -
+          <img src="statics/icons/game/flag-fr.png" @click="switchLanguage('fr')" />
+        </div>
       
       </div>
     </div>
@@ -68,13 +75,15 @@ import AuthService from 'services/AuthService'
 import RunService from 'services/RunService'
 import { required } from 'vuelidate/lib/validators'
 import Notification from 'boot/NotifyHelper'
-//import utils from 'src/includes/utils'
+import utils from 'src/includes/utils'
 
 export default {
   data() {
     return {
       questId: this.$route.params.id,
       lang: this.$route.params.lang,
+      option: this.$route.params.option ? this.$route.params.option : 'none',
+      options: [],
       form: {
         teamId: '',
         teamName: '',
@@ -87,7 +96,18 @@ export default {
     }
   },
   mounted () {
-    
+    // if user is connected, redirect to the quest - Only for anonymous users
+    if (this.$store && this.$store.state && this.$store.state.user && this.$store.state.user.name && this.$store.state.user.name === '-') {
+      this.$router.push('/quest/play/' + this.questId)
+    }
+    this.options = this.option.split("-")
+    if (this.options.indexOf('individual') !== -1) {
+      this.form.teamName = utils.randomId()
+    }
+    if (this.$route.params.teamId && this.$route.params.teamId !== 'none') {
+      this.form.teamId = this.$route.params.teamId
+    }
+    this.switchLanguage(this.lang)
   },
   methods: {
     /*
@@ -96,6 +116,16 @@ export default {
     async formSubmit() {
       this.$v.$touch()
       this.submitting = true
+      
+      // check last name
+      if (this.options.indexOf('checklastname') !== -1) {
+        let nameParts = this.form.name.split(" ")
+        if (nameParts.length < 2) {
+          Notification(this.$t('label.PleaseEnterFirstNameAndLastName'), 'error')
+          this.submitting = false
+          return false
+        }
+      }
       
       // create account
       let checkStatus = await AuthService.playAnonymous(this.$t('label.shortLang'))
@@ -107,9 +137,14 @@ export default {
           const run = await RunService.initTeamPlay(this.questId, this.lang, this.form.teamId, this.form.teamName, this.form.name)
           
           if (run && run.data) {
-            // launch game
-            //this.$router.push('/quest/play/' + this.questId + '/version/' + run.data.version + '/step/0/undefined?remoteplay=false')
-            this.$router.push('/quest/play/' + this.questId + '/version/' + run.data.version + '/step/0/' + this.lang + '?remoteplay=false')
+            if (run.data.message) {
+              Notification(this.$t('label.' + run.data.message), 'error')
+              this.submitting = false
+            } else {
+              // launch game
+              //this.$router.push('/quest/play/' + this.questId + '/version/' + run.data.version + '/step/0/undefined?remoteplay=false')
+              this.$router.push('/quest/play/' + this.questId + '/version/' + run.data.version + '/step/0/' + this.lang + '?remoteplay=false')
+            }
           }
           /* get quest version
           const quest = await QuestService.getById(this.questId, '999', this.lang)
@@ -123,10 +158,15 @@ export default {
           */
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
+          this.submitting = false
         }
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
+        this.submitting = false
       }
+    },
+    switchLanguage(lang) {
+      this.$i18n.locale = lang
     }
   },
   validations: {

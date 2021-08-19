@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll background-dark">
+  <div class="scroll text-white" :class="quest && quest.customization && quest.customization.endColor ? '' : 'background-dark'" :style="(quest && quest.customization && quest.customization.endColor && quest.customization.endColor !== '') ? 'background-color: ' + quest.customization.endColor : ''">
     <!------------------ NO NETWORK AREA ------------------------>
     <div v-if="warnings.noNetwork">
       <div class="bg-primary">
@@ -14,9 +14,10 @@
     <!------------------ TEXT IF NO SCORING ------------------>
     
     <div class="q-ma-md rounded background-lighter2" v-if="!warnings.noNetwork && quest && quest.customization && quest.customization.removeScoring">
-      <div>
-        <h4 v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage !== ''" v-html="quest.customization.endMessage" />
-        <h4 v-if="!quest.customization || !quest.customization.endMessage || quest.customization.endMessage === ''">{{ $t('label.ThanksForPlaying') }}</h4>
+      <div class="q-pa-md" :class="'font-' + quest.customization.font">
+        <div class="text-h4" v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage !== ''" v-html="quest.customization.endMessage" />
+        <div class="text-h4" v-if="!quest.customization || !quest.customization.endMessage || quest.customization.endMessage === ''">{{ $t('label.ThanksForPlaying') }}</div>
+        <div>{{ $t('label.GoodAnswersNumber') }}: {{ nbGoodAnwers }} / {{ nbQuestions }}</div>
       </div>
       <div v-if="isUserAuthor" class="back centered q-pa-md">
         <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
@@ -62,7 +63,19 @@
               <div class="centered q-pb-md" v-if="run && ranking && ranking.position && ranking.position !== '-'">
                 {{ $t('label.YourRanking') }}: {{ ranking.position }} 
               </div>
+              <div class="centered q-pb-md" v-if="run">
+                {{ $t('label.GoodAnswersNumber') }}: {{ nbGoodAnwers }} / {{ nbQuestions }}
+              </div>
             </div>
+          </div>
+        </div>
+        
+        <!------------------ NEW QUEST WON AREA ------------------------>
+        
+        <div v-if="unlockedQuest.show" class="centered q-mt-md subtitle5">
+          <span class="text-primary">{{ $t('label.YouWonNewGame') }}</span>
+          <div class="centered q-pa-md">
+            <q-btn color="primary" class="glossy" :label="$t('label.SolveThisQuest')" @click="$router.push('/quest/play/' + unlockedQuest.id)" />
           </div>
         </div>
         
@@ -70,7 +83,7 @@
         
         <div class="centered q-mt-md subtitle5">{{ $t('label.YouLikedThisQuest') }}</div>
         <div class="centered q-px-md">
-          <span v-show="quest.type !== 'discovery' && run.score > 0 && quest && quest.access === 'public'">
+          <span v-show="quest && quest.type !== 'discovery' && run.score > 0 && quest && quest.access === 'public'">
             <a class="small" @click="openChallengeBox">{{ $t('label.ChallengeYourFriends') }}</a> <span class="secondary-font-very-small"> {{ $t('label.or') }} </span>
           </span>
           <a class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
@@ -106,10 +119,15 @@
         <q-dialog maximized v-model="suggestQuest.show">
           <suggest @close="suggestQuest.show = false"></suggest>
         </q-dialog>
-        
+      </div>
+      
+    </div>
+         
+    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork">
+      <div>
         <!------------------ REVIEW AREA ------------------------>
         
-        <div class="q-mx-md q-mt-xl q-pa-sm centered" v-if="quest.type !== 'discovery' && showAddReview && quest && quest.access === 'public'">
+        <div class="q-mx-md q-mt-xl q-pa-sm centered" v-if="quest && quest.type !== 'discovery' && showAddReview">
           <div class="subtitle4">{{ $t('label.ReviewThisQuest') }}</div>
           <div class="q-py-sm"><q-rating v-model="rating" :max="5" size="1rem" class="end-rating" color="white" :disable="reviewSent" @click="showReviewText = true" /></div>
         </div>
@@ -135,7 +153,11 @@
             <div class="subtitle6">{{ $t('label.WonOtherRewardByPlayingOtherGamesInCity') }}</div>
           </div>
         </div>
+      </div>
+    </div>
         
+    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
+      <div v-if="run && run._id">
         <!------------------ RANKING AREA ------------------------>
     
         <div v-show="ranking.show">
@@ -282,6 +304,8 @@ export default {
         position: "-"
       },
       score: {},
+      nbQuestions: 0,
+      nbGoodAnwers: 0,
       level: {
         color: "white",
         upgraded: false
@@ -296,6 +320,10 @@ export default {
       invitedFriends: {
         id: [],
         name: []
+      },
+      unlockedQuest: {
+        show: false,
+        id: 0
       },
       author: null,
       questId: this.$route.params.questId,
@@ -360,7 +388,6 @@ export default {
         if (quest && quest.data) {
           this.quest = quest.data
         }
-        
         if (quest && quest.data) {
           // show review part only if player is not author & has not already sent a review for this quest
           this.isUserAuthor = this.$store.state.user._id === this.quest.authorUserId
@@ -368,6 +395,9 @@ export default {
           const isReviewAlreadySent = results.data && results.data.length >= 1
           this.showAddReview = !this.isUserAdmin && !this.isUserAuthor && !isReviewAlreadySent
         }
+        
+        // compute good answers
+        await this.computeGoodAnswers()
         
         // get user old score
         this.score.old = this.$store.state.user.points
@@ -396,6 +426,11 @@ export default {
               this.showReward = true
             }
           }
+          // check if new quest unlocked
+          if (endStatus.data.unlockedQuest) {
+            this.unlockedQuest.show = true
+            this.unlockedQuest.id = endStatus.data.unlockedQuest
+          }
           
           // remove offline data
           await this.removeOfflineData()
@@ -423,7 +458,6 @@ export default {
         
         // get ranking without the user (status of run is still in-progress)
         await this.getRanking()
-        
         
         // get duration
         const duration = utils.getDurationFromNow(this.run.dateCreated)
@@ -683,6 +717,24 @@ export default {
       this.reviewSent = true
       this.showReviewText = false
       Notification(this.$t('label.ReviewSent'), 'positive')
+    },
+    /*
+     * Compute number of good answers
+     */
+    async computeGoodAnswers() {
+      const conditionsDone = this.run.conditionsDone
+      let nbQuestions = 0
+      let nbGoodAnwers = 0
+      for (var i = 0; i < conditionsDone.length; i++) {
+        if (conditionsDone[i].indexOf('stepSuccess_') !== -1) {
+          nbQuestions++
+          nbGoodAnwers++
+        } else if (conditionsDone[i].indexOf('stepFail_') !== -1) {
+          nbQuestions++
+        }
+      }
+      this.nbQuestions = nbQuestions
+      this.nbGoodAnwers = nbGoodAnwers
     },
     /*
      * get offline run data

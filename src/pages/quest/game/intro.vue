@@ -299,7 +299,8 @@
           <div class="q-pa-lg centered subtitle2">
             {{ $t('label.BuyThisQuest') }}
           </div>
-          <div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.tier && !isIOs">
+          <!--<div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.tier && !isIOs">-->
+          <div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.tier">
             <q-card class="my-card">
               <q-card-section class="bg-primary text-white centered text-uppercase">
                 <div class="text-h6">{{ $t('label.YouHaveReceivedAQrCodeFrom', {author: quest.author.name}) }}</div>
@@ -310,7 +311,8 @@
             </q-card>
           </div>
           
-          <div class="centered" v-if="quest.premiumPrice && quest.premiumPrice.tier && quest.premiumPrice.active && !isIOs">
+          <!--<div class="centered" v-if="quest.premiumPrice && quest.premiumPrice.tier && quest.premiumPrice.active && !isIOs">-->
+          <div class="centered" v-if="quest.premiumPrice && quest.premiumPrice.tier && quest.premiumPrice.active">
             -
             <span>{{ $t('label.Or') }}</span>
             -
@@ -508,7 +510,7 @@ export default {
         }, () => {
           this.geolocationIsSupported = false
           utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
-        }, { timeout: 10000, maximumAge: 10000 });
+        }, { timeout: 10000, maximumAge: 0 });
       } else {
         this.geolocationIsSupported = false
         utils.setTimeout(this.checkUserIsCloseFromStartingPoint, 5000)
@@ -537,7 +539,7 @@ export default {
     async initQuest() {
       // get quest information
       await this.getQuest(this.$route.params.id)
-      
+
       // Fix EMA on 18/12/2019 - products in store remains if I open several paying quests
       if (window.cordova && this.quest.premiumPrice && this.quest.premiumPrice.androidId && store.products.length > 0) {
         this.$router.go(0)
@@ -1008,7 +1010,7 @@ export default {
       this.shop.show = false
       this.multiplayer.show = false
       this.showPreloaderPopup = true
-      if (this.isHybrid) {
+      if (this.isHybrid && (!this.quest.customization || !this.quest.customization.forceOnline)) {
         this.offline.show = true
       } else {
         var _this = this;

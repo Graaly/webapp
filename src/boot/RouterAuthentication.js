@@ -3,6 +3,8 @@ import { i18n } from "../boot/VueI18n";
 import AuthService from "../services/AuthService";
 import store from "../store/index";
 import * as Cookies from "js-cookie";
+import utils from "../includes/utils";
+import packageJson from "../../package.json";
 
 export default ({ app, router, Vue }) => {
   // check if user is authenticated for specific routes
@@ -49,9 +51,11 @@ export default ({ app, router, Vue }) => {
           const response = await AuthService.getAccount();
 
           if (response && response.data && response.data.name) {
+            // app version must be greater or equal than clientSupportedVersion
+            let appVersion = packageJson.version
             if (
               response.data.clientSupportedVersion &&
-              response.data.clientSupportedVersion > "2.1.9"
+              utils.compareVersions(response.data.clientSupportedVersion, appVersion) > 0
             ) {
               next({
                 path: "/error/upgraderequired"

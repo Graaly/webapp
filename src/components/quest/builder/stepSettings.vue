@@ -4,7 +4,7 @@
     <!------------------ HEADER ------------------------>
     
     <div class="q-pa-md background-dark">
-      <a class="float-right no-underline" color="grey" @click="close"><q-icon name="close" class="subtitle4" /></a>
+      <a class="float-right no-underline clickable" color="grey" @click="close"><q-icon name="close" class="subtitle4" /></a>
       
       <div class="subtitle3" v-if="selectedStep.type !== null">{{ $t('stepType.' + selectedStep.type.title) }}</div>
     </div>
@@ -192,19 +192,12 @@
           </q-list>
         </div>
         
-        <h2>{{ $t('label.AddressToFind') }}</h2>
+        <h2>{{ $t('label.LocationToFind') }}</h2>
         <div 
           v-for="(location, index) in selectedStep.form.options.locations"
           :key="index"
           class="fields-group">
-          <div v-if="!isIOs" class="location-address">
-            <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-              <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
-              <gmap-autocomplete :id="'destination' + index" :placeholder="$t('label.Address')" :value="location.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="config.geolocation.currentIndex = index; value = $event.target.value" />
-            </div>
-            <a class="dark" @click="getCurrentLocation(index)"><img src="statics/icons/game/location.png" /></a>
-          </div>
-          <div v-if="(isIOs || (location.lat && location.lat !== ''))">
+          <div>
             {{  $t('label.DefineGPSLocation') }}
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
@@ -218,29 +211,10 @@
               </div>
             </div>
             <div>
-              <a class="dark" @click="getMyGPSLocation(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+              <a class="dark clickable" @click="openGeolocationPopin(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a> 
+              <span v-if="selectedStep.form.options.locations.length > 1"> - <a class="dark clickable" @click="removeGPSLocation(index)">{{ $t('label.RemoveGPSLocation') }}</a></span>
             </div>
           </div>
-          <q-list v-if="!(isIOs || (location.lat && location.lat !== ''))">
-            <q-expansion-item 
-              icon="explore" 
-              :label="$t('label.OrDefineGPSLocation')">
-              <div class="location-gps-inputs">
-                <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
-                <div>
-                  <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                  <input type="number" id="answer-latitude" v-model.number="location.lat" placeholder="ex. 45,49812" step="any" />
-                </div>
-                <div>
-                  <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                  <input type="number" id="answer-longitude" v-model.number="location.lng" placeholder="ex. 5,65487" step="any" />
-                </div>
-              </div>
-              <div>
-                <a class="dark" @click="getMyGPSLocation(index)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
-              </div>
-            </q-expansion-item>
-          </q-list>
         </div>
         <q-btn class="full-width" :label="$t('label.AddAnGPSLocation')" @click="addGPSLocation()" />
       </div>
@@ -546,6 +520,10 @@
             id="cross3" 
             :style="'display: none; position: absolute; z-index: 500; top: 200px; left: 200px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
             @click="selectFindItemArea(3)" src="statics/icons/game/find-item-locator.png" />
+          <img 
+            id="cross4" 
+            :style="'display: none; position: absolute; z-index: 500; top: 300px; left: 100px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
+            @click="selectFindItemArea(4)" src="statics/icons/game/find-item-locator.png" />
         </div>
         <div>
           <div v-if="!isIOs">
@@ -609,23 +587,20 @@
               <q-btn class="full-width" type="button" color="grey" :label="$t('label.UploadTheObjectToFind')" @click="$emit('openPremiumBox')" />
             </div>-->
             <div id="target-canvas"></div>
-            <div>
+            <div class="q-mb-md">
               {{ $t('label.TouchAndDragObject') }}
             </div>
           </div>
+          <div v-if="selectedStep.form.options.hasOwnProperty('touchDistance')">
+            <p>{{ $t('label.TouchDistance') }}</p>
+            <q-slider v-model="selectedStep.form.options.touchDistance" :min="5" :max="100" :step="1" label-always :label-value="(selectedStep.form.options.touchDistance || 10) + 'm'" />
+          </div>
         </div>
         
-        <h2>{{ $t('label.AddressToFind') }}</h2>
-        <div class="fields-group">       
-          <div v-if="!isIOs" class="location-address">
-            <div class="q-if row no-wrap items-center relative-position q-input q-if-has-label text-primary">
-              <!-- using :value + @input trick to avoid this issue: https://github.com/xkjyeah/vue-google-maps/issues/592 -->
-              <gmap-autocomplete id="destination" :placeholder="$t('label.Address')" :value="selectedStep.form.options.destination" class="col q-input-target text-left" @place_changed="setLocation" @input="config.geolocation.currentIndex = -1; value = $event.target.value" />
-            </div>
-            <a class="dark" @click="getCurrentLocation(-1)"><img src="statics/icons/game/location.png" /></a>
-          </div>
-          <div v-if="(isIOs || (selectedStep.form.options.lat && selectedStep.form.options.lat !== ''))">
-            {{  $t('label.DefineGPSLocation') }}
+        <h2>{{ $t('label.LocationToFind') }}</h2>
+        <div class="fields-group">
+          <div>
+            {{ $t('label.DefineGPSLocation') }}
             <div class="location-gps-inputs">
               <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
               <div>
@@ -640,29 +615,9 @@
               </div>
             </div>
             <div>
-              <a class="dark" @click="getMyGPSLocation(-1)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
+              <a class="dark" @click="openGeolocationPopin(-1)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
             </div>
           </div>
-          <q-list v-if="!(isIOs || (selectedStep.form.options.lat && selectedStep.form.options.lat !== ''))">
-            <q-expansion-item icon="explore" :label="$t('label.OrDefineGPSLocation')">
-              <div class="location-gps-inputs">
-                <!-- q-input does not support value 'any' for attribute 'step' => use raw HTML inputs & labels -->
-                <div>
-                  <label for="answer-latitude">{{ $t('label.Latitude') }}</label>
-                  <input type="number" id="answer-latitude" v-model.number="selectedStep.form.options.lat" placeholder="ex. 45,49812" step="any" />
-                  <p class="error-label" v-show="$v.selectedStep.form.options.lat.$error">{{ $t('label.RequiredField') }}</p>
-                </div>
-                <div>
-                  <label for="answer-longitude">{{ $t('label.Longitude') }}</label>
-                  <input type="number" id="answer-longitude" v-model.number="selectedStep.form.options.lng" placeholder="ex. 5,65487" step="any" />
-                  <p class="error-label" v-show="$v.selectedStep.form.options.lng.$error">{{ $t('label.RequiredField') }}</p>
-                </div>
-              </div>
-              <div>
-                <a class="dark" @click="getMyGPSLocation(-1)">{{ $t('label.UseMyCurrentGPSLocation') }}</a>
-              </div>
-            </q-expansion-item>
-          </q-list>
         </div>
       </div>
       
@@ -955,19 +910,41 @@
         </q-expansion-item>
       </q-list>
       
+      <!------------------ CHAPTERS ------------------------>
+      
+      <q-list bordered v-if="options && options.mode && options.mode === 'advanced'">
+        <q-expansion-item icon="add_box" :label="$t('label.Chapters')">
+          <div class="q-pa-md">
+            <div>
+              {{ $t("label.ChapterChangeWarning") }}
+            </div>
+            <q-select 
+              emit-value map-options 
+              :label="$t('label.Chapter')" 
+              v-model="selectedStep.form.chapterId" 
+              :options="selectedStep.chapters" 
+              @input="changeChapter" />
+          </div>
+        </q-expansion-item>
+      </q-list>
+      
       <!------------------ OTHER OPTIONS ------------------------>
       
       <q-list v-show="options.type.hasOptions" bordered>
         <q-expansion-item icon="add_box" :label="$t('label.OtherOptions')">
           <div class="q-pa-sm">
-            <div v-if="options && options.mode && options.mode === 'advanced' && (options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text')" class="q-pb-md">
+            <div v-if="options && options.mode && options.mode === 'advanced' && (options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text' || options.type.code == 'portrait-robot')" class="q-pb-md">
               <q-toggle v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
+            </div>
+            <div v-if="options && (options.type.code == 'info-text' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text')" class="q-pb-md">
+              <q-toggle v-model="selectedStep.form.options.hideHideButton" :label="$t('label.HideHideButton')" />
             </div>
             <div v-if="options.type.code == 'geolocation' || options.type.code == 'locate-item-ar'" class="location-gps">
               <q-toggle v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
               <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
             </div>
             <div v-if="options.type.code == 'geolocation'">
+              <q-toggle v-model="selectedStep.form.options.switchmode" :label="$t('label.AllowToSwitchGeolocationMode')" />
               <q-input v-model="selectedStep.form.options.distance" :label="$t('label.DistanceToWin')" />
             </div>
             <div v-if="options.type.code === 'memory'">
@@ -987,13 +964,18 @@
             </div>
             <div v-if="options.type.code === 'image-over-flow'">
               <q-toggle v-model="selectedStep.form.options.fullWidthPicture" :label="$t('label.EnlargePictureToFullWidth')" />
+              <q-toggle v-model="selectedStep.form.options.fullHeightPicture" :label="$t('label.EnlargePictureToFullHeight')" />
               <q-toggle v-model="selectedStep.form.options.snapshotAllowed" :label="$t('label.PlayerCanTakeSnapshot')" />
               <q-toggle v-model="selectedStep.form.options.redFilter" :label="$t('label.ReplacePictureByRedFilter')" />
             </div>
             <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
               <q-input v-model="selectedStep.form.options.initDuration" :label="$t('label.DurationBeforeTextAppearAbovePicture')" />
             </div>
-            <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
+            <div v-if="options.type.code === 'end-chapter'">
+              <q-toggle v-model="selectedStep.form.options.resetHistory" :label="$t('label.ResetHistoryAfter')" />
+              <q-toggle v-model="selectedStep.form.options.resetChapterProgression" :label="$t('label.RestartChapterAfterStep')" />
+            </div>
+            <div class="background-upload" v-show="options.type.code !== 'end-chapter' && options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
               <q-btn class="full-width" type="button" @click="showMedia">
                 {{ $t('label.AddABackgroundImage') }}
               </q-btn>
@@ -1019,21 +1001,33 @@
                 <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
               </div>
             </div>
+            <div v-show="options.type.code !== 'end-chapter'">
+              <div v-if="selectedStep.form.audioStream && selectedStep.form.audioStream !== ''">
+                <div>{{ $t('label.YourAudioFile') }} : {{ selectedStep.form.audioStream }}</div>
+                <div class="centered"><a class="dark" @click="removeAudio">{{$t('label.Remove')}}</a></div>
+              </div>
+              <div v-if="!selectedStep.form.audioStream || selectedStep.form.audioStream === ''">
+                {{ $t('label.AddAnAudioFile') }}:
+                <input @change="uploadAudio" ref="audiofile" type="file" accept="audio/mp3" />
+              </div>
+            </div>
             <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
-              <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" />
+              <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" /><br />
+              <q-toggle v-model="selectedStep.form.options.blurEffect" :label="$t('label.BlurEffect')" />
             </div>
             <div v-if="options.type.code !== 'help' && options.type.code !== 'end-chapter'">
               <q-toggle v-model="selectedStep.form.options.html" :label="$t('label.UseHtmlInDescription')" />
             </div>
-            <q-input
-              :label="$t('label.ExtraTextFieldLabel')"
-              v-model="selectedStep.form.extraText[lang]"
-              type="textarea"
-              :max-height="100"
-              :min-rows="4"
-              class="full-width"
-            />
-            
+            <div v-show="options.type.code !== 'end-chapter'">
+              <q-input
+                :label="$t('label.ExtraTextFieldLabel')"
+                v-model="selectedStep.form.extraText[lang]"
+                type="textarea"
+                :max-height="100"
+                :min-rows="4"
+                class="full-width"
+              />
+            </div>
           </div>
         </q-expansion-item>
       </q-list>
@@ -1132,6 +1126,28 @@
       </div>
     </q-dialog>
     
+    <!------------------ GEOLOCATION COMPONENT ---------------------->
+    
+    <!-- used to retrieve author position -->
+    <geolocation v-if="options.type.code === 'geolocation' || options.type.code === 'locate-item-ar'" ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />
+    
+    <!------------------ MY LOCATION POPIN ---------------------->
+    <q-dialog v-model="config.geolocation.showPopin">
+      <q-card>
+        <q-card-section>
+          <h1>{{ $t('label.CurrentLocation') }}</h1>
+          <p>{{ $t('label.Latitude') }} : {{ config.geolocation.position.latitude }}</p>
+          <p>{{ $t('label.Longitude') }} : {{ config.geolocation.position.longitude }}</p>
+          <p :class="{ warning: config.geolocation.position.accuracy > 10 }">{{ $t('label.Accuracy') }} : {{ Math.round(config.geolocation.position.accuracy * 10) / 10 }} {{ $t('label.Meters') }}</p>
+        </q-card-section>
+        <q-card-section class="warning" :style="{ visibility: config.geolocation.position.accuracy > 10 ? 'visible' : 'hidden' }" v-html="$t('label.MyLocationWarning')" />
+        <q-card-actions align="right">
+          <q-btn class="q-ma-sm q-px-md" color="primary" @click="saveMyGPSLocation()" :disable="config.geolocation.position.accuracy > 10">{{ $t('label.Save') }}</q-btn>
+          <q-btn class="q-ma-sm q-px-md" color="primary" @click="config.geolocation.showPopin = false">{{ $t('label.Cancel') }}</q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    
     <!------------------ MEDIA LIST AREA ------------------------>
     
     <transition name="slideInBottom">
@@ -1189,6 +1205,8 @@ import Notification from 'boot/NotifyHelper'
 import hash from 'object-hash'
 import utils from 'src/includes/utils'
 
+import geolocation from 'components/geolocation'
+
 import Vue from 'vue'
 
 import colorsForCode from 'data/colorsForCode.json'
@@ -1217,6 +1235,9 @@ export default {
    * options : configuration
    */
   props: ['quest', 'stepId', 'lang', 'options'],
+  components: {
+    geolocation
+  },
   watch: { 
     // refresh component if stepId change
     stepId: async function (newVal, oldVal) {
@@ -1262,7 +1283,8 @@ export default {
           ],
           selectedValue: '',
           values: []
-        }
+        },
+        chapters: []
       },
       media: {
         isOpened: false,
@@ -1304,7 +1326,9 @@ export default {
             { value: 1, label: "1" },
             { value: 2, label: "2" },
             { value: 3, label: "3" },
-            { value: 4, label: "4" }
+            { value: 4, label: "4" },
+            { value: 5, label: "5" },
+            { value: 6, label: "6" }
           ],
           colorsForCode: this.getColorsForCodeOptions(),
           newColor: {
@@ -1313,14 +1337,22 @@ export default {
           }
         },
         geolocation: {
-          currentIndex: 0
+          currentIndex: 0,
+          showPopin: false,
+          position: {
+            latitude: null,
+            longitude: null,
+            accuracy: null
+          }
         },
         imageCode: {
           numberOfDigitsOptions: [
             { value: 1, label: "1" },
             { value: 2, label: "2" },
             { value: 3, label: "3" },
-            { value: 4, label: "4" }
+            { value: 4, label: "4" },
+            { value: 5, label: "5" },
+            { value: 6, label: "6" }
           ],
           defaultNbAnswers: 4,
           imagesForCode: this.getImagesForCodeOptions(),
@@ -1341,7 +1373,8 @@ export default {
             { value: 1, label: "1" },
             { value: 2, label: "2" },
             { value: 3, label: "3" },
-            { value: 4, label: "4" }
+            { value: 4, label: "4" },
+            { value: 5, label: "5" }
           ],
           currentArea: 0,
           crossSize: 40,
@@ -1452,6 +1485,7 @@ export default {
         backgroundImage: null,
         // info-video step specific
         videoStream: null,
+        audioStream: null,
         // geoloc step specific
         answerPointerCoordinates: {top: 50, left: 50},
         answerItem: null,
@@ -1579,6 +1613,9 @@ export default {
       // initialize option for Ken Burns (zoom out) effect on background
       if (!this.selectedStep.form.options.hasOwnProperty('kenBurnsEffect')) {
         this.selectedStep.form.options.kenBurnsEffect = false
+      }
+      if (!this.selectedStep.form.options.hasOwnProperty('blurEffect')) {
+        this.selectedStep.form.options.blurEffect = false
       }
       
       // initialize specific steps
@@ -1736,6 +1773,9 @@ export default {
         if (!this.selectedStep.form.options.hasOwnProperty('objectSize')) {
           this.$set(this.selectedStep.form.options, 'objectSize', 1)
         }
+        if (!this.selectedStep.form.options.hasOwnProperty('touchDistance')) {
+          this.$set(this.selectedStep.form.options, 'touchDistance', 10)
+        }
         if (!this.selectedStep.form.options.hasOwnProperty('is3D')) {
           this.$set(this.selectedStep.form.options, 'is3D', false)
         }
@@ -1799,6 +1839,9 @@ export default {
       
       // init the conditions form
       await this.changeNewConditionType()
+      
+      // init the chapters list
+      await this.listChapters(this.questId, this.quest.version, this.lang)
     },
     /*
      * Submit step data
@@ -2141,6 +2184,27 @@ export default {
       this.selectedStep.newCondition.selectedType = 'stepDone'
       await this.changeNewConditionType()
       this.selectedStep.newCondition.selectedValue = ''
+    },
+    /*
+     * Reset condition form
+     */
+    async listChapters(id, version, lang) {
+      let chapters = await StepService.listChapters(id, version, lang)
+      if (chapters && chapters.data) {
+        for (var i = 0; i < chapters.data.length; i++) {
+          this.selectedStep.chapters.push({label: chapters.data[i].title, value: chapters.data[i].chapterId})
+        }
+      }
+    },
+    async changeChapter(chapterId) {
+      //this.selectedStep.form.chapterId = chapterId
+      Vue.set(this.selectedStep.form, 'chapterId', chapterId)
+      Vue.set(this.options, 'chapterId', chapterId)
+      this.$forceUpdate()
+      // reset the conditions form
+      for (var i = 0; i < this.selectedStep.form.conditions.length; i++) {
+        this.deleteCondition(0)
+      }
     },
     showHelpPopup (message) {
       this.$q.dialog({
@@ -2795,7 +2859,7 @@ export default {
       
       // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
       const solutionAreaRadius = this.config.findItem.crossSize / 2
-      for (var i = 0; i < 4; i++) {
+      for (var i = 0; i < 5; i++) {
         if (document.getElementById("cross" + i)) {
           if (i < this.selectedStep.form.options.nbAreas) {
             document.getElementById("cross" + i).style.display = 'block'
@@ -2837,97 +2901,47 @@ export default {
       document.getElementById("cross").style.left = Math.round(this.selectedStep.form.answerPointerCoordinates.left * vw - solutionAreaRadius) + "px"
       document.getElementById("cross").style.top = Math.round(this.selectedStep.form.answerPointerCoordinates.top * (4 * vw / 3) - solutionAreaRadius) + "px"
     },
-    /*
-     * Fill the GPS location in the settings
-     * @param   {Object}    place            Position & address data
+    /**
+     * Opens geolocation popin
+     * @param   {Number}   index   index of the GPS location when there are several 'spots' to locate (used by 'geolocation' step type)
      */
-    async setLocation(place) {
-      if (this.config.geolocation.currentIndex !== -1 && this.selectedStep.form.options.locations && this.selectedStep.form.options.locations.length > 0) {
-        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lat = parseFloat(place.geometry.location.lat())
-        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lng = parseFloat(place.geometry.location.lng())
-        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].destination = (place.formatted_address || '')
-      } else {
-        this.selectedStep.form.options.lat = parseFloat(place.geometry.location.lat())
-        this.selectedStep.form.options.lng = parseFloat(place.geometry.location.lng())
-        this.selectedStep.form.options.destination = (place.formatted_address || '')
-        this.$v.selectedStep.form.options.lat.$touch()
-        this.$v.selectedStep.form.options.lng.$touch()
-      }
-    },
-    /*
-     * Get current user location
-     */
-    async getCurrentLocation(index) {
+    openGeolocationPopin(index) {
+      this.config.geolocation.showPopin = true
       this.config.geolocation.currentIndex = index
-      this.$q.loading.show()
-      // get the current coords
-      navigator.geolocation.getCurrentPosition(this.fillLocation, this.getLocationError, {timeout: 5000, maximumAge: 10000});
     },
-    getLocationError(err) {
-      this.$q.loading.hide()
-      console.log(err)
-      this.$q.dialog({
-        title: this.$t('label.GeolocationFailed'),
-        message: this.$t('label.GeolocationFailedDesc')
-      })
-    },
-    /*
-     * Get the address based on the position
+    /**
+     * Save author's GPS location as current step goal
      * @param   {Object}    pos            Position data
      */
-    fillLocation(pos) {
-      if (this.config.geolocation.currentIndex !== -1 && this.selectedStep.form.options.locations && this.selectedStep.form.options.locations.length > 0) {
-        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lat = pos.coords.latitude
-        this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].lng = pos.coords.longitude
+    saveMyGPSLocation() {
+      let index = this.config.geolocation.currentIndex
+      let position = this.config.geolocation.position
+      
+      if (index !== -1 && this.selectedStep.form.options.locations && this.selectedStep.form.options.locations.length > 0) {
+        this.$set(this.selectedStep.form.options.locations[index], 'lat', position.latitude)
+        this.$set(this.selectedStep.form.options.locations[index], 'lng', position.longitude)
       } else {
-        this.selectedStep.form.options.lat = pos.coords.latitude
-        this.selectedStep.form.options.lng = pos.coords.longitude
+        this.$set(this.selectedStep.form.options, 'lat', position.latitude)
+        this.$set(this.selectedStep.form.options, 'lng', position.longitude)
         this.$v.selectedStep.form.options.lat.$touch()
         this.$v.selectedStep.form.options.lng.$touch()
       }
       
-      // get the address
-      var geocoder = new google.maps.Geocoder();
-      geocoder.geocode({'location': {lat: pos.coords.latitude, lng: pos.coords.longitude}}, (results, status) => {
-        this.$q.loading.hide()
-        if (status === 'OK' && results[0].formatted_address) {
-          if (this.config.geolocation.currentIndex !== -1 && this.selectedStep.form.options.locations && this.selectedStep.form.options.locations.length > 0) {
-            this.selectedStep.form.options.locations[this.config.geolocation.currentIndex].destination = results[0].formatted_address
-            document.getElementById("destination" + this.config.geolocation.currentIndex).value = this.selectedStep.form.options.destination
-          } else {
-            this.selectedStep.form.options.destination = results[0].formatted_address
-            // force field to be refreshed
-            document.getElementById("destination").value = this.selectedStep.form.options.destination
-          }
-        } else {
-          Notification(this.$t('label.ErrorStandardMessage'), 'error')
-        }
-      });
+      Notification(this.$t('label.LocationSaved'), 'success')
+      this.config.geolocation.showPopin = false
     },
-    /*
-     * Get the GPS location based on user location
-     * @param   {Object}    pos            Position data
+    /**
+     * On user GPS position, update his current coordinates
+     * this may look suboptimal, however keeping GPS running for a while helps getting much more accurate coordinates than a single call.
      */
-    getMyGPSLocation(index) {
-      this.$q.loading.show()
-      var _this = this
-      navigator.geolocation.getCurrentPosition(function (position) {
-        if (index !== -1 && _this.selectedStep.form.options.locations && _this.selectedStep.form.options.locations.length > 0) {
-          _this.$set(_this.selectedStep.form.options.locations[index], 'lat', position.coords.latitude)
-          _this.$set(_this.selectedStep.form.options.locations[index], 'lng', position.coords.longitude)
-        } else {
-          _this.$set(_this.selectedStep.form.options, 'lat', position.coords.latitude)
-          _this.$set(_this.selectedStep.form.options, 'lng', position.coords.longitude)
-          _this.$v.selectedStep.form.options.lat.$touch()
-          _this.$v.selectedStep.form.options.lng.$touch()
-        }
-        _this.$q.loading.hide()
-      }, 
-      this.getLocationError, 
-      { 
-        timeout: 5000, 
-        maximumAge: 10000 
-      });
+    onNewUserPosition(position) {
+      this.$set(this.config.geolocation, 'position', position.coords)
+    },
+    /**
+     * On user GPS position error
+     */
+    onUserPositionError(ret) {
+      console.error('UserPositionError', ret)
     },
     /*
      * Add a GPS location field
@@ -2938,6 +2952,9 @@ export default {
       } else {
         this.selectedStep.form.options.locations = [{lat: '', lng: '', destination: ''}]
       }
+    },
+    removeGPSLocation(index) {
+      this.selectedStep.form.options.locations.splice(index, 1)
     },
     /*
      * Check the length of the text input
@@ -3145,6 +3162,35 @@ export default {
         title: this.$t('label.' + modeLabel),
         message: this.$t('label.' + modeLabel + 'Help')
       })
+    },
+    /*
+     * Upload a music
+     */
+    async uploadAudio(e) {
+      this.$q.loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('audio', files[0])
+      let uploadAudioResult = await StepService.uploadAudio(this.quest.questId, data)
+      if (uploadAudioResult && uploadAudioResult.hasOwnProperty('data')) {
+        if (uploadAudioResult.data.file) {
+          this.selectedStep.form.audioStream = uploadAudioResult.data.file
+          this.$forceUpdate()
+        } else if (uploadAudioResult.data.message && uploadAudioResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    async removeAudio() {
+      this.selectedStep.form.audioStream = ""
     }
   },
   validations() {
@@ -3227,6 +3273,10 @@ p { margin-bottom: 0.5rem; }
 
 .q-item { padding-top: 0; padding-bottom: 0; min-height: 2rem; }
 .q-list { padding-top: 0; }
+.q-slider { margin-top: 2rem; }
+
+.q-card h1 { font-size: 2rem; line-height: 2rem; }
+.warning { color: #F2C037; }
 
 .answer { display: flex; flex-flow: row nowrap; align-items: center; }
 .answer .q-input { flex-grow: 1; }
@@ -3241,10 +3291,10 @@ p { margin-bottom: 0.5rem; }
 
 .code-color h2 { margin-bottom: 0; }
 .code-color table { margin: auto; }
-.code-color table td { padding: 0rem; width: 6rem; }
+.code-color table td { padding: 0rem; }
 .code-color .color-bubble { display: block; width: 4rem; height: 4rem; border: 4px solid black; border-radius: 2rem; transition: background-color 0.3s; }
 
-.code-image td { width: 20% }
+.code-image table { width: 100% }
 .code-image td img { width: 100% }
 .code-image td .q-icon { font-size: 2em }
 .code-image .answer p { flex-grow: 1 }

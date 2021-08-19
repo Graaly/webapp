@@ -1,6 +1,16 @@
 <template>
   <div class="wrapper background-map">
-    <div class="page-content" style="padding-bottom: 100px">
+    <div v-if="showNonHybridQRReader">
+      <!--====================== QR CODE READER ON WEBAPP =================================-->
+      <q-toolbar>
+        <q-toolbar-title>
+          {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
+        </q-toolbar-title>
+        <q-btn flat round dense icon="close" @click="closeQRCodeReader" />
+      </q-toolbar>
+      <qrcode-stream @decode="checkCode"></qrcode-stream>
+    </div>
+    <div class="page-content" style="padding-bottom: 100px" v-if="!showNonHybridQRReader">
       <!--<div class="desktop-only centered q-pa-md warning bg-warning">
         {{ $t('label.OnDesktopDisplayMessage') }}
       </div>-->
@@ -88,7 +98,7 @@
         
         <!------------------ START PLAYING WITH QR CODE ------------------>
         
-        <div v-if="isHybrid" class="q-py-md centered">
+        <div class="q-py-md centered">
           <q-btn 
             class="glossy large-btn" 
             color="accent"
@@ -207,8 +217,12 @@ import { required, minLength, email } from 'vuelidate/lib/validators'
 import checkPasswordComplexity from 'boot/PasswordComplexity'
 import Notification from 'boot/NotifyHelper'
 import utils from 'src/includes/utils'
+import { QrcodeStream } from 'vue-qrcode-reader'
 
 export default {
+  components: {
+    QrcodeStream
+  },
   data() {
     return {
       step: 'password',
@@ -230,6 +244,7 @@ export default {
         google: false
       },
       passwordForgottenPopup: false,
+      showNonHybridQRReader: false,
       isHybrid: window.cordova,
       serverUrl: process.env.SERVER_URL,
       submitting: false,
@@ -437,7 +452,12 @@ export default {
             disableSuccessBeep: false // iOS and Android
           }
         )
+      } else {
+        this.showNonHybridQRReader = true
       }
+    },
+    closeQRCodeReader () {
+      this.showNonHybridQRReader = false
     },
     async validateTerms() {
       this.terms.show = true

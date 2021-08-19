@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "b2e03877f8e0779ef545",
-    "url": "css/app.6ba62c3b.css"
+    "revision": "6bfed344cf461be182b0",
+    "url": "css/app.f824e854.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -72,7 +72,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "765465a0c8aa39aa705d954c4062d050",
+    "revision": "2e98f72854277d3908a9e9c0b79a5ca8",
     "url": "index.html"
   },
   {
@@ -80,16 +80,240 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2.5af11629.js"
   },
   {
-    "revision": "b2e03877f8e0779ef545",
-    "url": "js/app.4f7466ad.js"
+    "revision": "6bfed344cf461be182b0",
+    "url": "js/app.77b78ec1.js"
   },
   {
-    "revision": "2f6c653d506a5def3d2d",
-    "url": "js/vendor.2f6c653d.js"
+    "revision": "9cb76e989bab743c9054",
+    "url": "js/vendor.9cb76e98.js"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
     "url": "manifest.json"
+  },
+  {
+    "revision": "9812a78514b35ba22830a46498c00d98",
+    "url": "statics/cars/beard-0.png"
+  },
+  {
+    "revision": "d75f7dc5bb180956e18858e3de1851d4",
+    "url": "statics/cars/beard-1.png"
+  },
+  {
+    "revision": "3e30c1b414c18ee61ee4159fdfd23019",
+    "url": "statics/cars/beard-2.png"
+  },
+  {
+    "revision": "4da5e59142e5290c5a8bde6b660a5de5",
+    "url": "statics/cars/beard-3.png"
+  },
+  {
+    "revision": "4bea653b9a9b8e48c3ac68bde30057ac",
+    "url": "statics/cars/eye-0.png"
+  },
+  {
+    "revision": "5d9249781427b2d34e8a7050610cc8e5",
+    "url": "statics/cars/eye-1.png"
+  },
+  {
+    "revision": "287491df20ca9820461598e811588d68",
+    "url": "statics/cars/eye-2.png"
+  },
+  {
+    "revision": "d1a14fb37fba67b151dc56513d2667c3",
+    "url": "statics/cars/eye-3.png"
+  },
+  {
+    "revision": "ad442961c0e9e4581e3c8740adff0fa9",
+    "url": "statics/cars/eye-4.png"
+  },
+  {
+    "revision": "ba72f56ff82cce93ed8ce8816fc0d460",
+    "url": "statics/cars/eye-5.png"
+  },
+  {
+    "revision": "d93f4e5aee6e0f38548244850dcda63c",
+    "url": "statics/cars/face-0.png"
+  },
+  {
+    "revision": "c69eb436bfff5902620089de35737ec4",
+    "url": "statics/cars/face-1.png"
+  },
+  {
+    "revision": "d70b19ba355c15475e62f700a94056a7",
+    "url": "statics/cars/face-2.png"
+  },
+  {
+    "revision": "0de174c0731deb76641d16e13ef29f08",
+    "url": "statics/cars/face-3.png"
+  },
+  {
+    "revision": "5d8daf5d3f720d434ab98d4bbb8a14b1",
+    "url": "statics/cars/face-4.png"
+  },
+  {
+    "revision": "2072a1b687870ef6e6a9254fedeba6d8",
+    "url": "statics/cars/face-5.png"
+  },
+  {
+    "revision": "f232c2534e8978c73586eef2fae5c742",
+    "url": "statics/cars/face-6.png"
+  },
+  {
+    "revision": "16ccd16d8d658f2e8c4edd8ec9046d19",
+    "url": "statics/cars/face-7.png"
+  },
+  {
+    "revision": "0504faa45b1f6ef4cbece3052d5d7bc8",
+    "url": "statics/cars/glass-0.png"
+  },
+  {
+    "revision": "924fd1cee1d9b7b83a778d41d343cebd",
+    "url": "statics/cars/glass-1.png"
+  },
+  {
+    "revision": "5c8a9ca51006aa770f6ad0a5a7d202d7",
+    "url": "statics/cars/glass-2.png"
+  },
+  {
+    "revision": "cd50ba09fc6e5f163a496e29489506cb",
+    "url": "statics/cars/glass-3.png"
+  },
+  {
+    "revision": "b56c43822e1d832663b7eec10b5fd881",
+    "url": "statics/cars/glass-4.png"
+  },
+  {
+    "revision": "16d4e0dca58e79187f5a11e0168bf5a4",
+    "url": "statics/cars/glass-5.png"
+  },
+  {
+    "revision": "9a18b3641caed0876dacff4d73f21056",
+    "url": "statics/cars/glass-6.png"
+  },
+  {
+    "revision": "5a81273cd1c3cda071fe85ca73c12d0f",
+    "url": "statics/cars/glass-7.png"
+  },
+  {
+    "revision": "a9005515a8575536fb11783c87241b7b",
+    "url": "statics/cars/glass-8.png"
+  },
+  {
+    "revision": "f40900465c35063914ff0ed2e8757d58",
+    "url": "statics/cars/hair-0.png"
+  },
+  {
+    "revision": "a10aac550d736f69efcee1b2b341b6af",
+    "url": "statics/cars/hair-1.png"
+  },
+  {
+    "revision": "80f7d3d3ef965916878233ec72c42010",
+    "url": "statics/cars/hair-2.png"
+  },
+  {
+    "revision": "bef9405093a0a06e16dfb1636ba08929",
+    "url": "statics/cars/hair-3.png"
+  },
+  {
+    "revision": "3d01c4427d76b19af73ef3c79406b468",
+    "url": "statics/cars/hair-4.png"
+  },
+  {
+    "revision": "da8e1371cfc5e7d51419e1508e3ee40b",
+    "url": "statics/cars/hair-5.png"
+  },
+  {
+    "revision": "3432560f79d8271744849e00d3146af5",
+    "url": "statics/cars/hair-6.png"
+  },
+  {
+    "revision": "6554f1a61ded03727a05418e1e701ae1",
+    "url": "statics/cars/hair-7.png"
+  },
+  {
+    "revision": "a5c40e3867c8b29d2ce74ff37c551810",
+    "url": "statics/cars/hair-8.png"
+  },
+  {
+    "revision": "87e365a443c333999608efd58a333ad0",
+    "url": "statics/cars/hat-0.png"
+  },
+  {
+    "revision": "a6a8f29020807b23b6733f9807b7c7b7",
+    "url": "statics/cars/hat-1.png"
+  },
+  {
+    "revision": "ceb401f230ee82784992bdf5f73e9e9a",
+    "url": "statics/cars/hat-2.png"
+  },
+  {
+    "revision": "9498ea2fce064b2f58b50c60c942d984",
+    "url": "statics/cars/hat-3.png"
+  },
+  {
+    "revision": "8323803550222357217b042b6476bd47",
+    "url": "statics/cars/hat-4.png"
+  },
+  {
+    "revision": "b9506bb572cb87444cc1239189a51a94",
+    "url": "statics/cars/hat-5.png"
+  },
+  {
+    "revision": "e69271192974cbc0a248227381742689",
+    "url": "statics/cars/hat-6.png"
+  },
+  {
+    "revision": "57383b6d3f7c7ced87689649cd0d75e5",
+    "url": "statics/cars/mouth-0.png"
+  },
+  {
+    "revision": "5f1202dfd2b9042d7d19b07305904a83",
+    "url": "statics/cars/mouth-1.png"
+  },
+  {
+    "revision": "ec7831ff8cd05705ac96512979c32df7",
+    "url": "statics/cars/mouth-2.png"
+  },
+  {
+    "revision": "fbc443bdb6962efebb93f6ab8a437ed9",
+    "url": "statics/cars/mouth-3.png"
+  },
+  {
+    "revision": "338baf02a2ba0cdde843f14aca6a58a9",
+    "url": "statics/cars/mouth-4.png"
+  },
+  {
+    "revision": "c2403119591aa509dd92bb0a769b996f",
+    "url": "statics/cars/mouth-5.png"
+  },
+  {
+    "revision": "4df2b50a4aaa77dd1c0a65350f8cd9e5",
+    "url": "statics/cars/mouth-6.png"
+  },
+  {
+    "revision": "37530eb0684e0c965d01532495b3e51c",
+    "url": "statics/cars/mouth-7.png"
+  },
+  {
+    "revision": "a0afba9057d14fbd14d2da06bad58977",
+    "url": "statics/cars/mouth-8.png"
+  },
+  {
+    "revision": "8f85ab42f378df168be97cbb2069c53b",
+    "url": "statics/cars/nose-0.png"
+  },
+  {
+    "revision": "dc14f5b7a5e90a65939f09f11cd7abb2",
+    "url": "statics/cars/nose-1.png"
+  },
+  {
+    "revision": "bbe9532e24de4a4f4ca2a7d1fad8e2ee",
+    "url": "statics/cars/nose-2.png"
+  },
+  {
+    "revision": "795b13e33fe25eb4aface3a77844a09e",
+    "url": "statics/cars/nose-3.png"
   },
   {
     "revision": "8a03c2a835f6de88c69150700aee1642",
@@ -222,6 +446,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "9d347758fc296c2afaf832364eb93476",
     "url": "statics/icons/game/take-mobile-vertically.gif"
+  },
+  {
+    "revision": "17501d4d08c35938fdc05546f3627da2",
+    "url": "statics/icons/game/target.png"
   },
   {
     "revision": "4f4ef1c9ff27e32a8bdc10aedf878620",
@@ -408,7 +636,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/story/character9_attitude1.png"
   },
   {
-    "revision": "e5b8c8c5e070ae79e3ab38da1773d237",
+    "revision": "4e185ad443665a614a9855349dcca856",
     "url": "statics/icons/story/sticker-bottom.png"
   },
   {
@@ -948,11 +1176,11 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/images/other/spinner.gif"
   },
   {
-    "revision": "9f9c3b59df5e3fad8dbc83957b015b26",
+    "revision": "8d7b1087f812a9b077ab930074691651",
     "url": "statics/images/quest/_default-quest-picture.png"
   },
   {
-    "revision": "9f9c3b59df5e3fad8dbc83957b015b26",
+    "revision": "8d7b1087f812a9b077ab930074691651",
     "url": "statics/images/quest/default-quest-picture.png"
   },
   {
@@ -1704,6 +1932,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/kanji.patt"
   },
   {
+    "revision": "af3fdc4e2ec6ca13ea7534d154c94f43",
+    "url": "statics/portrait-robot/beard-0.png"
+  },
+  {
     "revision": "900efe0ade158d1c3df41fd7f97b04de",
     "url": "statics/portrait-robot/beard-1.png"
   },
@@ -1828,6 +2060,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/portrait-robot/beard-9.png"
   },
   {
+    "revision": "ce7a0b9c76902ce7a85ed67196c0feae",
+    "url": "statics/portrait-robot/eye-0.png"
+  },
+  {
     "revision": "abf9bb79ed33ada44e8009cee89eadbf",
     "url": "statics/portrait-robot/eye-1.png"
   },
@@ -1893,6 +2129,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   },
   {
     "revision": "f0698b36e0d7c859487e81ace3fcaefa",
+    "url": "statics/portrait-robot/face-0.png"
+  },
+  {
+    "revision": "f0698b36e0d7c859487e81ace3fcaefa",
     "url": "statics/portrait-robot/face-1.png"
   },
   {
@@ -1906,6 +2146,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "761bbeda0e851e2b38587831eaace085",
     "url": "statics/portrait-robot/face-4.png"
+  },
+  {
+    "revision": "35ba6cc7c56a7ebd328a04720e3f3472",
+    "url": "statics/portrait-robot/glass-0.png"
   },
   {
     "revision": "900efe0ade158d1c3df41fd7f97b04de",
@@ -1926,6 +2170,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "7263177698aff518e0064364ab6cbdf5",
     "url": "statics/portrait-robot/glass-5.png"
+  },
+  {
+    "revision": "9d2f9a3d64984c4137fbd63bb4f18539",
+    "url": "statics/portrait-robot/hair-0.png"
   },
   {
     "revision": "9d2f9a3d64984c4137fbd63bb4f18539",
@@ -2032,6 +2280,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/portrait-robot/hair-9.png"
   },
   {
+    "revision": "ffa24fcc8fade099f6ca6e2cb993c5ca",
+    "url": "statics/portrait-robot/hat-0.png"
+  },
+  {
     "revision": "900efe0ade158d1c3df41fd7f97b04de",
     "url": "statics/portrait-robot/hat-1.png"
   },
@@ -2048,8 +2300,16 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/portrait-robot/hat-4.png"
   },
   {
+    "revision": "65ae1e3ea5c6356e72732355698f7087",
+    "url": "statics/portrait-robot/mouth-0.png"
+  },
+  {
     "revision": "fd36339e3708ecfd649cfd86765d89b5",
     "url": "statics/portrait-robot/mouth-1.png"
+  },
+  {
+    "revision": "83fadc3e39b812472627a09697a23c9e",
+    "url": "statics/portrait-robot/nose-0.png"
   },
   {
     "revision": "689c64b1b93de6519467aab0745bb184",
