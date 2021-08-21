@@ -1,41 +1,52 @@
 <template>
   <div class="geolocation-layer" v-if="!isSupported || !isActive">
-    <div v-if="!isActive && nbFails >= 2" class="search-geolocation"> 
-      <div class="centered q-pa-md">
-        <q-spinner-puff color="primary" size="25px" /> &nbsp;{{ $t('label.LocationSearching') }}
-      </div>
-      <div v-if="askUserToEnableGeolocation">
-        <div class="q-pa-md subtitle6">
-          {{ $t('label.CouldNotRetrieveYourPosition') }}
-        </div>
-        <q-expansion-item
-          expand-separator
-          :label="$t('label.ReadMore')"
-        >
-          <div class="q-pa-md subtitle6">
-            {{ $t('label.PossibleReasons') }}
-            <ul>
-              <li>{{ $t('label.ClosedEnvironment') }}</li>
-              <li>
-                {{ $t('label.GeolocationDisabled') }}
-                <span v-if="nativeSettingsIsEnabled"><br /><q-btn color="primary" @click="openLocationSettings">{{ $t('label.OpenLocationSettings') }}</q-btn></span>
-              </li>
-            </ul>
-            <div v-if="!nativeSettingsIsEnabled">
-              <div v-if="isChrome">
-                <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
-              </div>
-              <div v-if="!isChrome">
-                <p v-html="$t('label.HowToActivateGeolocationOnIOs')"></p>
+    <div v-if="!isActive && nbFails >= 2"> 
+      <q-page-sticky position="top-right" style="z-index: 15000;" :offset="[18, 18]">
+        <q-btn color="primary" round icon="location_off" style="font-size: 15px;" class="flashing" @click="showHelp = true" />
+      </q-page-sticky>
+    </div>  
+      
+    <!------------------ HELP POPUP ------------------------>
+    
+    <q-dialog v-model="showHelp">
+      <q-card>
+        <q-card-section class="popup-header centered">
+          <q-btn class="float-right" icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-separator />
+        
+        <q-card-section class="subtitle5">
+          {{ $t('label.LocationSearching') }}
+          <div v-if="askUserToEnableGeolocation">
+            <div class="q-pa-md subtitle6">
+              {{ $t('label.CouldNotRetrieveYourPosition') }}
+            </div>
+            <div class="q-pa-md subtitle6">
+              {{ $t('label.PossibleReasons') }}
+              <ul>
+                <li>{{ $t('label.ClosedEnvironment') }}</li>
+                <li>
+                  {{ $t('label.GeolocationDisabled') }}
+                  <span v-if="nativeSettingsIsEnabled"><br /><q-btn color="primary" @click="openLocationSettings">{{ $t('label.OpenLocationSettings') }}</q-btn></span>
+                </li>
+              </ul>
+              <div v-if="!nativeSettingsIsEnabled">
+                <div v-if="isChrome">
+                  <p v-html="$t('label.HowToActivateGeolocationOnChrome')"></p>
+                </div>
+                <div v-if="!isChrome">
+                  <p v-html="$t('label.HowToActivateGeolocationOnIOs')"></p>
+                </div>
               </div>
             </div>
           </div>
-        </q-expansion-item>
-      </div>
-    </div>
-    <div class="geolocation-not-supported" v-if="!isSupported" style="flex-grow: 1">
-      {{ $t('label.GeolocationNotSupported') }}
-    </div>
+          <div class="geolocation-not-supported" v-if="!isSupported" style="flex-grow: 1">
+            {{ $t('label.GeolocationNotSupported') }}
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -54,12 +65,13 @@ export default {
       isActive: true,
       nativeSettingsIsEnabled: (window.cordova && window.cordova.plugins.settings),
       userDeniedGeolocation: false,
-      timeoutBetweenFailedAttempts: 10000,
+      timeoutBetweenFailedAttempts: 5000,
       nbFails: 0,
       disabled: false,
       alreadyWorked: false,
-      //method: utils.isIOS() ? 'getCurrentPosition' : 'watchPosition',
-      method: 'watchPosition',
+      showHelp: false,
+      method: utils.isIOS() ? 'getCurrentPosition' : 'watchPosition',
+      //method: 'watchPosition', // not working perfectly for ios
       // specific to method 'watchPosition'
       geolocationWatchId: null,
       // specific to method 'getCurrentPosition' (not currently used)
@@ -140,7 +152,6 @@ export default {
      */
     locationError(err) {
       console.warn('Could not get location')
-      console.log(err)
       // avoids to run this method asynchronously (can happen even after component is set to disabled !)
       if (this.disabled) {
         return
@@ -157,9 +168,9 @@ export default {
         this.stopTracking()
       }*/
       
-      let timeoutId = utils.setTimeout(this.startTracking, this.timeoutBetweenFailedAttempts)
-      
       if (this.method === 'getCurrentPosition') {
+        // IMPORTANT : do not use utils.setTimeout => Not working for an unknown reason 
+        let timeoutId = setTimeout(this.startTracking, this.timeoutBetweenFailedAttempts)
         this.timeoutIds.push(timeoutId)
       }
     },
@@ -196,7 +207,7 @@ export default {
       })
 
       if (this.method === 'getCurrentPosition') {
-        let timeoutId = utils.setTimeout(this.startTracking, 1000)
+        let timeoutId = setTimeout(this.startTracking, 1000)
         this.timeoutIds.push(timeoutId)
       }
     },
@@ -209,13 +220,12 @@ export default {
           navigator.geolocation.clearWatch(this.geolocationWatchId)
           this.geolocationWatchId = null
         }
-      } else {
-        if (this.timeoutIds.length > 0) {
-          for (let timeoutId of this.timeoutIds) {
-            clearTimeout(timeoutId)
-          }
-          this.timeoutIds = []
+      }
+      if (this.timeoutIds.length > 0) {
+        for (let timeoutId of this.timeoutIds) {
+          clearTimeout(timeoutId)
         }
+        this.timeoutIds = []
       }
     },
     // MPA 2021-06-28 disabled since inaccurate positions are now ignored + it may add lag to position update
@@ -279,15 +289,5 @@ export default {
 .geolocation-not-supported {
   background: white; z-index: 40; display: flex; align-items: left; justify-content: center; flex-direction: column; padding: 1rem; height: 100% !important; flex-grow: 1;
 }
-/*
-.enable-geolocation .text-primary { font-weight: bold; }
-.enable-geolocation p { text-align: justify; margin: 0.5rem; }
-.enable-geolocation li { text-align: justify; margin: 0.5rem; }
-.enable-geolocation ul { margin: 0 1rem; padding: 0 }
-*/
-.search-geolocation { position: fixed; top: 150px; left: 0px; right: 0px; width: 100%; min-height: 50px;  background: orange;}
-
-.search-geolocation.without-nav-bar { z-index: 7000; bottom: 0; }
-.search-geolocation.with-nav-bar { z-index: 60; bottom: 4vw; }
 
 </style>

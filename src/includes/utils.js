@@ -243,6 +243,9 @@ var self = {
     const duration =(now.getTime() - oldDate.getTime())
     return {h: parseInt((duration/(1000*60*60))%24), m: parseInt((duration/(1000*60))%60)}
   },
+  getFullDate(date) {
+    return date.getFullYear() + '-' + date.getMonth() + '-' + date.getDay()
+  },
   
   /**
    * Clear all tracks of a camera stream

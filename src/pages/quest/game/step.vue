@@ -16,9 +16,9 @@
     <audio
       v-if="info && info.audio !== '' && info.audio !== null"
       id="background-music"
-      autoplay loop
-      :src="info.audio"
-    />
+      autoplay loop>
+      <source :src="info.audio" type="audio/mpeg">
+    </audio>
 
     <!------------------ HEADER AREA ------------------------>
     <div :class="{'fit': (step.type !== 'image-over-flow')}"><!-- Keep this div for iphone, for red filter display -->
@@ -32,7 +32,7 @@
         :customization="info.quest.customization ? info.quest.customization : {color: 'primary'}"
         :answer="offline.answer"
         :player="player"
-        :timer="countDownTime.remaining"
+        :timer="countDownTime"
         @played="trackStepPlayed" 
         @success="trackStepSuccess" 
         @fail="trackStepFail" 
@@ -79,7 +79,7 @@
           <img style="width: 400%" :src="inventory.detail.url">
         </div>
         <div class="q-pa-md">{{ inventory.detail.title }}</div>
-        <div class="q-pa-md text-grey">{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>
+        <!--<div class="q-pa-md text-grey">{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>-->
         <q-btn class="glossy normal-button" color="primary" @click="closeInventoryDetail()"><div>{{ $t('label.Close') }}</div></q-btn>
         <div>
           <q-btn-group outline>
@@ -177,7 +177,8 @@
             <p class="q-pb-xl">
               <q-btn
               class="glossy large-button"
-              color="secondary"
+              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
               @click="openInfo">
                 <span>
                   {{ $t('label.BackToQuest') }}
@@ -973,7 +974,7 @@ export default {
               this.warnings.stepDataMissing = true
             }
           }
-          if (tempStep.audioStream && tempStep.audioStream !== '' && !this.isIOs) {
+          if (tempStep.audioStream && tempStep.audioStream !== '') {
             const audioUrl = await utils.readBinaryFile(this.questId, tempStep.audioStream)
             if (audioUrl) {
               tempStep.audioStream = audioUrl
@@ -1157,7 +1158,7 @@ export default {
       }
 
       // hide hint
-      if (this.step.type !== 'image-over-flow') {
+      if (this.step.type !== 'image-over-flow' && this.step.type !== 'binocular') {
         this.hideHint()
       }
 
@@ -1165,7 +1166,7 @@ export default {
       await this.saveOfflineAnswer(true)
 
       // move to next step if right answer not displayed
-      if (this.step.displayRightAnswer === false) {
+      if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
         this.nextStep()
       }
     },
@@ -1208,7 +1209,7 @@ export default {
       await this.saveOfflineAnswer(false, answer)
       
       // move to next step if right answer not displayed
-      if (this.step.displayRightAnswer === false) {
+      if (this.step.displayRightAnswer === false && (!this.step.options.wrongAnswerMessage || this.step.options.wrongAnswerMessage === "")) {
         this.nextStep()
       }
     },
@@ -1436,6 +1437,7 @@ export default {
      */
     async askForHint() {
       if (!this.isHintAvailable()) {
+console.log("hint not available")
         return
       }
       // stop suggesting hint if opened
@@ -2252,6 +2254,28 @@ export default {
           return {id: "geolocation", extra: extra}
         }
       }
+      
+      // Treat RANDOM conditions, IF NO OTHER CONDITION MATCH
+      if (this.info.quest.editorMode === 'advanced' === 'advanced' && stepsofChapter && stepsofChapter.length > 0) {
+        let randomIds = []
+        for (var i = 0; i < stepsofChapter.length; i++) {
+          // check if the step is not already done by player AND IS A RANDOM STEP
+          if (stepsofChapter[i].conditions.length > 0 && stepsofChapter[i].conditions[0].indexOf('stepRandom_') !== -1 && this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
+            // check if step concerned is done
+            if (stepsofChapter[i].conditions.length > 0) {
+              // Get the stepID this step is depending on
+              let fatherStep = stepsofChapter[i].conditions[0].replace('stepRandom_', '')
+              if (this.run.conditionsDone.indexOf('stepDone' + player + '_' + fatherStep) !== -1) {
+                randomIds.push(stepsofChapter[i].stepId)
+              }
+            }
+          }
+        }
+        if (randomIds.length > 0) {
+          return {id: randomIds[Math.floor(Math.random()*randomIds.length)], extra: extra}
+        }
+      }
+      
       return {id: "", extra: extra}
     },
     /*

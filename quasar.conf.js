@@ -97,6 +97,7 @@ module.exports = function (ctx) {
         'QOptionGroup',
         'QPageContainer',
         'QPage',
+        'QPageSticky',
         'QParallax',
         'QPopupProxy',
         'QLinearProgress',
@@ -119,7 +120,8 @@ module.exports = function (ctx) {
         'QTabPanels',
         'QToggle',
         'QToolbar',
-        'QToolbarTitle'
+        'QToolbarTitle',
+        'QTooltip'
       ],
       directives: [
         'ClosePopup',
@@ -192,7 +194,7 @@ module.exports = function (ctx) {
       }
     },
     cordova: {
-      version: "2.1.33"
+      version: "2.1.38"
       // id: 'org.cordova.quasar.app'
     },
     electron: {

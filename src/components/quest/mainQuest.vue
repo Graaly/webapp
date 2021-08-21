@@ -29,7 +29,7 @@
             :loading="submitting" 
             @click="playQuest" />
         </div>
-        <div class="white-overliner q-mt-md subtitle6">
+        <div class="white-overliner q-mt-md subtitle6" v-if="quest.description.length < 30">
           {{ $t('label.' + quest.description) }}
         </div>
       </div>

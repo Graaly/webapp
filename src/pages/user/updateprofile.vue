@@ -216,7 +216,7 @@
         </div>
       </div>
       <div>
-        <div class="centered q-mt-xl q-mb-sm cursor-pointer"><a @click="disconnect()">{{ $t('label.SignOut') }}</a></div>
+        <div v-if="$store.state.user.name !== '-'" class="centered q-mt-xl q-mb-sm cursor-pointer"><a @click="disconnect()">{{ $t('label.SignOut') }}</a></div>
         <div class="centered q-mb-sm" v-html="$t('label.TermsAndConditionsLink')"></div>
         <div class="centered q-mb-xl" v-html="$t('label.PrivacyPolicyLink')"></div>
       </div>

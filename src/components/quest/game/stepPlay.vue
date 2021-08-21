@@ -15,55 +15,72 @@
     </div>
     <div v-if="!showNonHybridQRReader" :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'" :style="'color: ' + customization.fontColor">
       <!------------------ QUEST TIMER ------------------------>
-      <div class="row"
-        v-if="timer > 0">
-        <div style="width: 20px; height: 20px; margin-top: -6px;" class="col-auto">
-          <q-icon name="timer" class="text-positive" style="font-size: 20px;" />
-        </div>
+      <div v-if="timer && timer.remaining > 0">
         <q-linear-progress 
-          class="timer-progress-bar bg-white col"
+          size="25px"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
-          :value="timer"
-          :color="(timer < 0.1 ? 'negative' : ( timer < 0.25 ? 'warning' : 'positive'))"
-          style="background-color: white; height: 20px !important;" 
-          :instant-feedback = true
-        />
+          :value="timer.remaining"
+          :color="(timer.remaining < 0.1 ? 'negative' : ( timer.remaining < 0.25 ? 'warning' : 'positive'))"
+          v-if="!isIOs"
+        >
+          <div class="absolute-full flex flex-center">
+            <q-badge color="white" text-color="black" :label="parseInt(timer.remainingMinutes, 10) + ' ' + $t('label.minutes')" />
+          </div>
+        </q-linear-progress>
+        <div 
+          style="height: 25px; position: relative;"
+          :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
+          class="bg-positive text-white centered"
+          v-if="isIOs"
+          >
+          <strong>{{ parseInt(timer.remainingMinutes, 10) + ' ' + $t('label.minutes') }}</strong>
+        </div>
       </div>
       <!------------------ STEP TIMER ------------------------>
-      <div class="row"
+      <div
         v-if="step.countDownTime !== null && 
             step.countDownTime !== undefined && 
-            step.countDownTime.enabled === true">
-        <div style="width: 20px; height: 20px; margin-top: -6px;" class="col-auto">
-          <q-icon name="timer" class="text-positive" style="font-size: 20px;" />
-        </div>
+            step.countDownTime.enabled === true &&
+            this.countdowntimeleft > 0">
         <q-linear-progress 
-          class="timer-progress-bar bg-white col"
+          size="25px"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
           :value="map(this.countdowntimeleft,0,this.step.countDownTime.time,0,1)"
           color="positive"
-          style="background-color: white;" 
-          :instant-feedback = true
-        />
+          v-if="!isIOs"
+          >
+          <div class="absolute-full flex flex-center">
+            <q-badge color="white" text-color="black" :label="parseInt(this.countdowntimeleft, 10) + ' ' + $t('label.secondes')" />
+          </div>
+        </q-linear-progress>
+        <div 
+          style="height: 25px; position: relative;"
+          :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
+          class="bg-positive text-white centered"
+          v-if="isIOs"
+          >
+          <strong>{{ parseInt(this.countdowntimeleft, 10) + ' ' + $t('label.secondes') }}</strong>
+        </div>
       </div>
       
       <!------------ GEOLOCATION STEPS ------------------>
       
       <!-- low GPS accuracy warning -->
-      <div class="centered bg-warning q-pa-sm low-gps-accuracy-warning" v-if="geolocation.lowCompassAccuracy || geolocation.lowGpsAccuracy">
-        <q-icon name="not_listed_location" style="font-size: 30px;" class="flashing" />
-        <span v-if="!geolocation.persistentLowAccuracy">{{ $t('label.WarningLowGpsAccuracy') }}</span>
-        <span v-else>{{ $t('label.PersistentLowGpsAccuracyPleaseSkipStep') }}</span>
-      </div>
+      <q-page-sticky position="top-right" style="z-index: 15000;" :offset="[18, 18]" v-if="geolocation.lowCompassAccuracy || geolocation.lowGpsAccuracy">
+        <q-btn color="primary" round icon="location_off" style="font-size: 15px;" class="flashing">
+          <q-tooltip class="primary" style="font-size: 16px" :offset="[10, 10]" v-if="!geolocation.persistentLowAccuracy">{{ $t('label.WarningLowGpsAccuracy') }}</q-tooltip>
+          <q-tooltip class="primary" style="font-size: 16px" :offset="[10, 10]" v-if="geolocation.persistentLowAccuracy">{{ $t('label.PersistentLowGpsAccuracyPleaseSkipStep') }}</q-tooltip>
+        </q-btn>
+      </q-page-sticky>
       
       <!------------------ AUDIO ------------------------>
     
       <audio 
         v-if="audio && audio !== ''"
         id="step-music" 
-        autoplay 
-        :src="audio"
-      />
+        autoplay>
+        <source :src="audio" type="audio/mpeg">
+      </audio>
       
       <div class="bg-accent text-white q-pa-md" v-if="isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     
@@ -81,7 +98,10 @@
           <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
         <div class="video" v-if="step.videoStream">
-          <video class="full-width" controls controlsList="nodownload" autoplay>
+          <video v-if="!step.options.rotateVideo" class="full-width" controls controlsList="nodownload" autoplay>
+            <source :src="(step.videoStream && step.videoStream.indexOf('blob:') !== -1) ? step.videoStream : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
+          </video>
+          <video v-if="step.options.rotateVideo" controls controlsList="nodownload" autoplay style="position: absolute;transform: rotate(90deg);transform-origin: bottom left;width: 100vh;height: 100vw;margin-top: -100vw;object-fit: cover;z-index: 4;visibility: visible;">
             <source :src="(step.videoStream && step.videoStream.indexOf('blob:') !== -1) ? step.videoStream : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
           </video>
         </div>
@@ -91,12 +111,58 @@
         </audio>
         -->
       </div>
+      
+      <!------------------ HELP AREA ------------------------>
       <div v-if="step.type == 'help'" :class="'font-' + customization.font" style="overflow: auto; margin-bottom: 80px;">
         <p class="text" v-html="$t('label.HelpStepMessage')"></p>
-        <p v-if="step.options && step.options.helpNext" class="text" v-html="$t('label.HelpStepMessageNextMessage')"></p>
-        <p v-if="step.options && step.options.helpPrevious" class="text" v-html="$t('label.HelpStepMessagePreviousMessage')"></p>
-        <p v-if="step.options && step.options.helpInventory" class="text" v-html="$t('label.HelpStepMessageInventoryMessage')"></p>
-        <p v-if="step.options && step.options.helpHint" class="text" v-html="$t('label.HelpStepMessageHintMessage')"></p>
+        <div v-if="step.options && step.options.helpNext" class="text centered">
+          <div class="white-buttons">
+            <q-btn
+              round
+              size="lg"
+              :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
+              :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+              icon="arrow_forward"
+            />
+          </div>
+          <div>{{ $t('label.HelpStepMessageNextMessage') }}</div>
+        </div>
+        <div v-if="step.options && step.options.helpPrevious" class="text centered">
+          <div class="white-buttons">
+            <q-btn
+              round
+              size="lg"
+              :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
+              :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+              icon="arrow_back"
+            />
+          </div>
+          <div>{{ $t('label.HelpStepMessagePreviousMessage') }}</div>
+        </div>
+        <div v-if="step.options && step.options.helpInventory" class="text centered">
+          <div class="white-buttons">
+            <q-btn
+              round
+              size="lg"
+              :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
+              :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+              icon="work"
+            />
+          </div>
+          <div>{{ $t('label.HelpStepMessageInventoryMessage') }}</div>
+        </div>
+        <div v-if="step.options && step.options.helpHint" class="text centered">
+          <div class="white-buttons">
+            <q-btn
+              round
+              size="lg"
+              :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
+              :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+              icon="lightbulb"
+            />
+          </div>
+          <div>{{ $t('label.HelpStepMessageHintMessage') }}</div>
+        </div>
         <p class="text" v-html="$t('label.HelpStepMessageEnd')"></p>
       </div>
       
@@ -313,10 +379,10 @@
         <div>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
-          <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.GPSdistance) }) }}</p>
+          <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: (geolocation.GPSdistance == 0 ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
         </div>
         
-        <geolocationStepMap class="geolocation-step-map" :class="'font-' + customization.font" v-show="geolocation.mode === 'map' && playerResult === null && geolocation.active" :target-position="geolocation.destinationPosition" :player-position="geolocation.playerPosition" />
+        <geolocationStepMap class="geolocation-step-map" :class="'font-' + customization.font" v-show="geolocation.mode === 'map' && playerResult === null" :target-position="geolocation.destinationPosition" :player-position="geolocation.playerPosition" />
         
         <q-btn 
           id="mode-switch" 
@@ -556,16 +622,16 @@
       
       <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && geolocation.active"></video>
+          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && (geolocation.active || isIOs)"></video>
         </transition>
-        <div v-show="playerResult === null && this.geolocation.active">
+        <div v-show="playerResult === null && (this.geolocation.active || isIOs)">
           <div class="text" :class="'font-' + customization.font">
             <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
-            <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: Math.round(geolocation.GPSdistance) }) }}</p>
-            <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
-            <p v-if="geolocation.canTouchTarget && geolocation.active">{{ $t('label.TouchTheObject') }}</p>
-            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
+            <p v-if="step.showDistanceToTarget && (geolocation.active || isIOs)">{{ $t('label.DistanceInMeters', { distance: (geolocation.GPSdistance == 0 ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
+            <p v-if="!geolocation.canSeeTarget && (geolocation.active || isIOs)">{{ $t('label.ObjectIsTooFar') }}</p>
+            <p v-if="geolocation.canTouchTarget && (geolocation.active || isIOs)" style="color: #f00">{{ $t('label.TouchTheObject') }}</p>
+            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && (geolocation.active || isIOs)">{{ $t('label.MoveCloserToTheObject') }}</p>
           </div>
         </div>
         <div class="target-view" v-show="(playerResult === null) || (playerResult !== null && step.options && step.options.is3D)">
@@ -583,7 +649,7 @@
           <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled"></video>
         <!--</transition>-->
         <div>
-          <div v-if="isHybrid && !takingSnapshot" style="position: absolute; top: 8px; right: 8px;z-index: 1990;">
+          <div v-if="isHybrid && !takingSnapshot" style="position: absolute; top: 58px; right: 8px;z-index: 1990;">
             <q-btn 
               round 
               size="lg"
@@ -768,9 +834,11 @@
     </div>
     
     <!------------------ COMMON COMPONENTS ------------------>
-    
-    <div class="direction-helper" v-show="(step.type == 'geolocation' && geolocation.mode === 'compass' || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && geolocation.active">
+    <div class="direction-helper" v-show="((step.type == 'geolocation' && geolocation.mode === 'compass') || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && (geolocation.active || isIOs)">
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
+    </div>
+    <div class="direction-helper centered" v-show="step.type == 'geolocation' && playerResult === true">
+      <q-avatar size="140px" font-size="52px" style="margin: auto; margin-bottom: 30px;" color="positive" text-color="white" icon="thumb_up" />
     </div>
     
     <!-- keep geolocation active during all quest duration -->
@@ -995,7 +1063,8 @@ export default {
           foundStep: false,
           mode: 'compass',
           colorIndicator: 'blue-2',
-          closestDistance: 100
+          closestDistance: 100,
+          isCalibrationWatched: false
         },
         deviceMotion: {
           // device acceleration & velocity
@@ -1193,10 +1262,11 @@ export default {
         this.stopcountdown()
       }
       
-      if (['geolocation', 'locate-item-ar'].includes(this.step.type)) {
+      if (['geolocation', 'locate-item-ar'].includes(this.step.type) && this.geolocation.isCalibrationWatched) {
         try {
           // can trigger an error in console which cannot be avoided
           cordova.plugins.headingcalibration.stopWatchCalibration();
+          this.geolocation.isCalibrationWatched = false
         } catch (err) {}
       }
     },
@@ -1430,7 +1500,7 @@ export default {
             // ---------------------------------
             
             // for steps 'geolocation' & Android platforms, without gyroscope use 'deviceorientationabsolute' event + tell players to handle their phone horizontally
-            if (this.step.type === 'geolocation' && this.isHybrid && !this.isIOS && !this.deviceHasGyroscope) {
+            if (this.step.type === 'geolocation' && this.isHybrid && !this.isIOs && !this.deviceHasGyroscope) {
               window.addEventListener("deviceorientationabsolute", this.handleDeviceOrientationEvent, true)
               Notification(this.$t('label.PleaseHoldYourDeviceFlat'))
             } else {
@@ -1488,47 +1558,52 @@ export default {
           // otherwise it is reset when route changes & component is reloaded
           this.$store.dispatch('setDrawDirectionInterval', window.setInterval(this.drawDirectionArrow, 100))
           
-          if (this.isHybrid && !this.isIOS) {
-            // IOS is not tested for now, hence why we are not using it 
-            cordova.plugins.headingcalibration.watchCalibration(
-              (accuracy) => {
-                if (accuracy <= 1) {
-                  _this.geolocation.lowCompassAccuracy = true
-                  // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
-                  if (_this.geolocation.gpsAccuracyTimeout === null && !_this.geolocation.showCalibration && !_this.geolocation.persistentLowAccuracy) {
-                    _this.geolocation.gpsAccuracyTimeout = utils.setTimeout(() => {
-                      _this.$refs.gpscal.askUserToCalibrateGPS()
-                      if (_this.geolocation.gpsAccuracyTimeout !== null) {
-                        clearTimeout(_this.geolocation.gpsAccuracyTimeout)
-                        _this.geolocation.gpsAccuracyTimeout = null
-                      }
-                    }, 10000)
+          if (this.isHybrid && !this.isIOs) {
+            try {
+              // IOS is not tested for now, hence why we are not using it 
+              cordova.plugins.headingcalibration.watchCalibration(
+                (accuracy) => {
+                  this.geolocation.isCalibrationWatched = true
+                  if (accuracy <= 1) {
+                    _this.geolocation.lowCompassAccuracy = true
+                    // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
+                    if (_this.geolocation.gpsAccuracyTimeout === null && !_this.geolocation.showCalibration && !_this.geolocation.persistentLowAccuracy) {
+                      _this.geolocation.gpsAccuracyTimeout = utils.setTimeout(() => {
+                        _this.$refs.gpscal.askUserToCalibrateGPS()
+                        if (_this.geolocation.gpsAccuracyTimeout !== null) {
+                          clearTimeout(_this.geolocation.gpsAccuracyTimeout)
+                          _this.geolocation.gpsAccuracyTimeout = null
+                        }
+                      }, 10000)
+                    }
+                    // persistent low accuracy: suggest the player to skip step
+                    if (_this.geolocation.persistentLowAccuracyTimeout === null) {
+                      _this.geolocation.persistentLowAccuracyTimeout = utils.setTimeout(() => {
+                        _this.persistentLowAccuracy = true
+                        _this.$emit('msg', 'suggestNext')
+                        if (_this.geolocation.persistentLowAccuracyTimeout !== null) {
+                          clearTimeout(_this.geolocation.persistentLowAccuracyTimeout)
+                          _this.geolocation.persistentLowAccuracyTimeout = null
+                        }
+                      }, 20000)
+                    }
+                  } else {
+                    _this.geolocation.lowCompassAccuracy = false
+                    // Compass & GPS OK ? cancel timeouts
+                    if (_this.geolocation.gpsAccuracyTimeout !== null && !_this.geolocation.lowGpsAccuracy) {
+                      clearTimeout(_this.geolocation.gpsAccuracyTimeout);
+                      _this.geolocation.gpsAccuracyTimeout = null;
+                      clearTimeout(_this.geolocation.persistentLowAccuracyTimeout);
+                      _this.geolocation.persistentLowAccuracyTimeout = null;
+                      _this.geolocation.persistentLowAccuracy = false;
+                    }
                   }
-                  // persistent low accuracy: suggest the player to skip step
-                  if (_this.geolocation.persistentLowAccuracyTimeout === null) {
-                    _this.geolocation.persistentLowAccuracyTimeout = utils.setTimeout(() => {
-                      _this.persistentLowAccuracy = true
-                      _this.$emit('msg', 'suggestNext')
-                      if (_this.geolocation.persistentLowAccuracyTimeout !== null) {
-                        clearTimeout(_this.geolocation.persistentLowAccuracyTimeout)
-                        _this.geolocation.persistentLowAccuracyTimeout = null
-                      }
-                    }, 20000)
-                  }
-                } else {
-                  _this.geolocation.lowCompassAccuracy = false
-                  // Compass & GPS OK ? cancel timeouts
-                  if (_this.geolocation.gpsAccuracyTimeout !== null && !_this.geolocation.lowGpsAccuracy) {
-                    clearTimeout(_this.geolocation.gpsAccuracyTimeout);
-                    _this.geolocation.gpsAccuracyTimeout = null;
-                    clearTimeout(_this.geolocation.persistentLowAccuracyTimeout);
-                    _this.geolocation.persistentLowAccuracyTimeout = null;
-                    _this.geolocation.persistentLowAccuracy = false;
-                  }
-                }
-              },
-              (err) => { console.error('watch calibration: failure', err) }
-            );
+                },
+                (err) => { console.error('watch calibration: failure', err) }
+              );
+            } catch (e) {
+              console.log("calibration tests not working")
+            }
           }
         }
         
@@ -2043,7 +2118,7 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
           if (checkAnswerResult.result === true) {
             let selectedAnswer = this.step.options.items[answer]
-            if (this.step.displayRightAnswer === false) {
+            if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
               selectedAnswer.class = 'rightorwrong'
             } else {
               selectedAnswer.icon = 'done'
@@ -2054,7 +2129,7 @@ export default {
           } else {
             if (!this.isTimeUp) {
               let selectedAnswer = this.step.options.items[answer]
-              if (this.step.displayRightAnswer === false) {
+              if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
                 selectedAnswer.class = 'rightorwrong'
               } else {
                 selectedAnswer.icon = 'clear' // "x" icon
@@ -2513,7 +2588,7 @@ export default {
       
       this.displayReadMoreAlert()
       
-      if (showResult) {
+      if (showResult || (this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage !== "")) {
         switch (this.step.type) {
           case 'character': 
           case 'new-item': 
@@ -2527,7 +2602,6 @@ export default {
             
             break
           case 'choose':
-            break
           case 'code-keypad':
           case 'code-color':
           case 'code-image':
@@ -2555,8 +2629,9 @@ export default {
             break
         }
       }
+
       // if no display of the answer move to next step
-      if (this.step.displayRightAnswer === false) {
+      if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
         this.forceNextStep()
       }
       // advise user to move to next step
@@ -2586,16 +2661,16 @@ export default {
       
       if (this.isTimeUp === true) {
         this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'))
-      } else if (showResult) {
+      } else if (showResult || (this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage !== "")) {
         this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
       }
       
       // if no display of the answer move to next step
-      if (this.step.displayRightAnswer === true) {
+      if (this.step.displayRightAnswer === false && (!this.step.options.wrongAnswerMessage || this.step.options.wrongAnswerMessage === "")) {
+        this.forceNextStep()
+      } else {
         // advise user to move to next step
         utils.setTimeout(this.alertToPassToNextStep, 15000)
-      } else {
-        this.forceNextStep()
       }
     },
     alertToPassToNextStep() {
@@ -2886,8 +2961,13 @@ export default {
       ctx.shadowOffsetY = 0
       
       ctx.lineWidth = 1
-      ctx.fillStyle = this.geolocation.primaryColor
-      ctx.strokeStyle = this.geolocation.primaryColor
+      if (this.customization && this.customization.color && this.customization.color !== '') {
+        ctx.fillStyle = this.customization.color
+        ctx.strokeStyle = this.customization.color
+      } else {
+        ctx.fillStyle = this.geolocation.primaryColor
+        ctx.strokeStyle = this.geolocation.primaryColor
+      }
       
       // circle
       ctx.lineWidth = Math.round(this.directionHelperSize * 1.5)
@@ -3334,7 +3414,7 @@ export default {
       var _this = this
       CameraPreview.takePicture({ quality: 85 }, function(base64PictureData) {
         _this.imageOverFlow.snapshot = 'data:image/jpeg;base64,' + base64PictureData
-        setTimeout(function () { _this.cancelTakeVideoSnapShot() }, 3000)
+        setTimeout(function () { _this.cancelTakeVideoSnapShot() }, 5000)
       })
     },
     cancelTakeVideoSnapShot() {
@@ -3968,8 +4048,22 @@ export default {
     /*
     * Display the success message
     */
-    displaySuccessMessage (success, message, actions) {
+    displaySuccessMessage (success, genericMessage, actions) {
+      let message = ""
       this.displaySuccessIcon = true
+      if (success) {
+        if (this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage !== "") {
+          message = this.step.options.rightAnswerMessage
+        } else {
+          message = genericMessage
+        }
+      } else {
+        if (this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage !== "") {
+          message = this.step.options.wrongAnswerMessage
+        } else {
+          message = genericMessage
+        }
+      }
       Notification(message, (success ? 'rightAnswer' : 'wrongAnswer'), actions)
     },
     /*
@@ -4631,7 +4725,7 @@ export default {
   
   /* geolocation specific */
   .geolocation .text { margin-bottom: 0.5rem; position: relative; z-index: 10; }
-  .geolocation #mode-switch { position: absolute; bottom: 6rem; right: 0.6rem; }
+  .geolocation #mode-switch { position: absolute; top: 10rem; right: 0.6rem; }
   .geolocation-step-map { position: absolute; opacity: 1; top: 0; left: 0; width: 100%; height: 100%; background-color: yellow; }
   .geolocation .q-btn { box-shadow: none; }
   .low-gps-accuracy-warning { z-index: 200; position: absolute; top: 0; left: 0; right: 0; }
@@ -4820,10 +4914,5 @@ export default {
   */  
   .direction-helper { position: absolute; bottom: 20vw; left: 0; right: 0; margin-left: auto; margin-right: auto; z-index: 30; min-height: initial !important; pointer-events: none; width: 100vw; height: auto !important; }
   .direction-helper canvas { margin: auto; }
-  
-  /* timer */
-  .timer-progress-bar { height: 15px !important; padding: 0 !important; }
-  .timer-progress-bar.with-camera-stream { top: 0; left: 0; width:100vw; z-index: 30; }
-  .timer-progress-bar > .q-linear-progress__track, .timer-progress-bar > .q-linear-progress__model { all: reset; height: 15px !important; line-height: 15px !important; }
   
 </style>

@@ -103,7 +103,8 @@
             class="glossy large-btn" 
             color="accent"
             @click="startScanQRCode()"
-            :label="$t('label.ScanQRCodeToStartQuest')"
+            :label="$t('label.ScanA')"
+            icon-right="qr_code_2"
             />
         </div>
         

@@ -34,7 +34,7 @@
     "cordova-plugin-nativestorage": "^2.3.2",
     "cordova-plugin-network-information": "^2.0.2",
     "cordova-plugin-phone-call": "^1.0.0",
-    "cordova-plugin-purchase": "^8.1.1",
+    "cordova-plugin-purchase": "10.6.1",
     "cordova-plugin-splashscreen": "^5.0.3",
     "cordova-plugin-statusbar": "^2.4.3",
     "cordova-plugin-whitelist": "^1.3.4",
@@ -49,9 +49,6 @@
       "cordova-plugin-contacts": {},
       "cordova-plugin-camera-preview": {},
       "cordova-plugin-insomnia": {},
-      "cordova-plugin-purchase": {
-        "BILLING_KEY": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmwxDQYxJHFcniYGQ6v14KMVZMeW6ZmQtoyEI8Z2LPdzMqyh6bA+GuOjAii7pX+eM5hrm6+0XeibLOIz9sozdJoqZN7020rz7ZBBM1J07PTQD2JKIkXQxeWqugyXM3eil1nVn7TcxEIc4o8pcYAev2hqqobkG479InVoQJyxStop9M5x5ifBzUR0ODz19bUDsg93i/SPZgl7ZCjzo56LRPlTUgdmKsGchR3HbVtodJI3IkK5Rp8AeaKeWuitFKsMopTXZXfqGagmd4IZAn99LLcr7JQ/YKuf5g7gZcw5r3P78rAXdzsf/6fvV8jyXYjDDv18pGD7d5d487gKdY2ZhyQIDAQAB"
-      },
       "cordova-plugin-device": {},
       "cordova-plugin-geolocation": {},
       "cordova-plugin-whitelist": {},
@@ -86,7 +83,10 @@
       "cordova-plugin-android-permissions": {},
       "cordova.plugins.headingcalibration": {},
       "cordova-plugin-phone-call": {},
-      "cordova-plugin-fullscreen": {}
+      "cordova-plugin-fullscreen": {},
+      "cordova-plugin-purchase": {
+        "BILLING_KEY": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmwxDQYxJHFcniYGQ6v14KMVZMeW6ZmQtoyEI8Z2LPdzMqyh6bA+GuOjAii7pX+eM5hrm6+0XeibLOIz9sozdJoqZN7020rz7ZBBM1J07PTQD2JKIkXQxeWqugyXM3eil1nVn7TcxEIc4o8pcYAev2hqqobkG479InVoQJyxStop9M5x5ifBzUR0ODz19bUDsg93i/SPZgl7ZCjzo56LRPlTUgdmKsGchR3HbVtodJI3IkK5Rp8AeaKeWuitFKsMopTXZXfqGagmd4IZAn99LLcr7JQ/YKuf5g7gZcw5r3P78rAXdzsf/6fvV8jyXYjDDv18pGD7d5d487gKdY2ZhyQIDAQAB"
+      }
     },
     "platforms": [
       "android"
