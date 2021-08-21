@@ -77,6 +77,9 @@
             <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + selectedStep.form.videoStream" type="video/mp4" />
           </video>
         </div>
+        <div>
+          <q-toggle v-model="selectedStep.form.options.rotateVideo" :label="$t('label.RotateVideo')" />
+        </div>
       </div>
       
       <!------------------ STEP : WIN NEW ITEM ------------------------>
@@ -935,6 +938,8 @@
           <div class="q-pa-sm">
             <div v-if="options && options.mode && options.mode === 'advanced' && (options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text' || options.type.code == 'portrait-robot')" class="q-pb-md">
               <q-toggle v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
+              <q-input v-model="selectedStep.form.options.rightAnswerMessage" :label="$t('label.CustomizeRightAnswerMessage')" />
+              <q-input v-model="selectedStep.form.options.wrongAnswerMessage" :label="$t('label.CustomizeWrongAnswerMessage')" />
             </div>
             <div v-if="options && (options.type.code == 'info-text' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text')" class="q-pb-md">
               <q-toggle v-model="selectedStep.form.options.hideHideButton" :label="$t('label.HideHideButton')" />
@@ -1279,7 +1284,8 @@ export default {
           types: [
             {label: this.$t('label.FollowStep'), value: 'stepDone'},
             {label: this.$t('label.StepSuccess'), value: 'stepSuccess'},
-            {label: this.$t('label.StepFail'), value: 'stepFail'}
+            {label: this.$t('label.StepFail'), value: 'stepFail'},
+            {label: this.$t('label.StepRandom'), value: 'stepRandom'}
           ],
           selectedValue: '',
           values: []
@@ -2102,7 +2108,7 @@ export default {
       for (var i = 0; i < this.selectedStep.form.conditions.length; i++) {
         var condition = this.selectedStep.form.conditions[i]
         var conditionParts = condition.split("_")
-        if (conditionParts[0] === 'stepDone' || conditionParts[0] === 'stepSuccess' || conditionParts[0] === 'stepFail') {
+        if (conditionParts[0] === 'stepDone' || conditionParts[0] === 'stepSuccess' || conditionParts[0] === 'stepFail' || conditionParts[0] === 'stepRandom') {
           const stepData = await StepService.getById(conditionParts[1], this.quest.version, 'all')
           if (stepData && stepData.data && stepData.data.hasOwnProperty("title")) {
             let condStepTitle = stepData.data.title[this.lang] ? stepData.data.title[this.lang] : stepData.data.title[Object.keys(stepData.data.title)[0]]
@@ -2114,6 +2120,9 @@ export default {
             }
             if (conditionParts[0] === 'stepFail') {
               this.selectedStep.formatedConditions.push(this.$t("label.StepFail") + " <i>" + condStepTitle + "</i>")
+            }
+            if (conditionParts[0] === 'stepRandom') {
+              this.selectedStep.formatedConditions.push(this.$t("label.StepRandom") + " <i>" + condStepTitle + "</i>")
             }
           }
         }
@@ -2132,12 +2141,13 @@ export default {
     async changeNewConditionType() {
       this.selectedStep.newCondition.values.length = 0
       const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', 'jigsaw-puzzle', 'memory']
-      if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail') {
+      if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail' || this.selectedStep.newCondition.selectedType === 'stepRandom') {
         const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version, 'all')
         if (response && response.data && response.data.length > 0) {
           for (var i = 0; i < response.data.length; i++) {
             if (response.data[i].stepId.toString() !== this.stepId.toString()) {
               if (this.selectedStep.newCondition.selectedType === 'stepDone' ||
+                this.selectedStep.newCondition.selectedType === 'stepRandom' ||
                 stepsTypesWithSuccessOrFail.indexOf(response.data[i].type) !== -1
               ) {
                 let condStepTitle = response.data[i].title[this.lang] ? response.data[i].title[this.lang] : response.data[i].title[Object.keys(response.data[i].title)[0]]
@@ -2171,6 +2181,9 @@ export default {
         }
         if (this.selectedStep.newCondition.selectedType === 'stepFail') {
           this.selectedStep.form.conditions.push('stepFail_' + this.selectedStep.newCondition.selectedValue)
+        }
+        if (this.selectedStep.newCondition.selectedType === 'stepRandom') {
+          this.selectedStep.form.conditions.push('stepRandom_' + this.selectedStep.newCondition.selectedValue)
         }
       }
       this.getUnderstandableConditions()

@@ -1166,7 +1166,7 @@ export default {
       await this.saveOfflineAnswer(true)
 
       // move to next step if right answer not displayed
-      if (this.step.displayRightAnswer === false) {
+      if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
         this.nextStep()
       }
     },
@@ -1209,7 +1209,7 @@ export default {
       await this.saveOfflineAnswer(false, answer)
       
       // move to next step if right answer not displayed
-      if (this.step.displayRightAnswer === false) {
+      if (this.step.displayRightAnswer === false && (!this.step.options.wrongAnswerMessage || this.step.options.wrongAnswerMessage === "")) {
         this.nextStep()
       }
     },
@@ -2254,6 +2254,28 @@ console.log("hint not available")
           return {id: "geolocation", extra: extra}
         }
       }
+      
+      // Treat RANDOM conditions, IF NO OTHER CONDITION MATCH
+      if (this.info.quest.editorMode === 'advanced' === 'advanced' && stepsofChapter && stepsofChapter.length > 0) {
+        let randomIds = []
+        for (var i = 0; i < stepsofChapter.length; i++) {
+          // check if the step is not already done by player AND IS A RANDOM STEP
+          if (stepsofChapter[i].conditions.length > 0 && stepsofChapter[i].conditions[0].indexOf('stepRandom_') !== -1 && this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
+            // check if step concerned is done
+            if (stepsofChapter[i].conditions.length > 0) {
+              // Get the stepID this step is depending on
+              let fatherStep = stepsofChapter[i].conditions[0].replace('stepRandom_', '')
+              if (this.run.conditionsDone.indexOf('stepDone' + player + '_' + fatherStep) !== -1) {
+                randomIds.push(stepsofChapter[i].stepId)
+              }
+            }
+          }
+        }
+        if (randomIds.length > 0) {
+          return {id: randomIds[Math.floor(Math.random()*randomIds.length)], extra: extra}
+        }
+      }
+      
       return {id: "", extra: extra}
     },
     /*

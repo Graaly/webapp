@@ -26,6 +26,9 @@
         <q-btn color="primary" class="glossy large-button" :label="$t('label.GoToQuestValidation')" @click="openValidation(questId, quest.version)"></q-btn>
       </div>
     </div>
+    <div class="q-px-md text-grey align-right" style="font-size: 0.8em; margin-top: -10px;">
+      {{ endDate }}
+    </div>
     
     <div v-if="isUserAuthor" class="back centered q-pa-md">
       <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
@@ -287,6 +290,7 @@ import Vue from 'vue'
 import suggest from 'components/quest/suggest'
 import userCard from 'components/user/userCard'
 import utils from 'src/includes/utils'
+import Moment from "moment"
 
 export default {
   components: {
@@ -314,6 +318,7 @@ export default {
         score: 0,
         stars: 1
       },
+      endDate: '',
       quest: null,
       friends: [],
       filteredFriends: [],
@@ -353,6 +358,10 @@ export default {
     if (this.isHybrid && cordova.platformId === 'android') {
       StatusBar.hide()
     }
+    
+    // compute end date
+    let date = new Date()
+    this.endDate = Moment(date).format('DD/MM/YYYY, h:mm:ss')
   },
   methods: {
     /*

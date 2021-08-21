@@ -98,7 +98,10 @@
           <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
         <div class="video" v-if="step.videoStream">
-          <video class="full-width" controls controlsList="nodownload" autoplay>
+          <video v-if="!step.options.rotateVideo" class="full-width" controls controlsList="nodownload" autoplay>
+            <source :src="(step.videoStream && step.videoStream.indexOf('blob:') !== -1) ? step.videoStream : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
+          </video>
+          <video v-if="step.options.rotateVideo" controls controlsList="nodownload" autoplay style="position: absolute;transform: rotate(90deg);transform-origin: bottom left;width: 100vh;height: 100vw;margin-top: -100vw;object-fit: cover;z-index: 4;visibility: visible;">
             <source :src="(step.videoStream && step.videoStream.indexOf('blob:') !== -1) ? step.videoStream : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
           </video>
         </div>
@@ -625,7 +628,7 @@
           <div class="text" :class="'font-' + customization.font">
             <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
-            <p v-if="step.showDistanceToTarget && !geolocation.canSeeTarget && (geolocation.active || isIOs)">{{ $t('label.DistanceInMeters', { distance: (geolocation.GPSdistance == 0 ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
+            <p v-if="step.showDistanceToTarget && (geolocation.active || isIOs)">{{ $t('label.DistanceInMeters', { distance: (geolocation.GPSdistance == 0 ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
             <p v-if="!geolocation.canSeeTarget && (geolocation.active || isIOs)">{{ $t('label.ObjectIsTooFar') }}</p>
             <p v-if="geolocation.canTouchTarget && (geolocation.active || isIOs)" style="color: #f00">{{ $t('label.TouchTheObject') }}</p>
             <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && (geolocation.active || isIOs)">{{ $t('label.MoveCloserToTheObject') }}</p>
@@ -646,7 +649,7 @@
           <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled"></video>
         <!--</transition>-->
         <div>
-          <div v-if="isHybrid && !takingSnapshot" style="position: absolute; top: 8px; right: 8px;z-index: 1990;">
+          <div v-if="isHybrid && !takingSnapshot" style="position: absolute; top: 58px; right: 8px;z-index: 1990;">
             <q-btn 
               round 
               size="lg"
@@ -833,6 +836,9 @@
     <!------------------ COMMON COMPONENTS ------------------>
     <div class="direction-helper" v-show="((step.type == 'geolocation' && geolocation.mode === 'compass') || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && (geolocation.active || isIOs)">
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
+    </div>
+    <div class="direction-helper centered" v-show="step.type == 'geolocation' && playerResult === true">
+      <q-avatar size="140px" font-size="52px" style="margin: auto; margin-bottom: 30px;" color="positive" text-color="white" icon="thumb_up" />
     </div>
     
     <!-- keep geolocation active during all quest duration -->
@@ -2112,7 +2118,7 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
           if (checkAnswerResult.result === true) {
             let selectedAnswer = this.step.options.items[answer]
-            if (this.step.displayRightAnswer === false) {
+            if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
               selectedAnswer.class = 'rightorwrong'
             } else {
               selectedAnswer.icon = 'done'
@@ -2123,7 +2129,7 @@ export default {
           } else {
             if (!this.isTimeUp) {
               let selectedAnswer = this.step.options.items[answer]
-              if (this.step.displayRightAnswer === false) {
+              if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
                 selectedAnswer.class = 'rightorwrong'
               } else {
                 selectedAnswer.icon = 'clear' // "x" icon
@@ -2582,7 +2588,7 @@ export default {
       
       this.displayReadMoreAlert()
       
-      if (showResult) {
+      if (showResult || (this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage !== "")) {
         switch (this.step.type) {
           case 'character': 
           case 'new-item': 
@@ -2596,7 +2602,6 @@ export default {
             
             break
           case 'choose':
-            break
           case 'code-keypad':
           case 'code-color':
           case 'code-image':
@@ -2624,8 +2629,9 @@ export default {
             break
         }
       }
+
       // if no display of the answer move to next step
-      if (this.step.displayRightAnswer === false) {
+      if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
         this.forceNextStep()
       }
       // advise user to move to next step
@@ -2655,16 +2661,16 @@ export default {
       
       if (this.isTimeUp === true) {
         this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'))
-      } else if (showResult) {
+      } else if (showResult || (this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage !== "")) {
         this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
       }
       
       // if no display of the answer move to next step
-      if (this.step.displayRightAnswer === true) {
+      if (this.step.displayRightAnswer === false && (!this.step.options.wrongAnswerMessage || this.step.options.wrongAnswerMessage === "")) {
+        this.forceNextStep()
+      } else {
         // advise user to move to next step
         utils.setTimeout(this.alertToPassToNextStep, 15000)
-      } else {
-        this.forceNextStep()
       }
     },
     alertToPassToNextStep() {
@@ -4042,8 +4048,22 @@ export default {
     /*
     * Display the success message
     */
-    displaySuccessMessage (success, message, actions) {
+    displaySuccessMessage (success, genericMessage, actions) {
+      let message = ""
       this.displaySuccessIcon = true
+      if (success) {
+        if (this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage !== "") {
+          message = this.step.options.rightAnswerMessage
+        } else {
+          message = genericMessage
+        }
+      } else {
+        if (this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage !== "") {
+          message = this.step.options.wrongAnswerMessage
+        } else {
+          message = genericMessage
+        }
+      }
       Notification(message, (success ? 'rightAnswer' : 'wrongAnswer'), actions)
     },
     /*
@@ -4705,7 +4725,7 @@ export default {
   
   /* geolocation specific */
   .geolocation .text { margin-bottom: 0.5rem; position: relative; z-index: 10; }
-  .geolocation #mode-switch { position: absolute; bottom: 6rem; right: 0.6rem; }
+  .geolocation #mode-switch { position: absolute; top: 10rem; right: 0.6rem; }
   .geolocation-step-map { position: absolute; opacity: 1; top: 0; left: 0; width: 100%; height: 100%; background-color: yellow; }
   .geolocation .q-btn { box-shadow: none; }
   .low-gps-accuracy-warning { z-index: 200; position: absolute; top: 0; left: 0; right: 0; }

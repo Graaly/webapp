@@ -24,13 +24,17 @@
         <div class="q-py-sm dark-banner absolute-bottom limit-size-desktop">
           <q-item clickable v-ripple @click="openProfile(quest.authorUserId)">
             <q-item-section side>
-              <q-avatar size="50px">
+              <q-avatar size="50px" v-if="!quest.customization || !quest.customization.logo || quest.customization.logo === ''">
                 <img v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.picture" :src="serverUrl + '/upload/profile/' + quest.author.picture" />
                 <img v-if="typeof quest.author === 'undefined' || !quest.author || !quest.author.picture" src="statics/profiles/noprofile.png" />
               </q-avatar>
+              <q-avatar size="50px" v-if="quest.customization && quest.customization.logo && quest.customization.logo !== ''">
+                <img v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.picture" :src="serverUrl + '/upload/quest/' + quest.customization.logo" />
+              </q-avatar>
             </q-item-section>
             <q-item-section style="padding-right: 84px">
-              <q-item-label class="subtitle5" v-if="typeof quest.author !== 'undefined' && quest.author && quest.author.name">{{ quest.author.name }}</q-item-label>
+              <q-item-label class="subtitle5" v-if="(!quest.customization || !quest.customization.authorName || quest.customization.authorName === '') && typeof quest.author !== 'undefined' && quest.author && quest.author.name">{{ quest.author.name }}</q-item-label>
+              <q-item-label class="subtitle5" v-if="quest.customization && quest.customization.authorName && quest.customization.authorName !== ''">{{ quest.customization.authorName }}</q-item-label>
             </q-item-section>
           </q-item>
         </div>
@@ -115,7 +119,7 @@
       <!-- =========================== PLAY BUTTON ========================== -->
       <div class="quest-home-button">
         <div class="text-center q-pt-md">
-          <p>
+          <p v-if="canReplay === 'yes'">
             <!--<q-btn-dropdown class="glossy large-btn" v-if="!(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
               <q-list link>
                 <q-item 
@@ -134,6 +138,9 @@
               <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
               <span v-if="!continueQuest && isRunFinished">{{ $t('label.SolveAgainThisQuest') }}</span>
               <span v-if="!continueQuest && !isRunFinished">{{ $t('label.SolveThisQuest') }}</span>
+            </q-btn>
+            <q-btn v-if="continueQuest" @click="restartGame" flat color="primary" class="q-mt-md large-btn">
+              <span>{{ $t('label.SolveAgainThisQuest') }}</span>
             </q-btn>
             <q-btn v-if="quest.type === 'room' && quest.readMoreLink && quest.readMoreLink !== ''" @click="openReadMoreLink" color="primary" class="glossy large-btn">
               <span>{{ $t('label.Book') }}</span>
@@ -177,6 +184,22 @@
               </q-btn>
               <div>{{ $t('label.QuestIsNotPlayableNow') }}</div>
             </span>
+          </p>
+          <p v-if="canReplay !== 'yes'">
+            <q-btn 
+              v-if="canReplay === 'no'" 
+              disabled 
+              color="primary" 
+              class="glossy large-btn">
+              <span>{{ $t('label.YouCanNotPlayAgainThisGame') }}</span>
+            </q-btn>
+            <q-btn 
+              v-if="canReplay === 'nottoday'" 
+              disabled 
+              color="primary" 
+              class="glossy large-btn">
+              <span>{{ $t('label.YouCanNotPlayAgainThisGameToday') }}</span>
+            </q-btn>
           </p>
         </div>
       </div>
@@ -467,6 +490,8 @@ export default {
       geolocationIsSupported: navigator.geolocation,
       isUserTooFar: false,
       continueQuest: false,
+      continueQuestId: "",
+      canReplay: "yes",
       distanceFromStart: 0,
       pageReady: false,
       isHybrid: window.cordova,
@@ -668,9 +693,21 @@ export default {
         for (var i = 0; i < runs.data.length; i++) {
           if (runs.data[i].status === 'finished') {
             this.isRunFinished = true
+            // check if user can replay
+            if (this.quest.customization && this.quest.customization.userReplay && this.quest.customization.userReplay === 'no') {
+              this.canReplay = 'no'
+            }
+            if (this.quest.customization && this.quest.customization.userReplay && this.quest.customization.userReplay === 'onceaday') {
+              let date = new Date()
+              let dateCreated = new Date(runs.data[i].dateCreated)
+              if (utils.getFullDate(dateCreated) === utils.getFullDate(date)) {
+                this.canReplay = 'nottoday'
+              }
+            } 
           }
           if (runs.data[i].status === 'in-progress' && runs.data[i].currentStep) {
             this.isRunStarted = true
+            this.continueQuestId = runs.data[i]._id;
           }
         }
         if (this.isRunStarted) {
@@ -935,6 +972,35 @@ export default {
       }
       
       return publishedLanguages
+    },
+    /*
+     * Restart the game
+     */
+    async restartGame() {
+      var self = this
+      this.$q.dialog({
+        dark: true,
+        message: this.$t('label.AreYouSureToRestartThisQuest'),
+        ok: this.$t('label.Restart'),
+        cancel: this.$t('label.Cancel')
+      }).onOk(() => {
+        self.cancelRun()
+      }).onCancel(() => {
+        // do nothing
+      })
+    },
+    /*
+     * Cancel a run
+     */
+    async cancelRun() {
+      if (this.continueQuestId != "") {
+        await RunService.endRun(this.continueQuestId, null, this.quest.questId, this.quest.version, this.$route.params.lang)
+      }
+      // remove run offline data
+      await utils.removeDirectory(this.quest.questId)
+      //await this.removeQuestFromOfflineList(this.quest.questId)
+
+      this.playQuest(this.quest.questId, this.$route.params.lang);
     },
     /*
      * Launch a quest

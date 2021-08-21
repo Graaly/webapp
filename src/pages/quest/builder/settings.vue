@@ -273,6 +273,20 @@
                   </div>
                   <q-btn flat class="full-width" @click="resetSchedule">{{ $t('label.Reset') }}</q-btn>
                 </div>
+                <div v-if="form.fields.customization">
+                  <q-select
+                    v-if="quest.type === 'quest'"
+                    :readonly="readOnly"
+                    :label="$t('label.UserCanReplayGame')"
+                    v-model="form.fields.customization.userReplay"
+                    :options="form.userReplays"
+                    emit-value
+                    map-options
+                    bottom-slots
+                    options-cover
+                    >
+                  </q-select>
+                </div>
               </div>
             </q-expansion-item>
             <q-separator />
@@ -398,6 +412,14 @@
                 <div v-if="isIOs">
                   {{ $t('label.ModifyThePicture') }}:
                   <input @change="uploadThumb" ref="thumbfile" type="file" accept="image/*" />
+                </div>
+                <div v-if="form.fields.customization">
+                  <q-input
+                    :disable="readOnly"
+                    v-model="form.fields.customization.authorName"
+                    :label="$t('label.CustomizeYourName')"
+                    class="full-width"
+                  />
                 </div>
               </div>
             </q-expansion-item>
@@ -1410,7 +1432,7 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '', font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, geolocationMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false },
+          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '', font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, geolocationMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false, authorName: '', userReplay: 'yes' },
           rewardPicture: '',
           readMoreLink: '',
           limitNumberOfPlayer: 0,
@@ -1442,6 +1464,11 @@ export default {
           { label: 'Garamond', value: 'garamond', class: 'font-garamond' },
           { label: 'Courrier New', value: 'courrier', class: 'font-courrier' },
           { label: 'Brush script', value: 'brush', class: 'font-brush' }
+        ],
+        userReplays: [
+          { label: this.$t('label.Yes'), value: 'yes' },
+          { label: this.$t('label.No'), value: 'no' },
+          { label: this.$t('label.OnceADay'), value: 'onceaday' }
         ],
         players: [
           { label: "1", value: '1' },
@@ -1884,6 +1911,7 @@ export default {
                         let parentStepId = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
                         parentStepId = parentStepId.replace("stepSuccess_", "")
                         parentStepId = parentStepId.replace("stepFail_", "")
+                        parentStepId = parentStepId.replace("stepRandom_", "")
                         // If parent is not sorted => do not treat the item
                         if (sorted.indexOf(parentStepId) === -1) {
                           // check that the parent exists at least in unsorted => else error

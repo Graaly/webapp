@@ -260,10 +260,10 @@ export default {
                     newItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.picture)
                   }
                   
-                  if (!newItemImageSuccess) {
-                    this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "new-item" ' + step.stepId)
-                    return false
-                  }
+                  //if (!newItemImageSuccess) {
+                  //  this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "new-item" ' + step.stepId)
+                  //  return false
+                  //}
                 }
               }
               if (step.type === 'character' && step.options && step.options.character && step.options.character !== ''  && step.options.character !== 'usequestcharacter') {

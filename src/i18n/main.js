@@ -87,11 +87,11 @@ module.exports = {
       WaitForEventDesc: "A physical action activate a step (using an electronic card)",
       HelpStep: "Help page",
       HelpStepDesc: "How to use Graaly, presentation of the buttons for the players.",
-      PortraitRobot: "Composite picture - BETA",
+      PortraitRobot: "Composite picture",
       PortraitRobotDesc: "Create suspect face based on face items",
-      PhoneCall: "Phone call - BETA",
+      PhoneCall: "Phone call",
       PhoneCallDesc: "Launch a phone call to a defined number",
-      Binocular: "Binoculars - BETA",
+      Binocular: "Binoculars",
       BinocularDesc: "Search in a picture using binoculars"
     },
     layersForMarkers: {
@@ -356,7 +356,7 @@ module.exports = {
       GoodAnswer: "Good answer!",
       WrongAnswer: "Wrong answer!",
       Next: "Next",
-      SecondTry: "Wrong answer. You have {nb} trial(s) more",
+      SecondTry: "Wrong answer. You have {nb} more trial(s)",
       Clear: "Clear",
       Confirm: "Confirm",
       WrongGoodCodeWas: "Wrong! The right code was:",
@@ -543,7 +543,7 @@ module.exports = {
       TechnicalProblemNetworkIssue: "Please check your network or try again later",
       Search: "Search",
       CurrentScore: "Current score",
-      SolveAgainThisQuest: "Play again",
+      SolveAgainThisQuest: "Play again from the start",
       BackToQuest: "Back to the game",
       min: "min",
       pts: "pts",
@@ -585,6 +585,7 @@ module.exports = {
       FollowStep: "Follow step",
       StepSuccess: "Right answer on step",
       StepFail: "Wrong answer on step",
+      StepRandom: "Randomly after (BETA)",
       NoCondition: "No condition (start at the beginning of the chapter)",
       Conditions: "Triggers",
       AddACondition: "Add a trigger",
@@ -1080,7 +1081,16 @@ module.exports = {
       CurrentLocation: "Current GPS location",
       Accuracy: "Accuracy",
       Meters: "meters",
-      secondes: "seconde(s)"
+      secondes: "seconde(s)",
+      ScanA: "Scan a",
+      OnceADay: "Once a day",
+      UserCanReplayGame: "User can play again",
+      CustomizeYourName: "Customize the author's name",
+      YouCanNotPlayAgainThisGame: "You can not play again this game",
+      YouCanNotPlayAgainThisGameToday: "You can play again tomorrow",
+      CustomizeRightAnswerMessage: "Custom right answer message",
+      CustomizeWrongAnswerMessage: "Custom wrong answer message",
+      RotateVideo: "Rotate the video 90°"
     }
   },
   fr: {
@@ -1158,11 +1168,11 @@ module.exports = {
       WaitForEventDesc: "Votre matériel active une étape Graaly (utilisation d'une carte électronique)",
       HelpStep: "Page d'aide",
       HelpStepDesc: "Aide à l'utilisation de Graaly, présentation des boutons.",
-      PortraitRobot: "Portrait robot - BETA",
+      PortraitRobot: "Portrait robot",
       PortraitRobotDesc: "Reconstituez le visage des suspects",
-      PhoneCall: "Appel téléphonique - BETA",
+      PhoneCall: "Appel téléphonique",
       PhoneCallDesc: "Lancez un appel téléphonique vers un numéro défini",
-      Binocular: "Jumelles - BETA",
+      Binocular: "Jumelles",
       BinocularDesc: "Rechercher dans une image en utilisant des jumelles"
     },
     layersForMarkers: {
@@ -1614,7 +1624,7 @@ module.exports = {
       TechnicalProblemNetworkIssue: "Veuillez vérifier que vous avez du réseau mobile ou retestez plus tard",
       Search: "Rechercher",
       CurrentScore: "Score actuel",
-      SolveAgainThisQuest: "Résoudre à nouveau",
+      SolveAgainThisQuest: "Rejouer du début",
       BackToQuest: "Retour au jeu",
       min: "min",
       pts: "pts",
@@ -1656,6 +1666,7 @@ module.exports = {
       FollowStep: "Suit l'étape",
       StepSuccess: "Bonne réponse à",
       StepFail: "Mauvaise réponse à",
+      StepRandom: "Aléatoirement après (BETA)",
       NoCondition: "Aucune condition (démarre au début du chapitre)",
       Conditions: "Déclencheurs",
       AddACondition: "Ajouter un déclencheur",
@@ -2151,7 +2162,16 @@ module.exports = {
       CurrentLocation: "Position GPS actuelle",
       Accuracy: "Précision",
       Meters: "mètres",
-      secondes: "seconde(s)"
+      secondes: "seconde(s)",
+      ScanA: "Scanner un",
+      OnceADay: "Une fois par jour",
+      UserCanReplayGame: "Le joueur peu rejouer",
+      CustomizeYourName: "Personnaliser le nom de l'auteur",
+      YouCanNotPlayAgainThisGame: "Vous ne pouvez rejouer à ce jeu",
+      YouCanNotPlayAgainThisGameToday: "Vous pouvez rejouer demain",
+      CustomizeRightAnswerMessage: "Message de bonne réponse personnalisé",
+      CustomizeWrongAnswerMessage: "Message de mauvaise réponse personnalisé",
+      RotateVideo: "Tourner la vidéo de 90°"
     }
   }
 }
