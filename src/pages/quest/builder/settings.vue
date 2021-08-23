@@ -1683,7 +1683,7 @@ export default {
         this.form.fields.picture = this.quest.picture
         this.form.fields.thumb = this.quest.thumb
         this.form.fields.editorMode = this.quest.editorMode
-        this.form.fields.customization = this.quest.customization
+        this.form.fields.customization = Object.assign(this.form.fields.customization, this.quest.customization)
         this.form.fields.rewardPicture = this.quest.rewardPicture
         this.form.fields.readMoreLink = this.quest.readMoreLink
         this.form.fields.limitNumberOfPlayer = this.quest.limitNumberOfPlayer
@@ -1699,7 +1699,8 @@ export default {
         
         //countdown
         if (this.quest.countDownTime) {
-          this.form.fields.countDownTime = this.quest.countDownTime
+          // using Object.assign() here to ensure that default properties are always defined
+          this.form.fields.countDownTime = Object.assign(this.form.fields.countDownTime, this.quest.countDownTime)
         }
 
         // prices
