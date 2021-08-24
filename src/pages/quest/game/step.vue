@@ -33,6 +33,7 @@
         :answer="offline.answer"
         :player="player"
         :timer="countDownTime"
+        :quest="info.quest"
         @played="trackStepPlayed" 
         @success="trackStepSuccess" 
         @fail="trackStepFail" 
@@ -974,10 +975,10 @@ export default {
               this.warnings.stepDataMissing = true
             }
           }
-          if (tempStep.audioStream && tempStep.audioStream !== '') {
-            const audioUrl = await utils.readBinaryFile(this.questId, tempStep.audioStream)
+          if (tempStep.audioStream && tempStep.audioStream[this.lang] && tempStep.audioStream[this.lang] !== '') {
+            const audioUrl = await utils.readBinaryFile(this.questId, tempStep.audioStream[this.lang])
             if (audioUrl) {
-              tempStep.audioStream = audioUrl
+              tempStep.audioStream[this.lang] = audioUrl
             } else {
               this.warnings.stepDataMissing = true
             }
@@ -2256,9 +2257,9 @@ console.log("hint not available")
       }
       
       // Treat RANDOM conditions, IF NO OTHER CONDITION MATCH
-      if (this.info.quest.editorMode === 'advanced' === 'advanced' && stepsofChapter && stepsofChapter.length > 0) {
+      if (this.info.quest.editorMode === 'advanced' && stepsofChapter && stepsofChapter.length > 0) {
         let randomIds = []
-        for (var i = 0; i < stepsofChapter.length; i++) {
+        for (let i = 0; i < stepsofChapter.length; i++) {
           // check if the step is not already done by player AND IS A RANDOM STEP
           if (stepsofChapter[i].conditions.length > 0 && stepsofChapter[i].conditions[0].indexOf('stepRandom_') !== -1 && this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
             // check if step concerned is done
@@ -2532,7 +2533,10 @@ console.log("hint not available")
      * cut audio for video or step with audio
      */
     manageAudio () {
-      if (this.step.type === 'info-video' || (this.step.audioStream && this.step.audioStream !== '')) {
+      // audio available for current step ? (either for current language or main quest language)
+      let hasAudioForCurrentStep = this.step.audioStream && ((this.step.audioStream[this.lang] && this.step.audioStream[this.lang] !== '') || (this.step.audioStream[this.info.quest.mainLanguage] && this.step.audioStream[this.info.quest.mainLanguage] !== ''))
+      
+      if (this.step.type === 'info-video' || hasAudioForCurrentStep) {
         this.cutSound()
         this.sound.tempMute = true
       } else if (this.sound.tempMute) {

@@ -90,7 +90,7 @@
         <div v-if="showTools && getTranslatedText() != ''" id="info-clickable" :class="{ grow: !step.videoStream }">
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && step.options && step.options.html" v-html="getTranslatedText()"></p>
-          <div v-if="step.type !== 'help' && step.type !== 'info-video' && !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
+          <div v-if="step.type !== 'help' && step.type !== 'info-video' && (!step.options || !step.options.hideHideButton)" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
@@ -105,11 +105,6 @@
             <source :src="(step.videoStream && step.videoStream.indexOf('blob:') !== -1) ? step.videoStream : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
           </video>
         </div>
-        <!--
-        <audio controls controlsList="nodownload" autoplay v-if="step.audioStream" class="full-width">
-          <source :src="step.audioStream" type="audio/mpeg" />
-        </audio>
-        -->
       </div>
       
       <!------------------ HELP AREA ------------------------>
@@ -231,7 +226,7 @@
               </div>
             </div>
           </div>
-          <div v-if="!step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
+          <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
@@ -286,7 +281,7 @@
               </q-btn>
             </div>
           </div>
-          <div v-if="!step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
+          <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
@@ -315,7 +310,7 @@
               <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-color-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
             </div>
           </div>
-          <div v-if="!step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
+          <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
@@ -364,7 +359,7 @@
               <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
             </div>
           </div>
-          <div v-if="!step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
+          <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
@@ -427,7 +422,7 @@
               disabled />
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer"><div>{{ $t('label.ConfirmTheAnswer') }}</div></q-btn>
           </div>
-          <div v-if="!step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
+          <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
         </div>
@@ -934,7 +929,7 @@ export default {
    * itemUsed : item of the inventory used
    * lang : language of the step (fr, en, ...)
    */
-  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player', 'inventory', 'timer'],
+  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player', 'inventory', 'timer', 'quest'],
   components: {
     holdphonevertically,
     gpscalibration,
@@ -2642,7 +2637,7 @@ export default {
      */
     submitWrongAnswer(offlineMode, showResult, answer) {
       // remove timer
-      if (this.step.countDownTime !== null) {
+      if (this.step.countDownTime) {
         this.step.countDownTime.enabled = false
         this.stopcountdown()
       }
@@ -4052,13 +4047,13 @@ export default {
       let message = ""
       this.displaySuccessIcon = true
       if (success) {
-        if (this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage !== "") {
+        if (this.step.options && this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage !== "") {
           message = this.step.options.rightAnswerMessage
         } else {
           message = genericMessage
         }
       } else {
-        if (this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage !== "") {
+        if (this.step.options && this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage !== "") {
           message = this.step.options.wrongAnswerMessage
         } else {
           message = genericMessage
@@ -4622,11 +4617,20 @@ export default {
      * get audio sound
      */
     getAudioSound () {
-      if (this.step.audioStream && this.step.audioStream !== '') {
-        if (this.step.audioStream.indexOf('blob:') !== -1) {
-          this.audio = this.step.audioStream
+      let mainLang = this.quest.mainLanguage
+      let finalLang = this.lang
+      let hasAudioForCurrentLang = (this.step.audioStream && this.step.audioStream[this.lang] && this.step.audioStream[this.lang] !== '')
+      let hasAudioForMainLang = (this.step.audioStream && this.step.audioStream[mainLang] && this.step.audioStream[mainLang] !== '')
+      
+      if (hasAudioForCurrentLang || hasAudioForMainLang) { // some audio is available
+        if (!hasAudioForCurrentLang && hasAudioForMainLang && mainLang !== this.lang) { // no audio in current lang ? take main lang audio
+          finalLang = mainLang
+        }
+        
+        if (this.step.audioStream[finalLang].indexOf('blob:') !== -1) {
+          this.audio = this.step.audioStream[finalLang]
         } else {
-          this.audio = this.serverUrl + '/upload/quest/' + this.step.questId + '/audio/' + this.step.audioStream
+          this.audio = this.serverUrl + '/upload/quest/' + this.step.questId + '/audio/' + this.step.audioStream[finalLang]
         }
       } else {
         this.audio = null

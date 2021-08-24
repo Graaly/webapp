@@ -1249,7 +1249,8 @@
           :inventory="inventory"
           :itemUsed="selectedItem" 
           :reload="chapters.reloadStepPlay" 
-          :lang="languages.current" 
+          :lang="languages.current"
+          :quest="quest"
           @played="trackStepPlayed" 
           @success="trackStepSuccess" 
           @fail="trackStepFail" 
@@ -1688,8 +1689,8 @@ export default {
         this.form.fields.readMoreLink = this.quest.readMoreLink
         this.form.fields.limitNumberOfPlayer = this.quest.limitNumberOfPlayer
         this.form.fields.scheduling = this.quest.scheduling
-        this.form.fields.forcePlayerToHaveAccount = this.quest.forcePlayerToHaveAccount
-        this.form.fields.shareUserDataWithCreator = this.quest.shareUserDataWithCreator
+        this.form.fields.forcePlayerToHaveAccount = this.quest.forcePlayerToHaveAccount || false
+        this.form.fields.shareUserDataWithCreator = this.quest.shareUserDataWithCreator || false
         this.form.fields.playersNumber = this.quest.playersNumber
       
         this.form.fields.startingPlace = this.form.fields.location.address || ""
