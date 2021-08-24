@@ -167,8 +167,8 @@ export default {
           }
           
           // Save customized sound
-          if (quest.customization && quest.customization.audio && quest.customization.audio !== '') {
-            await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/', quest.customization.audio)
+          if (quest.customization && quest.customization.audio && quest.customization.audio[this.lang] && quest.customization.audio[this.lang] !== '') {
+            await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/', quest.customization.audio[this.lang])
           }
 
           // save steps

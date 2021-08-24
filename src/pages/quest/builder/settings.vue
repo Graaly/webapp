@@ -431,8 +431,8 @@
               expand-icon-class="text-white"
             >
               <div class="q-pa-md">
-                <div v-if="this.quest.isPremium && form.fields.customization && form.fields.customization.audio && form.fields.customization.audio !== ''">
-                  <div>{{ $t('label.YourAudioFile') }} : {{ form.fields.customization.audio }}</div>
+                <div v-if="this.quest.isPremium && form.fields.customization && form.fields.customization.audio && form.fields.customization.audio[languages.current] && form.fields.customization.audio[languages.current] !== ''">
+                  <div>{{ $t('label.YourAudioFile') }} : {{ form.fields.customization.audio[languages.current] }}</div>
                   <div class="centered"><a class="dark" @click="removeAudio">{{$t('label.Remove')}}</a></div>
                 </div>
                 <div v-if="this.quest.isPremium && !isIOs && !readOnly">
@@ -1433,7 +1433,7 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { audio: '', color: '', logo: '', character: '', removeScoring: false, endMessage: '', font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, geolocationMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false, authorName: '', userReplay: 'yes' },
+          customization: { audio: {}, color: '', logo: '', character: '', removeScoring: false, endMessage: '', font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, geolocationMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false, authorName: '', userReplay: 'yes' },
           rewardPicture: '',
           readMoreLink: '',
           limitNumberOfPlayer: 0,
@@ -2292,8 +2292,11 @@ export default {
       let uploadAudioResult = await QuestService.uploadAudio(data)
       if (uploadAudioResult && uploadAudioResult.hasOwnProperty('data')) {
         if (uploadAudioResult.data.file) {
-          this.form.fields.customization.audio = uploadAudioResult.data.file
-          this.$forceUpdate()
+          Notification(this.$t('label.UploadSucessful'), 'positive')
+          if (!this.form.fields.customization.audio) {
+            this.form.fields.customization.audio = {}
+          }
+          this.$set(this.form.fields.customization.audio, this.languages.current, uploadAudioResult.data.file)
         } else if (uploadAudioResult.data.message && uploadAudioResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -2305,7 +2308,7 @@ export default {
       this.$q.loading.hide()
     },
     async removeAudio() {
-      this.form.fields.customization.audio = null
+      this.form.fields.customization.audio[this.languages.current] = ''
     },
     
     /*
