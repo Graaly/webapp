@@ -167,8 +167,8 @@ export default {
           }
           
           // Save customized sound
-          if (quest.customization && quest.customization.audio && quest.customization.audio !== '') {
-            await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/', quest.customization.audio)
+          if (quest.customization && quest.customization.audio && quest.customization.audio[this.lang] && quest.customization.audio[this.lang] !== '') {
+            await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/', quest.customization.audio[this.lang])
           }
 
           // save steps
@@ -201,8 +201,8 @@ export default {
                   return false
                 }
               }
-              if (step.audioStream && step.audioStream !== '') {
-                const audioStreamSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/audio/', step.audioStream)
+              if (step.audioStream && step.audioStream[this.lang] && step.audioStream[this.lang] !== '') {
+                const audioStreamSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/audio/', step.audioStream[this.lang])
                 if (!audioStreamSuccess) {
                   this.throwSaveError('Could not save audio for quest ' + quest.questId + ' and step ' + step.stepId)
                   return false

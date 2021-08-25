@@ -1007,11 +1007,11 @@
               </div>
             </div>
             <div v-show="options.type.code !== 'end-chapter'">
-              <div v-if="selectedStep.form.audioStream && selectedStep.form.audioStream !== ''">
-                <div>{{ $t('label.YourAudioFile') }} : {{ selectedStep.form.audioStream }}</div>
+              <div v-if="selectedStep.form.audioStream[lang] && selectedStep.form.audioStream[lang] !== ''">
+                <div>{{ $t('label.YourAudioFile') }} : {{ selectedStep.form.audioStream[lang] }}</div>
                 <div class="centered"><a class="dark" @click="removeAudio">{{$t('label.Remove')}}</a></div>
               </div>
-              <div v-if="!selectedStep.form.audioStream || selectedStep.form.audioStream === ''">
+              <div v-if="!selectedStep.form.audioStream[lang] || selectedStep.form.audioStream[lang] === ''">
                 {{ $t('label.AddAnAudioFile') }}:
                 <input @change="uploadAudio" ref="audiofile" type="file" accept="audio/mp3" />
               </div>
@@ -1276,7 +1276,8 @@ export default {
           },
           countDownTime: {
             enabled: false
-          }
+          },
+          audioStream: {}
         },
         formatedConditions: [],
         newCondition: {
@@ -1491,7 +1492,7 @@ export default {
         backgroundImage: null,
         // info-video step specific
         videoStream: null,
-        audioStream: null,
+        audioStream: {},
         // geoloc step specific
         answerPointerCoordinates: {top: 50, left: 50},
         answerItem: null,
@@ -1622,6 +1623,11 @@ export default {
       }
       if (!this.selectedStep.form.options.hasOwnProperty('blurEffect')) {
         this.selectedStep.form.options.blurEffect = false
+      }
+      
+      // initialize option "use HTML in description"
+      if (!this.selectedStep.form.options.hasOwnProperty('html')) {
+        this.selectedStep.form.options.html = false
       }
       
       // initialize specific steps
@@ -3190,8 +3196,8 @@ export default {
       let uploadAudioResult = await StepService.uploadAudio(this.quest.questId, data)
       if (uploadAudioResult && uploadAudioResult.hasOwnProperty('data')) {
         if (uploadAudioResult.data.file) {
-          this.selectedStep.form.audioStream = uploadAudioResult.data.file
-          this.$forceUpdate()
+          Notification(this.$t('label.UploadSucessful'), 'positive')
+          this.$set(this.selectedStep.form.audioStream, this.lang, uploadAudioResult.data.file)
         } else if (uploadAudioResult.data.message && uploadAudioResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -3203,7 +3209,7 @@ export default {
       this.$q.loading.hide()
     },
     async removeAudio() {
-      this.selectedStep.form.audioStream = ""
+      this.selectedStep.form.audioStream[this.lang] = ""
     }
   },
   validations() {

@@ -1090,7 +1090,8 @@ module.exports = {
       YouCanNotPlayAgainThisGameToday: "You can play again tomorrow",
       CustomizeRightAnswerMessage: "Custom right answer message",
       CustomizeWrongAnswerMessage: "Custom wrong answer message",
-      RotateVideo: "Rotate the video 90°"
+      RotateVideo: "Rotate the video 90°",
+      UploadSucessful: "Upload successful"
     }
   },
   fr: {
@@ -2171,7 +2172,8 @@ module.exports = {
       YouCanNotPlayAgainThisGameToday: "Vous pouvez rejouer demain",
       CustomizeRightAnswerMessage: "Message de bonne réponse personnalisé",
       CustomizeWrongAnswerMessage: "Message de mauvaise réponse personnalisé",
-      RotateVideo: "Tourner la vidéo de 90°"
+      RotateVideo: "Tourner la vidéo de 90°",
+      UploadSucessful: "Fichier chargé sur le serveur avec succès"
     }
   }
 }
