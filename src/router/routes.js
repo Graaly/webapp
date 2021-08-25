@@ -1,5 +1,7 @@
 import MainLayout from 'layouts/main'
 
+import CustomerConfiguration from 'boot/CustomerConfiguration'
+
 import Home from 'pages/home'
 import Map from 'pages/quest/map'
 
@@ -30,6 +32,8 @@ import AdminMinigamesBuilder from 'pages/admin/minigamebuilder.vue'
 import UserCreateAccount from 'pages/user/createAccount'
 //import UserFirstUsage from 'pages/user/firstusage'
 import ErrorMessage from 'pages/errorMessage'
+
+console.log(CustomerConfiguration)
 
 export default [
   {
@@ -124,7 +128,7 @@ export default [
       {
         path: 'user/login',
         name: 'signin',
-        component: UserLogin,
+        component: CustomerConfiguration.LOGIN_PAGE ? CustomerConfiguration.LOGIN_PAGE : UserLogin,
         meta: { requiresAuth: false }
       },
       {

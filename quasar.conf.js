@@ -17,6 +17,7 @@ module.exports = function (ctx) {
       'VueGoogleMaps',
       'VueI18n',
       'Vuelidate',
+      'CustomerConfiguration',
       ctx.mode.cordova ? 'google-analytics' : ''
     ],
     css: [

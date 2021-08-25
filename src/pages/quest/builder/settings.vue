@@ -2672,7 +2672,8 @@ export default {
      * Create a new draft version for this quest
      */
     async createNewVersion() {
-      var _this = this; // workaround for closure scope quirks
+      var _this = this // workaround for closure scope quirks
+      this.quest.status = "waiting"
 
       this.$q.dialog({
         dark: true,

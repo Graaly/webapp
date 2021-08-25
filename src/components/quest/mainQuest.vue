@@ -1,5 +1,11 @@
 <template>
-  <div class="main-quest relative-position" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
+  <div class="main-quest relative-position">
+    <div class="absolute-position fullwidth" :style="'background: url(' + getThumbImage() + ' ) center center /cover no-repeat; height: 35vh'">
+      <div class="absolute-position fullwidth" style="height: 20vh;">
+      </div>
+      <div class="absolute-position fullwidth" style="background: linear-gradient(to bottom, transparent, #323232); height: 15vh;">
+      </div>
+    </div>
     <div v-if="!quest" class="absolute-center">
       <q-spinner-dots
         color="primary"
@@ -7,19 +13,19 @@
       />
     </div>
     <div v-if="quest">
-      <div class="centered main-quest-banner q-pa-md" style="background: linear-gradient(to bottom, transparent, #323232);">
+      <div class="centered main-quest-banner q-pa-md">
         <div class="title2">
-          {{ quest.title }}
+          
         </div>
         <div class="q-pt-md q-pb-md subtitle6">
-          {{ $t('label.Difficulty' + quest.level) }}
+          <!--{{ $t('label.Difficulty' + quest.level) }}
           <img src="statics/images/icon/separator.png" />
           <span class="q-mx-sm" v-if="quest.premiumPrice && quest.premiumPrice.androidId && quest.premiumPrice.active">{{ $t('label.Paying') }}</span>
           <span class="q-mx-sm" v-if="!(quest.premiumPrice && quest.premiumPrice.androidId && quest.premiumPrice.active)">{{ $t('label.Free') }}</span>
           <span v-if="quest.availablePoints && quest.availablePoints.maxPts">
             <img src="statics/images/icon/separator.png" />
             +{{ quest.availablePoints.maxPts }} {{ $t('label.points') }}
-          </span>
+          </span>-->
         </div>
         <div>
           <q-btn 
@@ -68,6 +74,23 @@ export default {
         return this.quest.picture
       } else if (this.quest.picture) {
         return this.serverUrl + '/upload/quest/' + this.quest.picture
+      } else {
+        return 'statics/images/quest/default-quest-picture.png'
+      }
+    },
+    /*
+     * get thumb image
+     */
+    getThumbImage () {
+      if (!this.quest) {
+        return ''
+      }
+      if (this.quest.thumb && this.quest.thumb[0] === '_') {
+        return 'statics/images/quest/' + this.quest.thumb
+      } else if (this.quest.thumb && this.quest.thumb.indexOf('blob:') !== -1) {
+        return this.quest.thumb
+      } else if (this.quest.thumb) {
+        return this.serverUrl + '/upload/quest/' + this.quest.thumb
       } else {
         return 'statics/images/quest/default-quest-picture.png'
       }
