@@ -1091,7 +1091,8 @@ module.exports = {
       CustomizeRightAnswerMessage: "Custom right answer message",
       CustomizeWrongAnswerMessage: "Custom wrong answer message",
       RotateVideo: "Rotate the video 90°",
-      UploadSucessful: "Upload successful"
+      UploadSucessful: "Upload successful",
+      RemoveObjectFromInventoryAfterUse: "Remove object from inventory after use"
     }
   },
   fr: {
@@ -2173,7 +2174,8 @@ module.exports = {
       CustomizeRightAnswerMessage: "Message de bonne réponse personnalisé",
       CustomizeWrongAnswerMessage: "Message de mauvaise réponse personnalisé",
       RotateVideo: "Tourner la vidéo de 90°",
-      UploadSucessful: "Fichier chargé sur le serveur avec succès"
+      UploadSucessful: "Fichier chargé sur le serveur avec succès",
+      RemoveObjectFromInventoryAfterUse: "Supprimer l'objet de l'inventaire après"
     }
   }
 }

@@ -465,13 +465,16 @@
           :label="$t('label.ObjectToUse')"
           :options="config.useItem.questItemsAsOptions"
           v-model="selectedStep.form.answerItem"
-          @change="$v.selectedStep.form.answerItem.$touch"
+          @change="$v.selectedStep.form.answerItem.$touch;"
           bottom-slots
           :error="$v.selectedStep.form.answerItem && $v.selectedStep.form.answerItem.$error"
           :error-message="$t('label.RequiredField')"/>
         <div v-if="selectedStep.form.answerItem">
           {{ $t('label.SelectedObject') }} :
           <img style="width: 100%" :src="(selectedStep.form.answerItem.indexOf('statics/') !== -1 ? selectedStep.form.answerItem : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + selectedStep.form.answerItem)" />
+        </div>
+        <div v-if="selectedStep.form.answerItem">
+          <q-toggle v-model="selectedStep.form.options.removeObjectAfterUse" :label="$t('label.RemoveObjectFromInventoryAfterUse')" />
         </div>
         <div>
           <div v-if="!isIOs">
@@ -1373,7 +1376,8 @@ export default {
           questItemsAsOptions: [],
           crossSize: 40,
           imageHeight: 1200,
-          imageWidth: 900
+          imageWidth: 900,
+          stepsOfItems: []
         },
         findItem: {
           numberOfAreas: [
@@ -1924,6 +1928,9 @@ export default {
       }
       if (this.options.type.code === 'use-item') {
         this.selectedStep.form.answers = {coordinates: this.selectedStep.form.answerPointerCoordinates, item: this.selectedStep.form.answerItem}
+        if (this.selectedStep.form.options.removeObjectAfterUse) {
+          this.selectedStep.form.options.stepOfObjectToRemove = config.useItem.stepsOfItems[this.selectedStep.form.answerItem]
+        }
       }
       if (this.options.type.code === 'new-item') {
         if (!this.selectedStep.form.options.titles) {
@@ -2818,8 +2825,9 @@ export default {
         this.questItems.forEach((item) => {
           options.push({
             value: item.picture,
-            label: item.title
+            label: item.title,
           })
+          config.useItem.stepsOfItems[item.picture] = item.step
         })
         options.sort((a, b) => { return a.label > b.label ? 1 : -1 })
         this.config.useItem.questItemsAsOptions = options
