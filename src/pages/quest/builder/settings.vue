@@ -1513,7 +1513,12 @@ export default {
           { label: '60 ' + this.$t('label.minutes'), value: 60 },
           { label: '90 ' + this.$t('label.minutes'), value: 90 },
           { label: '120 ' + this.$t('label.minutes'), value: 120 },
+          { label: '180 ' + this.$t('label.minutes'), value: 180 },
           { label: '240 ' + this.$t('label.minutes'), value: 240 },
+          { label: '300 ' + this.$t('label.minutes'), value: 300 },
+          { label: '360 ' + this.$t('label.minutes'), value: 360 },
+          { label: '420 ' + this.$t('label.minutes'), value: 420 },
+          { label: '480 ' + this.$t('label.minutes'), value: 480 },
           { label: this.$t('label.DoNotDisplay'), value: 999 }
         ]
       },

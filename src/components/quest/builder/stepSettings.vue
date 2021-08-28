@@ -1929,7 +1929,7 @@ export default {
       if (this.options.type.code === 'use-item') {
         this.selectedStep.form.answers = {coordinates: this.selectedStep.form.answerPointerCoordinates, item: this.selectedStep.form.answerItem}
         if (this.selectedStep.form.options.removeObjectAfterUse) {
-          this.selectedStep.form.options.stepOfObjectToRemove = config.useItem.stepsOfItems[this.selectedStep.form.answerItem]
+          this.selectedStep.form.options.stepOfObjectToRemove = this.config.useItem.stepsOfItems[this.selectedStep.form.answerItem]
         }
       }
       if (this.options.type.code === 'new-item') {
@@ -2827,7 +2827,7 @@ export default {
             value: item.picture,
             label: item.title,
           })
-          config.useItem.stepsOfItems[item.picture] = item.step
+          this.config.useItem.stepsOfItems[item.picture] = item.step
         })
         options.sort((a, b) => { return a.label > b.label ? 1 : -1 })
         this.config.useItem.questItemsAsOptions = options

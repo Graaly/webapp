@@ -3104,10 +3104,11 @@ export default {
         this.geolocation.GPSdistance = utils.distanceInKmBetweenEarthCoordinates(destinationPosition.lat, destinationPosition.lng, current.latitude, current.longitude) * 1000 // meters
         let rawDirection = utils.bearingBetweenEarthCoordinates(current.latitude, current.longitude, destinationPosition.lat, destinationPosition.lng)
         
-        if (this.geolocation.lowGpsAccuracy || this.geolocation.lowCompassAccuracy) {
+        //Removed by EMA on 28/09/2021 because message sent to user was not relevant "The object is too far to be seen"
+        /*if (this.geolocation.lowGpsAccuracy || this.geolocation.lowCompassAccuracy) {
           // avoid using an inaccurate position for the remaining of the process
           return
-        }
+        }*/
         
         this.geolocation.rawDirection = rawDirection
         
@@ -3127,7 +3128,6 @@ export default {
           this.geolocation.position.x = Math.sin(finalDirection) * this.geolocation.GPSdistance
           this.geolocation.position.y = Math.cos(finalDirection) * this.geolocation.GPSdistance
         }
-        
         if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.geolocation.target.scene !== null) {
           let target = this.geolocation.target
           let scene = target.scene
