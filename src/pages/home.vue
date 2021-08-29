@@ -37,6 +37,16 @@
         </div>
       </div>
       
+      
+      <!--====================== QR CODE BUTTON =================================-->
+      
+      <div class="q-px-md q-pt-lg q-pb-lg cursor-pointer centered" v-if="!offline.active">
+        <div class="q-pb-md">Vous avez reçu un QR code ?</div>
+        <div class="image-button" @click="startScanQRCode" style="background-image: url(statics/images/icon/scan-button.png)">
+          {{ $t('label.ScanQRCode') }}
+        </div>
+      </div>
+      
       <!--====================== WARNINGS =================================-->
       
       <div class="centered bg-warning q-pa-sm" v-if="warnings.noNetwork">
@@ -70,14 +80,6 @@
         <titleBar v-if="extraQuests.title && extraQuests.title[$t('label.shortLang')]" :title="{text: extraQuests.title[$t('label.shortLang')], type: 'key'}"></titleBar>
 
         <questsList format="small" :quests="extraQuests.items"></questsList>
-      </div>
-      
-      <!--====================== QR CODE BUTTON =================================-->
-      
-      <div class="q-px-md q-pt-lg cursor-pointer" v-if="!offline.active">
-        <div class="image-button" @click="startScanQRCode" style="background-image: url(statics/images/icon/scan-button.png)">
-          {{ $t('label.ScanQRCode') }}
-        </div>
       </div>
       
       <!--====================== OTHER QUEST =================================-->
@@ -436,8 +438,8 @@ export default {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
             if (result && result.text) {
-              let code = utils.removeUnusedUrl(result.text)
-              _this.checkCode(code)
+              //let code = utils.removeUnusedUrl(result.text)
+              _this.checkCode(result.text)
             }
           },
           function (error) {
@@ -469,6 +471,7 @@ export default {
      * @param   {String}  code            QR Code value
      */
     async checkCode(code) {
+      code = utils.removeUnusedUrl(code)
       let checkStatus = await QuestService.checkQRCode(code, this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
         if (code.indexOf('_score') === -1) {

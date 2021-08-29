@@ -431,9 +431,7 @@ export default {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
             if (result && result.text) {
-              // remove unused data
-              let code = utils.removeUnusedUrl(result.text)
-              _this.checkCode(code)
+              _this.checkCode(result.text)
             }
           },
           function (error) {
@@ -493,6 +491,7 @@ export default {
      * @param   {String}  code            QR Code value
      */
     async checkCode(code) {
+      code = utils.removeUnusedUrl(code)
       let checkStatus = await QuestService.checkLoginQRCode(code, this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
         if (checkStatus.data.user) {

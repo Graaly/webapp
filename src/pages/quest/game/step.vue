@@ -33,6 +33,7 @@
         :answer="offline.answer"
         :player="player"
         :timer="countDownTime"
+        :quest="info.quest"
         @played="trackStepPlayed" 
         @success="trackStepSuccess" 
         @fail="trackStepFail" 
@@ -974,12 +975,23 @@ export default {
               this.warnings.stepDataMissing = true
             }
           }
-          if (tempStep.audioStream && tempStep.audioStream !== '') {
-            const audioUrl = await utils.readBinaryFile(this.questId, tempStep.audioStream)
-            if (audioUrl) {
-              tempStep.audioStream = audioUrl
-            } else {
-              this.warnings.stepDataMissing = true
+          if (tempStep.audioStream) {
+            let mainLang = this.info.quest.mainLanguage
+            if (tempStep.audioStream[this.lang] && tempStep.audioStream[this.lang] !== '') {
+              const audioUrl = await utils.readBinaryFile(this.questId, tempStep.audioStream[this.lang])
+              if (audioUrl) {
+                tempStep.audioStream[this.lang] = audioUrl
+              } else {
+                this.warnings.stepDataMissing = true
+              }
+            } else if (this.lang !== mainLang && tempStep.audioStream[mainLang] && tempStep.audioStream[mainLang] !== '') {
+              // no audio available in current language => try to load audio for main language if different from current language 
+              const audioUrl = await utils.readBinaryFile(this.questId, tempStep.audioStream[mainLang])
+              if (audioUrl) {
+                tempStep.audioStream[mainLang] = audioUrl
+              } else {
+                this.warnings.stepDataMissing = true
+              }
             }
           }
           if (tempStep.type === 'choose' && tempStep.options) {
@@ -1340,11 +1352,19 @@ export default {
      * get audio sound
      */
     getAudioSound () {
-      if (this.info.quest.customization && this.info.quest.customization.audio) {
-        if (this.info.quest.customization.audio.indexOf('blob:') !== -1) {
-          this.info.audio = this.info.quest.customization.audio
+      let mainLang = this.info.quest.mainLanguage
+      let finalLang = this.lang
+      let hasAudioForCurrentLang = (this.info.quest.customization && this.info.quest.customization.audio && this.info.quest.customization.audio[this.lang] && this.info.quest.customization.audio[this.lang] !== '')
+      let hasAudioForMainLang = (this.info.quest.customization && this.info.quest.customization.audio && this.info.quest.customization.audio[mainLang] && this.info.quest.customization.audio[mainLang] !== '')
+      
+      if (hasAudioForCurrentLang || hasAudioForMainLang) { // some audio is available
+        if (!hasAudioForCurrentLang && hasAudioForMainLang && mainLang !== this.lang) { // no audio in current lang ? take main lang audio
+          finalLang = mainLang
+        }
+        if (this.info.quest.customization.audio[finalLang].indexOf('blob:') !== -1) {
+          this.info.audio = this.info.quest.customization.audio[finalLang]
         } else {
-          this.info.audio = this.serverUrl + '/upload/quest/' + this.info.quest.customization.audio
+          this.info.audio = this.serverUrl + '/upload/quest/' + this.info.quest.customization.audio[finalLang]
         }
       } else {
         this.info.audio = null
@@ -1715,10 +1735,19 @@ console.log("hint not available")
             }
           }
           // get customized sound
-          if (this.info.quest.customization && this.info.quest.customization.audio && this.info.quest.customization.audio !== '' && !this.isIOs) {
-            const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio)
-            if (audioUrl) {
-              this.info.quest.customization.audio = audioUrl
+          if (this.info.quest.customization && this.info.quest.customization.audio) {
+            let mainLang = this.info.quest.mainLanguage
+            if (this.info.quest.customization.audio[this.lang] && this.info.quest.customization.audio[this.lang] !== '') {
+              const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio[this.lang])
+              if (audioUrl) {
+                this.info.quest.customization.audio[this.lang] = audioUrl
+              }
+            } else if (this.lang !== mainLang && this.info.quest.customization.audio[mainLang] && this.info.quest.customization.audio[mainLang] !== '') {
+              // no audio available in current language => try to load audio for main language if different from current language 
+              const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio[mainLang])
+              if (audioUrl) {
+                this.info.quest.customization.audio[mainLang] = audioUrl
+              }
             }
           }
           // get customized hint character
@@ -2256,9 +2285,9 @@ console.log("hint not available")
       }
       
       // Treat RANDOM conditions, IF NO OTHER CONDITION MATCH
-      if (this.info.quest.editorMode === 'advanced' === 'advanced' && stepsofChapter && stepsofChapter.length > 0) {
+      if (this.info.quest.editorMode === 'advanced' && stepsofChapter && stepsofChapter.length > 0) {
         let randomIds = []
-        for (var i = 0; i < stepsofChapter.length; i++) {
+        for (let i = 0; i < stepsofChapter.length; i++) {
           // check if the step is not already done by player AND IS A RANDOM STEP
           if (stepsofChapter[i].conditions.length > 0 && stepsofChapter[i].conditions[0].indexOf('stepRandom_') !== -1 && this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
             // check if step concerned is done
@@ -2532,7 +2561,10 @@ console.log("hint not available")
      * cut audio for video or step with audio
      */
     manageAudio () {
-      if (this.step.type === 'info-video' || (this.step.audioStream && this.step.audioStream !== '')) {
+      // audio available for current step ? (either for current language or main quest language)
+      let hasAudioForCurrentStep = this.step.audioStream && ((this.step.audioStream[this.lang] && this.step.audioStream[this.lang] !== '') || (this.step.audioStream[this.info.quest.mainLanguage] && this.step.audioStream[this.info.quest.mainLanguage] !== ''))
+      
+      if (this.step.type === 'info-video' || hasAudioForCurrentStep) {
         this.cutSound()
         this.sound.tempMute = true
       } else if (this.sound.tempMute) {

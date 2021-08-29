@@ -79,7 +79,7 @@
             </q-card-section>
 
             <q-card-section class="subtitle5">
-              {{ $t('label.PrivateProQuestDesc1') }}
+              <div v-html="$t('label.PrivateProQuestDesc1')"></div>
             </q-card-section>
 
             <q-separator />
