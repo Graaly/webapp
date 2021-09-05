@@ -3347,20 +3347,20 @@ export default {
       this.takingSnapshot = true
       this.$q.loading.show()
       this.$emit('hideButtons')
-      var _this = this
+      let _this = this
       if (this.isIOs && CameraPreview) {
         CameraPreview.takePicture({quality: 85}, function(base64PictureData) {
           const imageSrcData = 'data:image/jpeg;base64,' +base64PictureData
           var image = document.getElementById('snapshotImageIos')
           image.src = imageSrcData
+          _this.$q.loading.hide()
           setTimeout(function () { _this.takeSnapshot() }, 2000)
         });
       } else {
         // generate a snapshot of the video flow
         this.imageCapture.takePhoto()
           .then(blob => {
-            var image = document.getElementById('snapshotImage')
-            image.src = URL.createObjectURL(blob)
+            let image = document.getElementById('snapshotImage')
             image.onload = function() {
               const width = image.width
               const height = image.height
@@ -3381,12 +3381,13 @@ export default {
               image.style.height = width + "px"
               image.style.top = ((height - width) / 2) + "px"
               image.style.left = ((width - height) / 2) + "px"*/
-              
-              setTimeout(function () { _this.takeSnapshot() }, 2000)
+              _this.$q.loading.hide()
+              setTimeout(function () { _this.takeSnapshot() }, 1000)
             }
+            image.src = URL.createObjectURL(blob)
           })
           .catch(err => { 
-            Notification(_this.$t('label.SnapshotTakenIssue'), 'info'); console.log(err) 
+            Notification(_this.$t('label.SnapshotTakenIssue'), 'error'); console.log(err) 
             _this.$q.loading.hide()
             _this.$emit('showButtons')
           })
@@ -3419,24 +3420,30 @@ export default {
      * take a snapshot of the screen
      */
     takeSnapshot() {
-      var _this = this
-      this.$q.loading.hide()
+      let _this = this
       navigator.screenshot.save(function (error, res) {
         if (error) {
           console.error(error)
-          Notification(_this.$t('label.ErrorTakingSnapshot'), 'info')
+          Notification(_this.$t('label.ErrorTakingSnapshot'), 'error')
+          _this.$emit('showButtons')
         } else {
-          var permissions = cordova.plugins.permissions
-          permissions.requestPermission(permissions.READ_EXTERNAL_STORAGE, function(status) {
-            if (status.hasPermission) {
-              _this.saveSnapshot(res)
-            } else {
-              Notification(_this.$t('label.ErrorTakingSnapshot'), 'info')
-            }
-          }, alert)
+          if (_this.quest.customization && _this.quest.customization.saveSelfieOnServer) {
+            let permissions = cordova.plugins.permissions
+            permissions.requestPermission(permissions.READ_EXTERNAL_STORAGE, function(status) {
+              if (status.hasPermission) {
+                _this.saveSnapshot(res)
+              } else {
+                Notification(_this.$t('label.ErrorTakingSnapshot'), 'error')
+                _this.takingSnapshot = false
+                _this.$emit('showButtons')
+              }
+            }, alert)
+          } else {
+            Notification(_this.$t('label.SnapshotTaken'), 'positive')
+            _this.takingSnapshot = false
+            _this.$emit('showButtons')
+          }
         }
-        _this.takingSnapshot = false
-        _this.$emit('showButtons')
       })
     },
     async saveSnapshot(mediaFile) {
@@ -3456,19 +3463,22 @@ export default {
         )
         // convert binary to blob of the image content
         const picture = new Blob([new Uint8Array(fileBinary)], { type: "image/jpg" })
-        var data = new FormData()
+        let data = new FormData()
         data.append('image', picture)
-        var _this = this
+        let _this = this
         StepService.uploadSnapshot(this.step.questId, data, function(err, result) {
           if (err) {
-            Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
+            Notification(_this.$t('label.ErrorTakingSnapshot'), 'error')
           } else {
             Notification(_this.$t('label.SnapshotTaken'), 'info')
           }
+          _this.takingSnapshot = false
+          _this.$emit('showButtons')
         })
       } catch (error) {
         Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
-        console.log("Error: " + error)
+        console.log("Error: ", error)
+        _this.$emit('showButtons')
       }
     },
     /*
