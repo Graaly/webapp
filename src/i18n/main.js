@@ -435,7 +435,7 @@ module.exports = {
       PublicationRequested: "Publication requested",
       PublicationRejected: "Publication rejected. You will receive an email explaning why",
       QuestPublicationRejected: "Your game has not been published. You will receive an email to explain you how to update it to have it published",
-      TouchTheObject: "You found it! Touche it now !",
+      TouchTheObject: "You found it! Touch it now!",
       ObjectSize: "Object size",
       TouchDistance: "Object can be touched nearer than...",
       YouWonABonus: "You won a bonus",
