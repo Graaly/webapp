@@ -806,6 +806,7 @@ module.exports = {
       GeneralWarning: "<b>For your safety</b>, do not play Graaly driving or riding your bicycle, always be alert to what is happening around you, do not enter private property without permission, follow the safety rules when you move.",
       RemoveScoringAndRating: "Hide the score and the rating",
       TypeEndMessage: "Text replacing the scoring and rating final screen",
+      TypeEndMessageForPerfectScore: "Customized text if user has all answers right",
       ThanksForPlaying: "Thanks for playing this game. See you later with new games!",
       EnlargePictureToFullWidth: "Enlarge the picture to full screen",
       EnlargePictureToFullHeight: "Enlarge the picture to full height",
@@ -1092,7 +1093,10 @@ module.exports = {
       CustomizeWrongAnswerMessage: "Custom wrong answer message",
       RotateVideo: "Rotate the video 90°",
       UploadSucessful: "Upload successful",
-      RemoveObjectFromInventoryAfterUse: "Remove object from inventory after use"
+      RemoveObjectFromInventoryAfterUse: "Remove object from inventory after use",
+      ModifyTheHint: "Modify the hint",
+      AddAGameSnapshot: "Add a game snapshot",
+      Snapshots: "Snapshot(s)"
     }
   },
   fr: {
@@ -1889,6 +1893,7 @@ module.exports = {
       GeneralWarning: "<b>Pour votre sécurité</b>, ne jouez pas à Graaly en conduisant ou quand votre vélo est en mouvement, soyez toujours vigilant à ce qui se passe autour de vous, ne pénétrez pas dans des propriétés privées sans autorisation, respectez les règles de sécurité quand vous vous déplacez.",
       RemoveScoringAndRating: "Cacher le score et la notation",
       TypeEndMessage: "Texte de fin qui remplace l'écran de score et de notation",
+      TypeEndMessageForPerfectScore: "Texte de fin personnalisé si le joueur a toutes les bonnes réponses",
       ThanksForPlaying: "Merci d'avoir joué à ce jeu. A bientôt pour d'autres jeux !",
       EnlargePictureToFullWidth: "Elargir l'image en plein écran (déformer)",
       EnlargePictureToFullHeight: "Elargir l'image en pleine hauteur",
@@ -2175,7 +2180,10 @@ module.exports = {
       CustomizeWrongAnswerMessage: "Message de mauvaise réponse personnalisé",
       RotateVideo: "Tourner la vidéo de 90°",
       UploadSucessful: "Fichier chargé sur le serveur avec succès",
-      RemoveObjectFromInventoryAfterUse: "Supprimer l'objet de l'inventaire après"
+      RemoveObjectFromInventoryAfterUse: "Supprimer l'objet de l'inventaire après",
+      ModifyTheHint: "Modifier l'indice",
+      AddAGameSnapshot: "Ajouter une capture du jeu",
+      Snapshots: "Capture(s)"
     }
   }
 }

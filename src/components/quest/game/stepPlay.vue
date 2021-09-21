@@ -2556,11 +2556,12 @@ export default {
      * Send good answer  
      */
     submitGoodAnswer(score, offlineMode, showResult, answer) {
-      if (showResult) {
+      /*if (showResult) {
         this.playerResult = true
       } else {
         this.playerResult = null
-      }
+      }*/
+      this.playerResult = true
       
       if (
         this.step.countDownTime !== undefined &&
@@ -2642,11 +2643,13 @@ export default {
         this.stopcountdown()
       }
       
-      if (showResult) {
+      /*if (showResult) {
         this.playerResult = false
       } else {
         this.playerResult = null
-      }
+      }*/
+      this.playerResult = false
+      
       this.stepPlayed = true
       
       this.$emit('fail', offlineMode, showResult, answer)

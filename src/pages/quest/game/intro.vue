@@ -70,7 +70,7 @@
             <span v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</span>
             <span v-if="quest.duration && quest.duration >= 60">{{ quest.duration / 60 }}{{ $t('label.hoursSimplified') }}</span>
           </div>
-          <div v-if="quest.type === 'quest' && (!quest.customization || !quest.customization.removeScoring)" class="q-mr-lg">
+          <div v-if="quest.type === 'quest'" class="q-mr-lg">
             <span v-if="!quest.premiumPrice.tier && shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">
               <img src="statics/images/icon/cost.svg" class="medium-icon" />
               <span v-if="!shop.premiumQuest.alreadyPayed">{{ $t('label.Free') }}</span>
@@ -78,10 +78,10 @@
             </span>
             <span v-if="shop.premiumQuest.priceCode !== 'free' && quest.type === 'quest'">
               <img src="statics/images/icon/cost.svg" class="medium-icon" />
-              <span>{{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }}</span>
+              <span>{{ shop.premiumQuest.priceValue === '0' ? ((quest.premiumPrice && quest.premiumPrice.prices && quest.premiumPrice.prices.fr) ? quest.premiumPrice.prices.fr : '...') : shop.premiumQuest.priceValue }}</span>
             </span>
           </div>
-          <div v-if="!quest.customization || !quest.customization.removeScoring">
+          <div>
             <q-rating v-if="quest.rating && quest.rating.rounded" readonly v-model="quest.rating.rounded" color="yellow-8" :max="5" size="0.8em" />
           </div>
         </div>
@@ -203,6 +203,9 @@
           </p>
         </div>
       </div>
+
+      <!------------------ GAME DESCRIPTION ------------------------>
+      
       <div class="q-pa-md">
         <div class="text-subtitle2" v-html="this.quest.description"></div>
         <div v-if="isUserTooFar && !quest.allowRemotePlay" class="q-pt-md">
@@ -215,6 +218,22 @@
       </div>
       <div v-if="quest.type === 'room'" class="q-pa-md subtitle5">
         {{ $t('label.RoomDataWarning') }}
+      </div>
+      
+      <!------------------ SNAPSHOTS ------------------------>
+      
+      <div v-if="quest.snapshots && quest.snapshots.length > 0">
+        <div class="row">
+          <div class="col-4 centered q-pa-sm" v-if="quest.snapshots.length > 0">
+            <img style="width: 100%" :src="serverUrl + '/upload/quest/' + quest.questId + '/snapshot/' + quest.snapshots[0]" />
+          </div>
+          <div class="col-4 centered q-pa-sm" v-if="quest.snapshots.length > 1">
+            <img style="width: 100%" :src="serverUrl + '/upload/quest/' + quest.questId + '/snapshot/' + quest.snapshots[1]" />
+          </div>
+          <div class="col-4 centered q-pa-sm" v-if="quest.snapshots.length > 2">
+            <img style="width: 100%" :src="serverUrl + '/upload/quest/' + quest.questId + '/snapshot/' + quest.snapshots[2]" />
+          </div>
+        </div>
       </div>
     </div>
     
@@ -347,7 +366,7 @@
                 <div class="text-h6">{{ $t('label.BuyInOneClick') }}</div>
               </q-card-section>
               <q-card-section class="bg-primary subtitle5 q-pa-md centered">
-                <q-btn @click="buyQuest()" class="glossy large-button text-primary bg-white" v-if="quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)" :disabled="!shop.premiumQuest.buyable"><span>{{ $t('label.Buy') }} ({{ shop.premiumQuest.priceValue === '0' ? '...' : shop.premiumQuest.priceValue }})</span></q-btn>
+                <q-btn @click="buyQuest()" class="glossy large-button text-primary bg-white" v-if="quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)" :disabled="!shop.premiumQuest.buyable"><span>{{ $t('label.Buy') }} ({{ shop.premiumQuest.priceValue === '0' ? ((quest.premiumPrice && quest.premiumPrice.prices && quest.premiumPrice.prices.fr) ? quest.premiumPrice.prices.fr : '...') : shop.premiumQuest.priceValue }})</span></q-btn>
               </q-card-section>
             </q-card>
           </div>
@@ -778,9 +797,9 @@ export default {
         return 'free'
       }*/
       // if game is already started or played, do not pay
-      if (this.isRunStarted || this.isRunFinished) {
+      /*if (this.isRunStarted || this.isRunFinished) {
         return 'free'
-      }
+      }*/
       // init Store pay
       //if (!window.store) {
       if (!window.cordova) {
