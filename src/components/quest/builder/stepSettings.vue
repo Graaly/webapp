@@ -1849,6 +1849,14 @@ export default {
         if (this.options.type.code === 'trigger-event' && !this.selectedStep.form.options.hasOwnProperty('triggerMode')) {
           this.$set(this.selectedStep.form.options, 'triggerMode', 'auto')
         }
+      } else if (this.options.type.code === 'image-over-flow') {
+        let defaultValues = {
+          fullWidthPicture: false,
+          fullHeightPicture: false,
+          snapshotAllowed: false,
+          redFilter: false
+        }
+        this.selectedStep.form.options = Object.assign(defaultValues, this.selectedStep.form.options)
       }
       
       this.originalStepData = utils.clone(this.selectedStep.form)
@@ -2825,7 +2833,7 @@ export default {
         this.questItems.forEach((item) => {
           options.push({
             value: item.picture,
-            label: item.title,
+            label: item.title
           })
           this.config.useItem.stepsOfItems[item.picture] = item.step
         })

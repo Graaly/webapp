@@ -94,7 +94,7 @@
     </q-dialog>
 
     <!------------------ CHAT PAGE AREA ------------------------>
-
+    <!--
     <transition name="slideInBottom">
       <div v-show="chat.isOpened" class="bg-graaly-blue-dark text-white inventory panel-bottom">
         <div class="q-pa-md">
@@ -103,6 +103,7 @@
         </div>
       </div>
     </transition>
+    -->
 
     <!------------------ INFO PAGE AREA ------------------------>
 
@@ -163,6 +164,7 @@
                 </span>
               </q-btn>
             </p>
+            <!--
             <p class="q-pb-xl" v-if="(info.quest.customization && info.quest.customization.chatEnabled === true)">
               <q-btn
               v-if="!offline.active" class="glossy large-button"
@@ -175,6 +177,7 @@
                 <q-badge v-if=" this.$store.state.chatNotification > 0"  color="accent" rounded floating>{{ this.$store.state.chatNotification }}</q-badge>
               </q-btn>
             </p>
+            -->
             <p class="q-pb-xl">
               <q-btn
               class="glossy large-button"
@@ -331,7 +334,7 @@ import Notification from 'boot/NotifyHelper'
 import story from 'components/story'
 import utils from 'src/includes/utils'
 
-import GMMS from 'services/GameMasterMonitoringService_mqtt'
+//import GMMS from 'services/GameMasterMonitoringService_mqtt'
 
 import { Notify } from 'quasar'
 
@@ -361,6 +364,7 @@ export default {
     if (this.isHybrid && cordova.platformId === 'android') {
       StatusBar.show()
     }
+    //GMMS.Connect(this.questId)
   },
   methods: {
     initialState () {
@@ -502,9 +506,9 @@ export default {
       this.sendStepIdToParent()
       
       // send once on start
-      if (this.info.quest.customization.chatEnabled) {
+      /*if (this.info.quest.customization.chatEnabled) {
         this.sendDataToGameMaster()
-      }
+      }*/
       
       // manage history
       this.updateHistory()
@@ -540,26 +544,7 @@ export default {
       // load component data
       this.loadStepData = true
     },
-    /**
-     * Send a chat message
-     */
-    SendChatMessage() {
-      GMMS.SendChat(this.run.questId, {
-        'time': Date.now(),
-        'player': {
-            'id': this.run.userId[0],
-            'name': this.run.userData.name
-        },
-        'quest': {
-            'id': this.run.questId
-        },
-        'step': {
-            'id': this.step.id,
-            'title': this.step.title
-        }
-      })
-    },
-    sendDataToGameMaster() {
+    /*sendDataToGameMaster() {
       GMMS.Send(this.run.questId, {
         'lastPing': Date.now(),
         'quest': {
@@ -592,11 +577,11 @@ export default {
         'graaly': process.env.VERSION
       })
       utils.setTimeout(this.sendDataToGameMaster, 15000)
-    },
+    },*/
     /*
     * Open the chat box
     */
-    async openChat() {
+    /*async openChat() {
       if (this.chat.isOpened) {
         this.closeAllPanels()
       } else {
@@ -605,7 +590,7 @@ export default {
         this.footer.tabSelected = 'info'
       }
       this.$store.commit('setChatNotification', 0)
-    },
+    },*/
     /*
      * Move to a step
      *
@@ -1515,7 +1500,7 @@ console.log("hint not available")
       this.info.isOpened = false
       this.hint.isOpened = false
       this.footer.tabSelected = 'none'
-      this.chat.isOpened = false
+      //this.chat.isOpened = false
     },
     hideFooterButtons() {
       this.footer.show = false
@@ -2578,8 +2563,8 @@ console.log("hint not available")
       if (!this.info.quest.customization || !this.info.quest.customization.hideFullScreen) {
         document.addEventListener("deviceready", this.swithFullscreenMode, false)
       }
-    },
-    showNotif() {
+    }
+    /*showNotif() {
       this.$q.notify({
         message: `Vous avez ${this.$store.state.chatNotification === 1? 'un nouveau message' : this.$store.state.chatNotification + ' nouveaux messages'}`,
         icon: 'chat',
@@ -2589,7 +2574,7 @@ console.log("hint not available")
           { label: 'Voir', color: 'white', handler: () => { this.chat.isOpened = true } }
         ]
       })
-    }
+    }*/
   },
   computed: {
     chatNotification () {
@@ -2597,13 +2582,13 @@ console.log("hint not available")
     }
   },
   watch: {
-    chatNotification () {
+    /*chatNotification () {
       if (!chat.isOpened) {
         if (this.$store.state.chatNotification !== 0) {
           this.showNotif()
         }
       }
-    }
+    }*/
   }
 
 }

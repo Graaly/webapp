@@ -1,7 +1,8 @@
 var mqtt = require("mqtt");
 import store from '../store/index'
 import chat from './ChatService'
-var client = mqtt.connect('wss://test.mosquitto.org:8081', { username: 'gm-dash', password: '26&8eoW$VXx!xh!f*h' });
+//var client = mqtt.connect('wss://test.mosquitto.org:8081', { username: 'gm-dash', password: '26&8eoW$VXx!xh!f*h' });
+var client
 
 let GMMS = {
   Connect(questId) {
@@ -11,7 +12,7 @@ let GMMS = {
     client.on('connect', function () {
       console.log('connected to Mqtt')
       client.subscribe(topic, function (err) {
-        console.log('Subcribed to topic : ' + topic)
+        console.log('Subscribed to topic : ' + topic)
         if (err) {
           console.error(err)
         }
