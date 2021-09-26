@@ -80,7 +80,7 @@ export default [
       {
         path: 'quest/play/:id(\\w{24})',
         name: 'playhome',
-        component: QuestPlayHome,
+        component: CustomerConfiguration.QUEST_PLAY_HOME ? CustomerConfiguration.QUEST_PLAY_HOME : QuestPlayHome,
         meta: { requiresAuth: true }
       },
       {
@@ -92,7 +92,7 @@ export default [
       {
         path: 'quest/:questId(\\w{24})/end',
         name: 'playend',
-        component: QuestEnd,
+        component: CustomerConfiguration.QUEST_PLAY_END ? CustomerConfiguration.QUEST_PLAY_END : QuestEnd,
         meta: { requiresAuth: true }
       },
       {

@@ -109,8 +109,8 @@
       
       <!------------------ HELP AREA ------------------------>
       <div v-if="step.type == 'help'" :class="'font-' + customization.font" style="overflow: auto; margin-bottom: 80px;">
-        <p class="text" v-html="$t('label.HelpStepMessage')"></p>
-        <div v-if="step.options && step.options.helpNext" class="text centered">
+        <p class="text help-text " v-html="$t('label.HelpStepMessage')"></p>
+        <div v-if="step.options && step.options.helpNext" class="text help-text centered">
           <div class="white-buttons">
             <q-btn
               round
@@ -122,7 +122,7 @@
           </div>
           <div>{{ $t('label.HelpStepMessageNextMessage') }}</div>
         </div>
-        <div v-if="step.options && step.options.helpPrevious" class="text centered">
+        <div v-if="step.options && step.options.helpPrevious" class="text help-text centered">
           <div class="white-buttons">
             <q-btn
               round
@@ -134,7 +134,7 @@
           </div>
           <div>{{ $t('label.HelpStepMessagePreviousMessage') }}</div>
         </div>
-        <div v-if="step.options && step.options.helpInventory" class="text centered">
+        <div v-if="step.options && step.options.helpInventory" class="text help-text centered">
           <div class="white-buttons">
             <q-btn
               round
@@ -146,7 +146,7 @@
           </div>
           <div>{{ $t('label.HelpStepMessageInventoryMessage') }}</div>
         </div>
-        <div v-if="step.options && step.options.helpHint" class="text centered">
+        <div v-if="step.options && step.options.helpHint" class="text help-text centered">
           <div class="white-buttons">
             <q-btn
               round
@@ -158,7 +158,7 @@
           </div>
           <div>{{ $t('label.HelpStepMessageHintMessage') }}</div>
         </div>
-        <p class="text" v-html="$t('label.HelpStepMessageEnd')"></p>
+        <p class="text help-text" v-html="$t('label.HelpStepMessageEnd')"></p>
       </div>
       
       <!------------------ WIN ITEM STEP AREA ------------------------>
@@ -176,7 +176,13 @@
             
       <!------------------ END OF CHAPTER AREA ------------------------>
       
-      <div class="end-of-chapter" v-if="step.type == 'end-chapter'">
+      <div class="end-of-chapter" v-if="step.type == 'end-chapter' ">
+        {{ $t('label.ThisStepIsNotShowToPlayers') }}
+      </div>    
+      
+      <!------------------ END OF CHAPTER AREA ------------------------>
+      
+      <div class="end-of-chapter" v-if="step.type == 'increment-counter' ">
         {{ $t('label.ThisStepIsNotShowToPlayers') }}
       </div>    
       
@@ -199,7 +205,9 @@
             <img style="vertical-align:bottom;" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
             <img style="vertical-align:bottom;" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + customization.character : customization.character" />
           </div>
-          <div class="full-width" :class="(customization && customization.characterBarColor) ? '' : 'bg-black'" :style="'height: 76px; ' + ((customization && customization.characterBarColor && customization.characterBarColor !== '') ? 'background-color: ' + customization.characterBarColor : '')">
+          <div v-if="step.options && step.options.characterBarColor && step.options.characterBarColor !== ''" class="full-width" :class="(step.options && step.options.characterBarColor) ? '' : 'bg-black'" :style="'height: 76px; ' + ((step.options && step.options.characterBarColor && step.options.characterBarColor !== '') ? 'background-color: ' + step.options.characterBarColor : '')">
+          </div>
+          <div v-if="!step.options || !step.options.characterBarColor || step.options.characterBarColor === ''" class="full-width" style="height: 76px;">
           </div>
         </div>
       </div>
@@ -208,7 +216,7 @@
       
       <div class="choose" v-if="step.type == 'choose'" style="overflow: auto; margin-bottom: 80px;">
         <div v-if="showTools">
-          <div @click="hideControlsTemporaly">
+          <div>
              <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
              <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
@@ -1093,7 +1101,7 @@ export default {
         // for step type 'jigsaw puzzle'
         puzzle: {
           pieces: [],
-          picture: 'statics/icons/game/medal.png',
+          picture: 'statics/icons/game/card-back.png',
           dragSrcEl: null,
           element: {},
           colsByLevel: [1, 3, 4, 6, 5],
@@ -1371,7 +1379,7 @@ export default {
           this.deviceHasGyroscope = true
         }
         
-        if (this.step.type === 'end-chapter') {
+        if (this.step.type === 'end-chapter' || this.step.type === 'increment-counter') {
           this.checkAnswer()
         }
         
@@ -1413,10 +1421,10 @@ export default {
         }
         
         if (this.step.type === 'find-item') {
-          utils.setTimeout(this.initFindItemElements, 2000)
+          utils.setTimeout(this.initFindItemElements, 600)
         }
         if (this.step.type === 'use-item') {
-          utils.setTimeout(this.initUseItemElements, 2000)
+          utils.setTimeout(this.initUseItemElements, 600)
         }
         
         if (this.step.type === 'new-item') {
@@ -1950,11 +1958,11 @@ export default {
     },
     /*
      * Hide controls temporaly
-     */
+     *
     hideControlsTemporaly () {
       this.controlsAreDisplayed = false
       utils.setTimeout(this.showControls, 4000)
-    },
+    },*/
     /*
      * Send answer server side 
      * @param   {Object}    selectedAnswerKey            Answer object
@@ -2099,6 +2107,7 @@ export default {
         case 'new-item':
         case 'help':
         case 'end-chapter':
+        case 'increment-counter':
         case 'character':
         case 'image-over-flow':
         case 'binocular':
@@ -2591,6 +2600,7 @@ export default {
           case 'info-text': 
           case 'help': 
           case 'end-chapter': 
+          case 'increment-counter': 
           case 'info-video': 
           case 'image-over-flow': 
           case 'binocular': 
@@ -4690,6 +4700,9 @@ export default {
   .carrier-return {
     white-space: pre-wrap; 
     text-align: justify;
+  }
+  .help-text {
+    background-color: transparent;
   }
   
   #controls {

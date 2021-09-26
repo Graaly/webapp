@@ -26,7 +26,7 @@
         />
       
       <q-input
-        v-if="options.type.code !== 'end-chapter'"
+        v-if="options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter'"
         :label="$t('label.' + mainTextFieldLabel) + ' ' + currentLanguageForLabels"
         v-model="selectedStep.form.text[lang]"
         type="textarea"
@@ -906,7 +906,8 @@
             <q-btn color="primary" class="full-width" v-if="!selectedStep.newConditionForm" @click="selectedStep.newConditionForm = true" :label="$t('label.AddACondition')" />
             <div v-if="selectedStep.newConditionForm">
               <q-select emit-value map-options :label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @input="changeNewConditionType" />
-              <q-select emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
+              <q-select v-if="selectedStep.newCondition.selectedType !== 'counter'" emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
+              <q-input v-if="selectedStep.newCondition.selectedType === 'counter'" v-model="selectedStep.newCondition.selectedValue" :label="$t('label.CounterValue')" />
               <div class="centered">
                 <q-btn class="glossy normal-button" color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />
                 <q-btn class="q-mx-md" color="primary" flat @click="selectedStep.newConditionForm = false" :label="$t('label.Cancel')" />
@@ -955,6 +956,9 @@
               <q-toggle v-model="selectedStep.form.options.switchmode" :label="$t('label.AllowToSwitchGeolocationMode')" />
               <q-input v-model="selectedStep.form.options.distance" :label="$t('label.DistanceToWin')" />
             </div>
+            <div v-if="options.type.code == 'character'">
+              <q-input v-model="selectedStep.form.options.characterBarColor" :label="$t('label.CharacterBarColor')" />
+            </div>
             <div v-if="options.type.code === 'memory'">
               <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
             </div>
@@ -983,7 +987,7 @@
               <q-toggle v-model="selectedStep.form.options.resetHistory" :label="$t('label.ResetHistoryAfter')" />
               <q-toggle v-model="selectedStep.form.options.resetChapterProgression" :label="$t('label.RestartChapterAfterStep')" />
             </div>
-            <div class="background-upload" v-show="options.type.code !== 'end-chapter' && options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
+            <div class="background-upload" v-show="options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter' && options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
               <q-btn class="full-width" type="button" @click="showMedia">
                 {{ $t('label.AddABackgroundImage') }}
               </q-btn>
@@ -1009,7 +1013,7 @@
                 <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
               </div>
             </div>
-            <div v-show="options.type.code !== 'end-chapter'">
+            <div v-show="options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter'">
               <div v-if="selectedStep.form.audioStream[lang] && selectedStep.form.audioStream[lang] !== ''">
                 <div>{{ $t('label.YourAudioFile') }} : {{ selectedStep.form.audioStream[lang] }}</div>
                 <div class="centered"><a class="dark" @click="removeAudio">{{$t('label.Remove')}}</a></div>
@@ -1023,10 +1027,10 @@
               <q-toggle v-model="selectedStep.form.options.kenBurnsEffect" :label="$t('label.KenBurnsEffect')" /><br />
               <q-toggle v-model="selectedStep.form.options.blurEffect" :label="$t('label.BlurEffect')" />
             </div>
-            <div v-if="options.type.code !== 'help' && options.type.code !== 'end-chapter'">
+            <div v-if="options.type.code !== 'help' && options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter'">
               <q-toggle v-model="selectedStep.form.options.html" :label="$t('label.UseHtmlInDescription')" />
             </div>
-            <div v-show="options.type.code !== 'end-chapter'">
+            <div v-show="options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter'">
               <q-input
                 :label="$t('label.ExtraTextFieldLabel')"
                 v-model="selectedStep.form.extraText[lang]"
@@ -1289,7 +1293,8 @@ export default {
             {label: this.$t('label.FollowStep'), value: 'stepDone'},
             {label: this.$t('label.StepSuccess'), value: 'stepSuccess'},
             {label: this.$t('label.StepFail'), value: 'stepFail'},
-            {label: this.$t('label.StepRandom'), value: 'stepRandom'}
+            {label: this.$t('label.StepRandom'), value: 'stepRandom'},
+            {label: this.$t('label.StepCounter'), value: 'counter'}
           ],
           selectedValue: '',
           values: []
@@ -1614,7 +1619,7 @@ export default {
       }
       
       // define players select list
-      if (this.options.type.code === 'info-text' || this.options.type.code === 'info-video' || this.options.type.code === 'new-item' || this.options.type.code === 'character' || this.options.type.code === 'help' || this.options.type.code === 'end-chapter') {
+      if (this.options.type.code === 'info-text' || this.options.type.code === 'info-video' || this.options.type.code === 'new-item' || this.options.type.code === 'character' || this.options.type.code === 'help' || this.options.type.code === 'end-chapter' || this.options.type.code === 'increment-counter') {
         this.players.push({ label: this.$t('label.All'), value: 'All' })
       }
       for (var p = 0; p < this.quest.playersNumber; p++) {
@@ -2147,6 +2152,9 @@ export default {
             }
           }
         }
+        if (conditionParts[0] === 'counter') {
+          this.selectedStep.formatedConditions.push(this.$t("label.StepCounter") + " <i>" + conditionParts[1] + "</i>")
+        }
       }
     },
     /*
@@ -2205,6 +2213,9 @@ export default {
         }
         if (this.selectedStep.newCondition.selectedType === 'stepRandom') {
           this.selectedStep.form.conditions.push('stepRandom_' + this.selectedStep.newCondition.selectedValue)
+        }
+        if (this.selectedStep.newCondition.selectedType === 'counter') {
+          this.selectedStep.form.conditions.push('counter_' + this.selectedStep.newCondition.selectedValue)
         }
       }
       this.getUnderstandableConditions()

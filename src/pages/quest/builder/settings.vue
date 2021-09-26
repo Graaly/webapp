@@ -757,7 +757,7 @@
           </ul>
         
           <p v-if="!readOnly" class="centered">
-            <q-btn color="primary" class="glossy large-button" icon="fas fa-plus-circle" @click="addChapter()">{{ $t('label.AddASChapter') }}</q-btn>
+            <q-btn color="primary" class="glossy large-button" @click="addChapter()">{{ $t('label.AddASChapter') }}</q-btn>
           </p>
           <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items.length > 1">
             <q-btn color="primary" class="glossy large-button" icon="play_arrow" @click="testQuest()">{{ $t('label.TestYourQuest') }}</q-btn>
@@ -1951,23 +1951,25 @@ export default {
                       var maxPosition = 0
                       // find if parents are already sorted and if so add item in sorted after
                       for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
-                        let parentStepId = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
-                        parentStepId = parentStepId.replace("stepSuccess_", "")
-                        parentStepId = parentStepId.replace("stepFail_", "")
-                        parentStepId = parentStepId.replace("stepRandom_", "")
-                        // If parent is not sorted => do not treat the item
-                        if (sorted.indexOf(parentStepId) === -1) {
-                          // check that the parent exists at least in unsorted => else error
-                          if (unsorted.indexOf(parentStepId) === -1) {
-                            stepsWithNoParent.push(stepId)
-                            unsorted.splice(unsorted.indexOf(stepId), 1)
-                            sorted.push(stepId)
-                          }
-                          continue allSteps
-                        } else {
-                          let parentPosition = sorted.indexOf(parentStepId)
-                          if (parentPosition > maxPosition) {
-                            maxPosition = parentPosition
+                        if (stepsOfChapter[i].conditions[k].indexOf("counter_") === -1) {
+                          let parentStepId = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
+                          parentStepId = parentStepId.replace("stepSuccess_", "")
+                          parentStepId = parentStepId.replace("stepFail_", "")
+                          parentStepId = parentStepId.replace("stepRandom_", "")
+                          // If parent is not sorted => do not treat the item
+                          if (sorted.indexOf(parentStepId) === -1) {
+                            // check that the parent exists at least in unsorted => else error
+                            if (unsorted.indexOf(parentStepId) === -1) {
+                              stepsWithNoParent.push(stepId)
+                              unsorted.splice(unsorted.indexOf(stepId), 1)
+                              sorted.push(stepId)
+                            }
+                            continue allSteps
+                          } else {
+                            let parentPosition = sorted.indexOf(parentStepId)
+                            if (parentPosition > maxPosition) {
+                              maxPosition = parentPosition
+                            }
                           }
                         }
                       }
@@ -3189,7 +3191,7 @@ export default {
      * Filter step types based on main category code
      */
     filteredStepTypes(categoryCode) {
-      return stepTypes.filter(stepType => (stepType.category === categoryCode && stepType.enabled && !(stepType.code === 'end-chapter' && this.form.fields.editorMode === 'simple')))
+      return stepTypes.filter(stepType => (stepType.category === categoryCode && stepType.enabled && !((stepType.code === 'end-chapter' || stepType.code === 'increment-counter') && this.form.fields.editorMode === 'simple')))
     },
     /*
      * Select a step type
@@ -3225,7 +3227,7 @@ export default {
     async trackStepChanges(step) {
       this.chapters.showNewStepPageSettings = false
       this.chapters.showNewStepPage = false
-      if (step.type === 'end-chapter') {
+      if (step.type === 'end-chapter' || step.type === 'increment-counter') {
         await this.closeOverview()
         await this.refreshStepsList()
         return false

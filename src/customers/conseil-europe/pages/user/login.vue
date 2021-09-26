@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper background-map">
+  <div class="wrapper" style="background: url('../statics/customers/conseil-europe/images/background/background.png') center center / cover no-repeat; color: #fff;">
     <div v-if="showNonHybridQRReader">
       <!--====================== QR CODE READER ON WEBAPP =================================-->
       <q-toolbar>
@@ -15,108 +15,38 @@
         {{ $t('label.OnDesktopDisplayMessage') }}
       </div>-->
       <!------------------ TITLE AREA ------------------------>
-      
-      <div class="centered q-pt-lg q-pb-md">
-        <img src="statics/images/logo/logo-home.png" class="logo-top" />
-      </div>
-      
+          
       <div class="q-pa-md">
-        <div class="centered title2 q-mb-lg">TEST</div>
-        
-        <!------------------ FORM AREA ------------------------>
-        <form @submit.prevent="formSubmit">
-          <div>
-            
-            <q-input
-              id="loginemail"
-              outlined
-              type="email"
-              :label="$t('label.YourEmail')"
-              v-model="form.email"
-              @blur="$v.form.email.$touch"
-              :error="$v.form.email.$error"
-              :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
-              test-id="login"
-              />
-            
-            <q-input 
-              id="loginPass"
-              outlined
-              type="password" 
-              v-model="form.password" 
-              :label="$t('label.YourPassword')" 
-              v-if="step !== 'forgottenpassword'"
-              test-id="password"
-              />
-            
-            <!------------------ FORGOTTEN PASS AREA ------------------------>
-            
-            <p class="centered q-mt-sm q-mb-lg" v-if="step !== 'forgottenpassword'">
-              <a @click="openPasswordForgottenPopup()">{{ $t('label.ForgottenPassword') }}</a>
-            </p>
-            
-            <div v-if="step === 'forgottenpassword'">
-              <p>{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
-              <q-input outlined :label="$t('label.Code')" v-model="form.code" />
-            </div>
-            
-            <div v-if="step === 'forgottenpassword'">
-              <q-input
-                outlined
-                type="password"
-                v-model="form.newPassword"
-                :label="$t('label.YourNewPassword')"
-                @blur="$v.form.newPassword.$touch"
-                bottom-slots
-                :error="$v.form.newPassword.$error"
-                :error-message="!$v.form.newPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.form.newPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
-                />
-            </div>
-          </div>
-          
-          <div class="text-center">
-            <q-btn 
-              type="submit"
-              class="glossy large-btn"
-              color="primary" 
-              :label="$t('label.SignIn')"
-              :loading="submitting" 
-              />
-          </div>
-          <div class="centered q-mt-sm q-mb-xl">
-            <q-btn 
-              class="large-btn" 
-              outline 
-              color="primary"
-              :label="$t('label.Subscribe')"
-              @click="goToSubscribe()"
-              />
-          </div>
-          
-        </form>
-        
-        <!------------------ START PLAYING WITH QR CODE ------------------>
-        
-        <div class="q-py-md centered">
-          <q-btn 
-            class="glossy large-btn" 
-            color="accent"
-            @click="startScanQRCode()"
-            :label="$t('label.ScanA')"
-            icon-right="qr_code_2"
-            />
+      
+        <div class="centered q-pt-md q-pb-md">
+          <img src="statics/customers/conseil-europe/images/logo.png" style="width: 50%" />
         </div>
-        
         <!------------------ PLAY ANONYMOUS ------------------>
         
         <div class="q-py-md centered">
+          <div><img src="statics/customers/conseil-europe/images/flags/fr.png" /></div>
+          <div class="q-pb-md">Pour joueur à Europe Quest en français, appuyez sur le bouton JOUER</div>
           <q-btn 
             class="glossy large-btn" 
             color="accent" 
-            @click="validateTerms()"
-            :label="$t('label.LetsPlayWithoutAccount')"
+            @click="chooseLanguage('fr')"
+            label="JOUER"
             />
         </div>
+        
+        <div class="q-pt-lg centered">
+          <div><img src="statics/customers/conseil-europe/images/flags/en.png" /></div>
+          <div class="q-pb-md">To play Europe Quest game in english, press PLAY button</div>
+          <q-btn 
+            class="glossy large-btn" 
+            color="accent" 
+            @click="chooseLanguage('en')"
+            label="PLAY"
+            />
+        </div>
+        
+      
+        
         
         <!--<p class="text-center text-h6 text-grey q-mt-md q-mb-md">
           {{ $t('label.orSignInWith') }}
@@ -129,12 +59,6 @@
           <q-btn v-if="showSocialLogin.google" @click="googleLogin" class="full-width" color="google" icon="fab fa-google" label="Google" />
         </div>
         -->
-
-        <div class="centered smaller version secondary-font">
-          Version {{ version }} - 
-          <img src="statics/icons/game/flag-en.png" @click="switchLanguage('en')" /> -
-          <img src="statics/icons/game/flag-fr.png" @click="switchLanguage('fr')" />
-        </div>
       
       </div>
     </div>
@@ -202,7 +126,7 @@
         </q-item>
         
         <div class="centered q-pa-md">
-          <q-btn color="primary" class="glossy large-button" @click="playAnonymous()"><span>{{ $t('label.Confirm') }}</span></q-btn>
+          <q-btn color="accent" class="glossy large-button" @click="playAnonymousSpecific()"><span>{{ $t('label.Confirm') }}</span></q-btn>
         </div>
       </div>
     </q-dialog>
@@ -248,7 +172,9 @@ export default {
       isHybrid: window.cordova,
       serverUrl: process.env.SERVER_URL,
       submitting: false,
-      version: process.env.VERSION
+      version: process.env.VERSION,
+      
+      questId: ''
     }
   },
   mounted () {
@@ -430,9 +356,7 @@ export default {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
             if (result && result.text) {
-              // remove unused data
-              let code = utils.removeUnusedUrl(result.text)
-              _this.checkCode(code)
+              _this.checkCode(result.text)
             }
           },
           function (error) {
@@ -465,7 +389,7 @@ export default {
     /*
     * start the game
     */
-    async playAnonymous() {
+    async playAnonymousSpecific() {
       this.terms.usageError = false
       this.terms.privacyError = false
       if (this.terms.usage === false) {
@@ -478,7 +402,7 @@ export default {
           if (checkStatus.data.user) {
             window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
             axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
-            this.$router.push('/home')
+            this.$router.push('/quest/play/' + this.questId)
           } else {
             Notification(this.$t('label.ErrorStandardMessage'), 'error')
           }
@@ -492,6 +416,7 @@ export default {
      * @param   {String}  code            QR Code value
      */
     async checkCode(code) {
+      code = utils.removeUnusedUrl(code)
       let checkStatus = await QuestService.checkLoginQRCode(code, this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
         if (checkStatus.data.user) {
@@ -544,6 +469,16 @@ export default {
     },
     switchLanguage(lang) {
       this.$i18n.locale = lang
+    },
+    chooseLanguage(lang) {
+      if (lang == 'en') {
+        this.questId = '614987b04978c0273485b950'
+      }
+      if (lang == 'fr') {
+        this.questId = '614987b04978c0273485b950'
+      }
+      this.switchLanguage(lang)
+      this.validateTerms()
     }
   },
   validations: {
@@ -554,3 +489,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  .bg-accent {
+    background-color: #063b8b !important;
+  }
+</style>
