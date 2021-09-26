@@ -2593,7 +2593,7 @@ export default {
       
       this.displayReadMoreAlert()
       
-      if (showResult || (this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage !== "")) {
+      if (showResult || (this.step.options && this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage !== "")) {
         switch (this.step.type) {
           case 'character': 
           case 'new-item': 
