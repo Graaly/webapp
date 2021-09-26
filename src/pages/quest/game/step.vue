@@ -22,6 +22,7 @@
 
     <!------------------ HEADER AREA ------------------------>
     <div :class="{'fit': (step.type !== 'image-over-flow')}"><!-- Keep this div for iphone, for red filter display -->
+      
       <stepPlay
         :step="step"
         :runId="runId"
@@ -94,7 +95,7 @@
     </q-dialog>
 
     <!------------------ CHAT PAGE AREA ------------------------>
-
+    <!--
     <transition name="slideInBottom">
       <div v-show="chat.isOpened" class="bg-graaly-blue-dark text-white inventory panel-bottom">
         <div class="q-pa-md">
@@ -103,6 +104,7 @@
         </div>
       </div>
     </transition>
+    -->
 
     <!------------------ INFO PAGE AREA ------------------------>
 
@@ -163,6 +165,7 @@
                 </span>
               </q-btn>
             </p>
+            <!--
             <p class="q-pb-xl" v-if="(info.quest.customization && info.quest.customization.chatEnabled === true)">
               <q-btn
               v-if="!offline.active" class="glossy large-button"
@@ -175,6 +178,7 @@
                 <q-badge v-if=" this.$store.state.chatNotification > 0"  color="accent" rounded floating>{{ this.$store.state.chatNotification }}</q-badge>
               </q-btn>
             </p>
+            -->
             <p class="q-pb-xl">
               <q-btn
               class="glossy large-button"
@@ -331,7 +335,7 @@ import Notification from 'boot/NotifyHelper'
 import story from 'components/story'
 import utils from 'src/includes/utils'
 
-import GMMS from 'services/GameMasterMonitoringService_mqtt'
+//import GMMS from 'services/GameMasterMonitoringService_mqtt'
 
 import { Notify } from 'quasar'
 
@@ -361,6 +365,7 @@ export default {
     if (this.isHybrid && cordova.platformId === 'android') {
       StatusBar.show()
     }
+    //GMMS.Connect(this.questId)
   },
   methods: {
     initialState () {
@@ -502,9 +507,9 @@ export default {
       this.sendStepIdToParent()
       
       // send once on start
-      if (this.info.quest.customization.chatEnabled) {
+      /*if (this.info.quest.customization.chatEnabled) {
         this.sendDataToGameMaster()
-      }
+      }*/
       
       // manage history
       this.updateHistory()
@@ -540,26 +545,7 @@ export default {
       // load component data
       this.loadStepData = true
     },
-    /**
-     * Send a chat message
-     */
-    SendChatMessage() {
-      GMMS.SendChat(this.run.questId, {
-        'time': Date.now(),
-        'player': {
-            'id': this.run.userId[0],
-            'name': this.run.userData.name
-        },
-        'quest': {
-            'id': this.run.questId
-        },
-        'step': {
-            'id': this.step.id,
-            'title': this.step.title
-        }
-      })
-    },
-    sendDataToGameMaster() {
+    /*sendDataToGameMaster() {
       GMMS.Send(this.run.questId, {
         'lastPing': Date.now(),
         'quest': {
@@ -592,11 +578,11 @@ export default {
         'graaly': process.env.VERSION
       })
       utils.setTimeout(this.sendDataToGameMaster, 15000)
-    },
+    },*/
     /*
     * Open the chat box
     */
-    async openChat() {
+    /*async openChat() {
       if (this.chat.isOpened) {
         this.closeAllPanels()
       } else {
@@ -605,7 +591,7 @@ export default {
         this.footer.tabSelected = 'info'
       }
       this.$store.commit('setChatNotification', 0)
-    },
+    },*/
     /*
      * Move to a step
      *
@@ -667,7 +653,7 @@ export default {
     async getRun() {
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.questId, { retries: 0 })
-//runs = false // move offline
+      //runs = false // move offline
 
       var currentChapter = 0
       var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
@@ -1175,7 +1161,7 @@ export default {
       }
 
       // save offline run
-      await this.saveOfflineAnswer(true)
+      await this.saveOfflineAnswer(true, false, false)
 
       // move to next step if right answer not displayed
       if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
@@ -1218,7 +1204,7 @@ export default {
       this.hideHint()
 
       // save offline run
-      await this.saveOfflineAnswer(false, answer)
+      await this.saveOfflineAnswer(false, answer, false)
       
       // move to next step if right answer not displayed
       if (this.step.displayRightAnswer === false && (!this.step.options.wrongAnswerMessage || this.step.options.wrongAnswerMessage === "")) {
@@ -1418,7 +1404,7 @@ export default {
      */
     async moveToNextStep(type) {
       // sync offline run
-      await this.saveOfflineRun(this.questId, this.run)
+      await this.saveOfflineRun(this.questId, this.run, false)
       //hide button
       this.next.enabled = false
       this.next.suggest = false
@@ -1457,7 +1443,6 @@ export default {
      */
     async askForHint() {
       if (!this.isHintAvailable()) {
-console.log("hint not available")
         return
       }
       // stop suggesting hint if opened
@@ -1515,7 +1500,7 @@ console.log("hint not available")
       this.info.isOpened = false
       this.hint.isOpened = false
       this.footer.tabSelected = 'none'
-      this.chat.isOpened = false
+      //this.chat.isOpened = false
     },
     hideFooterButtons() {
       this.footer.show = false
@@ -1925,12 +1910,12 @@ console.log("hint not available")
           historyIndex: 0
         }
       }
-      await this.saveOfflineRun(questId, this.run)
+      await this.saveOfflineRun(questId, this.run, false)
     },
     /*
      * save the offline answer for a run
      */
-    async saveOfflineAnswer(success, answer) {
+    async saveOfflineAnswer(success, answer, updateRunDate) {
       // offline mode not activated for multiplayer
       if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
         return false
@@ -2019,7 +2004,7 @@ console.log("hint not available")
       // update conditions done
       this.run.conditionsDone = conditions
 
-      let updateAnswer = await this.saveOfflineRun(this.questId, this.run)
+      let updateAnswer = await this.saveOfflineRun(this.questId, this.run, updateRunDate)
 
       if (updateAnswer) {
         return true
@@ -2036,7 +2021,7 @@ console.log("hint not available")
       }
       this.run.conditionsDone = this.updateConditions(this.run.conditionsDone, stepId, false, this.step.type, true, this.player)
       //this.run.conditionsDone.push('stepFail_' + stepId)
-      await this.saveOfflineRun(this.questId, this.run)
+      await this.saveOfflineRun(this.questId, this.run, true)
     },
     /*
      * Check if user has access to the step
@@ -2060,12 +2045,14 @@ console.log("hint not available")
     /*
      * Save current run offline
      */
-    async saveOfflineRun(questId, run) {
+    async saveOfflineRun(questId, run, updateDate) {
       // offline mode not activated for multiplayer
       if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
         return false
       }
-      run.dateUpdated = new Date()
+      if (updateDate) {
+        run.dateUpdated = new Date()
+      }
 
       let status = await utils.writeInFile(this.questId, 'run_' + questId + '.json', JSON.stringify(run), true)
 
@@ -2088,9 +2075,10 @@ console.log("hint not available")
 
       // check if user is currently navigating in quest history
       await this.updateOfflineRun(questId)
+
       if (this.run.history && this.run.historyIndex < this.run.history.length) {
         this.run.historyIndex++
-        await this.saveOfflineRun(questId, this.run)
+        await this.saveOfflineRun(questId, this.run, true)
         return {id: this.run.history[this.run.historyIndex - 1], extra: extra}
       }
 
@@ -2157,7 +2145,7 @@ console.log("hint not available")
         }
         if (this.info.quest.editorMode === 'simple') {
           // add points if basic quest mode (not in escape game mode)
-          await this.saveOfflineAnswer('success')
+          await this.saveOfflineAnswer('success', false, true)
         } else {
           // set the marker step as done to pass to next step
           var conditionsDone = this.run.conditionsDone
@@ -2225,32 +2213,61 @@ console.log("hint not available")
               }
             }
             
-            //if (!locationMarkerFound && !geolocationFound) {
-              // if step is end of chapter
-              if (stepsofChapter[i].type === 'end-chapter') {
-                if (stepsofChapter[i].options && stepsofChapter[i].options.resetHistory) {
-                  this.removeHistory()
+            // treat case of the increment counter
+            if (stepsofChapter[i].type === 'increment-counter') {
+              // save condition done
+              var conditionsDone = this.run.conditionsDone
+              conditionsDone.push('counterIncrement_' + stepsofChapter[i].stepId.toString())
+              conditionsDone.push('stepDone_' + stepsofChapter[i].stepId.toString())
+              conditionsDone.push('stepDone' + player + '_' + stepsofChapter[i].stepId.toString())
+              this.run.conditionDone = conditionsDone
+              
+              // Count counter value
+              let counter = 0
+              for (var i = 0; i < conditionsDone.length; i++) {
+                if (conditionsDone[i].indexOf("counterIncrement_") !== -1) {
+                  counter++
                 }
-                let nextStepId
-
-                if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
-                  this.removeAllConditionsOfAChapter(steps, this.run.conditionsDone, stepsofChapter[i].chapterId)
-                } else {
-                  nextStepId = await this.moveToNextChapter()
-                }
-                if (nextStepId !== 'end') {
-                  // get next step by running the process again for new chapter
-                  let response = await this.getNextOfflineStep(questId, markerCode, player, extra)
-                  nextStepId = response.id
-                }
-                //await this.addStepToHistory(nextStepId)
-                return {id: nextStepId, extra: extra}
-              } else { // if (markerCode || stepsofChapter[i].type !== 'locate-marker') { // if locate marker, do not start the step until user flash the marker
-                // return step if no condition or all conditions met
-                let nextStepId = stepsofChapter[i].stepId
-                //await this.addStepToHistory(nextStepId)
-                return {id: nextStepId, extra: extra}
               }
+              
+              // find if a step is triggered by counter value
+              let nextStepId = await this.findStepForCounterValueOffline(steps, questId, this.run.version, counter)
+              
+              // if no step triggered, call getnextstep again
+              if (!nextStepId) {
+                const secondStepProcess1 = await this.getNextOfflineStep(questId, user, markerCode, player, extra)
+                nextStepId = secondStepProcess1.id
+                extra = secondStepProcess1.extra
+              }
+              return {id: nextStepId, extra: extra}
+            }
+            
+            //if (!locationMarkerFound && !geolocationFound) {
+            // if step is end of chapter
+            if (stepsofChapter[i].type === 'end-chapter') {
+              if (stepsofChapter[i].options && stepsofChapter[i].options.resetHistory) {
+                this.removeHistory()
+              }
+              let nextStepId
+
+              if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
+                this.removeAllConditionsOfAChapter(steps, this.run.conditionsDone, stepsofChapter[i].chapterId)
+              } else {
+                nextStepId = await this.moveToNextChapter()
+              }
+              if (nextStepId !== 'end') {
+                // get next step by running the process again for new chapter
+                let response = await this.getNextOfflineStep(questId, markerCode, player, extra)
+                nextStepId = response.id
+              }
+              //await this.addStepToHistory(nextStepId)
+              return {id: nextStepId, extra: extra}
+            } else { // if (markerCode || stepsofChapter[i].type !== 'locate-marker') { // if locate marker, do not start the step until user flash the marker
+              // return step if no condition or all conditions met
+              let nextStepId = stepsofChapter[i].stepId
+              //await this.addStepToHistory(nextStepId)
+              return {id: nextStepId, extra: extra}
+            }
             //}
           }
         }
@@ -2381,6 +2398,15 @@ console.log("hint not available")
           return true
         }
       }
+      return false
+    },
+    async findStepForCounterValueOffline(steps, questId, version, counter) {
+      for (var i = 0; i < steps.length; i++) {
+        if (steps[i].conditions.indexOf("counter_" + counter) !== -1) {
+          return steps[i].stepId
+        }
+      }
+      
       return false
     },
     /*
@@ -2578,8 +2604,8 @@ console.log("hint not available")
       if (!this.info.quest.customization || !this.info.quest.customization.hideFullScreen) {
         document.addEventListener("deviceready", this.swithFullscreenMode, false)
       }
-    },
-    showNotif() {
+    }
+    /*showNotif() {
       this.$q.notify({
         message: `Vous avez ${this.$store.state.chatNotification === 1? 'un nouveau message' : this.$store.state.chatNotification + ' nouveaux messages'}`,
         icon: 'chat',
@@ -2589,7 +2615,7 @@ console.log("hint not available")
           { label: 'Voir', color: 'white', handler: () => { this.chat.isOpened = true } }
         ]
       })
-    }
+    }*/
   },
   computed: {
     chatNotification () {
@@ -2597,13 +2623,13 @@ console.log("hint not available")
     }
   },
   watch: {
-    chatNotification () {
+    /*chatNotification () {
       if (!chat.isOpened) {
         if (this.$store.state.chatNotification !== 0) {
           this.showNotif()
         }
       }
-    }
+    }*/
   }
 
 }

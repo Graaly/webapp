@@ -49,6 +49,24 @@
           {{ $t('label.BuilderProIntro') }}
         </div>
         <div class="q-pa-md">
+          <q-card class="my-card bg-primary text-white" @click="changeAccess('private')">
+            <q-card-section class="centered">
+              <div class="subtitle2">{{ $t('label.PrivateQuest') }}</div>
+              <div class="subtitle4">{{ $t('label.PaymentOnUsage') }}</div>
+            </q-card-section>
+
+            <q-card-section class="subtitle5">
+              <div v-html="$t('label.PrivateProQuestDesc1')"></div>
+            </q-card-section>
+
+            <q-separator />
+
+            <q-card-actions align="right">
+              <q-btn flat color="white">{{ $t('label.TryForFree') }}</q-btn>
+            </q-card-actions>
+          </q-card>
+        </div>
+        <div class="q-pa-md">
           <q-card class="my-card bg-primary text-white" @click="changeAccess('public')">
             <q-card-section class="centered">
               <div class="subtitle2">{{ $t('label.PublicQuest') }}</div>
@@ -62,24 +80,6 @@
             
             <q-card-section v-if="readMorePublicProQuest">
               <div v-html="$t('label.PublicProQuestDesc2')"></div>
-            </q-card-section>
-
-            <q-separator />
-
-            <q-card-actions align="right">
-              <q-btn flat color="white">{{ $t('label.TryForFree') }}</q-btn>
-            </q-card-actions>
-          </q-card>
-        </div>
-        <div class="q-pa-md">
-          <q-card class="my-card bg-primary text-white" @click="changeAccess('private')">
-            <q-card-section class="centered">
-              <div class="subtitle2">{{ $t('label.PrivateQuest') }}</div>
-              <div class="subtitle4">{{ $t('label.PaymentOnUsage') }}</div>
-            </q-card-section>
-
-            <q-card-section class="subtitle5">
-              <div v-html="$t('label.PrivateProQuestDesc1')"></div>
             </q-card-section>
 
             <q-separator />

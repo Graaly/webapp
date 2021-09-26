@@ -15,7 +15,8 @@
     
     <div class="q-ma-md rounded background-lighter2" v-if="!warnings.noNetwork && quest && quest.customization && quest.customization.removeScoring">
       <div class="q-pa-md" :class="'font-' + quest.customization.font">
-        <div class="text-h4" v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage !== ''" v-html="quest.customization.endMessage" />
+        <div class="text-h4" v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage !== '' && (nbGoodAnwers !== nbQuestions || quest.customization.endMessageForPerfectScore === '')" v-html="quest.customization.endMessage" />
+        <div class="text-h4" v-if="quest.customization && quest.customization.endMessage && nbGoodAnwers === nbQuestions && quest.customization.endMessageForPerfectScore !== ''" v-html="quest.customization.endMessageForPerfectScore" />
         <div class="text-h4" v-if="!quest.customization || !quest.customization.endMessage || quest.customization.endMessage === ''">{{ $t('label.ThanksForPlaying') }}</div>
         <div>{{ $t('label.GoodAnswersNumber') }}: {{ nbGoodAnwers }} / {{ nbQuestions }}</div>
       </div>

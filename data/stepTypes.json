@@ -78,6 +78,19 @@
     "passOption": false
   },
   {
+    "category": "transition",
+    "code": "increment-counter",
+    "icon": "plus-square",
+    "title": "IncrementCounter",
+    "description": "IncrementCounterDesc",
+    "showTrick": "no",
+    "enabled": true,
+    "hasBackgroundImage": "option",
+    "hasOptions": false,
+    "nbTrials": 0,
+    "passOption": false
+  },
+  {
     "category": "enigma",
     "code": "geolocation",
     "icon": "map-marker",

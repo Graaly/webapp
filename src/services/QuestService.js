@@ -436,6 +436,18 @@ export default {
       })
       .catch(error => console.log(error.request));
   },
+  /*
+   * Upload a quest snapshot
+   * @param   {Object}    data                picture data
+   */
+  uploadSnapshot(data, questId) {
+    return Api()
+      .post("/quest/" + questId + "/gamesnapshot/upload", data, {
+        timeout: 60000,
+        headers: { "Content-Type": "multipart/form-data" }
+      })
+      .catch(error => console.log(error.request));
+  },
 
   /*
    * Check if the quest can be moved premium

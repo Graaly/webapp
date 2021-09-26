@@ -92,7 +92,9 @@ module.exports = {
       PhoneCall: "Phone call",
       PhoneCallDesc: "Launch a phone call to a defined number",
       Binocular: "Binoculars",
-      BinocularDesc: "Search in a picture using binoculars"
+      BinocularDesc: "Search in a picture using binoculars",
+      IncrementCounter: "Increment counter",
+      IncrementCounterDesc: "Increment a counter that you can use for your steps trigger"
     },
     layersForMarkers: {
       Magnifier: 'Magnifier',
@@ -435,7 +437,7 @@ module.exports = {
       PublicationRequested: "Publication requested",
       PublicationRejected: "Publication rejected. You will receive an email explaning why",
       QuestPublicationRejected: "Your game has not been published. You will receive an email to explain you how to update it to have it published",
-      TouchTheObject: "You found it! Touche it now !",
+      TouchTheObject: "You found it! Touch it now!",
       ObjectSize: "Object size",
       TouchDistance: "Object can be touched nearer than...",
       YouWonABonus: "You won a bonus",
@@ -585,7 +587,8 @@ module.exports = {
       FollowStep: "Follow step",
       StepSuccess: "Right answer on step",
       StepFail: "Wrong answer on step",
-      StepRandom: "Randomly after (BETA)",
+      StepRandom: "(BETA) Randomly after",
+      StepCounter: "(BETA) Counter has the value",
       NoCondition: "No condition (start at the beginning of the chapter)",
       Conditions: "Triggers",
       AddACondition: "Add a trigger",
@@ -806,6 +809,7 @@ module.exports = {
       GeneralWarning: "<b>For your safety</b>, do not play Graaly driving or riding your bicycle, always be alert to what is happening around you, do not enter private property without permission, follow the safety rules when you move.",
       RemoveScoringAndRating: "Hide the score and the rating",
       TypeEndMessage: "Text replacing the scoring and rating final screen",
+      TypeEndMessageForPerfectScore: "Customized text if user has all answers right",
       ThanksForPlaying: "Thanks for playing this game. See you later with new games!",
       EnlargePictureToFullWidth: "Enlarge the picture to full screen",
       EnlargePictureToFullHeight: "Enlarge the picture to full height",
@@ -912,7 +916,7 @@ module.exports = {
       SplitMessageWithPipe: "Add pipes '|' if you want to split your text in several bubbles",
       ClickHere: "Click here",
       FollowTheCreator: "Follow the creator",
-      PlayersNumber: "Number of smartphone to play (BETA)",
+      PlayersNumber: "(BETA) Number of smartphone to play",
       helpQuestMultiplayer: "This define the minimum number of players to play the game. Each player will have his phone, and should have specific missions in the game. For more information about multiplayer, please watch our Youtube tutorials",
       ThisIsAMultiplayerGame: "This game is multiplayer",
       JoinATeam: "Join a team",
@@ -1092,7 +1096,12 @@ module.exports = {
       CustomizeWrongAnswerMessage: "Custom wrong answer message",
       RotateVideo: "Rotate the video 90°",
       UploadSucessful: "Upload successful",
-      RemoveObjectFromInventoryAfterUse: "Remove object from inventory after use"
+      RemoveObjectFromInventoryAfterUse: "Remove object from inventory after use",
+      ModifyTheHint: "Modify the hint",
+      AddAGameSnapshot: "Add a game snapshot",
+      Snapshots: "Snapshot(s)",
+      CounterValue: "Counter value",
+      CharacterBarColor: "Color of the bar below the character"
     }
   },
   fr: {
@@ -1175,7 +1184,9 @@ module.exports = {
       PhoneCall: "Appel téléphonique",
       PhoneCallDesc: "Lancez un appel téléphonique vers un numéro défini",
       Binocular: "Jumelles",
-      BinocularDesc: "Rechercher dans une image en utilisant des jumelles"
+      BinocularDesc: "Rechercher dans une image en utilisant des jumelles",
+      IncrementCounter: "Incrémenter le compteur",
+      IncrementCounterDesc: "Incrémenter un compteur que vous pouvez utiliser pour déclencher des étapes"
     },
     layersForMarkers: {
       Magnifier: 'Loupe',
@@ -1668,7 +1679,8 @@ module.exports = {
       FollowStep: "Suit l'étape",
       StepSuccess: "Bonne réponse à",
       StepFail: "Mauvaise réponse à",
-      StepRandom: "Aléatoirement après (BETA)",
+      StepRandom: "(BETA) Aléatoirement après",
+      StepCounter: "(BETA) Le compteur à la valeur ",
       NoCondition: "Aucune condition (démarre au début du chapitre)",
       Conditions: "Déclencheurs",
       AddACondition: "Ajouter un déclencheur",
@@ -1726,7 +1738,7 @@ module.exports = {
       PublicQuestDesc2: "Une fois validé par les games masters, ce jeu sera visible et jouable par tous",
       PublicProQuestDesc1: "Votre jeu est jouable par tous les joueurs Graaly. Vous payez un petit montant par partie ou partagez les revenus avec nous.<p>Contactez-nous à contact@graaly.com pour plus d'information</p>",
       PublicProQuestDesc2: "<p>Si votre jeu est payant pour les joueurs, vous pouvez soit utiliser le système de paiement intégré à Graaly soit gérer vous même le paiement</p><p>Concernant le système de paiement intégré, Google/Apple prennent 30% des revenus</p><p>Dans tous les cas Graaly conserve 30% des revenus</p><p>Le reste est pour vous, soit de 40% à 70% des revenus.</p><p>Graaly vous reverse votre part mensuellement</p><p>Si votre jeu est gratuit pour les joueurs, Graaly vous facture mensuellement 0,25 € HT par joueur, soit moins que le facicule papier que vous devrier acheter sans application mobile</p><p>Vous pouvez désactiver votre jeu à tout moment</p><p>Contactez-nous à contact@graaly.com pour plus d'information</p>",
-      PrivateProQuestDesc1: "Votre jeu est dédié à des joueurs définis. Vous payez un montant par joueur ou partagez les revenus avec nous. Contactez-nous à contact@graaly.com pour plus d'information",
+      PrivateProQuestDesc1: "Votre jeu est dédié à des joueurs définis. Vous payez un petit montant par partie ou partagez les revenus avec nous. Contactez-nous à contact@graaly.com pour plus d'information",
       CreatePrivateQuest: "Créer un jeu privé",
       BuyPrivateQuest: "Acheter un jeu privé",
       OnlyBuyableOnMobile: "Seulement disponible sur mobile",
@@ -1889,6 +1901,7 @@ module.exports = {
       GeneralWarning: "<b>Pour votre sécurité</b>, ne jouez pas à Graaly en conduisant ou quand votre vélo est en mouvement, soyez toujours vigilant à ce qui se passe autour de vous, ne pénétrez pas dans des propriétés privées sans autorisation, respectez les règles de sécurité quand vous vous déplacez.",
       RemoveScoringAndRating: "Cacher le score et la notation",
       TypeEndMessage: "Texte de fin qui remplace l'écran de score et de notation",
+      TypeEndMessageForPerfectScore: "Texte de fin personnalisé si le joueur a toutes les bonnes réponses",
       ThanksForPlaying: "Merci d'avoir joué à ce jeu. A bientôt pour d'autres jeux !",
       EnlargePictureToFullWidth: "Elargir l'image en plein écran (déformer)",
       EnlargePictureToFullHeight: "Elargir l'image en pleine hauteur",
@@ -1995,7 +2008,7 @@ module.exports = {
       SplitMessageWithPipe: "Ajouter le signe '|' pour séparer votre texte dans plusieurs bulles",
       ClickHere: "Cliquez ici",
       FollowTheCreator: "Suivez le créateur",
-      PlayersNumber: "Nombre de téléphones requis pour jouer (BETA)",
+      PlayersNumber: "(BETA) Nombre de téléphones requis pour jouer",
       helpQuestMultiplayer: "Cela défini le nombre de joueur minimum pour que le jeu soit jouable. Chaque joueur devra avoir un téléphone, et aura un rôle différent dans le jeu. Pour plus d'informations sur le mode multijoueur, regardez nos tutos Youtube",
       ThisIsAMultiplayerGame: "Ce jeu se joue en équipe",
       JoinATeam: "Rejoindre une équipe",
@@ -2175,7 +2188,12 @@ module.exports = {
       CustomizeWrongAnswerMessage: "Message de mauvaise réponse personnalisé",
       RotateVideo: "Tourner la vidéo de 90°",
       UploadSucessful: "Fichier chargé sur le serveur avec succès",
-      RemoveObjectFromInventoryAfterUse: "Supprimer l'objet de l'inventaire après"
+      RemoveObjectFromInventoryAfterUse: "Supprimer l'objet de l'inventaire après",
+      ModifyTheHint: "Modifier l'indice",
+      AddAGameSnapshot: "Ajouter une capture du jeu",
+      Snapshots: "Capture(s)",
+      CounterValue: "Valeur du compteur",
+      CharacterBarColor: "Couleur de la barre sous le personnage"
     }
   }
 }

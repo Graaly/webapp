@@ -1,3 +1,4 @@
+<!-- This component is associated to GM dashboard features and currently unused -->
 <template>
   <div class="chat">
     <div class="subtitle3 q-pb-lg" @click="scrollBottom">Demande d'aide</div>
@@ -126,7 +127,6 @@ export default {
     chat.getUserMessages(this.$store.state.user.id).then(response  => {
       this.$store.commit('setChatMessage', response)
     })
-
   }
 }
 // TimeAgo FR Translate

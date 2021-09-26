@@ -123,7 +123,7 @@
                 :label="$t('label.advancedEditor')" 
                 @input="changeEditorMode" />
             </div>
-            <div v-if="this.quest.type === 'quest' && form.fields.editorMode === 'advanced'">
+            <div v-if="this.quest.type === 'quest' && form.fields.editorMode === 'advanced' && this.quest.isPremium">
               <q-select
                 :readonly="readOnly"
                 :label="$t('label.PlayersNumber')"
@@ -389,6 +389,14 @@
                   :error="$v.form.fields.category.$error"
                   :error-message="$t('label.PleaseSelectACategory')"
                   />
+                <div v-if="form.fields.customization">
+                  <q-input
+                    :disable="readOnly"
+                    v-model="form.fields.customization.authorName"
+                    :label="$t('label.CustomizeYourName')"
+                    class="full-width"
+                  />
+                </div>
                 <div v-if="form.fields.picture !== null">
                   <p>{{ $t('label.Picture') }} :</p>
                   <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.picture" />
@@ -413,13 +421,32 @@
                   {{ $t('label.ModifyThePicture') }}:
                   <input @change="uploadThumb" ref="thumbfile" type="file" accept="image/*" />
                 </div>
-                <div v-if="form.fields.customization">
-                  <q-input
-                    :disable="readOnly"
-                    v-model="form.fields.customization.authorName"
-                    :label="$t('label.CustomizeYourName')"
-                    class="full-width"
-                  />
+                <div v-if="!form.fields.snapshots || form.fields.snapshots.length < 3">
+                  <div v-if="!isIOs">
+                    <q-btn class="full-width" v-if="!readOnly" @click="$refs['snapshot'].click()">{{ $t('label.AddAGameSnapshot') }}</q-btn>
+                    <input @change="uploadSnapshot" ref="snapshot" type="file" accept="image/*" hidden />
+                  </div>
+                  <div v-if="isIOs">
+                    {{ $t('label.AddAGameSnapshot') }}:
+                    <input @change="uploadSnapshot" ref="snapshot" type="file" accept="image/*" />
+                  </div>
+                </div>
+                <div v-if="form.fields.snapshots && form.fields.snapshots.length > 0">
+                  <div>{{ $t('label.Snapshots') }}:</div>
+                  <div class="row">
+                    <div class="col-4 centered" v-if="form.fields.snapshots.length > 0">
+                      <img style="width: 100%" :src="serverUrl + '/upload/quest/' + questId + '/snapshot/' + form.fields.snapshots[0]" />
+                      <q-btn @click="removeSnapshot(0)" icon="delete"></q-btn>
+                    </div>
+                    <div class="col-4 centered" v-if="form.fields.snapshots.length > 1">
+                      <img style="width: 100%" :src="serverUrl + '/upload/quest/' + questId + '/snapshot/' + form.fields.snapshots[1]" />
+                      <q-btn @click="removeSnapshot(1)" icon="delete"></q-btn>
+                    </div>
+                    <div class="col-4 centered" v-if="form.fields.snapshots.length > 2">
+                      <img style="width: 100%" :src="serverUrl + '/upload/quest/' + questId + '/snapshot/' + form.fields.snapshots[2]" />
+                      <q-btn @click="removeSnapshot(2)" icon="delete"></q-btn>
+                    </div>
+                  </div>
                 </div>
               </div>
             </q-expansion-item>
@@ -599,6 +626,13 @@
                     class="full-width"
                     type="textarea"
                   />
+                  <q-input
+                    :disable="readOnly"
+                    v-model="form.fields.customization.endMessageForPerfectScore"
+                    :label="$t('label.TypeEndMessageForPerfectScore')"
+                    class="full-width"
+                    type="textarea"
+                  />
                 </div>
               </div>
             </q-expansion-item>
@@ -723,7 +757,7 @@
           </ul>
         
           <p v-if="!readOnly" class="centered">
-            <q-btn color="primary" class="glossy large-button" icon="fas fa-plus-circle" @click="addChapter()">{{ $t('label.AddASChapter') }}</q-btn>
+            <q-btn color="primary" class="glossy large-button" @click="addChapter()">{{ $t('label.AddASChapter') }}</q-btn>
           </p>
           <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items.length > 1">
             <q-btn color="primary" class="glossy large-button" icon="play_arrow" @click="testQuest()">{{ $t('label.TestYourQuest') }}</q-btn>
@@ -1429,11 +1463,12 @@ export default {
           duration: 30,
           picture: null,
           thumb: null,
+          snapshots: [],
           town: "",
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { audio: {}, color: '', logo: '', character: '', removeScoring: false, endMessage: '', font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, geolocationMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false, authorName: '', userReplay: 'yes' },
+          customization: { audio: {}, color: '', logo: '', character: '', removeScoring: false, endMessage: '', endMessageForPerfectScore: '', font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, geolocationMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false, authorName: '', userReplay: 'yes' },
           rewardPicture: '',
           readMoreLink: '',
           limitNumberOfPlayer: 0,
@@ -1688,6 +1723,7 @@ export default {
         this.form.fields.duration = this.quest.duration
         this.form.fields.picture = this.quest.picture
         this.form.fields.thumb = this.quest.thumb
+        this.form.fields.snapshots = this.quest.snapshots
         this.form.fields.editorMode = this.quest.editorMode
         this.form.fields.customization = Object.assign(this.form.fields.customization, this.quest.customization)
         this.form.fields.rewardPicture = this.quest.rewardPicture
@@ -1915,23 +1951,25 @@ export default {
                       var maxPosition = 0
                       // find if parents are already sorted and if so add item in sorted after
                       for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
-                        let parentStepId = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
-                        parentStepId = parentStepId.replace("stepSuccess_", "")
-                        parentStepId = parentStepId.replace("stepFail_", "")
-                        parentStepId = parentStepId.replace("stepRandom_", "")
-                        // If parent is not sorted => do not treat the item
-                        if (sorted.indexOf(parentStepId) === -1) {
-                          // check that the parent exists at least in unsorted => else error
-                          if (unsorted.indexOf(parentStepId) === -1) {
-                            stepsWithNoParent.push(stepId)
-                            unsorted.splice(unsorted.indexOf(stepId), 1)
-                            sorted.push(stepId)
-                          }
-                          continue allSteps
-                        } else {
-                          let parentPosition = sorted.indexOf(parentStepId)
-                          if (parentPosition > maxPosition) {
-                            maxPosition = parentPosition
+                        if (stepsOfChapter[i].conditions[k].indexOf("counter_") === -1) {
+                          let parentStepId = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
+                          parentStepId = parentStepId.replace("stepSuccess_", "")
+                          parentStepId = parentStepId.replace("stepFail_", "")
+                          parentStepId = parentStepId.replace("stepRandom_", "")
+                          // If parent is not sorted => do not treat the item
+                          if (sorted.indexOf(parentStepId) === -1) {
+                            // check that the parent exists at least in unsorted => else error
+                            if (unsorted.indexOf(parentStepId) === -1) {
+                              stepsWithNoParent.push(stepId)
+                              unsorted.splice(unsorted.indexOf(stepId), 1)
+                              sorted.push(stepId)
+                            }
+                            continue allSteps
+                          } else {
+                            let parentPosition = sorted.indexOf(parentStepId)
+                            if (parentPosition > maxPosition) {
+                              maxPosition = parentPosition
+                            }
                           }
                         }
                       }
@@ -2252,6 +2290,35 @@ export default {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
       this.$q.loading.hide()
+    },
+    /*
+     * Upload a new snapshot for the quest
+     */
+    async uploadSnapshot(e) {
+      if (this.form.fields.snapshots && this.form.fields.snapshots.length > 2) {
+        return false
+      }
+      this.$q.loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadSnapshotResult = await QuestService.uploadSnapshot(data, this.questId)
+      if (uploadSnapshotResult && uploadSnapshotResult.hasOwnProperty('data')) {
+        if (uploadSnapshotResult.data.file) {
+          this.form.fields.snapshots.push(uploadSnapshotResult.data.file)
+        } else if (uploadSnapshotResult.data.message && uploadSnapshotResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    async removeSnapshot(id) {
+      this.quest.snapshots.splice(id, 1)
     },
     /*
      * Upload a new logo for the quest
@@ -3124,7 +3191,7 @@ export default {
      * Filter step types based on main category code
      */
     filteredStepTypes(categoryCode) {
-      return stepTypes.filter(stepType => (stepType.category === categoryCode && stepType.enabled && !(stepType.code === 'end-chapter' && this.form.fields.editorMode === 'simple')))
+      return stepTypes.filter(stepType => (stepType.category === categoryCode && stepType.enabled && !((stepType.code === 'end-chapter' || stepType.code === 'increment-counter') && this.form.fields.editorMode === 'simple')))
     },
     /*
      * Select a step type
@@ -3160,7 +3227,7 @@ export default {
     async trackStepChanges(step) {
       this.chapters.showNewStepPageSettings = false
       this.chapters.showNewStepPage = false
-      if (step.type === 'end-chapter') {
+      if (step.type === 'end-chapter' || step.type === 'increment-counter') {
         await this.closeOverview()
         await this.refreshStepsList()
         return false

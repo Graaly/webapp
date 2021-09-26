@@ -109,8 +109,8 @@
       
       <!------------------ HELP AREA ------------------------>
       <div v-if="step.type == 'help'" :class="'font-' + customization.font" style="overflow: auto; margin-bottom: 80px;">
-        <p class="text" v-html="$t('label.HelpStepMessage')"></p>
-        <div v-if="step.options && step.options.helpNext" class="text centered">
+        <p class="text help-text " v-html="$t('label.HelpStepMessage')"></p>
+        <div v-if="step.options && step.options.helpNext" class="text help-text centered">
           <div class="white-buttons">
             <q-btn
               round
@@ -122,7 +122,7 @@
           </div>
           <div>{{ $t('label.HelpStepMessageNextMessage') }}</div>
         </div>
-        <div v-if="step.options && step.options.helpPrevious" class="text centered">
+        <div v-if="step.options && step.options.helpPrevious" class="text help-text centered">
           <div class="white-buttons">
             <q-btn
               round
@@ -134,7 +134,7 @@
           </div>
           <div>{{ $t('label.HelpStepMessagePreviousMessage') }}</div>
         </div>
-        <div v-if="step.options && step.options.helpInventory" class="text centered">
+        <div v-if="step.options && step.options.helpInventory" class="text help-text centered">
           <div class="white-buttons">
             <q-btn
               round
@@ -146,7 +146,7 @@
           </div>
           <div>{{ $t('label.HelpStepMessageInventoryMessage') }}</div>
         </div>
-        <div v-if="step.options && step.options.helpHint" class="text centered">
+        <div v-if="step.options && step.options.helpHint" class="text help-text centered">
           <div class="white-buttons">
             <q-btn
               round
@@ -158,7 +158,7 @@
           </div>
           <div>{{ $t('label.HelpStepMessageHintMessage') }}</div>
         </div>
-        <p class="text" v-html="$t('label.HelpStepMessageEnd')"></p>
+        <p class="text help-text" v-html="$t('label.HelpStepMessageEnd')"></p>
       </div>
       
       <!------------------ WIN ITEM STEP AREA ------------------------>
@@ -176,7 +176,13 @@
             
       <!------------------ END OF CHAPTER AREA ------------------------>
       
-      <div class="end-of-chapter" v-if="step.type == 'end-chapter'">
+      <div class="end-of-chapter" v-if="step.type == 'end-chapter' ">
+        {{ $t('label.ThisStepIsNotShowToPlayers') }}
+      </div>    
+      
+      <!------------------ END OF CHAPTER AREA ------------------------>
+      
+      <div class="end-of-chapter" v-if="step.type == 'increment-counter' ">
         {{ $t('label.ThisStepIsNotShowToPlayers') }}
       </div>    
       
@@ -199,7 +205,9 @@
             <img style="vertical-align:bottom;" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
             <img style="vertical-align:bottom;" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + customization.character : customization.character" />
           </div>
-          <div class="full-width" :class="(customization && customization.characterBarColor) ? '' : 'bg-black'" :style="'height: 76px; ' + ((customization && customization.characterBarColor && customization.characterBarColor !== '') ? 'background-color: ' + customization.characterBarColor : '')">
+          <div v-if="step.options && step.options.characterBarColor && step.options.characterBarColor !== ''" class="full-width" :class="(step.options && step.options.characterBarColor) ? '' : 'bg-black'" :style="'height: 76px; ' + ((step.options && step.options.characterBarColor && step.options.characterBarColor !== '') ? 'background-color: ' + step.options.characterBarColor : '')">
+          </div>
+          <div v-if="!step.options || !step.options.characterBarColor || step.options.characterBarColor === ''" class="full-width" style="height: 76px;">
           </div>
         </div>
       </div>
@@ -208,7 +216,7 @@
       
       <div class="choose" v-if="step.type == 'choose'" style="overflow: auto; margin-bottom: 80px;">
         <div v-if="showTools">
-          <div @click="hideControlsTemporaly">
+          <div>
              <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
              <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
@@ -1093,7 +1101,7 @@ export default {
         // for step type 'jigsaw puzzle'
         puzzle: {
           pieces: [],
-          picture: 'statics/icons/game/medal.png',
+          picture: 'statics/icons/game/card-back.png',
           dragSrcEl: null,
           element: {},
           colsByLevel: [1, 3, 4, 6, 5],
@@ -1371,7 +1379,7 @@ export default {
           this.deviceHasGyroscope = true
         }
         
-        if (this.step.type === 'end-chapter') {
+        if (this.step.type === 'end-chapter' || this.step.type === 'increment-counter') {
           this.checkAnswer()
         }
         
@@ -1413,10 +1421,10 @@ export default {
         }
         
         if (this.step.type === 'find-item') {
-          utils.setTimeout(this.initFindItemElements, 2000)
+          utils.setTimeout(this.initFindItemElements, 600)
         }
         if (this.step.type === 'use-item') {
-          utils.setTimeout(this.initUseItemElements, 2000)
+          utils.setTimeout(this.initUseItemElements, 600)
         }
         
         if (this.step.type === 'new-item') {
@@ -1950,11 +1958,11 @@ export default {
     },
     /*
      * Hide controls temporaly
-     */
+     *
     hideControlsTemporaly () {
       this.controlsAreDisplayed = false
       utils.setTimeout(this.showControls, 4000)
-    },
+    },*/
     /*
      * Send answer server side 
      * @param   {Object}    selectedAnswerKey            Answer object
@@ -2099,6 +2107,7 @@ export default {
         case 'new-item':
         case 'help':
         case 'end-chapter':
+        case 'increment-counter':
         case 'character':
         case 'image-over-flow':
         case 'binocular':
@@ -2556,11 +2565,12 @@ export default {
      * Send good answer  
      */
     submitGoodAnswer(score, offlineMode, showResult, answer) {
-      if (showResult) {
+      /*if (showResult) {
         this.playerResult = true
       } else {
         this.playerResult = null
-      }
+      }*/
+      this.playerResult = true
       
       if (
         this.step.countDownTime !== undefined &&
@@ -2590,6 +2600,7 @@ export default {
           case 'info-text': 
           case 'help': 
           case 'end-chapter': 
+          case 'increment-counter': 
           case 'info-video': 
           case 'image-over-flow': 
           case 'binocular': 
@@ -2642,11 +2653,13 @@ export default {
         this.stopcountdown()
       }
       
-      if (showResult) {
+      /*if (showResult) {
         this.playerResult = false
       } else {
         this.playerResult = null
-      }
+      }*/
+      this.playerResult = false
+      
       this.stepPlayed = true
       
       this.$emit('fail', offlineMode, showResult, answer)
@@ -3347,20 +3360,20 @@ export default {
       this.takingSnapshot = true
       this.$q.loading.show()
       this.$emit('hideButtons')
-      var _this = this
+      let _this = this
       if (this.isIOs && CameraPreview) {
         CameraPreview.takePicture({quality: 85}, function(base64PictureData) {
           const imageSrcData = 'data:image/jpeg;base64,' +base64PictureData
           var image = document.getElementById('snapshotImageIos')
           image.src = imageSrcData
+          _this.$q.loading.hide()
           setTimeout(function () { _this.takeSnapshot() }, 2000)
         });
       } else {
         // generate a snapshot of the video flow
         this.imageCapture.takePhoto()
           .then(blob => {
-            var image = document.getElementById('snapshotImage')
-            image.src = URL.createObjectURL(blob)
+            let image = document.getElementById('snapshotImage')
             image.onload = function() {
               const width = image.width
               const height = image.height
@@ -3381,12 +3394,13 @@ export default {
               image.style.height = width + "px"
               image.style.top = ((height - width) / 2) + "px"
               image.style.left = ((width - height) / 2) + "px"*/
-              
-              setTimeout(function () { _this.takeSnapshot() }, 2000)
+              _this.$q.loading.hide()
+              setTimeout(function () { _this.takeSnapshot() }, 1000)
             }
+            image.src = URL.createObjectURL(blob)
           })
           .catch(err => { 
-            Notification(_this.$t('label.SnapshotTakenIssue'), 'info'); console.log(err) 
+            Notification(_this.$t('label.SnapshotTakenIssue'), 'error'); console.log(err) 
             _this.$q.loading.hide()
             _this.$emit('showButtons')
           })
@@ -3419,24 +3433,30 @@ export default {
      * take a snapshot of the screen
      */
     takeSnapshot() {
-      var _this = this
-      this.$q.loading.hide()
+      let _this = this
       navigator.screenshot.save(function (error, res) {
         if (error) {
           console.error(error)
-          Notification(_this.$t('label.ErrorTakingSnapshot'), 'info')
+          Notification(_this.$t('label.ErrorTakingSnapshot'), 'error')
+          _this.$emit('showButtons')
         } else {
-          var permissions = cordova.plugins.permissions
-          permissions.requestPermission(permissions.READ_EXTERNAL_STORAGE, function(status) {
-            if (status.hasPermission) {
-              _this.saveSnapshot(res)
-            } else {
-              Notification(_this.$t('label.ErrorTakingSnapshot'), 'info')
-            }
-          }, alert)
+          if (_this.quest.customization && _this.quest.customization.saveSelfieOnServer) {
+            let permissions = cordova.plugins.permissions
+            permissions.requestPermission(permissions.READ_EXTERNAL_STORAGE, function(status) {
+              if (status.hasPermission) {
+                _this.saveSnapshot(res)
+              } else {
+                Notification(_this.$t('label.ErrorTakingSnapshot'), 'error')
+                _this.takingSnapshot = false
+                _this.$emit('showButtons')
+              }
+            }, alert)
+          } else {
+            Notification(_this.$t('label.SnapshotTaken'), 'positive')
+            _this.takingSnapshot = false
+            _this.$emit('showButtons')
+          }
         }
-        _this.takingSnapshot = false
-        _this.$emit('showButtons')
       })
     },
     async saveSnapshot(mediaFile) {
@@ -3456,19 +3476,22 @@ export default {
         )
         // convert binary to blob of the image content
         const picture = new Blob([new Uint8Array(fileBinary)], { type: "image/jpg" })
-        var data = new FormData()
+        let data = new FormData()
         data.append('image', picture)
-        var _this = this
+        let _this = this
         StepService.uploadSnapshot(this.step.questId, data, function(err, result) {
           if (err) {
-            Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
+            Notification(_this.$t('label.ErrorTakingSnapshot'), 'error')
           } else {
             Notification(_this.$t('label.SnapshotTaken'), 'info')
           }
+          _this.takingSnapshot = false
+          _this.$emit('showButtons')
         })
       } catch (error) {
         Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
-        console.log("Error: " + error)
+        console.log("Error: ", error)
+        _this.$emit('showButtons')
       }
     },
     /*
@@ -4677,6 +4700,9 @@ export default {
   .carrier-return {
     white-space: pre-wrap; 
     text-align: justify;
+  }
+  .help-text {
+    background-color: transparent;
   }
   
   #controls {
