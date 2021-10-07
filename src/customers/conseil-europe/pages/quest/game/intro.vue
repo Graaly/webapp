@@ -2,7 +2,7 @@
   <div class="scroll" style="background-color: #063b8b">
     <div id="teaser" class="reduce-window-size-desktop" :class="{'loaded': pageReady}">
       <!------------------ MAIN INFORMATION AREA ------------------------>
-      
+
 
       <div v-if="warning.questNotLoaded" class="centered q-pa-lg">
         {{ $t('label.QuestNeedNetwork')}}
@@ -26,7 +26,7 @@
         </div>
         <!-- =========================== TITLE ========================== -->
         <div class="text-h5">
-          {{ quest.title === "" ?  $t('label.NoTitle') : quest.title }} 
+          {{ quest.title === "" ?  $t('label.NoTitle') : quest.title }}
           &nbsp;<img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + getLanguage() + '.png'" />
         </div>
         <!-- =========================== PROPERTIES ========================== -->
@@ -62,38 +62,38 @@
           <img src="statics/images/icon/cost.svg" class="medium-icon" />
           <span>{{ $t('label.FromPricePerPlayer', {price: quest.premiumPrice.manual}) }}</span>
         </div>
-        
+
         <!-- =========================== LOCATION ========================== -->
-        
+
         <div v-if="quest.location && quest.location.address" class="text-subtitle1 q-mt-sm quest-location" @click="goToLocationWithMaps(quest.location.coordinates[0],quest.location.coordinates[1])">
-         <u> {{ quest.location.address }}</u> 
+         <u> {{ quest.location.address }}</u>
         </div>
-        
+
         <!-- =========================== WARNING ========================== -->
-        
+
         <div v-if="quest.warning" class="text-subtitle1 q-mt-sm quest-warning" @click="openWarningLink()">
           <q-icon color="secondary" name="warning" /> <u>{{ getTranslatedData(quest.warning) }}</u>
         </div>
         <div v-if="quest.playersNumber && quest.playersNumber > 1" class="text-subtitle1 q-mt-sm quest-warning">
           <q-icon color="secondary" name="group" /> {{ $t('label.YouNeedToBeXPlayers', {nb: quest.playersNumber}) }}
         </div>
-        
+
         <!-- =========================== RANKING ========================== -->
-        
+
         <!--<div class="text-subtitle1 q-mt-sm quest-ranking">
           <a class="concertone" @click="$router.push('/user/ranking/ranking/' + quest.questId)">{{ $t('label.Ranking') }}</a>
         </div>-->
       </div>
-      
+
       <!-- =========================== PLAY BUTTON ========================== -->
       <div class="quest-home-button">
         <div class="text-center q-pt-md">
           <p v-if="canReplay === 'yes'">
             <!--<q-btn-dropdown class="glossy large-btn" v-if="!(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && getAllLanguages().length > 1" color="primary" :label="$t('label.SolveThisQuest')">
               <q-list link>
-                <q-item 
-                  v-for="lang in getAllLanguages()" :key="lang.lang" 
-                  v-show="lang.published" 
+                <q-item
+                  v-for="lang in getAllLanguages()" :key="lang.lang"
+                  v-show="lang.published"
                   @click.native="playQuest(quest.questId, lang.lang)"
                 >
                   <q-item-label>
@@ -125,28 +125,28 @@
             <q-btn v-if="isQuestOpen.status && this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary" class="glossy large-btn"><span>{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</span></q-btn>
             <q-btn
              v-if="isQuestOpen.status && quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)"
-              @click="playQuest(quest.questId, getLanguage())" 
+              @click="playQuest(quest.questId, getLanguage())"
               color="primary"
                class="glossy large-btn">
                <span>{{ $t('label.SolveThisQuest') }}</span>
                </q-btn>
-            <q-btn 
-              v-if="isQuestOpen.status && shop.premiumQuest.priceCode === 'notplayableonweb' && !isAdmin && !isOwner" 
-              disabled 
-              color="primary" 
+            <q-btn
+              v-if="isQuestOpen.status && shop.premiumQuest.priceCode === 'notplayableonweb' && !isAdmin && !isOwner"
+              disabled
+              color="primary"
               class="glossy large-btn">
               <span>{{ $t('label.QuestPlayableOnMobile') }}</span>
             </q-btn>
-            <q-btn 
-              v-if="isQuestOpen.status && shop.premiumQuest.priceCode === 'notplayableonweb' && (isAdmin || isOwner)" 
+            <q-btn
+              v-if="isQuestOpen.status && shop.premiumQuest.priceCode === 'notplayableonweb' && (isAdmin || isOwner)"
               @click="playQuest(quest.questId, getLanguage())"
-              color="primary" 
+              color="primary"
               class="glossy large-btn">
               <span>{{ $t('label.TestYourQuest') }}</span>
             </q-btn>
             <span v-if="!isQuestOpen.status" >
-              <q-btn 
-                color="primary" 
+              <q-btn
+                color="primary"
                 @click="isQuestOpen.displayHours = true"
                 class="glossy large-btn">
                 <span>{{ $t('label.OpeningHours') }}</span>
@@ -155,17 +155,17 @@
             </span>
           </p>
           <p v-if="canReplay !== 'yes'">
-            <q-btn 
-              v-if="canReplay === 'no'" 
-              disabled 
-              color="primary" 
+            <q-btn
+              v-if="canReplay === 'no'"
+              disabled
+              color="primary"
               class="glossy large-btn">
               <span>{{ $t('label.YouCanNotPlayAgainThisGame') }}</span>
             </q-btn>
-            <q-btn 
-              v-if="canReplay === 'nottoday'" 
-              disabled 
-              color="primary" 
+            <q-btn
+              v-if="canReplay === 'nottoday'"
+              disabled
+              color="primary"
               class="glossy large-btn">
               <span>{{ $t('label.YouCanNotPlayAgainThisGameToday') }}</span>
             </q-btn>
@@ -174,7 +174,7 @@
       </div>
 
       <!------------------ GAME DESCRIPTION ------------------------>
-      
+
       <div class="q-pa-md">
         <div class="text-subtitle2" v-html="this.quest.description"></div>
         <div v-if="isUserTooFar && !quest.allowRemotePlay" class="q-pt-md">
@@ -188,9 +188,9 @@
       <div v-if="quest.type === 'room'" class="q-pa-md subtitle5">
         {{ $t('label.RoomDataWarning') }}
       </div>
-      
+
       <!------------------ SNAPSHOTS ------------------------>
-      
+
       <div v-if="quest.snapshots && quest.snapshots.length > 0">
         <div class="row">
           <div class="col-4 centered q-pa-sm" v-if="quest.snapshots.length > 0">
@@ -205,9 +205,9 @@
         </div>
       </div>
     </div>
-    
+
     <!------------------ LOADER AREA ------------------------>
-    
+
     <transition name="slideInBottom">
       <div class="panel-bottom background-dark" v-show="showPreloaderPopup">
         <div class="reduce-window-size-desktop">
@@ -216,7 +216,7 @@
             <img src="statics/images/animation/map.gif" class="full-width q-mb-lg" />
           </div>
           <div class="centered" v-if="offline.show">
-            <offlineLoader 
+            <offlineLoader
               :quest="this.quest"
               :design="'prepare'"
               :lang="getLanguage()"
@@ -241,9 +241,9 @@
         </div>
       </div>
     </transition>
-    
+
     <!------------------ MULTIPLAYER AREA ------------------------>
-    
+
     <transition name="slideInBottom">
       <div class="panel-bottom background-dark" v-show="multiplayer.show">
         <div class="reduce-window-size-desktop">
@@ -261,13 +261,13 @@
                 </q-card-section>
               </q-card>
             </div>
-            
+
             <div class="centered">
               -
               <span>{{ $t('label.Or') }}</span>
               -
             </div>
-            
+
             <div class="q-pa-md">
               <q-card class="my-card">
                 <q-card-section class="bg-primary text-white centered text-uppercase">
@@ -300,9 +300,9 @@
         </div>
       </div>
     </transition>
-    
+
     <!--====================== SHOP PAGE =================================-->
-    
+
     <transition name="slideInBottom">
       <div class="panel-bottom background-dark" v-show="shop.show">
         <div class="reduce-window-size-desktop">
@@ -321,14 +321,14 @@
               </q-card-section>
             </q-card>
           </div>
-          
+
           <!--<div class="centered" v-if="quest.premiumPrice && quest.premiumPrice.tier && quest.premiumPrice.active && !isIOs">-->
           <div class="centered" v-if="quest.premiumPrice && quest.premiumPrice.tier && quest.premiumPrice.active">
             -
             <span>{{ $t('label.Or') }}</span>
             -
           </div>
-          
+
           <div class="q-pa-md" v-if="quest.premiumPrice && quest.premiumPrice.active">
             <q-card class="my-card">
               <q-card-section class="bg-primary text-white centered text-uppercase">
@@ -346,9 +346,9 @@
         </div>
       </div>
     </transition>
-    
+
     <!------------------ REWARDS POPUP ------------------------>
-    
+
     <q-dialog v-model="showRewardsPopup">
       <q-card>
         <q-card-section class="popup-header centered">
@@ -360,7 +360,7 @@
         </q-card-section>
 
         <q-separator />
-        
+
         <q-card-section class="subtitle5">
           {{ $t('label.OnThisEscapeGameYouCanWin') }}
           <ul>
@@ -370,9 +370,9 @@
         </q-card-section>
       </q-card>
     </q-dialog>
-    
+
     <!------------------ OPENING HOURS POPUP ------------------------>
-    
+
     <q-dialog v-model="isQuestOpen.displayHours">
       <q-card>
         <q-card-section class="popup-header centered">
@@ -384,7 +384,7 @@
         </q-card-section>
 
         <q-separator />
-        
+
         <q-card-section class="subtitle5">
           <div v-if="quest.scheduling && quest.scheduling.length > 0">
             <div class="centered q-pb-md">{{ $t('label.SchedulingDescription') }}</div>
@@ -401,9 +401,9 @@
         </q-card-section>
       </q-card>
     </q-dialog>
-    
+
     <!------------------ NO GEOLOCATION AREA ------------------------>
-    
+
     <div class="fixed-bottom over-map" v-if="!geolocationIsSupported">
       <div class="centered bg-warning q-pa-sm">
         <q-spinner-puff class="on-left" /> {{ $t('label.WarningNoLocation') }}
@@ -488,12 +488,12 @@ export default {
   },
   async mounted() {
     utils.clearAllRunningProcesses()
-    
+
     // check if battery is enough charged to play
     window.addEventListener("batterystatus", this.checkBattery, false);
 
     await this.initQuest()
-    
+
     // reset user history
     this.$store.state.history = {items: [], index: 0}
   },
@@ -557,10 +557,10 @@ export default {
       if (window.cordova && this.quest.premiumPrice && this.quest.premiumPrice.androidId && store.products.length > 0) {
         this.$router.go(0)
       }
-      
+
       // check if user is close from starting point
       this.checkUserIsCloseFromStartingPoint()
-          
+
       // check user access rights
       if (this.$store.state.user.isAdmin) {
         this.isAdmin = true
@@ -577,27 +577,27 @@ export default {
           this.isOwner = true
         }
       }
-      
+
       // check if quest is open (opening hours)
       this.checkIfQuestIsOpened()
-      
+
       // if the user is the author => force network play
       if (this.offline.active && (this.isOwner || this.isAdmin)) {
         await this.getQuest(this.quest.questId, true)
       }
-      
+
       // get user runs for this quest
       await this.getRun()
-      
+
       // check if user can play this quest
       await this.checkUserCanPlay()
-      
+
       // check if user must pay to play this quest
       await this.initPay()
-      
+
       // get rankings this quest
       //await this.getRanking()
-      
+
       // check number of simultaneous users
       await this.checkSimultaneousPlayers()
     },
@@ -609,7 +609,7 @@ export default {
     async getQuest(id, forceNetworkLoading) {
       // check if the quest data are not already saved on device
       let isQuestOfflineLoaded = await QuestService.isCached(id)
-      
+
       if (!isQuestOfflineLoaded || forceNetworkLoading) {
         this.offline.active = false
         // get the last version accessible by user depending on user access
@@ -653,7 +653,7 @@ export default {
           if (pictureUrl) {
             this.quest.picture = pictureUrl
           } else {
-            this.quest.picture = '_default-quest-picture.png'
+            this.quest.picture = 'default-quest-picture.jpg'
           }
         }
       }
@@ -676,7 +676,7 @@ export default {
     async getRun() {
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.quest.questId)
-      
+
       if (runs && runs.data && runs.data.length > 0) {
         for (var i = 0; i < runs.data.length; i++) {
           if (runs.data[i].status === 'finished') {
@@ -691,7 +691,7 @@ export default {
               if (utils.getFullDate(dateCreated) === utils.getFullDate(date)) {
                 this.canReplay = 'nottoday'
               }
-            } 
+            }
           }
           if (runs.data[i].status === 'in-progress' && runs.data[i].currentStep) {
             this.isRunStarted = true
@@ -700,13 +700,13 @@ export default {
         }
         if (this.isRunStarted) {
           this.continueQuest = true
-          if (!this.isOwner) {            
+          if (!this.isOwner) {
             this.startQuest(this.quest.questId, this.$route.params.lang)
           }
         }
       } else {
         // check if an offline run is already started
-        let checkIfRunIsAlreadyStarted = await QuestService.isCached(this.quest.questId)   
+        let checkIfRunIsAlreadyStarted = await QuestService.isCached(this.quest.questId)
 
         if (checkIfRunIsAlreadyStarted) {
           this.continueQuest = true
@@ -723,7 +723,7 @@ export default {
           this.warning.tooMuchUsers = true
         }
       }
-      
+
       // remove run offline data
       await utils.writeInFile(this.quest.questId, 'run_' + this.quest.questId + '.json', JSON.stringify({}), false)
     },
@@ -756,7 +756,7 @@ export default {
     async initPay() {
       if (!this.quest.premiumPrice || !this.quest.premiumPrice.androidId) {
         return 'free'
-      } 
+      }
       // if game is free
       if (!this.quest.premiumPrice.active) {
         return 'free'
@@ -790,7 +790,7 @@ export default {
         return "free"
       }
       this.shop.premiumQuest.priceCode = this.quest.premiumPrice.androidId
-      
+
       store.register({
         id: this.quest.premiumPrice.androidId,
         alias: this.quest.premiumPrice.androidId,
@@ -832,7 +832,7 @@ export default {
      */
     async savePurchase (product) {
       const purchaseStatus = await QuestService.purchasePremium(this.quest.questId, product)
-      
+
       if (purchaseStatus && purchaseStatus.data && purchaseStatus.data.status && purchaseStatus.data.status === 'ok') {
         // activate play button
         this.playStep = 1
@@ -855,7 +855,7 @@ export default {
       this.$q.loading.show()
       var newFriend = await UserService.addFriend(friendId)
       this.$q.loading.hide()
-      
+
       // hide add friend button for user concerned
       if (newFriend) {
         for (var i = 0; i < this.ranking.items.length; i++) {
@@ -953,12 +953,12 @@ export default {
       }
       // get only published languages
       var publishedLanguages = quest.languages.filter(language => language.published)
-      
+
       // when testing, no language published => Provide one
       if (publishedLanguages && publishedLanguages.length === 0 && quest.languages.length > 0) {
         publishedLanguages.push(quest.languages[0])
       }
-      
+
       return publishedLanguages
     },
     /*
@@ -1021,7 +1021,7 @@ export default {
           },
           ok: this.$t('label.Ok'),
           cancel: this.$t('label.Cancel')
-        }).onOk(data => {        
+        }).onOk(data => {
           if (data.length > 0 && data[0] === 'ok') {
             this.isSharedWithPartners = true
           }
@@ -1068,7 +1068,7 @@ export default {
         this.offline.show = true
       } else {
         var _this = this;
-        setTimeout(function() { 
+        setTimeout(function() {
          _this.showCalibrationAndStartQuest()
         }, 3000)
       }
@@ -1203,7 +1203,7 @@ export default {
         }
       }
     },
-    
+
     /*
      * Open booking link
      */
@@ -1254,7 +1254,7 @@ export default {
       } else if (this.quest.picture) {
         return this.serverUrl + '/upload/quest/' + this.quest.picture
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     }
   }

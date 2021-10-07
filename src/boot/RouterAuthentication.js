@@ -5,115 +5,128 @@ import store from "../store/index";
 import * as Cookies from "js-cookie";
 import utils from "../includes/utils";
 import packageJson from "../../package.json";
+import axios from "axios";
 
-export default ({ app, router, Vue }) => {
+export default async ({ app, router, Vue }) => {
+  let res = await axios.get(process.env.SERVER_URL + '/maintenance')
+  const isMaintenance = res.data.mode
   // check if user is authenticated for specific routes
   router.beforeEach(async (to, from, next) => {
     try {
-      if (!to.meta.hasOwnProperty("requiresAuth") || to.meta.requiresAuth) {
-        // check if user is connected on hybrid app
-        if (
-          navigator.connection &&
-          navigator.connection.type &&
-          typeof Connection !== "undefined" &&
-          navigator.connection.type === Connection.NONE
-        ) {
-          // if session user data not already stored
-          if (!store.state.user) {
-            store.state.user = {
-              name: "Stranger",
-              email: "-",
-              picture: "statics/icons/game/profile-big.png",
-              sex: "male",
-              age: "40-49",
-              language: "fr",
-              score: 0,
-              points: 0,
-              coins: 100,
-              status: "active",
-              rankings: { world: 99999999, town: 99999999 },
-              level: 1,
-              location: {
-                postalCode: "75000",
-                country: "FRA",
-                geometry: {
-                  coordinates: [5.7165413, 45.18942980000001],
-                  type: "Point"
-                }
-              },
-              isAdmin: false,
-              story: { step: 17, status: "new" }
-            };
-          }
-
-          next();
+      if (isMaintenance === 'true') {
+        if (to.name !== 'maintenance') {
+          console.log('Mode maintenance = ' + isMaintenance)
+          console.log(to)
+          next({replace: true, name: 'maintenance'})
         } else {
-          const response = await AuthService.getAccount();
-
-          if (response && response.data && response.data.name) {
-            // app version must be greater or equal than clientSupportedVersion
-            let appVersion = packageJson.version
-            if (
-              response.data.clientSupportedVersion &&
-              utils.compareVersions(response.data.clientSupportedVersion, appVersion) > 0
-            ) {
-              next({
-                path: "/error/upgraderequired"
-              });
-            } else {
-              store.state.user = response.data;
-
-              next();
-            }
-          } else {
-            if (!store.state.user) {
-              let firstusage = Cookies.get("firstusage");
-
-              if (firstusage && firstusage === "ok") {
-                next({
-                  path: "/user/login",
-                  query: from.path === "/" ? null : { redirect: to.fullPath }
-                });
-              } else {
-                // cookie expiration is in days. 36500 days = 100 years
-                Cookies.set("firstusage", "ok", {
-                  expires: 36500,
-                  secure: true
-                });
-                next({
-                  path: "/firstusage"
-                });
-              }
-            } else {
-              if (response && response.status) {
-                if (response.status !== 200) {
-                  if (response.status === 401) {
-                    Notification(i18n.t("label.SessionExpired"), "error");
-                  } else {
-                    Notification(i18n.t("label.AuthCheckError"), "error");
-                  }
-
-                  next({
-                    path: "/user/login",
-                    query: from.path === "/" ? null : { redirect: to.fullPath }
-                  });
-                } else {
-                  next();
-                }
-              } else {
-                // offline mode with store user data
-                next();
-              }
-            }
-          }
+          next()
         }
       } else {
-        // authentication not required for this route
-        next();
+        if (!to.meta.hasOwnProperty("requiresAuth") || to.meta.requiresAuth) {
+          // check if user is connected on hybrid app
+          if (
+            navigator.connection &&
+            navigator.connection.type &&
+            typeof Connection !== "undefined" &&
+            navigator.connection.type === Connection.NONE
+          ) {
+            // if session user data not already stored
+            if (!store.state.user) {
+              store.state.user = {
+                name: "Stranger",
+                email: "-",
+                picture: "statics/icons/game/profile-big.png",
+                sex: "male",
+                age: "40-49",
+                language: "fr",
+                score: 0,
+                points: 0,
+                coins: 100,
+                status: "active",
+                rankings: {world: 99999999, town: 99999999},
+                level: 1,
+                location: {
+                  postalCode: "75000",
+                  country: "FRA",
+                  geometry: {
+                    coordinates: [5.7165413, 45.18942980000001],
+                    type: "Point"
+                  }
+                },
+                isAdmin: false,
+                story: {step: 17, status: "new"}
+              };
+            }
+
+            next();
+          } else {
+            const response = await AuthService.getAccount();
+
+            if (response && response.data && response.data.name) {
+              // app version must be greater or equal than clientSupportedVersion
+              let appVersion = packageJson.version
+              if (
+                response.data.clientSupportedVersion &&
+                utils.compareVersions(response.data.clientSupportedVersion, appVersion) > 0
+              ) {
+                next({
+                  path: "/error/upgraderequired"
+                });
+              } else {
+                store.state.user = response.data;
+
+                next();
+              }
+            } else {
+              if (!store.state.user) {
+                let firstusage = Cookies.get("firstusage");
+
+                if (firstusage && firstusage === "ok") {
+                  next({
+                    path: "/user/login",
+                    query: from.path === "/" ? null : {redirect: to.fullPath}
+                  });
+                } else {
+                  // cookie expiration is in days. 36500 days = 100 years
+                  Cookies.set("firstusage", "ok", {
+                    expires: 36500,
+                    secure: true
+                  });
+                  next({
+                    path: "/firstusage"
+                  });
+                }
+              } else {
+                if (response && response.status) {
+                  if (response.status !== 200) {
+                    if (response.status === 401) {
+                      Notification(i18n.t("label.SessionExpired"), "error");
+                    } else {
+                      Notification(i18n.t("label.AuthCheckError"), "error");
+                    }
+
+                    next({
+                      path: "/user/login",
+                      query: from.path === "/" ? null : {redirect: to.fullPath}
+                    });
+                  } else {
+                    next();
+                  }
+                } else {
+                  // offline mode with store user data
+                  next();
+                }
+              }
+            }
+          }
+        } else {
+          // authentication not required for this route
+          next();
+        }
       }
     } catch (e) {
       console.error("Error in RouterAuthentication:", e);
       next();
     }
-  });
-};
+  })
+}

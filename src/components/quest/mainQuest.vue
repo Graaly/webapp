@@ -15,7 +15,7 @@
     <div v-if="quest">
       <div class="centered main-quest-banner q-pa-md">
         <div class="title2">
-          
+
         </div>
         <div class="q-pt-md q-pb-md subtitle6">
           <!--{{ $t('label.Difficulty' + quest.level) }}
@@ -28,11 +28,11 @@
           </span>-->
         </div>
         <div>
-          <q-btn 
+          <q-btn
             class="glossy large-btn"
-            color="primary" 
+            color="primary"
             :label="$t('label.Play')"
-            :loading="submitting" 
+            :loading="submitting"
             @click="playQuest" />
         </div>
         <div class="white-overliner q-mt-md subtitle6" v-if="quest.description.length < 30">
@@ -75,7 +75,7 @@ export default {
       } else if (this.quest.picture) {
         return this.serverUrl + '/upload/quest/' + this.quest.picture
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     },
     /*
@@ -92,7 +92,7 @@ export default {
       } else if (this.quest.thumb) {
         return this.serverUrl + '/upload/quest/' + this.quest.thumb
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     }
   }
