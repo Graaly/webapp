@@ -28,7 +28,8 @@ const state = {
   runningTimeoutsIds: [],
   mediaStreams: [],
   chatMessages: [],
-  chatNotification: 0
+  chatNotification: 0,
+  maintenanceMode: false
 };
 
 // mutations are operations that actually mutates the state.
@@ -98,6 +99,9 @@ const mutations = {
   },
   updateChatNotification (state, data) {
     state.chatNotification++
+  },
+  setMaintenanceMode (state, data) {
+    state.maintenanceMode = data
   }
 }
 

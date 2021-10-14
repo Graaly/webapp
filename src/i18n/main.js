@@ -1102,6 +1102,12 @@ module.exports = {
       Snapshots: "Snapshot(s)",
       CounterValue: "Counter value",
       CharacterBarColor: "Color of the bar below the character"
+    },
+    maintenance: {
+      mainText: "Our servers are currently under maintenance",
+      secondText: "It will not be very long ...",
+      reconnect: "Attempting to reconnect in",
+      second: "second(s)"
     }
   },
   fr: {
@@ -2194,6 +2200,12 @@ module.exports = {
       Snapshots: "Capture(s)",
       CounterValue: "Valeur du compteur",
       CharacterBarColor: "Couleur de la barre sous le personnage"
+    },
+    maintenance: {
+      mainText: "Nos serveurs sont actuellement en maintenance",
+      secondText: "Promis ce ne sera pas très long ...",
+      reconnect: "Tentative de reconnexion dans",
+      second: "seconde(s)"
     }
   }
 }

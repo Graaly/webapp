@@ -32,7 +32,6 @@ import AdminMinigamesBuilder from 'pages/admin/minigamebuilder.vue'
 import UserCreateAccount from 'pages/user/createAccount'
 //import UserFirstUsage from 'pages/user/firstusage'
 import ErrorMessage from 'pages/errorMessage'
-import maintenance from 'pages/maintenance'
 
 //console.log(CustomerConfiguration)
 
@@ -203,11 +202,6 @@ export default [
         name: 'error',
         component: ErrorMessage,
         meta: { requiresAuth: false }
-      },
-      {
-        path: '/maintenance',
-        name: 'maintenance',
-        component: maintenance
       }
     ]
   },

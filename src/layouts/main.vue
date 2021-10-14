@@ -1,8 +1,10 @@
 <template>
   <q-layout view="lHh lpr lfr" :right-breakpoint="1100">
     <!------------------ MAIN PAGE AREA ------------------------>
+
     <q-page-container>
-      <router-view id="main-view" :key="$route.fullPath" />
+      <maintenance v-if="$store.state.maintenanceMode" />
+      <router-view id="main-view" :key="$route.fullPath" v-else />
     </q-page-container>
 
     <!------------------ IF NOT A MOBILE DEVICE ------------------------>
@@ -15,7 +17,12 @@
 </template>
 
 <script>
+import maintenance from "../components/maintenance";
+
 export default {
+  components: {
+    maintenance
+  },
   data() {
     return {
       user: {

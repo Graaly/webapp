@@ -6,22 +6,20 @@ import * as Cookies from "js-cookie";
 import utils from "../includes/utils";
 import packageJson from "../../package.json";
 import AdminService from "../services/AdminService";
+import {Loading} from "quasar";
 
 export default async ({ app, router, Vue }) => {
-  const maintenanceResponse = await AdminService.checkMaintenanceMode()
   // check if user is authenticated for specific routes
   router.beforeEach(async (to, from, next) => {
+    const maintenanceResponse = await AdminService.checkMaintenanceMode()
     try {
       if (maintenanceResponse.status === 503) {
-        if (to.name !== 'maintenance') {
-          console.log('Mode maintenance = ' + maintenanceResponse.data.mode)
-          next({replace: true, name: 'maintenance'})
-        } else {
-          next()
-        }
-      } else if (maintenanceResponse.status === 200 && to.name === 'maintenance') {
-        next({replace: true, name: 'home'})
-      } else { // Normal behavior
+        store.commit('setMaintenanceMode', true)
+        Loading.hide()
+      } else {
+        store.commit('setMaintenanceMode', false)
+      }
+      // Normal behavior
         if (!to.meta.hasOwnProperty("requiresAuth") || to.meta.requiresAuth) {
           // check if user is connected on hybrid app
           if (
@@ -123,7 +121,6 @@ export default async ({ app, router, Vue }) => {
           // authentication not required for this route
           next();
         }
-      }
     } catch (e) {
       console.error("Error in RouterAuthentication:", e);
       next();

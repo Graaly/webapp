@@ -1,14 +1,22 @@
 import axios from "axios"
 import axiosRetry from 'axios-retry'
+import store from '../store/index'
+import {Loading} from "quasar";
 
 // Note: HTTPS is mandatory here because HTTPS is required for front (geolocation)
 
 let baseUrl = process.env.SERVER_URL
 let myAxios = axios.create({
   baseURL: baseUrl,
-  validateStatus: function(status) {
-    return true; // let app also treat 500 error
-    //return status < 500 //let app treat 3xx and 4xx errors
+  validateStatus: async function(status) {
+    if (status === 503) {
+      store.commit('setMaintenanceMode', true)
+      Loading.hide()
+    } else {
+      store.commit('setMaintenanceMode', false)
+      return true; // let app also treat 500 error
+      //return status < 500 //let app treat 3xx and 4xx errors
+    }
   }
 });
 
