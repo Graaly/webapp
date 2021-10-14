@@ -652,7 +652,7 @@
           <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled"></video>
         <!--</transition>-->
         <div>
-          <div v-if="isHybrid && !takingSnapshot" style="position: absolute; top: 58px; right: 8px;z-index: 1990;">
+          <div v-if="!takingSnapshot" style="position: absolute; top: 58px; right: 8px;z-index: 1990;">
             <q-btn 
               round 
               size="lg"
@@ -685,6 +685,8 @@
           <img v-if="step.options && step.options.fullWidthPicture && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985;" />
           <!-- background image -fullheight -->
           <img v-if="step.options && !step.options.fullWidthPicture && step.options.fullHeightPicture  && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; height: 100%; width: auto; z-index: 1985; left: 50%; top: 50%; -webkit-transform: translateY(-50%) translateX(-50%);" />
+          <!-- A copy of the image in an <img> tag which can be used by canvas methods for captures -->
+          <img :src="getBackgroundImage()" style="display:none" ref="imageOverflowForCapture" crossorigin="anonymous" />
           
           <!-- Red filter & alternate button for iOS -->
           <div v-if="isIOs && imageOverFlow.snapshot === '' && step.options && step.options.redFilter" class="centered" style="background: transparent; position: absolute; bottom: 200px; width: 100%; z-index: 1980;">
@@ -901,6 +903,7 @@ import { colors } from 'quasar'
 import StepService from 'services/StepService'
 import TimerStorageService from 'services/TimerStorageService'
 import utils from 'src/includes/utils'
+import draw from 'src/includes/draw'
 
 import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
@@ -3369,7 +3372,7 @@ export default {
           _this.$q.loading.hide()
           setTimeout(function () { _this.takeSnapshot() }, 2000)
         });
-      } else {
+      } else { // android & webapp
         // generate a snapshot of the video flow
         this.imageCapture.takePhoto()
           .then(blob => {
@@ -3377,13 +3380,15 @@ export default {
             image.onload = function() {
               const width = image.width
               const height = image.height
-              // check if picture has to be rotated
-              if (width > height) {
-                image.style.transform = 'rotate(90deg)'
-              }
               // keep image ratio
               const vw = _this.getScreenWidth()
               const vh = _this.getScreenHeight()
+              
+              // check if picture has to be rotated
+              if (vw > vh) {
+                image.style.transform = 'rotate(90deg)'
+              }
+              
               image.style.height = vh + "px"
               image.style.width = ((height / vh) * width) + "px"
               image.style.left = ((vw - parseInt(image.style.width, 10)) / 2) + "px"
@@ -3395,7 +3400,27 @@ export default {
               image.style.top = ((height - width) / 2) + "px"
               image.style.left = ((width - height) / 2) + "px"*/
               _this.$q.loading.hide()
-              setTimeout(function () { _this.takeSnapshot() }, 1000)
+              
+              if (this.isHybrid) {
+                setTimeout(function () { _this.takeSnapshot() }, 1000)
+              } else { // webapp
+                let c = document.createElement('canvas')
+                let aspectRatio = (vw / vh)
+                c.height = 1000 // base height: 1000px
+                c.width = c.height * aspectRatio
+                let context = c.getContext('2d')
+                // fit image to canvas, center horizontally & vertically & keep aspect ratio (like CSS 'cover')
+                draw.drawImageProp(context, image)
+                
+                let imgOverflow = _this.$refs['imageOverflowForCapture']
+                draw.drawImageProp(context, imgOverflow)
+                
+                // Grab blob from canvas
+                c.toBlob(blob => {
+                  utils.downloadBlob(blob, 'graaly-snapshot.png') // triggers picture file download
+                  c.remove()
+                })
+              }
             }
             image.src = URL.createObjectURL(blob)
           })
@@ -3410,7 +3435,7 @@ export default {
       if (this.cameraUsed === 'environment') {
         this.cameraUsed = 'user'
       } else {
-          this.cameraUsed = 'environment'
+        this.cameraUsed = 'environment'
       }
       if (this.isIOs && CameraPreview) {
         CameraPreview.switchCamera()
