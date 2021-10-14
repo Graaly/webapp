@@ -3415,11 +3415,8 @@ export default {
                 let imgOverflow = _this.$refs['imageOverflowForCapture']
                 draw.drawImageProp(context, imgOverflow)
                 
-                // Grab blob from canvas
-                c.toBlob(blob => {
-                  utils.downloadBlob(blob, 'graaly-snapshot.png') // triggers picture file download
-                  c.remove()
-                })
+                utils.downloadDataUrl(c.toDataURL('image/jpeg'), 'graaly-snapshot.jpg')
+                c.remove()
               }
             }
             image.src = URL.createObjectURL(blob)
