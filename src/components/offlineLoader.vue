@@ -11,10 +11,10 @@
         <!--<a class="text-white" @click="cancelOfflineLoading()">{{ $t('label.Cancel') }}</a>-->
       </div>
       <div v-if="error.raised && error.nb < 2" @click="saveOfflineQuest(quest)">
-        <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }} 
+        <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
       </div>
       <div v-if="error.raised && error.nb >= 2" @click="offline.progress = 1">
-        {{ $t('label.TooMuchOfflineLoadingErrors') }} 
+        {{ $t('label.TooMuchOfflineLoadingErrors') }}
       </div>
     </div>
   </div>
@@ -28,7 +28,7 @@ import utils from 'src/includes/utils'
 
 export default {
   props: ['quest', 'design', 'lang'],
-  watch: { 
+  watch: {
     // refresh component if questId change
     quest: async function(newVal, oldVal) {
       if (newVal) {
@@ -46,7 +46,8 @@ export default {
         raised: false
       },
       isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL
     }
   },
   async mounted() {
@@ -59,12 +60,12 @@ export default {
      */
     async saveOfflineQuest(quest) {
       this.error.raised = false
-      
+
       // check if quest is not already loaded
       const isQuestOfflineLoaded = await QuestService.isCached(quest.questId)
       this.offline.progress = 0.1
 
-      if (!isQuestOfflineLoaded) {  
+      if (!isQuestOfflineLoaded) {
         const isSaved = await this.saveQuestData(quest)
         if (!isSaved) {
           return
@@ -102,7 +103,7 @@ export default {
         // add new quest in the list
         quests.list.push(this.quest)
       }
-      
+
       // save quests list
       await utils.writeInFile('', 'quests.json', JSON.stringify(quests), true)
     },
@@ -113,12 +114,12 @@ export default {
       var _this = this
       // cancel save if the duration is too long
       utils.setTimeout(async () => { await _this.cancelSavingTooLong(_this.quest.questId) }, 420000)
-      
+
       // load data
       var stepsData = await StepService.listForAQuest(quest.questId, quest.version, this.lang)
       var steps = stepsData.data.steps
       var chapters = stepsData.data.chapters
-      
+
       // assign steps & chapters to quest
       this.quest.steps = []
       for (var i = 0; i < steps.length; i++) {
@@ -128,7 +129,7 @@ export default {
       for (i = 0; i < chapters.length; i++) {
         this.quest.chapters.push(chapters[i].chapterId)
       }
-    
+
       if (!this.error.raised) {
         // Create quest json file
         const createQuestFileSuccess = await utils.writeInFile(quest.questId, 'quest_' + quest.questId + '.json', JSON.stringify(quest), true)
@@ -137,17 +138,17 @@ export default {
           this.throwSaveError('Could not create quest file for quest ' + quest.questId)
           return false
         }
-        
+
         // add quest in the offline quests
         await this.addQuestInOfflineList(quest.questId)
-  
+
         if (!this.error.raised) {
           // update progress bar
           this.offline.progress = 0.2
-         
+
           // Save quest picture in file
           if (quest.picture && quest.picture !== '') {
-            const createQuestPictureSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/', quest.picture)
+            const createQuestPictureSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/', quest.picture)
 
             if (!createQuestPictureSuccess) {
               this.throwSaveError('Could not create quest picture for quest ' + quest.questId)
@@ -155,20 +156,20 @@ export default {
             }
           }
           this.offline.progress += 0.1
-     
+
           // save customized hint character
           if (quest.customization && quest.customization.character && quest.customization.character !== '') {
-            await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/', quest.customization.character)
+            await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/', quest.customization.character)
           }
-          
+
           // Save customized logo
           if (quest.customization && quest.customization.logo && quest.customization.logo !== '') {
-            await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/', quest.customization.logo)
+            await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/', quest.customization.logo)
           }
-          
+
           // Save customized sound
           if (quest.customization && quest.customization.audio && quest.customization.audio[this.lang] && quest.customization.audio[this.lang] !== '') {
-            await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/', quest.customization.audio[this.lang])
+            await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/', quest.customization.audio[this.lang])
           }
 
           // save steps
@@ -185,24 +186,24 @@ export default {
                 this.throwSaveError('Could not save step file for quest ' + quest.questId + ' and step ' + step.stepId)
                 return false
               }
-              
+
               // get step medias
               if (step.backgroundImage && step.backgroundImage !== '') {
-                const backgroundImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/background/', step.backgroundImage)
+                const backgroundImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/background/', step.backgroundImage)
                 if (!backgroundImageSuccess) {
                   this.throwSaveError('Could not save background image for quest ' + quest.questId + ' and step ' + step.stepId)
                   return false
                 }
               }
               if (step.videoStream && step.videoStream !== '') {
-                const videoStreamSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/video/', step.videoStream)
+                const videoStreamSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/video/', step.videoStream)
                 if (!videoStreamSuccess) {
                   this.throwSaveError('Could not save video for quest ' + quest.questId + ' and step ' + step.stepId)
                   return false
                 }
               }
               if (step.audioStream && step.audioStream[this.lang] && step.audioStream[this.lang] !== '') {
-                const audioStreamSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/audio/', step.audioStream[this.lang])
+                const audioStreamSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/audio/', step.audioStream[this.lang])
                 if (!audioStreamSuccess) {
                   this.throwSaveError('Could not save audio for quest ' + quest.questId + ' and step ' + step.stepId)
                   return false
@@ -212,7 +213,7 @@ export default {
                 var chooseImageSuccess = true
                 for (var k = 0; k < step.options.items.length; k++) {
                   if (step.options.items[k].imagePath) {
-                    chooseImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/choose-image/', step.options.items[k].imagePath)
+                    chooseImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/choose-image/', step.options.items[k].imagePath)
                     if (!chooseImageSuccess) {
                       this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "choose-image" ' + step.stepId)
                       return false
@@ -224,7 +225,7 @@ export default {
                 var memoryImageSuccess = true
                 for (k = 0; k < step.options.items.length; k++) {
                   if (step.options.items[k].imagePath) {
-                    memoryImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/memory/', step.options.items[k].imagePath)
+                    memoryImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/memory/', step.options.items[k].imagePath)
                     if (!memoryImageSuccess) {
                       this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "memory" ' + step.stepId)
                       return false
@@ -236,7 +237,7 @@ export default {
                 var codeImageSuccess = true
                 for (k = 0; k < step.options.images.length; k++) {
                   if (step.options.images[k].imagePath) {
-                    codeImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/code-image/', step.options.images[k].imagePath)
+                    codeImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/code-image/', step.options.images[k].imagePath)
                     if (!codeImageSuccess) {
                       this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "code-image" ' + step.stepId)
                       return false
@@ -245,7 +246,7 @@ export default {
                 }
               }
               if (step.type === 'jigsaw-puzzle' && step.options && step.options.picture && step.options.picture !== '') {
-                const jigsawImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/jigsaw-puzzle/', step.options.picture)
+                const jigsawImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/jigsaw-puzzle/', step.options.picture)
                 if (!jigsawImageSuccess) {
                   this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "jigsaw-puzzle" ' + step.stepId)
                   return false
@@ -255,11 +256,11 @@ export default {
                 if (step.options.picture.indexOf('statics') === -1) {
                   var newItemImageSuccess
                   if (step.options.pictures && step.options.pictures[this.lang] && step.options.pictures[this.lang] !== '') {
-                    newItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.pictures[this.lang])
+                    newItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.pictures[this.lang])
                   } else {
-                    newItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.picture)
+                    newItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.picture)
                   }
-                  
+
                   //if (!newItemImageSuccess) {
                   //  this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "new-item" ' + step.stepId)
                   //  return false
@@ -268,7 +269,7 @@ export default {
               }
               if (step.type === 'character' && step.options && step.options.character && step.options.character !== ''  && step.options.character !== 'usequestcharacter') {
                 if (step.options.character.length > 3) {
-                  const characterImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/character/', step.options.character)
+                  const characterImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/character/', step.options.character)
                   if (!characterImageSuccess) {
                     this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "character" ' + step.stepId)
                     return false
@@ -277,7 +278,7 @@ export default {
               }
               if ((step.type === 'find-item' || step.type === 'use-item') && step.options && step.options.altFile && step.options.altFile !== '') {
                 if (step.options.altFile.length > 3) {
-                  const altImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/background/', step.options.altFile)
+                  const altImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/background/', step.options.altFile)
                   if (!altImageSuccess) {
                     this.throwSaveError('Could not save background image for quest ' + quest.questId + ' and step ' + step.stepId)
                     return false
@@ -286,7 +287,7 @@ export default {
               }
               if (step.type === 'locate-item-ar' && step.options) {
                 if (step.options.picture && step.options.picture !== '') {
-                  const locateItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/locate-item-ar/', step.options.picture)
+                  const locateItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/locate-item-ar/', step.options.picture)
                   if (!locateItemImageSuccess) {
                     this.throwSaveError('Could not save 2D image for quest ' + quest.questId + ' and step "locate-item-ar" ' + step.stepId)
                     return false
@@ -294,7 +295,7 @@ export default {
                 }
                 if (step.options.is3D) {
                   if (step.options.customModel) {
-                    const customModelObjectSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/3dobject/', step.options.customModel + '.glb')
+                    const customModelObjectSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/3dobject/', step.options.customModel + '.glb')
                     if (!customModelObjectSuccess) {
                       this.throwSaveError('Could not save custom 3D model for quest ' + quest.questId + ' and step "locate-item-ar" ' + step.stepId)
                       return false
@@ -308,7 +309,7 @@ export default {
                   }
                 }
               }
-              
+
               if (this.error.raised) {
                 return false
               }
@@ -331,7 +332,7 @@ export default {
         }
       } else {
         return false
-      }     
+      }
     },
     /**
      * In case there is an error on download
@@ -357,7 +358,7 @@ export default {
         //relaunch the download
         _this.saveOfflineQuest(quest);
         //reload the loading page
-        //location.reload(); 
+        //location.reload();
       })
     },
 
@@ -372,7 +373,7 @@ export default {
       var _this = this
       // remove files
       utils.setTimeout(async () => { await _this.removeOfflineData(_this.quest.questId) }, 7000)
-      
+
       Notification(this.$t('label.CancelOfflineWarning'), 'warning')
       this.offline.progress = 0
       this.$emit('end')
@@ -382,7 +383,7 @@ export default {
      */
     async removeOfflineData(questId) {
       const success = await utils.removeDirectory(questId)
-      
+
       await this.removeQuestFromOfflineList(questId)
 
       return success
@@ -399,7 +400,7 @@ export default {
         const questFileContent = await utils.readFile('', 'quests.json')
 
         quests = JSON.parse(questFileContent)
-        
+
         // check if quest is already existing in file
         var questPosition = -1
         for (var i = 0; i < quests.list.length; i++) {
@@ -407,11 +408,11 @@ export default {
             questPosition = i
           }
         }
-        
+
         if (questPosition !== -1) {
           quests.list.splice(questPosition, 1)
         }
-        
+
         // save quests list
         await utils.writeInFile('', 'quests.json', JSON.stringify(quests), true)
       }

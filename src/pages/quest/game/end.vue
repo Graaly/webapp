@@ -3,16 +3,16 @@
     <!------------------ NO NETWORK AREA ------------------------>
     <div v-if="warnings.noNetwork">
       <div class="bg-primary">
-        <div class="centered q-pa-lg">    
+        <div class="centered q-pa-lg">
           <h2 class="text-center size-3 q-mt-xl q-mb-sm">{{ $t('label.YouHaveWin') }}</h2>
           {{ $t('label.ToSaveYouScoreYouNeedToConnect') }}
           <q-btn icon="refresh" class="q-mt-md" color="accent" @click="loadData" :label="$t('label.ConnectToComputeScore')" />
         </div>
       </div>
     </div>
-    
+
     <!------------------ TEXT IF NO SCORING ------------------>
-    
+
     <div class="q-ma-md rounded background-lighter2" v-if="!warnings.noNetwork && quest && quest.customization && quest.customization.removeScoring">
       <div class="q-pa-md" :class="'font-' + quest.customization.font">
         <div class="text-h4" v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage !== '' && (nbGoodAnwers !== nbQuestions || quest.customization.endMessageForPerfectScore === '')" v-html="quest.customization.endMessage" />
@@ -30,11 +30,11 @@
     <div class="q-px-md text-grey align-right" style="font-size: 0.8em; margin-top: -10px;">
       {{ endDate }}
     </div>
-    
+
     <div v-if="isUserAuthor" class="back centered q-pa-md">
       <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
     </div>
-        
+
     <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
       <div v-if="run && run._id">
         <div class="relative-position header-point-box">
@@ -44,7 +44,7 @@
           </div>
           <!------------------ TITLE AREA ------------------------>
           <div style="padding-top: 100px">
-            <div style="padding-top: 35px" class="rounded background-lighter2 centered full-width">    
+            <div style="padding-top: 35px" class="rounded background-lighter2 centered full-width">
               <h2 class="text-center title2 q-mt-xl q-mb-sm q-mx-xl text-uppercase">{{ $t('label.YouWin') }}</h2>
               <div class="relative-position progress-box">
                 <div class="progress-bar">
@@ -59,13 +59,13 @@
                 </div>
               </div>
               <div class="centered q-pb-sm" v-if="run && run.duration">
-                {{ $t('label.YourTime') }}: {{ run.duration.h }}h {{ run.duration.m }}m 
+                {{ $t('label.YourTime') }}: {{ run.duration.h }}h {{ run.duration.m }}m
               </div>
               <div class="centered q-pb-sm" v-if="run && run.score && run.score > 0">
                 {{ $t('label.YourScore') }}: {{ run.score }} {{ $t('label.pts') }}
               </div>
               <div class="centered q-pb-md" v-if="run && ranking && ranking.position && ranking.position !== '-'">
-                {{ $t('label.YourRanking') }}: {{ ranking.position }} 
+                {{ $t('label.YourRanking') }}: {{ ranking.position }}
               </div>
               <div class="centered q-pb-md" v-if="run">
                 {{ $t('label.GoodAnswersNumber') }}: {{ nbGoodAnwers }} / {{ nbQuestions }}
@@ -73,18 +73,18 @@
             </div>
           </div>
         </div>
-        
+
         <!------------------ NEW QUEST WON AREA ------------------------>
-        
+
         <div v-if="unlockedQuest.show" class="centered q-mt-md subtitle5">
           <span class="text-primary">{{ $t('label.YouWonNewGame') }}</span>
           <div class="centered q-pa-md">
             <q-btn color="primary" class="glossy" :label="$t('label.SolveThisQuest')" @click="$router.push('/quest/play/' + unlockedQuest.id)" />
           </div>
         </div>
-        
+
         <!------------------ SUGGESTION AREA ------------------------>
-        
+
         <div class="centered q-mt-md subtitle5">{{ $t('label.YouLikedThisQuest') }}</div>
         <div class="centered q-px-md">
           <span v-show="quest && quest.type !== 'discovery' && run.score > 0 && quest && quest.access === 'public'">
@@ -107,11 +107,11 @@
             {{ author.name }}
           </div>
           <div class="centered q-pt-sm" v-if="$store.state.user.id !== author._id">
-            <q-btn 
+            <q-btn
                v-if="!author.status || author.status !== 'friend'"
               class="glossy normal-button"
-              color="primary" 
-              :label="$t('label.Follow')" 
+              color="primary"
+              :label="$t('label.Follow')"
               @click="follow" />
             <div v-if="author.status && author.status === 'friend'" class="centered">
               <q-chip class="glossy" color="primary" text-color="white" icon-right="star">
@@ -124,13 +124,13 @@
           <suggest @close="suggestQuest.show = false"></suggest>
         </q-dialog>
       </div>
-      
+
     </div>
-         
+
     <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork">
       <div>
         <!------------------ REVIEW AREA ------------------------>
-        
+
         <div class="q-mx-md q-mt-xl q-pa-sm centered" v-if="quest && quest.type !== 'discovery' && showAddReview">
           <div class="subtitle4">{{ $t('label.ReviewThisQuest') }}</div>
           <div class="q-py-sm"><q-rating v-model="rating" :max="5" size="1rem" class="end-rating" color="white" :disable="reviewSent" @click="showReviewText = true" /></div>
@@ -147,23 +147,23 @@
             </div>
           </div>
         </q-dialog>
-        
+
         <!------------------ REWARD AREA ------------------------>
-        
-        <div class="q-pa-md q-mt-lg centered rounded background-lighter2" v-if="showReward && run && run.questData">      
+
+        <div class="q-pa-md q-mt-lg centered rounded background-lighter2" v-if="showReward && run && run.questData">
           <div class="subtitle4 q-pb-lg">{{ $t('label.YouWonAReward') }}</div>
           <div class="q-pt-md">
-            <img class="badge-alone" :src="serverUrl + '/upload/quest/' + run.questData.rewardPicture">
+            <img class="badge-alone" :src="uploadUrl + '/upload/quest/' + run.questData.rewardPicture">
             <div class="subtitle6">{{ $t('label.WonOtherRewardByPlayingOtherGamesInCity') }}</div>
           </div>
         </div>
       </div>
     </div>
-        
+
     <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
       <div v-if="run && run._id">
         <!------------------ RANKING AREA ------------------------>
-    
+
         <div v-show="ranking.show">
           <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Ranking') }}</div>
           <div>{{ $t('label.RankingEndIntro') }}</div>
@@ -192,26 +192,26 @@
             </div>
           </div>
         </div>
-             
+
         <!------------------ BACK TO MAP LINK AREA ------------------------>
-        
+
         <div class="back centered q-pa-md">
           <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToTheMap')" @click="$router.push('/home')" />
         </div>
         <div v-if="isUserAdmin" class="back centered q-pa-md">
           <q-btn color="primary" class="glossy large-button" :label="$t('label.GoToQuestValidation')" @click="$router.push('/admin/validate/' + questId + '/version/' + quest.version)" />
         </div>
-        
+
       </div>
       <div class="centered bg-warning q-pa-sm" v-if="warnings.noNetwork" @click="loadData()">
         <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
       </div>
     </div>
-    
+
     <!--====================== CHALLENGE YOUR FRIENDS PAGE =================================-->
-    
+
     <transition name="slideInBottom">
-      <div class="panel-bottom q-pa-md bg-graaly-blue-dark" v-show="showChallenge">      
+      <div class="panel-bottom q-pa-md bg-graaly-blue-dark" v-show="showChallenge">
         <a class="float-right no-underline" color="grey" @click="closeChallenge"><q-icon name="close" class="subtitle3" /></a>
         <div class="subtitle3 q-pt-md q-pb-lg">{{ $t('label.ChallengeYourFriends') }}</div>
         <div v-if="filteredFriends.length === 0">
@@ -236,7 +236,7 @@
                 <q-item-section>
                   <q-avatar>
                     <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') !== -1" :src="friend.picture" />
-                    <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') === -1" :src="serverUrl + '/upload/profile/' + friend.picture" />
+                    <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') === -1" :src="uploadUrl + '/upload/profile/' + friend.picture" />
                     <img v-if="!friend.picture || friend.picture === ''" src="statics/icons/game/profile-small.png" />
                   </q-avatar>
                 </q-item-section>
@@ -250,11 +250,11 @@
         </div>
       </div>
     </transition>
-    
+
      <!--====================== BONUS PAGE =================================-->
-    
+
     <transition name="slideInBottom">
-      <div class="panel-bottom q-pa-md" v-if="showBonus">      
+      <div class="panel-bottom q-pa-md" v-if="showBonus">
         <div class="text-h4 q-pt-md q-pb-lg centered">{{ $t('label.YouWonABonus') }}</div>
         <div class="q-pa-md text-primary">
           <q-card class="q-ma-sm">
@@ -272,11 +272,11 @@
         </div>
       </div>
     </transition>
-    
+
     <!--====================== WIN COINS ANIMATION =================================-->
-      
+
     <!--<div v-if="level.upgraded" class="fadein-message">+100 <q-icon color="white" name="fas fa-bolt" /></div>-->
-        
+
   </div>
 </template>
 
@@ -314,7 +314,7 @@ export default {
       level: {
         color: "white",
         upgraded: false
-      }, 
+      },
       run: {
         score: 0,
         stars: 1
@@ -349,7 +349,8 @@ export default {
         show: false
       },
       isHybrid: window.cordova,
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL
     }
   },
   async mounted () {
@@ -359,7 +360,7 @@ export default {
     if (this.isHybrid && cordova.platformId === 'android') {
       StatusBar.hide()
     }
-    
+
     // compute end date
     let date = new Date()
     this.endDate = Moment(date).format('DD/MM/YYYY, h:mm:ss')
@@ -372,7 +373,7 @@ export default {
       this.warnings.noNetwork = false
       var runIsInProgress = false
       this.$q.loading.show()
-      
+
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.questId)
       if (runs) {
@@ -405,21 +406,21 @@ export default {
           const isReviewAlreadySent = results.data && results.data.length >= 1
           this.showAddReview = !this.isUserAdmin && !this.isUserAuthor && !isReviewAlreadySent
         }
-        
+
         // compute good answers
         await this.computeGoodAnswers()
-        
+
         // get user old score
         this.score.old = this.$store.state.user.points
         if (!this.score.old) {
           this.score.old = 0
         }
-        
+
         this.initProgression()
-        
+
         // get offline run data
         const offlineRunData = await this.getOfflineRunData()
-        
+
         // end the run
         let endStatus = await RunService.endRun(this.run._id, offlineRunData, this.questId, this.quest.version, this.quest.mainLanguage)
         if (endStatus && endStatus.data) {
@@ -441,13 +442,13 @@ export default {
             this.unlockedQuest.show = true
             this.unlockedQuest.id = endStatus.data.unlockedQuest
           }
-          
+
           // remove offline data
           await this.removeOfflineData()
         } else {
           this.warnings.noNetwork = true
         }
-        
+
         // if run is not loaded, load it again
         if (!this.run._id) {
           runs = await RunService.listForAQuest(this.questId)
@@ -455,7 +456,7 @@ export default {
             this.run = runs.data[0]
           }
         }
-        
+
         if (!this.quest.customization || !this.quest.customization.removeScoring) {
           // get user new score
           //this.level.color = "secondary"
@@ -465,14 +466,14 @@ export default {
           this.$store.state.user.points = this.score.new
           utils.setTimeout(this.updateProgression, 3000)
         }
-        
+
         // get ranking without the user (status of run is still in-progress)
         await this.getRanking()
-        
+
         // get duration
         const duration = utils.getDurationFromNow(this.run.dateCreated)
         this.run.duration = {h: duration.h, m: duration.m}
-        
+
         this.getAuthorProfile()
       } else {
         // no network
@@ -517,7 +518,7 @@ export default {
       // do not launch with discovery quest
       if (this.questId !== '5b7303ec4efbcd1f8cb101c6') {
         var scores = await RunService.listPlayersForThisQuest(this.questId)
-        
+
         if (scores && scores.data) {
           this.ranking.position = scores.data
         }
@@ -535,7 +536,7 @@ export default {
      */
     async showRanking() {
       this.ranking.show = true
-      
+
       // check if current user is in the ranking
       var isInRanking = false
       for (var i = 0; i < this.ranking.items.length; i++) {
@@ -543,14 +544,14 @@ export default {
           isInRanking = true
         }
       }
-      
+
       if (!isInRanking) {
         this.ranking.items.push({
-          id: this.$store.state.user._id, 
-          score: this.run.score, 
-          name: this.$store.state.user.name, 
-          picture: this.$store.state.user.picture, 
-          position: this.ranking.items.length + 1, 
+          id: this.$store.state.user._id,
+          score: this.run.score,
+          name: this.$store.state.user.name,
+          picture: this.$store.state.user.picture,
+          position: this.ranking.items.length + 1,
           isFriend: true,
           className: "selected"
         })
@@ -623,7 +624,7 @@ export default {
           this.friends = allFriends.data
           this.filteredFriends = this.friends
         }
-      } 
+      }
     },
     /*
      * Close the challenge friends modal
@@ -636,7 +637,7 @@ export default {
      */
     async challenge(friend) {
       await UserService.challengeFriend(friend.friendId, this.run._id)
-      
+
       for (var i = 0; i < this.filteredFriends.length; i++) {
         if (this.filteredFriends[i].friendId === friend.friendId) {
           this.filteredFriends[i].isChallenged = true
@@ -679,7 +680,7 @@ export default {
       if (this.author.picture && this.author.picture.indexOf('http') !== -1) {
         return this.author.picture
       } else if (this.author.picture) {
-        return this.serverUrl + '/upload/profile/' + this.author.picture
+        return this.uploadUrl + '/upload/profile/' + this.author.picture
       } else {
         return 'statics/images/icon/profile-small.png'
       }
@@ -718,12 +719,12 @@ export default {
         Notification(this.$t('label.PleaseRateTheQuest'), 'warning')
         return false
       }
-      
+
       this.$q.loading.show()
       await ReviewService.add(this.questId, this.run.version, this.run._id, this.comment, this.rating)
       // TODO: add error tracking
       this.$q.loading.hide()
-      
+
       this.reviewSent = true
       this.showReviewText = false
       Notification(this.$t('label.ReviewSent'), 'positive')
@@ -763,7 +764,7 @@ export default {
      */
     async removeOfflineData() {
       const success = await utils.removeDirectory(this.questId)
-      
+
       await this.removeQuestFromOfflineList(this.questId)
 
       return success
@@ -780,7 +781,7 @@ export default {
         const questFileContent = await utils.readFile('', 'quests.json')
 
         quests = JSON.parse(questFileContent)
-        
+
         // check if quest is already existing in file
         var questPosition = -1
         for (var i = 0; i < quests.list.length; i++) {
@@ -788,11 +789,11 @@ export default {
             questPosition = i
           }
         }
-        
+
         if (questPosition !== -1) {
           quests.list.splice(questPosition, 1)
         }
-        
+
         // save quests list
         await utils.writeInFile('', 'quests.json', JSON.stringify(quests), true)
       }

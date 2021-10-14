@@ -5,14 +5,14 @@
         {{ $t('label.' + ($store.state.user.id === $route.params.id ? 'YourBadges' : 'Badges')) }}
       </div>
       <badgesList :format="$store.state.user.id === $route.params.id ? 'bytown' : 'list'" :badges="badges"></badgesList>
-        
+
       <!------------------ HEADER COMPONENT ------------------------>
-      
+
       <div class="q-py-sm q-px-md dark-banner opaque-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToTheMap()" />
       </div>
     </div>
-    
+
   </div>
 </template>
 
@@ -27,7 +27,8 @@ export default {
   data () {
     return {
       badges: null,
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL
     }
   },
   mounted() {

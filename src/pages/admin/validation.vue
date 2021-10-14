@@ -39,7 +39,8 @@ export default {
   data() {
     return {
       quest: {},
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL
     };
   },
   async mounted() {

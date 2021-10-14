@@ -12,9 +12,9 @@
           {{ $t('label.WeNeedYourPositionForThisFeature') }}
         </div>
       </div>
-        
+
       <!------------------ HEADER COMPONENT ------------------------>
-      
+
       <div class="q-py-sm q-px-md dark-banner opaque-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToTheMap()" />
         <div v-if="$store.state.user.id === $route.params.id" class="row q-pa-sm">
@@ -36,11 +36,11 @@
         </div>
       </div>
     </div>
-    
+
     <!------------------ GEOLOCATION COMPONENT ------------------------>
-      
+
     <geolocation ref="geolocation-component" @success="onLocationSuccess($event)" @error="onLocationError()" />
-  
+
   </div>
 </template>
 
@@ -65,7 +65,8 @@ export default {
       skip: 0,
       limit: 12,
       tab: 'follow',
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL
     }
   },
   mounted() {
@@ -74,7 +75,7 @@ export default {
   methods: {
     async reloadFriends() {
       this.skip = 0
-      await this.loadFriends(0, function () {}) 
+      await this.loadFriends(0, function () {})
     },
     /*
      * List friends

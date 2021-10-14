@@ -24,9 +24,9 @@
           icon="sentiment_very_dissatisfied"
           label="Rejected"
         />
-        <q-tab name="earnings" icon="price" label="Earnings" />
-        <q-tab name="statistics" icon="stats" label="Statistics" />
-        <q-tab name="limitations" icon="stats" label="Limitations" />
+        <q-tab name="earnings" icon="euro" label="Earnings" />
+        <q-tab name="statistics" icon="bar_chart" label="Statistics" />
+        <q-tab name="limitations" icon="pan_tool" label="Limitations" />
       </q-tabs>
 
       <q-separator />
@@ -35,7 +35,55 @@
         <!------------------ LIST OF QUESTS TO VALIDATE TAB ------------------------>
 
         <q-tab-panel name="validation">
-          <q-list highlight>
+          <q-table
+            class="container"
+            title="Games awaiting validation"
+            :data="questsToValidate.items"
+            :columns="questsToValidate.columns"
+            :visible-columns="questsToValidate.visible"
+            row-key="id"
+            :loading="questsToValidate.loading"
+            :pagination="questsToValidate.initialPagination"
+          >
+            <template v-slot:header="props">
+              <q-tr :props="props">
+                <q-th auto-width />
+                <q-th
+                  v-for="col in props.cols"
+                  :key="col.name"
+                  :props="props"
+                >
+                  {{ col.label }}
+                </q-th>
+                <q-th auto-width>Play</q-th>
+                <q-th auto-width>Validate</q-th>
+              </q-tr>
+            </template>
+
+            <template v-slot:body="props">
+              <q-tr :props="props">
+                <q-td auto-width>
+                  <q-avatar square>
+                    <img v-if="props.row.picture" :src="uploadUrl + '/upload/quest/' + props.row.thumb">
+                    <img v-if="!props.row.picture" src="statics/profiles/noprofile.png">
+                  </q-avatar>
+                </q-td>
+                <q-td auto-width key="name">{{ props.row.title.fr }}</q-td>
+                <q-td auto-width key="author">{{ props.row.author }}<br><span style="font-size: 10px;" class="text-secondary">{{ props.row.authorUserId }}</span></q-td>
+                <q-td auto-width key="mail">{{ props.row.userMail }} <q-btn size="8px" flat round color="accent" icon="content_copy" class="q-mr-sm" @click="copy(props.row.userMail)"/></q-td>
+                <q-td auto-width key="access">{{ props.row.access }}</q-td>
+                <q-td auto-width key="premium">{{ props.row.isPremium ? 'Premium' : 'Individual' }}</q-td>
+                <q-td auto-width>
+                  <q-btn size="md" color="accent" glossy icon="play_arrow"  @click.native="$router.push('/quest/play/' + props.row.questId)"/>
+                </q-td>
+                <q-td auto-width>
+                  <q-btn size="md" color="primary" glossy icon="done" @click="validate(props.row.questId, props.row.version)"/>
+                </q-td>
+              </q-tr>
+            </template>
+          </q-table>
+
+<!--          <q-list highlight>
             <q-item v-for="quest in questsToValidate.items" :key="quest._id">
               <q-item-section
                 avatar
@@ -44,7 +92,7 @@
                 <q-avatar>
                   <img
                     v-if="quest.thumb"
-                    :src="serverUrl + '/upload/quest/' + quest.thumb"
+                    :src="uploadUrl + '/upload/quest/' + quest.thumb"
                   />
                   <img
                     v-if="!quest.thumb"
@@ -92,13 +140,52 @@
             <q-item v-if="questsToValidate.items.length === 0">
               <q-item-label>No quest to validate</q-item-label>
             </q-item>
-          </q-list>
+          </q-list>-->
         </q-tab-panel>
 
         <!------------------ LIST OF QUESTS REJECTED TAB ------------------------>
 
         <q-tab-panel name="rejected">
-          <q-list highlight>
+
+          <q-table
+            class="container"
+            title="Rejected Games"
+            :data="questsRejected.items"
+            :columns="questsRejected.columns"
+            :visible-columns="questsRejected.visible"
+            row-key="id"
+            :loading="questsRejected.loading"
+            :pagination="questsRejected.initialPagination"
+          >
+            <template v-slot:header="props">
+              <q-tr :props="props">
+                <q-th auto-width />
+                <q-th
+                  v-for="col in props.cols"
+                  :key="col.name"
+                  :props="props"
+                >
+                  {{ col.label }}
+                </q-th>
+              </q-tr>
+            </template>
+            <template v-slot:body="props">
+              <q-tr :props="props">
+                <q-td auto-width>
+                  <q-avatar square>
+                    <img v-if="props.row.picture" :src="uploadUrl + '/upload/quest/' + props.row.thumb">
+                    <img v-if="!props.row.picture" src="statics/profiles/noprofile.png">
+                  </q-avatar>
+                </q-td>
+                <q-td auto-width key="name">{{ props.row.title.fr }}</q-td>
+                <q-td auto-width key="author">{{ props.row.author }}<br><span style="font-size: 10px;" class="text-secondary">{{ props.row.authorUserId }}</span></q-td>
+                <q-td auto-width key="mail">{{ props.row.userMail }} <q-btn size="8px" flat round color="accent" icon="content_copy" class="q-mr-sm" @click="copy(props.row.userMail)"/></q-td>
+                <q-td auto-width key="access">{{ props.row.access }}</q-td>
+                <q-td auto-width key="premium">{{ props.row.isPremium ? 'Premium' : 'Individual' }}</q-td>
+              </q-tr>
+            </template>
+          </q-table>
+<!--          <q-list highlight>
             <q-item
               v-for="quest in questsRejected.items"
               :key="quest._id"
@@ -108,7 +195,7 @@
                 <q-avatar>
                   <img
                     v-if="quest.thumb"
-                    :src="serverUrl + '/upload/quest/' + quest.thumb"
+                    :src="uploadUrl + '/upload/quest/' + quest.thumb"
                   />
                   <img
                     v-if="!quest.thumb"
@@ -143,9 +230,9 @@
             <q-item v-if="questsRejected.items.length === 0">
               <q-item-label>No quest rejected</q-item-label>
             </q-item>
-          </q-list>
+          </q-list>-->
         </q-tab-panel>
-        
+
         <!------------------ EARNINGS TAB ------------------------>
 
         <q-tab-panel name="earnings">
@@ -173,7 +260,7 @@
             </q-item>
           </q-list>
         </q-tab-panel>
-        
+
         <!------------------ LIMITATIONS TAB ------------------------>
 
         <q-tab-panel name="limitations">
@@ -201,7 +288,7 @@
             </q-item>
           </q-list>
         </q-tab-panel>
-      
+
         <!------------------ MINI GAMES TAB ------------------------>
 
         <q-tab-panel name="statistics">
@@ -242,10 +329,42 @@ export default {
   data() {
     return {
       questsToValidate: {
-        items: []
+        loading: true,
+        items: [],
+        visible: ['name', 'author', 'mail', 'access', 'premium'],
+        columns: [
+          {name: 'id', label: 'ID', field: 'questId'},
+          {name: 'name', required: true, label: 'Name', align: 'left', sortable: true, field: row => row.title.fr},
+          {name: 'author', required: true, label: 'Author', align: 'left', sortable: true, field: 'author'},
+          {name: 'mail', label: 'Mail', sortable: true, align: 'left', field: 'userMail'},
+          {name: 'access', label: 'Access', align: 'left', sortable: true, field: 'access'},
+          {name: 'premium', label: 'Premium', align: 'left', sortable: true, field: row => row.isPremium ? 'Premium' : 'Individual'}
+        ],
+        initialPagination: {
+          sortBy: 'desc',
+          descending: false,
+          page: 1,
+          rowsPerPage: 10
+        }
       },
       questsRejected: {
-        items: []
+        loading: true,
+        items: [],
+        visible: ['name', 'author', 'mail', 'access', 'premium'],
+        columns: [
+          {name: 'id', label: 'ID', field: 'questId'},
+          {name: 'name', required: true, label: 'Name', align: 'left', sortable: true, field: row => row.title.fr},
+          {name: 'author', required: true, label: 'Author', align: 'left', sortable: true, field: 'author'},
+          {name: 'mail', label: 'Mail', sortable: true, align: 'left', field: 'userMail'},
+          {name: 'access', label: 'Access', align: 'left', sortable: true, field: 'access'},
+          {name: 'premium', label: 'Premium', align: 'left', sortable: true, field: row => row.isPremium ? 'Premium' : 'Individual'}
+        ],
+        initialPagination: {
+          sortBy: 'desc',
+          descending: false,
+          page: 1,
+          rowsPerPage: 10
+        }
       },
       towns: {
         items: []
@@ -260,7 +379,8 @@ export default {
         items: []
       },
       adminTab: "validation",
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL
     };
   },
   mounted() {
@@ -273,12 +393,30 @@ export default {
   },
   methods: {
     /*
+     * Copy to ClipBoard with notify message
+     */
+    copy(text) {
+      this.$q.notify({
+        message: 'copied : ' + text + ''
+      })
+      navigator.clipboard.writeText(text)
+    },
+    /*
      * List quests to validate
      */
     async loadQuestsToValidate() {
       // get quests to validate
       let response = await AdminService.ListQuestsToValidate();
       this.questsToValidate.items = response.data.quests;
+      // console.log(this.questsToValidate.items)
+      // get mail for Main Author
+      this.questsToValidate.items.forEach(item => {
+        AdminService.getUserMail(item.authorUserId).then(rep => {
+          item.userMail = rep.data.email
+          this.questsToValidate.loading = false
+        })
+      })
+
     },
     /*
      * List the towns
@@ -321,6 +459,13 @@ export default {
       // get quests to validate
       let response = await AdminService.ListQuestsRejected();
       this.questsRejected.items = response.data.quests;
+      console.log(this.questsRejected.items)
+      this.questsRejected.items.forEach(item => {
+        AdminService.getUserMail(item.authorUserId).then(rep => {
+          item.userMail = rep.data.email
+          this.questsRejected.loading = false
+        })
+      })
     },
     /*
      * Display title based on language
@@ -352,4 +497,8 @@ export default {
 </script>
 
 <style>
+.container{
+  max-width: 1200px;
+  margin: 0 auto;
+}
 </style>

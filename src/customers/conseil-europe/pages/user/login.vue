@@ -15,43 +15,43 @@
         {{ $t('label.OnDesktopDisplayMessage') }}
       </div>-->
       <!------------------ TITLE AREA ------------------------>
-          
+
       <div class="q-pa-md">
-      
+
         <div class="centered q-pt-md q-pb-md">
           <img src="statics/customers/conseil-europe/images/logo.png" style="width: 50%" />
         </div>
         <!------------------ PLAY ANONYMOUS ------------------>
-        
+
         <div class="q-py-md centered">
           <div><img src="statics/customers/conseil-europe/images/flags/fr.png" /></div>
           <div class="q-pb-md">Pour joueur à Europe Quest en français, appuyez sur le bouton JOUER</div>
-          <q-btn 
-            class="glossy large-btn" 
-            color="accent" 
+          <q-btn
+            class="glossy large-btn"
+            color="accent"
             @click="chooseLanguage('fr')"
             label="JOUER"
             />
         </div>
-        
+
         <div class="q-pt-lg centered">
           <div><img src="statics/customers/conseil-europe/images/flags/en.png" /></div>
           <div class="q-pb-md">To play Europe Quest game in english, press PLAY button</div>
-          <q-btn 
-            class="glossy large-btn" 
-            color="accent" 
+          <q-btn
+            class="glossy large-btn"
+            color="accent"
             @click="chooseLanguage('en')"
             label="PLAY"
             />
         </div>
-        
-      
-        
-        
+
+
+
+
         <!--<p class="text-center text-h6 text-grey q-mt-md q-mb-md">
           {{ $t('label.orSignInWith') }}
         </p>-->
-        
+
         <!------------------ SOCIAL LOGIN BUTTONS ------------------------>
         <!-- MPA 2019-12-10 not currently supported by new JWT-based auth
         <div class="q-pl-md q-pr-md">
@@ -59,12 +59,12 @@
           <q-btn v-if="showSocialLogin.google" @click="googleLogin" class="full-width" color="google" icon="fab fa-google" label="Google" />
         </div>
         -->
-      
+
       </div>
     </div>
-    
+
     <!------------------ Lost Password Dialog ------------------------>
-    
+
     <q-dialog v-model="passwordForgottenPopup">
       <q-card>
         <q-card-section class="popup-header row items-center">
@@ -86,19 +86,19 @@
             :error="$v.form.email.$error"
             :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
             />
-          
-          <q-btn 
-            class="glossy full-width" 
-            color="primary" 
+
+          <q-btn
+            class="glossy full-width"
+            color="primary"
             @click="sendForgottenPasswordCode()"
             :label="$t('label.Ok')"
             />
         </q-card-section>
       </q-card>
     </q-dialog>
-    
+
     <!------------------ Validate terms ------------------------>
-    
+
     <q-dialog v-model="terms.show">
       <div class="q-pa-md">
         <q-item dense>
@@ -124,7 +124,7 @@
             </div>
           </q-item-section>
         </q-item>
-        
+
         <div class="centered q-pa-md">
           <q-btn color="accent" class="glossy large-button" @click="playAnonymousSpecific()"><span>{{ $t('label.Confirm') }}</span></q-btn>
         </div>
@@ -171,9 +171,10 @@ export default {
       showNonHybridQRReader: false,
       isHybrid: window.cordova,
       serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL,
       submitting: false,
       version: process.env.VERSION,
-      
+
       questId: ''
     }
   },
@@ -251,7 +252,7 @@ export default {
           if (!this.$v.form.newPassword.$error) {
             // check validation code
             let changePasswordStatus = await AuthService.changePassword(this.form.email, this.form.newPassword, this.form.code)
-            
+
             if (changePasswordStatus.status && changePasswordStatus.status === 200) {
               if (changePasswordStatus.data && changePasswordStatus.data.user) {
                 window.localStorage.setItem('jwt', changePasswordStatus.data.user.jwt)
@@ -282,7 +283,7 @@ export default {
      */
     async signIn(email, password) {
       let result = await AuthService.login(email, password)
-      
+
       if (result.status === 200) {
         return {status: 'success', user: result.data.user}
       } else if (result.status === 401) {
@@ -291,7 +292,7 @@ export default {
         return {error: 'technical issue'}
       }
     },
-    
+
     /*
      * validate an account with the link provided in the welcome email
      * @param   {string}    email            user email
@@ -299,14 +300,14 @@ export default {
      */
     async validateAccount(email, code) {
       let validateAccountStatus = await AuthService.validateAccount(email, code)
-      
+
       if (validateAccountStatus.status >= 300 && validateAccountStatus.data && validateAccountStatus.data.message) {
         Notification(validateAccountStatus.data.message, 'warning')
       } else {
         Notification(this.$t('label.YourAccountIsNowValidated'), 'positive')
       }
     },
-    
+
     /*
      * manage google login
      */
@@ -455,16 +456,16 @@ export default {
      */
     async sendForgottenPasswordCode() {
       this.submitting = true
-      
+
       let codeSent = await AuthService.sendForgottenPasswordCode(this.form.email)
-      
+
       if (codeSent.status === 200) {
         this.step = 'forgottenpassword'
         this.passwordForgottenPopup = false
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
-      
+
       this.submitting = false
     },
     switchLanguage(lang) {

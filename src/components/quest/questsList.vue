@@ -14,10 +14,10 @@
           <q-icon name="add" style="font-size: 3em;" />
         </div>
       </div>
-      <div 
-        v-for="quest in quests" 
-        :key="quest._id" 
-        class="quest-small relative-position q-mr-md cursor-pointer" 
+      <div
+        v-for="quest in quests"
+        :key="quest._id"
+        class="quest-small relative-position q-mr-md cursor-pointer"
         :style="'background: url(' + getBackgroundImage(quest.thumb) + ' ) center center / cover no-repeat '"
         @click="$router.push('/quest/play/' + quest.questId)">
         <div v-if="quest.status && quest.status !== 'published'">
@@ -77,10 +77,10 @@
       </div>
     </div>
     <div v-if="quests && quests.length > 0 && format === 'big'" :class="{'quest-red': (color === 'red')}">
-      <div 
-        v-for="quest in quests" 
-        :key="quest._id" 
-        class="quest-big relative-position q-mr-md cursor-pointer" 
+      <div
+        v-for="quest in quests"
+        :key="quest._id"
+        class="quest-big relative-position q-mr-md cursor-pointer"
         :style="'background: url(' + getBackgroundImage(quest.thumb) + ' ) center center / cover no-repeat '"
         @click="$router.push('/quest/play/' + quest.questId)">
         <div class="info-banner">
@@ -137,7 +137,8 @@ export default {
   props: ['quests', 'format', 'color', 'add'],
   data() {
     return {
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.SERVER_URL
     }
   },
   methods: {
@@ -150,7 +151,7 @@ export default {
       } else if (picture && picture.indexOf('blob:') !== -1) {
         return picture
       } else if (picture) {
-        return this.serverUrl + '/upload/quest/' + picture
+        return this.uploadUrl + '/upload/quest/' + picture
       } else {
         return 'statics/images/quest/default-quest-picture.png'
       }
@@ -164,7 +165,7 @@ export default {
       } else if (picture && picture.indexOf('blob:') !== -1) {
         return picture
       } else if (picture) {
-        return this.serverUrl + '/upload/profile/' + picture
+        return this.uploadUrl + '/upload/profile/' + picture
       } else {
         return 'statics/images/icon/profile-small.png'
       }

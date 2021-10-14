@@ -3,19 +3,19 @@
     <div class="page-content" style="padding-bottom: 100px">
 
       <!------------------ TITLE AREA ------------------------>
-      
+
       <div class="centered q-pt-lg q-pb-md">
         <img src="statics/images/logo/logo-home.png" class="logo-top" style="width: 30%; max-width: 200px; margin-bottom: 0px; margin-top: 20px;" />
       </div>
-      
+
       <div class="q-pa-md">
         <div class="centered title2 q-mb-lg">{{ $t('label.Welcome') }}</div>
-        
+
         <!------------------ FORM AREA ------------------------>
         <form @submit.prevent="formSubmit">
-          
+
           <div>
-            
+
             <q-input
               outlined
               :label="$t('label.TeamID')"
@@ -25,7 +25,7 @@
               :error="$v.form.teamId.$error"
               :error-message="$t('label.PleaseFillThisForm')"
               />
-            
+
             <q-input
               outlined
               :label="$t('label.TeamName')"
@@ -35,7 +35,7 @@
               :error="$v.form.teamName.$error"
               :error-message="$t('label.PleaseFillThisForm')"
               />
-            
+
             <q-input
               outlined
               :label="$t('label.YourFullName')"
@@ -46,24 +46,24 @@
               />
           </div>
           <div class="text-center">
-            <q-btn 
+            <q-btn
               type="submit"
               class="glossy large-btn"
-              color="primary" 
+              color="primary"
               :label="$t('label.Start')"
-              :loading="submitting" 
+              :loading="submitting"
               />
           </div>
-          
+
         </form>
 
         <div class="centered smaller version secondary-font">Version {{ version }}</div>
         <div class="centered smaller version secondary-font">
-          Version {{ version }} - 
+          Version {{ version }} -
           <img src="statics/icons/game/flag-en.png" @click="switchLanguage('en')" /> -
           <img src="statics/icons/game/flag-fr.png" @click="switchLanguage('fr')" />
         </div>
-      
+
       </div>
     </div>
   </div>
@@ -91,6 +91,7 @@ export default {
       },
       isHybrid: window.cordova,
       serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL,
       submitting: false,
       version: process.env.VERSION
     }
@@ -116,7 +117,7 @@ export default {
     async formSubmit() {
       this.$v.$touch()
       this.submitting = true
-      
+
       // check last name
       if (this.options.indexOf('checklastname') !== -1) {
         let nameParts = this.form.name.split(" ")
@@ -126,7 +127,7 @@ export default {
           return false
         }
       }
-      
+
       // create account
       let checkStatus = await AuthService.playAnonymous(this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
@@ -135,7 +136,7 @@ export default {
           axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
           // Init runID
           const run = await RunService.initTeamPlay(this.questId, this.lang, this.form.teamId, this.form.teamName, this.form.name)
-          
+
           if (run && run.data) {
             if (run.data.message) {
               Notification(this.$t('label.' + run.data.message), 'error')
@@ -152,7 +153,7 @@ export default {
           if (quest && quest.data) {
             version = quest.data.version
           }
-          
+
           // Init runID
           await RunService.init(this.questId, version, this.lang, 'true', this.form.teamId + "|" + this.form.teamName + "|" + this.form.name)
           */

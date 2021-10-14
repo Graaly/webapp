@@ -44,6 +44,12 @@ export default {
     return Api().get("admin/quests/publish/" + id);
   },
   /*
+   * get Mail by UserId
+   */
+  getUserMail(id) {
+    return Api().get("/user/" + id + "/profile/private");
+  },
+  /*
    * Add a town
    */
   CreateTown(data) {

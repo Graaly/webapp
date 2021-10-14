@@ -105,7 +105,7 @@
               </div>
               <div v-if="place.picture !== ''">
                 <img
-                  :src="serverUrl + '/upload/town/place/' + place.picture"
+                  :src="uploadUrl + '/upload/town/place/' + place.picture"
                   style="width: 50px"
                 />
               </div>
@@ -170,7 +170,8 @@ export default {
         }
       },
       isIOs: utils.isIOS(),
-      serverUrl: process.env.SERVER_URL
+      serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL
     };
   },
   async mounted() {
