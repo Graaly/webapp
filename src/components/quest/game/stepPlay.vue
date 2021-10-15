@@ -3368,9 +3368,10 @@ export default {
       
       try {
         if (this.isIOs && CameraPreview) {
-          const base64PictureData = await CameraPreview.takePicture({quality: 85})
-          image.src = 'data:image/jpeg;base64,' +base64PictureData
           image.style.width = '100%'
+          CameraPreview.takePicture({quality: 85}, function (base64PictureData) {
+            image.src = 'data:image/jpeg;base64,' + base64PictureData
+          })
           //setTimeout(function () { _this.takeSnapshot() }, 2000)
         } else { // android & webapp
           // generate a snapshot of the video flow
