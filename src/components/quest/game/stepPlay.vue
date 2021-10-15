@@ -673,8 +673,8 @@
               @click="prepareSnapshot()"
             />
           </div>
-          <img id="snapshotImage" v-if="!isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; height: 100%; width: auto; z-index: 1980;" />
-          <img id="snapshotImageIos" v-if="isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />
+          <img id="snapshotImage" v-show="false" style="position: absolute; top: 0; left: 0; height: 100%; width: auto; z-index: 1980;" />
+          <!--<img id="snapshotImageIos" v-if="isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />-->
           <div>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
@@ -3359,73 +3359,123 @@ export default {
     /*
      * prepare page before snapshot
      */
-    prepareSnapshot() {
+    async prepareSnapshot() {
       this.takingSnapshot = true
       this.$q.loading.show()
       this.$emit('hideButtons')
       let _this = this
-      if (this.isIOs && CameraPreview) {
-        CameraPreview.takePicture({quality: 85}, function(base64PictureData) {
-          const imageSrcData = 'data:image/jpeg;base64,' +base64PictureData
-          var image = document.getElementById('snapshotImageIos')
-          image.src = imageSrcData
+      let image = document.getElementById('snapshotImage')
+      
+      try {
+        if (this.isIOs && CameraPreview) {
+          const base64PictureData = await CameraPreview.takePicture({quality: 85})
+          image.src = 'data:image/jpeg;base64,' +base64PictureData
+          image.style.width = '100%'
+          //setTimeout(function () { _this.takeSnapshot() }, 2000)
+        } else { // android & webapp
+          // generate a snapshot of the video flow
+          let blob = await this.imageCapture.takePhoto()
+          image.src = URL.createObjectURL(blob)
+        }
+        
+        image.onload = async function() {
           _this.$q.loading.hide()
-          setTimeout(function () { _this.takeSnapshot() }, 2000)
-        });
-      } else { // android & webapp
-        // generate a snapshot of the video flow
-        this.imageCapture.takePhoto()
-          .then(blob => {
-            let image = document.getElementById('snapshotImage')
-            image.onload = function() {
-              const width = image.width
-              const height = image.height
-              // keep image ratio
-              const vw = _this.getScreenWidth()
-              const vh = _this.getScreenHeight()
-              
-              // check if picture has to be rotated
-              if (vw > vh) {
-                image.style.transform = 'rotate(90deg)'
+          const vw = _this.getScreenWidth()
+          const vh = _this.getScreenHeight()
+          // display captured camera image
+          /*const width = image.width
+          const height = image.height
+          // keep image ratio
+          
+          // check if picture has to be rotated
+          if (vw > vh) {
+            image.style.transform = 'rotate(90deg)'
+          }
+          
+          image.style.height = vh + "px"
+          image.style.width = ((height / vh) * width) + "px"
+          image.style.left = ((vw - parseInt(image.style.width, 10)) / 2) + "px"*/
+          
+          // rotate image (exif issue)
+          /*
+          image.style.width = height + "px"
+          image.style.height = width + "px"
+          image.style.top = ((height - width) / 2) + "px"
+          image.style.left = ((width - height) / 2) + "px"*/
+          
+          // build image with camera capture + overlay in a canvas
+          let c = document.createElement('canvas')
+          let context = c.getContext('2d')
+          c.height = vh
+          c.width = vw
+          c.style.display = 'none'
+          // fit image to canvas, center horizontally & vertically & keep aspect ratio (like CSS 'cover')
+          draw.drawImageProp(context, image)
+          
+          let imgOverflow = _this.$refs['imageOverflowForCapture']
+          draw.drawImageProp(context, imgOverflow)
+          
+          // compatible file saving attempt (work in progress => to be moved to "utils" if it works on iOS)
+          if (_this.isHybrid) {
+            // possible alternative to window.requestFileSystem() for iOS:
+            // "window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function (dirEntry) { ... }"
+            // see https://cordova.apache.org/docs/en/10.x/reference/cordova-plugin-file/
+            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
+              fs.root.getDirectory('Graaly', { create: true }, function (dirEntry) {
+                let now = new Date()
+                let nowAsStr = now.toISOString().substring(0, 19).replaceAll(':', '-')
+                dirEntry.getFile(`snapshot-${nowAsStr}.jpg`, { create: true, exclusive: false }, function (fileEntry) {
+                  fileEntry.createWriter((fileWriter) => {
+                    fileWriter.onwriteend = (ev) => {
+                      Notification(_this.$t('label.SnapshotTaken'), 'positive')
+                      c.remove()
+                      _this.takingSnapshot = false
+                      _this.$emit('showButtons')
+                    }
+                    fileWriter.onerror = (err) => {
+                      console.error("Failed file write: ", err);
+                    }
+                    c.toBlob((finalBlob) => {
+                      fileWriter.write(finalBlob)
+                    }, 'image/jpeg')
+                  })
+                }, (err) => {
+                  Notification(_this.$t('label.TechnicalIssue'), 'error')
+                  console.error('Could not create snapshot file on device filesystem', err)
+                })
+              }, (err) => {
+                Notification(_this.$t('label.TechnicalIssue'), 'error')
+                console.error('Could not access Graaly directory on device filesystem', err)
+              })
+            }, (err) => {
+              Notification(_this.$t('label.TechnicalIssue'), 'error')
+              console.error('Could not access to device filesystem', err)
+            })
+            /*
+            await utils.sleep(1000)
+            navigator.screenshot.save(function (error, res) {
+              if (error) {
+                console.error(error)
+                Notification(_this.$t('label.ErrorTakingSnapshot'), 'error')
+              } else {
+                Notification(_this.$t('label.SnapshotTaken'), 'positive')
               }
-              
-              image.style.height = vh + "px"
-              image.style.width = ((height / vh) * width) + "px"
-              image.style.left = ((vw - parseInt(image.style.width, 10)) / 2) + "px"
-  
-              // rotate image (exif issue)
-              /*
-              image.style.width = height + "px"
-              image.style.height = width + "px"
-              image.style.top = ((height - width) / 2) + "px"
-              image.style.left = ((width - height) / 2) + "px"*/
-              _this.$q.loading.hide()
-              
-              if (this.isHybrid) {
-                setTimeout(function () { _this.takeSnapshot() }, 1000)
-              } else { // webapp
-                let c = document.createElement('canvas')
-                let aspectRatio = (vw / vh)
-                c.height = 1000 // base height: 1000px
-                c.width = c.height * aspectRatio
-                let context = c.getContext('2d')
-                // fit image to canvas, center horizontally & vertically & keep aspect ratio (like CSS 'cover')
-                draw.drawImageProp(context, image)
-                
-                let imgOverflow = _this.$refs['imageOverflowForCapture']
-                draw.drawImageProp(context, imgOverflow)
-                
-                utils.downloadDataUrl(c.toDataURL('image/jpeg'), 'graaly-snapshot.jpg')
-                c.remove()
-              }
-            }
-            image.src = URL.createObjectURL(blob)
-          })
-          .catch(err => { 
-            Notification(_this.$t('label.SnapshotTakenIssue'), 'error'); console.log(err) 
-            _this.$q.loading.hide()
+              _this.takingSnapshot = false
+              _this.$emit('showButtons')
+            })*/
+          } else { // webapp
+            utils.downloadDataUrl(c.toDataURL('image/jpeg'), 'graaly-snapshot.jpg')
+            c.remove()
+            _this.takingSnapshot = false
             _this.$emit('showButtons')
-          })
+          }
+        }
+      } catch (err) {
+        Notification(_this.$t('label.SnapshotTakenIssue'), 'error');
+        console.error(err)
+        console.log(err.stack) 
+        this.$q.loading.hide()
+        this.$emit('showButtons')
       }
     },
     switchCamera() {
@@ -3454,7 +3504,8 @@ export default {
     /*
      * take a snapshot of the screen
      */
-    takeSnapshot() {
+    // MPA 2021-10-15 temporarily disabled (work in progress: screen capture with overlay) 
+    /*takeSnapshot() {
       let _this = this
       navigator.screenshot.save(function (error, res) {
         if (error) {
@@ -3515,7 +3566,7 @@ export default {
         console.log("Error: ", error)
         _this.$emit('showButtons')
       }
-    },
+    },*/
     /*
      * get the translation for main text
      */
