@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper" style="background: url('../statics/customers/conseil-europe/images/background/background.png') center center / cover no-repeat; color: #fff;">
+  <div class="wrapper background-coe" style="color: #fff;font-family: arial; ">
     <div v-if="showNonHybridQRReader">
       <!--====================== QR CODE READER ON WEBAPP =================================-->
       <q-toolbar>
@@ -19,13 +19,12 @@
       <div class="q-pa-md">
       
         <div class="centered q-pt-md q-pb-md">
-          <img src="statics/customers/conseil-europe/images/logo.png" style="width: 50%" />
+          <img src="statics/customers/conseil-europe/images/logo.png" style="width: 80%; max-width: 600px;" />
         </div>
         <!------------------ PLAY ANONYMOUS ------------------>
         
         <div class="q-py-md centered">
           <div><img src="statics/customers/conseil-europe/images/flags/fr.png" /></div>
-          <div class="q-pb-md">Pour joueur à Europe Quest en français, appuyez sur le bouton JOUER</div>
           <q-btn 
             class="glossy large-btn" 
             color="accent" 
@@ -36,7 +35,6 @@
         
         <div class="q-pt-lg centered">
           <div><img src="statics/customers/conseil-europe/images/flags/en.png" /></div>
-          <div class="q-pb-md">To play Europe Quest game in english, press PLAY button</div>
           <q-btn 
             class="glossy large-btn" 
             color="accent" 
@@ -44,9 +42,6 @@
             label="PLAY"
             />
         </div>
-        
-      
-        
         
         <!--<p class="text-center text-h6 text-grey q-mt-md q-mb-md">
           {{ $t('label.orSignInWith') }}
@@ -390,13 +385,13 @@ export default {
     * start the game
     */
     async playAnonymousSpecific() {
-      this.terms.usageError = false
+      /*this.terms.usageError = false
       this.terms.privacyError = false
       if (this.terms.usage === false) {
         this.terms.usageError = true
       } else if (this.terms.privacy === false) {
         this.terms.privacyError = true
-      } else {
+      } else {*/
         let checkStatus = await AuthService.playAnonymous(this.$t('label.shortLang'))
         if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
           if (checkStatus.data.user) {
@@ -409,7 +404,7 @@ export default {
         } else {
           Notification(this.$t('label.ErrorStandardMessage'), 'error')
         }
-      }
+      //}
     },
     /*
      * Check if the quest code is valid
@@ -475,10 +470,11 @@ export default {
         this.questId = '614987b04978c0273485b950'
       }
       if (lang == 'fr') {
-        this.questId = '614987b04978c0273485b950'
+        this.questId = '615dbcffa3872257f0dd40b4'//'614871e05924a718ef72ce7b'
       }
       this.switchLanguage(lang)
-      this.validateTerms()
+      //this.validateTerms()
+      this.playAnonymousSpecific()
     }
   },
   validations: {
@@ -492,6 +488,12 @@ export default {
 
 <style scoped>
   .bg-accent {
-    background-color: #063b8b !important;
+    background-color: #52b4d3 !important;
+  }
+  .glossy {
+    font-weight: bold;
+  }
+  .background-coe {
+    background: #183a86;
   }
 </style>

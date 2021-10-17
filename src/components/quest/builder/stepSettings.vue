@@ -940,8 +940,8 @@
       <q-list v-show="options.type.hasOptions" bordered>
         <q-expansion-item icon="add_box" :label="$t('label.OtherOptions')">
           <div class="q-pa-sm">
-            <div v-if="options && options.mode && options.mode === 'advanced' && (options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text' || options.type.code == 'portrait-robot')" class="q-pb-md">
-              <q-toggle v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
+            <div v-if="options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text' || options.type.code == 'portrait-robot'" class="q-pb-md">
+              <q-toggle v-if="options && options.mode && options.mode === 'advanced'" v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
               <q-input v-model="selectedStep.form.options.rightAnswerMessage" :label="$t('label.CustomizeRightAnswerMessage')" />
               <q-input v-model="selectedStep.form.options.wrongAnswerMessage" :label="$t('label.CustomizeWrongAnswerMessage')" />
             </div>
@@ -951,6 +951,7 @@
             <div v-if="options.type.code == 'geolocation' || options.type.code == 'locate-item-ar'" class="location-gps">
               <q-toggle v-model="selectedStep.form.showDistanceToTarget" :label="$t('label.DisplayDistanceBetweenUserAndLocation')" />
               <q-toggle v-model="selectedStep.form.showDirectionToTarget" :label="$t('label.DisplayDirectionArrow')" />
+              <q-toggle v-model="selectedStep.form.options.hideAnimation" :label="$t('label.HideMake8Animation')" />
             </div>
             <div v-if="options.type.code == 'geolocation'">
               <q-toggle v-model="selectedStep.form.options.switchmode" :label="$t('label.AllowToSwitchGeolocationMode')" />

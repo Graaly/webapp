@@ -628,7 +628,7 @@ module.exports = {
       YourRejectedQuests: "Your rejected",
       YourDraftQuests: "Your drafts",
       YourPublishedQuests: "Your published",
-      QuestDraftVersion: "Non published game",
+      QuestDraftVersion: "Non published version of the game",
       PageDraftVersion: "Non published page",
       PrivateQuest: "Private game",
       PublicQuest: "Public game",
@@ -1101,7 +1101,8 @@ module.exports = {
       AddAGameSnapshot: "Add a game snapshot",
       Snapshots: "Snapshot(s)",
       CounterValue: "Counter value",
-      CharacterBarColor: "Color of the bar below the character"
+      CharacterBarColor: "Color of the bar below the character",
+      HideMake8Animation: "Hide animation if GPS is weak"
     }
   },
   fr: {
@@ -1720,7 +1721,7 @@ module.exports = {
       YourRejectedQuests: "Vos jeux rejetés",
       YourDraftQuests: "Vos brouillons",
       YourPublishedQuests: "Vos jeux publiés",
-      QuestDraftVersion: "Jeu non publié",
+      QuestDraftVersion: "Version du jeu non publiée",
       PageDraftVersion: "Page non publiée",
       PrivateQuest: "Jeu privé",
       PublicQuest: "Jeu public",
@@ -2193,7 +2194,8 @@ module.exports = {
       AddAGameSnapshot: "Ajouter une capture du jeu",
       Snapshots: "Capture(s)",
       CounterValue: "Valeur du compteur",
-      CharacterBarColor: "Couleur de la barre sous le personnage"
+      CharacterBarColor: "Couleur de la barre sous le personnage",
+      HideMake8Animation: "Cacher l'animation en cas de mauvais GPS"
     }
   }
 }

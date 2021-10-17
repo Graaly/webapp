@@ -245,24 +245,24 @@
 
     <div v-show="footer.show" class="step-menu step-menu-fixed fixed-bottom">
       <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
-      <div class="row white-buttons">
-        <div class="col centered q-pb-md">
+      <div class="row white-buttons" :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''">
+        <div class="col centered">
+          <div class="q-py-sm" v-if="!info.quest.customization || !info.quest.customization.logo || info.quest.customization.logo === ''">
+            <q-btn
+              flat
+              size="lg"
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+              icon="menu"
+              :class="{'bg-secondary': (info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}"
+              @click="openInfo()"
+            >
+              <q-badge v-if="this.$store.state.chatNotification > 0" color="accent" rounded floating>{{ this.$store.state.chatNotification }}</q-badge>
+            </q-btn>
+          </div>
           <q-btn
-            round
-            size="lg"
-            :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            icon="menu"
-            :class="{'bg-secondary': (info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}"
-            @click="openInfo()"
-            v-if="!info.quest.customization || !info.quest.customization.logo || info.quest.customization.logo === ''"
-          >
-            <q-badge v-if=" this.$store.state.chatNotification > 0"  color="accent" rounded floating>{{ this.$store.state.chatNotification }}</q-badge>
-          </q-btn>
-          <q-btn
-            round
+            flat
             size="lg"
             style="padding-top: 0 !important;"
-            class="bg-white"
             @click="openInfo()"
             v-if="info.quest.customization && info.quest.customization.logo && info.quest.customization.logo !== ''" >
             <q-avatar size="60px">
@@ -270,9 +270,9 @@
             </q-avatar>
           </q-btn>
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="work" 
@@ -281,9 +281,9 @@
             @click="openInventory()" 
           />
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="lightbulb"
@@ -294,9 +294,9 @@
             <q-badge v-if="this.step && this.step.hint" color="secondary" floating>{{ this.hint.remainingNumber }}</q-badge>
           </q-btn>
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
@@ -306,9 +306,9 @@
             @click="previousStep()"
           />
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             :class="{'flashing': next.suggest, 'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
@@ -2646,9 +2646,9 @@ export default {
     display: none
   }
 
-  .q-btn, audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
+  audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
 
-  .q-btn { margin-top: 1rem; }
+  /*.q-btn { margin-top: 1rem; }*/
 
   /* right/wrong styles */
 

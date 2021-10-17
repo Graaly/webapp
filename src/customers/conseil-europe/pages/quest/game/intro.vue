@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll" style="background-color: #063b8b">
+  <div class="scroll background-coe">
     <div id="teaser" class="reduce-window-size-desktop" :class="{'loaded': pageReady}">
       <!------------------ MAIN INFORMATION AREA ------------------------>
       
@@ -176,7 +176,7 @@
       <!------------------ GAME DESCRIPTION ------------------------>
       
       <div class="q-pa-md">
-        <div class="text-subtitle2" v-html="this.quest.description"></div>
+        <div class="text-subtitle2 text-white" v-html="this.quest.description"></div>
         <div v-if="isUserTooFar && !quest.allowRemotePlay" class="q-pt-md">
           <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.QuestIsFarFromUser')" />
         </div>
@@ -1263,6 +1263,10 @@ export default {
 
 <style scoped>
   .bg-primary {
-    background-color: #063b8b !important;
+    background-color: #52b4d3 !important;
+  }
+  .background-coe {
+    background-color: #063b8b;
+    font-family: arial;
   }
 </style>

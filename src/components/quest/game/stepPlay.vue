@@ -46,7 +46,7 @@
           size="25px"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
           :value="map(this.countdowntimeleft,0,this.step.countDownTime.time,0,1)"
-          color="positive"
+          color="primary"
           v-if="!isIOs"
           >
           <div class="absolute-full flex flex-center">
@@ -75,13 +75,28 @@
       
       <!------------------ AUDIO ------------------------>
     
-      <audio 
-        v-if="audio && audio !== ''"
-        id="step-music" 
-        autoplay>
-        <source :src="audio" type="audio/mpeg">
-      </audio>
-      
+      <div v-if="audio && audio.file && audio.file !== ''">
+        <audio 
+          id="step-music" 
+          autoplay>
+          <source :src="audio.file" type="audio/mpeg">
+        </audio>
+        <div style="position: absolute; top: 4px; right: 10px; z-index: 1000;">
+          <q-icon 
+            v-if="audio.play"
+            @click="switchAudioSound"
+            :style="(customization && customization.color && customization.color !== '') ? 'text-color: ' + customization.color : ''"
+            :class="{'text-primary': (!customization || !customization.color || customization.color === '')}"
+            style="font-size: 2em;" name="pause_circle" />
+          <q-icon 
+            v-if="!audio.play"
+            @click="switchAudioSound"
+            :style="(customization && customization.color && customization.color !== '') ? 'text-color: ' + customization.color : ''"
+            :class="{'text-primary': (!customization || !customization.color || customization.color === '')}"
+            style="font-size: 2em;" name="play_circle" />
+        </div>
+      </div>
+        
       <div class="bg-accent text-white q-pa-md" v-if="isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     
       <!------------------ TRANSITION AREA ------------------------>
@@ -414,25 +429,28 @@
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
-          <div class="answer-text q-pa-md">
-            <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
-            <input 
-              class="subtitle6" 
-              v-bind:value="writetext.playerAnswer" 
-              v-on:input="writetext.playerAnswer = $event.target.value" 
-              :placeholder="$t('label.YourAnswer')" 
-              :class="{right: playerResult === true, wrong: playerResult === false}" 
-              :disabled="stepPlayed" />
-            <input 
-              v-if="rightAnswer"
-              class="subtitle6 right" 
-              v-bind:value="rightAnswer" 
-              disabled />
-            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer"><div>{{ $t('label.ConfirmTheAnswer') }}</div></q-btn>
+          <div class="row">
+            <div class="answer-text q-pa-md col-9">
+              <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
+              <input  
+                v-bind:value="writetext.playerAnswer" 
+                v-on:input="writetext.playerAnswer = $event.target.value" 
+                :placeholder="$t('label.YourAnswer')" 
+                :class="{right: playerResult === true, wrong: playerResult === false}" 
+                :disabled="stepPlayed" />
+              <input 
+                v-if="rightAnswer"
+                class="right" 
+                v-bind:value="rightAnswer" 
+                disabled />
+            </div>
+            <div class="col-3">
+              <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer" icon="done"></q-btn>
+            </div>
           </div>
           <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
-          </div>
+          </div>            
         </div>
         <div v-if="!showTools" class="centered">
           <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
@@ -1006,7 +1024,10 @@ export default {
         isTimeUp: false,
         displaySuccessIcon: false,
         rightAnswer: null,
-        audio: null,
+        audio: {
+          file: null,
+          play: true
+        },
         
         // for step 'character'
         character: {
@@ -1572,7 +1593,9 @@ export default {
                     // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
                     if (_this.geolocation.gpsAccuracyTimeout === null && !_this.geolocation.showCalibration && !_this.geolocation.persistentLowAccuracy) {
                       _this.geolocation.gpsAccuracyTimeout = utils.setTimeout(() => {
-                        _this.$refs.gpscal.askUserToCalibrateGPS()
+                        if (!_this.step.options || _this.step.options.hideAnimation !== true) {
+                          _this.$refs.gpscal.askUserToCalibrateGPS()
+                        }
                         if (_this.geolocation.gpsAccuracyTimeout !== null) {
                           clearTimeout(_this.geolocation.gpsAccuracyTimeout)
                           _this.geolocation.gpsAccuracyTimeout = null
@@ -2711,7 +2734,12 @@ export default {
      * Display retry message when wrong answer
      */
     submitRetry(nbRemainingTrials) {
-      this.displaySuccessMessage(false, this.$t('label.SecondTry', {nb: nbRemainingTrials}))
+      if (nbRemainingTrials > 100) {
+        // do not display nb of try if infinite tries
+        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
+      } else {
+        this.displaySuccessMessage(false, this.$t('label.SecondTry', {nb: nbRemainingTrials}))
+      }
     },
     
     ////////////////////////////////////////////// MANAGEMENT OF THE ENIGMA COMPONENTS /////////////////////////////////////////////
@@ -3074,7 +3102,9 @@ export default {
           // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
           if (this.geolocation.gpsAccuracyTimeout === null && !this.geolocation.showCalibration && !this.geolocation.persistentLowAccuracy) {
             this.geolocation.gpsAccuracyTimeout = utils.setTimeout(() => {
-              this.$refs.gpscal.askUserToCalibrateGPS()
+              if (!this.step.options || this.step.options.hideAnimation !== true) {
+                this.$refs.gpscal.askUserToCalibrateGPS()
+              }
               if (this.geolocation.gpsAccuracyTimeout !== null) {
                 clearTimeout(this.geolocation.gpsAccuracyTimeout)
                 this.geolocation.gpsAccuracyTimeout = null
@@ -4651,12 +4681,24 @@ export default {
         }
         
         if (this.step.audioStream[finalLang].indexOf('blob:') !== -1) {
-          this.audio = this.step.audioStream[finalLang]
+          this.audio.file = this.step.audioStream[finalLang]
         } else {
-          this.audio = this.serverUrl + '/upload/quest/' + this.step.questId + '/audio/' + this.step.audioStream[finalLang]
+          this.audio.file = this.serverUrl + '/upload/quest/' + this.step.questId + '/audio/' + this.step.audioStream[finalLang]
         }
       } else {
-        this.audio = null
+        this.audio.file = null
+      }
+    },
+    switchAudioSound() {
+      var audio = document.getElementById("step-music")
+      if (audio) {
+        if (this.audio.play) {
+          audio.pause()
+          this.audio.play = false
+        } else {
+          audio.play()
+          this.audio.play = true
+        }
       }
     }
   }
@@ -4695,6 +4737,8 @@ export default {
   .text { 
     white-space: pre-wrap; 
     /*text-align: justify;*/
+    margin: 20px 20px 0 20px;
+    border-radius: 10px;
   }
   .text p { padding: 0.25rem 0; margin: 0; }
   .carrier-return {
@@ -4790,7 +4834,7 @@ export default {
   /* write-text specific */
   
   .answer-text { flex-grow: 1; display: flex; flex-flow: column nowrap; justify-content: center; }
-  .answer-text input { opacity: 0.7; font-family: arial; font-size: 1.5em; font-weight: bold; height: 1.5em; background-color: #fff; border-radius: 0.5rem; box-shadow: 0px 0px 0.1rem 0.1rem #fff;}
+  .answer-text input { opacity: 0.7; font-family: arial; height: 38px; line-height: 1.5em; background-color: #fff; border-radius: 0.5rem; box-shadow: 0px 0px 0.1rem 0.1rem #fff;}
     
   /* new-item specific */
   
