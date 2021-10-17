@@ -1,6 +1,5 @@
 import store from '../store'
 import router from '../router'
-import * as THREE from 'three'
 import * as CryptoJS from 'crypto-js'
 
 var self = {
@@ -316,29 +315,6 @@ var self = {
     }
 
     return text
-  },
-    
-  // ------------------------ Utils for THREE.js -------------------------------------
-  
-  /*
-  * detach a 3D object from its parent
-  * copied from https://github.com/mrdoob/three.js/blob/master/examples/js/utils/SceneUtils.js
-  */
-  detachObject3D: function (child, parent, scene) {
-    child.applyMatrix(parent.matrixWorld)
-    parent.remove(child)
-    scene.add(child)
-  },
-
-  /*
-  * attach a 3D object to a parent
-  * copied from https://github.com/mrdoob/three.js/blob/master/examples/js/utils/SceneUtils.js
-  * WARNING: changed order of parameters compared to original version
-  */
-  attachObject3D: function (child, parent, scene) {
-    child.applyMatrix(new THREE.Matrix4().getInverse(parent.matrixWorld))
-    scene.remove(child)
-    parent.add(child)
   },
   
   // --------------------- Utils for OFFLINE MODE -------------------------------
@@ -886,6 +862,22 @@ var self = {
         }
     }
     return segmentsA.length - segmentsB.length;
+  },
+  /**
+   * adapted from https://stackoverflow.com/a/23451803/488666
+   * @param {String} dataUrl data URL of the file to download
+   * @param {String} name name of the file which will be downloaded
+   */
+   downloadDataUrl (dataUrl, name) {
+    //let blob = new Blob(data, {type: "octet/stream"}),
+    //let url = window.URL.createObjectURL(blob)
+    let a = document.createElement("a")
+    document.body.appendChild(a)
+    a.style = "display: none"
+    a.href = dataUrl
+    a.download = name
+    a.click()
+    window.URL.revokeObjectURL(dataUrl)
   }
 }
 

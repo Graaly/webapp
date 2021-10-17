@@ -2216,7 +2216,7 @@ export default {
             // treat case of the increment counter
             if (stepsofChapter[i].type === 'increment-counter') {
               // save condition done
-              var conditionsDone = this.run.conditionsDone
+              let conditionsDone = this.run.conditionsDone
               conditionsDone.push('counterIncrement_' + stepsofChapter[i].stepId.toString())
               conditionsDone.push('stepDone_' + stepsofChapter[i].stepId.toString())
               conditionsDone.push('stepDone' + player + '_' + stepsofChapter[i].stepId.toString())
@@ -2224,7 +2224,7 @@ export default {
               
               // Count counter value
               let counter = 0
-              for (var i = 0; i < conditionsDone.length; i++) {
+              for (let i = 0; i < conditionsDone.length; i++) {
                 if (conditionsDone[i].indexOf("counterIncrement_") !== -1) {
                   counter++
                 }
