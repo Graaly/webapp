@@ -3494,6 +3494,8 @@ export default {
           console.error(err)
           Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
         }
+      } else {
+        Notification(this.$t('label.SnapshotTaken'), 'info')
       }
       this.takingSnapshot = false
       this.$emit('showButtons')
