@@ -75,7 +75,7 @@ export default {
       } else if (this.quest.picture) {
         return this.serverUrl + '/upload/quest/' + this.quest.picture
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     },
     /*
@@ -92,7 +92,7 @@ export default {
       } else if (this.quest.thumb) {
         return this.serverUrl + '/upload/quest/' + this.quest.thumb
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     }
   }

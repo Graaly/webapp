@@ -3416,7 +3416,7 @@ export default {
           let tempCameraStream = _this.$refs['camera-stream-for-image-over-flow']          
           tempContext.drawImage(tempCameraStream, 0, 0, vw, vh)
 
-          tempCanvas.toBlob(function(blob){ 
+          tempCanvas.toBlob(function(blob) { 
             let blobImage = document.getElementById('snapshotImage')
             blobImage.src = URL.createObjectURL(blob)
           }, 'image/png')

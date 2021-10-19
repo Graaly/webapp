@@ -152,7 +152,7 @@ export default {
       } else if (picture) {
         return this.serverUrl + '/upload/quest/' + picture
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     },
     /*

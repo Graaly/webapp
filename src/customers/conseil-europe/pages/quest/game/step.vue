@@ -1310,7 +1310,7 @@ export default {
       } else if (this.info.quest.picture) {
         return this.serverUrl + '/upload/quest/' + this.info.quest.picture
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     },
     /*
@@ -1699,7 +1699,7 @@ export default {
           if (pictureUrl) {
             this.info.quest.picture = pictureUrl
           } else {
-            this.info.quest.picture = '_default-quest-picture.png'
+            this.info.quest.picture = '_default-quest-picture.jpg'
           }
           // get customized logo
           if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo !== '') {
@@ -2205,7 +2205,7 @@ export default {
             // treat case of the increment counter
             if (stepsofChapter[i].type === 'increment-counter') {
               // save condition done
-              var conditionsDone = this.run.conditionsDone
+              let conditionsDone = this.run.conditionsDone
               conditionsDone.push('counterIncrement_' + stepsofChapter[i].stepId.toString())
               conditionsDone.push('stepDone_' + stepsofChapter[i].stepId.toString())
               conditionsDone.push('stepDone' + player + '_' + stepsofChapter[i].stepId.toString())
@@ -2213,7 +2213,7 @@ export default {
               
               // Count counter value
               let counter = 0
-              for (var i = 0; i < conditionsDone.length; i++) {
+              for (let i = 0; i < conditionsDone.length; i++) {
                 if (conditionsDone[i].indexOf("counterIncrement_") !== -1) {
                   counter++
                 }
