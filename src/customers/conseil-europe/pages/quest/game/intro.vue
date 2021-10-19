@@ -3,7 +3,6 @@
     <div id="teaser" class="reduce-window-size-desktop" :class="{'loaded': pageReady}">
       <!------------------ MAIN INFORMATION AREA ------------------------>
       
-
       <div v-if="warning.questNotLoaded" class="centered q-pa-lg">
         {{ $t('label.QuestNeedNetwork')}}
         <div>
@@ -981,7 +980,7 @@ export default {
      * Cancel a run
      */
     async cancelRun() {
-      if (this.continueQuestId != "") {
+      if (this.continueQuestId !== "") {
         await RunService.endRun(this.continueQuestId, null, this.quest.questId, this.quest.version, this.$route.params.lang)
       }
       // remove run offline data

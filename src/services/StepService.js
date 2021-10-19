@@ -460,15 +460,13 @@ export default {
 
     return res
   },
-  /*
+  /**
    * upload a player snapshot for 'image-over-flow' step
    * @param   {String}    questId        ID of the quest
-   * @param   {Object}    data           upload data
+   * @param   {Object}    formData           data to upload, created using `new FormData()`
    */
-  async uploadSnapshot(questId, data, done) {
-    return Api().post("/quest/" + questId + "/snapshot/upload", data, { timeout: 600000, headers: { 'Content-Type': 'multipart/form-data' } }).then(function (response) {
-      done(false, response)
-    })
+  async uploadSnapshot(questId, formData) {
+    return Api().post("/quest/" + questId + "/snapshot/upload", formData, { timeout: 600000, headers: { 'Content-Type': `multipart/form-data; boundary=${formData._boundary}` } })
   },
   /*
    * Export the texts of the game

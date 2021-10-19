@@ -3396,6 +3396,9 @@ export default {
       this.$emit('hideButtons')
       let _this = this
       let image = document.getElementById('snapshotImage')
+      let now = new Date()
+      let nowAsStr = now.toISOString().substring(0, 19).replaceAll(':', '-')
+      let snapshotFilename = `snapshot-${nowAsStr}.jpg`
       
       try {
         const vw = _this.getScreenWidth()
@@ -3426,27 +3429,7 @@ export default {
         
         image.onload = async function() {
           _this.$q.loading.hide()
-          // display captured camera image
-          /*const width = image.width
-          const height = image.height
-          // keep image ratio
-          
-          // check if picture has to be rotated
-          if (vw > vh) {
-            image.style.transform = 'rotate(90deg)'
-          }
-          
-          image.style.height = vh + "px"
-          image.style.width = ((height / vh) * width) + "px"
-          image.style.left = ((vw - parseInt(image.style.width, 10)) / 2) + "px"*/
-          
-          // rotate image (exif issue)
-          /*
-          image.style.width = height + "px"
-          image.style.height = width + "px"
-          image.style.top = ((height - width) / 2) + "px"
-          image.style.left = ((width - height) / 2) + "px"*/
-          
+         
           // build image with camera capture + overlay in a canvas
           let c = document.createElement('canvas')
           let context = c.getContext('2d')
@@ -3459,6 +3442,8 @@ export default {
           let imgOverflow = _this.$refs['imageOverflowForCapture']
           draw.drawImageProp(context, imgOverflow)
           
+          let finalBlob
+          
           // compatible file saving attempt (work in progress => to be moved to "utils" if it works on iOS)
           if (_this.isHybrid) {
             // possible alternative to window.requestFileSystem() for iOS:
@@ -3466,22 +3451,17 @@ export default {
             // see https://cordova.apache.org/docs/en/10.x/reference/cordova-plugin-file/
             window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
               fs.root.getDirectory('Graaly', { create: true }, function (dirEntry) {
-                let now = new Date()
-                let nowAsStr = now.toISOString().substring(0, 19).replaceAll(':', '-')
-                dirEntry.getFile(`snapshot-${nowAsStr}.jpg`, { create: true, exclusive: false }, function (fileEntry) {
-                  fileEntry.createWriter((fileWriter) => {
-                    fileWriter.onwriteend = (ev) => {
-                      Notification(_this.$t('label.SnapshotTaken'), 'positive')
+                dirEntry.getFile(snapshotFilename, { create: true, exclusive: false }, function (fileEntry) {
+                  fileEntry.createWriter(async (fileWriter) => {
+                    finalBlob = await new Promise(resolve => c.toBlob(resolve, 'image/jpeg'))
+                    fileWriter.onwriteend = async (ev) => {
                       c.remove()
-                      _this.takingSnapshot = false
-                      _this.$emit('showButtons')
+                      await _this.saveSnapshotOnServer(finalBlob, snapshotFilename)
                     }
                     fileWriter.onerror = (err) => {
                       console.error("Failed file write: ", err);
                     }
-                    c.toBlob((finalBlob) => {
-                      fileWriter.write(finalBlob)
-                    }, 'image/jpeg')
+                    fileWriter.write(finalBlob)
                   })
                 }, (err) => {
                   Notification(_this.$t('label.TechnicalIssue'), 'error')
@@ -3495,23 +3475,11 @@ export default {
               Notification(_this.$t('label.TechnicalIssue'), 'error')
               console.error('Could not access to device filesystem', err)
             })
-            /*
-            await utils.sleep(1000)
-            navigator.screenshot.save(function (error, res) {
-              if (error) {
-                console.error(error)
-                Notification(_this.$t('label.ErrorTakingSnapshot'), 'error')
-              } else {
-                Notification(_this.$t('label.SnapshotTaken'), 'positive')
-              }
-              _this.takingSnapshot = false
-              _this.$emit('showButtons')
-            })*/
           } else { // webapp
-            utils.downloadDataUrl(c.toDataURL('image/jpeg'), 'graaly-snapshot.jpg')
+            utils.downloadDataUrl(c.toDataURL('image/jpeg'), snapshotFilename)
+            finalBlob = await new Promise(resolve => c.toBlob(resolve, 'image/jpeg'))
+            await _this.saveSnapshotOnServer(finalBlob, snapshotFilename)
             c.remove()
-            _this.takingSnapshot = false
-            _this.$emit('showButtons')
           }
         }
       } catch (err) {
@@ -3521,6 +3489,29 @@ export default {
         this.$q.loading.hide()
         this.$emit('showButtons')
       }
+    },
+    /**
+     * This is a feature for players (selfies...) from steps image-over-flow, not authors
+     * Saves snapshot on web API server if quest config setting "saveSelfieOnServer" is enabled
+     * @param {Buffer} blob     Binary array of file data to save on server
+     * @param {String} filename Name of the file to upload
+     */
+    async saveSnapshotOnServer(blob, filename) {
+      if (this.quest.customization && this.quest.customization.saveSelfieOnServer) {
+        try {
+          let formData = new FormData()
+          formData.append("image", blob, filename)
+          await StepService.uploadSnapshot(this.step.questId, formData)
+          Notification(this.$t('label.SnapshotTaken'), 'info')
+        } catch (err) {
+          console.error(err)
+          Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.SnapshotTaken'), 'info')
+      }
+      this.takingSnapshot = false
+      this.$emit('showButtons')
     },
     switchCamera() {
       if (this.cameraUsed === 'environment') {
@@ -3545,72 +3536,6 @@ export default {
     cancelTakeVideoSnapShot() {
       this.imageOverFlow.snapshot = ""
     },
-    /*
-     * take a snapshot of the screen
-     */
-    // MPA 2021-10-15 temporarily disabled (work in progress: screen capture with overlay) 
-    /*takeSnapshot() {
-      let _this = this
-      navigator.screenshot.save(function (error, res) {
-        if (error) {
-          console.error(error)
-          Notification(_this.$t('label.ErrorTakingSnapshot'), 'error')
-          _this.$emit('showButtons')
-        } else {
-          if (_this.quest.customization && _this.quest.customization.saveSelfieOnServer) {
-            let permissions = cordova.plugins.permissions
-            permissions.requestPermission(permissions.READ_EXTERNAL_STORAGE, function(status) {
-              if (status.hasPermission) {
-                _this.saveSnapshot(res)
-              } else {
-                Notification(_this.$t('label.ErrorTakingSnapshot'), 'error')
-                _this.takingSnapshot = false
-                _this.$emit('showButtons')
-              }
-            }, alert)
-          } else {
-            Notification(_this.$t('label.SnapshotTaken'), 'positive')
-            _this.takingSnapshot = false
-            _this.$emit('showButtons')
-          }
-        }
-      })
-    },
-    async saveSnapshot(mediaFile) {
-      try {
-        const fileEntry = await new Promise(resolve =>
-          window.resolveLocalFileSystemURL('file://' + mediaFile.filePath, resolve, function(err) { console.log('Error '  + err) })
-        );
-        const fileBinary = await new Promise((resolve, reject) =>
-          fileEntry.file(function (file) {
-            var reader = new FileReader()
-
-            reader.onloadend = function(e) {
-              resolve(reader.result)
-            }
-            reader.readAsArrayBuffer(file)
-          })
-        )
-        // convert binary to blob of the image content
-        const picture = new Blob([new Uint8Array(fileBinary)], { type: "image/jpg" })
-        let data = new FormData()
-        data.append('image', picture)
-        let _this = this
-        StepService.uploadSnapshot(this.step.questId, data, function(err, result) {
-          if (err) {
-            Notification(_this.$t('label.ErrorTakingSnapshot'), 'error')
-          } else {
-            Notification(_this.$t('label.SnapshotTaken'), 'info')
-          }
-          _this.takingSnapshot = false
-          _this.$emit('showButtons')
-        })
-      } catch (error) {
-        Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
-        console.log("Error: ", error)
-        _this.$emit('showButtons')
-      }
-    },*/
     /*
      * get the translation for main text
      */
