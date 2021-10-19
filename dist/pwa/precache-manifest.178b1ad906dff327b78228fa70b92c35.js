@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "d8f3bcc7984a72dce0ed",
-    "url": "css/app.9b7b48ae.css"
+    "revision": "f5dfaac70119f4f38651",
+    "url": "css/app.99ad6020.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -72,7 +72,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "8becc2f6efd1fb76ad58f5cabbe34aab",
+    "revision": "242f15ae60c16cee407b87ecf6d9ca9e",
     "url": "index.html"
   },
   {
@@ -80,12 +80,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2.5af11629.js"
   },
   {
-    "revision": "d8f3bcc7984a72dce0ed",
-    "url": "js/app.527ef6ae.js"
+    "revision": "f5dfaac70119f4f38651",
+    "url": "js/app.9e7cca7f.js"
   },
   {
-    "revision": "40465c4b05405def06b6",
-    "url": "js/vendor.40465c4b.js"
+    "revision": "0bfce45992be40ac34c5",
+    "url": "js/vendor.0bfce459.js"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
@@ -320,10 +320,6 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/css/addtohomescreen.css"
   },
   {
-    "revision": "0c65826b44c3a97fdd8f119b2965bf41",
-    "url": "statics/customers/conseil-europe/images/background/background.png"
-  },
-  {
     "revision": "cd9e5573306ef2297e46f88265eee75f",
     "url": "statics/customers/conseil-europe/images/flags/en.png"
   },
@@ -332,7 +328,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/customers/conseil-europe/images/flags/fr.png"
   },
   {
-    "revision": "b2503bf5c7905b8fc4633fdafbd45ab8",
+    "revision": "4ae303eee762c181e01f021412582aa4",
     "url": "statics/customers/conseil-europe/images/logo.png"
   },
   {
@@ -652,15 +648,15 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/story/character9_attitude1.png"
   },
   {
-    "revision": "4e185ad443665a614a9855349dcca856",
+    "revision": "76a48f2d69d9c0cbba570e605a3ce644",
     "url": "statics/icons/story/sticker-bottom.png"
   },
   {
-    "revision": "0842c0d6ae696207c5e3ce484b8e7d40",
+    "revision": "74750ab03df7136bc891d9d3a142581a",
     "url": "statics/icons/story/sticker-middle.png"
   },
   {
-    "revision": "cee59b69411a2cd797553eeaf6ff7e03",
+    "revision": "4162a1fbf07652f23ed7387224a91f9f",
     "url": "statics/icons/story/sticker-top.png"
   },
   {

@@ -1022,6 +1022,7 @@ export default {
         isHybrid: window.cordova,
         showNonHybridQRReader: false,
         isIOs: utils.isIOS(),
+        isSafari: utils.isSafari(),
         isPageInit: false,
         isNetworkLow: false,
         isTimeUp: false,
@@ -1399,7 +1400,7 @@ export default {
         var _this = this
 
         //iOS Hack : all iphone have gyroscope
-        if (this.isIOs) {
+        if (this.isIOs && this.isHybrid) {
           this.deviceHasGyroscope = true
         }
         
@@ -3397,11 +3398,25 @@ export default {
       let image = document.getElementById('snapshotImage')
       
       try {
+        const vw = _this.getScreenWidth()
+        const vh = _this.getScreenHeight()
         if (this.isIOs && CameraPreview) {
           image.style.width = '100%'
           CameraPreview.takePicture({quality: 85}, function (base64PictureData) {
             image.src = 'data:image/jpeg;base64,' + base64PictureData
           })
+        } else if (this.isSafari) {
+          const tempCanvas = document.createElement('canvas')
+          tempCanvas.width = vw
+          tempCanvas.height = vh
+          const tempContext = tempCanvas.getContext('2d')
+          let tempCameraStream = _this.$refs['camera-stream-for-image-over-flow']          
+          tempContext.drawImage(tempCameraStream, 0, 0, vw, vh)
+
+          tempCanvas.toBlob(function(blob){ 
+            let blobImage = document.getElementById('snapshotImage')
+            blobImage.src = URL.createObjectURL(blob)
+          }, 'image/png')
           //setTimeout(function () { _this.takeSnapshot() }, 2000)
         } else { // android & webapp
           // generate a snapshot of the video flow
@@ -3411,8 +3426,6 @@ export default {
         
         image.onload = async function() {
           _this.$q.loading.hide()
-          const vw = _this.getScreenWidth()
-          const vh = _this.getScreenHeight()
           // display captured camera image
           /*const width = image.width
           const height = image.height

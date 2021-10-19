@@ -21,14 +21,14 @@
         <div class="bg-warning q-pa-sm" v-if="warning.tooMuchUsers">
           <q-icon name="warning" /> {{ $t('label.TooMuchUsersCurrently') }}
         </div>
-        <div v-if="quest.status !== 'published'" class="bg-primary centered q-pa-sm q-mb-md">
+        <!--<div v-if="quest.status !== 'published'" class="bg-primary centered q-pa-sm q-mb-md">
           {{ $t('label.' + (quest.type === 'quest' ? 'QuestDraftVersion' : 'PageDraftVersion')) }}
-        </div>
+        </div>-->
         <!-- =========================== TITLE ========================== -->
-        <div class="text-h5">
+        <!--<div class="text-h5">
           {{ quest.title === "" ?  $t('label.NoTitle') : quest.title }} 
           &nbsp;<img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + getLanguage() + '.png'" />
-        </div>
+        </div>-->
         <!-- =========================== PROPERTIES ========================== -->
         <div class="row q-pt-md text-subtitle1 properties-bar">
           <div class="q-mr-lg">

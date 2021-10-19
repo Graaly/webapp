@@ -470,7 +470,8 @@ export default {
         this.questId = '614987b04978c0273485b950'
       }
       if (lang == 'fr') {
-        this.questId = '615dbcffa3872257f0dd40b4'//'614871e05924a718ef72ce7b'
+        //this.questId = '615dbcffa3872257f0dd40b4'//DEV
+        this.questId = '614871e05924a718ef72ce7b'//PROD
       }
       this.switchLanguage(lang)
       //this.validateTerms()

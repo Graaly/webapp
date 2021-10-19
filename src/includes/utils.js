@@ -738,10 +738,16 @@ var self = {
     })
   },
   /**
-   * @return true if platform is iOS, false otherwise
+   * @return true if platform is Apple one, false otherwise
    */
   isIOS() {
     return window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'
+  },
+  /**
+   * @return true if platform is Apple one, false otherwise
+   */
+  isSafari() {
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
   },
   /**
    * @return 'granted' if user accepts permission request for devicemotion, 'default' or 'denied' otherwise
