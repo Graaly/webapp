@@ -676,9 +676,9 @@
         <div v-if="form.fields.editorMode === 'simple' && chapters.items && chapters.items.length > 0">
           <p v-if="!readOnly && (!chapters.items || chapters.items.length < 1 || !chapters.items[0].steps || chapters.items[0].steps.length < 1)">{{ $t('label.AddYourSteps') }}</p>
           <ul class="list-group" v-sortable="{ onUpdate: onStepListUpdate, handle: '.handle' }">
-            <li class="list-group-item" v-for="step in chapters.items[0].steps" :key="step._id">
+            <li class="list-group-item step-hover" v-for="step in chapters.items[0].steps" :key="step._id">
               <q-icon v-if="!readOnly" class="handle" name="reorder" />
-              <div>
+              <div style="line-height: 3rem; padding: 4px">
                 <q-icon color="grey" class="q-mr-sm" :name="getIconFromStepType(step.type)" />
                 <span style="margin-top: 4px" @click="playStep(step)">{{ step.title[languages.current] || step.title[quest.mainLanguage] }}</span>
                 <q-btn v-if="!readOnly" class="float-right" @click="removeStep(step.stepId)"><q-icon name="delete" /></q-btn>
@@ -686,7 +686,7 @@
               </div>
             </li>
           </ul>
-          <p v-if="!readOnly" class="centered">
+          <p v-if="!readOnly" class="centered q-mt-md">
             <q-btn color="primary" class="glossy large-button" @click="addStep()" test-id="btn-add-step">{{ $t('label.AddAStep') }}</q-btn>
           </p>
           <p class="centered q-pa-md" v-if="!readOnly && chapters.items && chapters.items[0] && chapters.items[0].steps && chapters.items[0].steps.length > 1">
@@ -708,7 +708,7 @@
             <li class="step-list list-group-item align-top" v-for="chapter in chapters.items" :key="chapter._id">
               <q-icon v-if="!readOnly" class="handle" style="font-size: 1.3rem;" name="reorder" />
               <div>
-                <p class="bigger">
+                <p class="bigger" style="margin-bottom: 8px;">
                   {{ chapter.title[languages.current] || chapter.title[quest.mainLanguage] }}
                   <q-icon v-if="!readOnly" name="add_box" class="float-right q-mt-sm q-ml-md size-1" @click.native="addStep(chapter.chapterId)" />
                   <q-icon v-if="!readOnly" name="delete" class="float-right q-mt-sm q-ml-md a-bit-bigger" @click.native="removeChapter(chapter.chapterId)" />
@@ -718,7 +718,7 @@
                 <div v-if="!chapter.steps || chapter.steps.length === 0">
                   {{ $t('label.ClickOnButtonToAddStep') }}
                 </div>
-                <div v-for="step in chapter.steps" :key="step._id" style="height: 34px; overflow: hidden;display: flex;width: 100%;">
+                <div v-for="step in chapter.steps" :key="step._id" style="height: 34px; overflow: hidden;display: flex;width: 100%;" class="step-hover">
                   <div class="step-text">
                     <q-icon color="grey" class="q-mr-sm" :class="{'q-ml-md': (step.level === 2)}" :name="getIconFromStepType(step.type)">
                     </q-icon>
@@ -1632,6 +1632,7 @@ export default {
       itemUsed: null,
       isIOs: utils.isIOS(),
       serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL,
       pictureUploadURL: this.serverUrl + '/quest/picture/upload',
       titleMaxLength: 50,
       isHybrid: false,
@@ -3776,4 +3777,12 @@ export default {
 
 <style>
 .review-text { color: black; font-size: 0.8rem; white-space: pre-line; }
+.step-hover{
+  padding: 0;
+  transition: 500ms;
+  border-bottom: 1px solid transparent;
+}
+.step-hover:hover{
+  border-bottom: 1px solid #d60b52;
+}
 </style>

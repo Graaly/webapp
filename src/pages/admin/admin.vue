@@ -236,8 +236,38 @@
         <!------------------ EARNINGS TAB ------------------------>
 
         <q-tab-panel name="earnings">
-          Eearnings of games:
-          <q-list highlight>
+          <q-table
+            class="container"
+            title="Earnings of games"
+            :data="earnings.items"
+            :columns="earnings.columns"
+            :visible-columns="earnings.visible"
+            row-key="id"
+            :loading="earnings.loading"
+            :pagination="earnings.initialPagination"
+          >
+            <template v-slot:header="props">
+              <q-tr :props="props">
+                <q-th
+                  v-for="col in props.cols"
+                  :key="col.name"
+                  :props="props"
+                >
+                  {{ col.label }}
+                </q-th>
+              </q-tr>
+            </template>
+            <template v-slot:body="props">
+              <q-tr :props="props">
+                <q-td auto-width key="name" v-if="props.row.title.fr">{{ props.row.title.fr }}</q-td>
+                <q-td auto-width key="price" class="text-center" v-if="props.row.premiumPrice.prices">{{ props.row.premiumPrice.prices.fr ? props.row.premiumPrice.prices.fr : props.row.premiumPrice.prices.en}}<br>{{ props.row.premiumPrice.manual && props.row.premiumPrice.manual !== "" ?  "manual : " + props.row.premiumPrice.manual : "" }}</q-td>
+                <q-td auto-width key="price" class="text-center" v-else> Pas de prix</q-td>
+                <q-td auto-width key="qrcode" class="text-center">{{ props.row.premiumPrice.tier ? props.row.tierEarnings : "--" }}</q-td>
+                <q-td auto-width key="earnings" class="text-right">{{ props.row.earnings.toFixed(2) }} €</q-td>
+              </q-tr>
+            </template>
+          </q-table>
+<!--          <q-list highlight>
             <q-item v-for="earning in earnings.items" :key="earning.questId">
               <q-item-section>
                 <q-item-label v-if="earning.title.fr">
@@ -250,49 +280,68 @@
                   revenues:{{ earning.earnings }} | QR codes used:{{ earning.tierEarnings }} <span v-if="earning.premiumPrice && earning.premiumPrice.manual">(x{{ earning.premiumPrice.manual }})</span>
                 </q-item-label
                 >
-              </q-item-section>
+              </q-item-section>-->
               <!--<q-item-section side>
                 <q-btn>Update</q-btn>
               </q-item-section>-->
-            </q-item>
-            <q-item v-if="games.items.length === 0">
+<!--            </q-item>
+            <q-item v-if="statistics.items.length === 0">
               <q-item-label>No game played during 1 month</q-item-label>
             </q-item>
-          </q-list>
+          </q-list>-->
         </q-tab-panel>
 
-        <!------------------ LIMITATIONS TAB ------------------------>
-
-        <q-tab-panel name="limitations">
-          Published games with limitations:
-          <q-list highlight>
-            <q-item v-for="limitation in limitations.items" :key="limitation.questId">
-              <q-item-section>
-                <q-item-label v-if="limitation.title.fr">
-                  {{limitation.title.fr}}
-                </q-item-label>
-                <q-item-label v-if="!limitation.title.fr && limitation.title.en">
-                  {{ limitation.title.en }}
-                </q-item-label>
-                <q-item-label caption>
-                  <span :class="{'text-red': (limitation.limitations.nbPlays <= limitation.nbPlayers)}">Crédits disponibles:{{ limitation.limitations.nbPlays }} | Parties jouées:{{ limitation.nbPlayers }}</span>
-                </q-item-label
-                >
-              </q-item-section>
-              <!--<q-item-section side>
-                <q-btn>Update</q-btn>
-              </q-item-section>-->
-            </q-item>
-            <q-item v-if="games.items.length === 0">
-              <q-item-label>No game played during 1 month</q-item-label>
-            </q-item>
-          </q-list>
-        </q-tab-panel>
 
         <!------------------ MINI GAMES TAB ------------------------>
 
         <q-tab-panel name="statistics">
-          Best games of the month:
+          <q-table
+            class="container"
+            title="Statistics of games"
+            :data="statistics.items"
+            :columns="statistics.columns"
+            :visible-columns="statistics.visible"
+            row-key="id"
+            :loading="statistics.loading"
+            :pagination="statistics.initialPagination"
+          >
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props"
+              >
+                {{ col.label }}
+              </q-th>
+            </q-tr>
+          </template>
+          <template v-slot:body="props">
+            <q-tr :props="props">
+              <q-td auto-width key="name">{{ props.row._id.questData.fr }}</q-td>
+              <q-td auto-width key="weekNb" class="text-center">{{ props.row.weekNb }}</q-td>
+              <q-td auto-width key="monthNb" class="text-center">{{ props.row.monthNb }}</q-td>
+              <q-td auto-width key="rating" class="text-center">
+                <q-rating
+                  v-if="props.row.rating"
+                  v-model="props.row.rating"
+                  size="1em"
+                  color="accent"
+                  readonly
+                />
+                <q-rating
+                v-else
+                :value="0"
+                size="1em"
+                color="accent"
+                readonly
+              />
+              </q-td>
+            </q-tr>
+          </template>
+          </q-table>
+
+<!--          Best games of the month:
           <q-list highlight>
             <q-item v-for="game in games.items" :key="game._id.questId">
               <q-item-section>
@@ -308,14 +357,52 @@
                   {{ game.rating }}</q-item-label
                 >
               </q-item-section>
-              <!--<q-item-section side>
+              &lt;!&ndash;<q-item-section side>
                 <q-btn>Update</q-btn>
-              </q-item-section>-->
+              </q-item-section>&ndash;&gt;
             </q-item>
             <q-item v-if="games.items.length === 0">
               <q-item-label>No game played during 1 month</q-item-label>
             </q-item>
-          </q-list>
+          </q-list>-->
+        </q-tab-panel>
+
+        <!------------------ LIMITATIONS TAB ------------------------>
+
+        <q-tab-panel name="limitations">
+          <q-table
+            class="container"
+            title="Statistics of games"
+            :data="limitations.items"
+            :columns="limitations.columns"
+            :visible-columns="limitations.visible"
+            row-key="id"
+            :loading="limitations.loading"
+            :pagination="limitations.initialPagination"
+          />
+          <!--          Published games with limitations:
+                    <q-list highlight>
+                      <q-item v-for="limitation in limitations.items" :key="limitation.questId">
+                        <q-item-section>
+                          <q-item-label v-if="limitation.title.fr">
+                            {{limitation.title.fr}}
+                          </q-item-label>
+                          <q-item-label v-if="!limitation.title.fr && limitation.title.en">
+                            {{ limitation.title.en }}
+                          </q-item-label>
+                          <q-item-label caption>
+                            <span :class="{'text-red': (limitation.limitations.nbPlays <= limitation.nbPlayers)}">Crédits disponibles:{{ limitation.limitations.nbPlays }} | Parties jouées:{{ limitation.nbPlayers }}</span>
+                          </q-item-label
+                          >
+                        </q-item-section>
+                        &lt;!&ndash;<q-item-section side>
+                          <q-btn>Update</q-btn>
+                        </q-item-section>&ndash;&gt;
+                      </q-item>
+                      <q-item v-if="statistics.items.length === 0">
+                        <q-item-label>No game played during 1 month</q-item-label>
+                      </q-item>
+                    </q-list>-->
         </q-tab-panel>
       </q-tab-panels>
     </div>
@@ -369,14 +456,55 @@ export default {
       towns: {
         items: []
       },
-      games: {
-        items: []
-      },
       earnings: {
-        items: []
+        loading: true,
+        items: [],
+        visible: ['name', 'price', 'mail', 'qrcode', 'earnings'],
+        columns: [
+          {name: 'name', required: true, label: 'Name', align: 'left', sortable: true, field: row => row.title.fr},
+          {name: 'price', label: 'Price', sortable: false, align: 'center', field: row => row.premiumPrice.prices.fr},
+          {name: 'qrcode', label: 'QR-Code used', align: 'center', sortable: true, field: 'tierEarnings'},
+          {name: 'earnings', label: 'Earnings', align: 'right', sortable: true, field: 'earnings'}
+        ],
+        initialPagination: {
+          sortBy: 'earnings',
+          descending: true,
+          page: 1,
+          rowsPerPage: 10
+        }
+      },
+      statistics: {
+        loading: true,
+        items: [],
+        visible: ['name', 'weekNb', 'monthNb', 'rating'],
+        columns: [
+          {name: 'name', required: true, label: 'Name', align: 'left', sortable: true, field: row => row._id.questData.fr},
+          {name: 'weekNb', label: 'Played Weekly', sortable: true, align: 'center', field: 'weekNb'},
+          {name: 'monthNb', label: 'Played Monthly', align: 'center', sortable: true, field: 'monthNb'},
+          {name: 'rating', label: 'Rating', align: 'center', sortable: true, field: 'rating'}
+        ],
+        initialPagination: {
+          sortBy: 'monthNb',
+          descending: true,
+          page: 1,
+          rowsPerPage: 10
+        }
       },
       limitations: {
-        items: []
+        loading: true,
+        items: [],
+        visible: ['name', 'stats', 'remaining'],
+        columns: [
+          {name: 'name', required: true, label: 'Name', align: 'left', sortable: true, field: row => row.title.fr},
+          {name: 'stats', label: 'Played/Limit', sortable: true, align: 'right', field: row => row.nbPlayers + '/' + row.limitations.nbPlays},
+          {name: 'remaining', label: 'Remaining credit', sortable: true, align: 'right', field: row => row.limitations.nbPlays - row.nbPlayers},
+        ],
+        initialPagination: {
+          sortBy: 'monthNb',
+          descending: true,
+          page: 1,
+          rowsPerPage: 10
+        }
       },
       adminTab: "validation",
       serverUrl: process.env.SERVER_URL,
@@ -430,7 +558,8 @@ export default {
      */
     async loadStatistics() {
       let response = await AdminService.ListBestGames();
-      this.games.items = response.data.games;
+      this.statistics.items = response.data.games;
+      this.statistics.loading = false
     },
     /*
      * List the earnings
@@ -438,6 +567,7 @@ export default {
     async loadEarnings() {
       let response = await AdminService.ListEarnings();
       this.earnings.items = response.data.earnings;
+      this.earnings.loading = false;
     },
     /*
      * List the limitations
@@ -445,6 +575,8 @@ export default {
     async loadLimitations() {
       let response = await AdminService.ListLimitations();
       this.limitations.items = response.data.limitations;
+      this.limitations.loading = false;
+      console.log(this.limitations.items)
     },
     /*
      * validate a quest
@@ -459,7 +591,6 @@ export default {
       // get quests to validate
       let response = await AdminService.ListQuestsRejected();
       this.questsRejected.items = response.data.quests;
-      console.log(this.questsRejected.items)
       this.questsRejected.items.forEach(item => {
         AdminService.getUserMail(item.authorUserId).then(rep => {
           item.userMail = rep.data.email
