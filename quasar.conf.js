@@ -13,7 +13,7 @@ module.exports = function (ctx) {
       //'CustomDirectives',
       'DateFormatFilter',
       'RouterAuthentication',
-      'UniversalLinks', // enable to use deep links with Cordova plugin 
+      'UniversalLinks', // enable to use deep links with Cordova plugin
       'VueGoogleMaps',
       'VueI18n',
       'Vuelidate',
@@ -54,6 +54,7 @@ module.exports = function (ctx) {
       }
     },
     devServer: {
+
       https: {
         key: fs.readFileSync('certs/webapp-dev-key.pem'),
         cert: fs.readFileSync('certs/webapp-dev-cert.pem')
