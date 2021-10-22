@@ -38,6 +38,12 @@ export default {
     return Api().get("admin/limitations");
   },
   /*
+    * List the disabled quest (nquest.status = "disabled")
+    */
+  ListQuestDisabled() {
+    return Api().get("admin/quests/disabled")
+  },
+  /*
    * Validate a quest
    */
   publish(id) {
