@@ -693,7 +693,7 @@
             />
           </div>
           <img id="snapshotImage" v-show="false" style="position: absolute; top: 0; left: 0; height: 100%; width: auto; z-index: 1980;" />
-          <!--<img id="snapshotImageIos" v-if="isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />-->
+          <img id="snapshotImageIos" v-if="isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />
           <div>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
@@ -3408,6 +3408,7 @@ console.log("GOOD ANSWER")
         if (this.isIOs && CameraPreview) {
           image.style.width = '100%'
           CameraPreview.takePicture({quality: 85}, function(base64PictureData) {
+console.log("TESTSNAPSHOTIOS1")
             const imageSrcData = 'data:image/jpeg;base64,' +base64PictureData
             var image = document.getElementById('snapshotImageIos')
             image.src = imageSrcData
@@ -3501,15 +3502,18 @@ console.log("GOOD ANSWER")
       }
     },
     takeIOsSnapshot() {
+console.log("TESTSNAPSHOTIOS2")
       var _this = this
       this.$q.loading.hide()
       navigator.screenshot.save(function (error, res) {
+console.log("TESTSNAPSHOTIOS3")
         if (error) {
           console.error(error)
           Notification(_this.$t('label.ErrorTakingSnapshot'), 'info')
         } else {
           var permissions = cordova.plugins.permissions
           permissions.requestPermission(permissions.READ_EXTERNAL_STORAGE, function(status) {
+console.log("TESTSNAPSHOTIOS4")
             if (status.hasPermission) {
               _this.saveIOsSnapshot(res)
             } else {
@@ -3522,12 +3526,14 @@ console.log("GOOD ANSWER")
       })
     },
     async saveIOsSnapshot(mediaFile) {
+console.log("TESTSNAPSHOTIOS5")
       try {
         const fileEntry = await new Promise(resolve =>
           window.resolveLocalFileSystemURL('file://' + mediaFile.filePath, resolve, function(err) { console.log('Error '  + err) })
         );
         const fileBinary = await new Promise((resolve, reject) =>
           fileEntry.file(function (file) {
+console.log("TESTSNAPSHOTIOS6")
             var reader = new FileReader()
             reader.onloadend = function(e) {
               resolve(reader.result)
@@ -3536,17 +3542,19 @@ console.log("GOOD ANSWER")
           })
         )
         // convert binary to blob of the image content
+console.log("TESTSNAPSHOTIOS7")
         const picture = new Blob([new Uint8Array(fileBinary)], { type: "image/jpg" })
         var data = new FormData()
         data.append('image', picture)
         var _this = this
-        StepService.uploadSnapshot(this.step.questId, data, function(err, result) {
+        await StepService.uploadSnapshot(this.step.questId, data)
+        /*StepService.uploadSnapshot(this.step.questId, data, function(err, result) {
           if (err) {
             Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
           } else {
             Notification(_this.$t('label.SnapshotTaken'), 'info')
           }
-        })
+        })*/
       } catch (error) {
         Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
         console.log("Error: " + error)
