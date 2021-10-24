@@ -684,7 +684,7 @@ export default {
           if (pictureUrl) {
             this.quest.picture = pictureUrl
           } else {
-            this.quest.picture = '_default-quest-picture.png'
+            this.quest.picture = '_default-quest-picture.jpg'
           }
         }
       }
@@ -1012,7 +1012,7 @@ export default {
      * Cancel a run
      */
     async cancelRun() {
-      if (this.continueQuestId != "") {
+      if (this.continueQuestId !== "") {
         await RunService.endRun(this.continueQuestId, null, this.quest.questId, this.quest.version, this.$route.params.lang)
       }
       // remove run offline data
@@ -1285,7 +1285,7 @@ export default {
       } else if (this.quest.picture) {
         return this.serverUrl + '/upload/quest/' + this.quest.picture
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     }
   }

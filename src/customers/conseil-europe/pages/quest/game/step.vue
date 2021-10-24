@@ -1300,7 +1300,7 @@ export default {
       } else if (this.info.quest.picture) {
         return this.serverUrl + '/upload/quest/' + this.info.quest.picture
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     },
     /*
@@ -1689,7 +1689,7 @@ export default {
           if (pictureUrl) {
             this.info.quest.picture = pictureUrl
           } else {
-            this.info.quest.picture = '_default-quest-picture.png'
+            this.info.quest.picture = '_default-quest-picture.jpg'
           }
           // get customized logo
           if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo !== '') {

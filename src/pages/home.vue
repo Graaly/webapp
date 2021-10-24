@@ -37,7 +37,6 @@
         </div>
       </div>
       
-      
       <!--====================== QR CODE BUTTON =================================-->
       
       <div class="q-px-md q-pt-lg q-pb-lg cursor-pointer centered" v-if="!offline.active">
@@ -571,7 +570,7 @@ export default {
                 if (pictureUrl) {
                   tempQuestList[i].picture = pictureUrl
                 } else {
-                  tempQuestList[i].picture = '_default-quest-picture.png'
+                  tempQuestList[i].picture = '_default-quest-picture.jpg'
                 }
               }
               this.questList = tempQuestList
