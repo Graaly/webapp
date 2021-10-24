@@ -964,7 +964,7 @@
               <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
               <q-input v-model="selectedStep.form.options.memoryCardColor" :label="$t('label.CustomizedMemoryCardColor')" />
             </div>
-            <div v-if="options.type.code === 'puzzle'">
+            <div v-if="options.type.code === 'jigsaw-puzzle'">
               <q-toggle v-model="selectedStep.form.options.hidePuzzleNotWorkingMessage" :label="$t('label.HidePuzzleNotWorkingMessage')" />
             </div>
             <div v-if="options.type.code === 'code-image'">

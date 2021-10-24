@@ -2593,6 +2593,7 @@ export default {
      * Send good answer  
      */
     submitGoodAnswer(score, offlineMode, showResult, answer) {
+console.log("GOOD ANSWER")
       /*if (showResult) {
         this.playerResult = true
       } else {
@@ -2639,7 +2640,7 @@ export default {
           case 'code-keypad':
           case 'code-color':
           case 'code-image':
-            this.displaySuccessMessage(true, this.$t('label.GoodAnswer'))
+            this.displaySuccessMessage(true, this.$t('label.GoodAnswer'), true)
             break
           case 'write-text':
           case 'jigsaw-puzzle':
@@ -2648,18 +2649,18 @@ export default {
           case 'use-item':
           case 'find-item':
           case 'geolocation':
-            this.displaySuccessMessage(true, this.$t('label.YouHaveFoundThePlace'))
+            this.displaySuccessMessage(true, this.$t('label.YouHaveFoundThePlace'), true)
             break
           case 'locate-item-ar':
           case 'locate-marker':
             if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'touch')) {
-              this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'))
+              this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'), true)
             } else { // locate marker, mode scan
-              this.displaySuccessMessage(true, this.$t('label.WellDone'))
+              this.displaySuccessMessage(true, this.$t('label.WellDone'), true)
             }
             break
           case 'wait-for-event':
-            this.displaySuccessMessage(true, this.$t('label.WellDone'))
+            this.displaySuccessMessage(true, this.$t('label.WellDone'), true)
             break
         }
       }
@@ -2696,9 +2697,9 @@ export default {
       this.displayReadMoreAlert()
       
       if (this.isTimeUp === true) {
-        this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'))
+        this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'),false)
       } else if (showResult || (this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage !== "")) {
-        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
+        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true)
       }
       
       // if no display of the answer move to next step
@@ -2710,7 +2711,7 @@ export default {
       }
     },
     alertToPassToNextStep() {
-      this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'))
+      this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'), false)
     },
     /*
      * Display the read more alert
@@ -2741,9 +2742,9 @@ export default {
     submitRetry(nbRemainingTrials) {
       if (nbRemainingTrials > 100) {
         // do not display nb of try if infinite tries
-        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
+        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true)
       } else {
-        this.displaySuccessMessage(false, this.$t('label.SecondTry', {nb: nbRemainingTrials}))
+        this.displaySuccessMessage(false, this.$t('label.SecondTry', {nb: nbRemainingTrials}), false)
       }
     },
     
@@ -4109,17 +4110,17 @@ export default {
     /*
     * Display the success message
     */
-    displaySuccessMessage (success, genericMessage, actions) {
+    displaySuccessMessage (success, genericMessage, allowCustomMessage, actions) {
       let message = ""
       this.displaySuccessIcon = true
       if (success) {
-        if (this.step.options && this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage !== "") {
+        if (allowCustomMessage && this.step.options && this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage !== "") {
           message = this.step.options.rightAnswerMessage
         } else {
           message = genericMessage
         }
       } else {
-        if (this.step.options && this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage !== "") {
+        if (allowCustomMessage && this.step.options && this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage !== "") {
           message = this.step.options.wrongAnswerMessage
         } else {
           message = genericMessage
@@ -4854,7 +4855,7 @@ export default {
   /* new-item specific */
   
   .new-item .item { text-align: center; position: relative;}
-  .new-item .item p span { font-size: 2rem; background-color: rgba(255, 255, 255, 0.5); border-radius: 8px; padding: 4px 8px; }
+  .new-item .item p span { font-size: 2rem; background-color: rgba(255, 255, 255, 0.5); border-radius: 8px; padding: 2px 8px 12px 8px; }
   
   /* locate-item-ar specific */
   
