@@ -3407,19 +3407,12 @@ console.log("GOOD ANSWER")
         const vh = _this.getScreenHeight()
         if (this.isIOs && CameraPreview) {
           image.style.width = '100%'
-          CameraPreview.takePicture({quality: 85}, function (base64PictureData) {
-            image.src = 'data:image/jpeg;base64,' + base64PictureData
-            console.log("Save picture in IOS Library")
-            let params = {data: base64PictureData, prefix: 'myPrefix_', format: 'JPG', quality: 80, mediaScanner: true};
-            window.imageSaver.saveBase64Image(params,
-              function (filePath) {
-                console.log('File saved on ' + filePath);
-              },
-              function (msg) {
-                console.error(msg);
-              }
-            );
-          })
+          CameraPreview.takePicture({quality: 85}, function(base64PictureData) {
+            const imageSrcData = 'data:image/jpeg;base64,' +base64PictureData
+            var image = document.getElementById('snapshotImageIos')
+            image.src = imageSrcData
+            setTimeout(function () { _this.takeIOsSnapshot() }, 2000)
+          });
         } else if (this.isSafari) {
           const tempCanvas = document.createElement('canvas')
           tempCanvas.width = vw
@@ -3505,6 +3498,58 @@ console.log("GOOD ANSWER")
         console.log(err.stack) 
         this.$q.loading.hide()
         this.$emit('showButtons')
+      }
+    },
+    takeIOsSnapshot() {
+      var _this = this
+      this.$q.loading.hide()
+      navigator.screenshot.save(function (error, res) {
+        if (error) {
+          console.error(error)
+          Notification(_this.$t('label.ErrorTakingSnapshot'), 'info')
+        } else {
+          var permissions = cordova.plugins.permissions
+          permissions.requestPermission(permissions.READ_EXTERNAL_STORAGE, function(status) {
+            if (status.hasPermission) {
+              _this.saveIOsSnapshot(res)
+            } else {
+              Notification(_this.$t('label.ErrorTakingSnapshot'), 'info')
+            }
+          }, alert)
+        }
+        _this.takingSnapshot = false
+        _this.$emit('showButtons')
+      })
+    },
+    async saveIOsSnapshot(mediaFile) {
+      try {
+        const fileEntry = await new Promise(resolve =>
+          window.resolveLocalFileSystemURL('file://' + mediaFile.filePath, resolve, function(err) { console.log('Error '  + err) })
+        );
+        const fileBinary = await new Promise((resolve, reject) =>
+          fileEntry.file(function (file) {
+            var reader = new FileReader()
+            reader.onloadend = function(e) {
+              resolve(reader.result)
+            }
+            reader.readAsArrayBuffer(file)
+          })
+        )
+        // convert binary to blob of the image content
+        const picture = new Blob([new Uint8Array(fileBinary)], { type: "image/jpg" })
+        var data = new FormData()
+        data.append('image', picture)
+        var _this = this
+        StepService.uploadSnapshot(this.step.questId, data, function(err, result) {
+          if (err) {
+            Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
+          } else {
+            Notification(_this.$t('label.SnapshotTaken'), 'info')
+          }
+        })
+      } catch (error) {
+        Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
+        console.log("Error: " + error)
       }
     },
     /**

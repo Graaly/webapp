@@ -99,6 +99,9 @@
     <edit-config file="*-Info.plist" mode="merge" target="NSPhotoLibraryUsageDescription">
         <string>Each player can get photos of his library to build a quest</string>
     </edit-config>
+    <edit-config file="*-Info.plist" mode="merge" target="NSPhotoLibraryAddUsageDescription">
+        <string>Each player can save pictures taken during the game in his livra</string>
+    </edit-config>
     <edit-config file="*-Info.plist" mode="merge" target="NSBluetoothPeripheralUsageDescription">
         <string>Graaly needs bluetooth to connect on electronic boards used for the escape games (to open a chest for example)</string>
     </edit-config>
