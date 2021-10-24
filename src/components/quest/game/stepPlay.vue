@@ -3406,6 +3406,8 @@ console.log("GOOD ANSWER")
         const vw = _this.getScreenWidth()
         const vh = _this.getScreenHeight()
         if (this.isIOs && CameraPreview) {
+          Notification(_this.$t('label.SnapshotManualOnIOs'), 'error');
+          return false
           image.style.width = '100%'
           CameraPreview.takePicture({quality: 85}, function(base64PictureData) {
 console.log("TESTSNAPSHOTIOS1")

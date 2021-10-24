@@ -1107,7 +1107,8 @@ module.exports = {
       HideMake8Animation: "Hide animation if GPS is weak",
       HideEnlargeMessage: "Hide button to enlarge thumbs",
       CustomizedMemoryCardColor: "Customized color for the cards",
-      HidePuzzleNotWorkingMessage: "Hide button when puzzle is not working"
+      HidePuzzleNotWorkingMessage: "Hide button when puzzle is not working",
+      SnapshotManualOnIOs: "To make a screenshot on iPhone/iPad, press the side button and the volume up button at the same time"
     }
   },
   fr: {
@@ -2205,7 +2206,8 @@ module.exports = {
       HideMake8Animation: "Cacher l'animation en cas de mauvais GPS",
       HideEnlargeMessage: "Cacher le bouton pour élargir les vignettes",
       CustomizedMemoryCardColor: "Couleur personnalisée pour le dos des cartes",
-      HidePuzzleNotWorkingMessage: "Cacher le bouton quand le puzzle ne fonctionne pas"
+      HidePuzzleNotWorkingMessage: "Cacher le bouton quand le puzzle ne fonctionne pas",
+      SnapshotManualOnIOs: "Pour faire une capture sur iPhone/iPad, appuyez simultanéement sur le bouton latéral et le bouton du volume"
     }
   }
 }
