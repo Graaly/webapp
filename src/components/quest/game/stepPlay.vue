@@ -373,7 +373,7 @@
             </tr>
           </table>
             
-          <div class="centered">
+          <div class="centered" v-if="!step.options || !step.options.hideEnlargeMessage">
             <q-btn flat class="no-box-shadow hide-button text-black">{{ $t('label.ClickToEnlargePictures') }}</q-btn>
           </div>
           
@@ -486,7 +486,7 @@
           <div class="centered text-primary q-pt-lg arial" v-if="puzzle.mode === 'click'">
             {{ $t('label.PuzzleHelpTextClick') }}
           </div>
-          <div class="centeredq-pt-sm" v-if="puzzle && puzzle.mode === 'drag'">
+          <div class="centeredq-pt-sm" v-if="puzzle && puzzle.mode === 'drag' && !step.options.hidePuzzleNotWorkingMessage">
             <a class="text-black" @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
           </div>
         </div>
@@ -508,6 +508,7 @@
               class="card" 
               :class="{ open: item.isClicked, closed: !item.isClicked, disabled: item.isFound || stepPlayed }" 
               @click="selectMemoryCard(key)"
+              :style="((step.options && step.options.memoryCardColor && step.options.memoryCardColor !== '') ? 'background: ' + step.options.memoryCardColor : '')"
             >
               <img style="display: block; position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;" v-if="item.imagePath" :src="item.imagePath.indexOf('blob:') !== -1 ? item.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
             </div>
@@ -4274,9 +4275,11 @@ export default {
      * @param   {string}    pictureUrl            picture URL
      */
     enlargeThePicture (index) {
-      this.enlargePicture.show = true
-      var pictureUrl = this.step.options.images[this.playerCode[index]].imagePath
-      this.enlargePicture.url = (pictureUrl && pictureUrl.indexOf('blob:') !== -1) ? pictureUrl : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + pictureUrl
+      if (!this.step.options || !this.step.options.hideEnlargeMessage) {
+        this.enlargePicture.show = true
+        var pictureUrl = this.step.options.images[this.playerCode[index]].imagePath
+        this.enlargePicture.url = (pictureUrl && pictureUrl.indexOf('blob:') !== -1) ? pictureUrl : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + pictureUrl
+      }
     },
     /**
      * Triggers an IoT event

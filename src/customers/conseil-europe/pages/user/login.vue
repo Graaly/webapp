@@ -22,25 +22,25 @@
           <img src="statics/customers/conseil-europe/images/logo.png" style="width: 80%; max-width: 600px;" />
         </div>
         <!------------------ PLAY ANONYMOUS ------------------>
-        
+        <div class="centered">
+          &nbsp;
+        </div>
         <div class="q-py-md centered">
-          <div><img src="statics/customers/conseil-europe/images/flags/fr.png" /></div>
           <q-btn 
             class="glossy large-btn" 
             color="accent" 
-            @click="chooseLanguage('fr')"
-            label="JOUER"
-            />
+            @click="chooseLanguage('fr')">
+            <img src="statics/customers/conseil-europe/images/flags/fr.png" />
+          </q-btn>
         </div>
         
         <div class="q-pt-lg centered">
-          <div><img src="statics/customers/conseil-europe/images/flags/en.png" /></div>
           <q-btn 
             class="glossy large-btn" 
             color="accent" 
-            @click="chooseLanguage('en')"
-            label="PLAY"
-            />
+            @click="chooseLanguage('en')">
+            <img src="statics/customers/conseil-europe/images/flags/en.png" />
+          </q-btn>
         </div>
         
         <!--<p class="text-center text-h6 text-grey q-mt-md q-mb-md">

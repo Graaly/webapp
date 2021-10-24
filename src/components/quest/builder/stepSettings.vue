@@ -906,8 +906,8 @@
             <q-btn color="primary" class="full-width" v-if="!selectedStep.newConditionForm" @click="selectedStep.newConditionForm = true" :label="$t('label.AddACondition')" />
             <div v-if="selectedStep.newConditionForm">
               <q-select emit-value map-options :label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @input="changeNewConditionType" />
-              <q-select v-if="selectedStep.newCondition.selectedType !== 'counter'" emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
-              <q-input v-if="selectedStep.newCondition.selectedType === 'counter'" v-model="selectedStep.newCondition.selectedValue" :label="$t('label.CounterValue')" />
+              <q-select v-if="selectedStep.newCondition.selectedType !== 'counter' && selectedStep.newCondition.selectedType !== 'countergreater' && selectedStep.newCondition.selectedType !== 'counterlower'" emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
+              <q-input v-if="selectedStep.newCondition.selectedType === 'counter' || selectedStep.newCondition.selectedType === 'countergreater' || selectedStep.newCondition.selectedType === 'counterlower'" v-model="selectedStep.newCondition.selectedValue" :label="$t('label.CounterValue')" />
               <div class="centered">
                 <q-btn class="glossy normal-button" color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />
                 <q-btn class="q-mx-md" color="primary" flat @click="selectedStep.newConditionForm = false" :label="$t('label.Cancel')" />
@@ -962,6 +962,13 @@
             </div>
             <div v-if="options.type.code === 'memory'">
               <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
+              <q-input v-model="selectedStep.form.options.memoryCardColor" :label="$t('label.CustomizedMemoryCardColor')" />
+            </div>
+            <div v-if="options.type.code === 'puzzle'">
+              <q-toggle v-model="selectedStep.form.options.hidePuzzleNotWorkingMessage" :label="$t('label.HidePuzzleNotWorkingMessage')" />
+            </div>
+            <div v-if="options.type.code === 'code-image'">
+              <q-toggle v-model="selectedStep.form.options.hideEnlargeMessage" :label="$t('label.HideEnlargeMessage')" />
             </div>
             <div v-if="options.type.code === 'help'">
               <q-toggle v-model="selectedStep.form.options.helpInventory" :label="$t('label.HelpStepMessageInventory')" />
@@ -1295,7 +1302,9 @@ export default {
             {label: this.$t('label.StepSuccess'), value: 'stepSuccess'},
             {label: this.$t('label.StepFail'), value: 'stepFail'},
             {label: this.$t('label.StepRandom'), value: 'stepRandom'},
-            {label: this.$t('label.StepCounter'), value: 'counter'}
+            {label: this.$t('label.StepCounter'), value: 'counter'},
+            {label: this.$t('label.StepCounterGreater'), value: 'countergreater'},
+            {label: this.$t('label.StepCounterLower'), value: 'counterlower'}
           ],
           selectedValue: '',
           values: []
@@ -2156,6 +2165,12 @@ export default {
         if (conditionParts[0] === 'counter') {
           this.selectedStep.formatedConditions.push(this.$t("label.StepCounter") + " <i>" + conditionParts[1] + "</i>")
         }
+        if (conditionParts[0] === 'countergreater') {
+          this.selectedStep.formatedConditions.push(this.$t("label.StepCounterGreater") + " <i>" + conditionParts[1] + "</i>")
+        }
+        if (conditionParts[0] === 'counterlower') {
+          this.selectedStep.formatedConditions.push(this.$t("label.StepCounterLower") + " <i>" + conditionParts[1] + "</i>")
+        }
       }
     },
     /*
@@ -2217,6 +2232,12 @@ export default {
         }
         if (this.selectedStep.newCondition.selectedType === 'counter') {
           this.selectedStep.form.conditions.push('counter_' + this.selectedStep.newCondition.selectedValue)
+        }
+        if (this.selectedStep.newCondition.selectedType === 'countergreater') {
+          this.selectedStep.form.conditions.push('countergreater_' + this.selectedStep.newCondition.selectedValue)
+        }
+        if (this.selectedStep.newCondition.selectedType === 'counterlower') {
+          this.selectedStep.form.conditions.push('counterlower_' + this.selectedStep.newCondition.selectedValue)
         }
       }
       this.getUnderstandableConditions()

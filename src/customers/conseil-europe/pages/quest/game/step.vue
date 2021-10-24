@@ -48,25 +48,15 @@
       </stepPlay>
     </div>
 
-    <!------------------ INVENTORY PAGE AREA ------------------------>
+    <!------------------ STARS PAGE AREA ------------------------>
 
     <transition name="slideInBottom">
       <div v-show="inventory.isOpened" class="bg-graaly-blue-dark text-white inventory panel-bottom">
         <div class="q-pa-md">
-          <a class="float-right no-underline" color="grey" @click="inventory.isOpened = false"><q-icon name="close" class="subtitle3" /></a>
-          <div class="subtitle3 q-pb-lg">{{ $t('label.Inventory') }}</div>
-          <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
-            <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
-          </div>
-          <p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type === 'use-item'">{{ $t('label.InventoryUsage') }}</p>
-          <p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type !== 'use-item'">{{ $t('label.InventoryZoom') }}</p>
-          <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
-          <div class="inventory-items">
-            <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-              <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
-              <p v-if="item.titles && item.titles[lang] && item.titles[lang] !== ''">{{ item.titles[lang] }}</p>
-              <p v-if="!(item.titles && item.titles[lang] && item.titles[lang] !== '')">{{ item.title }}</p>
-            </div>
+          <div class="subtitle-3" v-if="$t('label.shortLang') === 'fr'">Vous avez {{starCounter}} étoile(s)</div>
+          <div class="subtitle-3" v-if="$t('label.shortLang') === 'en'">You have {{starCounter}} star(s)</div>
+          <div class="centered">
+            <img style="margin-top: 50px; width: 90%; max-width: 1000px;" :src="'statics/customers/conseil-europe/images/stars/star' + starCounter + '.png'" />
           </div>
         </div>
       </div>
@@ -109,89 +99,79 @@
     <!------------------ INFO PAGE AREA ------------------------>
 
     <transition name="slideInBottom">
-      <div class="reduce-window-size-desktop" v-show="info.isOpened">
-        <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="getQuest(questId)">
-          <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
-        </div>
-        <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
-          <q-toolbar class="dark-banner text-white">
-            <q-toolbar-title v-if="info && info.quest && info.quest.availablePoints">
-              {{ $t('label.MyScore') }} {{ run.tempScore }} / {{ info.quest.availablePoints.score }}
-            </q-toolbar-title>
-            <q-icon size="sm" class="q-mr-sm" v-if="info && info.audio !== '' && info.audio !== null && sound && sound.status === 'play'" @click="cutSound" name="volume_up"></q-icon>
-            <q-icon size="sm" class="q-mr-sm" v-if="info && info.audio !== '' && info.audio !== null && sound && sound.status === 'pause'" @click="cutSound" name="volume_off"></q-icon>
-            <q-icon size="sm" class="q-mr-sm" v-if="offline.active" name="cloud_off"></q-icon>
-            <q-icon size="sm" class="q-mr-sm" v-if="!offline.active" name="cloud_done"></q-icon>
-          </q-toolbar>
-          <!--<div class="fixed-top full-width q-pa-lg">-->
-          <div class="text-center dark-banner q-pb-xl q-pt-md fixed-bottom">
-            <p class="title">
-              {{ (info.quest && info.quest.title) ? info.quest.title : $t('label.NoTitle') }}
-            </p>
-            <p v-if="run && run.team && run.team.name">
-              {{ $t('label.Team') }} : {{ run.team.name }}
-            </p>
-            <p>
-              <q-btn
-              v-if="!info.quest || !info.quest.customization || !info.quest.customization.removeScoring"
-              class="glossy large-button"
+      <div v-show="info.isOpened" class="bg-graaly-blue-dark text-white inventory panel-bottom">
+        <div class="q-pa-md">
+          <div class="subtitle-3" v-if="$t('label.shortLang') === 'fr'">Recommencer le  jeu dans une autre langue</div>
+          <div class="subtitle-3" v-if="$t('label.shortLang') === 'en'">Restart the game with other language</div>
+          <table border="0" width="100%">
+            <tr>
+              <td align="center"><img src="statics/customers/conseil-europe/images/flags/fr.png" /></td>
+              <td align="center"><img src="statics/customers/conseil-europe/images/flags/en.png" /></td>
+            </tr>
+          </table>
+          <div class="subtitle-3" v-if="$t('label.shortLang') === 'fr'">Comment jouer ?</div>
+          <div class="subtitle-3" v-if="$t('label.shortLang') === 'en'">How to play?</div>
+          <table border="0" width="100%">
+            <tr>
+              <td style="padding-right: 10px;">
+                <q-btn
+                  round
+                  size="lg"
+                  class="bg-primary"
+                  icon="arrow_forward"
+                />
+              </td>
+              <td>{{ $t('label.HelpStepMessageNextMessage') }}</td>
+            </tr>
+            <tr>
+              <td>
+                <q-btn
+                  round
+                  size="lg"
+                  :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
+                  :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+                  icon="arrow_back"
+                />
+              </td>
+              <td>{{ $t('label.HelpStepMessagePreviousMessage') }}</td>
+            </tr>
+            <tr>
+              <td>
+                <q-btn
+                  round
+                  size="lg"
+                  :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
+                  :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+                  icon="star"
+                />
+              </td>
+              <td v-if="$t('label.shortLang') === 'fr'">L'étoile vous permet de savoir le nombre d'étoiles gagnées</td>
+              <td v-if="$t('label.shortLang') === 'en'">The star gives you the number of stars won</td>
+            </tr>
+            <tr>
+              <td>
+                <q-btn
+                  round
+                  size="lg"
+                  :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
+                  :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+                  icon="lightbulb"
+                />
+              </td>
+              <td v-if="$t('label.shortLang') === 'fr'">L'ampoule vous permet d'obtenir des indices</td>
+              <td v-if="$t('label.shortLang') === 'en'">The lightbulb gives you hints</td>
+            </tr>
+          </table>
+          <div class="centered q-pt-lg">
+            <q-btn
+              v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2" class="glossy large-button"
               :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
               :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-              @click="backToMap">
-                <span>
-                  {{ $t('label.LeaveQuest') }}
-                </span>
-              </q-btn>
-            </p>
-            <p>
-              <q-btn
-                v-if="info.quest && info.quest.playersNumber && info.quest.playersNumber < 2" class="glossy large-button"
-                :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
-                :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-                @click="restartGame">
-                <span>
-                  {{ $t('label.RestartQuest') }}
-                </span>
-              </q-btn>
-            </p>
-            <p>
-              <q-btn
-              v-if="!offline.active" class="glossy large-button"
-              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
-              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-              @click="showFeedback">
-                <span>
-                  {{ $t('label.Feedback') }}
-                </span>
-              </q-btn>
-            </p>
-            <!--
-            <p class="q-pb-xl" v-if="(info.quest.customization && info.quest.customization.chatEnabled === true)">
-              <q-btn
-              v-if="!offline.active" class="glossy large-button"
-              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
-              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-              @click="openChat">
-                <span>
-                 Ask for help (Chat with GM)
-                </span>
-                <q-badge v-if=" this.$store.state.chatNotification > 0"  color="accent" rounded floating>{{ this.$store.state.chatNotification }}</q-badge>
-              </q-btn>
-            </p>
-            -->
-            <p class="q-pb-xl">
-              <q-btn
-              class="glossy large-button"
-              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
-              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-              @click="openInfo">
-                <span>
-                  {{ $t('label.BackToQuest') }}
-                </span>
-              </q-btn>
-            </p>
-            <p class="q-pb-lg">
-            </p>
+              @click="restartGame">
+              <span>
+                {{ $t('label.RestartQuest') }}
+              </span>
+            </q-btn>
           </div>
         </div>
       </div>
@@ -245,47 +225,50 @@
 
     <div v-show="footer.show" class="step-menu step-menu-fixed fixed-bottom">
       <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
-      <div class="row white-buttons">
-        <div class="col centered q-pb-md">
-          <q-btn
-            round
-            size="lg"
-            :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            icon="settings"
-            :class="{'bg-secondary': (info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}"
-            @click="openInfo()"
-            v-if="!info.quest.customization || !info.quest.customization.logo || info.quest.customization.logo === ''"
-          >
-            <q-badge v-if=" this.$store.state.chatNotification > 0"  color="accent" rounded floating>{{ this.$store.state.chatNotification }}</q-badge>
-          </q-btn>
+      <div class="row white-buttons" :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''">
+        <div class="col centered">
+          <div class="q-py-sm">
+            <q-btn
+              flat
+              size="lg"
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+              icon="settings"
+              :class="{'text-secondary': info.isOpened}"
+              @click="openInfo()"
+            >
+              <q-badge v-if="this.$store.state.chatNotification > 0" color="accent" rounded floating>{{ this.$store.state.chatNotification }}</q-badge>
+            </q-btn>
+          </div>
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="star" 
             v-if="!info.quest.customization || !info.quest.customization.hideInventory"
-            :class="{'flashing': inventory.suggest, 'bg-secondary': inventory.isOpened, 'bg-primary': (!inventory.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
+            :class="{'flashing': inventory.suggest, 'text-secondary': inventory.isOpened}" 
             @click="openInventory()" 
           />
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            icon="lightbulb"
             :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!hint.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}"
             @click="askForHint()"
             v-show="hint.show"
           >
-            <q-badge v-if="this.step && this.step.hint" color="secondary" floating>{{ this.hint.remainingNumber }}</q-badge>
+            <q-avatar size="40px">
+              <img src="statics/customers/conseil-europe/images/lightbulb.png">
+              <q-badge v-if="this.step && this.step.hint" color="secondary" floating>{{ this.hint.remainingNumber }}</q-badge>
+            </q-avatar>
           </q-btn>
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
@@ -295,9 +278,9 @@
             @click="previousStep()"
           />
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             :class="{'flashing': next.suggest, 'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
@@ -449,7 +432,9 @@ export default {
           remaining: 0
         },
         // for step type 'use-item'
-        selectedItem: null
+        selectedItem: null,
+        
+        starCounter: 0
       }
     },
     resetData () {
@@ -533,6 +518,9 @@ export default {
 
       // load component data
       this.loadStepData = true
+      
+      // get stars number
+      this.starCounter = this.getStarsNumber()
     },
     /*sendDataToGameMaster() {
       GMMS.Send(this.run.questId, {
@@ -632,6 +620,8 @@ export default {
 
       // load component data
       this.loadStepData = true
+      
+      this.starCounter = this.getStarsNumber()
     },
     /*
      * Get the current run or create it
@@ -1561,11 +1551,11 @@ export default {
       }
       if (this.info.isOpened) {
         this.closeAllPanels()
-        this.footer.show = true
+        //this.footer.show = true
       } else {
         this.closeAllPanels()
         this.info.isOpened = true
-        this.footer.show = false
+        //this.footer.show = false
         //this.footer.tabSelected = 'info'
       }
     },
@@ -2057,6 +2047,7 @@ export default {
      */
     async getNextOfflineStep(questId, markerCode, player, extra) {
       var steps = []
+      let conditionsDone = this.run.conditionsDone
       
       if (!player) {
         player = 'P1'
@@ -2137,7 +2128,6 @@ export default {
           await this.saveOfflineAnswer('success', false, true)
         } else {
           // set the marker step as done to pass to next step
-          var conditionsDone = this.run.conditionsDone
           conditionsDone.push('stepDone_' + stepId.toString())
           conditionsDone.push('stepDone' + this.player + '_' + stepId.toString())
 
@@ -2152,16 +2142,42 @@ export default {
       var locationMarkerFound = false
       var geolocationFound = false
       
+      // Count counter value
+      let counter = 0
+      for (let i = 0; i < conditionsDone.length; i++) {
+        if (conditionsDone[i].indexOf("counterIncrement_") !== -1) {
+          counter++
+        }
+      }
+      
       if (stepsofChapter && stepsofChapter.length > 0) {
         stepListFor:
         for (i = 0; i < stepsofChapter.length; i++) {
           // check if the step is not already done
-          if (this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
+          if (conditionsDone && conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
             if (stepsofChapter[i].conditions && stepsofChapter[i].conditions.length > 0) {
               for (j = 0; j < stepsofChapter[i].conditions.length; j++) {
-                // if one of the conditions of the step i not ok, continue with next step
-                if (this.run.conditionsDone.indexOf(stepsofChapter[i].conditions[j]) === -1) {
-                  continue stepListFor
+                // check if counter condition
+                if (stepsofChapter[i].conditions[j].indexOf('countergreater_') === -1 && stepsofChapter[i].conditions[j].indexOf('counterlower_') === -1) {
+                  // if one of the conditions of the step i not ok, continue with next step
+                  if (conditionsDone.indexOf(stepsofChapter[i].conditions[j]) === -1) {
+                    continue stepListFor
+                  }
+                } else {
+                  // if counter lower than countergreater value
+                  if (stepsofChapter[i].conditions[j].indexOf('countergreater_') !== -1) {
+                    const lowerCounter = parseInt(stepsofChapter[i].conditions[j].replace('countergreater_', ''), 10)
+                    if (counter <= lowerCounter) {
+                      continue stepListFor
+                    }
+                  }
+                  // if counter greater than counterlower value
+                  if (stepsofChapter[i].conditions[j].indexOf('counterlower_') !== -1) {
+                    const upperCounter = parseInt(stepsofChapter[i].conditions[j].replace('counterlower_', ''), 10)
+                    if (counter >= upperCounter) {
+                      continue stepListFor
+                    }
+                  }
                 }
               }
             }
@@ -2205,19 +2221,11 @@ export default {
             // treat case of the increment counter
             if (stepsofChapter[i].type === 'increment-counter') {
               // save condition done
-              var conditionsDone = this.run.conditionsDone
               conditionsDone.push('counterIncrement_' + stepsofChapter[i].stepId.toString())
               conditionsDone.push('stepDone_' + stepsofChapter[i].stepId.toString())
               conditionsDone.push('stepDone' + player + '_' + stepsofChapter[i].stepId.toString())
               this.run.conditionDone = conditionsDone
-              
-              // Count counter value
-              let counter = 0
-              for (var i = 0; i < conditionsDone.length; i++) {
-                if (conditionsDone[i].indexOf("counterIncrement_") !== -1) {
-                  counter++
-                }
-              }
+              counter++
               
               // find if a step is triggered by counter value
               let nextStepId = await this.findStepForCounterValueOffline(steps, questId, this.run.version, counter)
@@ -2240,7 +2248,7 @@ export default {
               let nextStepId
 
               if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
-                this.removeAllConditionsOfAChapter(steps, this.run.conditionsDone, stepsofChapter[i].chapterId)
+                this.removeAllConditionsOfAChapter(steps, conditionsDone, stepsofChapter[i].chapterId)
               } else {
                 nextStepId = await this.moveToNextChapter()
               }
@@ -2295,12 +2303,12 @@ export default {
         let randomIds = []
         for (let i = 0; i < stepsofChapter.length; i++) {
           // check if the step is not already done by player AND IS A RANDOM STEP
-          if (stepsofChapter[i].conditions.length > 0 && stepsofChapter[i].conditions[0].indexOf('stepRandom_') !== -1 && this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
+          if (stepsofChapter[i].conditions.length > 0 && stepsofChapter[i].conditions[0].indexOf('stepRandom_') !== -1 && conditionsDone && conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
             // check if step concerned is done
             if (stepsofChapter[i].conditions.length > 0) {
               // Get the stepID this step is depending on
               let fatherStep = stepsofChapter[i].conditions[0].replace('stepRandom_', '')
-              if (this.run.conditionsDone.indexOf('stepDone' + player + '_' + fatherStep) !== -1) {
+              if (conditionsDone.indexOf('stepDone' + player + '_' + fatherStep) !== -1) {
                 randomIds.push(stepsofChapter[i].stepId)
               }
             }
@@ -2435,12 +2443,14 @@ export default {
       const stepsWithoutSuccessTrigger = ['info-text', 'info-video', 'new-item', 'character', 'help', 'end-chapter']
       // assign success or fail status
       if (stepsWithoutSuccessTrigger.indexOf(stepType) === -1) {
-        if (isSuccess) {
-          currentConditions.push('stepSuccess_' + stepId)
-          currentConditions.push('stepSuccess' + player + '_' + stepId)
-        } else {
-          currentConditions.push('stepFail_' + stepId)
-          currentConditions.push('stepFail' + player + '_' + stepId)
+        if (currentConditions.indexOf('stepFail_' + stepId) === -1 && currentConditions.indexOf('stepSuccess_' + stepId) !== -1) {
+          if (isSuccess) {
+            currentConditions.push('stepSuccess_' + stepId)
+            currentConditions.push('stepSuccess' + player + '_' + stepId)
+          } else {
+            currentConditions.push('stepFail_' + stepId)
+            currentConditions.push('stepFail' + player + '_' + stepId)
+          }
         }
       }
 
@@ -2593,6 +2603,16 @@ export default {
       if (!this.info.quest.customization || !this.info.quest.customization.hideFullScreen) {
         document.addEventListener("deviceready", this.swithFullscreenMode, false)
       }
+    },
+    getStarsNumber() {
+      let counter = 0
+      let conditionsDone = this.run.conditionsDone
+      for (let i = 0; i < conditionsDone.length; i++) {
+        if (conditionsDone[i].indexOf("counterIncrement_") !== -1) {
+          counter++
+        }
+      }
+      return counter;
     }
     /*showNotif() {
       this.$q.notify({
@@ -2635,10 +2655,6 @@ export default {
     display: none
   }
 
-  .q-btn, audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
-
-  .q-btn { margin-top: 1rem; }
-
   /* right/wrong styles */
 
   .right, .q-btn.right { color: #0a0; background-color: #cfc; box-shadow: 0px 0px 0.3rem 0.3rem #9f9; }
@@ -2663,5 +2679,44 @@ export default {
   .actions > div { display: flex; flex-flow: row nowrap; }
   .actions > div > .q-btn { flex-grow: 1; }
   .actions > div > .q-btn:not(:first-child) { flex-grow: 1; margin-left: 1rem; }
+  
+  .choose .text {
+    background: transparent;
+    color: #fff;
+  }
+  
+  .text-secondary {
+    color: #f6cf46 !important;
+  }
+  .bg-secondary {
+    background-color: #f6cf46 !important;
+  }
+  .bg-secondary.q-badge {
+    color: #263e7f !important;
+  }
 
+</style>
+<style>
+  .bg-primary {
+    background-color: rgb(86, 156, 210) !important;
+  }
+  
+  .choose .text, .code .text, .write-text .text, .find-item .text, .puzzle .text {
+    background: transparent;
+    color: #fff;
+    margin: 15px 20px 0 20px;
+    padding: 0px;
+  }
+  .find-item {
+    background-color: #263e7f;
+  }
+  .fit .memory .card {
+    background-image: url(/statics/customers/conseil-europe/images/card-back.png);
+  }
+  .choose .images-block img {
+    border-radius: 0;
+  }
+  .bg-graaly-blue-dark {
+    background-color: #6aaee4;
+  }
 </style>

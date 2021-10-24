@@ -1951,7 +1951,7 @@ export default {
                       var maxPosition = 0
                       // find if parents are already sorted and if so add item in sorted after
                       for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
-                        if (stepsOfChapter[i].conditions[k].indexOf("counter_") === -1) {
+                        if (stepsOfChapter[i].conditions[k].indexOf("counter") === -1) {
                           let parentStepId = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
                           parentStepId = parentStepId.replace("stepSuccess_", "")
                           parentStepId = parentStepId.replace("stepFail_", "")

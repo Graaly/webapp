@@ -13,7 +13,7 @@
       <div v-if="quest && quest.status" class="relative-position image-banner">
         <div class="effect-kenburns limit-size-desktop" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat ;'"></div>
       </div>
-      <div v-if="quest && quest.status" class="q-pa-md quest-description text-white" style="padding-bottom: -50px; background-color: #062381;">
+      <div v-if="quest && quest.status" class="q-pa-md quest-description text-white" style="padding-bottom: -50px;">
         <div class="bg-warning q-pa-sm" v-if="warning.lowBattery">
           <q-icon name="battery_alert" /> {{ $t('label.WarningLowBattery') }}
         </div>
@@ -175,7 +175,7 @@
       <!------------------ GAME DESCRIPTION ------------------------>
       
       <div class="q-pa-md">
-        <div class="text-subtitle2 text-white" v-html="this.quest.description"></div>
+        <div class="text-subtitle2" v-html="this.quest.description"></div>
         <div v-if="isUserTooFar && !quest.allowRemotePlay" class="q-pt-md">
           <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.QuestIsFarFromUser')" />
         </div>
@@ -1262,10 +1262,18 @@ export default {
 
 <style scoped>
   .bg-primary {
-    background-color: #52b4d3 !important;
+    background-color: #35a0d8 !important;
+    color: #174084;
+  }
+  .bg-primary span {
+    font-weight: bold;
   }
   .background-coe {
-    background-color: #063b8b;
+    background-color: #ddd;
     font-family: arial;
+    color: #174084;
+  }
+  .quest-description {
+    background-color: #174084;
   }
 </style>

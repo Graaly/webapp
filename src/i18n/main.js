@@ -589,6 +589,8 @@ module.exports = {
       StepFail: "Wrong answer on step",
       StepRandom: "(BETA) Randomly after",
       StepCounter: "(BETA) Counter has the value",
+      StepCounterGreater: "(BETA) Counter is greater than ",
+      StepCounterLower: "(BETA) Counter is lower than ",
       NoCondition: "No condition (start at the beginning of the chapter)",
       Conditions: "Triggers",
       AddACondition: "Add a trigger",
@@ -1102,7 +1104,10 @@ module.exports = {
       Snapshots: "Snapshot(s)",
       CounterValue: "Counter value",
       CharacterBarColor: "Color of the bar below the character",
-      HideMake8Animation: "Hide animation if GPS is weak"
+      HideMake8Animation: "Hide animation if GPS is weak",
+      HideEnlargeMessage: "Hide button to enlarge thumbs",
+      CustomizedMemoryCardColor: "Customized color for the cards",
+      HidePuzzleNotWorkingMessage: "Hide button when puzzle is not working"
     }
   },
   fr: {
@@ -1682,6 +1687,8 @@ module.exports = {
       StepFail: "Mauvaise réponse à",
       StepRandom: "(BETA) Aléatoirement après",
       StepCounter: "(BETA) Le compteur à la valeur ",
+      StepCounterGreater: "(BETA) Le compteur est supérieur à ",
+      StepCounterLower: "(BETA) Le compteur est inférieur à ",
       NoCondition: "Aucune condition (démarre au début du chapitre)",
       Conditions: "Déclencheurs",
       AddACondition: "Ajouter un déclencheur",
@@ -2195,7 +2202,10 @@ module.exports = {
       Snapshots: "Capture(s)",
       CounterValue: "Valeur du compteur",
       CharacterBarColor: "Couleur de la barre sous le personnage",
-      HideMake8Animation: "Cacher l'animation en cas de mauvais GPS"
+      HideMake8Animation: "Cacher l'animation en cas de mauvais GPS",
+      HideEnlargeMessage: "Cacher le bouton pour élargir les vignettes",
+      CustomizedMemoryCardColor: "Couleur personnalisée pour le dos des cartes",
+      HidePuzzleNotWorkingMessage: "Cacher le bouton quand le puzzle ne fonctionne pas"
     }
   }
 }
