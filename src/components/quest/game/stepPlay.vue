@@ -3409,6 +3409,16 @@ console.log("GOOD ANSWER")
           image.style.width = '100%'
           CameraPreview.takePicture({quality: 85}, function (base64PictureData) {
             image.src = 'data:image/jpeg;base64,' + base64PictureData
+            console.log("Save picture in IOS Library")
+            let params = {data: base64PictureData, prefix: 'myPrefix_', format: 'JPG', quality: 80, mediaScanner: true};
+            window.imageSaver.saveBase64Image(params,
+              function (filePath) {
+                console.log('File saved on ' + filePath);
+              },
+              function (msg) {
+                console.error(msg);
+              }
+            );
           })
         } else if (this.isSafari) {
           const tempCanvas = document.createElement('canvas')
@@ -3448,35 +3458,40 @@ console.log("GOOD ANSWER")
           
           // compatible file saving attempt (work in progress => to be moved to "utils" if it works on iOS)
           if (_this.isHybrid) {
-            // possible alternative to window.requestFileSystem() for iOS:
-            // "window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function (dirEntry) { ... }"
-            // see https://cordova.apache.org/docs/en/10.x/reference/cordova-plugin-file/
-            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
-              fs.root.getDirectory('Graaly', { create: true }, function (dirEntry) {
-                dirEntry.getFile(snapshotFilename, { create: true, exclusive: false }, function (fileEntry) {
-                  fileEntry.createWriter(async (fileWriter) => {
-                    finalBlob = await new Promise(resolve => c.toBlob(resolve, 'image/jpeg'))
-                    fileWriter.onwriteend = async (ev) => {
-                      c.remove()
-                      await _this.saveSnapshotOnServer(finalBlob, snapshotFilename)
-                    }
-                    fileWriter.onerror = (err) => {
-                      console.error("Failed file write: ", err);
-                    }
-                    fileWriter.write(finalBlob)
+            if(_this.isIOs && CameraPreview) {
+              // already done above
+            } else {
+              console.log("Save picture in Android Library")
+              // possible alternative to window.requestFileSystem() for iOS:
+              // "window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function (dirEntry) { ... }"
+              // see https://cordova.apache.org/docs/en/10.x/reference/cordova-plugin-file/
+              window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
+                fs.root.getDirectory('Graaly', { create: true }, function (dirEntry) {
+                  dirEntry.getFile(snapshotFilename, { create: true, exclusive: false }, function (fileEntry) {
+                    fileEntry.createWriter(async (fileWriter) => {
+                      finalBlob = await new Promise(resolve => c.toBlob(resolve, 'image/jpeg'))
+                      fileWriter.onwriteend = async (ev) => {
+                        c.remove()
+                        await _this.saveSnapshotOnServer(finalBlob, snapshotFilename)
+                      }
+                      fileWriter.onerror = (err) => {
+                        console.error("Failed file write: ", err);
+                      }
+                      fileWriter.write(finalBlob)
+                    })
+                  }, (err) => {
+                    Notification(_this.$t('label.TechnicalIssue'), 'error')
+                    console.error('Could not create snapshot file on device filesystem', err)
                   })
                 }, (err) => {
                   Notification(_this.$t('label.TechnicalIssue'), 'error')
-                  console.error('Could not create snapshot file on device filesystem', err)
+                  console.error('Could not access Graaly directory on device filesystem', err)
                 })
               }, (err) => {
                 Notification(_this.$t('label.TechnicalIssue'), 'error')
-                console.error('Could not access Graaly directory on device filesystem', err)
+                console.error('Could not access to device filesystem', err)
               })
-            }, (err) => {
-              Notification(_this.$t('label.TechnicalIssue'), 'error')
-              console.error('Could not access to device filesystem', err)
-            })
+            }
           } else { // webapp
             utils.downloadDataUrl(c.toDataURL('image/jpeg'), snapshotFilename)
             finalBlob = await new Promise(resolve => c.toBlob(resolve, 'image/jpeg'))
