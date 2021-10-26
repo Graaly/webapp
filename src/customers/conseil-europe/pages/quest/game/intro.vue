@@ -1,9 +1,8 @@
 <template>
-  <div class="scroll" style="background-color: #063b8b">
+  <div class="scroll background-coe">
     <div id="teaser" class="reduce-window-size-desktop" :class="{'loaded': pageReady}">
       <!------------------ MAIN INFORMATION AREA ------------------------>
       
-
       <div v-if="warning.questNotLoaded" class="centered q-pa-lg">
         {{ $t('label.QuestNeedNetwork')}}
         <div>
@@ -14,21 +13,21 @@
       <div v-if="quest && quest.status" class="relative-position image-banner">
         <div class="effect-kenburns limit-size-desktop" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat ;'"></div>
       </div>
-      <div v-if="quest && quest.status" class="q-pa-md quest-description text-white" style="padding-bottom: -50px; background-color: #062381;">
+      <div v-if="quest && quest.status" class="q-pa-md quest-description text-white" style="padding-bottom: -50px;">
         <div class="bg-warning q-pa-sm" v-if="warning.lowBattery">
           <q-icon name="battery_alert" /> {{ $t('label.WarningLowBattery') }}
         </div>
         <div class="bg-warning q-pa-sm" v-if="warning.tooMuchUsers">
           <q-icon name="warning" /> {{ $t('label.TooMuchUsersCurrently') }}
         </div>
-        <div v-if="quest.status !== 'published'" class="bg-primary centered q-pa-sm q-mb-md">
+        <!--<div v-if="quest.status !== 'published'" class="bg-primary centered q-pa-sm q-mb-md">
           {{ $t('label.' + (quest.type === 'quest' ? 'QuestDraftVersion' : 'PageDraftVersion')) }}
-        </div>
+        </div>-->
         <!-- =========================== TITLE ========================== -->
-        <div class="text-h5">
+        <!--<div class="text-h5">
           {{ quest.title === "" ?  $t('label.NoTitle') : quest.title }} 
           &nbsp;<img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + getLanguage() + '.png'" />
-        </div>
+        </div>-->
         <!-- =========================== PROPERTIES ========================== -->
         <div class="row q-pt-md text-subtitle1 properties-bar">
           <div class="q-mr-lg">
@@ -653,7 +652,7 @@ export default {
           if (pictureUrl) {
             this.quest.picture = pictureUrl
           } else {
-            this.quest.picture = '_default-quest-picture.png'
+            this.quest.picture = '_default-quest-picture.jpg'
           }
         }
       }
@@ -981,7 +980,7 @@ export default {
      * Cancel a run
      */
     async cancelRun() {
-      if (this.continueQuestId != "") {
+      if (this.continueQuestId !== "") {
         await RunService.endRun(this.continueQuestId, null, this.quest.questId, this.quest.version, this.$route.params.lang)
       }
       // remove run offline data
@@ -1254,7 +1253,7 @@ export default {
       } else if (this.quest.picture) {
         return this.serverUrl + '/upload/quest/' + this.quest.picture
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     }
   }
@@ -1263,6 +1262,18 @@ export default {
 
 <style scoped>
   .bg-primary {
-    background-color: #063b8b !important;
+    background-color: #35a0d8 !important;
+    color: #174084;
+  }
+  .bg-primary span {
+    font-weight: bold;
+  }
+  .background-coe {
+    background-color: #ddd;
+    font-family: arial;
+    color: #174084;
+  }
+  .quest-description {
+    background-color: #174084;
   }
 </style>

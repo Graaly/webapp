@@ -1295,10 +1295,10 @@
         </stepPlay>
         <div v-show="overview.tabSelected" class="step-menu step-menu-fixed">
           <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
-          <div class="row white-buttons">
-            <div class="col centered q-pb-md">
+          <div class="row white-buttons" :class="{'bg-primary': (!quest.customization || !quest.customization.color || quest.customization.color === '')}" :style="(quest.customization && quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''">
+            <div class="col centered q-py-sm">
               <q-btn
-                round
+                flat
                 size="lg"
                 class="bg-white"
                 v-if="quest.customization.logo && quest.customization.logo !== ''" >
@@ -1307,9 +1307,9 @@
                 </q-avatar>
               </q-btn>
             </div>
-            <div class="col centered q-pb-md">
+            <div class="col centered q-py-sm">
               <q-btn 
-                round 
+                flat 
                 size="lg" 
                 :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
                 icon="work" 
@@ -1319,9 +1319,9 @@
                 test-id="btn-inventory"
               />
             </div>
-            <div class="col centered q-pb-md">
+            <div class="col centered q-py-sm">
               <q-btn 
-                round 
+                flat
                 size="lg" 
                 :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
                 icon="lightbulb" 
@@ -1330,9 +1330,9 @@
                 v-show="isHintAvailable()" 
               />
             </div>
-            <div v-if="!readOnly" class="col centered q-pb-md">
+            <div v-if="!readOnly" class="col centered q-py-sm">
               <q-btn 
-                round 
+                flat 
                 size="lg" 
                 :style="quest.customization.color ? 'background-color: ' + quest.customization.color : ''" 
                 :class="{'bg-primary': !quest.customization.color}" 
@@ -1340,9 +1340,9 @@
                 @click="stepId = -1; modifyStep(chapters.newStep.overviewData)" 
               />
             </div>
-            <div class="col centered q-pb-md">
+            <div class="col centered q-py-sm">
               <q-btn 
-                round 
+                flat 
                 size="lg" 
                 :style="quest.customization.color ? 'background-color: ' + quest.customization.color : ''"
                 icon="arrow_forward" 
@@ -1951,7 +1951,7 @@ export default {
                       var maxPosition = 0
                       // find if parents are already sorted and if so add item in sorted after
                       for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
-                        if (stepsOfChapter[i].conditions[k].indexOf("counter_") === -1) {
+                        if (stepsOfChapter[i].conditions[k].indexOf("counter") === -1) {
                           let parentStepId = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
                           parentStepId = parentStepId.replace("stepSuccess_", "")
                           parentStepId = parentStepId.replace("stepFail_", "")

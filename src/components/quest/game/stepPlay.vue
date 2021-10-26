@@ -46,7 +46,7 @@
           size="25px"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
           :value="map(this.countdowntimeleft,0,this.step.countDownTime.time,0,1)"
-          color="positive"
+          color="primary"
           v-if="!isIOs"
           >
           <div class="absolute-full flex flex-center">
@@ -75,13 +75,28 @@
       
       <!------------------ AUDIO ------------------------>
     
-      <audio 
-        v-if="audio && audio !== ''"
-        id="step-music" 
-        autoplay>
-        <source :src="audio" type="audio/mpeg">
-      </audio>
-      
+      <div v-if="audio && audio.file && audio.file !== ''">
+        <audio 
+          id="step-music" 
+          autoplay>
+          <source :src="audio.file" type="audio/mpeg">
+        </audio>
+        <div style="position: absolute; top: 4px; right: 10px; z-index: 1000;">
+          <q-icon 
+            v-if="audio.play"
+            @click="switchAudioSound"
+            :style="(customization && customization.color && customization.color !== '') ? 'text-color: ' + customization.color : ''"
+            :class="{'text-primary': (!customization || !customization.color || customization.color === '')}"
+            style="font-size: 2em;" name="pause_circle" />
+          <q-icon 
+            v-if="!audio.play"
+            @click="switchAudioSound"
+            :style="(customization && customization.color && customization.color !== '') ? 'text-color: ' + customization.color : ''"
+            :class="{'text-primary': (!customization || !customization.color || customization.color === '')}"
+            style="font-size: 2em;" name="play_circle" />
+        </div>
+      </div>
+        
       <div class="bg-accent text-white q-pa-md" v-if="isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     
       <!------------------ TRANSITION AREA ------------------------>
@@ -358,7 +373,7 @@
             </tr>
           </table>
             
-          <div class="centered">
+          <div class="centered" v-if="!step.options || !step.options.hideEnlargeMessage">
             <q-btn flat class="no-box-shadow hide-button text-black">{{ $t('label.ClickToEnlargePictures') }}</q-btn>
           </div>
           
@@ -414,25 +429,28 @@
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
-          <div class="answer-text q-pa-md">
-            <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
-            <input 
-              class="subtitle6" 
-              v-bind:value="writetext.playerAnswer" 
-              v-on:input="writetext.playerAnswer = $event.target.value" 
-              :placeholder="$t('label.YourAnswer')" 
-              :class="{right: playerResult === true, wrong: playerResult === false}" 
-              :disabled="stepPlayed" />
-            <input 
-              v-if="rightAnswer"
-              class="subtitle6 right" 
-              v-bind:value="rightAnswer" 
-              disabled />
-            <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer"><div>{{ $t('label.ConfirmTheAnswer') }}</div></q-btn>
+          <div class="row">
+            <div class="answer-text q-pa-md col-9">
+              <!-- could not use v-model here, see https://github.com/vuejs/vue/issues/8231 -->
+              <input  
+                v-bind:value="writetext.playerAnswer" 
+                v-on:input="writetext.playerAnswer = $event.target.value" 
+                :placeholder="$t('label.YourAnswer')" 
+                :class="{right: playerResult === true, wrong: playerResult === false}" 
+                :disabled="stepPlayed" />
+              <input 
+                v-if="rightAnswer"
+                class="right" 
+                v-bind:value="rightAnswer" 
+                disabled />
+            </div>
+            <div class="col-3">
+              <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer" icon="done"></q-btn>
+            </div>
           </div>
           <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
-          </div>
+          </div>            
         </div>
         <div v-if="!showTools" class="centered">
           <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
@@ -468,7 +486,7 @@
           <div class="centered text-primary q-pt-lg arial" v-if="puzzle.mode === 'click'">
             {{ $t('label.PuzzleHelpTextClick') }}
           </div>
-          <div class="centeredq-pt-sm" v-if="puzzle && puzzle.mode === 'drag'">
+          <div class="centeredq-pt-sm" v-if="puzzle && puzzle.mode === 'drag' && !step.options.hidePuzzleNotWorkingMessage">
             <a class="text-black" @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
           </div>
         </div>
@@ -490,6 +508,7 @@
               class="card" 
               :class="{ open: item.isClicked, closed: !item.isClicked, disabled: item.isFound || stepPlayed }" 
               @click="selectMemoryCard(key)"
+              :style="((step.options && step.options.memoryCardColor && step.options.memoryCardColor !== '') ? 'background: ' + step.options.memoryCardColor : '')"
             >
               <img style="display: block; position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;" v-if="item.imagePath" :src="item.imagePath.indexOf('blob:') !== -1 ? item.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/memory/' + item.imagePath" />
             </div>
@@ -652,7 +671,7 @@
           <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled"></video>
         <!--</transition>-->
         <div>
-          <div v-if="isHybrid && !takingSnapshot" style="position: absolute; top: 58px; right: 8px;z-index: 1990;">
+          <div v-if="!takingSnapshot" style="position: absolute; top: 58px; right: 8px;z-index: 1990;">
             <q-btn 
               round 
               size="lg"
@@ -673,7 +692,7 @@
               @click="prepareSnapshot()"
             />
           </div>
-          <img id="snapshotImage" v-if="!isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; height: 100%; width: auto; z-index: 1980;" />
+          <img id="snapshotImage" v-show="false" style="position: absolute; top: 0; left: 0; height: 100%; width: auto; z-index: 1980;" />
           <img id="snapshotImageIos" v-if="isIOs && takingSnapshot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />
           <div>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
@@ -685,6 +704,8 @@
           <img v-if="step.options && step.options.fullWidthPicture && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985;" />
           <!-- background image -fullheight -->
           <img v-if="step.options && !step.options.fullWidthPicture && step.options.fullHeightPicture  && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; height: 100%; width: auto; z-index: 1985; left: 50%; top: 50%; -webkit-transform: translateY(-50%) translateX(-50%);" />
+          <!-- A copy of the image in an <img> tag which can be used by canvas methods for captures -->
+          <img :src="getBackgroundImage()" style="display:none" ref="imageOverflowForCapture" crossorigin="anonymous" />
           
           <!-- Red filter & alternate button for iOS -->
           <div v-if="isIOs && imageOverFlow.snapshot === '' && step.options && step.options.redFilter" class="centered" style="background: transparent; position: absolute; bottom: 200px; width: 100%; z-index: 1980;">
@@ -901,6 +922,7 @@ import { colors } from 'quasar'
 import StepService from 'services/StepService'
 import TimerStorageService from 'services/TimerStorageService'
 import utils from 'src/includes/utils'
+import draw from 'src/includes/draw'
 
 import colorsForCode from 'data/colorsForCode.json'
 import modelsList from 'data/3DModels.json'
@@ -1001,12 +1023,16 @@ export default {
         isHybrid: window.cordova,
         showNonHybridQRReader: false,
         isIOs: utils.isIOS(),
+        isSafari: utils.isSafari(),
         isPageInit: false,
         isNetworkLow: false,
         isTimeUp: false,
         displaySuccessIcon: false,
         rightAnswer: null,
-        audio: null,
+        audio: {
+          file: null,
+          play: true
+        },
         
         // for step 'character'
         character: {
@@ -1375,7 +1401,7 @@ export default {
         var _this = this
 
         //iOS Hack : all iphone have gyroscope
-        if (this.isIOs) {
+        if (this.isIOs && this.isHybrid) {
           this.deviceHasGyroscope = true
         }
         
@@ -1572,7 +1598,9 @@ export default {
                     // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
                     if (_this.geolocation.gpsAccuracyTimeout === null && !_this.geolocation.showCalibration && !_this.geolocation.persistentLowAccuracy) {
                       _this.geolocation.gpsAccuracyTimeout = utils.setTimeout(() => {
-                        _this.$refs.gpscal.askUserToCalibrateGPS()
+                        if (!_this.step.options || _this.step.options.hideAnimation !== true) {
+                          _this.$refs.gpscal.askUserToCalibrateGPS()
+                        }
                         if (_this.geolocation.gpsAccuracyTimeout !== null) {
                           clearTimeout(_this.geolocation.gpsAccuracyTimeout)
                           _this.geolocation.gpsAccuracyTimeout = null
@@ -2565,6 +2593,7 @@ export default {
      * Send good answer  
      */
     submitGoodAnswer(score, offlineMode, showResult, answer) {
+console.log("GOOD ANSWER")
       /*if (showResult) {
         this.playerResult = true
       } else {
@@ -2611,7 +2640,7 @@ export default {
           case 'code-keypad':
           case 'code-color':
           case 'code-image':
-            this.displaySuccessMessage(true, this.$t('label.GoodAnswer'))
+            this.displaySuccessMessage(true, this.$t('label.GoodAnswer'), true)
             break
           case 'write-text':
           case 'jigsaw-puzzle':
@@ -2620,18 +2649,18 @@ export default {
           case 'use-item':
           case 'find-item':
           case 'geolocation':
-            this.displaySuccessMessage(true, this.$t('label.YouHaveFoundThePlace'))
+            this.displaySuccessMessage(true, this.$t('label.YouHaveFoundThePlace'), true)
             break
           case 'locate-item-ar':
           case 'locate-marker':
             if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'touch')) {
-              this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'))
+              this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'), true)
             } else { // locate marker, mode scan
-              this.displaySuccessMessage(true, this.$t('label.WellDone'))
+              this.displaySuccessMessage(true, this.$t('label.WellDone'), true)
             }
             break
           case 'wait-for-event':
-            this.displaySuccessMessage(true, this.$t('label.WellDone'))
+            this.displaySuccessMessage(true, this.$t('label.WellDone'), true)
             break
         }
       }
@@ -2668,9 +2697,9 @@ export default {
       this.displayReadMoreAlert()
       
       if (this.isTimeUp === true) {
-        this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'))
+        this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'),false)
       } else if (showResult || (this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage !== "")) {
-        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'))
+        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true)
       }
       
       // if no display of the answer move to next step
@@ -2682,7 +2711,7 @@ export default {
       }
     },
     alertToPassToNextStep() {
-      this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'))
+      this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'), false)
     },
     /*
      * Display the read more alert
@@ -2711,7 +2740,12 @@ export default {
      * Display retry message when wrong answer
      */
     submitRetry(nbRemainingTrials) {
-      this.displaySuccessMessage(false, this.$t('label.SecondTry', {nb: nbRemainingTrials}))
+      if (nbRemainingTrials > 100) {
+        // do not display nb of try if infinite tries
+        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true)
+      } else {
+        this.displaySuccessMessage(false, this.$t('label.SecondTry', {nb: nbRemainingTrials}), false)
+      }
     },
     
     ////////////////////////////////////////////// MANAGEMENT OF THE ENIGMA COMPONENTS /////////////////////////////////////////////
@@ -3074,7 +3108,9 @@ export default {
           // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
           if (this.geolocation.gpsAccuracyTimeout === null && !this.geolocation.showCalibration && !this.geolocation.persistentLowAccuracy) {
             this.geolocation.gpsAccuracyTimeout = utils.setTimeout(() => {
-              this.$refs.gpscal.askUserToCalibrateGPS()
+              if (!this.step.options || this.step.options.hideAnimation !== true) {
+                this.$refs.gpscal.askUserToCalibrateGPS()
+              }
               if (this.geolocation.gpsAccuracyTimeout !== null) {
                 clearTimeout(this.geolocation.gpsAccuracyTimeout)
                 this.geolocation.gpsAccuracyTimeout = null
@@ -3356,61 +3392,205 @@ export default {
     /*
      * prepare page before snapshot
      */
-    prepareSnapshot() {
+    async prepareSnapshot() {
       this.takingSnapshot = true
       this.$q.loading.show()
       this.$emit('hideButtons')
       let _this = this
-      if (this.isIOs && CameraPreview) {
-        CameraPreview.takePicture({quality: 85}, function(base64PictureData) {
-          const imageSrcData = 'data:image/jpeg;base64,' +base64PictureData
-          var image = document.getElementById('snapshotImageIos')
-          image.src = imageSrcData
+      let image = document.getElementById('snapshotImage')
+      let now = new Date()
+      let nowAsStr = now.toISOString().substring(0, 19).replaceAll(':', '-')
+      let snapshotFilename = `snapshot-${nowAsStr}.jpg`
+      
+      try {
+        const vw = _this.getScreenWidth()
+        const vh = _this.getScreenHeight()
+        if (this.isIOs && CameraPreview) {
+          Notification(_this.$t('label.SnapshotManualOnIOs'), 'error');
+          this.$q.loading.hide()
+          return false
+          image.style.width = '100%'
+          CameraPreview.takePicture({quality: 85}, function(base64PictureData) {
+console.log("TESTSNAPSHOTIOS1")
+            const imageSrcData = 'data:image/jpeg;base64,' +base64PictureData
+            var image = document.getElementById('snapshotImageIos')
+            image.src = imageSrcData
+            setTimeout(function () { _this.takeIOsSnapshot() }, 2000)
+          });
+        } else if (this.isSafari) {
+          const tempCanvas = document.createElement('canvas')
+          tempCanvas.width = vw
+          tempCanvas.height = vh
+          const tempContext = tempCanvas.getContext('2d')
+          let tempCameraStream = _this.$refs['camera-stream-for-image-over-flow']          
+          tempContext.drawImage(tempCameraStream, 0, 0, vw, vh)
+
+          tempCanvas.toBlob(function(blob) { 
+            let blobImage = document.getElementById('snapshotImage')
+            blobImage.src = URL.createObjectURL(blob)
+          }, 'image/png')
+          //setTimeout(function () { _this.takeSnapshot() }, 2000)
+        } else { // android & webapp
+          // generate a snapshot of the video flow
+          let blob = await this.imageCapture.takePhoto()
+          image.src = URL.createObjectURL(blob)
+        }
+        
+        image.onload = async function() {
           _this.$q.loading.hide()
-          setTimeout(function () { _this.takeSnapshot() }, 2000)
-        });
-      } else {
-        // generate a snapshot of the video flow
-        this.imageCapture.takePhoto()
-          .then(blob => {
-            let image = document.getElementById('snapshotImage')
-            image.onload = function() {
-              const width = image.width
-              const height = image.height
-              // check if picture has to be rotated
-              if (width > height) {
-                image.style.transform = 'rotate(90deg)'
-              }
-              // keep image ratio
-              const vw = _this.getScreenWidth()
-              const vh = _this.getScreenHeight()
-              image.style.height = vh + "px"
-              image.style.width = ((height / vh) * width) + "px"
-              image.style.left = ((vw - parseInt(image.style.width, 10)) / 2) + "px"
-  
-              // rotate image (exif issue)
-              /*
-              image.style.width = height + "px"
-              image.style.height = width + "px"
-              image.style.top = ((height - width) / 2) + "px"
-              image.style.left = ((width - height) / 2) + "px"*/
-              _this.$q.loading.hide()
-              setTimeout(function () { _this.takeSnapshot() }, 1000)
+         
+          // build image with camera capture + overlay in a canvas
+          let c = document.createElement('canvas')
+          let context = c.getContext('2d')
+          c.height = vh
+          c.width = vw
+          c.style.display = 'none'
+          // fit image to canvas, center horizontally & vertically & keep aspect ratio (like CSS 'cover')
+          draw.drawImageProp(context, image)
+          
+          let imgOverflow = _this.$refs['imageOverflowForCapture']
+          draw.drawImageProp(context, imgOverflow)
+          
+          let finalBlob
+          
+          // compatible file saving attempt (work in progress => to be moved to "utils" if it works on iOS)
+          if (_this.isHybrid) {
+            if(_this.isIOs && CameraPreview) {
+              // already done above
+            } else {
+              console.log("Save picture in Android Library")
+              // possible alternative to window.requestFileSystem() for iOS:
+              // "window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function (dirEntry) { ... }"
+              // see https://cordova.apache.org/docs/en/10.x/reference/cordova-plugin-file/
+              window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
+                fs.root.getDirectory('Graaly', { create: true }, function (dirEntry) {
+                  dirEntry.getFile(snapshotFilename, { create: true, exclusive: false }, function (fileEntry) {
+                    fileEntry.createWriter(async (fileWriter) => {
+                      finalBlob = await new Promise(resolve => c.toBlob(resolve, 'image/jpeg'))
+                      fileWriter.onwriteend = async (ev) => {
+                        c.remove()
+                        await _this.saveSnapshotOnServer(finalBlob, snapshotFilename)
+                      }
+                      fileWriter.onerror = (err) => {
+                        console.error("Failed file write: ", err);
+                      }
+                      fileWriter.write(finalBlob)
+                    })
+                  }, (err) => {
+                    Notification(_this.$t('label.TechnicalIssue'), 'error')
+                    console.error('Could not create snapshot file on device filesystem', err)
+                  })
+                }, (err) => {
+                  Notification(_this.$t('label.TechnicalIssue'), 'error')
+                  console.error('Could not access Graaly directory on device filesystem', err)
+                })
+              }, (err) => {
+                Notification(_this.$t('label.TechnicalIssue'), 'error')
+                console.error('Could not access to device filesystem', err)
+              })
             }
-            image.src = URL.createObjectURL(blob)
-          })
-          .catch(err => { 
-            Notification(_this.$t('label.SnapshotTakenIssue'), 'error'); console.log(err) 
-            _this.$q.loading.hide()
-            _this.$emit('showButtons')
-          })
+          } else { // webapp
+            utils.downloadDataUrl(c.toDataURL('image/jpeg'), snapshotFilename)
+            finalBlob = await new Promise(resolve => c.toBlob(resolve, 'image/jpeg'))
+            await _this.saveSnapshotOnServer(finalBlob, snapshotFilename)
+            c.remove()
+          }
+        }
+      } catch (err) {
+        Notification(_this.$t('label.SnapshotTakenIssue'), 'error');
+        console.error(err)
+        console.log(err.stack) 
+        this.$q.loading.hide()
+        this.$emit('showButtons')
       }
+    },
+    takeIOsSnapshot() {
+console.log("TESTSNAPSHOTIOS2")
+      var _this = this
+      this.$q.loading.hide()
+      navigator.screenshot.save(function (error, res) {
+console.log("TESTSNAPSHOTIOS3")
+        if (error) {
+          console.error(error)
+          Notification(_this.$t('label.ErrorTakingSnapshot'), 'info')
+        } else {
+          var permissions = cordova.plugins.permissions
+          permissions.requestPermission(permissions.READ_EXTERNAL_STORAGE, function(status) {
+console.log("TESTSNAPSHOTIOS4")
+            if (status.hasPermission) {
+              _this.saveIOsSnapshot(res)
+            } else {
+              Notification(_this.$t('label.ErrorTakingSnapshot'), 'info')
+            }
+          }, alert)
+        }
+        _this.takingSnapshot = false
+        _this.$emit('showButtons')
+      })
+    },
+    async saveIOsSnapshot(mediaFile) {
+console.log("TESTSNAPSHOTIOS5")
+      try {
+        const fileEntry = await new Promise(resolve =>
+          window.resolveLocalFileSystemURL('file://' + mediaFile.filePath, resolve, function(err) { console.log('Error '  + err) })
+        );
+        const fileBinary = await new Promise((resolve, reject) =>
+          fileEntry.file(function (file) {
+console.log("TESTSNAPSHOTIOS6")
+            var reader = new FileReader()
+            reader.onloadend = function(e) {
+              resolve(reader.result)
+            }
+            reader.readAsArrayBuffer(file)
+          })
+        )
+        // convert binary to blob of the image content
+console.log("TESTSNAPSHOTIOS7")
+        const picture = new Blob([new Uint8Array(fileBinary)], { type: "image/jpg" })
+        var data = new FormData()
+        data.append('image', picture)
+        var _this = this
+        await StepService.uploadSnapshot(this.step.questId, data)
+        /*StepService.uploadSnapshot(this.step.questId, data, function(err, result) {
+          if (err) {
+            Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
+          } else {
+            Notification(_this.$t('label.SnapshotTaken'), 'info')
+          }
+        })*/
+      } catch (error) {
+        Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
+        console.log("Error: " + error)
+      }
+    },
+    /**
+     * This is a feature for players (selfies...) from steps image-over-flow, not authors
+     * Saves snapshot on web API server if quest config setting "saveSelfieOnServer" is enabled
+     * @param {Buffer} blob     Binary array of file data to save on server
+     * @param {String} filename Name of the file to upload
+     */
+    async saveSnapshotOnServer(blob, filename) {
+      if (this.quest.customization && this.quest.customization.saveSelfieOnServer) {
+        try {
+          let formData = new FormData()
+          formData.append("image", blob, filename)
+          await StepService.uploadSnapshot(this.step.questId, formData)
+          Notification(this.$t('label.SnapshotTaken'), 'info')
+        } catch (err) {
+          console.error(err)
+          Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.SnapshotTaken'), 'info')
+      }
+      this.takingSnapshot = false
+      this.$emit('showButtons')
     },
     switchCamera() {
       if (this.cameraUsed === 'environment') {
         this.cameraUsed = 'user'
       } else {
-          this.cameraUsed = 'environment'
+        this.cameraUsed = 'environment'
       }
       if (this.isIOs && CameraPreview) {
         CameraPreview.switchCamera()
@@ -3428,71 +3608,6 @@ export default {
     },
     cancelTakeVideoSnapShot() {
       this.imageOverFlow.snapshot = ""
-    },
-    /*
-     * take a snapshot of the screen
-     */
-    takeSnapshot() {
-      let _this = this
-      navigator.screenshot.save(function (error, res) {
-        if (error) {
-          console.error(error)
-          Notification(_this.$t('label.ErrorTakingSnapshot'), 'error')
-          _this.$emit('showButtons')
-        } else {
-          if (_this.quest.customization && _this.quest.customization.saveSelfieOnServer) {
-            let permissions = cordova.plugins.permissions
-            permissions.requestPermission(permissions.READ_EXTERNAL_STORAGE, function(status) {
-              if (status.hasPermission) {
-                _this.saveSnapshot(res)
-              } else {
-                Notification(_this.$t('label.ErrorTakingSnapshot'), 'error')
-                _this.takingSnapshot = false
-                _this.$emit('showButtons')
-              }
-            }, alert)
-          } else {
-            Notification(_this.$t('label.SnapshotTaken'), 'positive')
-            _this.takingSnapshot = false
-            _this.$emit('showButtons')
-          }
-        }
-      })
-    },
-    async saveSnapshot(mediaFile) {
-      try {
-        const fileEntry = await new Promise(resolve =>
-          window.resolveLocalFileSystemURL('file://' + mediaFile.filePath, resolve, function(err) { console.log('Error '  + err) })
-        );
-        const fileBinary = await new Promise((resolve, reject) =>
-          fileEntry.file(function (file) {
-            var reader = new FileReader()
-
-            reader.onloadend = function(e) {
-              resolve(reader.result)
-            }
-            reader.readAsArrayBuffer(file)
-          })
-        )
-        // convert binary to blob of the image content
-        const picture = new Blob([new Uint8Array(fileBinary)], { type: "image/jpg" })
-        let data = new FormData()
-        data.append('image', picture)
-        let _this = this
-        StepService.uploadSnapshot(this.step.questId, data, function(err, result) {
-          if (err) {
-            Notification(_this.$t('label.ErrorTakingSnapshot'), 'error')
-          } else {
-            Notification(_this.$t('label.SnapshotTaken'), 'info')
-          }
-          _this.takingSnapshot = false
-          _this.$emit('showButtons')
-        })
-      } catch (error) {
-        Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
-        console.log("Error: ", error)
-        _this.$emit('showButtons')
-      }
     },
     /*
      * get the translation for main text
@@ -4066,17 +4181,17 @@ export default {
     /*
     * Display the success message
     */
-    displaySuccessMessage (success, genericMessage, actions) {
+    displaySuccessMessage (success, genericMessage, allowCustomMessage, actions) {
       let message = ""
       this.displaySuccessIcon = true
       if (success) {
-        if (this.step.options && this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage !== "") {
+        if (allowCustomMessage && this.step.options && this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage !== "") {
           message = this.step.options.rightAnswerMessage
         } else {
           message = genericMessage
         }
       } else {
-        if (this.step.options && this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage !== "") {
+        if (allowCustomMessage && this.step.options && this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage !== "") {
           message = this.step.options.wrongAnswerMessage
         } else {
           message = genericMessage
@@ -4232,9 +4347,11 @@ export default {
      * @param   {string}    pictureUrl            picture URL
      */
     enlargeThePicture (index) {
-      this.enlargePicture.show = true
-      var pictureUrl = this.step.options.images[this.playerCode[index]].imagePath
-      this.enlargePicture.url = (pictureUrl && pictureUrl.indexOf('blob:') !== -1) ? pictureUrl : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + pictureUrl
+      if (!this.step.options || !this.step.options.hideEnlargeMessage) {
+        this.enlargePicture.show = true
+        var pictureUrl = this.step.options.images[this.playerCode[index]].imagePath
+        this.enlargePicture.url = (pictureUrl && pictureUrl.indexOf('blob:') !== -1) ? pictureUrl : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/code-image/' + pictureUrl
+      }
     },
     /**
      * Triggers an IoT event
@@ -4651,12 +4768,24 @@ export default {
         }
         
         if (this.step.audioStream[finalLang].indexOf('blob:') !== -1) {
-          this.audio = this.step.audioStream[finalLang]
+          this.audio.file = this.step.audioStream[finalLang]
         } else {
-          this.audio = this.serverUrl + '/upload/quest/' + this.step.questId + '/audio/' + this.step.audioStream[finalLang]
+          this.audio.file = this.serverUrl + '/upload/quest/' + this.step.questId + '/audio/' + this.step.audioStream[finalLang]
         }
       } else {
-        this.audio = null
+        this.audio.file = null
+      }
+    },
+    switchAudioSound() {
+      var audio = document.getElementById("step-music")
+      if (audio) {
+        if (this.audio.play) {
+          audio.pause()
+          this.audio.play = false
+        } else {
+          audio.play()
+          this.audio.play = true
+        }
       }
     }
   }
@@ -4695,6 +4824,8 @@ export default {
   .text { 
     white-space: pre-wrap; 
     /*text-align: justify;*/
+    margin: 20px 20px 0 20px;
+    border-radius: 10px;
   }
   .text p { padding: 0.25rem 0; margin: 0; }
   .carrier-return {
@@ -4790,12 +4921,12 @@ export default {
   /* write-text specific */
   
   .answer-text { flex-grow: 1; display: flex; flex-flow: column nowrap; justify-content: center; }
-  .answer-text input { opacity: 0.7; font-family: arial; font-size: 1.5em; font-weight: bold; height: 1.5em; background-color: #fff; border-radius: 0.5rem; box-shadow: 0px 0px 0.1rem 0.1rem #fff;}
+  .answer-text input { opacity: 0.7; font-family: arial; height: 38px; line-height: 1.5em; background-color: #fff; border-radius: 0.5rem; box-shadow: 0px 0px 0.1rem 0.1rem #fff;}
     
   /* new-item specific */
   
   .new-item .item { text-align: center; position: relative;}
-  .new-item .item p span { font-size: 2rem; background-color: rgba(255, 255, 255, 0.5); border-radius: 8px; padding: 4px 8px; }
+  .new-item .item p span { font-size: 2rem; background-color: rgba(255, 255, 255, 0.5); border-radius: 8px; padding: 2px 8px 12px 8px; }
   
   /* locate-item-ar specific */
   

@@ -245,24 +245,24 @@
 
     <div v-show="footer.show" class="step-menu step-menu-fixed fixed-bottom">
       <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
-      <div class="row white-buttons">
-        <div class="col centered q-pb-md">
+      <div class="row white-buttons" :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''">
+        <div class="col centered">
+          <div class="q-py-sm" v-if="!info.quest.customization || !info.quest.customization.logo || info.quest.customization.logo === ''">
+            <q-btn
+              flat
+              size="lg"
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+              icon="menu"
+              :class="{'bg-secondary': (info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}"
+              @click="openInfo()"
+            >
+              <q-badge v-if="this.$store.state.chatNotification > 0" color="accent" rounded floating>{{ this.$store.state.chatNotification }}</q-badge>
+            </q-btn>
+          </div>
           <q-btn
-            round
-            size="lg"
-            :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            icon="menu"
-            :class="{'bg-secondary': (info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}"
-            @click="openInfo()"
-            v-if="!info.quest.customization || !info.quest.customization.logo || info.quest.customization.logo === ''"
-          >
-            <q-badge v-if=" this.$store.state.chatNotification > 0"  color="accent" rounded floating>{{ this.$store.state.chatNotification }}</q-badge>
-          </q-btn>
-          <q-btn
-            round
+            flat
             size="lg"
             style="padding-top: 0 !important;"
-            class="bg-white"
             @click="openInfo()"
             v-if="info.quest.customization && info.quest.customization.logo && info.quest.customization.logo !== ''" >
             <q-avatar size="60px">
@@ -270,9 +270,9 @@
             </q-avatar>
           </q-btn>
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="work" 
@@ -281,9 +281,9 @@
             @click="openInventory()" 
           />
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="lightbulb"
@@ -294,9 +294,9 @@
             <q-badge v-if="this.step && this.step.hint" color="secondary" floating>{{ this.hint.remainingNumber }}</q-badge>
           </q-btn>
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
@@ -306,9 +306,9 @@
             @click="previousStep()"
           />
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             :class="{'flashing': next.suggest, 'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
@@ -1321,7 +1321,7 @@ export default {
       } else if (this.info.quest.picture) {
         return this.serverUrl + '/upload/quest/' + this.info.quest.picture
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     },
     /*
@@ -1710,7 +1710,7 @@ export default {
           if (pictureUrl) {
             this.info.quest.picture = pictureUrl
           } else {
-            this.info.quest.picture = '_default-quest-picture.png'
+            this.info.quest.picture = '_default-quest-picture.jpg'
           }
           // get customized logo
           if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo !== '') {
@@ -2068,6 +2068,7 @@ export default {
      */
     async getNextOfflineStep(questId, markerCode, player, extra) {
       var steps = []
+      let conditionsDone = this.run.conditionsDone
       
       if (!player) {
         player = 'P1'
@@ -2148,7 +2149,6 @@ export default {
           await this.saveOfflineAnswer('success', false, true)
         } else {
           // set the marker step as done to pass to next step
-          var conditionsDone = this.run.conditionsDone
           conditionsDone.push('stepDone_' + stepId.toString())
           conditionsDone.push('stepDone' + this.player + '_' + stepId.toString())
 
@@ -2163,16 +2163,42 @@ export default {
       var locationMarkerFound = false
       var geolocationFound = false
       
+      // Count counter value
+      let counter = 0
+      for (let i = 0; i < conditionsDone.length; i++) {
+        if (conditionsDone[i].indexOf("counterIncrement_") !== -1) {
+          counter++
+        }
+      }
+      
       if (stepsofChapter && stepsofChapter.length > 0) {
         stepListFor:
         for (i = 0; i < stepsofChapter.length; i++) {
           // check if the step is not already done
-          if (this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
+          if (conditionsDone && conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
             if (stepsofChapter[i].conditions && stepsofChapter[i].conditions.length > 0) {
               for (j = 0; j < stepsofChapter[i].conditions.length; j++) {
-                // if one of the conditions of the step i not ok, continue with next step
-                if (this.run.conditionsDone.indexOf(stepsofChapter[i].conditions[j]) === -1) {
-                  continue stepListFor
+                // check if counter condition
+                if (stepsofChapter[i].conditions[j].indexOf('countergreater_') === -1 && stepsofChapter[i].conditions[j].indexOf('counterlower_') === -1) {
+                  // if one of the conditions of the step i not ok, continue with next step
+                  if (conditionsDone.indexOf(stepsofChapter[i].conditions[j]) === -1) {
+                    continue stepListFor
+                  }
+                } else {
+                  // if counter lower than countergreater value
+                  if (stepsofChapter[i].conditions[j].indexOf('countergreater_') !== -1) {
+                    const lowerCounter = parseInt(stepsofChapter[i].conditions[j].replace('countergreater_', ''), 10)
+                    if (counter <= lowerCounter) {
+                      continue stepListFor
+                    }
+                  }
+                  // if counter greater than counterlower value
+                  if (stepsofChapter[i].conditions[j].indexOf('counterlower_') !== -1) {
+                    const upperCounter = parseInt(stepsofChapter[i].conditions[j].replace('counterlower_', ''), 10)
+                    if (counter >= upperCounter) {
+                      continue stepListFor
+                    }
+                  }
                 }
               }
             }
@@ -2216,19 +2242,11 @@ export default {
             // treat case of the increment counter
             if (stepsofChapter[i].type === 'increment-counter') {
               // save condition done
-              var conditionsDone = this.run.conditionsDone
               conditionsDone.push('counterIncrement_' + stepsofChapter[i].stepId.toString())
               conditionsDone.push('stepDone_' + stepsofChapter[i].stepId.toString())
               conditionsDone.push('stepDone' + player + '_' + stepsofChapter[i].stepId.toString())
               this.run.conditionDone = conditionsDone
-              
-              // Count counter value
-              let counter = 0
-              for (var i = 0; i < conditionsDone.length; i++) {
-                if (conditionsDone[i].indexOf("counterIncrement_") !== -1) {
-                  counter++
-                }
-              }
+              counter++
               
               // find if a step is triggered by counter value
               let nextStepId = await this.findStepForCounterValueOffline(steps, questId, this.run.version, counter)
@@ -2251,7 +2269,7 @@ export default {
               let nextStepId
 
               if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
-                this.removeAllConditionsOfAChapter(steps, this.run.conditionsDone, stepsofChapter[i].chapterId)
+                this.removeAllConditionsOfAChapter(steps, conditionsDone, stepsofChapter[i].chapterId)
               } else {
                 nextStepId = await this.moveToNextChapter()
               }
@@ -2306,12 +2324,12 @@ export default {
         let randomIds = []
         for (let i = 0; i < stepsofChapter.length; i++) {
           // check if the step is not already done by player AND IS A RANDOM STEP
-          if (stepsofChapter[i].conditions.length > 0 && stepsofChapter[i].conditions[0].indexOf('stepRandom_') !== -1 && this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
+          if (stepsofChapter[i].conditions.length > 0 && stepsofChapter[i].conditions[0].indexOf('stepRandom_') !== -1 && conditionsDone && conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
             // check if step concerned is done
             if (stepsofChapter[i].conditions.length > 0) {
               // Get the stepID this step is depending on
               let fatherStep = stepsofChapter[i].conditions[0].replace('stepRandom_', '')
-              if (this.run.conditionsDone.indexOf('stepDone' + player + '_' + fatherStep) !== -1) {
+              if (conditionsDone.indexOf('stepDone' + player + '_' + fatherStep) !== -1) {
                 randomIds.push(stepsofChapter[i].stepId)
               }
             }
@@ -2446,12 +2464,14 @@ export default {
       const stepsWithoutSuccessTrigger = ['info-text', 'info-video', 'new-item', 'character', 'help', 'end-chapter']
       // assign success or fail status
       if (stepsWithoutSuccessTrigger.indexOf(stepType) === -1) {
-        if (isSuccess) {
-          currentConditions.push('stepSuccess_' + stepId)
-          currentConditions.push('stepSuccess' + player + '_' + stepId)
-        } else {
-          currentConditions.push('stepFail_' + stepId)
-          currentConditions.push('stepFail' + player + '_' + stepId)
+        if (currentConditions.indexOf('stepFail_' + stepId) === -1 && currentConditions.indexOf('stepSuccess_' + stepId) !== -1) {
+          if (isSuccess) {
+            currentConditions.push('stepSuccess_' + stepId)
+            currentConditions.push('stepSuccess' + player + '_' + stepId)
+          } else {
+            currentConditions.push('stepFail_' + stepId)
+            currentConditions.push('stepFail' + player + '_' + stepId)
+          }
         }
       }
 
@@ -2646,9 +2666,9 @@ export default {
     display: none
   }
 
-  .q-btn, audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
+  audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
 
-  .q-btn { margin-top: 1rem; }
+  /*.q-btn { margin-top: 1rem; }*/
 
   /* right/wrong styles */
 

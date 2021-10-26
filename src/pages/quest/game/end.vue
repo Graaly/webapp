@@ -27,7 +27,7 @@
         <q-btn color="primary" class="glossy large-button" :label="$t('label.GoToQuestValidation')" @click="openValidation(questId, quest.version)"></q-btn>
       </div>
     </div>
-    <div class="q-px-md text-grey align-right" style="font-size: 0.8em; margin-top: -10px;">
+    <div v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage !== ''" class="q-px-md text-grey align-right" style="font-size: 0.8em; margin-top: -10px;">
       {{ endDate }}
     </div>
     
@@ -362,7 +362,7 @@ export default {
     
     // compute end date
     let date = new Date()
-    this.endDate = Moment(date).format('DD/MM/YYYY, h:mm:ss')
+    this.endDate = Moment(date).format('DD/MM/YYYY, k:mm')
   },
   methods: {
     /*

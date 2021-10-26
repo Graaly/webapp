@@ -34,8 +34,8 @@
           </q-chip>
         </div>
         <div class="info-banner">
-          <div v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</div>
-          <div v-if="quest.duration && quest.duration >= 60">{{ quest.duration / 60 }}{{ $t('label.hoursSimplified') }}</div>
+          <div v-if="quest.duration && quest.duration !== 999 && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</div>
+          <div v-if="quest.duration && quest.duration !== 999 && quest.duration >= 60">{{ quest.duration / 60 }}{{ $t('label.hoursSimplified') }}</div>
           <div v-if="quest.level">{{ $t('label.Difficulty' + quest.level) }}</div>
           <div v-if="quest.premiumPrice && !(quest.premiumPrice.androidId && quest.premiumPrice.active) && !quest.premiumPrice.manual">
             <span class="opacity50">€€€</span>
@@ -152,7 +152,7 @@ export default {
       } else if (picture) {
         return this.serverUrl + '/upload/quest/' + picture
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     },
     /*

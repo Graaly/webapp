@@ -706,7 +706,7 @@ export default {
     } else if (quest.picture) {
       return process.env.SERVER_URL + "/upload/quest/" + quest.picture;
     } else {
-      return "statics/images/quest/default-quest-picture.png";
+      return "statics/images/quest/default-quest-picture.jpg";
     }
   }
 };
