@@ -40,8 +40,14 @@ export default {
   /*
     * List the disabled quest (nquest.status = "disabled")
     */
-  ListQuestDisabled() {
-    return Api().get("admin/quests/disabled")
+  countQuestDisabled() {
+    return Api().get("admin/quests/countDisabled")
+  },
+  /*
+    * List the disabled quest (nquest.status = "disabled")
+    */
+  ListQuestDisabled(page, limit) {
+    return Api().get("admin/quests/disabled/" + page + "/" + limit)
   },
   /*
    * Validate a quest
