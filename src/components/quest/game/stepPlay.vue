@@ -3407,6 +3407,7 @@ console.log("GOOD ANSWER")
         const vh = _this.getScreenHeight()
         if (this.isIOs && CameraPreview) {
           Notification(_this.$t('label.SnapshotManualOnIOs'), 'error');
+          this.$q.loading.hide()
           return false
           image.style.width = '100%'
           CameraPreview.takePicture({quality: 85}, function(base64PictureData) {

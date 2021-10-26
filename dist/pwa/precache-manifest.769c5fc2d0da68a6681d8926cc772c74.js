@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "f5dfaac70119f4f38651",
-    "url": "css/app.99ad6020.css"
+    "revision": "01e13aa7739c4f05a109",
+    "url": "css/app.f208a255.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -72,7 +72,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "242f15ae60c16cee407b87ecf6d9ca9e",
+    "revision": "be458415a2ed080546e1589c18e1f39c",
     "url": "index.html"
   },
   {
@@ -80,12 +80,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2.5af11629.js"
   },
   {
-    "revision": "f5dfaac70119f4f38651",
-    "url": "js/app.9e7cca7f.js"
+    "revision": "01e13aa7739c4f05a109",
+    "url": "js/app.abc5c99a.js"
   },
   {
-    "revision": "0bfce45992be40ac34c5",
-    "url": "js/vendor.0bfce459.js"
+    "revision": "7cc863033d57d312614e",
+    "url": "js/vendor.7cc86303.js"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
@@ -320,6 +320,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/css/addtohomescreen.css"
   },
   {
+    "revision": "7f897f1027ef24ce4906fac06bd5a021",
+    "url": "statics/customers/conseil-europe/images/card-back.png"
+  },
+  {
     "revision": "cd9e5573306ef2297e46f88265eee75f",
     "url": "statics/customers/conseil-europe/images/flags/en.png"
   },
@@ -328,8 +332,64 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/customers/conseil-europe/images/flags/fr.png"
   },
   {
+    "revision": "4fbe6c4966247b29208a18c6edc373ca",
+    "url": "statics/customers/conseil-europe/images/lightbulb.png"
+  },
+  {
     "revision": "4ae303eee762c181e01f021412582aa4",
     "url": "statics/customers/conseil-europe/images/logo.png"
+  },
+  {
+    "revision": "57c9a72d91762b31f57b5d1eb9b5e920",
+    "url": "statics/customers/conseil-europe/images/stars/star0.png"
+  },
+  {
+    "revision": "5b105e4cc7c16954d353157f8b017eb1",
+    "url": "statics/customers/conseil-europe/images/stars/star1.png"
+  },
+  {
+    "revision": "78fec247d9a794518d7fb953d5713991",
+    "url": "statics/customers/conseil-europe/images/stars/star10.png"
+  },
+  {
+    "revision": "2916d686aebf75f84f79c8714f7d0f73",
+    "url": "statics/customers/conseil-europe/images/stars/star11.png"
+  },
+  {
+    "revision": "609f65604b3f229af457c07eb8a7ed71",
+    "url": "statics/customers/conseil-europe/images/stars/star12.png"
+  },
+  {
+    "revision": "2d769e7f45972da16c34e7288387da3d",
+    "url": "statics/customers/conseil-europe/images/stars/star2.png"
+  },
+  {
+    "revision": "c4bbd6cdc507ab62f11a802342c4bf2a",
+    "url": "statics/customers/conseil-europe/images/stars/star3.png"
+  },
+  {
+    "revision": "0f305367665989ca75f4eb250e199767",
+    "url": "statics/customers/conseil-europe/images/stars/star4.png"
+  },
+  {
+    "revision": "66075922fcea194a35aaf16ef1935569",
+    "url": "statics/customers/conseil-europe/images/stars/star5.png"
+  },
+  {
+    "revision": "772a1794e69f87eb93917be962070113",
+    "url": "statics/customers/conseil-europe/images/stars/star6.png"
+  },
+  {
+    "revision": "e2228830a36a5b631c926b8e2cdb1561",
+    "url": "statics/customers/conseil-europe/images/stars/star7.png"
+  },
+  {
+    "revision": "855f90b19c6d899d4e8edee4a54105d8",
+    "url": "statics/customers/conseil-europe/images/stars/star8.png"
+  },
+  {
+    "revision": "94841042ebccfd2bcfc3ef1d98505432",
+    "url": "statics/customers/conseil-europe/images/stars/star9.png"
   },
   {
     "revision": "f4c4bda7af58edd75c5db41d9fb381db",
@@ -1188,8 +1248,16 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/images/other/spinner.gif"
   },
   {
+    "revision": "8a246d7f207d6bfb98dede69372fc91f",
+    "url": "statics/images/quest/_default-quest-picture.jpg"
+  },
+  {
     "revision": "8d7b1087f812a9b077ab930074691651",
     "url": "statics/images/quest/_default-quest-picture.png"
+  },
+  {
+    "revision": "3d07943ef599db54f7cde55ac37e7926",
+    "url": "statics/images/quest/default-quest-picture.jpg"
   },
   {
     "revision": "8d7b1087f812a9b077ab930074691651",
