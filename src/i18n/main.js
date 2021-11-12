@@ -1109,6 +1109,12 @@ module.exports = {
       CustomizedMemoryCardColor: "Customized color for the cards",
       HidePuzzleNotWorkingMessage: "Hide button when puzzle is not working",
       SnapshotManualOnIOs: "To make a screenshot on iPhone/iPad, press the side button and the volume up button at the same time"
+    },
+    snapshot: {
+      share: "share",
+      save: "save",
+      shareTitle: "Share with friends",
+      notSupported: "This function is not supported with this device"
     }
   },
   fr: {
@@ -2208,6 +2214,12 @@ module.exports = {
       CustomizedMemoryCardColor: "Couleur personnalisée pour le dos des cartes",
       HidePuzzleNotWorkingMessage: "Cacher le bouton quand le puzzle ne fonctionne pas",
       SnapshotManualOnIOs: "Pour faire une capture sur iPhone/iPad, appuyez simultanéement sur le bouton latéral et le bouton du volume"
+    },
+    snapshot: {
+      share: "Partager",
+      save: "Télécharger",
+      shareTitle: "Partage avec tes amis",
+      notSupported: "Cette fonctionnalité n'est pas supportée sur cette plateforme"
     }
   }
 }
