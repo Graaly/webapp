@@ -220,9 +220,9 @@
             <img style="vertical-align:bottom;" v-if="step.options.character.length > 2 && step.options.character !== 'usequestcharacter'" :src="step.options.character.indexOf('blob:') !== -1 ? step.options.character : serverUrl + '/upload/quest/' + step.questId + '/step/character/' + step.options.character" />
             <img style="vertical-align:bottom;" v-if="step.options.character === 'usequestcharacter'" :src="customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + customization.character : customization.character" />
           </div>
-          <div v-if="step.options && step.options.characterBarColor && step.options.characterBarColor !== ''" class="full-width" :class="(step.options && step.options.characterBarColor) ? '' : 'bg-black'" :style="'height: 76px; ' + ((step.options && step.options.characterBarColor && step.options.characterBarColor !== '') ? 'background-color: ' + step.options.characterBarColor : '')">
+          <div v-if="step.options && step.options.characterBarColor && step.options.characterBarColor !== ''" class="full-width" :class="(step.options && step.options.characterBarColor) ? '' : 'bg-black'" :style="'height: 68px; ' + ((step.options && step.options.characterBarColor && step.options.characterBarColor !== '') ? 'background-color: ' + step.options.characterBarColor : '')">
           </div>
-          <div v-if="!step.options || !step.options.characterBarColor || step.options.characterBarColor === ''" class="full-width" style="height: 76px;">
+          <div v-if="!step.options || !step.options.characterBarColor || step.options.characterBarColor === ''" class="full-width" style="height: 68px;">
           </div>
         </div>
       </div>
@@ -235,7 +235,7 @@
              <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
              <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
-          <div class="answers-text" v-if="answerType === 'text'">
+          <div class="answers-text q-mt-lg" v-if="answerType === 'text'">
             <q-btn v-for="(option, key) in step.options.items" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
               <span :class="'font-' + customization.font" v-if="!option.textLanguage || !option.textLanguage[lang]">{{ option.text }}</span>
               <span :class="'font-' + customization.font" v-if="option.textLanguage && option.textLanguage[lang]">{{ option.textLanguage[lang] }}</span>
@@ -437,7 +437,8 @@
                 v-on:input="writetext.playerAnswer = $event.target.value" 
                 :placeholder="$t('label.YourAnswer')" 
                 :class="{right: playerResult === true, wrong: playerResult === false}" 
-                :disabled="stepPlayed" />
+                :disabled="stepPlayed"
+                style="height: 55px;" />
               <input 
                 v-if="rightAnswer"
                 class="right" 
@@ -445,7 +446,7 @@
                 disabled />
             </div>
             <div class="col-3">
-              <q-btn class="glossy small-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer" icon="done"></q-btn>
+              <q-btn round class="glossy" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" :disabled="writetext.playerAnswer === '' || stepPlayed" @click="checkAnswer()" test-id="btn-check-text-answer" icon="done"></q-btn>
             </div>
           </div>
           <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
@@ -506,7 +507,7 @@
             class="col-3 q-pa-sm">
             <div
               class="card" 
-              :class="{ open: item.isClicked, closed: !item.isClicked, disabled: item.isFound || stepPlayed }" 
+              :class="{ open: item.isClicked, closed: !item.isClicked, disabled: item.isFound }" 
               @click="selectMemoryCard(key)"
               :style="((step.options && step.options.memoryCardColor && step.options.memoryCardColor !== '') ? 'background: ' + step.options.memoryCardColor : '')"
             >
@@ -582,7 +583,10 @@
           <div class="absolute no-mouse-event" style="top: 0px; width: 100%;">
             <img class="no-mouse-event" style="width: 100%; " src="statics/icons/game/binoculars.png">
           </div>
-        </div>  
+        </div> 
+        <div class="absolute text-white centered" style="width: 100%; left: 0px; right: 0px; bottom: 100px">
+          {{ $t('label.MovePictureWithFinger')}}
+        </div>
       </div>
       
       <!------------------ PHONE CALL STEP AREA ------------------------>
@@ -2419,7 +2423,11 @@ export default {
             if (!checkIfFound.one) {
               this.nbTry++
               if (remainingTrial > 0) {
-                Notification(this.$t('label.FindItemNothingHappens'), 'error')
+                if (this.step.options.wrongLocationMessage && this.step.options.wrongLocationMessage !== "") {
+                  Notification(this.step.options.wrongLocationMessage, 'error')
+                } else {
+                  Notification(this.$t('label.FindItemNothingHappens'), 'error')
+                }
               } else {
                 checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
                 
@@ -3869,7 +3877,7 @@ console.log("TESTSNAPSHOTIOS7")
         let tileUsed = (i < this.step.options.items.length ? this.step.options.items[i] : this.step.options.items[i - this.step.options.items.length])
         // tile is not displayed twice if single
         if (!tileUsed.single || i < this.step.options.items.length) {
-          items[i] = {imagePath: tileUsed.imagePath, isClicked: false, isFound: false}
+          items[i] = {imagePath: tileUsed.imagePath, isClicked: false, isFound: false, isUnique: tileUsed.single}
         }
       }
       
@@ -3893,13 +3901,29 @@ console.log("TESTSNAPSHOTIOS7")
         if (this.memory.items[this.memory.selectedKey].imagePath === this.memory.items[key].imagePath) {
           this.memory.score++;
           if (this.memory.score === Math.floor(this.memory.items.length / 2)) { 
-            // uncover all tiles
-            for (var i = 0; i < this.memory.items.length; i++) {
-              if (!this.memory.items[i].isFound) {
-                this.memory.items[i].isClicked = true
-                _self.memory.items[_self.memory.selectedKey].isFound = true
-                _self.memory.items[key].isFound = true
+            if (this.step.options.lastIsSingle) {
+              this.memory.disabled = true
+              // display only the unique item
+              for (var i = 0; i < this.memory.items.length; i++) {
+                if (this.memory.items[i].isUnique) {
+                  this.memory.items[i].isClicked = true
+                  _self.memory.items[i].isFound = true
+                } else {
+                  this.memory.items[i].isClicked = false
+                  _self.memory.items[i].isFound = false
+                }
                 Vue.set(this.memory.items, i, this.memory.items[i])
+              }
+              //Vue.set(this.memory.items, this.memory.items.length - 1, this.memory.items[this.memory.items.length - 1])
+            } else {
+              // uncover all tiles
+              for (var i = 0; i < this.memory.items.length; i++) {
+                if (!this.memory.items[i].isFound) {
+                  this.memory.items[i].isClicked = true
+                  _self.memory.items[_self.memory.selectedKey].isFound = true
+                  _self.memory.items[key].isFound = true
+                  Vue.set(this.memory.items, i, this.memory.items[i])
+                }
               }
             }
             this.checkAnswer(true)
@@ -4183,21 +4207,28 @@ console.log("TESTSNAPSHOTIOS7")
     */
     displaySuccessMessage (success, genericMessage, allowCustomMessage, actions) {
       let message = ""
+      let duration = false
       this.displaySuccessIcon = true
       if (success) {
         if (allowCustomMessage && this.step.options && this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage !== "") {
           message = this.step.options.rightAnswerMessage
+          if (message.length > 50) {
+            duration = 10000
+          }
         } else {
           message = genericMessage
         }
       } else {
         if (allowCustomMessage && this.step.options && this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage !== "") {
           message = this.step.options.wrongAnswerMessage
+          if (message.length > 50) {
+            duration = 10000
+          }
         } else {
           message = genericMessage
         }
       }
-      Notification(message, (success ? 'rightAnswer' : 'wrongAnswer'), actions)
+      Notification(message, (success ? 'rightAnswer' : 'wrongAnswer'), actions, duration)
     },
     /*
     * Display read more text
@@ -4960,7 +4991,6 @@ console.log("TESTSNAPSHOTIOS7")
   }*/
 
   .memory .card {
-    background: url(/statics/icons/game/card-back.png) #1a4567 no-repeat;
     background-size: 100%;
     color: #ffffff;
     border-radius: 5px;

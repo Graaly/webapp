@@ -6,24 +6,24 @@ const defaultSettings = {
   actions: [{ icon: "close" }]
 };
 
-export default (message, type, actions) => {
+export default (message, type, actions, duration) => {
   let customSettings
   const isHybrid = window.cordova
   switch (type) {
     case "positive":
-      customSettings = { icon: "check_circle", color: "positive", timeout: 4000 }
+      customSettings = { icon: "check_circle", color: "positive", timeout: (duration ? duration : 4000) }
       break;
     case "warning":
-      customSettings = { icon: "warning", color: "orange", timeout: 4000 }
+      customSettings = { icon: "warning", color: "orange", timeout: (duration ? duration : 4000) }
       break;
     case "error":
-      customSettings = { icon: "report_problem", color: "negative", timeout: 5000 }
+      customSettings = { icon: "report_problem", color: "negative", timeout: (duration ? duration : 5000) }
       break;
     case "rightAnswer":
-      customSettings = { color: "positive", timeout: 6000 }
+      customSettings = { color: "positive", timeout: (duration ? duration : 6000) }
       break;
     case "wrongAnswer":
-      customSettings = { color: "orange", timeout: 3000 }
+      customSettings = { color: "orange", timeout: (duration ? duration : 3000) }
       break;
     case "readMore":
       customSettings = {
@@ -34,7 +34,7 @@ export default (message, type, actions) => {
       };
       break;
     default:
-      customSettings = { icon: "info", color: "info", timeout: 3000 }
+      customSettings = { icon: "info", color: "info", timeout: (duration ? duration : 3000) }
       break;
   }
   if (actions) {
@@ -44,8 +44,11 @@ export default (message, type, actions) => {
   var newNotification = Notify.create(
     Object.assign({ message }, defaultSettings, customSettings)
   );
+  
+  // Clear remaining notifications
+  utils.clearAllNotifications()
 
-  utils.notificationsArr.push(newNotification);
+  utils.notificationsArr.push(newNotification)
 
   return newNotification
 };

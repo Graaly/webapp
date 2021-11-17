@@ -1108,7 +1108,10 @@ module.exports = {
       HideEnlargeMessage: "Hide button to enlarge thumbs",
       CustomizedMemoryCardColor: "Customized color for the cards",
       HidePuzzleNotWorkingMessage: "Hide button when puzzle is not working",
-      SnapshotManualOnIOs: "To make a screenshot on iPhone/iPad, press the side button and the volume up button at the same time"
+      SnapshotManualOnIOs: "To make a screenshot on iPhone/iPad, press the side button and the volume up button at the same time",
+      MovePictureWithFinger: "Move the binoculars with your finger to observe the whole picture",
+      InvalidCondition: "Invalid trigger, please remove",
+      WrongLocationMessage: "Message when user click wrong location"
     }
   },
   fr: {
@@ -2207,7 +2210,10 @@ module.exports = {
       HideEnlargeMessage: "Cacher le bouton pour élargir les vignettes",
       CustomizedMemoryCardColor: "Couleur personnalisée pour le dos des cartes",
       HidePuzzleNotWorkingMessage: "Cacher le bouton quand le puzzle ne fonctionne pas",
-      SnapshotManualOnIOs: "Pour faire une capture sur iPhone/iPad, appuyez simultanéement sur le bouton latéral et le bouton du volume"
+      SnapshotManualOnIOs: "Pour faire une capture sur iPhone/iPad, appuyez simultanéement sur le bouton latéral et le bouton du volume",
+      MovePictureWithFinger: "Déplacez les jumelles avec le doigt pour observer d'autres endroits",
+      InvalidCondition: "Condition invalide à supprimer",
+      WrongLocationMessage: "Message quand on appuie au mauvais endroit"
     }
   }
 }

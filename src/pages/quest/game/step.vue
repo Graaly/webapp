@@ -2115,7 +2115,7 @@ export default {
             }
 
             // check if the step is not already done
-            if (this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone_' + markersSteps[i].stepId) === -1) {
+            if (this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + markersSteps[i].stepId) === -1) {
               if (markersSteps[i].conditions && markersSteps[i].conditions.length > 0) {
                 for (var j = 0; j < markersSteps[i].conditions.length; j++) {
                   // if one of the conditions of the step i not ok, continue with next step
@@ -2156,6 +2156,8 @@ export default {
           this.run.conditionDone = conditionsDone
           this.run.currentStep = stepId
         }
+        // reset markerCode
+        markerCode = false
       }
 
       // list the steps for the chapter

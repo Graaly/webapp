@@ -239,6 +239,16 @@ library {
     sha256: "\276W@\366|\356\337\266\317\220\227\025\230\213\251\206\326\r\032\357\312\234\b\353\\\034\343\203oCT\245"
   }
 }
+library {
+  maven_library {
+    groupId: "com.android.billingclient"
+    artifactId: "billing"
+    version: "3.0.3"
+  }
+  digests {
+    sha256: "\201\346\200\375\353\275\235~\330\2473\017\260\202?(\333h\353\3343\020\235\207$\257](\037.\231N"
+  }
+}
 library_dependencies {
 }
 library_dependencies {
@@ -355,11 +365,15 @@ library_dependencies {
   library_index: 23
   library_dep_index: 22
 }
+library_dependencies {
+  library_index: 24
+}
 module_dependencies {
   module_name: "base"
   dependency_index: 0
   dependency_index: 1
   dependency_index: 7
+  dependency_index: 24
   dependency_index: 14
   dependency_index: 15
 }

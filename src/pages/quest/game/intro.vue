@@ -207,7 +207,7 @@
       <!------------------ GAME DESCRIPTION ------------------------>
       
       <div class="q-pa-md">
-        <div class="text-subtitle2" v-html="this.quest.description"></div>
+        <div class="text-subtitle1 arial" v-html="this.quest.description"></div>
         <div v-if="isUserTooFar && !quest.allowRemotePlay" class="q-pt-md">
           <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.QuestIsFarFromUser')" />
         </div>

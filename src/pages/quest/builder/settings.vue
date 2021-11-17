@@ -1296,11 +1296,11 @@
         <div v-show="overview.tabSelected" class="step-menu step-menu-fixed">
           <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
           <div class="row white-buttons" :class="{'bg-primary': (!quest.customization || !quest.customization.color || quest.customization.color === '')}" :style="(quest.customization && quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''">
-            <div class="col centered q-py-sm">
+            <div class="col centered">
               <q-btn
                 flat
                 size="lg"
-                class="bg-white"
+                style="padding-top: 0 !important;"
                 v-if="quest.customization.logo && quest.customization.logo !== ''" >
                 <q-avatar size="60px">
                   <img :src="serverUrl + '/upload/quest/' + quest.customization.logo">

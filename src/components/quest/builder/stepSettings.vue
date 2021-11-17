@@ -940,7 +940,7 @@
       <q-list v-show="options.type.hasOptions" bordered>
         <q-expansion-item icon="add_box" :label="$t('label.OtherOptions')">
           <div class="q-pa-sm">
-            <div v-if="options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text' || options.type.code == 'portrait-robot'" class="q-pb-md">
+            <div v-if="options.type.code == 'memory' || options.type.code == 'locate-item-ar' || options.type.code == 'jigsaw-puzzle' || options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text' || options.type.code == 'portrait-robot'" class="q-pb-md">
               <q-toggle v-if="options && options.mode && options.mode === 'advanced'" v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
               <q-input v-model="selectedStep.form.options.rightAnswerMessage" :label="$t('label.CustomizeRightAnswerMessage')" />
               <q-input v-model="selectedStep.form.options.wrongAnswerMessage" :label="$t('label.CustomizeWrongAnswerMessage')" />
@@ -990,6 +990,9 @@
             </div>
             <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
               <q-input v-model="selectedStep.form.options.initDuration" :label="$t('label.DurationBeforeTextAppearAbovePicture')" />
+            </div>
+            <div v-if="options.type.code === 'find-item'">
+              <q-input v-model="selectedStep.form.options.wrongLocationMessage" :label="$t('label.WrongLocationMessage')" />
             </div>
             <div v-if="options.type.code === 'end-chapter'">
               <q-toggle v-model="selectedStep.form.options.resetHistory" :label="$t('label.ResetHistoryAfter')" />
@@ -2160,6 +2163,8 @@ export default {
             if (conditionParts[0] === 'stepRandom') {
               this.selectedStep.formatedConditions.push(this.$t("label.StepRandom") + " <i>" + condStepTitle + "</i>")
             }
+          } else {
+            this.selectedStep.formatedConditions.push(this.$t("label.InvalidCondition"))
           }
         }
         if (conditionParts[0] === 'counter') {

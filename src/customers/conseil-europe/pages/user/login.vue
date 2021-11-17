@@ -471,7 +471,7 @@ export default {
       }
       if (lang == 'fr') {
         //this.questId = '615dbcffa3872257f0dd40b4'//DEV
-        this.questId = '614871e05924a718ef72ce7b'//PROD
+        this.questId = '61767ce84a4f2c2276fed543'//PROD
       }
       this.switchLanguage(lang)
       //this.validateTerms()
