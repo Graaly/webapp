@@ -141,6 +141,12 @@ module.exports = {
       day5: "Friday",
       day6: "Saturday"
     },
+    snapshot: {
+      share: "share",
+      save: "save",
+      shareTitle: "Share with friends",
+      notSupported: "This function is not supported with this device"
+    },
     label: {
       shortLang: "en",
       letsGo: "Let's Go!",
@@ -1242,6 +1248,12 @@ module.exports = {
       day4: "Jeudi",
       day5: "Vendredi",
       day6: "Samedi"
+    },
+    snapshot: {
+      share: "Partager",
+      save: "Télécharger",
+      shareTitle: "Partage avec tes amis",
+      notSupported: "Cette fonctionnalité n'est pas supportée sur cette plateforme"
     },
     label: {
       shortLang: "fr",
