@@ -19,7 +19,7 @@
       <div class="q-pa-md">
       
         <div class="centered q-pt-md q-pb-md">
-          <img src="statics/customers/conseil-europe/images/logo.png" style="width: 80%; max-width: 600px;" />
+          <img src="statics/customers/conseil-europe/images/logo-home.png" style="width: 80%; max-width: 600px;" />
         </div>
         <!------------------ PLAY ANONYMOUS ------------------>
         <div class="centered">

@@ -480,14 +480,14 @@
             ><header :style="'width: ' + piece.width + 'px;height: ' + piece.height + 'px;'"></header></div>
         </div>
         <img style="display: none" :src="puzzle.picture" /><!--trick to be sure that the puzzle display -->
-        <div class="q-mt-lg background-lighter4 q-pa-md">
+        <div class="q-mt-lg background-lighter4 q-pa-md" v-if="!step.options.hidePuzzleNotWorkingMessage">
           <div class="centered arial" v-if="puzzle && puzzle.mode === 'drag'">
             {{ $t('label.PuzzleHelpText') }}
           </div>
           <div class="centered text-primary q-pt-lg arial" v-if="puzzle.mode === 'click'">
             {{ $t('label.PuzzleHelpTextClick') }}
           </div>
-          <div class="centeredq-pt-sm" v-if="puzzle && puzzle.mode === 'drag' && !step.options.hidePuzzleNotWorkingMessage">
+          <div class="centeredq-pt-sm" v-if="puzzle && puzzle.mode === 'drag'">
             <a class="text-black" @click="changePuzzleMode()">{{ $t('label.PuzzleChangeMode') }}</a>
           </div>
         </div>
@@ -2290,7 +2290,7 @@ export default {
           // consider that puzzle is solved when checkAnswer() is called.
 
           // call to sendAnswer() is required to get score & offline info
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: '', isTimeUp: this.isTimeUp}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: (this.isTimeUp === true ? false : true), isTimeUp: this.isTimeUp}, true)
 
           if (this.isTimeUp === true) {
             this.submitWrongAnswer(checkAnswerResult.offline, true)
@@ -2300,7 +2300,7 @@ export default {
           break
 
         case 'memory':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {isTimeUp: this.isTimeUp}, false)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: (this.isTimeUp === true ? false : true), isTimeUp: this.isTimeUp}, false)
 
           if (this.isTimeUp === true) {
             this.submitWrongAnswer(checkAnswerResult.offline, true)
@@ -2411,7 +2411,7 @@ export default {
         case 'find-item':
           const checkIfFound = this.findItemIsFound(answer)
           if (checkIfFound.all) {
-            checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
+            checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: true, isTimeUp: this.isTimeUp}, true)
 
             /*if (this.step.displayRightAnswer) {
               this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
@@ -2432,7 +2432,7 @@ export default {
                   Notification(this.$t('label.FindItemNothingHappens'), 'error')
                 }
               } else {
-                checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
+                checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: false, isTimeUp: this.isTimeUp}, true)
 
                 this.submitWrongAnswer(false, this.step.displayRightAnswer)
               }
@@ -2751,9 +2751,11 @@ console.log("GOOD ANSWER")
      * Display retry message when wrong answer
      */
     submitRetry(nbRemainingTrials) {
-      if (nbRemainingTrials > 100) {
+      if (nbRemainingTrials > 40) {
         // do not display nb of try if infinite tries
         this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true)
+      } else if (nbRemainingTrials === 1) {
+        this.displaySuccessMessage(false, this.$t('label.SecondTryOnTry', {nb: nbRemainingTrials}), false)
       } else {
         this.displaySuccessMessage(false, this.$t('label.SecondTry', {nb: nbRemainingTrials}), false)
       }
@@ -3939,7 +3941,7 @@ console.log("TESTSNAPSHOTIOS7")
                 }
               }
             }
-            this.checkAnswer(true)
+            this.checkAnswer()
           } else {
             _self.memory.items[_self.memory.selectedKey].isFound = true
             _self.memory.items[key].isFound = true

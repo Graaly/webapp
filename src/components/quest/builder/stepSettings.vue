@@ -1470,7 +1470,12 @@ export default {
       let maxNbChars = 500 // default
       
       if (this.options.type.textRules && this.options.type.textRules.maxNbChars) {
-        maxNbChars = this.options.type.textRules.maxNbChars
+        if (this.$store.state.user.isAdmin) {
+          // give admin the possibility to extend size
+          maxNbChars = this.options.type.textRules.maxNbChars * 2
+        } else {
+          maxNbChars = this.options.type.textRules.maxNbChars
+        }
       }
       
       return maxNbChars

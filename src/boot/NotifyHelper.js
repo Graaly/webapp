@@ -1,14 +1,12 @@
 import { Notify } from "quasar";
 import utils from "src/includes/utils";
 
-const defaultSettings = {
-  position: "top",
-  actions: [{ icon: "close" }]
-};
-
 export default (message, type, actions, duration) => {
   let customSettings
   const isHybrid = window.cordova
+  let defaultSettings = {
+    position: "top"
+  };
   switch (type) {
     case "positive":
       customSettings = { icon: "check_circle", color: "positive", timeout: (duration ? duration : 4000) }
@@ -32,6 +30,7 @@ export default (message, type, actions, duration) => {
         timeout: 0,
         position: isHybrid ? "bottom" : "top-right"
       };
+      defaultSettings.actions = [{ icon: "close" }]
       break;
     default:
       customSettings = { icon: "info", color: "info", timeout: (duration ? duration : 3000) }

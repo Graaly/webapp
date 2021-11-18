@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "9f2cea809e99a08a9f7b",
-    "url": "css/app.092e7344.css"
+    "revision": "1c82152d137c9f6e4f09",
+    "url": "css/app.b7f3e854.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -72,7 +72,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "79a595704d6088f995795d643bd95415",
+    "revision": "7a0266ff2355c4c77b2984eb7ddd7d43",
     "url": "index.html"
   },
   {
@@ -80,12 +80,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2.5af11629.js"
   },
   {
-    "revision": "9f2cea809e99a08a9f7b",
-    "url": "js/app.881567c2.js"
+    "revision": "1c82152d137c9f6e4f09",
+    "url": "js/app.08d4d2e6.js"
   },
   {
-    "revision": "65ec9abe83d91efdc6da",
-    "url": "js/vendor.65ec9abe.js"
+    "revision": "f435979eadf7626481df",
+    "url": "js/vendor.f435979e.js"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
@@ -337,6 +337,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   },
   {
     "revision": "4ae303eee762c181e01f021412582aa4",
+    "url": "statics/customers/conseil-europe/images/logo-home.png"
+  },
+  {
+    "revision": "eb69cdfd0911cf2619cb848bc52a3cad",
     "url": "statics/customers/conseil-europe/images/logo.png"
   },
   {
@@ -394,6 +398,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "94841042ebccfd2bcfc3ef1d98505432",
     "url": "statics/customers/conseil-europe/images/stars/star9.png"
+  },
+  {
+    "revision": "73ef0aca9550082d265bc3f2e3e982ef",
+    "url": "statics/customers/conseil-europe/images/visites.png"
   },
   {
     "revision": "3fe7549904127ab02d1bf894e49382ef",
