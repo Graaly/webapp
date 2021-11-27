@@ -57,7 +57,6 @@
           
         </form>
 
-        <div class="centered smaller version secondary-font">Version {{ version }}</div>
         <div class="centered smaller version secondary-font">
           Version {{ version }} - 
           <img src="statics/icons/game/flag-en.png" @click="switchLanguage('en')" /> -

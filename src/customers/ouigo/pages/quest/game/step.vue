@@ -2719,4 +2719,12 @@ export default {
     width: 100%;
     padding: 0 50px;
   }
+  .answers-text.q-mt-lg {
+    margin-top: 8px !important;
+  }
+  .answers-text .q-btn {
+    margin: 10px 0px !important;
+    font-size: 0.9em !important;
+    padding: 3px !important;
+  }
 </style>

@@ -944,6 +944,7 @@
               <q-toggle v-if="options && options.mode && options.mode === 'advanced'" v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
               <q-input v-model="selectedStep.form.options.rightAnswerMessage" :label="$t('label.CustomizeRightAnswerMessage')" />
               <q-input v-model="selectedStep.form.options.wrongAnswerMessage" :label="$t('label.CustomizeWrongAnswerMessage')" />
+              <q-toggle v-model="selectedStep.form.options.moveToNextStepAutomatically" :label="$t('label.MoveToNextStepAutomatically')" />
             </div>
             <div v-if="options && (options.type.code == 'info-text' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text')" class="q-pb-md">
               <q-toggle v-model="selectedStep.form.options.hideHideButton" :label="$t('label.HideHideButton')" />
@@ -1661,7 +1662,7 @@ export default {
       if (this.options.type.code === 'choose') {
         if (!this.selectedStep.form.options || !this.selectedStep.form.options.items || !Array.isArray(this.selectedStep.form.options.items)) {
           this.config.choose.answerType = 'text'
-          this.selectedStep.form.options = {items: []}
+          this.selectedStep.form.options = {items: [], hideHideButton: true}
           this.selectedStep.form.answers = 0
           for (let i = 0; i < this.config.choose.defaultNbAnswers; i++) {
             this.selectedStep.form.options.items.push({ text: this.$t('label.AnswerNb', { nb: (i + 1) }), imagePath: null })
@@ -1684,6 +1685,9 @@ export default {
           this.selectedStep.form.options.helpPrevious = true
         }
       } else if (this.options.type.code === 'code-color') {
+        if (!this.selectedStep.form.options.hasOwnProperty('hideHideButton')) {
+          this.selectedStep.form.options.hideHideButton = true
+        }
         if (this.selectedStep.form.answers && typeof this.selectedStep.form.answers === 'string' && this.selectedStep.form.answers.indexOf('|') !== -1) {
           this.unformatedAnswer = this.selectedStep.form.answers.split("|")
         } else {
@@ -1698,7 +1702,7 @@ export default {
       } else if (this.options.type.code === 'code-image') {
         // init images list
         if (!this.selectedStep.form.options || !this.selectedStep.form.options.images) {
-          this.selectedStep.form.options = {images: []}
+          this.selectedStep.form.options = {images: [], hideHideButton: true}
           for (let i = 0; i < this.config.imageCode.defaultNbAnswers; i++) {
             this.selectedStep.form.options.images.push({ imagePath: null })
           }
@@ -1713,15 +1717,24 @@ export default {
           this.unformatedAnswer = [0, 0, 0, 0]
         }
       } else if (this.options.type.code === 'code-keypad') {
+        if (!this.selectedStep.form.options.hasOwnProperty('hideHideButton')) {
+          this.selectedStep.form.options.hideHideButton = true
+        }
         if (typeof this.selectedStep.form.answers !== 'string') {
           this.selectedStep.form.answers = ""
         }
       } else if (this.options.type.code === 'write-text') {
+        if (!this.selectedStep.form.options.hasOwnProperty('hideHideButton')) {
+          this.selectedStep.form.options.hideHideButton = true
+        }
         if (typeof this.selectedStep.form.answers !== 'object' || !this.selectedStep.form.answers.length) {
           this.selectedStep.form.answers = []
           this.selectedStep.form.answers.push("")
         }
       } else if (this.options.type.code === 'info-text' || this.options.type.code === 'character' || this.options.type.code === 'choose' || this.options.type.code === 'write-text' || this.options.type.code === 'code-keypad') {
+        if (!this.selectedStep.form.options.hasOwnProperty('hideHideButton')) {
+          this.selectedStep.form.options.hideHideButton = true
+        }
         if (!this.selectedStep.form.options.hasOwnProperty('initDuration')) {
           this.selectedStep.form.options.initDuration = 1
         }

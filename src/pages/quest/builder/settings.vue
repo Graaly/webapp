@@ -1635,6 +1635,7 @@ export default {
       pictureUploadURL: this.serverUrl + '/quest/picture/upload',
       titleMaxLength: 50,
       isHybrid: false,
+      isAdmin: false,
       warnings: {
         stepsMissing: false,
         editorsMissing: false,
@@ -1671,6 +1672,11 @@ export default {
       this.$router.push('/quest/create/welcome')
     }
     
+    // check user access rights
+    if (this.$store.state.user.isAdmin) {
+      this.isAdmin = true
+    }
+    
     // start tutorial 
     //this.startStory()
   },
@@ -1688,7 +1694,7 @@ export default {
         this.quest = res.data
         
         // if not draft => read only
-        if (this.quest.status !== 'draft') {
+        if (this.quest.status !== 'draft' && !this.isAdmin) {
           this.readOnly = true
         }
         this.editor.initMode = this.quest.editorMode
@@ -2621,7 +2627,7 @@ export default {
      * check if a quest is read only
      */
     isReadOnly() {
-      if (this.quest.status === 'disabled' || this.quest.status === 'tovalidate') {
+      if (!this.isAdmin && (this.quest.status === 'disabled' || this.quest.status === 'tovalidate')) {
         return true
       }
       return false

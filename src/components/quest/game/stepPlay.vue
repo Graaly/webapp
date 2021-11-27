@@ -2604,7 +2604,6 @@ export default {
      * Send good answer
      */
     submitGoodAnswer(score, offlineMode, showResult, answer) {
-console.log("GOOD ANSWER")
       /*if (showResult) {
         this.playerResult = true
       } else {
@@ -2680,6 +2679,9 @@ console.log("GOOD ANSWER")
       if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
         this.forceNextStep()
       }
+      if (this.step.options.moveToNextStepAutomatically) {
+        utils.setTimeout(this.forceNextStep, 3000)
+      }
       // advise user to move to next step
       //utils.setTimeout(this.alertToPassToNextStep, 15000)
     },
@@ -2716,6 +2718,8 @@ console.log("GOOD ANSWER")
       // if no display of the answer move to next step
       if (this.step.displayRightAnswer === false && (!this.step.options.wrongAnswerMessage || this.step.options.wrongAnswerMessage === "")) {
         this.forceNextStep()
+      } else if (this.step.options.moveToNextStepAutomatically) {
+        utils.setTimeout(this.forceNextStep, 3000)
       } else {
         // advise user to move to next step
         utils.setTimeout(this.alertToPassToNextStep, 15000)
