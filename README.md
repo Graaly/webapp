@@ -328,3 +328,6 @@ by
 Open : platforms/android/app/src/main/java/org/apache/cordova/facebook/ConnectPlugin.java
 Comment line : AppEventsLogger.augmentWebView((WebView) this.webView.getView(), appContext);
 
+#### Error "Votre application cible actuellement le niveau d'API 29"
+
+https://kdjguru.com/how-to-fix-change-the-default-target-sdk-to-api-level-30-cordova-quasar/
