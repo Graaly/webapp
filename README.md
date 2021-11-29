@@ -322,3 +322,9 @@ Replace in the file **webapp\src-cordova\platforms\android\app\src\main\java\com
 by 
 
 `buyIntentBundle = mService.getBuyIntent(3, mContext.getPackageName(), sku, itemType, extraData)`
+
+#### Error "Can not find symbol" with AppEventsLogger.augmentWebView
+
+Open : platforms/android/app/src/main/java/org/apache/cordova/facebook/ConnectPlugin.java
+Comment line : AppEventsLogger.augmentWebView((WebView) this.webView.getView(), appContext);
+

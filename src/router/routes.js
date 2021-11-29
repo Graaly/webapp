@@ -56,13 +56,13 @@ export default [
       {
         path: 'teamplay/:id(\\w{24})/:lang',
         name: 'teamplayold',
-        component: TeamPlay,
+        component: CustomerConfiguration.TEAM_PLAY ? CustomerConfiguration.TEAM_PLAY : TeamPlay,
         meta: { requiresAuth: false }
       },
       {
         path: 'teamplay/:id(\\w{24})/:lang/:option/:teamId',
         name: 'teamplay',
-        component: TeamPlay,
+        component: CustomerConfiguration.TEAM_PLAY ? CustomerConfiguration.TEAM_PLAY : TeamPlay,
         meta: { requiresAuth: false }
       },
       {

@@ -141,6 +141,12 @@ module.exports = {
       day5: "Friday",
       day6: "Saturday"
     },
+    snapshot: {
+      share: "share",
+      save: "save",
+      shareTitle: "Share with friends",
+      notSupported: "This function is not supported with this device"
+    },
     label: {
       shortLang: "en",
       letsGo: "Let's Go!",
@@ -359,6 +365,7 @@ module.exports = {
       WrongAnswer: "Wrong answer!",
       Next: "Next",
       SecondTry: "Wrong answer. You have {nb} more trial(s)",
+      SecondTryOnTry: "Wrong answer. You have 1 more trial",
       Clear: "Clear",
       Confirm: "Confirm",
       WrongGoodCodeWas: "Wrong! The right code was:",
@@ -449,7 +456,7 @@ module.exports = {
       ObjectIsTooFar: "The object is too far to be visible on screen. Try to get closer.",
       LastItemIsUniq: "Last picture is unique (no twin in the game)",
       YouMustDefineStartLocation: "You must define the location of the starting point of the game",
-      ClickOnArrowToMoveToNextStep: "Touch the right arrow to move to next step",
+      ClickOnArrowToMoveToNextStep: "Touch the right arrow to move to next step.",
       YourQuestMustContainAtLeast6Steps: "Your game is too short, you must create at least 3 steps",
       YourQuestMustContainLessThan50Steps: "Your game is too long, you must create less than 100 steps",
       WarningNoLocation: "Searching your location...",
@@ -1108,7 +1115,11 @@ module.exports = {
       HideEnlargeMessage: "Hide button to enlarge thumbs",
       CustomizedMemoryCardColor: "Customized color for the cards",
       HidePuzzleNotWorkingMessage: "Hide button when puzzle is not working",
-      SnapshotManualOnIOs: "To make a screenshot on iPhone/iPad, press the side button and the volume up button at the same time"
+      SnapshotManualOnIOs: "To make a screenshot on iPhone/iPad, press the side button and the volume up button at the same time",
+      MovePictureWithFinger: "Move the binoculars with your finger to observe the whole picture",
+      InvalidCondition: "Invalid trigger, please remove",
+      WrongLocationMessage: "Message when user click wrong location",
+      MoveToNextStepAutomatically: "Move to next step automatically"
     }
   },
   fr: {
@@ -1239,6 +1250,12 @@ module.exports = {
       day4: "Jeudi",
       day5: "Vendredi",
       day6: "Samedi"
+    },
+    snapshot: {
+      share: "Partager",
+      save: "Télécharger",
+      shareTitle: "Partage avec tes amis",
+      notSupported: "Cette fonctionnalité n'est pas supportée sur cette plateforme"
     },
     label: {
       shortLang: "fr",
@@ -1458,6 +1475,7 @@ module.exports = {
       WrongAnswer: "Mauvaise réponse !",
       Next: "Suivant",
       SecondTry: "Mauvaise réponse. Il vous reste {nb} essai(s)",
+      SecondTryOnTry: "Mauvaise réponse. Il vous reste 1 essai",
       Clear: "Effacer",
       Confirm: "Valider",
       WrongGoodCodeWas: "Raté ! Le bon code était :",
@@ -1493,7 +1511,7 @@ module.exports = {
       ConfirmHint: "En utilisant l'indice, vous gagnerez moins de points, êtes-vous sûr(e) de vouloir l'utiliser ?",
       YouWin: "Vous avez gagné",
       WhatCanYouDoWithThesePoints: "Que faire avec ces points ?",
-      ReviewThisQuest: "Votre avis",
+      ReviewThisQuest: "Donnez votre avis",
       ShareYourSuccess: "Partagez votre réussite !",
       YouAlreadyPlayThisQuestSoYouWinNoPoints: "Vous avez déjà gagné précedemment les points de ce jeu",
       ResolveOtherQuestsToWinPoints: "Résolvez de nouveaux jeux pour gagner des points",
@@ -1548,7 +1566,7 @@ module.exports = {
       ObjectIsTooFar: "L'objet est trop éloigné pour être visible à l'écran. Essayez de vous rapprocher.",
       LastItemIsUniq: "La dernière image sera unique dans le jeu",
       YouMustDefineStartLocation: "Vous devez définir l'adresse du point de départ du jeu",
-      ClickOnArrowToMoveToNextStep: "Appuyez sur la flèche en bas à droite pour passer à l'étape suivante",
+      ClickOnArrowToMoveToNextStep: "Appuyez sur la flèche en bas à droite pour passer à l'étape suivante.",
       YourQuestMustContainAtLeast6Steps: "Votre jeu est trop court, vous devez créer au moins 3 étapes",
       YourQuestMustContainLessThan50Steps: "Votre jeu est trop long, vous devez créer moins de 100 étapes",
       WarningNoLocation: "Recherche de votre localisation ...",
@@ -2207,7 +2225,11 @@ module.exports = {
       HideEnlargeMessage: "Cacher le bouton pour élargir les vignettes",
       CustomizedMemoryCardColor: "Couleur personnalisée pour le dos des cartes",
       HidePuzzleNotWorkingMessage: "Cacher le bouton quand le puzzle ne fonctionne pas",
-      SnapshotManualOnIOs: "Pour faire une capture sur iPhone/iPad, appuyez simultanéement sur le bouton latéral et le bouton du volume"
+      SnapshotManualOnIOs: "Pour faire une capture sur iPhone/iPad, appuyez simultanéement sur le bouton latéral et le bouton du volume",
+      MovePictureWithFinger: "Déplacez les jumelles avec le doigt pour observer d'autres endroits",
+      InvalidCondition: "Condition invalide à supprimer",
+      WrongLocationMessage: "Message quand on appuie au mauvais endroit",
+      MoveToNextStepAutomatically: "Passer à l'étape suivante automatiquement"
     }
   }
 }

@@ -222,7 +222,7 @@
               @end="showCalibrationAndStartQuest()">
             </offlineLoader>
           </div>
-          <div>
+          <!--<div>
             <div class="q-px-lg q-pb-lg q-pt-md centered subtitle2">
               {{ $t('label.Warnings') }}
             </div>
@@ -232,7 +232,7 @@
             <div v-if="isRunFinished" class="q-pa-md subtitle5">
               <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.YouAlreadyDidThisQuest')" />
             </div>
-          </div>
+          </div>-->
           <gpscalibration
             ref="gpscal"
             @end="startQuest(quest.questId, getLanguage())">

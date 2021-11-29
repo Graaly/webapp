@@ -19,7 +19,7 @@
       <div class="q-pa-md">
       
         <div class="centered q-pt-md q-pb-md">
-          <img src="statics/customers/conseil-europe/images/logo.png" style="width: 80%; max-width: 600px;" />
+          <img src="statics/customers/conseil-europe/images/logo-home.png" style="width: 80%; max-width: 600px;" />
         </div>
         <!------------------ PLAY ANONYMOUS ------------------>
         <div class="centered">
@@ -471,7 +471,7 @@ export default {
       }
       if (lang == 'fr') {
         //this.questId = '615dbcffa3872257f0dd40b4'//DEV
-        this.questId = '614871e05924a718ef72ce7b'//PROD
+        this.questId = '61767ce84a4f2c2276fed543'//PROD
       }
       this.switchLanguage(lang)
       //this.validateTerms()

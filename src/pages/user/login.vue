@@ -34,6 +34,7 @@
               type="email"
               :label="$t('label.YourEmail')"
               v-model="form.email"
+              ref="loginemail"
               @blur="$v.form.email.$touch"
               :error="$v.form.email.$error"
               :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
@@ -266,6 +267,9 @@ export default {
     if (window.cordova) {
       this.showSocialLogin.facebook = true
     }
+    this.$nextTick(() => {
+      this.$refs["loginemail"].focus()
+    })
   },
   methods: {
     /*

@@ -456,6 +456,7 @@ export default {
      * Init step data
      */
     async initData () {
+   
       this.$q.loading.show()
       // get quest information
       await this.getQuest(this.questId)
@@ -1357,9 +1358,10 @@ export default {
         if (force) {
           await this.passStep()
         } else {
+          let confirmPass = (this.$t('label.shortLang') === 'fr' ? "Êtes-vous sûr de passer ? S'il y a une étoile à gagner, vous ne la gagnerez pas !": "Are you sure you will pass? If there is a star to be won, you won't win it!") 
           this.$q.dialog({
             dark: true,
-            message: this.$t('label.ConfirmPass'),
+            message: confirmPass,
             ok: this.$t('label.Ok'),
             cancel: this.$t('label.Cancel')
           }).onOk(async () => {
@@ -1433,9 +1435,10 @@ export default {
         if (this.$store.state.user.bonus && this.$store.state.user.bonus.name && this.$store.state.user.bonus.name === 'infinitehint') {
           await this.getHint()
         } else {
+          let confirmHint = (this.$t('label.shortLang') === 'fr' ? "Voulez-vous utiliser un indice ?": "Do you want to use a hint?") 
           this.$q.dialog({
             dark: true,
-            message: this.$t('label.ConfirmHint'),
+            message: confirmHint,
             ok: this.$t('label.Ok'),
             cancel: this.$t('label.Cancel')
           }).onOk(async () => {
@@ -2711,12 +2714,30 @@ export default {
     background-color: #263e7f;
   }
   .fit .memory .card {
-    background-image: url(/statics/customers/conseil-europe/images/card-back.png);
+    background-image: url(../../../../../statics/customers/conseil-europe/images/card-back.png);
   }
   .choose .images-block img {
     border-radius: 0;
   }
   .bg-graaly-blue-dark {
     background-color: #6aaee4;
+  }
+  .text {
+    border-radius: 0px !important;
+  }
+  .find-item {
+    height: 100%;
+  }
+  .q-notification__message {
+    font-family: Arial;
+    font-weight: normal;
+    font-size: 1.3em;
+  }
+  .code .q-btn, .write-text .q-btn {
+    background-color: #90C95e !important;
+    box-shadow: 0px 0.1rem 0.4rem 0.2rem rgb(255 255 255 / 10%) !important;
+  }
+  .q-loading svg {
+    background: url(/statics/customers/conseil-europe/images/spinner.gif) no-repeat;
   }
 </style>

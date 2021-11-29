@@ -127,32 +127,32 @@ uses-permission#android.permission.ACCESS_NETWORK_STATE
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:15:3-76
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:15:20-74
-uses-permission#android.permission.FLASHLIGHT
+uses-permission#android.permission.CALL_PHONE
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:16:3-66
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:16:20-64
-uses-permission#android.permission.RECORD_AUDIO
-ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:17:3-68
+uses-permission#android.permission.READ_PHONE_STATE
+ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:17:3-72
 	android:name
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:17:20-66
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:17:20-70
 uses-permission#android.permission.MODIFY_AUDIO_SETTINGS
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:18:3-77
 	android:name
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:18:20-75
-uses-permission#android.permission.CALL_PHONE
-ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:19:3-66
-	android:name
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:19:20-64
-uses-permission#android.permission.READ_PHONE_STATE
-ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:20:3-72
-	android:name
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:20:20-70
 uses-permission#com.android.vending.BILLING
-ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:21:3-64
+ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:19:3-64
 MERGED from [com.android.billingclient:billing:3.0.3] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\da16bb6aaddf0c820090abc758f4c91c\billing-3.0.3\AndroidManifest.xml:10:5-67
 MERGED from [com.android.billingclient:billing:3.0.3] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\da16bb6aaddf0c820090abc758f4c91c\billing-3.0.3\AndroidManifest.xml:10:5-67
 	android:name
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:21:20-62
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:19:20-62
+uses-permission#android.permission.FLASHLIGHT
+ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:20:3-66
+	android:name
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:20:20-64
+uses-permission#android.permission.RECORD_AUDIO
+ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:21:3-68
+	android:name
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:21:20-66
 application
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:3-48:17
 MERGED from [:barcodescanner-release-2.1.5:] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\1538ed8bb9c1462d35a1f2a84c777ffa\barcodescanner-release-2.1.5\AndroidManifest.xml:11:5-12:19
