@@ -128,9 +128,12 @@ Sign the apk
 ```
 $ cd src-cordova\platforms\android\app\build\outputs\apk\release
 This only needs to be launched if a key has not been generated : $ keytool -genkey -v -keystore graaly-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-alias
-$ jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore graaly-key.jks app-release-unsigned.apk my-alias
-$ rm graaly.apk
 $ C:\Users\ericm\AppData\Local\Android\Sdk\build-tools\30.0.3\zipalign -v 4 app-release-unsigned.apk graaly.apk
+$ C:\Users\ericm\AppData\Local\Android\Sdk\build-tools\30.0.3\apksigner sign --ks graaly-key.jks --v1-signing-enabled true --v2-signing-enabled true graaly.apk
+
+
+$ apksigner sign --ks graaly-key.jks --ks-pass file:my-passfile.txt --v1-signing-enabled true --v2-signing-enabled true graaly.apk
+
 ```
 Attention:
 * The keystore (jks file) needs to be saved in a secure location. It can not be built again.
@@ -139,6 +142,16 @@ Attention:
 Open https://play.google.com/apps/publish/?account=5104428642488176820#ManageReleaseTrackPlace:p=com.graaly.app&appid=4972151247150188990&releaseTrackId=4700787750850651322
 
 Create a new version by uploading the apk signed file
+
+OLD PROCESS :
+quasar build -m cordova -T android --packageType=bundle
+Sign the apk :
+cd src-cordova\platforms\android\app\build\outputs\apk\release
+This only needs to be launched if a key has not been generated : $ keytool -genkey -v -keystore graaly-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-alias
+jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore graaly-key.jks app-release-unsigned.apk my-alias
+rm graaly.apk
+C:\Users\ericm\AppData\Local\Android\Sdk\build-tools\30.0.3\zipalign -v 4 app-release-unsigned.apk graaly.apk
+
 
 ### iPhone app
 
@@ -328,3 +341,6 @@ by
 Open : platforms/android/app/src/main/java/org/apache/cordova/facebook/ConnectPlugin.java
 Comment line : AppEventsLogger.augmentWebView((WebView) this.webView.getView(), appContext);
 
+#### Error "Votre application cible actuellement le niveau d'API 29"
+
+https://kdjguru.com/how-to-fix-change-the-default-target-sdk-to-api-level-30-cordova-quasar/
