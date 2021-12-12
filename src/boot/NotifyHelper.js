@@ -18,10 +18,10 @@ export default (message, type, actions, duration) => {
       customSettings = { icon: "report_problem", color: "negative", timeout: (duration ? duration : 5000) }
       break;
     case "rightAnswer":
-      customSettings = { color: "positive", timeout: (duration ? duration : 6000) }
+      customSettings = { color: "positive", timeout: (duration ? duration : 6000), multiLine: true }
       break;
     case "wrongAnswer":
-      customSettings = { color: "orange", timeout: (duration ? duration : 3000) }
+      customSettings = { color: "orange", timeout: (duration ? duration : 6000), multiLine: true }
       break;
     case "readMore":
       customSettings = {

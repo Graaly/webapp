@@ -15,7 +15,7 @@
         
     <div class="q-py-md" v-if="!warnings.noNetwork">
       <div class="centered q-pt-lg">
-        <img src="statics/customers/conseil-europe/images/logo.png">
+        <img src="statics/customers/conseil-europe/images/logo.png" />
       </div>
       <div class="centered subtitle2 q-pt-lg" v-if="$t('label.shortLang') === 'fr'">
         Bravo, vous avez réussi !
@@ -24,10 +24,13 @@
         Congratulations, you win the game!
       </div>
       <div class="centered subtitle3 q-mt-lg q-py-md" style="background-color: #063b8b; color :#fff;">
-        <div>
-          {{ $t('label.YourTime') }}
+        <div v-if="$t('label.shortLang') === 'en'">
+          Your time
         </div>
-        <div>
+        <div v-if="$t('label.shortLang') === 'fr'">
+          Votre temps de jeu
+        </div>
+        <div v-if="run && run.duration && (run.duration.m || run.duration.h)">
           {{ run.duration.h }}h {{ run.duration.m }}m 
         </div>
       </div>
@@ -78,7 +81,7 @@
           </div>
           <div class="q-pt-sm">
             <a href="https://www.coe.int/fr/web/about-us/virtual-visits" target="_blank">
-              <img src="statics/customers/conseil-europe/images/visites.png">
+              <img src="statics/customers/conseil-europe/images/visites.png" />
             </a>
           </div>
         </div>
@@ -194,7 +197,6 @@ export default {
       this.warnings.noNetwork = false
       var runIsInProgress = false
       this.$q.loading.show()
-      
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.questId)
       if (runs) {
@@ -227,7 +229,6 @@ export default {
           const isReviewAlreadySent = results.data && results.data.length >= 1
           this.showAddReview = !this.isUserAdmin && !this.isUserAuthor && !isReviewAlreadySent
         }
-        
         // compute good answers
         await this.computeGoodAnswers()
         
@@ -236,7 +237,6 @@ export default {
         if (!this.score.old) {
           this.score.old = 0
         }
-        
         this.initProgression()
         
         // get offline run data
@@ -290,11 +290,10 @@ export default {
         
         // get ranking without the user (status of run is still in-progress)
         await this.getRanking()
-        
+
         // get duration
         const duration = utils.getDurationFromNow(this.run.dateCreated)
-        this.run.duration = {h: duration.h, m: duration.m}
-        
+        Vue.set(this.run, 'duration', {h: duration.h, m: duration.m})
         this.getAuthorProfile()
       } else {
         // no network

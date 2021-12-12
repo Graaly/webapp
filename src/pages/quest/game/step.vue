@@ -1314,12 +1314,20 @@ export default {
      * get background image
      */
     getBackgroundImage () {
-      if (this.info.quest.picture && this.info.quest.picture[0] === '_') {
-        return 'statics/images/quest/' + this.info.quest.picture
-      } else if (this.info.quest.picture && this.info.quest.picture.indexOf('blob:') !== -1) {
-        return this.info.quest.picture
-      } else if (this.info.quest.picture) {
-        return this.serverUrl + '/upload/quest/' + this.info.quest.picture
+      let picture
+      if (this.info.quest.picture) {
+        if (this.info.quest.picture[this.lang]) {
+          picture = this.info.quest.picture[this.lang]
+        } else if (this.info.quest.picture[this.info.quest.mainLanguage]) {
+          picture = this.info.quest.picture[this.info.quest.mainLanguage]
+        }
+      }
+      if (picture && picture[0] === '_') {
+        return 'statics/images/quest/' + picture
+      } else if (picture && picture.indexOf('blob:') !== -1) {
+        return picture
+      } else if (picture) {
+        return this.serverUrl + '/upload/quest/' + picture
       } else {
         return 'statics/images/quest/default-quest-picture.jpg'
       }

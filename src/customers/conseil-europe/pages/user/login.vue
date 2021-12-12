@@ -467,7 +467,7 @@ export default {
     },
     chooseLanguage(lang) {
       if (lang == 'en') {
-        this.questId = '614987b04978c0273485b950'
+        this.questId = '614ae660a5f0ec18ce43566e'
       }
       if (lang == 'fr') {
         //this.questId = '615dbcffa3872257f0dd40b4'//DEV

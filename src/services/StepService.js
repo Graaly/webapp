@@ -266,6 +266,29 @@ export default {
     return res
   },
   /*
+   * duplicate a step
+   * @param   {String}    stepId        ID of the step
+   * @param   {Number}    version        version of the quest
+   */
+  async duplicate(questId, stepId, version) {
+    let res = await Api()
+      .put(
+        "quest/" +
+          questId +
+          "/version/" +
+          version +
+          "/step/" +
+          stepId +
+          "/clone"
+      )
+      .catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
+    return res
+  },
+  /*
    * upload a background image for step
    * @param   {String}    questId        ID of the quest
    * @param   {Object}    data           upload data

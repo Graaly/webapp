@@ -45,21 +45,21 @@
 
       <div class="background-upload" v-show="options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'main'">
         <q-btn class="full-width" type="button" @click="showMedia">
-          {{ $t('label.AddABackgroundImage') }}
+          {{ $t('label.AddABackgroundImage') + ' ' + currentLanguageForLabels}}
         </q-btn>
-        <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
+        <div v-if="selectedStep.form.backgroundImage && selectedStep.form.backgroundImage[lang] && selectedStep.form.backgroundImage[lang] !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
           <p>{{ $t('label.YourPicture') }} :</p>
           <img 
             v-if="questId !== null" 
             class="full-width"
-            :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" 
+            :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage[lang]" 
             /> <br />
           <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
         </div>
       </div>
-      
+
       <!------------------ STEP : VIDEO ------------------------>
-      
+   
       <div v-if="options.type.code == 'info-video'">
         <div v-if="!isIOs">
           <q-btn class="full-width" type="button" icon="cloud_upload" :label="$t('label.UploadAVideo')" @click="$refs['videofile'].click()" />
@@ -70,18 +70,18 @@
           <input @change="uploadVideo" ref="videofile" type="file" accept="video/mp4,video/x-m4v,video/*" test-id="video-upload" />
         </div>
         <div>
-          <!-- TODO show video file infos (size on disk, width x height, etc.) -->
+
           <p v-show="$v.selectedStep.form.videoStream.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-          <p v-show="selectedStep.form.videoStream === null">{{ $t('label.NoVideoUploaded') }}</p>
-          <video v-if="selectedStep.form.videoStream !== null" class="full-width" controls controlsList="nodownload" test-id="uploaded-video">
-            <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + selectedStep.form.videoStream" type="video/mp4" />
+          <p v-show="!selectedStep.form.videoStream || !selectedStep.form.videoStream[lang] || selectedStep.form.videoStream[lang] === ''">{{ $t('label.NoVideoUploaded') }}</p>
+          <video v-if="selectedStep.form.videoStream && selectedStep.form.videoStream[lang] && selectedStep.form.videoStream[lang] !== ''" class="full-width" controls controlsList="nodownload" test-id="uploaded-video">
+            <source :src="serverUrl + '/upload/quest/' + questId + '/step/video/' + selectedStep.form.videoStream[lang]" type="video/mp4" />
           </video>
         </div>
         <div>
           <q-toggle v-model="selectedStep.form.options.rotateVideo" :label="$t('label.RotateVideo')" />
         </div>
       </div>
-      
+
       <!------------------ STEP : WIN NEW ITEM ------------------------>
       
       <div class="inventory" v-if="options.type.code == 'new-item'">
@@ -98,7 +98,7 @@
             <input @change="uploadItemImage" ref="itemfile" type="file" accept="image/*" hidden />
           </div>
           <div v-if="isIOs">
-            {{ $t('label.UploadTheItemPicture') }}:
+            {{ $t('label.UploadTheItemPicture') + ' ' + currentLanguageForLabels }}:
             <input @change="uploadItemImage" ref="itemfile" type="file" accept="image/*" />
           </div>
           <p v-show="$v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
@@ -387,7 +387,7 @@
       </div>
       
       <!------------------ STEP : JIGSAW PUZZLE ------------------------>
-      
+
       <div v-if="options.type.code === 'jigsaw-puzzle'">
         <div class="background-upload">
           <div v-if="!isIOs">
@@ -395,21 +395,21 @@
             <input @change="uploadPuzzleImage" ref="puzzlefile" type="file" accept="image/*" hidden test-id="upload-puzzle-image" />
           </div>
           <div v-if="isIOs">
-            {{ $t('label.UploadThePuzzlePicture') }}:
+            {{ $t('label.UploadThePuzzlePicture') + ' ' + currentLanguageForLabels }}:
             <input @change="uploadPuzzleImage" ref="puzzlefile" type="file" accept="image/*" test-id="upload-puzzle-image" />
           </div>
           <p v-show="$v.selectedStep.form.options.picture && $v.selectedStep.form.options.picture.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-          <p v-if="!selectedStep.form.options.picture">{{ $t('label.WarningImageSizeSquare') }}</p>
-          <div v-if="selectedStep.form.options.picture">
+          <p v-if="!selectedStep.form.options.picture || !selectedStep.form.options.picture[lang]">{{ $t('label.WarningImageSizeSquare') }}</p>
+          <div v-if="selectedStep.form.options.picture && selectedStep.form.options.picture[lang]">
             <p>{{ $t('label.YourPuzzlePicture') }} :</p>
-            <img class="full-width" :src="serverUrl + '/upload/quest/' + questId + '/step/jigsaw-puzzle/' + selectedStep.form.options.picture" />
+            <img class="full-width" :src="serverUrl + '/upload/quest/' + questId + '/step/jigsaw-puzzle/' + selectedStep.form.options.picture[lang]" />
           </div>
         </div>
         <div>
           <q-select emit-value map-options :label="$t('label.Difficulty')" :options="config.jigsaw.levels" v-model="selectedStep.form.options.level" />
         </div>
       </div>
-      
+
       <!------------------ STEP : MEMORY PUZZLE ------------------------>
       
       <div v-if="options.type.code === 'memory'">
@@ -446,12 +446,12 @@
       </div>
       
       <!------------------ STEP : USE INVENTORY ITEM ------------------------>
-      
-      <div class="find-item" v-if="options.type.code == 'use-item' && selectedStep.form.backgroundImage">
+
+      <div class="find-item" v-if="options.type.code == 'use-item' && selectedStep.form.backgroundImage && selectedStep.form.backgroundImage[lang]">
         <p><q-toggle v-model="selectedStep.form.options.touchLocation" :label="$t('label.ObjectNeedToBeAppliedOnPicture')" /></p>
         <div>
           <p>{{ $t('label.ClickOnTheLocationTheItemMustBeUsed') }} :</p>
-          <div @click="getClickCoordinates($event)" id="useItemPicture" ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100%; height: ' + config.useItem.imageHeight + 'px; margin: auto;'">
+          <div @click="getClickCoordinates($event)" id="useItemPicture" ref="useItemPicture" :style="'overflow: hidden; background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage[lang] + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100%; height: ' + config.useItem.imageHeight + 'px; margin: auto;'">
             <img 
               v-if="selectedStep.form.options.touchLocation"
               id="cross" 
@@ -490,10 +490,10 @@
           </div>
         </div>
       </div>
-      
+
       <!------------------ STEP : FIND ITEM ------------------------>
 
-      <div class="find-item" v-if="options.type.code === 'find-item' && (selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '')">
+      <div class="find-item" v-if="options.type.code === 'find-item' && (selectedStep.form.backgroundImage && selectedStep.form.backgroundImage[lang] && selectedStep.form.backgroundImage[lang] !== '')">
         <q-select
           :label="$t('label.AreasNumber')"
           v-model="selectedStep.form.options.nbAreas"
@@ -509,7 +509,7 @@
           v-if="selectedStep && selectedStep.form && selectedStep.form.answers"
           @click="getClickCoordinatesFindItem($event)" 
           id="findItemPicture" ref="findItemPicture" 
-          :style="'position: relative; overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100%; height: ' + config.findItem.imageHeight + 'px; margin: auto;'">
+          :style="'position: relative; overflow: hidden;background-image: url(' + serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage[lang] + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100%; height: ' + config.findItem.imageHeight + 'px; margin: auto;'">
           <img 
             id="cross0" 
             :style="'position: absolute; z-index: 500; top: 100px; left: 100px; width: ' + config.findItem.crossSize + 'px; height: ' + config.findItem.crossSize + 'px; opacity: 0.5'" 
@@ -545,7 +545,7 @@
           </div>
         </div>
       </div>
-      
+ 
       <!------------------ STEP : LOCATE ITEM USING AR ------------------------>
 
       <div class="locate-item-ar" v-if="options.type.code === 'locate-item-ar'">
@@ -942,9 +942,12 @@
           <div class="q-pa-sm">
             <div v-if="options.type.code == 'memory' || options.type.code == 'locate-item-ar' || options.type.code == 'jigsaw-puzzle' || options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text' || options.type.code == 'portrait-robot'" class="q-pb-md">
               <q-toggle v-if="options && options.mode && options.mode === 'advanced'" v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
-              <q-input v-model="selectedStep.form.options.rightAnswerMessage" :label="$t('label.CustomizeRightAnswerMessage')" />
-              <q-input v-model="selectedStep.form.options.wrongAnswerMessage" :label="$t('label.CustomizeWrongAnswerMessage')" />
-              <q-toggle v-model="selectedStep.form.options.moveToNextStepAutomatically" :label="$t('label.MoveToNextStepAutomatically')" />
+              <q-input v-if="selectedStep.form.options.rightAnswerMessage" v-model="selectedStep.form.options.rightAnswerMessage[lang]" :label="$t('label.CustomizeRightAnswerMessage') + ' ' + currentLanguageForLabels" />
+              <q-input v-if="selectedStep.form.options.wrongAnswerMessage" v-model="selectedStep.form.options.wrongAnswerMessage[lang]" :label="$t('label.CustomizeWrongAnswerMessage') + ' ' + currentLanguageForLabels" />
+            </div>
+            <q-toggle v-model="selectedStep.form.options.moveToNextStepAutomatically" :label="$t('label.MoveToNextStepAutomatically')" />
+            <div v-if="selectedStep.form.options.moveToNextStepAutomatically">
+              <q-input v-model="selectedStep.form.options.moveToNextStepAutomaticallyDuration" :label="$t('label.MoveToNextStepAutomaticallyDuration')" />
             </div>
             <div v-if="options && (options.type.code == 'info-text' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text')" class="q-pb-md">
               <q-toggle v-model="selectedStep.form.options.hideHideButton" :label="$t('label.HideHideButton')" />
@@ -993,7 +996,7 @@
               <q-input v-model="selectedStep.form.options.initDuration" :label="$t('label.DurationBeforeTextAppearAbovePicture')" />
             </div>
             <div v-if="options.type.code === 'find-item'">
-              <q-input v-model="selectedStep.form.options.wrongLocationMessage" :label="$t('label.WrongLocationMessage')" />
+              <q-input v-if="selectedStep.form.options.wrongLocationMessage" v-model="selectedStep.form.options.wrongLocationMessage[lang]" :label="$t('label.WrongLocationMessage') + ' ' + currentLanguageForLabels" />
             </div>
             <div v-if="options.type.code === 'end-chapter'">
               <q-toggle v-model="selectedStep.form.options.resetHistory" :label="$t('label.ResetHistoryAfter')" />
@@ -1015,23 +1018,23 @@
               </div>
               <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
               <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>-->
-              <div v-if="selectedStep.form.backgroundImage !== null && selectedStep.form.backgroundImage !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
+              <div v-if="selectedStep.form.backgroundImage && selectedStep.form.backgroundImage[lang] && selectedStep.form.backgroundImage[lang] !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
                 <p>{{ $t('label.YourPicture') }} :</p>
                 <img 
                   v-if="questId !== null" 
                   class="full-width"
-                  :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage" 
+                  :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage[lang]" 
                   /> <br />
                 <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
               </div>
             </div>
             <div v-show="options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter'">
               <div v-if="selectedStep.form.audioStream[lang] && selectedStep.form.audioStream[lang] !== ''">
-                <div>{{ $t('label.YourAudioFile') }} : {{ selectedStep.form.audioStream[lang] }}</div>
+                <div>{{ $t('label.YourAudioFile') + ' ' + currentLanguageForLabels }} : {{ selectedStep.form.audioStream[lang] }}</div>
                 <div class="centered"><a class="dark" @click="removeAudio">{{$t('label.Remove')}}</a></div>
               </div>
               <div v-if="!selectedStep.form.audioStream[lang] || selectedStep.form.audioStream[lang] === ''">
-                {{ $t('label.AddAnAudioFile') }}:
+                {{ $t('label.AddAnAudioFile') + ' ' + currentLanguageForLabels }}:
                 <input @change="uploadAudio" ref="audiofile" type="file" accept="audio/mp3" />
               </div>
             </div>
@@ -1044,7 +1047,7 @@
             </div>
             <div v-show="options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter'">
               <q-input
-                :label="$t('label.ExtraTextFieldLabel')"
+                :label="$t('label.ExtraTextFieldLabel') + ' ' + currentLanguageForLabels"
                 v-model="selectedStep.form.extraText[lang]"
                 type="textarea"
                 :max-height="100"
@@ -1065,7 +1068,7 @@
               <div v-for="(item, key) in selectedStep.form.hint[lang]" :key="key">
                 <q-btn class="float-right" @click="removeHint(key)"><q-icon name="delete" /></q-btn>
                 <q-btn class="float-right q-mr-sm" @click="updateHint(key)"><q-icon name="mode_edit" /></q-btn>
-                <div class="text-subtitle1">{{ $t('label.Hint') + " " + (key + 1) }}</div>
+                <div class="text-subtitle1">{{ $t('label.Hint') + " " + (key + 1) + ' ' + currentLanguageForLabels }}</div>
                 {{ item }}
               </div>
             </div>
@@ -1208,7 +1211,7 @@
           </q-list>
         </div>
         <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-        <div class="centered" v-if="!selectedStep.form.backgroundImage && !media.isSimulated">{{ $t('label.WarningImageResize') }}</div>
+        <div class="centered" v-if="(!selectedStep.form.backgroundImage || !!selectedStep.form.backgroundImage[lang]) && !media.isSimulated">{{ $t('label.WarningImageResize') }}</div>
         
         <div v-if="media && media.items && media.items.length > 0 && !media.isSimulated">
           <div class="centered q-pa-md">{{ $t('label.OrSelectAnImageInTheList') }}</div>
@@ -1282,6 +1285,7 @@ export default {
         form: {
           title: {},
           text: {},
+          backgroundImage: {},
           extraText: {},
           player: 'All',
           options: {},
@@ -1517,9 +1521,9 @@ export default {
         answers: {}, // using null triggers lots of "undefined property" errors complex to handle, due to nested objects + using them like v-model="form.answers.level" + template rendering executed before "mounted()"
         options: {},
         conditions: [],
-        backgroundImage: null,
+        backgroundImage: {},
         // info-video step specific
-        videoStream: null,
+        videoStream: {},
         audioStream: {},
         // geoloc step specific
         answerPointerCoordinates: {top: 50, left: 50},
@@ -1626,7 +1630,18 @@ export default {
           this.$set(this.selectedStep.form.extraText, this.lang, this.selectedStep.form.extraText[this.quest.mainLanguage])
         }
       }
-      
+      // define the default image for the step
+      if (!this.selectedStep.form.backgroundImage[this.lang] || this.selectedStep.form.backgroundImage[this.lang] === '') {
+        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.backgroundImage[this.quest.mainLanguage] !== '') {
+          this.$set(this.selectedStep.form.backgroundImage, this.lang, this.selectedStep.form.backgroundImage[this.quest.mainLanguage])
+        }
+      }
+      // define the default video for the step
+      if (!this.selectedStep.form.videoStream[this.lang] || this.selectedStep.form.videoStream[this.lang] === '') {
+        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.videoStream[this.quest.mainLanguage] !== '') {
+          this.$set(this.selectedStep.form.videoStream, this.lang, this.selectedStep.form.videoStream[this.quest.mainLanguage])
+        }
+      }
       // define the default hint for the step
       if (!this.selectedStep.form.hint[this.lang] || this.selectedStep.form.hint[this.lang] === '') {
         if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.hint[this.quest.mainLanguage] && this.selectedStep.form.hint[this.quest.mainLanguage].length > 0) {
@@ -1634,6 +1649,29 @@ export default {
           for (var q = 0; q < this.selectedStep.form.hint[this.quest.mainLanguage].length; q++) {
             this.selectedStep.form.hint[this.lang].push(this.selectedStep.form.hint[this.quest.mainLanguage][q])
           }
+        }
+      }
+      
+      // define default value for the options
+      if (!this.selectedStep.form.options.rightAnswerMessage) {
+        this.selectedStep.form.options.rightAnswerMessage = {}
+      } else if (!this.selectedStep.form.options.rightAnswerMessage[this.lang] || this.selectedStep.form.options.rightAnswerMessage[this.lang] === '') {
+        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.options.rightAnswerMessage[this.quest.mainLanguage] !== '') {
+          this.$set(this.selectedStep.form.options.rightAnswerMessage, this.lang, this.selectedStep.form.options.rightAnswerMessage[this.quest.mainLanguage])
+        }
+      }
+      if (!this.selectedStep.form.options.wrongAnswerMessage) {
+        this.selectedStep.form.options.wrongAnswerMessage = {}
+      } else if (!this.selectedStep.form.options.wrongAnswerMessage[this.lang] || this.selectedStep.form.options.wrongAnswerMessage[this.lang] === '') {
+        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.options.wrongAnswerMessage[this.quest.mainLanguage] !== '') {
+          this.$set(this.selectedStep.form.options.wrongAnswerMessage, this.lang, this.selectedStep.form.options.wrongAnswerMessage[this.quest.mainLanguage])
+        }
+      }
+      if (!this.selectedStep.form.options.wrongLocationMessage) {
+        this.selectedStep.form.options.wrongLocationMessage = {}
+      } else if (!this.selectedStep.form.options.wrongLocationMessage[this.lang] || this.selectedStep.form.options.wrongLocationMessage[this.lang] === '') {
+        if (this.lang !== this.quest.mainLanguage && this.selectedStep.form.options.wrongLocationMessage[this.quest.mainLanguage] !== '') {
+          this.$set(this.selectedStep.form.options.wrongLocationMessage, this.lang, this.selectedStep.form.options.wrongLocationMessage[this.quest.mainLanguage])
         }
       }
       
@@ -2316,8 +2354,11 @@ export default {
       let uploadResult = await StepService.uploadBackgroundImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
-          this.selectedStep.form.backgroundImage = uploadResult.data.file
-          this.displayBackgroundImageSize(this.selectedStep.form.backgroundImage)
+          /*if (!this.selectedStep.form.backgroundImage) {
+            this.selectedStep.form.backgroundImage = {}
+          }*/
+          this.selectedStep.form.backgroundImage[this.lang] = uploadResult.data.file
+          this.displayBackgroundImageSize(this.selectedStep.form.backgroundImage[this.lang])
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -2346,7 +2387,7 @@ export default {
      * Reset the background image
      */
     async resetBackgroundImage() {
-      this.selectedStep.form.backgroundImage = null
+      this.selectedStep.form.backgroundImage[this.lang] = null
       // reset input to let admin add the same picture again
       if (document.getElementById("picturefile1")) {
         document.getElementById("picturefile1").value = ""
@@ -2364,13 +2405,19 @@ export default {
       if (!files[0]) {
         return
       }
+      this.selectedStep.form.videoStream[this.lang] = null // Hack added by EMA because video was not updating visually
       this.$q.loading.show()
       var data = new FormData()
       data.append('video', files[0])
       let uploadResult = await StepService.uploadVideo(this.questId, data)
+
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
-          this.selectedStep.form.videoStream = uploadResult.data.file
+          if (!this.selectedStep.form.videoStream) {
+            this.selectedStep.form.videoStream = {}
+          }
+          this.selectedStep.form.videoStream[this.lang] = uploadResult.data.file
+          this.$forceUpdate()
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -2511,7 +2558,11 @@ export default {
       let uploadResult = await StepService.uploadPuzzleImage(this.questId, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
-          this.selectedStep.form.options.picture = uploadResult.data.file
+          if (!this.selectedStep.form.options.picture) {
+            this.selectedStep.form.options.picture = {}
+          }
+          //this.selectedStep.form.options.picture[lang] = uploadResult.data.file
+          Vue.set(this.selectedStep.form.options.picture, this.lang, uploadResult.data.file)
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -3110,7 +3161,7 @@ export default {
      * select a media
      */
     async selectMedia(index) {
-      this.selectedStep.form.backgroundImage = this.media.items[index].file
+      this.selectedStep.form.backgroundImage[this.lang] = this.media.items[index].file
       this.hideMedia()
     },
     /*

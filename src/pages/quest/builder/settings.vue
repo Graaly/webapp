@@ -61,7 +61,6 @@
               />
             </q-item-section>
           </q-item>
-          
           <div class="centered">
             <q-btn 
               big 
@@ -71,6 +70,26 @@
               @click="selectLanguage()"  
               test-id="btn-save-language">{{ $t('label.Save') }}</q-btn>
           </div>
+          
+          <div class="centered q-mt-md">{{ $t('label.Or') }}</div>
+          <q-item>
+            <q-item-section side top>
+              <q-icon name="language" class="left-icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="big-label">{{ $t('label.UseAModel') }}</q-item-label>
+              <q-card class=" q-mt-md my-card" v-for="sample in samples.list" :key="sample.questId">
+                <q-card-section class="bg-secondary text-white">
+                  <div class="text-h6">{{ sample.name }}</div>
+                </q-card-section>
+                <q-separator />
+                <q-card-actions align="right">
+                  <q-btn flat @click="selectSample(sample.questId)">{{ $t('label.Select') }}</q-btn>
+                </q-card-actions>
+              </q-card>
+            </q-item-section>
+          </q-item>
+          
         </div>
       
         <form @submit.prevent="submitSettings()" v-if="this.quest.languages.length > 0">
@@ -399,7 +418,7 @@
                 </div>
                 <div v-if="form.fields.picture !== null">
                   <p>{{ $t('label.Picture') }} :</p>
-                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.picture" />
+                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.picture[languages.current]" />
                 </div>
                 <div v-if="!isIOs">
                   <q-btn class="full-width" v-if="!readOnly" @click="$refs['picturefile'].click()">{{ $t('label.ModifyThePicture') }}</q-btn>
@@ -411,7 +430,7 @@
                 </div>
                 <div v-if="form.fields.thumb !== null">
                   <p>{{ $t('label.SmallPicture') }} :</p>
-                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.thumb" />
+                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.thumb[languages.current]" />
                 </div>
                 <div v-if="!isIOs">
                   <q-btn class="full-width" v-if="!readOnly" @click="$refs['thumbfile'].click()">{{ $t('label.ModifyThePicture') }}</q-btn>
@@ -621,15 +640,15 @@
                 <div v-if="form.fields.customization.removeScoring">
                   <q-input
                     :disable="readOnly"
-                    v-model="form.fields.customization.endMessage"
-                    :label="$t('label.TypeEndMessage')"
+                    v-model="form.fields.customization.endMessage[languages.current]"
+                    :label="$t('label.TypeEndMessage') + ' ' + currentLanguageForLabels"
                     class="full-width"
                     type="textarea"
                   />
                   <q-input
                     :disable="readOnly"
-                    v-model="form.fields.customization.endMessageForPerfectScore"
-                    :label="$t('label.TypeEndMessageForPerfectScore')"
+                    v-model="form.fields.customization.endMessageForPerfectScore[languages.current]"
+                    :label="$t('label.TypeEndMessageForPerfectScore') + ' ' + currentLanguageForLabels"
                     class="full-width"
                     type="textarea"
                   />
@@ -738,6 +757,14 @@
                           </q-item-section>
                           <q-item-section>
                             <q-item-label>{{ $t('label.InsertAStepAfter') }}</q-item-label>
+                          </q-item-section>
+                        </q-item>
+                        <q-item clickable v-close-popup @click="duplicateStep(step.stepId)">
+                          <q-item-section avatar>
+                            <q-avatar icon="content_copy" />
+                          </q-item-section>
+                          <q-item-section>
+                            <q-item-label>{{ $t('label.Duplicate') }}</q-item-label>
                           </q-item-section>
                         </q-item>
                         <q-item clickable v-close-popup @click="removeStep(step.stepId)">
@@ -1446,6 +1473,14 @@ export default {
         current: 'fr', // default
         available: []
       },
+      samples: {
+        selected: "",
+        list: [
+          {questId: "61b315e6826fe25856cb573d", name: this.$t('samples.sample1')},
+          {questId: "61b23fff178f4b4324b47574", name: this.$t('samples.sample2')},
+          {questId: "61b23fff178f4b4324b47575", name: this.$t('samples.sample3')}
+        ]
+      },
       form: {
         fields: {
           title: {},
@@ -1468,7 +1503,7 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { audio: {}, color: '', logo: '', character: '', removeScoring: false, endMessage: '', endMessageForPerfectScore: '', font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, geolocationMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false, authorName: '', userReplay: 'yes' },
+          customization: { audio: {}, color: '', logo: '', character: '', removeScoring: false, endMessage: {fr: '', en: ''}, endMessageForPerfectScore: {fr: '', en: ''}, font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, geolocationMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false, authorName: '', userReplay: 'yes' },
           rewardPicture: '',
           readMoreLink: '',
           limitNumberOfPlayer: 0,
@@ -1710,6 +1745,10 @@ export default {
         // if empty, autofill description with main language value
         if (!this.quest.description[this.languages.current] || this.quest.description[this.languages.current] === '') {
           this.quest.description[this.languages.current] = this.quest.description[this.quest.mainLanguage]
+        }
+        // if empty, autofill picture with main language value
+        if (!this.quest.picture[this.languages.current] || this.quest.picture[this.languages.current] === '') {
+          this.quest.picture[this.languages.current] = this.quest.picture[this.quest.mainLanguage]
         }
         
         //this.form.fields = this.quest // removed EMA on 15112019 because issue with iOS
@@ -2252,7 +2291,7 @@ export default {
       let uploadPictureResult = await QuestService.uploadPicture(data)
       if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
         if (uploadPictureResult.data.file) {
-          this.form.fields.picture = uploadPictureResult.data.file
+          this.form.fields.picture[this.languages.current] = uploadPictureResult.data.file
         } else if (uploadPictureResult.data.message && uploadPictureResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -2264,7 +2303,7 @@ export default {
       let uploadThumbResult = await QuestService.uploadThumb(data)
       if (uploadThumbResult && uploadThumbResult.hasOwnProperty('data')) {
         if (uploadThumbResult.data.file) {
-          this.form.fields.thumb = uploadThumbResult.data.file
+          this.form.fields.thumb[this.languages.current] = uploadThumbResult.data.file
         } else if (uploadThumbResult.data.message && uploadThumbResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         }
@@ -2288,7 +2327,7 @@ export default {
       let uploadThumbResult = await QuestService.uploadThumb(data)
       if (uploadThumbResult && uploadThumbResult.hasOwnProperty('data')) {
         if (uploadThumbResult.data.file) {
-          this.form.fields.thumb = uploadThumbResult.data.file
+          this.form.fields.thumb[this.languages.current] = uploadThumbResult.data.file
         } else if (uploadThumbResult.data.message && uploadThumbResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         }
@@ -3002,6 +3041,13 @@ export default {
       this.chapters.newStep.previousStepId = stepId
     },
     /*
+     * duplication a step
+     */
+    async duplicateStep(stepId) {
+      await StepService.duplicate(this.questId, stepId, this.quest.version)
+      await this.refreshStepsList()
+    },
+    /*
      * Update the list of the languages available for the quest
      */
     /*async setOtherLanguage() {
@@ -3091,6 +3137,9 @@ export default {
             // raises blocking exception if any problem occurs
             await QuestService.addLanguage(_this.questId, language)
             
+            // refresh quest data
+            await this.loadQuestData()
+        
             // if quest title is empty, autofill it with a default value
             if (!this.quest.title[language] || this.quest.title[language] === '') {
               if (language === this.quest.mainLanguage) {
@@ -3767,6 +3816,19 @@ export default {
      */
     trackCallBackFunction() {
       return false
+    },
+    
+    async selectSample(sample) {
+      // Remove quest created 
+      await QuestService.remove(this.questId, this.quest.version)
+      
+      // create new quest with sample
+      const response = await QuestService.createFromSample(sample, 1, this.quest.access, this.quest.isPremium)
+      
+      if (response && response.data && response.data.newId) {
+        const questId = response.data.newId
+        this.$router.push('/quest/settings/' + questId)
+      }
     }
   },
   validations: {
