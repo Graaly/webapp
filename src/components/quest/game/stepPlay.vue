@@ -1463,6 +1463,10 @@ export default {
         }
 
         if (this.step.type === 'new-item') {
+          if (this.step.options.hasOwnProperty('addInventoryAndPass') && this.step.options.addInventoryAndPass) {
+            utils.setTimeout(this.forceNextStep, 1000)
+            this.step.type  = 'none' // do not display step
+          }
           if (this.step.options.hasOwnProperty('pictures') && this.step.options.pictures[this.lang]) {
             this.step.options.picture = this.step.options.pictures[this.lang]
           }
@@ -4947,7 +4951,7 @@ console.log("TESTSNAPSHOTIOS7")
 
   /* geolocation specific */
   .geolocation .text { margin-bottom: 0.5rem; position: relative; z-index: 10; }
-  .geolocation #mode-switch { position: absolute; top: 10rem; right: 0.6rem; }
+  .geolocation #mode-switch { position: absolute; bottom: 6rem; right: 2.6rem; }
   .geolocation-step-map { position: absolute; opacity: 1; top: 0; left: 0; width: 100%; height: 100%; background-color: yellow; }
   .geolocation .q-btn { box-shadow: none; }
   .low-gps-accuracy-warning { z-index: 200; position: absolute; top: 0; left: 0; right: 0; }

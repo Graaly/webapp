@@ -1385,7 +1385,51 @@
       </div>
       
       <!------------------ INVENTORY PAGE AREA ------------------------>
-    
+      
+      <q-dialog maximized v-model="inventory.isOpened">
+        <div class="bg-graaly-blue-dark text-white inventory panel-bottom">
+          <div class="q-pa-md">
+            <a class="float-right no-underline" color="grey" @click="inventory.isOpened = false"><q-icon name="close" class="subtitle3" /></a>
+            <div class="subtitle3 q-pb-lg">{{ $t('label.Inventory') }}</div>
+            <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
+              <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+            </div>
+            <p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && chapters.newStep.overviewData.type === 'use-item'">{{ $t('label.InventoryUsage') }}</p>
+            <p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && chapters.newStep.overviewData.type !== 'use-item'">{{ $t('label.InventoryZoom') }}</p>
+            <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
+            <div class="inventory-items">
+              <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
+                <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
+                <p v-if="item.titles && item.titles[languages.current] && item.titles[languages.current] !== ''">{{ item.titles[languages.current] }}</p>
+                <p v-if="!(item.titles && item.titles[languages.current] && item.titles[languages.current] !== '')">{{ item.title }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </q-dialog>
+      <q-dialog maximized v-model="inventory.detail.isOpened">
+        <div class="bg-white centered limit-size-desktop">
+          <img v-if="inventory.detail.zoom === 1" style="width: 100%" :src="inventory.detail.url">
+          <div v-if="inventory.detail.zoom === 2" style="width: 100%; height: 100vw; overflow-x: scroll; overflow-y: scroll;">
+            <img style="width: 200%" :src="inventory.detail.url">
+          </div>
+          <div v-if="inventory.detail.zoom === 4" style="width: 100%; height: 100vw; overflow-x: scroll; overflow-y: scroll;">
+            <img style="width: 400%" :src="inventory.detail.url">
+          </div>
+          <div class="q-pa-md">{{ inventory.detail.title }}</div>
+          <!--<div class="q-pa-md text-grey">{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>-->
+          <q-btn class="glossy normal-button" color="primary" @click="closeInventoryDetail()"><div>{{ $t('label.Close') }}</div></q-btn>
+          <div>
+            <q-btn-group outline>
+              <q-btn flat :label="$t('label.Zoom')"/>
+              <q-btn flat :class="{ 'text-primary': (inventory.detail.zoom === 1) }" label="x1" @click="inventoryZoom(1)" />
+              <q-btn flat :class="{ 'text-primary': (inventory.detail.zoom === 2) }" label="x2" @click="inventoryZoom(2)" />
+              <q-btn flat :class="{ 'text-primary': (inventory.detail.zoom === 4) }" label="x4" @click="inventoryZoom(4)" />
+            </q-btn-group>
+          </div>
+        </div>
+      </q-dialog>
+    <!--  
       <q-dialog maximized v-model="inventory.isOpened">
         <div class="inventory panel-bottom q-pa-md">
           <a class="float-right no-underline close-btn" color="grey" @click="inventory.isOpened = false"><q-icon name="close" class="medium-icon" /></a>
@@ -1405,6 +1449,7 @@
           </div>
         </div>
       </q-dialog>
+    -->
       
       <!------------------ HINT PAGE AREA ------------------------>
       
@@ -1477,7 +1522,7 @@ export default {
         selected: "",
         list: [
           {questId: "61b315e6826fe25856cb573d", name: this.$t('samples.sample1')},
-          {questId: "61b23fff178f4b4324b47574", name: this.$t('samples.sample2')},
+          {questId: "", name: this.$t('samples.sample2')},
           {questId: "61b23fff178f4b4324b47575", name: this.$t('samples.sample3')}
         ]
       },
@@ -1614,7 +1659,13 @@ export default {
       inventory: {
         isOpened: false,
         suggest: false,
-        items: []
+        items: [],
+        show: true,
+        detail: {
+          isOpened: false,
+          url: '',
+          zoom: 1
+        }
       },
       // for step type 'use-item'
       selectedItem: null,
@@ -3495,12 +3546,26 @@ export default {
      * @param   {object}    item            Item selected
      */
     selectItem(item) {
+      this.inventory.detail.zoom = 1
       if (this.chapters.newStep.overviewData.type !== 'use-item') {
-        Notification(this.$t('label.YouCanNotUseAnItemInThisStep'), 'warning')
-        return
+        this.inventory.detail.isOpened = true
+        if (item.pictures && item.pictures[this.languages.current] && item.pictures[this.languages.current] !== '') {
+          this.inventory.detail.url = ((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
+        } else {
+          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
+        }
+        if (item.titles && item.titles[this.languages.current] && item.titles[this.languages.current] !== '') {
+          this.inventory.detail.title = item.titles[this.languages.current]
+        } else {
+          this.inventory.detail.title = item.title
+        }
+      } else {
+        this.selectedItem = item
+        this.closeAllPanels()
       }
-      this.selectedItem = item
-      this.closeAllPanels()
+    },
+    closeInventoryDetail() {
+      this.inventory.detail.isOpened = false
     },
     /*
      * Close all opened panels to go back to main screen
@@ -3509,6 +3574,10 @@ export default {
       this.inventory.isOpened = false
       this.hint.isOpened = false
       this.overview.tabSelected = 'none'
+    },
+    inventoryZoom(zoomLevel) {
+      Vue.set(this.inventory.detail, 'zoom', zoomLevel)
+      this.$forceUpdate()
     },
     /*
      * Ask for a hint

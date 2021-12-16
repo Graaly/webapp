@@ -964,6 +964,9 @@
             <div v-if="options.type.code == 'character'">
               <q-input v-model="selectedStep.form.options.characterBarColor" :label="$t('label.CharacterBarColor')" />
             </div>
+            <div v-if="options.type.code == 'new-item'">
+              <q-toggle v-model="selectedStep.form.options.addInventoryAndPass" :label="$t('label.AddToInventoryAndPass')" />
+            </div>
             <div v-if="options.type.code === 'memory'">
               <q-toggle v-model="selectedStep.form.options.lastIsSingle" :label="$t('label.LastItemIsUniq')" />
               <q-input v-model="selectedStep.form.options.memoryCardColor" :label="$t('label.CustomizedMemoryCardColor')" />

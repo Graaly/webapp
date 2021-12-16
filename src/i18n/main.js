@@ -1128,7 +1128,8 @@ module.exports = {
       Duplicate: "Duplicate",
       PleaseWaitLoadingAndGPSInit: "PLEASE WAIT, DATA AND GPS INITIALIZATION",
       MoveToNextStepAutomaticallyDuration: "Seconds before moving to next step",
-      UseAModel: "Start from a model"
+      UseAModel: "Start from a model",
+      AddToInventoryAndPass: "Add in inventory and pass this step"
     }
   },
   fr: {
@@ -2247,7 +2248,8 @@ module.exports = {
       Duplicate: "Dupliquer",
       PleaseWaitLoadingAndGPSInit: "CHARGEMENT DES DONNEES ET GPS EN COURS ...",
       MoveToNextStepAutomaticallyDuration: "Secondes avant de passer à l'étape suivante",
-      UseAModel: "Partir d'un exemple"
+      UseAModel: "Partir d'un exemple",
+      AddToInventoryAndPass: "Ajouter à l'inventaire et passer cette étape"
     }
   }
 }
