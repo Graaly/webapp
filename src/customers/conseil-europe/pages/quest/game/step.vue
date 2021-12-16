@@ -632,7 +632,7 @@ export default {
      */
     async getRun() {
       // List all run for this quest for current user
-      var runs = await RunService.listForAQuest(this.questId, { retries: 0 })
+      var runs = await RunService.listForAQuest(this.questId)
       //runs = false // move offline
 
       var currentChapter = 0

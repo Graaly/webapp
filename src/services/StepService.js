@@ -84,9 +84,8 @@ export default {
    * @param   {String}    runId           ID of the run
    * @param   {Object}    answer          Answer to the step
    * @param   {String}    player          Player number ('P1', 'P2', ...)
-   * @param   {Object}    axiosRetryConfig Optional Axios Retry options (see Api.js)
    */
-  async checkAnswer(questId, stepId, version, runId, answer, player, axiosRetryConfig = {}) {
+  async checkAnswer(questId, stepId, version, runId, answer, player) {
     let res = await Api()
       .post(
         "quest/" +
@@ -99,8 +98,7 @@ export default {
           runId +
           "/player/" +
           player,
-        answer,
-        {'axios-retry': axiosRetryConfig}
+        answer
       )
       .catch(error => console.log(error.request))
     return res
