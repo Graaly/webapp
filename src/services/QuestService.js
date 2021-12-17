@@ -1,5 +1,6 @@
-import Api from "services/Api";
-import utils from "src/includes/utils";
+import Api from "services/Api"
+import utils from "src/includes/utils"
+import store from '../store/index'
 
 export default {
   /*
@@ -85,19 +86,105 @@ export default {
         done(false, response);
       });
   },
-  /*
-   * get a quest based on its ID
+  /**
+   * Get quest data based on its ID when playing a step
+   * It uses local caching mechanism & uses Vuex store info about network
+   * to decide if it should call server or retrieve local data
    * @param   {String}    id                  ID of the quest
    * @param   {Number}    version             version of the quest
    * @param   {String}    lang                language
    */
-  getById(id, version, lang) {
-    if (!lang) {
-      lang = "default";
+  async getByIdForStep(id, version = 999, lang = "default") {
+    // Note: quest.customization.forceOnline info is stored in Vuex store & cannot be used for this method
+    
+    if (!window.cordova) {
+      return this.getByIdOnline(id, version, lang)
     }
-    return Api()
-      .get("quest/" + id + "/version/" + version + "/lang/" + lang)
-      .catch(error => console.log(error.request));
+    
+    // check if the quest data are not already saved on device
+    let isQuestOfflineLoaded = this.isCached(id)
+    
+    if (!isQuestOfflineLoaded && store.state.networkMode === 'online') {
+      try {
+        return await this.getByIdOnline(id, version, lang)
+      } catch (err) {
+        if (store.state.forceOnline) {
+          console.error("getByIdForStep(): could not retrieve quest data (online mode)", err)
+          throw err
+        }
+        
+        // timeout => go reach offline loading below + switch to offline mode
+        store.commit('setNetworkMode', 'offline')
+        console.log('switch to offline mode')
+      }
+    }
+    
+    // reaching this point means that we have to retrieve quest data from local cache
+    return this.getByIdOffline(id, version, lang)
+  },
+  /**
+   * get a quest based on its ID (online mode)
+   * @param   {String}    id                  ID of the quest
+   * @param   {Number}    version             version of the quest
+   * @param   {String}    lang                language
+   */
+  async getByIdOnline(id, version = "999", lang = "default") {
+    let res = await Api().get("quest/" + id + "/version/" + version + "/lang/" + lang)
+    if (!res.hasOwnProperty('data')) {
+      throw new Error("Could not retrieve quest data from server, for id '" + id + "', version '" + version + "', lang '" + lang + "'")
+    }
+    return res.data
+  },
+  /**
+   * get a quest based on its ID (offline mode)
+   * @param   {String}    id                  ID of the quest
+   */
+  async getByIdOffline(id) {
+    // get quest data from device storage
+    let quest = await utils.readFile(id, 'quest_' + id + '.json')
+    
+    if (!quest) {
+      throw new Error("Could not load quest with Id '" + id + "' from cache")
+    }
+    
+    quest = JSON.parse(quest)
+
+    const pictureUrl = await utils.readBinaryFile(id, quest.picture)
+    if (pictureUrl) {
+      quest.picture = pictureUrl
+    }
+    // get customized logo
+    if (quest.customization && quest.customization.logo && quest.customization.logo !== '') {
+      const logoUrl = await utils.readBinaryFile(id, quest.customization.logo)
+      if (logoUrl) {
+        quest.customization.logo = logoUrl
+      }
+    }
+    // get customized sound
+    if (quest.customization && quest.customization.audio) {
+      let mainLang = quest.mainLanguage
+      if (quest.customization.audio[this.lang] && quest.customization.audio[this.lang] !== '') {
+        const audioUrl = await utils.readBinaryFile(id, quest.customization.audio[this.lang])
+        if (audioUrl) {
+          quest.customization.audio[this.lang] = audioUrl
+        }
+      } else if (this.lang !== mainLang && quest.customization.audio[mainLang] && quest.customization.audio[mainLang] !== '') {
+        // no audio available in current language => try to load audio for main language if different from current language 
+        const audioUrl = await utils.readBinaryFile(id, quest.customization.audio[mainLang])
+        if (audioUrl) {
+          quest.customization.audio[mainLang] = audioUrl
+        }
+      }
+    }
+    // get customized hint character
+    if (quest.customization && quest.customization.character && quest.customization.character !== '') {
+      const characterUrl = await utils.readBinaryFile(id, quest.customization.character)
+      if (characterUrl) {
+        quest.customization.character = characterUrl
+      }
+    }
+  
+    return quest
   },
   /*
    * get a quest media size
@@ -109,20 +196,13 @@ export default {
       .get("quest/" + id + "/version/" + version + "/size")
       .catch(error => console.log(error.request));
   },
-  /*
+  /**
    * get the last version of a quest based on its ID
    * @param   {String}    id                  ID of the quest
    * @param   {String}    lang                language
    */
-  getLastById(id, lang) {
-    if (!lang) {
-      lang = "default";
-    }
-    return Api()
-      .get("quest/" + id + "/version/999/lang/" + lang)
-      .catch(error =>
-        console.log("getLastById(): could not retrieve quest data", error)
-      );
+  getLastById(id, lang = "default") {
+    return this.getByIdOnline(id, 999, lang)
   },
   /*
    * Find quests based on keyword
@@ -218,6 +298,14 @@ export default {
     return Api().post("quest/" + id + "/version/" + version + "/clone");
   },
   /*
+   * Create for a sample quest
+   * @param   {String}    id                Quest Id
+   * @param   {Number}    version             version of the quest
+   */
+  createFromSample(id, version, access, premium) {
+    return Api().post("quest/" + id + "/version/" + version + "/createfromsample/" + access + "/" + (premium ? "pro" : "individual"));
+  },
+  /*
    * Close a private quest
    * @param   {String}    id                  Quest Id
    * @param   {Number}    version             version of the quest
@@ -225,14 +313,6 @@ export default {
   closePrivate(id, version) {
     return Api().post("quest/" + id + "/version/" + version + "/close");
   },
-  /*
-   * Set the main language of a quest
-   * @param   {String}    id                  ID of the quest
-   * @param   {String}    lang                language of the quest (en, fr, ...)
-   */
-  /*setFirstLanguage (questId, lang) {
-    return Api().put('quest/' + questId + '/lang/set/' + lang)
-  },*/
   /*
    * Add a language for the quest
    * @param   {String}    id                  ID of the quest
@@ -356,14 +436,6 @@ export default {
       .get("quest/" + questId + "/version/" + version + "/statistics/" + date)
       .catch(error => console.log(error.request));
   },
-  /*
-   * list user invitations to private quests
-   * MPA 2021-01-28 looks unused, remove in a few months?
-  getInvitations() {
-    return Api()
-      .get("user/quests/invitations/list")
-      .catch(error => console.log(error.request));
-  },*/
   /*
    * Upload a quest picture
    * @param   {Object}    data                picture data
@@ -654,37 +726,12 @@ export default {
    * @param   {String}  questId
    * @return  {Boolean} true if latest known version of the quest is stored in cache, false otherwise
    */
-  async isCached(questId) {
+  isCached(questId) {
     if (!window.cordova) {
       return false;
+    } else {
+      return utils.checkIfFileExists(questId, "quest_" + questId + ".json")
     }
-
-    let questFileExists = await utils.checkIfFileExists(
-      questId,
-      "quest_" + questId + ".json"
-    );
-
-    if (!questFileExists) {
-      return false;
-    }
-
-    // file exists, no network: it means that we have the most recent known version of the quest => we can use it
-    if (!utils.isNetworkAvailable()) {
-      return true;
-    }
-
-    // file exists, network is available: compare version from cache & version from server
-    let questFromCache = JSON.parse(
-      await utils.readFile(questId, "quest_" + questId + ".json")
-    );
-
-    let questFromServer = await this.getLastById(questId);
-    if (!questFromServer) {
-      return false;
-    }
-    questFromServer = questFromServer.data;
-
-    return questFromServer.version === questFromCache.version;
   },
 
   /**

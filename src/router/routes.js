@@ -68,7 +68,7 @@ export default [
       {
         path: 'home',
         name: 'home',
-        component: Home,
+        component: CustomerConfiguration.HOME ? CustomerConfiguration.HOME : Home,
         meta: { requiresAuth: true }
       },
       {

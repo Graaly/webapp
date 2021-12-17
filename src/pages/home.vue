@@ -67,7 +67,25 @@
       <div v-if="!offline.active && invitationQuests && invitationQuests.length > 0">
         <titleBar :title="{text: $t('label.Invitations'), type: 'key'}"></titleBar>
 
-        <questsList format="small" :quests="invitationQuests"></questsList>
+        <questsList format="big" :quests="invitationQuests"></questsList>
+      </div>
+
+       <!--====================== OTHER QUEST =================================-->
+
+      <div v-if="!offline.active">
+        <titleBar :title="{text: $t('label.AroundYou'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAroundYou"></titleBar>
+
+        <div v-if="!nearestQuests || nearestQuests.length > 0">
+          <questsList format="big" :quests="nearestQuests"></questsList>
+        </div>
+        <div v-if="nearestQuests && nearestQuests.length === 0">
+          <div class="centered q-pa-md">
+            {{ $t('label.NoQuestAroundYou') }}
+            <div>
+              <a class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!--====================== ON TOP QUEST =================================-->
@@ -84,24 +102,6 @@
         <titleBar v-if="extraQuests.title && extraQuests.title[$t('label.shortLang')]" :title="{text: extraQuests.title[$t('label.shortLang')], type: 'key'}"></titleBar>
 
         <questsList format="small" :quests="extraQuests.items"></questsList>
-      </div>
-
-      <!--====================== OTHER QUEST =================================-->
-
-      <div v-if="!offline.active">
-        <titleBar :title="{text: $t('label.AroundYou'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAroundYou"></titleBar>
-
-        <div v-if="!nearestQuests || nearestQuests.length > 0">
-          <questsList format="small" :quests="nearestQuests"></questsList>
-        </div>
-        <div v-if="nearestQuests && nearestQuests.length === 0">
-          <div class="centered q-pa-md">
-            {{ $t('label.NoQuestAroundYou') }}
-            <div>
-              <a class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!--====================== CREATE PROFILE BUTTON =================================-->
@@ -150,14 +150,27 @@
 
       <div class="fixed-top">
         <div class="home-header row no-wrap" :class="{'disabled': offline.active}">
-          <img src="statics/images/logo/logo-header-color.png" class="logo" />
-          <q-space />
-          <img v-if="$store.state.user.isAdmin" src="statics/images/icon/tools.png" class="header-button q-mr-md cursor-pointer" @click="openAdminPage" />
-          <img src="statics/images/icon/search.svg" class="header-button q-mr-md cursor-pointer" @click="openSearch" />
-          <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" class="header-button q-mr-md cursor-pointer" @click="openRanking" />
-          <q-avatar class="cursor-pointer" @click="openProfile()">
-            <img :src="getProfileImage()" />
-          </q-avatar>
+          <div class="col centered">
+            <img src="statics/images/logo/logo-header-color.png" class="logo" />
+          </div>
+          <div class="col centered">
+            <img v-if="$store.state.user.isAdmin" src="statics/images/icon/tools.png" class="header-button q-mr-md cursor-pointer" @click="openAdminPage" />
+          </div>
+          <div class="col centered">
+            <q-icon name="add_circle_outline" class="header-button q-mr-md cursor-pointer" @click="buildQuest" />
+          </div>
+          <div class="col centered">
+            <!--<img src="statics/images/icon/search.svg" class="header-button q-mr-md cursor-pointer" @click="openSearch" />-->
+            <q-icon name="search" class="header-button q-mr-md cursor-pointer" @click="openSearch" />
+          </div>
+          <!--<div class="col centered">
+            <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" class="header-button q-mr-md cursor-pointer" @click="openRanking" />
+          </div>-->
+          <div class="col centered">
+            <q-avatar class="cursor-pointer" @click="openProfile()">
+              <img :src="getProfileImage()" />
+            </q-avatar>
+          </div>
         </div>
       </div>
 
@@ -279,8 +292,7 @@ export default {
     titleBar,
     questsList,
     usersList,
-    qrCodeStream,
-
+    qrCodeStream
   },
   data () {
     return {

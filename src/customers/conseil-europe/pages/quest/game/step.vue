@@ -632,7 +632,7 @@ export default {
      */
     async getRun() {
       // List all run for this quest for current user
-      var runs = await RunService.listForAQuest(this.questId, { retries: 0 })
+      var runs = await RunService.listForAQuest(this.questId)
       //runs = false // move offline
 
       var currentChapter = 0
@@ -1435,15 +1435,7 @@ export default {
         if (this.$store.state.user.bonus && this.$store.state.user.bonus.name && this.$store.state.user.bonus.name === 'infinitehint') {
           await this.getHint()
         } else {
-          let confirmHint = (this.$t('label.shortLang') === 'fr' ? "Voulez-vous utiliser un indice ?": "Do you want to use a hint?") 
-          this.$q.dialog({
-            dark: true,
-            message: confirmHint,
-            ok: this.$t('label.Ok'),
-            cancel: this.$t('label.Cancel')
-          }).onOk(async () => {
-            await this.getHint()
-          })
+          await this.getHint()
         }
       }
     },
@@ -1789,6 +1781,7 @@ export default {
       }
     },
     alertOnHint() {
+      console.log("SHOW HINT")
       this.hint.suggest = true
     },
     alertOnNext() {

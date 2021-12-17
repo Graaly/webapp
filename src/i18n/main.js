@@ -150,6 +150,11 @@ module.exports = {
       imageSavedToGallery: "This image is saved in your photo gallery",
       imageSavedFailed: "Something went wrong while saving your photo"
     },
+    samples: {
+      sample1: "Simple linear treasure hunt",
+      sample2: "Escape game with QR codes to flash",
+      sample3: "Example3"
+    },  
     label: {
       shortLang: "en",
       letsGo: "Let's Go!",
@@ -1122,7 +1127,12 @@ module.exports = {
       MovePictureWithFinger: "Move the binoculars with your finger to observe the whole picture",
       InvalidCondition: "Invalid trigger, please remove",
       WrongLocationMessage: "Message when user click wrong location",
-      MoveToNextStepAutomatically: "Move to next step automatically"
+      MoveToNextStepAutomatically: "Move to next step automatically",
+      Duplicate: "Duplicate",
+      PleaseWaitLoadingAndGPSInit: "PLEASE WAIT, DATA AND GPS INITIALIZATION",
+      MoveToNextStepAutomaticallyDuration: "Seconds before moving to next step",
+      UseAModel: "Start from a model",
+      AddToInventoryAndPass: "Add in inventory and pass this step"
     }
   },
   fr: {
@@ -1263,6 +1273,11 @@ module.exports = {
       imageSavedToGallery: "Cette image est enregistrée dans votre galerie de photos",
       imageSavedFailed: "Une erreur s'est produite lors de l'enregistrement de votre photo",
     },
+    samples: {
+      sample1: "Jeu de piste linéaire et simple",
+      sample2: "Escape game avec des QR codes à trouver",
+      sample3: "Exemple3"
+    },  
     label: {
       shortLang: "fr",
       letsGo: "C'est parti !",
@@ -2235,7 +2250,12 @@ module.exports = {
       MovePictureWithFinger: "Déplacez les jumelles avec le doigt pour observer d'autres endroits",
       InvalidCondition: "Condition invalide à supprimer",
       WrongLocationMessage: "Message quand on appuie au mauvais endroit",
-      MoveToNextStepAutomatically: "Passer à l'étape suivante automatiquement"
+      MoveToNextStepAutomatically: "Passer à l'étape suivante automatiquement",
+      Duplicate: "Dupliquer",
+      PleaseWaitLoadingAndGPSInit: "CHARGEMENT DES DONNEES ET GPS EN COURS ...",
+      MoveToNextStepAutomaticallyDuration: "Secondes avant de passer à l'étape suivante",
+      UseAModel: "Partir d'un exemple",
+      AddToInventoryAndPass: "Ajouter à l'inventaire et passer cette étape"
     }
   }
 }

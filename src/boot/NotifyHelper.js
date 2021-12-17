@@ -12,16 +12,16 @@ export default (message, type, actions, duration) => {
       customSettings = { icon: "check_circle", color: "positive", timeout: (duration ? duration : 4000) }
       break;
     case "warning":
-      customSettings = { icon: "warning", color: "orange", timeout: (duration ? duration : 4000) }
+      customSettings = { icon: "warning", color: "orange", timeout: (duration ? duration : 8000) }
       break;
     case "error":
-      customSettings = { icon: "report_problem", color: "negative", timeout: (duration ? duration : 5000) }
+      customSettings = { icon: "report_problem", color: "negative", timeout: (duration ? duration : 8000) }
       break;
     case "rightAnswer":
-      customSettings = { color: "positive", timeout: (duration ? duration : 6000) }
+      customSettings = { color: "positive", timeout: (duration ? duration : 6000), multiLine: true }
       break;
     case "wrongAnswer":
-      customSettings = { color: "orange", timeout: (duration ? duration : 3000) }
+      customSettings = { color: "orange", timeout: (duration ? duration : 8000), multiLine: true }
       break;
     case "readMore":
       customSettings = {

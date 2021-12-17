@@ -1,5 +1,4 @@
 import axios from "axios"
-import axiosRetry from 'axios-retry'
 
 // Note: HTTPS is mandatory here because HTTPS is required for front (geolocation)
 
@@ -12,16 +11,7 @@ let myAxios = axios.create({
   }
 });
 
-myAxios.defaults.timeout = 4500 // slightly before axiosRetry delay
-
-axiosRetry(myAxios, {
-  retries: 10,
-  retryCondition: (err) => {
-    return err.code && err.code === 'ECONNABORTED' // any other error than timeout: no retry
-  },
-  shouldResetTimeout: true,
-  retryDelay: () => { return 5000 }
-})
+myAxios.defaults.timeout = 5000
 
 // Send the JWT token from local storage every time an HTTP request is made
 // Could not use this to change the authorization header:
