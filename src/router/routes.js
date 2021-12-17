@@ -84,6 +84,12 @@ export default [
         meta: { requiresAuth: true }
       },
       {
+        path: 'quest/play/:id(\\w{24})/:qrcode',
+        name: 'playhome',
+        component: QuestPlayHome,
+        meta: { requiresAuth: true }
+      },
+      {
         path: 'quest/play/:questId(\\w{24})/version/:version/step/:stepId/:lang',
         name: 'playstep',
         component: CustomerConfiguration.QUEST_PLAY_STEP ? CustomerConfiguration.QUEST_PLAY_STEP : QuestPlayStep,

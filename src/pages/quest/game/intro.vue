@@ -643,6 +643,10 @@ export default {
       
       if (!isQuestOfflineLoaded || forceNetworkLoading) {
         this.offline.active = false
+        if (this.$route.params.qrcode) {
+          // Check the QR code and unlock the quest
+          await QuestService.checkQRCode(this.$route.params.qrcode, this.$t('label.shortLang'))
+        }
         // get the last version accessible by user depending on user access
         let response = await QuestService.getLastById(id)
         if (response && response.data && response.status === 200) {

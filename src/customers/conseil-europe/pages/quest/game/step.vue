@@ -2724,7 +2724,7 @@ export default {
   .q-notification__message {
     font-family: Arial;
     font-weight: normal;
-    font-size: 1.3em;
+    font-size: 1.4em;
   }
   .code .q-btn, .write-text .q-btn {
     background-color: #90C95e !important;

@@ -74,7 +74,7 @@
         
         <div class="centered subtitle3 q-mt-md" style="background-color: #063b8b; color :#fff;">
           <div class="subtitle3 q-pa-md" v-if="$t('label.shortLang') === 'fr'">
-            Découvrez nos visites virtuelles commentées
+            Découvrez l'intérieur des bâtiments avec nos visites virtuelles commentées
           </div>
           <div class="subtitle3 q-pa-md" v-if="$t('label.shortLang') === 'en'">
             Discover our virtual visits

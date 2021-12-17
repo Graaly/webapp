@@ -15,9 +15,14 @@ export default ({ router }) => {
         if (eventData.hash) {
           const hashParts = eventData.hash.split("/");
           if (hashParts[1] === "quest") {
-            if (hashParts[2] === "play") {
-              // opens the quest
-              router.push("/quest/play/" + hashParts[3]);
+            if (hashParts.length > 2 && hashParts[2] === "play") {
+              if (hashParts.length > 4) {
+                // open a private quest with a code
+                router.push("/quest/play/" + hashParts[3] + "/" + hashParts[4]);
+              } else {
+                // opens the quest
+                router.push("/quest/play/" + hashParts[3]);
+              }
             }
           }
         }
