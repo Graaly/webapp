@@ -323,6 +323,8 @@ var self = {
    * Init file storage for file writing / reading
    */
   initFileStorage: function(directory, fileName, createFile) {
+console.log("TEST4")
+console.log(fileName)
     return new Promise((resolve, reject) => {
       if (!window.cordova) {
         resolve(false)
@@ -344,6 +346,8 @@ var self = {
   },
 
   checkIfFileExists: function(directory, fileName, createFile) {
+console.log("TEST5")
+console.log(fileName)
     return new Promise((resolve, reject) => {
       if (!window.cordova) {
         resolve(false)
@@ -431,6 +435,8 @@ var self = {
    * Read text file
    */
   readFile: function(directory, fileName) {
+console.log("TEST1")
+console.log(fileName)
     var _this = this
     return new Promise((resolve, reject) => {
       if (!fileName) {
@@ -492,6 +498,8 @@ var self = {
    * save binary file
    */
   saveBinaryFile: function(directory, path, fileName) {
+console.log("TEST2")
+console.log(fileName)
     return new Promise((resolve, reject) => {
       if (!window.cordova) {
         resolve(false)
@@ -554,6 +562,8 @@ var self = {
    * read binary file
    */
   readBinaryFile: function(directory, fileName) {
+console.log("TEST3")
+console.log(fileName)
     var _this = this
     return new Promise((resolve, reject) => {
       if (!fileName) {

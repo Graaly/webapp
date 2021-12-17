@@ -684,7 +684,7 @@ export default {
         } else {
           this.quest = JSON.parse(quest)
 
-          const pictureUrl = await utils.readBinaryFile(id, this.quest.picture)
+          const pictureUrl = await utils.readBinaryFile(id, this.quest.picture[this.getLanguage()])
           if (pictureUrl) {
             this.quest.picture = pictureUrl
           } else {

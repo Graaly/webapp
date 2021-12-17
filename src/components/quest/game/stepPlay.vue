@@ -373,17 +373,17 @@
             </tr>
           </table>
 
-          <div class="centered" v-if="!step.options || !step.options.hideEnlargeMessage">
-            <q-btn flat class="no-box-shadow hide-button text-black">{{ $t('label.ClickToEnlargePictures') }}</q-btn>
-          </div>
-
-          <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
+          <div class="actions q-ma-md" v-show="playerResult === null">
             <div>
               <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
             </div>
           </div>
           <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+          </div>
+          
+          <div class="centered" v-if="!step.options || !step.options.hideEnlargeMessage">
+            <q-btn flat class="no-box-shadow hide-button text-black">{{ $t('label.ClickToEnlargePictures') }}</q-btn>
           </div>
         </div>
         <div v-if="!showTools" class="centered">
@@ -1311,6 +1311,9 @@ export default {
      * get background image
      */
     getBackgroundImage () {
+      if (!this.step.backgroundImage) {
+        return ""
+      }
       let backgroundImage = this.step.backgroundImage[this.lang] ? this.step.backgroundImage[this.lang] : this.step.backgroundImage[this.quest.mainLanguage]
       if (backgroundImage && backgroundImage[0] === "_") {
         return 'statics/images/quest/' + backgroundImage
@@ -2656,7 +2659,7 @@ export default {
           case 'code-keypad':
           case 'code-color':
           case 'code-image':
-            this.displaySuccessMessage(true, this.$t('label.GoodAnswer'), true)
+            this.displaySuccessMessage(true, this.$t('label.GoodAnswer'), true, false, true)
             break
           case 'write-text':
           case 'jigsaw-puzzle':
@@ -2665,18 +2668,18 @@ export default {
           case 'use-item':
           case 'find-item':
           case 'geolocation':
-            this.displaySuccessMessage(true, this.$t('label.YouHaveFoundThePlace'), true)
+            this.displaySuccessMessage(true, this.$t('label.YouHaveFoundThePlace'), true, false, true)
             break
           case 'locate-item-ar':
           case 'locate-marker':
             if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'touch')) {
-              this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'), true)
+              this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'), true, false, true)
             } else { // locate marker, mode scan
-              this.displaySuccessMessage(true, this.$t('label.WellDone'), true)
+              this.displaySuccessMessage(true, this.$t('label.WellDone'), true, false, true)
             }
             break
           case 'wait-for-event':
-            this.displaySuccessMessage(true, this.$t('label.WellDone'), true)
+            this.displaySuccessMessage(true, this.$t('label.WellDone'), true, false, true)
             break
         }
       }
@@ -2720,9 +2723,9 @@ export default {
       this.displayReadMoreAlert()
 
       if (this.isTimeUp === true) {
-        this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'),false)
+        this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'), false, false, true)
       } else if (showResult || (this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage[this.lang] && this.step.options.wrongAnswerMessage[this.lang] !== "")) {
-        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true)
+        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true, false, true)
       }
 
       // if no display of the answer move to next step
@@ -2736,7 +2739,7 @@ export default {
       }
     },
     alertToPassToNextStep() {
-      this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'), false)
+      this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'), false, false, false)
     },
     /*
      * Display the read more alert
@@ -2767,11 +2770,11 @@ export default {
     submitRetry(nbRemainingTrials) {
       if (nbRemainingTrials > 40) {
         // do not display nb of try if infinite tries
-        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true)
+        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true, false, false)
       } else if (nbRemainingTrials === 1) {
-        this.displaySuccessMessage(false, this.$t('label.SecondTryOnTry', {nb: nbRemainingTrials}), false)
+        this.displaySuccessMessage(false, this.$t('label.SecondTryOnTry', {nb: nbRemainingTrials}), false, false, false)
       } else {
-        this.displaySuccessMessage(false, this.$t('label.SecondTry', {nb: nbRemainingTrials}), false)
+        this.displaySuccessMessage(false, this.$t('label.SecondTry', {nb: nbRemainingTrials}), false, false, false)
       }
     },
 
@@ -4236,7 +4239,7 @@ console.log("TESTSNAPSHOTIOS7")
     /*
     * Display the success message
     */
-    displaySuccessMessage (success, genericMessage, allowCustomMessage, actions) {
+    displaySuccessMessage (success, genericMessage, allowCustomMessage, actions, showNextArrow) {
       let message = ""
       let duration = false
       this.displaySuccessIcon = true
@@ -4259,7 +4262,7 @@ console.log("TESTSNAPSHOTIOS7")
           message = genericMessage
         }
       }
-      if (!actions || actions === "") {
+      if ((!actions || actions === "") && showNextArrow) {
         actions = [{icon: "arrow_forward", handler: () => { this.forceNextStep() }}]
       }
       Notification(message, (success ? 'rightAnswer' : 'wrongAnswer'), actions, duration)

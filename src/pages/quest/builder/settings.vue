@@ -1530,8 +1530,8 @@ export default {
         selected: "",
         list: [
           {questId: "61b315e6826fe25856cb573d", name: this.$t('samples.sample1')},
-          {questId: " ", name: this.$t('samples.sample2')},
-          {questId: "61b23fff178f4b4324b47575", name: this.$t('samples.sample3')}
+          {questId: "61bcfe7713927b4a5e2cca59", name: this.$t('samples.sample2')},
+          {questId: "61bcfea475cb6a4a4f862dde", name: this.$t('samples.sample3')}
         ]
       },
       form: {

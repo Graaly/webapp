@@ -150,7 +150,7 @@ module.exports = {
     samples: {
       sample1: "Simple linear treasure hunt",
       sample2: "Escape game with QR codes to flash",
-      sample3: "Example3"
+      sample3: "Advanced escape game"
     },  
     label: {
       shortLang: "en",
@@ -1270,7 +1270,7 @@ module.exports = {
     samples: {
       sample1: "Jeu de piste linéaire et simple",
       sample2: "Escape game avec des QR codes à trouver",
-      sample3: "Exemple3"
+      sample3: "Escape game avancé"
     },  
     label: {
       shortLang: "fr",

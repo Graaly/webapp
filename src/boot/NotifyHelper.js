@@ -21,7 +21,7 @@ export default (message, type, actions, duration) => {
       customSettings = { color: "positive", timeout: (duration ? duration : 6000), multiLine: true }
       break;
     case "wrongAnswer":
-      customSettings = { color: "orange", timeout: (duration ? duration : 8000), multiLine: true }
+      customSettings = { color: "orange", timeout: (duration ? duration : 5000), multiLine: true }
       break;
     case "readMore":
       customSettings = {
