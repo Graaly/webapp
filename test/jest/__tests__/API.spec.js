@@ -81,16 +81,12 @@ describe('Server API tests', () => {
   })
   
   test('can get quest details', async () => {
-    result = await QuestService.getById(testQuest.questId, 1)
-    
-    expect(result.status).toBe(200)
-    checkQuestProperties(result.data)
+    result = await QuestService.getByIdOnline(testQuest.questId, 1)
+    checkQuestProperties(result)
     
     // test "latest version" service as well
     result = await QuestService.getLastById(testQuest.questId)
-    
-    expect(result.status).toBe(200)
-    checkQuestProperties(result.data)
+    checkQuestProperties(result)
   })
   
   test('can start a run', async () => {

@@ -110,7 +110,7 @@
 
     <transition name="slideInBottom">
       <div class="reduce-window-size-desktop" v-show="info.isOpened">
-        <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="getQuest(questId)">
+        <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="initData()">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
@@ -340,12 +340,13 @@ import utils from 'src/includes/utils'
 import { Notify } from 'quasar'
 
 import Vue from 'vue'
-import Sortable from 'sortablejs'
+// MPA 2021-12-14 seems not used
+/*import Sortable from 'sortablejs'
 Vue.directive('sortable', {
   inserted: function (el, binding) {
     return new Sortable(el, binding.value || {})
   }
-})
+})*/
 
 export default {
   components: {
@@ -483,8 +484,14 @@ export default {
      */
     async initData () {
       this.$q.loading.show()
-      // get quest information
-      await this.getQuest(this.questId)
+      
+      try {
+        this.info.quest = await QuestService.getByIdForStep(this.questId)
+      } catch (err) {
+        console.error(err)
+        this.warnings.questDataMissing = true
+        return
+      }
       
       // Start audio
       this.getAudioSound()
@@ -1677,81 +1684,6 @@ export default {
       this.startDate.remainingSeconds = Math.floor(diff % 60)
 
       utils.setTimeout(this.computeRemainingTime, 1000)
-    },
-    /*
-     * Get a quest information
-     * @param   {string}    id             Quest ID
-     */
-    async getQuest(id, forceNetworkLoading) {
-      this.warnings.questDataMissing = false
-      
-      // force network loading based on quest configuration
-      if (this.info.quest.customization && this.info.quest.customization.forceOnline) {
-        forceNetworkLoading = true
-      }
-
-      // check if the quest data are not already saved on device
-      let isQuestOfflineLoaded = await QuestService.isCached(id)
-
-      if (!isQuestOfflineLoaded || forceNetworkLoading) {
-        let response = await QuestService.getLastById(id)
-        if (response && response.data) {
-          this.info.quest = response.data
-        } else {
-          this.warnings.questDataMissing = true
-        }
-      } else {
-        // get quest data from device storage
-        const quest = await utils.readFile(id, 'quest_' + id + '.json')
-
-        if (!quest) {
-          if (forceNetworkLoading) {
-            this.warnings.questDataMissing = true
-          } else {
-            var questLoadingStatus = await this.getQuest(id, true)
-            return questLoadingStatus
-          }
-        } else {
-          this.info.quest = JSON.parse(quest)
-
-          const pictureUrl = await utils.readBinaryFile(id, this.info.quest.picture)
-          if (pictureUrl) {
-            this.info.quest.picture = pictureUrl
-          } else {
-            this.info.quest.picture = '_default-quest-picture.jpg'
-          }
-          // get customized logo
-          if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo !== '') {
-            const logoUrl = await utils.readBinaryFile(id, this.info.quest.customization.logo)
-            if (logoUrl) {
-              this.info.quest.customization.logo = logoUrl
-            }
-          }
-          // get customized sound
-          if (this.info.quest.customization && this.info.quest.customization.audio) {
-            let mainLang = this.info.quest.mainLanguage
-            if (this.info.quest.customization.audio[this.lang] && this.info.quest.customization.audio[this.lang] !== '') {
-              const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio[this.lang])
-              if (audioUrl) {
-                this.info.quest.customization.audio[this.lang] = audioUrl
-              }
-            } else if (this.lang !== mainLang && this.info.quest.customization.audio[mainLang] && this.info.quest.customization.audio[mainLang] !== '') {
-              // no audio available in current language => try to load audio for main language if different from current language 
-              const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio[mainLang])
-              if (audioUrl) {
-                this.info.quest.customization.audio[mainLang] = audioUrl
-              }
-            }
-          }
-          // get customized hint character
-          if (this.info.quest.customization && this.info.quest.customization.character && this.info.quest.customization.character !== '') {
-            const characterUrl = await utils.readBinaryFile(id, this.info.quest.customization.character)
-            if (characterUrl) {
-              this.info.quest.customization.character = characterUrl
-            }
-          }
-        }
-      }
     },
     /*
      * Select an item in the inventory
