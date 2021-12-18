@@ -652,7 +652,7 @@ export default {
      */
     async getRun() {
       // List all run for this quest for current user
-      var runs = await RunService.listForAQuest(this.questId, { retries: 0 })
+      var runs = await RunService.listForAQuest(this.questId)
       //runs = false // move offline
 
       var currentChapter = 0
@@ -945,18 +945,18 @@ export default {
           }
 
           // get offline media
-          if (tempStep.backgroundImage) {
-            const pictureUrl = await utils.readBinaryFile(this.questId, tempStep.backgroundImage)
+          if (tempStep.backgroundImage && tempStep.backgroundImage[this.lang]) {
+            const pictureUrl = await utils.readBinaryFile(this.questId, tempStep.backgroundImage[this.lang])
             if (pictureUrl) {
-              tempStep.backgroundImage = pictureUrl
+              tempStep.backgroundImage[this.lang] = pictureUrl
             } else {
               this.warnings.stepDataMissing = true
             }
           }
-          if (tempStep.videoStream && tempStep.videoStream !== '') {
-            const videoUrl = await utils.readBinaryFile(this.questId, tempStep.videoStream)
+          if (tempStep.videoStream && tempStep.videoStream[this.lang] && tempStep.videoStream[this.lang] !== '') {
+            const videoUrl = await utils.readBinaryFile(this.questId, tempStep.videoStream[this.lang])
             if (videoUrl) {
-              tempStep.videoStream = videoUrl
+              tempStep.videoStream[this.lang] = videoUrl
             } else {
               this.warnings.stepDataMissing = true
             }
@@ -1016,10 +1016,10 @@ export default {
               }
             }
           }
-          if (tempStep.type === 'jigsaw-puzzle' && tempStep.options && tempStep.options.picture && tempStep.options.picture !== '') {
-            const jigsawPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
+          if (tempStep.type === 'jigsaw-puzzle' && tempStep.options && tempStep.options.picture && tempStep.options.picture[this.lang] && tempStep.options.picture[this.lang] !== '') {
+            const jigsawPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture[this.lang])
             if (jigsawPictureUrl) {
-              tempStep.options.picture = jigsawPictureUrl
+              tempStep.options.picture[this.lang] = jigsawPictureUrl
             } else {
               this.warnings.stepDataMissing = true
             }
@@ -1314,12 +1314,20 @@ export default {
      * get background image
      */
     getBackgroundImage () {
-      if (this.info.quest.picture && this.info.quest.picture[0] === '_') {
-        return 'statics/images/quest/' + this.info.quest.picture
-      } else if (this.info.quest.picture && this.info.quest.picture.indexOf('blob:') !== -1) {
-        return this.info.quest.picture
-      } else if (this.info.quest.picture) {
-        return this.serverUrl + '/upload/quest/' + this.info.quest.picture
+      let picture
+      if (this.info.quest.picture) {
+        if (this.info.quest.picture[this.lang]) {
+          picture = this.info.quest.picture[this.lang]
+        } else if (this.info.quest.picture[this.info.quest.mainLanguage]) {
+          picture = this.info.quest.picture[this.info.quest.mainLanguage]
+        }
+      }
+      if (picture && picture[0] === '_') {
+        return 'statics/images/quest/' + picture
+      } else if (picture && picture.indexOf('blob:') !== -1) {
+        return picture
+      } else if (picture) {
+        return this.serverUrl + '/upload/quest/' + picture
       } else {
         return 'statics/images/quest/default-quest-picture.jpg'
       }
@@ -1706,11 +1714,11 @@ export default {
         } else {
           this.info.quest = JSON.parse(quest)
 
-          const pictureUrl = await utils.readBinaryFile(id, this.info.quest.picture)
+          const pictureUrl = await utils.readBinaryFile(id, this.info.quest.picture[this.lang])
           if (pictureUrl) {
-            this.info.quest.picture = pictureUrl
+            this.info.quest.picture[this.lang] = pictureUrl
           } else {
-            this.info.quest.picture = '_default-quest-picture.jpg'
+            this.info.quest.picture[this.lang] = '_default-quest-picture.jpg'
           }
           // get customized logo
           if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo !== '') {

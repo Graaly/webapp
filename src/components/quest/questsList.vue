@@ -18,7 +18,7 @@
         v-for="quest in quests" 
         :key="quest._id" 
         class="quest-small relative-position q-mr-md cursor-pointer" 
-        :style="'background: url(' + getBackgroundImage(quest.thumb) + ' ) center center / cover no-repeat '"
+        :style="'background: url(' + getBackgroundImage(quest.thumb, quest.mainLanguage) + ' ) center center / cover no-repeat '"
         @click="$router.push('/quest/play/' + quest.questId)">
         <div v-if="quest.status && quest.status !== 'published'">
           <q-chip :color="'status-' + quest.status">
@@ -81,7 +81,7 @@
         v-for="quest in quests" 
         :key="quest._id" 
         class="quest-big relative-position q-mr-md cursor-pointer" 
-        :style="'background: url(' + getBackgroundImage(quest.thumb) + ' ) center center / cover no-repeat '"
+        :style="'background: url(' + getBackgroundImage(quest.thumb, quest.mainLanguage) + ' ) center center / cover no-repeat '"
         @click="$router.push('/quest/play/' + quest.questId)">
         <div class="info-banner">
           <div v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</div>
@@ -137,6 +137,7 @@ export default {
   props: ['quests', 'format', 'color', 'add'],
   data() {
     return {
+      lang: this.$t('label.shortLang'),
       serverUrl: process.env.SERVER_URL
     }
   },
@@ -144,13 +145,19 @@ export default {
     /*
      * get background image
      */
-    getBackgroundImage (picture) {
-      if (picture && picture[0] === '_') {
-        return 'statics/images/quest/' + picture
-      } else if (picture && picture.indexOf('blob:') !== -1) {
-        return picture
-      } else if (picture) {
-        return this.serverUrl + '/upload/quest/' + picture
+    getBackgroundImage (picture, defaultLang) {
+      let pictureLang
+      if (picture && picture[this.lang]) {
+        pictureLang = picture[this.lang]
+      } else if (picture && picture[defaultLang]) {
+        pictureLang = picture[defaultLang]
+      }
+      if (pictureLang && pictureLang[0] === '_') {
+        return 'statics/images/quest/' + pictureLang
+      } else if (pictureLang && pictureLang.indexOf('blob:') !== -1) {
+        return pictureLang
+      } else if (pictureLang) {
+        return this.serverUrl + '/upload/quest/' + pictureLang
       } else {
         return 'statics/images/quest/default-quest-picture.jpg'
       }

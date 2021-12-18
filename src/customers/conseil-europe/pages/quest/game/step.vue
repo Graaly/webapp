@@ -632,7 +632,7 @@ export default {
      */
     async getRun() {
       // List all run for this quest for current user
-      var runs = await RunService.listForAQuest(this.questId, { retries: 0 })
+      var runs = await RunService.listForAQuest(this.questId)
       //runs = false // move offline
 
       var currentChapter = 0
@@ -925,18 +925,18 @@ export default {
           }
 
           // get offline media
-          if (tempStep.backgroundImage) {
-            const pictureUrl = await utils.readBinaryFile(this.questId, tempStep.backgroundImage)
+          if (tempStep.backgroundImage && tempStep.backgroundImage[this.lang]) {
+            const pictureUrl = await utils.readBinaryFile(this.questId, tempStep.backgroundImage[this.lang])
             if (pictureUrl) {
-              tempStep.backgroundImage = pictureUrl
+              tempStep.backgroundImage[this.lang] = pictureUrl
             } else {
               this.warnings.stepDataMissing = true
             }
           }
-          if (tempStep.videoStream && tempStep.videoStream !== '') {
+          if (tempStep.videoStream && tempStep.videoStream[this.lang] && tempStep.videoStream[this.lang] !== '') {
             const videoUrl = await utils.readBinaryFile(this.questId, tempStep.videoStream)
             if (videoUrl) {
-              tempStep.videoStream = videoUrl
+              tempStep.videoStream[this.lang] = videoUrl
             } else {
               this.warnings.stepDataMissing = true
             }
@@ -996,10 +996,10 @@ export default {
               }
             }
           }
-          if (tempStep.type === 'jigsaw-puzzle' && tempStep.options && tempStep.options.picture && tempStep.options.picture !== '') {
-            const jigsawPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
+          if (tempStep.type === 'jigsaw-puzzle' && tempStep.options && tempStep.options.picture && tempStep.options.picture[this.lang] && tempStep.options.picture[this.lang] !== '') {
+            const jigsawPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture[this.lang])
             if (jigsawPictureUrl) {
-              tempStep.options.picture = jigsawPictureUrl
+              tempStep.options.picture[this.lang] = jigsawPictureUrl
             } else {
               this.warnings.stepDataMissing = true
             }
@@ -1435,15 +1435,7 @@ export default {
         if (this.$store.state.user.bonus && this.$store.state.user.bonus.name && this.$store.state.user.bonus.name === 'infinitehint') {
           await this.getHint()
         } else {
-          let confirmHint = (this.$t('label.shortLang') === 'fr' ? "Voulez-vous utiliser un indice ?": "Do you want to use a hint?") 
-          this.$q.dialog({
-            dark: true,
-            message: confirmHint,
-            ok: this.$t('label.Ok'),
-            cancel: this.$t('label.Cancel')
-          }).onOk(async () => {
-            await this.getHint()
-          })
+          await this.getHint()
         }
       }
     },
@@ -1688,9 +1680,9 @@ export default {
         } else {
           this.info.quest = JSON.parse(quest)
 
-          const pictureUrl = await utils.readBinaryFile(id, this.info.quest.picture)
+          const pictureUrl = await utils.readBinaryFile(id, this.info.quest.picture[this.lang])
           if (pictureUrl) {
-            this.info.quest.picture = pictureUrl
+            this.info.quest.picture[this.lang] = pictureUrl
           } else {
             this.info.quest.picture = '_default-quest-picture.jpg'
           }
@@ -1789,6 +1781,7 @@ export default {
       }
     },
     alertOnHint() {
+      console.log("SHOW HINT")
       this.hint.suggest = true
     },
     alertOnNext() {
@@ -2731,7 +2724,7 @@ export default {
   .q-notification__message {
     font-family: Arial;
     font-weight: normal;
-    font-size: 1.3em;
+    font-size: 1.4em;
   }
   .code .q-btn, .write-text .q-btn {
     background-color: #90C95e !important;

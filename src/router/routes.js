@@ -68,7 +68,7 @@ export default [
       {
         path: 'home',
         name: 'home',
-        component: Home,
+        component: CustomerConfiguration.HOME ? CustomerConfiguration.HOME : Home,
         meta: { requiresAuth: true }
       },
       {
@@ -81,6 +81,12 @@ export default [
         path: 'quest/play/:id(\\w{24})',
         name: 'playhome',
         component: CustomerConfiguration.QUEST_PLAY_HOME ? CustomerConfiguration.QUEST_PLAY_HOME : QuestPlayHome,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'quest/play/:id(\\w{24})/:qrcode',
+        name: 'playhome',
+        component: QuestPlayHome,
         meta: { requiresAuth: true }
       },
       {

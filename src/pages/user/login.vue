@@ -312,11 +312,7 @@ export default {
               window.localStorage.setItem('jwt', result.user.jwt)
               axios.defaults.headers.common['Authorization'] = `Bearer ${result.user.jwt}`
 
-              let destination = '/home';
-              if (this.$route.query.hasOwnProperty('redirect')) {
-                destination = this.$route.query.redirect
-              }
-              this.$router.push(destination)
+              this.$router.push(this.defineRedirection())
             }
 
             if (result.status === 'failed') {
@@ -335,11 +331,7 @@ export default {
               if (changePasswordStatus.data && changePasswordStatus.data.user) {
                 window.localStorage.setItem('jwt', changePasswordStatus.data.user.jwt)
                 axios.defaults.headers.common['Authorization'] = `Bearer ${changePasswordStatus.data.user.jwt}`
-                let destination = '/home';
-                if (this.$route.query.hasOwnProperty('redirect')) {
-                  destination = this.$route.query.redirect
-                }
-                this.$router.push(destination)
+                this.$router.push(this.defineRedirection())
               } else {
                 Notification(this.$t('label.ErrorStandardMessage'), 'error')
               }
@@ -401,12 +393,19 @@ export default {
             Notification(_this.$t('label.TechnicalIssue'), 'error')
           }
           if (response && (response.message === 'login successful' || (response.data && response.data.message === 'login successful'))) {
-            return _this.$router.push('/home')
+            this.$router.push(this.defineRedirection())
           } else {
             Notification(_this.$t('label.TechnicalIssue'), 'error')
           }
         });
       });
+    },
+    defineRedirection() {
+      let destination = '/home';
+      if (this.$route.query.hasOwnProperty('redirect')) {
+        destination = this.$route.query.redirect
+      }
+      return destination
     },
     /*
      * manage facebook login
@@ -481,7 +480,7 @@ export default {
           if (checkStatus.data.user) {
             window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
             axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
-            this.$router.push('/home')
+            this.$router.push(this.defineRedirection())
           } else {
             Notification(this.$t('label.ErrorStandardMessage'), 'error')
           }
@@ -521,7 +520,7 @@ export default {
      * open the subscribe page
      */
     async goToSubscribe() {
-      this.$router.push('/user/createAccount/generic')
+      this.$router.push({path: '/user/createAccount/generic', query: {redirect: this.$route.query.redirect}})
     },
     /*
      * open the forgotten password popup

@@ -147,6 +147,11 @@ module.exports = {
       shareTitle: "Share with friends",
       notSupported: "This function is not supported with this device"
     },
+    samples: {
+      sample1: "Simple linear treasure hunt",
+      sample2: "Escape game with QR codes to flash",
+      sample3: "Advanced escape game"
+    },  
     label: {
       shortLang: "en",
       letsGo: "Let's Go!",
@@ -1119,7 +1124,12 @@ module.exports = {
       MovePictureWithFinger: "Move the binoculars with your finger to observe the whole picture",
       InvalidCondition: "Invalid trigger, please remove",
       WrongLocationMessage: "Message when user click wrong location",
-      MoveToNextStepAutomatically: "Move to next step automatically"
+      MoveToNextStepAutomatically: "Move to next step automatically",
+      Duplicate: "Duplicate",
+      PleaseWaitLoadingAndGPSInit: "PLEASE WAIT, DATA AND GPS INITIALIZATION",
+      MoveToNextStepAutomaticallyDuration: "Seconds before moving to next step",
+      UseAModel: "Start from a model",
+      AddToInventoryAndPass: "Add in inventory and pass this step"
     }
   },
   fr: {
@@ -1257,6 +1267,11 @@ module.exports = {
       shareTitle: "Partage avec tes amis",
       notSupported: "Cette fonctionnalité n'est pas supportée sur cette plateforme"
     },
+    samples: {
+      sample1: "Jeu de piste linéaire et simple",
+      sample2: "Escape game avec des QR codes à trouver",
+      sample3: "Escape game avancé"
+    },  
     label: {
       shortLang: "fr",
       letsGo: "C'est parti !",
@@ -2229,7 +2244,12 @@ module.exports = {
       MovePictureWithFinger: "Déplacez les jumelles avec le doigt pour observer d'autres endroits",
       InvalidCondition: "Condition invalide à supprimer",
       WrongLocationMessage: "Message quand on appuie au mauvais endroit",
-      MoveToNextStepAutomatically: "Passer à l'étape suivante automatiquement"
+      MoveToNextStepAutomatically: "Passer à l'étape suivante automatiquement",
+      Duplicate: "Dupliquer",
+      PleaseWaitLoadingAndGPSInit: "CHARGEMENT DES DONNEES ET GPS EN COURS ...",
+      MoveToNextStepAutomaticallyDuration: "Secondes avant de passer à l'étape suivante",
+      UseAModel: "Partir d'un exemple",
+      AddToInventoryAndPass: "Ajouter à l'inventaire et passer cette étape"
     }
   }
 }

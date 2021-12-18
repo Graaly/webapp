@@ -102,7 +102,7 @@
       <!------------------ TRANSITION AREA ------------------------>
 
       <div class="info" v-if="step.type == 'info-text' || step.type == 'info-video' || step.type == 'help'">
-        <div v-if="showTools && getTranslatedText() != ''" id="info-clickable" :class="{ grow: !step.videoStream }">
+        <div v-if="showTools && getTranslatedText() != ''" id="info-clickable" :class="{ grow: (!step.videoStream || !step.videoStream[lang]) }">
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && step.options && step.options.html" v-html="getTranslatedText()"></p>
           <div v-if="step.type !== 'help' && step.type !== 'info-video' && (!step.options || !step.options.hideHideButton)" class="centered" style="padding-bottom: 100px">
@@ -112,12 +112,12 @@
         <div v-if="!showTools" class="centered">
           <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
-        <div class="video" v-if="step.videoStream">
+        <div class="video" v-if="step.videoStream && step.videoStream[lang]">
           <video v-if="!step.options.rotateVideo" class="full-width" controls controlsList="nodownload" autoplay>
-            <source :src="(step.videoStream && step.videoStream.indexOf('blob:') !== -1) ? step.videoStream : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
+            <source :src="(step.videoStream && step.videoStream[lang] && step.videoStream[lang].indexOf('blob:') !== -1) ? step.videoStream[lang] : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream[lang]" type="video/mp4" />
           </video>
           <video v-if="step.options.rotateVideo" controls controlsList="nodownload" autoplay style="position: absolute;transform: rotate(90deg);transform-origin: bottom left;width: 100vh;height: 100vw;margin-top: -100vw;object-fit: cover;z-index: 4;visibility: visible;">
-            <source :src="(step.videoStream && step.videoStream.indexOf('blob:') !== -1) ? step.videoStream : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream" type="video/mp4" />
+            <source :src="(step.videoStream && step.videoStream[lang] && step.videoStream[lang].indexOf('blob:') !== -1) ? step.videoStream[lang] : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream[lang]" type="video/mp4" />
           </video>
         </div>
       </div>
@@ -373,17 +373,17 @@
             </tr>
           </table>
 
-          <div class="centered" v-if="!step.options || !step.options.hideEnlargeMessage">
-            <q-btn flat class="no-box-shadow hide-button text-black">{{ $t('label.ClickToEnlargePictures') }}</q-btn>
-          </div>
-
-          <div class="actions q-mt-lg q-mx-md" v-show="playerResult === null">
+          <div class="actions q-ma-md" v-show="playerResult === null">
             <div>
               <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()" test-id="btn-check-image-code"><div>{{ $t('label.Confirm') }}</div></q-btn>
             </div>
           </div>
           <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
+          </div>
+          
+          <div class="centered" v-if="!step.options || !step.options.hideEnlargeMessage">
+            <q-btn flat class="no-box-shadow hide-button text-black">{{ $t('label.ClickToEnlargePictures') }}</q-btn>
           </div>
         </div>
         <div v-if="!showTools" class="centered">
@@ -648,16 +648,17 @@
 
       <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null && (geolocation.active || isIOs)"></video>
+          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null"></video>
         </transition>
         <div v-show="playerResult === null && (this.geolocation.active || isIOs)">
           <div class="text" :class="'font-' + customization.font">
             <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
             <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
-            <p v-if="step.showDistanceToTarget && (geolocation.active || isIOs)">{{ $t('label.DistanceInMeters', { distance: (geolocation.GPSdistance == 0 ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
-            <p v-if="!geolocation.canSeeTarget && (geolocation.active || isIOs)">{{ $t('label.ObjectIsTooFar') }}</p>
-            <p v-if="geolocation.canTouchTarget && (geolocation.active || isIOs)" style="color: #f00">{{ $t('label.TouchTheObject') }}</p>
-            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && (geolocation.active || isIOs)">{{ $t('label.MoveCloserToTheObject') }}</p>
+            <p v-if="!geolocation.active">{{ $t('label.PleaseWaitLoadingAndGPSInit') }}</p>
+            <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: (geolocation.GPSdistance == 0 ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
+            <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
+            <p v-if="geolocation.canTouchTarget && geolocation.active" style="color: #f00">{{ $t('label.TouchTheObject') }}</p>
+            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
           </div>
         </div>
         <div class="target-view" v-show="(playerResult === null) || (playerResult !== null && step.options && step.options.is3D)">
@@ -1280,7 +1281,7 @@ export default {
         clearInterval(this.deviceMotion.idleAccelerationInterval)
       }
 
-      utils.clearAllRunningProcesses()
+      //utils.clearAllRunningProcesses() REMOVED BY EMA BECAUSE IT SHOULD BE MANAGED BY STEP.JS
 
       TWEEN.removeAll() // 3D animations
 
@@ -1310,12 +1311,16 @@ export default {
      * get background image
      */
     getBackgroundImage () {
-      if (this.step.backgroundImage && this.step.backgroundImage[0] === "_") {
-        return 'statics/images/quest/' + this.step.backgroundImage
-      } else if (this.step.backgroundImage && this.step.backgroundImage.indexOf('blob:') !== -1) {
-        return this.step.backgroundImage
+      if (!this.step.backgroundImage) {
+        return ""
+      }
+      let backgroundImage = this.step.backgroundImage[this.lang] ? this.step.backgroundImage[this.lang] : this.step.backgroundImage[this.quest.mainLanguage]
+      if (backgroundImage && backgroundImage[0] === "_") {
+        return 'statics/images/quest/' + backgroundImage
+      } else if (backgroundImage && backgroundImage.indexOf('blob:') !== -1) {
+        return backgroundImage
       } else {
-        return this.serverUrl + '/upload/quest/' + this.step.questId + '/step/background/' + this.step.backgroundImage
+        return this.serverUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
       }
     },
     /*
@@ -1408,7 +1413,7 @@ export default {
         var _this = this
 
         //iOS Hack : all iphone have gyroscope
-        if (this.isIOs && this.isHybrid) {
+        if (this.isIOs || this.isSafari) {
           this.deviceHasGyroscope = true
         }
 
@@ -1461,6 +1466,10 @@ export default {
         }
 
         if (this.step.type === 'new-item') {
+          if (this.step.options.hasOwnProperty('addInventoryAndPass') && this.step.options.addInventoryAndPass) {
+            utils.setTimeout(this.forceNextStep, 1000)
+            this.step.type  = 'none' // do not display step
+          }
           if (this.step.options.hasOwnProperty('pictures') && this.step.options.pictures[this.lang]) {
             this.step.options.picture = this.step.options.pictures[this.lang]
           }
@@ -1536,7 +1545,7 @@ export default {
             // ---------------------------------
 
             // for steps 'geolocation' & Android platforms, without gyroscope use 'deviceorientationabsolute' event + tell players to handle their phone horizontally
-            if (this.step.type === 'geolocation' && this.isHybrid && !this.isIOs && !this.deviceHasGyroscope) {
+            if (this.step.type === 'geolocation' && this.isHybrid && !this.isIOs && !this.isSafari && !this.deviceHasGyroscope) {
               window.addEventListener("deviceorientationabsolute", this.handleDeviceOrientationEvent, true)
               Notification(this.$t('label.PleaseHoldYourDeviceFlat'))
             } else {
@@ -1653,7 +1662,7 @@ export default {
               CameraPreview.startCamera(options)
               CameraPreview.show()
             } else {
-              this.launchVideoStreamForAndroid('camera-stream-for-locate-item-ar')
+              this.launchVideoStreamForAndroid('camera-stream-for-locate-item-ar', true)
             }
           }
 
@@ -2157,7 +2166,7 @@ export default {
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
           if (checkAnswerResult.result === true) {
             let selectedAnswer = this.step.options.items[answer]
-            if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
+            if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || !this.step.options.rightAnswerMessage[this.lang] || this.step.options.rightAnswerMessage[this.lang] === "")) {
               selectedAnswer.class = 'rightorwrong'
             } else {
               selectedAnswer.icon = 'done'
@@ -2168,7 +2177,7 @@ export default {
           } else {
             if (!this.isTimeUp) {
               let selectedAnswer = this.step.options.items[answer]
-              if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
+              if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || !this.step.options.rightAnswerMessage[this.lang] || this.step.options.rightAnswerMessage[this.lang] === "")) {
                 selectedAnswer.class = 'rightorwrong'
               } else {
                 selectedAnswer.icon = 'clear' // "x" icon
@@ -2426,8 +2435,8 @@ export default {
             if (!checkIfFound.one) {
               this.nbTry++
               if (remainingTrial > 0) {
-                if (this.step.options.wrongLocationMessage && this.step.options.wrongLocationMessage !== "") {
-                  Notification(this.step.options.wrongLocationMessage, 'error')
+                if (this.step.options.wrongLocationMessage && this.step.options.wrongLocationMessage[this.lang] && this.step.options.wrongLocationMessage[this.lang] !== "") {
+                  Notification(this.step.options.wrongLocationMessage[this.lang], 'error')
                 } else {
                   Notification(this.$t('label.FindItemNothingHappens'), 'error')
                 }
@@ -2632,7 +2641,7 @@ export default {
 
       this.displayReadMoreAlert()
 
-      if (showResult || (this.step.options && this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage !== "")) {
+      if (showResult || (this.step.options && this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage[this.lang] && this.step.options.rightAnswerMessage[this.lang] !== "")) {
         switch (this.step.type) {
           case 'character':
           case 'new-item':
@@ -2650,7 +2659,7 @@ export default {
           case 'code-keypad':
           case 'code-color':
           case 'code-image':
-            this.displaySuccessMessage(true, this.$t('label.GoodAnswer'), true)
+            this.displaySuccessMessage(true, this.$t('label.GoodAnswer'), true, false, true)
             break
           case 'write-text':
           case 'jigsaw-puzzle':
@@ -2659,28 +2668,32 @@ export default {
           case 'use-item':
           case 'find-item':
           case 'geolocation':
-            this.displaySuccessMessage(true, this.$t('label.YouHaveFoundThePlace'), true)
+            this.displaySuccessMessage(true, this.$t('label.YouHaveFoundThePlace'), true, false, true)
             break
           case 'locate-item-ar':
           case 'locate-marker':
             if (this.step.type === 'locate-item-ar' || (this.step.type === 'locate-marker' && this.step.options && this.step.options.mode === 'touch')) {
-              this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'), true)
+              this.displaySuccessMessage(true, this.$t('label.YouHaveWinANewItem'), true, false, true)
             } else { // locate marker, mode scan
-              this.displaySuccessMessage(true, this.$t('label.WellDone'), true)
+              this.displaySuccessMessage(true, this.$t('label.WellDone'), true, false, true)
             }
             break
           case 'wait-for-event':
-            this.displaySuccessMessage(true, this.$t('label.WellDone'), true)
+            this.displaySuccessMessage(true, this.$t('label.WellDone'), true, false, true)
             break
         }
       }
 
       // if no display of the answer move to next step
-      if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || this.step.options.rightAnswerMessage === "")) {
+      if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || !this.step.options.rightAnswerMessage[this.lang] || this.step.options.rightAnswerMessage[this.lang] === "")) {
         this.forceNextStep()
       }
       if (this.step.options.moveToNextStepAutomatically) {
-        utils.setTimeout(this.forceNextStep, 3000)
+        if (this.step.options.moveToNextStepAutomaticallyDuration) {
+          utils.setTimeout(this.forceNextStep, parseInt(this.step.options.moveToNextStepAutomaticallyDuration, 10) * 1000)
+        } else {
+          utils.setTimeout(this.forceNextStep, 3000)
+        }
       }
       // advise user to move to next step
       //utils.setTimeout(this.alertToPassToNextStep, 15000)
@@ -2710,13 +2723,13 @@ export default {
       this.displayReadMoreAlert()
 
       if (this.isTimeUp === true) {
-        this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'),false)
-      } else if (showResult || (this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage !== "")) {
-        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true)
+        this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'), false, false, true)
+      } else if (showResult || (this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage[this.lang] && this.step.options.wrongAnswerMessage[this.lang] !== "")) {
+        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true, false, true)
       }
 
       // if no display of the answer move to next step
-      if (this.step.displayRightAnswer === false && (!this.step.options.wrongAnswerMessage || this.step.options.wrongAnswerMessage === "")) {
+      if (this.step.displayRightAnswer === false && (!this.step.options.wrongAnswerMessage || !this.step.options.wrongAnswerMessage[this.lang] || this.step.options.wrongAnswerMessage[this.lang] === "")) {
         this.forceNextStep()
       } else if (this.step.options.moveToNextStepAutomatically) {
         utils.setTimeout(this.forceNextStep, 3000)
@@ -2726,7 +2739,7 @@ export default {
       }
     },
     alertToPassToNextStep() {
-      this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'), false)
+      this.displaySuccessMessage(true, this.$t('label.ClickOnArrowToMoveToNextStep'), false, false, false)
     },
     /*
      * Display the read more alert
@@ -2757,11 +2770,11 @@ export default {
     submitRetry(nbRemainingTrials) {
       if (nbRemainingTrials > 40) {
         // do not display nb of try if infinite tries
-        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true)
+        this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true, false, false)
       } else if (nbRemainingTrials === 1) {
-        this.displaySuccessMessage(false, this.$t('label.SecondTryOnTry', {nb: nbRemainingTrials}), false)
+        this.displaySuccessMessage(false, this.$t('label.SecondTryOnTry', {nb: nbRemainingTrials}), false, false, false)
       } else {
-        this.displaySuccessMessage(false, this.$t('label.SecondTry', {nb: nbRemainingTrials}), false)
+        this.displaySuccessMessage(false, this.$t('label.SecondTry', {nb: nbRemainingTrials}), false, false, false)
       }
     },
 
@@ -3708,13 +3721,15 @@ console.log("TESTSNAPSHOTIOS7")
      * Initialize puzzle, re-order pieces
      */
     async initPuzzle() {
+      let languagePicture = (this.step.options.picture && this.step.options.picture[this.lang]) ? this.step.options.picture[this.lang] : this.step.options.picture[this.quest.mainLanguage]
+      
       let picture
-      if (this.step.options.picture && this.step.options.picture.indexOf('blob:') !== -1) {
-        picture = this.step.options.picture
-      } else if (this.step.options.picture && this.step.options.picture.indexOf('upload/') === -1) {
-        picture = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + this.step.options.picture
+      if (languagePicture && languagePicture.indexOf('blob:') !== -1) {
+        picture = languagePicture
+      } else if (languagePicture && languagePicture.indexOf('upload/') === -1) {
+        picture = this.serverUrl + '/upload/quest/' + this.step.questId + '/step/jigsaw-puzzle/' + languagePicture
       } else {
-        picture = this.serverUrl + this.step.options.picture
+        picture = this.serverUrl + languagePicture
       }
 
       // ensure that puzzle image is loaded before doing the remaining tasks
@@ -4224,28 +4239,31 @@ console.log("TESTSNAPSHOTIOS7")
     /*
     * Display the success message
     */
-    displaySuccessMessage (success, genericMessage, allowCustomMessage, actions) {
+    displaySuccessMessage (success, genericMessage, allowCustomMessage, actions, showNextArrow) {
       let message = ""
       let duration = false
       this.displaySuccessIcon = true
       if (success) {
-        if (allowCustomMessage && this.step.options && this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage !== "") {
-          message = this.step.options.rightAnswerMessage
-          if (message.length > 50) {
-            duration = 10000
+        if (allowCustomMessage && this.step.options && this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage[this.lang] && this.step.options.rightAnswerMessage[this.lang] !== "") {
+          message = this.step.options.rightAnswerMessage[this.lang]
+          if (message.length > 40) {
+            duration = 20000
           }
         } else {
           message = genericMessage
         }
       } else {
-        if (allowCustomMessage && this.step.options && this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage !== "") {
-          message = this.step.options.wrongAnswerMessage
-          if (message.length > 50) {
-            duration = 10000
+        if (allowCustomMessage && this.step.options && this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage[this.lang] && this.step.options.wrongAnswerMessage[this.lang] !== "") {
+          message = this.step.options.wrongAnswerMessage[this.lang]
+          if (message.length > 40) {
+            duration = 20000
           }
         } else {
           message = genericMessage
         }
+      }
+      if ((!actions || actions === "") && showNextArrow) {
+        actions = [{icon: "arrow_forward", handler: () => { this.forceNextStep() }}]
       }
       Notification(message, (success ? 'rightAnswer' : 'wrongAnswer'), actions, duration)
     },
@@ -4936,7 +4954,7 @@ console.log("TESTSNAPSHOTIOS7")
 
   /* geolocation specific */
   .geolocation .text { margin-bottom: 0.5rem; position: relative; z-index: 10; }
-  .geolocation #mode-switch { position: absolute; top: 10rem; right: 0.6rem; }
+  .geolocation #mode-switch { position: absolute; bottom: 6rem; right: 2.6rem; }
   .geolocation-step-map { position: absolute; opacity: 1; top: 0; left: 0; width: 100%; height: 100%; background-color: yellow; }
   .geolocation .q-btn { box-shadow: none; }
   .low-gps-accuracy-warning { z-index: 200; position: absolute; top: 0; left: 0; right: 0; }

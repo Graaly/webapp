@@ -643,6 +643,10 @@ export default {
       
       if (!isQuestOfflineLoaded || forceNetworkLoading) {
         this.offline.active = false
+        if (this.$route.params.qrcode) {
+          // Check the QR code and unlock the quest
+          await QuestService.checkQRCode(this.$route.params.qrcode, this.$t('label.shortLang'))
+        }
         // get the last version accessible by user depending on user access
         let response = await QuestService.getLastById(id)
         if (response && response.data && response.status === 200) {
@@ -680,7 +684,7 @@ export default {
         } else {
           this.quest = JSON.parse(quest)
 
-          const pictureUrl = await utils.readBinaryFile(id, this.quest.picture)
+          const pictureUrl = await utils.readBinaryFile(id, this.quest.picture[this.getLanguage()])
           if (pictureUrl) {
             this.quest.picture = pictureUrl
           } else {
@@ -1278,12 +1282,21 @@ export default {
      * get background image
      */
     getBackgroundImage () {
-      if (this.quest.picture && this.quest.picture[0] === '_') {
-        return 'statics/images/quest/' + this.quest.picture
-      } else if (this.quest.picture && this.quest.picture.indexOf('blob:') !== -1) {
-        return this.quest.picture
-      } else if (this.quest.picture) {
-        return this.serverUrl + '/upload/quest/' + this.quest.picture
+      const currentLanguage = this.getLanguage()
+      let picture
+      if (this.quest.picture) {
+        if (this.quest.picture[currentLanguage]) {
+          picture = this.quest.picture[currentLanguage]
+        } else if (this.quest.picture[this.quest.mainLanguage]) {
+          picture = this.quest.picture[this.quest.mainLanguage]
+        }
+      }
+      if (picture && picture[0] === '_') {
+        return 'statics/images/quest/' + picture
+      } else if (picture && picture.indexOf('blob:') !== -1) {
+        return picture
+      } else if (picture) {
+        return this.serverUrl + '/upload/quest/' + picture
       } else {
         return 'statics/images/quest/default-quest-picture.jpg'
       }

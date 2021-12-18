@@ -218,6 +218,14 @@ export default {
     return Api().post("quest/" + id + "/version/" + version + "/clone");
   },
   /*
+   * Create for a sample quest
+   * @param   {String}    id                Quest Id
+   * @param   {Number}    version             version of the quest
+   */
+  createFromSample(id, version, access, premium) {
+    return Api().post("quest/" + id + "/version/" + version + "/createfromsample/" + access + "/" + (premium ? "pro" : "individual"));
+  },
+  /*
    * Close a private quest
    * @param   {String}    id                  Quest Id
    * @param   {Number}    version             version of the quest

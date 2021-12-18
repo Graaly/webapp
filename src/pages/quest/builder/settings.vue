@@ -9,7 +9,7 @@
         <div v-if="readOnly && quest.status === 'rejected'" class="centered bg-secondary text-white q-pa-md" @click="createNewVersion()">
           {{ $t('label.YourQuestHasNotBeenPublished') }}
         </div>
-        <div v-if="readOnly && (quest.status === 'published' || quest.status === 'unpublished' || quest.status === 'rejected')" class="centered bg-secondary text-white q-pa-md" @click="createNewVersion()">
+        <div v-if="(readOnly || this.isAdmin) && (quest.status === 'published' || quest.status === 'unpublished' || quest.status === 'rejected')" class="centered bg-secondary text-white q-pa-md" @click="createNewVersion()">
           {{ $t('label.ClickHereToCreateANewQuestVersion') }}
         </div>
         
@@ -61,7 +61,6 @@
               />
             </q-item-section>
           </q-item>
-          
           <div class="centered">
             <q-btn 
               big 
@@ -71,6 +70,26 @@
               @click="selectLanguage()"  
               test-id="btn-save-language">{{ $t('label.Save') }}</q-btn>
           </div>
+          
+          <div class="centered q-mt-md">{{ $t('label.Or') }}</div>
+          <q-item>
+            <q-item-section side top>
+              <q-icon name="language" class="left-icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="big-label">{{ $t('label.UseAModel') }}</q-item-label>
+              <q-card class=" q-mt-md my-card" v-for="sample in samples.list" :key="sample.questId">
+                <q-card-section class="bg-secondary text-white">
+                  <div class="text-h6">{{ sample.name }}</div>
+                </q-card-section>
+                <q-separator />
+                <q-card-actions align="right">
+                  <q-btn flat @click="selectSample(sample.questId)">{{ $t('label.Select') }}</q-btn>
+                </q-card-actions>
+              </q-card>
+            </q-item-section>
+          </q-item>
+          
         </div>
       
         <form @submit.prevent="submitSettings()" v-if="this.quest.languages.length > 0">
@@ -399,7 +418,7 @@
                 </div>
                 <div v-if="form.fields.picture !== null">
                   <p>{{ $t('label.Picture') }} :</p>
-                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.picture" />
+                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.picture[languages.current]" />
                 </div>
                 <div v-if="!isIOs">
                   <q-btn class="full-width" v-if="!readOnly" @click="$refs['picturefile'].click()">{{ $t('label.ModifyThePicture') }}</q-btn>
@@ -411,7 +430,7 @@
                 </div>
                 <div v-if="form.fields.thumb !== null">
                   <p>{{ $t('label.SmallPicture') }} :</p>
-                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.thumb" />
+                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.thumb[languages.current]" />
                 </div>
                 <div v-if="!isIOs">
                   <q-btn class="full-width" v-if="!readOnly" @click="$refs['thumbfile'].click()">{{ $t('label.ModifyThePicture') }}</q-btn>
@@ -621,15 +640,15 @@
                 <div v-if="form.fields.customization.removeScoring">
                   <q-input
                     :disable="readOnly"
-                    v-model="form.fields.customization.endMessage"
-                    :label="$t('label.TypeEndMessage')"
+                    v-model="form.fields.customization.endMessage[languages.current]"
+                    :label="$t('label.TypeEndMessage') + ' ' + currentLanguageForLabels"
                     class="full-width"
                     type="textarea"
                   />
                   <q-input
                     :disable="readOnly"
-                    v-model="form.fields.customization.endMessageForPerfectScore"
-                    :label="$t('label.TypeEndMessageForPerfectScore')"
+                    v-model="form.fields.customization.endMessageForPerfectScore[languages.current]"
+                    :label="$t('label.TypeEndMessageForPerfectScore') + ' ' + currentLanguageForLabels"
                     class="full-width"
                     type="textarea"
                   />
@@ -738,6 +757,14 @@
                           </q-item-section>
                           <q-item-section>
                             <q-item-label>{{ $t('label.InsertAStepAfter') }}</q-item-label>
+                          </q-item-section>
+                        </q-item>
+                        <q-item clickable v-close-popup @click="duplicateStep(step.stepId)">
+                          <q-item-section avatar>
+                            <q-avatar icon="content_copy" />
+                          </q-item-section>
+                          <q-item-section>
+                            <q-item-label>{{ $t('label.Duplicate') }}</q-item-label>
                           </q-item-section>
                         </q-item>
                         <q-item clickable v-close-popup @click="removeStep(step.stepId)">
@@ -965,6 +992,14 @@
                     </q-item-section>
                     <q-item-section>
                       <q-item-label>{{ $t('label.Remove') }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item v-if="payment.status === 'new'">
+                    <q-item-section avatar>
+                      URL :
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label><input :value="'https://app.graaly.com/webapp/#/quest/play/' + questId + '/' + payment.qrCode" /></q-item-label>
                     </q-item-section>
                   </q-item>
                 </q-list>
@@ -1358,7 +1393,51 @@
       </div>
       
       <!------------------ INVENTORY PAGE AREA ------------------------>
-    
+      
+      <q-dialog maximized v-model="inventory.isOpened">
+        <div class="bg-graaly-blue-dark text-white inventory panel-bottom">
+          <div class="q-pa-md">
+            <a class="float-right no-underline" color="grey" @click="inventory.isOpened = false"><q-icon name="close" class="subtitle3" /></a>
+            <div class="subtitle3 q-pb-lg">{{ $t('label.Inventory') }}</div>
+            <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
+              <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+            </div>
+            <p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && chapters.newStep.overviewData.type === 'use-item'">{{ $t('label.InventoryUsage') }}</p>
+            <p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && chapters.newStep.overviewData.type !== 'use-item'">{{ $t('label.InventoryZoom') }}</p>
+            <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
+            <div class="inventory-items">
+              <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
+                <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
+                <p v-if="item.titles && item.titles[languages.current] && item.titles[languages.current] !== ''">{{ item.titles[languages.current] }}</p>
+                <p v-if="!(item.titles && item.titles[languages.current] && item.titles[languages.current] !== '')">{{ item.title }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </q-dialog>
+      <q-dialog maximized v-model="inventory.detail.isOpened">
+        <div class="bg-white centered limit-size-desktop">
+          <img v-if="inventory.detail.zoom === 1" style="width: 100%" :src="inventory.detail.url">
+          <div v-if="inventory.detail.zoom === 2" style="width: 100%; height: 100vw; overflow-x: scroll; overflow-y: scroll;">
+            <img style="width: 200%" :src="inventory.detail.url">
+          </div>
+          <div v-if="inventory.detail.zoom === 4" style="width: 100%; height: 100vw; overflow-x: scroll; overflow-y: scroll;">
+            <img style="width: 400%" :src="inventory.detail.url">
+          </div>
+          <div class="q-pa-md">{{ inventory.detail.title }}</div>
+          <!--<div class="q-pa-md text-grey">{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>-->
+          <q-btn class="glossy normal-button" color="primary" @click="closeInventoryDetail()"><div>{{ $t('label.Close') }}</div></q-btn>
+          <div>
+            <q-btn-group outline>
+              <q-btn flat :label="$t('label.Zoom')"/>
+              <q-btn flat :class="{ 'text-primary': (inventory.detail.zoom === 1) }" label="x1" @click="inventoryZoom(1)" />
+              <q-btn flat :class="{ 'text-primary': (inventory.detail.zoom === 2) }" label="x2" @click="inventoryZoom(2)" />
+              <q-btn flat :class="{ 'text-primary': (inventory.detail.zoom === 4) }" label="x4" @click="inventoryZoom(4)" />
+            </q-btn-group>
+          </div>
+        </div>
+      </q-dialog>
+    <!--  
       <q-dialog maximized v-model="inventory.isOpened">
         <div class="inventory panel-bottom q-pa-md">
           <a class="float-right no-underline close-btn" color="grey" @click="inventory.isOpened = false"><q-icon name="close" class="medium-icon" /></a>
@@ -1378,6 +1457,7 @@
           </div>
         </div>
       </q-dialog>
+    -->
       
       <!------------------ HINT PAGE AREA ------------------------>
       
@@ -1446,6 +1526,14 @@ export default {
         current: 'fr', // default
         available: []
       },
+      samples: {
+        selected: "",
+        list: [
+          {questId: "61b315e6826fe25856cb573d", name: this.$t('samples.sample1')},
+          {questId: "61bcfe7713927b4a5e2cca59", name: this.$t('samples.sample2')},
+          {questId: "61bcfea475cb6a4a4f862dde", name: this.$t('samples.sample3')}
+        ]
+      },
       form: {
         fields: {
           title: {},
@@ -1468,7 +1556,7 @@ export default {
           country: "",
           zipcode: "",
           editorMode: 'simple',
-          customization: { audio: {}, color: '', logo: '', character: '', removeScoring: false, endMessage: '', endMessageForPerfectScore: '', font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, geolocationMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false, authorName: '', userReplay: 'yes' },
+          customization: { audio: {}, color: '', logo: '', character: '', removeScoring: false, endMessage: {fr: '', en: ''}, endMessageForPerfectScore: {fr: '', en: ''}, font: 'standard', fontColor: '#000000', qrCodeMessage: {fr: '', en: ''}, geolocationMessage: {fr: '', en: ''}, hideInventory: false, hideFullScreen: false, authorName: '', userReplay: 'yes' },
           rewardPicture: '',
           readMoreLink: '',
           limitNumberOfPlayer: 0,
@@ -1579,7 +1667,13 @@ export default {
       inventory: {
         isOpened: false,
         suggest: false,
-        items: []
+        items: [],
+        show: true,
+        detail: {
+          isOpened: false,
+          url: '',
+          zoom: 1
+        }
       },
       // for step type 'use-item'
       selectedItem: null,
@@ -1710,6 +1804,10 @@ export default {
         // if empty, autofill description with main language value
         if (!this.quest.description[this.languages.current] || this.quest.description[this.languages.current] === '') {
           this.quest.description[this.languages.current] = this.quest.description[this.quest.mainLanguage]
+        }
+        // if empty, autofill picture with main language value
+        if (!this.quest.picture[this.languages.current] || this.quest.picture[this.languages.current] === '') {
+          this.quest.picture[this.languages.current] = this.quest.picture[this.quest.mainLanguage]
         }
         
         //this.form.fields = this.quest // removed EMA on 15112019 because issue with iOS
@@ -2252,7 +2350,7 @@ export default {
       let uploadPictureResult = await QuestService.uploadPicture(data)
       if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
         if (uploadPictureResult.data.file) {
-          this.form.fields.picture = uploadPictureResult.data.file
+          this.form.fields.picture[this.languages.current] = uploadPictureResult.data.file
         } else if (uploadPictureResult.data.message && uploadPictureResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -2264,7 +2362,7 @@ export default {
       let uploadThumbResult = await QuestService.uploadThumb(data)
       if (uploadThumbResult && uploadThumbResult.hasOwnProperty('data')) {
         if (uploadThumbResult.data.file) {
-          this.form.fields.thumb = uploadThumbResult.data.file
+          this.form.fields.thumb[this.languages.current] = uploadThumbResult.data.file
         } else if (uploadThumbResult.data.message && uploadThumbResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         }
@@ -2288,7 +2386,7 @@ export default {
       let uploadThumbResult = await QuestService.uploadThumb(data)
       if (uploadThumbResult && uploadThumbResult.hasOwnProperty('data')) {
         if (uploadThumbResult.data.file) {
-          this.form.fields.thumb = uploadThumbResult.data.file
+          this.form.fields.thumb[this.languages.current] = uploadThumbResult.data.file
         } else if (uploadThumbResult.data.message && uploadThumbResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         }
@@ -3002,6 +3100,13 @@ export default {
       this.chapters.newStep.previousStepId = stepId
     },
     /*
+     * duplication a step
+     */
+    async duplicateStep(stepId) {
+      await StepService.duplicate(this.questId, stepId, this.quest.version)
+      await this.refreshStepsList()
+    },
+    /*
      * Update the list of the languages available for the quest
      */
     /*async setOtherLanguage() {
@@ -3091,6 +3196,9 @@ export default {
             // raises blocking exception if any problem occurs
             await QuestService.addLanguage(_this.questId, language)
             
+            // refresh quest data
+            await this.loadQuestData()
+        
             // if quest title is empty, autofill it with a default value
             if (!this.quest.title[language] || this.quest.title[language] === '') {
               if (language === this.quest.mainLanguage) {
@@ -3446,12 +3554,26 @@ export default {
      * @param   {object}    item            Item selected
      */
     selectItem(item) {
+      this.inventory.detail.zoom = 1
       if (this.chapters.newStep.overviewData.type !== 'use-item') {
-        Notification(this.$t('label.YouCanNotUseAnItemInThisStep'), 'warning')
-        return
+        this.inventory.detail.isOpened = true
+        if (item.pictures && item.pictures[this.languages.current] && item.pictures[this.languages.current] !== '') {
+          this.inventory.detail.url = ((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
+        } else {
+          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
+        }
+        if (item.titles && item.titles[this.languages.current] && item.titles[this.languages.current] !== '') {
+          this.inventory.detail.title = item.titles[this.languages.current]
+        } else {
+          this.inventory.detail.title = item.title
+        }
+      } else {
+        this.selectedItem = item
+        this.closeAllPanels()
       }
-      this.selectedItem = item
-      this.closeAllPanels()
+    },
+    closeInventoryDetail() {
+      this.inventory.detail.isOpened = false
     },
     /*
      * Close all opened panels to go back to main screen
@@ -3460,6 +3582,10 @@ export default {
       this.inventory.isOpened = false
       this.hint.isOpened = false
       this.overview.tabSelected = 'none'
+    },
+    inventoryZoom(zoomLevel) {
+      Vue.set(this.inventory.detail, 'zoom', zoomLevel)
+      this.$forceUpdate()
     },
     /*
      * Ask for a hint
@@ -3767,6 +3893,19 @@ export default {
      */
     trackCallBackFunction() {
       return false
+    },
+    
+    async selectSample(sample) {
+      // Remove quest created 
+      await QuestService.remove(this.questId, this.quest.version)
+      
+      // create new quest with sample
+      const response = await QuestService.createFromSample(sample, 1, this.quest.access, this.quest.isPremium)
+      
+      if (response && response.data && response.data.newId) {
+        const questId = response.data.newId
+        this.$router.push('/quest/settings/' + questId)
+      }
     }
   },
   validations: {

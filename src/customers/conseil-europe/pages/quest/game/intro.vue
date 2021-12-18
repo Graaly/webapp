@@ -35,8 +35,9 @@
           </div>
           <div v-if="quest.duration && quest.duration < 999" class="q-mr-lg">
             <img src="statics/images/icon/duration.svg" class="medium-icon" />
-            <span v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</span>
-            <span v-if="quest.duration && quest.duration >= 60">{{ quest.duration / 60 }}{{ $t('label.hoursSimplified') }}</span>
+            <!--<span v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</span>
+            <span v-if="quest.duration && quest.duration >= 60">{{ quest.duration / 60 }}{{ $t('label.hoursSimplified') }}</span>-->
+            <span>1H</span>
           </div>
           <div v-if="quest.type === 'quest'" class="q-mr-lg">
             <span v-if="!quest.premiumPrice.tier && shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">
@@ -648,7 +649,7 @@ export default {
         } else {
           this.quest = JSON.parse(quest)
 
-          const pictureUrl = await utils.readBinaryFile(id, this.quest.picture)
+          const pictureUrl = await utils.readBinaryFile(id, this.quest.picture[this.getLanguage()])
           if (pictureUrl) {
             this.quest.picture = pictureUrl
           } else {
