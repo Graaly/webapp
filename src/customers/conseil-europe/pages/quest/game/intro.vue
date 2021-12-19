@@ -1247,12 +1247,21 @@ export default {
      * get background image
      */
     getBackgroundImage () {
-      if (this.quest.picture && this.quest.picture[0] === '_') {
-        return 'statics/images/quest/' + this.quest.picture
-      } else if (this.quest.picture && this.quest.picture.indexOf('blob:') !== -1) {
-        return this.quest.picture
-      } else if (this.quest.picture) {
-        return this.serverUrl + '/upload/quest/' + this.quest.picture
+      const currentLanguage = this.getLanguage()
+      let picture
+      if (this.quest.picture) {
+        if (this.quest.picture[currentLanguage]) {
+          picture = this.quest.picture[currentLanguage]
+        } else if (this.quest.picture[this.quest.mainLanguage]) {
+          picture = this.quest.picture[this.quest.mainLanguage]
+        }
+      }
+      if (picture && picture[0] === '_') {
+        return 'statics/images/quest/' + picture
+      } else if (picture && picture.indexOf('blob:') !== -1) {
+        return picture
+      } else if (picture) {
+        return this.serverUrl + '/upload/quest/' + picture
       } else {
         return 'statics/images/quest/default-quest-picture.jpg'
       }
