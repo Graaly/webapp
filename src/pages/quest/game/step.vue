@@ -952,18 +952,18 @@ export default {
           }
 
           // get offline media
-          if (tempStep.backgroundImage) {
-            const pictureUrl = await utils.readBinaryFile(this.questId, tempStep.backgroundImage)
+          if (tempStep.backgroundImage && tempStep.backgroundImage[this.lang]) {
+            const pictureUrl = await utils.readBinaryFile(this.questId, tempStep.backgroundImage[this.lang])
             if (pictureUrl) {
-              tempStep.backgroundImage = pictureUrl
+              tempStep.backgroundImage[this.lang] = pictureUrl
             } else {
               this.warnings.stepDataMissing = true
             }
           }
-          if (tempStep.videoStream && tempStep.videoStream !== '') {
-            const videoUrl = await utils.readBinaryFile(this.questId, tempStep.videoStream)
+          if (tempStep.videoStream && tempStep.videoStream[this.lang] && tempStep.videoStream[this.lang] !== '') {
+            const videoUrl = await utils.readBinaryFile(this.questId, tempStep.videoStream[this.lang])
             if (videoUrl) {
-              tempStep.videoStream = videoUrl
+              tempStep.videoStream[this.lang] = videoUrl
             } else {
               this.warnings.stepDataMissing = true
             }
@@ -1023,10 +1023,10 @@ export default {
               }
             }
           }
-          if (tempStep.type === 'jigsaw-puzzle' && tempStep.options && tempStep.options.picture && tempStep.options.picture !== '') {
-            const jigsawPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
+          if (tempStep.type === 'jigsaw-puzzle' && tempStep.options && tempStep.options.picture && tempStep.options.picture[this.lang] && tempStep.options.picture[this.lang] !== '') {
+            const jigsawPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture[this.lang])
             if (jigsawPictureUrl) {
-              tempStep.options.picture = jigsawPictureUrl
+              tempStep.options.picture[this.lang] = jigsawPictureUrl
             } else {
               this.warnings.stepDataMissing = true
             }
@@ -1684,6 +1684,81 @@ export default {
       this.startDate.remainingSeconds = Math.floor(diff % 60)
 
       utils.setTimeout(this.computeRemainingTime, 1000)
+    },
+    /*
+     * Get a quest information
+     * @param   {string}    id             Quest ID
+     */
+    async getQuest(id, forceNetworkLoading) {
+      this.warnings.questDataMissing = false
+      
+      // force network loading based on quest configuration
+      if (this.info.quest.customization && this.info.quest.customization.forceOnline) {
+        forceNetworkLoading = true
+      }
+
+      // check if the quest data are not already saved on device
+      let isQuestOfflineLoaded = await QuestService.isCached(id)
+
+      if (!isQuestOfflineLoaded || forceNetworkLoading) {
+        let response = await QuestService.getLastById(id)
+        if (response && response.data) {
+          this.info.quest = response.data
+        } else {
+          this.warnings.questDataMissing = true
+        }
+      } else {
+        // get quest data from device storage
+        const quest = await utils.readFile(id, 'quest_' + id + '.json')
+
+        if (!quest) {
+          if (forceNetworkLoading) {
+            this.warnings.questDataMissing = true
+          } else {
+            var questLoadingStatus = await this.getQuest(id, true)
+            return questLoadingStatus
+          }
+        } else {
+          this.info.quest = JSON.parse(quest)
+
+          const pictureUrl = await utils.readBinaryFile(id, this.info.quest.picture[this.lang])
+          if (pictureUrl) {
+            this.info.quest.picture[this.lang] = pictureUrl
+          } else {
+            this.info.quest.picture[this.lang] = '_default-quest-picture.jpg'
+          }
+          // get customized logo
+          if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo !== '') {
+            const logoUrl = await utils.readBinaryFile(id, this.info.quest.customization.logo)
+            if (logoUrl) {
+              this.info.quest.customization.logo = logoUrl
+            }
+          }
+          // get customized sound
+          if (this.info.quest.customization && this.info.quest.customization.audio) {
+            let mainLang = this.info.quest.mainLanguage
+            if (this.info.quest.customization.audio[this.lang] && this.info.quest.customization.audio[this.lang] !== '') {
+              const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio[this.lang])
+              if (audioUrl) {
+                this.info.quest.customization.audio[this.lang] = audioUrl
+              }
+            } else if (this.lang !== mainLang && this.info.quest.customization.audio[mainLang] && this.info.quest.customization.audio[mainLang] !== '') {
+              // no audio available in current language => try to load audio for main language if different from current language 
+              const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio[mainLang])
+              if (audioUrl) {
+                this.info.quest.customization.audio[mainLang] = audioUrl
+              }
+            }
+          }
+          // get customized hint character
+          if (this.info.quest.customization && this.info.quest.customization.character && this.info.quest.customization.character !== '') {
+            const characterUrl = await utils.readBinaryFile(id, this.info.quest.customization.character)
+            if (characterUrl) {
+              this.info.quest.customization.character = characterUrl
+            }
+          }
+        }
+      }
     },
     /*
      * Select an item in the inventory

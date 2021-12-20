@@ -41,8 +41,6 @@ export default {
         console.log(err)
       }
       if (status.authorized) {
-        console.log('AUTHORIZED')
-        console.log(status)
         QRScanner.scan(this.displayResult)
       } else {
         Notification(this.$t('qrCode.unauthorized'), 'error');
@@ -71,7 +69,6 @@ export default {
       if (err) {
         Notification(this.$t('qrCode.scanError'), 'error');
       } else {
-        console.log('SCANNED')
         this.result = scanResult
         this.$emit('QrCodeResult', this.result)
         this.timeOutId = setTimeout(() => {
@@ -83,7 +80,6 @@ export default {
   mounted() {
     document.body.style.background = "transparent"
     QRScanner.prepare(this.isDone)
-    console.log('MOUNTED')
   },
   beforeDestroy() {
     document.body.style.background = "#323232"
@@ -91,7 +87,6 @@ export default {
     if (this.timeOutId !== null) {
      clearTimeout(this.timeOutId)
     }
-    console.log('DESTROY')
   }
 }
 </script>

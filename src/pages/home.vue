@@ -67,7 +67,7 @@
       <div v-if="!offline.active && invitationQuests && invitationQuests.length > 0">
         <titleBar :title="{text: $t('label.Invitations'), type: 'key'}"></titleBar>
 
-        <questsList format="big" :quests="invitationQuests"></questsList>
+        <questsList :format="mainQuestListFormat" :quests="invitationQuests"></questsList>
       </div>
 
        <!--====================== OTHER QUEST =================================-->
@@ -76,7 +76,7 @@
         <titleBar :title="{text: $t('label.AroundYou'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAroundYou"></titleBar>
 
         <div v-if="!nearestQuests || nearestQuests.length > 0">
-          <questsList format="big" :quests="nearestQuests"></questsList>
+          <questsList :format="mainQuestListFormat" :quests="nearestQuests"></questsList>
         </div>
         <div v-if="nearestQuests && nearestQuests.length === 0">
           <div class="centered q-pa-md">
@@ -154,14 +154,14 @@
             <img src="statics/images/logo/logo-header-color.png" class="logo" />
           </div>
           <div class="col centered">
-            <img v-if="$store.state.user.isAdmin" src="statics/images/icon/tools.png" class="header-button q-mr-md cursor-pointer" @click="openAdminPage" />
+            <q-icon v-if="$store.state.user.isAdmin" name="build" class="header-button cursor-pointer" @click="openAdminPage" />
           </div>
           <div class="col centered">
-            <q-icon name="add_circle_outline" class="header-button q-mr-md cursor-pointer" @click="buildQuest" />
+            <q-icon name="add_circle_outline" class="header-button cursor-pointer" @click="buildQuest" />
           </div>
           <div class="col centered">
             <!--<img src="statics/images/icon/search.svg" class="header-button q-mr-md cursor-pointer" @click="openSearch" />-->
-            <q-icon name="search" class="header-button q-mr-md cursor-pointer" @click="openSearch" />
+            <q-icon name="search" class="header-button cursor-pointer" @click="openSearch" />
           </div>
           <!--<div class="col centered">
             <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" class="header-button q-mr-md cursor-pointer" @click="openRanking" />
@@ -359,6 +359,7 @@ export default {
       },
       //languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
       isMounted: false,
+      mainQuestListFormat: 'big',
       isHybrid: window.cordova,
       showNonHybridQRReader: false,
       isQuestsLoaded: false,
@@ -381,6 +382,9 @@ export default {
     if (!this.$store || !this.$store.state || !this.$store.state.user || !this.$store.state.user.name) {
       this.backToLogin();
     } else {
+      if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+        this.mainQuestListFormat = 'small'
+      }
       if (window.cordova) {
         AppStoreRatingService.initLocalStorage();
         //test for the review
@@ -559,7 +563,7 @@ export default {
             if (tempQuestList.length > 0) {
               // get pictures
               for (var i = 0; i < tempQuestList.length; i++) {
-                var pictureUrl = await utils.readBinaryFile(tempQuestList[i].questId, tempQuestList[i].picture)
+                var pictureUrl = await utils.readBinaryFile(tempQuestList[i].questId, tempQuestList[i].picture[this.$t('label.shortLang')])
                 if (pictureUrl) {
                   tempQuestList[i].picture = pictureUrl
                 } else {

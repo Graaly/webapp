@@ -132,8 +132,6 @@ $ C:\Users\ericm\AppData\Local\Android\Sdk\build-tools\30.0.3\zipalign -v 4 app-
 $ C:\Users\ericm\AppData\Local\Android\Sdk\build-tools\30.0.3\apksigner sign --ks graaly-key.jks --v1-signing-enabled true --v2-signing-enabled true graaly.apk
 
 
-$ apksigner sign --ks graaly-key.jks --ks-pass file:my-passfile.txt --v1-signing-enabled true --v2-signing-enabled true graaly.apk
-
 ```
 Attention:
 * The keystore (jks file) needs to be saved in a secure location. It can not be built again.
