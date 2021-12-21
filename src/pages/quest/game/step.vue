@@ -110,7 +110,7 @@
 
     <transition name="slideInBottom">
       <div class="reduce-window-size-desktop" v-show="info.isOpened">
-        <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="getQuest(questId)">
+        <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="initData()">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
@@ -340,12 +340,13 @@ import utils from 'src/includes/utils'
 import { Notify } from 'quasar'
 
 import Vue from 'vue'
-import Sortable from 'sortablejs'
+// MPA 2021-12-14 seems not used
+/*import Sortable from 'sortablejs'
 Vue.directive('sortable', {
   inserted: function (el, binding) {
     return new Sortable(el, binding.value || {})
   }
-})
+})*/
 
 export default {
   components: {
@@ -483,8 +484,14 @@ export default {
      */
     async initData () {
       this.$q.loading.show()
-      // get quest information
-      await this.getQuest(this.questId)
+      
+      try {
+        this.info.quest = await QuestService.getByIdForStep(this.questId)
+      } catch (err) {
+        console.error(err)
+        this.warnings.questDataMissing = true
+        return
+      }
       
       // Start audio
       this.getAudioSound()
