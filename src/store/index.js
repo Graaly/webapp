@@ -28,7 +28,9 @@ const state = {
   runningTimeoutsIds: [],
   mediaStreams: [],
   chatMessages: [],
-  chatNotification: 0
+  chatNotification: 0,
+  networkMode: 'online', // Use (or not) network when playing quests. supported values: 'online' and 'offline'
+  forceOnline: false // online mode forced (errors will occur when no network is available)
 };
 
 // mutations are operations that actually mutates the state.
@@ -98,6 +100,12 @@ const mutations = {
   },
   updateChatNotification (state, data) {
     state.chatNotification++
+  },
+  setNetworkMode (state, mode) {
+    state.networkMode = mode
+  },
+  setForceOnline (state, forceOnline) {
+    state.forceOnline = forceOnline
   }
 }
 
@@ -146,7 +154,9 @@ const actions = {
   addIntervalId: ({ commit }, intervalId) => commit("addIntervalId", intervalId),
   clearIntervalIds: ({ commit }) => commit("clearIntervalIds"),
   addMediaStream: ({ commit }, stream) => commit("addMediaStream", stream),
-  clearMediaStreams: ({ commit }) => commit("clearMediaStreams")
+  clearMediaStreams: ({ commit }) => commit("clearMediaStreams"),
+  setNetworkMode: ({ commit }, mode) => commit("setNetworkMode", mode),
+  setForceOnline: ({ commit }, forceOnline) => commit("setForceOnline", forceOnline)
 };
 
 // getters are functions

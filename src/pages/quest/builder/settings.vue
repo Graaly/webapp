@@ -1782,10 +1782,10 @@ export default {
       this.questId = this.$route.params.questId
       
       // fill quest settings form
-      let res = await QuestService.getLastById(this.questId, 'all')
+      let quest = await QuestService.getLastById(this.questId, 'all')
       
-      if (res && res.data) {
-        this.quest = res.data
+      if (quest) {
+        this.quest = quest
         
         // if not draft => read only
         if (this.quest.status !== 'draft' && !this.isAdmin) {

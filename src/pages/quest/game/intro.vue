@@ -527,6 +527,8 @@ export default {
     
     // reset user history
     this.$store.state.history = {items: [], index: 0}
+    this.$store.commit('setNetworkMode', 'online')
+    this.$store.commit('setForceOnline', false)
   },
   updated: debounce(function () {
     this.$nextTick(() => {
@@ -582,8 +584,19 @@ export default {
      */
     async initQuest() {
       // get quest information
-      await this.getQuest(this.$route.params.id)
-
+      this.quest = await QuestService.getByIdOnline(this.$route.params.id)
+      
+      // update 'forceOnline' state property according to current quest
+      this.$store.commit('setForceOnline', this.quest.hasOwnProperty('customization') && this.quest.customization.hasOwnProperty('forceOnline') ? this.quest.customization.forceOnline : false)
+      
+      // retrieve author detailed info
+      if (typeof this.quest.authorUserId !== 'undefined') {
+        let response = await AuthService.getAccount(this.quest.authorUserId)
+        if (response && response.data) {
+          this.$set(this.quest, 'author', response.data)
+        }
+      }
+      
       // Fix EMA on 18/12/2019 - products in store remains if I open several paying quests
       if (window.cordova && this.quest.premiumPrice && this.quest.premiumPrice.androidId && store.products.length > 0) {
         this.$router.go(0)
@@ -613,8 +626,8 @@ export default {
       this.checkIfQuestIsOpened()
       
       // if the user is the author => force network play
-      if (this.offline.active && (this.isOwner || this.isAdmin)) {
-        await this.getQuest(this.quest.questId, true)
+      if (this.isOwner || this.isAdmin) {
+        this.$store.commit('setForceOnline', true)
       }
       
       // get user runs for this quest
@@ -1304,3 +1317,8 @@ export default {
   }
 }
 </script>
+<style>
+#teaser .text-subtitle1 {
+  white-space: pre-line;
+}
+</style>

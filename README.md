@@ -135,7 +135,7 @@ $ C:\Users\ericm\AppData\Local\Android\Sdk\build-tools\30.0.3\apksigner sign --k
 ```
 Attention:
 * The keystore (jks file) needs to be saved in a secure location. It can not be built again.
-* In the last command, `E:\logiciels\Android\sdk` is the Android SDK base bath and may be different on your build environment. 
+* In the last command, `E:\logiciels\Android\sdk` is the Android SDK base bath and may be different on your build environment.
 
 Open https://play.google.com/apps/publish/?account=5104428642488176820#ManageReleaseTrackPlace:p=com.graaly.app&appid=4972151247150188990&releaseTrackId=4700787750850651322
 
@@ -252,7 +252,7 @@ After running `npm install` in project folder, you can install latest version of
 * Run **main test script** for Graaly (runs [**unit tests**](https://fr.wikipedia.org/wiki/Test_unitaire) on API/webapp & [**E2E tests**](https://blog.testingdigital.com/quest-test-de-bout-bout-end-to-end-1288) on webapp):
 
     `npm run test` or `yarn test`
-    
+
     If you want to run only **unit tests** or **e2e tests**, open file `test/index.mjs` and modify **config** object to your convenience.
 
 ### Readings
@@ -292,9 +292,9 @@ After running `npm install` in project folder, you can install latest version of
 
 ### Cordova Android Build unsuccessful
 
-#### Error message `Failed to execute aapt` 
+#### Error message `Failed to execute aapt`
 
-Add in the `allprojects` section of the `/src-cordova/platforms/android/build.gradle` file : 
+Add in the `allprojects` section of the `/src-cordova/platforms/android/build.gradle` file :
 
     configurations.all {
         resolutionStrategy {
@@ -330,7 +330,7 @@ Replace in the file **webapp\src-cordova\platforms\android\app\src\main\java\com
 
 `buyIntentBundle = mService.getBuyIntentToReplaceSkus(5, mContext.getPackageName(), oldPurchasedSkus, sku, itemType, extraData)`
 
-by 
+by
 
 `buyIntentBundle = mService.getBuyIntent(3, mContext.getPackageName(), sku, itemType, extraData)`
 
@@ -342,3 +342,15 @@ Comment line : AppEventsLogger.augmentWebView((WebView) this.webView.getView(), 
 #### Error "Votre application cible actuellement le niveau d'API 29"
 
 https://kdjguru.com/how-to-fix-change-the-default-target-sdk-to-api-level-30-cordova-quasar/
+
+### Cordova iPhone Build unsuccessful
+
+#### Error message `Swift 4.2`
+Open : src-cordova/config.xml
+add into  `<platform name="ios">`
+`<preference name="UseSwiftLanguageVersion" value="4" />`
+`<preference name="SwiftVersion" value="4.2" />`
+
+one last fix is inside the iOS 'QRScanner.swift' search 'QRScanner.swift'
+
+change "string: UIApplication.openSettingsURLString" to "string: UIApplicationOpenSettingsURLString" in openSettings function. line 470

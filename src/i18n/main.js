@@ -145,7 +145,10 @@ module.exports = {
       share: "share",
       save: "save",
       shareTitle: "Share with friends",
-      notSupported: "This function is not supported with this device"
+      fileDownload: "Cette image a été téléchargée",
+      notSupported: "This function is not supported with this device",
+      imageSavedToGallery: "This image is saved in your photo gallery",
+      imageSavedFailed: "Something went wrong while saving your photo"
     },
     samples: {
       sample1: "Simple linear treasure hunt",
@@ -1265,7 +1268,10 @@ module.exports = {
       share: "Partager",
       save: "Télécharger",
       shareTitle: "Partage avec tes amis",
-      notSupported: "Cette fonctionnalité n'est pas supportée sur cette plateforme"
+      fileDownload: "Cette image a été téléchargée",
+      notSupported: "Cette fonctionnalité n'est pas supportée sur cette plateforme",
+      imageSavedToGallery: "Cette image est enregistrée dans votre galerie de photos",
+      imageSavedFailed: "Une erreur s'est produite lors de l'enregistrement de votre photo",
     },
     samples: {
       sample1: "Jeu de piste linéaire et simple",

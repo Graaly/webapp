@@ -15,11 +15,13 @@ import CustomerTeamPlay from '../customers/ouigo/pages/user/teamplay'
 
 export default {
   // CONSEIL DE L'EUROPE
-  /*LOGIN_PAGE: CustomerUserLogin,
+  /*
+  LOGIN_PAGE: CustomerUserLogin,
   QUEST_PLAY_HOME: CustomerQuestPlayHome,
   QUEST_PLAY_STEP: CustomerQuestPlayStep,
   QUEST_PLAY_END: CustomerQuestPlayEnd,
-  HOME: CustomerHome*/
+  HOME: CustomerHome
+  */
   // OUIGO
   /*
   QUEST_PLAY_HOME: CustomerQuestPlayHome,
