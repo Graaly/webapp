@@ -2186,19 +2186,14 @@ export default {
         for (i = 0; i < stepsofChapter.length; i++) {
           // check if the step is not already done
           if (conditionsDone && conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
-console.log("CHECK1 " + stepsofChapter[i].stepId)
             if (stepsofChapter[i].conditions && stepsofChapter[i].conditions.length > 0) {
               for (j = 0; j < stepsofChapter[i].conditions.length; j++) {
                 // check if counter condition
                 if (stepsofChapter[i].conditions[j].indexOf('countergreater_') === -1 && stepsofChapter[i].conditions[j].indexOf('counterlower_') === -1) {
                   // if one of the conditions of the step i not ok, continue with next step
-console.log("CHECK 2 check condition " + j)
                   if (conditionsDone.indexOf(stepsofChapter[i].conditions[j]) === -1) {
-console.log("CHECK 2 KO condition " + j + " : " + stepsofChapter[i].conditions[j])
-console.log(conditionsDone)
                     continue stepListFor
                   }
-console.log("CHECK 2 OK condition " + j)
                 } else {
                   // if counter lower than countergreater value
                   if (stepsofChapter[i].conditions[j].indexOf('countergreater_') !== -1) {
@@ -2298,7 +2293,6 @@ console.log("CHECK 2 OK condition " + j)
             } else { // if (markerCode || stepsofChapter[i].type !== 'locate-marker') { // if locate marker, do not start the step until user flash the marker
               // return step if no condition or all conditions met
               let nextStepId = stepsofChapter[i].stepId
-console.log("CHECK 4 next ID : " + nextStepId)
               //await this.addStepToHistory(nextStepId)
               return {id: nextStepId, extra: extra}
             }

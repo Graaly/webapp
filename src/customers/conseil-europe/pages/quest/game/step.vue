@@ -1789,7 +1789,6 @@ export default {
       }
     },
     alertOnHint() {
-      console.log("SHOW HINT")
       this.hint.suggest = true
     },
     alertOnNext() {

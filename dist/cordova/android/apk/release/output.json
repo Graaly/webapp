@@ -11,8 +11,8 @@
       "type": "SINGLE",
       "filters": [],
       "properties": [],
-      "versionCode": 20145,
-      "versionName": "20145",
+      "versionCode": 20146,
+      "versionName": "20146",
       "enabled": true,
       "outputFile": "app-release-unsigned.apk"
     }
