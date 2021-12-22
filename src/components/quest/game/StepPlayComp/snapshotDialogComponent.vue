@@ -55,28 +55,22 @@ export default {
       await this.saveSnapshotOnServer(this.blob, this.snapshotFilename)
     },
     async shareWithFriend() {
+      let filesArray = []
       const file = await new File([this.blob], "capture" + Date.now() + ".jpg", {type: "image/jpeg"})
-      const share = (file) => {
-        if (navigator.share) {
-          try {
-            navigator.share({
-              files: [file],
-              title: this.$t('snapshot.shareTitle') // Partagez avec vos amis
-            })
-          } catch (e) {
-            console.log('share abort')
-          }
+      filesArray.push(file)
+      if (this.isHybrid) {
+        window.plugins.socialsharing.share(null, null, this.fileEntry.nativeURL, null, () => { console.log('SUCCESS SHARE') }, () => { console.log("ERROR SHARE") });
+      } else {
+        if (navigator.share && navigator.canShare({ files: filesArray })) {
+          navigator.share({
+            files: [file]
+          })
         } else {
           this.$q.notify({
             message: this.$t('snapshot.notSupported'), // Cette fonction n'est pas supportée
             color: "negative"
           })
         }
-      }
-      if (this.isHybrid) {
-        window.plugins.socialsharing.share(null, null, this.fileEntry.nativeURL, null, () => { console.log('SUCCESS SHARE') }, () => { console.log("ERROR SHARE") });
-      } else {
-        await share(file)
       }
     },
     saveToGallery() {

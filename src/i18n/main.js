@@ -154,7 +154,7 @@ module.exports = {
       sample1: "Simple linear treasure hunt",
       sample2: "Escape game with QR codes to flash",
       sample3: "Advanced escape game"
-    },  
+    },
     label: {
       shortLang: "en",
       letsGo: "Let's Go!",
@@ -1132,7 +1132,11 @@ module.exports = {
       PleaseWaitLoadingAndGPSInit: "PLEASE WAIT, DATA AND GPS INITIALIZATION",
       MoveToNextStepAutomaticallyDuration: "Seconds before moving to next step",
       UseAModel: "I use a model",
-      AddToInventoryAndPass: "Add in inventory and pass this step"
+      AddToInventoryAndPass: "Add in inventory and pass this step",
+      holdVerticaly: "For the best experience with Augmented Reality, please hold your phone upright.",
+      startScan: "Start Scan",
+      noSensorFound: "No sensors found on your device",
+      noSensorNext: "You can go directly to the next step by clicking on the arrow at the bottom right"
     }
   },
   fr: {
@@ -1277,7 +1281,7 @@ module.exports = {
       sample1: "Jeu de piste linéaire et simple",
       sample2: "Escape game avec des QR codes à trouver",
       sample3: "Escape game avancé"
-    },  
+    },
     label: {
       shortLang: "fr",
       letsGo: "C'est parti !",
@@ -2255,7 +2259,11 @@ module.exports = {
       PleaseWaitLoadingAndGPSInit: "CHARGEMENT DES DONNEES ET GPS EN COURS ...",
       MoveToNextStepAutomaticallyDuration: "Secondes avant de passer à l'étape suivante",
       UseAModel: "J'utilise un modèle :",
-      AddToInventoryAndPass: "Ajouter à l'inventaire et passer cette étape"
+      AddToInventoryAndPass: "Ajouter à l'inventaire et passer cette étape",
+      holdVerticaly: "Pour une meilleure expérience avec la Réalité Augmentée, merci de tenir votre téléphone à la verticale.",
+      startScan: "Démarrer",
+      noSensorFound: "Pas de capteurs trouvés sur votre appareil",
+      noSensorNext: "Vous pouvez directement passer à l'étape suivante en cliquant sur la flèche en bas à droite"
     }
   }
 }

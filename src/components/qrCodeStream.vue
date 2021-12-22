@@ -1,41 +1,89 @@
 <template>
-  <div class="q-pa-md">
-    <div class="q-pa-lg absolute-bottom-left" style="padding-bottom: 100px">
+  <div class="q-pa-md" :class="isHybrid ? '' : 'full-height'">
+    <div v-if="!isHybrid">
+      <qrcode-stream @decode="onDecode" :camera="camera" @init="onInit" :torch="torchActive" class="q-mb-md">
+        <div v-show="showScanConfirmation" class="scan-confirmation">
+          <q-spinner
+            color="primary"
+            size="5em"
+            :thickness="2"
+          />
+        </div>
+        <q-btn v-if="start && (isIOs || isSafari)" class="absolute-center" :label="$t('label.startScan')" color="primary" icon="qr_code_scanner" @click="start = !start"/>
+      </qrcode-stream>
       <q-btn
         round
         class="q-mr-md"
         size="1rem"
-        color="primary"
+        color="accent"
         :icon="isLight ? 'flashlight_off' : 'flashlight_on'"
-        @click="toggleLight"
+        @click="torchActive = !torchActive"
+        :disable="torchNotSupported"
       />
       <q-btn
         round
         size="1rem"
-        color="primary"
+        color="accent"
         icon="cameraswitch"
-        @click="changeCamera"
+        @click="switchCamera"
       />
     </div>
-    <div class="text-center absolute-bottom" style="bottom: 50px">
+    <div v-else>
+      <div class="q-pa-lg absolute-bottom-left" style="padding-bottom: 100px">
+        <q-btn
+          round
+          class="q-mr-md"
+          size="1rem"
+          color="primary"
+          :icon="isLight ? 'flashlight_off' : 'flashlight_on'"
+          @click="toggleLight"
+        />
+        <q-btn
+          round
+          size="1rem"
+          color="primary"
+          icon="cameraswitch"
+          @click="changeCamera"
+        />
+      </div>
+      <div class="text-center absolute-bottom" style="bottom: 50px">
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import Notification from "../boot/NotifyHelper";
+import { QrcodeStream } from "vue-qrcode-reader";
+import utils from "../includes/utils";
 
 export default {
   name: "qrCodeStream",
+  components: { QrcodeStream },
   data() {
     return {
       result: "",
       isLight: false,
       timeOutId: null,
-      usedCamera: 0
+      usedCamera: 0,
+      isHybrid: null,
+      camera: 'rear',
+      noRearCamera: false,
+      noFrontCamera: false,
+      torchActive: false,
+      torchNotSupported: false,
+      showScanConfirmation: false,
+      //IOS START BUG
+      start: false,
+      isIOs: utils.isIOS(),
+      isSafari: utils.isSafari(),
     }
   },
+  created() {
+    this.isHybrid = window.cordova
+  },
   methods: {
+    // HYBRID METHOD
     isDone(err, status) {
       if (err) {
         console.log(err)
@@ -75,22 +123,94 @@ export default {
           QRScanner.scan(this.displayResult)
         }, 4000)
       }
+    },
+    // WEBAPP METHOD WITH BUG IN IOS AND SAFARI
+    async onDecode (code) {
+      this.result = code
+      let temp = this.camera
+      this.pause()
+      await this.timeout(500)
+      this.$emit('QrCodeResult', this.result)
+      this.unpause(temp)
+    },
+    unpause (temp) {
+      this.camera = temp
+    },
+    pause () {
+      this.camera = 'off'
+    },
+    timeout (ms) {
+      return new Promise(resolve => {
+        window.setTimeout(resolve, ms)
+      })
+    },
+    async switchCamera () {
+      switch (this.camera) {
+        case 'front':
+          this.camera = 'rear'
+          break
+        case 'rear':
+          this.camera = 'front'
+          break
+      }
+    },
+    async onInit (promise) {
+      try {
+        const { capabilities } = await promise
+        this.torchNotSupported = !capabilities.torch
+      } catch (error) {
+        const triedFrontCamera = this.camera === 'front'
+        const triedRearCamera = this.camera === 'rear'
+
+        const cameraMissingError = error.name === 'OverconstrainedError'
+
+        if (triedRearCamera && cameraMissingError) {
+          this.noRearCamera = true
+        }
+        if (triedFrontCamera && cameraMissingError) {
+          this.noFrontCamera = true
+        }
+        console.error(error)
+      } finally {
+        if (this.camera !== 'off') {
+          this.start = true
+        }
+        this.showScanConfirmation = this.camera === "off"
+      }
     }
   },
-  mounted() {
-    document.body.style.background = "transparent"
-    QRScanner.prepare(this.isDone)
+  async mounted() {
+    if (this.isHybrid) {
+      document.body.style.background = "transparent"
+      QRScanner.prepare(this.isDone)
+    }
   },
   beforeDestroy() {
-    document.body.style.background = "#323232"
-    QRScanner.destroy()
-    if (this.timeOutId !== null) {
-     clearTimeout(this.timeOutId)
+    if (this.isHybrid) {
+      document.body.style.background = "#323232"
+      QRScanner.destroy()
+      if (this.timeOutId !== null) {
+        clearTimeout(this.timeOutId)
+      }
     }
   }
 }
 </script>
 
 <style scoped>
+.scan-confirmation {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  height: 100%;
 
+  background-color: rgba(0, 0, 0, .5);
+
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+}
 </style>

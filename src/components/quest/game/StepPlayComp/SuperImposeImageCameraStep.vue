@@ -4,7 +4,7 @@
 
   <div class="image-over-flow" v-if="step.type == 'image-over-flow'">
     <!--<transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">-->
-    <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled"></video>
+    <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled" class="full-height full-width"></video>
     <!--</transition>-->
     <div>
       <div v-if="!takingSnapshot" style="position: fixed; top: 58px; right: 8px;z-index: 1990;">
@@ -277,14 +277,18 @@ export default {
       return vh
     },
     getBackgroundImage () {
-      if (this.step.backgroundImage && this.step.backgroundImage[0] === "_") {
-        return 'statics/images/quest/' + this.step.backgroundImage
-      } else if (this.step.backgroundImage && this.step.backgroundImage.indexOf('blob:') !== -1) {
-        return this.step.backgroundImage
-      } else {
-        return this.serverUrl + '/upload/quest/' + this.step.questId + '/step/background/' + this.step.backgroundImage
+      if (!this.step.backgroundImage) {
+        return ""
       }
-    }
+      let backgroundImage = this.step.backgroundImage[this.lang] ? this.step.backgroundImage[this.lang] : this.step.backgroundImage[this.quest.mainLanguage]
+      if (backgroundImage && backgroundImage[0] === "_") {
+        return 'statics/images/quest/' + backgroundImage
+      } else if (backgroundImage && backgroundImage.indexOf('blob:') !== -1) {
+        return backgroundImage
+      } else {
+        return this.serverUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
+      }
+    },
   },
   async mounted() {
 // video stream
