@@ -48,33 +48,24 @@
         <div v-if="!this.quest.languages || this.quest.languages.length === 0">
           <q-item>
             <q-item-section side top>
-              <q-icon name="language" class="left-icon" />
+              <q-icon name="add_circle" class="left-icon" />
             </q-item-section>
             <q-item-section>
               <q-item-label class="big-label">{{ $t('label.SelectedLanguage') }}</q-item-label>
-              <q-option-group
-                type="radio"
-                color="primary"
-                v-model="languages.current"
-                :options="form.languages"
-                :disable="readOnly"
-              />
+              <div v-for="language in form.languages" :key="language.code">
+                <q-btn 
+                  :disabled="readOnly" 
+                  class="glossy full-width q-mt-sm" 
+                  color="primary" 
+                  @click="selectLanguage(language.value)">{{ language.label }}</q-btn>
+              </div>
             </q-item-section>
           </q-item>
-          <div class="centered">
-            <q-btn 
-              big 
-              :disabled="readOnly" 
-              class="glossy large-button" 
-              color="primary" 
-              @click="selectLanguage()"  
-              test-id="btn-save-language">{{ $t('label.Save') }}</q-btn>
-          </div>
           
-          <div class="centered q-mt-md">{{ $t('label.Or') }}</div>
+          <div class="centered q-mt-md"><strong>{{ $t('label.Or') }}</strong></div>
           <q-item>
             <q-item-section side top>
-              <q-icon name="language" class="left-icon" />
+              <q-icon name="content_copy" class="left-icon" />
             </q-item-section>
             <q-item-section>
               <q-item-label class="big-label">{{ $t('label.UseAModel') }}</q-item-label>
@@ -1531,7 +1522,7 @@ export default {
         list: [
           {questId: "61b315e6826fe25856cb573d", name: this.$t('samples.sample1')},
           {questId: "61bcfe7713927b4a5e2cca59", name: this.$t('samples.sample2')},
-          {questId: "61bcfea475cb6a4a4f862dde", name: this.$t('samples.sample3')}
+          {questId: "61b1dba8826fe25856cb56f7", name: this.$t('samples.sample3')}
         ]
       },
       form: {
@@ -3132,8 +3123,9 @@ export default {
     /*
     * Quest author selected the language he wants to use for typing quest & steps texts
     */
-    async selectLanguage() {
-      let selLang = this.languages.current
+    async selectLanguage(selLang) {
+      
+      this.languages.current = selLang
       
       // check if quest is already available for this lang
       let questConfiguredForThisLanguage = false

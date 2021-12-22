@@ -406,7 +406,7 @@ export default {
     },
     defineRedirection() {
       let destination = '/home';
-      if (this.$route.query.hasOwnProperty('redirect')) {
+      if (this.$route && this.$route.query && this.$route.query.hasOwnProperty('redirect') && this.$route.query.redirect) {
         destination = this.$route.query.redirect
       }
       return destination

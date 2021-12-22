@@ -304,7 +304,7 @@ module.exports = {
       TestYourQuest: "Test your game",
       PublishYourQuest: "Publish your game",
       UnpublishYourQuest: "Unpublish your game",
-      SelectedLanguage: "Create game in:",
+      SelectedLanguage: "I create my game in:",
       Close: "Close",
       ChooseTheStepType: "Choose the step type",
       Transition: "Transition",
@@ -1131,7 +1131,7 @@ module.exports = {
       Duplicate: "Duplicate",
       PleaseWaitLoadingAndGPSInit: "PLEASE WAIT, DATA AND GPS INITIALIZATION",
       MoveToNextStepAutomaticallyDuration: "Seconds before moving to next step",
-      UseAModel: "Start from a model",
+      UseAModel: "I use a model",
       AddToInventoryAndPass: "Add in inventory and pass this step"
     }
   },
@@ -1427,7 +1427,7 @@ module.exports = {
       TestYourQuest: "Tester votre jeu",
       PublishYourQuest: "Publier votre jeu",
       UnpublishYourQuest: "Dépublier votre jeu",
-      SelectedLanguage: "Saisir le jeu en :",
+      SelectedLanguage: "Je crée mon jeu en :",
       Close: "Fermer",
       ChooseTheStepType: "Choisir le type d'étape",
       Transition: "Transition",
@@ -2254,7 +2254,7 @@ module.exports = {
       Duplicate: "Dupliquer",
       PleaseWaitLoadingAndGPSInit: "CHARGEMENT DES DONNEES ET GPS EN COURS ...",
       MoveToNextStepAutomaticallyDuration: "Secondes avant de passer à l'étape suivante",
-      UseAModel: "Partir d'un exemple",
+      UseAModel: "J'utilise un modèle :",
       AddToInventoryAndPass: "Ajouter à l'inventaire et passer cette étape"
     }
   }
