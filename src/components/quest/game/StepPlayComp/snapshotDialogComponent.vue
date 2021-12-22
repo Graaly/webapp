@@ -77,7 +77,7 @@ export default {
       const saveSuccess = () => {
         // Message To Users when is saved
         this.$q.notify({
-          message: this.$t('snapshot.imageSavedToGallery'), // Cette fonction n'est pas supportée
+          message: this.$t('snapshot.imageSavedToGallery'),
           color: "positive"
         })
         // Save on the server
@@ -108,7 +108,6 @@ export default {
               console.log(error)
             }
             fileWriter.write(dataObj)
-            //
             this.fileEntry = fileEntry
           })
         }

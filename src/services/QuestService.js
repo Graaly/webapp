@@ -149,7 +149,7 @@ export default {
     
     quest = JSON.parse(quest)
 
-    const pictureUrl = await utils.readBinaryFile(id, quest.picture)
+    const pictureUrl = await utils.readBinaryFile(id, quest.picture[this.lang])
     if (pictureUrl) {
       quest.picture = pictureUrl
     }

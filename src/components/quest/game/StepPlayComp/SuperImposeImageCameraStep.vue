@@ -143,9 +143,12 @@ export default {
           c.style.display = 'none'
           // fit image to canvas, center horizontally & vertically & keep aspect ratio (like CSS 'cover')
           draw.drawImageProp(context, image)
-
           let imgOverflow = this.$refs['imageOverflowForCapture']
-          draw.drawImageProp(context, imgOverflow)
+          try { // Added by EMA when no picture added, it breaks
+            draw.drawImageProp(context, imgOverflow)
+          } catch(e) {
+            console.log("picture missing")
+          }
           // CREATE A BLOB OBJECT FROM CANVAS
           let finalBlob
           finalBlob = await new Promise(resolve => c.toBlob(resolve, 'image/jpeg'))
