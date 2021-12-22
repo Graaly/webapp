@@ -385,7 +385,7 @@
           <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
           </div>
-          
+
           <div class="centered" v-if="!step.options || !step.options.hideEnlargeMessage">
             <q-btn flat class="no-box-shadow hide-button text-black">{{ $t('label.ClickToEnlargePictures') }}</q-btn>
           </div>
@@ -650,7 +650,7 @@
 
       <!------------------ LOCATE ITEM IN AUGMENTED REALITY STEP AREA ------------------------>
 
-      <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
+      <div class="locate-item-ar" v-if="step.type == 'locate-item-ar' && !noSensorFound">
         <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
           <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null"></video>
         </transition>
@@ -671,6 +671,25 @@
         <div style="width:100%; text-align:center;">
           <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
         </div>
+        <q-dialog ref="raVerticallyDialog" persistent>
+          <q-card class="q-dialog-plugin">
+            <q-card-section class="bg-negative text-white q-pa-sm">
+              ATTENTION
+            </q-card-section>
+            <q-card-section >
+              <p class="q-pt-md q-ma-none">{{  $t('label.holdVerticaly')}}</p>
+            </q-card-section>
+          </q-card>
+        </q-dialog>
+      </div>
+      <div v-else class="text text-center" :class="'font-' + customization.font">
+        <p class="q-mb-lg">{{ $t('label.noSensorFound') }}</p>
+        <q-icon
+          class="q-mb-lg"
+          size="3em"
+          name="sensors_off"
+        />
+        <p>{{ $t('label.noSensorNext') }}</p>
       </div>
 
       <!------------------ SUPERIMPOSE IMAGE AND CAMERA STEP AREA ------------------------>
@@ -929,7 +948,6 @@
     <holdphonevertically
       :show="geolocation.showARHelp">
     </holdphonevertically>
-
   </div>
 </template>
 
@@ -1057,6 +1075,7 @@ export default {
           file: null,
           play: true
         },
+        noSensorFound: false,
 
         // for step 'character'
         character: {
@@ -1230,7 +1249,7 @@ export default {
         pageReady: false,
 
         //timer
-        countdowntimeleft: 0,
+        countdowntimeleft: 0
         //,currentcountdown: null
       }
     },
@@ -1288,7 +1307,7 @@ export default {
       if (this.geolocation.absoluteOrientationSensor !== null) {
         this.geolocation.absoluteOrientationSensor.stop()
       }
-
+      window.removeEventListener('deviceorientation', this.checkPhoneVertically)
       window.removeEventListener("devicemotion", this.handleMotionEvent, true)
 
       window.removeEventListener("deviceorientationabsolute", this.handleDeviceOrientationEvent, true)
@@ -1576,6 +1595,17 @@ export default {
                   sensor.onreading = this.onAbsoluteOrientationSensorReading
                   sensor.start()
                   this.geolocation.absoluteOrientationSensor = sensor
+                } else if (this.isSafari) {
+                  // WEB APP IOS
+
+                  if (typeof (DeviceMotionEvent) === "undefined") {
+                    this.noSensorFound = true
+                    return
+                  }
+                  this.geolocation.absoluteOrientationSensor = {
+                    stop: this.stopAlternateAbsoluteOrientationSensor
+                  }
+                  window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
                 } else {
                   // iOS
                   this.geolocation.absoluteOrientationSensor = {
@@ -1584,7 +1614,6 @@ export default {
 
                   // ask user to access to his device orientation
                   requestPermissionResult = await utils.requestDeviceOrientationPermission()
-
                   if (requestPermissionResult !== 'granted') {
                     Notification(this.$t('label.PleaseAcceptDeviceOrientationPermissionRequest'), 'error')
                     return
@@ -1671,6 +1700,7 @@ export default {
         }
 
         if (this.step.type === 'locate-item-ar'  && !this.playerResult) {
+          window.addEventListener('deviceorientation', this.checkPhoneVertically)
           if (this.deviceHasGyroscope || !this.step.backgroundImage) {
             // video stream for AR background
             if (this.isIOs && CameraPreview) {
@@ -2457,6 +2487,7 @@ export default {
               if (this.step.type === 'locate-item-ar') {
                 // stop listening to motion events
                 window.removeEventListener("devicemotion", this.handleMotionEvent, true)
+                window.removeEventListener('deviceorientation', this.checkPhoneVertically)
 
                 // stop moving camera when device moves
                 this.geolocation.absoluteOrientationSensor.stop()
@@ -3714,7 +3745,7 @@ export default {
      */
     async initPuzzle() {
       let languagePicture = (this.step.options.picture && this.step.options.picture[this.lang]) ? this.step.options.picture[this.lang] : this.step.options.picture[this.quest.mainLanguage]
-      
+
       let picture
       if (languagePicture && languagePicture.indexOf('blob:') !== -1) {
         picture = languagePicture
@@ -4362,6 +4393,17 @@ export default {
       // Switch 'isAccelerationIdle' to false as soon as enough movement is detected,
       // and keep it false for 1 second or less (until next occurrence of the 'interval' idleAccelerationInterval)
       dm.isAccelerationIdle = dm.isAccelerationIdle && ((Math.pow(dm.acceleration.filtered.x, 2) + Math.pow(dm.acceleration.filtered.y, 2) + Math.pow(dm.acceleration.filtered.z, 2)) < 0.5)
+    },
+    /**
+     * checkPhoneVertically
+     * @params: (event)
+     **/
+    checkPhoneVertically(event) {
+      if (event.beta < 50 || event.beta > 130) {
+        this.$refs.raVerticallyDialog.show()
+      } else {
+        this.$refs.raVerticallyDialog.hide()
+      }
     },
     /*
     * updates property this.geolocation.canTouchTarget, given this.geolocation.distance
