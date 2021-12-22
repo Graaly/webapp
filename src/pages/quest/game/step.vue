@@ -2462,6 +2462,7 @@ export default {
       if (currentConditions.indexOf('stepDone' + player + '_' + stepId) === -1 && addStepDone) {
         currentConditions.push('stepDone' + player + '_' + stepId)
       }
+      /*
       if (currentConditions.indexOf('stepSuccess_' + stepId) !== -1) {
         let position = currentConditions.indexOf('stepSuccess_' + stepId)
         currentConditions.splice(position, 1)
@@ -2477,11 +2478,11 @@ export default {
           position = currentConditions.indexOf('stepFail' + player + '_' + stepId)
           currentConditions.splice(position, 1)
         }
-      }
+      }*/
       const stepsWithoutSuccessTrigger = ['info-text', 'info-video', 'new-item', 'character', 'help', 'end-chapter']
       // assign success or fail status
       if (stepsWithoutSuccessTrigger.indexOf(stepType) === -1) {
-        if (currentConditions.indexOf('stepFail_' + stepId) === -1 && currentConditions.indexOf('stepSuccess_' + stepId) !== -1) {
+        if (currentConditions.indexOf('stepFail_' + stepId) === -1 && currentConditions.indexOf('stepSuccess_' + stepId) === -1) {
           if (isSuccess) {
             currentConditions.push('stepSuccess_' + stepId)
             currentConditions.push('stepSuccess' + player + '_' + stepId)
@@ -2491,7 +2492,6 @@ export default {
           }
         }
       }
-
       return currentConditions
     },
     /*

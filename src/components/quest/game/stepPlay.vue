@@ -2423,7 +2423,7 @@ export default {
             }
             // if alt picture
             if (this.step.options && this.step.options.altFile) {
-              this.step.backgroundImage = this.step.options.altFile
+              this.step.backgroundImage[this.lang] = this.step.options.altFile
             }
 
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
@@ -2456,7 +2456,7 @@ export default {
             }*/
             // if alt picture
             if (this.step.options && this.step.options.altFile) {
-              this.step.backgroundImage = this.step.options.altFile
+              this.step.backgroundImage[this.lang] = this.step.options.altFile
             }
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {

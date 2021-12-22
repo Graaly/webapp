@@ -1294,12 +1294,20 @@ export default {
      * get background image
      */
     getBackgroundImage () {
-      if (this.info.quest.picture && this.info.quest.picture[0] === '_') {
-        return 'statics/images/quest/' + this.info.quest.picture
-      } else if (this.info.quest.picture && this.info.quest.picture.indexOf('blob:') !== -1) {
-        return this.info.quest.picture
-      } else if (this.info.quest.picture) {
-        return this.serverUrl + '/upload/quest/' + this.info.quest.picture
+      let picture
+      if (this.info.quest.picture) {
+        if (this.info.quest.picture[this.lang]) {
+          picture = this.info.quest.picture[this.lang]
+        } else if (this.info.quest.picture[this.info.quest.mainLanguage]) {
+          picture = this.info.quest.picture[this.info.quest.mainLanguage]
+        }
+      }
+      if (picture && picture[0] === '_') {
+        return 'statics/images/quest/' + picture
+      } else if (picture && picture.indexOf('blob:') !== -1) {
+        return picture
+      } else if (picture) {
+        return this.serverUrl + '/upload/quest/' + picture
       } else {
         return 'statics/images/quest/default-quest-picture.jpg'
       }
@@ -1684,7 +1692,7 @@ export default {
           if (pictureUrl) {
             this.info.quest.picture[this.lang] = pictureUrl
           } else {
-            this.info.quest.picture = '_default-quest-picture.jpg'
+            this.info.quest.picture[this.lang] = '_default-quest-picture.jpg'
           }
           // get customized logo
           if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo !== '') {
@@ -1781,7 +1789,6 @@ export default {
       }
     },
     alertOnHint() {
-      console.log("SHOW HINT")
       this.hint.suggest = true
     },
     alertOnNext() {
@@ -2420,6 +2427,7 @@ export default {
       if (currentConditions.indexOf('stepDone' + player + '_' + stepId) === -1 && addStepDone) {
         currentConditions.push('stepDone' + player + '_' + stepId)
       }
+      /*
       if (currentConditions.indexOf('stepSuccess_' + stepId) !== -1) {
         let position = currentConditions.indexOf('stepSuccess_' + stepId)
         currentConditions.splice(position, 1)
@@ -2435,11 +2443,11 @@ export default {
           position = currentConditions.indexOf('stepFail' + player + '_' + stepId)
           currentConditions.splice(position, 1)
         }
-      }
+      }*/
       const stepsWithoutSuccessTrigger = ['info-text', 'info-video', 'new-item', 'character', 'help', 'end-chapter']
       // assign success or fail status
       if (stepsWithoutSuccessTrigger.indexOf(stepType) === -1) {
-        if (currentConditions.indexOf('stepFail_' + stepId) === -1 && currentConditions.indexOf('stepSuccess_' + stepId) !== -1) {
+        if (currentConditions.indexOf('stepFail_' + stepId) === -1 && currentConditions.indexOf('stepSuccess_' + stepId) === -1) {
           if (isSuccess) {
             currentConditions.push('stepSuccess_' + stepId)
             currentConditions.push('stepSuccess' + player + '_' + stepId)
@@ -2449,7 +2457,6 @@ export default {
           }
         }
       }
-
       return currentConditions
     },
     /*
