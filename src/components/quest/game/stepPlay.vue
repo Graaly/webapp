@@ -1,6 +1,6 @@
 <template>
 
-  <div id="play-view" class="fit" :class="{'bg-black': (!showNonHybridQRReader && step.type === 'locate-marker' || step.id === 'sensor'), 'loaded': pageReady, 'bg-transparent': showNonHybridQRReader}">
+  <div id="play-view" class="fit" :class="{'bg-black': (!showNonHybridQRReader && step.type === 'locate-marker' || step.id === 'sensor'), 'loaded': pageReady, 'bg-transparent': showNonHybridQRReader || step.type === 'image-over-flow'}">
     <div id="background-image" v-show="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect), 'effect-blur': (step.options && step.options.blurEffect)}">
     </div>
     <div v-if="showNonHybridQRReader">
@@ -650,46 +650,50 @@
 
       <!------------------ LOCATE ITEM IN AUGMENTED REALITY STEP AREA ------------------------>
 
-      <div class="locate-item-ar" v-if="step.type == 'locate-item-ar' && !noSensorFound">
-        <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-          <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null"></video>
-        </transition>
-        <div v-show="playerResult === null && (this.geolocation.active || isIOs)">
-          <div class="text" :class="'font-' + customization.font">
-            <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
-            <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
-            <p v-if="!geolocation.active">{{ $t('label.PleaseWaitLoadingAndGPSInit') }}</p>
-            <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: (geolocation.GPSdistance == 0 ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
-            <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
-            <p v-if="geolocation.canTouchTarget && geolocation.active" style="color: #f00">{{ $t('label.TouchTheObject') }}</p>
-            <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
+      <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
+        <!-- PAS DE CAPTEUR -->
+        <div v-if="noSensorFound" class="text text-center" :class="'font-' + customization.font">
+          <p class="q-mb-lg">{{ $t('label.noSensorFound') }}</p>
+          <q-icon
+            class="q-mb-lg"
+            size="3em"
+            name="sensors_off"
+          />
+          <p>{{ $t('label.noSensorNext') }}</p>
+        </div>
+        <div v-else>
+          <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
+            <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null"></video>
+          </transition>
+          <div v-show="playerResult === null && (this.geolocation.active || isIOs)" class="q-mt-xl">
+            <div class="text" :class="'font-' + customization.font">
+              <p v-if="!(step.options && step.options.html)">{{ getTranslatedText() }}</p>
+              <p v-if="step.options && step.options.html" v-html="getTranslatedText()" />
+              <p v-if="!geolocation.active">{{ $t('label.PleaseWaitLoadingAndGPSInit') }}</p>
+              <p v-if="step.showDistanceToTarget && geolocation.active">{{ $t('label.DistanceInMeters', { distance: (geolocation.GPSdistance == 0 ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
+              <p v-if="!geolocation.canSeeTarget && geolocation.active">{{ $t('label.ObjectIsTooFar') }}</p>
+              <p v-if="geolocation.canTouchTarget && geolocation.active" style="color: #f00">{{ $t('label.TouchTheObject') }}</p>
+              <p v-if="geolocation.canSeeTarget && !geolocation.canTouchTarget && geolocation.active">{{ $t('label.MoveCloserToTheObject') }}</p>
+            </div>
           </div>
+          <div class="target-view" v-show="(playerResult === null) || (playerResult !== null && step.options && step.options.is3D)">
+            <canvas id="target-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
+          </div>
+          <div style="width:100%; text-align:center;">
+            <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
+          </div>
+          <!-- DIALOG PHONE VERTICALY -->
+          <q-dialog ref="raVerticallyDialog" persistent>
+            <q-card class="q-dialog-plugin">
+              <q-card-section class="bg-negative text-white q-pa-sm">
+                ATTENTION
+              </q-card-section>
+              <q-card-section >
+                <p class="q-pt-md q-ma-none">{{  $t('label.holdVerticaly')}}</p>
+              </q-card-section>
+            </q-card>
+          </q-dialog>
         </div>
-        <div class="target-view" v-show="(playerResult === null) || (playerResult !== null && step.options && step.options.is3D)">
-          <canvas id="target-canvas" @click="onTargetCanvasClick" v-touch-pan="handlePanOnTargetCanvas"></canvas>
-        </div>
-        <div style="width:100%; text-align:center;">
-          <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
-        </div>
-        <q-dialog ref="raVerticallyDialog" persistent>
-          <q-card class="q-dialog-plugin">
-            <q-card-section class="bg-negative text-white q-pa-sm">
-              ATTENTION
-            </q-card-section>
-            <q-card-section >
-              <p class="q-pt-md q-ma-none">{{  $t('label.holdVerticaly')}}</p>
-            </q-card-section>
-          </q-card>
-        </q-dialog>
-      </div>
-      <div v-else class="text text-center" :class="'font-' + customization.font">
-        <p class="q-mb-lg">{{ $t('label.noSensorFound') }}</p>
-        <q-icon
-          class="q-mb-lg"
-          size="3em"
-          name="sensors_off"
-        />
-        <p>{{ $t('label.noSensorNext') }}</p>
       </div>
 
       <!------------------ SUPERIMPOSE IMAGE AND CAMERA STEP AREA ------------------------>
@@ -1361,13 +1365,16 @@ export default {
     /*
      * reset background image between steps
      */
-    resetBackgroundImage () {
-      let background = document.getElementById('play-view')
+    async resetBackgroundImage () {
+      let background = await document.getElementById('play-view')
       background.style.background = 'none'
       background.style.backgroundColor = 'transparent'
-      let backgroundImage = document.getElementById('background-image')
+      let backgroundImage = await document.getElementById('background-image')
       if (backgroundImage) {
+        console.log('reset')
+        console.log(backgroundImage)
         backgroundImage.style.background = 'none'
+        backgroundImage.style.backgroundImage = 'none'
         backgroundImage.style.backgroundColor = 'transparent'
       }
     },
@@ -1379,7 +1386,7 @@ export default {
       this.isPageInit = true
       this.resetEvents()
       this.resetData()
-      this.resetBackgroundImage()
+      await this.resetBackgroundImage()
       TWEEN.removeAll()
       // wait that DOM is loaded (required by steps involving camera)
       this.$nextTick(async () => {
@@ -1389,10 +1396,11 @@ export default {
             background.style.background = 'none'
             background.style.backgroundColor = '#000'
             this.showControls()
-          } else if (this.step.type === 'image-over-flow') {
+          } else if (this.step.type === 'image-over-flow' || this.step.type === 'locate-item-ar' || this.step.type === 'locate-marker' || this.step.id === 'sensor') {
             this.showControls()
             background.style.background = 'none'
             background.style.backgroundColor = 'transparent'
+            document.body.style.backgroundColor = 'transparent'
           } else if (this.step.type === 'jigsaw-puzzle') {
             let backgroundUrl = this.getBackgroundImage()
             background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
@@ -1421,12 +1429,14 @@ export default {
           }
         } else {
           // no background on some steps to display camera stream
-          if (this.step.type && this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker' && this.step.id !== 'sensor') {
+          if (this.step.type && this.step.type !== 'locate-item-ar' && this.step.type !== 'locate-marker' && this.step.id !== 'sensor' && this.step.type !== 'image-over-flow') {
             background.style.background = 'none'
             background.style.backgroundColor = '#fff'
+            document.body.style.backgroundColor = '#323232'
           } else {
             background.style.background = 'none'
             background.style.backgroundColor = 'transparent'
+            document.body.style.backgroundColor = 'transparent'
             if (this.step.type === 'locate-item-ar') {
               let backgroundImage = document.getElementById('background-image')
               if (backgroundImage) {

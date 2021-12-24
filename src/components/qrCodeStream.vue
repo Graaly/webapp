@@ -36,6 +36,7 @@
           size="1rem"
           color="primary"
           :icon="isLight ? 'flashlight_off' : 'flashlight_on'"
+          :disable="torchNotSupported"
           @click="toggleLight"
         />
         <q-btn
@@ -45,6 +46,7 @@
           icon="cameraswitch"
           @click="changeCamera"
         />
+
       </div>
       <div class="text-center absolute-bottom" style="bottom: 50px">
       </div>
@@ -88,6 +90,7 @@ export default {
       if (err) {
         console.log(err)
       }
+      this.usedCamera = status.currentCamera
       if (status.authorized) {
         QRScanner.scan(this.displayResult)
       } else {
@@ -108,8 +111,14 @@ export default {
     changeCamera() {
       if (this.usedCamera === 0) {
         this.usedCamera = 1
+        this.torchNotSupported = true
       } else {
         this.usedCamera = 0
+        QRScanner.getStatus(status => {
+            if (status.canEnableLight) {
+              this.torchNotSupported = false
+            }
+        })
       }
       QRScanner.useCamera(this.usedCamera);
     },
@@ -181,13 +190,14 @@ export default {
   },
   async mounted() {
     if (this.isHybrid) {
-      document.body.style.background = "transparent"
+      document.body.style.backgroundColor = 'transparent'
+      document.body.style.background = 'transparent'
       QRScanner.prepare(this.isDone)
     }
   },
   beforeDestroy() {
     if (this.isHybrid) {
-      document.body.style.background = "#323232"
+      document.body.style.backgroundColor = '#323232'
       QRScanner.destroy()
       if (this.timeOutId !== null) {
         clearTimeout(this.timeOutId)

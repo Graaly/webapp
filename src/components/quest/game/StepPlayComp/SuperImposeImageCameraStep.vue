@@ -146,7 +146,7 @@ export default {
           let imgOverflow = this.$refs['imageOverflowForCapture']
           try { // Added by EMA when no picture added, it breaks
             draw.drawImageProp(context, imgOverflow)
-          } catch(e) {
+          } catch (e) {
             console.log("picture missing")
           }
           // CREATE A BLOB OBJECT FROM CANVAS
@@ -294,7 +294,6 @@ export default {
     },
   },
   async mounted() {
-// video stream
     if (this.isIOs && CameraPreview) {
       await this.launchVideoStreamForIphone()
     } else {
