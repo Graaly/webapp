@@ -391,7 +391,7 @@ export default {
         // get quest data
         var quest
         if (this.run && this.run.version) {
-          quest = await QuestService.getById(this.questId, this.run.version)
+          quest = await QuestService.getByIdOnline(this.questId, this.run.version)
         } else {
           quest = await QuestService.getLastById(this.questId)
         }

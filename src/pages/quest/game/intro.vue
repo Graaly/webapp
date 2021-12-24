@@ -584,8 +584,9 @@ export default {
      */
     async initQuest() {
       // get quest information
-      this.quest = await QuestService.getByIdOnline(this.$route.params.id)
-      
+      const response = await QuestService.getByIdOnline(this.$route.params.id)
+      this.quest = response.data
+
       // update 'forceOnline' state property according to current quest
       this.$store.commit('setForceOnline', this.quest.hasOwnProperty('customization') && this.quest.customization.hasOwnProperty('forceOnline') ? this.quest.customization.forceOnline : false)
       
