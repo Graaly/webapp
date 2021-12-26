@@ -44,7 +44,7 @@
                 <q-avatar>
                   <img
                     v-if="quest.thumb"
-                    :src="serverUrl + '/upload/quest/' + quest.thumb"
+                    :src="serverUrl + '/upload/quest/' + quest.thumb['fr']"
                   />
                   <img
                     v-if="!quest.thumb"
@@ -108,7 +108,7 @@
                 <q-avatar>
                   <img
                     v-if="quest.thumb"
-                    :src="serverUrl + '/upload/quest/' + quest.thumb"
+                    :src="serverUrl + '/upload/quest/' + quest.thumb['fr']"
                   />
                   <img
                     v-if="!quest.thumb"

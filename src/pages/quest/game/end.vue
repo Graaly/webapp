@@ -27,7 +27,7 @@
         <q-btn color="primary" class="glossy large-button" :label="$t('label.GoToQuestValidation')" @click="openValidation(questId, quest.version)"></q-btn>
       </div>
     </div>
-    <div v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage[lang] && quest.customization.endMessage[lang] !== ''" class="q-px-md text-grey align-right" style="font-size: 0.8em; margin-top: -10px;">
+    <div v-if="quest && quest.customization && quest.customization.endMessage && quest.customization.endMessage[lang] && quest.customization.endMessage[lang] !== ''" class="q-px-md text-grey align-right" style="font-size: 0.8em; margin-top: -10px;">
       {{ endDate }}
     </div>
     

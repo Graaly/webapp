@@ -1133,7 +1133,7 @@ module.exports = {
       MoveToNextStepAutomaticallyDuration: "Seconds before moving to next step",
       UseAModel: "I use a model",
       AddToInventoryAndPass: "Add in inventory and pass this step",
-      holdVerticaly: "For the best experience with Augmented Reality, please hold your phone upright.",
+      holdVerticaly: "For the best experience with augmented reality, please hold your phone upright.",
       startScan: "Start Scan",
       noSensorFound: "No sensors found on your device",
       noSensorNext: "You can go directly to the next step by clicking on the arrow at the bottom right"
@@ -2260,7 +2260,7 @@ module.exports = {
       MoveToNextStepAutomaticallyDuration: "Secondes avant de passer à l'étape suivante",
       UseAModel: "J'utilise un modèle :",
       AddToInventoryAndPass: "Ajouter à l'inventaire et passer cette étape",
-      holdVerticaly: "Pour une meilleure expérience avec la Réalité Augmentée, merci de tenir votre téléphone à la verticale.",
+      holdVerticaly: "Pour une meilleure expérience avec la réalité augmentée, merci de tenir votre téléphone à la verticale.",
       startScan: "Démarrer",
       noSensorFound: "Pas de capteurs trouvés sur votre appareil",
       noSensorNext: "Vous pouvez directement passer à l'étape suivante en cliquant sur la flèche en bas à droite"

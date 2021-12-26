@@ -1776,7 +1776,7 @@ export default {
       let quest = await QuestService.getLastById(this.questId, 'all')
       
       if (quest) {
-        this.quest = quest
+        this.quest = quest.data
         
         // if not draft => read only
         if (this.quest.status !== 'draft' && !this.isAdmin) {

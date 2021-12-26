@@ -5,12 +5,10 @@
     </div>
     <div v-if="showNonHybridQRReader">
       <!--====================== QR CODE READER ON WEBAPP =================================-->
-      <q-toolbar class="text-white bg-primary q-pt-xl">
-        <q-toolbar-title>
-          {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
-        </q-toolbar-title>
-        <q-btn flat round dense icon="close" @click="closeQRCodeReader" class="no-shadow"/>
-      </q-toolbar>
+      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
+        <div class="float-right no-underline close-btn q-pa-sm" @click="closeQRCodeReader"><q-icon name="close" class="subtitle1" /></div>
+        {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
+      </div>
 
       <qr-code-stream
         v-if="showNonHybridQRReader"
@@ -128,7 +126,7 @@
 
       <!------------------ HELP AREA ------------------------>
       <div v-if="step.type == 'help'" :class="'font-' + customization.font" style="overflow: auto; margin-bottom: 80px;">
-        <p class="text help-text " v-html="$t('label.HelpStepMessage')"></p>
+        <p class="text help-text" v-html="$t('label.HelpStepMessage')"></p>
         <div v-if="step.options && step.options.helpNext" class="text help-text centered">
           <div class="white-buttons">
             <q-btn
@@ -683,7 +681,7 @@
             <img ref="item-image" v-show="playerResult && step.options && !step.options.is3D" />
           </div>
           <!-- DIALOG PHONE VERTICALY -->
-          <q-dialog ref="raVerticallyDialog" persistent>
+          <q-dialog ref="raVerticallyDialog">
             <q-card class="q-dialog-plugin">
               <q-card-section class="bg-negative text-white q-pa-sm">
                 ATTENTION
@@ -1371,8 +1369,6 @@ export default {
       background.style.backgroundColor = 'transparent'
       let backgroundImage = await document.getElementById('background-image')
       if (backgroundImage) {
-        console.log('reset')
-        console.log(backgroundImage)
         backgroundImage.style.background = 'none'
         backgroundImage.style.backgroundImage = 'none'
         backgroundImage.style.backgroundColor = 'transparent'
@@ -4926,20 +4922,6 @@ export default {
     position: relative;
   }
 
-  .text,
-  .answers-text .q-btn {
-    opacity: 0.9;
-    background-color: #fff;
-    padding: 0.5rem;
-    margin: 0;
-  }
-  .text {
-    white-space: pre-wrap;
-    /*text-align: justify;*/
-    margin: 20px 20px 0 20px;
-    border-radius: 10px;
-  }
-  .text p { padding: 0.25rem 0; margin: 0; }
   .carrier-return {
     white-space: pre-wrap;
     text-align: justify;
