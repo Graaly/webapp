@@ -1633,6 +1633,11 @@ export default {
 
             if (this.step.type === 'locate-item-ar') {
               // show help
+              if (!this.isHybrid) {
+                const call = await this.callPermissionsEvent()
+                console.log(call)
+              }
+
               this.geolocation.showARHelp = true
 
               // ask user to access to his device motion
@@ -1705,7 +1710,7 @@ export default {
           }
         }
 
-        if (this.step.type === 'locate-item-ar'  && !this.playerResult) {
+        if (this.step.type === 'locate-item-ar' && !this.playerResult) {
           window.addEventListener('deviceorientation', this.checkPhoneVertically)
           if (this.deviceHasGyroscope || !this.step.backgroundImage) {
             // video stream for AR background
@@ -1933,6 +1938,27 @@ export default {
       })
     },
     /**
+     * call device permissions event on iOS Fix for RA
+     */
+    callPermissionsEvent() {
+      if (typeof (DeviceMotionEvent) !== "undefined" && typeof (DeviceMotionEvent.requestPermission) === "function") {
+        return new Promise(resolve => this.$q.dialog({
+          title: this.$t('label.arDialogTitle'),
+          message: this.$t('label.arDialogMessage'),
+          persistent: true
+        })
+          .onOk(() => {
+            resolve()
+          DeviceMotionEvent.requestPermission()
+            .then(response => {
+              console.log("devicePermissions", response)
+            })
+            .catch(console.error)
+        })
+        )
+      }
+    },
+    /**
      * handles deviceorientation event on iOS
      */
     eventAlternateAbsoluteOrientationSensor(e) {
@@ -2157,6 +2183,8 @@ export default {
      * @param   {Object}    selectedAnswerKey            Answer object
      */
     async checkAnswer(answer) {
+      //console.log(this.playerResult)
+      //console.log(this.step.type)
       var checkAnswerResult
       if (this.playerResult !== null) {
         return

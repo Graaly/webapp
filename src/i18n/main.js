@@ -1136,7 +1136,9 @@ module.exports = {
       holdVerticaly: "For the best experience with augmented reality, please hold your phone upright.",
       startScan: "Start Scan",
       noSensorFound: "No sensors found on your device",
-      noSensorNext: "You can go directly to the next step by clicking on the arrow at the bottom right"
+      noSensorNext: "You can go directly to the next step by clicking on the arrow at the bottom right",
+      arDialogTitle: "Graaly authorization",
+      arDialogMessage: "To continue, authorize Graaly to use certain features of your device"
     }
   },
   fr: {
@@ -2263,7 +2265,9 @@ module.exports = {
       holdVerticaly: "Pour une meilleure expérience avec la réalité augmentée, merci de tenir votre téléphone à la verticale.",
       startScan: "Démarrer",
       noSensorFound: "Pas de capteurs trouvés sur votre appareil",
-      noSensorNext: "Vous pouvez directement passer à l'étape suivante en cliquant sur la flèche en bas à droite"
+      noSensorNext: "Vous pouvez directement passer à l'étape suivante en cliquant sur la flèche en bas à droite",
+      arDialogTitle: "Autorisation Graaly",
+      arDialogMessage: "Pour continuer , autorisez Graaly à utiliser certaines fonctionnalités de votre appareil"
     }
   }
 }
