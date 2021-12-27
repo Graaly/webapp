@@ -22,7 +22,7 @@
 
     <!------------------ HEADER AREA ------------------------>
     <div :class="{'fit': (step.type !== 'image-over-flow')}"><!-- Keep this div for iphone, for red filter display -->
-      
+
       <stepPlay
         :step="step"
         :runId="runId"
@@ -35,9 +35,9 @@
         :player="player"
         :timer="countDownTime"
         :quest="info.quest"
-        @played="trackStepPlayed" 
-        @success="trackStepSuccess" 
-        @fail="trackStepFail" 
+        @played="trackStepPlayed"
+        @success="trackStepSuccess"
+        @fail="trackStepFail"
         @pass="trackStepPass"
         @closeAllPanels="closeAllPanels"
         @forceMoveNext="nextStep(true)"
@@ -211,11 +211,11 @@
     <div class="mobile-fit over-map" :class="'font-' + info.quest.customization.font" v-if="story.step !== null && story.step !== 'end'">
       <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
     </div>
-    
+
     <!--====================== COUNTDOWN MESSAGE =================================-->
-    
+
     <div v-show="countDownTime.enabled" class="fadein-message" style="font-size: 48px;"><q-icon color="white" name="timer" /> {{ $t('label.ItRemainsMinutes', {time: countDownTime.remainingMinutes}) }}</div>
-    
+
     <!--====================== FEEDBACK =================================-->
 
     <q-dialog v-model="feedback.isOpened">
@@ -275,10 +275,10 @@
             flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            icon="work" 
+            icon="work"
             v-if="!info.quest.customization || !info.quest.customization.hideInventory"
-            :class="{'flashing': inventory.suggest, 'bg-secondary': inventory.isOpened, 'bg-primary': (!inventory.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
-            @click="openInventory()" 
+            :class="{'flashing': inventory.suggest, 'bg-secondary': inventory.isOpened, 'bg-primary': (!inventory.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}"
+            @click="openInventory()"
           />
         </div>
         <div class="col centered q-py-sm">
@@ -456,7 +456,7 @@ export default {
         },
         previousStepId: '',
         isIOs: utils.isIOS(),
-        // timer 
+        // timer
         countDownTime: {
           remaining: 0
         },
@@ -484,7 +484,7 @@ export default {
      */
     async initData () {
       this.$q.loading.show()
-      
+
       try {
         this.info.quest = await QuestService.getByIdForStep(this.questId)
       } catch (err) {
@@ -492,12 +492,12 @@ export default {
         this.warnings.questDataMissing = true
         return
       }
-      
+
       // Start audio
       this.getAudioSound()
-      
+
       this.startFullScreen()
-      
+
       this.loadStepData = false
 
       // get current run or create it
@@ -509,21 +509,21 @@ export default {
 
       // get current step
       await this.getStep()
-      
+
       // send stepId to parent if in a frame
       this.sendStepIdToParent()
-      
+
       // send once on start
       /*if (this.info.quest.customization.chatEnabled) {
         this.sendDataToGameMaster()
       }*/
-      
+
       // manage history
       this.updateHistory()
-      
+
       // start countdown
       this.startCountDown()
-      
+
       // check if user already played the step
       this.checkIfAlreadyPlayed()
 
@@ -619,16 +619,16 @@ export default {
 
       // get current step
       await this.getStep(false, forceStepId)
-      
+
       // send stepId to parent if in a frame
       this.sendStepIdToParent()
-      
+
       // manage history
       this.updateHistory()
-      
+
       // manage audio
       this.manageAudio()
-      
+
       // check if user already played the step
       this.checkIfAlreadyPlayed()
 
@@ -797,7 +797,7 @@ export default {
 
       this.warnings.stepDataMissing = false
       var stepId
-      
+
       // force network loading based on quest configuration
       if (this.info.quest.customization && this.info.quest.customization.forceOnline) {
         forceNetworkLoading = true
@@ -868,7 +868,7 @@ export default {
         } else {
           // use offline content
           const stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player)
-          
+
           if (!stepIdResponse || !stepIdResponse.id) {
             // if no step is triggered, display the waiting screen
             if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
@@ -906,7 +906,7 @@ export default {
 
       // check if the quest data are not already saved on device
       let isStepOfflineLoaded = await this.checkIfStepIsAlreadyLoaded(stepId)
-      
+
       if (!isStepOfflineLoaded || forceNetworkLoading) {
         const response2 = await StepService.getById(stepId, this.questVersion, this.lang)
         if (response2 && response2.data && response2.status === 200) {
@@ -978,7 +978,7 @@ export default {
                 this.warnings.stepDataMissing = true
               }
             } else if (this.lang !== mainLang && tempStep.audioStream[mainLang] && tempStep.audioStream[mainLang] !== '') {
-              // no audio available in current language => try to load audio for main language if different from current language 
+              // no audio available in current language => try to load audio for main language if different from current language
               const audioUrl = await utils.readBinaryFile(this.questId, tempStep.audioStream[mainLang])
               if (audioUrl) {
                 tempStep.audioStream[mainLang] = audioUrl
@@ -1224,7 +1224,7 @@ console.log(tempStep.options)
 
       // save offline run
       await this.saveOfflineAnswer(false, answer, false)
-      
+
       // move to next step if right answer not displayed
       if (this.step.displayRightAnswer === false && (!this.step.options.wrongAnswerMessage || this.step.options.wrongAnswerMessage === "")) {
         this.nextStep()
@@ -1369,7 +1369,7 @@ console.log(tempStep.options)
       let finalLang = this.lang
       let hasAudioForCurrentLang = (this.info.quest.customization && this.info.quest.customization.audio && this.info.quest.customization.audio[this.lang] && this.info.quest.customization.audio[this.lang] !== '')
       let hasAudioForMainLang = (this.info.quest.customization && this.info.quest.customization.audio && this.info.quest.customization.audio[mainLang] && this.info.quest.customization.audio[mainLang] !== '')
-      
+
       if (hasAudioForCurrentLang || hasAudioForMainLang) { // some audio is available
         if (!hasAudioForCurrentLang && hasAudioForMainLang && mainLang !== this.lang) { // no audio in current lang ? take main lang audio
           finalLang = mainLang
@@ -1653,7 +1653,7 @@ console.log(tempStep.options)
         const questFileContent = await utils.readFile('', 'quests.json')
 
         quests = JSON.parse(questFileContent)
-        
+
         // check if quest is already existing in file
         var questPosition = -1
         for (var i = 0; i < quests.list.length; i++) {
@@ -1661,11 +1661,11 @@ console.log(tempStep.options)
             questPosition = i
           }
         }
-        
+
         if (questPosition !== -1) {
           quests.list.splice(questPosition, 1)
         }
-        
+
         // save quests list
         await utils.writeInFile('', 'quests.json', JSON.stringify(quests), true)
       }
@@ -1703,7 +1703,7 @@ console.log(tempStep.options)
      */
     async getQuest(id, forceNetworkLoading) {
       this.warnings.questDataMissing = false
-      
+
       // force network loading based on quest configuration
       if (this.info.quest.customization && this.info.quest.customization.forceOnline) {
         forceNetworkLoading = true
@@ -1755,7 +1755,7 @@ console.log(tempStep.options)
                 this.info.quest.customization.audio[this.lang] = audioUrl
               }
             } else if (this.lang !== mainLang && this.info.quest.customization.audio[mainLang] && this.info.quest.customization.audio[mainLang] !== '') {
-              // no audio available in current language => try to load audio for main language if different from current language 
+              // no audio available in current language => try to load audio for main language if different from current language
               const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio[mainLang])
               if (audioUrl) {
                 this.info.quest.customization.audio[mainLang] = audioUrl
@@ -2092,7 +2092,7 @@ console.log(tempStep.options)
     async getNextOfflineStep(questId, markerCode, player, extra) {
       var steps = []
       let conditionsDone = this.run.conditionsDone
-      
+
       if (!player) {
         player = 'P1'
       }
@@ -2187,7 +2187,7 @@ console.log(tempStep.options)
       var stepsofChapter = await this.listForAChapter(steps, chapter, player)
       var locationMarkerFound = false
       var geolocationFound = false
-      
+
       // Count counter value
       let counter = 0
       for (let i = 0; i < conditionsDone.length; i++) {
@@ -2195,7 +2195,7 @@ console.log(tempStep.options)
           counter++
         }
       }
-      
+
       if (stepsofChapter && stepsofChapter.length > 0) {
         stepListFor:
         for (i = 0; i < stepsofChapter.length; i++) {
@@ -2263,7 +2263,7 @@ console.log(tempStep.options)
                 continue stepListFor
               }
             }
-            
+
             // treat case of the increment counter
             if (stepsofChapter[i].type === 'increment-counter') {
               // save condition done
@@ -2272,10 +2272,10 @@ console.log(tempStep.options)
               conditionsDone.push('stepDone' + player + '_' + stepsofChapter[i].stepId.toString())
               this.run.conditionDone = conditionsDone
               counter++
-              
+
               // find if a step is triggered by counter value
               let nextStepId = await this.findStepForCounterValueOffline(steps, questId, this.run.version, counter)
-              
+
               // if no step triggered, call getnextstep again
               if (!nextStepId) {
                 const secondStepProcess1 = await this.getNextOfflineStep(questId, user, markerCode, player, extra)
@@ -2284,7 +2284,7 @@ console.log(tempStep.options)
               }
               return {id: nextStepId, extra: extra}
             }
-            
+
             //if (!locationMarkerFound && !geolocationFound) {
             // if step is end of chapter
             if (stepsofChapter[i].type === 'end-chapter') {
@@ -2343,7 +2343,7 @@ console.log(tempStep.options)
           return {id: "geolocation", extra: extra}
         }
       }
-      
+
       // Treat RANDOM conditions, IF NO OTHER CONDITION MATCH
       if (this.info.quest.editorMode === 'advanced' && stepsofChapter && stepsofChapter.length > 0) {
         let randomIds = []
@@ -2364,7 +2364,7 @@ console.log(tempStep.options)
           return {id: randomIds[Math.floor(Math.random()*randomIds.length)], extra: extra}
         }
       }
-      
+
       return {id: "", extra: extra}
     },
     /*
@@ -2453,7 +2453,7 @@ console.log(tempStep.options)
           return steps[i].stepId
         }
       }
-      
+
       return false
     },
     /*
@@ -2638,7 +2638,7 @@ console.log(tempStep.options)
     manageAudio () {
       // audio available for current step ? (either for current language or main quest language)
       let hasAudioForCurrentStep = this.step.audioStream && ((this.step.audioStream[this.lang] && this.step.audioStream[this.lang] !== '') || (this.step.audioStream[this.info.quest.mainLanguage] && this.step.audioStream[this.info.quest.mainLanguage] !== ''))
-      
+
       if (this.step.type === 'info-video' || hasAudioForCurrentStep) {
         this.cutSound()
         this.sound.tempMute = true

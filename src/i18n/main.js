@@ -1137,7 +1137,9 @@ module.exports = {
       startScan: "Start Scan",
       noSensorFound: "No sensors found on your device",
       noSensorNext: "You can go directly to the next step by clicking on the arrow at the bottom right",
-      UniqueUsageQRCodeWarning: "Please note that this code can not be used with another Graaly account. To use it on another device, you need to use the same Graaly account."
+      UniqueUsageQRCodeWarning: "Please note that this code can not be used with another Graaly account. To use it on another device, you need to use the same Graaly account.",
+      arDialogTitle: "Graaly authorization",
+      arDialogMessage: "To continue, please authorize Graaly to use features of your device"
     }
   },
   fr: {
@@ -2265,7 +2267,9 @@ module.exports = {
       startScan: "Démarrer",
       noSensorFound: "Pas de capteurs trouvés sur votre appareil",
       noSensorNext: "Vous pouvez directement passer à l'étape suivante en cliquant sur la flèche en bas à droite",
-      UniqueUsageQRCodeWarning: "Attention, ce code est à usage unique. Vous ne pourrez pas l'utiliser avec un autre compte Graaly. Pour l'utiliser sur un autre appareil, vous devrez utiliser le même compte Graaly."
+      UniqueUsageQRCodeWarning: "Attention, ce code est à usage unique. Vous ne pourrez pas l'utiliser avec un autre compte Graaly. Pour l'utiliser sur un autre appareil, vous devrez utiliser le même compte Graaly.",
+      arDialogTitle: "Autorisation Graaly",
+      arDialogMessage: "Pour continuer, veuillez autoriser Graaly à utiliser certaines fonctionnalités de votre appareil"
     }
   }
 }

@@ -78,7 +78,7 @@ export default {
       //IOS START BUG
       start: false,
       isIOs: utils.isIOS(),
-      isSafari: utils.isSafari(),
+      isSafari: utils.isSafari()
     }
   },
   created() {
@@ -135,11 +135,12 @@ export default {
     },
     // WEBAPP METHOD WITH BUG IN IOS AND SAFARI
     async onDecode (code) {
-      this.result = code
+      this.result = await code
       let temp = this.camera
       this.pause()
-      await this.timeout(500)
-      this.$emit('QrCodeResult', this.result)
+      await this.timeout(1000)
+      await this.$emit('QrCodeResult', this.result)
+      await this.timeout(1000)
       this.unpause(temp)
     },
     unpause (temp) {
@@ -166,11 +167,11 @@ export default {
     async onInit (promise) {
       try {
         const { capabilities } = await promise
+        console.log(capabilities)
         this.torchNotSupported = !capabilities.torch
       } catch (error) {
         const triedFrontCamera = this.camera === 'front'
         const triedRearCamera = this.camera === 'rear'
-
         const cameraMissingError = error.name === 'OverconstrainedError'
 
         if (triedRearCamera && cameraMissingError) {
@@ -181,9 +182,7 @@ export default {
         }
         console.error(error)
       } finally {
-        if (this.camera !== 'off') {
-          this.start = true
-        }
+        this.start = this.camera !== 'off'
         this.showScanConfirmation = this.camera === "off"
       }
     }
