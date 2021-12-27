@@ -63,7 +63,7 @@
           <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
             <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-              <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
+              <img :src="((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
               <p v-if="item.titles && item.titles[lang] && item.titles[lang] !== ''">{{ item.titles[lang] }}</p>
               <p v-if="!(item.titles && item.titles[lang] && item.titles[lang] !== '')">{{ item.title }}</p>
             </div>
@@ -1031,14 +1031,26 @@ export default {
               this.warnings.stepDataMissing = true
             }
           }
+console.log("TEST - OFFLINE")
           if (tempStep.type === 'new-item' && tempStep.options && tempStep.options.picture && tempStep.options.picture !== '') {
-            const itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
+            let itemImageUrl
+            // check if a translated picture is proposed
+            if (tempStep.options.pictures && tempStep.options.pictures[this.lang] && tempStep.options.pictures[this.lang] !== '') {
+console.log("TEST - GET LANG")
+              itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.pictures[this.lang])
+            } else {
+console.log("TEST - DO NOT GET LANG")
+              itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
+            }
             if (itemImageUrl) {
+console.log("TEST - 3")
               tempStep.options.picture = itemImageUrl
               if (tempStep.options.hasOwnProperty('pictures') && tempStep.options.pictures[this.lang]) {
+console.log("TEST - 4")
                 tempStep.options.pictures[this.lang] = itemImageUrl
               }
             }
+console.log(tempStep.options)
           }
           if (tempStep.type === 'character' && tempStep.options && tempStep.options.character && tempStep.options.character !== '' && tempStep.options.character !== 'usequestcharacter') {
             const characterPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.character)
@@ -1768,11 +1780,7 @@ export default {
       this.inventory.detail.zoom = 1
       if (this.step.type !== 'use-item') {
         this.inventory.detail.isOpened = true
-        if (item.pictures && item.pictures[this.lang] && item.pictures[this.lang] !== '') {
-          this.inventory.detail.url = ((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
-        } else {
-          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
-        }
+        this.inventory.detail.url = ((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
         if (item.titles && item.titles[this.lang] && item.titles[this.lang] !== '') {
           this.inventory.detail.title = item.titles[this.lang]
         } else {
@@ -2414,7 +2422,11 @@ export default {
                     pictureUrl = await utils.readBinaryFile(this.questId, stepData.options.picture)
                   }
                 } else {
-                  pictureUrl = stepData.options.picture
+                  if (stepData.options.pictures && stepData.options.pictures[this.lang] && stepData.options.pictures[this.lang] !== '') {
+                    pictureUrl = stepData.options.pictures[this.lang]
+                  } else {
+                    pictureUrl = stepData.options.picture
+                  }
                 }
                 results.push({step: stepWithObjectId, picture: pictureUrl, originalPicture: stepData.options.picture, title: stepData.options.title, pictures: stepData.options.pictures, titles: stepData.options.titles})
               }

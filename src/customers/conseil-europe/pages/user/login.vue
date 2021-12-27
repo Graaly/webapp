@@ -19,7 +19,7 @@
       <div class="q-pa-md">
       
         <div class="centered q-pt-md q-pb-md">
-          <img src="statics/customers/conseil-europe/images/logo-home.png" style="width: 80%; max-width: 600px;" />
+          <img :src="imagePath + 'statics/customers/conseil-europe/images/logo-home.png'" style="width: 80%; max-width: 600px;" />
         </div>
         <!------------------ PLAY ANONYMOUS ------------------>
         <div class="centered">
@@ -30,7 +30,7 @@
             class="glossy large-btn" 
             color="accent" 
             @click="chooseLanguage('fr')">
-            <img src="statics/customers/conseil-europe/images/flags/fr.png" />
+            <img :src="imagePath + 'statics/customers/conseil-europe/images/flags/fr.png'" />
           </q-btn>
         </div>
         
@@ -39,7 +39,7 @@
             class="glossy large-btn" 
             color="accent" 
             @click="chooseLanguage('en')">
-            <img src="statics/customers/conseil-europe/images/flags/en.png" />
+            <img :src="imagePath + 'statics/customers/conseil-europe/images/flags/en.png'" />
           </q-btn>
         </div>
         
@@ -145,6 +145,7 @@ export default {
   data() {
     return {
       step: 'password',
+      imagePath: 'https://graaly.com/games/europequest/', 
       form: {
         email: '',
         password: '',

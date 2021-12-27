@@ -1272,7 +1272,8 @@ export default {
      * Manage back to the map button
      */
     backToTheMap () {
-      this.$router.back()
+      this.$router.push('/home')
+      //this.$router.back()
     },
     /*
      * Manage back to the map button

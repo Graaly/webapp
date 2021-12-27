@@ -478,10 +478,23 @@ export default {
           window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
           axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
           if (code.indexOf('_score') === -1) {
-            if (checkStatus.data.questId) {
-              this.$router.push('/quest/play/' + checkStatus.data.questId)
+            if (code.indexOf('-slash-') === -1 && code.indexOf('tierplay_') === -1) {
+              if (checkStatus.data.questId) {
+                this.$router.push('/quest/play/' + checkStatus.data.questId)
+              } else {
+                this.$router.push('/quest/play/' + code)
+              }
             } else {
-              this.$router.push('/quest/play/' + code)
+              this.$q.dialog({
+                message: this.$t('label.UniqueUsageQRCodeWarning'),
+                ok: this.$t('label.Ok')
+              }).onOk(data => {        
+                if (checkStatus.data.questId) {
+                  this.$router.push('/quest/play/' + checkStatus.data.questId)
+                } else {
+                  this.$router.push('/quest/play/' + code)
+                }
+              })
             }
           } else {
             this.$router.push('/quest/' + (code.substring(0, 24)) + '/end')
