@@ -33,8 +33,6 @@ import UserCreateAccount from 'pages/user/createAccount'
 //import UserFirstUsage from 'pages/user/firstusage'
 import ErrorMessage from 'pages/errorMessage'
 
-console.log(CustomerConfiguration)
-
 export default [
   {
     path: '/',
@@ -81,6 +79,12 @@ export default [
         path: 'quest/play/:id(\\w{24})',
         name: 'playhome',
         component: CustomerConfiguration.QUEST_PLAY_HOME ? CustomerConfiguration.QUEST_PLAY_HOME : QuestPlayHome,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'quest/play/:id(\\w{24})/:qrcode',
+        name: 'playhome',
+        component: QuestPlayHome,
         meta: { requiresAuth: true }
       },
       {

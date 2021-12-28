@@ -155,7 +155,7 @@
             <q-btn v-if="isQuestOpen.status && !isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary" class="glossy large-btn"><span>{{ $t('label.BuyCoinsToPlay') }}</span></q-btn>
             <q-btn v-if="isQuestOpen.status && this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary" class="glossy large-btn"><span>{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</span></q-btn>
             <q-btn
-             v-if="isQuestOpen.status && quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)"
+             v-if="isAdmin || (isQuestOpen.status && quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay))"
               @click="playQuest(quest.questId, getLanguage())" 
               color="primary"
                class="glossy large-btn">
@@ -584,8 +584,9 @@ export default {
      */
     async initQuest() {
       // get quest information
-      this.quest = await QuestService.getByIdOnline(this.$route.params.id)
-      
+      const response = await QuestService.getByIdOnline(this.$route.params.id)
+      this.quest = response.data
+
       // update 'forceOnline' state property according to current quest
       this.$store.commit('setForceOnline', this.quest.hasOwnProperty('customization') && this.quest.customization.hasOwnProperty('forceOnline') ? this.quest.customization.forceOnline : false)
       
@@ -645,6 +646,69 @@ export default {
       // check number of simultaneous users
       await this.checkSimultaneousPlayers()
     },
+    /**
+     * Get a quest information
+     * MPA 2021-12-28 moved to QuestService.js but appeared again after merge => to remove here after a few months?
+     * @param   {string}    id                    Quest ID
+     * @param   {Boolean}   forceNetworkLoading   Force the quest to be loading from graaly server
+     */
+    /*async getQuest(id, forceNetworkLoading) {
+      // check if the quest data are not already saved on device
+      let isQuestOfflineLoaded = await QuestService.isCached(id)
+      
+      if (!isQuestOfflineLoaded || forceNetworkLoading) {
+        this.offline.active = false
+        if (this.$route.params.qrcode) {
+          // Check the QR code and unlock the quest
+          await QuestService.checkQRCode(this.$route.params.qrcode, this.$t('label.shortLang'))
+        }
+        // get the last version accessible by user depending on user access
+        let response = await QuestService.getLastById(id)
+        if (response && response.data && response.status === 200) {
+          this.quest = response.data
+          if (typeof this.quest.authorUserId !== 'undefined') {
+            response = await AuthService.getAccount(this.quest.authorUserId)
+            if (response && response.data) {
+              this.$set(this.quest, 'author', response.data)
+            }
+            this.quest.description = utils.replaceBreakByBR(this.quest.description)
+          }
+        } else {
+          this.$q.dialog({
+            dark: true,
+            title: this.$t('label.TechnicalProblem'),
+            message: this.$t('label.TechnicalProblemNetworkIssue'),
+            ok: this.$t('label.BackToMap')
+          }).onOk(() => {
+            this.backToTheMap()
+          })
+          throw new Error("Could not load quest with questId = '" + id + "'")
+        }
+      } else {
+        this.offline.active = true
+        // get quest data from device storage
+        const quest = await utils.readFile(id, 'quest_' + id + '.json')
+
+        if (!quest) {
+          if (forceNetworkLoading) {
+            this.warning.questNotLoaded = true
+          } else {
+            var questLoadingStatus = await this.getQuest(id, true)
+            return questLoadingStatus
+          }
+        } else {
+          this.quest = JSON.parse(quest)
+
+          const pictureUrl = await utils.readBinaryFile(id, this.quest.picture[this.getLanguage()])
+          if (pictureUrl) {
+            this.quest.picture = pictureUrl
+          } else {
+            this.quest.picture = '_default-quest-picture.jpg'
+          }
+        }
+      }
+      return true
+    },*/
     /**
      * Show the calibration gif (if the quest has at least one geolocationn (or AR) step)
      * then start the quest
@@ -1209,7 +1273,8 @@ export default {
      * Manage back to the map button
      */
     backToTheMap () {
-      this.$router.back()
+      this.$router.push('/home')
+      //this.$router.back()
     },
     /*
      * Manage back to the map button

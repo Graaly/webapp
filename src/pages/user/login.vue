@@ -1,33 +1,36 @@
 <template>
-  <div class="wrapper background-map">
+  <div class="wrapper" :class="showNonHybridQRReader ? 'bg-transparent' : 'background-map'">
     <div v-if="showNonHybridQRReader">
       <!--====================== QR CODE READER ON WEBAPP =================================-->
-      <q-toolbar>
-        <q-toolbar-title>
-          {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
-        </q-toolbar-title>
-        <q-btn flat round dense icon="close" @click="closeQRCodeReader" />
-      </q-toolbar>
-      <qrcode-stream @decode="checkCode"></qrcode-stream>
+
+      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
+        <div class="float-right no-underline close-btn q-pa-sm" @click="closeQRCodeReader"><q-icon name="close" class="subtitle1" /></div>
+        {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
+      </div>
+
+      <qr-code-stream
+        v-if="showNonHybridQRReader"
+        v-on:QrCodeResult="checkCode"
+      />
     </div>
     <div class="page-content" style="padding-bottom: 100px" v-if="!showNonHybridQRReader">
       <!--<div class="desktop-only centered q-pa-md warning bg-warning">
         {{ $t('label.OnDesktopDisplayMessage') }}
       </div>-->
       <!------------------ TITLE AREA ------------------------>
-      
+
       <div class="centered q-pt-lg q-pb-md">
         <img src="statics/images/logo/logo-home.png" class="logo-top" />
       </div>
-      
+
       <div class="q-pa-md">
         <div class="centered title2 q-mb-lg">{{ $t('label.Welcome') }}</div>
-        
+
         <!------------------ FORM AREA ------------------------>
         <form @submit.prevent="formSubmit">
-          
+
           <div>
-            
+
             <q-input
               id="loginemail"
               outlined
@@ -40,28 +43,28 @@
               :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
               test-id="login"
               />
-            
-            <q-input 
+
+            <q-input
               id="loginPass"
               outlined
-              type="password" 
-              v-model="form.password" 
-              :label="$t('label.YourPassword')" 
+              type="password"
+              v-model="form.password"
+              :label="$t('label.YourPassword')"
               v-if="step !== 'forgottenpassword'"
               test-id="password"
               />
-            
+
             <!------------------ FORGOTTEN PASS AREA ------------------------>
-            
+
             <p class="centered q-mt-sm q-mb-lg" v-if="step !== 'forgottenpassword'">
               <a @click="openPasswordForgottenPopup()">{{ $t('label.ForgottenPassword') }}</a>
             </p>
-            
+
             <div v-if="step === 'forgottenpassword'">
               <p>{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
               <q-input outlined :label="$t('label.Code')" v-model="form.code" />
             </div>
-            
+
             <div v-if="step === 'forgottenpassword'">
               <q-input
                 outlined
@@ -75,55 +78,55 @@
                 />
             </div>
           </div>
-          
+
           <div class="text-center">
-            <q-btn 
+            <q-btn
               type="submit"
               class="glossy large-btn"
-              color="primary" 
+              color="primary"
               :label="$t('label.SignIn')"
-              :loading="submitting" 
+              :loading="submitting"
               />
           </div>
           <div class="centered q-mt-sm q-mb-xl">
-            <q-btn 
-              class="large-btn" 
-              outline 
+            <q-btn
+              class="large-btn"
+              outline
               color="primary"
               :label="$t('label.Subscribe')"
               @click="goToSubscribe()"
               />
           </div>
-          
+
         </form>
-        
+
         <!------------------ START PLAYING WITH QR CODE ------------------>
-        
+
         <div class="q-py-md centered">
-          <q-btn 
-            class="glossy large-btn" 
+          <q-btn
+            class="glossy large-btn"
             color="accent"
             @click="startScanQRCode()"
             :label="$t('label.ScanA')"
             icon-right="qr_code_2"
             />
         </div>
-        
+
         <!------------------ PLAY ANONYMOUS ------------------>
-        
+
         <div class="q-py-md centered">
-          <q-btn 
-            class="glossy large-btn" 
-            color="accent" 
+          <q-btn
+            class="glossy large-btn"
+            color="accent"
             @click="validateTerms()"
             :label="$t('label.LetsPlayWithoutAccount')"
             />
         </div>
-        
+
         <!--<p class="text-center text-h6 text-grey q-mt-md q-mb-md">
           {{ $t('label.orSignInWith') }}
         </p>-->
-        
+
         <!------------------ SOCIAL LOGIN BUTTONS ------------------------>
         <!-- MPA 2019-12-10 not currently supported by new JWT-based auth
         <div class="q-pl-md q-pr-md">
@@ -133,16 +136,16 @@
         -->
 
         <div class="centered smaller version secondary-font">
-          Version {{ version }} - 
+          Version {{ version }} -
           <img src="statics/icons/game/flag-en.png" @click="switchLanguage('en')" /> -
           <img src="statics/icons/game/flag-fr.png" @click="switchLanguage('fr')" />
         </div>
-      
+
       </div>
     </div>
-    
+
     <!------------------ Lost Password Dialog ------------------------>
-    
+
     <q-dialog v-model="passwordForgottenPopup">
       <q-card>
         <q-card-section class="popup-header row items-center">
@@ -164,19 +167,19 @@
             :error="$v.form.email.$error"
             :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
             />
-          
-          <q-btn 
-            class="glossy full-width" 
-            color="primary" 
+
+          <q-btn
+            class="glossy full-width"
+            color="primary"
             @click="sendForgottenPasswordCode()"
             :label="$t('label.Ok')"
             />
         </q-card-section>
       </q-card>
     </q-dialog>
-    
+
     <!------------------ Validate terms ------------------------>
-    
+
     <q-dialog v-model="terms.show">
       <div class="q-pa-md">
         <q-item dense>
@@ -202,7 +205,7 @@
             </div>
           </q-item-section>
         </q-item>
-        
+
         <div class="centered q-pa-md">
           <q-btn color="primary" class="glossy large-button" @click="playAnonymous()"><span>{{ $t('label.Confirm') }}</span></q-btn>
         </div>
@@ -219,11 +222,11 @@ import { required, minLength, email } from 'vuelidate/lib/validators'
 import checkPasswordComplexity from 'boot/PasswordComplexity'
 import Notification from 'boot/NotifyHelper'
 import utils from 'src/includes/utils'
-import { QrcodeStream } from 'vue-qrcode-reader'
+import qrCodeStream from "../../components/qrCodeStream";
 
 export default {
   components: {
-    QrcodeStream
+    qrCodeStream
   },
   data() {
     return {
@@ -312,11 +315,7 @@ export default {
               window.localStorage.setItem('jwt', result.user.jwt)
               axios.defaults.headers.common['Authorization'] = `Bearer ${result.user.jwt}`
 
-              let destination = '/home';
-              if (this.$route.query.hasOwnProperty('redirect')) {
-                destination = this.$route.query.redirect
-              }
-              this.$router.push(destination)
+              this.$router.push(this.defineRedirection())
             }
 
             if (result.status === 'failed') {
@@ -330,16 +329,12 @@ export default {
           if (!this.$v.form.newPassword.$error) {
             // check validation code
             let changePasswordStatus = await AuthService.changePassword(this.form.email, this.form.newPassword, this.form.code)
-            
+
             if (changePasswordStatus.status && changePasswordStatus.status === 200) {
               if (changePasswordStatus.data && changePasswordStatus.data.user) {
                 window.localStorage.setItem('jwt', changePasswordStatus.data.user.jwt)
                 axios.defaults.headers.common['Authorization'] = `Bearer ${changePasswordStatus.data.user.jwt}`
-                let destination = '/home';
-                if (this.$route.query.hasOwnProperty('redirect')) {
-                  destination = this.$route.query.redirect
-                }
-                this.$router.push(destination)
+                this.$router.push(this.defineRedirection())
               } else {
                 Notification(this.$t('label.ErrorStandardMessage'), 'error')
               }
@@ -361,7 +356,7 @@ export default {
      */
     async signIn(email, password) {
       let result = await AuthService.login(email, password)
-      
+
       if (result.status === 200) {
         return {status: 'success', user: result.data.user}
       } else if (result.status === 401) {
@@ -370,7 +365,7 @@ export default {
         return {error: 'technical issue'}
       }
     },
-    
+
     /*
      * validate an account with the link provided in the welcome email
      * @param   {string}    email            user email
@@ -378,14 +373,14 @@ export default {
      */
     async validateAccount(email, code) {
       let validateAccountStatus = await AuthService.validateAccount(email, code)
-      
+
       if (validateAccountStatus.status >= 300 && validateAccountStatus.data && validateAccountStatus.data.message) {
         Notification(validateAccountStatus.data.message, 'warning')
       } else {
         Notification(this.$t('label.YourAccountIsNowValidated'), 'positive')
       }
     },
-    
+
     /*
      * manage google login
      */
@@ -401,12 +396,19 @@ export default {
             Notification(_this.$t('label.TechnicalIssue'), 'error')
           }
           if (response && (response.message === 'login successful' || (response.data && response.data.message === 'login successful'))) {
-            return _this.$router.push('/home')
+            this.$router.push(this.defineRedirection())
           } else {
             Notification(_this.$t('label.TechnicalIssue'), 'error')
           }
         });
       });
+    },
+    defineRedirection() {
+      let destination = '/home';
+      if (this.$route && this.$route.query && this.$route.query.hasOwnProperty('redirect') && this.$route.query.redirect) {
+        destination = this.$route.query.redirect
+      }
+      return destination
     },
     /*
      * manage facebook login
@@ -430,34 +432,7 @@ export default {
     * start the scanner for hybrid app
     */
     startScanQRCode() {
-      var _this = this
-      if (this.isHybrid) {
-        cordova.plugins.barcodeScanner.scan(
-          function (result) {
-            if (result && result.text) {
-              _this.checkCode(result.text)
-            }
-          },
-          function (error) {
-            console.log("Scanning failed: " + error)
-          },
-          {
-            preferFrontCamera: false, // iOS and Android
-            showFlipCameraButton: false, // iOS and Android
-            showTorchButton: true, // iOS and Android
-            torchOn: false, // Android, launch with the torch switched on (if available)
-            saveHistory: true, // Android, save scan history (default false)
-            prompt: "", // Android
-            resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
-            formats: "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
-            orientation: "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
-            disableAnimations: true, // iOS
-            disableSuccessBeep: false // iOS and Android
-          }
-        )
-      } else {
         this.showNonHybridQRReader = true
-      }
     },
     closeQRCodeReader () {
       this.showNonHybridQRReader = false
@@ -481,7 +456,7 @@ export default {
           if (checkStatus.data.user) {
             window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
             axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
-            this.$router.push('/home')
+            this.$router.push(this.defineRedirection())
           } else {
             Notification(this.$t('label.ErrorStandardMessage'), 'error')
           }
@@ -498,14 +473,28 @@ export default {
       code = utils.removeUnusedUrl(code)
       let checkStatus = await QuestService.checkLoginQRCode(code, this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
+        this.closeQRCodeReader()
         if (checkStatus.data.user) {
           window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
           axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
           if (code.indexOf('_score') === -1) {
-            if (checkStatus.data.questId) {
-              this.$router.push('/quest/play/' + checkStatus.data.questId)
+            if (code.indexOf('-slash-') === -1 && code.indexOf('tierplay_') === -1) {
+              if (checkStatus.data.questId) {
+                this.$router.push('/quest/play/' + checkStatus.data.questId)
+              } else {
+                this.$router.push('/quest/play/' + code)
+              }
             } else {
-              this.$router.push('/quest/play/' + code)
+              this.$q.dialog({
+                message: this.$t('label.UniqueUsageQRCodeWarning'),
+                ok: this.$t('label.Ok')
+              }).onOk(data => {        
+                if (checkStatus.data.questId) {
+                  this.$router.push('/quest/play/' + checkStatus.data.questId)
+                } else {
+                  this.$router.push('/quest/play/' + code)
+                }
+              })
             }
           } else {
             this.$router.push('/quest/' + (code.substring(0, 24)) + '/end')
@@ -521,7 +510,7 @@ export default {
      * open the subscribe page
      */
     async goToSubscribe() {
-      this.$router.push('/user/createAccount/generic')
+      this.$router.push({path: '/user/createAccount/generic', query: {redirect: this.$route.query.redirect}})
     },
     /*
      * open the forgotten password popup
@@ -534,16 +523,16 @@ export default {
      */
     async sendForgottenPasswordCode() {
       this.submitting = true
-      
+
       let codeSent = await AuthService.sendForgottenPasswordCode(this.form.email)
-      
+
       if (codeSent.status === 200) {
         this.step = 'forgottenpassword'
         this.passwordForgottenPopup = false
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
-      
+
       this.submitting = false
     },
     switchLanguage(lang) {

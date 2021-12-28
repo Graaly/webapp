@@ -877,6 +877,8 @@ var self = {
    downloadDataUrl (dataUrl, name) {
     //let blob = new Blob(data, {type: "octet/stream"}),
     //let url = window.URL.createObjectURL(blob)
+    return new Promise((resolve, reject) => {
+      try {
         let a = document.createElement("a")
         document.body.appendChild(a)
         a.style = "display: none"
@@ -884,6 +886,11 @@ var self = {
         a.download = name
         a.click()
         window.URL.revokeObjectURL(dataUrl)
+        resolve()
+      } catch (error) {
+        reject(error)
+      }
+    })
   }
 }
 

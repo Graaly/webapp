@@ -22,7 +22,7 @@
 
     <!------------------ HEADER AREA ------------------------>
     <div :class="{'fit': (step.type !== 'image-over-flow')}"><!-- Keep this div for iphone, for red filter display -->
-      
+
       <stepPlay
         :step="step"
         :runId="runId"
@@ -35,9 +35,9 @@
         :player="player"
         :timer="countDownTime"
         :quest="info.quest"
-        @played="trackStepPlayed" 
-        @success="trackStepSuccess" 
-        @fail="trackStepFail" 
+        @played="trackStepPlayed"
+        @success="trackStepSuccess"
+        @fail="trackStepFail"
         @pass="trackStepPass"
         @closeAllPanels="closeAllPanels"
         @forceMoveNext="nextStep(true)"
@@ -63,7 +63,7 @@
           <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
             <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-              <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
+              <img :src="((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
               <p v-if="item.titles && item.titles[lang] && item.titles[lang] !== ''">{{ item.titles[lang] }}</p>
               <p v-if="!(item.titles && item.titles[lang] && item.titles[lang] !== '')">{{ item.title }}</p>
             </div>
@@ -211,11 +211,11 @@
     <div class="mobile-fit over-map" :class="'font-' + info.quest.customization.font" v-if="story.step !== null && story.step !== 'end'">
       <story :step="story.step" :data="story.data" @next="story.step = 'end'"></story>
     </div>
-    
+
     <!--====================== COUNTDOWN MESSAGE =================================-->
-    
+
     <div v-show="countDownTime.enabled" class="fadein-message" style="font-size: 48px;"><q-icon color="white" name="timer" /> {{ $t('label.ItRemainsMinutes', {time: countDownTime.remainingMinutes}) }}</div>
-    
+
     <!--====================== FEEDBACK =================================-->
 
     <q-dialog v-model="feedback.isOpened">
@@ -275,10 +275,10 @@
             flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            icon="work" 
+            icon="work"
             v-if="!info.quest.customization || !info.quest.customization.hideInventory"
-            :class="{'flashing': inventory.suggest, 'bg-secondary': inventory.isOpened, 'bg-primary': (!inventory.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}" 
-            @click="openInventory()" 
+            :class="{'flashing': inventory.suggest, 'bg-secondary': inventory.isOpened, 'bg-primary': (!inventory.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}"
+            @click="openInventory()"
           />
         </div>
         <div class="col centered q-py-sm">
@@ -456,7 +456,7 @@ export default {
         },
         previousStepId: '',
         isIOs: utils.isIOS(),
-        // timer 
+        // timer
         countDownTime: {
           remaining: 0
         },
@@ -484,7 +484,6 @@ export default {
      */
     async initData () {
       this.$q.loading.show()
-      
       try {
         this.info.quest = await QuestService.getByIdForStep(this.questId)
       } catch (err) {
@@ -492,12 +491,11 @@ export default {
         this.warnings.questDataMissing = true
         return
       }
-      
       // Start audio
       this.getAudioSound()
-      
+
       this.startFullScreen()
-      
+
       this.loadStepData = false
 
       // get current run or create it
@@ -509,21 +507,21 @@ export default {
 
       // get current step
       await this.getStep()
-      
+
       // send stepId to parent if in a frame
       this.sendStepIdToParent()
-      
+
       // send once on start
       /*if (this.info.quest.customization.chatEnabled) {
         this.sendDataToGameMaster()
       }*/
-      
+
       // manage history
       this.updateHistory()
-      
+
       // start countdown
       this.startCountDown()
-      
+
       // check if user already played the step
       this.checkIfAlreadyPlayed()
 
@@ -619,16 +617,16 @@ export default {
 
       // get current step
       await this.getStep(false, forceStepId)
-      
+
       // send stepId to parent if in a frame
       this.sendStepIdToParent()
-      
+
       // manage history
       this.updateHistory()
-      
+
       // manage audio
       this.manageAudio()
-      
+
       // check if user already played the step
       this.checkIfAlreadyPlayed()
 
@@ -797,7 +795,7 @@ export default {
 
       this.warnings.stepDataMissing = false
       var stepId
-      
+
       // force network loading based on quest configuration
       if (this.info.quest.customization && this.info.quest.customization.forceOnline) {
         forceNetworkLoading = true
@@ -868,7 +866,7 @@ export default {
         } else {
           // use offline content
           const stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player)
-          
+
           if (!stepIdResponse || !stepIdResponse.id) {
             // if no step is triggered, display the waiting screen
             if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
@@ -906,7 +904,7 @@ export default {
 
       // check if the quest data are not already saved on device
       let isStepOfflineLoaded = await this.checkIfStepIsAlreadyLoaded(stepId)
-      
+
       if (!isStepOfflineLoaded || forceNetworkLoading) {
         const response2 = await StepService.getById(stepId, this.questVersion, this.lang)
         if (response2 && response2.data && response2.status === 200) {
@@ -952,18 +950,18 @@ export default {
           }
 
           // get offline media
-          if (tempStep.backgroundImage) {
-            const pictureUrl = await utils.readBinaryFile(this.questId, tempStep.backgroundImage)
+          if (tempStep.backgroundImage && tempStep.backgroundImage[this.lang]) {
+            const pictureUrl = await utils.readBinaryFile(this.questId, tempStep.backgroundImage[this.lang])
             if (pictureUrl) {
-              tempStep.backgroundImage = pictureUrl
+              tempStep.backgroundImage[this.lang] = pictureUrl
             } else {
               this.warnings.stepDataMissing = true
             }
           }
-          if (tempStep.videoStream && tempStep.videoStream !== '') {
-            const videoUrl = await utils.readBinaryFile(this.questId, tempStep.videoStream)
+          if (tempStep.videoStream && tempStep.videoStream[this.lang] && tempStep.videoStream[this.lang] !== '') {
+            const videoUrl = await utils.readBinaryFile(this.questId, tempStep.videoStream[this.lang])
             if (videoUrl) {
-              tempStep.videoStream = videoUrl
+              tempStep.videoStream[this.lang] = videoUrl
             } else {
               this.warnings.stepDataMissing = true
             }
@@ -978,7 +976,7 @@ export default {
                 this.warnings.stepDataMissing = true
               }
             } else if (this.lang !== mainLang && tempStep.audioStream[mainLang] && tempStep.audioStream[mainLang] !== '') {
-              // no audio available in current language => try to load audio for main language if different from current language 
+              // no audio available in current language => try to load audio for main language if different from current language
               const audioUrl = await utils.readBinaryFile(this.questId, tempStep.audioStream[mainLang])
               if (audioUrl) {
                 tempStep.audioStream[mainLang] = audioUrl
@@ -1023,16 +1021,22 @@ export default {
               }
             }
           }
-          if (tempStep.type === 'jigsaw-puzzle' && tempStep.options && tempStep.options.picture && tempStep.options.picture !== '') {
-            const jigsawPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
+          if (tempStep.type === 'jigsaw-puzzle' && tempStep.options && tempStep.options.picture && tempStep.options.picture[this.lang] && tempStep.options.picture[this.lang] !== '') {
+            const jigsawPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture[this.lang])
             if (jigsawPictureUrl) {
-              tempStep.options.picture = jigsawPictureUrl
+              tempStep.options.picture[this.lang] = jigsawPictureUrl
             } else {
               this.warnings.stepDataMissing = true
             }
           }
           if (tempStep.type === 'new-item' && tempStep.options && tempStep.options.picture && tempStep.options.picture !== '') {
-            const itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
+            let itemImageUrl
+            // check if a translated picture is proposed
+            if (tempStep.options.pictures && tempStep.options.pictures[this.lang] && tempStep.options.pictures[this.lang] !== '') {
+              itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.pictures[this.lang])
+            } else {
+              itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
+            }
             if (itemImageUrl) {
               tempStep.options.picture = itemImageUrl
               if (tempStep.options.hasOwnProperty('pictures') && tempStep.options.pictures[this.lang]) {
@@ -1212,7 +1216,7 @@ export default {
 
       // save offline run
       await this.saveOfflineAnswer(false, answer, false)
-      
+
       // move to next step if right answer not displayed
       if (this.step.displayRightAnswer === false && (!this.step.options.wrongAnswerMessage || this.step.options.wrongAnswerMessage === "")) {
         this.nextStep()
@@ -1357,7 +1361,7 @@ export default {
       let finalLang = this.lang
       let hasAudioForCurrentLang = (this.info.quest.customization && this.info.quest.customization.audio && this.info.quest.customization.audio[this.lang] && this.info.quest.customization.audio[this.lang] !== '')
       let hasAudioForMainLang = (this.info.quest.customization && this.info.quest.customization.audio && this.info.quest.customization.audio[mainLang] && this.info.quest.customization.audio[mainLang] !== '')
-      
+
       if (hasAudioForCurrentLang || hasAudioForMainLang) { // some audio is available
         if (!hasAudioForCurrentLang && hasAudioForMainLang && mainLang !== this.lang) { // no audio in current lang ? take main lang audio
           finalLang = mainLang
@@ -1641,7 +1645,7 @@ export default {
         const questFileContent = await utils.readFile('', 'quests.json')
 
         quests = JSON.parse(questFileContent)
-        
+
         // check if quest is already existing in file
         var questPosition = -1
         for (var i = 0; i < quests.list.length; i++) {
@@ -1649,11 +1653,11 @@ export default {
             questPosition = i
           }
         }
-        
+
         if (questPosition !== -1) {
           quests.list.splice(questPosition, 1)
         }
-        
+
         // save quests list
         await utils.writeInFile('', 'quests.json', JSON.stringify(quests), true)
       }
@@ -1685,6 +1689,82 @@ export default {
 
       utils.setTimeout(this.computeRemainingTime, 1000)
     },
+    /**
+     * Get a quest information
+     * MPA 2021-12-28 moved to QuestService.js but appeared again after merge => to remove here after a few months?
+     * @param   {string}    id             Quest ID
+     */
+    /*async getQuest(id, forceNetworkLoading) {
+      this.warnings.questDataMissing = false
+
+      // force network loading based on quest configuration
+      if (this.info.quest.customization && this.info.quest.customization.forceOnline) {
+        forceNetworkLoading = true
+      }
+
+      // check if the quest data are not already saved on device
+      let isQuestOfflineLoaded = await QuestService.isCached(id)
+
+      if (!isQuestOfflineLoaded || forceNetworkLoading) {
+        let response = await QuestService.getLastById(id)
+        if (response && response.data) {
+          this.info.quest = response.data
+        } else {
+          this.warnings.questDataMissing = true
+        }
+      } else {
+        // get quest data from device storage
+        const quest = await utils.readFile(id, 'quest_' + id + '.json')
+
+        if (!quest) {
+          if (forceNetworkLoading) {
+            this.warnings.questDataMissing = true
+          } else {
+            var questLoadingStatus = await this.getQuest(id, true)
+            return questLoadingStatus
+          }
+        } else {
+          this.info.quest = JSON.parse(quest)
+
+          const pictureUrl = await utils.readBinaryFile(id, this.info.quest.picture[this.lang])
+          if (pictureUrl) {
+            this.info.quest.picture[this.lang] = pictureUrl
+          } else {
+            this.info.quest.picture[this.lang] = '_default-quest-picture.jpg'
+          }
+          // get customized logo
+          if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo !== '') {
+            const logoUrl = await utils.readBinaryFile(id, this.info.quest.customization.logo)
+            if (logoUrl) {
+              this.info.quest.customization.logo = logoUrl
+            }
+          }
+          // get customized sound
+          if (this.info.quest.customization && this.info.quest.customization.audio) {
+            let mainLang = this.info.quest.mainLanguage
+            if (this.info.quest.customization.audio[this.lang] && this.info.quest.customization.audio[this.lang] !== '') {
+              const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio[this.lang])
+              if (audioUrl) {
+                this.info.quest.customization.audio[this.lang] = audioUrl
+              }
+            } else if (this.lang !== mainLang && this.info.quest.customization.audio[mainLang] && this.info.quest.customization.audio[mainLang] !== '') {
+              // no audio available in current language => try to load audio for main language if different from current language
+              const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio[mainLang])
+              if (audioUrl) {
+                this.info.quest.customization.audio[mainLang] = audioUrl
+              }
+            }
+          }
+          // get customized hint character
+          if (this.info.quest.customization && this.info.quest.customization.character && this.info.quest.customization.character !== '') {
+            const characterUrl = await utils.readBinaryFile(id, this.info.quest.customization.character)
+            if (characterUrl) {
+              this.info.quest.customization.character = characterUrl
+            }
+          }
+        }
+      }
+    },*/
     /*
      * Select an item in the inventory
      * @param   {object}    item            Item selected
@@ -1693,11 +1773,7 @@ export default {
       this.inventory.detail.zoom = 1
       if (this.step.type !== 'use-item') {
         this.inventory.detail.isOpened = true
-        if (item.pictures && item.pictures[this.lang] && item.pictures[this.lang] !== '') {
-          this.inventory.detail.url = ((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
-        } else {
-          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
-        }
+        this.inventory.detail.url = ((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
         if (item.titles && item.titles[this.lang] && item.titles[this.lang] !== '') {
           this.inventory.detail.title = item.titles[this.lang]
         } else {
@@ -2009,7 +2085,7 @@ export default {
     async getNextOfflineStep(questId, markerCode, player, extra) {
       var steps = []
       let conditionsDone = this.run.conditionsDone
-      
+
       if (!player) {
         player = 'P1'
       }
@@ -2104,7 +2180,7 @@ export default {
       var stepsofChapter = await this.listForAChapter(steps, chapter, player)
       var locationMarkerFound = false
       var geolocationFound = false
-      
+
       // Count counter value
       let counter = 0
       for (let i = 0; i < conditionsDone.length; i++) {
@@ -2112,7 +2188,7 @@ export default {
           counter++
         }
       }
-      
+
       if (stepsofChapter && stepsofChapter.length > 0) {
         stepListFor:
         for (i = 0; i < stepsofChapter.length; i++) {
@@ -2180,7 +2256,7 @@ export default {
                 continue stepListFor
               }
             }
-            
+
             // treat case of the increment counter
             if (stepsofChapter[i].type === 'increment-counter') {
               // save condition done
@@ -2189,10 +2265,10 @@ export default {
               conditionsDone.push('stepDone' + player + '_' + stepsofChapter[i].stepId.toString())
               this.run.conditionDone = conditionsDone
               counter++
-              
+
               // find if a step is triggered by counter value
               let nextStepId = await this.findStepForCounterValueOffline(steps, questId, this.run.version, counter)
-              
+
               // if no step triggered, call getnextstep again
               if (!nextStepId) {
                 const secondStepProcess1 = await this.getNextOfflineStep(questId, user, markerCode, player, extra)
@@ -2201,7 +2277,7 @@ export default {
               }
               return {id: nextStepId, extra: extra}
             }
-            
+
             //if (!locationMarkerFound && !geolocationFound) {
             // if step is end of chapter
             if (stepsofChapter[i].type === 'end-chapter') {
@@ -2260,7 +2336,7 @@ export default {
           return {id: "geolocation", extra: extra}
         }
       }
-      
+
       // Treat RANDOM conditions, IF NO OTHER CONDITION MATCH
       if (this.info.quest.editorMode === 'advanced' && stepsofChapter && stepsofChapter.length > 0) {
         let randomIds = []
@@ -2281,7 +2357,7 @@ export default {
           return {id: randomIds[Math.floor(Math.random()*randomIds.length)], extra: extra}
         }
       }
-      
+
       return {id: "", extra: extra}
     },
     /*
@@ -2339,7 +2415,11 @@ export default {
                     pictureUrl = await utils.readBinaryFile(this.questId, stepData.options.picture)
                   }
                 } else {
-                  pictureUrl = stepData.options.picture
+                  if (stepData.options.pictures && stepData.options.pictures[this.lang] && stepData.options.pictures[this.lang] !== '') {
+                    pictureUrl = stepData.options.pictures[this.lang]
+                  } else {
+                    pictureUrl = stepData.options.picture
+                  }
                 }
                 results.push({step: stepWithObjectId, picture: pictureUrl, originalPicture: stepData.options.picture, title: stepData.options.title, pictures: stepData.options.pictures, titles: stepData.options.titles})
               }
@@ -2366,7 +2446,7 @@ export default {
           return steps[i].stepId
         }
       }
-      
+
       return false
     },
     /*
@@ -2387,6 +2467,7 @@ export default {
       if (currentConditions.indexOf('stepDone' + player + '_' + stepId) === -1 && addStepDone) {
         currentConditions.push('stepDone' + player + '_' + stepId)
       }
+      /*
       if (currentConditions.indexOf('stepSuccess_' + stepId) !== -1) {
         let position = currentConditions.indexOf('stepSuccess_' + stepId)
         currentConditions.splice(position, 1)
@@ -2402,11 +2483,11 @@ export default {
           position = currentConditions.indexOf('stepFail' + player + '_' + stepId)
           currentConditions.splice(position, 1)
         }
-      }
+      }*/
       const stepsWithoutSuccessTrigger = ['info-text', 'info-video', 'new-item', 'character', 'help', 'end-chapter']
       // assign success or fail status
       if (stepsWithoutSuccessTrigger.indexOf(stepType) === -1) {
-        if (currentConditions.indexOf('stepFail_' + stepId) === -1 && currentConditions.indexOf('stepSuccess_' + stepId) !== -1) {
+        if (currentConditions.indexOf('stepFail_' + stepId) === -1 && currentConditions.indexOf('stepSuccess_' + stepId) === -1) {
           if (isSuccess) {
             currentConditions.push('stepSuccess_' + stepId)
             currentConditions.push('stepSuccess' + player + '_' + stepId)
@@ -2416,7 +2497,6 @@ export default {
           }
         }
       }
-
       return currentConditions
     },
     /*
@@ -2551,7 +2631,7 @@ export default {
     manageAudio () {
       // audio available for current step ? (either for current language or main quest language)
       let hasAudioForCurrentStep = this.step.audioStream && ((this.step.audioStream[this.lang] && this.step.audioStream[this.lang] !== '') || (this.step.audioStream[this.info.quest.mainLanguage] && this.step.audioStream[this.info.quest.mainLanguage] !== ''))
-      
+
       if (this.step.type === 'info-video' || hasAudioForCurrentStep) {
         this.cutSound()
         this.sound.tempMute = true
