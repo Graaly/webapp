@@ -34,12 +34,17 @@ export default {
   data() {
     return {
       dataURL: null,
-      fileEntry: null
+      fileEntry: null,
+      isIOs: utils.isIOS(),
+      isSafari: utils.isSafari(),
+      fileName: this.snapshotFilename
     }
   },
   async mounted() {
     this.dataURL = await this.blobToBase64(this.blob)
-    this.createFileEntry()
+    if (this.isHybrid) {
+      this.createFileEntry()
+    }
   },
   methods: {
     async saveAndDownload() {
@@ -55,17 +60,16 @@ export default {
       await this.saveSnapshotOnServer(this.blob, this.snapshotFilename)
     },
     async shareWithFriend() {
+      let filesArray = []
       const file = await new File([this.blob], "capture" + Date.now() + ".jpg", {type: "image/jpeg"})
-      const share = (file) => {
-        if (navigator.share) {
-          try {
-            navigator.share({
-              files: [file],
-              title: this.$t('snapshot.shareTitle') // Partagez avec vos amis
-            })
-          } catch (e) {
-            console.log('share abort')
-          }
+      filesArray.push(file)
+      if (this.isHybrid) {
+        window.plugins.socialsharing.share(null, null, this.fileEntry.nativeURL, null, () => { console.log('SUCCESS SHARE') }, () => { console.log("ERROR SHARE") });
+      } else {
+        if (navigator.share && navigator.canShare({ files: filesArray })) {
+          navigator.share({
+            files: [file]
+          })
         } else {
           this.$q.notify({
             message: this.$t('snapshot.notSupported'), // Cette fonction n'est pas supportée
@@ -73,17 +77,12 @@ export default {
           })
         }
       }
-      if (this.isHybrid) {
-        window.plugins.socialsharing.share(null, null, this.fileEntry.nativeURL, null, () => { console.log('SUCCESS SHARE') }, () => { console.log("ERROR SHARE") });
-      } else {
-        await share(file)
-      }
     },
     saveToGallery() {
       const saveSuccess = () => {
         // Message To Users when is saved
         this.$q.notify({
-          message: this.$t('snapshot.imageSavedToGallery'), // Cette fonction n'est pas supportée
+          message: this.$t('snapshot.imageSavedToGallery'),
           color: "positive"
         })
         // Save on the server
@@ -100,26 +99,25 @@ export default {
       cordova.plugins.imagesaver.saveImageToGallery(this.fileEntry.nativeURL, saveSuccess, saveFailed)
     },
     createFileEntry() {
-      window.requestFileSystem(window.TEMPORARY, 5 * 1024 * 1024, (fs) => {
-        const fileName = this.snapshotFilename
-        const createFile = (dirEntry, fileName, data) => {
-          dirEntry.getFile(fileName, {create: true, exclusive: false}, fileEntry => {
-            writeFile(fileEntry, data)
-          })
-        }
-        const writeFile = (fileEntry, dataObj) => {
-          fileEntry.createWriter(fileWriter => {
-            fileWriter.onerror = (error) => {
-              console.log("Error on Write file")
-              console.log(error)
-            }
-            fileWriter.write(dataObj)
-            //
-            this.fileEntry = fileEntry
-          })
-        }
-        createFile(fs.root, fileName, this.blob)
+      window.resolveLocalFileSystemURL(cordova.file.dataDirectory, dirEntry => {
+        const fileName = this.fileName.replace(/[-:]/g, '')
+        createFile(dirEntry, fileName, this.blob)
       })
+      const createFile = (dirEntry, fileName, data) => {
+        dirEntry.getFile(fileName, {create: true, exclusive: false}, fileEntry => {
+          writeFile(fileEntry, data)
+        }, error => { console.log(error) })
+      }
+      const writeFile = (fileEntry, dataObj) => {
+        fileEntry.createWriter(fileWriter => {
+          fileWriter.onerror = (error) => {
+            console.log("Error on Write file")
+            console.log(error)
+          }
+          fileWriter.write(dataObj)
+          this.fileEntry = fileEntry
+        })
+      }
     },
     async saveSnapshotOnServer(blob, filename) {
       if (this.quest.customization && this.quest.customization.saveSelfieOnServer) {
@@ -164,7 +162,6 @@ export default {
   },
   beforeDestroy() {
     // Delete the temporary file
-    this.fileEntry.remove()
     this.fileEntry = null
     this.dataURL = null
   }

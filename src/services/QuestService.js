@@ -98,7 +98,8 @@ export default {
     // Note: quest.customization.forceOnline info is stored in Vuex store & cannot be used for this method
     
     if (!window.cordova) {
-      return this.getByIdOnline(id, version, lang)
+      const onlineQuest = await this.getByIdOnline(id, version, lang)
+      return onlineQuest.data
     }
     
     // check if the quest data are not already saved on device
@@ -106,7 +107,8 @@ export default {
     
     if (!isQuestOfflineLoaded && store.state.networkMode === 'online') {
       try {
-        return await this.getByIdOnline(id, version, lang)
+        const onlineQuest2 = await this.getByIdOnline(id, version, lang)
+        return onlineQuest2.data
       } catch (err) {
         if (store.state.forceOnline) {
           console.error("getByIdForStep(): could not retrieve quest data (online mode)", err)
@@ -133,7 +135,7 @@ export default {
     if (!res.hasOwnProperty('data')) {
       throw new Error("Could not retrieve quest data from server, for id '" + id + "', version '" + version + "', lang '" + lang + "'")
     }
-    return res.data
+    return res
   },
   /**
    * get a quest based on its ID (offline mode)
@@ -149,7 +151,7 @@ export default {
     
     quest = JSON.parse(quest)
 
-    const pictureUrl = await utils.readBinaryFile(id, quest.picture)
+    const pictureUrl = await utils.readBinaryFile(id, quest.picture[this.lang])
     if (pictureUrl) {
       quest.picture = pictureUrl
     }

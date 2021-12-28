@@ -3,12 +3,10 @@
     <div v-if="showNonHybridQRReader">
 
       <!--====================== QR CODE READER ON WEBAPP =================================-->
-      <q-toolbar class="bg-primary">
-        <q-toolbar-title>
-          {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
-        </q-toolbar-title>
-        <q-btn flat round dense icon="close" @click="closeQRCodeReader" />
-      </q-toolbar>
+      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
+        <div class="float-right no-underline close-btn q-pa-sm" @click="closeQRCodeReader"><q-icon name="close" class="subtitle1" /></div>
+        {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
+      </div>
 
       <qr-code-stream
         v-if="showNonHybridQRReader"
@@ -465,7 +463,6 @@ export default {
      * @param   {String}  code            QR Code value
      */
     async checkCode(code) {
-      console.log(code)
       code = utils.removeUnusedUrl(code)
       let checkStatus = await QuestService.checkQRCode(code, this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {

@@ -154,7 +154,7 @@ module.exports = {
       sample1: "Simple linear treasure hunt",
       sample2: "Escape game with QR codes to flash",
       sample3: "Advanced escape game"
-    },  
+    },
     label: {
       shortLang: "en",
       letsGo: "Let's Go!",
@@ -304,7 +304,7 @@ module.exports = {
       TestYourQuest: "Test your game",
       PublishYourQuest: "Publish your game",
       UnpublishYourQuest: "Unpublish your game",
-      SelectedLanguage: "Create game in:",
+      SelectedLanguage: "I create my game in:",
       Close: "Close",
       ChooseTheStepType: "Choose the step type",
       Transition: "Transition",
@@ -805,8 +805,8 @@ module.exports = {
       MaybeLater: "Maybe later!",
       LetsPlay: "Play",
       NewAccount: "New account",
-      PleaseAcceptDeviceMotionPermissionRequest: "Please allow Graaly to detect the motion of your device, in order to play this part of the game",
-      PleaseAcceptDeviceOrientationPermissionRequest: "Please allow Graaly to detect the orientation of your device, in order to play this part of the game",
+      PleaseAcceptDeviceMotionPermissionRequest: "Please allow the application to detect the motion of your device, in order to play this part of the game",
+      PleaseAcceptDeviceOrientationPermissionRequest: "Please allow the application to detect the orientation of your device, in order to play this part of the game",
       DoYouWantToCreateAnAccount: "To build a game, you need to create an account. Do you agree to create your account?",
       UserWithSameEmailAlreadyExisting: "An account already exists with this email address",
       PasswordTooWeak: "Your password must be more complex (8 caracters and a capital leter and one digit)",
@@ -823,7 +823,7 @@ module.exports = {
       QuestIsFarFromUser: "<b>You are far from this game</b>.<br />By solving this game afar, you will miss many clues and so many points",
       YouAlreadyDidThisQuest: "<b>You already completed this game</b>. You can play it again, but <b>this will not give you points again</b>",
       YouAreQuestOwnerDesc: "You are the owner of this game, you will not win any point",
-      GeneralWarning: "<b>For your safety</b>, do not play Graaly driving or riding your bicycle, always be alert to what is happening around you, do not enter private property without permission, follow the safety rules when you move.",
+      GeneralWarning: "<b>For your safety</b>, do not play the game driving or riding your bicycle, always be alert to what is happening around you, do not enter private property without permission, follow the safety rules when you move.",
       RemoveScoringAndRating: "Hide the score and the rating",
       TypeEndMessage: "Text replacing the scoring and rating final screen",
       TypeEndMessageForPerfectScore: "Customized text if user has all answers right",
@@ -1131,8 +1131,17 @@ module.exports = {
       Duplicate: "Duplicate",
       PleaseWaitLoadingAndGPSInit: "PLEASE WAIT, DATA AND GPS INITIALIZATION",
       MoveToNextStepAutomaticallyDuration: "Seconds before moving to next step",
-      UseAModel: "Start from a model",
-      AddToInventoryAndPass: "Add in inventory and pass this step"
+      UseAModel: "I use a model",
+      AddToInventoryAndPass: "Add in inventory and pass this step",
+      holdVerticaly: "For the best experience with augmented reality, please hold your phone upright.",
+      startScan: "Start Scan",
+      noSensorFound: "No sensors found on your device",
+      noSensorNext: "You can go directly to the next step by clicking on the arrow at the bottom right",
+      UniqueUsageQRCodeWarning: "Please note that this code can not be used with another Graaly account. To use it on another device, you need to use the same Graaly account.",
+      arDialogTitle: "Authorization",
+      arDialogMessage: "To continue, please authorize the application to use features of your device",
+      qrCodeAlreadyScan: "You have already tried this QR Code",
+      qrCodeAlreadyGood: "You have already scanned the correct QR Code, go to the next step"
     }
   },
   fr: {
@@ -1277,7 +1286,7 @@ module.exports = {
       sample1: "Jeu de piste linéaire et simple",
       sample2: "Escape game avec des QR codes à trouver",
       sample3: "Escape game avancé"
-    },  
+    },
     label: {
       shortLang: "fr",
       letsGo: "C'est parti !",
@@ -1427,7 +1436,7 @@ module.exports = {
       TestYourQuest: "Tester votre jeu",
       PublishYourQuest: "Publier votre jeu",
       UnpublishYourQuest: "Dépublier votre jeu",
-      SelectedLanguage: "Saisir le jeu en :",
+      SelectedLanguage: "Je crée mon jeu en :",
       Close: "Fermer",
       ChooseTheStepType: "Choisir le type d'étape",
       Transition: "Transition",
@@ -1928,8 +1937,8 @@ module.exports = {
       MaybeLater: "Peut-être plus tard !",
       LetsPlay: "Jouez",
       NewAccount: "Nouveau compte",
-      PleaseAcceptDeviceMotionPermissionRequest: "Veuillez accepter que Graaly accède aux mesures des mouvements de votre appareil, afin de pouvoir jouer cette partie du jeu",
-      PleaseAcceptDeviceOrientationPermissionRequest: "Veuillez accepter que Graaly accède aux mesures de l'orientation de votre appareil, afin de pouvoir jouer cette partie du jeu",
+      PleaseAcceptDeviceMotionPermissionRequest: "Veuillez accepter que l'application accède aux mesures des mouvements de votre appareil, afin de pouvoir jouer cette partie du jeu",
+      PleaseAcceptDeviceOrientationPermissionRequest: "Veuillez accepter que l'application accède aux mesures de l'orientation de votre appareil, afin de pouvoir jouer cette partie du jeu",
       DoYouWantToCreateAnAccount: "Pour créer un jeu, vous devez créer votre compte. Souhaitez-vous créer votre compte Graaly ?",
       UserWithSameEmailAlreadyExisting: "Un compte existe déjà avec cet email",
       PasswordTooWeak: "Votre mot de passe doit etre au 8 caractères, contenir une majuscule et un chiffre",
@@ -1946,7 +1955,7 @@ module.exports = {
       QuestIsFarFromUser: "<b>Vous n'êtes pas sur le lieu du jeu</b>.<br />En résolvant ce jeu à distance, vous allez manquer plein d'indices et donc de points",
       YouAlreadyDidThisQuest: "<b>Vous avez déjà réussi ce jeu</b>. Vous pouvez le résoudre à nouveau, mais il ne vous <b>rapportera aucun point</b>.",
       YouAreQuestOwnerDesc: "Vous êtes le créateur de ce jeu, il ne vous rapportera aucun point",
-      GeneralWarning: "<b>Pour votre sécurité</b>, ne jouez pas à Graaly en conduisant ou quand votre vélo est en mouvement, soyez toujours vigilant à ce qui se passe autour de vous, ne pénétrez pas dans des propriétés privées sans autorisation, respectez les règles de sécurité quand vous vous déplacez.",
+      GeneralWarning: "<b>Pour votre sécurité</b>, ne jouez pas au jeu en conduisant ou quand votre vélo est en mouvement, soyez toujours vigilant à ce qui se passe autour de vous, ne pénétrez pas dans des propriétés privées sans autorisation, respectez les règles de sécurité quand vous vous déplacez.",
       RemoveScoringAndRating: "Cacher le score et la notation",
       TypeEndMessage: "Texte de fin qui remplace l'écran de score et de notation",
       TypeEndMessageForPerfectScore: "Texte de fin personnalisé si le joueur a toutes les bonnes réponses",
@@ -2254,8 +2263,17 @@ module.exports = {
       Duplicate: "Dupliquer",
       PleaseWaitLoadingAndGPSInit: "CHARGEMENT DES DONNEES ET GPS EN COURS ...",
       MoveToNextStepAutomaticallyDuration: "Secondes avant de passer à l'étape suivante",
-      UseAModel: "Partir d'un exemple",
-      AddToInventoryAndPass: "Ajouter à l'inventaire et passer cette étape"
+      UseAModel: "J'utilise un modèle :",
+      AddToInventoryAndPass: "Ajouter à l'inventaire et passer cette étape",
+      holdVerticaly: "Pour une meilleure expérience avec la réalité augmentée, merci de tenir votre téléphone à la verticale.",
+      startScan: "Démarrer",
+      noSensorFound: "Pas de capteurs trouvés sur votre appareil",
+      noSensorNext: "Vous pouvez directement passer à l'étape suivante en cliquant sur la flèche en bas à droite",
+      UniqueUsageQRCodeWarning: "Attention, ce code est à usage unique. Vous ne pourrez pas l'utiliser avec un autre compte Graaly. Pour l'utiliser sur un autre appareil, vous devrez utiliser le même compte Graaly.",
+      arDialogTitle: "Autorisation",
+      arDialogMessage: "Pour continuer, veuillez autoriser l'application à utiliser certaines fonctionnalités de votre appareil",
+      qrCodeAlreadyScan: "Vous avez déjà essayé ce QR Code",
+      qrCodeAlreadyGood: "Vous avez déjà scanner le bon QR Code, passez à l'étape suivante"
     }
   }
 }
