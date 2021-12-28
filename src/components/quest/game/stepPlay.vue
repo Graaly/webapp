@@ -2363,7 +2363,7 @@ export default {
           // consider that puzzle is solved when checkAnswer() is called.
 
           // call to sendAnswer() is required to get score & offline info
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: (this.isTimeUp === true ? false : true), isTimeUp: this.isTimeUp}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: !(this.isTimeUp === true), isTimeUp: this.isTimeUp}, true)
 
           if (this.isTimeUp === true) {
             this.submitWrongAnswer(checkAnswerResult.offline, true)
@@ -2373,7 +2373,7 @@ export default {
           break
 
         case 'memory':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: (this.isTimeUp === true ? false : true), isTimeUp: this.isTimeUp}, false)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: !(this.isTimeUp === true), isTimeUp: this.isTimeUp}, false)
 
           if (this.isTimeUp === true) {
             this.submitWrongAnswer(checkAnswerResult.offline, true)
@@ -3489,7 +3489,7 @@ export default {
     /*
      * prepare page before snapshot
      */
-    /* async prepareSnapshot() {
+    async prepareSnapshot() {
       this.takingSnapshot = true
       this.$q.loading.show()
       this.$emit('hideButtons')
@@ -3506,13 +3506,13 @@ export default {
           Notification(_this.$t('label.SnapshotManualOnIOs'), 'error');
           this.$q.loading.hide()
           return false
-          image.style.width = '100%'
+          /*image.style.width = '100%'
           CameraPreview.takePicture({quality: 85}, function(base64PictureData) {
             const imageSrcData = 'data:image/jpeg;base64,' +base64PictureData
             var image = document.getElementById('snapshotImageIos')
             image.src = imageSrcData
             setTimeout(function () { _this.takeIOsSnapshot() }, 2000)
-          });
+          });*/
         } else if (this.isSafari) {
           let tempCameraStream = _this.$refs['camera-stream-for-image-over-flow']
           let canvasStream = document.createElement('canvas')
@@ -3656,12 +3656,12 @@ export default {
           } else {
             Notification(_this.$t('label.SnapshotTaken'), 'info')
           }
-        })*//*
+        })*/
       } catch (error) {
         Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
         console.log("Error: " + error)
       }
-    },*/
+    },
     /**
      * This is a feature for players (selfies...) from steps image-over-flow, not authors
      * Saves snapshot on web API server if quest config setting "saveSelfieOnServer" is enabled
