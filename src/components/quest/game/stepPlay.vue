@@ -957,7 +957,6 @@ import GLTFLoader from 'three-gltf-loader'
 import * as mqtt from 'mqtt'
 import "image-capture"
 
-
 export default {
   /*
    * Properties used on component call
@@ -1214,7 +1213,7 @@ export default {
         pageReady: false,
 
         //timer
-        countdowntimeleft: 0,
+        countdowntimeleft: 0
         //,currentcountdown: null
       }
     },
@@ -2720,7 +2719,7 @@ export default {
       this.displayReadMoreAlert()
 
       if (this.isTimeUp === true) {
-        this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'),false)
+        this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'), false)
       } else if (showResult || (this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage[this.lang] && this.step.options.wrongAnswerMessage[this.lang] !== "")) {
         this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true)
       }
@@ -3455,7 +3454,6 @@ console.log("TESTSNAPSHOTIOS1")
           canvasStream.toBlob(function (blob) {
             image.src = URL.createObjectURL(blob)
           }, 'image/png')
-
         } else { // android & webapp
           // generate a snapshot of the video flow
           let blob = await this.imageCapture.takePhoto()
@@ -3586,7 +3584,7 @@ console.log("TESTSNAPSHOTIOS7")
         const picture = new Blob([new Uint8Array(fileBinary)], { type: "image/jpg" })
         var data = new FormData()
         data.append('image', picture)
-        var _this = this
+        //var _this = this
         await StepService.uploadSnapshot(this.step.questId, data)
         /*StepService.uploadSnapshot(this.step.questId, data, function(err, result) {
           if (err) {
@@ -3948,7 +3946,7 @@ console.log("TESTSNAPSHOTIOS7")
               //Vue.set(this.memory.items, this.memory.items.length - 1, this.memory.items[this.memory.items.length - 1])
             } else {
               // uncover all tiles
-              for (var i = 0; i < this.memory.items.length; i++) {
+              for (let i = 0; i < this.memory.items.length; i++) {
                 if (!this.memory.items[i].isFound) {
                   this.memory.items[i].isClicked = true
                   _self.memory.items[_self.memory.selectedKey].isFound = true
