@@ -463,7 +463,6 @@ export default {
      * @param   {String}  code            QR Code value
      */
     async checkCode(code) {
-      console.log(code)
       code = utils.removeUnusedUrl(code)
       let checkStatus = await QuestService.checkQRCode(code, this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {

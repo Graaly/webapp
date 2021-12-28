@@ -1031,26 +1031,20 @@ export default {
               this.warnings.stepDataMissing = true
             }
           }
-console.log("TEST - OFFLINE")
           if (tempStep.type === 'new-item' && tempStep.options && tempStep.options.picture && tempStep.options.picture !== '') {
             let itemImageUrl
             // check if a translated picture is proposed
             if (tempStep.options.pictures && tempStep.options.pictures[this.lang] && tempStep.options.pictures[this.lang] !== '') {
-console.log("TEST - GET LANG")
               itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.pictures[this.lang])
             } else {
-console.log("TEST - DO NOT GET LANG")
               itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
             }
             if (itemImageUrl) {
-console.log("TEST - 3")
               tempStep.options.picture = itemImageUrl
               if (tempStep.options.hasOwnProperty('pictures') && tempStep.options.pictures[this.lang]) {
-console.log("TEST - 4")
                 tempStep.options.pictures[this.lang] = itemImageUrl
               }
             }
-console.log(tempStep.options)
           }
           if (tempStep.type === 'character' && tempStep.options && tempStep.options.character && tempStep.options.character !== '' && tempStep.options.character !== 'usequestcharacter') {
             const characterPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.character)

@@ -55,9 +55,9 @@
 </template>
 
 <script>
-import Notification from "../boot/NotifyHelper";
-import { QrcodeStream } from "vue-qrcode-reader";
-import utils from "../includes/utils";
+import Notification from "../boot/NotifyHelper"
+import { QrcodeStream } from "vue-qrcode-reader"
+import utils from "../includes/utils"
 
 export default {
   name: "qrCodeStream",
@@ -92,10 +92,13 @@ export default {
       }
       this.usedCamera = status.currentCamera
       if (status.authorized) {
-        QRScanner.scan(this.displayResult)
+        setTimeout(this.scan, 500)
       } else {
-        Notification(this.$t('qrCode.unauthorized'), 'error');
+        Notification(this.$t('qrCode.unauthorized'), 'error')
       }
+    },
+    scan() {
+      QRScanner.scan(this.displayResult)
     },
     toggleLight() {
       QRScanner.getStatus(status => {
@@ -120,17 +123,15 @@ export default {
             }
         })
       }
-      QRScanner.useCamera(this.usedCamera);
+      QRScanner.useCamera(this.usedCamera)
     },
     displayResult(err, scanResult) {
       if (err) {
-        Notification(this.$t('qrCode.scanError'), 'error');
+        Notification(this.$t('qrCode.scanError'), 'error')
       } else {
         this.result = scanResult
         this.$emit('QrCodeResult', this.result)
-        this.timeOutId = setTimeout(() => {
-          QRScanner.scan(this.displayResult)
-        }, 4000)
+        this.timeOutId = setTimeout(this.scan, 4000)
       }
     },
     // WEBAPP METHOD WITH BUG IN IOS AND SAFARI
@@ -167,7 +168,6 @@ export default {
     async onInit () {
       /*try {
         const { capabilities } = await promise
-        console.log(capabilities)
         this.torchNotSupported = !capabilities.torch
       } catch (error) {
         const triedFrontCamera = this.camera === 'front'
@@ -188,13 +188,17 @@ export default {
       this.torchNotSupported = true
       this.start = this.camera !== 'off'
       this.showScanConfirmation = this.camera === "off"
+    },
+    prepareScanner() {
+      document.body.style.backgroundColor = 'transparent'
+      document.body.style.background = 'transparent'
+      QRScanner.prepare(this.isDone)
     }
   },
   async mounted() {
     if (this.isHybrid) {
-      document.body.style.backgroundColor = 'transparent'
-      document.body.style.background = 'transparent'
-      QRScanner.prepare(this.isDone)
+      QRScanner.destroy()
+      setTimeout(this.prepareScanner, 1000)
     }
   },
   beforeDestroy() {
@@ -204,8 +208,6 @@ export default {
       if (this.timeOutId !== null) {
         clearTimeout(this.timeOutId)
       }
-    } else {
-
     }
   }
 }

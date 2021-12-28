@@ -2183,8 +2183,6 @@ export default {
      * @param   {Object}    selectedAnswerKey            Answer object
      */
     async checkAnswer(answer) {
-      console.log(this.playerResult)
-      console.log(this.step.type)
       var checkAnswerResult
       if (this.playerResult !== null) {
         if (this.step.type === 'locate-marker') {
