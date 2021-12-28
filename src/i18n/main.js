@@ -805,8 +805,8 @@ module.exports = {
       MaybeLater: "Maybe later!",
       LetsPlay: "Play",
       NewAccount: "New account",
-      PleaseAcceptDeviceMotionPermissionRequest: "Please allow Graaly to detect the motion of your device, in order to play this part of the game",
-      PleaseAcceptDeviceOrientationPermissionRequest: "Please allow Graaly to detect the orientation of your device, in order to play this part of the game",
+      PleaseAcceptDeviceMotionPermissionRequest: "Please allow the application to detect the motion of your device, in order to play this part of the game",
+      PleaseAcceptDeviceOrientationPermissionRequest: "Please allow the application to detect the orientation of your device, in order to play this part of the game",
       DoYouWantToCreateAnAccount: "To build a game, you need to create an account. Do you agree to create your account?",
       UserWithSameEmailAlreadyExisting: "An account already exists with this email address",
       PasswordTooWeak: "Your password must be more complex (8 caracters and a capital leter and one digit)",
@@ -823,7 +823,7 @@ module.exports = {
       QuestIsFarFromUser: "<b>You are far from this game</b>.<br />By solving this game afar, you will miss many clues and so many points",
       YouAlreadyDidThisQuest: "<b>You already completed this game</b>. You can play it again, but <b>this will not give you points again</b>",
       YouAreQuestOwnerDesc: "You are the owner of this game, you will not win any point",
-      GeneralWarning: "<b>For your safety</b>, do not play Graaly driving or riding your bicycle, always be alert to what is happening around you, do not enter private property without permission, follow the safety rules when you move.",
+      GeneralWarning: "<b>For your safety</b>, do not play the game driving or riding your bicycle, always be alert to what is happening around you, do not enter private property without permission, follow the safety rules when you move.",
       RemoveScoringAndRating: "Hide the score and the rating",
       TypeEndMessage: "Text replacing the scoring and rating final screen",
       TypeEndMessageForPerfectScore: "Customized text if user has all answers right",
@@ -1138,8 +1138,8 @@ module.exports = {
       noSensorFound: "No sensors found on your device",
       noSensorNext: "You can go directly to the next step by clicking on the arrow at the bottom right",
       UniqueUsageQRCodeWarning: "Please note that this code can not be used with another Graaly account. To use it on another device, you need to use the same Graaly account.",
-      arDialogTitle: "Graaly authorization",
-      arDialogMessage: "To continue, please authorize Graaly to use features of your device"
+      arDialogTitle: "Authorization",
+      arDialogMessage: "To continue, please authorize the application to use features of your device"
     }
   },
   fr: {
@@ -1935,8 +1935,8 @@ module.exports = {
       MaybeLater: "Peut-être plus tard !",
       LetsPlay: "Jouez",
       NewAccount: "Nouveau compte",
-      PleaseAcceptDeviceMotionPermissionRequest: "Veuillez accepter que Graaly accède aux mesures des mouvements de votre appareil, afin de pouvoir jouer cette partie du jeu",
-      PleaseAcceptDeviceOrientationPermissionRequest: "Veuillez accepter que Graaly accède aux mesures de l'orientation de votre appareil, afin de pouvoir jouer cette partie du jeu",
+      PleaseAcceptDeviceMotionPermissionRequest: "Veuillez accepter que l'application accède aux mesures des mouvements de votre appareil, afin de pouvoir jouer cette partie du jeu",
+      PleaseAcceptDeviceOrientationPermissionRequest: "Veuillez accepter que l'application accède aux mesures de l'orientation de votre appareil, afin de pouvoir jouer cette partie du jeu",
       DoYouWantToCreateAnAccount: "Pour créer un jeu, vous devez créer votre compte. Souhaitez-vous créer votre compte Graaly ?",
       UserWithSameEmailAlreadyExisting: "Un compte existe déjà avec cet email",
       PasswordTooWeak: "Votre mot de passe doit etre au 8 caractères, contenir une majuscule et un chiffre",
@@ -1953,7 +1953,7 @@ module.exports = {
       QuestIsFarFromUser: "<b>Vous n'êtes pas sur le lieu du jeu</b>.<br />En résolvant ce jeu à distance, vous allez manquer plein d'indices et donc de points",
       YouAlreadyDidThisQuest: "<b>Vous avez déjà réussi ce jeu</b>. Vous pouvez le résoudre à nouveau, mais il ne vous <b>rapportera aucun point</b>.",
       YouAreQuestOwnerDesc: "Vous êtes le créateur de ce jeu, il ne vous rapportera aucun point",
-      GeneralWarning: "<b>Pour votre sécurité</b>, ne jouez pas à Graaly en conduisant ou quand votre vélo est en mouvement, soyez toujours vigilant à ce qui se passe autour de vous, ne pénétrez pas dans des propriétés privées sans autorisation, respectez les règles de sécurité quand vous vous déplacez.",
+      GeneralWarning: "<b>Pour votre sécurité</b>, ne jouez pas au jeu en conduisant ou quand votre vélo est en mouvement, soyez toujours vigilant à ce qui se passe autour de vous, ne pénétrez pas dans des propriétés privées sans autorisation, respectez les règles de sécurité quand vous vous déplacez.",
       RemoveScoringAndRating: "Cacher le score et la notation",
       TypeEndMessage: "Texte de fin qui remplace l'écran de score et de notation",
       TypeEndMessageForPerfectScore: "Texte de fin personnalisé si le joueur a toutes les bonnes réponses",
@@ -2268,8 +2268,8 @@ module.exports = {
       noSensorFound: "Pas de capteurs trouvés sur votre appareil",
       noSensorNext: "Vous pouvez directement passer à l'étape suivante en cliquant sur la flèche en bas à droite",
       UniqueUsageQRCodeWarning: "Attention, ce code est à usage unique. Vous ne pourrez pas l'utiliser avec un autre compte Graaly. Pour l'utiliser sur un autre appareil, vous devrez utiliser le même compte Graaly.",
-      arDialogTitle: "Autorisation Graaly",
-      arDialogMessage: "Pour continuer, veuillez autoriser Graaly à utiliser certaines fonctionnalités de votre appareil"
+      arDialogTitle: "Autorisation",
+      arDialogMessage: "Pour continuer, veuillez autoriser l'application à utiliser certaines fonctionnalités de votre appareil"
     }
   }
 }
