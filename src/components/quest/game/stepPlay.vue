@@ -2183,10 +2183,13 @@ export default {
      * @param   {Object}    selectedAnswerKey            Answer object
      */
     async checkAnswer(answer) {
-      //console.log(this.playerResult)
-      //console.log(this.step.type)
+      console.log(this.playerResult)
+      console.log(this.step.type)
       var checkAnswerResult
       if (this.playerResult !== null) {
+        if (this.step.type === 'locate-marker') {
+          Notification(this.$t('label.qrCodeAlreadyGood'), 'info')
+        }
         return
       }
 
@@ -2597,6 +2600,8 @@ export default {
               if (this.locateMarker.markerControls[answer] && !this.locateMarker.markerControls[answer].detected) {
                 this.locateMarker.markerControls[answer].detected = true
                 markerDetected = true
+              } else {
+                Notification(this.$t('label.qrCodeAlreadyScan'), 'info')
               }
             //}
 

@@ -1139,7 +1139,9 @@ module.exports = {
       noSensorNext: "You can go directly to the next step by clicking on the arrow at the bottom right",
       UniqueUsageQRCodeWarning: "Please note that this code can not be used with another Graaly account. To use it on another device, you need to use the same Graaly account.",
       arDialogTitle: "Authorization",
-      arDialogMessage: "To continue, please authorize the application to use features of your device"
+      arDialogMessage: "To continue, please authorize the application to use features of your device",
+      qrCodeAlreadyScan: "You have already tried this QR Code",
+      qrCodeAlreadyGood: "You have already scanned the correct QR Code, go to the next step"
     }
   },
   fr: {
@@ -2269,7 +2271,9 @@ module.exports = {
       noSensorNext: "Vous pouvez directement passer à l'étape suivante en cliquant sur la flèche en bas à droite",
       UniqueUsageQRCodeWarning: "Attention, ce code est à usage unique. Vous ne pourrez pas l'utiliser avec un autre compte Graaly. Pour l'utiliser sur un autre appareil, vous devrez utiliser le même compte Graaly.",
       arDialogTitle: "Autorisation",
-      arDialogMessage: "Pour continuer, veuillez autoriser l'application à utiliser certaines fonctionnalités de votre appareil"
+      arDialogMessage: "Pour continuer, veuillez autoriser l'application à utiliser certaines fonctionnalités de votre appareil",
+      qrCodeAlreadyScan: "Vous avez déjà essayé ce QR Code",
+      qrCodeAlreadyGood: "Vous avez déjà scanner le bon QR Code, passez à l'étape suivante"
     }
   }
 }

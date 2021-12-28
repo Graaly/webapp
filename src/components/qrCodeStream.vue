@@ -164,8 +164,8 @@ export default {
           break
       }
     },
-    async onInit (promise) {
-      try {
+    async onInit () {
+      /*try {
         const { capabilities } = await promise
         console.log(capabilities)
         this.torchNotSupported = !capabilities.torch
@@ -184,7 +184,10 @@ export default {
       } finally {
         this.start = this.camera !== 'off'
         this.showScanConfirmation = this.camera === "off"
-      }
+      }*/
+      this.torchNotSupported = true
+      this.start = this.camera !== 'off'
+      this.showScanConfirmation = this.camera === "off"
     }
   },
   async mounted() {
@@ -201,6 +204,8 @@ export default {
       if (this.timeOutId !== null) {
         clearTimeout(this.timeOutId)
       }
+    } else {
+
     }
   }
 }
