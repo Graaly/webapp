@@ -906,6 +906,9 @@
     <!-- keep geolocation active during all quest duration -->
     <geolocation ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />
 
+    <!-- keep orientation detection active during all quest duration -->
+    <orientation ref="orientation-component" @success="onNewDeviceOrientation($event)" @error="onDeviceOrientationError($event)" />
+    
     <!--====================== WIN POINTS ANIMATION =================================-->
 
     <!--<div v-show="playerResult === true && score >= 1" class="fadein-message">+{{ score }}</div>-->
@@ -970,6 +973,7 @@ import stepTypes from 'data/stepTypes.json'
 import Notification from 'boot/NotifyHelper'
 
 import geolocation from 'components/geolocation'
+import orientation from 'components/orientation'
 import gpscalibration from 'components/gpsCalibration'
 import holdphonevertically from 'components/holdPhoneVertically'
 import story from 'components/story'
@@ -1006,6 +1010,7 @@ export default {
     holdphonevertically,
     gpscalibration,
     geolocation,
+    orientation,
     story,
     geolocationStepMap,
     qrCodeStream,
@@ -1306,9 +1311,9 @@ export default {
       // otherwise they continue in the background even when route changes
       this.stopLatestAnimation()
 
-      if (this.geolocation.absoluteOrientationSensor !== null) {
+      /*if (this.geolocation.absoluteOrientationSensor !== null) {
         this.geolocation.absoluteOrientationSensor.stop()
-      }
+      }*/
       window.removeEventListener('deviceorientation', this.checkPhoneVertically)
       window.removeEventListener("devicemotion", this.handleMotionEvent, true)
 
@@ -1579,9 +1584,10 @@ export default {
 
             // start devicemotion sensor (allows to detect gyroscope)
             window.addEventListener("devicemotion", this.handleMotionEvent, true)
-
+            
             await this.waitForGyroscopeDetection()
-
+            //this.deviceHasGyroscope = false
+            
             // Start absolute orientation sensor
             // ---------------------------------
 
@@ -1596,11 +1602,12 @@ export default {
               try {
                 if ("AbsoluteOrientationSensor" in window) {
                   // Android
-                  let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
+                  // SHOULD BE ALREADY DONE BY <orientation> COMPONENT
+                  /*let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
                   sensor.onerror = event => console.error(event.error.name, event.error.message)
                   sensor.onreading = this.onAbsoluteOrientationSensorReading
                   sensor.start()
-                  this.geolocation.absoluteOrientationSensor = sensor
+                  this.geolocation.absoluteOrientationSensor = sensor*/
                 } else if (this.isSafari) {
                   // WEB APP IOS
 
@@ -2525,7 +2532,8 @@ export default {
                 window.removeEventListener('deviceorientation', this.checkPhoneVertically)
 
                 // stop moving camera when device moves
-                this.geolocation.absoluteOrientationSensor.stop()
+                // TODO FIND ANOTHER WAY => (IF NECESSARY) UPDATE A PROPERTY & IGNORE ORIENTATION UPDATES
+                //this.geolocation.absoluteOrientationSensor.stop()
               }
 
               // stop camera flow
@@ -4118,7 +4126,7 @@ export default {
 
       let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
 
-      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.deviceHasGyroscope) {
+      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.deviceHasGyroscope && !this.geolocation.playerTouchedArObject) {
         this.geolocation.target.camera.quaternion = quaternion
       }
 
@@ -4366,7 +4374,6 @@ export default {
     */
     handleMotionEvent (event) {
       let dm = this.deviceMotion
-      //let object
       let canProcess = true // can this method be entierely run? is all required data available?
 
       // detect if device has gyroscope
@@ -4399,10 +4406,6 @@ export default {
 
       let accel = event.acceleration
       let accelerationVector = new THREE.Vector3(accel.x, accel.y, accel.z)
-
-      // "cancel" device rotation on acceleration vector
-      /*let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
-      accelerationVector.applyQuaternion(quaternion)*/
 
       dm.acceleration.raw = accelerationVector
 
@@ -4925,6 +4928,12 @@ export default {
           this.audio.play = true
         }
       }
+    },
+    onNewDeviceOrientation(event) {
+      console.log('*newDeviceOrientation*', event)
+    },
+    onDeviceOrientationError(event) {
+      console.error('*deviceOrientationError', event)
     }
   }
 }
