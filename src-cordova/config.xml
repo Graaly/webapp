@@ -118,6 +118,6 @@
     </edit-config>
     <universal-links>
         <ios-team-id value="2M7VD7YHZV" />
-        <host name="app.graaly.com" scheme="https" />
+        <host name="app.graaly.com" scheme="https"/>
     </universal-links>
 </widget>
