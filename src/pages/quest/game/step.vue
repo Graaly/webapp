@@ -63,7 +63,7 @@
           <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
             <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-              <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : uploadUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
+              <img :src="((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : uploadUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
               <p v-if="item.titles && item.titles[lang] && item.titles[lang] !== ''">{{ item.titles[lang] }}</p>
               <p v-if="!(item.titles && item.titles[lang] && item.titles[lang] !== '')">{{ item.title }}</p>
             </div>
@@ -110,7 +110,7 @@
 
     <transition name="slideInBottom">
       <div class="reduce-window-size-desktop" v-show="info.isOpened">
-        <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="getQuest(questId)">
+        <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="initData()">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
@@ -245,24 +245,24 @@
 
     <div v-show="footer.show" class="step-menu step-menu-fixed fixed-bottom">
       <!--<q-linear-progress :percentage="(this.step.number - 1) * 100 / info.stepsNumber" animate stripe color="primary"></q-linear-progress>-->
-      <div class="row white-buttons">
-        <div class="col centered q-pb-md">
+      <div class="row white-buttons" :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}" :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''">
+        <div class="col centered">
+          <div class="q-py-sm" v-if="!info.quest.customization || !info.quest.customization.logo || info.quest.customization.logo === ''">
+            <q-btn
+              flat
+              size="lg"
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+              icon="menu"
+              :class="{'bg-secondary': (info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}"
+              @click="openInfo()"
+            >
+              <q-badge v-if="this.$store.state.chatNotification > 0" color="accent" rounded floating>{{ this.$store.state.chatNotification }}</q-badge>
+            </q-btn>
+          </div>
           <q-btn
-            round
-            size="lg"
-            :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
-            icon="menu"
-            :class="{'bg-secondary': (info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')), 'bg-primary': (!info.isOpened && (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === ''))}"
-            @click="openInfo()"
-            v-if="!info.quest.customization || !info.quest.customization.logo || info.quest.customization.logo === ''"
-          >
-            <q-badge v-if=" this.$store.state.chatNotification > 0"  color="accent" rounded floating>{{ this.$store.state.chatNotification }}</q-badge>
-          </q-btn>
-          <q-btn
-            round
+            flat
             size="lg"
             style="padding-top: 0 !important;"
-            class="bg-white"
             @click="openInfo()"
             v-if="info.quest.customization && info.quest.customization.logo && info.quest.customization.logo !== ''" >
             <q-avatar size="60px">
@@ -270,9 +270,9 @@
             </q-avatar>
           </q-btn>
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="work"
@@ -281,9 +281,9 @@
             @click="openInventory()"
           />
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="lightbulb"
@@ -294,9 +294,9 @@
             <q-badge v-if="this.step && this.step.hint" color="secondary" floating>{{ this.hint.remainingNumber }}</q-badge>
           </q-btn>
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             :class="{'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
@@ -306,9 +306,9 @@
             @click="previousStep()"
           />
         </div>
-        <div class="col centered q-pb-md">
+        <div class="col centered q-py-sm">
           <q-btn
-            round
+            flat
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             :class="{'flashing': next.suggest, 'bg-primary': (!info.quest.customization || !info.quest.customization.color || info.quest.customization.color === '')}"
@@ -340,12 +340,13 @@ import utils from 'src/includes/utils'
 import { Notify } from 'quasar'
 
 import Vue from 'vue'
-import Sortable from 'sortablejs'
+// MPA 2021-12-14 seems not used
+/*import Sortable from 'sortablejs'
 Vue.directive('sortable', {
   inserted: function (el, binding) {
     return new Sortable(el, binding.value || {})
   }
-})
+})*/
 
 export default {
   components: {
@@ -484,8 +485,14 @@ export default {
      */
     async initData () {
       this.$q.loading.show()
-      // get quest information
-      await this.getQuest(this.questId)
+
+      try {
+        this.info.quest = await QuestService.getByIdForStep(this.questId)
+      } catch (err) {
+        console.error(err)
+        this.warnings.questDataMissing = true
+        return
+      }
 
       // Start audio
       this.getAudioSound()
@@ -653,7 +660,7 @@ export default {
      */
     async getRun() {
       // List all run for this quest for current user
-      var runs = await RunService.listForAQuest(this.questId, { retries: 0 })
+      var runs = await RunService.listForAQuest(this.questId)
       //runs = false // move offline
 
       var currentChapter = 0
@@ -946,18 +953,18 @@ export default {
           }
 
           // get offline media
-          if (tempStep.backgroundImage) {
-            const pictureUrl = await utils.readBinaryFile(this.questId, tempStep.backgroundImage)
+          if (tempStep.backgroundImage && tempStep.backgroundImage[this.lang]) {
+            const pictureUrl = await utils.readBinaryFile(this.questId, tempStep.backgroundImage[this.lang])
             if (pictureUrl) {
-              tempStep.backgroundImage = pictureUrl
+              tempStep.backgroundImage[this.lang] = pictureUrl
             } else {
               this.warnings.stepDataMissing = true
             }
           }
-          if (tempStep.videoStream && tempStep.videoStream !== '') {
-            const videoUrl = await utils.readBinaryFile(this.questId, tempStep.videoStream)
+          if (tempStep.videoStream && tempStep.videoStream[this.lang] && tempStep.videoStream[this.lang] !== '') {
+            const videoUrl = await utils.readBinaryFile(this.questId, tempStep.videoStream[this.lang])
             if (videoUrl) {
-              tempStep.videoStream = videoUrl
+              tempStep.videoStream[this.lang] = videoUrl
             } else {
               this.warnings.stepDataMissing = true
             }
@@ -1017,16 +1024,22 @@ export default {
               }
             }
           }
-          if (tempStep.type === 'jigsaw-puzzle' && tempStep.options && tempStep.options.picture && tempStep.options.picture !== '') {
-            const jigsawPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
+          if (tempStep.type === 'jigsaw-puzzle' && tempStep.options && tempStep.options.picture && tempStep.options.picture[this.lang] && tempStep.options.picture[this.lang] !== '') {
+            const jigsawPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture[this.lang])
             if (jigsawPictureUrl) {
-              tempStep.options.picture = jigsawPictureUrl
+              tempStep.options.picture[this.lang] = jigsawPictureUrl
             } else {
               this.warnings.stepDataMissing = true
             }
           }
           if (tempStep.type === 'new-item' && tempStep.options && tempStep.options.picture && tempStep.options.picture !== '') {
-            const itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
+            let itemImageUrl
+            // check if a translated picture is proposed
+            if (tempStep.options.pictures && tempStep.options.pictures[this.lang] && tempStep.options.pictures[this.lang] !== '') {
+              itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.pictures[this.lang])
+            } else {
+              itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
+            }
             if (itemImageUrl) {
               tempStep.options.picture = itemImageUrl
               if (tempStep.options.hasOwnProperty('pictures') && tempStep.options.pictures[this.lang]) {
@@ -1315,14 +1328,22 @@ export default {
      * get background image
      */
     getBackgroundImage () {
-      if (this.info.quest.picture && this.info.quest.picture[0] === '_') {
-        return 'statics/images/quest/' + this.info.quest.picture
-      } else if (this.info.quest.picture && this.info.quest.picture.indexOf('blob:') !== -1) {
-        return this.info.quest.picture
-      } else if (this.info.quest.picture) {
-        return this.uploadUrl + '/upload/quest/' + this.info.quest.picture
+      let picture
+      if (this.info.quest.picture) {
+        if (this.info.quest.picture[this.lang]) {
+          picture = this.info.quest.picture[this.lang]
+        } else if (this.info.quest.picture[this.info.quest.mainLanguage]) {
+          picture = this.info.quest.picture[this.info.quest.mainLanguage]
+        }
+      }
+      if (picture && picture[0] === '_') {
+        return 'statics/images/quest/' + picture
+      } else if (picture && picture.indexOf('blob:') !== -1) {
+        return picture
+      } else if (picture) {
+        return this.uploadUrl + '/upload/quest/' + picture
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     },
     /*
@@ -1707,11 +1728,11 @@ export default {
         } else {
           this.info.quest = JSON.parse(quest)
 
-          const pictureUrl = await utils.readBinaryFile(id, this.info.quest.picture)
+          const pictureUrl = await utils.readBinaryFile(id, this.info.quest.picture[this.lang])
           if (pictureUrl) {
-            this.info.quest.picture = pictureUrl
+            this.info.quest.picture[this.lang] = pictureUrl
           } else {
-            this.info.quest.picture = '_default-quest-picture.png'
+            this.info.quest.picture[this.lang] = '_default-quest-picture.jpg'
           }
           // get customized logo
           if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo !== '') {
@@ -1754,11 +1775,7 @@ export default {
       this.inventory.detail.zoom = 1
       if (this.step.type !== 'use-item') {
         this.inventory.detail.isOpened = true
-        if (item.pictures && item.pictures[this.lang] && item.pictures[this.lang] !== '') {
-          this.inventory.detail.url = ((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.uploadUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
-        } else {
-          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.uploadUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
-        }
+        this.inventory.detail.url = ((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.uploadUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
         if (item.titles && item.titles[this.lang] && item.titles[this.lang] !== '') {
           this.inventory.detail.title = item.titles[this.lang]
         } else {
@@ -2069,6 +2086,7 @@ export default {
      */
     async getNextOfflineStep(questId, markerCode, player, extra) {
       var steps = []
+      let conditionsDone = this.run.conditionsDone
 
       if (!player) {
         player = 'P1'
@@ -2115,7 +2133,7 @@ export default {
             }
 
             // check if the step is not already done
-            if (this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone_' + markersSteps[i].stepId) === -1) {
+            if (this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + markersSteps[i].stepId) === -1) {
               if (markersSteps[i].conditions && markersSteps[i].conditions.length > 0) {
                 for (var j = 0; j < markersSteps[i].conditions.length; j++) {
                   // if one of the conditions of the step i not ok, continue with next step
@@ -2149,7 +2167,6 @@ export default {
           await this.saveOfflineAnswer('success', false, true)
         } else {
           // set the marker step as done to pass to next step
-          var conditionsDone = this.run.conditionsDone
           conditionsDone.push('stepDone_' + stepId.toString())
           conditionsDone.push('stepDone' + this.player + '_' + stepId.toString())
 
@@ -2157,6 +2174,8 @@ export default {
           this.run.conditionDone = conditionsDone
           this.run.currentStep = stepId
         }
+        // reset markerCode
+        markerCode = false
       }
 
       // list the steps for the chapter
@@ -2164,16 +2183,42 @@ export default {
       var locationMarkerFound = false
       var geolocationFound = false
 
+      // Count counter value
+      let counter = 0
+      for (let i = 0; i < conditionsDone.length; i++) {
+        if (conditionsDone[i].indexOf("counterIncrement_") !== -1) {
+          counter++
+        }
+      }
+
       if (stepsofChapter && stepsofChapter.length > 0) {
         stepListFor:
         for (i = 0; i < stepsofChapter.length; i++) {
           // check if the step is not already done
-          if (this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
+          if (conditionsDone && conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
             if (stepsofChapter[i].conditions && stepsofChapter[i].conditions.length > 0) {
               for (j = 0; j < stepsofChapter[i].conditions.length; j++) {
-                // if one of the conditions of the step i not ok, continue with next step
-                if (this.run.conditionsDone.indexOf(stepsofChapter[i].conditions[j]) === -1) {
-                  continue stepListFor
+                // check if counter condition
+                if (stepsofChapter[i].conditions[j].indexOf('countergreater_') === -1 && stepsofChapter[i].conditions[j].indexOf('counterlower_') === -1) {
+                  // if one of the conditions of the step i not ok, continue with next step
+                  if (conditionsDone.indexOf(stepsofChapter[i].conditions[j]) === -1) {
+                    continue stepListFor
+                  }
+                } else {
+                  // if counter lower than countergreater value
+                  if (stepsofChapter[i].conditions[j].indexOf('countergreater_') !== -1) {
+                    const lowerCounter = parseInt(stepsofChapter[i].conditions[j].replace('countergreater_', ''), 10)
+                    if (counter <= lowerCounter) {
+                      continue stepListFor
+                    }
+                  }
+                  // if counter greater than counterlower value
+                  if (stepsofChapter[i].conditions[j].indexOf('counterlower_') !== -1) {
+                    const upperCounter = parseInt(stepsofChapter[i].conditions[j].replace('counterlower_', ''), 10)
+                    if (counter >= upperCounter) {
+                      continue stepListFor
+                    }
+                  }
                 }
               }
             }
@@ -2217,19 +2262,11 @@ export default {
             // treat case of the increment counter
             if (stepsofChapter[i].type === 'increment-counter') {
               // save condition done
-              var conditionsDone = this.run.conditionsDone
               conditionsDone.push('counterIncrement_' + stepsofChapter[i].stepId.toString())
               conditionsDone.push('stepDone_' + stepsofChapter[i].stepId.toString())
               conditionsDone.push('stepDone' + player + '_' + stepsofChapter[i].stepId.toString())
               this.run.conditionDone = conditionsDone
-
-              // Count counter value
-              let counter = 0
-              for (var i = 0; i < conditionsDone.length; i++) {
-                if (conditionsDone[i].indexOf("counterIncrement_") !== -1) {
-                  counter++
-                }
-              }
+              counter++
 
               // find if a step is triggered by counter value
               let nextStepId = await this.findStepForCounterValueOffline(steps, questId, this.run.version, counter)
@@ -2252,7 +2289,7 @@ export default {
               let nextStepId
 
               if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
-                this.removeAllConditionsOfAChapter(steps, this.run.conditionsDone, stepsofChapter[i].chapterId)
+                this.removeAllConditionsOfAChapter(steps, conditionsDone, stepsofChapter[i].chapterId)
               } else {
                 nextStepId = await this.moveToNextChapter()
               }
@@ -2307,12 +2344,12 @@ export default {
         let randomIds = []
         for (let i = 0; i < stepsofChapter.length; i++) {
           // check if the step is not already done by player AND IS A RANDOM STEP
-          if (stepsofChapter[i].conditions.length > 0 && stepsofChapter[i].conditions[0].indexOf('stepRandom_') !== -1 && this.run.conditionsDone && this.run.conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
+          if (stepsofChapter[i].conditions.length > 0 && stepsofChapter[i].conditions[0].indexOf('stepRandom_') !== -1 && conditionsDone && conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
             // check if step concerned is done
             if (stepsofChapter[i].conditions.length > 0) {
               // Get the stepID this step is depending on
               let fatherStep = stepsofChapter[i].conditions[0].replace('stepRandom_', '')
-              if (this.run.conditionsDone.indexOf('stepDone' + player + '_' + fatherStep) !== -1) {
+              if (conditionsDone.indexOf('stepDone' + player + '_' + fatherStep) !== -1) {
                 randomIds.push(stepsofChapter[i].stepId)
               }
             }
@@ -2380,7 +2417,11 @@ export default {
                     pictureUrl = await utils.readBinaryFile(this.questId, stepData.options.picture)
                   }
                 } else {
-                  pictureUrl = stepData.options.picture
+                  if (stepData.options.pictures && stepData.options.pictures[this.lang] && stepData.options.pictures[this.lang] !== '') {
+                    pictureUrl = stepData.options.pictures[this.lang]
+                  } else {
+                    pictureUrl = stepData.options.picture
+                  }
                 }
                 results.push({step: stepWithObjectId, picture: pictureUrl, originalPicture: stepData.options.picture, title: stepData.options.title, pictures: stepData.options.pictures, titles: stepData.options.titles})
               }
@@ -2428,6 +2469,7 @@ export default {
       if (currentConditions.indexOf('stepDone' + player + '_' + stepId) === -1 && addStepDone) {
         currentConditions.push('stepDone' + player + '_' + stepId)
       }
+      /*
       if (currentConditions.indexOf('stepSuccess_' + stepId) !== -1) {
         let position = currentConditions.indexOf('stepSuccess_' + stepId)
         currentConditions.splice(position, 1)
@@ -2443,19 +2485,20 @@ export default {
           position = currentConditions.indexOf('stepFail' + player + '_' + stepId)
           currentConditions.splice(position, 1)
         }
-      }
+      }*/
       const stepsWithoutSuccessTrigger = ['info-text', 'info-video', 'new-item', 'character', 'help', 'end-chapter']
       // assign success or fail status
       if (stepsWithoutSuccessTrigger.indexOf(stepType) === -1) {
-        if (isSuccess) {
-          currentConditions.push('stepSuccess_' + stepId)
-          currentConditions.push('stepSuccess' + player + '_' + stepId)
-        } else {
-          currentConditions.push('stepFail_' + stepId)
-          currentConditions.push('stepFail' + player + '_' + stepId)
+        if (currentConditions.indexOf('stepFail_' + stepId) === -1 && currentConditions.indexOf('stepSuccess_' + stepId) === -1) {
+          if (isSuccess) {
+            currentConditions.push('stepSuccess_' + stepId)
+            currentConditions.push('stepSuccess' + player + '_' + stepId)
+          } else {
+            currentConditions.push('stepFail_' + stepId)
+            currentConditions.push('stepFail' + player + '_' + stepId)
+          }
         }
       }
-
       return currentConditions
     },
     /*
@@ -2647,9 +2690,9 @@ export default {
     display: none
   }
 
-  .q-btn, audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
+  audio, .video video { box-shadow: 0px 0.1rem 0.4rem 0.2rem rgba(20, 20, 20, 0.6); }
 
-  .q-btn { margin-top: 1rem; }
+  /*.q-btn { margin-top: 1rem; }*/
 
   /* right/wrong styles */
 

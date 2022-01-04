@@ -84,9 +84,8 @@ export default {
    * @param   {String}    runId           ID of the run
    * @param   {Object}    answer          Answer to the step
    * @param   {String}    player          Player number ('P1', 'P2', ...)
-   * @param   {Object}    axiosRetryConfig Optional Axios Retry options (see Api.js)
    */
-  async checkAnswer(questId, stepId, version, runId, answer, player, axiosRetryConfig = {}) {
+  async checkAnswer(questId, stepId, version, runId, answer, player) {
     let res = await Api()
       .post(
         "quest/" +
@@ -99,8 +98,7 @@ export default {
           runId +
           "/player/" +
           player,
-        answer,
-        {'axios-retry': axiosRetryConfig}
+        answer
       )
       .catch(error => console.log(error.request))
     return res
@@ -263,6 +261,29 @@ export default {
     // clears cached data if there is any
     await QuestService.removeFromCache(questId)
 
+    return res
+  },
+  /*
+   * duplicate a step
+   * @param   {String}    stepId        ID of the step
+   * @param   {Number}    version        version of the quest
+   */
+  async duplicate(questId, stepId, version) {
+    let res = await Api()
+      .put(
+        "quest/" +
+          questId +
+          "/version/" +
+          version +
+          "/step/" +
+          stepId +
+          "/clone"
+      )
+      .catch(error => console.log(error.request))
+    
+    // clears cached data if there is any
+    await QuestService.removeFromCache(questId)
+    
     return res
   },
   /*
@@ -460,15 +481,13 @@ export default {
 
     return res
   },
-  /*
+  /**
    * upload a player snapshot for 'image-over-flow' step
    * @param   {String}    questId        ID of the quest
-   * @param   {Object}    data           upload data
+   * @param   {Object}    formData           data to upload, created using `new FormData()`
    */
-  async uploadSnapshot(questId, data, done) {
-    return Api().post("/quest/" + questId + "/snapshot/upload", data, { timeout: 600000, headers: { 'Content-Type': 'multipart/form-data' } }).then(function (response) {
-      done(false, response)
-    })
+  async uploadSnapshot(questId, formData) {
+    return Api().post("/quest/" + questId + "/snapshot/upload", formData, { timeout: 600000, headers: { 'Content-Type': `multipart/form-data; boundary=${formData._boundary}` } })
   },
   /*
    * Export the texts of the game

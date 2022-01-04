@@ -1,20 +1,19 @@
 import store from '../store'
 import router from '../router'
-import * as THREE from 'three'
 import * as CryptoJS from 'crypto-js'
 
 var self = {
   notificationsArr: [],
-  
+
   // ----------- Error handling -------------
-  
+
   handleError: (message) => {
     store.dispatch('setErrorMessage', message)
     router.push('/error')
   },
-  
+
   // ----------- Forms related -------------
-  
+
   /*
    * Retrieves data from specific fields in a JSON array, and builds an array of {value: ..., label: ...} objects
    * which can be used in property "options" of <q-select> components
@@ -22,7 +21,7 @@ var self = {
    * @param   fields    Object  field names used for value & label of select options.
    *                            Example: { valueField: 'id', labelField: 'name' }
    * @see https://stackoverflow.com/a/111545/488666
-   */ 
+   */
   buildOptionsForSelect: (data, fields, translateFct) => {
     let optionsForSelect = []
     data.forEach((item) => {
@@ -30,9 +29,9 @@ var self = {
     })
     return optionsForSelect
   },
-  
+
   // ----------- Data related -------------
-  
+
   /*
    * Finds object in an array of objects given an Id. Returns null if nothing is found.
    * @param   collection    Array   Array of Javascript objects having an 'id' property
@@ -46,19 +45,19 @@ var self = {
     }
     return null
   },
-  
+
   // ----------- Math related -------------
-  
+
   degreesToRadians: (degrees) => {
     return degrees * Math.PI / 180
   },
-  
+
   radiansToDegrees: (radians) => {
     return radians * 180 / Math.PI
   },
-  
+
   // ----------- Geolocation related -------------
-  
+
   /**
    * Calculates the distance between two positions in kilometers
    * see https://www.movable-type.co.uk/scripts/latlong.html
@@ -85,7 +84,7 @@ var self = {
     let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
     return earthRadiusKm * c
   },
-  
+
   /**
    * Calculates the initial bearing between two positions as a value in degrees in the range 0-360°
    * see https://www.movable-type.co.uk/scripts/latlong.html
@@ -106,7 +105,7 @@ var self = {
     var brng = self.radiansToDegrees(Math.atan2(y, x))
     return (brng + 360) % 360
   },
-  
+
   /**
    * Replace break lines by html BR tag
    *
@@ -120,10 +119,10 @@ var self = {
       string = string.replace(/\n/ig, "<br />")
       string = string.replace(/\r/ig, "<br />")
     }
-    
+
     return string
   },
-  
+
   /**
    * Remplace accentuated chars by non accentuate and lower case char
    *
@@ -132,14 +131,14 @@ var self = {
    * @return string - the formatted string
    */
   removeAccents: function(s) {
-    var r = s.toLowerCase(), 
+    var r = s.toLowerCase(),
       nonAsciis = {'a': '[àáâãäå]', 'ae': 'æ', 'c': 'ç', 'e': '[èéêë]', 'i': '[ìíîï]', 'n': 'ñ', 'o': '[òóôõö]', 'oe': 'œ', 'u': '[ùúûűü]', 'y': '[ýÿ]'}
-    for (var i in nonAsciis) { 
+    for (var i in nonAsciis) {
       r = r.replace(new RegExp(nonAsciis[i], 'g'), i)
     }
     return r
   },
-  
+
   /**
    * Shuffles array in place.
    * @param {Array} a items An array containing the items.
@@ -154,7 +153,7 @@ var self = {
     }
     return a;
   },
-  
+
   /**
    * Build an incremental array (1,2,3, ...)
    * @param {Number}   length   length of the array
@@ -167,7 +166,7 @@ var self = {
     }
     return arr;
   },
-  
+
   /**
    * Checks if an email address is valid
    * @param   {String}    email       email
@@ -178,7 +177,7 @@ var self = {
         return true
     }
     return false
-  },  
+  },
   /**
    * Works like native setTimeout() function, except that it keeps the timeout ID
    * in Vue store for easier cleaning with clearAllTimeouts(),
@@ -220,7 +219,7 @@ var self = {
     }
     store.dispatch('clearIntervalIds')
   },
-  
+
   /**
    * Clear all notifications
    */
@@ -246,7 +245,7 @@ var self = {
   getFullDate(date) {
     return date.getFullYear() + '-' + date.getMonth() + '-' + date.getDay()
   },
-  
+
   /**
    * Clear all tracks of a camera stream
    * from https://stackoverflow.com/a/47357550/488666
@@ -254,22 +253,22 @@ var self = {
   clearCameraStream: function (stream) {
     stream.getTracks().forEach(track => track.stop())
   },
-  
+
   /*
   * By default, Javascript copies object references when doing assignments with '='.
   * This method can be useful when you want do make deep copies of objects and change their
   * properties independently afterwards.
   * see https://stackoverflow.com/a/5344074/488666
-  * 
+  *
   * @param   {Object}   obj   object to clone
   */
   clone: function (obj) {
     if (obj === null || typeof (obj) !== 'object' || 'isActiveClone' in obj) {
       return obj
     }
-    
+
     let temp = obj instanceof Date ? new obj.constructor() : obj.constructor()
-    
+
     for (var key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
         obj['isActiveClone'] = null
@@ -279,7 +278,7 @@ var self = {
     }
     return temp
   },
-  
+
   /**
    * Human readable file size
    * Adapted from https://stackoverflow.com/a/14919494/488666
@@ -317,32 +316,9 @@ var self = {
 
     return text
   },
-    
-  // ------------------------ Utils for THREE.js -------------------------------------
-  
-  /*
-  * detach a 3D object from its parent
-  * copied from https://github.com/mrdoob/three.js/blob/master/examples/js/utils/SceneUtils.js
-  */
-  detachObject3D: function (child, parent, scene) {
-    child.applyMatrix(parent.matrixWorld)
-    parent.remove(child)
-    scene.add(child)
-  },
 
-  /*
-  * attach a 3D object to a parent
-  * copied from https://github.com/mrdoob/three.js/blob/master/examples/js/utils/SceneUtils.js
-  * WARNING: changed order of parameters compared to original version
-  */
-  attachObject3D: function (child, parent, scene) {
-    child.applyMatrix(new THREE.Matrix4().getInverse(parent.matrixWorld))
-    scene.remove(child)
-    parent.add(child)
-  },
-  
   // --------------------- Utils for OFFLINE MODE -------------------------------
-  
+
   /*
    * Init file storage for file writing / reading
    */
@@ -366,7 +342,7 @@ var self = {
       }, function() { resolve(false) })
     })
   },
-  
+
   checkIfFileExists: function(directory, fileName, createFile) {
     return new Promise((resolve, reject) => {
       if (!window.cordova) {
@@ -387,7 +363,7 @@ var self = {
       }, function() { resolve(false) })
     })
   },
-  
+
   /*
    * Write in a text file
    */
@@ -416,7 +392,7 @@ var self = {
               if (!dataObj) {
                 dataObj = new Blob(['some file data'], { type: 'text/plain' })
               }
-              
+
               const encryptedContent = _this.gcrypt(dataObj, 'Gr44lyCryp7')
               fileWriter.write(encryptedContent)
             })
@@ -447,10 +423,10 @@ var self = {
             }, function() { resolve(false) })
           }, function() { resolve(false) })
         }
-      }, function() { resolve(false) })      
+      }, function() { resolve(false) })
     })
   },
-  
+
   /*
    * Read text file
    */
@@ -511,7 +487,7 @@ var self = {
       }, function() { resolve(false) })
     })
   },
-  
+
   /*
    * save binary file
    */
@@ -526,7 +502,7 @@ var self = {
         var xhr = new XMLHttpRequest()
         xhr.open('GET', path + fileName, true)
         xhr.responseType = 'blob'
-     
+
         xhr.onload = function() {
           if (this.status === 200) {
             var blob = new Blob([this.response], { type: 'image/png' })
@@ -537,12 +513,12 @@ var self = {
                   fileWriter.onwriteend = function() {
                     resolve(true)
                   }
-           
+
                   fileWriter.onerror = function(e) {
                     console.log("Failed file write: " + e.toString())
                     resolve(false)
                   }
-           
+
                   fileWriter.write(blob)
                 })
               }, function() { resolve(false) })
@@ -554,12 +530,12 @@ var self = {
                     fileWriter.onwriteend = function() {
                       resolve(true)
                     }
-             
+
                     fileWriter.onerror = function(e) {
                       console.log("Failed file write: " + e.toString())
                       resolve(false)
                     }
-             
+
                     fileWriter.write(blob)
                   })
                 }, function() { resolve(false) })
@@ -573,7 +549,7 @@ var self = {
       }, function() { resolve(false) })
     })
   },
-  
+
   /*
    * read binary file
    */
@@ -601,7 +577,7 @@ var self = {
                 resolve(false)
               }
               var reader = new FileReader()
-       
+
               reader.onloadend = function() {
                 const mimeType = _this.getMimeType(fileName)
                 var blob = new Blob([new Uint8Array(this.result)], { type: mimeType })
@@ -621,7 +597,7 @@ var self = {
                   resolve(false)
                 }
                 var reader = new FileReader()
-         
+
                 reader.onloadend = function() {
                   const mimeType = _this.getMimeType(fileName)
                   var blob = new Blob([new Uint8Array(this.result)], { type: mimeType })
@@ -654,7 +630,7 @@ var self = {
         }, function() { resolve(false) })
       }, function() { resolve(false) })
     })
-  }, 
+  },
   getMimeType(fileName) {
     var mimeType = 'image/png'
     const ext = fileName.substr(-4)
@@ -762,10 +738,16 @@ var self = {
     })
   },
   /**
-   * @return true if platform is iOS, false otherwise
+   * @return true if platform is Apple one, false otherwise
    */
   isIOS() {
     return window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'
+  },
+  /**
+   * @return true if platform is Apple one, false otherwise
+   */
+  isSafari() {
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
   },
   /**
    * @return 'granted' if user accepts permission request for devicemotion, 'default' or 'denied' otherwise
@@ -797,7 +779,7 @@ var self = {
   },
   /**
    * @return {Buffer}
-   * @param {String} string 
+   * @param {String} string
    */
   stringToBytes: function(string) {
     var array = new Uint8Array(string.length);
@@ -808,7 +790,7 @@ var self = {
   },
   /**
    * @return {String}
-   * @param {Buffer} buffer 
+   * @param {Buffer} buffer
    */
   bytesToString: function(buffer) {
     return String.fromCharCode.apply(null, new Uint8Array(buffer));
@@ -835,7 +817,7 @@ var self = {
 
   /**
    * takes in a string of the format xxhxxmxxs  and transforms it to only seconds
-   * @param {*} str 
+   * @param {*} str
    */
   timeStringToSeconds: function(str) {
     var resh = str.split("h")
@@ -849,7 +831,7 @@ var self = {
   },
   /**
    * Takes in a number in seconds and resturns a string of format xxhxxmxxs
-   * @param {*} seconds 
+   * @param {*} seconds
    */
   secondsToTimeString: function(totalSeconds) {
     var hours = Math.floor(totalSeconds / 3600);
@@ -886,6 +868,29 @@ var self = {
         }
     }
     return segmentsA.length - segmentsB.length;
+  },
+  /**
+   * adapted from https://stackoverflow.com/a/23451803/488666
+   * @param {String} dataUrl data URL of the file to download
+   * @param {String} name name of the file which will be downloaded
+   */
+   downloadDataUrl (dataUrl, name) {
+    //let blob = new Blob(data, {type: "octet/stream"}),
+    //let url = window.URL.createObjectURL(blob)
+    return new Promise((resolve, reject) => {
+      try {
+        let a = document.createElement("a")
+        document.body.appendChild(a)
+        a.style = "display: none"
+        a.href = dataUrl
+        a.download = name
+        a.click()
+        window.URL.revokeObjectURL(dataUrl)
+        resolve()
+      } catch (error) {
+        reject(error)
+      }
+    })
   }
 }
 

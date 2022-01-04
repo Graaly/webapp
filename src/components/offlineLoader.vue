@@ -147,8 +147,8 @@ export default {
           this.offline.progress = 0.2
 
           // Save quest picture in file
-          if (quest.picture && quest.picture !== '') {
-            const createQuestPictureSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/', quest.picture)
+          if (quest.picture && quest.picture[this.lang] && quest.picture[this.lang] !== '') {
+            const createQuestPictureSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/', quest.picture[this.lang])
 
             if (!createQuestPictureSuccess) {
               this.throwSaveError('Could not create quest picture for quest ' + quest.questId)
@@ -188,15 +188,15 @@ export default {
               }
 
               // get step medias
-              if (step.backgroundImage && step.backgroundImage !== '') {
-                const backgroundImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/background/', step.backgroundImage)
+              if (step.backgroundImage && step.backgroundImage[this.lang] && step.backgroundImage[this.lang] !== '') {
+                const backgroundImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/background/', step.backgroundImage[this.lang])
                 if (!backgroundImageSuccess) {
                   this.throwSaveError('Could not save background image for quest ' + quest.questId + ' and step ' + step.stepId)
                   return false
                 }
               }
-              if (step.videoStream && step.videoStream !== '') {
-                const videoStreamSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/video/', step.videoStream)
+              if (step.videoStream && step.videoStream[this.lang] && step.videoStream[this.lang] !== '') {
+                const videoStreamSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/video/', step.videoStream[this.lang])
                 if (!videoStreamSuccess) {
                   this.throwSaveError('Could not save video for quest ' + quest.questId + ' and step ' + step.stepId)
                   return false
@@ -245,8 +245,8 @@ export default {
                   }
                 }
               }
-              if (step.type === 'jigsaw-puzzle' && step.options && step.options.picture && step.options.picture !== '') {
-                const jigsawImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/jigsaw-puzzle/', step.options.picture)
+              if (step.type === 'jigsaw-puzzle' && step.options && step.options.picture && step.options.picture[this.lang] && step.options.picture[this.lang] !== '') {
+                const jigsawImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/jigsaw-puzzle/', step.options.picture[this.lang])
                 if (!jigsawImageSuccess) {
                   this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "jigsaw-puzzle" ' + step.stepId)
                   return false
@@ -260,7 +260,6 @@ export default {
                   } else {
                     newItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.picture)
                   }
-
                   //if (!newItemImageSuccess) {
                   //  this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "new-item" ' + step.stepId)
                   //  return false

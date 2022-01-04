@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "d8f3bcc7984a72dce0ed",
-    "url": "css/app.9b7b48ae.css"
+    "revision": "fb41edb68c0a116af032",
+    "url": "css/app.eea7d4dc.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -72,7 +72,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "8becc2f6efd1fb76ad58f5cabbe34aab",
+    "revision": "a1e606bb16d27d55de9a8bd43ab555e0",
     "url": "index.html"
   },
   {
@@ -80,12 +80,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2.5af11629.js"
   },
   {
-    "revision": "d8f3bcc7984a72dce0ed",
-    "url": "js/app.527ef6ae.js"
+    "revision": "fb41edb68c0a116af032",
+    "url": "js/app.31e61ad4.js"
   },
   {
-    "revision": "40465c4b05405def06b6",
-    "url": "js/vendor.40465c4b.js"
+    "revision": "37e653085cf80ca5afac",
+    "url": "js/vendor.37e65308.js"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
@@ -320,8 +320,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/css/addtohomescreen.css"
   },
   {
-    "revision": "0c65826b44c3a97fdd8f119b2965bf41",
-    "url": "statics/customers/conseil-europe/images/background/background.png"
+    "revision": "7f897f1027ef24ce4906fac06bd5a021",
+    "url": "statics/customers/conseil-europe/images/card-back.png"
   },
   {
     "revision": "cd9e5573306ef2297e46f88265eee75f",
@@ -332,8 +332,80 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/customers/conseil-europe/images/flags/fr.png"
   },
   {
-    "revision": "b2503bf5c7905b8fc4633fdafbd45ab8",
+    "revision": "4fbe6c4966247b29208a18c6edc373ca",
+    "url": "statics/customers/conseil-europe/images/lightbulb.png"
+  },
+  {
+    "revision": "4ae303eee762c181e01f021412582aa4",
+    "url": "statics/customers/conseil-europe/images/logo-home.png"
+  },
+  {
+    "revision": "eb69cdfd0911cf2619cb848bc52a3cad",
     "url": "statics/customers/conseil-europe/images/logo.png"
+  },
+  {
+    "revision": "b57284f6e1abb52461b4eb93591e4386",
+    "url": "statics/customers/conseil-europe/images/spinner.gif"
+  },
+  {
+    "revision": "57c9a72d91762b31f57b5d1eb9b5e920",
+    "url": "statics/customers/conseil-europe/images/stars/star0.png"
+  },
+  {
+    "revision": "5b105e4cc7c16954d353157f8b017eb1",
+    "url": "statics/customers/conseil-europe/images/stars/star1.png"
+  },
+  {
+    "revision": "78fec247d9a794518d7fb953d5713991",
+    "url": "statics/customers/conseil-europe/images/stars/star10.png"
+  },
+  {
+    "revision": "2916d686aebf75f84f79c8714f7d0f73",
+    "url": "statics/customers/conseil-europe/images/stars/star11.png"
+  },
+  {
+    "revision": "609f65604b3f229af457c07eb8a7ed71",
+    "url": "statics/customers/conseil-europe/images/stars/star12.png"
+  },
+  {
+    "revision": "2d769e7f45972da16c34e7288387da3d",
+    "url": "statics/customers/conseil-europe/images/stars/star2.png"
+  },
+  {
+    "revision": "c4bbd6cdc507ab62f11a802342c4bf2a",
+    "url": "statics/customers/conseil-europe/images/stars/star3.png"
+  },
+  {
+    "revision": "0f305367665989ca75f4eb250e199767",
+    "url": "statics/customers/conseil-europe/images/stars/star4.png"
+  },
+  {
+    "revision": "66075922fcea194a35aaf16ef1935569",
+    "url": "statics/customers/conseil-europe/images/stars/star5.png"
+  },
+  {
+    "revision": "772a1794e69f87eb93917be962070113",
+    "url": "statics/customers/conseil-europe/images/stars/star6.png"
+  },
+  {
+    "revision": "e2228830a36a5b631c926b8e2cdb1561",
+    "url": "statics/customers/conseil-europe/images/stars/star7.png"
+  },
+  {
+    "revision": "855f90b19c6d899d4e8edee4a54105d8",
+    "url": "statics/customers/conseil-europe/images/stars/star8.png"
+  },
+  {
+    "revision": "94841042ebccfd2bcfc3ef1d98505432",
+    "url": "statics/customers/conseil-europe/images/stars/star9.png"
+  },
+  {
+    "revision": "73ef0aca9550082d265bc3f2e3e982ef",
+    "url": "statics/customers/conseil-europe/images/visites.png"
+  },
+  {
+    "revision": "3fe7549904127ab02d1bf894e49382ef",
+    "url": "statics/customers/ouigo/logo.png"
   },
   {
     "revision": "f4c4bda7af58edd75c5db41d9fb381db",
@@ -652,15 +724,15 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/story/character9_attitude1.png"
   },
   {
-    "revision": "4e185ad443665a614a9855349dcca856",
+    "revision": "76a48f2d69d9c0cbba570e605a3ce644",
     "url": "statics/icons/story/sticker-bottom.png"
   },
   {
-    "revision": "0842c0d6ae696207c5e3ce484b8e7d40",
+    "revision": "74750ab03df7136bc891d9d3a142581a",
     "url": "statics/icons/story/sticker-middle.png"
   },
   {
-    "revision": "cee59b69411a2cd797553eeaf6ff7e03",
+    "revision": "4162a1fbf07652f23ed7387224a91f9f",
     "url": "statics/icons/story/sticker-top.png"
   },
   {
@@ -1192,8 +1264,16 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/images/other/spinner.gif"
   },
   {
+    "revision": "8a246d7f207d6bfb98dede69372fc91f",
+    "url": "statics/images/quest/_default-quest-picture.jpg"
+  },
+  {
     "revision": "8d7b1087f812a9b077ab930074691651",
     "url": "statics/images/quest/_default-quest-picture.png"
+  },
+  {
+    "revision": "3d07943ef599db54f7cde55ac37e7926",
+    "url": "statics/images/quest/default-quest-picture.jpg"
   },
   {
     "revision": "8d7b1087f812a9b077ab930074691651",

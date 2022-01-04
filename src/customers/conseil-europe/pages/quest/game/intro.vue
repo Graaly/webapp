@@ -1,9 +1,8 @@
 <template>
-  <div class="scroll" style="background-color: #063b8b">
+  <div class="scroll background-coe">
     <div id="teaser" class="reduce-window-size-desktop" :class="{'loaded': pageReady}">
       <!------------------ MAIN INFORMATION AREA ------------------------>
-
-
+      
       <div v-if="warning.questNotLoaded" class="centered q-pa-lg">
         {{ $t('label.QuestNeedNetwork')}}
         <div>
@@ -14,21 +13,21 @@
       <div v-if="quest && quest.status" class="relative-position image-banner">
         <div class="effect-kenburns limit-size-desktop" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat ;'"></div>
       </div>
-      <div v-if="quest && quest.status" class="q-pa-md quest-description text-white" style="padding-bottom: -50px; background-color: #062381;">
+      <div v-if="quest && quest.status" class="q-pa-md quest-description text-white" style="padding-bottom: -50px;">
         <div class="bg-warning q-pa-sm" v-if="warning.lowBattery">
           <q-icon name="battery_alert" /> {{ $t('label.WarningLowBattery') }}
         </div>
         <div class="bg-warning q-pa-sm" v-if="warning.tooMuchUsers">
           <q-icon name="warning" /> {{ $t('label.TooMuchUsersCurrently') }}
         </div>
-        <div v-if="quest.status !== 'published'" class="bg-primary centered q-pa-sm q-mb-md">
+        <!--<div v-if="quest.status !== 'published'" class="bg-primary centered q-pa-sm q-mb-md">
           {{ $t('label.' + (quest.type === 'quest' ? 'QuestDraftVersion' : 'PageDraftVersion')) }}
-        </div>
+        </div>-->
         <!-- =========================== TITLE ========================== -->
-        <div class="text-h5">
-          {{ quest.title === "" ?  $t('label.NoTitle') : quest.title }}
+        <!--<div class="text-h5">
+          {{ quest.title === "" ?  $t('label.NoTitle') : quest.title }} 
           &nbsp;<img v-if="getLanguage() !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + getLanguage() + '.png'" />
-        </div>
+        </div>-->
         <!-- =========================== PROPERTIES ========================== -->
         <div class="row q-pt-md text-subtitle1 properties-bar">
           <div class="q-mr-lg">
@@ -36,8 +35,9 @@
           </div>
           <div v-if="quest.duration && quest.duration < 999" class="q-mr-lg">
             <img src="statics/images/icon/duration.svg" class="medium-icon" />
-            <span v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</span>
-            <span v-if="quest.duration && quest.duration >= 60">{{ quest.duration / 60 }}{{ $t('label.hoursSimplified') }}</span>
+            <!--<span v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</span>
+            <span v-if="quest.duration && quest.duration >= 60">{{ quest.duration / 60 }}{{ $t('label.hoursSimplified') }}</span>-->
+            <span>1H</span>
           </div>
           <div v-if="quest.type === 'quest'" class="q-mr-lg">
             <span v-if="!quest.premiumPrice.tier && shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">
@@ -223,7 +223,7 @@
               @end="showCalibrationAndStartQuest()">
             </offlineLoader>
           </div>
-          <div>
+          <!--<div>
             <div class="q-px-lg q-pb-lg q-pt-md centered subtitle2">
               {{ $t('label.Warnings') }}
             </div>
@@ -233,7 +233,7 @@
             <div v-if="isRunFinished" class="q-pa-md subtitle5">
               <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.YouAlreadyDidThisQuest')" />
             </div>
-          </div>
+          </div>-->
           <gpscalibration
             ref="gpscal"
             @end="startQuest(quest.questId, getLanguage())">
@@ -650,11 +650,11 @@ export default {
         } else {
           this.quest = JSON.parse(quest)
 
-          const pictureUrl = await utils.readBinaryFile(id, this.quest.picture)
+          const pictureUrl = await utils.readBinaryFile(id, this.quest.picture[this.getLanguage()])
           if (pictureUrl) {
             this.quest.picture = pictureUrl
           } else {
-            this.quest.picture = '_default-quest-picture.png'
+            this.quest.picture = '_default-quest-picture.jpg'
           }
         }
       }
@@ -982,7 +982,7 @@ export default {
      * Cancel a run
      */
     async cancelRun() {
-      if (this.continueQuestId != "") {
+      if (this.continueQuestId !== "") {
         await RunService.endRun(this.continueQuestId, null, this.quest.questId, this.quest.version, this.$route.params.lang)
       }
       // remove run offline data
@@ -1248,14 +1248,23 @@ export default {
      * get background image
      */
     getBackgroundImage () {
-      if (this.quest.picture && this.quest.picture[0] === '_') {
-        return 'statics/images/quest/' + this.quest.picture
-      } else if (this.quest.picture && this.quest.picture.indexOf('blob:') !== -1) {
-        return this.quest.picture
-      } else if (this.quest.picture) {
-        return this.uploadUrl + '/upload/quest/' + this.quest.picture
+      const currentLanguage = this.getLanguage()
+      let picture
+      if (this.quest.picture) {
+        if (this.quest.picture[currentLanguage]) {
+          picture = this.quest.picture[currentLanguage]
+        } else if (this.quest.picture[this.quest.mainLanguage]) {
+          picture = this.quest.picture[this.quest.mainLanguage]
+        }
+      }
+      if (picture && picture[0] === '_') {
+        return 'statics/images/quest/' + picture
+      } else if (picture && picture.indexOf('blob:') !== -1) {
+        return picture
+      } else if (picture) {
+        return this.uploadUrl + '/upload/quest/' + picture
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     }
   }
@@ -1264,6 +1273,18 @@ export default {
 
 <style scoped>
   .bg-primary {
-    background-color: #063b8b !important;
+    background-color: #35a0d8 !important;
+    color: #174084;
+  }
+  .bg-primary span {
+    font-weight: bold;
+  }
+  .background-coe {
+    background-color: #ddd;
+    font-family: arial;
+    color: #174084;
+  }
+  .quest-description {
+    background-color: #174084;
   }
 </style>

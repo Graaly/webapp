@@ -1,14 +1,17 @@
 <template>
-  <div class="scroll background-dark">
+  <div class="scroll" :class="showNonHybridQRReader ? 'bg-transparent' : 'background-dark'">
     <div v-if="showNonHybridQRReader">
+
       <!--====================== QR CODE READER ON WEBAPP =================================-->
-      <q-toolbar>
-        <q-toolbar-title>
-          {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
-        </q-toolbar-title>
-        <q-btn flat round dense icon="close" @click="closeQRCodeReader" />
-      </q-toolbar>
-      <qrcode-stream @decode="checkCode"></qrcode-stream>
+      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
+        <div class="float-right no-underline close-btn q-pa-sm" @click="closeQRCodeReader"><q-icon name="close" class="subtitle1" /></div>
+        {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
+      </div>
+
+      <qr-code-stream
+        v-if="showNonHybridQRReader"
+        v-on:QrCodeResult="checkCode"
+      />
     </div>
     <div class="teaser" v-if="!showNonHybridQRReader">
 
@@ -37,7 +40,6 @@
         </div>
       </div>
 
-
       <!--====================== QR CODE BUTTON =================================-->
 
       <div class="q-px-md q-pt-lg q-pb-lg cursor-pointer centered" v-if="!offline.active">
@@ -63,7 +65,25 @@
       <div v-if="!offline.active && invitationQuests && invitationQuests.length > 0">
         <titleBar :title="{text: $t('label.Invitations'), type: 'key'}"></titleBar>
 
-        <questsList format="small" :quests="invitationQuests"></questsList>
+        <questsList :format="mainQuestListFormat" :quests="invitationQuests"></questsList>
+      </div>
+
+       <!--====================== OTHER QUEST =================================-->
+
+      <div v-if="!offline.active">
+        <titleBar :title="{text: $t('label.AroundYou'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAroundYou"></titleBar>
+
+        <div v-if="!nearestQuests || nearestQuests.length > 0">
+          <questsList :format="mainQuestListFormat" :quests="nearestQuests"></questsList>
+        </div>
+        <div v-if="nearestQuests && nearestQuests.length === 0">
+          <div class="centered q-pa-md">
+            {{ $t('label.NoQuestAroundYou') }}
+            <div>
+              <a class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!--====================== ON TOP QUEST =================================-->
@@ -80,24 +100,6 @@
         <titleBar v-if="extraQuests.title && extraQuests.title[$t('label.shortLang')]" :title="{text: extraQuests.title[$t('label.shortLang')], type: 'key'}"></titleBar>
 
         <questsList format="small" :quests="extraQuests.items"></questsList>
-      </div>
-
-      <!--====================== OTHER QUEST =================================-->
-
-      <div v-if="!offline.active">
-        <titleBar :title="{text: $t('label.AroundYou'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAroundYou"></titleBar>
-
-        <div v-if="!nearestQuests || nearestQuests.length > 0">
-          <questsList format="small" :quests="nearestQuests"></questsList>
-        </div>
-        <div v-if="nearestQuests && nearestQuests.length === 0">
-          <div class="centered q-pa-md">
-            {{ $t('label.NoQuestAroundYou') }}
-            <div>
-              <a class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!--====================== CREATE PROFILE BUTTON =================================-->
@@ -146,14 +148,27 @@
 
       <div class="fixed-top">
         <div class="home-header row no-wrap" :class="{'disabled': offline.active}">
-          <img src="statics/images/logo/logo-header-color.png" class="logo" />
-          <q-space />
-          <img v-if="$store.state.user.isAdmin" src="statics/images/icon/tools.png" class="header-button q-mr-md cursor-pointer" @click="openAdminPage" />
-          <img src="statics/images/icon/search.svg" class="header-button q-mr-md cursor-pointer" @click="openSearch" />
-          <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" class="header-button q-mr-md cursor-pointer" @click="openRanking" />
-          <q-avatar class="cursor-pointer" @click="openProfile()">
-            <img :src="getProfileImage()" />
-          </q-avatar>
+          <div class="col centered">
+            <img src="statics/images/logo/logo-header-color.png" class="logo" />
+          </div>
+          <div class="col centered">
+            <q-icon v-if="$store.state.user.isAdmin" name="build" class="header-button cursor-pointer" @click="openAdminPage" />
+          </div>
+          <div class="col centered">
+            <q-icon name="add_circle_outline" class="header-button cursor-pointer" @click="buildQuest" />
+          </div>
+          <div class="col centered">
+            <!--<img src="statics/images/icon/search.svg" class="header-button q-mr-md cursor-pointer" @click="openSearch" />-->
+            <q-icon name="search" class="header-button cursor-pointer" @click="openSearch" />
+          </div>
+          <!--<div class="col centered">
+            <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" class="header-button q-mr-md cursor-pointer" @click="openRanking" />
+          </div>-->
+          <div class="col centered">
+            <q-avatar class="cursor-pointer" @click="openProfile()">
+              <img :src="getProfileImage()" />
+            </q-avatar>
+          </div>
         </div>
       </div>
 
@@ -255,10 +270,10 @@ import titleBar from 'components/titleBar'
 import mainQuest from 'components/quest/mainQuest'
 import questsList from 'components/quest/questsList'
 import usersList from 'components/user/usersList'
+import qrCodeStream from "components/qrCodeStream";
 
 import utils from 'src/includes/utils'
 import { QSpinnerDots, QInfiniteScroll } from 'quasar'
-import { QrcodeStream } from 'vue-qrcode-reader'
 
 import Notification from 'boot/NotifyHelper'
 import LevelCompute from 'boot/LevelCompute'
@@ -275,7 +290,7 @@ export default {
     titleBar,
     questsList,
     usersList,
-    QrcodeStream
+    qrCodeStream
   },
   data () {
     return {
@@ -343,6 +358,7 @@ export default {
       },
       //languages: utils.buildOptionsForSelect(languages, { valueField: 'code', labelField: 'name' }, this.$t),
       isMounted: false,
+      mainQuestListFormat: 'big',
       isHybrid: window.cordova,
       showNonHybridQRReader: false,
       isQuestsLoaded: false,
@@ -359,11 +375,15 @@ export default {
   },
   created () {
     document.addEventListener("backbutton", this.trackCallBackFunction, false);
+    document.body.style.background = "#323232"
   },
   mounted() {
     if (!this.$store || !this.$store.state || !this.$store.state.user || !this.$store.state.user.name) {
       this.backToLogin();
     } else {
+      if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
+        this.mainQuestListFormat = 'small'
+      }
       if (window.cordova) {
         AppStoreRatingService.initLocalStorage();
         //test for the review
@@ -433,36 +453,8 @@ export default {
     /*
     * start the scanner for hybrid app
     */
-    async startScanQRCode() {
-      var _this = this
-      if (this.isHybrid) {
-        cordova.plugins.barcodeScanner.scan(
-          function (result) {
-            if (result && result.text) {
-              //let code = utils.removeUnusedUrl(result.text)
-              _this.checkCode(result.text)
-            }
-          },
-          function (error) {
-            console.log("Scanning failed: " + error)
-          },
-          {
-            preferFrontCamera: false, // iOS and Android
-            showFlipCameraButton: false, // iOS and Android
-            showTorchButton: true, // iOS and Android
-            torchOn: false, // Android, launch with the torch switched on (if available)
-            saveHistory: true, // Android, save scan history (default false)
-            prompt: "", // Android
-            resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
-            formats: "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
-            orientation: "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
-            disableAnimations: true, // iOS
-            disableSuccessBeep: false // iOS and Android
-          }
-        )
-      } else {
+    startScanQRCode() {
         this.showNonHybridQRReader = true
-      }
     },
     closeQRCodeReader () {
       this.showNonHybridQRReader = false
@@ -475,6 +467,7 @@ export default {
       code = utils.removeUnusedUrl(code)
       let checkStatus = await QuestService.checkQRCode(code, this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
+        this.closeQRCodeReader()
         if (code.indexOf('_score') === -1) {
           if (checkStatus.data.questId) {
             this.playQuest(checkStatus.data.questId)
@@ -568,11 +561,11 @@ export default {
             if (tempQuestList.length > 0) {
               // get pictures
               for (var i = 0; i < tempQuestList.length; i++) {
-                var pictureUrl = await utils.readBinaryFile(tempQuestList[i].questId, tempQuestList[i].picture)
+                var pictureUrl = await utils.readBinaryFile(tempQuestList[i].questId, tempQuestList[i].picture[this.$t('label.shortLang')])
                 if (pictureUrl) {
                   tempQuestList[i].picture = pictureUrl
                 } else {
-                  tempQuestList[i].picture = '_default-quest-picture.png'
+                  tempQuestList[i].picture = '_default-quest-picture.jpg'
                 }
               }
               this.questList = tempQuestList

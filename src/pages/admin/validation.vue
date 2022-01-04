@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper">
-    <div class="page-content top-padding-middle" v-if="quest.title">
+    <div class="page-content top-padding-middle" v-if="quest && quest.title">
       <!------------------ MAIN INFORMATION AREA ------------------------>
       <p>
         Validation of the quest <strong>{{ quest.title }}</strong>
@@ -54,7 +54,7 @@ export default {
      * @param   {number}    version        Quest version
      */
     async getQuest(id, version) {
-      let response = await QuestService.getById(id, version);
+      let response = await QuestService.getByIdOnline(id, version);
       this.quest = response.data;
     },
     /*

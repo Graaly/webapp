@@ -57,7 +57,6 @@
 
         </form>
 
-        <div class="centered smaller version secondary-font">Version {{ version }}</div>
         <div class="centered smaller version secondary-font">
           Version {{ version }} -
           <img src="statics/icons/game/flag-en.png" @click="switchLanguage('en')" /> -
@@ -148,7 +147,7 @@ export default {
             }
           }
           /* get quest version
-          const quest = await QuestService.getById(this.questId, '999', this.lang)
+          const quest = await QuestService.getByIdOnline(this.questId, '999', this.lang)
           let version = 1
           if (quest && quest.data) {
             version = quest.data.version

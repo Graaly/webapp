@@ -33,8 +33,6 @@ import UserCreateAccount from 'pages/user/createAccount'
 //import UserFirstUsage from 'pages/user/firstusage'
 import ErrorMessage from 'pages/errorMessage'
 
-console.log(CustomerConfiguration)
-
 export default [
   {
     path: '/',
@@ -56,19 +54,19 @@ export default [
       {
         path: 'teamplay/:id(\\w{24})/:lang',
         name: 'teamplayold',
-        component: TeamPlay,
+        component: CustomerConfiguration.TEAM_PLAY ? CustomerConfiguration.TEAM_PLAY : TeamPlay,
         meta: { requiresAuth: false }
       },
       {
         path: 'teamplay/:id(\\w{24})/:lang/:option/:teamId',
         name: 'teamplay',
-        component: TeamPlay,
+        component: CustomerConfiguration.TEAM_PLAY ? CustomerConfiguration.TEAM_PLAY : TeamPlay,
         meta: { requiresAuth: false }
       },
       {
         path: 'home',
         name: 'home',
-        component: Home,
+        component: CustomerConfiguration.HOME ? CustomerConfiguration.HOME : Home,
         meta: { requiresAuth: true }
       },
       {
@@ -84,9 +82,15 @@ export default [
         meta: { requiresAuth: true }
       },
       {
+        path: 'quest/play/:id(\\w{24})/:qrcode',
+        name: 'playhome',
+        component: QuestPlayHome,
+        meta: { requiresAuth: true }
+      },
+      {
         path: 'quest/play/:questId(\\w{24})/version/:version/step/:stepId/:lang',
         name: 'playstep',
-        component: QuestPlayStep,
+        component: CustomerConfiguration.QUEST_PLAY_STEP ? CustomerConfiguration.QUEST_PLAY_STEP : QuestPlayStep,
         meta: { requiresAuth: true }
       },
       {

@@ -1,6 +1,28 @@
 <template>
-  <div class="scroll background-dark">
-    <div id="teaser" class="reduce-window-size-desktop" :class="{'loaded': pageReady}">
+  <div class="scroll" :class="(multiplayer.showScanner || shop.showScanner) ? 'bg-transparent' : 'background-dark'">
+    <div v-if="multiplayer.showScanner">
+      <!--====================== QR CODE READER FOR MULTIPLAYER =================================-->
+      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
+        <div class="float-right no-underline close-btn q-pa-sm" @click="closeMultiplayerQRCodeReader"><q-icon name="close" class="subtitle1" /></div>
+        {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
+      </div>
+
+      <qr-code-stream
+        v-on:QrCodeResult="checkTeamCode"
+      />
+    </div>
+    <div v-if="shop.showScanner">
+      <!--====================== QR CODE READER FOR TIER PAIMENT =================================-->
+      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
+        <div class="float-right no-underline close-btn q-pa-sm" @click="closeTierPaymentQRCode"><q-icon name="close" class="subtitle1" /></div>
+        {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
+      </div>
+
+      <qr-code-stream
+        v-on:QrCodeResult="checkTierPaymentCode"
+      />
+    </div>
+    <div id="teaser" v-if="!shop.showScanner && !multiplayer.showScanner" class="reduce-window-size-desktop" :class="{'loaded': pageReady}">
       <!------------------ MAIN INFORMATION AREA ------------------------>
 
       <div v-if="(!quest || !quest.status) && !warning.questNotLoaded" class="centered q-pa-lg">
@@ -155,8 +177,8 @@
             <q-btn v-if="isQuestOpen.status && !isRunPlayable && !(this.isUserTooFar && !quest.allowRemotePlay)" @click="buyCoins()" color="primary" class="glossy large-btn"><span>{{ $t('label.BuyCoinsToPlay') }}</span></q-btn>
             <q-btn v-if="isQuestOpen.status && this.isUserTooFar && !quest.allowRemotePlay" disabled color="primary" class="glossy large-btn"><span>{{ $t('label.GetCloserToStartingPoint') }} ({{ distance > 1000 ? (Math.round(distance / 1000)) + "km" : distance + "m" }})</span></q-btn>
             <q-btn
-             v-if="isQuestOpen.status && quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay)"
-              @click="playQuest(quest.questId, getLanguage())"
+             v-if="isAdmin || (isQuestOpen.status && quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier) && shop.premiumQuest.priceCode !== 'notplayableonweb' && !(this.isUserTooFar && !quest.allowRemotePlay))"
+              @click="playQuest(quest.questId, getLanguage())" 
               color="primary"
                class="glossy large-btn">
                <span>{{ $t('label.SolveThisQuest') }}</span>
@@ -207,7 +229,7 @@
       <!------------------ GAME DESCRIPTION ------------------------>
 
       <div class="q-pa-md">
-        <div class="text-subtitle2" v-html="this.quest.description"></div>
+        <div class="text-subtitle1 arial" v-html="this.quest.description"></div>
         <div v-if="isUserTooFar && !quest.allowRemotePlay" class="q-pt-md">
           <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.QuestIsFarFromUser')" />
         </div>
@@ -455,10 +477,12 @@ import utils from 'src/includes/utils'
 import Notification from 'boot/NotifyHelper'
 import gpscalibration from 'components/gpsCalibration'
 import debounce from 'lodash/debounce'
+import qrCodeStream from "../../../components/qrCodeStream";
 
 export default {
   components: {
     shop,
+    qrCodeStream,
     offlineLoader,
     gpscalibration
   },
@@ -472,6 +496,7 @@ export default {
       playStep: 0,
       shop: {
         show: false,
+        showScanner: false,
         premiumQuest: {
           priceCode: 'free',
           priceValue: '0',
@@ -503,6 +528,7 @@ export default {
       showRewardsPopup: false,
       showPreloaderPopup: false,
       multiplayer: {
+        showScanner: false,
         show: false,
         team: '',
         qrcode: ''
@@ -528,6 +554,8 @@ export default {
 
     // reset user history
     this.$store.state.history = {items: [], index: 0}
+    this.$store.commit('setNetworkMode', 'online')
+    this.$store.commit('setForceOnline', false)
   },
   updated: debounce(function () {
     this.$nextTick(() => {
@@ -583,8 +611,20 @@ export default {
      */
     async initQuest() {
       // get quest information
-      await this.getQuest(this.$route.params.id)
+      const response = await QuestService.getByIdOnline(this.$route.params.id)
+      this.quest = response.data
 
+      // update 'forceOnline' state property according to current quest
+      this.$store.commit('setForceOnline', this.quest.hasOwnProperty('customization') && this.quest.customization.hasOwnProperty('forceOnline') ? this.quest.customization.forceOnline : false)
+      
+      // retrieve author detailed info
+      if (typeof this.quest.authorUserId !== 'undefined') {
+        let response = await AuthService.getAccount(this.quest.authorUserId)
+        if (response && response.data) {
+          this.$set(this.quest, 'author', response.data)
+        }
+      }
+      
       // Fix EMA on 18/12/2019 - products in store remains if I open several paying quests
       if (window.cordova && this.quest.premiumPrice && this.quest.premiumPrice.androidId && store.products.length > 0) {
         this.$router.go(0)
@@ -614,8 +654,8 @@ export default {
       this.checkIfQuestIsOpened()
 
       // if the user is the author => force network play
-      if (this.offline.active && (this.isOwner || this.isAdmin)) {
-        await this.getQuest(this.quest.questId, true)
+      if (this.isOwner || this.isAdmin) {
+        this.$store.commit('setForceOnline', true)
       }
 
       // get user runs for this quest
@@ -644,6 +684,10 @@ export default {
 
       if (!isQuestOfflineLoaded || forceNetworkLoading) {
         this.offline.active = false
+        if (this.$route.params.qrcode) {
+          // Check the QR code and unlock the quest
+          await QuestService.checkQRCode(this.$route.params.qrcode, this.$t('label.shortLang'))
+        }
         // get the last version accessible by user depending on user access
         let response = await QuestService.getLastById(id)
         if (response && response.data && response.status === 200) {
@@ -681,11 +725,11 @@ export default {
         } else {
           this.quest = JSON.parse(quest)
 
-          const pictureUrl = await utils.readBinaryFile(id, this.quest.picture)
+          const pictureUrl = await utils.readBinaryFile(id, this.quest.picture[this.getLanguage()])
           if (pictureUrl) {
             this.quest.picture = pictureUrl
           } else {
-            this.quest.picture = '_default-quest-picture.png'
+            this.quest.picture = '_default-quest-picture.jpg'
           }
         }
       }
@@ -1013,7 +1057,7 @@ export default {
      * Cancel a run
      */
     async cancelRun() {
-      if (this.continueQuestId != "") {
+      if (this.continueQuestId !== "") {
         await RunService.endRun(this.continueQuestId, null, this.quest.questId, this.quest.version, this.$route.params.lang)
       }
       // remove run offline data
@@ -1115,7 +1159,9 @@ export default {
      * Scan a QR Code to join a team
      */
     scanMultiplayerQRCode() {
-      var _this = this
+      this.multiplayer.showScanner = true
+      this.multiplayer.show = false
+      /*var _this = this
       if (this.isHybrid) {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
@@ -1144,13 +1190,18 @@ export default {
             disableSuccessBeep: false // iOS and Android
           }
         )
-      }
+      }*/
+    },
+    closeMultiplayerQRCodeReader() {
+      this.multiplayer.showScanner = false
     },
     /*
      * Scan a QR Code to buy a quest using tier QR code
      */
     scanTierPaymentQRCode() {
-      var _this = this
+      this.shop.showScanner = true
+      this.shop.show = false
+      /*var _this = this
       if (this.isHybrid) {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
@@ -1175,7 +1226,10 @@ export default {
             disableSuccessBeep: false // iOS and Android
           }
         )
-      }
+      }*/
+    },
+    closeTierPaymentQRCode() {
+      this.shop.showScanner = false
     },
     /*
      * Check a team code
@@ -1255,7 +1309,8 @@ export default {
      * Manage back to the map button
      */
     backToTheMap () {
-      this.$router.back()
+      this.$router.push('/home')
+      //this.$router.back()
     },
     /*
      * Manage back to the map button
@@ -1279,16 +1334,30 @@ export default {
      * get background image
      */
     getBackgroundImage () {
-      if (this.quest.picture && this.quest.picture[0] === '_') {
-        return 'statics/images/quest/' + this.quest.picture
-      } else if (this.quest.picture && this.quest.picture.indexOf('blob:') !== -1) {
-        return this.quest.picture
-      } else if (this.quest.picture) {
-        return this.uploadUrl + '/upload/quest/' + this.quest.picture
+      const currentLanguage = this.getLanguage()
+      let picture
+      if (this.quest.picture) {
+        if (this.quest.picture[currentLanguage]) {
+          picture = this.quest.picture[currentLanguage]
+        } else if (this.quest.picture[this.quest.mainLanguage]) {
+          picture = this.quest.picture[this.quest.mainLanguage]
+        }
+      }
+      if (picture && picture[0] === '_') {
+        return 'statics/images/quest/' + picture
+      } else if (picture && picture.indexOf('blob:') !== -1) {
+        return picture
+      } else if (picture) {
+        return this.uploadUrl + '/upload/quest/' + picture
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     }
   }
 }
 </script>
+<style>
+#teaser .text-subtitle1 {
+  white-space: pre-line;
+}
+</style>

@@ -42,7 +42,7 @@
             <div v-if="range === 'quest' && ranking && ranking.length > 0" v-for="(run, index) in ranking" :key="index" class="q-pa-md rank-box">
               <div>
                 <!-- here we guess that is should be the first element : TODO : FIX ME-->
-                <userCard :user="run.userData" size="medium" @click="openProfile(run.userId[0])"></userCard>
+                <userCard :user="run.userData" size="small" @click="openProfile(run.userId[0])"></userCard>
               </div>
               <div class="full-width">
                 <div class="subtitle5">{{ run.userData.name }}</div>
@@ -52,13 +52,16 @@
                   <span v-if="run.userData.location.country">{{ run.userData.location.country }}</span>
                 </div>
                 <div class="grey-round-box row icons q-mt-sm q-pa-sm">
-                  <div class="col-6 centered">
+                  <div class="col-4 centered">
                     <img src="statics/images/icon/pts.svg" />
                     {{ run.stars }}
                   </div>
-                  <div class="col-6 centered">
+                  <div class="col-4 centered">
                     <img src="statics/images/icon/medal.svg" />
                     {{ index + 1 }}
+                  </div>
+                  <div class="col-4 centered" style="font-size: 0.8em; line-height: 0.7em; padding-top: 8px;" v-if="run.duration">
+                    {{ run.duration }}<br />min
                   </div>
                 </div>
               </div>

@@ -49,6 +49,7 @@ export default {
   props: ['quest'],
   data() {
     return {
+      lang: this.$t('label.shortLang'),
       serverUrl: process.env.SERVER_URL,
       uploadUrl: process.env.UPLOAD_URL,
       submitting: false
@@ -64,7 +65,7 @@ export default {
     },
     /*
      * get background image
-     */
+     *
     getBackgroundImage () {
       if (!this.quest) {
         return ''
@@ -76,7 +77,7 @@ export default {
       } else if (this.quest.picture) {
         return this.uploadUrl + '/upload/quest/' + this.quest.picture
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     },
     /*
@@ -84,16 +85,24 @@ export default {
      */
     getThumbImage () {
       if (!this.quest) {
-        return ''
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
-      if (this.quest.thumb && this.quest.thumb[0] === '_') {
-        return 'statics/images/quest/' + this.quest.thumb
-      } else if (this.quest.thumb && this.quest.thumb.indexOf('blob:') !== -1) {
-        return this.quest.thumb
-      } else if (this.quest.thumb) {
-        return this.uploadUrl + '/upload/quest/' + this.quest.thumb
+      let picture
+      if (this.quest.thumb) {
+        if (this.quest.thumb[this.lang]) {
+          picture = this.quest.thumb[this.lang]
+        } else if (this.quest.thumb[this.quest.mainLanguage]) {
+          picture = this.quest.thumb[this.quest.mainLanguage]
+        }
+      }
+      if (picture && picture[0] === '_') {
+        return 'statics/images/quest/' + picture
+      } else if (picture && picture.indexOf('blob:') !== -1) {
+        return picture
+      } else if (picture) {
+        return this.uploadUrl + '/upload/quest/' + picture
       } else {
-        return 'statics/images/quest/default-quest-picture.png'
+        return 'statics/images/quest/default-quest-picture.jpg'
       }
     }
   }

@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll text-white" :class="quest && quest.customization && quest.customization.endColor ? '' : 'background-dark'" :style="(quest && quest.customization && quest.customization.endColor && quest.customization.endColor !== '') ? 'background-color: ' + quest.customization.endColor : ''">
+  <div class="scroll" style="color: #063b8b;">
     <!------------------ NO NETWORK AREA ------------------------>
     <div v-if="warnings.noNetwork">
       <div class="bg-primary">
@@ -12,142 +12,80 @@
     </div>
 
     <!------------------ TEXT IF NO SCORING ------------------>
-
-    <div class="q-ma-md rounded background-lighter2" v-if="!warnings.noNetwork && quest && quest.customization && quest.customization.removeScoring">
-      <div class="q-pa-md" :class="'font-' + quest.customization.font">
-        <div class="text-h4" v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage !== '' && (nbGoodAnwers !== nbQuestions || quest.customization.endMessageForPerfectScore === '')" v-html="quest.customization.endMessage" />
-        <div class="text-h4" v-if="quest.customization && quest.customization.endMessage && nbGoodAnwers === nbQuestions && quest.customization.endMessageForPerfectScore !== ''" v-html="quest.customization.endMessageForPerfectScore" />
-        <div class="text-h4" v-if="!quest.customization || !quest.customization.endMessage || quest.customization.endMessage === ''">{{ $t('label.ThanksForPlaying') }}</div>
-        <div>{{ $t('label.GoodAnswersNumber') }}: {{ nbGoodAnwers }} / {{ nbQuestions }}</div>
+        
+    <div class="q-py-md" v-if="!warnings.noNetwork">
+      <div class="centered q-pt-lg">
+        <img src="statics/customers/conseil-europe/images/logo.png" />
       </div>
-      <div v-if="isUserAuthor" class="back centered q-pa-md">
-        <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
+      <div class="centered subtitle2 q-pt-lg" v-if="$t('label.shortLang') === 'fr'">
+        Bravo, vous avez réussi !
       </div>
-      <div v-if="isUserAdmin" class="back centered q-pa-md">
-        <q-btn color="primary" class="glossy large-button" :label="$t('label.GoToQuestValidation')" @click="openValidation(questId, quest.version)"></q-btn>
+      <div class="centered subtitle2 q-pt-lg" v-if="$t('label.shortLang') === 'en'">
+        Congratulations, you win the game!
       </div>
-    </div>
-    <div class="q-px-md text-grey align-right" style="font-size: 0.8em; margin-top: -10px;">
-      {{ endDate }}
-    </div>
-
-    <div v-if="isUserAuthor" class="back centered q-pa-md">
-      <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToBuilder')" @click="$router.push('/quest/builder/' + questId)" />
-    </div>
-
-    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
-      <div v-if="run && run._id">
-        <div class="relative-position header-point-box">
-          <div class="full-width centered header-point absolute">
-            <img src="statics/images/icon/wonpoint.png" />
-            <div>+{{ run.stars }}</div>
-          </div>
-          <!------------------ TITLE AREA ------------------------>
-          <div style="padding-top: 100px">
-            <div style="padding-top: 35px" class="rounded background-lighter2 centered full-width">
-              <h2 class="text-center title2 q-mt-xl q-mb-sm q-mx-xl text-uppercase">{{ $t('label.YouWin') }}</h2>
-              <div class="relative-position progress-box">
-                <div class="progress-bar">
-                  <div class="progress" :style="'width: ' + Math.floor(level.progress * 100) + '%'">
-                  </div>
-                  <div class="value">
-                    {{ Math.floor(level.progress * 100) }}%
-                  </div>
-                </div>
-                <div class="rank-level">
-                  <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" />
-                </div>
-              </div>
-              <div class="centered q-pb-sm" v-if="run && run.duration">
-                {{ $t('label.YourTime') }}: {{ run.duration.h }}h {{ run.duration.m }}m
-              </div>
-              <div class="centered q-pb-sm" v-if="run && run.score && run.score > 0">
-                {{ $t('label.YourScore') }}: {{ run.score }} {{ $t('label.pts') }}
-              </div>
-              <div class="centered q-pb-md" v-if="run && ranking && ranking.position && ranking.position !== '-'">
-                {{ $t('label.YourRanking') }}: {{ ranking.position }}
-              </div>
-              <div class="centered q-pb-md" v-if="run">
-                {{ $t('label.GoodAnswersNumber') }}: {{ nbGoodAnwers }} / {{ nbQuestions }}
-              </div>
-            </div>
-          </div>
+      <div class="centered subtitle3 q-mt-lg q-py-md" style="background-color: #063b8b; color :#fff;">
+        <div v-if="$t('label.shortLang') === 'en'">
+          Your time
         </div>
-
-        <!------------------ NEW QUEST WON AREA ------------------------>
-
-        <div v-if="unlockedQuest.show" class="centered q-mt-md subtitle5">
-          <span class="text-primary">{{ $t('label.YouWonNewGame') }}</span>
-          <div class="centered q-pa-md">
-            <q-btn color="primary" class="glossy" :label="$t('label.SolveThisQuest')" @click="$router.push('/quest/play/' + unlockedQuest.id)" />
-          </div>
+        <div v-if="$t('label.shortLang') === 'fr'">
+          Votre temps de jeu
         </div>
-
-        <!------------------ SUGGESTION AREA ------------------------>
-
-        <div class="centered q-mt-md subtitle5">{{ $t('label.YouLikedThisQuest') }}</div>
-        <div class="centered q-px-md">
-          <span v-show="quest && quest.type !== 'discovery' && run.score > 0 && quest && quest.access === 'public'">
-            <a class="small" @click="openChallengeBox">{{ $t('label.ChallengeYourFriends') }}</a> <span class="secondary-font-very-small"> {{ $t('label.or') }} </span>
-          </span>
-          <a class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
+        <div v-if="run && run.duration && (run.duration.m || run.duration.h)">
+          {{ run.duration.h }}h {{ run.duration.m }}m 
         </div>
-        <div v-if="author" class="centered q-mt-lg">
-          <div class="user-card user-card-small relative-position" style="margin: 0px;">
-            <div class="relative-position" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
-              <div v-if="author.statistics && author.statistics.nbQuestsCreated && author.statistics.nbQuestsCreated > 0" class="profile-item-creator">
-                <img src="statics/images/icon/profile-puzzle.svg" />
-              </div>
-              <div v-if="author.statistics && author.statistics.nbQuestsSuccessful && author.statistics.nbQuestsSuccessful > 0" class="profile-item-level">
-                <img :src="'statics/images/icon/level' + author.level + '.svg'" />
-              </div>
-            </div>
-          </div>
-          <div class="centered subtitle3">
-            {{ author.name }}
-          </div>
-          <div class="centered q-pt-sm" v-if="$store.state.user.id !== author._id">
-            <q-btn
-               v-if="!author.status || author.status !== 'friend'"
-              class="glossy normal-button"
-              color="primary"
-              :label="$t('label.Follow')"
-              @click="follow" />
-            <div v-if="author.status && author.status === 'friend'" class="centered">
-              <q-chip class="glossy" color="primary" text-color="white" icon-right="star">
-                {{ $t('label.Followed') }}
-              </q-chip>
-            </div>
-          </div>
-        </div>
-        <q-dialog maximized v-model="suggestQuest.show">
-          <suggest @close="suggestQuest.show = false"></suggest>
-        </q-dialog>
       </div>
-
+      
+      <!------------------ NEW QUEST WON AREA ------------------------>
+      
+      <div v-if="unlockedQuest.show" class="centered q-mt-md subtitle5">
+        <span class="text-primary">{{ $t('label.YouWonNewGame') }}</span>
+        <div class="centered q-pa-md">
+          <q-btn color="primary" class="glossy" :label="$t('label.SolveThisQuest')" @click="$router.push('/quest/play/' + unlockedQuest.id)" />
+        </div>
+      </div>
+            
     </div>
-
-    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork">
+         
+    <div v-if="!warnings.noNetwork">
       <div>
         <!------------------ REVIEW AREA ------------------------>
-
-        <div class="q-mx-md q-mt-xl q-pa-sm centered" v-if="quest && quest.type !== 'discovery' && showAddReview">
+        
+        <div class="centered">
           <div class="subtitle4">{{ $t('label.ReviewThisQuest') }}</div>
-          <div class="q-py-sm"><q-rating v-model="rating" :max="5" size="1rem" class="end-rating" color="white" :disable="reviewSent" @click="showReviewText = true" /></div>
+          <div class="q-py-sm"><q-rating v-model="rating" :max="5" size="1rem" class="end-rating" color="blue-10" :disable="reviewSent" @click="showReviewText = true" /></div>
         </div>
         <q-dialog v-model="showReviewText" class="over-map">
           <div class="q-pa-md q-pt-lg centered bg-grey">
             <div class="subtitle4">{{ $t('label.ReviewThisQuest') }}</div>
-            <div class="q-py-sm"><q-rating v-model="rating" :max="5" size="1rem" class="end-rating" color="secondary" :disable="reviewSent" /></div>
-            <div class="subtitle6 q-pt-lg">{{ $t('label.CommentThisQuest') }} ({{ $t('label.Optional') }}){{ $t('label.Colon') }}</div>
-            <textarea class="shadowed full-width q-my-sm" v-model="comment" :placeholder="$t('label.Feedback')" rows="4" :disabled="reviewSent" />
+            <div class="q-py-sm"><q-rating v-model="rating" :max="5" size="1rem" class="end-rating" color="white" :disable="reviewSent" /></div>
+            <div class="subtitle6 q-pt-lg">
+              <span v-if="$t('label.shortLang') === 'fr'">Vos commentaires</span>
+              <span v-if="$t('label.shortLang') === 'en'">Your comments</span>
+              ({{ $t('label.Optional') }}){{ $t('label.Colon') }}</div>
+            <textarea class="shadowed full-width q-my-sm" v-model="comment" rows="4" :disabled="reviewSent" />
             <q-btn class="glossy large-button" color="primary" :label="$t('label.Send')" @click="addReview()" :disabled="reviewSent" />
             <div class="q-pa-md">
               <a @click="showReviewText = false">{{ $t('label.Cancel') }}</a>
             </div>
           </div>
         </q-dialog>
-
+        
+        <!------------------ COMMENTED VISITS ------------------------>
+        
+        <div class="centered subtitle3 q-mt-md" style="background-color: #063b8b; color :#fff;">
+          <div class="subtitle3 q-pa-md" v-if="$t('label.shortLang') === 'fr'">
+            Découvrez l'intérieur des bâtiments avec nos visites virtuelles commentées
+          </div>
+          <div class="subtitle3 q-pa-md" v-if="$t('label.shortLang') === 'en'">
+            Discover our virtual visits
+          </div>
+          <div class="q-pt-sm">
+            <a href="https://www.coe.int/fr/web/about-us/virtual-visits" target="_blank">
+              <img src="statics/customers/conseil-europe/images/visites.png" />
+            </a>
+          </div>
+        </div>
+        
         <!------------------ REWARD AREA ------------------------>
 
         <div class="q-pa-md q-mt-lg centered rounded background-lighter2" v-if="showReward && run && run.questData">
@@ -159,120 +97,7 @@
         </div>
       </div>
     </div>
-
-    <div class="q-pa-md" v-if="!isUserAuthor && !warnings.noNetwork && quest && !(quest.customization && quest.customization.removeScoring)">
-      <div v-if="run && run._id">
-        <!------------------ RANKING AREA ------------------------>
-
-        <div v-show="ranking.show">
-          <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.Ranking') }}</div>
-          <div>{{ $t('label.RankingEndIntro') }}</div>
-          <div v-for="rank in ranking.items" :key="rank.id" class="q-py-md rank-box">
-            <div>
-              <userCard :user="rank" size="medium"></userCard>
-            </div>
-            <div class="full-width">
-              <div class="subtitle5" v-if="rank.name !== '-'">{{ rank.name }}</div>
-              <div class="subtitle5" v-if="rank.name === '-'">{{ $t('label.AnonymousUser') }}</div>
-              <div class="subtitle6" v-if="rank.location && (rank.location.country || rank.location.postalCode)">
-                <span v-if="rank.location.postalCode">{{ rank.location.postalCode }}</span>
-                <span v-if="rank.location.postalCode && rank.location.country">, </span>
-                <span v-if="rank.location.country">{{ rank.location.country }}</span>
-              </div>
-              <div class="grey-round-box row icons q-mt-sm q-pa-sm">
-                <div class="col-6 centered">
-                  <img src="statics/images/icon/pts.svg" />
-                  {{ rank.stars }}
-                </div>
-                <div class="col-6 centered">
-                  <img src="statics/images/icon/medal.svg" />
-                  {{ rank.position }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!------------------ BACK TO MAP LINK AREA ------------------------>
-
-        <div class="back centered q-pa-md">
-          <q-btn color="primary" class="glossy large-button" :label="$t('label.BackToTheMap')" @click="$router.push('/home')" />
-        </div>
-        <div v-if="isUserAdmin" class="back centered q-pa-md">
-          <q-btn color="primary" class="glossy large-button" :label="$t('label.GoToQuestValidation')" @click="$router.push('/admin/validate/' + questId + '/version/' + quest.version)" />
-        </div>
-
-      </div>
-      <div class="centered bg-warning q-pa-sm" v-if="warnings.noNetwork" @click="loadData()">
-        <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
-      </div>
-    </div>
-
-    <!--====================== CHALLENGE YOUR FRIENDS PAGE =================================-->
-
-    <transition name="slideInBottom">
-      <div class="panel-bottom q-pa-md bg-graaly-blue-dark" v-show="showChallenge">
-        <a class="float-right no-underline" color="grey" @click="closeChallenge"><q-icon name="close" class="subtitle3" /></a>
-        <div class="subtitle3 q-pt-md q-pb-lg">{{ $t('label.ChallengeYourFriends') }}</div>
-        <div v-if="filteredFriends.length === 0">
-          {{ $t('label.NoFriendsLong') }}
-        </div>
-        <div v-if="filteredFriends.length > 0">
-          <div class="q-pa-md centered">
-            <q-btn color="primary" class="glossy large-button" full @click="challengeAll" :label="$t('label.ChallengeAllFriends')" />
-          </div>
-          <div class="q-pa-md centered">
-            {{ $t('label.Or') }}
-          </div>
-          <!--<div>
-            <q-chips-input v-model="invitedFriends.name" :placeholder="$t('label.TypeNameOrAddressOfYourFriends')" add-icon="add_circle">
-              <q-autocomplete @search="searchFriend" @selected="selectFriend" :min-characters="0" />
-            </q-chips-input>
-          </div>-->
-          <!-- TODO : if no friend, add them from contact list. If friends, propose 3 randomly-->
-          <div v-if="friends && friends.length !== 0">
-            <q-list highlight>
-              <q-item v-for="friend in filteredFriends" :key="friend.friendId">
-                <q-item-section>
-                  <q-avatar>
-                    <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') !== -1" :src="friend.picture" />
-                    <img v-if="friend.picture && friend.picture !== '' && friend.picture.indexOf('http') === -1" :src="uploadUrl + '/upload/profile/' + friend.picture" />
-                    <img v-if="!friend.picture || friend.picture === ''" src="statics/icons/game/profile-small.png" />
-                  </q-avatar>
-                </q-item-section>
-                <q-item-label>{{ friend.name }}</q-item-label>
-                <q-item-section side>
-                  <q-btn v-show="!friend.isChallenged" color="primary" class="normal-button glossy" :label="$t('label.Challenge')" @click="challenge(friend)" />
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </div>
-        </div>
-      </div>
-    </transition>
-
-     <!--====================== BONUS PAGE =================================-->
-
-    <transition name="slideInBottom">
-      <div class="panel-bottom q-pa-md" v-if="showBonus">
-        <div class="text-h4 q-pt-md q-pb-lg centered">{{ $t('label.YouWonABonus') }}</div>
-        <div class="q-pa-md text-primary">
-          <q-card class="q-ma-sm">
-            <img :src="'statics/icons/game/bonus_' + run.bonus + '.png'">
-            <q-card-section>
-              <div class="text-h6">{{ $t('bonus.' + run.bonus) }}</div>
-            </q-card-section>
-            <q-card-section>
-              {{ $t('bonus.' + run.bonus + 'Desc') }}
-            </q-card-section>
-            <q-card-section>
-              <q-btn color="primary" class="glossy normal-button" @click="closeBonus"><div>{{ $t('label.Close') }}</div></q-btn>
-            </q-card-section>
-          </q-card>
-        </div>
-      </div>
-    </transition>
-
+    
     <!--====================== WIN COINS ANIMATION =================================-->
 
     <!--<div v-if="level.upgraded" class="fadein-message">+100 <q-icon color="white" name="fas fa-bolt" /></div>-->
@@ -373,7 +198,6 @@ export default {
       this.warnings.noNetwork = false
       var runIsInProgress = false
       this.$q.loading.show()
-
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.questId)
       if (runs) {
@@ -392,7 +216,7 @@ export default {
         // get quest data
         var quest
         if (this.run && this.run.version) {
-          quest = await QuestService.getById(this.questId, this.run.version)
+          quest = await QuestService.getByIdOnline(this.questId, this.run.version)
         } else {
           quest = await QuestService.getLastById(this.questId)
         }
@@ -406,7 +230,6 @@ export default {
           const isReviewAlreadySent = results.data && results.data.length >= 1
           this.showAddReview = !this.isUserAdmin && !this.isUserAuthor && !isReviewAlreadySent
         }
-
         // compute good answers
         await this.computeGoodAnswers()
 
@@ -415,7 +238,6 @@ export default {
         if (!this.score.old) {
           this.score.old = 0
         }
-
         this.initProgression()
 
         // get offline run data
@@ -472,8 +294,7 @@ export default {
 
         // get duration
         const duration = utils.getDurationFromNow(this.run.dateCreated)
-        this.run.duration = {h: duration.h, m: duration.m}
-
+        Vue.set(this.run, 'duration', {h: duration.h, m: duration.m})
         this.getAuthorProfile()
       } else {
         // no network

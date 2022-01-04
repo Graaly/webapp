@@ -15,9 +15,9 @@
 
     <div class="q-ma-md rounded background-lighter2" v-if="!warnings.noNetwork && quest && quest.customization && quest.customization.removeScoring">
       <div class="q-pa-md" :class="'font-' + quest.customization.font">
-        <div class="text-h4" v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage !== '' && (nbGoodAnwers !== nbQuestions || quest.customization.endMessageForPerfectScore === '')" v-html="quest.customization.endMessage" />
-        <div class="text-h4" v-if="quest.customization && quest.customization.endMessage && nbGoodAnwers === nbQuestions && quest.customization.endMessageForPerfectScore !== ''" v-html="quest.customization.endMessageForPerfectScore" />
-        <div class="text-h4" v-if="!quest.customization || !quest.customization.endMessage || quest.customization.endMessage === ''">{{ $t('label.ThanksForPlaying') }}</div>
+        <div class="text-h4" v-if="quest.customization && quest.customization.endMessage && quest.customization.endMessage[lang] && (nbGoodAnwers !== nbQuestions || (quest.customization.endMessageForPerfectScore && quest.customization.endMessageForPerfectScore[lang] && quest.customization.endMessageForPerfectScore[lang] === ''))" v-html="quest.customization.endMessage[lang]" />
+        <div class="text-h4" v-if="quest.customization && quest.customization.endMessage && nbGoodAnwers === nbQuestions && quest.customization.endMessageForPerfectScore && quest.customization.endMessageForPerfectScore[lang] && quest.customization.endMessageForPerfectScore[lang] !== ''" v-html="quest.customization.endMessageForPerfectScore[lang]" />
+        <div class="text-h4" v-if="!quest.customization || !quest.customization.endMessage|| !quest.customization.endMessage[lang] || (quest.customization.endMessage[lang] && quest.customization.endMessage[lang] === '')">{{ $t('label.ThanksForPlaying') }}</div>
         <div>{{ $t('label.GoodAnswersNumber') }}: {{ nbGoodAnwers }} / {{ nbQuestions }}</div>
       </div>
       <div v-if="isUserAuthor" class="back centered q-pa-md">
@@ -27,7 +27,7 @@
         <q-btn color="primary" class="glossy large-button" :label="$t('label.GoToQuestValidation')" @click="openValidation(questId, quest.version)"></q-btn>
       </div>
     </div>
-    <div class="q-px-md text-grey align-right" style="font-size: 0.8em; margin-top: -10px;">
+    <div v-if="quest && quest.customization && quest.customization.endMessage && quest.customization.endMessage[lang] && quest.customization.endMessage[lang] !== ''" class="q-px-md text-grey align-right" style="font-size: 0.8em; margin-top: -10px;">
       {{ endDate }}
     </div>
 
@@ -301,6 +301,7 @@ export default {
   data() {
     return {
       title: 'Enquête réussie',
+      lang: "",
       rating: 0,
       comment: '',
       ranking: {
@@ -354,6 +355,9 @@ export default {
     }
   },
   async mounted () {
+    // Get user language
+    this.lang = this.$t('label.shortLang')
+    
     utils.clearAllRunningProcesses()
     await this.loadData()
     // hide status bar on Android
@@ -363,7 +367,7 @@ export default {
 
     // compute end date
     let date = new Date()
-    this.endDate = Moment(date).format('DD/MM/YYYY, h:mm:ss')
+    this.endDate = Moment(date).format('DD/MM/YYYY, k:mm')
   },
   methods: {
     /*
@@ -392,7 +396,7 @@ export default {
         // get quest data
         var quest
         if (this.run && this.run.version) {
-          quest = await QuestService.getById(this.questId, this.run.version)
+          quest = await QuestService.getByIdOnline(this.questId, this.run.version)
         } else {
           quest = await QuestService.getLastById(this.questId)
         }
