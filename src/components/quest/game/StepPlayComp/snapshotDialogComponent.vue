@@ -1,6 +1,7 @@
 <template>
   <q-dialog ref="snapshotDialog" persistent maximized position="bottom">
     <q-card class="full-height">
+
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6"></div>
         <q-space />
@@ -14,6 +15,7 @@
           style="max-width: 80%; max-height: 80%; margin: 0 auto; display: block;"
         />
       </q-card-section>
+
       <q-card-actions align="right">
         <q-btn color="primary" :label="$t('snapshot.share')" @click="shareWithFriend" />
         <q-btn color="primary" :label="$t('snapshot.save')" @click="saveAndDownload" />
@@ -78,6 +80,7 @@ export default {
         }
       }
     },
+    /* HYBRID - SAVE THE IMAGE TO GALLERY WITH IMAGESAVER PLUGIN */
     saveToGallery() {
       const saveSuccess = () => {
         // Message To Users when is saved
@@ -98,6 +101,7 @@ export default {
       }
       cordova.plugins.imagesaver.saveImageToGallery(this.fileEntry.nativeURL, saveSuccess, saveFailed)
     },
+    /* HYBRID - CREATE THE FILE TO SAVE OR SHARE*/
     createFileEntry() {
       window.resolveLocalFileSystemURL(cordova.file.dataDirectory, dirEntry => {
         const fileName = this.fileName.replace(/[-:]/g, '')
@@ -119,6 +123,7 @@ export default {
         })
       }
     },
+    /* Old Function ... */
     async saveSnapshotOnServer(blob, filename) {
       if (this.quest.customization && this.quest.customization.saveSelfieOnServer) {
         try {
@@ -132,7 +137,7 @@ export default {
         }
       }
     },
-    // CREATE DATAURL FROM BLOB
+    // CREATE DATA-URL FROM BLOB FOR WEBAPP
     blobToBase64(blob) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -141,20 +146,13 @@ export default {
       });
     },
 
-    // Dialog Method
+    /* OPEN - CLOSE DIALOG */
     show () {
       this.$refs.snapshotDialog.show()
     },
     hide () {
       this.$refs.snapshotDialog.hide()
     },
-    // onDialogHide () {
-    //   this.$emit('hide')
-    // },
-    // onOKClick () {
-    //   this.$emit('ok')
-    //   this.hide()
-    // },
     onCancelClick () {
       this.hide()
       this.$emit('hide')
