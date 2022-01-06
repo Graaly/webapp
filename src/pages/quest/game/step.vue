@@ -485,7 +485,7 @@ export default {
     async initData () {
       this.$q.loading.show()
       try {
-        this.info.quest = await QuestService.getByIdForStep(this.questId)
+        this.info.quest = await QuestService.getByIdForStep(this.questId, 999, this.lang)
       } catch (err) {
         console.error(err)
         this.warnings.questDataMissing = true

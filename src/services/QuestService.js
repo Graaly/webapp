@@ -91,10 +91,10 @@ export default {
    * It uses local caching mechanism & uses Vuex store info about network
    * to decide if it should call server or retrieve local data
    * @param   {String}    id                  ID of the quest
-   * @param   {Number}    version             version of the quest
+   * @param   {Number}    version             version of the quest (999 allows to get latest version)
    * @param   {String}    lang                language
    */
-  async getByIdForStep(id, version = 999, lang = "default") {
+  async getByIdForStep(id, version, lang) {
     // Note: quest.customization.forceOnline info is stored in Vuex store & cannot be used for this method
     
     if (!window.cordova) {

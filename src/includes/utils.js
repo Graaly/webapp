@@ -550,8 +550,10 @@ var self = {
     })
   },
 
-  /*
+  /**
    * read binary file
+   * @param {String} directory
+   * @param {String} fileName
    */
   readBinaryFile: function(directory, fileName) {
     var _this = this
