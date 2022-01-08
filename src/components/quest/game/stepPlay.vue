@@ -115,10 +115,10 @@
           <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_more" :label="$t('label.Show')" @click="showTools = true" />
         </div>
         <div class="video" v-if="step.videoStream && step.videoStream[lang]">
-          <video v-if="!step.options.rotateVideo" class="full-width" controls controlsList="nodownload" autoplay>
+          <video v-if="!step.options || !step.options.rotateVideo" class="full-width" controls controlsList="nodownload" autoplay>
             <source :src="(step.videoStream && step.videoStream[lang] && step.videoStream[lang].indexOf('blob:') !== -1) ? step.videoStream[lang] : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream[lang]" type="video/mp4" />
           </video>
-          <video v-if="step.options.rotateVideo" controls controlsList="nodownload" autoplay style="position: absolute;transform: rotate(90deg);transform-origin: bottom left;width: 100vh;height: 100vw;margin-top: -100vw;object-fit: cover;z-index: 4;visibility: visible;">
+          <video v-if="step.options && step.options.rotateVideo" controls controlsList="nodownload" autoplay style="position: absolute;transform: rotate(90deg);transform-origin: bottom left;width: 100vh;height: 100vw;margin-top: -100vw;object-fit: cover;z-index: 4;visibility: visible;">
             <source :src="(step.videoStream && step.videoStream[lang] && step.videoStream[lang].indexOf('blob:') !== -1) ? step.videoStream[lang] : serverUrl + '/upload/quest/' + step.questId + '/step/video/' + step.videoStream[lang]" type="video/mp4" />
           </video>
         </div>
