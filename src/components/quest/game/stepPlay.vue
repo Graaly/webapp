@@ -907,7 +907,7 @@
     <geolocation ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />
 
     <!-- keep orientation detection active during all quest duration -->
-    <orientation ref="orientation-component" @success="onNewDeviceOrientation($event)" @error="onDeviceOrientationError($event)" />
+    <orientation ref="orientation-component" @success="onNewDeviceOrientation($event)" @error="onDeviceOrientationError($event)" :disabled="!quest.hasGeolocationSteps" />
     
     <!--====================== WIN POINTS ANIMATION =================================-->
 
@@ -3205,8 +3205,7 @@ export default {
 
           this.updatePlayerCanTouchTarget()
         }
-
-        if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.GPSdistance <= parseInt(options.distance, 10)) || (!options.distance && this.geolocation.GPSdistance <= 20))) {
+        if (this.step.type === 'geolocation' && !this.stepPlayed && ((options.distance && this.geolocation.GPSdistance <= parseInt(options.distance, 10)) || (!options.distance && this.geolocation.GPSdistance <= 20))) {
           //check if other locations are defined
           if (options.locations && options.locations.length > 0 && this.geolocation.currentIndex + 1 < options.locations.length) {
             Notification(this.$t('label.CheckpointReached'), 'info')
@@ -3214,6 +3213,7 @@ export default {
             this.geolocation.foundStep = true
             this.geolocation.currentIndex++
           } else {
+            this.stepPlayed = true // avoids several calls can be made to this.checkAnswer() if slow network
             //this.$refs['geolocation-component'].disabled = true
             this.geolocation.active = false
             this.resetDrawDirectionInterval()

@@ -8,10 +8,11 @@
 import utils from 'src/includes/utils'
 
 export default {
-  props: {},
+  props: {
+    disabled: { type: Boolean, default: false }
+  },
   data () {
     return {
-      disabled: false,
       status: 'stopped',
       sensor: {
         start: () => {},
@@ -28,17 +29,16 @@ export default {
       isSafari: utils.isSafari()
     }
   },
-  /*watch: {
+  watch: {
     disabled: function (newVal, oldVal) {
-      if (newVal === true) {
+      if (newVal === true && this.status === 'started') {
         this.stopSensor()
-      } else {
+      } else if (newVal === false && this.status === 'stopped') {
         this.startSensor()
       }
     }
-  },*/
+  },
   mounted() {
-    console.log('*mounted*')
     // $nextTick() required to ensure that Cordova plugins are ready
     this.$nextTick(() => {
       this.startSensor()
@@ -129,12 +129,14 @@ export default {
       this.status = 'started'
     },
     stopSensor() {
-      if (this.deviceHasGyroscope) {
-        this.sensor.stop()
-      } else {
-        window.removeEventListener("deviceorientationabsolute", this.handleDeviceOrientationEvent, true)
+      if (this.status === 'started') {
+        if (this.deviceHasGyroscope) {
+          this.sensor.stop()
+        } else {
+          window.removeEventListener("deviceorientationabsolute", this.handleDeviceOrientationEvent, true)
+        }
+        this.status = 'stopped'
       }
-      this.status = 'stopped'
     },
     /**
      * handles deviceorientation event on iOS
