@@ -909,7 +909,7 @@
     </div>
 
     <!------------------ COMMON COMPONENTS ------------------>
-    <div class="direction-helper" v-show="((step.type == 'geolocation' && geolocation.mode === 'compass') || step.type == 'locate-item-ar') && step.showDirectionToTarget && playerResult === null && (geolocation.active || isIOs)">
+    <div class="direction-helper" v-show="((step.type == 'geolocation' && geolocation.mode === 'compass') || (step.type == 'locate-item-ar' && deviceHasGyroscope)) && step.showDirectionToTarget && playerResult === null && (geolocation.active || isIOs)">
       <canvas id="direction-canvas" :style="{ width: directionHelperSize + 'rem', height: directionHelperSize + 'rem' }"></canvas>
     </div>
     <div class="direction-helper centered" v-show="step.type == 'geolocation' && playerResult === true">
@@ -919,6 +919,9 @@
     <!-- keep geolocation active during all quest duration -->
     <geolocation ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />
 
+    <!-- keep orientation detection active during all quest duration -->
+    <orientation ref="orientation-component" @success="onNewDeviceOrientation($event)" @error="onDeviceOrientationError($event)" :disabled="!quest.hasGeolocationSteps" />
+    
     <!--====================== WIN POINTS ANIMATION =================================-->
 
     <!--<div v-show="playerResult === true && score >= 1" class="fadein-message">+{{ score }}</div>-->
@@ -983,6 +986,7 @@ import stepTypes from 'data/stepTypes.json'
 import Notification from 'boot/NotifyHelper'
 
 import geolocation from 'components/geolocation'
+import orientation from 'components/orientation'
 import gpscalibration from 'components/gpsCalibration'
 import holdphonevertically from 'components/holdPhoneVertically'
 import story from 'components/story'
@@ -1019,6 +1023,7 @@ export default {
     holdphonevertically,
     gpscalibration,
     geolocation,
+    orientation,
     story,
     geolocationStepMap,
     qrCodeStream,
@@ -1128,15 +1133,12 @@ export default {
           playerPosition: null,
           destinationPosition: null,
           // for 'locate-item-ar'
-          absoluteOrientationSensor: null,
-          initialBearingAngle: null,
           target: null,
           canSeeTarget: false,
           canTouchTarget: false,
           primaryColor: colors.getBrand('primary'),
           showCalibration: false,
           takeMobileVertically: false,
-          gyroscopeDetectionCounter: 0,
           gpsAccuracy: null, // in meters
           lowGpsAccuracyCeiling: 15, // in meters. below this value, we assume GPS accuracy is good enough
           lowGpsAccuracy: false,
@@ -1319,13 +1321,8 @@ export default {
       // otherwise they continue in the background even when route changes
       this.stopLatestAnimation()
 
-      if (this.geolocation.absoluteOrientationSensor !== null) {
-        this.geolocation.absoluteOrientationSensor.stop()
-      }
       window.removeEventListener('deviceorientation', this.checkPhoneVertically)
       window.removeEventListener("devicemotion", this.handleMotionEvent, true)
-
-      window.removeEventListener("deviceorientationabsolute", this.handleDeviceOrientationEvent, true)
 
       if (this.deviceMotion.idleAccelerationInterval !== null) {
         clearInterval(this.deviceMotion.idleAccelerationInterval)
@@ -1466,11 +1463,6 @@ export default {
 
         var _this = this
 
-        //iOS Hack : all iphone have gyroscope
-        if (this.isIOs || this.isSafari) {
-          this.deviceHasGyroscope = true
-        }
-
         if (this.step.type === 'end-chapter' || this.step.type === 'increment-counter') {
           this.checkAnswer()
         }
@@ -1574,6 +1566,8 @@ export default {
 
         // common process to 'geolocation' and 'locate-item-ar'
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
+          this.noSensorFound = this.$refs['orientation-component'].noSensorFound
+          this.deviceHasGyroscope = this.$refs['orientation-component'].deviceHasGyroscope
           if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
             // if run as builder, get the remainingTrial
             if (this.runId === "0") {
@@ -1589,61 +1583,15 @@ export default {
 
             // user can pass
             this.$emit('pass')
-
-            // start devicemotion sensor (allows to detect gyroscope)
-            window.addEventListener("devicemotion", this.handleMotionEvent, true)
-
-            await this.waitForGyroscopeDetection()
-
-            // Start absolute orientation sensor
-            // ---------------------------------
-
-            // for steps 'geolocation' & Android platforms, without gyroscope use 'deviceorientationabsolute' event + tell players to handle their phone horizontally
-            if (this.step.type === 'geolocation' && this.isHybrid && !this.isIOs && !this.isSafari && !this.deviceHasGyroscope) {
-              window.addEventListener("deviceorientationabsolute", this.handleDeviceOrientationEvent, true)
-              Notification(this.$t('label.PleaseHoldYourDeviceFlat'))
-            } else {
-              // Required to make camera orientation follow device orientation
-              // It is different from 'deviceorientationabsolute' listener whose values are not
-              // reliable when device is held vertically
-              try {
-                if ("AbsoluteOrientationSensor" in window) {
-                  // Android
-                  let sensor = new AbsoluteOrientationSensor({ frequency: 30 })
-                  sensor.onerror = event => console.error(event.error.name, event.error.message)
-                  sensor.onreading = this.onAbsoluteOrientationSensorReading
-                  sensor.start()
-                  this.geolocation.absoluteOrientationSensor = sensor
-                } else if (this.isSafari) {
-                  // WEB APP IOS
-
-                  if (typeof (DeviceMotionEvent) === "undefined") {
-                    this.noSensorFound = true
-                    return
-                  }
-                  this.geolocation.absoluteOrientationSensor = {
-                    stop: this.stopAlternateAbsoluteOrientationSensor
-                  }
-                  window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
-                } else {
-                  // iOS
-                  this.geolocation.absoluteOrientationSensor = {
-                    stop: this.stopAlternateAbsoluteOrientationSensor
-                  }
-
-                  // ask user to access to his device orientation
-                  requestPermissionResult = await utils.requestDeviceOrientationPermission()
-                  if (requestPermissionResult !== 'granted') {
-                    Notification(this.$t('label.PleaseAcceptDeviceOrientationPermissionRequest'), 'error')
-                    return
-                  }
-                  window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
-                }
-              } catch (error) {
-                console.error(error)
-              }
+            
+            // start devicemotion sensor (helps to check if phone is moving or not)
+            if (this.deviceHasGyroscope) {
+              window.addEventListener("devicemotion", this.handleMotionEvent, true)
             }
-
+            
+            if (this.step.type === 'geolocation' && this.isHybrid && !this.isIOs && !this.isSafari && !this.deviceHasGyroscope) {
+              Notification(this.$t('label.PleaseHoldYourDeviceFlat'))
+            }
             if (this.step.type === 'locate-item-ar') {
               // show help
               if (!this.isHybrid) {
@@ -1970,50 +1918,6 @@ export default {
         })
         )
       }
-    },
-    /**
-     * handles deviceorientation event on iOS
-     */
-    eventAlternateAbsoluteOrientationSensor(e) {
-      if (this.geolocation.initialBearingAngle === null && e.webkitCompassHeading !== 0) {
-        this.geolocation.initialBearingAngle = (-e.webkitCompassHeading - e.alpha + 720) % 360
-      }
-
-      const alpha = e.webkitCompassHeading != null ? (this.geolocation.initialBearingAngle + e.alpha) % 360 : e.alpha
-      const beta     = e.beta
-      const gamma    = e.gamma
-      const degtorad = Math.PI / 180
-
-      var _x = beta  ? beta  * degtorad : 0 // beta value
-      var _y = gamma ? gamma * degtorad : 0 // gamma value
-      var _z = alpha ? alpha * degtorad : 0 // alpha value
-      var cX = Math.cos(_x/2)
-      var cY = Math.cos(_y/2)
-      var cZ = Math.cos(_z/2)
-      var sX = Math.sin(_x/2)
-      var sY = Math.sin(_y/2)
-      var sZ = Math.sin(_z/2)
-
-      // ZXY quaternion construction.
-      var w = cX * cY * cZ - sX * sY * sZ
-      var x = sX * cY * cZ - cX * sY * sZ
-      var y = cX * sY * cZ + sX * cY * sZ
-      var z = cX * cY * sZ + sX * sY * cZ
-
-      this.geolocation.absoluteOrientationSensor.quaternion = [ x, y, z, w ]
-
-      this.onAbsoluteOrientationSensorReading() // same process as Android
-    },
-    stopAlternateAbsoluteOrientationSensor() {
-      window.removeEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
-    },
-    /**
-     * method only used by steps 'geolocation', when no gyroscope is available
-     */
-    handleDeviceOrientationEvent(event) {
-      console.log('event.alpha', event.alpha, 'this.geolocation.rawDirection', this.geolocation.rawDirection)
-      this.geolocation.direction = (this.geolocation.rawDirection + event.alpha) % 360
-      //absoluteHeading = 180 - event.alpha
     },
     reloadPage() {
       this.$router.go({
@@ -2376,7 +2280,7 @@ export default {
           // consider that puzzle is solved when checkAnswer() is called.
 
           // call to sendAnswer() is required to get score & offline info
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: (this.isTimeUp === true ? false : true), isTimeUp: this.isTimeUp}, true)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: !(this.isTimeUp === true), isTimeUp: this.isTimeUp}, true)
 
           if (this.isTimeUp === true) {
             this.submitWrongAnswer(checkAnswerResult.offline, true)
@@ -2386,7 +2290,7 @@ export default {
           break
 
         case 'memory':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: (this.isTimeUp === true ? false : true), isTimeUp: this.isTimeUp}, false)
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: !(this.isTimeUp === true), isTimeUp: this.isTimeUp}, false)
 
           if (this.isTimeUp === true) {
             this.submitWrongAnswer(checkAnswerResult.offline, true)
@@ -2534,11 +2438,10 @@ export default {
             if (checkAnswerResult && checkAnswerResult.hasOwnProperty('result')) {
               if (this.step.type === 'locate-item-ar') {
                 // stop listening to motion events
-                window.removeEventListener("devicemotion", this.handleMotionEvent, true)
+                if (this.deviceHasGyroscope) {
+                  window.removeEventListener("devicemotion", this.handleMotionEvent, true)
+                }
                 window.removeEventListener('deviceorientation', this.checkPhoneVertically)
-
-                // stop moving camera when device moves
-                this.geolocation.absoluteOrientationSensor.stop()
               }
 
               // stop camera flow
@@ -3216,14 +3119,15 @@ export default {
         if (this.geolocation.gpsAccuracy > this.geolocation.lowGpsAccuracyCeiling) {
           this.geolocation.lowGpsAccuracy = true
           // start a timer when accuracy is low. after timer expired, if accuracy has not improved, show calibration animation
+          let _this = this
           if (this.geolocation.gpsAccuracyTimeout === null && !this.geolocation.showCalibration && !this.geolocation.persistentLowAccuracy) {
             this.geolocation.gpsAccuracyTimeout = utils.setTimeout(() => {
-              if (!this.step.options || this.step.options.hideAnimation !== true) {
-                this.$refs.gpscal.askUserToCalibrateGPS()
+              if (!_this.step.options || _this.step.options.hideAnimation !== true) {
+                _this.$refs.gpscal.askUserToCalibrateGPS()
               }
-              if (this.geolocation.gpsAccuracyTimeout !== null) {
-                clearTimeout(this.geolocation.gpsAccuracyTimeout)
-                this.geolocation.gpsAccuracyTimeout = null
+              if (_this.geolocation.gpsAccuracyTimeout !== null) {
+                clearTimeout(_this.geolocation.gpsAccuracyTimeout)
+                _this.geolocation.gpsAccuracyTimeout = null
               }
             }, 10000)
           }
@@ -3314,15 +3218,15 @@ export default {
 
           this.updatePlayerCanTouchTarget()
         }
-
-        if (this.step.type === 'geolocation' && ((options.distance && this.geolocation.GPSdistance <= parseInt(options.distance, 10)) || (!options.distance && this.geolocation.GPSdistance <= 20))) {
+        if (this.step.type === 'geolocation' && !this.stepPlayed && ((options.distance && this.geolocation.GPSdistance <= parseInt(options.distance, 10)) || (!options.distance && this.geolocation.GPSdistance <= 20))) {
           //check if other locations are defined
-          this.geolocation.currentIndex++
-          if (options.locations && options.locations.length > 0 && this.geolocation.currentIndex < options.locations.length) {
+          if (options.locations && options.locations.length > 0 && this.geolocation.currentIndex + 1 < options.locations.length) {
             Notification(this.$t('label.CheckpointReached'), 'info')
             this.geolocation.foundStep = false
             this.geolocation.foundStep = true
+            this.geolocation.currentIndex++
           } else {
+            this.stepPlayed = true // avoids several calls can be made to this.checkAnswer() if slow network
             //this.$refs['geolocation-component'].disabled = true
             this.geolocation.active = false
             this.resetDrawDirectionInterval()
@@ -3502,7 +3406,7 @@ export default {
     /*
      * prepare page before snapshot
      */
-    /* async prepareSnapshot() {
+    async prepareSnapshot() {
       this.takingSnapshot = true
       this.$q.loading.show()
       this.$emit('hideButtons')
@@ -3519,13 +3423,13 @@ export default {
           Notification(_this.$t('label.SnapshotManualOnIOs'), 'error');
           this.$q.loading.hide()
           return false
-          image.style.width = '100%'
+          /*image.style.width = '100%'
           CameraPreview.takePicture({quality: 85}, function(base64PictureData) {
             const imageSrcData = 'data:image/jpeg;base64,' +base64PictureData
             var image = document.getElementById('snapshotImageIos')
             image.src = imageSrcData
             setTimeout(function () { _this.takeIOsSnapshot() }, 2000)
-          });
+          });*/
         } else if (this.isSafari) {
           let tempCameraStream = _this.$refs['camera-stream-for-image-over-flow']
           let canvasStream = document.createElement('canvas')
@@ -3537,7 +3441,6 @@ export default {
           canvasStream.toBlob(function (blob) {
             image.src = URL.createObjectURL(blob)
           }, 'image/png')
-
         } else { // android & webapp
           // generate a snapshot of the video flow
           let blob = await this.imageCapture.takePhoto()
@@ -3662,7 +3565,7 @@ export default {
         const picture = new Blob([new Uint8Array(fileBinary)], { type: "image/jpg" })
         var data = new FormData()
         data.append('image', picture)
-        var _this = this
+        //var _this = this
         await StepService.uploadSnapshot(this.step.questId, data)
         /*StepService.uploadSnapshot(this.step.questId, data, function(err, result) {
           if (err) {
@@ -3670,12 +3573,12 @@ export default {
           } else {
             Notification(_this.$t('label.SnapshotTaken'), 'info')
           }
-        })*//*
+        })*/
       } catch (error) {
         Notification(this.$t('label.ErrorTakingSnapshot'), 'error')
         console.log("Error: " + error)
       }
-    },*/
+    },
     /**
      * This is a feature for players (selfies...) from steps image-over-flow, not authors
      * Saves snapshot on web API server if quest config setting "saveSelfieOnServer" is enabled
@@ -4024,7 +3927,7 @@ export default {
               //Vue.set(this.memory.items, this.memory.items.length - 1, this.memory.items[this.memory.items.length - 1])
             } else {
               // uncover all tiles
-              for (var i = 0; i < this.memory.items.length; i++) {
+              for (let i = 0; i < this.memory.items.length; i++) {
                 if (!this.memory.items[i].isFound) {
                   this.memory.items[i].isClicked = true
                   _self.memory.items[_self.memory.selectedKey].isFound = true
@@ -4121,31 +4024,45 @@ export default {
       cancelAnimationFrame(this.latestRequestAnimationId)
       this.latestRequestAnimationId = null
     },
-    /*
-    * when reading a new value from AbsoluteOrientationSensor, update camera rotation so it matches device orientation
-    */
-    onAbsoluteOrientationSensorReading() {
-      if (this.geolocation.absoluteOrientationSensor.activated === false) {
+    /**
+     * Read new device orientation event
+     * @param {Object} event orientation event
+     */
+    onNewDeviceOrientation(event) {
+      if (event.activated === false) {
         console.warn('sensor is not activated')
         return
       }
-
-      let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
-
-      if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.deviceHasGyroscope) {
-        this.geolocation.target.camera.quaternion = quaternion
+      
+      if (this.deviceHasGyroscope) {
+        // if event has quaternion (= device has a gyroscope), update camera rotation so it matches device orientation
+        let quaternion = new THREE.Quaternion().fromArray(event.quaternion)
+        
+        if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.deviceHasGyroscope && !this.geolocation.playerTouchedArObject) {
+          this.geolocation.target.camera.quaternion = quaternion
+        }
+        
+        // every 100ms, update geolocation direction (for drawing the arrow)
+        if (!this.geolocation.waitForNextQuaternionRead) {
+          let rotationZXY = new THREE.Euler().setFromQuaternion(quaternion, 'ZXY')
+          let rotationXZY = new THREE.Euler().setFromQuaternion(quaternion, 'XZY')
+          let tmpAlpha = (rotationZXY.x < Math.PI / 4 ? rotationZXY.z : rotationXZY.y)
+          let newAlpha = JSON.stringify((360 - utils.radiansToDegrees(tmpAlpha)) % 360)
+          this.geolocation.direction = (this.geolocation.rawDirection - newAlpha + 360) % 360
+          this.geolocation.waitForNextQuaternionRead = true
+          utils.setTimeout(() => { this.geolocation.waitForNextQuaternionRead = false }, 100)
+        }
+      } else {
+        // no gyroscope available => no quaternion property to get device's 3D orientation
+        
+        // => for RA steps, fallback is to use only distance
+        
+        // => for geolocation steps, only use event property "alpha" to update arrow direction & tell players to hold their device flat/horizontal
+        this.geolocation.direction = (this.geolocation.rawDirection + event.alpha) % 360
       }
-
-      // every 100ms, update geolocation direction (for drawing the arrow)
-      if (!this.geolocation.waitForNextQuaternionRead) {
-        let rotationZXY = new THREE.Euler().setFromQuaternion(quaternion, 'ZXY')
-        let rotationXZY = new THREE.Euler().setFromQuaternion(quaternion, 'XZY')
-        let tmpAlpha = (rotationZXY.x < Math.PI / 4 ? rotationZXY.z : rotationXZY.y)
-        let newAlpha = JSON.stringify((360 - utils.radiansToDegrees(tmpAlpha)) % 360)
-        this.geolocation.direction = (this.geolocation.rawDirection - newAlpha + 360) % 360
-        this.geolocation.waitForNextQuaternionRead = true
-        utils.setTimeout(() => { this.geolocation.waitForNextQuaternionRead = false }, 100)
-      }
+    },
+    onDeviceOrientationError(event) {
+      Notification(this.$t('label.CouldNotEnableAR'), 'warning')
     },
     /*
     * Detect object touch
@@ -4374,28 +4291,14 @@ export default {
       this.$store.dispatch('setDrawDirectionInterval', null)
     },
     /*
-    * handle motion event
-    * - mainly used by steps 'locate-item-ar'
-    * - used as well by steps 'geolocation' (only to detect if device has gyroscope)
+    * handle motion event only used by steps 'locate-item-ar'
     */
     handleMotionEvent (event) {
       let dm = this.deviceMotion
-      //let object
       let canProcess = true // can this method be entierely run? is all required data available?
 
-      // detect if device has gyroscope
-      // inspired from https://stackoverflow.com/a/33843234/488666
-      if (this.deviceHasGyroscope === null && !this.isIOs) {
-        this.deviceHasGyroscope = ("rotationRate" in event && "alpha" in event.rotationRate && event.rotationRate.alpha !== null)
-
-        if (this.step.type === 'geolocation') {
-          window.removeEventListener('devicemotion', this.handleMotionEvent, true)
-          return
-        }
-      }
-
       // save resources: do nothing with device motion while user GPS position is too far, or distance is unknown (first distance value must be computed by GPS)
-      if (!this.deviceHasGyroscope || this.geolocation.GPSdistance === null || this.geolocation.absoluteOrientationSensor === null || !this.geolocation.absoluteOrientationSensor.quaternion || isNaN(this.geolocation.position.x) || isNaN(this.geolocation.position.y)) {
+      if (!this.deviceHasGyroscope || this.geolocation.GPSdistance === null || isNaN(this.geolocation.position.x) || isNaN(this.geolocation.position.y)) {
         canProcess = false
       }
 
@@ -4413,10 +4316,6 @@ export default {
 
       let accel = event.acceleration
       let accelerationVector = new THREE.Vector3(accel.x, accel.y, accel.z)
-
-      // "cancel" device rotation on acceleration vector
-      /*let quaternion = new THREE.Quaternion().fromArray(this.geolocation.absoluteOrientationSensor.quaternion)
-      accelerationVector.applyQuaternion(quaternion)*/
 
       dm.acceleration.raw = accelerationVector
 
@@ -4451,7 +4350,7 @@ export default {
     checkPhoneVertically(event) {
       if (event.beta < 50 || event.beta > 130) {
         this.$refs.raVerticallyDialog.show()
-      } else {
+      } else if (this.$refs && this.$refs.raVerticallyDialog) {
         this.$refs.raVerticallyDialog.hide()
       }
     },
@@ -4470,29 +4369,6 @@ export default {
       if (!this.geolocation.canTouchTarget && this.geolocation.GPSdistance <= touchDistance) {
         this.geolocation.canTouchTarget = true
       }
-    },
-    /**
-     * Checks that property this.deviceHasGyroscope is either set to true or false
-     * Otherwise, tries again until it becomes not null
-     * @returns a promise
-     */
-    async waitForGyroscopeDetection () {
-      var self = this
-      return new Promise((resolve, reject) => {
-        if (this.deviceHasGyroscope !== null) {
-          resolve()
-        } else {
-          if (this.geolocation.gyroscopeDetectionCounter > 40) {
-            resolve()
-          } else {
-            this.geolocation.gyroscopeDetectionCounter++
-            utils.setTimeout(async () => {
-              await self.waitForGyroscopeDetection()
-              resolve()
-            }, 250)
-          }
-        }
-      })
     },
     /*
      * Enlarge the picture

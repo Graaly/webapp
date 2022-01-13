@@ -672,12 +672,13 @@ export default {
       // check number of simultaneous users
       await this.checkSimultaneousPlayers()
     },
-    /*
+    /**
      * Get a quest information
+     * MPA 2021-12-28 moved to QuestService.js but appeared again after merge => to remove here after a few months?
      * @param   {string}    id                    Quest ID
      * @param   {Boolean}   forceNetworkLoading   Force the quest to be loading from graaly server
      */
-    async getQuest(id, forceNetworkLoading) {
+    /*async getQuest(id, forceNetworkLoading) {
       // check if the quest data are not already saved on device
       let isQuestOfflineLoaded = await QuestService.isCached(id)
       
@@ -733,7 +734,7 @@ export default {
         }
       }
       return true
-    },
+    },*/
     /**
      * Show the calibration gif (if the quest has at least one geolocationn (or AR) step)
      * then start the quest

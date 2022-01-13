@@ -62,27 +62,14 @@ If no data from server is shown on webapp on Chrome (desktop or mobile), try to 
 
 Open console / terminal in the *webapp* folder
 
-:warning: Plugin [**phonegap-plugin-barcodescanner** v8.1.0 can make conflicts with other plugins using "com.google.xzing" library](https://github.com/phonegap/phonegap-plugin-barcodescanner/issues/535#issuecomment-536535462) (in particular, [**cordova-plugin-facebook4**](https://github.com/jeduan/cordova-plugin-facebook4)).
-Until this problem is fixed, do the following after `cordova platform add android`:
-* Open file `src-cordova/plugins/phonegap-plugin-barcodescanner/src/android/barcodescanner.gradle`
-* Add the following:
-```
-configurations {
-    compile.exclude group: 'com.google.zxing'
-}
-```
-If it still does not work:
-* Open file **src-cordova/plugins/phonegap-plugin-barcodescanner/plugin.xml**
-* Remove `android:required="true"` from `<uses-feature android:name="android.hardware.camera" android:required="true"/>`
+:warning: There can be conflicts between permissions & features requests of plugins **cordova-plugin-qrscanner**, **phonegap-plugin-media-stream** and **cordova-plugin-camera-preview** *(example error: Element uses-permission#android.permission.CAMERA at AndroidManifest.xml:21:3-87 duplicated with element declared at AndroidManifest.xml)*. To resolve:
+
+* Open files **src-cordova/plugins/{plugin name}/plugin.xml**
+* Remove or comment lines `<uses-feature android:name="android.hardware.camera" android:required="true"/>` and `<uses-permission android:name="android.permission.CAMERA" />` to avoid conflicts (leave only one plugin asking for permission/feature)
+* Once **plugin.xml** files are updated, run `cd src-cordova`, `cordova platform remove android`, `cordova platform add android` (see [here](https://stackoverflow.com/a/51854054/488666))
+
 * Open **\src-cordova\platforms\android\app\src\main\java\org\apache\cordova\facebook\ConnectPlugin.java**
 * Comment `AppEventsLogger.augmentWebView((WebView) this.webView.getView(), appContext);` (see [Ionic doc](https://enappd-apps.gitbook.io/apps/ionic-4-full-app/troubleshoot#5-error-cannot-find-symbol-appeventslogger-augmentwebview-webview-this-webview-getview-appcontext))
-
-:warning: npm package **ip-regex** is not compatible with Android 4.4 webview "as is". Quasar configuration (in version 1.0.0 beta 23) does not works for transpiling **ip-regex** using Babel. We have to do it manually for the moment.
-
-Procedure :
-
-    babel node_modules\ip-regex\index.js --out-file node_modules\ip-regex\index.js-es5
-    cd node_modules\ip-regex && mv index.js index.js-es6 && mv index.js-es5 index.js && cd ../..
 
 ### iPhone app
 

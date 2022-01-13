@@ -481,15 +481,13 @@ export default {
      */
     async initData () {
       this.$q.loading.show()
-
       try {
-        this.info.quest = await QuestService.getByIdForStep(this.questId)
+        this.info.quest = await QuestService.getByIdForStep(this.questId, 999, this.lang)
       } catch (err) {
         console.error(err)
         this.warnings.questDataMissing = true
         return
       }
-
       // Start audio
       this.getAudioSound()
 
@@ -1688,11 +1686,12 @@ export default {
 
       utils.setTimeout(this.computeRemainingTime, 1000)
     },
-    /*
+    /**
      * Get a quest information
+     * MPA 2021-12-28 moved to QuestService.js but appeared again after merge => to remove here after a few months?
      * @param   {string}    id             Quest ID
      */
-    async getQuest(id, forceNetworkLoading) {
+    /*async getQuest(id, forceNetworkLoading) {
       this.warnings.questDataMissing = false
 
       // force network loading based on quest configuration
@@ -1762,7 +1761,7 @@ export default {
           }
         }
       }
-    },
+    },*/
     /*
      * Select an item in the inventory
      * @param   {object}    item            Item selected

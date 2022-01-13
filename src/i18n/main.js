@@ -1281,7 +1281,7 @@ module.exports = {
       fileDownload: "Cette image a été téléchargée",
       notSupported: "Cette fonctionnalité n'est pas supportée sur cette plateforme",
       imageSavedToGallery: "Cette image est enregistrée dans votre galerie de photos",
-      imageSavedFailed: "Une erreur s'est produite lors de l'enregistrement de votre photo",
+      imageSavedFailed: "Une erreur s'est produite lors de l'enregistrement de votre photo"
     },
     samples: {
       sample1: "Jeu de piste linéaire et simple",

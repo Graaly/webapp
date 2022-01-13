@@ -3124,7 +3124,6 @@ export default {
     * Quest author selected the language he wants to use for typing quest & steps texts
     */
     async selectLanguage(selLang) {
-      
       this.languages.current = selLang
       
       // check if quest is already available for this lang
