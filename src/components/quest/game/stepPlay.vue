@@ -84,18 +84,31 @@
           <source :src="audio.file" type="audio/mpeg">
         </audio>
         <div style="position: absolute; top: 4px; right: 10px; z-index: 1000;">
-          <q-icon
-            v-if="audio.play"
-            @click="switchAudioSound"
-            :style="(customization && customization.color && customization.color !== '') ? 'text-color: ' + customization.color : ''"
-            :class="{'text-primary': (!customization || !customization.color || customization.color === '')}"
-            style="font-size: 2em;" name="pause_circle" />
-          <q-icon
-            v-if="!audio.play"
-            @click="switchAudioSound"
-            :style="(customization && customization.color && customization.color !== '') ? 'text-color: ' + customization.color : ''"
-            :class="{'text-primary': (!customization || !customization.color || customization.color === '')}"
-            style="font-size: 2em;" name="play_circle" />
+          <q-btn-group 
+            rounded
+            :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
+            :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+            style="color: #fff;"
+            >
+            <div style="padding: 4px;">{{ $t("label.Audio") }}</div>
+            <q-icon
+              @click="replayAudioSound"
+              name="replay_circle_filled"
+              style="font-size: 2em;"
+              />
+            <q-icon
+              v-if="audio.play"
+              @click="switchAudioSound"
+              name="pause_circle"
+              style="font-size: 2em;"
+              />
+            <q-icon
+              v-if="!audio.play"
+              @click="switchAudioSound"
+              name="play_circle"
+              style="font-size: 2em;"
+              />
+          </q-btn-group>
         </div>
       </div>
 
@@ -586,7 +599,7 @@
             <img class="no-mouse-event" style="width: 100%; " src="statics/icons/game/binoculars.png">
           </div>
         </div>
-        <div class="absolute text-white centered" style="width: 100%; left: 0px; right: 0px; bottom: 100px">
+        <div class="absolute text-white centered" style="width: 100%; left: 0px; right: 0px; bottom: 130px">
           {{ $t('label.MovePictureWithFinger')}}
         </div>
       </div>
@@ -4925,6 +4938,14 @@ export default {
           audio.play()
           this.audio.play = true
         }
+      }
+    },
+    replayAudioSound() {
+      var audio = document.getElementById("step-music")
+      if (audio) {
+        audio.currentTime = 0
+        audio.play()
+        this.audio.play = true
       }
     }
   }
