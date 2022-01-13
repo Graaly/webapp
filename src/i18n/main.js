@@ -1141,7 +1141,8 @@ module.exports = {
       arDialogTitle: "Authorization",
       arDialogMessage: "To continue, please authorize the application to use features of your device",
       qrCodeAlreadyScan: "You have already tried this QR Code",
-      qrCodeAlreadyGood: "You have already scanned the correct QR Code, go to the next step"
+      qrCodeAlreadyGood: "You have already scanned the correct QR Code, go to the next step",
+      Audio: "Audio"
     }
   },
   fr: {
@@ -2273,7 +2274,8 @@ module.exports = {
       arDialogTitle: "Autorisation",
       arDialogMessage: "Pour continuer, veuillez autoriser l'application à utiliser certaines fonctionnalités de votre appareil",
       qrCodeAlreadyScan: "Vous avez déjà essayé ce QR Code",
-      qrCodeAlreadyGood: "Vous avez déjà scanner le bon QR Code, passez à l'étape suivante"
+      qrCodeAlreadyGood: "Vous avez déjà scanner le bon QR Code, passez à l'étape suivante",
+      Audio: "Audio"
     }
   }
 }
