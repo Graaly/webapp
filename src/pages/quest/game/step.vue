@@ -442,7 +442,8 @@ export default {
         lang: this.$route.params.lang,
         offline: {
           active: true,
-          answer: null
+          answer: null,
+          steps: []
         },
         warnings: {
           inventoryMissing: false,
@@ -491,7 +492,6 @@ export default {
      * Init step data
      */
     async initData () {
-console.log("INIT DATA")
       this.$q.loading.show()
       try {
         this.info.quest = await QuestService.getByIdForStep(this.questId, 999, this.lang)
@@ -2099,7 +2099,7 @@ console.log("INIT DATA")
      * /!\ WARNING /!\ copied & adapted from server side file controller/run.js to handle online mode
      */
     async getNextOfflineStep(questId, markerCode, player, extra) {
-      var steps = []
+      //var steps = []
       let conditionsDone = this.run.conditionsDone
 
       if (!player) {
@@ -2116,10 +2116,10 @@ console.log("INIT DATA")
       }
 
       // read all steps
-      if (this.info.quest.steps) {
+      if (this.info.quest.steps && this.offline.steps.length < 1) {
         for (var i = 0; i < this.info.quest.steps.length; i++) {
           let step = await utils.readFile(questId, 'step_' + this.info.quest.steps[i] + '.json')
-          steps.push(JSON.parse(step))
+          this.offline.steps.push(JSON.parse(step))
         }
       }
 
@@ -2136,7 +2136,7 @@ console.log("INIT DATA")
       if (markerCode) {
         // list the marker steps for the chapter
         // TODO: get only the locate-marker for answers = marker
-        var markersSteps = await this.listSpecificTypeForAChapter(steps, chapter, 'locate-marker')
+        var markersSteps = await this.listSpecificTypeForAChapter(this.offline.steps, chapter, 'locate-marker')
         var stepsThatFit = []
         if (markersSteps && markersSteps.length > 0) {
           markerStepListFor:
@@ -2193,7 +2193,7 @@ console.log("INIT DATA")
       }
 
       // list the steps for the chapter
-      var stepsofChapter = await this.listForAChapter(steps, chapter, player)
+      var stepsofChapter = await this.listForAChapter(this.offline.steps, chapter, player)
       var locationMarkerFound = false
       var geolocationFound = false
 
@@ -2283,7 +2283,7 @@ console.log("INIT DATA")
               counter++
 
               // find if a step is triggered by counter value
-              let nextStepId = await this.findStepForCounterValueOffline(steps, questId, this.run.version, counter)
+              let nextStepId = await this.findStepForCounterValueOffline(this.offline.steps, questId, this.run.version, counter)
 
               // if no step triggered, call getnextstep again
               if (!nextStepId) {
@@ -2303,7 +2303,7 @@ console.log("INIT DATA")
               let nextStepId
 
               if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
-                this.removeAllConditionsOfAChapter(steps, conditionsDone, stepsofChapter[i].chapterId)
+                this.removeAllConditionsOfAChapter(this.offline.steps, conditionsDone, stepsofChapter[i].chapterId)
               } else {
                 nextStepId = await this.moveToNextChapter()
               }
