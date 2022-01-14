@@ -1,7 +1,17 @@
 <template>
   <div class="reduce-window-size-desktop">
-    <div class="centered bg-warning q-pa-sm" v-if="warnings.stepDataMissing" @click="initData()">
-      <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+    <div class="centered full-height bg-primary q-pa-sm" style="margin: auto;" v-if="warnings.questDataMissing || warnings.stepDataMissing || warnings.runDataMissing" @click="initData()">
+      <q-card class="my-card">
+        <q-card-section>
+          <div class="centered q-pt-lg">
+            <q-spinner-radio
+              color="primary"
+              size="2em"
+            />
+          </div>
+          <div class="centered q-py-lg">{{ $t('label.NetwordkErrorReloadPage') }}</div>
+        </q-card-section>
+      </q-card>
     </div>
     <div class="bg-accent text-white q-pa-md" v-if="warnings.isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     <div v-if="startDate.enabled" class="centered q-pa-lg">
@@ -409,6 +419,7 @@ export default {
           inventoryMissing: false,
           questDataMissing: false,
           stepDataMissing: false,
+          runDataMissing: false,
           isNetworkLow: false
         },
         feedback: {
@@ -455,8 +466,15 @@ export default {
     async initData () {
 
       this.$q.loading.show()
-      // get quest information
-      await this.getQuest(this.questId)
+      try {
+        this.info.quest = await QuestService.getByIdForStep(this.questId, 999, this.lang)
+      } catch (err) {
+        console.error(err)
+        this.$q.loading.hide()
+        this.warnings.questDataMissing = true
+        this.reloadPageInAWhile()
+        return
+      }
 
       // Start audio
       this.getAudioSound()
@@ -628,6 +646,7 @@ export default {
      * the offline run is used
      */
     async getRun() {
+      this.warnings.runDataMissing = false
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.questId)
       //runs = false // move offline
@@ -704,12 +723,14 @@ export default {
               this.runId = this.run._id
             }
           } else {
-            this.$q.dialog({
+            this.warnings.runDataMissing = true
+            this.reloadPageInAWhile()
+            /*this.$q.dialog({
               title: this.$t('label.TechnicalProblem'),
               message: this.$t('label.TechnicalProblemNetworkIssue')
             }).onOk(() => {
               this.$router.push('/quest/play/' + this.questId)
-            })
+            })*/
           }
           // set current score
           this.info.score = 0
@@ -895,6 +916,7 @@ export default {
           }
         } else {
           this.warnings.stepDataMissing = true
+          this.reloadPageInAWhile()
           return false
         }
       } else {
@@ -902,7 +924,8 @@ export default {
         const step = await utils.readFile(this.questId, 'step_' + stepId + '.json')
         if (!step) {
           if (forceNetworkLoading) {
-            this.warnings.questDataMissing = true
+            this.warnings.stepDataMissing = true
+            this.reloadPageInAWhile()
           } else {
             var stepLoadingStatus = await this.getStep(true, forceStepId)
             return stepLoadingStatus
@@ -1670,6 +1693,7 @@ export default {
           this.info.quest = response.data
         } else {
           this.warnings.questDataMissing = true
+          this.warnings.stepDataMissing = true
         }
       } else {
         // get quest data from device storage
@@ -1678,6 +1702,7 @@ export default {
         if (!quest) {
           if (forceNetworkLoading) {
             this.warnings.questDataMissing = true
+            this.warnings.stepDataMissing = true
           } else {
             var questLoadingStatus = await this.getQuest(id, true)
             return questLoadingStatus
@@ -2613,6 +2638,9 @@ export default {
         }
       }
       return counter;
+    },
+    reloadPageInAWhile() {
+      setTimeout(this.initData, 15000)
     }
     /*showNotif() {
       this.$q.notify({
