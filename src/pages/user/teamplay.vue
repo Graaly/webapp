@@ -54,6 +54,15 @@
               :loading="submitting" 
               />
           </div>
+          <div class="text-center" v-if="$route.query.redirect && $route.query.redirect !== ''">
+            <q-btn 
+              flat
+              class="large-btn"
+              color="primary" 
+              :label="$t('label.Back')"
+              @click="redirect()" 
+              />
+          </div>
           
         </form>
 
@@ -166,6 +175,9 @@ export default {
     },
     switchLanguage(lang) {
       this.$i18n.locale = lang
+    },
+    redirect() {
+      this.$router.push(this.$route.query.redirect)
     }
   },
   validations: {

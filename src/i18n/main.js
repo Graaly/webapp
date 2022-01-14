@@ -63,7 +63,7 @@ module.exports = {
       FindTheColorCodeDesc: "Player has to find the color code",
       FindTheImageCode: "Code with images",
       FindTheImageCodeDesc: "Player has to find the code based on images",
-      ImageOverFlow: "superimpose image and camera",
+      ImageOverFlow: "superimpose image and camera / Souvenir photo",
       ImageOverFlowDesc: "superimpose transparent image and camera flow",
       JigsawPuzzle: "Jigsaw Puzzle",
       JigsawPuzzleDesc: "Play a jigsaw puzzle based on your picture",
@@ -1143,7 +1143,9 @@ module.exports = {
       arDialogMessage: "To continue, please authorize the application to use features of your device",
       qrCodeAlreadyScan: "You have already tried this QR Code",
       qrCodeAlreadyGood: "You have already scanned the correct QR Code, go to the next step",
-      Audio: "Audio"
+      Audio: "Audio",
+      TeamPlay: "Team game",
+      TypeTeamPlayId: "Type the game ID if you received one."
     }
   },
   fr: {
@@ -1197,7 +1199,7 @@ module.exports = {
       FindTheColorCodeDesc: "Trouver une combinaison de couleurs",
       FindTheImageCode: "Code avec images",
       FindTheImageCodeDesc: "Trouver le code composé d'images",
-      ImageOverFlow: "Superposer image et caméra",
+      ImageOverFlow: "Superposer image et caméra / Photo souvenir",
       ImageOverFlowDesc: "Superposer une image transparente avec la caméra",
       JigsawPuzzle: "Puzzle",
       JigsawPuzzleDesc: "Remettre en place les pièces",
@@ -2277,7 +2279,9 @@ module.exports = {
       arDialogMessage: "Pour continuer, veuillez autoriser l'application à utiliser certaines fonctionnalités de votre appareil",
       qrCodeAlreadyScan: "Vous avez déjà essayé ce QR Code",
       qrCodeAlreadyGood: "Vous avez déjà scanner le bon QR Code, passez à l'étape suivante",
-      Audio: "Audio"
+      Audio: "Audio",
+      TeamPlay: "Jeu d'équipe",
+      TypeTeamPlayId: "Tapez l'ID du jeu si vous en avez reçu un."
     }
   }
 }
