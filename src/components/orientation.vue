@@ -78,9 +78,9 @@ export default {
       if (this.disabled || this.status === 'started') {
         return
       }
-      
+
       await this.detectGyroscope()
-      
+
       // Android without gyroscope: use only 'deviceorientationabsolute' event
       if (this.isHybrid && !this.isIOs && !this.isSafari && !this.deviceHasGyroscope) {
         window.addEventListener("deviceorientationabsolute", this.handleDeviceOrientationEvent, true)
@@ -96,18 +96,19 @@ export default {
             this.sensor.onreading = this.absoluteOrientationSensorSuccess
             this.sensor.start()
           } else if (this.isSafari) {
+            console.log("IS SAFARI")
             // WEB APP IOS
             if (typeof (DeviceMotionEvent) === "undefined") {
               this.noSensorFound = true
               return
             }
-            this.geolocation.absoluteOrientationSensor = {
+            this.sensor = {
               stop: this.stopAlternateAbsoluteOrientationSensor
             }
             window.addEventListener('deviceorientation', this.eventAlternateAbsoluteOrientationSensor, false)
           } else {
             // iOS
-            this.geolocation.absoluteOrientationSensor = {
+            this.sensor = {
               stop: this.stopAlternateAbsoluteOrientationSensor
             }
 
@@ -123,7 +124,7 @@ export default {
           console.error(error)
         }
       }
-      
+
       // reaching this point without error/return means that
       // orientation events detection is active
       this.status = 'started'
@@ -220,7 +221,7 @@ export default {
       // inspired from https://stackoverflow.com/a/33843234/488666
       if (this.deviceHasGyroscope === null && !this.isIOs) {
         this.deviceHasGyroscope = ("rotationRate" in event && "alpha" in event.rotationRate && event.rotationRate.alpha !== null)
-        
+
         window.removeEventListener('devicemotion', this.handleMotionEvent, true)
       }
     }
