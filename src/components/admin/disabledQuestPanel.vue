@@ -204,6 +204,7 @@ export default {
      */
     async confirmDeleteQuest() {
       console.log('delete quest : ' + this.deleteQ.questId + ' - version : ' + this.deleteQ.version)
+      // TODO: Quest delete action from serveur
       this.$refs.adminDeleteDialog.hide()
       this.deleteQ.questId = null
       this.deleteQ.version = null
