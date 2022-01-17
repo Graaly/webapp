@@ -91,10 +91,10 @@ export default {
    * It uses local caching mechanism & uses Vuex store info about network
    * to decide if it should call server or retrieve local data
    * @param   {String}    id                  ID of the quest
-   * @param   {Number}    version             version of the quest
+   * @param   {Number}    version             version of the quest (999 allows to get latest version)
    * @param   {String}    lang                language
    */
-  async getByIdForStep(id, version = 999, lang = "default") {
+  async getByIdForStep(id, version, lang) {
     // Note: quest.customization.forceOnline info is stored in Vuex store & cannot be used for this method
     
     if (!window.cordova) {
@@ -122,7 +122,7 @@ export default {
     }
     
     // reaching this point means that we have to retrieve quest data from local cache
-    return this.getByIdOffline(id, version, lang)
+    return this.getByIdOffline(id, lang)
   },
   /**
    * get a quest based on its ID (online mode)
@@ -140,8 +140,9 @@ export default {
   /**
    * get a quest based on its ID (offline mode)
    * @param   {String}    id                  ID of the quest
+   * @param   {String}    lang                language
    */
-  async getByIdOffline(id) {
+  async getByIdOffline(id, lang) {
     // get quest data from device storage
     let quest = await utils.readFile(id, 'quest_' + id + '.json')
     
@@ -151,7 +152,7 @@ export default {
     
     quest = JSON.parse(quest)
 
-    const pictureUrl = await utils.readBinaryFile(id, quest.picture[this.lang])
+    const pictureUrl = await utils.readBinaryFile(id, quest.picture[lang])
     if (pictureUrl) {
       quest.picture = pictureUrl
     }
@@ -165,12 +166,12 @@ export default {
     // get customized sound
     if (quest.customization && quest.customization.audio) {
       let mainLang = quest.mainLanguage
-      if (quest.customization.audio[this.lang] && quest.customization.audio[this.lang] !== '') {
-        const audioUrl = await utils.readBinaryFile(id, quest.customization.audio[this.lang])
+      if (quest.customization.audio[lang] && quest.customization.audio[lang] !== '') {
+        const audioUrl = await utils.readBinaryFile(id, quest.customization.audio[lang])
         if (audioUrl) {
-          quest.customization.audio[this.lang] = audioUrl
+          quest.customization.audio[lang] = audioUrl
         }
-      } else if (this.lang !== mainLang && quest.customization.audio[mainLang] && quest.customization.audio[mainLang] !== '') {
+      } else if (lang !== mainLang && quest.customization.audio[mainLang] && quest.customization.audio[mainLang] !== '') {
         // no audio available in current language => try to load audio for main language if different from current language 
         const audioUrl = await utils.readBinaryFile(id, quest.customization.audio[mainLang])
         if (audioUrl) {

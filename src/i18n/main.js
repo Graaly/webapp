@@ -63,7 +63,7 @@ module.exports = {
       FindTheColorCodeDesc: "Player has to find the color code",
       FindTheImageCode: "Code with images",
       FindTheImageCodeDesc: "Player has to find the code based on images",
-      ImageOverFlow: "superimpose image and camera",
+      ImageOverFlow: "superimpose image and camera / Souvenir photo",
       ImageOverFlowDesc: "superimpose transparent image and camera flow",
       JigsawPuzzle: "Jigsaw Puzzle",
       JigsawPuzzleDesc: "Play a jigsaw puzzle based on your picture",
@@ -557,6 +557,7 @@ module.exports = {
       contactUsPro: `You can find our professional services on <a href="${websiteBaseURL}" target="_blank">${websiteBaseURL}</a> or contact us at <a href="mailto:${salesEmail}">${salesEmail}</a>.`,
       GeolocationNotSupported: "Sorry, geolocation is not supported by your device.",
       TechnicalErrorReloadPage: "Technical issue, press to refresh",
+      NetwordkErrorReloadPage: "Network issue! We will try to reload page in 15 seconds.",
       TechnicalProblemNetworkIssue: "Please check your network or try again later",
       Search: "Search",
       CurrentScore: "Current score",
@@ -1141,7 +1142,10 @@ module.exports = {
       arDialogTitle: "Authorization",
       arDialogMessage: "To continue, please authorize the application to use features of your device",
       qrCodeAlreadyScan: "You have already tried this QR Code",
-      qrCodeAlreadyGood: "You have already scanned the correct QR Code, go to the next step"
+      qrCodeAlreadyGood: "You have already scanned the correct QR Code, go to the next step",
+      Audio: "Audio",
+      TeamPlay: "Team game",
+      TypeTeamPlayId: "Type the game ID if you received one."
     }
   },
   fr: {
@@ -1195,7 +1199,7 @@ module.exports = {
       FindTheColorCodeDesc: "Trouver une combinaison de couleurs",
       FindTheImageCode: "Code avec images",
       FindTheImageCodeDesc: "Trouver le code composé d'images",
-      ImageOverFlow: "Superposer image et caméra",
+      ImageOverFlow: "Superposer image et caméra / Photo souvenir",
       ImageOverFlowDesc: "Superposer une image transparente avec la caméra",
       JigsawPuzzle: "Puzzle",
       JigsawPuzzleDesc: "Remettre en place les pièces",
@@ -1280,7 +1284,7 @@ module.exports = {
       fileDownload: "Cette image a été téléchargée",
       notSupported: "Cette fonctionnalité n'est pas supportée sur cette plateforme",
       imageSavedToGallery: "Cette image est enregistrée dans votre galerie de photos",
-      imageSavedFailed: "Une erreur s'est produite lors de l'enregistrement de votre photo",
+      imageSavedFailed: "Une erreur s'est produite lors de l'enregistrement de votre photo"
     },
     samples: {
       sample1: "Jeu de piste linéaire et simple",
@@ -1689,6 +1693,7 @@ module.exports = {
       contactUsPro: `Vous pouvez retrouver nos offres professionnelles sur <a href="${websiteBaseURL}" target="_blank">${websiteBaseURL}</a> ou nous contacter à <a href="mailto:${salesEmail}">${salesEmail}</a>.`,
       GeolocationNotSupported: "Désolé, votre appareil ne permet pas la géolocalisation.",
       TechnicalErrorReloadPage: "Problème technique, appuyez pour relancer",
+      NetwordkErrorReloadPage: "Problème réseau ! Nous allons essayer de recharger la page dans 15 secondes.",
       TechnicalProblemNetworkIssue: "Veuillez vérifier que vous avez du réseau mobile ou retestez plus tard",
       Search: "Rechercher",
       CurrentScore: "Score actuel",
@@ -2273,7 +2278,10 @@ module.exports = {
       arDialogTitle: "Autorisation",
       arDialogMessage: "Pour continuer, veuillez autoriser l'application à utiliser certaines fonctionnalités de votre appareil",
       qrCodeAlreadyScan: "Vous avez déjà essayé ce QR Code",
-      qrCodeAlreadyGood: "Vous avez déjà scanner le bon QR Code, passez à l'étape suivante"
+      qrCodeAlreadyGood: "Vous avez déjà scanner le bon QR Code, passez à l'étape suivante",
+      Audio: "Audio",
+      TeamPlay: "Jeu d'équipe",
+      TypeTeamPlayId: "Tapez l'ID du jeu si vous en avez reçu un."
     }
   }
 }

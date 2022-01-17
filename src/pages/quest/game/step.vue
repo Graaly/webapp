@@ -1,7 +1,17 @@
 <template>
   <div class="reduce-window-size-desktop">
-    <div class="centered bg-warning q-pa-sm" v-if="warnings.stepDataMissing" @click="initData()">
-      <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
+    <div class="centered full-height bg-primary q-pa-sm" style="margin: auto;" v-if="warnings.questDataMissing || warnings.stepDataMissing || warnings.runDataMissing" @click="initData()">
+      <q-card class="my-card">
+        <q-card-section>
+          <div class="centered q-pt-lg">
+            <q-spinner-radio
+              color="primary"
+              size="2em"
+            />
+          </div>
+          <div class="centered q-py-lg">{{ $t('label.NetwordkErrorReloadPage') }}</div>
+        </q-card-section>
+      </q-card>
     </div>
     <div class="bg-accent text-white q-pa-md" v-if="warnings.isNetworkLow">{{ $t('label.WarningLowNetwork') }}</div>
     <div v-if="startDate.enabled" class="centered q-pa-lg">
@@ -200,9 +210,6 @@
     <!--====================== HINT =================================-->
 
     <div class="mobile-fit over-map" :class="'font-' + info.quest.customization.font" v-if="hint.isOpened">
-      <div class="fixed-top bg-black text-white centered q-pa-md">
-        {{ $t('label.MyScore') }} {{ run.tempScore }} / {{ info.quest.availablePoints.score }}
-      </div>
       <story step="hint" :data="{hint: hint.label, character: (info.quest.customization && info.quest.customization.character && info.quest.customization.character !== '') ? (info.quest.customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + info.quest.customization.character : info.quest.customization.character) : '3'}" @next="askForHint()"></story>
     </div>
 
@@ -435,12 +442,14 @@ export default {
         lang: this.$route.params.lang,
         offline: {
           active: true,
-          answer: null
+          answer: null,
+          steps: []
         },
         warnings: {
           inventoryMissing: false,
           questDataMissing: false,
           stepDataMissing: false,
+          runDataMissing: false,
           isNetworkLow: false
         },
         feedback: {
@@ -484,15 +493,15 @@ export default {
      */
     async initData () {
       this.$q.loading.show()
-
       try {
-        this.info.quest = await QuestService.getByIdForStep(this.questId)
+        this.info.quest = await QuestService.getByIdForStep(this.questId, 999, this.lang)
       } catch (err) {
         console.error(err)
+        this.$q.loading.hide()
         this.warnings.questDataMissing = true
+        this.reloadPageInAWhile()
         return
       }
-
       // Start audio
       this.getAudioSound()
 
@@ -658,6 +667,7 @@ export default {
      * the offline run is used
      */
     async getRun() {
+      this.warnings.runDataMissing = false
       // List all run for this quest for current user
       var runs = await RunService.listForAQuest(this.questId)
       //runs = false // move offline
@@ -734,12 +744,14 @@ export default {
               this.runId = this.run._id
             }
           } else {
-            this.$q.dialog({
+            this.warnings.runDataMissing = true
+            this.reloadPageInAWhile()
+            /*this.$q.dialog({
               title: this.$t('label.TechnicalProblem'),
               message: this.$t('label.TechnicalProblemNetworkIssue')
             }).onOk(() => {
               this.$router.push('/quest/play/' + this.questId)
-            })
+            })*/
           }
           // set current score
           this.info.score = 0
@@ -925,6 +937,7 @@ export default {
           }
         } else {
           this.warnings.stepDataMissing = true
+          this.reloadPageInAWhile()
           return false
         }
       } else {
@@ -932,7 +945,8 @@ export default {
         const step = await utils.readFile(this.questId, 'step_' + stepId + '.json')
         if (!step) {
           if (forceNetworkLoading) {
-            this.warnings.questDataMissing = true
+            this.warnings.stepDataMissing = true
+            this.reloadPageInAWhile()
           } else {
             var stepLoadingStatus = await this.getStep(true, forceStepId)
             return stepLoadingStatus
@@ -1691,11 +1705,12 @@ export default {
 
       utils.setTimeout(this.computeRemainingTime, 1000)
     },
-    /*
+    /**
      * Get a quest information
+     * MPA 2021-12-28 moved to QuestService.js but appeared again after merge => to remove here after a few months?
      * @param   {string}    id             Quest ID
      */
-    async getQuest(id, forceNetworkLoading) {
+    /*async getQuest(id, forceNetworkLoading) {
       this.warnings.questDataMissing = false
 
       // force network loading based on quest configuration
@@ -1765,7 +1780,7 @@ export default {
           }
         }
       }
-    },
+    },*/
     /*
      * Select an item in the inventory
      * @param   {object}    item            Item selected
@@ -2084,7 +2099,7 @@ export default {
      * /!\ WARNING /!\ copied & adapted from server side file controller/run.js to handle online mode
      */
     async getNextOfflineStep(questId, markerCode, player, extra) {
-      var steps = []
+      //var steps = []
       let conditionsDone = this.run.conditionsDone
 
       if (!player) {
@@ -2101,10 +2116,10 @@ export default {
       }
 
       // read all steps
-      if (this.info.quest.steps) {
+      if (this.info.quest.steps && this.offline.steps.length < 1) {
         for (var i = 0; i < this.info.quest.steps.length; i++) {
           let step = await utils.readFile(questId, 'step_' + this.info.quest.steps[i] + '.json')
-          steps.push(JSON.parse(step))
+          this.offline.steps.push(JSON.parse(step))
         }
       }
 
@@ -2121,7 +2136,7 @@ export default {
       if (markerCode) {
         // list the marker steps for the chapter
         // TODO: get only the locate-marker for answers = marker
-        var markersSteps = await this.listSpecificTypeForAChapter(steps, chapter, 'locate-marker')
+        var markersSteps = await this.listSpecificTypeForAChapter(this.offline.steps, chapter, 'locate-marker')
         var stepsThatFit = []
         if (markersSteps && markersSteps.length > 0) {
           markerStepListFor:
@@ -2178,7 +2193,7 @@ export default {
       }
 
       // list the steps for the chapter
-      var stepsofChapter = await this.listForAChapter(steps, chapter, player)
+      var stepsofChapter = await this.listForAChapter(this.offline.steps, chapter, player)
       var locationMarkerFound = false
       var geolocationFound = false
 
@@ -2268,7 +2283,7 @@ export default {
               counter++
 
               // find if a step is triggered by counter value
-              let nextStepId = await this.findStepForCounterValueOffline(steps, questId, this.run.version, counter)
+              let nextStepId = await this.findStepForCounterValueOffline(this.offline.steps, questId, this.run.version, counter)
 
               // if no step triggered, call getnextstep again
               if (!nextStepId) {
@@ -2288,7 +2303,7 @@ export default {
               let nextStepId
 
               if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
-                this.removeAllConditionsOfAChapter(steps, conditionsDone, stepsofChapter[i].chapterId)
+                this.removeAllConditionsOfAChapter(this.offline.steps, conditionsDone, stepsofChapter[i].chapterId)
               } else {
                 nextStepId = await this.moveToNextChapter()
               }
@@ -2647,6 +2662,9 @@ export default {
       if (!this.info.quest.customization || !this.info.quest.customization.hideFullScreen) {
         document.addEventListener("deviceready", this.swithFullscreenMode, false)
       }
+    },
+    reloadPageInAWhile() {
+      setTimeout(this.initData, 15000)
     }
     /*showNotif() {
       this.$q.notify({
