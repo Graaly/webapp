@@ -84,7 +84,7 @@
           <source :src="audio.file" type="audio/mpeg">
         </audio>
         <div style="position: absolute; top: 4px; right: 10px; z-index: 1000;">
-          <q-btn-group 
+          <q-btn-group
             rounded
             :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
             :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
@@ -921,7 +921,7 @@
 
     <!-- keep orientation detection active during all quest duration -->
     <orientation ref="orientation-component" @success="onNewDeviceOrientation($event)" @error="onDeviceOrientationError($event)" :disabled="!quest.hasGeolocationSteps" />
-    
+
     <!--====================== WIN POINTS ANIMATION =================================-->
 
     <!--<div v-show="playerResult === true && score >= 1" class="fadein-message">+{{ score }}</div>-->
@@ -1583,12 +1583,12 @@ export default {
 
             // user can pass
             this.$emit('pass')
-            
+
             // start devicemotion sensor (helps to check if phone is moving or not)
             if (this.deviceHasGyroscope) {
               window.addEventListener("devicemotion", this.handleMotionEvent, true)
             }
-            
+
             if (this.step.type === 'geolocation' && this.isHybrid && !this.isIOs && !this.isSafari && !this.deviceHasGyroscope) {
               Notification(this.$t('label.PleaseHoldYourDeviceFlat'))
             }
@@ -4033,15 +4033,15 @@ export default {
         console.warn('sensor is not activated')
         return
       }
-      
+
       if (this.deviceHasGyroscope) {
         // if event has quaternion (= device has a gyroscope), update camera rotation so it matches device orientation
         let quaternion = new THREE.Quaternion().fromArray(event.quaternion)
-        
+
         if (this.step.type === 'locate-item-ar' && this.geolocation.target !== null && this.deviceHasGyroscope && !this.geolocation.playerTouchedArObject) {
           this.geolocation.target.camera.quaternion = quaternion
         }
-        
+
         // every 100ms, update geolocation direction (for drawing the arrow)
         if (!this.geolocation.waitForNextQuaternionRead) {
           let rotationZXY = new THREE.Euler().setFromQuaternion(quaternion, 'ZXY')
@@ -4054,9 +4054,9 @@ export default {
         }
       } else {
         // no gyroscope available => no quaternion property to get device's 3D orientation
-        
+
         // => for RA steps, fallback is to use only distance
-        
+
         // => for geolocation steps, only use event property "alpha" to update arrow direction & tell players to hold their device flat/horizontal
         this.geolocation.direction = (this.geolocation.rawDirection + event.alpha) % 360
       }
