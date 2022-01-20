@@ -625,7 +625,7 @@ export default {
       this.player = await this.getPlayer()
 
       // get current step
-      await this.getStep(forceStepId)
+      await this.getStep(false, forceStepId)
 
       // send stepId to parent if in a frame
       this.sendStepIdToParent()
@@ -808,19 +808,22 @@ export default {
       }
       return 'P1'
     },
-    /**
+    /*
      * Get the step data
-     * @param   {String}    forceStepId   Optional - Id of step to load or a special keyword such as 'end'
      */
-    async getStep (forceStepId) {
+    async getStep (forceNetworkLoading, forceStepId) {
       let userIsAuthor = this.$store.state.user._id === this.info.quest.authorUserId
       let userIsEditor = Array.isArray(this.info.quest.editorsUserId) && this.info.quest.editorsUserId.includes(this.$store.state.user._id)
-      
-      this.$store.setForceOnline(this.$store.state.user.isAdmin || userIsAuthor || userIsEditor || (this.info.quest.customization && this.info.quest.customization.forceOnline))
+
+      let forceOnline = this.$store.state.user.isAdmin || userIsAuthor || userIsEditor
 
       this.warnings.stepDataMissing = false
       var stepId
 
+      // force network loading based on quest configuration
+      if (this.info.quest.customization && this.info.quest.customization.forceOnline) {
+        forceNetworkLoading = true
+      }
       // if no stepId given, load the next one
       //if (this.$route.params.stepId && this.$route.params.stepId !== '0' && this.$route.params.stepId.indexOf('success_') === -1 && this.$route.params.stepId.indexOf('pass_') === -1) {
       if (forceStepId) {
@@ -828,7 +831,7 @@ export default {
       } else {
         var response
 
-        if (this.$store.state.networkMode === 'online' || this.$store.state.forceOnline) {
+        if (!this.offline.active || forceOnline) {
           response = await RunService.getNextStep(this.questId, this.player)
 
           if (response && response.status !== 200) {
@@ -922,13 +925,11 @@ export default {
       if (stepId === 'end') {
         return this.$router.push('/quest/' + this.questId + '/end')
       }
-      
-      // --- get step data, from device storage if possible, even if mode is online ---
-      
-      // check if the step data are not already saved on device
+
+      // check if the quest data are not already saved on device
       let isStepOfflineLoaded = await this.checkIfStepIsAlreadyLoaded(stepId)
 
-      if (!isStepOfflineLoaded || this.$store.state.forceOnline) {
+      if (!isStepOfflineLoaded || forceNetworkLoading) {
         const response2 = await StepService.getById(stepId, this.questVersion, this.lang)
         if (response2 && response2.data && response2.status === 200) {
           if (response2.data && response2.data.message) {
@@ -950,10 +951,10 @@ export default {
           return false
         }
       } else {
-        // get step data from device storage
+        // get quest data from device storage
         const step = await utils.readFile(this.questId, 'step_' + stepId + '.json')
         if (!step) {
-          if (this.$store.state.forceOnline) {
+          if (forceNetworkLoading) {
             this.warnings.stepDataMissing = true
             this.reloadPageInAWhile()
           } else {
@@ -1264,7 +1265,7 @@ export default {
       var next
       var response
       // get the next step after the marker
-      if (this.$store.state.networkMode === 'online') {
+      if (!this.offline.active) {
         response = await RunService.getMarkerNextStep(this.questId, answer, this.player)
       }
 
@@ -1307,7 +1308,7 @@ export default {
       var next
       var response
       // get the next step after the marker
-      if (this.$store.state.networkMode === 'online') {
+      if (!this.offline.active) {
         response = await RunService.getNextStep(this.questId, this.player)
       }
 
@@ -1434,7 +1435,7 @@ export default {
       }
     },
     async passStep() {
-      if (this.$store.state.networkMode === 'online') {
+      if (!this.offline.active) {
         await RunService.passStep(this.runId, this.step.id, this.player)
       }
 
@@ -1514,7 +1515,7 @@ export default {
      */
     async getHint() {
       var hintLabel
-      if (this.$store.state.networkMode === 'online') {
+      if (!this.offline.active) {
         hintLabel = await RunService.getHint(this.runId, this.step.stepId, this.run.version)
       }
 
@@ -1564,7 +1565,7 @@ export default {
       this.warnings.inventoryMissing = false
       // load items won on previous steps
       var response
-      if (this.$store.state.networkMode === 'online') {
+      if (!this.offline.active) {
         response = await RunService.listWonObjects(this.questId, this.runId)
       }
 
