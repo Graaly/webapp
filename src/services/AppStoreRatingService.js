@@ -73,9 +73,10 @@ export default {
   hasAlreadyHavePopup() {
     var already = window.localStorage.getItem("alreadyAsked");
     if (already === "true" || already === "false") {
+      console.log("has already awensered");
       return already;
     } else if (already === "later") {
-      //answered to do it later
+      //awwensered to do it later
       var storedDate = window.localStorage.getItem("futuredate");
       //If the stored date is before the current date
       if (new Date(storedDate) < new Date()) {

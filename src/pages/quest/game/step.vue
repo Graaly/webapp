@@ -510,6 +510,7 @@ export default {
       this.loadStepData = false
 
       // get current run or create it
+      //await this.getRun() // on sync mode to load step while run is checked
       await this.getRun()
 
       // get Player number
@@ -619,6 +620,7 @@ export default {
       this.loadStepData = false
 
       // get current run or create it
+      //await this.getRun() // on sync mode to load step while run is checked
       await this.getRun()
 
       // get Player number
@@ -658,104 +660,34 @@ export default {
       // load component data
       this.loadStepData = true
     },
-    /**
-     * Get the current run (creates it if necessary)
+    /*
+     * Get the current run or create it
      *
      * The process try to get the run from server, but if not accessable or older than the offline version,
      * the offline run is used
      */
     async getRun() {
-      const isRunOfflineLoaded = await this.checkIfRunIsAlreadyLoaded(this.questId)
-      let remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
-      let dataSharedWithPartner = (this.$route.query.hasOwnProperty('sharepartner') && this.$route.query.sharepartner === 'true')
-      let offlineRun
-      
-      // For the moment, the only possibility is to switch from online to offline mode
-      // to keep the logic simple. Switching several times between online/offline modes
-      // is currently not supported (complexity + more latency for players)
-      if (window.cordova && this.$store.state.networkMode === 'offline' && !this.$store.state.forceOnline) {
-        if (!isRunOfflineLoaded) {
-          // if first step => init run
-          await this.updateOfflineRun(this.questId)
-        } else {
-          try {
-            offlineRun = await this.loadOfflineRun(this.questId)
-          } catch (err) {
-            Notification(this.$t('label.TechnicalProblemNetworkIssue'), 'error')
-            console.error(err)
-            throw new Error("Could not load run for quest " + this.questId)
-          }
-          
-          this.run = offlineRun
-          if (this.run._id) {
-            this.runId = this.run._id
-          }
-          // get current score
-          this.info.score = this.run.tempScore
-        }
-      } else {
-        // List all runs for this quest for current user
-        let runs = await RunService.listForAQuest(this.questId)
-        
-        if (!runs || !runs.data) {
-          // Here we assume that if "listForAQuest()" returns no data, it is due
-          // to a network problem => switch to offline mode & call getRun() again.
-          // I would suggest to raise exceptions with different error types
-          // in the listForAQuest() call, to distinguish between "NetworkTimeoutError" and
-          // other problems. However that would need a more deep rework => to be discussed.
-          this.$store.commit('setNetworkMode', 'online')
-          this.getRun()
-          return
-        }
-        
-        let latestRun = runs.data[runs.data.length - 1]
-        
-        if (latestRun.status === 'in-progress') {
-          this.run = latestRun
-          this.runId = this.run._id
-          
-          // get current score
-          this.info.score = this.run.tempScore
-          
-          // MPA previous logic allowing to switch between online & offline modes
-          /*if (res && res.status === 200 && res.data && res.data._id) {
-            if (isRunOfflineLoaded) {
-              // if a offline run already exists
-              let offlineRun = await this.loadOfflineRun(this.questId)
-              this.run = offlineRun
+      this.warnings.runDataMissing = false
+      // List all run for this quest for current user
+      var runs = await RunService.listForAQuest(this.questId)
+      //runs = false // move offline
 
-              this.run._id = res.data._id
-              this.runId = this.run._id
-              if (!this.run.questId) {
-                this.run.questId = this.questId
-                this.run.version = this.questVersion
-              }
-              await RunService.updateFromOffline(this.run)
-            } else {
-              this.run = res.data
-              this.runId = this.run._id
-            }
-          } else {
-            this.$q.dialog({
-              title: this.$t('label.TechnicalProblem'),
-              message: this.$t('label.TechnicalProblemNetworkIssue')
-            }).onOk(() => {
-              this.$router.push('/quest/play/' + this.questId)
-            })
-          }*/
-        } else {
-          // no 'in-progress' run => create run for current player & current quest
-          let res = await RunService.init(this.questId, this.questVersion, this.$route.params.lang, remotePlay, null, dataSharedWithPartner)
-          
-          this.run = res.data
-          this.runId = this.run._id
-          
-          // set current score
-          this.info.score = 0
-        }
-        
-        // MPA keeping previous logic allowing to switch several times between online/offline modes
-        /*for (let i = 0; i < runs.data.length; i++) {
+      var currentChapter = 0
+      var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
+      var dataSharedWithPartner = (this.$route.query.hasOwnProperty('sharepartner') && this.$route.query.sharepartner === 'true')
+
+      // check if a run is created on offline mode
+      const isRunOfflineLoaded = await this.checkIfRunIsAlreadyLoaded(this.questId)
+      if (isRunOfflineLoaded) {
+        // read the run
+        var offlineRun = await this.loadOfflineRun(this.questId)
+      }
+
+      // check if run is accessable from server
+      if (runs && runs.data) {
+        this.offline.active = false
+
+        for (var i = 0; i < runs.data.length; i++) {
           if (runs.data[i] && runs.data[i].status && runs.data[i].status === 'finished') {
             this.isRunFinished = true
           }
@@ -789,9 +721,67 @@ export default {
               }
             }
           }
-        }*/
-        
-        // update offline run data in case of network failure
+        }
+
+        // init the run on the server
+        if (currentChapter === 0) {
+          // no 'in-progress' run => create run for current player & current quest
+          let res = await RunService.init(this.questId, this.questVersion, this.$route.params.lang, remotePlay, null, dataSharedWithPartner)
+          if (res && res.status === 200 && res.data && res.data._id) {
+            if (isRunOfflineLoaded) {
+              // if a offline run already exists
+              this.run = offlineRun
+
+              this.run._id = res.data._id
+              this.runId = this.run._id
+              if (!this.run.questId) {
+                this.run.questId = this.questId
+                this.run.version = this.questVersion
+              }
+              await RunService.updateFromOffline(this.run)
+            } else {
+              this.run = res.data
+              this.runId = this.run._id
+            }
+          } else {
+            this.warnings.runDataMissing = true
+            this.reloadPageInAWhile()
+            /*this.$q.dialog({
+              title: this.$t('label.TechnicalProblem'),
+              message: this.$t('label.TechnicalProblemNetworkIssue')
+            }).onOk(() => {
+              this.$router.push('/quest/play/' + this.questId)
+            })*/
+          }
+          // set current score
+          this.info.score = 0
+        } else {
+          // get current score
+          this.info.score = this.run.tempScore
+        }
+      } else {
+        this.offline.active = true
+
+        // if the run is not accessable, read the offline one
+        if (isRunOfflineLoaded) {
+          if (offlineRun) {
+            this.run = offlineRun
+            if (this.run._id) {
+              this.runId = this.run._id
+            }
+            // get current score
+            this.info.score = this.run.tempScore
+            // set chapter
+            currentChapter = this.run.currentChapter
+          }
+        } else {
+          // if first step => init run
+          await this.updateOfflineRun(this.questId)
+        }
+      }
+
+      // init the offline run
+      if (currentChapter === 0) {
         await this.updateOfflineRun(this.questId)
       }
     },
@@ -1715,6 +1705,82 @@ export default {
 
       utils.setTimeout(this.computeRemainingTime, 1000)
     },
+    /**
+     * Get a quest information
+     * MPA 2021-12-28 moved to QuestService.js but appeared again after merge => to remove here after a few months?
+     * @param   {string}    id             Quest ID
+     */
+    /*async getQuest(id, forceNetworkLoading) {
+      this.warnings.questDataMissing = false
+
+      // force network loading based on quest configuration
+      if (this.info.quest.customization && this.info.quest.customization.forceOnline) {
+        forceNetworkLoading = true
+      }
+
+      // check if the quest data are not already saved on device
+      let isQuestOfflineLoaded = await QuestService.isCached(id)
+
+      if (!isQuestOfflineLoaded || forceNetworkLoading) {
+        let response = await QuestService.getLastById(id)
+        if (response && response.data) {
+          this.info.quest = response.data
+        } else {
+          this.warnings.questDataMissing = true
+        }
+      } else {
+        // get quest data from device storage
+        const quest = await utils.readFile(id, 'quest_' + id + '.json')
+
+        if (!quest) {
+          if (forceNetworkLoading) {
+            this.warnings.questDataMissing = true
+          } else {
+            var questLoadingStatus = await this.getQuest(id, true)
+            return questLoadingStatus
+          }
+        } else {
+          this.info.quest = JSON.parse(quest)
+
+          const pictureUrl = await utils.readBinaryFile(id, this.info.quest.picture[this.lang])
+          if (pictureUrl) {
+            this.info.quest.picture[this.lang] = pictureUrl
+          } else {
+            this.info.quest.picture[this.lang] = '_default-quest-picture.jpg'
+          }
+          // get customized logo
+          if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo !== '') {
+            const logoUrl = await utils.readBinaryFile(id, this.info.quest.customization.logo)
+            if (logoUrl) {
+              this.info.quest.customization.logo = logoUrl
+            }
+          }
+          // get customized sound
+          if (this.info.quest.customization && this.info.quest.customization.audio) {
+            let mainLang = this.info.quest.mainLanguage
+            if (this.info.quest.customization.audio[this.lang] && this.info.quest.customization.audio[this.lang] !== '') {
+              const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio[this.lang])
+              if (audioUrl) {
+                this.info.quest.customization.audio[this.lang] = audioUrl
+              }
+            } else if (this.lang !== mainLang && this.info.quest.customization.audio[mainLang] && this.info.quest.customization.audio[mainLang] !== '') {
+              // no audio available in current language => try to load audio for main language if different from current language
+              const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio[mainLang])
+              if (audioUrl) {
+                this.info.quest.customization.audio[mainLang] = audioUrl
+              }
+            }
+          }
+          // get customized hint character
+          if (this.info.quest.customization && this.info.quest.customization.character && this.info.quest.customization.character !== '') {
+            const characterUrl = await utils.readBinaryFile(id, this.info.quest.customization.character)
+            if (characterUrl) {
+              this.info.quest.customization.character = characterUrl
+            }
+          }
+        }
+      }
+    },*/
     /*
      * Select an item in the inventory
      * @param   {object}    item            Item selected
