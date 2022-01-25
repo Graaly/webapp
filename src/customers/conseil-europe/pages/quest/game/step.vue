@@ -45,6 +45,7 @@
         :player="player"
         :timer="countDownTime"
         :quest="info.quest"
+        :offline="offline.active"
         @played="trackStepPlayed"
         @success="trackStepSuccess"
         @fail="trackStepFail"
@@ -402,6 +403,7 @@ export default {
         run: {},
         runId: 0,
         player: 'P1',
+        isMultiplayer: false,
         isRunFinished: false,
         remotePlay: false,
         dataSharedWithPartner: false,
@@ -413,7 +415,8 @@ export default {
         lang: this.$route.params.lang,
         offline: {
           active: true,
-          answer: null
+          answer: null,
+          steps: []
         },
         warnings: {
           inventoryMissing: false,
@@ -458,13 +461,12 @@ export default {
       //this.countDownTime = defaultVars.countDownTime
       this.startDate = defaultVars.startDate
       this.footer = defaultVars.footer
-      this.offline = defaultVars.offline
+      //this.offline = defaultVars.offline // offline info must not be reset between steps
     },
     /*
      * Init step data
      */
     async initData () {
-
       this.$q.loading.show()
       try {
         this.info.quest = await QuestService.getByIdForStep(this.questId, 999, this.lang)
@@ -475,7 +477,11 @@ export default {
         this.reloadPageInAWhile()
         return
       }
-
+      
+      this.isMultiplayer = this.info.quest.playersNumber && this.info.quest.playersNumber > 1
+            
+      this.initOfflineMode()
+      
       // Start audio
       this.getAudioSound()
 
@@ -597,14 +603,13 @@ export default {
       this.loadStepData = false
 
       // get current run or create it
-      //await this.getRun() // on sync mode to load step while run is checked
       await this.getRun()
 
       // get Player number
       this.player = await this.getPlayer()
 
       // get current step
-      await this.getStep(false, forceStepId)
+      await this.getStep(forceStepId)
 
       // send stepId to parent if in a frame
       this.sendStepIdToParent()
@@ -647,101 +652,98 @@ export default {
      */
     async getRun() {
       this.warnings.runDataMissing = false
-      // List all run for this quest for current user
-      var runs = await RunService.listForAQuest(this.questId)
-      //runs = false // move offline
 
       var currentChapter = 0
       var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
       var dataSharedWithPartner = (this.$route.query.hasOwnProperty('sharepartner') && this.$route.query.sharepartner === 'true')
+      let offlineRun
 
       // check if a run is created on offline mode
       const isRunOfflineLoaded = await this.checkIfRunIsAlreadyLoaded(this.questId)
       if (isRunOfflineLoaded) {
         // read the run
-        var offlineRun = await this.loadOfflineRun(this.questId)
+        offlineRun = await this.loadOfflineRun(this.questId)
       }
+      
+      if (!this.offline.active || currentChapter === 0) {
+        // List all run for this quest for current user
+        var runs = await RunService.listForAQuest(this.questId)
+        
+        // check if run is accessable from server
+        if (runs && runs.data) {
+          for (var i = 0; i < runs.data.length; i++) {
+            if (runs.data[i] && runs.data[i].status && runs.data[i].status === 'finished') {
+              this.isRunFinished = true
+            }
+            if (runs.data[i] && runs.data[i].status && runs.data[i].status === 'in-progress') {
+              this.run = runs.data[i]
+              this.runId = this.run._id
 
-      // check if run is accessable from server
-      if (runs && runs.data) {
-        this.offline.active = false
+              currentChapter = runs.data[i].currentChapter
 
-        for (var i = 0; i < runs.data.length; i++) {
-          if (runs.data[i] && runs.data[i].status && runs.data[i].status === 'finished') {
-            this.isRunFinished = true
-          }
-          if (runs.data[i] && runs.data[i].status && runs.data[i].status === 'in-progress') {
-            this.run = runs.data[i]
-            this.runId = this.run._id
+              // update the offline run or the online depending on the last updated
+              if (isRunOfflineLoaded) {
+                if (offlineRun.dateUpdated > this.run.dateUpdated) {
+                  const tempId = this.run._id
+                  this.run = offlineRun
+                  // fix when id is not set
+                  if (!this.run._id) {
+                    this.run._id = tempId
+                    this.runId = tempId
+                  }
+                  if (!this.run.questId) {
+                    this.run.questId = this.questId
+                    this.run.version = this.questVersion
+                  }
+                  // save run changes in DB
+                  await RunService.updateFromOffline(this.run)
+                } else {
+                  // the answers are the offline one
+                  this.run.answers = offlineRun.answers
 
-            currentChapter = runs.data[i].currentChapter
-
-            // update the offline run or the online depending on the last updated
-            if (isRunOfflineLoaded) {
-              if (offlineRun.dateUpdated > this.run.dateUpdated) {
-                const tempId = this.run._id
-                this.run = offlineRun
-                // fix when id is not set
-                if (!this.run._id) {
-                  this.run._id = tempId
-                  this.runId = tempId
+                  await this.updateOfflineRun(this.questId)
                 }
+              }
+            }
+          }
+
+          // init the run on the server
+          if (currentChapter === 0) {
+            // no 'in-progress' run => create run for current player & current quest
+            let res = await RunService.init(this.questId, this.questVersion, this.$route.params.lang, remotePlay, null, dataSharedWithPartner)
+            if (res && res.status === 200 && res.data && res.data._id) {
+              if (isRunOfflineLoaded) {
+                // if a offline run already exists
+                this.run = offlineRun
+
+                this.run._id = res.data._id
+                this.runId = this.run._id
                 if (!this.run.questId) {
                   this.run.questId = this.questId
                   this.run.version = this.questVersion
                 }
-                // save run changes in DB
                 await RunService.updateFromOffline(this.run)
               } else {
-                // the answers are the offline one
-                this.run.answers = offlineRun.answers
-
-                await this.updateOfflineRun(this.questId)
+                this.run = res.data
+                this.runId = this.run._id
               }
-            }
-          }
-        }
-
-        // init the run on the server
-        if (currentChapter === 0) {
-          // no 'in-progress' run => create run for current player & current quest
-          let res = await RunService.init(this.questId, this.questVersion, this.$route.params.lang, remotePlay, null, dataSharedWithPartner)
-          if (res && res.status === 200 && res.data && res.data._id) {
-            if (isRunOfflineLoaded) {
-              // if a offline run already exists
-              this.run = offlineRun
-
-              this.run._id = res.data._id
-              this.runId = this.run._id
-              if (!this.run.questId) {
-                this.run.questId = this.questId
-                this.run.version = this.questVersion
-              }
-              await RunService.updateFromOffline(this.run)
             } else {
-              this.run = res.data
-              this.runId = this.run._id
+              this.warnings.runDataMissing = true
+              this.reloadPageInAWhile()
             }
+            // set current score
+            this.info.score = 0
           } else {
-            this.warnings.runDataMissing = true
-            this.reloadPageInAWhile()
-            /*this.$q.dialog({
-              title: this.$t('label.TechnicalProblem'),
-              message: this.$t('label.TechnicalProblemNetworkIssue')
-            }).onOk(() => {
-              this.$router.push('/quest/play/' + this.questId)
-            })*/
+            // get current score
+            this.info.score = this.run.tempScore
           }
-          // set current score
-          this.info.score = 0
         } else {
-          // get current score
-          this.info.score = this.run.tempScore
+          this.warnings.runDataMissing = true
+          this.reloadPageInAWhile()
+          return false
         }
       } else {
-        this.offline.active = true
-
-        // if the run is not accessable, read the offline one
+        // read offline run
         if (isRunOfflineLoaded) {
           if (offlineRun) {
             this.run = offlineRun
@@ -752,16 +754,14 @@ export default {
             this.info.score = this.run.tempScore
             // set chapter
             currentChapter = this.run.currentChapter
+            
+            // attempt to save run changes in DB (not blocking => no "await")
+            RunService.updateFromOffline(this.run)
           }
         } else {
           // if first step => init run
           await this.updateOfflineRun(this.questId)
         }
-      }
-
-      // init the offline run
-      if (currentChapter === 0) {
-        await this.updateOfflineRun(this.questId)
       }
     },
     /*
@@ -777,50 +777,25 @@ export default {
       }
       return 'P1'
     },
-    /*
+    /**
      * Get the step data
+     * @param    {String}    forceStepId    optional - Id of a specific step to load
      */
-    async getStep (forceNetworkLoading, forceStepId) {
-      let userIsAuthor = this.$store.state.user._id === this.info.quest.authorUserId
-      let userIsEditor = Array.isArray(this.info.quest.editorsUserId) && this.info.quest.editorsUserId.includes(this.$store.state.user._id)
-
-      let forceOnline = this.$store.state.user.isAdmin || userIsAuthor || userIsEditor
-
-      this.warnings.stepDataMissing = false
-      var stepId
-
-      // force network loading based on quest configuration
-      if (this.info.quest.customization && this.info.quest.customization.forceOnline) {
-        forceNetworkLoading = true
+    async getStep (forceStepId) {
+      let stepId, response
+      
+      if (this.warnings.questDataMissing || this.warnings.runDataMissing) {
+        return false
       }
-      // if no stepId given, load the next one
-      //if (this.$route.params.stepId && this.$route.params.stepId !== '0' && this.$route.params.stepId.indexOf('success_') === -1 && this.$route.params.stepId.indexOf('pass_') === -1) {
-      if (forceStepId) {
+      
+      this.warnings.stepDataMissing = false
+      
+      // --- load step Id ---
+
+      if (typeof forceStepId !== 'undefined') {
         stepId = forceStepId
-      } else {
-        var response
-
-        if (!this.offline.active || forceOnline) {
-          response = await RunService.getNextStep(this.questId, this.player)
-
-          if (response && response.status !== 200) {
-            if (response.data.message === "app_quest_data_is_obsolete") {
-              this.$q.dialog({
-                title: this.$t('label.QuestUpdated'),
-                message: this.$t('label.PleaseRestartQuest')
-              }).onOk(() => {
-                this.$router.push('/quest/play/' + this.questId)
-              })
-            } else {
-              this.$q.dialog({
-                title: this.$t('label.TechnicalProblem')
-              }).onOk(() => {
-                this.$router.push('/quest/play/' + this.questId)
-              })
-            }
-            return false
-          }
-        }
+      } else if (!this.offline.active) {
+        response = await RunService.getNextStep(this.questId, this.player)
 
         if (response && response.data && response.status === 200) {
           // check if a step is triggered
@@ -850,44 +825,57 @@ export default {
             }
           } else {
             // display waiting screen
-            if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+            if (this.isMultiplayer) {
               this.showWaitingPage()
             }
             this.getPreviousStep()
             return false
           }
+        } else if (response && response.data && response.data.message === "app_quest_data_is_obsolete") {
+          this.$q.dialog({
+            title: this.$t('label.QuestUpdated'),
+            message: this.$t('label.PleaseRestartQuest')
+          }).onOk(() => {
+            this.$router.push('/quest/play/' + this.questId)
+          })
         } else {
-          // use offline content
-          const stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player)
+          this.$q.dialog({
+            title: this.$t('label.TechnicalProblem')
+          }).onOk(() => {
+            this.$router.push('/quest/play/' + this.questId)
+          })
+        }
+      } else {
+        // use offline content
+        const stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player)
 
-          if (!stepIdResponse || !stepIdResponse.id) {
-            // if no step is triggered, display the waiting screen
-            if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
-              this.showWaitingPage()
-            }
-            this.getPreviousStep()
-            return false
-          } else {
-            stepId = stepIdResponse.id
+        if (!stepIdResponse || !stepIdResponse.id) {
+          // if no step is triggered, display the waiting screen
+          if (this.isMultiplayer) {
+            this.showWaitingPage()
           }
-          if (stepId === 'locationMarker') {
-            // QR Code scanner step
-            this.step = {
-              id: "sensor"
-            }
-            return false
+          this.getPreviousStep()
+          return false
+        } else {
+          stepId = stepIdResponse.id
+        }
+        if (stepId === 'locationMarker') {
+          // QR Code scanner step
+          this.step = {
+            id: "sensor"
           }
-          if (stepId === 'geolocation') {
-            // Gps location sensor step
-            this.step = {
-              id: "gpssensor",
-              locations: stepIdResponse.extra.locations,
-              steps: stepIdResponse.extra.geosteps,
-              questId: this.questId,
-              version: this.questVersion
-            }
-            return false
+          return false
+        }
+        if (stepId === 'geolocation') {
+          // Gps location sensor step
+          this.step = {
+            id: "gpssensor",
+            locations: stepIdResponse.extra.locations,
+            steps: stepIdResponse.extra.geosteps,
+            questId: this.questId,
+            version: this.questVersion
           }
+          return false
         }
       }
 
@@ -895,16 +883,13 @@ export default {
         return this.$router.push('/quest/' + this.questId + '/end')
       }
 
-      // check if the quest data are not already saved on device
-      let isStepOfflineLoaded = await this.checkIfStepIsAlreadyLoaded(stepId)
+      // --- load step data & media ---
 
-      if (!isStepOfflineLoaded || forceNetworkLoading) {
+      if (!this.offline.active) {
         const response2 = await StepService.getById(stepId, this.questVersion, this.lang)
         if (response2 && response2.data && response2.status === 200) {
-          if (response2.data && response2.data.message) {
-            if (response2.data.message === 'Step not yet available') {
-              this.showStepBlockedMessage(response2.data.startDate)
-            }
+          if (response2.data.message && response2.data.message === 'Step not yet available') {
+            this.showStepBlockedMessage(response2.data.startDate)
           } else {
             this.step = response2.data
             this.step.id = this.step.stepId
@@ -913,6 +898,7 @@ export default {
             if (this.step.hint) {
               this.hint.remainingNumber = this.step.hint.length
             }
+            return true
           }
         } else {
           this.warnings.stepDataMissing = true
@@ -923,15 +909,13 @@ export default {
         // get quest data from device storage
         const step = await utils.readFile(this.questId, 'step_' + stepId + '.json')
         if (!step) {
-          if (forceNetworkLoading) {
-            this.warnings.stepDataMissing = true
-            this.reloadPageInAWhile()
-          } else {
-            var stepLoadingStatus = await this.getStep(true, forceStepId)
-            return stepLoadingStatus
-          }
+          this.$q.dialog({
+            title: this.$t('label.TechnicalProblem')
+          }).onOk(() => {
+            this.$router.push('/quest/play/' + this.questId)
+          })
         } else {
-          var tempStep = JSON.parse(step)
+          let tempStep = JSON.parse(step)
 
           if (tempStep.hint) {
             this.hint.remainingNumber = tempStep.hint.length
@@ -954,7 +938,7 @@ export default {
             }
           }
           if (tempStep.videoStream && tempStep.videoStream[this.lang] && tempStep.videoStream[this.lang] !== '') {
-            const videoUrl = await utils.readBinaryFile(this.questId, tempStep.videoStream)
+            const videoUrl = await utils.readBinaryFile(this.questId, tempStep.videoStream[this.lang])
             if (videoUrl) {
               tempStep.videoStream[this.lang] = videoUrl
             } else {
@@ -1025,7 +1009,13 @@ export default {
             }
           }
           if (tempStep.type === 'new-item' && tempStep.options && tempStep.options.picture && tempStep.options.picture !== '') {
-            const itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
+            let itemImageUrl
+            // check if a translated picture is proposed
+            if (tempStep.options.pictures && tempStep.options.pictures[this.lang] && tempStep.options.pictures[this.lang] !== '') {
+              itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.pictures[this.lang])
+            } else {
+              itemImageUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture)
+            }
             if (itemImageUrl) {
               tempStep.options.picture = itemImageUrl
               if (tempStep.options.hasOwnProperty('pictures') && tempStep.options.pictures[this.lang]) {
@@ -1673,83 +1663,6 @@ export default {
       utils.setTimeout(this.computeRemainingTime, 1000)
     },
     /*
-     * Get a quest information
-     * @param   {string}    id             Quest ID
-     */
-    async getQuest(id, forceNetworkLoading) {
-      this.warnings.questDataMissing = false
-
-      // force network loading based on quest configuration
-      if (this.info.quest.customization && this.info.quest.customization.forceOnline) {
-        forceNetworkLoading = true
-      }
-
-      // check if the quest data are not already saved on device
-      let isQuestOfflineLoaded = await QuestService.isCached(id)
-
-      if (!isQuestOfflineLoaded || forceNetworkLoading) {
-        let response = await QuestService.getLastById(id)
-        if (response && response.data) {
-          this.info.quest = response.data
-        } else {
-          this.warnings.questDataMissing = true
-          this.warnings.stepDataMissing = true
-        }
-      } else {
-        // get quest data from device storage
-        const quest = await utils.readFile(id, 'quest_' + id + '.json')
-
-        if (!quest) {
-          if (forceNetworkLoading) {
-            this.warnings.questDataMissing = true
-            this.warnings.stepDataMissing = true
-          } else {
-            var questLoadingStatus = await this.getQuest(id, true)
-            return questLoadingStatus
-          }
-        } else {
-          this.info.quest = JSON.parse(quest)
-
-          const pictureUrl = await utils.readBinaryFile(id, this.info.quest.picture[this.lang])
-          if (pictureUrl) {
-            this.info.quest.picture[this.lang] = pictureUrl
-          } else {
-            this.info.quest.picture[this.lang] = '_default-quest-picture.jpg'
-          }
-          // get customized logo
-          if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo !== '') {
-            const logoUrl = await utils.readBinaryFile(id, this.info.quest.customization.logo)
-            if (logoUrl) {
-              this.info.quest.customization.logo = logoUrl
-            }
-          }
-          // get customized sound
-          if (this.info.quest.customization && this.info.quest.customization.audio) {
-            let mainLang = this.info.quest.mainLanguage
-            if (this.info.quest.customization.audio[this.lang] && this.info.quest.customization.audio[this.lang] !== '') {
-              const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio[this.lang])
-              if (audioUrl) {
-                this.info.quest.customization.audio[this.lang] = audioUrl
-              }
-            } else if (this.lang !== mainLang && this.info.quest.customization.audio[mainLang] && this.info.quest.customization.audio[mainLang] !== '') {
-              // no audio available in current language => try to load audio for main language if different from current language
-              const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio[mainLang])
-              if (audioUrl) {
-                this.info.quest.customization.audio[mainLang] = audioUrl
-              }
-            }
-          }
-          // get customized hint character
-          if (this.info.quest.customization && this.info.quest.customization.character && this.info.quest.customization.character !== '') {
-            const characterUrl = await utils.readBinaryFile(id, this.info.quest.customization.character)
-            if (characterUrl) {
-              this.info.quest.customization.character = characterUrl
-            }
-          }
-        }
-      }
-    },
-    /*
      * Select an item in the inventory
      * @param   {object}    item            Item selected
      */
@@ -1854,7 +1767,7 @@ export default {
      */
     async loadOfflineRun(questId) {
       // offline mode not activated for multiplayer
-      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+      if (this.isMultiplayer) {
         return false
       }
       const run = await utils.readFile(this.questId, 'run_' + questId + '.json')
@@ -1870,7 +1783,7 @@ export default {
      */
     async updateOfflineRun(questId) {
       // offline mode not activated for multiplayer
-      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+      if (this.isMultiplayer) {
         return false
       }
       if (this.run && this.run.questId) {
@@ -1921,7 +1834,7 @@ export default {
      */
     async saveOfflineAnswer(success, answer, updateRunDate) {
       // offline mode not activated for multiplayer
-      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+      if (this.isMultiplayer) {
         return false
       }
       // check if user has already played this step in current run
@@ -2020,7 +1933,7 @@ export default {
      */
     async passOfflineStep(stepId) {
       // offline mode not activated for multiplayer
-      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+      if (this.isMultiplayer) {
         return false
       }
       this.run.conditionsDone = this.updateConditions(this.run.conditionsDone, stepId, false, this.step.type, true, this.player)
@@ -2032,7 +1945,7 @@ export default {
      */
     async offlineCheckAccess(step) {
       // offline mode not activated for multiplayer
-      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+      if (this.isMultiplayer) {
         return false
       }
       if (step && step.startDate && step.startDate.enabled && step.startDate.date) {
@@ -2051,7 +1964,7 @@ export default {
      */
     async saveOfflineRun(questId, run, updateDate) {
       // offline mode not activated for multiplayer
-      if (this.info.quest.playersNumber && this.info.quest.playersNumber > 1) {
+      if (this.isMultiplayer) {
         return false
       }
       if (updateDate) {
@@ -2071,7 +1984,7 @@ export default {
      * /!\ WARNING /!\ copied & adapted from server side file controller/run.js to handle online mode
      */
     async getNextOfflineStep(questId, markerCode, player, extra) {
-      var steps = []
+      //var steps = []
       let conditionsDone = this.run.conditionsDone
 
       if (!player) {
@@ -2088,10 +2001,10 @@ export default {
       }
 
       // read all steps
-      if (this.info.quest.steps) {
+      if (this.info.quest.steps && this.offline.steps.length < 1) {
         for (var i = 0; i < this.info.quest.steps.length; i++) {
           let step = await utils.readFile(questId, 'step_' + this.info.quest.steps[i] + '.json')
-          steps.push(JSON.parse(step))
+          this.offline.steps.push(JSON.parse(step))
         }
       }
 
@@ -2108,7 +2021,7 @@ export default {
       if (markerCode) {
         // list the marker steps for the chapter
         // TODO: get only the locate-marker for answers = marker
-        var markersSteps = await this.listSpecificTypeForAChapter(steps, chapter, 'locate-marker')
+        var markersSteps = await this.listSpecificTypeForAChapter(this.offline.steps, chapter, 'locate-marker')
         var stepsThatFit = []
         if (markersSteps && markersSteps.length > 0) {
           markerStepListFor:
@@ -2163,7 +2076,7 @@ export default {
       }
 
       // list the steps for the chapter
-      var stepsofChapter = await this.listForAChapter(steps, chapter, player)
+      var stepsofChapter = await this.listForAChapter(this.offline.steps, chapter, player)
       var locationMarkerFound = false
       var geolocationFound = false
 
@@ -2253,7 +2166,7 @@ export default {
               counter++
 
               // find if a step is triggered by counter value
-              let nextStepId = await this.findStepForCounterValueOffline(steps, questId, this.run.version, counter)
+              let nextStepId = await this.findStepForCounterValueOffline(this.offline.steps, questId, this.run.version, counter)
 
               // if no step triggered, call getnextstep again
               if (!nextStepId) {
@@ -2273,7 +2186,7 @@ export default {
               let nextStepId
 
               if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
-                this.removeAllConditionsOfAChapter(steps, conditionsDone, stepsofChapter[i].chapterId)
+                this.removeAllConditionsOfAChapter(this.offline.steps, conditionsDone, stepsofChapter[i].chapterId)
               } else {
                 nextStepId = await this.moveToNextChapter()
               }
@@ -2641,6 +2554,13 @@ export default {
     },
     reloadPageInAWhile() {
       setTimeout(this.initData, 15000)
+    },
+    initOfflineMode() {
+      let forceOnlineQuestOption = this.info.quest.customization && this.info.quest.customization.forceOnline
+      let userIsAuthor = this.$store.state.user._id === this.info.quest.authorUserId
+      let userIsEditor = Array.isArray(this.info.quest.editorsUserId) && this.info.quest.editorsUserId.includes(this.$store.state.user._id)
+      
+      this.offline.active = !(this.isMultiplayer || forceOnlineQuestOption || !this.isHybrid || userIsAuthor || userIsEditor || this.$store.state.user.isAdmin)
     }
     /*showNotif() {
       this.$q.notify({
