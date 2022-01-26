@@ -1,5 +1,6 @@
 <template>
   <div class="q-pa-md" :class="isHybrid ? '' : 'full-height'">
+    <!-- WEB APP VERSION -->
     <div v-if="!isHybrid">
       <qrcode-stream @decode="onDecode" :camera="camera" @init="onInit" :torch="torchActive" class="q-mb-md">
         <div v-show="showScanConfirmation" class="scan-confirmation">
@@ -28,6 +29,7 @@
         @click="switchCamera"
       />
     </div>
+    <!-- MOBILE VERSION -->
     <div v-else>
       <div class="q-pa-lg absolute-bottom-left" style="padding-bottom: 100px">
         <q-btn
@@ -46,7 +48,6 @@
           icon="cameraswitch"
           @click="changeCamera"
         />
-
       </div>
       <div class="text-center absolute-bottom" style="bottom: 50px">
       </div>
@@ -86,6 +87,7 @@ export default {
   },
   methods: {
     // HYBRID METHOD
+    /* CallBack to Prepare Method, check if the status is authorized to use Device Camera */
     isDone(err, status) {
       if (err) {
         console.log(err)
@@ -97,9 +99,11 @@ export default {
         Notification(this.$t('qrCode.unauthorized'), 'error')
       }
     },
+    /* Scan Method */
     scan() {
       QRScanner.scan(this.displayResult)
     },
+    /* Enable or Disable Light feature */
     toggleLight() {
       QRScanner.getStatus(status => {
         if (status.canEnableLight) {
@@ -111,6 +115,7 @@ export default {
         }
       })
     },
+    /* Change Device Camera */
     changeCamera() {
       if (this.usedCamera === 0) {
         this.usedCamera = 1
@@ -125,6 +130,7 @@ export default {
       }
       QRScanner.useCamera(this.usedCamera)
     },
+    /* Check the code and emit result to parent, every 4 seconds */
     displayResult(err, scanResult) {
       if (err) {
         Notification(this.$t('qrCode.scanError'), 'error')
@@ -135,6 +141,7 @@ export default {
       }
     },
     // WEBAPP METHOD WITH BUG IN IOS AND SAFARI
+    /* Decode the QrCode and emit the result to parent */
     async onDecode (code) {
       this.result = await code
       let temp = this.camera
@@ -155,6 +162,7 @@ export default {
         window.setTimeout(resolve, ms)
       })
     },
+    /* Switch front and back Camera */
     async switchCamera () {
       switch (this.camera) {
         case 'front':
@@ -165,26 +173,8 @@ export default {
           break
       }
     },
+    /* onInit Method  */
     async onInit () {
-      /*try {
-        const { capabilities } = await promise
-        this.torchNotSupported = !capabilities.torch
-      } catch (error) {
-        const triedFrontCamera = this.camera === 'front'
-        const triedRearCamera = this.camera === 'rear'
-        const cameraMissingError = error.name === 'OverconstrainedError'
-
-        if (triedRearCamera && cameraMissingError) {
-          this.noRearCamera = true
-        }
-        if (triedFrontCamera && cameraMissingError) {
-          this.noFrontCamera = true
-        }
-        console.error(error)
-      } finally {
-        this.start = this.camera !== 'off'
-        this.showScanConfirmation = this.camera === "off"
-      }*/
       this.torchNotSupported = true
       this.start = this.camera !== 'off'
       this.showScanConfirmation = this.camera === "off"

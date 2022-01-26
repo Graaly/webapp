@@ -1,6 +1,28 @@
 <template>
-  <div class="scroll background-dark">
-    <div id="teaser" class="reduce-window-size-desktop" :class="{'loaded': pageReady}">
+  <div class="scroll" :class="(multiplayer.showScanner || shop.showScanner) ? 'bg-transparent' : 'background-dark'">
+    <div v-if="multiplayer.showScanner">
+      <!--====================== QR CODE READER FOR MULTIPLAYER =================================-->
+      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
+        <div class="float-right no-underline close-btn q-pa-sm" @click="closeMultiplayerQRCodeReader"><q-icon name="close" class="subtitle1" /></div>
+        {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
+      </div>
+
+      <qr-code-stream
+        v-on:QrCodeResult="checkTeamCode"
+      />
+    </div>
+    <div v-if="shop.showScanner">
+      <!--====================== QR CODE READER FOR TIER PAIMENT =================================-->
+      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
+        <div class="float-right no-underline close-btn q-pa-sm" @click="closeTierPaymentQRCode"><q-icon name="close" class="subtitle1" /></div>
+        {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
+      </div>
+
+      <qr-code-stream
+        v-on:QrCodeResult="checkTierPaymentCode"
+      />
+    </div>
+    <div id="teaser" v-if="!shop.showScanner && !multiplayer.showScanner" class="reduce-window-size-desktop" :class="{'loaded': pageReady}">
       <!------------------ MAIN INFORMATION AREA ------------------------>
       
       <div v-if="(!quest || !quest.status) && !warning.questNotLoaded" class="centered q-pa-lg">
@@ -455,10 +477,12 @@ import utils from 'src/includes/utils'
 import Notification from 'boot/NotifyHelper'
 import gpscalibration from 'components/gpsCalibration'
 import debounce from 'lodash/debounce'
+import qrCodeStream from "../../../components/qrCodeStream";
 
 export default {
   components: {
     shop,
+    qrCodeStream,
     offlineLoader,
     gpscalibration
   },
@@ -472,6 +496,7 @@ export default {
       playStep: 0,
       shop: {
         show: false,
+        showScanner: false,
         premiumQuest: {
           priceCode: 'free',
           priceValue: '0',
@@ -502,6 +527,7 @@ export default {
       showRewardsPopup: false,
       showPreloaderPopup: false,
       multiplayer: {
+        showScanner: false,
         show: false,
         team: '',
         qrcode: ''
@@ -645,68 +671,6 @@ export default {
       
       // check number of simultaneous users
       await this.checkSimultaneousPlayers()
-    },
-    /*
-     * Get a quest information
-     * @param   {string}    id                    Quest ID
-     * @param   {Boolean}   forceNetworkLoading   Force the quest to be loading from graaly server
-     */
-    async getQuest(id, forceNetworkLoading) {
-      // check if the quest data are not already saved on device
-      let isQuestOfflineLoaded = await QuestService.isCached(id)
-      
-      if (!isQuestOfflineLoaded || forceNetworkLoading) {
-        this.offline.active = false
-        if (this.$route.params.qrcode) {
-          // Check the QR code and unlock the quest
-          await QuestService.checkQRCode(this.$route.params.qrcode, this.$t('label.shortLang'))
-        }
-        // get the last version accessible by user depending on user access
-        let response = await QuestService.getLastById(id)
-        if (response && response.data && response.status === 200) {
-          this.quest = response.data
-          if (typeof this.quest.authorUserId !== 'undefined') {
-            response = await AuthService.getAccount(this.quest.authorUserId)
-            if (response && response.data) {
-              this.$set(this.quest, 'author', response.data)
-            }
-            this.quest.description = utils.replaceBreakByBR(this.quest.description)
-          }
-        } else {
-          this.$q.dialog({
-            dark: true,
-            title: this.$t('label.TechnicalProblem'),
-            message: this.$t('label.TechnicalProblemNetworkIssue'),
-            ok: this.$t('label.BackToMap')
-          }).onOk(() => {
-            this.backToTheMap()
-          })
-          throw new Error("Could not load quest with questId = '" + id + "'")
-        }
-      } else {
-        this.offline.active = true
-        // get quest data from device storage
-        const quest = await utils.readFile(id, 'quest_' + id + '.json')
-
-        if (!quest) {
-          if (forceNetworkLoading) {
-            this.warning.questNotLoaded = true
-          } else {
-            var questLoadingStatus = await this.getQuest(id, true)
-            return questLoadingStatus
-          }
-        } else {
-          this.quest = JSON.parse(quest)
-
-          const pictureUrl = await utils.readBinaryFile(id, this.quest.picture[this.getLanguage()])
-          if (pictureUrl) {
-            this.quest.picture = pictureUrl
-          } else {
-            this.quest.picture = '_default-quest-picture.jpg'
-          }
-        }
-      }
-      return true
     },
     /**
      * Show the calibration gif (if the quest has at least one geolocationn (or AR) step)
@@ -1132,7 +1096,9 @@ export default {
      * Scan a QR Code to join a team
      */
     scanMultiplayerQRCode() {
-      var _this = this
+      this.multiplayer.showScanner = true
+      this.multiplayer.show = false
+      /*var _this = this
       if (this.isHybrid) {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
@@ -1161,13 +1127,18 @@ export default {
             disableSuccessBeep: false // iOS and Android
           }
         )
-      }
+      }*/
+    },
+    closeMultiplayerQRCodeReader() {
+      this.multiplayer.showScanner = false
     },
     /*
      * Scan a QR Code to buy a quest using tier QR code
      */
     scanTierPaymentQRCode() {
-      var _this = this
+      this.shop.showScanner = true
+      this.shop.show = false
+      /*var _this = this
       if (this.isHybrid) {
         cordova.plugins.barcodeScanner.scan(
           function (result) {
@@ -1192,7 +1163,10 @@ export default {
             disableSuccessBeep: false // iOS and Android
           }
         )
-      }
+      }*/
+    },
+    closeTierPaymentQRCode() {
+      this.shop.showScanner = false
     },
     /*
      * Check a team code

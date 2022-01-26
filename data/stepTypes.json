@@ -98,7 +98,7 @@
     "description": "FindALocationDesc",
     "showTrick": "yes",
     "textRules": {
-      "maxNbChars": 180,
+      "maxNbChars": 240,
       "maxNbCarriageReturns": 5
     },
     "enabled": true,
@@ -115,7 +115,7 @@
     "description": "LocateItemARDesc",
     "showTrick": "yes",
     "textRules": {
-      "maxNbChars": 50,
+      "maxNbChars": 120,
       "maxNbCarriageReturns": 1
     },
     "hasBackgroundImage": "option",
@@ -132,7 +132,7 @@
     "description": "LocateMarkerDesc",
     "showTrick": "yes",
     "textRules": {
-      "maxNbChars": 100,
+      "maxNbChars": 180,
       "maxNbCarriageReturns": 3
     },
     "hasBackgroundImage": "no",
@@ -179,7 +179,7 @@
     "description": "FindTheCodeDesc",
     "showTrick": "yes",
     "textRules": {
-      "maxNbChars": 90,
+      "maxNbChars": 150,
       "maxNbCarriageReturns": 2
     },
     "enabled": true,
@@ -230,7 +230,7 @@
     "description": "ImageOverFlowDesc",
     "showTrick": "yes",
     "textRules": {
-      "maxNbChars": 50,
+      "maxNbChars": 100,
       "maxNbCarriageReturns": 1
     },
     "enabled": true,
@@ -247,7 +247,7 @@
     "description": "FindAnItemDesc",
     "showTrick": "yes",
     "textRules": {
-      "maxNbChars": 50,
+      "maxNbChars": 100,
       "maxNbCarriageReturns": 1
     },
     "enabled": true,
@@ -264,7 +264,7 @@
     "description": "UseAnItemDesc",
     "showTrick": "yes",
     "textRules": {
-      "maxNbChars": 50,
+      "maxNbChars": 100,
       "maxNbCarriageReturns": 1
     },
     "enabled": true,
@@ -281,7 +281,7 @@
     "description": "JigsawPuzzleDesc",
     "showTrick": "yes",
     "textRules": {
-      "maxNbChars": 100,
+      "maxNbChars": 150,
       "maxNbCarriageReturns": 1
     },
     "hasBackgroundImage": "option",
@@ -298,7 +298,7 @@
     "description": "MemoryDesc",
     "showTrick": "yes",
     "textRules": {
-      "maxNbChars": 100,
+      "maxNbChars": 180,
       "maxNbCarriageReturns": 1
     },
     "enabled": true,

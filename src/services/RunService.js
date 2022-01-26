@@ -47,6 +47,15 @@ export default {
       .catch(error => console.log(error.request));
   },
   /*
+   * check if a user is already playing a game
+   * @param   {String}    questId                  ID of the quest
+   */
+  checkIfAlreadyPlayingAGame(questId) {
+    return Api()
+      .get("run/quest/" + questId + "/checkifalreadyplaying")
+      .catch(error => console.log(error.request));
+  },
+  /*
    * list players that played this quest
    * @param   {String}    questId                  ID of the quest
    */

@@ -1311,6 +1311,7 @@
           :reload="chapters.reloadStepPlay" 
           :lang="languages.current"
           :quest="quest"
+          :offline="false"
           @played="trackStepPlayed" 
           @success="trackStepSuccess" 
           @fail="trackStepFail" 
@@ -3124,7 +3125,6 @@ export default {
     * Quest author selected the language he wants to use for typing quest & steps texts
     */
     async selectLanguage(selLang) {
-      
       this.languages.current = selLang
       
       // check if quest is already available for this lang
