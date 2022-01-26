@@ -2082,6 +2082,16 @@ export default {
         if (JSON.stringify(answer) === JSON.stringify(this.answer)) {
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
+      } else if (type === 'code-image') {
+        if (this.step.options && this.step.options.orderIsNotImportant) {
+          if (utils.orderCharactersOfString(answer) === utils.orderCharactersOfString(this.answer)) {
+            return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+          }
+        } else {
+          if (answer === this.answer) {
+            return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
+          }
+        }
       } else {
         if (answer === this.answer) {
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }

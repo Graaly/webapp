@@ -893,6 +893,13 @@ var self = {
         reject(error)
       }
     })
+  },
+  /**
+   * order character of a string
+   * @param {String} string to order
+   */
+  orderCharactersOfString (stringToOrder) {
+    return stringToOrder.split('').sort().join('')
   }
 }
 

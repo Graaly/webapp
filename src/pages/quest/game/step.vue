@@ -759,6 +759,10 @@ export default {
           // get current score
           this.info.score = this.run.tempScore
         }
+      } else if (!this.isHybrid) {
+        // if no online and on webapp
+        this.warnings.runDataMissing = true
+        this.reloadPageInAWhile()
       } else {
         this.offline.active = true
 

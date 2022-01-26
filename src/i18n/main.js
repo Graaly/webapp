@@ -1145,7 +1145,8 @@ module.exports = {
       qrCodeAlreadyGood: "You have already scanned the correct QR Code, go to the next step",
       Audio: "Audio",
       TeamPlay: "Team game",
-      TypeTeamPlayId: "Type the game ID if you received one."
+      TypeTeamPlayId: "Type the game ID if you received one.",
+      OrderIsNotImportant: "Picture order is not important"
     }
   },
   fr: {
@@ -1608,7 +1609,7 @@ module.exports = {
       WarningNoNetwork: "En attente du réseau ...",
       WarningLowNetwork: "Réseau faible, veuillez patienter ...",
       CouldNotDisplayObject: "Désolé, une erreur est survenue au chargement de l'objet à trouver, il ne peut donc pas être affiché. Veuillez redémarrez l'application. Si le problème persiste, passez cette étape.",
-      CouldNotEnableAR: "Nous n'avons pas pu détecter l'orientation de votre téléphone. Pas de panique ! Vous pouvez quand même jouer en mode simple.",
+      CouldNotEnableAR: "Nous n'avons pas pu détecter l'orientation de votre téléphone.",
       Step: "Etape",
       EasyLongDesc: "Facile, tout public même jeune (> 6 ans)",
       NormalLongDesc: "Normal, sans grosses difficultés",
@@ -2281,7 +2282,8 @@ module.exports = {
       qrCodeAlreadyGood: "Vous avez déjà scanner le bon QR Code, passez à l'étape suivante",
       Audio: "Audio",
       TeamPlay: "Jeu d'équipe",
-      TypeTeamPlayId: "Tapez l'ID du jeu si vous en avez reçu un."
+      TypeTeamPlayId: "Tapez l'ID du jeu si vous en avez reçu un.",
+      OrderIsNotImportant: "L'ordre des images n'est pas important"
     }
   }
 }

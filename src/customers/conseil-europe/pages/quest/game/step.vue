@@ -469,6 +469,7 @@ export default {
       try {
         this.info.quest = await QuestService.getByIdForStep(this.questId, 999, this.lang)
       } catch (err) {
+console.log("QUEST DATA MISSING")
         console.error(err)
         this.$q.loading.hide()
         this.warnings.questDataMissing = true
@@ -738,6 +739,10 @@ export default {
           // get current score
           this.info.score = this.run.tempScore
         }
+      } else if (!this.isHybrid) {
+        // if no online and on webapp
+        this.warnings.runDataMissing = true
+        this.reloadPageInAWhile()
       } else {
         this.offline.active = true
 
@@ -915,6 +920,7 @@ export default {
             }
           }
         } else {
+console.log("STEP DATA MISSING")
           this.warnings.stepDataMissing = true
           this.reloadPageInAWhile()
           return false
@@ -924,6 +930,7 @@ export default {
         const step = await utils.readFile(this.questId, 'step_' + stepId + '.json')
         if (!step) {
           if (forceNetworkLoading) {
+console.log("STEP DATA MISSING2")
             this.warnings.stepDataMissing = true
             this.reloadPageInAWhile()
           } else {
@@ -1692,6 +1699,7 @@ export default {
         if (response && response.data) {
           this.info.quest = response.data
         } else {
+console.log("QUEST DATA MISSING2")
           this.warnings.questDataMissing = true
           this.warnings.stepDataMissing = true
         }
@@ -1701,6 +1709,7 @@ export default {
 
         if (!quest) {
           if (forceNetworkLoading) {
+console.log("QUEST DATA MISSING3")
             this.warnings.questDataMissing = true
             this.warnings.stepDataMissing = true
           } else {

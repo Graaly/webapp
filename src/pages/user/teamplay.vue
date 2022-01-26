@@ -103,10 +103,15 @@ export default {
       version: process.env.VERSION
     }
   },
-  mounted () {
+  async mounted () {
     // if user is connected, redirect to the quest - Only for anonymous users
     if (this.$store && this.$store.state && this.$store.state.user && this.$store.state.user.name && this.$store.state.user.name === '-') {
-      this.$router.push('/quest/play/' + this.questId)
+      // start a new run in cas of the user is already connected but for an other game
+      let isAlreadyPlaying = await RunService.checkIfAlreadyPlayingAGame(this.questId)
+      if (isAlreadyPlaying && isAlreadyPlaying.data && isAlreadyPlaying.data.status) {
+        // redirecct to the quest ID
+        this.$router.push('/quest/play/' + this.questId)
+      }
     }
     this.options = this.option.split("-")
     if (this.options.indexOf('individual') !== -1) {
