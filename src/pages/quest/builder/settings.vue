@@ -1311,6 +1311,7 @@
           :reload="chapters.reloadStepPlay" 
           :lang="languages.current"
           :quest="quest"
+          :offline="false"
           @played="trackStepPlayed" 
           @success="trackStepSuccess" 
           @fail="trackStepFail" 

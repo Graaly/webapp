@@ -1018,7 +1018,7 @@ export default {
    * itemUsed : item of the inventory used
    * lang : language of the step (fr, en, ...)
    */
-  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player', 'inventory', 'timer', 'quest'],
+  props: ['step', 'runId', 'reload', 'itemUsed', 'lang', 'answer', 'customization', 'player', 'inventory', 'timer', 'quest', 'offline'],
   components: {
     holdphonevertically,
     gpscalibration,
@@ -1985,39 +1985,51 @@ export default {
       this.controlsAreDisplayed = false
       utils.setTimeout(this.showControls, 4000)
     },*/
-    /*
+    /**
      * Send answer server side
-     * @param   {Object}    selectedAnswerKey            Answer object
+     * @param   {String}    questId               Quest identifier
+     * @param   {String}    stepId                Step identifier
+     * @param   {String}    runId                 Run identifier
+     * @param   {Object}    answerData            Answer object
+     * @param   {Boolean}   displaySpinner        true => shows a spinner when checking answer using web API
      */
     async sendAnswer(questId, stepId, runId, answerData, displaySpinner) {
-      if (displaySpinner) {
-        this.$q.loading.show()
-      }
-
-      // alert if the network is low
-      var _this = this
-      var lowNetworkTimeout = utils.setTimeout(function () { _this.isNetworkLow = true }, 8000)
-      var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player, { retries: 0 })
-
-      // clear low network alerte if displayed
-      clearTimeout(lowNetworkTimeout)
-      this.isNetworkLow = false
-
-      if (response && response.data) {
+      if (!this.offline) {
         if (displaySpinner) {
-          this.$q.loading.hide()
-        }
-        let checkAnswerResult = response.data
-        // if run as builder, get the remainingTrial
-        if (this.runId === "0") {
-          checkAnswerResult.remainingTrial = (this.step.nbTrial - this.nbTry - 1)
-        }
-        return checkAnswerResult
-      } else {
-        if (displaySpinner) {
-          this.$q.loading.hide()
+          this.$q.loading.show()
         }
 
+        // alert if the network is low
+        var _this = this
+        var lowNetworkTimeout = utils.setTimeout(function () { _this.isNetworkLow = true }, 8000)
+        var response = await StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player, { retries: 0 })
+
+        // clear low network alerte if displayed
+        clearTimeout(lowNetworkTimeout)
+        this.isNetworkLow = false
+
+        if (response && response.data) {
+          if (displaySpinner) {
+            this.$q.loading.hide()
+          }
+          let checkAnswerResult = response.data
+          // if run as builder, get the remainingTrial
+          if (this.runId === "0") {
+            checkAnswerResult.remainingTrial = (this.step.nbTrial - this.nbTry - 1)
+          }
+          return checkAnswerResult
+        } else {
+          if (displaySpinner) {
+            this.$q.loading.hide()
+          }
+
+          let offlineAnswer = this.checkOfflineAnswer(answerData.answer)
+          return offlineAnswer
+        }
+      } else { // offline mode
+        // call web API (non blocking => no await) to attempt to update runs
+        StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player, { retries: 0 })
+        
         let offlineAnswer = this.checkOfflineAnswer(answerData.answer)
         return offlineAnswer
       }
