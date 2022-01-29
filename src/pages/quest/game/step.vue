@@ -1478,14 +1478,18 @@ export default {
         if (this.$store.state.user.bonus && this.$store.state.user.bonus.name && this.$store.state.user.bonus.name === 'infinitehint') {
           await this.getHint()
         } else {
-          this.$q.dialog({
-            dark: true,
-            message: this.$t('label.ConfirmHint'),
-            ok: this.$t('label.Ok'),
-            cancel: this.$t('label.Cancel')
-          }).onOk(async () => {
+          if (this.info.quest.customization && this.info.quest.customization.doNotPreventUserForHint) {
             await this.getHint()
-          })
+          } else {
+            this.$q.dialog({
+              dark: true,
+              message: this.$t('label.ConfirmHint'),
+              ok: this.$t('label.Ok'),
+              cancel: this.$t('label.Cancel')
+            }).onOk(async () => {
+              await this.getHint()
+            })
+          }
         }
       }
     },
