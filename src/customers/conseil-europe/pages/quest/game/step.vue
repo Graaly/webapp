@@ -395,12 +395,13 @@ export default {
         questId: this.$route.params.questId,
         questVersion: this.$route.params.version,
         step: {},
+        navigatingToStepId: null, // to handle network interruption in online mode
         story: {
           step: null,
           data: null
         },
         loadStepData: false,
-        run: {},
+        run: { currentChapter: 0 },
         runId: 0,
         player: 'P1',
         isMultiplayer: false,
@@ -592,11 +593,14 @@ console.log("QUEST DATA MISSING")
       }
       this.$store.commit('setChatNotification', 0)
     },*/
-    /*
+    /**
      * Move to a step
-     *
+     * @param {String} forceStepId optional - Id of step to load
      */
     async moveToStep(forceStepId) {
+      // keeping stepId info is required when network is interrupted & quest is played in online mode
+      this.navigatingToStepId = forceStepId
+      
       utils.clearAllRunningProcesses()
       this.resetData()
       this.$q.loading.show()
@@ -654,7 +658,6 @@ console.log("QUEST DATA MISSING")
     async getRun() {
       this.warnings.runDataMissing = false
 
-      var currentChapter = 0
       var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
       var dataSharedWithPartner = (this.$route.query.hasOwnProperty('sharepartner') && this.$route.query.sharepartner === 'true')
       let offlineRun
@@ -679,8 +682,6 @@ console.log("QUEST DATA MISSING")
             if (runs.data[i] && runs.data[i].status && runs.data[i].status === 'in-progress') {
               this.run = runs.data[i]
               this.runId = this.run._id
-
-              currentChapter = runs.data[i].currentChapter
 
               // update the offline run or the online depending on the last updated
               if (isRunOfflineLoaded) {
@@ -757,9 +758,6 @@ console.log("QUEST DATA MISSING")
             }
             // get current score
             this.info.score = this.run.tempScore
-            // set chapter
-            currentChapter = this.run.currentChapter
-            
             // attempt to save run changes in DB (not blocking => no "await")
             RunService.updateFromOffline(this.run)
           }
@@ -915,13 +913,11 @@ console.log("STEP DATA MISSING")
         // get quest data from device storage
         const step = await utils.readFile(this.questId, 'step_' + stepId + '.json')
         if (!step) {
-          if (forceNetworkLoading) {
-            this.warnings.stepDataMissing = true
-            this.reloadPageInAWhile()
-          } else {
-            var stepLoadingStatus = await this.getStep(true, forceStepId)
-            return stepLoadingStatus
-          }
+          this.$q.dialog({
+            title: this.$t('label.TechnicalProblem')
+          }).onOk(() => {
+            this.$router.push('/quest/play/' + this.questId)
+          })
         } else {
           let tempStep = JSON.parse(step)
 
@@ -1372,7 +1368,7 @@ console.log("STEP DATA MISSING")
       this.$store.state.history.index++
       // if moving in history
       if (this.$store.state.history.items && this.$store.state.history.index < this.$store.state.history.items.length) {
-        this.moveToStep(this.$store.state.history.items[this.$store.state.history.index])
+        await this.moveToStep(this.$store.state.history.items[this.$store.state.history.index])
         //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
         return
       }
@@ -1442,7 +1438,7 @@ console.log("STEP DATA MISSING")
       }
       if (previousOK) {
         //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
-        this.moveToStep(this.$store.state.history.items[this.$store.state.history.index])
+        await this.moveToStep(this.$store.state.history.items[this.$store.state.history.index])
       }
     },
     /*
@@ -1671,88 +1667,6 @@ console.log("STEP DATA MISSING")
       utils.setTimeout(this.computeRemainingTime, 1000)
     },
     /*
-<<<<<<< HEAD
-     * Get a quest information
-     * @param   {string}    id             Quest ID
-     */
-    async getQuest(id, forceNetworkLoading) {
-      this.warnings.questDataMissing = false
-
-      // force network loading based on quest configuration
-      if (this.info.quest.customization && this.info.quest.customization.forceOnline) {
-        forceNetworkLoading = true
-      }
-
-      // check if the quest data are not already saved on device
-      let isQuestOfflineLoaded = await QuestService.isCached(id)
-
-      if (!isQuestOfflineLoaded || forceNetworkLoading) {
-        let response = await QuestService.getLastById(id)
-        if (response && response.data) {
-          this.info.quest = response.data
-        } else {
-console.log("QUEST DATA MISSING2")
-          this.warnings.questDataMissing = true
-          this.warnings.stepDataMissing = true
-        }
-      } else {
-        // get quest data from device storage
-        const quest = await utils.readFile(id, 'quest_' + id + '.json')
-
-        if (!quest) {
-          if (forceNetworkLoading) {
-console.log("QUEST DATA MISSING3")
-            this.warnings.questDataMissing = true
-            this.warnings.stepDataMissing = true
-          } else {
-            var questLoadingStatus = await this.getQuest(id, true)
-            return questLoadingStatus
-          }
-        } else {
-          this.info.quest = JSON.parse(quest)
-
-          const pictureUrl = await utils.readBinaryFile(id, this.info.quest.picture[this.lang])
-          if (pictureUrl) {
-            this.info.quest.picture[this.lang] = pictureUrl
-          } else {
-            this.info.quest.picture[this.lang] = '_default-quest-picture.jpg'
-          }
-          // get customized logo
-          if (this.info.quest.customization && this.info.quest.customization.logo && this.info.quest.customization.logo !== '') {
-            const logoUrl = await utils.readBinaryFile(id, this.info.quest.customization.logo)
-            if (logoUrl) {
-              this.info.quest.customization.logo = logoUrl
-            }
-          }
-          // get customized sound
-          if (this.info.quest.customization && this.info.quest.customization.audio) {
-            let mainLang = this.info.quest.mainLanguage
-            if (this.info.quest.customization.audio[this.lang] && this.info.quest.customization.audio[this.lang] !== '') {
-              const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio[this.lang])
-              if (audioUrl) {
-                this.info.quest.customization.audio[this.lang] = audioUrl
-              }
-            } else if (this.lang !== mainLang && this.info.quest.customization.audio[mainLang] && this.info.quest.customization.audio[mainLang] !== '') {
-              // no audio available in current language => try to load audio for main language if different from current language
-              const audioUrl = await utils.readBinaryFile(id, this.info.quest.customization.audio[mainLang])
-              if (audioUrl) {
-                this.info.quest.customization.audio[mainLang] = audioUrl
-              }
-            }
-          }
-          // get customized hint character
-          if (this.info.quest.customization && this.info.quest.customization.character && this.info.quest.customization.character !== '') {
-            const characterUrl = await utils.readBinaryFile(id, this.info.quest.customization.character)
-            if (characterUrl) {
-              this.info.quest.customization.character = characterUrl
-            }
-          }
-        }
-      }
-    },
-    /*
-=======
->>>>>>> 9c35f24d6bf756c2fe9acd8dfb3be78455fc9075
      * Select an item in the inventory
      * @param   {object}    item            Item selected
      */
@@ -2643,7 +2557,8 @@ console.log("QUEST DATA MISSING3")
       return counter;
     },
     reloadPageInAWhile() {
-      setTimeout(this.initData, 15000)
+      let _this = this
+      setTimeout(() => { _this.moveToStep(_this.navigatingToStepId) }, 15000)
     },
     initOfflineMode() {
       let forceOnlineQuestOption = this.info.quest.customization && this.info.quest.customization.forceOnline

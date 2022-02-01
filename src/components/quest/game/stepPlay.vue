@@ -4370,10 +4370,12 @@ export default {
      * @params: (event)
      **/
     checkPhoneVertically(event) {
-      if (event.beta < 50 || event.beta > 130) {
-        this.$refs.raVerticallyDialog.show()
-      } else if (this.$refs && this.$refs.raVerticallyDialog) {
-        this.$refs.raVerticallyDialog.hide()
+      if (this.$refs && this.$refs.raVerticallyDialog) {
+        if (event.beta < 50 || event.beta > 130) {
+          this.$refs.raVerticallyDialog.show()
+        } else {
+          this.$refs.raVerticallyDialog.hide()
+        }
       }
     },
     /*

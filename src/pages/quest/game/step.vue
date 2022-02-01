@@ -424,12 +424,13 @@ export default {
         questId: this.$route.params.questId,
         questVersion: this.$route.params.version,
         step: {},
+        navigatingToStepId: null, // to handle network interruption in online mode
         story: {
           step: null,
           data: null
         },
         loadStepData: false,
-        run: {},
+        run: { currentChapter: 0 },
         runId: 0,
         player: 'P1',
         isMultiplayer: false,
@@ -615,11 +616,14 @@ export default {
       }
       this.$store.commit('setChatNotification', 0)
     },*/
-    /*
+    /**
      * Move to a step
-     *
+     * @param {String} forceStepId optional - Id of step to load
      */
     async moveToStep(forceStepId) {
+      // keeping stepId info is required when network is interrupted & quest is played in online mode
+      this.navigatingToStepId = forceStepId
+      
       utils.clearAllRunningProcesses()
       this.resetData()
       this.$q.loading.show()
@@ -675,7 +679,6 @@ export default {
     async getRun() {
       this.warnings.runDataMissing = false
 
-      var currentChapter = 0
       var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
       var dataSharedWithPartner = (this.$route.query.hasOwnProperty('sharepartner') && this.$route.query.sharepartner === 'true')
       let offlineRun
@@ -687,7 +690,7 @@ export default {
         offlineRun = await this.loadOfflineRun(this.questId)
       }
       
-      if (!this.offline.active || currentChapter === 0) {
+      if (!this.offline.active || this.run.currentChapter === 0) {
         // List all run for this quest for current user
         var runs = await RunService.listForAQuest(this.questId)
         
@@ -700,8 +703,6 @@ export default {
             if (runs.data[i] && runs.data[i].status && runs.data[i].status === 'in-progress') {
               this.run = runs.data[i]
               this.runId = this.run._id
-
-              currentChapter = runs.data[i].currentChapter
 
               // update the offline run or the online depending on the last updated
               if (isRunOfflineLoaded) {
@@ -730,7 +731,7 @@ export default {
           }
 
           // init the run on the server
-          if (currentChapter === 0) {
+          if (this.run.currentChapter === 0) {
             // no 'in-progress' run => create run for current player & current quest
             let res = await RunService.init(this.questId, this.questVersion, this.$route.params.lang, remotePlay, null, dataSharedWithPartner)
             if (res && res.status === 200 && res.data && res.data._id) {
@@ -778,9 +779,6 @@ export default {
             }
             // get current score
             this.info.score = this.run.tempScore
-            // set chapter
-            currentChapter = this.run.currentChapter
-            
             // attempt to save run changes in DB (not blocking => no "await")
             RunService.updateFromOffline(this.run)
           }
@@ -1390,7 +1388,7 @@ export default {
       this.$store.state.history.index++
       // if moving in history
       if (this.$store.state.history.items && this.$store.state.history.index < this.$store.state.history.items.length) {
-        this.moveToStep(this.$store.state.history.items[this.$store.state.history.index])
+        await this.moveToStep(this.$store.state.history.items[this.$store.state.history.index])
         //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
         return
       }
@@ -1459,7 +1457,7 @@ export default {
       }
       if (previousOK) {
         //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
-        this.moveToStep(this.$store.state.history.items[this.$store.state.history.index])
+        await this.moveToStep(this.$store.state.history.items[this.$store.state.history.index])
       }
     },
     /*
@@ -2581,7 +2579,8 @@ export default {
       }
     },
     reloadPageInAWhile() {
-      setTimeout(this.initData, 15000)
+      let _this = this
+      setTimeout(() => { _this.moveToStep(_this.navigatingToStepId) }, 15000)
     },
     initOfflineMode() {
       let forceOnlineQuestOption = this.info.quest.customization && this.info.quest.customization.forceOnline
