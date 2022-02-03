@@ -116,8 +116,8 @@
           <div class="subtitle-3" v-if="$t('label.shortLang') === 'en'">Restart the game with other language</div>
           <table border="0" width="100%">
             <tr>
-              <td align="center"><img src="statics/customers/conseil-europe/images/flags/fr.png" /></td>
-              <td align="center"><img src="statics/customers/conseil-europe/images/flags/en.png" /></td>
+              <td align="center" v-if="$t('label.shortLang') === 'en'" @click="$router.push('/quest/play/61767ce84a4f2c2276fed543')"><img src="statics/customers/conseil-europe/images/flags/fr.png" /></td>
+              <td align="center" v-if="$t('label.shortLang') === 'fr'" @click="$router.push('/quest/play/61f178fb16bdb825f1e99cb7')"><img src="statics/customers/conseil-europe/images/flags/en.png" /></td>
             </tr>
           </table>
           <div class="subtitle-3" v-if="$t('label.shortLang') === 'fr'">Comment jouer ?</div>
