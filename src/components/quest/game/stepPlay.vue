@@ -199,7 +199,11 @@
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
         <div class="item">
-          <img style="width: 80%" :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" />
+          <img 
+            style="width: 80%" 
+            :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" 
+            @click="openInventory(step.options)"
+            />
           <p><span>{{ step.options.title }}</span></p>
         </div>
       </div>
@@ -4847,6 +4851,9 @@ export default {
         audio.play()
         this.audio.play = true
       }
+    },
+    openInventory(object) {
+      this.$emit('openInventory', object)
     }
   }
 }

@@ -55,6 +55,7 @@
         @suggestNext="alertOnNext"
         @hideButtons="hideFooterButtons"
         @showButtons="showFooterButtons"
+        @openInventory="selectItem"
         @msg="trackMessage">
       </stepPlay>
     </div>
@@ -627,6 +628,11 @@ export default {
       utils.clearAllRunningProcesses()
       this.resetData()
       this.$q.loading.show()
+      
+      // hack if language not set
+      if (this.lang == "undefined") {
+        this.lang = this.$t('label.shortLang')
+      }
 
       this.loadStepData = false
 

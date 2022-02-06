@@ -103,8 +103,8 @@ export default {
     }
     
     // check if the quest data are not already saved on device
-    let isQuestOfflineLoaded = this.isCached(id)
-    
+    let isQuestOfflineLoaded = await this.isCached(id)
+
     if (!isQuestOfflineLoaded && store.state.networkMode === 'online') {
       try {
         const onlineQuest2 = await this.getByIdOnline(id, version, lang)

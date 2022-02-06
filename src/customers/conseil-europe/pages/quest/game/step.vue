@@ -116,8 +116,8 @@
           <div class="subtitle-3" v-if="$t('label.shortLang') === 'en'">Restart the game with other language</div>
           <table border="0" width="100%">
             <tr>
-              <td align="center" v-if="$t('label.shortLang') === 'en'" @click="$router.push('/quest/play/61767ce84a4f2c2276fed543')"><img src="statics/customers/conseil-europe/images/flags/fr.png" /></td>
-              <td align="center" v-if="$t('label.shortLang') === 'fr'" @click="$router.push('/quest/play/61f178fb16bdb825f1e99cb7')"><img src="statics/customers/conseil-europe/images/flags/en.png" /></td>
+              <td align="center" v-if="$t('label.shortLang') === 'en'" @click="changeLanguage('fr')"><img src="statics/customers/conseil-europe/images/flags/fr.png" /></td>
+              <td align="center" v-if="$t('label.shortLang') === 'fr'" @click="changeLanguage('en')"><img src="statics/customers/conseil-europe/images/flags/en.png" /></td>
             </tr>
           </table>
           <div class="subtitle-3" v-if="$t('label.shortLang') === 'fr'">Comment jouer ?</div>
@@ -254,7 +254,6 @@
             size="lg"
             :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
             icon="star"
-            v-if="!info.quest.customization || !info.quest.customization.hideInventory"
             :class="{'flashing': inventory.suggest, 'text-secondary': inventory.isOpened}"
             @click="openInventory()"
           />
@@ -303,6 +302,9 @@
 </template>
 
 <script>
+// specific for COE
+import AuthService from 'services/AuthService'
+
 import RunService from 'services/RunService'
 import StepService from 'services/StepService'
 import QuestService from 'services/QuestService'
@@ -669,7 +671,7 @@ console.log("QUEST DATA MISSING")
         offlineRun = await this.loadOfflineRun(this.questId)
       }
       
-      if (!this.offline.active || currentChapter === 0) {
+      if (!this.offline.active || this.run.currentChapter === 0) {
         // List all run for this quest for current user
         var runs = await RunService.listForAQuest(this.questId)
         
@@ -710,7 +712,7 @@ console.log("QUEST DATA MISSING")
           }
 
           // init the run on the server
-          if (currentChapter === 0) {
+          if (this.run.currentChapter === 0) {
             // no 'in-progress' run => create run for current player & current quest
             let res = await RunService.init(this.questId, this.questVersion, this.$route.params.lang, remotePlay, null, dataSharedWithPartner)
             if (res && res.status === 200 && res.data && res.data._id) {
@@ -2566,6 +2568,18 @@ console.log("STEP DATA MISSING")
       let userIsEditor = Array.isArray(this.info.quest.editorsUserId) && this.info.quest.editorsUserId.includes(this.$store.state.user._id)
       
       this.offline.active = !(this.isMultiplayer || forceOnlineQuestOption || !this.isHybrid || userIsAuthor || userIsEditor || this.$store.state.user.isAdmin)
+    },
+    async changeLanguage(lang) {
+      let modifications = {
+        language: lang
+      }
+      let modificationStatus = await AuthService.modifyAccount(modifications)
+      this.$i18n.locale = lang
+      if (lang === 'fr') {
+        this.$router.push('/quest/play/61767ce84a4f2c2276fed543')
+      } else {
+        this.$router.push('/quest/play/61f178fb16bdb825f1e99cb7')
+      }
     }
     /*showNotif() {
       this.$q.notify({
