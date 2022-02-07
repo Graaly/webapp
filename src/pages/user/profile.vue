@@ -119,7 +119,7 @@
         <usersList format="scroll" :add="$store.state.user.id === userId ? true : false" :users="friends.list" @refresh="loadFriends"></usersList>
       </div>
       <div v-if="$store.state.user.id === userId">
-        <div v-if="user.name !== '-'" class="centered q-mt-xl q-mb-sm cursor-pointer"><a @click="disconnect()">{{ $t('label.SignOut') }}</a></div>
+        <div class="centered q-mt-xl q-mb-sm cursor-pointer"><a @click="disconnect()">{{ $t('label.SignOut') }}</a></div>
         <div class="centered q-mb-sm" v-html="$t('label.TermsAndConditionsLink')"></div>
         <div class="centered q-mb-xl" v-html="$t('label.PrivacyPolicyLink')"></div>
       </div>

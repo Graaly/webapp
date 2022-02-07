@@ -253,7 +253,7 @@ export default {
               }
               if (step.type === 'new-item' && step.options && step.options.picture && step.options.picture !== '') {
                 if (step.options.picture.indexOf('statics') === -1) {
-                  //var newItemImageSuccess
+                  let newItemImageSuccess
                   if (step.options.pictures && step.options.pictures[this.lang] && step.options.pictures[this.lang] !== '') {
                     newItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.pictures[this.lang])
                   } else {

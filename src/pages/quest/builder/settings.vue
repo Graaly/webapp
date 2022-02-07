@@ -568,6 +568,13 @@
                 <div>
                   <q-toggle
                     :readonly="readOnly"
+                    :label="$t('label.DoNotPreventUserForHint')"
+                    v-model="form.fields.customization.doNotPreventUserForHint"
+                    />
+                </div>
+                <div>
+                  <q-toggle
+                    :readonly="readOnly"
                     :label="$t('label.HideFullScreen')"
                     v-model="form.fields.customization.hideFullScreen"
                     />
