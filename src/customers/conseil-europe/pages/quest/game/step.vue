@@ -2556,7 +2556,7 @@ console.log("STEP DATA MISSING")
           counter++
         }
       }
-      return counter;
+      return Math.min(counter, 12);
     },
     reloadPageInAWhile() {
       let _this = this

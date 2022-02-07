@@ -2432,10 +2432,12 @@ export default {
             /*if (this.step.displayRightAnswer) {
               this.showFoundLocation(checkAnswerResult.answer.left, checkAnswerResult.answer.top)
             }*/
-            // if alt picture
+            // if alt picture => Show it and hide find locations
             if (this.step.options && this.step.options.altFile) {
               this.step.backgroundImage[this.lang] = this.step.options.altFile
+              this.hideAllFindItemLocation()
             }
+            
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             const remainingTrial = this.isTimeUp ? 0 : (this.step.nbTrial - this.nbTry - 1)
@@ -2449,6 +2451,9 @@ export default {
                 }
               } else {
                 checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: false, isTimeUp: this.isTimeUp}, true)
+                
+                // show locations to click even if user fail
+                this.showAllFindItemLocation()
 
                 this.submitWrongAnswer(false, this.step.displayRightAnswer)
               }
@@ -4854,6 +4859,28 @@ export default {
     },
     openInventory(object) {
       this.$emit('openInventory', object)
+    },
+    showAllFindItemLocation() {
+      const ww = this.getFindItemPictureSize() / 100
+      for (var i = 0; i < this.step.options.coordinates.length; i++) {
+        let answerPixelCoordinates = {
+          left: Math.round(this.step.options.coordinates[i].left / 100 * 100 * ww),
+          top: Math.round(this.step.options.coordinates[i].top / 100 * 133 * ww)
+        }
+        // solution area radius depends on viewport width (8vw), to get something as consistent as possible across devices. image width is always 90% in settings & playing
+        let solutionAreaRadius = this.useItem.crossSize / 2
+        // display the right solution
+        let cross = document.getElementById('cross-play' + i)
+        cross.style.top = (answerPixelCoordinates.top - solutionAreaRadius) + "px"
+        cross.style.left = (answerPixelCoordinates.left - solutionAreaRadius) + "px"
+        cross.style.display = "block"
+      }
+    },
+    hideAllFindItemLocation() {
+      for (var i = 0; i < 5; i++) {
+        let cross = document.getElementById('cross-play' + i)
+        cross.style.display = "none"
+      }
     }
   }
 }
