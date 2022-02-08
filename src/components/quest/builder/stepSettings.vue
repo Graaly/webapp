@@ -1252,7 +1252,7 @@ import QuestService from 'services/QuestService'
 
 import * as THREE from 'three'
 //import * as TWEEN from '@tweenjs/tween.js'
-import GLTFLoader from 'three-gltf-loader'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import OrbitControls from 'three-orbitcontrols'
 
 const DEMO_OBJECT_NAME = 'demoObject'

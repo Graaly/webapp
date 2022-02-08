@@ -1004,7 +1004,7 @@ import debounce from 'lodash/debounce'
 // required for step 'locate-item-ar'
 import * as THREE from 'three'
 import TWEEN from '@tweenjs/tween.js'
-import GLTFLoader from 'three-gltf-loader'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
 //import Step Composant
 import SuperImposeImageCameraStep from "./StepPlayComp/SuperImposeImageCameraStep";
