@@ -122,6 +122,18 @@
             :label="$t('label.LetsPlayWithoutAccount')"
             />
         </div>
+        
+        <!------------------ TEAM PLAY ------------------>
+
+        <div class="q-py-md centered">
+          <q-btn
+            flat
+            class="large-btn"
+            color="accent"
+            @click="teamPlay()"
+            :label="$t('label.TeamPlay')"
+            />
+        </div>
 
         <!--<p class="text-center text-h6 text-grey q-mt-md q-mb-md">
           {{ $t('label.orSignInWith') }}
@@ -250,6 +262,7 @@ export default {
       },
       passwordForgottenPopup: false,
       showNonHybridQRReader: false,
+      teamPlayId: "",
       isHybrid: window.cordova,
       serverUrl: process.env.SERVER_URL,
       uploadUrl: process.env.UPLOAD_URL,
@@ -538,6 +551,19 @@ export default {
     },
     switchLanguage(lang) {
       this.$i18n.locale = lang
+    },
+    teamPlay() {
+      this.$q.dialog({
+        dark: true,
+        message: this.$t('label.TypeTeamPlayId'),
+        prompt: {
+          model: this.teamPlayId,
+          type: 'text'
+        },
+        cancel: true
+      }).onOk(async (data) => {
+        this.$router.push({path: '/teamplay/' + data + '/' + this.$t('label.shortLang'), query: {redirect: '/user/login'}})
+      }).onCancel(() => {})
     }
   },
   validations: {

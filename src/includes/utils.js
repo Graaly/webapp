@@ -550,8 +550,10 @@ var self = {
     })
   },
 
-  /*
+  /**
    * read binary file
+   * @param {String} directory
+   * @param {String} fileName
    */
   readBinaryFile: function(directory, fileName) {
     var _this = this
@@ -891,6 +893,13 @@ var self = {
         reject(error)
       }
     })
+  },
+  /**
+   * order character of a string
+   * @param {String} string to order
+   */
+  orderCharactersOfString (stringToOrder) {
+    return stringToOrder.split('').sort().join('')
   }
 }
 

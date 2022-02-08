@@ -83,7 +83,7 @@ export default [
       },
       {
         path: 'quest/play/:id(\\w{24})/:qrcode',
-        name: 'playhome',
+        name: 'playhomewithcode',
         component: QuestPlayHome,
         meta: { requiresAuth: true }
       },

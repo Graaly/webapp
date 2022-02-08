@@ -254,7 +254,7 @@ export default {
               }
               if (step.type === 'new-item' && step.options && step.options.picture && step.options.picture !== '') {
                 if (step.options.picture.indexOf('statics') === -1) {
-                  var newItemImageSuccess
+                  let newItemImageSuccess
                   if (step.options.pictures && step.options.pictures[this.lang] && step.options.pictures[this.lang] !== '') {
                     newItemImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/new-item/', step.options.pictures[this.lang])
                   } else {
@@ -341,23 +341,23 @@ export default {
       Notification(this.$t('label.ErrorOfflineSaving'), 'error')
       this.error.raised = true
       this.error.nb++
+      //if there is an error, remove all offline data
+      await this.removeOfflineData(this.quest.questId)
+      this.offline.progress = 0
+      
       let _this = this;
       this.$q.dialog({
           dark: true,
           message: _this.$t('label.ErrorDownloadNeedsToRestart'),
           ok: true,
           cancel: true
-      }).onCancel(async () => {
-        _this.$router.push('/home')
+      }).onCancel(() => {
+        // reload (reset) quest intro page, then wait for user action
+        // inspired from https://stackoverflow.com/a/67262084/488666
+        _this.$router.push({path: '/quest/play/' + this.quest.questId, query: { timestamp: Date.now() }})
       }).onOk(async () => {
-        //stop the loading
-        _this.cancelOfflineLoading();
-        //if there is an error, remove all offline data
-        _this.removeOfflineData();
         //relaunch the download
-        _this.saveOfflineQuest(quest);
-        //reload the loading page
-        //location.reload();
+        await _this.saveOfflineQuest(this.quest)
       })
     },
 
@@ -368,7 +368,7 @@ export default {
         this.error.nb++
       }
     },
-    async cancelOfflineLoading() {
+    /*async cancelOfflineLoading() {
       var _this = this
       // remove files
       utils.setTimeout(async () => { await _this.removeOfflineData(_this.quest.questId) }, 7000)
@@ -376,7 +376,7 @@ export default {
       Notification(this.$t('label.CancelOfflineWarning'), 'warning')
       this.offline.progress = 0
       this.$emit('end')
-    },
+    },*/
     /*
      * Remove offline data
      */

@@ -568,6 +568,13 @@
                 <div>
                   <q-toggle
                     :readonly="readOnly"
+                    :label="$t('label.DoNotPreventUserForHint')"
+                    v-model="form.fields.customization.doNotPreventUserForHint"
+                    />
+                </div>
+                <div>
+                  <q-toggle
+                    :readonly="readOnly"
                     :label="$t('label.HideFullScreen')"
                     v-model="form.fields.customization.hideFullScreen"
                     />
@@ -1311,9 +1318,10 @@
           :reload="chapters.reloadStepPlay"
           :lang="languages.current"
           :quest="quest"
-          @played="trackStepPlayed"
-          @success="trackStepSuccess"
-          @fail="trackStepFail"
+          :offline="false"
+          @played="trackStepPlayed" 
+          @success="trackStepSuccess" 
+          @fail="trackStepFail" 
           @pass="trackStepPass"
           @msg="trackMessage"
           @closeAllPanels="closeAllPanels"
@@ -3125,7 +3133,6 @@ export default {
     * Quest author selected the language he wants to use for typing quest & steps texts
     */
     async selectLanguage(selLang) {
-      
       this.languages.current = selLang
       
       // check if quest is already available for this lang

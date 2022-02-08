@@ -976,6 +976,7 @@
             </div>
             <div v-if="options.type.code === 'code-image'">
               <q-toggle v-model="selectedStep.form.options.hideEnlargeMessage" :label="$t('label.HideEnlargeMessage')" />
+              <q-toggle v-model="selectedStep.form.options.orderIsNotImportant" :label="$t('label.OrderIsNotImportant')" />
             </div>
             <div v-if="options.type.code === 'help'">
               <q-toggle v-model="selectedStep.form.options.helpInventory" :label="$t('label.HelpStepMessageInventory')" />

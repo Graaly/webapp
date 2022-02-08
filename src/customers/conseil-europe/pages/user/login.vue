@@ -469,7 +469,7 @@ export default {
     },
     chooseLanguage(lang) {
       if (lang == 'en') {
-        this.questId = '614ae660a5f0ec18ce43566e'
+        this.questId = '61f178fb16bdb825f1e99cb7'
       }
       if (lang == 'fr') {
         //this.questId = '615dbcffa3872257f0dd40b4'//DEV
