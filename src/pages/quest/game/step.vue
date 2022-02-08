@@ -2022,7 +2022,7 @@ export default {
      */
     async getNextOfflineStep(questId, markerCode, player, extra) {
       //var steps = []
-      let conditionsDone = this.run.conditionsDone
+      let conditionsDone = this.run.conditionsDone || []
 
       if (!player) {
         player = 'P1'
