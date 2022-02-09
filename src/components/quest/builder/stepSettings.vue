@@ -1185,7 +1185,7 @@
       <div class="bg-white panel-bottom q-pa-md" v-show="media.isOpened">
         <div class="text-h4 q-pt-md q-pb-lg">{{ $t('label.AddABackgroundImage') }}</div>
         <div v-if="!isIOs">
-          <q-btn class="full-width" type="button" @click="$refs['backgroundfile'].click()">
+          <q-btn class="full-width" type="button" @click.stop.prevent="$refs['backgroundfile'].click()">
             <q-icon name="cloud_upload" /> <label for="picturefile1">{{ $t('label.UploadABackgroundImage') }}</label>
           </q-btn>
           <input @change="uploadBackgroundImage" ref="backgroundfile" name="picturefile1" id="picturefile1" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" test-id="background-upload" />
@@ -1559,9 +1559,9 @@ export default {
         if (document.getElementById("picturefile1")) {
           document.getElementById("picturefile1").value = ""
         }
-        if (document.getElementById("picturefile2")) {
+        /*if (document.getElementById("picturefile2")) {
           document.getElementById("picturefile2").value = ""
-        }
+        }*/
       })
     },
     /*
@@ -2397,9 +2397,9 @@ export default {
       if (document.getElementById("picturefile1")) {
         document.getElementById("picturefile1").value = ""
       }
-      if (document.getElementById("picturefile2")) {
+      /*if (document.getElementById("picturefile2")) {
         document.getElementById("picturefile2").value = ""
-      }
+      }*/
     },
     /*
      * Upload a video
