@@ -507,11 +507,11 @@ export default {
         this.reloadPageInAWhile()
         return
       }
-      
+
       this.isMultiplayer = this.info.quest.playersNumber && this.info.quest.playersNumber > 1
-            
+
       this.initOfflineMode()
-      
+
       // Start audio
       this.getAudioSound()
 
@@ -625,11 +625,11 @@ export default {
     async moveToStep(forceStepId) {
       // keeping stepId info is required when network is interrupted & quest is played in online mode
       this.navigatingToStepId = forceStepId
-      
+
       utils.clearAllRunningProcesses()
       this.resetData()
       this.$q.loading.show()
-      
+
       // hack if language not set
       if (this.lang == "undefined") {
         this.lang = this.$t('label.shortLang')
@@ -696,11 +696,11 @@ export default {
         // read the run
         offlineRun = await this.loadOfflineRun(this.questId)
       }
-      
+
       if (!this.offline.active || this.run.currentChapter === 0) {
         // List all run for this quest for current user
         var runs = await RunService.listForAQuest(this.questId)
-        
+
         // check if run is accessable from server
         if (runs && runs.data) {
           for (var i = 0; i < runs.data.length; i++) {
@@ -814,13 +814,13 @@ export default {
      */
     async getStep (forceStepId) {
       let stepId, response
-      
+
       if (this.warnings.questDataMissing || this.warnings.runDataMissing) {
         return false
       }
-      
+
       this.warnings.stepDataMissing = false
-      
+
       // --- load step Id ---
 
       if (typeof forceStepId !== 'undefined') {
@@ -2593,7 +2593,7 @@ export default {
       let forceOnlineQuestOption = this.info.quest.customization && this.info.quest.customization.forceOnline
       let userIsAuthor = this.$store.state.user._id === this.info.quest.authorUserId
       let userIsEditor = Array.isArray(this.info.quest.editorsUserId) && this.info.quest.editorsUserId.includes(this.$store.state.user._id)
-      
+
       this.offline.active = !(this.isMultiplayer || forceOnlineQuestOption || !this.isHybrid || userIsAuthor || userIsEditor || this.$store.state.user.isAdmin)
     }
     /*showNotif() {

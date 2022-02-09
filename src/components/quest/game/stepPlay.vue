@@ -199,9 +199,9 @@
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
         <div class="item">
-          <img 
-            style="width: 80%" 
-            :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" 
+          <img
+            style="width: 80%"
+            :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : uploadUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)"
             @click="openInventory(step.options)"
             />
           <p><span>{{ step.options.title }}</span></p>
@@ -2034,7 +2034,7 @@ export default {
       } else { // offline mode
         // call web API (non blocking => no await) to attempt to update runs
         StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player, { retries: 0 })
-        
+
         let offlineAnswer = this.checkOfflineAnswer(answerData.answer)
         return offlineAnswer
       }
@@ -2438,7 +2438,7 @@ export default {
               this.step.backgroundImage[this.lang] = this.step.options.altFile
               this.hideAllFindItemLocation()
             }
-            
+
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer)
           } else {
             const remainingTrial = this.isTimeUp ? 0 : (this.step.nbTrial - this.nbTry - 1)
@@ -2452,7 +2452,7 @@ export default {
                 }
               } else {
                 checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: false, isTimeUp: this.isTimeUp}, true)
-                
+
                 // show locations to click even if user fail
                 this.showAllFindItemLocation()
 

@@ -53,15 +53,15 @@
             <q-item-section>
               <q-item-label class="big-label">{{ $t('label.SelectedLanguage') }}</q-item-label>
               <div v-for="language in form.languages" :key="language.code">
-                <q-btn 
-                  :disabled="readOnly" 
-                  class="glossy full-width q-mt-sm" 
-                  color="primary" 
+                <q-btn
+                  :disabled="readOnly"
+                  class="glossy full-width q-mt-sm"
+                  color="primary"
                   @click="selectLanguage(language.value)">{{ language.label }}</q-btn>
               </div>
             </q-item-section>
           </q-item>
-          
+
           <div class="centered q-mt-md"><strong>{{ $t('label.Or') }}</strong></div>
           <q-item>
             <q-item-section side top>
@@ -80,7 +80,7 @@
               </q-card>
             </q-item-section>
           </q-item>
-          
+
         </div>
 
         <form @submit.prevent="submitSettings()" v-if="this.quest.languages.length > 0">
@@ -1319,9 +1319,9 @@
           :lang="languages.current"
           :quest="quest"
           :offline="false"
-          @played="trackStepPlayed" 
-          @success="trackStepSuccess" 
-          @fail="trackStepFail" 
+          @played="trackStepPlayed"
+          @success="trackStepSuccess"
+          @fail="trackStepFail"
           @pass="trackStepPass"
           @msg="trackMessage"
           @closeAllPanels="closeAllPanels"
@@ -1342,11 +1342,11 @@
               </q-btn>
             </div>
             <div class="col centered q-py-sm">
-              <q-btn 
-                flat 
-                size="lg" 
-                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
-                icon="work" 
+              <q-btn
+                flat
+                size="lg"
+                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''"
+                icon="work"
                 v-if="!quest.customization || !quest.customization.hideInventory"
                 :class="{'flashing': inventory.suggest, 'bg-secondary': (inventory.isOpened && !quest.customization.color), 'bg-primary': (!inventory.isOpened && !quest.customization.color)}"
                 @click="openInventory()"
@@ -1354,30 +1354,30 @@
               />
             </div>
             <div class="col centered q-py-sm">
-              <q-btn 
+              <q-btn
                 flat
-                size="lg" 
-                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''" 
-                icon="lightbulb" 
-                :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && !quest.customization.color), 'bg-primary': (!hint.isOpened && !quest.customization.color)}" 
-                @click="askForHint()" 
-                v-show="isHintAvailable()" 
+                size="lg"
+                :style="(quest.customization.color && quest.customization.color !== '') ? 'background-color: ' + quest.customization.color : ''"
+                icon="lightbulb"
+                :class="{'flashing': hint.suggest, 'bg-secondary': (hint.isOpened && !quest.customization.color), 'bg-primary': (!hint.isOpened && !quest.customization.color)}"
+                @click="askForHint()"
+                v-show="isHintAvailable()"
               />
             </div>
             <div v-if="!readOnly" class="col centered q-py-sm">
-              <q-btn 
-                flat 
-                size="lg" 
-                :style="quest.customization.color ? 'background-color: ' + quest.customization.color : ''" 
-                :class="{'bg-primary': !quest.customization.color}" 
-                icon="arrow_back" 
-                @click="stepId = -1; modifyStep(chapters.newStep.overviewData)" 
+              <q-btn
+                flat
+                size="lg"
+                :style="quest.customization.color ? 'background-color: ' + quest.customization.color : ''"
+                :class="{'bg-primary': !quest.customization.color}"
+                icon="arrow_back"
+                @click="stepId = -1; modifyStep(chapters.newStep.overviewData)"
               />
             </div>
             <div class="col centered q-py-sm">
-              <q-btn 
-                flat 
-                size="lg" 
+              <q-btn
+                flat
+                size="lg"
                 :style="quest.customization.color ? 'background-color: ' + quest.customization.color : ''"
                 icon="arrow_forward"
                 :class="{'flashing': canMoveNextStep, 'bg-primary': !quest.customization.color}"
@@ -1392,7 +1392,7 @@
       </div>
 
       <!------------------ INVENTORY PAGE AREA ------------------------>
-      
+
       <q-dialog maximized v-model="inventory.isOpened">
         <div class="bg-graaly-blue-dark text-white inventory panel-bottom">
           <div class="q-pa-md">
@@ -1406,7 +1406,7 @@
             <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
             <div class="inventory-items">
               <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-                <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
+                <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : uploadUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
                 <p v-if="item.titles && item.titles[languages.current] && item.titles[languages.current] !== ''">{{ item.titles[languages.current] }}</p>
                 <p v-if="!(item.titles && item.titles[languages.current] && item.titles[languages.current] !== '')">{{ item.title }}</p>
               </div>
@@ -1436,7 +1436,7 @@
           </div>
         </div>
       </q-dialog>
-    <!--  
+    <!--
       <q-dialog maximized v-model="inventory.isOpened">
         <div class="inventory panel-bottom q-pa-md">
           <a class="float-right no-underline close-btn" color="grey" @click="inventory.isOpened = false"><q-icon name="close" class="medium-icon" /></a>
@@ -1457,7 +1457,7 @@
         </div>
       </q-dialog>
     -->
-      
+
       <!------------------ HINT PAGE AREA ------------------------>
 
       <q-dialog maximized v-model="hint.isOpened">
@@ -1765,13 +1765,13 @@ export default {
       // if quest Id is not set, redirect to quest creation page
       this.$router.push('/quest/create/welcome')
     }
-    
+
     // check user access rights
     if (this.$store.state.user.isAdmin) {
       this.isAdmin = true
     }
-    
-    // start tutorial 
+
+    // start tutorial
     //this.startStory()
   },
   methods: {
@@ -1783,10 +1783,10 @@ export default {
 
       // fill quest settings form
       let quest = await QuestService.getLastById(this.questId, 'all')
-      
+
       if (quest) {
         this.quest = quest.data
-        
+
         // if not draft => read only
         if (this.quest.status !== 'draft' && !this.isAdmin) {
           this.readOnly = true
@@ -1809,7 +1809,7 @@ export default {
         if (!this.quest.picture[this.languages.current] || this.quest.picture[this.languages.current] === '') {
           this.quest.picture[this.languages.current] = this.quest.picture[this.quest.mainLanguage]
         }
-        
+
         //this.form.fields = this.quest // removed EMA on 15112019 because issue with iOS
         this.form.fields.questId = this.quest.questId
         if (this.quest.title && Object.keys(this.quest.title).length > 0) {
@@ -3134,7 +3134,7 @@ export default {
     */
     async selectLanguage(selLang) {
       this.languages.current = selLang
-      
+
       // check if quest is already available for this lang
       let questConfiguredForThisLanguage = false
       if (this.quest.languages) {
@@ -3195,10 +3195,10 @@ export default {
           }).onOk(async () => {
             // raises blocking exception if any problem occurs
             await QuestService.addLanguage(_this.questId, language)
-            
+
             // refresh quest data
             await this.loadQuestData()
-        
+
             // if quest title is empty, autofill it with a default value
             if (!this.quest.title[language] || this.quest.title[language] === '') {
               if (language === this.quest.mainLanguage) {
@@ -3894,14 +3894,14 @@ export default {
     trackCallBackFunction() {
       return false
     },
-    
+
     async selectSample(sample) {
-      // Remove quest created 
+      // Remove quest created
       await QuestService.remove(this.questId, this.quest.version)
-      
+
       // create new quest with sample
       const response = await QuestService.createFromSample(sample, 1, this.quest.access, this.quest.isPremium)
-      
+
       if (response && response.data && response.data.newId) {
         const questId = response.data.newId
         this.$router.push('/quest/settings/' + questId)
