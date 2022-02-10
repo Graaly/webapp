@@ -10,13 +10,21 @@
             :thickness="2"
           />
         </div>
-        <q-btn v-if="start && (isIOs || isSafari)" class="absolute-center" :label="$t('label.startScan')" color="primary" icon="qr_code_scanner" @click="start = !start"/>
+        <q-btn 
+          v-if="start && (isIOs || isSafari)" 
+          class="absolute-center" 
+          :label="$t('label.startScan')" 
+          :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
+          :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
+          icon="qr_code_scanner" 
+          @click="start = !start"/>
       </qrcode-stream>
       <q-btn
         round
         class="q-mr-md"
         size="1rem"
-        color="accent"
+        :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
+        :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
         :icon="isLight ? 'flashlight_off' : 'flashlight_on'"
         @click="torchActive = !torchActive"
         :disable="torchNotSupported"
@@ -24,7 +32,8 @@
       <q-btn
         round
         size="1rem"
-        color="accent"
+        :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
+        :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
         icon="cameraswitch"
         @click="switchCamera"
       />
@@ -36,7 +45,8 @@
           round
           class="q-mr-md"
           size="1rem"
-          color="primary"
+          :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
+          :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
           :icon="isLight ? 'flashlight_off' : 'flashlight_on'"
           :disable="torchNotSupported"
           @click="toggleLight"
@@ -44,7 +54,8 @@
         <q-btn
           round
           size="1rem"
-          color="primary"
+          :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
+          :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
           icon="cameraswitch"
           @click="changeCamera"
         />
@@ -63,6 +74,7 @@ import utils from "../includes/utils"
 export default {
   name: "qrCodeStream",
   components: { QrcodeStream },
+  props: ['color'],
   data() {
     return {
       result: "",
