@@ -7,26 +7,30 @@
     <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled" class="full-height full-width"></video>
     <!--</transition>-->
     <div>
-      <div v-if="!takingSnapshot" style="position: absolute; top: 58px; right: 8px;z-index: 1990;">
-        <q-btn
-          round
-          size="lg"
-          class="text-white q-mr-md"
-          :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
-          :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
-          icon="flip_camera_ios"
-          @click="switchCamera()"
-        />
-        <q-btn
-          v-if="step.options && step.options.snapshotAllowed"
-          round
-          size="lg"
-          class="text-white"
-          :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
-          :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
-          icon="photo_camera"
-          @click="prepareSnapshot()"
-        />
+      <div v-if="!takingSnapshot" style="position: absolute; bottom: 78px; right: 8px;z-index: 1990;">
+        <div>
+          <q-btn
+            v-if="step.options && step.options.snapshotAllowed"
+            round
+            size="lg"
+            class="text-white"
+            :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
+            :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+            icon="photo_camera"
+            @click="prepareSnapshot()"
+          />
+        </div>
+        <div class="q-pt-md">
+          <q-btn
+            round
+            size="lg"
+            class="text-white q-mr-sm"
+            :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
+            :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+            icon="flip_camera_ios"
+            @click="switchCamera()"
+          />
+        </div>
       </div>
       <img id="snapshotImage" v-show="false" style="position: absolute; top: 0; left: 0; height: 100vh; width: 100vw; z-index: 1980;" />
 <!--      <img id="snapshotImageIos" v-show="false" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />-->
@@ -177,7 +181,8 @@ export default {
         blob: blob,
         isHybrid: isHybrid,
         quest: this.quest,
-        step: this.step
+        step: this.step,
+        color: (this.customization && this.customization.color && this.customization.color !== '') ? this.customization.color : 'primary'
       }).onCancel(async () => {
         this.$emit('showButtons')
         this.cancelTakeVideoSnapShot()

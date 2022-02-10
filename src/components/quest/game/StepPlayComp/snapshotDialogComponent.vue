@@ -17,8 +17,16 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn color="primary" :label="$t('snapshot.share')" @click="shareWithFriend" />
-        <q-btn color="primary" :label="$t('snapshot.save')" @click="saveAndDownload" />
+        <q-btn 
+          :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
+          :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
+          :label="$t('snapshot.share')" 
+          @click="shareWithFriend" />
+        <q-btn 
+          :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
+          :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
+          :label="$t('snapshot.save')" 
+          @click="saveAndDownload" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -31,7 +39,7 @@ import StepService from 'src/services/StepService'
 
 export default {
   name: "snapshotDialogComponent",
-  props: ['snapshotFilename', 'blob', 'quest', 'step', 'isHybrid'],
+  props: ['snapshotFilename', 'blob', 'quest', 'step', 'isHybrid', 'color'],
 
   data() {
     return {

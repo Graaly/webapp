@@ -94,7 +94,11 @@
         </div>
         <div class="q-pa-md">{{ inventory.detail.title }}</div>
         <!--<div class="q-pa-md text-grey">{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>-->
-        <q-btn class="glossy normal-button" color="primary" @click="closeInventoryDetail()"><div>{{ $t('label.Close') }}</div></q-btn>
+        <q-btn 
+          class="glossy normal-button" 
+          :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
+          :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+          @click="closeInventoryDetail()"><div>{{ $t('label.Close') }}</div></q-btn>
         <div>
           <q-btn-group outline>
             <q-btn flat :label="$t('label.Zoom')"/>
@@ -212,7 +216,7 @@
     <!--====================== HINT =================================-->
 
     <div class="mobile-fit over-map" :class="'font-' + info.quest.customization.font" v-if="hint.isOpened">
-      <story step="hint" :data="{hint: hint.label, character: (info.quest.customization && info.quest.customization.character && info.quest.customization.character !== '') ? (info.quest.customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + info.quest.customization.character : info.quest.customization.character) : '3'}" @next="askForHint()"></story>
+      <story step="hint" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? info.quest.customization.color : 'primary'" :data="{hint: hint.label, character: (info.quest.customization && info.quest.customization.character && info.quest.customization.character !== '') ? (info.quest.customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + info.quest.customization.character : info.quest.customization.character) : '3'}" @next="askForHint()"></story>
     </div>
 
     <!--====================== STORY =================================-->

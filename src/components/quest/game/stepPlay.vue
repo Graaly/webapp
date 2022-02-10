@@ -5,7 +5,10 @@
     </div>
     <div v-if="showNonHybridQRReader">
       <!--====================== QR CODE READER ON WEBAPP =================================-->
-      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
+      <div 
+        class="text-white q-pt-xl q-pl-md q-pb-sm"
+        :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
+        :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}">
         <div class="float-right no-underline close-btn q-pa-sm" @click="closeQRCodeReader"><q-icon name="close" class="subtitle1" /></div>
         {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
       </div>
@@ -13,6 +16,7 @@
       <qr-code-stream
         v-if="showNonHybridQRReader"
         v-on:QrCodeResult="checkAnswer"
+        :color="(customization && customization.color && customization.color !== '') ? customization.color : 'primary'"
       />
     </div>
     <div v-if="!showNonHybridQRReader" :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'" :style="'color: ' + customization.fontColor">
