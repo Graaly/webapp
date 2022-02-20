@@ -1521,6 +1521,7 @@ export default {
 
         if (this.step.type === 'new-item') {
           if (this.step.options.hasOwnProperty('addInventoryAndPass') && this.step.options.addInventoryAndPass) {
+            await this.checkAnswer()
             utils.setTimeout(this.forceNextStep, 1000)
             this.step.type  = 'none' // do not display step
           }

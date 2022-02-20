@@ -129,7 +129,7 @@
         <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="initData()">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
-        <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
+        <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) #000000 center center / cover no-repeat '">
           <q-toolbar class="dark-banner text-white">
             <q-toolbar-title v-if="info && info.quest && info.quest.availablePoints">
               {{ $t('label.MyScore') }} {{ run.tempScore }} / {{ info.quest.availablePoints.score }}
@@ -1353,7 +1353,7 @@ export default {
       } else if (picture) {
         return this.serverUrl + '/upload/quest/' + picture
       } else {
-        return 'statics/images/quest/default-quest-picture.jpg'
+        return ''
       }
     },
     /*
@@ -1399,23 +1399,29 @@ export default {
       // if moving in history
       if (this.$store.state.history.items && this.$store.state.history.index < this.$store.state.history.items.length) {
         await this.moveToStep(this.$store.state.history.items[this.$store.state.history.index])
-        //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
         return
       }
       // reload step to remove notifications
       this.loadStepData = false
+console.log("move next5")
+console.log(this.next)
       if (this.next.enabled) {
+console.log("move next6")
         await this.moveToNextStep('success')
       } else if (this.next.canPass) {
+console.log("move next7")
         if (force) {
+console.log("move next8")
           await this.passStep()
         } else {
+console.log("move next9")
           this.$q.dialog({
             dark: true,
             message: this.$t('label.ConfirmPass'),
             ok: this.$t('label.Ok'),
             cancel: this.$t('label.Cancel')
           }).onOk(async () => {
+console.log("move next10")
             await this.passStep()
           }).onCancel(() => {})
         }

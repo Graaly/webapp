@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="graaly.app" version="2.1.50" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="graaly.app" version="2.1.54" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Graaly</name>
     <description>Graaly Frontend</description>
     <author email="eric@graaly.com" href="http://graaly.com">
@@ -87,7 +87,7 @@
     <plugin name="phonegap-plugin-media-stream" spec="^1.2.1" />
     <plugin name="cordova-plugin-insomnia" spec="https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git" />
     <config-file overwrite="true" parent="NSCameraUsageDescription" platform="ios" target="*-Info.plist">
-        <string>Allow the app to use your camera</string>
+        <string>Graaly uses your camera to scan QR codes and display augmented reality objects in games</string>
     </config-file>
     <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsageDescription">
         <string>Graaly uses the player location to gives him the list of the quests available around him. Some quest's enigmas also use the location to give reward if the user find the good location</string>
