@@ -156,7 +156,7 @@
                 </q-item>
               </q-list>
             </q-<btn-dropdown>-->
-            <q-btn v-if="isQuestOpen.status && quest.type === 'quest' && !(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages()" @click="playQuest(quest.questId, getLanguage())" color="primary" class="glossy large-btn">
+            <q-btn v-if="isQuestOpen.status && quest.type === 'quest' && !(quest.premiumPrice && (quest.premiumPrice.active || quest.premiumPrice.tier)) && !(this.isUserTooFar && !quest.allowRemotePlay) && isRunPlayable && getAllLanguages() && !isAdmin" @click="playQuest(quest.questId, getLanguage())" color="primary" class="glossy large-btn">
               <span v-if="continueQuest">{{ $t('label.ContinueTheQuest') }}</span>
               <span v-if="!continueQuest && isRunFinished">{{ $t('label.SolveAgainThisQuest') }}</span>
               <span v-if="!continueQuest && !isRunFinished">{{ $t('label.SolveThisQuest') }}</span>

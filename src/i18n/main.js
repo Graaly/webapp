@@ -1147,7 +1147,8 @@ module.exports = {
       TeamPlay: "Team game",
       TypeTeamPlayId: "Type the game ID if you received one.",
       OrderIsNotImportant: "Picture order is not important",
-      DoNotPreventUserForHint: "Do not display a warning message when user call a hint"
+      DoNotPreventUserForHint: "Do not display a warning message when user call a hint",
+      TextTooLongForStep: "Your text is too long and could impact readability on small screens. We recommend {nb} characters for this kind of step. Do you still want to save ?"
     }
   },
   fr: {
@@ -2152,7 +2153,7 @@ module.exports = {
       HelpStepMessageHint: "Afficher l'aide pour le bouton Indice",
       HelpStepMessagePrevious: "Afficher l'aide pour le bouton Retour",
       HelpStepMessageNext: "Afficher l'aide pour le bouton Suivant",
-      HelpStepMessage: "Bienvenu.e.s dans votre interface !\n\nPour participer, il vous suffira de suivre les indications à l'écran.",
+      HelpStepMessage: "Bienvenue dans votre interface !\n\nPour participer, il vous suffira de suivre les indications à l'écran.",
       HelpStepMessageInventoryMessage: "La valise vous sert à utiliser des objets que vous avez récupérés durant le jeu.",
       HelpStepMessageHintMessage: "L'ampoule vous sert à obtenir des indices.",
       HelpStepMessagePreviousMessage: "Pour revenir à l'étape précédente, appuyez sur la flèche de gauche.",
@@ -2285,7 +2286,8 @@ module.exports = {
       TeamPlay: "Jeu d'équipe",
       TypeTeamPlayId: "Tapez l'ID du jeu si vous en avez reçu un.",
       OrderIsNotImportant: "L'ordre des images n'est pas important",
-      DoNotPreventUserForHint: "Ne pas afficher de message d'alerte quand le joueur utilise un indice"
+      DoNotPreventUserForHint: "Ne pas afficher de message d'alerte quand le joueur utilise un indice",
+      TextTooLongForStep: "Votre texte est trop long ou contient trop de sauts de lignes, et risque de mal s'afficher sur des petits écrans ! Nous conseillons {nb} caractères pour ce type d'étape. Souhaitez vous enregistrer quand même ?"
     }
   }
 }

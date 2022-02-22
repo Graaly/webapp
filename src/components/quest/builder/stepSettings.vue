@@ -33,13 +33,8 @@
         :max-height="100"
         :min-rows="4"
         class="full-width"
-        @blur="$v.selectedStep.form.text[lang].$touch"
-        @input="$v.selectedStep.form.text[lang].$touch"
         bottom-slots
         counter
-        :maxlength="mainTextMaxLength"
-        :error="$v.selectedStep.form.text[lang].$error"
-        :error-message="$t('label.KeepEnigmaQuestionsShort')"
         test-id="step-text"
       />
 
@@ -1010,7 +1005,7 @@
               <q-btn class="full-width" type="button" @click="showMedia">
                 {{ $t('label.AddABackgroundImage') }}
               </q-btn>
-              <!--toot<div v-if="!isIOs">
+              <!--<div v-if="!isIOs">
                 <q-btn class="full-width" type="button" @click="$refs['backgroundfile2'].click()">
                   <q-icon name="cloud_upload" /> <label for="picturefile2">{{ $t('label.UploadABackgroundImage') }}</label>
                 </q-btn>
@@ -1123,10 +1118,10 @@
     <!------------------ SAVE BUTTONS ------------------------>
       
       <div class="centered q-pa-md q-pt-lg q-pb-sm">
-        <q-btn class="glossy large-button" color="primary" @click="submitStep(true)" test-id="btn-save-step">{{ $t('label.SaveAndTestThisStep') }}</q-btn>
+        <q-btn class="glossy large-button" color="primary" @click="checkAndSubmit(true)" test-id="btn-save-step">{{ $t('label.SaveAndTestThisStep') }}</q-btn>
       </div>
       <div class="centered q-px-md q-pb-xl">
-        <q-btn flat color="primary" @click="submitStep(false)">{{ $t('label.SaveThisStep') }}</q-btn>
+        <q-btn flat color="primary" @click="checkAndSubmit(false)">{{ $t('label.SaveThisStep') }}</q-btn>
       </div>
     </div>
     
@@ -1138,7 +1133,7 @@
         <q-card-actions>
           <q-btn 
             color="primary" 
-            @click="submitStep(false)" 
+            @click="checkAndSubmit(false)" 
             :label="$t('label.Yes')" />
           <q-btn 
             color="primary" 
@@ -1479,12 +1474,12 @@ export default {
       let maxNbChars = 500 // default
       
       if (this.options.type.textRules && this.options.type.textRules.maxNbChars) {
-        if (this.$store.state.user.isAdmin) {
+        //if (this.$store.state.user.isAdmin) {
           // give admin the possibility to extend size
-          maxNbChars = this.options.type.textRules.maxNbChars * 2
-        } else {
+        //  maxNbChars = this.options.type.textRules.maxNbChars * 2
+        //} else {
           maxNbChars = this.options.type.textRules.maxNbChars
-        }
+        //}
       }
       
       return maxNbChars
@@ -1944,6 +1939,22 @@ export default {
       
       // init the chapters list
       await this.listChapters(this.questId, this.quest.version, this.lang)
+    },
+    async checkAndSubmit(test) {
+      // check text length
+      if (this.checkMainTextLength(this.selectedStep.form.text[this.lang])) {
+        await this.submitStep(test)
+      } else {
+        this.$q.dialog({
+          dark: true,
+          message: this.$t('label.TextTooLongForStep', {nb: this.mainTextMaxLength}),
+          cancel: true
+        }).onOk(async (data) => {
+          await this.submitStep(test)
+        }).onCancel(() => {
+          return false
+        })
+      }
     },
     /*
      * Submit step data
@@ -3346,7 +3357,7 @@ export default {
     }
     
     fieldsToValidate.title[this.lang] = { required }
-    fieldsToValidate.text[this.lang] = { function(value) { return this.checkMainTextLength(value) } }
+    //fieldsToValidate.text[this.lang] = { }//function(value) { return this.checkMainTextLength(value) } }
     
     // alphabetical order
     switch (this.options.type.code) {
