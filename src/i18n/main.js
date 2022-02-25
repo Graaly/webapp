@@ -1148,7 +1148,8 @@ module.exports = {
       TypeTeamPlayId: "Type the game ID if you received one.",
       OrderIsNotImportant: "Picture order is not important",
       DoNotPreventUserForHint: "Do not display a warning message when user call a hint",
-      TextTooLongForStep: "Your text is too long and could impact readability on small screens. We recommend {nb} characters for this kind of step. Do you still want to save ?"
+      TextTooLongForStep: "Your text is too long and could impact readability on small screens. We recommend {nb} characters for this kind of step. Do you still want to save ?",
+      FirstAndLastName: "Your first and last name"
     }
   },
   fr: {
@@ -2287,7 +2288,8 @@ module.exports = {
       TypeTeamPlayId: "Tapez l'ID du jeu si vous en avez reçu un.",
       OrderIsNotImportant: "L'ordre des images n'est pas important",
       DoNotPreventUserForHint: "Ne pas afficher de message d'alerte quand le joueur utilise un indice",
-      TextTooLongForStep: "Votre texte est trop long ou contient trop de sauts de lignes, et risque de mal s'afficher sur des petits écrans ! Nous conseillons {nb} caractères pour ce type d'étape. Souhaitez vous enregistrer quand même ?"
+      TextTooLongForStep: "Votre texte est trop long ou contient trop de sauts de lignes, et risque de mal s'afficher sur des petits écrans ! Nous conseillons {nb} caractères pour ce type d'étape. Souhaitez vous enregistrer quand même ?",
+      FirstAndLastName: "Votre nom et prénom"
     }
   }
 }
