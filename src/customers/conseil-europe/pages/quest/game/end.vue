@@ -79,9 +79,14 @@
           <div class="subtitle3 q-pa-md" v-if="$t('label.shortLang') === 'en'">
             Discover our virtual visits
           </div>
-          <div class="q-pt-sm">
+          <div class="q-pt-sm" v-if="$t('label.shortLang') === 'fr'">
             <a href="https://www.coe.int/fr/web/about-us/virtual-visits" target="_blank">
               <img src="statics/customers/conseil-europe/images/visites.png" />
+            </a>
+          </div>
+          <div class="q-pt-sm" v-if="$t('label.shortLang') === 'en'">
+            <a href="https://www.coe.int/en/web/about-us/virtual-visits" target="_blank">
+              <img src="statics/customers/conseil-europe/images/visites_en.png" />
             </a>
           </div>
         </div>

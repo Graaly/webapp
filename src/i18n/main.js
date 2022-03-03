@@ -1149,7 +1149,15 @@ module.exports = {
       OrderIsNotImportant: "Picture order is not important",
       DoNotPreventUserForHint: "Do not display a warning message when user call a hint",
       TextTooLongForStep: "Your text is too long and could impact readability on small screens. We recommend {nb} characters for this kind of step. Do you still want to save ?",
-      FirstAndLastName: "Your first and last name"
+      FirstAndLastName: "Your first and last name",
+      IconForSuccess: "Icon displayed on success",
+      SelectThisIcon: "Select this icon",
+      NoIcon: "No icon",
+      CustomizeRightAnswerColor: "Customize right answer message color",
+      CustomizeWrongAnswerColor: "Customize wrong answer message color",
+      Binoculars: "Binoculars",
+      FlashLight: "Flashlight",
+      Shape: "Shape"
     }
   },
   fr: {
@@ -2289,7 +2297,15 @@ module.exports = {
       OrderIsNotImportant: "L'ordre des images n'est pas important",
       DoNotPreventUserForHint: "Ne pas afficher de message d'alerte quand le joueur utilise un indice",
       TextTooLongForStep: "Votre texte est trop long ou contient trop de sauts de lignes, et risque de mal s'afficher sur des petits écrans ! Nous conseillons {nb} caractères pour ce type d'étape. Souhaitez vous enregistrer quand même ?",
-      FirstAndLastName: "Votre nom et prénom"
+      FirstAndLastName: "Votre nom et prénom",
+      IconForSuccess: "Icone affiché quand on gagne",
+      SelectThisIcon: "Sélectionner cette icône",
+      NoIcon: "Aucune icône",
+      CustomizeRightAnswerColor: "Personnaliser la couleur du message de bonne réponse",
+      CustomizeWrongAnswerColor: "Personnaliser la couleur du message de mauvaise réponse",
+      Binoculars: "Jumelles",
+      FlashLight: "Lampe de poche",
+      Shape: "Forme"
     }
   }
 }
