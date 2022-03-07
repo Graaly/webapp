@@ -241,6 +241,9 @@
       <div v-if="quest.type === 'room'" class="q-pa-md subtitle5">
         {{ $t('label.RoomDataWarning') }}
       </div>
+      <div class="centered text-grey text-subtitle1 arial q-mt-xl q-mb-md">
+        {{ $t('label.Version') + " " + quest.version }}
+      </div>
       
       <!------------------ SNAPSHOTS ------------------------>
       

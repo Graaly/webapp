@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "dff2e78416130df7f20d",
-    "url": "css/app.02f42b37.css"
+    "revision": "851cc15bda2392d63730",
+    "url": "css/app.7322734c.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -72,7 +72,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "1c4af953bfb5b7f432bdaa49e207465e",
+    "revision": "c97de107804b7d78f5705d45005ae0c9",
     "url": "index.html"
   },
   {
@@ -80,12 +80,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2.5af11629.js"
   },
   {
-    "revision": "dff2e78416130df7f20d",
-    "url": "js/app.42fbd694.js"
+    "revision": "851cc15bda2392d63730",
+    "url": "js/app.c018e7cf.js"
   },
   {
-    "revision": "72e0ef6b4447964e1247",
-    "url": "js/vendor.72e0ef6b.js"
+    "revision": "5be1098ccf3db1d9a389",
+    "url": "js/vendor.5be1098c.js"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
@@ -316,6 +316,46 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/cars/nose-3.png"
   },
   {
+    "revision": "2f72e442866ab7c9a882b31a4d2abe5a",
+    "url": "statics/colors/colors1.png"
+  },
+  {
+    "revision": "49ed8607219a1ef0c9790d6786808fa6",
+    "url": "statics/colors/colors10.png"
+  },
+  {
+    "revision": "821082060043dedceb6ae063ec98372a",
+    "url": "statics/colors/colors2.png"
+  },
+  {
+    "revision": "e2efe751826ec34ff50f865fa80f0980",
+    "url": "statics/colors/colors3.png"
+  },
+  {
+    "revision": "f4922cc4042d82f2e89767422a6c3f70",
+    "url": "statics/colors/colors4.png"
+  },
+  {
+    "revision": "77ae57f2df70e2f09ebd983f1ac46139",
+    "url": "statics/colors/colors5.png"
+  },
+  {
+    "revision": "72c68de2b55bc7b49a7ef068553f7f14",
+    "url": "statics/colors/colors6.png"
+  },
+  {
+    "revision": "05949dd19a19dba647486aa90f1db147",
+    "url": "statics/colors/colors7.png"
+  },
+  {
+    "revision": "aeb0b2b26c54e18c7fc9510ef56651aa",
+    "url": "statics/colors/colors8.png"
+  },
+  {
+    "revision": "96a091de1aee7131301500be93577544",
+    "url": "statics/colors/colors9.png"
+  },
+  {
     "revision": "8a03c2a835f6de88c69150700aee1642",
     "url": "statics/css/addtohomescreen.css"
   },
@@ -404,6 +444,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/customers/conseil-europe/images/visites.png"
   },
   {
+    "revision": "95885fcb6d82c60fc4c07c8c053280f5",
+    "url": "statics/customers/conseil-europe/images/visites_en.png"
+  },
+  {
     "revision": "3fe7549904127ab02d1bf894e49382ef",
     "url": "statics/customers/ouigo/logo.png"
   },
@@ -476,10 +520,6 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/game/card-back.png"
   },
   {
-    "revision": "11aa29254b2e686ee5e6118f0e71d985",
-    "url": "statics/icons/game/default-quest-picture.png"
-  },
-  {
     "revision": "2f4804d764b717588953e75d415470b7",
     "url": "statics/icons/game/english.png"
   },
@@ -494,6 +534,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "364ad74cfc0969f8dc554b27492572b3",
     "url": "statics/icons/game/flag-fr.png"
+  },
+  {
+    "revision": "00c61d48b8745b795db3928f3bd44602",
+    "url": "statics/icons/game/flashlight.png"
   },
   {
     "revision": "d67c867bd30dbf733199980eeed996ef",
@@ -528,20 +572,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/game/spacer.gif"
   },
   {
-    "revision": "1eb125b2ca6077ae9d69e936eddc879b",
-    "url": "statics/icons/game/storekeeper.jpg"
-  },
-  {
     "revision": "9d347758fc296c2afaf832364eb93476",
     "url": "statics/icons/game/take-mobile-vertically.gif"
   },
   {
     "revision": "17501d4d08c35938fdc05546f3627da2",
     "url": "statics/icons/game/target.png"
-  },
-  {
-    "revision": "4f4ef1c9ff27e32a8bdc10aedf878620",
-    "url": "statics/icons/game/tourism.jpg"
   },
   {
     "revision": "4e56bc4ab648765806be15d35a2c440f",

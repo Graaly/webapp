@@ -838,6 +838,7 @@
             </q-item-section>
             <q-item-section>
               <q-item-label class="big-label">{{ $t('label.Invitees') }} <span v-if="quest.limitations && quest.limitations.nbInvitees">({{ invitee.items.length }}/{{ quest.limitations.nbInvitees }})</span></q-item-label>
+              <q-item-label v-if="quest.version < 2">{{ $t('label.WarningInvitees')}}</q-item-label>
               <p v-for="item in invitee.items" :key="item.id">
                 <q-toggle v-model="item.checked" :label="item.name" @input="removeInvitee(item.id)" />
               </p>

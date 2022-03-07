@@ -398,7 +398,7 @@ module.exports = {
       ActivateTheLanguageVisible: "Activate the languages playable for your game",
       ActivateTheLanguageVisiblePrivate: "Activate the languages to let your invitees play your game",
       LanguagesPublished: "Publish game in",
-      LanguagesPublishedForPrivate: "Game is visible for invitees",
+      LanguagesPublishedForPrivate: "Publish game for invitees (or with QR code below)",
       PageLanguagesPublished: "Publish page in",
       ModifyThePicture: "Modify the picture",
       Picture: "Picture",
@@ -623,7 +623,7 @@ module.exports = {
       By: "By",
       YourChapterMustHaveAEndOfChapterStep: "You must have an 'End of chapter' step in each chapter to move player to next chapter",
       FollowingStepsHaveNoConditionsOnlyTheFirstStepCanHaveThis: "Following steps have no trigger. Only the 'introduction step' of a chapter can have no triggers",
-      FollowingStepsHaveInvalidCondition: "Some steps have invalid condition (maybe the folowwing stem has been removed, or you created circular conditions)",
+      FollowingStepsHaveInvalidCondition: "Some steps have invalid condition (maybe the following step has been removed, or you created circular conditions)",
       FollowingStepsHaveNoValidParent: "Following steps have invalid trigger",
       IssuesInYouQuest: "Issues in your game",
       IssuesInYourStep: "Issues in your step",
@@ -1157,7 +1157,11 @@ module.exports = {
       CustomizeWrongAnswerColor: "Customize wrong answer message color",
       Binoculars: "Binoculars",
       FlashLight: "Flashlight",
-      Shape: "Shape"
+      Shape: "Shape",
+      DataHaveBeenRemoved: "Data have been removed",
+      Private: "Private",
+      WarningInvitees: "The invitees will be able to play when your game will be published",
+      RemoveOfflineData: "Remove offline games data"
     }
   },
   fr: {
@@ -1546,7 +1550,7 @@ module.exports = {
       ActivateTheLanguageVisible: "Activez les langues pour que votre jeu soit jouable",
       ActivateTheLanguageVisiblePrivate: "Activez les langues pour que vos invités puissent jouer",
       LanguagesPublished: "Publier le jeu en",
-      LanguagesPublishedForPrivate: "Rendre visible pour les invités",
+      LanguagesPublishedForPrivate: "Publier le jeu pour les invités (ou via le QR code ci-dessous)",
       PageLanguagesPublished: "Publier la fiche en",
       ModifyThePicture: "Modifier l'image",
       Picture: "Photo",
@@ -2305,7 +2309,11 @@ module.exports = {
       CustomizeWrongAnswerColor: "Personnaliser la couleur du message de mauvaise réponse",
       Binoculars: "Jumelles",
       FlashLight: "Lampe de poche",
-      Shape: "Forme"
+      Shape: "Forme",
+      DataHaveBeenRemoved: "Les données ont été supprimées",
+      Private: "Privé",
+      WarningInvitees: "Les invités ne pourront jouer que quand votre jeu sera publié",
+      RemoveOfflineData: "Supprimer les données offline des jeux"
     }
   }
 }

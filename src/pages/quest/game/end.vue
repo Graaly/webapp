@@ -367,6 +367,9 @@ export default {
     // compute end date
     let date = new Date()
     this.endDate = Moment(date).format('DD/MM/YYYY, k:mm')
+    
+    // After 6 seconds, show the notation box to increase the number of comments on games
+    utils.setTimeout(this.showNotationBox, 7000)
   },
   methods: {
     /*
@@ -713,6 +716,12 @@ export default {
      */
     openValidation(questId, version) {
       this.$router.push('/admin/validate/' + questId + '/version/' + version)
+    },
+    /*
+     * Send a review
+     */
+    showNotationBox() {
+      this.showReviewText = true
     },
     /*
      * Send a review
