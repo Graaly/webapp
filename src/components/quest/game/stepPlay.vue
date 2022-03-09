@@ -934,7 +934,7 @@
     <!--====================== WIN POINTS ANIMATION =================================-->
 
     <!--<div v-show="playerResult === true && score >= 1" class="fadein-message">+{{ score }}</div>-->
-    <div v-show="playerResult === true && displaySuccessIcon && step.options.successIcon !== 'block'" class="fadein-message" style="padding-left: 40%"><q-icon color="white" :name="step.options.successIcon" /></div>
+    <div v-show="playerResult === true && displaySuccessIcon && step.options && step.options.successIcon && step.options.successIcon !== 'block'" class="fadein-message" style="padding-left: 40%"><q-icon color="white" :name="step.options.successIcon" /></div>
     <div v-show="geolocation.foundStep" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="check_box" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
     <div
