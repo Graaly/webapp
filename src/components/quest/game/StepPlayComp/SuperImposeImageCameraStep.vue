@@ -7,7 +7,7 @@
     <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled" class="full-height full-width"></video>
     <!--</transition>-->
     <div>
-      <div v-if="!takingSnapshot" style="position: absolute; top: 58px; right: 8px;z-index: 1990;">
+      <div v-if="!takingSnapshot" style="position: absolute; bottom: 108px; right: 8px;z-index: 1990;">
         <q-btn
           round
           size="lg"
@@ -69,6 +69,7 @@ export default {
   data () {
     return {
       serverUrl: process.env.SERVER_URL,
+      uploadUrl: process.env.UPLOAD_URL,
       cameraStreamEnabled: false,
       imageCapture: null,
       cameraUsed: 'user',
@@ -289,7 +290,7 @@ export default {
       } else if (backgroundImage && backgroundImage.indexOf('blob:') !== -1) {
         return backgroundImage
       } else {
-        return this.serverUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
+        return this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
       }
     },
   },

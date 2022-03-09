@@ -1,6 +1,7 @@
 import store from '../store'
 import router from '../router'
 import * as CryptoJS from 'crypto-js'
+import axios from "axios";
 
 var self = {
   notificationsArr: [],
@@ -498,11 +499,15 @@ var self = {
       }
       // open local directory
       window.requestFileSystem(window.TEMPORARY, 5 * 1024 * 1024, function (fs) {
-        //get picture
         var xhr = new XMLHttpRequest()
         xhr.open('GET', path + fileName, true)
+        // Fix Bug with 3D models
+        // Cache Control is necessary for S3
+        // But is Not supported by Express and download statics/models-3D
+        if (!path.includes(process.env.SERVER_URL)) {
+          xhr.setRequestHeader("Cache-Control", 'no-cache')
+        }
         xhr.responseType = 'blob'
-
         xhr.onload = function() {
           if (this.status === 200) {
             var blob = new Blob([this.response], { type: 'image/png' })
@@ -521,7 +526,9 @@ var self = {
 
                   fileWriter.write(blob)
                 })
-              }, function() { resolve(false) })
+              }, function() {
+                resolve(false)
+              })
             } else {
               fs.root.getDirectory(directory, {create: true}, function (dirEntry) {
                 dirEntry.getFile(fileName, { create: true, exclusive: false }, function (fileEntry) {
@@ -538,8 +545,11 @@ var self = {
 
                     fileWriter.write(blob)
                   })
-                }, function() { resolve(false) })
-              }, function() { resolve(false) })
+                }, function() {
+                  resolve(false) })
+              }, function() {
+                resolve(false)
+              })
             }
           } else {
             resolve(false)
