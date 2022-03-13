@@ -20,9 +20,12 @@
         class="quest-small relative-position q-mr-md cursor-pointer" 
         :style="'background: url(' + getBackgroundImage(quest.thumb, quest.mainLanguage) + ' ) center center / cover no-repeat '"
         @click="$router.push('/quest/play/' + quest.questId)">
-        <div v-if="quest.status && quest.status !== 'published'">
-          <q-chip :color="'status-' + quest.status">
+        <div>
+          <q-chip :color="'status-' + quest.status" v-if="quest.status && quest.status !== 'published' && !(quest.status === 'draft' && quest.version > 1)">
             {{ $t('status.' + quest.status) }}
+          </q-chip>
+          <q-chip color="secondary" v-if="quest.access === 'private'" icon="lock">
+            {{ $t('label.Private') }}
           </q-chip>
         </div>
         <div v-if="quest.userName">

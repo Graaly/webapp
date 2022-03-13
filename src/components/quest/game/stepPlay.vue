@@ -604,7 +604,8 @@
             <img style="width: 400%" :src="getBackgroundImage()" />
           </div>
           <div class="absolute no-mouse-event" style="top: 0px; width: 100%;">
-            <img class="no-mouse-event" style="width: 100%; " src="statics/icons/game/binoculars.png">
+            <img class="no-mouse-event" v-if="!step.options.shape || step.options.shape === 'binocular'" style="width: 100%;" src="statics/icons/game/binoculars.png">
+            <img class="no-mouse-event" v-if="step.options.shape && step.options.shape === 'flashlight'" style="width: 100%;" src="statics/icons/game/flashlight.png">
           </div>
         </div>
         <div class="absolute text-white centered" style="width: 100%; left: 0px; right: 0px; bottom: 130px">
@@ -933,7 +934,7 @@
     <!--====================== WIN POINTS ANIMATION =================================-->
 
     <!--<div v-show="playerResult === true && score >= 1" class="fadein-message">+{{ score }}</div>-->
-    <div v-show="playerResult === true && displaySuccessIcon" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
+    <div v-show="playerResult === true && displaySuccessIcon && step.options && step.options.successIcon && step.options.successIcon !== 'block'" class="fadein-message" style="padding-left: 40%"><q-icon color="white" :name="step.options.successIcon" /></div>
     <div v-show="geolocation.foundStep" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="check_box" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
     <div
@@ -1466,8 +1467,9 @@ export default {
         this.getAudioSound()
 
         //this.startQuestCountDown()
-
         this.resetDrawDirectionInterval()
+        
+        this.resetSuccessIcon()
 
         var _this = this
 
@@ -1978,6 +1980,11 @@ export default {
      */
     switchControls () {
       this.controlsAreDisplayed = !this.controlsAreDisplayed
+    },
+    resetSuccessIcon () {
+      if (this.step.options && !this.step.options.successIcon) {
+        this.step.options.successIcon = 'thumb_up'
+      }
     },
     /*
      * If a bug occur and data are not init, force it !
@@ -4267,6 +4274,7 @@ export default {
     */
     displaySuccessMessage (success, genericMessage, allowCustomMessage, actions, showNextArrow) {
       let message = ""
+      let customColor
       let duration = false
       this.displaySuccessIcon = true
       if (success) {
@@ -4278,6 +4286,7 @@ export default {
         } else {
           message = genericMessage
         }
+        customColor = this.step.options.rightAnswerColor
       } else {
         if (allowCustomMessage && this.step.options && this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage[this.lang] && this.step.options.wrongAnswerMessage[this.lang] !== "") {
           message = this.step.options.wrongAnswerMessage[this.lang]
@@ -4287,11 +4296,12 @@ export default {
         } else {
           message = genericMessage
         }
+        customColor = this.step.options.wrongAnswerColor
       }
       if ((!actions || actions === "") && showNextArrow) {
         actions = [{icon: "arrow_forward", handler: () => { this.forceNextStep() }}]
       }
-      Notification(message, (success ? 'rightAnswer' : 'wrongAnswer'), actions, duration)
+      Notification(message, (success ? 'rightAnswer' : 'wrongAnswer'), actions, duration, customColor)
     },
     /*
     * Display read more text

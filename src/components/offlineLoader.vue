@@ -88,7 +88,8 @@ export default {
         const questFileContent = await utils.readFile('', 'quests.json')
 
         quests = JSON.parse(questFileContent)
-      } else {
+      }
+      if (!isQuestOfflineListExisting || !quests || !quests.list) {
         quests = {list: []}
       }
       // check if quest is already existing in file
@@ -113,12 +114,12 @@ export default {
       var _this = this
       // cancel save if the duration is too long
       utils.setTimeout(async () => { await _this.cancelSavingTooLong(_this.quest.questId) }, 420000)
-      
+
       // load data
       var stepsData = await StepService.listForAQuest(quest.questId, quest.version, this.lang)
       var steps = stepsData.data.steps
       var chapters = stepsData.data.chapters
-      
+
       // assign steps & chapters to quest
       this.quest.steps = []
       for (var i = 0; i < steps.length; i++) {
@@ -128,7 +129,7 @@ export default {
       for (i = 0; i < chapters.length; i++) {
         this.quest.chapters.push(chapters[i].chapterId)
       }
-    
+
       if (!this.error.raised) {
         // Create quest json file
         const createQuestFileSuccess = await utils.writeInFile(quest.questId, 'quest_' + quest.questId + '.json', JSON.stringify(quest), true)

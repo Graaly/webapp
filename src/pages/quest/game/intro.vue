@@ -241,6 +241,9 @@
       <div v-if="quest.type === 'room'" class="q-pa-md subtitle5">
         {{ $t('label.RoomDataWarning') }}
       </div>
+      <div class="centered text-grey text-subtitle1 arial q-mt-xl q-mb-md">
+        {{ $t('label.Version') + " " + quest.version }}
+      </div>
       
       <!------------------ SNAPSHOTS ------------------------>
       
@@ -713,7 +716,10 @@ export default {
         }
         if (this.isRunStarted) {
           this.continueQuest = true
-          if (!this.isOwner) {            
+          // check if quest data are loaded offline
+          let checkIfOfflineDataExists = await utils.checkIfFileExists(this.quest.questId, "quest_" + this.quest.questId + ".json")
+
+          if (!this.isOwner && checkIfOfflineDataExists) {            
             this.startQuest(this.quest.questId, this.$route.params.lang)
           }
         }
@@ -1052,6 +1058,8 @@ export default {
      * @param   {String}    lang               lang of the quest
      */
     async playQuestLaunch(questId, lang) {
+      // check if offline data are existing
+      //let checkIfOfflineDataExists = utils.checkIfFileExists(questId, "quest_" + questId + ".json")
       // Check if your must pay
       if (this.playStep === 0 && this.quest.premiumPrice && (this.quest.premiumPrice.tier || this.quest.premiumPrice.active) && !this.isAdmin && !this.isOwner && !this.isRunFinished && !this.isRunStarted) {
         // if tier paiement, check first that user has not already payed

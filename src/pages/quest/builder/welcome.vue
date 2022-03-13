@@ -89,6 +89,7 @@
             </q-card-actions>
           </q-card>
         </div>
+        <!--
         <div class="q-pa-md">
           {{ $t('label.AddYourRoomInTheDirectory') }}
         </div>
@@ -110,6 +111,7 @@
             </q-card-actions>
           </q-card>
         </div>
+        -->
         <div class="centered">
           <q-btn flat @click="backToUserType">{{ $t('label.Back') }}</q-btn>
         </div>
