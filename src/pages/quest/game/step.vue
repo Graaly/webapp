@@ -2218,7 +2218,7 @@ console.log("move next10")
 
               // if no step triggered, call getnextstep again
               if (!nextStepId) {
-                const secondStepProcess1 = await this.getNextOfflineStep(questId, user, markerCode, player, extra)
+                const secondStepProcess1 = await this.getNextOfflineStep(questId, markerCode, player, extra)
                 nextStepId = secondStepProcess1.id
                 extra = secondStepProcess1.extra
               }
