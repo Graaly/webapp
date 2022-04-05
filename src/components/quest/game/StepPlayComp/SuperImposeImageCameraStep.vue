@@ -7,7 +7,7 @@
     <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled" class="full-height full-width"></video>
     <!--</transition>-->
     <div>
-      <div v-if="!takingSnapshot" style="position: absolute; bottom: 108px; right: 8px;z-index: 1990;">
+      <div v-if="!takingSnapshot" style="position: absolute; bottom: 158px; right: 8px;z-index: 1990;">
         <q-btn
           round
           size="lg"
@@ -35,13 +35,11 @@
         <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() !== '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
       </div>
       <!-- background image -normal -->
-      <div v-if="!step.options || (!step.options.fullWidthPicture && !step.options.redFilter && !step.options.fullHeightPicture)" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-image: url(' + getBackgroundImage() + '); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw; z-index: 1985;'"></div>
+      <div v-if="!step.options || (!step.options.fullWidthPicture && !step.options.redFilter && !step.options.fullHeightPicture)" class="image" ref="ImageOverFlowPicture" :style="'overflow: hidden; background-position: center; background-size: 100% 100%; background-repeat: no-repeat; width: 100vw; height: 133vw; z-index: 1985;'" ></div>
       <!-- background image -fullwidth -->
-      <img v-if="step.options && step.options.fullWidthPicture && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; height: 100vh; width: 100vw; z-index: 1985;" />
+      <img crossorigin="anonymous" v-if="step.options && step.options.fullWidthPicture && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; height: 100vh; width: 100vw; z-index: 1985;" />
       <!-- background image -fullheight -->
-      <img v-if="step.options && !step.options.fullWidthPicture && step.options.fullHeightPicture  && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; height: 100vh; width: auto; z-index: 1985; left: 50%; top: 50%; -webkit-transform: translateY(-50%) translateX(-50%);" />
-      <!-- A copy of the image in an <img> tag which can be used by canvas methods for captures -->
-      <img :src="getBackgroundImage()" style="display:none" ref="imageOverflowForCapture" crossorigin="anonymous" />
+      <img crossorigin="anonymous" v-if="step.options && !step.options.fullWidthPicture && step.options.fullHeightPicture  && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; height: 100vh; width: auto; z-index: 1985; left: 50%; top: 50%; -webkit-transform: translateY(-50%) translateX(-50%);" />
 
       <!-- Red filter & alternate button for iOS -->
       <div v-if="isIOs && imageOverFlow.snapshot === '' && step.options && step.options.redFilter" class="centered" style="background: transparent; position: absolute; bottom: 200px; width: 100%; z-index: 1980;">
@@ -79,7 +77,8 @@ export default {
       isSafari: utils.isSafari(),
       imageOverFlow: {
         snapshot: ""
-      }
+      },
+      backGroundImg: null
     }
   },
   methods: {
@@ -144,21 +143,26 @@ export default {
           c.style.display = 'none'
           // fit image to canvas, center horizontally & vertically & keep aspect ratio (like CSS 'cover')
           draw.drawImageProp(context, image)
-          let imgOverflow = this.$refs['imageOverflowForCapture']
-          try { // Added by EMA when no picture added, it breaks
-            draw.drawImageProp(context, imgOverflow)
-          } catch (e) {
-            console.log("picture missing")
-          }
-          // CREATE A BLOB OBJECT FROM CANVAS
-          let finalBlob
-          finalBlob = await new Promise(resolve => c.toBlob(resolve, 'image/jpeg'))
+          //let imgOverflow = this.$refs['imageOverflowForCapture']
+          let imgOverflow = new Image()
+          imgOverflow.crossOrigin = 'anonymous'
+          imgOverflow.src = this.getBackgroundImage()
+          imgOverflow.onload = async () => {
+            try { // Added by EMA when no picture added, it breaks
+              draw.drawImageProp(context, imgOverflow)
+            } catch (e) {
+              console.log("picture missing")
+            }
+            // CREATE A BLOB OBJECT FROM CANVAS
+            let finalBlob
+            finalBlob = await new Promise(resolve => c.toBlob(resolve, 'image/jpeg'))
 
-          // OPEN DIALOG WITH OPTIONS
-          if (this.isHybrid) {
-            this.openDialog(true, finalBlob, snapshotFilename, c)
-          } else { // WEBAPP
-            this.openDialog(false, finalBlob, snapshotFilename, c)
+            // OPEN DIALOG WITH OPTIONS
+            if (this.isHybrid) {
+              this.openDialog(true, finalBlob, snapshotFilename, c)
+            } else { // WEBAPP
+              this.openDialog(false, finalBlob, snapshotFilename, c)
+            }
           }
         }
       } catch (err) {
@@ -294,11 +298,22 @@ export default {
       }
     },
   },
+  created() {
+
+  },
   async mounted() {
     if (this.isIOs && CameraPreview) {
       await this.launchVideoStreamForIphone()
     } else {
       await this.launchVideoStreamForAndroid('camera-stream-for-image-over-flow', true)
+    }
+    // FIX BUG TAINTED CANVAS AND CROSS ANONYMOUS WITH S3
+    let backGroundImg = new Image()
+    backGroundImg.crossOrigin = 'anonymous'
+    backGroundImg.src = this.getBackgroundImage()
+    let _this = this
+    backGroundImg.onload = function() {
+      _this.$refs['ImageOverFlowPicture'].style.backgroundImage = "url(" + this.src + ")"
     }
   },
   beforeDestroy() {

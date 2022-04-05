@@ -8,6 +8,7 @@
       row-key="id"
       :loading="loading"
       :pagination.sync="pagination"
+      no-data-label="I didn't find anything for you"
       @request="onRequest"
     >
       <template v-slot:header="props">
@@ -28,7 +29,8 @@
         <q-tr :props="props">
           <q-td auto-width>
             <q-avatar square>
-              <img v-if="props.row.picture" :src="uploadUrl + '/upload/quest/' + props.row.thumb">
+              <img v-if="props.row.thumb.fr" :src="uploadUrl + '/upload/quest/' + props.row.thumb.fr">
+              <img v-else-if="props.row.picture.fr" :src="uploadUrl + '/upload/quest/' + props.row.picture.fr">
               <img v-if="!props.row.picture" src="statics/profiles/noprofile.png">
             </q-avatar>
           </q-td>
@@ -155,10 +157,13 @@ export default {
       const nbQuests = await AdminService.countQuestDisabled()
       return nbQuests.data.questCount
     },
+    async onRequestAll() {
+      this.loading = true
+    },
     async onRequest(props) {
       const {page, rowsPerPage} = props.pagination
       this.loading = true
-      console.log(page, rowsPerPage)
+      //console.log(page, rowsPerPage)
 
       const rowsNumber = await this.getDisabledQuestNumber()
       this.pagination.rowsNumber = rowsNumber
@@ -166,10 +171,10 @@ export default {
       const fetchCount = rowsPerPage === 0 ? this.pagination.rowsNumber : rowsPerPage
       const startRow = page
 
-      console.log(startRow, fetchCount)
+      //console.log(startRow, fetchCount)
 
       const returnedData = await this.loadDisabledQuest(startRow, fetchCount)
-      console.log(returnedData)
+      //console.log(returnedData)
 
       this.items.splice(0, this.items.length, ...returnedData)
 
@@ -177,7 +182,7 @@ export default {
       this.pagination.rowsPerPage = rowsPerPage
 
       this.loading = false
-      console.log(this.pagination)
+      //console.log(this.pagination)
     },
     /*
      * Open Delete Dialog Quest

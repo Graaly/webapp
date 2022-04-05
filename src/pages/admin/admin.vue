@@ -47,6 +47,7 @@
             row-key="id"
             :loading="questsToValidate.loading"
             :pagination="questsToValidate.initialPagination"
+            no-data-label="I didn't find anything for you"
           >
             <template v-slot:header="props">
               <q-tr :props="props">
@@ -67,7 +68,8 @@
               <q-tr :props="props">
                 <q-td auto-width>
                   <q-avatar square>
-                    <img v-if="props.row.picture" :src="uploadUrl + '/upload/quest/' + props.row.thumb">
+                    <img v-if="props.row.thumb.fr" :src="uploadUrl + '/upload/quest/' + props.row.thumb.fr">
+                    <img v-else-if="props.row.picture.fr" :src="uploadUrl + '/upload/quest/' + props.row.picture.fr">
                     <img v-if="!props.row.picture" src="statics/profiles/noprofile.png">
                   </q-avatar>
                 </q-td>
@@ -159,6 +161,7 @@
             row-key="id"
             :loading="questsRejected.loading"
             :pagination="questsRejected.initialPagination"
+            no-data-label="I didn't find anything for you"
           >
             <template v-slot:header="props">
               <q-tr :props="props">
@@ -176,7 +179,8 @@
               <q-tr :props="props">
                 <q-td auto-width>
                   <q-avatar square>
-                    <img v-if="props.row.picture" :src="uploadUrl + '/upload/quest/' + props.row.thumb">
+                    <img v-if="props.row.thumb.fr" :src="uploadUrl + '/upload/quest/' + props.row.thumb.fr">
+                    <img v-else-if="props.row.picture.fr" :src="uploadUrl + '/upload/quest/' + props.row.picture.fr">
                     <img v-if="!props.row.picture" src="statics/profiles/noprofile.png">
                   </q-avatar>
                 </q-td>
@@ -248,6 +252,7 @@
             row-key="id"
             :loading="earnings.loading"
             :pagination="earnings.initialPagination"
+            no-data-label="I didn't find anything for you"
           >
             <template v-slot:header="props">
               <q-tr :props="props">
@@ -306,6 +311,7 @@
             row-key="id"
             :loading="statistics.loading"
             :pagination="statistics.initialPagination"
+            no-data-label="I didn't find anything for you"
           >
           <template v-slot:header="props">
             <q-tr :props="props">
@@ -381,6 +387,7 @@
             row-key="id"
             :loading="limitations.loading"
             :pagination="limitations.initialPagination"
+            no-data-label="I didn't find anything for you"
           />
           <!--          Published games with limitations:
                     <q-list highlight>
