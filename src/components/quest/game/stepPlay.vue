@@ -1,7 +1,12 @@
 <template>
 
   <div id="play-view" class="fit" :class="{'bg-black': (!showNonHybridQRReader && step.type === 'locate-marker' || step.id === 'sensor'), 'loaded': pageReady, 'bg-transparent': showNonHybridQRReader || step.type === 'image-over-flow'}">
-    <div id="background-image" v-show="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect), 'effect-blur': (step.options && step.options.blurEffect)}">
+    <div id="background-image" v-show="(step.type !== 'image-over-flow' && step.type !== 'locate-marker')" class="step-background" :class="{
+      'effect-kenburns': (step.options && step.options.kenBurnsEffect),
+      'effect-blur': (step.options && step.options.blurEffect),
+      'opacity0': (step.type === 'locate-item-ar' && !stepPlayed),
+      'fadeIn': (step.type === 'locate-item-ar' && stepPlayed)
+      }">
     </div>
     <div v-if="showNonHybridQRReader">
       <!--====================== QR CODE READER ON WEBAPP =================================-->
@@ -1375,11 +1380,14 @@ export default {
       let backgroundImage = this.step.backgroundImage[this.lang] ? this.step.backgroundImage[this.lang] : this.step.backgroundImage[this.quest.mainLanguage]
       if (backgroundImage && backgroundImage[0] === "_") {
         return 'statics/images/quest/' + backgroundImage
-      } else if (backgroundImage && backgroundImage.indexOf('blob:') !== -1) {
-        return backgroundImage
-      } else {
-        return this.serverUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
+      } else if (backgroundImage) {
+        if (backgroundImage.indexOf('blob:') !== -1) {
+          return backgroundImage
+        } else {
+          return this.serverUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
+        }
       }
+      return ""
     },
     /*
      * reset background image between steps
@@ -1413,7 +1421,7 @@ export default {
             background.style.background = 'none'
             background.style.backgroundColor = '#000'
             this.showControls()
-          } else if (this.step.type === 'image-over-flow' || this.step.type === 'locate-item-ar' || this.step.type === 'locate-marker' || this.step.id === 'sensor') {
+          } else if (this.step.type === 'image-over-flow' || this.step.type === 'locate-marker' || this.step.id === 'sensor') {
             this.showControls()
             background.style.background = 'none'
             background.style.backgroundColor = 'transparent'
@@ -1428,15 +1436,12 @@ export default {
             let backgroundImage = document.getElementById('background-image')
             //background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             if (backgroundImage) {
-              backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+              if (backgroundUrl) {
+                backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+              } else {
+                backgroundImage.style.background = 'transparent'
+              }
             }
-            // all background clickable for transitions
-            //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
-              //let clickable = document.getElementById('info-clickable')
-              //let clickable = document.getElementById('main-view')
-              //clickable.addEventListener("click", this.showControls, false);
-            //}
-
             // display controls after some seconds to let user see background
             if (this.step.options && this.step.options.hasOwnProperty('initDuration')) {
               utils.setTimeout(this.showControls, parseInt(this.step.options.initDuration, 10) * 1000)
@@ -5032,7 +5037,7 @@ export default {
   .locate-item-ar .target-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
   .locate-item-ar #target-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }
   .locate-item-ar .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
-  .locate-item-ar img { margin: 30vw auto; } /* 2D result image */
+  .locate-item-ar img { margin: 30vw auto; z-index: 20; position: relative; } /* 2D result image */
 
   /* image-over-flow specific */
 
