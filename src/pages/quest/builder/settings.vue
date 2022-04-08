@@ -3800,9 +3800,26 @@ export default {
      * download texts of the game
      */
     async downloadTexts() {
-      //const fileData =
-      await StepService.generateTextsExportFile(this.questId, this.quest.version, this.languages.current)
-      window.open(this.uploadUrl + '/upload/quest/' + this.questId + '/texts_fr.csv', "_self")
+      try {
+        const response = await StepService.generateTextsExportFile(this.questId, this.quest.version, this.languages.current)
+        
+        if (!response.hasOwnProperty('data') || !response.data.hasOwnProperty('result')) {
+          throw new Error('Could not retrieve texts from server')
+        }
+        
+        // adapted from https://stackoverflow.com/a/14966131/488666
+        let csvContent = "data:text/csv;charset=utf-8," + response.data.result
+        let encodedUri = encodeURI(csvContent);
+        let link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "texts_" + this.languages.current + ".csv");
+        document.body.appendChild(link); // Required for FF
+
+        link.click(); // This will download the data file
+      } catch (err) {
+        console.error(err)
+        Notification(this.$t('label.TechnicalIssue'), 'error')
+      }
     },
     /*
      * Create a new QR Code for a player that paied
@@ -3896,15 +3913,20 @@ export default {
     },
 
     async selectSample(sample) {
-      // Remove quest created
-      await QuestService.remove(this.questId, this.quest.version)
+      try {
+        // Remove quest created
+        await QuestService.remove(this.questId, this.quest.version)
 
-      // create new quest with sample
-      const response = await QuestService.createFromSample(sample, 1, this.quest.access, this.quest.isPremium)
+        // create new quest with sample
+        const response = await QuestService.createFromSample(sample, 1, this.quest.access, this.quest.isPremium)
 
-      if (response && response.data && response.data.newId) {
-        const questId = response.data.newId
-        this.$router.push('/quest/settings/' + questId)
+        if (response && response.data && response.data.newId) {
+          const questId = response.data.newId
+          this.$router.push('/quest/settings/' + questId)
+        }
+      } catch (err) {
+        console.error(err)
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
     }
   },
