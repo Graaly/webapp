@@ -1766,6 +1766,7 @@ export default {
             material.transparent = true
             object = new THREE.Mesh(geometry, material)
             object.position.y = 0
+            object.position.z = 1.5 // should be same as camera
           }
 
           object.name = "targetObject"
@@ -1777,7 +1778,7 @@ export default {
           this.geolocation.target.camera.up = new THREE.Vector3(0, 0, 1)
           this.geolocation.target.camera.lookAt(new THREE.Vector3(0, 1, 0))
           // handheld device will be nearly 1.50m above ground
-          this.geolocation.target.camera.position.z = 1.5
+          this.geolocation.target.camera.position.z = 1.5 // should be same as 2D image height
 
           // animate & render
           this.animateTargetCanvas()
