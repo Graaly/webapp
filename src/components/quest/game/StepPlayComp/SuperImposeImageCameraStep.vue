@@ -49,6 +49,8 @@
 
       <!-- Red filter & alternate button for iOS -->
       <!--<div v-if="isIOs && imageOverFlow.snapshot === '' && step.options && step.options.redFilter" class="centered" style="background: transparent; position: absolute; bottom: 200px; width: 100%; z-index: 1980;">-->
+      <img v-if="isIOs && imageOverFlow.snapshot !== ''" :src="imageOverFlow.snapshot" style="object-fit: cover; position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100vw; height: 100vh; z-index: 1980;" />
+      <img v-if="((isIOs && imageOverFlow.snapshot !== '') || !isIOs) && step.options && step.options.redFilter" src="statics/images/background/red.png" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985; mix-blend-mode: multiply; opacity: 0.8;" />
       <div v-if="isIOs && step.options && step.options.redFilter" class="centered" style="background: transparent; position: absolute; bottom: 200px; width: 100%; z-index: 1980;">
         <q-btn
           class="glossy large-button"
@@ -57,8 +59,6 @@
           @click="takeVideoSnapShot()">{{ $t('label.ApplyRedFilter') }}</q-btn>
           <q-btn v-if="imageOverFlow.snapshot !== ''" flat @click="cancelTakeVideoSnapShot()">{{ $t('label.Cancel') }}</q-btn>
       </div>
-      <img v-if="isIOs && imageOverFlow.snapshot !== ''" :src="imageOverFlow.snapshot" style="object-fit: cover; position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100vw; height: 100vh; z-index: 1980;" />
-      <img v-if="((isIOs && imageOverFlow.snapshot !== '') || !isIOs) && step.options && step.options.redFilter" src="statics/images/background/red.png" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985; mix-blend-mode: multiply; opacity: 0.8;" />
     </div>
   </div>
 </template>
