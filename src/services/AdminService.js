@@ -86,5 +86,8 @@ export default {
         headers: { "Content-Type": "multipart/form-data" }
       })
       .catch(error => console.log(error.request));
+  },
+  deleteFolder(id) {
+    return Api().delete('/admin/delete/quest/' + id)
   }
 };

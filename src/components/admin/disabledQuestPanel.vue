@@ -68,6 +68,7 @@
 
 <script>
 import AdminService from "services/AdminService";
+import Notification from 'src/boot/NotifyHelper'
 
 export default {
   name: "disabledQuestPanel",
@@ -209,11 +210,21 @@ export default {
      */
     async confirmDeleteQuest() {
       console.log('delete quest : ' + this.deleteQ.questId + ' - version : ' + this.deleteQ.version)
-      // TODO: Quest delete action from serveur
+      let result = await AdminService.deleteFolder(this.deleteQ.questId)
+      console.log(result)
+      if (result.status === 200) {
+        Notification(this.$t('label.DeleteQuestAndFolder'), 'positive')
+      } else {
+        console.error(result)
+        Notification(this.$t('label.TechnicalProblem'), 'negative')
+      }
       this.$refs.adminDeleteDialog.hide()
       this.deleteQ.questId = null
       this.deleteQ.version = null
       this.deleteQ.title = null
+      await this.onRequest({
+        pagination: this.pagination
+      })
     }
   }
 }

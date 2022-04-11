@@ -1147,7 +1147,8 @@ module.exports = {
       TeamPlay: "Team game",
       TypeTeamPlayId: "Type the game ID if you received one.",
       OrderIsNotImportant: "Picture order is not important",
-      DoNotPreventUserForHint: "Do not display a warning message when user call a hint"
+      DoNotPreventUserForHint: "Do not display a warning message when user call a hint",
+      DeleteQuestAndFolder: "Quest And Files are delete"
     }
   },
   fr: {
@@ -2285,7 +2286,8 @@ module.exports = {
       TeamPlay: "Jeu d'équipe",
       TypeTeamPlayId: "Tapez l'ID du jeu si vous en avez reçu un.",
       OrderIsNotImportant: "L'ordre des images n'est pas important",
-      DoNotPreventUserForHint: "Ne pas afficher de message d'alerte quand le joueur utilise un indice"
+      DoNotPreventUserForHint: "Ne pas afficher de message d'alerte quand le joueur utilise un indice",
+      DeleteQuestAndFolder: "L'enquête et ses fichiers ont été supprimés"
     }
   }
 }
