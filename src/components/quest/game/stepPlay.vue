@@ -553,44 +553,44 @@
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
         <div class="relative-position">
-          <div>
+          <div v-if="portrait.face">
             <img :src="'statics/' + portrait.type + '/face-' + portrait.face.position + '.png'" />
           </div>
-          <div class="absolute">
+          <div v-if="portrait.eye" class="absolute">
             <img :src="'statics/' + portrait.type + '/eye-' + portrait.eye.position + '.png'" />
           </div>
-          <div class="absolute">
+          <div v-if="portrait.mouth" class="absolute">
             <img :src="'statics/' + portrait.type + '/mouth-' + portrait.mouth.position + '.png'" />
           </div>
-          <div class="absolute">
+          <div v-if="portrait.nose" class="absolute">
             <img :src="'statics/' + portrait.type + '/nose-' + portrait.nose.position + '.png'" />
           </div>
-          <div class="absolute">
+          <div v-if="portrait.hair" class="absolute">
             <img :src="'statics/' + portrait.type + '/hair-' + portrait.hair.position + '.png'" />
           </div>
-          <div class="absolute">
+          <div v-if="portrait.beard" class="absolute">
             <img :src="'statics/' + portrait.type + '/beard-' + portrait.beard.position + '.png'" />
           </div>
-          <div class="absolute">
+          <div v-if="portrait.glass" class="absolute">
             <img :src="'statics/' + portrait.type + '/glass-' + portrait.glass.position + '.png'" />
           </div>
-          <div class="absolute">
+          <div v-if="portrait.hat" class="absolute">
             <img :src="'statics/' + portrait.type + '/hat-' + portrait.hat.position + '.png'" />
           </div>
         </div>
         <table class="portrait-parts relative-position">
           <tr>
-            <td><img @click="changePortraitPart('face')" :src="'statics/' + portrait.type + '/face-0.png'" /></td>
-            <td><img @click="changePortraitPart('eye')" :src="'statics/' + portrait.type + '/eye-0.png'" /></td>
-            <td><img @click="changePortraitPart('mouth')" :src="'statics/' + portrait.type + '/mouth-0.png'" /></td>
-            <td><img @click="changePortraitPart('nose')" :src="'statics/' + portrait.type + '/nose-0.png'" /></td>
-            <td><img @click="changePortraitPart('hair')" :src="'statics/' + portrait.type + '/hair-0.png'" /></td>
-            <td><img @click="changePortraitPart('beard')" :src="'statics/' + portrait.type + '/beard-0.png'" /></td>
-            <td><img @click="changePortraitPart('glass')" :src="'statics/' + portrait.type + '/glass-0.png'" /></td>
-            <td><img @click="changePortraitPart('hat')" :src="'statics/' + portrait.type + '/hat-0.png'" /></td>
+            <td v-if="portrait.face"><img @click="changePortraitPart('face')" :src="'statics/' + portrait.type + '/face-0.png'" /></td>
+            <td v-if="portrait.eye"><img @click="changePortraitPart('eye')" :src="'statics/' + portrait.type + '/eye-0.png'" /></td>
+            <td v-if="portrait.mouth"><img @click="changePortraitPart('mouth')" :src="'statics/' + portrait.type + '/mouth-0.png'" /></td>
+            <td v-if="portrait.nose"><img @click="changePortraitPart('nose')" :src="'statics/' + portrait.type + '/nose-0.png'" /></td>
+            <td v-if="portrait.hair"><img @click="changePortraitPart('hair')" :src="'statics/' + portrait.type + '/hair-0.png'" /></td>
+            <td v-if="portrait.beard"><img @click="changePortraitPart('beard')" :src="'statics/' + portrait.type + '/beard-0.png'" /></td>
+            <td v-if="portrait.glass"><img @click="changePortraitPart('glass')" :src="'statics/' + portrait.type + '/glass-0.png'" /></td>
+            <td v-if="portrait.hat"><img @click="changePortraitPart('hat')" :src="'statics/' + portrait.type + '/hat-0.png'" /></td>
           </tr>
         </table>
-        <div class="actions q-mt-sm q-mx-md" style="padding-bottom: 100px" v-show="playerResult === null">
+        <div class="actions q-mx-md" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
@@ -2347,7 +2347,9 @@ export default {
           break
 
         case 'portrait-robot':
-          let portraitAnswer = {items: {type: 1, face: this.portrait.face.position, eye: this.portrait.eye.position, mouth: this.portrait.mouth.position, nose: this.portrait.nose.position, hair: this.portrait.hair.position, beard: this.portrait.beard.position, glass: this.portrait.glass.position, hat: this.portrait.hat.position}}
+          let portraitAnswer = {items: {type: 1, face: this.portrait.face ? this.portrait.face.position : 0, eye: this.portrait.eye ? this.portrait.eye.position : 0, mouth: this.portrait.mouth ? this.portrait.mouth.position : 0, nose: this.portrait.nose ? this.portrait.nose.position : 0, hair: this.portrait.hair ? this.portrait.hair.position : 0, beard: this.portrait.beard ? this.portrait.beard.position : 0, glass: this.portrait.glass ? this.portrait.glass.position : 0, hat: this.portrait.hat ? this.portrait.hat.position : 0}}
+          
+console.log(portraitAnswer)
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: portraitAnswer, isTimeUp: this.isTimeUp}, false)
 
           if (checkAnswerResult.result === true) {
