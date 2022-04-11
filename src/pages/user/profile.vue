@@ -120,6 +120,7 @@
       </div>
       <div v-if="$store.state.user.id === userId">
         <div class="centered q-mt-xl q-mb-sm cursor-pointer"><a @click="disconnect()">{{ $t('label.SignOut') }}</a></div>
+        <div class="centered q-mb-sm cursor-pointer"><a @click="removeOfflineData()">{{ $t('label.RemoveOfflineData') }}</a></div>
         <div class="centered q-mb-sm" v-html="$t('label.TermsAndConditionsLink')"></div>
         <div class="centered q-mb-xl" v-html="$t('label.PrivacyPolicyLink')"></div>
       </div>
@@ -131,7 +132,7 @@
 import UserService from 'services/UserService'
 import QuestService from 'services/QuestService'
 import Notification from 'boot/NotifyHelper'
-//import utils from 'src/includes/utils'
+import utils from 'src/includes/utils'
 import titleBar from 'components/titleBar'
 import questsList from 'components/quest/questsList'
 import usersList from 'components/user/usersList'
@@ -408,6 +409,33 @@ export default {
      */
     disconnect() {
       this.$router.push('/user/logout')
+    },
+    async removeOfflineData() {
+console.log("CHECK OFFLINE 1")
+      const offlineQuestsFile = await utils.readFile('', 'quests.json')
+console.log("CHECK OFFLINE 2")
+      if (offlineQuestsFile) {
+console.log("CHECK OFFLINE 3")
+        const offlineQuestsData = JSON.parse(offlineQuestsFile)
+        if (offlineQuestsData && offlineQuestsData.list) {
+console.log("CHECK OFFLINE 4")
+          var tempQuestList = offlineQuestsData.list
+
+          if (tempQuestList.length > 0) {
+console.log("CHECK OFFLINE 5")
+            // get pictures
+            for (var i = 0; i < tempQuestList.length; i++) {
+console.log("CHECK OFFLINE 6")
+              await utils.removeDirectory(tempQuestList[i].questId)  
+            }
+          }
+        }
+        await utils.writeInFile('', 'quests.json', JSON.stringify({}), true)
+      }
+      this.$q.dialog({
+        dark: true,
+        message: this.$t('label.DataHaveBeenRemoved')
+      })
     },
     /*
      * Stop following a friend

@@ -341,3 +341,9 @@ add into  `<platform name="ios">`
 one last fix is inside the iOS 'QRScanner.swift' search 'QRScanner.swift'
 
 change "string: UIApplication.openSettingsURLString" to "string: UIApplicationOpenSettingsURLString" in openSettings function. line 470
+
+#### Require(...).rm is not a function
+
+reinstall cordova with a recent version
+cordova platform remove ios
+cordova platform add ios@6.2.0

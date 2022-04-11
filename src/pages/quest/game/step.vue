@@ -94,7 +94,11 @@
         </div>
         <div class="q-pa-md">{{ inventory.detail.title }}</div>
         <!--<div class="q-pa-md text-grey">{{ $t('label.YouCanNotUseAnItemInThisStep') }}</div>-->
-        <q-btn class="glossy normal-button" color="primary" @click="closeInventoryDetail()"><div>{{ $t('label.Close') }}</div></q-btn>
+        <q-btn 
+          class="glossy normal-button" 
+          :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
+          :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+          @click="closeInventoryDetail()"><div>{{ $t('label.Close') }}</div></q-btn>
         <div>
           <q-btn-group outline>
             <q-btn flat :label="$t('label.Zoom')"/>
@@ -125,7 +129,7 @@
         <div class="centered bg-warning q-pa-sm" v-if="warnings.questDataMissing" @click="initData()">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
-        <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) center center / cover no-repeat '">
+        <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) #000000 center center / cover no-repeat '">
           <q-toolbar class="dark-banner text-white">
             <q-toolbar-title v-if="info && info.quest && info.quest.availablePoints">
               {{ $t('label.MyScore') }} {{ run.tempScore }} / {{ info.quest.availablePoints.score }}
@@ -212,7 +216,7 @@
     <!--====================== HINT =================================-->
 
     <div class="mobile-fit over-map" :class="'font-' + info.quest.customization.font" v-if="hint.isOpened">
-      <story step="hint" :data="{hint: hint.label, character: (info.quest.customization && info.quest.customization.character && info.quest.customization.character !== '') ? (info.quest.customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + info.quest.customization.character : info.quest.customization.character) : '3'}" @next="askForHint()"></story>
+      <story step="hint" :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? info.quest.customization.color : 'primary'" :data="{hint: hint.label, character: (info.quest.customization && info.quest.customization.character && info.quest.customization.character !== '') ? (info.quest.customization.character.indexOf('blob:') === -1 ? serverUrl + '/upload/quest/' + info.quest.customization.character : info.quest.customization.character) : '3'}" @next="askForHint()"></story>
     </div>
 
     <!--====================== STORY =================================-->
@@ -1350,7 +1354,7 @@ export default {
       } else if (picture) {
         return this.uploadUrl + '/upload/quest/' + picture
       } else {
-        return 'statics/images/quest/default-quest-picture.jpg'
+        return ''
       }
     },
     /*
@@ -1396,23 +1400,29 @@ export default {
       // if moving in history
       if (this.$store.state.history.items && this.$store.state.history.index < this.$store.state.history.items.length) {
         await this.moveToStep(this.$store.state.history.items[this.$store.state.history.index])
-        //this.$router.push('/quest/play/' + this.questId + '/version/' + this.questVersion + '/step/' + this.$store.state.history.items[this.$store.state.history.index] + '/' + this.$route.params.lang)
         return
       }
       // reload step to remove notifications
       this.loadStepData = false
+console.log("move next5")
+console.log(this.next)
       if (this.next.enabled) {
+console.log("move next6")
         await this.moveToNextStep('success')
       } else if (this.next.canPass) {
+console.log("move next7")
         if (force) {
+console.log("move next8")
           await this.passStep()
         } else {
+console.log("move next9")
           this.$q.dialog({
             dark: true,
             message: this.$t('label.ConfirmPass'),
             ok: this.$t('label.Ok'),
             cancel: this.$t('label.Cancel')
           }).onOk(async () => {
+console.log("move next10")
             await this.passStep()
           }).onCancel(() => {})
         }
@@ -2209,7 +2219,7 @@ export default {
 
               // if no step triggered, call getnextstep again
               if (!nextStepId) {
-                const secondStepProcess1 = await this.getNextOfflineStep(questId, user, markerCode, player, extra)
+                const secondStepProcess1 = await this.getNextOfflineStep(questId, markerCode, player, extra)
                 nextStepId = secondStepProcess1.id
                 extra = secondStepProcess1.extra
               }

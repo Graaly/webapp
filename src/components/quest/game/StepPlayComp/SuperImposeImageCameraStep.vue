@@ -7,26 +7,30 @@
     <video ref="camera-stream-for-image-over-flow" v-show="cameraStreamEnabled" class="full-height full-width"></video>
     <!--</transition>-->
     <div>
-      <div v-if="!takingSnapshot" style="position: absolute; bottom: 158px; right: 8px;z-index: 1990;">
-        <q-btn
-          round
-          size="lg"
-          class="text-white q-mr-md"
-          :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
-          :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
-          icon="flip_camera_ios"
-          @click="switchCamera()"
-        />
-        <q-btn
-          v-if="step.options && step.options.snapshotAllowed"
-          round
-          size="lg"
-          class="text-white"
-          :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
-          :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
-          icon="photo_camera"
-          @click="prepareSnapshot()"
-        />
+      <div v-if="!takingSnapshot" style="position: absolute; bottom: 78px; right: 8px;z-index: 1990;">
+        <div>
+          <q-btn
+            v-if="step.options && step.options.snapshotAllowed"
+            round
+            size="lg"
+            class="text-white"
+            :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
+            :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+            icon="photo_camera"
+            @click="prepareSnapshot()"
+          />
+        </div>
+        <div class="q-pt-md">
+          <q-btn
+            round
+            size="lg"
+            class="text-white q-mr-sm"
+            :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
+            :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}"
+            icon="flip_camera_ios"
+            @click="switchCamera()"
+          />
+        </div>
       </div>
       <img id="snapshotImage" v-show="false" style="position: absolute; top: 0; left: 0; height: 100vh; width: 100vw; z-index: 1980;" />
 <!--      <img id="snapshotImageIos" v-show="false" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1980" />-->
@@ -42,12 +46,14 @@
       <img crossorigin="anonymous" v-if="step.options && !step.options.fullWidthPicture && step.options.fullHeightPicture  && !step.options.redFilter" :src="getBackgroundImage()" style="position: absolute; top: 0; bottom: 0; height: 100vh; width: auto; z-index: 1985; left: 50%; top: 50%; -webkit-transform: translateY(-50%) translateX(-50%);" />
 
       <!-- Red filter & alternate button for iOS -->
-      <div v-if="isIOs && imageOverFlow.snapshot === '' && step.options && step.options.redFilter" class="centered" style="background: transparent; position: absolute; bottom: 200px; width: 100%; z-index: 1980;">
+      <!--<div v-if="isIOs && imageOverFlow.snapshot === '' && step.options && step.options.redFilter" class="centered" style="background: transparent; position: absolute; bottom: 200px; width: 100%; z-index: 1980;">-->
+      <div v-if="isIOs && step.options && step.options.redFilter" class="centered" style="background: transparent; position: absolute; bottom: 200px; width: 100%; z-index: 1980;">
         <q-btn
           class="glossy large-button"
           :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''"
           :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color"
           @click="takeVideoSnapShot()">{{ $t('label.ApplyRedFilter') }}</q-btn>
+          <q-btn v-if="imageOverFlow.snapshot !== ''" flat @click="cancelTakeVideoSnapShot()">{{ $t('label.Cancel') }}</q-btn>
       </div>
       <img v-if="isIOs && imageOverFlow.snapshot !== ''" :src="imageOverFlow.snapshot" style="object-fit: cover; position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100vw; height: 100vh; z-index: 1980;" />
       <img v-if="((isIOs && imageOverFlow.snapshot !== '') || !isIOs) && step.options && step.options.redFilter" src="statics/images/background/red.png" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985; mix-blend-mode: multiply; opacity: 0.8;" />
@@ -182,7 +188,8 @@ export default {
         blob: blob,
         isHybrid: isHybrid,
         quest: this.quest,
-        step: this.step
+        step: this.step,
+        color: (this.customization && this.customization.color && this.customization.color !== '') ? this.customization.color : 'primary'
       }).onCancel(async () => {
         this.$emit('showButtons')
         this.cancelTakeVideoSnapShot()
@@ -192,7 +199,7 @@ export default {
     takeVideoSnapShot() {
       CameraPreview.takePicture({ quality: 85 }, base64PictureData => {
         this.imageOverFlow.snapshot = 'data:image/jpeg;base64,' + base64PictureData
-        setTimeout(() => { this.cancelTakeVideoSnapShot() }, 5000)
+        //setTimeout(() => { this.cancelTakeVideoSnapShot() }, 5000)
       })
     },
     cancelTakeVideoSnapShot() {
@@ -296,7 +303,7 @@ export default {
       } else {
         return this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
       }
-    },
+    }
   },
   created() {
 

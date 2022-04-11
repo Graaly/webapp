@@ -1,11 +1,19 @@
 <template>
 
   <div id="play-view" class="fit" :class="{'bg-black': (!showNonHybridQRReader && step.type === 'locate-marker' || step.id === 'sensor'), 'loaded': pageReady, 'bg-transparent': showNonHybridQRReader || step.type === 'image-over-flow'}">
-    <div id="background-image" v-show="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect), 'effect-blur': (step.options && step.options.blurEffect)}">
+    <div id="background-image" v-show="(step.type !== 'image-over-flow' && step.type !== 'locate-marker')" class="step-background" :class="{
+      'effect-kenburns': (step.options && step.options.kenBurnsEffect),
+      'effect-blur': (step.options && step.options.blurEffect),
+      'opacity0': (step.type === 'locate-item-ar' && !stepPlayed),
+      'fadeIn': (step.type === 'locate-item-ar' && stepPlayed)
+      }">
     </div>
     <div v-if="showNonHybridQRReader">
       <!--====================== QR CODE READER ON WEBAPP =================================-->
-      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
+      <div 
+        class="text-white q-pt-xl q-pl-md q-pb-sm"
+        :style="(customization && customization.color && customization.color !== '') ? 'background-color: ' + customization.color : ''"
+        :class="{'bg-primary': (!customization || !customization.color || customization.color === '')}">
         <div class="float-right no-underline close-btn q-pa-sm" @click="closeQRCodeReader"><q-icon name="close" class="subtitle1" /></div>
         {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
       </div>
@@ -13,6 +21,7 @@
       <qr-code-stream
         v-if="showNonHybridQRReader"
         v-on:QrCodeResult="checkAnswer"
+        :color="(customization && customization.color && customization.color !== '') ? customization.color : 'primary'"
       />
     </div>
     <div v-if="!showNonHybridQRReader" :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'" :style="'color: ' + customization.fontColor">
@@ -204,7 +213,7 @@
             :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : uploadUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)"
             @click="openInventory(step.options)"
             />
-          <p><span>{{ step.options.title }}</span></p>
+          <p v-if="step.options.title != '' && step.options.title != ' '"><span>{{ step.options.title }}</span></p>
         </div>
       </div>
 
@@ -600,7 +609,8 @@
             <img style="width: 400%" :src="getBackgroundImage()" />
           </div>
           <div class="absolute no-mouse-event" style="top: 0px; width: 100%;">
-            <img class="no-mouse-event" style="width: 100%; " src="statics/icons/game/binoculars.png">
+            <img class="no-mouse-event" v-if="!step.options.shape || step.options.shape === 'binocular'" style="width: 100%;" src="statics/icons/game/binoculars.png">
+            <img class="no-mouse-event" v-if="step.options.shape && step.options.shape === 'flashlight'" style="width: 100%;" src="statics/icons/game/flashlight.png">
           </div>
         </div>
         <div class="absolute text-white centered" style="width: 100%; left: 0px; right: 0px; bottom: 130px">
@@ -929,7 +939,9 @@
     <!--====================== WIN POINTS ANIMATION =================================-->
 
     <!--<div v-show="playerResult === true && score >= 1" class="fadein-message">+{{ score }}</div>-->
-    <div v-show="playerResult === true && displaySuccessIcon" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="thumb_up" /></div>
+    <div v-if="playerResult === true && displaySuccessIcon && step && step.options && step.options.successIcon && step.options.successIcon !== 'block'" class="fadein-message" style="padding-left: 40%">
+      <q-icon color="white" :name="step.options.successIcon" />
+    </div>
     <div v-show="geolocation.foundStep" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="check_box" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
     <div
@@ -1369,11 +1381,14 @@ export default {
       let backgroundImage = this.step.backgroundImage[this.lang] ? this.step.backgroundImage[this.lang] : this.step.backgroundImage[this.quest.mainLanguage]
       if (backgroundImage && backgroundImage[0] === "_") {
         return 'statics/images/quest/' + backgroundImage
-      } else if (backgroundImage && backgroundImage.indexOf('blob:') !== -1) {
-        return backgroundImage
-      } else {
-        return this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
+      } else if (backgroundImage) {
+        if (backgroundImage.indexOf('blob:') !== -1) {
+          return backgroundImage
+        } else {
+          return this.serverUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
+        }
       }
+      return ""
     },
     /*
      * reset background image between steps
@@ -1407,7 +1422,7 @@ export default {
             background.style.background = 'none'
             background.style.backgroundColor = '#000'
             this.showControls()
-          } else if (this.step.type === 'image-over-flow' || this.step.type === 'locate-item-ar' || this.step.type === 'locate-marker' || this.step.id === 'sensor') {
+          } else if (this.step.type === 'image-over-flow' || this.step.type === 'locate-marker' || this.step.id === 'sensor') {
             this.showControls()
             background.style.background = 'none'
             background.style.backgroundColor = 'transparent'
@@ -1422,15 +1437,12 @@ export default {
             let backgroundImage = document.getElementById('background-image')
             //background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             if (backgroundImage) {
-              backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+              if (backgroundUrl) {
+                backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+              } else {
+                backgroundImage.style.background = 'transparent'
+              }
             }
-            // all background clickable for transitions
-            //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
-              //let clickable = document.getElementById('info-clickable')
-              //let clickable = document.getElementById('main-view')
-              //clickable.addEventListener("click", this.showControls, false);
-            //}
-
             // display controls after some seconds to let user see background
             if (this.step.options && this.step.options.hasOwnProperty('initDuration')) {
               utils.setTimeout(this.showControls, parseInt(this.step.options.initDuration, 10) * 1000)
@@ -1463,8 +1475,9 @@ export default {
         this.getAudioSound()
 
         //this.startQuestCountDown()
-
         this.resetDrawDirectionInterval()
+        
+        this.resetSuccessIcon()
 
         var _this = this
 
@@ -1518,6 +1531,7 @@ export default {
 
         if (this.step.type === 'new-item') {
           if (this.step.options.hasOwnProperty('addInventoryAndPass') && this.step.options.addInventoryAndPass) {
+            await this.checkAnswer()
             utils.setTimeout(this.forceNextStep, 1000)
             this.step.type  = 'none' // do not display step
           }
@@ -1975,6 +1989,11 @@ export default {
      */
     switchControls () {
       this.controlsAreDisplayed = !this.controlsAreDisplayed
+    },
+    resetSuccessIcon () {
+      if (this.step.options && !this.step.options.successIcon) {
+        this.step.options.successIcon = 'thumb_up'
+      }
     },
     /*
      * If a bug occur and data are not init, force it !
@@ -4264,6 +4283,7 @@ export default {
     */
     displaySuccessMessage (success, genericMessage, allowCustomMessage, actions, showNextArrow) {
       let message = ""
+      let customColor
       let duration = false
       this.displaySuccessIcon = true
       if (success) {
@@ -4275,6 +4295,7 @@ export default {
         } else {
           message = genericMessage
         }
+        customColor = this.step.options.rightAnswerColor
       } else {
         if (allowCustomMessage && this.step.options && this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage[this.lang] && this.step.options.wrongAnswerMessage[this.lang] !== "") {
           message = this.step.options.wrongAnswerMessage[this.lang]
@@ -4284,11 +4305,12 @@ export default {
         } else {
           message = genericMessage
         }
+        customColor = this.step.options.wrongAnswerColor
       }
       if ((!actions || actions === "") && showNextArrow) {
         actions = [{icon: "arrow_forward", handler: () => { this.forceNextStep() }}]
       }
-      Notification(message, (success ? 'rightAnswer' : 'wrongAnswer'), actions, duration)
+      Notification(message, (success ? 'rightAnswer' : 'wrongAnswer'), actions, duration, customColor)
     },
     /*
     * Display read more text
@@ -5017,7 +5039,7 @@ export default {
   .locate-item-ar .target-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
   .locate-item-ar #target-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }
   .locate-item-ar .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
-  .locate-item-ar img { margin: 30vw auto; } /* 2D result image */
+  .locate-item-ar img { margin: 30vw auto; z-index: 20; position: relative; } /* 2D result image */
 
   /* image-over-flow specific */
 

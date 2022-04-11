@@ -89,7 +89,8 @@ export default {
         const questFileContent = await utils.readFile('', 'quests.json')
 
         quests = JSON.parse(questFileContent)
-      } else {
+      }
+      if (!isQuestOfflineListExisting || !quests || !quests.list) {
         quests = {list: []}
       }
       // check if quest is already existing in file

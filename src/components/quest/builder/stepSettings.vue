@@ -33,13 +33,8 @@
         :max-height="100"
         :min-rows="4"
         class="full-width"
-        @blur="$v.selectedStep.form.text[lang].$touch"
-        @input="$v.selectedStep.form.text[lang].$touch"
         bottom-slots
         counter
-        :maxlength="mainTextMaxLength"
-        :error="$v.selectedStep.form.text[lang].$error"
-        :error-message="$t('label.KeepEnigmaQuestionsShort')"
         test-id="step-text"
       />
 
@@ -940,10 +935,71 @@
       <q-list v-show="options.type.hasOptions" bordered>
         <q-expansion-item icon="add_box" :label="$t('label.OtherOptions')">
           <div class="q-pa-sm">
+            <div class="background-upload" v-show="options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter' && options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
+              <q-btn class="full-width" type="button" @click="showMedia">
+                {{ $t('label.AddABackgroundImage') }}
+              </q-btn>
+              <!--<div v-if="!isIOs">
+                <q-btn class="full-width" type="button" @click="$refs['backgroundfile2'].click()">
+                  <q-icon name="cloud_upload" /> <label for="picturefile2">{{ $t('label.UploadABackgroundImage') }}</label>
+                </q-btn>
+                <input @change="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
+              </div>
+              <div v-if="isIOs">
+                <q-icon name="cloud_upload" /> {{ $t('label.UploadABackgroundImage') }}
+                <input @change="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" />
+              </div>
+              <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
+              <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>-->
+              <div v-if="selectedStep.form.backgroundImage && selectedStep.form.backgroundImage[lang] && selectedStep.form.backgroundImage[lang] !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
+                <p>{{ $t('label.YourPicture') }} :</p>
+                <img 
+                  v-if="questId !== null" 
+                  class="full-width"
+                  :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage[lang]" 
+                  /> <br />
+                <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
+              </div>
+            </div>
+            <div v-if="options.type.nbTrials > 0">
+              <q-input v-model="selectedStep.form.nbTrial" :label="$t('label.NbTrials')" />
+            </div>
+            <div v-if="options.type.passOption > 0">
+              <q-toggle v-model="selectedStep.form.canPass" :label="$t('label.UserCanPass')" />
+            </div>
             <div v-if="options.type.code == 'memory' || options.type.code == 'locate-item-ar' || options.type.code == 'jigsaw-puzzle' || options.type.code == 'use-item' || options.type.code == 'find-item' || options.type.code == 'code-image' || options.type.code == 'code-color' || options.type.code == 'code-keypad' || options.type.code == 'choose' || options.type.code == 'write-text' || options.type.code == 'portrait-robot'" class="q-pb-md">
               <q-toggle v-if="options && options.mode && options.mode === 'advanced'" v-model="selectedStep.form.displayRightAnswer" :label="$t('label.DisplayRightAnswer')" />
               <q-input v-if="selectedStep.form.options.rightAnswerMessage" v-model="selectedStep.form.options.rightAnswerMessage[lang]" :label="$t('label.CustomizeRightAnswerMessage') + ' ' + currentLanguageForLabels" />
               <q-input v-if="selectedStep.form.options.wrongAnswerMessage" v-model="selectedStep.form.options.wrongAnswerMessage[lang]" :label="$t('label.CustomizeWrongAnswerMessage') + ' ' + currentLanguageForLabels" />
+              <q-input v-model="selectedStep.form.options.rightAnswerColor" :label="$t('label.CustomizeRightAnswerColor')" placeholder="yellow-4">
+                <template v-slot:append>
+                  <q-icon name="help" @click="colors.showPopin = true" class="cursor-pointer" />
+                </template>
+              </q-input>
+              <q-input v-model="selectedStep.form.options.wrongAnswerColor" :label="$t('label.CustomizeWrongAnswerColor')" placeholder="Red-6">
+                <template v-slot:append>
+                  <q-icon name="help" @click="colors.showPopin = true" class="cursor-pointer" />
+                </template>
+              </q-input>
+              <q-select 
+                :label="$t('label.IconForSuccess')" 
+                v-model="selectedStep.form.options.successIcon" 
+                :options="successIcon.options">
+                <template v-slot:selected>
+                  <q-icon :name="selectedStep.form.options.successIcon" />
+                </template>
+                <template v-slot:option="scope">
+                  <q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
+                    <q-item-section avatar>
+                      <q-icon :name="scope.opt" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label v-if="scope.opt !== 'block'">{{ $t('label.SelectThisIcon') }}</q-item-label>
+                      <q-item-label v-if="scope.opt === 'block'">{{ $t('label.NoIcon') }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
             </div>
             <q-toggle v-model="selectedStep.form.options.moveToNextStepAutomatically" :label="$t('label.MoveToNextStepAutomatically')" />
             <div v-if="selectedStep.form.options.moveToNextStepAutomatically">
@@ -984,12 +1040,6 @@
               <q-toggle v-model="selectedStep.form.options.helpPrevious" :label="$t('label.HelpStepMessagePrevious')" />
               <q-toggle v-model="selectedStep.form.options.helpNext" :label="$t('label.HelpStepMessageNext')" />
             </div>
-            <div v-if="options.type.nbTrials > 0">
-              <q-input v-model="selectedStep.form.nbTrial" :label="$t('label.NbTrials')" />
-            </div>
-            <div v-if="options.type.passOption > 0">
-              <q-toggle v-model="selectedStep.form.canPass" :label="$t('label.UserCanPass')" />
-            </div>
             <div v-if="options.type.code === 'image-over-flow'">
               <q-toggle v-model="selectedStep.form.options.fullWidthPicture" :label="$t('label.EnlargePictureToFullWidth')" />
               <q-toggle v-model="selectedStep.form.options.fullHeightPicture" :label="$t('label.EnlargePictureToFullHeight')" />
@@ -1002,35 +1052,16 @@
             <div v-if="options.type.code === 'find-item'">
               <q-input v-if="selectedStep.form.options.wrongLocationMessage" v-model="selectedStep.form.options.wrongLocationMessage[lang]" :label="$t('label.WrongLocationMessage') + ' ' + currentLanguageForLabels" />
             </div>
+            <div v-if="options.type.code === 'binocular'">
+              <q-select 
+                emit-value map-options 
+                :label="$t('label.Shape')" 
+                v-model="selectedStep.form.options.shape" 
+                :options="config.binocular.options" />
+            </div>
             <div v-if="options.type.code === 'end-chapter'">
               <q-toggle v-model="selectedStep.form.options.resetHistory" :label="$t('label.ResetHistoryAfter')" />
               <q-toggle v-model="selectedStep.form.options.resetChapterProgression" :label="$t('label.RestartChapterAfterStep')" />
-            </div>
-            <div class="background-upload" v-show="options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter' && options.type.hasBackgroundImage && options.type.hasBackgroundImage === 'option'">
-              <q-btn class="full-width" type="button" @click="showMedia">
-                {{ $t('label.AddABackgroundImage') }}
-              </q-btn>
-              <!--toot<div v-if="!isIOs">
-                <q-btn class="full-width" type="button" @click="$refs['backgroundfile2'].click()">
-                  <q-icon name="cloud_upload" /> <label for="picturefile2">{{ $t('label.UploadABackgroundImage') }}</label>
-                </q-btn>
-                <input @change="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" style="width: 0.1px;height: 0.1px;opacity: 0;overflow: hidden;position: absolute;z-index: -1;" />
-              </div>
-              <div v-if="isIOs">
-                <q-icon name="cloud_upload" /> {{ $t('label.UploadABackgroundImage') }}
-                <input @change="uploadBackgroundImage" ref="backgroundfile2" name="picturefile2" id="picturefile2" type="file" accept="image/*" />
-              </div>
-              <p v-show="$v.selectedStep.form.backgroundImage && $v.selectedStep.form.backgroundImage.$error" class="error-label">{{ $t('label.PleaseUploadAFile') }}</p>
-              <p v-if="!selectedStep.form.backgroundImage">{{ $t('label.WarningImageResize') }}</p>-->
-              <div v-if="selectedStep.form.backgroundImage && selectedStep.form.backgroundImage[lang] && selectedStep.form.backgroundImage[lang] !== '' && options.type.code !== 'find-item' && options.type.code !== 'use-item'">
-                <p>{{ $t('label.YourPicture') }} :</p>
-                <img
-                  v-if="questId !== null"
-                  class="full-width"
-                  :src="uploadUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage[lang]" 
-                  /> <br />
-                <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
-              </div>
             </div>
             <div v-show="options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter'">
               <div v-if="selectedStep.form.audioStream[lang] && selectedStep.form.audioStream[lang] !== ''">
@@ -1123,10 +1154,10 @@
     <!------------------ SAVE BUTTONS ------------------------>
 
       <div class="centered q-pa-md q-pt-lg q-pb-sm">
-        <q-btn class="glossy large-button" color="primary" @click="submitStep(true)" test-id="btn-save-step">{{ $t('label.SaveAndTestThisStep') }}</q-btn>
+        <q-btn class="glossy large-button" color="primary" @click="checkAndSubmit(true)" test-id="btn-save-step">{{ $t('label.SaveAndTestThisStep') }}</q-btn>
       </div>
       <div class="centered q-px-md q-pb-xl">
-        <q-btn flat color="primary" @click="submitStep(false)">{{ $t('label.SaveThisStep') }}</q-btn>
+        <q-btn flat color="primary" @click="checkAndSubmit(false)">{{ $t('label.SaveThisStep') }}</q-btn>
       </div>
     </div>
 
@@ -1136,9 +1167,9 @@
           {{ $t('label.ConfirmSaveChanges') }}
         </div>
         <q-card-actions>
-          <q-btn
-            color="primary"
-            @click="submitStep(false)"
+          <q-btn 
+            color="primary" 
+            @click="checkAndSubmit(false)" 
             :label="$t('label.Yes')" />
           <q-btn
             color="primary"
@@ -1149,14 +1180,35 @@
     </q-dialog>
 
     <!------------------ PREMIUM POPIN ------------------------>
-
-    <q-dialog v-model="premium.show">
-      <div class="q-pa-md centered">
+    
+    <q-dialog maximized v-model="premium.show">
+      <div class="q-pa-md">
         <div v-html="$t('label.PremiumWarning')" />
         <q-btn class="q-mt-md" color="primary" @click="premium.show = false">{{ $t('label.Close') }}</q-btn>
       </div>
     </q-dialog>
-
+    
+    <!------------------ COLORS POPIN ------------------------>
+    <transition name="slideInBottom">
+    <div class="bg-white panel-bottom q-pa-md" v-show="colors.showPopin">
+      <div class="q-pa-md centered">
+        <div class="row">
+          <div class="col-4 col-12-sm"><img style="width: 100%" src="statics/colors/colors1.png" /></div>
+          <div class="col-4 col-12-sm"><img style="width: 100%" src="statics/colors/colors2.png" /></div>
+          <div class="col-4 col-12-sm"><img style="width: 100%" src="statics/colors/colors3.png" /></div>
+          <div class="col-4 col-12-sm"><img style="width: 100%" src="statics/colors/colors4.png" /></div>
+          <div class="col-4 col-12-sm"><img style="width: 100%" src="statics/colors/colors5.png" /></div>
+          <div class="col-4 col-12-sm"><img style="width: 100%" src="statics/colors/colors6.png" /></div>
+          <div class="col-4 col-12-sm"><img style="width: 100%" src="statics/colors/colors7.png" /></div>
+          <div class="col-4 col-12-sm"><img style="width: 100%" src="statics/colors/colors8.png" /></div>
+          <div class="col-4 col-12-sm"><img style="width: 100%" src="statics/colors/colors9.png" /></div>
+          <div class="col-4 col-12-sm"><img style="width: 100%" src="statics/colors/colors10.png" /></div>
+        </div>
+        <q-btn class="q-mt-md" color="primary" @click="colors.showPopin = false">{{ $t('label.Close') }}</q-btn>
+      </div>
+    </div>
+    </transition>
+    
     <!------------------ GEOLOCATION COMPONENT ---------------------->
 
     <!-- used to retrieve author position -->
@@ -1428,6 +1480,13 @@ export default {
         locateMarker: {
           markerModalOpened: false
         },
+        binocular: {
+          shape: "binocular",
+          options: [
+            {label: this.$t('label.Binoculars'), value: "binocular"},
+            {label: this.$t('label.FlashLight'), value: "flashlight"}
+          ]
+        },
         portrait: {
           face: { number: 4 },
           eye: { number: 16 },
@@ -1457,7 +1516,13 @@ export default {
         }
       },
       newHint: "",
+      successIcon: {
+        options: ['thumb_up', 'block', 'favorite', 'star', 'check_circle', 'emoji_emotions', 'auto_awesome', 'local_fire_department', 'light_mode', 'local_police']
+      },
       questItems: [],
+      colors: {
+        showPopin: false
+      },
       isIOs: (window.cordova && window.cordova.platformId && window.cordova.platformId === 'ios'),
       serverUrl: process.env.SERVER_URL,
       uploadUrl: process.env.UPLOAD_URL,
@@ -1480,12 +1545,12 @@ export default {
       let maxNbChars = 500 // default
 
       if (this.options.type.textRules && this.options.type.textRules.maxNbChars) {
-        if (this.$store.state.user.isAdmin) {
+        //if (this.$store.state.user.isAdmin) {
           // give admin the possibility to extend size
-          maxNbChars = this.options.type.textRules.maxNbChars * 2
-        } else {
+        //  maxNbChars = this.options.type.textRules.maxNbChars * 2
+        //} else {
           maxNbChars = this.options.type.textRules.maxNbChars
-        }
+        //}
       }
 
       return maxNbChars
@@ -1665,6 +1730,9 @@ export default {
           this.$set(this.selectedStep.form.options.rightAnswerMessage, this.lang, this.selectedStep.form.options.rightAnswerMessage[this.quest.mainLanguage])
         }
       }
+      if (!this.selectedStep.form.options.successIcon) {
+        this.selectedStep.form.options.successIcon = "thumb_up"
+      }
       if (!this.selectedStep.form.options.wrongAnswerMessage) {
         this.selectedStep.form.options.wrongAnswerMessage = {}
       } else if (!this.selectedStep.form.options.wrongAnswerMessage[this.lang] || this.selectedStep.form.options.wrongAnswerMessage[this.lang] === '') {
@@ -1832,6 +1900,10 @@ export default {
         if (!this.selectedStep.form.options.hasOwnProperty('picture')) {
           this.selectedStep.form.options = { picture: null, level: 2 }
         }
+      } else if (this.options.type.code === 'binocular') {
+        if (!this.selectedStep.form.options.shape) {
+          this.selectedStep.form.options.shape = "binocular"
+        }
       } else if (this.options.type.code === 'memory') {
         if (!this.selectedStep.form.options.hasOwnProperty('items')) {
           let defaultItems = []
@@ -1945,6 +2017,22 @@ export default {
 
       // init the chapters list
       await this.listChapters(this.questId, this.quest.version, this.lang)
+    },
+    async checkAndSubmit(test) {
+      // check text length
+      if (this.checkMainTextLength(this.selectedStep.form.text[this.lang])) {
+        await this.submitStep(test)
+      } else {
+        this.$q.dialog({
+          dark: true,
+          message: this.$t('label.TextTooLongForStep', {nb: this.mainTextMaxLength}),
+          cancel: true
+        }).onOk(async (data) => {
+          await this.submitStep(test)
+        }).onCancel(() => {
+          return false
+        })
+      }
     },
     /*
      * Submit step data
@@ -3347,8 +3435,8 @@ export default {
     }
 
     fieldsToValidate.title[this.lang] = { required }
-    fieldsToValidate.text[this.lang] = { function(value) { return this.checkMainTextLength(value) } }
-
+    //fieldsToValidate.text[this.lang] = { }//function(value) { return this.checkMainTextLength(value) } }
+    
     // alphabetical order
     switch (this.options.type.code) {
       case 'choose':

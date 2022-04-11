@@ -12,10 +12,18 @@
           <a v-if="steps[currentStep.id].discussions[currentStep.discussionId].link" @click="linkAction">
             {{ $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].link.label) }}
           </a> &nbsp;
-          <q-btn v-if="steps[currentStep.id].discussions[currentStep.discussionId].hasOwnProperty('button2')" @click="buttonAction">
+          <q-btn 
+            :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
+            :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
+            v-if="steps[currentStep.id].discussions[currentStep.discussionId].hasOwnProperty('button2')" 
+            @click="buttonAction">
             {{ $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].button2.label) }}
           </q-btn> &nbsp;
-          <q-btn class="glossy normal-button" color="primary" @click="next">
+          <q-btn 
+            class="glossy normal-button" 
+            :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
+            :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
+            @click="next">
             <div>{{ steps[currentStep.id].discussions[currentStep.discussionId].hasOwnProperty("button") ? $t('label.' + steps[currentStep.id].discussions[currentStep.discussionId].button.label) : (steps[currentStep.id].discussions.length - 1 === currentStep.discussionId ? $t('label.Close') : $t('label.Next') + ' >>') }}</div>
           </q-btn>
         </div>
@@ -37,7 +45,7 @@ import UserService from 'services/UserService'
 import utils from 'src/includes/utils'
 
 export default {
-  props: ['step', 'data'],
+  props: ['step', 'data', 'color'],
   data() {
     return {
       steps: {
