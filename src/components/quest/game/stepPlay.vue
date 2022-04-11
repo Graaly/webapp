@@ -1,7 +1,12 @@
 <template>
 
   <div id="play-view" class="fit" :class="{'bg-black': (!showNonHybridQRReader && step.type === 'locate-marker' || step.id === 'sensor'), 'loaded': pageReady, 'bg-transparent': showNonHybridQRReader || step.type === 'image-over-flow'}">
-    <div id="background-image" v-show="step.type !== 'image-over-flow' && step.type !== 'locate-item-ar' && step.type !== 'locate-marker'" class="step-background" :class="{'effect-kenburns': (step.options && step.options.kenBurnsEffect), 'effect-blur': (step.options && step.options.blurEffect)}">
+    <div id="background-image" v-show="(step.type !== 'image-over-flow' && step.type !== 'locate-marker')" class="step-background" :class="{
+      'effect-kenburns': (step.options && step.options.kenBurnsEffect),
+      'effect-blur': (step.options && step.options.blurEffect),
+      'opacity0': (step.type === 'locate-item-ar' && !stepPlayed),
+      'fadeIn': (step.type === 'locate-item-ar' && stepPlayed)
+      }">
     </div>
     <div v-if="showNonHybridQRReader">
       <!--====================== QR CODE READER ON WEBAPP =================================-->
@@ -208,7 +213,7 @@
             :src="((step.options.picture.indexOf('statics/') > -1 || step.options.picture.indexOf('blob:') !== -1) ? step.options.picture : serverUrl + '/upload/quest/' + step.questId + '/step/new-item/' + step.options.picture)" 
             @click="openInventory(step.options)"
             />
-          <p><span>{{ step.options.title }}</span></p>
+          <p v-if="step.options.title != '' && step.options.title != ' '"><span>{{ step.options.title }}</span></p>
         </div>
       </div>
 
@@ -548,44 +553,44 @@
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
         </div>
         <div class="relative-position">
-          <div>
+          <div v-if="portrait.face">
             <img :src="'statics/' + portrait.type + '/face-' + portrait.face.position + '.png'" />
           </div>
-          <div class="absolute">
+          <div v-if="portrait.eye" class="absolute">
             <img :src="'statics/' + portrait.type + '/eye-' + portrait.eye.position + '.png'" />
           </div>
-          <div class="absolute">
+          <div v-if="portrait.mouth" class="absolute">
             <img :src="'statics/' + portrait.type + '/mouth-' + portrait.mouth.position + '.png'" />
           </div>
-          <div class="absolute">
+          <div v-if="portrait.nose" class="absolute">
             <img :src="'statics/' + portrait.type + '/nose-' + portrait.nose.position + '.png'" />
           </div>
-          <div class="absolute">
+          <div v-if="portrait.hair" class="absolute">
             <img :src="'statics/' + portrait.type + '/hair-' + portrait.hair.position + '.png'" />
           </div>
-          <div class="absolute">
+          <div v-if="portrait.beard" class="absolute">
             <img :src="'statics/' + portrait.type + '/beard-' + portrait.beard.position + '.png'" />
           </div>
-          <div class="absolute">
+          <div v-if="portrait.glass" class="absolute">
             <img :src="'statics/' + portrait.type + '/glass-' + portrait.glass.position + '.png'" />
           </div>
-          <div class="absolute">
+          <div v-if="portrait.hat" class="absolute">
             <img :src="'statics/' + portrait.type + '/hat-' + portrait.hat.position + '.png'" />
           </div>
         </div>
         <table class="portrait-parts relative-position">
           <tr>
-            <td><img @click="changePortraitPart('face')" :src="'statics/' + portrait.type + '/face-0.png'" /></td>
-            <td><img @click="changePortraitPart('eye')" :src="'statics/' + portrait.type + '/eye-0.png'" /></td>
-            <td><img @click="changePortraitPart('mouth')" :src="'statics/' + portrait.type + '/mouth-0.png'" /></td>
-            <td><img @click="changePortraitPart('nose')" :src="'statics/' + portrait.type + '/nose-0.png'" /></td>
-            <td><img @click="changePortraitPart('hair')" :src="'statics/' + portrait.type + '/hair-0.png'" /></td>
-            <td><img @click="changePortraitPart('beard')" :src="'statics/' + portrait.type + '/beard-0.png'" /></td>
-            <td><img @click="changePortraitPart('glass')" :src="'statics/' + portrait.type + '/glass-0.png'" /></td>
-            <td><img @click="changePortraitPart('hat')" :src="'statics/' + portrait.type + '/hat-0.png'" /></td>
+            <td v-if="portrait.face"><img @click="changePortraitPart('face')" :src="'statics/' + portrait.type + '/face-0.png'" /></td>
+            <td v-if="portrait.eye"><img @click="changePortraitPart('eye')" :src="'statics/' + portrait.type + '/eye-0.png'" /></td>
+            <td v-if="portrait.mouth"><img @click="changePortraitPart('mouth')" :src="'statics/' + portrait.type + '/mouth-0.png'" /></td>
+            <td v-if="portrait.nose"><img @click="changePortraitPart('nose')" :src="'statics/' + portrait.type + '/nose-0.png'" /></td>
+            <td v-if="portrait.hair"><img @click="changePortraitPart('hair')" :src="'statics/' + portrait.type + '/hair-0.png'" /></td>
+            <td v-if="portrait.beard"><img @click="changePortraitPart('beard')" :src="'statics/' + portrait.type + '/beard-0.png'" /></td>
+            <td v-if="portrait.glass"><img @click="changePortraitPart('glass')" :src="'statics/' + portrait.type + '/glass-0.png'" /></td>
+            <td v-if="portrait.hat"><img @click="changePortraitPart('hat')" :src="'statics/' + portrait.type + '/hat-0.png'" /></td>
           </tr>
         </table>
-        <div class="actions q-mt-sm q-mx-md" style="padding-bottom: 100px" v-show="playerResult === null">
+        <div class="actions q-mx-md" style="padding-bottom: 100px" v-show="playerResult === null">
           <div>
             <q-btn class="glossy large-button" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" @click="checkAnswer()"><div>{{ $t('label.Confirm') }}</div></q-btn>
           </div>
@@ -934,7 +939,9 @@
     <!--====================== WIN POINTS ANIMATION =================================-->
 
     <!--<div v-show="playerResult === true && score >= 1" class="fadein-message">+{{ score }}</div>-->
-    <div v-show="playerResult === true && displaySuccessIcon && step.options && step.options.successIcon && step.options.successIcon !== 'block'" class="fadein-message" style="padding-left: 40%"><q-icon color="white" :name="step.options.successIcon" /></div>
+    <div v-if="playerResult === true && displaySuccessIcon && step && step.options && step.options.successIcon && step.options.successIcon !== 'block'" class="fadein-message" style="padding-left: 40%">
+      <q-icon color="white" :name="step.options.successIcon" />
+    </div>
     <div v-show="geolocation.foundStep" class="fadein-message" style="padding-left: 40%"><q-icon color="white" name="check_box" /></div>
     <div v-show="playerResult === true && reward > 0" class="fadein-message">+{{ reward }} <q-icon color="white" name="fas fa-bolt" /></div>
     <div
@@ -1373,11 +1380,14 @@ export default {
       let backgroundImage = this.step.backgroundImage[this.lang] ? this.step.backgroundImage[this.lang] : this.step.backgroundImage[this.quest.mainLanguage]
       if (backgroundImage && backgroundImage[0] === "_") {
         return 'statics/images/quest/' + backgroundImage
-      } else if (backgroundImage && backgroundImage.indexOf('blob:') !== -1) {
-        return backgroundImage
-      } else {
-        return this.serverUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
+      } else if (backgroundImage) {
+        if (backgroundImage.indexOf('blob:') !== -1) {
+          return backgroundImage
+        } else {
+          return this.serverUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
+        }
       }
+      return ""
     },
     /*
      * reset background image between steps
@@ -1411,7 +1421,7 @@ export default {
             background.style.background = 'none'
             background.style.backgroundColor = '#000'
             this.showControls()
-          } else if (this.step.type === 'image-over-flow' || this.step.type === 'locate-item-ar' || this.step.type === 'locate-marker' || this.step.id === 'sensor') {
+          } else if (this.step.type === 'image-over-flow' || this.step.type === 'locate-marker' || this.step.id === 'sensor') {
             this.showControls()
             background.style.background = 'none'
             background.style.backgroundColor = 'transparent'
@@ -1426,15 +1436,12 @@ export default {
             let backgroundImage = document.getElementById('background-image')
             //background.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
             if (backgroundImage) {
-              backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+              if (backgroundUrl) {
+                backgroundImage.style.background = '#fff url("' + backgroundUrl + '") center/cover no-repeat'
+              } else {
+                backgroundImage.style.background = 'transparent'
+              }
             }
-            // all background clickable for transitions
-            //if ((["info-text", "geolocation", "choose", "write-text", "code-keypad", "code-color"]).indexOf(this.step.type) > -1) {
-              //let clickable = document.getElementById('info-clickable')
-              //let clickable = document.getElementById('main-view')
-              //clickable.addEventListener("click", this.showControls, false);
-            //}
-
             // display controls after some seconds to let user see background
             if (this.step.options && this.step.options.hasOwnProperty('initDuration')) {
               utils.setTimeout(this.showControls, parseInt(this.step.options.initDuration, 10) * 1000)
@@ -2338,7 +2345,9 @@ export default {
           break
 
         case 'portrait-robot':
-          let portraitAnswer = {items: {type: 1, face: this.portrait.face.position, eye: this.portrait.eye.position, mouth: this.portrait.mouth.position, nose: this.portrait.nose.position, hair: this.portrait.hair.position, beard: this.portrait.beard.position, glass: this.portrait.glass.position, hat: this.portrait.hat.position}}
+          let portraitAnswer = {items: {type: 1, face: this.portrait.face ? this.portrait.face.position : 0, eye: this.portrait.eye ? this.portrait.eye.position : 0, mouth: this.portrait.mouth ? this.portrait.mouth.position : 0, nose: this.portrait.nose ? this.portrait.nose.position : 0, hair: this.portrait.hair ? this.portrait.hair.position : 0, beard: this.portrait.beard ? this.portrait.beard.position : 0, glass: this.portrait.glass ? this.portrait.glass.position : 0, hat: this.portrait.hat ? this.portrait.hat.position : 0}}
+          
+console.log(portraitAnswer)
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: portraitAnswer, isTimeUp: this.isTimeUp}, false)
 
           if (checkAnswerResult.result === true) {
@@ -5030,7 +5039,7 @@ export default {
   .locate-item-ar .target-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
   .locate-item-ar #target-canvas { position: relative; width: 100%; height: 100%; z-index: 20; }
   .locate-item-ar .text { z-index: 50; position: relative; } /* positioning is required to have z-index working */
-  .locate-item-ar img { margin: 30vw auto; } /* 2D result image */
+  .locate-item-ar img { margin: 30vw auto; z-index: 20; position: relative; } /* 2D result image */
 
   /* image-over-flow specific */
 

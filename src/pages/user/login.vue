@@ -323,7 +323,7 @@ export default {
         case 'password':
           // sign in user
           let result = await this.signIn(this.form.email, this.form.password)
-          if (result.status) {
+          if (result && result.status) {
             if (result.status === 'success') {
               window.localStorage.setItem('jwt', result.user.jwt)
               axios.defaults.headers.common['Authorization'] = `Bearer ${result.user.jwt}`
@@ -343,7 +343,7 @@ export default {
             // check validation code
             let changePasswordStatus = await AuthService.changePassword(this.form.email, this.form.newPassword, this.form.code)
 
-            if (changePasswordStatus.status && changePasswordStatus.status === 200) {
+            if (changePasswordStatus && changePasswordStatus.status && changePasswordStatus.status === 200) {
               if (changePasswordStatus.data && changePasswordStatus.data.user) {
                 window.localStorage.setItem('jwt', changePasswordStatus.data.user.jwt)
                 axios.defaults.headers.common['Authorization'] = `Bearer ${changePasswordStatus.data.user.jwt}`
@@ -370,9 +370,9 @@ export default {
     async signIn(email, password) {
       let result = await AuthService.login(email, password)
 
-      if (result.status === 200) {
+      if (result && result.status === 200) {
         return {status: 'success', user: result.data.user}
-      } else if (result.status === 401) {
+      } else if (result && result.status === 401) {
         return {status: 'failed', error: 'incorrect login'}
       } else {
         return {error: 'technical issue'}
@@ -387,7 +387,7 @@ export default {
     async validateAccount(email, code) {
       let validateAccountStatus = await AuthService.validateAccount(email, code)
 
-      if (validateAccountStatus.status >= 300 && validateAccountStatus.data && validateAccountStatus.data.message) {
+      if (validateAccountStatus && validateAccountStatus.status >= 300 && validateAccountStatus.data && validateAccountStatus.data.message) {
         Notification(validateAccountStatus.data.message, 'warning')
       } else {
         Notification(this.$t('label.YourAccountIsNowValidated'), 'positive')
@@ -539,7 +539,7 @@ export default {
 
       let codeSent = await AuthService.sendForgottenPasswordCode(this.form.email)
 
-      if (codeSent.status === 200) {
+      if (codeSent && codeSent.status === 200) {
         this.step = 'forgottenpassword'
         this.passwordForgottenPopup = false
       } else {
