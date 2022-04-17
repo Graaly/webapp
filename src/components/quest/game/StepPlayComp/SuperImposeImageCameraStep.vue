@@ -49,8 +49,8 @@
 
       <!-- Red filter & alternate button for iOS -->
       <!--<div v-if="isIOs && imageOverFlow.snapshot === '' && step.options && step.options.redFilter" class="centered" style="background: transparent; position: absolute; bottom: 200px; width: 100%; z-index: 1980;">-->
-      <img v-if="isIOs && imageOverFlow.snapshot !== ''" :src="imageOverFlow.snapshot" style="object-fit: cover; position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100vw; height: 100vh; z-index: 1980;" />
-      <img v-if="((isIOs && imageOverFlow.snapshot !== '') || !isIOs) && step.options && step.options.redFilter" src="statics/images/background/red.png" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1985; mix-blend-mode: multiply; opacity: 0.8;" />
+      <img v-if="isIOs && imageOverFlow.snapshot !== ''" :src="imageOverFlow.snapshot" style="object-fit: cover; position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100vw; height: 100vh; z-index: 1970;" />
+      <img v-if="((isIOs && imageOverFlow.snapshot !== '') || !isIOs) && step.options && step.options.redFilter" src="statics/images/background/red.png" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 1975; mix-blend-mode: multiply; opacity: 0.8;" />
       <div v-if="isIOs && step.options && step.options.redFilter" class="centered" style="background: transparent; position: absolute; bottom: 200px; width: 100%; z-index: 1980;">
         <q-btn
           class="glossy large-button"
@@ -104,7 +104,10 @@ export default {
     },
     async prepareSnapshot() {
       this.takingSnapshot = true
-      this.$emit('hideButtons')
+      // if red filter, do not hide buttons
+      if (!(this.isIOs && this.step.options && this.step.options.redFilter)) {
+        this.$emit('hideButtons')
+      }
       let image = document.getElementById('snapshotImage')
       let now = new Date()
       let nowAsStr = now.toISOString().substring(0, 19).replace(':', '-')
