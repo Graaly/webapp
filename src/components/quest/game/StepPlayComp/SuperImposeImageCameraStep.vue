@@ -78,6 +78,7 @@ export default {
       cameraStreamEnabled: false,
       imageCapture: null,
       cameraUsed: 'user',
+      iOSCameraUsed : '',
       takingSnapshot: false,
       isHybrid: window.cordova,
       isIOs: utils.isIOS(),
@@ -232,7 +233,7 @@ export default {
         y: 0,
         width: window.screen.width,
         height: window.screen.height,
-        camera: CameraPreview.CAMERA_DIRECTION.FRONT,
+        camera: this.iOSCameraUsed ? this.iOSCameraUsed : CameraPreview.CAMERA_DIRECTION.FRONT,
         toBack: true,
         tapPhoto: true,
         tapFocus: false,
@@ -302,8 +303,18 @@ export default {
   },
   async mounted() {
     if (this.isIOs && CameraPreview) {
+      if (this.step.options.cameraUsed && this.step.options.cameraUsed == 'environment') {
+        this.iOSCameraUsed = CameraPreview.CAMERA_DIRECTION.BACK
+      } else {
+        this.iOSCameraUsed = CameraPreview.CAMERA_DIRECTION.FRONT
+      }
       await this.launchVideoStreamForIphone()
     } else {
+      if (this.step.options.cameraUsed && this.step.options.cameraUsed == 'environment') {
+        this.cameraUsed = 'environment'
+      } else {
+        this.cameraUsed = 'user'
+      }
       await this.launchVideoStreamForAndroid('camera-stream-for-image-over-flow', true)
     }
   },

@@ -131,10 +131,8 @@ export default {
    * @param   {String}    lang                language
    */
   async getByIdOnline(id, version = "999", lang = "default") {
-    let res = await Api().get("quest/" + id + "/version/" + version + "/lang/" + lang)
-    if (!res.hasOwnProperty('data')) {
-      throw new Error("Could not retrieve quest data from server, for id '" + id + "', version '" + version + "', lang '" + lang + "'")
-    }
+    let res = await Api().get("quest/" + id + "/version/" + version + "/lang/" + lang).catch(error => console.log(error.request));
+
     return res
   },
   /**
