@@ -919,7 +919,7 @@
           </div>
         </div>
       </transition>
-
+      
     </div>
 
     <!------------------ COMMON COMPONENTS ------------------>
@@ -2349,7 +2349,6 @@ export default {
         case 'portrait-robot':
           let portraitAnswer = {items: {type: 1, face: this.portrait.face ? this.portrait.face.position : 0, eye: this.portrait.eye ? this.portrait.eye.position : 0, mouth: this.portrait.mouth ? this.portrait.mouth.position : 0, nose: this.portrait.nose ? this.portrait.nose.position : 0, hair: this.portrait.hair ? this.portrait.hair.position : 0, beard: this.portrait.beard ? this.portrait.beard.position : 0, glass: this.portrait.glass ? this.portrait.glass.position : 0, hat: this.portrait.hat ? this.portrait.hat.position : 0}}
           
-console.log(portraitAnswer)
           checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: portraitAnswer, isTimeUp: this.isTimeUp}, false)
 
           if (checkAnswerResult.result === true) {

@@ -10,6 +10,9 @@
             />
           </div>
           <div class="centered q-py-lg">{{ $t('label.NetwordkErrorReloadPage') }}</div>
+          <div class="text-grey" v-if="warnings.questDataMissing">Error 103.21</div>
+          <div class="text-grey" v-if="warnings.stepDataMissing">Error 103.22</div>
+          <div class="text-grey" v-if="warnings.runDataMissing">Error 103.23</div>
         </q-card-section>
       </q-card>
     </div>
@@ -132,7 +135,7 @@
         <div v-if="!warnings.questDataMissing" class="panel-bottom no-padding" :style="'background: url(' + getBackgroundImage() + ' ) #000000 center center / cover no-repeat '">
           <q-toolbar class="dark-banner text-white">
             <q-toolbar-title v-if="info && info.quest && info.quest.availablePoints">
-              {{ $t('label.MyScore') }} {{ run.tempScore }} / {{ info.quest.availablePoints.score }}
+              {{ $t('label.GoodAnswersNumber') }} {{ score.nbGoodAnwers }}/{{ score.nbQuestions }}
             </q-toolbar-title>
             <q-icon size="sm" class="q-mr-sm" v-if="info && info.audio !== '' && info.audio !== null && sound && sound.status === 'play'" @click="cutSound" name="volume_up"></q-icon>
             <q-icon size="sm" class="q-mr-sm" v-if="info && info.audio !== '' && info.audio !== null && sound && sound.status === 'pause'" @click="cutSound" name="volume_off"></q-icon>
@@ -332,6 +335,11 @@
         </div>
       </div>
     </div>
+    <!------------------ COMMON COMPONENTS ------------------>
+    <div v-if="step && step.options && (step.options.displayTime || step.options.displayGoodAnswers)" style="position: absolute; left: 0; bottom: 70px; background-color: #000; color: #fff;" class="subtitle-5">
+      <span v-if="step.options.displayTime">{{currentDate}}&nbsp;</span>
+      <span v-if="step.options.displayGoodAnswers">&nbsp;{{ $t('label.Score')}} {{ score.nbGoodAnwers }}/{{ score.nbQuestions }}</span>
+    </div>
   </div>
 </template>
 
@@ -347,6 +355,7 @@ import stepPlay from 'components/quest/game/stepPlay'
 import Notification from 'boot/NotifyHelper'
 import story from 'components/story'
 import utils from 'src/includes/utils'
+import Moment from "moment"
 
 //import GMMS from 'services/GameMasterMonitoringService_mqtt'
 
@@ -401,6 +410,7 @@ export default {
         },
         hint: {
           isOpened: false,
+          isFirst: true,
           label: "",
           suggest: false,
           show: false,
@@ -452,7 +462,8 @@ export default {
         offline: {
           active: true,
           answer: null,
-          steps: []
+          steps: [],
+          force: false
         },
         warnings: {
           inventoryMissing: false,
@@ -479,7 +490,12 @@ export default {
           remaining: 0
         },
         // for step type 'use-item'
-        selectedItem: null
+        selectedItem: null,
+        currentDate: null,
+        score: {
+          nbGoodAnwers: 0,
+          nbQuestions: 0
+        }
       }
     },
     resetData () {
@@ -574,6 +590,8 @@ export default {
 
       // load component data
       this.loadStepData = true
+      
+      this.refreshCurrentDate()
     },
     /*sendDataToGameMaster() {
       GMMS.Send(this.run.questId, {
@@ -680,6 +698,13 @@ export default {
 
       // load component data
       this.loadStepData = true
+      
+      this.refreshCurrentDate()
+      
+      // compute stats
+      this.computeGoodAnswers()
+      //reset hint
+      this.hint.isFirst = true
     },
     /*
      * Get the current run or create it
@@ -689,19 +714,20 @@ export default {
      */
     async getRun() {
       this.warnings.runDataMissing = false
-
+      
       var remotePlay = this.$route.query.hasOwnProperty('remoteplay') ? this.$route.query.remoteplay : false
       var dataSharedWithPartner = (this.$route.query.hasOwnProperty('sharepartner') && this.$route.query.sharepartner === 'true')
       let offlineRun
 
       // check if a run is created on offline mode
       const isRunOfflineLoaded = await this.checkIfRunIsAlreadyLoaded(this.questId)
+
       if (isRunOfflineLoaded) {
         // read the run
         offlineRun = await this.loadOfflineRun(this.questId)
       }
 
-      if (!this.offline.active || this.run.currentChapter === 0) {
+      if (!this.offline.active || (this.run.currentChapter === 0 && !this.offline.force)) {
         // List all run for this quest for current user
         var runs = await RunService.listForAQuest(this.questId)
 
@@ -772,6 +798,8 @@ export default {
             this.info.score = this.run.tempScore
           }
         } else {
+          this.offline.active = true
+          this.offline.force = true
           this.warnings.runDataMissing = true
           this.reloadPageInAWhile()
           return false
@@ -826,8 +854,7 @@ export default {
       this.warnings.stepDataMissing = false
 
       // --- load step Id ---
-
-      if (typeof forceStepId !== 'undefined') {
+      if (typeof forceStepId !== 'undefined' && forceStepId !== null) {
         stepId = forceStepId
       } else if (!this.offline.active) {
         response = await RunService.getNextStep(this.questId, this.player)
@@ -883,7 +910,6 @@ export default {
       } else {
         // use offline content
         const stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player)
-
         if (!stepIdResponse || !stepIdResponse.id) {
           // if no step is triggered, display the waiting screen
           if (this.isMultiplayer) {
@@ -913,7 +939,6 @@ export default {
           return false
         }
       }
-
       if (stepId === 'end') {
         return this.$router.push('/quest/' + this.questId + '/end')
       }
@@ -1094,6 +1119,10 @@ export default {
       } catch (e) {
         console.log(e)
       }
+    },
+    refreshCurrentDate () {
+      let date = new Date()
+      this.currentDate = Moment(date).format('DD/MM/YYYY, k:mm')
     },
     /*
      * Show waiting page
@@ -1404,25 +1433,18 @@ export default {
       }
       // reload step to remove notifications
       this.loadStepData = false
-console.log("move next5")
-console.log(this.next)
       if (this.next.enabled) {
-console.log("move next6")
         await this.moveToNextStep('success')
       } else if (this.next.canPass) {
-console.log("move next7")
         if (force) {
-console.log("move next8")
           await this.passStep()
         } else {
-console.log("move next9")
           this.$q.dialog({
             dark: true,
             message: this.$t('label.ConfirmPass'),
             ok: this.$t('label.Ok'),
             cancel: this.$t('label.Cancel')
           }).onOk(async () => {
-console.log("move next10")
             await this.passStep()
           }).onCancel(() => {})
         }
@@ -1496,14 +1518,19 @@ console.log("move next10")
           if (this.info.quest.customization && this.info.quest.customization.doNotPreventUserForHint) {
             await this.getHint()
           } else {
-            this.$q.dialog({
-              dark: true,
-              message: this.$t('label.ConfirmHint'),
-              ok: this.$t('label.Ok'),
-              cancel: this.$t('label.Cancel')
-            }).onOk(async () => {
+            if (this.hint.isFirst) {
+              this.$q.dialog({
+                dark: true,
+                message: this.$t('label.ConfirmHint'),
+                ok: this.$t('label.Ok'),
+                cancel: this.$t('label.Cancel')
+              }).onOk(async () => {
+                await this.getHint()
+                this.hint.isFirst = false
+              })
+            } else {
               await this.getHint()
-            })
+            }
           }
         }
       }
@@ -2603,8 +2630,27 @@ console.log("move next10")
       let forceOnlineQuestOption = this.info.quest.customization && this.info.quest.customization.forceOnline
       let userIsAuthor = this.$store.state.user._id === this.info.quest.authorUserId
       let userIsEditor = Array.isArray(this.info.quest.editorsUserId) && this.info.quest.editorsUserId.includes(this.$store.state.user._id)
-
       this.offline.active = !(this.isMultiplayer || forceOnlineQuestOption || !this.isHybrid || userIsAuthor || userIsEditor || this.$store.state.user.isAdmin)
+    },
+    /*
+     * Compute number of good answers
+     */
+    computeGoodAnswers() {
+      if (this.run.conditionsDone) {
+        const conditionsDone = this.run.conditionsDone
+        let nbQuestions = 0
+        let nbGoodAnwers = 0
+        for (var i = 0; i < conditionsDone.length; i++) {
+          if (conditionsDone[i].indexOf('stepSuccess_') !== -1) {
+            nbQuestions++
+            nbGoodAnwers++
+          } else if (conditionsDone[i].indexOf('stepFail_') !== -1) {
+            nbQuestions++
+          }
+        }
+        this.score.nbQuestions = nbQuestions
+        this.score.nbGoodAnwers = nbGoodAnwers
+      }
     }
     /*showNotif() {
       this.$q.notify({

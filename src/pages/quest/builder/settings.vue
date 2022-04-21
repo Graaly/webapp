@@ -1389,7 +1389,11 @@
             </div>
           </div>
         </div>
-
+        <!------------------ COMMON COMPONENTS ------------------>
+        <div v-if="chapters.newStep.overviewData && chapters.newStep.overviewData.options && (chapters.newStep.overviewData.options.displayTime || chapters.newStep.overviewData.options.displayGoodAnswers)" style="position: absolute; left: 0; bottom: 70px; background-color: #000; color: #fff;" class="subtitle-5">
+          <span v-if="chapters.newStep.overviewData.options.displayTime">{{currentDate}}&nbsp;</span>
+          <span v-if="chapters.newStep.overviewData.options.displayGoodAnswers">&nbsp;{{ $t('label.Score')}} {{ score.nbGoodAnwers }}/{{ score.nbQuestions }}</span>
+        </div>
       </div>
 
       <!------------------ INVENTORY PAGE AREA ------------------------>
@@ -1485,6 +1489,7 @@ import ReviewService from 'services/ReviewService'
 import RunService from 'services/RunService'
 import StepService from 'services/StepService'
 import story from 'components/story'
+import Moment from "moment"
 
 // required to define v-sortable directive in Vue 2.0, see https://github.com/sagalbot/vue-sortable/issues/10
 import Vue from 'vue'
@@ -1736,6 +1741,11 @@ export default {
         editorsMissing: false,
         inviteeMissing: false,
         inventoryMissing: false
+      },
+      currentDate: null,
+      score: {
+        nbGoodAnwers: 0,
+        nbQuestions: 0
       }
     }
   },
@@ -1771,8 +1781,9 @@ export default {
     if (this.$store.state.user.isAdmin) {
       this.isAdmin = true
     }
-
-    // start tutorial
+    
+    this.refreshCurrentDate()
+    // start tutorial 
     //this.startStory()
   },
   methods: {
@@ -1985,6 +1996,10 @@ export default {
       } else {
         await this.refreshStepsList()
       }
+    },
+    refreshCurrentDate () {
+      let date = new Date()
+      this.currentDate = Moment(date).format('DD/MM/YYYY, k:mm')
     },
     /*
      * Refresh / load the step list
@@ -3010,6 +3025,9 @@ export default {
         // add timer else the watcher is not working in stepPlay
         var _this = this
         setTimeout(function() { _this.chapters.reloadStepPlay = true }, 300)
+        
+        // compute stats
+        this.computeGoodAnswers()
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
@@ -3929,6 +3947,24 @@ export default {
         console.error(err)
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
+    },
+    /*
+     * Compute number of good answers
+     */
+    computeGoodAnswers() {
+      const conditionsDone = this.run.conditionsDone
+      let nbQuestions = 0
+      let nbGoodAnwers = 0
+      for (var i = 0; i < conditionsDone.length; i++) {
+        if (conditionsDone[i].indexOf('stepSuccess_') !== -1) {
+          nbQuestions++
+          nbGoodAnwers++
+        } else if (conditionsDone[i].indexOf('stepFail_') !== -1) {
+          nbQuestions++
+        }
+      }
+      this.score.nbQuestions = nbQuestions
+      this.score.nbGoodAnwers = nbGoodAnwers
     }
   },
   validations: {

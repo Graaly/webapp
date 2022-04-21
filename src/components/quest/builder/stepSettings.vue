@@ -1045,6 +1045,11 @@
               <q-toggle v-model="selectedStep.form.options.fullHeightPicture" :label="$t('label.EnlargePictureToFullHeight')" />
               <q-toggle v-model="selectedStep.form.options.snapshotAllowed" :label="$t('label.PlayerCanTakeSnapshot')" />
               <q-toggle v-model="selectedStep.form.options.redFilter" :label="$t('label.ReplacePictureByRedFilter')" />
+              <q-select 
+                emit-value map-options 
+                :label="$t('label.CameraUsed')" 
+                v-model="selectedStep.form.options.cameraUsed" 
+                :options="config.imageOverFlow.cameraOptions" />
             </div>
             <div v-if="options.type.code === 'info-text' || options.type.code === 'character' || options.type.code === 'choose' || options.type.code === 'write-text' || options.type.code === 'code-keypad'">
               <q-input v-model="selectedStep.form.options.initDuration" :label="$t('label.DurationBeforeTextAppearAbovePicture')" />
@@ -1089,6 +1094,8 @@
                 :min-rows="4"
                 class="full-width"
               />
+              <q-toggle v-model="selectedStep.form.options.displayTime" :label="$t('label.DisplayTime')" />
+              <q-toggle v-model="selectedStep.form.options.displayGoodAnswers" :label="$t('label.DisplayGoodAnswers')" />
             </div>
           </div>
         </q-expansion-item>
@@ -1479,6 +1486,12 @@ export default {
         },
         locateMarker: {
           markerModalOpened: false
+        },
+        imageOverFlow: {
+          cameraOptions: [
+            {label: this.$t('label.FaceCamera'), value: "user"},
+            {label: this.$t('label.BackCamera'), value: "environment"}
+          ]
         },
         binocular: {
           shape: "binocular",
