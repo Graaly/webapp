@@ -956,7 +956,7 @@
                 <img 
                   v-if="questId !== null" 
                   class="full-width"
-                  :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage[lang]" 
+                  :src="uploadUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage[lang]" 
                   /> <br />
                 <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
               </div>

@@ -1385,7 +1385,7 @@ export default {
         if (backgroundImage.indexOf('blob:') !== -1) {
           return backgroundImage
         } else {
-          return this.serverUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
+          return this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/background/' + backgroundImage
         }
       }
       return ""

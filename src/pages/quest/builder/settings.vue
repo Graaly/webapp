@@ -3577,9 +3577,9 @@ export default {
       if (this.chapters.newStep.overviewData.type !== 'use-item') {
         this.inventory.detail.isOpened = true
         if (item.pictures && item.pictures[this.languages.current] && item.pictures[this.languages.current] !== '') {
-          this.inventory.detail.url = ((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
+          this.inventory.detail.url = ((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.uploadUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
         } else {
-          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
+          this.inventory.detail.url = (item.picture.indexOf('statics/') > -1 ? item.picture : this.uploadUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
         }
         if (item.titles && item.titles[this.languages.current] && item.titles[this.languages.current] !== '') {
           this.inventory.detail.title = item.titles[this.languages.current]
