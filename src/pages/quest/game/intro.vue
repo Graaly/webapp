@@ -90,7 +90,7 @@
           <div v-if="quest.duration && quest.duration < 999" class="q-mr-lg">
             <img src="statics/images/icon/duration.svg" class="medium-icon" />
             <span v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</span>
-            <span v-if="quest.duration && quest.duration >= 60">{{ quest.duration / 60 }}{{ $t('label.hoursSimplified') }}</span>
+            <span v-if="quest.duration && quest.duration >= 60">{{ Math.floor(quest.duration / 60) }}{{ $t('label.hoursSimplified') }}{{(quest.duration % 60 > 0 ? (quest.duration % 60) : "")}}</span>
           </div>
           <div v-if="quest.type === 'quest'" class="q-mr-lg">
             <span v-if="!quest.premiumPrice.tier && shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">
@@ -614,6 +614,14 @@ export default {
     async initQuest() {
       // get quest information
       const response = await QuestService.getByIdOnline(this.$route.params.id)
+      if (!response || !response.data) {
+        // check if offline data existing
+        let checkIfOfflineDataExists = await utils.checkIfFileExists(this.$route.params.id, "quest_" + this.$route.params.id + ".json")
+        if (!this.isOwner && checkIfOfflineDataExists) {            
+          this.startQuest(this.$route.params.id, this.$route.params.lang)
+        }
+        return
+      }
       this.quest = response.data
 
       // update 'forceOnline' state property according to current quest
