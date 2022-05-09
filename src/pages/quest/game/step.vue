@@ -725,6 +725,8 @@ export default {
       if (isRunOfflineLoaded) {
         // read the run
         offlineRun = await this.loadOfflineRun(this.questId)
+console.log("RUN LOADED")
+console.log(offlineRun)
       }
 
       if (!this.offline.active || (this.run.currentChapter === 0 && !this.offline.force)) {
@@ -746,6 +748,7 @@ export default {
                 if (offlineRun.dateUpdated > this.run.dateUpdated) {
                   const tempId = this.run._id
                   this.run = offlineRun
+console.log("RUN OFFLINE UPDATED")
                   // fix when id is not set
                   if (!this.run._id) {
                     this.run._id = tempId
@@ -773,6 +776,7 @@ export default {
             let res = await RunService.init(this.questId, this.questVersion, this.$route.params.lang, remotePlay, null, dataSharedWithPartner)
             if (res && res.status === 200 && res.data && res.data._id) {
               if (isRunOfflineLoaded) {
+console.log("RUN OFFLINE LOADED")
                 // if a offline run already exists
                 this.run = offlineRun
 
@@ -812,6 +816,7 @@ export default {
         // read offline run
         if (isRunOfflineLoaded) {
           if (offlineRun) {
+console.log("RUN OFFLINE LOADED 2")
             this.run = offlineRun
             if (this.run._id) {
               this.runId = this.run._id
@@ -1997,6 +2002,8 @@ export default {
 
       let updateAnswer = await this.saveOfflineRun(this.questId, this.run, updateRunDate)
 
+console.log("SAVE OFFLINE RUN")
+console.log(this.run)
       if (updateAnswer) {
         return true
       }
@@ -2601,15 +2608,29 @@ export default {
       }
     },
     /*
+     * reduce sound
+     */
+    reduceVolume () {
+      var audio = document.getElementById("background-music")
+      if (audio) {
+        audio.volume = 0.2;
+      }
+    },
+    resetVolume() {
+      var audio = document.getElementById("background-music")
+      if (audio) {
+        audio.volume = 1;
+      }
+    },
+    /*
      * cut audio for video or step with audio
      */
     manageAudio () {
       // audio available for current step ? (either for current language or main quest language)
       let hasAudioForCurrentStep = this.step.audioStream && ((this.step.audioStream[this.lang] && this.step.audioStream[this.lang] !== '') || (this.step.audioStream[this.info.quest.mainLanguage] && this.step.audioStream[this.info.quest.mainLanguage] !== ''))
-
+      this.resetVolume();
       if (this.step.type === 'info-video' || hasAudioForCurrentStep) {
-        this.cutSound()
-        this.sound.tempMute = true
+        this.reduceVolume()
       } else if (this.sound.tempMute) {
         this.cutSound()
       }

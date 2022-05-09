@@ -28,7 +28,7 @@
       </div>
     </div>
     <div v-if="quest && quest.customization && quest.customization.endMessage && quest.customization.endMessage[lang] && quest.customization.endMessage[lang] !== ''" class="q-px-md text-grey align-right" style="font-size: 0.8em; margin-top: -10px;">
-      {{ endDate }}
+      {{ endDate }} {{ranking.total}}
     </div>
 
     <div v-if="isUserAuthor" class="back centered q-pa-md">
@@ -307,7 +307,8 @@ export default {
       ranking: {
         show: false,
         items: [],
-        position: "-"
+        position: "-",
+        total: ""
       },
       score: {},
       nbQuestions: 0,
@@ -413,10 +414,7 @@ export default {
           const isReviewAlreadySent = results.data && results.data.length >= 1
           this.showAddReview = !this.isUserAdmin && !this.isUserAuthor && !isReviewAlreadySent
         }
-
-        // compute good answers
-        await this.computeGoodAnswers()
-
+        
         // get user old score
         this.score.old = this.$store.state.user.points
         if (!this.score.old) {
@@ -427,6 +425,14 @@ export default {
 
         // get offline run data
         const offlineRunData = await this.getOfflineRunData()
+        if (offlineRunData) {
+          this.run = offlineRunData
+        }
+console.log("OFFLINE RUN DATA")
+console.log(offlineRunData)        
+         
+         // compute good answers
+        await this.computeGoodAnswers()
 
         // end the run
         let endStatus = await RunService.endRun(this.run._id, offlineRunData, this.questId, this.quest.version, this.quest.mainLanguage)
@@ -527,7 +533,14 @@ export default {
         var scores = await RunService.listPlayersForThisQuest(this.questId)
 
         if (scores && scores.data) {
-          this.ranking.position = scores.data
+          if (scores.data.position) {
+            this.ranking.position = scores.data.position
+          } else {
+            this.ranking.position = scores.data
+          }
+          if (scores.data.total) {
+            this.ranking.total = scores.data.total
+          }
         }
         /*if (scores && scores.data && scores.data.length > 1) {
           this.ranking.items = scores.data
@@ -746,6 +759,8 @@ export default {
      * Compute number of good answers
      */
     async computeGoodAnswers() {
+console.log("COMPUTE GOOD ANSWERS")
+console.log(this.run)
       const conditionsDone = this.run.conditionsDone
       let nbQuestions = 0
       let nbGoodAnwers = 0

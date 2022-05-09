@@ -614,16 +614,11 @@ export default {
      */
     async initQuest() {
       // get quest information
-console.log("TEST1")
       const response = await QuestService.getByIdOnline(this.$route.params.id)
-console.log("TEST2")
       if (!response || !response.data) {
-console.log("TEST3")
         // check if offline data existing
         let checkIfOfflineDataExists = await utils.checkIfFileExists(this.$route.params.id, "quest_" + this.$route.params.id + ".json")
-console.log("TEST4")
         if (!this.isOwner && checkIfOfflineDataExists) {            
-console.log("TEST5")
           this.startQuest(this.$route.params.id, this.$route.params.lang)
         }
         return

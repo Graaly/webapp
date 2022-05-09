@@ -21,7 +21,7 @@
         Bravo, vous avez réussi !
       </div>
       <div class="centered subtitle2 q-pt-lg" v-if="$t('label.shortLang') === 'en'">
-        Congratulations, you win the game!
+        Congratulations, you won the game!
       </div>
       <div class="centered subtitle3 q-mt-lg q-py-md" style="background-color: #063b8b; color :#fff;">
         <div v-if="$t('label.shortLang') === 'en'">
