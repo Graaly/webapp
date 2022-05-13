@@ -288,7 +288,7 @@
 
       <!------------------ KEYPAD STEP AREA ------------------------>
 
-      <div class="code" v-if="step.type == 'code-keypad'">
+      <div class="code" v-if="step.type == 'code-keypad'" style="overflow: auto; margin-bottom: 80px;">
         <div v-if="showTools">
           <div>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
@@ -343,7 +343,7 @@
 
       <!------------------ CODE COLOR STEP AREA ------------------------>
 
-      <div class="code code-color" v-if="step.type == 'code-color'">
+      <div class="code code-color" v-if="step.type == 'code-color'" style="overflow: auto; margin-bottom: 80px;">
         <div v-if="showTools">
           <div>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
@@ -372,7 +372,7 @@
 
       <!------------------ IMAGE CODE STEP AREA ------------------------>
 
-      <div class="code code-image" v-if="step.type == 'code-image'">
+      <div class="code code-image" v-if="step.type == 'code-image'" style="overflow: auto; margin-bottom: 80px;">
         <div v-if="showTools">
           <div>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
@@ -451,7 +451,7 @@
 
       <!------------------ SIMPLE TEXT INPUT STEP AREA ------------------------>
 
-      <div class="write-text" v-if="step.type == 'write-text'">
+      <div class="write-text" v-if="step.type == 'write-text'" style="overflow: auto; margin-bottom: 80px;">
         <div v-if="showTools">
           <div>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
@@ -523,7 +523,7 @@
 
       <!------------------ MEMORY STEP AREA ------------------------>
 
-      <div class="puzzle" v-if="step.type === 'memory'">
+      <div class="puzzle" v-if="step.type === 'memory'" style="overflow: auto; margin-bottom: 80px;">
         <div>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
@@ -659,7 +659,7 @@
 
       <!------------------ FIND ITEM STEP AREA ------------------------>
 
-      <div class="find-item" v-if="step.type == 'find-item'">
+      <div class="find-item" v-if="step.type == 'find-item'" style="overflow: auto; margin-bottom: 80px;">
         <div>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
@@ -3768,7 +3768,7 @@ export default {
       let level = parseInt((this.step.options.level || 2), 10) // 1=easy, 2=medium, 3=very hard, 4=hard
       let puzzleSize = this.puzzle.colsByLevel[level]
       let puzzleNbPieces = Math.pow(puzzleSize, 2)
-      let puzzleWidth = document.getElementById('pieces').clientWidth
+      let puzzleWidth = document.getElementById('pieces').clientWidth - 1
       let puzzleHeight = puzzleWidth
       let pieceHeight = Math.floor(puzzleHeight / puzzleSize)
       let pieceWidth = Math.floor(puzzleWidth / puzzleSize)
@@ -5002,7 +5002,7 @@ export default {
   #pieces {
     padding: 0;
     margin: 0;
-    width: 100%;
+    width: 99vw;
     background: #ddd;
     display: block;
   }
