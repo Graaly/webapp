@@ -226,10 +226,8 @@
         <q-radio v-model="config.choose.answerType" val="image" :label="$t('label.Pictures')" @click="$v.selectedStep.form.options.items.$touch" test-id="radio-choose-images" />
           
         <h2>{{ $t('label.PossibleAnswers') }}</h2>
-        <p>{{ $t('label.SelectTheGoodAnswer') }}</p>
-          
         <div class="answer" v-for="(option, key) in selectedStep.form.options.items" :key="key">
-          <q-radio v-model="selectedStep.form.answers" :val="key" :test-id="'radio-answer-' + key" />
+          <q-checkbox v-model="config.choose.answers" :val="key" :test-id="'radio-answer-' + key" />
           
           <q-input v-show="config.choose.answerType === 'text'" v-model="option.text" @input="$v.selectedStep.form.options.items ? $v.selectedStep.form.options.items.$each[key].text.$touch : null" input-class="native-input-class" :test-id="'text-answer-' + key" />
           <p class="error-label" v-if="config.choose.answerType === 'text' && $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].text.required">{{ $t('label.RequiredField') }}</p>
@@ -704,6 +702,22 @@
         </table>
       </div>
       
+      <!---------- STEP END OF CHAPTER  ------------>
+      
+      <q-list bordered v-if="options.type.code === 'end-chapter'">
+        <div class="q-pa-md">
+          <q-toggle v-model="config.endChapter.moveToNextStep" :label="$t('label.RedirectToNextChapter')" />
+          <div v-if="!config.endChapter.moveToNextStep">
+            <q-select 
+              emit-value map-options 
+              :label="$t('label.RedirectToChapter')" 
+              v-model="selectedStep.form.options.chapterId" 
+              :options="selectedStep.chapters" 
+               />
+          </div>
+        </div>
+      </q-list>
+      
       <!---------- STEPS IOT : WAIT FOR EVENT / TRIGGER EVENT  ------------>
       
       <div v-if="options.type.code === 'wait-for-event' || options.type.code === 'trigger-event'">
@@ -901,7 +915,8 @@
             <q-btn color="primary" class="full-width" v-if="!selectedStep.newConditionForm" @click="selectedStep.newConditionForm = true" :label="$t('label.AddACondition')" />
             <div v-if="selectedStep.newConditionForm">
               <q-select emit-value map-options :label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @input="changeNewConditionType" />
-              <q-select v-if="selectedStep.newCondition.selectedType !== 'counter' && selectedStep.newCondition.selectedType !== 'countergreater' && selectedStep.newCondition.selectedType !== 'counterlower'" emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
+              <q-select v-if="selectedStep.newCondition.selectedType !== 'counter' && selectedStep.newCondition.selectedType !== 'countergreater' && selectedStep.newCondition.selectedType !== 'counterlower' && selectedStep.newCondition.selectedType !== 'combineobject'" emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
+              <q-select v-if="selectedStep.newCondition.selectedType === 'combineobject'" emit-value map-options :label="$t('label.ObjectCombined')" v-model="selectedStep.newCondition.selectedObject" :options="config.useItem.questItemsAsOptions" />
               <q-input v-if="selectedStep.newCondition.selectedType === 'counter' || selectedStep.newCondition.selectedType === 'countergreater' || selectedStep.newCondition.selectedType === 'counterlower'" v-model="selectedStep.newCondition.selectedValue" :label="$t('label.CounterValue')" />
               <div class="centered">
                 <q-btn class="glossy normal-button" color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />
@@ -1375,9 +1390,11 @@ export default {
             {label: this.$t('label.StepRandom'), value: 'stepRandom'},
             {label: this.$t('label.StepCounter'), value: 'counter'},
             {label: this.$t('label.StepCounterGreater'), value: 'countergreater'},
-            {label: this.$t('label.StepCounterLower'), value: 'counterlower'}
+            {label: this.$t('label.StepCounterLower'), value: 'counterlower'},
+            {label: this.$t('label.StepCombineObject'), value: 'combineobject'}
           ],
           selectedValue: '',
+          selectedObject: '',
           values: []
         },
         chapters: []
@@ -1415,7 +1432,8 @@ export default {
           answerType: 'text',
           defaultNbAnswers: 4,
           minNbAnswers: 2,
-          maxNbAnswers: 6
+          maxNbAnswers: 6,
+          answers: []
         },
         colorCode: {
           numberOfDigitsOptions: [
@@ -1509,6 +1527,9 @@ export default {
           beard: { number: 31 },
           glass: { number: 5 },
           hat: { number: 4 }
+        },
+        endChapter: {
+          moveToNextStep: true
         },
         iot: {
           triggerEvent: {
@@ -1781,16 +1802,23 @@ export default {
         this.selectedStep.form.options.html = false
       }
       
+      this.getQuestItemsAsOptions()
+      
       // initialize specific steps
       if (this.options.type.code === 'choose') {
         if (!this.selectedStep.form.options || !this.selectedStep.form.options.items || !Array.isArray(this.selectedStep.form.options.items)) {
           this.config.choose.answerType = 'text'
           this.selectedStep.form.options = {items: [], hideHideButton: true}
-          this.selectedStep.form.answers = 0
+          this.config.choose.answers = [0]
           for (let i = 0; i < this.config.choose.defaultNbAnswers; i++) {
             this.selectedStep.form.options.items.push({ text: this.$t('label.AnswerNb', { nb: (i + 1) }), imagePath: null })
           }
         } else {
+          this.config.choose.answers = (this.selectedStep.form.answers + "").split("|").map(function(item) {
+            return parseInt(item, 10);
+          });
+          console.log(this.selectedStep.form.answers)
+          console.log(this.config.choose.answers)
           this.config.choose.answerType = this.selectedStep.form.options.items[0].hasOwnProperty('imagePath') && this.selectedStep.form.options.items[0].imagePath !== null ? 'image' : 'text'
           if (this.config.choose.answerType === 'text') {
             for (var i = 0; i < this.selectedStep.form.options.items.length; i++) {
@@ -1893,7 +1921,6 @@ export default {
         if (this.selectedStep.form.answers && this.selectedStep.form.answers.item) {
           this.selectedStep.form.answerItem = this.selectedStep.form.answers.item
         }
-        this.getQuestItemsAsOptions()
         if (!this.selectedStep.form.options || !this.selectedStep.form.options.hasOwnProperty("touchLocation")) {
           this.selectedStep.form.options = { touchLocation: true }
         }
@@ -1927,6 +1954,12 @@ export default {
       } else if (this.options.type.code === 'portrait-robot') {
         if (!this.selectedStep.form.answers.hasOwnProperty('items')) {
           this.$set(this.selectedStep.form.answers, 'items', {type: 1, face: 1, eye: 1, mouth: 1, nose: 1, hair: 1, beard: 1, glass: 1, hat: 1})
+        }
+      } else if (this.options.type.code === 'end-chapter') {
+        if (!this.selectedStep.form.options.hasOwnProperty('chapterId') || this.selectedStep.form.options.chapterId == "") {
+          this.config.endChapter.moveToNextStep = true
+        } else {
+          this.config.endChapter.moveToNextStep = false
         }
       } else if (this.options.type.code === 'phone-call') {
         if (!this.selectedStep.form.options.hasOwnProperty('number')) {
@@ -2073,6 +2106,15 @@ export default {
           // clear all images => playStep.vue will consider that player should choose between text options
           this.selectedStep.form.options.items = this.selectedStep.form.options.items.map((option) => { option.imagePath = null; return option })
         }
+        this.selectedStep.form.answers = this.config.choose.answers.sort().join("|")
+        if (this.config.choose.answers.length < 1) {
+          Notification(this.$t('label.StepSettingsFormError'), 'error')
+          return
+        } else if (this.config.choose.answers.length > 1) {
+          this.selectedStep.form.options.multipleAnswers = true
+        } else {
+          this.selectedStep.form.options.multipleAnswers = false
+        }
       }
       if (this.options.type.code === 'character') {
         if (!this.selectedStep.form.options.character) {
@@ -2109,6 +2151,11 @@ export default {
       }
       if (this.options.type.code === 'portrait-robot') {
         //no specific action
+      }
+      if (this.options.type.code === 'end-chapter') {
+        if (this.config.endChapter.moveToNextStep) {
+          this.selectedStep.form.options.chapterId = ""
+        }
       }
       if (this.options.type.code === 'find-item') {
         //Coordinates are already set
@@ -2337,6 +2384,9 @@ export default {
         if (conditionParts[0] === 'counterlower') {
           this.selectedStep.formatedConditions.push(this.$t("label.StepCounterLower") + " <i>" + conditionParts[1] + "</i>")
         }
+        if (conditionParts[0] === 'combineobject') {
+          this.selectedStep.formatedConditions.push(this.$t("label.StepCombineObject") + " <i><img src='" + (conditionParts[1].indexOf('statics/') !== -1 ? conditionParts[1] : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + conditionParts[1]) + "' style='width: 40px' /></i>")
+        }
       }
     },
     /*
@@ -2374,7 +2424,7 @@ export default {
      */
     async saveNewCondition() {
       // Update conditions array
-      if (this.selectedStep.newCondition.selectedType !== '' && this.selectedStep.newCondition.selectedValue !== '') {
+      if (this.selectedStep.newCondition.selectedType !== '' && (this.selectedStep.newCondition.selectedValue !== '' || this.selectedStep.newCondition.selectedObject !== '')) {
         if (this.selectedStep.newCondition.selectedType === 'stepDone') {
           // prevent from having several stepDone conditions (only one possible)
           /*for (var i = 0; i < this.selectedStep.form.conditions.length; i++) {
@@ -2404,6 +2454,10 @@ export default {
         }
         if (this.selectedStep.newCondition.selectedType === 'counterlower') {
           this.selectedStep.form.conditions.push('counterlower_' + this.selectedStep.newCondition.selectedValue)
+        }
+        if (this.selectedStep.newCondition.selectedType === 'combineobject') {
+console.log("create combne object")
+          this.selectedStep.form.conditions.push('combineobject_' + this.selectedStep.newCondition.selectedObject)
         }
       }
       this.getUnderstandableConditions()
