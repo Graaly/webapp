@@ -458,6 +458,13 @@
                     </div>
                   </div>
                 </div>
+                <div>
+                  <q-toggle
+                    :readonly="readOnly"
+                    :label="$t('label.MyGameIsIndoorRemoveWarningsOnStart')"
+                    v-model="form.fields.customization.removeWarning"
+                    />
+                </div>
               </div>
             </q-expansion-item>
             <q-separator />
@@ -1410,7 +1417,7 @@
             <p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && chapters.newStep.overviewData.type !== 'use-item'">{{ $t('label.InventoryZoom') }}</p>
             <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
             <div class="inventory-items">
-              <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
+              <div v-for="(item, key) in inventory.items" :key="key" class="inventory-item" @click="selectItem(item)">
                 <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
                 <p v-if="item.titles && item.titles[languages.current] && item.titles[languages.current] !== ''">{{ item.titles[languages.current] }}</p>
                 <p v-if="!(item.titles && item.titles[languages.current] && item.titles[languages.current] !== '')">{{ item.title }}</p>
@@ -2070,7 +2077,7 @@ export default {
                       var maxPosition = 0
                       // find if parents are already sorted and if so add item in sorted after
                       for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
-                        if (stepsOfChapter[i].conditions[k].indexOf("counter") === -1) {
+                        if (stepsOfChapter[i].conditions[k].indexOf("counter") === -1 && stepsOfChapter[i].conditions[k].indexOf("combineobject") === -1) {
                           let parentStepId = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
                           parentStepId = parentStepId.replace("stepSuccess_", "")
                           parentStepId = parentStepId.replace("stepFail_", "")
@@ -3929,9 +3936,13 @@ export default {
      * Compute number of good answers
      */
     computeGoodAnswers() {
+      if (!this.run || !this.run.conditionsDone) {
+        return
+      }
       const conditionsDone = this.run.conditionsDone
       let nbQuestions = 0
       let nbGoodAnwers = 0
+
       for (var i = 0; i < conditionsDone.length; i++) {
         if (conditionsDone[i].indexOf('stepSuccess_') !== -1) {
           nbQuestions++

@@ -264,18 +264,23 @@
              <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           </div>
           <div class="answers-text q-mt-lg" v-if="answerType === 'text'">
-            <q-btn v-for="(option, key) in step.options.items" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="checkAnswer(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
+            <q-btn v-for="(option, key) in step.options.items" :key="key" class="full-width shadowed" :class="option.class" :icon="option.icon" @click="chooseSelectValue(key)" :disabled="playerResult !== null" :test-id="'answer-text-' + key">
               <span :class="'font-' + customization.font" v-if="!option.textLanguage || !option.textLanguage[lang]">{{ option.text }}</span>
               <span :class="'font-' + customization.font" v-if="option.textLanguage && option.textLanguage[lang]">{{ option.textLanguage[lang] }}</span>
             </q-btn>
           </div>
           <div class="answers-images" v-if="answerType === 'image'">
             <div class="images-block">
-              <div v-for="(option, key) in step.options.items" :key="key" :class="option.class" @click="checkAnswer(key)" :test-id="'answer-image-' + key">
+              <div v-for="(option, key) in step.options.items" :key="key" :class="option.class" @click="chooseSelectValue(key)" :test-id="'answer-image-' + key">
                 <img :src="option.imagePath.indexOf('blob:') !== -1 ? option.imagePath : serverUrl + '/upload/quest/' + step.questId + '/step/choose-image/' + option.imagePath" :class="option.class" />
                 <q-btn v-if="option.class !== null" round :class="option.class" :icon="option.icon" disable />
               </div>
             </div>
+          </div>
+          <div v-if="step.options.multipleAnswers" class="q-pa-md">
+            <q-btn class="glossy" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()">
+              <div>{{ $t('label.Confirm') }}</div>
+            </q-btn>
           </div>
           <div v-if="!step.options || !step.options.hideHideButton" class="centered" style="padding-bottom: 100px">
             <q-btn flat class="no-box-shadow hide-button text-black" icon="expand_less" :label="$t('label.Hide')" @click="showTools = false" />
@@ -288,7 +293,7 @@
 
       <!------------------ KEYPAD STEP AREA ------------------------>
 
-      <div class="code" v-if="step.type == 'code-keypad'">
+      <div class="code" v-if="step.type == 'code-keypad'" style="overflow: auto; margin-bottom: 80px;">
         <div v-if="showTools">
           <div>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
@@ -343,7 +348,7 @@
 
       <!------------------ CODE COLOR STEP AREA ------------------------>
 
-      <div class="code code-color" v-if="step.type == 'code-color'">
+      <div class="code code-color" v-if="step.type == 'code-color'" style="overflow: auto; margin-bottom: 80px;">
         <div v-if="showTools">
           <div>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
@@ -372,7 +377,7 @@
 
       <!------------------ IMAGE CODE STEP AREA ------------------------>
 
-      <div class="code code-image" v-if="step.type == 'code-image'">
+      <div class="code code-image" v-if="step.type == 'code-image'" style="overflow: auto; margin-bottom: 80px;">
         <div v-if="showTools">
           <div>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
@@ -440,7 +445,7 @@
           @click="switchModeForGeolocationStep()" />
       </div>
 
-      <div class="background-map full-width full-height q-pa-md centered" v-if="step.id == 'gpssensor'">
+      <div class="background-map full-width full-height q-pa-md centered" v-if="step.id == 'gpssensor' && geolocation.mode === 'sensor'">
         <div v-if="customization.geolocationMessage && customization.geolocationMessage !== '' && lang">{{ customization.geolocationMessage[lang] }}</div>
         <div v-if="!customization.geolocationMessage || customization.geolocationMessage === '' || !lang">{{ $t('label.FindAllLocationsToStartSteps') }}</div>
         <div class="q-mt-xl centered">
@@ -448,10 +453,14 @@
         </div>
         {{ $t('label.ColorIndicatorExplaination', {distance: geolocation.closestDistance}) }}
       </div>
+      
+      <div class="background-map full-width full-height q-pa-md centered" v-if="step.id == 'gpssensor' && geolocation.mode === 'map'">
+        <geolocationStepMap class="geolocation-step-map" :class="'font-' + customization.font" :target-position="geolocation.destinationPosition" :player-position="geolocation.playerPosition" />
+      </div>
 
       <!------------------ SIMPLE TEXT INPUT STEP AREA ------------------------>
 
-      <div class="write-text" v-if="step.type == 'write-text'">
+      <div class="write-text" v-if="step.type == 'write-text'" style="overflow: auto; margin-bottom: 80px;">
         <div v-if="showTools">
           <div>
             <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
@@ -523,7 +532,7 @@
 
       <!------------------ MEMORY STEP AREA ------------------------>
 
-      <div class="puzzle" v-if="step.type === 'memory'">
+      <div class="puzzle" v-if="step.type === 'memory'" style="overflow: auto; margin-bottom: 80px;">
         <div>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
@@ -659,7 +668,7 @@
 
       <!------------------ FIND ITEM STEP AREA ------------------------>
 
-      <div class="find-item" v-if="step.type == 'find-item'">
+      <div class="find-item" v-if="step.type == 'find-item'" style="overflow: auto; margin-bottom: 80px;">
         <div>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
@@ -1125,6 +1134,9 @@ export default {
 
         // for steps type 'code-keypad' & 'code-color'
         playerCode: [],
+        choose: {
+          answers: []
+        },
         keypad: [
           ["1", "2", "3"],
           ["4", "5", "6"],
@@ -1147,7 +1159,7 @@ export default {
           position: { x: null, y: null },
           // player position (properties: latitude & longitude, from native call to navigator.geolocation.watchLocation())
           playerPosition: null,
-          destinationPosition: null,
+          destinationPosition: [],
           // for 'locate-item-ar'
           target: null,
           canSeeTarget: false,
@@ -1579,6 +1591,16 @@ export default {
             this.geolocation.mode = this.step.options.mode
           } else {
             this.geolocation.mode = 'compass'
+          }
+        }
+        if (this.step.id === 'gpssensor') {
+          if (this.step.visibles && this.step.visibles.length > 0) {
+            this.geolocation.mode = 'map'
+            for (var i = 0; i < this.step.visibles.length; i++) {
+              this.geolocation.destinationPosition.push(this.step.visibles[i])
+            }
+          } else {
+            this.geolocation.mode = 'sensor'
           }
         }
 
@@ -2045,15 +2067,14 @@ export default {
           if (displaySpinner) {
             this.$q.loading.hide()
           }
-
-          let offlineAnswer = this.checkOfflineAnswer(answerData.answer)
+          let offlineAnswer = await this.checkOfflineAnswer(answerData.answer)
           return offlineAnswer
         }
       } else { // offline mode
         // call web API (non blocking => no await) to attempt to update runs
         StepService.checkAnswer(questId, stepId, this.step.version, runId, answerData, this.player, { retries: 0 })
         
-        let offlineAnswer = this.checkOfflineAnswer(answerData.answer)
+        let offlineAnswer = await this.checkOfflineAnswer(answerData.answer)
         return offlineAnswer
       }
     },
@@ -2128,7 +2149,7 @@ export default {
           }
         }
       } else {
-        if (answer === this.answer) {
+        if (answer == this.answer) { //keep == instead of === because sometime we compare string and numbers
           return { result: true, answer: this.answer, score: 1, reward: 0, offline: true }
         }
       }
@@ -2189,27 +2210,34 @@ export default {
           break
 
         case 'choose':
-          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answer, isTimeUp: this.isTimeUp}, true)
+          answer = this.choose.answers.sort()
+          let answerStr = answer.join("|")
+          checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: answerStr, isTimeUp: this.isTimeUp}, true)
           if (checkAnswerResult.result === true) {
-            let selectedAnswer = this.step.options.items[answer]
-            if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || !this.step.options.rightAnswerMessage[this.lang] || this.step.options.rightAnswerMessage[this.lang] === "")) {
-              selectedAnswer.class = 'rightorwrong'
-            } else {
-              selectedAnswer.icon = 'done'
-              selectedAnswer.class = 'right'
-            }
-            Vue.set(this.step.options.items, answer, selectedAnswer)
-            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer, answer)
-          } else {
-            if (!this.isTimeUp) {
-              let selectedAnswer = this.step.options.items[answer]
+            for (var i = 0; i < answer.length; i++) {
+              let selectedAnswer = this.step.options.items[answer[i]]
               if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || !this.step.options.rightAnswerMessage[this.lang] || this.step.options.rightAnswerMessage[this.lang] === "")) {
                 selectedAnswer.class = 'rightorwrong'
               } else {
-                selectedAnswer.icon = 'clear' // "x" icon
-                selectedAnswer.class = 'wrong'
+                selectedAnswer.icon = 'done'
+                selectedAnswer.class = 'right'
               }
-              Vue.set(this.step.options.items, answer, selectedAnswer)
+              Vue.set(this.step.options.items, answer[i], selectedAnswer)
+            }
+console.log("SUBMIT ANSWER 1")
+            this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer, answerStr)
+          } else {
+            if (!this.isTimeUp) {
+              for (var i = 0; i < answer.length; i++) {
+                let selectedAnswer = this.step.options.items[answer[i]]
+                if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || !this.step.options.rightAnswerMessage[this.lang] || this.step.options.rightAnswerMessage[this.lang] === "")) {
+                  selectedAnswer.class = 'rightorwrong'
+                } else {
+                  selectedAnswer.icon = 'clear' // "x" icon
+                  selectedAnswer.class = 'wrong'
+                }
+                Vue.set(this.step.options.items, answer[i], selectedAnswer)
+              }
             }
 
             if (this.isTimeUp) {
@@ -2218,17 +2246,22 @@ export default {
             if (this.step.displayRightAnswer === true) {
               // indicate the right answer
               if ((checkAnswerResult.answer || checkAnswerResult.answer === 0) && !checkAnswerResult.remainingTrial) {
-                let selectedAnswer = this.step.options.items[checkAnswerResult.answer]
-                selectedAnswer.icon = 'done'
-                selectedAnswer.class = 'right'
-                Vue.set(this.step.options.items, checkAnswerResult.answer, selectedAnswer)
+                let returnedAnswers = (checkAnswerResult.answer + "").split("|")
+                for (var i = 0; i < returnedAnswers.length; i++) {
+                  let selectedAnswer = this.step.options.items[returnedAnswers[i]]
+                  selectedAnswer.icon = 'done'
+                  selectedAnswer.class = 'right'
+                  Vue.set(this.step.options.items, returnedAnswers[i], selectedAnswer)
+                }
               }
             }
             this.nbTry++
             if (checkAnswerResult.remainingTrial > 0) {
+console.log("SUBMIT ANSWER 2")
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
-              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer, answer)
+console.log("SUBMIT ANSWER 3")
+              this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer, answerStr)
             }
           }
           break
@@ -2473,7 +2506,12 @@ export default {
                 checkAnswerResult = await this.sendAnswer(this.step.questId, this.step.stepId, this.runId, {answer: false, isTimeUp: this.isTimeUp}, true)
                 
                 // show locations to click even if user fail
-                this.showAllFindItemLocation()
+                if (this.step.options && this.step.options.altFile) {
+                  this.step.backgroundImage[this.lang] = this.step.options.altFile
+                  this.hideAllFindItemLocation()
+                } else {
+                  this.showAllFindItemLocation()
+                }
 
                 this.submitWrongAnswer(false, this.step.displayRightAnswer)
               }
@@ -2667,13 +2705,10 @@ export default {
           this.stopcountdown()
         }
       }
-
       this.stepPlayed = true
 
       this.$emit('success', score, offlineMode, showResult, answer)
       this.$emit('played')
-
-      this.displayReadMoreAlert()
 
       if (showResult || (this.step.options && this.step.options.rightAnswerMessage && this.step.options.rightAnswerMessage[this.lang] && this.step.options.rightAnswerMessage[this.lang] !== "")) {
         switch (this.step.type) {
@@ -2717,6 +2752,8 @@ export default {
             break
         }
       }
+      
+      this.displayReadMoreAlert()
 
       // if no display of the answer move to next step
       if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || !this.step.options.rightAnswerMessage[this.lang] || this.step.options.rightAnswerMessage[this.lang] === "")) {
@@ -2754,13 +2791,13 @@ export default {
       this.$emit('fail', offlineMode, showResult, answer)
       this.$emit('played')
 
-      this.displayReadMoreAlert()
-
       if (this.isTimeUp === true) {
         this.displaySuccessMessage(false, this.$t('label.CountDownPopupfail'), false, false, true)
       } else if (showResult || (this.step.options.wrongAnswerMessage && this.step.options.wrongAnswerMessage[this.lang] && this.step.options.wrongAnswerMessage[this.lang] !== "")) {
         this.displaySuccessMessage(false, this.$t('label.WrongAnswer'), true, false, true)
       }
+      
+      this.displayReadMoreAlert()
 
       // if no display of the answer move to next step
       if (this.step.displayRightAnswer === false && (!this.step.options.wrongAnswerMessage || !this.step.options.wrongAnswerMessage[this.lang] || this.step.options.wrongAnswerMessage[this.lang] === "")) {
@@ -2846,6 +2883,20 @@ export default {
 
       if (realBubbleHeight > '177') {
         this.character.needToScroll = true
+      }
+    },
+    chooseSelectValue(key) {
+      if (this.step.options && this.step.options && this.step.options.multipleAnswers) {
+        if (this.choose.answers.indexOf(key) === -1) {
+          Vue.set(this.step.options.items[key], "class", 'right')
+          this.choose.answers.push(key)
+        } else {
+          Vue.set(this.step.options.items[key], "class", '')
+          this.choose.answers.splice(this.choose.answers.indexOf(key), 1)
+        }
+      } else {
+        this.choose.answers = [key]
+        this.checkAnswer(key)
       }
     },
     /*
@@ -3109,6 +3160,8 @@ export default {
     async onNewUserPosition(pos) {
       if (this.step.id === 'gpssensor') {
         // treat case when user can find one of several location to find
+        this.geolocation.gpsAccuracy = pos.coords.accuracy
+        this.geolocation.playerPosition = pos.coords
         this.geolocation.active = true
         let current = pos.coords
         let closestDistance = 1000
@@ -3211,7 +3264,7 @@ export default {
           destinationPosition.lat = options.locations[this.geolocation.currentIndex].lat
           destinationPosition.lng = options.locations[this.geolocation.currentIndex].lng
         }
-        this.geolocation.destinationPosition = destinationPosition
+        this.geolocation.destinationPosition.push(destinationPosition)
 
         // compute distance between two coordinates
         // note: current.accuracy contains the result accuracy in meters
@@ -3768,7 +3821,7 @@ export default {
       let level = parseInt((this.step.options.level || 2), 10) // 1=easy, 2=medium, 3=very hard, 4=hard
       let puzzleSize = this.puzzle.colsByLevel[level]
       let puzzleNbPieces = Math.pow(puzzleSize, 2)
-      let puzzleWidth = document.getElementById('pieces').clientWidth
+      let puzzleWidth = document.getElementById('pieces').clientWidth - 1
       let puzzleHeight = puzzleWidth
       let pieceHeight = Math.floor(puzzleHeight / puzzleSize)
       let pieceWidth = Math.floor(puzzleWidth / puzzleSize)
@@ -5002,7 +5055,7 @@ export default {
   #pieces {
     padding: 0;
     margin: 0;
-    width: 100%;
+    width: 99vw;
     background: #ddd;
     display: block;
   }

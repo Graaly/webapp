@@ -607,6 +607,7 @@ module.exports = {
       StepCounter: "(BETA) Counter has the value",
       StepCounterGreater: "(BETA) Counter is greater than ",
       StepCounterLower: "(BETA) Counter is lower than ",
+      StepCombineObject: "(BETA) Object combined ",
       NoCondition: "No condition (start at the beginning of the chapter)",
       Conditions: "Triggers",
       AddACondition: "Add a trigger",
@@ -1166,7 +1167,12 @@ module.exports = {
       DisplayGoodAnswers: "Display number of good answers",
       FaceCamera: "Front camera",
       BackCamera: "Back camera",
-      CameraUsed: "Camera used"
+      CameraUsed: "Camera used",
+      RedirectToNextChapter: "Redirect to next chapter",
+      RedirectToChapter: "Redirect to chapter",
+      ObjectCombined: "Object combined",
+      CombineItems: "Combiner the items",
+      MyGameIsIndoorRemoveWarningsOnStart: "My game is indoor without any risks, remove warnings on startup"
     }
   },
   fr: {
@@ -1760,10 +1766,11 @@ module.exports = {
       FollowStep: "Suit l'étape",
       StepSuccess: "Bonne réponse à",
       StepFail: "Mauvaise réponse à",
-      StepRandom: "(BETA) Aléatoirement après",
-      StepCounter: "(BETA) Le compteur à la valeur ",
-      StepCounterGreater: "(BETA) Le compteur est supérieur à ",
-      StepCounterLower: "(BETA) Le compteur est inférieur à ",
+      StepRandom: "Aléatoirement après",
+      StepCounter: "Le compteur à la valeur ",
+      StepCounterGreater: "Le compteur est supérieur à ",
+      StepCounterLower: "Le compteur est inférieur à ",
+      StepCombineObject: "(BETA) Objet combiné ",
       NoCondition: "Aucune condition (démarre au début du chapitre)",
       Conditions: "Déclencheurs",
       AddACondition: "Ajouter un déclencheur",
@@ -2323,7 +2330,12 @@ module.exports = {
       DisplayGoodAnswers: "Afficher le nombre de bonnes réponses",
       FaceCamera: "Camera de face",
       BackCamera: "Camera arrière",
-      CameraUsed: "Camera utilisée"
+      CameraUsed: "Camera utilisée",
+      RedirectToNextChapter: "Rediriger vers le chapitre qui suit",
+      RedirectToChapter: "Rediriger vers le chapitre",
+      ObjectCombined: "Objet combiné",
+      CombineItems: "Combiner les objets",
+      MyGameIsIndoorRemoveWarningsOnStart: "Mon jeu est en intérieur sans risque, supprimer les avertissements au lancement"
     }
   }
 }

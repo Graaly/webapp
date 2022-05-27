@@ -12,7 +12,7 @@
       @dragend="dragEnd($event)"
     >
       <!-- next destination marker -->
-      <gmap-marker v-if="position.target !== null" :position="position.target" :icon="getNextDestinationMapIcon()"/>
+      <gmap-marker v-for="(destination, index) in position.target" :key="index" :position="destination" :icon="getNextDestinationMapIcon()"/>
       <!-- user marker -->
       <gmap-marker v-if="position.player !== null" :position="{ lng: position.player.longitude, lat: position.player.latitude }" :icon="getUserMapIcon()"/>
     </gmap-map>
@@ -61,6 +61,7 @@ export default {
   },
   mounted () {
     this.$nextTick(() => {
+      this.position.target = this.targetPosition
       this.isMounted = true
       this.reloadMap()
     })
@@ -89,12 +90,14 @@ export default {
       this.map.loaded = null // to prevent multiple call of reload map if onNewUserPosition is called too often
       
       // adjust zoom / pan to next destination & user position
-      if (this.$refs.mapRef && (this.position.target !== null || this.position.target !== null)) {
+      if (this.$refs.mapRef && (this.position.target !== null && this.position.target.length !== 0)) {
         this.$refs.mapRef.$mapPromise.then((map) => {
           const bounds = new google.maps.LatLngBounds()
           
-          if (this.targetPosition !== null) {
-            bounds.extend(this.targetPosition)
+          if (this.targetPosition !== null && this.targetPosition.length > 0) {
+            for (var i = 0; i < this.targetPosition.length; i++){
+              bounds.extend(this.targetPosition[i])
+            }
           }
           
           if (this.position.player !== null) {

@@ -58,7 +58,7 @@
         @suggestNext="alertOnNext"
         @hideButtons="hideFooterButtons"
         @showButtons="showFooterButtons"
-        @openInventory="selectItem"
+        @openInventory="useItem"
         @msg="trackMessage">
       </stepPlay>
     </div>
@@ -73,15 +73,29 @@
           <div class="centered bg-warning q-pa-sm" v-if="warnings.inventoryMissing" @click="fillInventory()">
             <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
           </div>
-          <p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type === 'use-item'">{{ $t('label.InventoryUsage') }}</p>
-          <p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type !== 'use-item'">{{ $t('label.InventoryZoom') }}</p>
+          <!--<p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type === 'use-item'">{{ $t('label.InventoryUsage') }}</p>-->
+          <!--<p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && this.step.type !== 'use-item'">{{ $t('label.InventoryZoom') }}</p>-->
           <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
           <div class="inventory-items">
-            <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
-              <img :src="((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
-              <p v-if="item.titles && item.titles[lang] && item.titles[lang] !== ''">{{ item.titles[lang] }}</p>
-              <p v-if="!(item.titles && item.titles[lang] && item.titles[lang] !== '')">{{ item.title }}</p>
+            <div v-for="(item, key) in inventory.items" :key="key" class="inventory-item">
+              <img :src="((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : serverUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" @click="zoomOrUse(item)" />
+              <div v-if="item.titles && item.titles[lang] && item.titles[lang] !== ''">{{ item.titles[lang] }}</div>
+              <div v-if="!(item.titles && item.titles[lang] && item.titles[lang] !== '')">{{ item.title }}</div>
+              <q-btn-group>
+                <q-btn padding="xs" size="md" color="primary" icon="zoom_in" @click="zoomItem(item)" />
+                <q-btn padding="xs" size="md" v-if="step.type === 'use-item'" color="primary" icon="done" @click="useItem(item)" />
+                <q-btn padding="xs" size="md" v-if="inventory.items.length > 0" :color="inventory.selectedItems.indexOf(item.picture) === -1 ? 'primary' : 'secondary'" icon="merge_type" @click="selectItem(item)" />
+              </q-btn-group>
             </div>
+          </div>
+          <div class="centered q-pt-md">
+            <q-btn 
+              v-if="inventory.selectedItems.length > 0"
+              :disabled="inventory.selectedItems.length === 1"
+              class="glossy normal-button" 
+              :color="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? '' : 'primary'"
+              :style="(info.quest.customization && info.quest.customization.color && info.quest.customization.color !== '') ? 'background-color: ' + info.quest.customization.color : ''"
+              @click="combineItems()"><div>{{ $t('label.CombineItems') }}</div></q-btn>
           </div>
         </div>
       </div>
@@ -406,7 +420,8 @@ export default {
             isOpened: false,
             url: '',
             zoom: 1
-          }
+          },
+          selectedItems: []
         },
         hint: {
           isOpened: false,
@@ -848,7 +863,7 @@ console.log("RUN OFFLINE LOADED 2")
      * Get the step data
      * @param    {String}    forceStepId    optional - Id of a specific step to load
      */
-    async getStep (forceStepId) {
+    async getStep (forceStepId, extra) {
       let stepId, response
       
       if (this.warnings.questDataMissing || this.warnings.runDataMissing) {
@@ -861,7 +876,7 @@ console.log("RUN OFFLINE LOADED 2")
       if (typeof forceStepId !== 'undefined' && forceStepId !== null) {
         stepId = forceStepId
       } else if (!this.offline.active) {
-        response = await RunService.getNextStep(this.questId, this.player)
+        response = await RunService.getNextStep(this.questId, this.player, extra)
 
         if (response && response.data && response.status === 200) {
           // check if a step is triggered
@@ -878,12 +893,17 @@ console.log("RUN OFFLINE LOADED 2")
                 id: "gpssensor",
                 locations: response.data.extra.locations,
                 steps: response.data.extra.geosteps,
+                visibles: response.data.extra.visibles,
                 questId: this.questId,
                 version: this.questVersion
               }
               return false
             } else {
               stepId = response.data.next
+              // if combine objects return stepId
+              if (extra && extra.type === "combine") {
+                return stepId
+              }
             }
             // check if history must be remove
             if (response.data.extra && response.data.extra === 'removehistory') {
@@ -913,7 +933,7 @@ console.log("RUN OFFLINE LOADED 2")
         }
       } else {
         // use offline content
-        const stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player)
+        const stepIdResponse = await this.getNextOfflineStep(this.questId, null, this.player, extra)
         if (!stepIdResponse || !stepIdResponse.id) {
           // if no step is triggered, display the waiting screen
           if (this.isMultiplayer) {
@@ -923,6 +943,10 @@ console.log("RUN OFFLINE LOADED 2")
           return false
         } else {
           stepId = stepIdResponse.id
+          // if combine objects return stepId
+          if (extra && extra.type === "combine") {
+            return stepId
+          }
         }
         if (stepId === 'locationMarker') {
           // QR Code scanner step
@@ -937,6 +961,7 @@ console.log("RUN OFFLINE LOADED 2")
             id: "gpssensor",
             locations: stepIdResponse.extra.locations,
             steps: stepIdResponse.extra.geosteps,
+            visibles: stepIdResponse.extra.visibles,
             questId: this.questId,
             version: this.questVersion
           }
@@ -957,6 +982,10 @@ console.log("RUN OFFLINE LOADED 2")
           } else {
             this.step = response2.data
             this.step.id = this.step.stepId
+            // if combine objects return stepId
+            if (extra && extra.type === "combine") {
+              return this.step.stepId
+            }
             // get previous button redirect
             this.getPreviousStep()
             if (this.step.hint) {
@@ -1748,19 +1777,48 @@ console.log("RUN OFFLINE LOADED 2")
      * Select an item in the inventory
      * @param   {object}    item            Item selected
      */
-    selectItem(item) {
-      this.inventory.detail.zoom = 1
-      if (this.step.type !== 'use-item') {
-        this.inventory.detail.isOpened = true
-        this.inventory.detail.url = ((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
-        if (item.titles && item.titles[this.lang] && item.titles[this.lang] !== '') {
-          this.inventory.detail.title = item.titles[this.lang]
-        } else {
-          this.inventory.detail.title = item.title
-        }
+    zoomOrUse(item) {
+      if (this.step.type === 'use-item') {
+        this.useItem(item)
       } else {
+        this.zoomItem(item)
+      }
+    },
+    useItem(item) {
+      if (this.step.type === 'use-item') {
         this.selectedItem = item
         this.closeAllPanels()
+      }
+    },
+    selectItem(item) {
+      if (this.inventory.selectedItems.indexOf(item.picture) === -1) {
+        this.inventory.selectedItems.push(item.picture)
+      } else {
+        this.inventory.selectedItems.splice(this.inventory.selectedItems.indexOf(item.picture), 1)
+      }
+    },
+    zoomItem(item) {
+      this.inventory.detail.zoom = 1
+      this.inventory.detail.isOpened = true
+      this.inventory.detail.url = ((item.picture.indexOf('statics/') !== -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + item.picture)
+      if (item.titles && item.titles[this.lang] && item.titles[this.lang] !== '') {
+        this.inventory.detail.title = item.titles[this.lang]
+      } else {
+        this.inventory.detail.title = item.title
+      }    
+    },
+    async combineItems() {
+      const stepId = await this.getStep(null, {type: "combine", items: this.inventory.selectedItems})
+      console.log(stepId)
+      if (stepId) {
+        if (stepId === 'end') {
+          return this.$router.push('/quest/' + this.questId + '/end')
+        } else {
+          this.inventory.isOpened = false
+          this.moveToStep(stepId)
+        }
+      } else {
+        Notification(this.$t('label.NothingOccurs'), 'info')
       }
     },
     closeInventoryDetail() {
@@ -2001,8 +2059,6 @@ console.log("RUN OFFLINE LOADED 2")
 
       let updateAnswer = await this.saveOfflineRun(this.questId, this.run, updateRunDate)
 
-console.log("SAVE OFFLINE RUN")
-console.log(this.run)
       if (updateAnswer) {
         return true
       }
@@ -2169,16 +2225,27 @@ console.log(this.run)
           counter++
         }
       }
+console.log("TEST")
+console.log(questId)
+console.log(stepsofChapter)
 
       if (stepsofChapter && stepsofChapter.length > 0) {
+        let combineFound = 0
         stepListFor:
         for (i = 0; i < stepsofChapter.length; i++) {
+          combineFound = 0
+console.log("CHECKING STEP " + stepsofChapter[i].stepId)
           // check if the step is not already done
           if (conditionsDone && conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
             if (stepsofChapter[i].conditions && stepsofChapter[i].conditions.length > 0) {
+console.log("CHECKING STEP ID : " + stepsofChapter[i].stepId)
               for (j = 0; j < stepsofChapter[i].conditions.length; j++) {
-                // check if counter condition
-                if (stepsofChapter[i].conditions[j].indexOf('countergreater_') === -1 && stepsofChapter[i].conditions[j].indexOf('counterlower_') === -1) {
+console.log("CONDITION " + j)
+                // check if a standard condition (not a counter condition)
+                if (stepsofChapter[i].conditions[j].indexOf('countergreater_') === -1 
+                  && stepsofChapter[i].conditions[j].indexOf('counterlower_') === -1
+                  && stepsofChapter[i].conditions[j].indexOf('combineobject_') === -1) {
+console.log("CHECKING CONDITION STANDARD " + stepsofChapter[i].conditions[j])
                   // if one of the conditions of the step i not ok, continue with next step
                   if (conditionsDone.indexOf(stepsofChapter[i].conditions[j]) === -1) {
                     continue stepListFor
@@ -2195,6 +2262,23 @@ console.log(this.run)
                   if (stepsofChapter[i].conditions[j].indexOf('counterlower_') !== -1) {
                     const upperCounter = parseInt(stepsofChapter[i].conditions[j].replace('counterlower_', ''), 10)
                     if (counter >= upperCounter) {
+                      continue stepListFor
+                    }
+                  }
+                  // if counter greater than counterlower value
+                  if (stepsofChapter[i].conditions[j].indexOf('combineobject_') !== -1) {
+console.log("CHECKING OBJECT " + stepsofChapter[i].conditions[j])
+                    // If not checking combination, move to next step conditions step
+                    if (extra && extra.type === "combine") {
+                      let objectToCheck = stepsofChapter[i].conditions[j].replace('combineobject_', '')
+console.log("CHECK COMBINATION " + objectToCheck)
+                      if (extra.items.indexOf(objectToCheck) === -1) {
+console.log("NO1")
+                        continue stepListFor
+                      }
+                      combineFound++
+                    } else {
+console.log("NO2")
                       continue stepListFor
                     }
                   }
@@ -2216,8 +2300,12 @@ console.log(this.run)
                 if (stepsofChapter[i].options && stepsofChapter[i].options.locations && stepsofChapter[i].options.locations.length > 0) {
                   if (!extra.locations) {
                     extra.locations = []
+                    extra.visibles = []
                   }
                   extra.locations.push({lat: stepsofChapter[i].options.locations[0].lat, lng: stepsofChapter[i].options.locations[0].lng, distance: stepsofChapter[i].options.distance})
+                  if (stepsofChapter[i].options && stepsofChapter[i].options.mode && stepsofChapter[i].options.mode === "map") {
+                    extra.visibles.push({lat: stepsofChapter[i].options.locations[0].lat, lng: stepsofChapter[i].options.locations[0].lng, distance: stepsofChapter[i].options.distance})
+                  }
                 }
                 continue stepListFor
               }
@@ -2261,7 +2349,7 @@ console.log(this.run)
 
             //if (!locationMarkerFound && !geolocationFound) {
             // if step is end of chapter
-            if (stepsofChapter[i].type === 'end-chapter') {
+            if (stepsofChapter[i].type === 'end-chapter' && !(extra && extra.type === "combine")) {
               if (stepsofChapter[i].options && stepsofChapter[i].options.resetHistory) {
                 this.removeHistory()
               }
@@ -2270,7 +2358,11 @@ console.log(this.run)
               if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
                 this.removeAllConditionsOfAChapter(this.offline.steps, conditionsDone, stepsofChapter[i].chapterId)
               } else {
-                nextStepId = await this.moveToNextChapter()
+                if (stepsofChapter[i].options && stepsofChapter[i].options.chapterId && stepsofChapter[i].options.chapterId != "") {
+                  nextStepId = await this.moveToChapter(stepsofChapter[i].options.chapterId)
+                } else {
+                  nextStepId = await this.moveToNextChapter()
+                }
               }
               if (nextStepId !== 'end') {
                 // get next step by running the process again for new chapter
@@ -2281,9 +2373,18 @@ console.log(this.run)
               return {id: nextStepId, extra: extra}
             } else { // if (markerCode || stepsofChapter[i].type !== 'locate-marker') { // if locate marker, do not start the step until user flash the marker
               // return step if no condition or all conditions met
-              let nextStepId = stepsofChapter[i].stepId
-              //await this.addStepToHistory(nextStepId)
-              return {id: nextStepId, extra: extra}
+              if (extra && extra.type === "combine") {
+                if (combineFound >1) {
+                  let nextStepId = stepsofChapter[i].stepId
+                  return {id: nextStepId, extra: extra}
+                }
+              } else {
+                let nextStepId = stepsofChapter[i].stepId
+                /*if (nextStepId !== 'end' && nextStepId !== '') {
+                  await addStepToHistory(run, nextStepId)
+                }*/
+                return {id: nextStepId, extra: extra}
+              }
             }
             //}
           }
@@ -2589,6 +2690,13 @@ console.log(this.run)
 
       this.run.currentChapter = nextChapter
       return nextChapter
+    },
+    /*
+     * Move to a defined chapter
+     */
+    async moveToChapter(chapterId) {
+      this.run.currentChapter = chapterId
+      return chapterId
     },
     /*
      * cut sound
