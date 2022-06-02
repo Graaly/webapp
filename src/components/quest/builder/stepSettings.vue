@@ -916,7 +916,8 @@
             <div v-if="selectedStep.newConditionForm">
               <q-select emit-value map-options :label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @input="changeNewConditionType" />
               <q-select v-if="selectedStep.newCondition.selectedType !== 'counter' && selectedStep.newCondition.selectedType !== 'countergreater' && selectedStep.newCondition.selectedType !== 'counterlower' && selectedStep.newCondition.selectedType !== 'combineobject'" emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
-              <q-select v-if="selectedStep.newCondition.selectedType === 'combineobject'" emit-value map-options :label="$t('label.ObjectCombined')" v-model="selectedStep.newCondition.selectedObject" :options="config.useItem.questItemsAsOptions" />
+              <q-select v-if="selectedStep.newCondition.selectedType === 'combineobject' && options.type.code === 'new-item'" emit-value map-options :label="$t('label.ObjectCombined')" v-model="selectedStep.newCondition.selectedObject" :options="config.useItem.questItemsAsOptions" />
+              <div v-if="selectedStep.newCondition.selectedType === 'combineobject' && options.type.code !== 'new-item'">{{ $t('label.YouCanOnlyUseThisFeatureInNewItemStep') }}</div>
               <q-input v-if="selectedStep.newCondition.selectedType === 'counter' || selectedStep.newCondition.selectedType === 'countergreater' || selectedStep.newCondition.selectedType === 'counterlower'" v-model="selectedStep.newCondition.selectedValue" :label="$t('label.CounterValue')" />
               <div class="centered">
                 <q-btn class="glossy normal-button" color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />

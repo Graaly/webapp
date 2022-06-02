@@ -426,9 +426,7 @@ export default {
         const offlineRunData = await this.getOfflineRunData()
         if (offlineRunData) {
           this.run = offlineRunData
-        }
-console.log("OFFLINE RUN DATA")
-console.log(offlineRunData)        
+        }      
          
          // compute good answers
         await this.computeGoodAnswers()

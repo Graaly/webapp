@@ -1172,7 +1172,8 @@ module.exports = {
       RedirectToChapter: "Redirect to chapter",
       ObjectCombined: "Object combined",
       CombineItems: "Combiner the items",
-      MyGameIsIndoorRemoveWarningsOnStart: "My game is indoor without any risks, remove warnings on startup"
+      MyGameIsIndoorRemoveWarningsOnStart: "My game is indoor without any risks, remove warnings on startup",
+      YouCanOnlyUseThisFeatureInNewItemStep: "You can use this feature only in New Object steps"
     }
   },
   fr: {
@@ -2335,7 +2336,8 @@ module.exports = {
       RedirectToChapter: "Rediriger vers le chapitre",
       ObjectCombined: "Objet combiné",
       CombineItems: "Combiner les objets",
-      MyGameIsIndoorRemoveWarningsOnStart: "Mon jeu est en intérieur sans risque, supprimer les avertissements au lancement"
+      MyGameIsIndoorRemoveWarningsOnStart: "Mon jeu est en intérieur sans risque, supprimer les avertissements au lancement",
+      YouCanOnlyUseThisFeatureInNewItemStep: "Vous ne pouvez utiliser cette fonctionnalité que dans les étapes Nouvel Objet"
     }
   }
 }
