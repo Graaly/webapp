@@ -277,7 +277,7 @@
               </div>
             </div>
           </div>
-          <div v-if="step.options.multipleAnswers" class="q-pa-md">
+          <div v-if="step.options.multipleAnswers" class="q-pa-md centered">
             <q-btn class="glossy" :color="(customization && (!customization.color || customization.color === 'primary')) ? 'primary' : ''" :style="(customization && (!customization.color || customization.color === 'primary')) ? '' : 'background-color: ' + customization.color" icon="done" :disable="playerCode[step.answers.length - 1] === ''" @click="checkAnswer()">
               <div>{{ $t('label.Confirm') }}</div>
             </q-btn>

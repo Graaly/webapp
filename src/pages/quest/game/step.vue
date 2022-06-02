@@ -2225,27 +2225,20 @@ console.log("RUN OFFLINE LOADED 2")
           counter++
         }
       }
-console.log("TEST")
-console.log(questId)
-console.log(stepsofChapter)
 
       if (stepsofChapter && stepsofChapter.length > 0) {
         let combineFound = 0
         stepListFor:
         for (i = 0; i < stepsofChapter.length; i++) {
           combineFound = 0
-console.log("CHECKING STEP " + stepsofChapter[i].stepId)
           // check if the step is not already done
           if (conditionsDone && conditionsDone.indexOf('stepDone' + player + '_' + stepsofChapter[i].stepId) === -1) {
             if (stepsofChapter[i].conditions && stepsofChapter[i].conditions.length > 0) {
-console.log("CHECKING STEP ID : " + stepsofChapter[i].stepId)
               for (j = 0; j < stepsofChapter[i].conditions.length; j++) {
-console.log("CONDITION " + j)
                 // check if a standard condition (not a counter condition)
                 if (stepsofChapter[i].conditions[j].indexOf('countergreater_') === -1 
                   && stepsofChapter[i].conditions[j].indexOf('counterlower_') === -1
                   && stepsofChapter[i].conditions[j].indexOf('combineobject_') === -1) {
-console.log("CHECKING CONDITION STANDARD " + stepsofChapter[i].conditions[j])
                   // if one of the conditions of the step i not ok, continue with next step
                   if (conditionsDone.indexOf(stepsofChapter[i].conditions[j]) === -1) {
                     continue stepListFor
@@ -2267,18 +2260,14 @@ console.log("CHECKING CONDITION STANDARD " + stepsofChapter[i].conditions[j])
                   }
                   // if counter greater than counterlower value
                   if (stepsofChapter[i].conditions[j].indexOf('combineobject_') !== -1) {
-console.log("CHECKING OBJECT " + stepsofChapter[i].conditions[j])
                     // If not checking combination, move to next step conditions step
                     if (extra && extra.type === "combine") {
                       let objectToCheck = stepsofChapter[i].conditions[j].replace('combineobject_', '')
-console.log("CHECK COMBINATION " + objectToCheck)
                       if (extra.items.indexOf(objectToCheck) === -1) {
-console.log("NO1")
                         continue stepListFor
                       }
                       combineFound++
                     } else {
-console.log("NO2")
                       continue stepListFor
                     }
                   }
@@ -2365,6 +2354,11 @@ console.log("NO2")
                 }
               }
               if (nextStepId !== 'end') {
+                // save that chapter-end is done
+                conditionsDone.push('stepDone_' + stepsofChapter[i].stepId.toString())
+                conditionsDone.push('stepDone' + this.player + '_' + stepsofChapter[i].stepId.toString())
+                this.run.conditionDone = conditionsDone
+
                 // get next step by running the process again for new chapter
                 let response = await this.getNextOfflineStep(questId, markerCode, player, extra)
                 nextStepId = response.id
