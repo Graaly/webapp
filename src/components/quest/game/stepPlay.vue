@@ -1158,7 +1158,10 @@ export default {
           // object position relative to device
           position: { x: null, y: null },
           // player position (properties: latitude & longitude, from native call to navigator.geolocation.watchLocation())
-          playerPosition: null,
+          playerPosition: {
+            marker: '',
+            coords: null
+          },
           destinationPosition: [],
           // for 'locate-item-ar'
           target: null,
@@ -1592,12 +1595,15 @@ export default {
           } else {
             this.geolocation.mode = 'compass'
           }
+          if (this.customization && this.customization.characterOnMap && this.customization.characterOnMap !== "") {
+            this.geolocation.playerPosition.marker = this.customization.characterOnMap.indexOf('blob:') !== -1 ? this.customization.characterOnMap : this.serverUrl + '/upload/quest/' + this.customization.characterOnMap
+          }
         }
         if (this.step.id === 'gpssensor') {
           if (this.step.visibles && this.step.visibles.length > 0) {
             this.geolocation.mode = 'map'
             for (var i = 0; i < this.step.visibles.length; i++) {
-              this.geolocation.destinationPosition.push(this.step.visibles[i])
+              this.geolocation.destinationPosition.push({marker: (this.step.visibles[i].marker.indexOf('blob:') !== -1 || this.step.visibles[i].marker === '') ? this.step.visibles[i].marker : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/geolocation/' + this.step.visibles[i].marker, coords: this.step.visibles[i].coords})
             }
           } else {
             this.geolocation.mode = 'sensor'
@@ -2224,7 +2230,7 @@ export default {
               }
               Vue.set(this.step.options.items, answer[i], selectedAnswer)
             }
-console.log("SUBMIT ANSWER 1")
+
             this.submitGoodAnswer((checkAnswerResult && checkAnswerResult.score) ? checkAnswerResult.score : 0, checkAnswerResult.offline, this.step.displayRightAnswer, answerStr)
           } else {
             if (!this.isTimeUp) {
@@ -2257,10 +2263,8 @@ console.log("SUBMIT ANSWER 1")
             }
             this.nbTry++
             if (checkAnswerResult.remainingTrial > 0) {
-console.log("SUBMIT ANSWER 2")
               this.submitRetry(checkAnswerResult.remainingTrial)
             } else {
-console.log("SUBMIT ANSWER 3")
               this.submitWrongAnswer(checkAnswerResult.offline, this.step.displayRightAnswer, answerStr)
             }
           }
@@ -3161,7 +3165,7 @@ console.log("SUBMIT ANSWER 3")
       if (this.step.id === 'gpssensor') {
         // treat case when user can find one of several location to find
         this.geolocation.gpsAccuracy = pos.coords.accuracy
-        this.geolocation.playerPosition = pos.coords
+        this.geolocation.playerPosition.coords = pos.coords
         this.geolocation.active = true
         let current = pos.coords
         let closestDistance = 1000
@@ -3187,7 +3191,7 @@ console.log("SUBMIT ANSWER 3")
       } else if ((this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') && this.playerResult === null && !this.geolocation.playerTouchedArObject) {
         this.geolocation.gpsAccuracy = pos.coords.accuracy
         this.geolocation.active = true
-        this.geolocation.playerPosition = pos.coords
+        this.geolocation.playerPosition.coords = pos.coords
         let current = pos.coords
 
         // if lat and lng are not set, compute to have the object close to the current user position. frequently used for tests/demos.
@@ -3264,7 +3268,13 @@ console.log("SUBMIT ANSWER 3")
           destinationPosition.lat = options.locations[this.geolocation.currentIndex].lat
           destinationPosition.lng = options.locations[this.geolocation.currentIndex].lng
         }
-        this.geolocation.destinationPosition.push(destinationPosition)
+
+        this.geolocation.destinationPosition = {coords: destinationPosition}
+        
+        // set the marker
+        if (this.step.options.locator && this.step.options.locator !== "") {
+          this.geolocation.destinationPosition.marker = this.step.options.locator.indexOf('blob:') !== -1 ? this.step.options.locator : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/geolocation/' + this.step.options.locator
+        }
 
         // compute distance between two coordinates
         // note: current.accuracy contains the result accuracy in meters
@@ -5105,7 +5115,7 @@ console.log("SUBMIT ANSWER 3")
   .locate-marker { position: relative; }
   .locate-marker video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .locate-marker img.locate-marker-answer { width: 60vw; margin: 30vw auto; }
-  .locate-marker .q-btn { margin-bottom: 17vw; margin-left: 4vw; z-index: 50; }
+  .locate-marker .q-btn { margin-bottom: 17vw; z-index: 50; }
   .locate-marker .q-btn span { font-size: 36px; }
 
   /* memory specific */

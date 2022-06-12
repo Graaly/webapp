@@ -12,9 +12,10 @@
       @dragend="dragEnd($event)"
     >
       <!-- next destination marker -->
-      <gmap-marker v-for="(destination, index) in position.target" :key="index" :position="destination" :icon="getNextDestinationMapIcon()"/>
+      <gmap-marker v-if="position.target && position.target.length > 0" v-for="(data, index) in position.target" :key="index" :position="data.coords" :icon="getNextDestinationMapIcon(data.marker)"/>
+      <gmap-marker v-if="position.target && !position.target.length" :position="{lng: position.target.coords.lng, lat: position.target.coords.lat}" :icon="getNextDestinationMapIcon(position.target.marker)"/>
       <!-- user marker -->
-      <gmap-marker v-if="position.player !== null" :position="{ lng: position.player.longitude, lat: position.player.latitude }" :icon="getUserMapIcon()"/>
+      <gmap-marker v-if="position.player && position.player.coords" :position="{ lng: position.player.coords.longitude, lat: position.player.coords.latitude }" :icon="getUserMapIcon(position.player.marker)"/>
     </gmap-map>
   </div>
 </template>
@@ -47,7 +48,8 @@ export default {
         zoom: 14,
         center: { lat: 0, lng: 0 },
         centerTmp: { lat: 0, lng: 0 },
-        loaded: false
+        loaded: false,
+        positionned: false
       },
       position: {
         player: null,
@@ -68,52 +70,83 @@ export default {
   },
   
   methods: {
-    getUserMapIcon() {
-      return {
-        url: 'statics/icons/game/pointer-me.svg',
-        size: {width: 60, height: 60, f: 'px', b: 'px'},
-        scaledSize: {width: 30, height: 30, f: 'px', b: 'px'},
-        origin: {x: 0, y: 0},
-        anchor: {x: 15, y: 15}
+    getUserMapIcon(marker) {
+      if (marker && marker !== '') {
+        return {
+          url: marker,
+          size: {width: 150, height: 150, f: 'px', b: 'px'},
+          scaledSize: {width: 50, height: 50, f: 'px', b: 'px'},
+          origin: {x: 0, y: 0},
+          anchor: {x: 25, y: 25}
+        }
+      } else {
+        return {
+          url: 'statics/icons/game/pointer-me.svg',
+          size: {width: 60, height: 60, f: 'px', b: 'px'},
+          scaledSize: {width: 30, height: 30, f: 'px', b: 'px'},
+          origin: {x: 0, y: 0},
+          anchor: {x: 15, y: 15}
+        }
       }
     },
-    getNextDestinationMapIcon() {
-      return {
-        url: 'statics/icons/game/target.png',
-        size: {width: 60, height: 60, f: 'px', b: 'px'},
-        scaledSize: {width: 30, height: 30, f: 'px', b: 'px'},
-        origin: {x: 0, y: 0},
-        anchor: {x: 15, y: 15}
+    getNextDestinationMapIcon(marker) {
+      if (marker && marker !== '') {
+        return {
+          url: marker,
+          size: {width: 150, height: 150, f: 'px', b: 'px'},
+          scaledSize: {width: 50, height: 50, f: 'px', b: 'px'},
+          origin: {x: 0, y: 0},
+          anchor: {x: 25, y: 25}
+        }
+      } else {
+        return {
+          url: 'statics/icons/game/target.png',
+          size: {width: 60, height: 60, f: 'px', b: 'px'},
+          scaledSize: {width: 30, height: 30, f: 'px', b: 'px'},
+          origin: {x: 0, y: 0},
+          anchor: {x: 15, y: 15}
+        }
       }
     },
     reloadMap() {
       this.map.loaded = null // to prevent multiple call of reload map if onNewUserPosition is called too often
       
       // adjust zoom / pan to next destination & user position
-      if (this.$refs.mapRef && (this.position.target !== null && this.position.target.length !== 0)) {
+      console.log(this.position.target.length)
+      if (this.$refs.mapRef) {
         this.$refs.mapRef.$mapPromise.then((map) => {
           const bounds = new google.maps.LatLngBounds()
           
-          if (this.targetPosition !== null && this.targetPosition.length > 0) {
-            for (var i = 0; i < this.targetPosition.length; i++){
-              bounds.extend(this.targetPosition[i])
+          if (this.targetPosition) {
+            if (this.targetPosition.length > 0) {
+              for (var i = 0; i < this.targetPosition.length; i++){
+                bounds.extend(this.targetPosition[i].coords)
+              }
+            } else {
+              bounds.extend(this.targetPosition.coords)
             }
           }
           
-          if (this.position.player !== null) {
-            bounds.extend({ lng: this.position.player.longitude, lat: this.position.player.latitude })
+          if (this.position.player && this.position.player.coords) {
+            bounds.extend({ lng: this.position.player.coords.longitude, lat: this.position.player.coords.latitude })
           }
           map.fitBounds(bounds)
+          
+          this.map.positionned = true
         })
       } else {
         // on ios simulators, this.$refs.mapRef does not exists
         this.centerOnUserPosition()
         this.map.loaded = true
       }
+      if (!this.map.positionned) {
+        // reload map if no position found
+        setTimeout(this.reloadMap, 2000)
+      }
     },
     centerOnUserPosition() {
-      if (this.position.player !== null) {
-        this.$data.map.center = {lat: this.position.player.latitude, lng: this.position.player.longitude}
+      if (this.position.player && this.position.player.coords) {
+        this.$data.map.center = {lat: this.position.player.coords.latitude, lng: this.position.player.coords.longitude}
       }
       this.map.zoom = 14
     },

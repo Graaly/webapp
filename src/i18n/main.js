@@ -608,6 +608,8 @@ module.exports = {
       StepCounterGreater: "(BETA) Counter is greater than ",
       StepCounterLower: "(BETA) Counter is lower than ",
       StepCombineObject: "(BETA) Object combined ",
+      StepHaveObject: "(BETA) Object is in inventory ",
+      StepNotHaveObject: "(BETA) Object is not in inventory ",
       NoCondition: "No condition (start at the beginning of the chapter)",
       Conditions: "Triggers",
       AddACondition: "Add a trigger",
@@ -635,7 +637,7 @@ module.exports = {
       NothingOccurs: "Nothing occurs, try something else",
       ClickOnButtonToAddStep: "Click on the + button to add a step in this chapter",
       ScanTheMarkersLikeThat: "The mark to find and scan with your camera is similar to",
-      ScanTheMarkersLikeThat2: "To scan a mark, press below",
+      ScanTheMarkersLikeThat2: "To scan a QR code, press below",
       LaunchTheScanner: "Launch the scanner",
       RedirectionPleaseWait: "Redirection, please wait ...",
       UpgradeRequired: "You need to upgrade your Graaly application to continue to use it",
@@ -1173,7 +1175,14 @@ module.exports = {
       ObjectCombined: "Object combined",
       CombineItems: "Combiner the items",
       MyGameIsIndoorRemoveWarningsOnStart: "My game is indoor without any risks, remove warnings on startup",
-      YouCanOnlyUseThisFeatureInNewItemStep: "You can use this feature only in New Object steps"
+      YouCanOnlyUseThisFeatureInNewItemStep: "You can use this feature only in New Object steps",
+      YourCharacterOnMap: "Character on the interactive map",
+      AddACustomCharacterOnMap: "Add a character on the map",
+      helpQuestCharacterOnMap: "This customize the marker that show the user position on the interactive map",
+      UploadTheLocatorPicture: "Upload a picture for the map",
+      ObjectInInventory: "Object is in inventory",
+      ObjectNotInInventory: "Object is not in inventory",
+      ResetChapterProgression: "Reset progression for this chapter"
     }
   },
   fr: {
@@ -1772,6 +1781,8 @@ module.exports = {
       StepCounterGreater: "Le compteur est supérieur à ",
       StepCounterLower: "Le compteur est inférieur à ",
       StepCombineObject: "(BETA) Objet combiné ",
+      StepHaveObject: "(BETA) Objet est dans l'inventaire ",
+      StepNotHaveObject: "(BETA) Objet n'est pas dans l'inventaire ",
       NoCondition: "Aucune condition (démarre au début du chapitre)",
       Conditions: "Déclencheurs",
       AddACondition: "Ajouter un déclencheur",
@@ -1799,7 +1810,7 @@ module.exports = {
       NothingOccurs: "Rien ne se passe, essayez autre chose",
       ClickOnButtonToAddStep: "Cliquer sur le + pour ajouter une étape dans ce chapitre",
       ScanTheMarkersLikeThat: "La marque à trouver et à scanner avec votre téléphone a une forme similaire à",
-      ScanTheMarkersLikeThat2: "Pour scanner une marque, appuyez ci-dessous",
+      ScanTheMarkersLikeThat2: "Pour scanner un QR code, appuyez ci-dessous",
       LaunchTheScanner: "Lancer le scanner",
       RedirectionPleaseWait: "Redirection en cours ...",
       UpgradeRequired: "Vous devez mettre à jour votre application Graaly pour continuer à l'utiliser",
@@ -2337,7 +2348,14 @@ module.exports = {
       ObjectCombined: "Objet combiné",
       CombineItems: "Combiner les objets",
       MyGameIsIndoorRemoveWarningsOnStart: "Mon jeu est en intérieur sans risque, supprimer les avertissements au lancement",
-      YouCanOnlyUseThisFeatureInNewItemStep: "Vous ne pouvez utiliser cette fonctionnalité que dans les étapes Nouvel Objet"
+      YouCanOnlyUseThisFeatureInNewItemStep: "Vous ne pouvez utiliser cette fonctionnalité que dans les étapes Nouvel Objet",
+      YourCharacterOnMap: "Personnage sur la carte interactive",
+      AddACustomCharacterOnMap: "Ajouter un personnage sur la carte",
+      helpQuestCharacterOnMap: "Cela permet de personnaliser le marqueur qui représente le joueur sur la carte interactive",
+      UploadTheLocatorPicture: "Télécharger une image pour la carte",
+      ObjectInInventory: "L'objet est dans l'inventaire",
+      ObjectNotInInventory: "L'objet n'est pas dans l'inventaire",
+      ResetChapterProgression: "Supprimer la progression de ce chapitre"
     }
   }
 }

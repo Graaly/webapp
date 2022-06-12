@@ -739,8 +739,6 @@ export default {
       if (isRunOfflineLoaded) {
         // read the run
         offlineRun = await this.loadOfflineRun(this.questId)
-console.log("RUN LOADED")
-console.log(offlineRun)
       }
 
       if (!this.offline.active || (this.run.currentChapter === 0 && !this.offline.force)) {
@@ -762,7 +760,6 @@ console.log(offlineRun)
                 if (offlineRun.dateUpdated > this.run.dateUpdated) {
                   const tempId = this.run._id
                   this.run = offlineRun
-console.log("RUN OFFLINE UPDATED")
                   // fix when id is not set
                   if (!this.run._id) {
                     this.run._id = tempId
@@ -790,7 +787,6 @@ console.log("RUN OFFLINE UPDATED")
             let res = await RunService.init(this.questId, this.questVersion, this.$route.params.lang, remotePlay, null, dataSharedWithPartner)
             if (res && res.status === 200 && res.data && res.data._id) {
               if (isRunOfflineLoaded) {
-console.log("RUN OFFLINE LOADED")
                 // if a offline run already exists
                 this.run = offlineRun
 
@@ -830,7 +826,6 @@ console.log("RUN OFFLINE LOADED")
         // read offline run
         if (isRunOfflineLoaded) {
           if (offlineRun) {
-console.log("RUN OFFLINE LOADED 2")
             this.run = offlineRun
             if (this.run._id) {
               this.runId = this.run._id
@@ -1097,6 +1092,14 @@ console.log("RUN OFFLINE LOADED 2")
             const jigsawPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.picture[this.lang])
             if (jigsawPictureUrl) {
               tempStep.options.picture[this.lang] = jigsawPictureUrl
+            } else {
+              this.warnings.stepDataMissing = true
+            }
+          }
+          if (tempStep.type === 'geolocation' && tempStep.options && tempStep.options.locator && tempStep.options.locator !== '') {
+            const locatorPictureUrl = await utils.readBinaryFile(this.questId, tempStep.options.locator)
+            if (locatorPictureUrl) {
+              tempStep.options.locator = locatorPictureUrl
             } else {
               this.warnings.stepDataMissing = true
             }
@@ -1427,6 +1430,16 @@ console.log("RUN OFFLINE LOADED 2")
         return this.info.quest.customization.logo
       } else {
         return this.serverUrl + '/upload/quest/' + this.info.quest.customization.logo
+      }
+    },
+    /*
+     * get map locator image
+     */
+    getMapCharacterMarkerImage () {
+      if (this.info.quest.customization && this.info.quest.customization.characterOnMap && this.info.quest.customization.characterOnMap.indexOf('blob:') !== -1) {
+        return this.info.quest.customization.characterOnMap
+      } else {
+        return this.serverUrl + '/upload/quest/' + this.info.quest.customization.characterOnMap
       }
     },
     /*
@@ -1809,7 +1822,6 @@ console.log("RUN OFFLINE LOADED 2")
     },
     async combineItems() {
       const stepId = await this.getStep(null, {type: "combine", items: this.inventory.selectedItems})
-      console.log(stepId)
       if (stepId) {
         if (stepId === 'end') {
           return this.$router.push('/quest/' + this.questId + '/end')
@@ -2238,6 +2250,8 @@ console.log("RUN OFFLINE LOADED 2")
                 // check if a standard condition (not a counter condition)
                 if (stepsofChapter[i].conditions[j].indexOf('countergreater_') === -1 
                   && stepsofChapter[i].conditions[j].indexOf('counterlower_') === -1
+                  && stepsofChapter[i].conditions[j].indexOf('haveobject_') === -1
+                  && stepsofChapter[i].conditions[j].indexOf('nothaveobject_') === -1
                   && stepsofChapter[i].conditions[j].indexOf('combineobject_') === -1) {
                   // if one of the conditions of the step i not ok, continue with next step
                   if (conditionsDone.indexOf(stepsofChapter[i].conditions[j]) === -1) {
@@ -2257,6 +2271,20 @@ console.log("RUN OFFLINE LOADED 2")
                     if (counter >= upperCounter) {
                       continue stepListFor
                     }
+                  }
+                  // if object is in inventory value
+                  if (stepsofChapter[i].conditions[j].indexOf('haveobject_') !== -1) {
+                    let objectToCheck = stepsofChapter[i].conditions[j].replace('haveobject_', '')
+                    if (conditionsDone.indexOf('objectWon_' + objectToCheck) === -1) {
+                      continue stepListFor
+                    }                    
+                  }
+                  // if object is not in inventory value
+                  if (stepsofChapter[i].conditions[j].indexOf('nothaveobject_') !== -1) {
+                    let objectToCheck = stepsofChapter[i].conditions[j].replace('nothaveobject_', '')
+                    if (conditionsDone.indexOf('objectWon_' + objectToCheck) !== -1) {
+                      continue stepListFor
+                    }                    
                   }
                   // if counter greater than counterlower value
                   if (stepsofChapter[i].conditions[j].indexOf('combineobject_') !== -1) {
@@ -2293,7 +2321,7 @@ console.log("RUN OFFLINE LOADED 2")
                   }
                   extra.locations.push({lat: stepsofChapter[i].options.locations[0].lat, lng: stepsofChapter[i].options.locations[0].lng, distance: stepsofChapter[i].options.distance})
                   if (stepsofChapter[i].options && stepsofChapter[i].options.mode && stepsofChapter[i].options.mode === "map") {
-                    extra.visibles.push({lat: stepsofChapter[i].options.locations[0].lat, lng: stepsofChapter[i].options.locations[0].lng, distance: stepsofChapter[i].options.distance})
+                    extra.visibles.push({marker: stepsofChapter[i].options.locator ? stepsofChapter[i].options.locator : '', coords: {lat: stepsofChapter[i].options.locations[0].lat, lng: stepsofChapter[i].options.locations[0].lng, distance: stepsofChapter[i].options.distance}})
                   }
                 }
                 continue stepListFor
@@ -2347,6 +2375,10 @@ console.log("RUN OFFLINE LOADED 2")
               if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgression) {
                 this.removeAllConditionsOfAChapter(this.offline.steps, conditionsDone, stepsofChapter[i].chapterId)
               } else {
+                // reset progression of this chapter
+                if (stepsofChapter[i].options && stepsofChapter[i].options.resetChapterProgressionAndMoveNext) {
+                  this.removeAllConditionsOfAChapter(this.offline.steps, conditionsDone, stepsofChapter[i].chapterId)
+                }
                 if (stepsofChapter[i].options && stepsofChapter[i].options.chapterId && stepsofChapter[i].options.chapterId != "") {
                   nextStepId = await this.moveToChapter(stepsofChapter[i].options.chapterId)
                 } else {

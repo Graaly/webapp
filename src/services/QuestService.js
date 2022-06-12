@@ -486,6 +486,18 @@ export default {
       .catch(error => console.log(error.request));
   },
   /*
+   * Upload a quest character for the map
+   * @param   {Object}    data                picture data
+   */
+  uploadCharacterOnMap(data) {
+    return Api()
+      .post("/quest/characteronmap/upload", data, {
+        timeout: 60000,
+        headers: { "Content-Type": "multipart/form-data" }
+      })
+      .catch(error => console.log(error.request));
+  },
+  /*
    * Upload a quest reward
    * @param   {Object}    data                picture data
    */

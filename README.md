@@ -15,7 +15,7 @@ $ npm install -g quasar-cli
 $ quasar dev -m pwa
 
 # build for production with minification
-$ quasar build -m pwa
+$ quasar build -m pwa  (!!! build also europequest and other customers)
 
 # lint code
 $ quasar lint
