@@ -84,7 +84,7 @@
               <q-btn-group>
                 <q-btn padding="xs" size="md" color="primary" icon="zoom_in" @click="zoomItem(item)" />
                 <q-btn padding="xs" size="md" v-if="step.type === 'use-item'" color="primary" icon="done" @click="useItem(item)" />
-                <q-btn padding="xs" size="md" v-if="inventory.items.length > 0" :color="inventory.selectedItems.indexOf(item.picture) === -1 ? 'primary' : 'secondary'" icon="merge_type" @click="selectItem(item)" />
+                <q-btn padding="xs" size="md" v-if="inventory.items.length > 0 && info.quest.editorMode !== 'simple'" :color="inventory.selectedItems.indexOf(item.picture) === -1 ? 'primary' : 'secondary'" icon="merge_type" @click="selectItem(item)" />
               </q-btn-group>
             </div>
           </div>
@@ -2418,7 +2418,7 @@ export default {
       }
 
       // if no next step, check if the type of the quest is simple => end quest
-      if (this.info.quest && this.info.quest.editorMode === 'simple' && !locationMarkerFound) {
+      if (this.info.quest && this.info.quest.editorMode === 'simple' && !locationMarkerFound && !(extra && extra.type === "combine")) {
         let nextStepId = await this.moveToNextChapter()
         if (nextStepId !== 'end') {
           // get next step by running the process again for new chapter
