@@ -756,8 +756,6 @@ export default {
      * Compute number of good answers
      */
     async computeGoodAnswers() {
-console.log("COMPUTE GOOD ANSWERS")
-console.log(this.run)
       const conditionsDone = this.run.conditionsDone
       let nbQuestions = 0
       let nbGoodAnwers = 0

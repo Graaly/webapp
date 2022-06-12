@@ -915,9 +915,11 @@
             <q-btn color="primary" class="full-width" v-if="!selectedStep.newConditionForm" @click="selectedStep.newConditionForm = true" :label="$t('label.AddACondition')" />
             <div v-if="selectedStep.newConditionForm">
               <q-select emit-value map-options :label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @input="changeNewConditionType" />
-              <q-select v-if="selectedStep.newCondition.selectedType !== 'counter' && selectedStep.newCondition.selectedType !== 'countergreater' && selectedStep.newCondition.selectedType !== 'counterlower' && selectedStep.newCondition.selectedType !== 'combineobject'" emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
+              <q-select v-if="selectedStep.newCondition.selectedType !== 'counter' && selectedStep.newCondition.selectedType !== 'countergreater' && selectedStep.newCondition.selectedType !== 'counterlower' && selectedStep.newCondition.selectedType !== 'combineobject' && selectedStep.newCondition.selectedType !== 'haveobject' && selectedStep.newCondition.selectedType !== 'nothaveobject'" emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
               <q-select v-if="selectedStep.newCondition.selectedType === 'combineobject' && options.type.code === 'new-item'" emit-value map-options :label="$t('label.ObjectCombined')" v-model="selectedStep.newCondition.selectedObject" :options="config.useItem.questItemsAsOptions" />
               <div v-if="selectedStep.newCondition.selectedType === 'combineobject' && options.type.code !== 'new-item'">{{ $t('label.YouCanOnlyUseThisFeatureInNewItemStep') }}</div>
+              <q-select v-if="selectedStep.newCondition.selectedType === 'haveobject'" emit-value map-options :label="$t('label.ObjectInInventory')" v-model="selectedStep.newCondition.selectedObject" :options="config.useItem.questItemsAsOptions" />
+              <q-select v-if="selectedStep.newCondition.selectedType === 'nothaveobject'" emit-value map-options :label="$t('label.ObjectNotInInventory')" v-model="selectedStep.newCondition.selectedObject" :options="config.useItem.questItemsAsOptions" />
               <q-input v-if="selectedStep.newCondition.selectedType === 'counter' || selectedStep.newCondition.selectedType === 'countergreater' || selectedStep.newCondition.selectedType === 'counterlower'" v-model="selectedStep.newCondition.selectedValue" :label="$t('label.CounterValue')" />
               <div class="centered">
                 <q-btn class="glossy normal-button" color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />
@@ -975,6 +977,25 @@
                   :src="serverUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage[lang]" 
                   /> <br />
                 <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
+              </div>
+            </div>
+            <div class="background-upload" v-if="options.type.code === 'geolocation'">
+              <div>
+                <div v-if="!isIOs">
+                  <q-btn class="full-width" type="button" :label="$t('label.UploadTheLocatorPicture')" @click="$refs['itemfile'].click()" />
+                  <input @change="uploadLocatorImage" ref="itemfile" type="file" accept="image/*" hidden />
+                </div>
+                <div v-if="isIOs">
+                  {{ $t('label.UploadTheLocatorPicture') }}:
+                  <input @change="uploadLocatorImage" ref="itemfile" type="file" accept="image/*" />
+                </div>
+                <p>{{ $t('label.WarningImageSizeSquare') }}</p>
+              </div>
+              <div v-if="selectedStep.form.options !== null && selectedStep.form.options.locator && selectedStep.form.options.locator !== null">
+                <p>{{ $t('label.YourItemPicture') }} :</p>
+                <div class="centered">
+                  <img style="width:100%" :src="(selectedStep.form.options.locator.indexOf('statics/') !== -1 ? selectedStep.form.options.locator : serverUrl + '/upload/quest/' + questId + '/step/geolocation/' + selectedStep.form.options.locator)" />
+                </div>
               </div>
             </div>
             <div v-if="options.type.nbTrials > 0">
@@ -1083,6 +1104,7 @@
             <div v-if="options.type.code === 'end-chapter'">
               <q-toggle v-model="selectedStep.form.options.resetHistory" :label="$t('label.ResetHistoryAfter')" />
               <q-toggle v-model="selectedStep.form.options.resetChapterProgression" :label="$t('label.RestartChapterAfterStep')" />
+              <q-toggle v-model="selectedStep.form.options.resetChapterProgressionAndMoveNext" :label="$t('label.ResetChapterProgression')" />
             </div>
             <div v-show="options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter'">
               <div v-if="selectedStep.form.audioStream[lang] && selectedStep.form.audioStream[lang] !== ''">
@@ -1392,7 +1414,9 @@ export default {
             {label: this.$t('label.StepCounter'), value: 'counter'},
             {label: this.$t('label.StepCounterGreater'), value: 'countergreater'},
             {label: this.$t('label.StepCounterLower'), value: 'counterlower'},
-            {label: this.$t('label.StepCombineObject'), value: 'combineobject'}
+            {label: this.$t('label.StepCombineObject'), value: 'combineobject'},
+            {label: this.$t('label.StepHaveObject'), value: 'haveobject'},
+            {label: this.$t('label.StepNotHaveObject'), value: 'nothaveobject'}
           ],
           selectedValue: '',
           selectedObject: '',
@@ -1818,8 +1842,6 @@ export default {
           this.config.choose.answers = (this.selectedStep.form.answers + "").split("|").map(function(item) {
             return parseInt(item, 10);
           });
-          console.log(this.selectedStep.form.answers)
-          console.log(this.config.choose.answers)
           this.config.choose.answerType = this.selectedStep.form.options.items[0].hasOwnProperty('imagePath') && this.selectedStep.form.options.items[0].imagePath !== null ? 'image' : 'text'
           if (this.config.choose.answerType === 'text') {
             for (var i = 0; i < this.selectedStep.form.options.items.length; i++) {
@@ -2388,6 +2410,20 @@ export default {
         if (conditionParts[0] === 'combineobject') {
           this.selectedStep.formatedConditions.push(this.$t("label.StepCombineObject") + " <i><img src='" + (conditionParts[1].indexOf('statics/') !== -1 ? conditionParts[1] : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + conditionParts[1]) + "' style='width: 40px' /></i>")
         }
+        if (conditionParts[0] === 'haveobject') {
+          for (let pictureUrl in this.config.useItem.stepsOfItems) {
+            if (this.config.useItem.stepsOfItems[pictureUrl] === conditionParts[1]) {
+              this.selectedStep.formatedConditions.push(this.$t("label.StepHaveObject") + " <i><img src='" + (pictureUrl.indexOf('statics/') !== -1 ? pictureUrl : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + pictureUrl) + "' style='width: 40px' /></i>")
+            }
+          }  
+        }
+        if (conditionParts[0] === 'nothaveobject') {
+          for (let pictureUrl in this.config.useItem.stepsOfItems) {
+            if (this.config.useItem.stepsOfItems[pictureUrl] === conditionParts[1]) {
+              this.selectedStep.formatedConditions.push(this.$t("label.StepNotHaveObject") + " <i><img src='" + (pictureUrl.indexOf('statics/') !== -1 ? pictureUrl : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + pictureUrl) + "' style='width: 40px' /></i>")
+            }
+          }  
+        }
       }
     },
     /*
@@ -2457,8 +2493,13 @@ export default {
           this.selectedStep.form.conditions.push('counterlower_' + this.selectedStep.newCondition.selectedValue)
         }
         if (this.selectedStep.newCondition.selectedType === 'combineobject') {
-console.log("create combne object")
           this.selectedStep.form.conditions.push('combineobject_' + this.selectedStep.newCondition.selectedObject)
+        }
+        if (this.selectedStep.newCondition.selectedType === 'haveobject') {
+          this.selectedStep.form.conditions.push('haveobject_' + this.config.useItem.stepsOfItems[this.selectedStep.newCondition.selectedObject])
+        }
+        if (this.selectedStep.newCondition.selectedType === 'nothaveobject') {
+          this.selectedStep.form.conditions.push('nothaveobject_' + this.config.useItem.stepsOfItems[this.selectedStep.newCondition.selectedObject])
         }
       }
       this.getUnderstandableConditions()
@@ -2748,10 +2789,36 @@ console.log("create combne object")
       let uploadResult = await StepService.uploadItemImage(this.questId, this.options.type.code, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
-          this.selectedStep.form.options.picture = uploadResult.data.file
+          Vue.set(this.selectedStep.form.options, 'picture', uploadResult.data.file)
           if (this.selectedStep.form.options.pictures) {
             this.selectedStep.form.options.pictures[this.lang] = uploadResult.data.file
           }
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    /*
+     * Upload a picture for the map
+     * @param   {Object}    e            Upload data
+     */
+    async uploadLocatorImage(e) {
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      this.$q.loading.show()
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadResult = await StepService.uploadItemImage(this.questId, this.options.type.code, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        if (uploadResult.data.file) {
+          Vue.set(this.selectedStep.form.options, 'locator', uploadResult.data.file)
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -3525,7 +3592,7 @@ console.log("create combne object")
         fieldsToValidate.backgroundImage = { required }
         break
       case 'geolocation':
-        //fieldsToValidate.options = { lat: { required }, lng: { required } }
+        //fieldsToValidate.options = { locator: { required } }
         break
       case 'info-video':
         fieldsToValidate.videoStream = { required }

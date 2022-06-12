@@ -550,7 +550,7 @@
                 </div>
                 <div v-if="form.fields.customization && form.fields.customization.character && form.fields.customization.character !== ''">
                   <p>{{ $t('label.YourCharacter') }} :</p>
-                  <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.customization.character" />
+                  <img class="full-width limit-size-desktop" style="max-width: 400px" :src="serverUrl + '/upload/quest/' + form.fields.customization.character" />
                   <div class="centered"><a class="dark" @click="removeCharacter">{{ $t('label.Remove') }}</a></div>
                 </div>
                 <div v-if="!isIOs && !readOnly">
@@ -564,6 +564,23 @@
                   {{ $t('label.AddACustomCharacter') }}:
                   <input @change="uploadCharacter" ref="characterfile" type="file" accept="image/*" />
                   <q-icon name="help" @click.native="showHelpPopup('helpQuestCharacter')" />
+                </div>
+                <div v-if="form.fields.customization && form.fields.customization.characterOnMap && form.fields.customization.characterOnMap !== ''">
+                  <p>{{ $t('label.YourCharacterOnMap') }} :</p>
+                  <img class="full-width limit-size-desktop" style="max-width: 200px" :src="serverUrl + '/upload/quest/' + form.fields.customization.characterOnMap" />
+                  <div class="centered"><a class="dark" @click="removeCharacterOnMap">{{ $t('label.Remove') }}</a></div>
+                </div>
+                <div v-if="!isIOs && !readOnly">
+                  <q-btn-group class="full-width">
+                    <q-btn class="full-width" @click="$refs['characterOnMapfile'].click()">{{ $t('label.AddACustomCharacterOnMap') }}</q-btn>
+                    <q-btn @click="showHelpPopup('helpQuestCharacterOnMap')" icon="help" />
+                  </q-btn-group>
+                  <input @change="uploadCharacterOnMap" ref="characterOnMapfile" type="file" accept="image/*" hidden />
+                </div>
+                <div v-if="isIOs && !readOnly">
+                  {{ $t('label.AddACustomCharacterOnMap') }}:
+                  <input @change="uploadCharacterOnMap" ref="characterOnMapfile" type="file" accept="image/*" />
+                  <q-icon name="help" @click.native="showHelpPopup('helpQuestCharacterOnMap')" />
                 </div>
                 <div>
                   <q-toggle
@@ -2077,7 +2094,10 @@ export default {
                       var maxPosition = 0
                       // find if parents are already sorted and if so add item in sorted after
                       for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
-                        if (stepsOfChapter[i].conditions[k].indexOf("counter") === -1 && stepsOfChapter[i].conditions[k].indexOf("combineobject") === -1) {
+                        if (stepsOfChapter[i].conditions[k].indexOf("counter") === -1 
+                          && stepsOfChapter[i].conditions[k].indexOf("combineobject") === -1 
+                          && stepsOfChapter[i].conditions[k].indexOf("haveobject") === -1 
+                          && stepsOfChapter[i].conditions[k].indexOf("nothaveobject") === -1) {
                           let parentStepId = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
                           parentStepId = parentStepId.replace("stepSuccess_", "")
                           parentStepId = parentStepId.replace("stepFail_", "")
@@ -2537,6 +2557,35 @@ export default {
     },
     async removeCharacter() {
       this.form.fields.customization.character = null
+    },
+    /*
+     * Upload a custo character for the quest
+     */
+    async uploadCharacterOnMap(e) {
+      this.$q.loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadPictureResult = await QuestService.uploadCharacterOnMap(data)
+      if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
+        if (uploadPictureResult.data.file) {
+          this.form.fields.customization.characterOnMap = uploadPictureResult.data.file
+          this.$forceUpdate()
+        } else if (uploadPictureResult.data.message && uploadPictureResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    async removeCharacterOnMap() {
+      this.form.fields.customization.characterOnMap = null
     },
     /*
      * Start the tutorial
