@@ -1,6 +1,6 @@
 <template>
   <div class="geolocation-layer" v-if="!isSupported || !isActive">
-    <div v-if="!isActive && nbFails >= 2"> 
+    <div v-if="!isActive && (nbFails >= 2 || userDeniedGeolocation)"> 
       <q-page-sticky position="top-right" style="z-index: 15000;" :offset="[18, 18]">
         <q-btn color="primary" round icon="location_off" style="font-size: 15px;" class="flashing" @click="showHelp = true" />
       </q-page-sticky>

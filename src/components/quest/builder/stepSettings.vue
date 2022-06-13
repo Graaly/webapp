@@ -2943,7 +2943,7 @@ export default {
       pivot.multiplyScalar(-1)
       
       let pivotObj = new THREE.Object3D();
-      object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
+      object.applyMatrix4(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
       pivotObj.add(object)
       pivotObj.up = new THREE.Vector3(0, 0, 1)
       object = pivotObj

@@ -697,7 +697,7 @@
         </div>
         <div v-else>
           <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-            <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null"></video>
+            <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && geolocation.active && playerResult === null"></video>
           </transition>
           <div v-show="playerResult === null && (this.geolocation.active || isIOs)" class="q-mt-xl">
             <div class="text" :class="'font-' + customization.font">
@@ -1764,7 +1764,7 @@ export default {
             // add offset to make 3D object "sit on the ground" by default (z = 0 at the bottom of the object)
             let box = new THREE.Box3().setFromObject(object)
             let onGroundOffset = (box.max.z - box.min.z) / 2
-            object.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, onGroundOffset))
+            object.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, onGroundOffset))
 
             // compute object size = max(length, width, depth)
             target.size = Math.max(box.max.x - box.min.x, box.max.y - box.min.y, box.max.z - box.min.z)
@@ -1777,7 +1777,7 @@ export default {
             }
 
             // accurate colors for GLTF models, see https://stackoverflow.com/q/50331480/488666
-            this.geolocation.target.renderer.gammaOutput = true
+            this.geolocation.target.renderer.outputEncoding = THREE.sRGBEncoding
           } else {
             // 2D plane with transparent image (user uploaded picture) as texture
             var itemImage = ''
@@ -1948,22 +1948,31 @@ export default {
      * call device permissions event on iOS Fix for RA
      */
     callPermissionsEvent() {
-      if (typeof (DeviceMotionEvent) !== "undefined" && typeof (DeviceMotionEvent.requestPermission) === "function") {
-        return new Promise(resolve => this.$q.dialog({
-          title: this.$t('label.arDialogTitle'),
-          message: this.$t('label.arDialogMessage'),
-          persistent: true
-        })
-          .onOk(() => {
-            resolve()
-          DeviceMotionEvent.requestPermission()
-            .then(response => {
-              console.log("devicePermissions", response)
+      return new Promise((resolve, reject) => {
+        if (typeof (DeviceMotionEvent) !== "undefined" && typeof (DeviceMotionEvent.requestPermission) === "function") {
+          this.$q.dialog({
+            title: this.$t('label.arDialogTitle'),
+            message: this.$t('label.arDialogMessage'),
+            persistent: true
+          })
+            .onOk(() => {
+              DeviceMotionEvent.requestPermission()
+                .then(response => {
+                  console.log("devicePermissions", response)
+                  resolve(response)
+                })
+                .catch((err) => reject(err))
             })
-            .catch(console.error)
-        })
-        )
-      }
+            .onCancel(() => {
+              reject(new Error('User canceled authorization for device motion event'))
+            })
+            .onDismiss(() => {
+              reject(new Error('User dismissed authorization for device motion event'))
+            })
+        } else {
+          resolve()
+        }
+      })
     },
     reloadPage() {
       this.$router.go({
@@ -4281,7 +4290,7 @@ export default {
       pivot.multiplyScalar(-1)
 
       let pivotObj = new THREE.Object3D();
-      object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
+      object.applyMatrix4(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
       pivotObj.add(object)
       pivotObj.up = new THREE.Vector3(0, 0, 1)
       object = pivotObj
