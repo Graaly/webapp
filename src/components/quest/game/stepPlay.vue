@@ -3162,7 +3162,7 @@ export default {
      * @param   {object}    pos            User position (from native call to navigator.geolocation.watchLocation())
      */
     async onNewUserPosition(pos) {
-      if (this.step.id === 'gpssensor') {
+      if (this.step.id === 'gpssensor' || this.step.id === 'map') {
         // treat case when user can find one of several location to find
         this.geolocation.gpsAccuracy = pos.coords.accuracy
         this.geolocation.playerPosition.coords = pos.coords

@@ -13,7 +13,7 @@
     >
       <!-- next destination marker -->
       <gmap-marker v-if="position.target && position.target.length > 0" v-for="(data, index) in position.target" :key="index" :position="data.coords" :icon="getNextDestinationMapIcon(data.marker)"/>
-      <gmap-marker v-if="position.target && !position.target.length" :position="{lng: position.target.coords.lng, lat: position.target.coords.lat}" :icon="getNextDestinationMapIcon(position.target.marker)"/>
+      <gmap-marker v-if="position.target && position.target.coords && !position.target.length" :position="{lng: position.target.coords.lng, lat: position.target.coords.lat}" :icon="getNextDestinationMapIcon(position.target.marker)"/>
       <!-- user marker -->
       <gmap-marker v-if="position.player && position.player.coords" :position="{ lng: position.player.coords.longitude, lat: position.player.coords.latitude }" :icon="getUserMapIcon(position.player.marker)"/>
     </gmap-map>
@@ -66,6 +66,8 @@ export default {
       this.position.target = this.targetPosition
       this.isMounted = true
       this.reloadMap()
+      // init position (sometimes watcher does not work)
+      this.position.player = this.playerPosition
     })
   },
   
@@ -112,7 +114,6 @@ export default {
       this.map.loaded = null // to prevent multiple call of reload map if onNewUserPosition is called too often
       
       // adjust zoom / pan to next destination & user position
-      console.log(this.position.target.length)
       if (this.$refs.mapRef) {
         this.$refs.mapRef.$mapPromise.then((map) => {
           const bounds = new google.maps.LatLngBounds()
@@ -126,7 +127,6 @@ export default {
               bounds.extend(this.targetPosition.coords)
             }
           }
-          
           if (this.position.player && this.position.player.coords) {
             bounds.extend({ lng: this.position.player.coords.longitude, lat: this.position.player.coords.latitude })
           }
