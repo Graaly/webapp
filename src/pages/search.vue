@@ -355,7 +355,7 @@ export default {
     },
     onLocationError(ret) {
       // reset position only if localization never worked, else keep current location
-      if (ret) {
+      if (!this.$refs['geolocation-component'].alreadyWorked) {
         this.user.position = null
       }
     },

@@ -62,7 +62,7 @@ export default {
   data () {
     return {
       isSupported: true,
-      isActive: true,
+      isActive: false,
       nativeSettingsIsEnabled: (window.cordova && window.cordova.plugins.settings),
       userDeniedGeolocation: false,
       timeoutBetweenFailedAttempts: 5000,
@@ -128,11 +128,33 @@ export default {
   },
   methods: {
     startTracking() {
+      let _this = this
       if (this.disabled) {
         return
       }
-
+      let permissions = cordova.plugins.permissions
+      permissions.checkPermission(
+        permissions.ACCESS_FINE_LOCATION,
+        function(status) {
+          if (status.hasPermission) {
+            _this.startTrackingWithPermission()
+          } else {
+            console.warn('User denied geolocation permission')
+            _this.userDeniedGeolocation = true
+            _this.isActive = false
+            // warning: trying to request permission to the user using permissions.requestPermission()
+            // triggers an 'unknown error' from Cordova permissions plugin:
+            // https://github.com/NeoLSN/cordova-plugin-android-permissions/issues/88#issuecomment-765817058
+          }
+        }, function (error) {
+          console.error("Could not check permission 'ACCESS_FINE_LOCATION'", error)
+          this.isActive = false
+        })
+    },
+    startTrackingWithPermission() {
       if (this.method === 'watchPosition') {
+        this.isActive = true
+        this.userDeniedGeolocation = false
         this.geolocationWatchId = navigator.geolocation.watchPosition(this.locationSuccess, this.locationError, {
           enableHighAccuracy: true,
           timeout: this.timeoutBetweenFailedAttempts,
@@ -151,7 +173,7 @@ export default {
      * @param   {string}    err            Error string
      */
     locationError(err) {
-      console.warn('Could not get location')
+      console.warn('Could not get location', err)
       // avoids to run this method asynchronously (can happen even after component is set to disabled !)
       if (this.disabled) {
         return

@@ -52,8 +52,8 @@ export default {
         positionned: false
       },
       position: {
-        player: null,
-        target: null
+        player: { coords: { longitude: 0, latitude: 0 }, marker: '' },
+        target: { coords: { lng: 0, lat: 0 } }
       },
       isMounted: false
     }

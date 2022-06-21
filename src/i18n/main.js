@@ -1182,7 +1182,9 @@ module.exports = {
       UploadTheLocatorPicture: "Upload a picture for the map",
       ObjectInInventory: "Object is in inventory",
       ObjectNotInInventory: "Object is not in inventory",
-      ResetChapterProgression: "Reset progression for this chapter"
+      ResetChapterProgression: "Reset progression for this chapter",
+      GeolocationCouldNotBeRetrieved: "Unknown player location",
+      GeolocationIsDeniedPleaseSkipThisStep: "This part of the game requires your geographical location, but it seems that you denied access to your location to the app. Therefore, this step cannot be shown. Please use the right arrow button to play the next step."
     }
   },
   fr: {
@@ -2355,7 +2357,9 @@ module.exports = {
       UploadTheLocatorPicture: "Télécharger une image pour la carte",
       ObjectInInventory: "L'objet est dans l'inventaire",
       ObjectNotInInventory: "L'objet n'est pas dans l'inventaire",
-      ResetChapterProgression: "Supprimer la progression de ce chapitre"
+      ResetChapterProgression: "Supprimer la progression de ce chapitre",
+      GeolocationCouldNotBeRetrieved: "Position du joueur inconnue",
+      GeolocationIsDeniedPleaseSkipThisStep: "Cette partie du jeu nécessite un accès à votre position, cependant il semble que ayez refusé cet accès. Cette étape ne peut donc pas être affichée. Veuillez appuyer sur la flèche permettant de jouer l'étape suivante."
     }
   }
 }
