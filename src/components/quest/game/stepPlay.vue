@@ -942,7 +942,7 @@
     <!-- keep geolocation active during all quest duration -->
     <geolocation ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />
     
-    <div class="geolocation-issue" v-show="$refs['geolocation-component'] && ($refs['geolocation-component'].userDeniedGeolocation || !$refs['geolocation-component'].isActive)">
+    <div class="geolocation-issue" v-show="(step.type === 'geolocation' || step.type === 'locate-item-ar') && $refs['geolocation-component'] && ($refs['geolocation-component'].userDeniedGeolocation || !$refs['geolocation-component'].isActive)">
       <div>
         <p class="bg-warning">{{ $t('label.GeolocationCouldNotBeRetrieved') }}</p>
         <p>{{ $t('label.GeolocationIssuePleaseSkipThisStep') }}</p>
