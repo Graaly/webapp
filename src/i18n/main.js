@@ -1184,7 +1184,7 @@ module.exports = {
       ObjectNotInInventory: "Object is not in inventory",
       ResetChapterProgression: "Reset progression for this chapter",
       GeolocationCouldNotBeRetrieved: "Unknown player location",
-      GeolocationIsDeniedPleaseSkipThisStep: "This part of the game requires your geographical location, but it seems that you denied access to your location to the app. Therefore, this step cannot be shown. Please use the right arrow button to play the next step."
+      GeolocationIssuePleaseSkipThisStep: "This part of the game requires your geographical location, but Graaly could not retrieve it, either due to a permission issue or an accuracy issue. Please ensure that you have allowed Graaly application to access to your location (by checking your device settings) and that your GPS is enabled and calibrated (to calibrate, move your device in a figure-8 motion a few times). Currently, this game step cannot be shown. Please use the right arrow button to play the next step."
     }
   },
   fr: {
@@ -2359,7 +2359,7 @@ module.exports = {
       ObjectNotInInventory: "L'objet n'est pas dans l'inventaire",
       ResetChapterProgression: "Supprimer la progression de ce chapitre",
       GeolocationCouldNotBeRetrieved: "Position du joueur inconnue",
-      GeolocationIsDeniedPleaseSkipThisStep: "Cette partie du jeu nécessite un accès à votre position, cependant il semble que ayez refusé cet accès. Cette étape ne peut donc pas être affichée. Veuillez appuyer sur la flèche permettant de jouer l'étape suivante."
+      GeolocationIssuePleaseSkipThisStep: "Cette partie du jeu nécessite un accès à votre position, mais Graaly n'a pas pu la récupérer, soit à cause d'un problème de permissions ou de précision. Vérifiez que vos avez autorisé Graaly à accéder à votre position (en vérifiant dans les paramètres de votre appareil) et que votre GPS est activé et calibré (pour calibrer, tenez votre appareil en lui faisant faire des \"8\" plusieurs fois). Actuellement, cette étape ne peut pas être affichée. Veuillez appuyer sur la flèche permettant de jouer l'étape suivante."
     }
   }
 }

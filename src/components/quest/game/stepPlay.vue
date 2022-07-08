@@ -942,10 +942,10 @@
     <!-- keep geolocation active during all quest duration -->
     <geolocation ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />
     
-    <div class="user-denied-geolocation" v-show="showUserDeniedGeolocationMessage">
+    <div class="geolocation-issue" v-show="$refs['geolocation-component'] && ($refs['geolocation-component'].userDeniedGeolocation || !$refs['geolocation-component'].isActive)">
       <div>
         <p class="bg-warning">{{ $t('label.GeolocationCouldNotBeRetrieved') }}</p>
-        <p>{{ $t('label.GeolocationIsDeniedPleaseSkipThisStep') }}</p>
+        <p>{{ $t('label.GeolocationIssuePleaseSkipThisStep') }}</p>
       </div>
     </div>
     
@@ -1116,7 +1116,7 @@ export default {
         controlsAreDisplayed: false,
         isHybrid: window.cordova,
         showNonHybridQRReader: false,
-        showUserDeniedGeolocationMessage: false,
+        showGeolocationIssueMessage: false,
         isIOs: utils.isIOS(),
         isSafari: utils.isSafari(),
         isPageInit: false,
@@ -1345,7 +1345,7 @@ export default {
       this.rightAnswer = defaultVars.rightAnswer
       this.audio = defaultVars.audio
       this.showNonHybridQRReader = defaultVars.showNonHybridQRReader
-      this.showUserDeniedGeolocationMessage = defaultVars.showUserDeniedGeolocationMessage
+      this.showGeolocationIssueMessage = defaultVars.showGeolocationIssueMessage
       //this.currentcountdown = defaultVars.currentcountdown
     },
     resetEvents () {
@@ -1618,7 +1618,6 @@ export default {
 
         // common process to 'geolocation' and 'locate-item-ar'
         if (this.step.type === 'geolocation' || this.step.type === 'locate-item-ar') {
-          this.checkUserHasAuthorizedPositionTracking()
           this.noSensorFound = this.$refs['orientation-component'].noSensorFound
           this.deviceHasGyroscope = this.$refs['orientation-component'].deviceHasGyroscope
           if (this.$q && this.$q.platform && this.$q.platform.is && this.$q.platform.is.desktop) {
@@ -3370,9 +3369,6 @@ export default {
      */
     onUserPositionError(ret) {
       console.error('UserPositionError', ret)
-      if (this.$refs['geolocation-component'].userDeniedGeolocation) {
-        this.showUserDeniedGeolocationMessage = true
-      }
     },
     /*
      * Update color indicator for the distance
@@ -4986,9 +4982,6 @@ export default {
         let cross = document.getElementById('cross-play' + i)
         cross.style.display = "none"
       }
-    },
-    checkUserHasAuthorizedPositionTracking() {
-      this.showUserDeniedGeolocationMessage = this.$refs['geolocation-component'].userDeniedGeolocation
     }
   }
 }
@@ -5073,17 +5066,17 @@ export default {
   .code-image td .q-icon { font-size: 2em }
 
   /* geolocation specific */
-  .geolocation .text { margin-bottom: 0.5rem; /*position: relative; z-index: 10;*/ } /* MPA 2022-06-21 otherwise translucent background of <div> user-denied-geolocation is not fully applied, seems to have no impact */
+  .geolocation .text { margin-bottom: 0.5rem; /*position: relative; z-index: 10;*/ } /* MPA 2022-06-21 z-index removed, otherwise translucent background of <div> geolocation-issue is not fully applied, seems to have no impact */
   .geolocation #mode-switch { position: absolute; bottom: 6rem; right: 2.6rem; }
   .geolocation-step-map { position: absolute; opacity: 1; top: 0; left: 0; width: 100%; height: 100%; background-color: yellow; }
   .geolocation .q-btn { box-shadow: none; }
   .low-gps-accuracy-warning { z-index: 200; position: absolute; top: 0; left: 0; right: 0; }
   
   /* make something like <q-dialog> but without being "modal" (e.g. does not prevent clicking on navigation buttons) */
-  .user-denied-geolocation { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color:rgba(255, 255, 255, 0.75); }
-  .user-denied-geolocation > div { z-index: 1900; margin: 6rem 2rem 2rem 2rem; border: 1px solid black; background: white; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); }
-  .user-denied-geolocation > div > p.bg-warning { color: white; }
-  .user-denied-geolocation > div > p { padding: 1rem; margin: 0; }
+  .geolocation-issue { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color:rgba(255, 255, 255, 0.75); }
+  .geolocation-issue > div { z-index: 1900; margin: 6rem 2rem 2rem 2rem; border: 1px solid black; background: white; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); }
+  .geolocation-issue > div > p.bg-warning { color: white; }
+  .geolocation-issue > div > p { padding: 1rem; margin: 0; }
 
   /* jigsaw puzzle specific */
 
