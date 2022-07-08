@@ -976,7 +976,7 @@ module.exports = {
       YouHaveReceivedAQrCodeFrom: "You have received a QR code from {author}",
       ScanTheUniqueQRCode: "Scan the single use QR code",
       BuyInOneClick: "Buy in one clic",
-      TechnicalIssueOrCodeAlreadyUsed: "Code already used or technical issue",
+      TechnicalIssueOrCodeAlreadyUsed: "This QR code is already used by another account. Please sign-in or contact the creator of this game to have a new code.",
       ChangeTheBackgroundImageOnceClicked: "Change background picture when player has clicked",
       Message: "Message",
       Frequency: "Frequency",
@@ -1184,7 +1184,9 @@ module.exports = {
       ObjectNotInInventory: "Object is not in inventory",
       ResetChapterProgression: "Reset progression for this chapter",
       GeolocationCouldNotBeRetrieved: "Unknown player location",
-      GeolocationIsDeniedPleaseSkipThisStep: "This part of the game requires your geographical location, but it seems that you denied access to your location to the app. Therefore, this step cannot be shown. Please use the right arrow button to play the next step."
+      GeolocationIsDeniedPleaseSkipThisStep: "This part of the game requires your geographical location, but it seems that you denied access to your location to the app. Therefore, this step cannot be shown. Please use the right arrow button to play the next step.",
+      HidePaiement: "Hide the price (communicated to players outside of Graaly)", 
+      QRCodeAlreadyUsed: "This QR code is already used by another account. Please sign-in or contact the creator of this game to have a new code."
     }
   },
   fr: {
@@ -2151,7 +2153,7 @@ module.exports = {
       YouHaveReceivedAQrCodeFrom: "Vous avez reçu un QR code de {author}",
       ScanTheUniqueQRCode: "Scanner le QR code à usage unique",
       BuyInOneClick: "Achetez en un clic",
-      TechnicalIssueOrCodeAlreadyUsed: "Code déjà utilisé ou problème technique",
+      TechnicalIssueOrCodeAlreadyUsed: "Ce QR code a déjà été utilisé par un autre compte. Veuillez vous connecter ou contacter le créateur du jeu pour obtenir un autre code.",
       ChangeTheBackgroundImageOnceClicked: "Changez l'image de fond quand le joueur a cliqué",
       Message: "Message",
       Frequency: "Fréquence",
@@ -2359,7 +2361,9 @@ module.exports = {
       ObjectNotInInventory: "L'objet n'est pas dans l'inventaire",
       ResetChapterProgression: "Supprimer la progression de ce chapitre",
       GeolocationCouldNotBeRetrieved: "Position du joueur inconnue",
-      GeolocationIsDeniedPleaseSkipThisStep: "Cette partie du jeu nécessite un accès à votre position, cependant il semble que ayez refusé cet accès. Cette étape ne peut donc pas être affichée. Veuillez appuyer sur la flèche permettant de jouer l'étape suivante."
+      GeolocationIsDeniedPleaseSkipThisStep: "Cette partie du jeu nécessite un accès à votre position, cependant il semble que ayez refusé cet accès. Cette étape ne peut donc pas être affichée. Veuillez appuyer sur la flèche permettant de jouer l'étape suivante.",
+      HidePaiement: "Cacher le prix (communiqué aux joueurs hors de Graaly)",
+      QRCodeAlreadyUsed: "Ce QR code a déjà été utilisé par un autre compte. Veuillez vous connecter ou contacter le créateur du jeu pour obtenir un autre code."
     }
   }
 }

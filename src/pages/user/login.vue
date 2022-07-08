@@ -523,10 +523,18 @@ export default {
               this.$router.push('/quest/' + (code.substring(0, 24)) + '/end')
             }
           } else {
-            Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
+            if (code.indexOf('-slash-') === -1 && code.indexOf('tierplay_') === -1) {
+              Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
+            } else {
+              Notification(this.$t('label.QRCodeAlreadyUsed'), 'error')
+            }
           }
         } else {
-          Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
+          if (code.indexOf('-slash-') === -1 && code.indexOf('tierplay_') === -1) {
+            Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
+          } else {
+            Notification(this.$t('label.QRCodeAlreadyUsed'), 'error')
+          }
         }
       }
     },
