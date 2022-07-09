@@ -684,7 +684,7 @@
 
       <!------------------ LOCATE ITEM IN AUGMENTED REALITY STEP AREA ------------------------>
 
-      <div class="locate-item-ar" v-if="step.type == 'locate-item-ar'">
+      <div class="locate-item-ar" v-if="step.type === 'locate-item-ar'" v-show="$refs['geolocation-component'] && $refs['geolocation-component'].isActive">
         <!-- PAS DE CAPTEUR -->
         <div v-if="noSensorFound" class="text text-center" :class="'font-' + customization.font">
           <p class="q-mb-lg">{{ $t('label.noSensorFound') }}</p>
@@ -697,7 +697,7 @@
         </div>
         <div v-else>
           <transition appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
-            <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && playerResult === null"></video>
+            <video ref="camera-stream-for-locate-item-ar" v-show="cameraStreamEnabled && geolocation.active && playerResult === null"></video>
           </transition>
           <div v-show="playerResult === null && (this.geolocation.active || isIOs)" class="q-mt-xl">
             <div class="text" :class="'font-' + customization.font">
@@ -941,7 +941,14 @@
 
     <!-- keep geolocation active during all quest duration -->
     <geolocation ref="geolocation-component" @success="onNewUserPosition($event)" @error="onUserPositionError($event)" />
-
+    
+    <div class="geolocation-issue" v-show="(step.type === 'geolocation' || step.type === 'locate-item-ar') && $refs['geolocation-component'] && ($refs['geolocation-component'].userDeniedGeolocation || !$refs['geolocation-component'].isActive)">
+      <div>
+        <p class="bg-warning">{{ $t('label.GeolocationCouldNotBeRetrieved') }}</p>
+        <p>{{ $t('label.GeolocationIssuePleaseSkipThisStep') }}</p>
+      </div>
+    </div>
+    
     <!-- keep orientation detection active during all quest duration -->
     <orientation ref="orientation-component" @success="onNewDeviceOrientation($event)" @error="onDeviceOrientationError($event)" :disabled="!quest.hasGeolocationSteps" />
 
@@ -1109,6 +1116,7 @@ export default {
         controlsAreDisplayed: false,
         isHybrid: window.cordova,
         showNonHybridQRReader: false,
+        showGeolocationIssueMessage: false,
         isIOs: utils.isIOS(),
         isSafari: utils.isSafari(),
         isPageInit: false,
@@ -1158,11 +1166,9 @@ export default {
           // object position relative to device
           position: { x: null, y: null },
           // player position (properties: latitude & longitude, from native call to navigator.geolocation.watchLocation())
-          playerPosition: {
-            marker: '',
-            coords: null
-          },
-          destinationPosition: [],
+          playerPosition: { coords: { longitude: 0, latitude: 0 }, marker: '' },
+          //destinationPosition: { coords: { lat: 0, lng: 0 }, marker: '' },
+          destinationPosition: [], // WARNING : Do not change !
           // for 'locate-item-ar'
           target: null,
           canSeeTarget: false,
@@ -1340,6 +1346,7 @@ export default {
       this.rightAnswer = defaultVars.rightAnswer
       this.audio = defaultVars.audio
       this.showNonHybridQRReader = defaultVars.showNonHybridQRReader
+      this.showGeolocationIssueMessage = defaultVars.showGeolocationIssueMessage
       //this.currentcountdown = defaultVars.currentcountdown
     },
     resetEvents () {
@@ -1608,6 +1615,9 @@ export default {
           } else {
             this.geolocation.mode = 'sensor'
           }
+          if (this.customization && this.customization.characterOnMap && this.customization.characterOnMap !== "") {
+            this.geolocation.playerPosition.marker = this.customization.characterOnMap.indexOf('blob:') !== -1 ? this.customization.characterOnMap : this.serverUrl + '/upload/quest/' + this.customization.characterOnMap
+          }
         }
 
         // common process to 'geolocation' and 'locate-item-ar'
@@ -1644,8 +1654,8 @@ export default {
                 const call = await this.callPermissionsEvent()
                 console.log(call)
               }
-
-              this.geolocation.showARHelp = true
+              
+              this.geolocation.showARHelp = this.$refs['geolocation-component'].isActive
 
               // ask user to access to his device motion
               requestPermissionResult = await utils.requestDeviceMotionPermission()
@@ -1764,7 +1774,7 @@ export default {
             // add offset to make 3D object "sit on the ground" by default (z = 0 at the bottom of the object)
             let box = new THREE.Box3().setFromObject(object)
             let onGroundOffset = (box.max.z - box.min.z) / 2
-            object.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, onGroundOffset))
+            object.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, onGroundOffset))
 
             // compute object size = max(length, width, depth)
             target.size = Math.max(box.max.x - box.min.x, box.max.y - box.min.y, box.max.z - box.min.z)
@@ -1777,7 +1787,7 @@ export default {
             }
 
             // accurate colors for GLTF models, see https://stackoverflow.com/q/50331480/488666
-            this.geolocation.target.renderer.gammaOutput = true
+            this.geolocation.target.renderer.outputEncoding = THREE.sRGBEncoding
           } else {
             // 2D plane with transparent image (user uploaded picture) as texture
             var itemImage = ''
@@ -1948,22 +1958,31 @@ export default {
      * call device permissions event on iOS Fix for RA
      */
     callPermissionsEvent() {
-      if (typeof (DeviceMotionEvent) !== "undefined" && typeof (DeviceMotionEvent.requestPermission) === "function") {
-        return new Promise(resolve => this.$q.dialog({
-          title: this.$t('label.arDialogTitle'),
-          message: this.$t('label.arDialogMessage'),
-          persistent: true
-        })
-          .onOk(() => {
-            resolve()
-          DeviceMotionEvent.requestPermission()
-            .then(response => {
-              console.log("devicePermissions", response)
+      return new Promise((resolve, reject) => {
+        if (typeof (DeviceMotionEvent) !== "undefined" && typeof (DeviceMotionEvent.requestPermission) === "function") {
+          this.$q.dialog({
+            title: this.$t('label.arDialogTitle'),
+            message: this.$t('label.arDialogMessage'),
+            persistent: true
+          })
+            .onOk(() => {
+              DeviceMotionEvent.requestPermission()
+                .then(response => {
+                  console.log("devicePermissions", response)
+                  resolve(response)
+                })
+                .catch((err) => reject(err))
             })
-            .catch(console.error)
-        })
-        )
-      }
+            .onCancel(() => {
+              reject(new Error('User canceled authorization for device motion event'))
+            })
+            .onDismiss(() => {
+              reject(new Error('User dismissed authorization for device motion event'))
+            })
+        } else {
+          resolve()
+        }
+      })
     },
     reloadPage() {
       this.$router.go({
@@ -3162,7 +3181,7 @@ export default {
      * @param   {object}    pos            User position (from native call to navigator.geolocation.watchLocation())
      */
     async onNewUserPosition(pos) {
-      if (this.step.id === 'gpssensor') {
+      if (this.step.id === 'gpssensor' || this.step.id === 'map') {
         // treat case when user can find one of several location to find
         this.geolocation.gpsAccuracy = pos.coords.accuracy
         this.geolocation.playerPosition.coords = pos.coords
@@ -4281,7 +4300,7 @@ export default {
       pivot.multiplyScalar(-1)
 
       let pivotObj = new THREE.Object3D();
-      object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
+      object.applyMatrix4(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
       pivotObj.add(object)
       pivotObj.up = new THREE.Vector3(0, 0, 1)
       object = pivotObj
@@ -4465,7 +4484,7 @@ export default {
      * @params: (event)
      **/
     checkPhoneVertically(event) {
-      if (this.$refs && this.$refs.raVerticallyDialog) {
+      if (this.$refs && this.$refs.raVerticallyDialog && this.$refs['geolocation-component'].isActive) {
         if (event.beta < 50 || event.beta > 130) {
           this.$refs.raVerticallyDialog.show()
         } else {
@@ -5051,11 +5070,17 @@ export default {
   .code-image td .q-icon { font-size: 2em }
 
   /* geolocation specific */
-  .geolocation .text { margin-bottom: 0.5rem; position: relative; z-index: 10; }
+  .geolocation .text { margin-bottom: 0.5rem; /*position: relative; z-index: 10;*/ } /* MPA 2022-06-21 z-index removed, otherwise translucent background of <div> geolocation-issue is not fully applied, seems to have no impact */
   .geolocation #mode-switch { position: absolute; bottom: 6rem; right: 2.6rem; }
   .geolocation-step-map { position: absolute; opacity: 1; top: 0; left: 0; width: 100%; height: 100%; background-color: yellow; }
   .geolocation .q-btn { box-shadow: none; }
   .low-gps-accuracy-warning { z-index: 200; position: absolute; top: 0; left: 0; right: 0; }
+  
+  /* make something like <q-dialog> but without being "modal" (e.g. does not prevent clicking on navigation buttons) */
+  .geolocation-issue { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color:rgba(255, 255, 255, 0.75); }
+  .geolocation-issue > div { z-index: 1900; margin: 6rem 2rem 2rem 2rem; border: 1px solid black; background: white; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); }
+  .geolocation-issue > div > p.bg-warning { color: white; }
+  .geolocation-issue > div > p { padding: 1rem; margin: 0; }
 
   /* jigsaw puzzle specific */
 

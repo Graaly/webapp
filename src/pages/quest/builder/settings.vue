@@ -339,6 +339,13 @@
                     class="full-width"
                   />
                 </div>
+                <div v-if="form.fields.customization">
+                  <q-toggle
+                    :readonly="readOnly"
+                    :label="$t('label.HidePaiement')"
+                    v-model="form.fields.customization.hidePaymentBox"
+                    /> 
+                </div>
               </div>
             </q-expansion-item>
             <q-separator />
@@ -705,7 +712,7 @@
       
       <!------------------ STEPS TAB ------------------------>
         
-      <div v-if="tabs.selected === 'steps'" class="q-pa-md arial" :class="{'desktop-only': chapters.showNewStepOverview}">
+      <div v-if="tabs.selected === 'steps'" class="q-pa-md arial scroll-on-desktop-80" :class="{'desktop-only': chapters.showNewStepOverview}">
         <div class="centered bg-warning q-pa-sm" v-if="warnings.stepsMissing" @click="refreshStepsList">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
@@ -1320,7 +1327,7 @@
         </div>
         
       </div>
-      <div v-if="chapters.showNewStepPageSettings" class="bg-white arial full-page-div">
+      <div v-if="chapters.showNewStepPageSettings" class="bg-white arial full-page-div scroll-on-desktop-100">
       <!--Removed by EMA, too much issues with scroll <q-dialog maximized persistent v-model="chapters.showNewStepPageSettings" class="bg-white arial">-->
         
         <!------------------ STEP SETTINGS SELECTION ------------------------>
