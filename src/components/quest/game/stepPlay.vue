@@ -1167,7 +1167,8 @@ export default {
           position: { x: null, y: null },
           // player position (properties: latitude & longitude, from native call to navigator.geolocation.watchLocation())
           playerPosition: { coords: { longitude: 0, latitude: 0 }, marker: '' },
-          destinationPosition: { coords: { lat: 0, lng: 0 }, marker: '' },
+          //destinationPosition: { coords: { lat: 0, lng: 0 }, marker: '' },
+          destinationPosition: [], // WARNING : Do not change !
           // for 'locate-item-ar'
           target: null,
           canSeeTarget: false,
@@ -1613,6 +1614,9 @@ export default {
             }
           } else {
             this.geolocation.mode = 'sensor'
+          }
+          if (this.customization && this.customization.characterOnMap && this.customization.characterOnMap !== "") {
+            this.geolocation.playerPosition.marker = this.customization.characterOnMap.indexOf('blob:') !== -1 ? this.customization.characterOnMap : this.serverUrl + '/upload/quest/' + this.customization.characterOnMap
           }
         }
 

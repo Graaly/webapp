@@ -73,6 +73,7 @@ export default {
   
   methods: {
     getUserMapIcon(marker) {
+    console.log("-"+marker+"-")
       if (marker && marker !== '') {
         return {
           url: marker,
