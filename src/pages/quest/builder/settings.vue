@@ -1041,6 +1041,7 @@
           <q-btn class="glossy large-button" color="primary" @click="createNewPaymentQRCode"><span>{{ $t('label.CreateNewQRCodeForPlay') }}</span></q-btn>
           <q-btn class="button" flat color="primary" @click="createMultipleNewPaymentQRCode(10)"><span>{{ $t('label.Create10NewQRCodeForPlay') }}</span></q-btn>
           <q-btn class="button" flat color="primary" @click="createMultipleNewPaymentQRCode(50)"><span>{{ $t('label.Create50NewQRCodeForPlay') }}</span></q-btn>
+          <q-btn class="glossy large-button" flat color="primary" @click="printQRCode"><span>{{ $t('label.PrintQRCodePages') }}</span></q-btn>
         </div>
       </div>
         
@@ -3900,6 +3901,13 @@ export default {
         await QuestService.createTierPayment(this.questId, this.quest.premiumPrice.manual)
       }
       await this.listPayments()
+    },
+    async printQRCode() {
+      const file = await QuestService.printQRCodes(this.questId)
+      setTimeout(this.openQRCodesPrinted, 2000)
+    },
+    openQRCodesPrinted() {
+      window.open(this.serverUrl + '/upload/tiers/print/' + this.questId + '.pdf', "_self")
     },
     /*
      * List the payments for the game
