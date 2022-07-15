@@ -562,6 +562,15 @@ export default {
       .catch(error => console.log(error.request));
   },
   /*
+   * Create a PDF with Tier Payment qr code
+   * @param   {String}    questId             questId
+   */
+  printQRCodes(questId) {
+    return Api()
+      .get("quest/" + questId + "/payment/tier/print")
+      .catch(error => console.log(error.request));
+  },
+  /*
    * Create a tier payment
    * @param   {String}    questId             questId
    * @param   {String}    price               price
