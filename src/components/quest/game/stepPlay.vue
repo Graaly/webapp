@@ -1328,6 +1328,7 @@ export default {
       this.locateMarker = defaultVars.locateMarker
       this.writetext = defaultVars.writetext
       this.puzzle = defaultVars.puzzle
+      this.choose = defaultVars.choose
       this.memory = defaultVars.memory
       this.portrait = defaultVars.portrait
       this.nbItemsFound = defaultVars.nbItemsFound
