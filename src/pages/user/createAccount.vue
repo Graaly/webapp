@@ -1,25 +1,25 @@
 <template>
-  <div class="wrapper background-map">
+  <div class="wrapper background-login">
     <div class="page-content" style="padding-bottom: 100px">
-      
-      <div class="centered q-pt-lg q-pb-md">
-        <img src="statics/images/logo/logo-home.png" class="logo-top" />
+
+      <div class="centered">
+        <q-img src="statics/new/logo-color-white.png" class="login-logo-top"/>
       </div>
-      
+
       <!------------------ TITLE AREA -----------------------
-      
+
       <h1 v-if="step !== 'firstusage'" class="text-center size-3 q-mt-xl q-mb-lg">{{ $t('label.tellUsAboutYou') }}</h1>
       <h1 v-if="step === 'firstusage'" class="text-center size-3 q-mt-xl q-mb-lg">{{ $t('label.IfYouUseGraalyForTheFirstTime') }}</h1>
-      
+
       -->
-      
-      <div class="q-pa-md">
-        <div class="centered title2 q-mb-lg">{{ $t('label.Welcome') }}</div>
-    
+
+      <div class="login-form">
+        <!--        <div class="centered title2 q-mb-lg">{{ $t('label.Welcome') }}</div>-->
+
         <!------------------ FORM AREA ------------------------>
-      
+
         <form @submit.prevent="formSubmit()" class="q-pa-lg">
-          
+
           <q-input
             outlined
             v-if="step === 'generic'"
@@ -31,8 +31,8 @@
             :error="$v.form.name.$error"
             :error-message="$t('label.PleaseEnterYourName')"
             test-id="name"
-            />
-          
+          />
+
           <q-input
             outlined
             v-if="step === 'generic'"
@@ -43,8 +43,8 @@
             bottom-slots
             :error="$v.form.email.$error"
             :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
-            />
-          
+          />
+
           <q-input
             outlined
             v-if="step === 'generic'"
@@ -56,8 +56,8 @@
             :error="$v.form.password.$error"
             :error-message="!$v.form.password.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.form.password.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
             test-id="password"
-            />
-            
+          />
+
           <q-select
             outlined
             v-if="step === 'location'"
@@ -68,8 +68,8 @@
             map-options
             bottom-slots
             test-id="sex"
-            />
-          
+          />
+
           <q-select
             outlined
             v-if="step === 'location'"
@@ -83,8 +83,8 @@
             :error="$v.form.age.$error"
             :error-message="$t('label.PleaseSelectYourAge')"
             test-id="age"
-            />
-            
+          />
+
           <q-select
             outlined
             v-if="step === 'location'"
@@ -98,8 +98,8 @@
             :error="$v.form.country.$error"
             :error-message="$t('label.PleaseSelectYourCountry')"
             test-id="country"
-            />
-          
+          />
+
           <q-input
             outlined
             v-if="step === 'location'"
@@ -110,60 +110,69 @@
             :error="$v.form.zipCode.$error"
             :error-message="$t('label.PleaseEnterYourZipCode')"
             test-id="zip"
-            />
-            
+          />
+
           <div class="row" v-if="step === 'location'">
-            <div class="col-2"><q-checkbox dark v-model="form.terms" test-id="terms" /></div>
+            <div class="col-2">
+              <q-checkbox dark v-model="form.terms" test-id="terms"/>
+            </div>
             <div class="col secondary-font-small">
-              <span v-html="$t('label.IAgreeTheTermsAndConditions')" />
+              <span v-html="$t('label.IAgreeTheTermsAndConditions')"/>
               <div class="q-field-bottom" v-if="$v.form.terms.$error">
                 <div class="q-field-error">{{ $t('label.PleaseAgreeTheTermsAndConditions') }}</div>
               </div>
             </div>
           </div>
-          
+
           <div class="row" v-if="step === 'location'">
-            <div class="col-2"><q-checkbox dark v-model="form.privacy" test-id="privacy" /></div>
+            <div class="col-2">
+              <q-checkbox dark v-model="form.privacy" test-id="privacy"/>
+            </div>
             <div class="col secondary-font-small">
-              <span v-html="$t('label.IAgreeThePrivacyPolicy')" />
+              <span v-html="$t('label.IAgreeThePrivacyPolicy')"/>
               <div class="q-field-bottom" v-if="$v.form.privacy.$error">
                 <div class="q-field-error">{{ $t('label.PleaseAgreeThePrivacyPolicy') }}</div>
               </div>
             </div>
           </div>
-          
+
           <div v-if="step === 'validation'">
             <p test-id="enter-code">{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
-            <q-input :label="$t('label.Code')" v-model="form.code" />
+            <q-input :label="$t('label.Code')" v-model="form.code"/>
           </div>
-          
+
           <p class="text-right q-mt-md q-mb-md" v-if="step === 'validation'">
             <a @click="generateANewCode()">{{ $t('label.NewCode') }}</a>
           </p>
-          
+
           <p class="text-center q-mt-md q-mb-md" v-if="step === 'firstusage'">
-            <img src="statics/icons/game/discovery.png" />
+            <img src="statics/icons/game/discovery.png"/>
           </p>
-        
-          <p class="text-center multiple-btn margin-size-3 q-mt-lg">
-            <!--<q-btn 
+
+          <div class="q-mt-md">
+            <!--<q-btn
               class="glossy"
-              v-if="step !== 'firstusage'" 
-              color="accent" 
-              icon="fas fa-chevron-left" 
-              :loading="submitting" 
+              v-if="step !== 'firstusage'"
+              color="accent"
+              icon="fas fa-chevron-left"
+              :loading="submitting"
               @click="backAction()" />-->
-            <q-btn 
-              class="glossy large-btn"
+            <q-btn
+              type="submit"
               :disabled="formDisabled"
-              color="primary" 
-              :label="$t('label.Subscribe')" 
-              :loading="submitting" 
-              type="submit" />
-            <div class="centered q-mt-sm q-mb-lg">
+              class="btn-icon-primary"
+              :loading="submitting"
+            >
+              <div class="square-shadow"></div>
+              <div class="square-icon">
+                <q-icon class="btn-icon" name="skip_next"/>
+              </div>
+              <p class="btn-title">{{ $t('label.Subscribe') }}</p>
+            </q-btn>
+            <div class="centered q-mt-lg q-mb-lg">
               <a @click="goToSignIn()">{{ $t('label.IAlreadyHaveAnAccount') }}</a>
             </div>
-          </p>
+          </div>
         </form>
       </div>
     </div>
@@ -233,7 +242,7 @@ export default {
           this.$v.form.age.$touch()
           this.$v.form.terms.$touch()
           this.$v.form.privacy.$touch()
-          if (!this.$v.form.country.$error && !this.$v.form.zipCode.$error && //!this.$v.form.sex.$error && 
+          if (!this.$v.form.country.$error && !this.$v.form.zipCode.$error && //!this.$v.form.sex.$error &&
             !this.$v.form.age.$error && !this.$v.form.terms.$error && !this.$v.form.privacy.$error) {
             // sign in user
             let newAccount = {
@@ -247,7 +256,7 @@ export default {
               language: this.$i18n.locale
             }
             this.submitting = true
-            
+
             let creationStatus = await AuthService.createAccount(newAccount)
 
             if (creationStatus.status && creationStatus.status === 200) {
@@ -262,16 +271,16 @@ export default {
             } else {
               Notification(this.$t('label.ErrorStandardMessage'), 'error')
             }
-            
+
             this.submitting = false
           }
           break
         case 'validation':
           // check validation code
           let validationStatus = await AuthService.validateAccount(this.form.email, this.form.code)
-          
+
           this.submitting = true
-          
+
           if (validationStatus.status && validationStatus.status === 200) {
             //this.step = 'firstusage'
             this.openHome() // remove firstusage step
@@ -280,13 +289,13 @@ export default {
           } else {
             Notification(this.$t('label.IncorrectCodePleaseRetry'), 'warning')
           }
-          
+
           this.submitting = false
-          
+
           break
-        case 'firstusage':         
+        case 'firstusage':
           this.openHome()
-          
+
           break
       }
     },
@@ -363,15 +372,15 @@ export default {
      */
     async generateANewCode() {
       this.submitting = true
-      
+
       let codeSent = await AuthService.generateANewValidationCode(this.form.email)
-      
+
       if (codeSent.status === 200) {
         Notification(this.$t('label.ANewCodeHasBeenSent'), 'info')
       } else {
         Notification(this.$t('label.ErrorStandardMessage'), 'error')
       }
-      
+
       this.submitting = false
     }
   },
@@ -394,5 +403,61 @@ export default {
 }
 </script>
 
-<style>
+<style scoped lang="scss">
+.background-login {
+  background-image: url('../../statics/new/h-top-background.jpg');
+  background-position: center 0px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.login-logo-top{
+  width: 25vh;
+  margin-top: 10vh;
+  margin-bottom: 5vh;
+}
+.login-form{
+  max-width: 320px;
+  margin: 0 auto;
+}
+.btn-icon-primary{
+  width: calc(100% - 25px);
+  margin-left: 25px;
+  height: 50px;
+  background: rgb(243,146,0);
+  &:hover{
+    background: darken(rgb(243,146,0), 10);
+  }
+  .square-shadow{
+    position: absolute;
+    height: 50px;
+    width: 50px;
+    left: -25px;
+    top: 0;
+    border-radius: 8px;
+    transform: rotate(45deg) translate(4px, -4px);
+    background: rgb(238,102,8);
+  }
+  .square-icon{
+    position: absolute;
+    height: 50px;
+    width: 50px;
+    left: -25px;
+    top: 0;
+    border-radius: 8px;
+    transform: rotate(45deg);
+    background: white;
+    .btn-icon{
+      font-size: 40px;
+      width: 52px;
+      height: 52px;
+      color: rgb(243,146,0);
+      transform: rotate(-45deg);
+    }
+  }
+  .btn-title{
+    color: white;
+    line-height: 40px;
+    font-size: 18px;
+  }
+}
 </style>

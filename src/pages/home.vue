@@ -1,24 +1,28 @@
 <template>
-  <div class="scroll" :class="showNonHybridQRReader ? 'bg-transparent' : 'background-dark'">
-    <div v-if="showNonHybridQRReader">
+  <div class="wrapper" :class="showNonHybridQRReader ? 'bg-transparent' : 'background-home'">
+    <div v-if="showNonHybridQRReader" >
 
       <!--====================== QR CODE READER ON WEBAPP =================================-->
-      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
+<!--      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
         <div class="float-right no-underline close-btn q-pa-sm" @click="closeQRCodeReader"><q-icon name="close" class="subtitle1" /></div>
         {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
-      </div>
+      </div>-->
 
       <qr-code-stream
         v-if="showNonHybridQRReader"
         v-on:QrCodeResult="checkCode"
+        :color="'accent'"
+        menu
+        v-on:CloseQRCodeReader="closeQRCodeReader"
       />
     </div>
+    <div class="home q-pa-lg">
     <div class="teaser" v-if="!showNonHybridQRReader">
 
       <!--====================== MAIN QUEST =================================-->
 
-      <mainQuest v-if="!offline.active" :quest="bestQuest"></mainQuest>
-
+<!--      <mainQuest v-if="!offline.active" :quest="bestQuest"></mainQuest>-->
+      <quest-card v-if="!offline.active" :quest="bestQuest" color="primary" direction="right" class="q-mb-lg"/>
       <!--====================== OFFLINE QUESTS =================================-->
 
       <div class="q-pt-lg" v-if="offline.active">
@@ -42,12 +46,12 @@
 
       <!--====================== QR CODE BUTTON =================================-->
 
-      <div class="q-px-md q-pt-lg q-pb-lg cursor-pointer centered" v-if="!offline.active">
+<!--      <div class="q-px-md q-pt-lg q-pb-lg cursor-pointer centered" v-if="!offline.active">
         <div class="q-pb-md">Vous avez reçu un QR code ?</div>
         <div class="image-button" @click="startScanQRCode" style="background-image: url(statics/images/icon/scan-button.png)">
           {{ $t('label.ScanQRCode') }}
         </div>
-      </div>
+      </div>-->
 
       <!--====================== WARNINGS =================================-->
 
@@ -65,13 +69,21 @@
       <div v-if="!offline.active && invitationQuests && invitationQuests.length > 0">
         <titleBar :title="{text: $t('label.Invitations'), type: 'key'}"></titleBar>
 
-        <questsList :format="mainQuestListFormat" :quests="invitationQuests"></questsList>
+        <questsList :quests="invitationQuests"></questsList>
       </div>
 
-       <!--====================== OTHER QUEST =================================-->
+       <!--====================== AROUND QUEST =================================-->
 
       <div v-if="!offline.active">
-        <titleBar :title="{text: $t('label.AroundYou'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAroundYou"></titleBar>
+        <quest-list
+          :quests="nearestQuests"
+          :title="$t('label.AroundYou')"
+          icon="explore"
+          readMore
+          v-on:readMore="readMoreAroundYou"
+          color="accent"
+        />
+<!--        <titleBar :title="{text: $t('label.AroundYou'), type: 'key'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAroundYou"></titleBar>
 
         <div v-if="!nearestQuests || nearestQuests.length > 0">
           <questsList :format="mainQuestListFormat" :quests="nearestQuests"></questsList>
@@ -83,15 +95,19 @@
               <a class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
             </div>
           </div>
-        </div>
+        </div>-->
       </div>
 
       <!--====================== ON TOP QUEST =================================-->
 
-      <div v-if="!offline.active && onTopQuests && onTopQuests.length > 0">
-        <titleBar :title="{text: $t('label.OnTopGames'), type: 'key'}"></titleBar>
-
-        <questsList format="small" :quests="onTopQuests"></questsList>
+      <div v-if="!offline.active">
+        <quest-list
+          :quests="onTopQuests"
+          :title="$t('label.OnTopGames')"
+          icon="grade"
+          v-on:readMore="readMoreAroundYou"
+          color="secondary"
+        />
       </div>
 
       <!--====================== EXTRA QUEST =================================-->
@@ -104,11 +120,46 @@
 
       <!--====================== CREATE PROFILE BUTTON =================================-->
 
-      <div class="q-px-md q-pt-lg" v-if="!offline.active && (!this.$store.state.user.name || this.$store.state.user.name === '' || this.$store.state.user.email === 'providersignin' || !this.$store.state.user.location || !this.$store.state.user.location.postalCode || this.$store.state.user.location.postalCode === '' || !this.$store.state.user.location.country || this.$store.state.user.location.country === '')">
+      <text-btn-square
+        v-if="!offline.active && (!this.$store.state.user.name || this.$store.state.user.name === '' || this.$store.state.user.email === 'providersignin' || !this.$store.state.user.location || !this.$store.state.user.location.postalCode || this.$store.state.user.location.postalCode === '' || !this.$store.state.user.location.country || this.$store.state.user.location.country === '')"
+        class="q-mb-xl"
+        outlined
+        @click.native="openUpdateProfilePage()"
+        :title="$t('label.WeNeedMoreInformationAboutYou')"
+        color="accent"
+        icon="face"
+      />
+      <!--  DIALOG CREATE PROFIL  -->
+      <q-dialog v-model="createProfilDialog" style="max-width: 400px">
+        <q-card class="login-dialog-card">
+          <q-card-section class="row items-center">
+            Texte à définir
+            <q-space/>
+            <icon-btn-square color="accent" icon="close" rotation fill v-close-popup/>
+          </q-card-section>
+
+          <q-separator/>
+
+          <q-card-section>
+            {{ $t('label.DoYouWantToCreateAnAccount') }}
+            <div>
+              <text-btn-square
+                class="q-mb-lg q-mt-lg"
+                @click.native="openUpdateProfilePage()"
+                title="Créer(adefinir)"
+                color="accent"
+                icon="done"
+              />
+            </div>
+
+          </q-card-section>
+        </q-card>
+      </q-dialog>
+<!--      <div class="q-px-md q-pt-lg" v-if="!offline.active && (!this.$store.state.user.name || this.$store.state.user.name === '' || this.$store.state.user.email === 'providersignin' || !this.$store.state.user.location || !this.$store.state.user.location.postalCode || this.$store.state.user.location.postalCode === '' || !this.$store.state.user.location.country || this.$store.state.user.location.country === '')">
         <div class="image-button" @click="openUpdateProfilePage" style="background-image: url(statics/images/icon/profile-button.png)">
           {{ $t('label.WeNeedMoreInformationAboutYou') }}
         </div>
-      </div>
+      </div>-->
 
       <!--====================== QUEST PLAYED OR CREATED BY GRAALY =================================-->
 
@@ -121,32 +172,55 @@
       <!--====================== CREATORS =================================-->
 
       <div v-if="!offline.active && (!users || users.length > 0)">
-        <titleBar :title="{text: $t('label.Designers'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAllCreators"></titleBar>
 
-        <usersList format="scroll" :users="users"></usersList>
+        <creator-list
+          :creators="users"
+          v-on:readMore="readMoreAllCreators"
+          color="primary"
+        />
+<!--        <titleBar :title="{text: $t('label.Designers'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAllCreators"></titleBar>
+        <usersList format="scroll" :users="users"></usersList>-->
       </div>
 
       <!--====================== CREATE QUEST BUTTON =================================-->
 
-      <div v-if="!offline.active" class="q-ma-md relative-position creator-button cursor-pointer" @click="buildQuest">
-        <img src="statics/images/other/creator.jpg" class="full-width" />
+        <text-btn-square
+          v-if="!offline.active"
+          class="q-mb-xl"
+          @click.native="buildQuest()"
+          :title="$t('label.StartCreation')"
+          color="accent"
+          icon="extension"
+        />
+<!-- <div  class="q-ma-md relative-position creator-button cursor-pointer" @click="buildQuest">
+       <img src="statics/images/other/creator.jpg" class="full-width" />
         <div class="bg-accent subtitle2 q-pa-md full-width" style="bottom: 0px; position: absolute; line-height: 0.8em;">
           <div class="float-right"><img src="statics/images/icon/puzzle-big.svg" style="width: 32px" /></div>
           <span>{{ $t('label.StartCreation') }}</span>
-        </div>
+        </div>-->
       </div>
 
       <!--====================== MAP BUTTON =================================-->
 
-      <div class="q-px-md q-py-lg" v-if="!offline.active">
+
+      <text-btn-square
+        v-if="!offline.active"
+        class="q-mb-xl"
+        @click.native="openMap()"
+        :title="$t('label.OpenTheMap')"
+        color="secondary"
+        outlined
+        icon="public"
+      />
+<!--      <div class="q-px-md q-py-lg" v-if="!offline.active">
         <div class="image-button cursor-pointer" @click="openMap" style="background-image: url(statics/images/icon/locator-button.png)">
           {{ $t('label.OpenTheMap') }}
         </div>
-      </div>
+      </div>-->
 
       <!--====================== HEADER =================================-->
 
-      <div class="fixed-top">
+<!--      <div class="fixed-top">
         <div class="home-header row no-wrap" :class="{'disabled': offline.active}">
           <div class="col centered">
             <img src="statics/images/logo/logo-header-color.png" class="logo" />
@@ -158,19 +232,19 @@
             <q-icon name="add_circle_outline" class="header-button cursor-pointer" @click="buildQuest" />
           </div>
           <div class="col centered">
-            <!--<img src="statics/images/icon/search.svg" class="header-button q-mr-md cursor-pointer" @click="openSearch" />-->
+            &lt;!&ndash;<img src="statics/images/icon/search.svg" class="header-button q-mr-md cursor-pointer" @click="openSearch" />&ndash;&gt;
             <q-icon name="search" class="header-button cursor-pointer" @click="openSearch" />
           </div>
-          <!--<div class="col centered">
+          &lt;!&ndash;<div class="col centered">
             <img :src="'statics/images/icon/level' + $store.state.user.level + '.svg'" class="header-button q-mr-md cursor-pointer" @click="openRanking" />
-          </div>-->
+          </div>&ndash;&gt;
           <div class="col centered">
             <q-avatar class="cursor-pointer" @click="openProfile()">
               <img :src="getProfileImage()" />
             </q-avatar>
           </div>
         </div>
-      </div>
+      </div>-->
 
       <!------------------ GEOLOCATION COMPONENT ------------------------>
 
@@ -255,6 +329,7 @@
         <suggest @close="suggestQuest.show = false"></suggest>
       </q-dialog>
     </div>
+    </div>
   </div>
 </template>
 
@@ -271,6 +346,12 @@ import mainQuest from 'components/quest/mainQuest'
 import questsList from 'components/quest/questsList'
 import usersList from 'components/user/usersList'
 import qrCodeStream from "components/qrCodeStream";
+import homeMenu from "../components/user/UI/homeMenu";
+import questCard from "../components/user/UI/questCard";
+import questList from "../components/user/questList";
+import creatorList from "../components/user/creatorList";
+import iconBtnSquare from "../components/user/UI/iconBtnSquare";
+import textBtnSquare from "../components/user/UI/textBtnSquare";
 
 import utils from 'src/includes/utils'
 import { QSpinnerDots, QInfiniteScroll } from 'quasar'
@@ -290,7 +371,13 @@ export default {
     titleBar,
     questsList,
     usersList,
-    qrCodeStream
+    qrCodeStream,
+    homeMenu,
+    questCard,
+    questList,
+    creatorList,
+    iconBtnSquare,
+    textBtnSquare
   },
   data () {
     return {
@@ -366,6 +453,7 @@ export default {
         show: false
       },
       innerWidth: window.innerWidth,
+      createProfilDialog: false,
       //questsTab: "built",
       //profileTab: "news",
       //friendsTab: "friendbuilt",
@@ -750,16 +838,18 @@ export default {
       if (this.userIsConnected()) {
         this.$router.push('/quest/create/welcome')
       } else {
-        var _this = this; // workaround for closure scope quirks
+        this.createProfilDialog = true
+        //var _this = this; // workaround for closure scope quirks
 
-        this.$q.dialog({
+        /*this.$q.dialog({
           dark: true,
           message: this.$t('label.DoYouWantToCreateAnAccount'),
           ok: true,
           cancel: true
         }).onOk(async () => {
           _this.openUpdateProfilePage()
-        })
+        })*/
+
       }
     },
     userIsConnected() {
@@ -834,6 +924,9 @@ export default {
         this.$router.push('/map')
       }
     },
+    goToHome() {
+      console.log('Go Home')
+    },
     /*
      * get profile image
      */
@@ -851,7 +944,17 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+.background-home {
+  background-image: url('../statics/new/h-center-background-logo.jpg');
+  background-position: center 0px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.home{
+  max-width: 450px;
+  margin: 0 auto;
+}
 
 .q-item-label > p { padding: 0; margin: 0; }
 

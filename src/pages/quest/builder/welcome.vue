@@ -1,5 +1,89 @@
 <template>
-  <div class="scroll background-dark">
+  <div class="scroll background-welcome">
+    <!--  HEADER COMPONENT -->
+    <back-bar color="accent"/>
+    <div class="welcome">
+      <div class="text-center">
+        <!--   TODO: STEPPER    -->
+        <q-img src="statics/new/logo-color-white.png" class="login-logo-top"/>
+        <div class="subtitle text-accent">STUDIO DE CREATION</div>
+      </div>
+      <div class="q-px-lg">
+        <div class="q-mb-lg">{{ $t('label.BuilderChooseUserType') }}</div>
+        <text-btn-square
+          class="q-mb-lg q-mr-md"
+          @click.native="professionnalDialog = true"
+          :title=" $t('label.AProfessional')"
+          color="secondary"
+          icon="business_center"
+        />
+        <text-btn-square
+          class="q-mb-lg"
+          @click.native="sendForgottenPasswordCode()"
+          :title="$t('label.AnIndividual')"
+          color="primary"
+          icon="family_restroom"
+        />
+        <text-btn-square
+          class="q-mb-lg"
+          @click.native="sendForgottenPasswordCode()"
+          :title="$t('label.Education')"
+          color="accent"
+          icon="school"
+        />
+      </div>
+      <!-- DIALOG SHEET -->
+      <q-dialog v-model="professionnalDialog" position="bottom">
+        <q-card class="new-dialog q-mx-md bg-secondary">
+          <q-card-section class="dialog-title flex justify-between items-center">
+            {{ $t('label.AProfessional') }}
+            <q-space/>
+            <icon-btn-square color="accent" icon="close" rotation fill v-close-popup/>
+          </q-card-section>
+          <q-card-section class="dialog-text">
+            {{ $t('label.AProfessionalDesc1') }}
+          </q-card-section>
+          <q-card-section>
+          <div>
+              <div class="centered">
+                <div class="dialog-title">{{ $t('label.PrivateQuest') }} <span class="dialog-subtitle">{{ $t('label.PaymentOnUsage') }}</span></div>
+              </div>
+              <div class="dialog-text q-mb-md">
+                <div v-html="$t('label.PrivateProQuestDesc1')"></div>
+              </div>
+
+            <text-btn-square
+              class="q-mb-lg"
+              @click.native="sendForgottenPasswordCode()"
+              :title="$t('label.TryForFree')"
+              color="accent"
+              icon="school"
+            />
+          </div>
+            <div>
+              <div class="centered">
+                <div class="dialog-title">{{ $t('label.PublicQuest') }} <span class="dialog-subtitle">{{ $t('label.PaymentOnUsage') }}</span></div>
+              </div>
+              <div class="dialog-text q-mb-md">
+                <div v-html="$t('label.PublicProQuestDesc1')"></div>
+                <div v-if="readMorePublicProQuest" v-html="$t('label.PublicProQuestDesc2')"></div>
+              </div>
+
+              <text-btn-square
+                class="q-mb-md"
+                @click.native="sendForgottenPasswordCode()"
+                :title="$t('label.TryForFree')"
+                color="accent"
+                icon="school"
+              />
+            </div>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
+    </div>
+
+    <!-- -->
+
     <div id="teaser" class="reduce-window-size-desktop">
       <div v-if="!userType">
         <h1 class="subtitle3 text-uppercase q-px-md q-mt-xl q-pt-lg">{{ $t('label.CreateYourQuest') }}</h1>
@@ -77,7 +161,7 @@
               <div v-html="$t('label.PublicProQuestDesc1')"></div>
               <!--<div class="centered" v-if="!readMorePublicProQuest"><a @click="readMorePublicProQuest = true">{{ $t('label.ReadMore') }}</a></div>-->
             </q-card-section>
-            
+
             <q-card-section v-if="readMorePublicProQuest">
               <div v-html="$t('label.PublicProQuestDesc2')"></div>
             </q-card-section>
@@ -131,7 +215,7 @@
             <q-card-section class="subtitle5">
               {{ $t('label.PublicQuestDesc1') }}
             </q-card-section>
-            
+
             <q-card-section class="subtitle5">
               {{ $t('label.PublicQuestDesc2') }}
             </q-card-section>
@@ -193,12 +277,6 @@
           <q-btn class="full-width center q-mt-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>
         </div>
       </div>
-      
-      <!------------------ HEADER COMPONENT ------------------------>
-      
-      <div class="q-py-sm q-px-md dark-banner opaque-banner fixed-top">
-        <q-btn flat icon="arrow_back" @click="cancel()" />
-      </div>
     </div>
   </div>
 </template>
@@ -208,7 +286,15 @@
 import Notification from 'boot/NotifyHelper'
 import QuestService from 'services/QuestService'
 
+import iconBtnSquare from "../../../components/user/UI/iconBtnSquare";
+import textBtnSquare from "../../../components/user/UI/textBtnSquare";
+import backBar from "../../../components/user/UI/backBar";
+
 export default {
+  components: {
+    iconBtnSquare, textBtnSquare, backBar
+  },
+
   data() {
     return {
       userType: null,
@@ -219,7 +305,10 @@ export default {
         price: '-',
         buyable: false,
         computed: false
-      }
+      },
+      professionnalDialog: false,
+      personnalDialog: false,
+      educationDialog: false
     }
   },
   async mounted () {
@@ -228,7 +317,7 @@ export default {
     /*
      * Open money winning explaination
      */
-    openMoneyPopup() {  
+    openMoneyPopup() {
       this.$q.dialog({
         title: this.$t('label.HowToWinMoney'),
         message: this.$t('label.HowToWinMoneyExplaination')
@@ -237,8 +326,8 @@ export default {
     /*
      * change user type (pro / individual)
      */
-    async changeUserType(userType) {  
-      this.userType = userType; 
+    async changeUserType(userType) {
+      this.userType = userType;
       this.moveToTop();
       if (userType === 'individual') {
         await this.initPay()
@@ -247,15 +336,15 @@ export default {
     /*
      * change access mode (public / private)
      */
-    changeAccess(access) {  
-      this.access = access; 
+    changeAccess(access) {
+      this.access = access;
       this.moveToTop();
     },
     /*
      * change quest type (quest / room)
      */
-    changeQuestType(type) {  
-      this.questType = type; 
+    changeQuestType(type) {
+      this.questType = type;
       this.moveToTop();
     },
     /*
@@ -301,7 +390,7 @@ export default {
         return
       }
       this.privateQuest.computed = true
-      
+
       // if user already come on this page, product may be already registered
       if (!store.products.byId["privatequestprice"]) {
         store.register({
@@ -317,7 +406,7 @@ export default {
       store.error(function(error) {
         Notification(error.message + '(code: ' + error.code + ')', 'error')
       })
-            
+
       store.when('privatequestprice').updated(this.displayPrice)
 
       store.when('privatequestprice').approved(function(product) {
@@ -351,7 +440,7 @@ export default {
      */
     async savePurchase (product) {
       const purchaseStatus = await QuestService.purchasePrivateQuest(null, product)
-      
+
       if (purchaseStatus && purchaseStatus.data && purchaseStatus.data.status && purchaseStatus.data.status === 'ok') {
         await this.createNewQuest()
         return true
@@ -374,3 +463,39 @@ export default {
   }
 }
 </script>
+<style scoped lang="scss">
+.background-welcome {
+  background-image: url('../../../statics/new/h-top-background.jpg');
+  background-position: center 0px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.welcome{
+  max-width: 450px;
+  margin: 0 auto;
+  color: white;
+  .login-logo-top{
+    width: 25vh;
+    margin-top: 10vh;
+  }
+  .subtitle{
+    position: relative;
+    top: -10px;
+    margin-bottom: 5vh;
+  }
+}
+.new-dialog{
+  background: #D60B52;
+  border: none;
+  .dialog-title{
+    text-transform: uppercase;
+    font-size: 24px;
+  }
+  .dialog-subtitle{
+    font-size: 20px;
+  }
+  .dialog-text{
+    font-size: 16px;
+  }
+}
+</style>

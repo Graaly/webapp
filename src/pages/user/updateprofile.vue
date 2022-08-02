@@ -1,6 +1,7 @@
 <template>
   <div class="scroll background-dark">
     <div id="teaser q-mb-lg">
+      <!--   TODO: STEPPER    -->
       <div class="q-py-sm q-px-md dark-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToProfile()" />
       </div>

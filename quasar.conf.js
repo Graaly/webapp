@@ -26,6 +26,7 @@ module.exports = function (ctx) {
     extras: [
       'roboto-font',
       'material-icons', // optional, you are not bound to it
+      'material-icons-outlined',
       // 'ionicons-v4',
       // 'mdi-v3',
       'fontawesome-v5'
@@ -137,7 +138,8 @@ module.exports = function (ctx) {
       plugins: [
         'Dialog',
         'Loading',
-        'Notify'
+        'Notify',
+        'BottomSheet'
       ],
       iconSet: 'fontawesome-v5',
       // lang: 'de' // Quasar language

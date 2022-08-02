@@ -1,140 +1,139 @@
 <template>
-  <div class="wrapper" :class="showNonHybridQRReader ? 'bg-transparent' : 'background-map'">
+  <div class="" :class="[showNonHybridQRReader && isHybrid ? 'bg-transparent' : 'background-login', showNonHybridQRReader ? '' : 'wrapper']">
+    <!--====================== TEST MENU =================================-->
     <div v-if="showNonHybridQRReader">
       <!--====================== QR CODE READER ON WEBAPP =================================-->
 
-      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
-        <div class="float-right no-underline close-btn q-pa-sm" @click="closeQRCodeReader"><q-icon name="close" class="subtitle1" /></div>
-        {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
-      </div>
+      <!--      <div class="text-white camera-title q-py-md q-pl-lg flex items-center justify-between">
+              <div>{{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}</div>
+              <q-btn icon="close" flat round dense  @click="closeQRCodeReader"/>
+            </div> -->
 
       <qr-code-stream
         v-if="showNonHybridQRReader"
         v-on:QrCodeResult="checkCode"
+        :color="'accent'"
+        v-on:CloseQRCodeReader="closeQRCodeReader"
       />
     </div>
-    <div class="page-content" style="padding-bottom: 100px" v-if="!showNonHybridQRReader">
-      <!--<div class="desktop-only centered q-pa-md warning bg-warning">
-        {{ $t('label.OnDesktopDisplayMessage') }}
-      </div>-->
-      <!------------------ TITLE AREA ------------------------>
+    <div class="login">
+      <div class="page-content" style="padding-bottom: 100px" v-if="!showNonHybridQRReader">
+        <!--<div class="desktop-only centered q-pa-md warning bg-warning">
+          {{ $t('label.OnDesktopDisplayMessage') }}
+        </div>-->
+        <!------------------ TITLE AREA ------------------------>
 
-      <div class="centered q-pt-lg q-pb-md">
-        <img src="statics/images/logo/logo-home.png" class="logo-top" />
-      </div>
+        <div class="centered">
+          <q-img src="statics/new/logo-color-white.png" class="login-logo-top"/>
+        </div>
 
-      <div class="q-pa-md">
-        <div class="centered title2 q-mb-lg">{{ $t('label.Welcome') }}</div>
+        <div class="q-pa-lg login-form">
+          <!-- <div class="centered title2 q-mb-lg">{{ $t('label.Welcome') }}</div> -->
 
-        <!------------------ FORM AREA ------------------------>
-        <form @submit.prevent="formSubmit">
-
-          <div>
-
-            <q-input
-              id="loginemail"
-              outlined
-              type="email"
-              :label="$t('label.YourEmail')"
-              v-model="form.email"
-              ref="loginemail"
-              @blur="$v.form.email.$touch"
-              :error="$v.form.email.$error"
-              :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
-              test-id="login"
-              />
-
-            <q-input
-              id="loginPass"
-              outlined
-              type="password"
-              v-model="form.password"
-              :label="$t('label.YourPassword')"
-              v-if="step !== 'forgottenpassword'"
-              test-id="password"
-              />
-
-            <!------------------ FORGOTTEN PASS AREA ------------------------>
-
-            <p class="centered q-mt-sm q-mb-lg" v-if="step !== 'forgottenpassword'">
-              <a @click="openPasswordForgottenPopup()">{{ $t('label.ForgottenPassword') }}</a>
-            </p>
-
-            <div v-if="step === 'forgottenpassword'">
-              <p>{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
-              <q-input outlined :label="$t('label.Code')" v-model="form.code" />
-            </div>
-
-            <div v-if="step === 'forgottenpassword'">
+          <!------------------ FORM AREA ------------------------>
+          <form @submit.prevent="formSubmit">
+            <div>
+              <!---- LOGIN ---->
               <q-input
+                id="loginemail"
+                outlined
+                type="email"
+                :label="$t('label.YourEmail')"
+                v-model="form.email"
+                ref="loginemail"
+                @blur="$v.form.email.$touch"
+                :error="$v.form.email.$error"
+                :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
+                test-id="login"
+              />
+              <!---- PASSWORD ---->
+              <q-input
+                id="loginPass"
                 outlined
                 type="password"
-                v-model="form.newPassword"
-                :label="$t('label.YourNewPassword')"
-                @blur="$v.form.newPassword.$touch"
-                bottom-slots
-                :error="$v.form.newPassword.$error"
-                :error-message="!$v.form.newPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.form.newPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
+                v-model="form.password"
+                :label="$t('label.YourPassword')"
+                v-if="step !== 'forgottenpassword'"
+                test-id="password"
+              />
+              <!------------------ FORGOTTEN PASS AREA ------------------------>
+              <p class="centered q-mt-sm q-mb-lg" v-if="step !== 'forgottenpassword'">
+                <a @click="openPasswordForgottenPopup()">{{ $t('label.ForgottenPassword') }}</a>
+              </p>
+
+              <div v-if="step === 'forgottenpassword'">
+                <p>{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
+                <q-input outlined :label="$t('label.Code')" v-model="form.code"/>
+              </div>
+
+              <div v-if="step === 'forgottenpassword'">
+                <q-input
+                  outlined
+                  type="password"
+                  v-model="form.newPassword"
+                  :label="$t('label.YourNewPassword')"
+                  @blur="$v.form.newPassword.$touch"
+                  bottom-slots
+                  :error="$v.form.newPassword.$error"
+                  :error-message="!$v.form.newPassword.checkPasswordComplexity ? $t('label.PasswordComplexityRule') : (!$v.form.newPassword.minLength ? $t('label.YourPasswordMustBe8digitsLength') : $t('label.PleaseEnterYourPassword'))"
                 />
+              </div>
             </div>
-          </div>
-
-          <div class="text-center">
-            <q-btn
-              type="submit"
-              class="glossy large-btn"
-              color="primary"
-              :label="$t('label.SignIn')"
-              :loading="submitting"
+            <!---- BTN SUBMIT ---->
+            <div class="text-center q-mb-lg">
+              <text-btn-square
+                submit
+                :loading="submitting"
+                :title="$t('label.SignIn')"
+                color="secondary"
+                icon="face"
               />
-          </div>
-          <div class="centered q-mt-sm q-mb-xl">
-            <q-btn
-              class="large-btn"
-              outline
-              color="primary"
-              :label="$t('label.Subscribe')"
-              @click="goToSubscribe()"
+            </div>
+            <!---- BTN SUBSCRIBE ---->
+            <div class="text-center q-mb-xl">
+              <text-btn-square
+                @click.native="goToSubscribe()"
+                :title="$t('label.Subscribe')"
+                color="primary"
+                icon="add_circle"
               />
+            </div>
+          </form>
+
+          <!------------------ START PLAYING WITH QR CODE ------------------>
+
+          <div class="q-py-md text-center">
+            <text-btn-square
+              @click.native="startScanQRCode()"
+              :title="$t('label.ScanA')"
+              color="accent"
+              icon="qr_code_2"
+            />
           </div>
 
-        </form>
+          <!------------------ PLAY ANONYMOUS ------------------>
 
-        <!------------------ START PLAYING WITH QR CODE ------------------>
-
-        <div class="q-py-md centered">
-          <q-btn
-            class="glossy large-btn"
-            color="accent"
-            @click="startScanQRCode()"
-            :label="$t('label.ScanA')"
-            icon-right="qr_code_2"
+          <div class="q-py-md text-center">
+            <text-btn-square
+              @click.native="validateTerms()"
+              :title="$t('label.LetsPlayWithoutAccount')"
+              color="accent"
+              icon="no_accounts"
             />
-        </div>
+          </div>
 
-        <!------------------ PLAY ANONYMOUS ------------------>
+          <!------------------ TEAM PLAY ------------------>
 
-        <div class="q-py-md centered">
-          <q-btn
-            class="glossy large-btn"
-            color="accent"
-            @click="validateTerms()"
-            :label="$t('label.LetsPlayWithoutAccount')"
+          <div class="q-py-md text-center">
+            <text-btn-square
+              @click.native="teamPlayPopup = !teamPlayPopup"
+              :title="$t('label.TeamPlay')"
+              outlined
+              color="accent"
+              icon="supervised_user_circle"
             />
+          </div>
         </div>
-        
-        <!------------------ TEAM PLAY ------------------>
-
-        <div class="q-py-md centered">
-          <q-btn
-            flat
-            class="large-btn"
-            color="accent"
-            @click="teamPlay()"
-            :label="$t('label.TeamPlay')"
-            />
-        </div>
-
         <!--<p class="text-center text-h6 text-grey q-mt-md q-mb-md">
           {{ $t('label.orSignInWith') }}
         </p>-->
@@ -147,29 +146,32 @@
         </div>
         -->
 
-        <div class="centered smaller version secondary-font">
+        <div class="centered text-white q-pt-lg">
           Version {{ version }} -
-          <img src="statics/icons/game/flag-en.png" @click="switchLanguage('en')" /> -
-          <img src="statics/icons/game/flag-fr.png" @click="switchLanguage('fr')" />
+          <img :class="$i18n.locale === 'en' ? '' :'lang-opacity'" src="statics/icons/game/flag-en.png"
+               @click="switchLanguage('en')"/> -
+          <img :class="$i18n.locale === 'fr' ? '' :'lang-opacity'" src="statics/icons/game/flag-fr.png"
+               @click="switchLanguage('fr')"/>
         </div>
-
       </div>
     </div>
 
     <!------------------ Lost Password Dialog ------------------------>
 
     <q-dialog v-model="passwordForgottenPopup">
-      <q-card>
-        <q-card-section class="popup-header row items-center">
+      <q-card class="login-dialog-card">
+        <q-card-section class="row items-center">
           {{ $t('label.ForgottenPassword') }}
-          <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
+          <q-space/>
+          <icon-btn-square color="accent" icon="close" rotation fill v-close-popup/>
+
         </q-card-section>
 
-        <q-separator />
+        <q-separator/>
 
         <q-card-section>
           <q-input
+            class="q-mb-md"
             outlined
             type="email"
             :label="$t('label.YourEmail')"
@@ -178,14 +180,14 @@
             bottom-slots
             :error="$v.form.email.$error"
             :error-message="!$v.form.email.email ? $t('label.PleaseEnterAValidEmailAddress') : $t('label.PleaseEnterYourEmailAddress')"
-            />
-
-          <q-btn
-            class="glossy full-width"
+          />
+          <text-btn-square
+            class="q-mb-lg"
+            @click.native="sendForgottenPasswordCode()"
+            :title="$t('label.Ok')"
             color="primary"
-            @click="sendForgottenPasswordCode()"
-            :label="$t('label.Ok')"
-            />
+            icon="forward_to_inbox"
+          />
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -193,35 +195,80 @@
     <!------------------ Validate terms ------------------------>
 
     <q-dialog v-model="terms.show">
-      <div class="q-pa-md">
-        <q-item dense>
-          <q-item-section avatar>
-            <q-checkbox dark v-model="terms.usage" />
-          </q-item-section>
-          <q-item-section>
-            <span v-html="$t('label.IAgreeTheTermsAndConditions')" />
-            <div class="q-field-bottom" v-if="terms.usageError">
-              <div class="error">{{ $t('label.PleaseAgreeTheTermsAndConditions') }}</div>
-            </div>
-          </q-item-section>
-        </q-item>
+      <q-card class="login-dialog-card">
+        <q-card-section class="row items-center">
+          Texte à definir
+          <q-space/>
+          <icon-btn-square color="accent" icon="close" rotation fill v-close-popup/>
+        </q-card-section>
 
-        <q-item dense>
-          <q-item-section avatar>
-            <q-checkbox dark v-model="terms.privacy" />
-          </q-item-section>
-          <q-item-section>
-            <span v-html="$t('label.IAgreeThePrivacyPolicy')" />
-            <div class="q-field-bottom" v-if="terms.privacyError">
-              <div class="error">{{ $t('label.PleaseAgreeThePrivacyPolicy') }}</div>
-            </div>
-          </q-item-section>
-        </q-item>
+        <q-separator/>
+        <q-card-section>
+          <q-item dense>
+            <q-item-section avatar>
+              <q-checkbox dark color="accent" v-model="terms.usage"/>
+            </q-item-section>
+            <q-item-section>
+              <span v-html="$t('label.IAgreeTheTermsAndConditions')"/>
+              <div class="q-field-bottom" v-if="terms.usageError">
+                <div class="error">{{ $t('label.PleaseAgreeTheTermsAndConditions') }}</div>
+              </div>
+            </q-item-section>
+          </q-item>
 
-        <div class="centered q-pa-md">
-          <q-btn color="primary" class="glossy large-button" @click="playAnonymous()"><span>{{ $t('label.Confirm') }}</span></q-btn>
-        </div>
-      </div>
+          <q-item dense class="q-mb-lg">
+            <q-item-section avatar>
+              <q-checkbox dark color="accent" v-model="terms.privacy"/>
+            </q-item-section>
+            <q-item-section>
+              <span v-html="$t('label.IAgreeThePrivacyPolicy')"/>
+              <div class="q-field-bottom" v-if="terms.privacyError">
+                <div class="error">{{ $t('label.PleaseAgreeThePrivacyPolicy') }}</div>
+              </div>
+            </q-item-section>
+          </q-item>
+          <text-btn-square
+            class="q-mb-lg"
+            @click.native="playAnonymous()"
+            :title="$t('label.Confirm')"
+            color="accent"
+            icon="done"
+          />
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
+    <!------------------ TeamPlay ------------------------>
+
+    <q-dialog v-model="teamPlayPopup" style="max-width: 400px">
+      <q-card class="login-dialog-card">
+        <q-card-section class="row items-center">
+          Texte à définir
+          <q-space/>
+          <icon-btn-square color="accent" icon="close" rotation fill v-close-popup/>
+        </q-card-section>
+
+        <q-separator/>
+
+        <q-card-section>
+          {{ $t('label.TypeTeamPlayId') }}
+          <q-input
+            class="q-my-md"
+            outlined
+            type="email"
+            label="A définir(team Id)"
+            v-model="teamPlayId"
+            bottom-slots
+          />
+          <text-btn-square
+            class="q-mb-lg"
+            @click.native="playAnonymous()"
+            :title="$t('label.Confirm')"
+            color="accent"
+            icon="done"
+          />
+        </q-card-section>
+      </q-card>
     </q-dialog>
   </div>
 </template>
@@ -234,11 +281,16 @@ import { required, minLength, email } from 'vuelidate/lib/validators'
 import checkPasswordComplexity from 'boot/PasswordComplexity'
 import Notification from 'boot/NotifyHelper'
 import utils from 'src/includes/utils'
-import qrCodeStream from "../../components/qrCodeStream";
+
+import qrCodeStream from "../../components/qrCodeStream"
+import iconBtnSquare from "../../components/user/UI/iconBtnSquare"
+import textBtnSquare from "../../components/user/UI/textBtnSquare"
 
 export default {
   components: {
-    qrCodeStream
+    qrCodeStream,
+    iconBtnSquare,
+    textBtnSquare
   },
   data() {
     return {
@@ -261,6 +313,7 @@ export default {
         google: false
       },
       passwordForgottenPopup: false,
+      teamPlayPopup: false,
       showNonHybridQRReader: false,
       teamPlayId: "",
       isHybrid: window.cordova,
@@ -502,7 +555,7 @@ export default {
               this.$q.dialog({
                 message: this.$t('label.UniqueUsageQRCodeWarning'),
                 ok: this.$t('label.Ok')
-              }).onOk(data => {        
+              }).onOk(data => {
                 if (checkStatus.data.questId) {
                   this.$router.push('/quest/play/' + checkStatus.data.questId)
                 } else {
@@ -552,18 +605,8 @@ export default {
     switchLanguage(lang) {
       this.$i18n.locale = lang
     },
-    teamPlay() {
-      this.$q.dialog({
-        dark: true,
-        message: this.$t('label.TypeTeamPlayId'),
-        prompt: {
-          model: this.teamPlayId,
-          type: 'text'
-        },
-        cancel: true
-      }).onOk(async (data) => {
-        this.$router.push({path: '/teamplay/' + data + '/' + this.$t('label.shortLang'), query: {redirect: '/user/login'}})
-      }).onCancel(() => {})
+    teamPlay(data) {
+      this.$router.push({path: '/teamplay/' + data + '/' + this.$t('label.shortLang'), query: {redirect: '/user/login'}})
     }
   },
   validations: {
@@ -574,3 +617,36 @@ export default {
   }
 }
 </script>
+
+<style scoped lang="scss">
+.login{
+  max-width: 450px;
+  margin: 0 auto;
+}
+.login-logo-top{
+  width: 25vh;
+  margin-top: 10vh;
+  margin-bottom: 5vh;
+}
+.login-form{
+  max-width: 320px;
+  margin: 0 auto;
+}
+.background-login {
+  background-image: url('../../statics/new/h-top-background.jpg');
+  background-position: center 0px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.login-dialog-card{
+  width: 90vw;
+  max-width: 400px;
+  background: linear-gradient(180deg, rgb(7,39,90), rgb(4,20,45));
+}
+.lang-opacity{
+  opacity: 0.5;
+}
+.camera-title{
+  background: linear-gradient(180deg, rgb(7,39,90), rgb(4,20,45));
+}
+</style>

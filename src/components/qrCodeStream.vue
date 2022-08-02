@@ -1,8 +1,8 @@
 <template>
-  <div class="q-pa-md" :class="isHybrid ? '' : 'full-height'">
+  <div class="" :class="isHybrid ? 'q-pa-md' : 'full-height'">
     <!-- WEB APP VERSION -->
-    <div v-if="!isHybrid">
-      <qrcode-stream @decode="onDecode" :camera="camera" @init="onInit" :torch="torchActive" class="q-mb-md">
+    <div v-if="!isHybrid" :class="!isLoaded ? 'bg-center' : ''">
+      <qrcode-stream @decode="onDecode" :camera="camera" @init="onInit" :torch="torchActive" class="camera-not-hybrid">
         <div v-show="showScanConfirmation" class="scan-confirmation">
           <q-spinner
             color="primary"
@@ -10,71 +10,62 @@
             :thickness="2"
           />
         </div>
-        <q-btn 
-          v-if="start && (isIOs || isSafari)" 
-          class="absolute-center" 
-          :label="$t('label.startScan')" 
-          :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
-          :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
-          icon="qr_code_scanner" 
-          @click="start = !start"/>
+        <div class="absolute-center" style="width: 90vw; max-width: 300px">
+          <text-btn-square
+            v-if="start && (isIOs || isSafari)"
+            @click.native="start = !start"
+            :loading="!isLoaded"
+            :disable="!isLoaded"
+            :title="isLoaded ? 'Démarrer le scanner' : 'loading'"
+            :color="(!color || color === 'primary' || color === '') ? 'primary' : color"
+            :icon="!isLoaded ? '' : 'qr_code_scanner'"
+          />
+        </div>
       </qrcode-stream>
-      <q-btn
-        round
-        class="q-mr-md"
-        size="1rem"
-        :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
-        :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
-        :icon="isLight ? 'flashlight_off' : 'flashlight_on'"
-        @click="torchActive = !torchActive"
-        :disable="torchNotSupported"
-      />
-      <q-btn
-        round
-        size="1rem"
-        :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
-        :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
-        icon="cameraswitch"
-        @click="switchCamera"
-      />
+      <div class="absolute-bottom q-mx-lg" :style="menu ? 'bottom: 100px;' : 'bottom: 25px;'">
+        <div class="code-btn flex justify-between">
+          <div>
+            <icon-btn-square class="q-mr-lg" @click.native="torchActive = !torchActive" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" :icon="isLight ? 'flashlight_off' : 'flashlight_on'" :disable="torchNotSupported"/>
+            <icon-btn-square @click.native="switchCamera" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" icon="cameraswitch"/>
+          </div>
+          <icon-btn-square @click.native="closeQRCodeReader()" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" icon="close" fill rotation/>
+        </div>
+      </div>
+
     </div>
     <!-- MOBILE VERSION -->
     <div v-else>
-      <div class="q-pa-lg absolute-bottom-left" style="padding-bottom: 100px">
-        <q-btn
-          round
-          class="q-mr-md"
-          size="1rem"
-          :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
-          :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
-          :icon="isLight ? 'flashlight_off' : 'flashlight_on'"
-          :disable="torchNotSupported"
-          @click="toggleLight"
-        />
-        <q-btn
-          round
-          size="1rem"
-          :color="(!color || color === 'primary' || color === '') ? 'primary' : ''"
-          :style="(!color || color === 'primary' || color === '') ? '' : 'background-color: ' + color"
-          icon="cameraswitch"
-          @click="changeCamera"
-        />
-      </div>
-      <div class="text-center absolute-bottom" style="bottom: 50px">
+      <div class="absolute-bottom q-mr-lg" :style="menu ? 'bottom: 100px;' : 'bottom: 25px;'">
+        <div class="code-btn flex justify-between">
+          <div>
+            <icon-btn-square class="q-ml-lg" @click.native="toggleLight" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" :icon="isLight ? 'flashlight_off' : 'flashlight_on'" :disable="torchNotSupported"/>
+            <icon-btn-square @click.native="changeCamera" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" icon="cameraswitch"/>
+          </div>
+          <icon-btn-square @click.native="closeQRCodeReader()" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" icon="close" fill rotation/>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import iconBtnSquare from "./user/UI/iconBtnSquare";
+import textBtnSquare from "./user/UI/textBtnSquare";
+
 import Notification from "../boot/NotifyHelper"
 import { QrcodeStream } from "vue-qrcode-reader"
 import utils from "../includes/utils"
 
 export default {
   name: "qrCodeStream",
-  components: { QrcodeStream },
-  props: ['color'],
+  components: { QrcodeStream, iconBtnSquare, textBtnSquare },
+  props: {
+    color: String,
+    menu: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       result: "",
@@ -86,12 +77,13 @@ export default {
       noRearCamera: false,
       noFrontCamera: false,
       torchActive: false,
-      torchNotSupported: false,
+      torchNotSupported: true,
       showScanConfirmation: false,
       //IOS START BUG
       start: false,
       isIOs: utils.isIOS(),
-      isSafari: utils.isSafari()
+      isSafari: utils.isSafari(),
+      isLoaded: false
     }
   },
   created() {
@@ -176,6 +168,7 @@ export default {
     },
     /* Switch front and back Camera */
     async switchCamera () {
+      this.isLoaded = false
       switch (this.camera) {
         case 'front':
           this.camera = 'rear'
@@ -186,15 +179,20 @@ export default {
       }
     },
     /* onInit Method  */
-    async onInit () {
-      this.torchNotSupported = true
+    async onInit (cam) {
       this.start = this.camera !== 'off'
+      await cam;
+      this.torchNotSupported = true
       this.showScanConfirmation = this.camera === "off"
+      this.isLoaded = true;
     },
     prepareScanner() {
       document.body.style.backgroundColor = 'transparent'
       document.body.style.background = 'transparent'
       QRScanner.prepare(this.isDone)
+    },
+    closeQRCodeReader() {
+      this.$emit('CloseQRCodeReader')
     }
   },
   async mounted() {
@@ -215,7 +213,10 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.camera-not-hybrid{
+  height: 100vh;
+}
 .scan-confirmation {
   position: absolute;
   top: 0;
@@ -230,5 +231,11 @@ export default {
   flex-flow: row nowrap;
   justify-content: center;
   align-items: center;
+}
+.bg-center {
+  background-image: url('../statics/new/h-center-background-logo.jpg');
+  background-position: center 0px;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 </style>

@@ -1,4 +1,5 @@
 import MainLayout from 'layouts/main'
+import MenuLayout from 'layouts/menu'
 
 import CustomerConfiguration from 'boot/CustomerConfiguration'
 
@@ -63,18 +64,18 @@ export default [
         component: CustomerConfiguration.TEAM_PLAY ? CustomerConfiguration.TEAM_PLAY : TeamPlay,
         meta: { requiresAuth: false }
       },
-      {
+      /*{
         path: 'home',
         name: 'home',
         component: CustomerConfiguration.HOME ? CustomerConfiguration.HOME : Home,
         meta: { requiresAuth: true }
-      },
-      {
+      },*/
+      /*{
         path: 'map',
         name: 'map',
         component: Map,
         meta: { requiresAuth: true }
-      },
+      },*/
       {
         path: 'quest/play/:id(\\w{24})',
         name: 'playhome',
@@ -105,12 +106,12 @@ export default [
         redirect: '/quest/create/welcome',
         meta: { requiresAuth: true }
       },
-      {
+      /*{
         path: 'quest/create/welcome',
         name: 'buildhome',
         component: QuestManageWelcome,
         meta: { requiresAuth: true }
-      },
+      },*/
       {
         path: 'quest/builder/:questId(\\w{24})',
         name: 'builder',
@@ -159,16 +160,70 @@ export default [
         component: UserBadges,
         meta: { requiresAuth: true }
       },
-      {
+      /*{
         path: 'search/:type/:subtype',
         name: 'search',
         component: Search,
         meta: { requiresAuth: true }
-      },
+      },*/
       {
         path: 'user/ranking/:type/:subtype',
         name: 'ranking',
         component: UserRanking,
+        meta: { requiresAuth: true }
+      },
+      /*{
+        path: 'profile/:id',
+        name: 'profile',
+        component: Profile,
+        meta: { requiresAuth: true }
+      },*/
+      /*{
+        path: 'user/updateprofile',
+        name: 'updateprofile',
+        component: UserProfile,
+        meta: { requiresAuth: true }
+      },*/
+      /*{
+        path: 'admin',
+        name: 'admin',
+        component: Admin,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'admin/validate/:questId(\\w{24})/version/:version',
+        name: 'adminvalidate',
+        component: AdminValidation,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'admin/minigames/builder',
+        name: 'adminminigame',
+        component: AdminMinigamesBuilder,
+        meta: { requiresAuth: true }
+      },*/
+      {
+        path: 'error/:errorType',
+        name: 'error',
+        component: ErrorMessage,
+        meta: { requiresAuth: false }
+      }
+    ]
+  },
+  {
+    path: '/',
+    component: MenuLayout,
+    children: [
+      {
+        path: 'home',
+        name: 'home',
+        component: CustomerConfiguration.HOME ? CustomerConfiguration.HOME : Home,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'search/:type/:subtype',
+        name: 'search',
+        component: Search,
         meta: { requiresAuth: true }
       },
       {
@@ -181,6 +236,12 @@ export default [
         path: 'user/updateprofile',
         name: 'updateprofile',
         component: UserProfile,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'quest/create/welcome',
+        name: 'buildhome',
+        component: QuestManageWelcome,
         meta: { requiresAuth: true }
       },
       {
@@ -202,11 +263,11 @@ export default [
         meta: { requiresAuth: true }
       },
       {
-        path: 'error/:errorType',
-        name: 'error',
-        component: ErrorMessage,
-        meta: { requiresAuth: false }
-      }
+        path: 'map',
+        name: 'map',
+        component: Map,
+        meta: { requiresAuth: true }
+      },
     ]
   },
   {
