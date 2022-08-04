@@ -33,42 +33,20 @@
       <q-item class="admin-icon">
         <icon-btn-square v-if="$store.state.user.isAdmin" :color="color" icon="admin_panel_settings" :fill="link !== 'admin'" @click.native="openAdminPage()"/>
       </q-item>
+      <q-item class="back-icon">
+        <icon-btn-square v-if="link !== 'graaly'" :color="color" icon="arrow_back" fill @click.native="back()"/>
+      </q-item>
     </q-list>
-    <!--  DIALOG CREATE PROFIL DOUBLE-->
-  <q-dialog v-model="createProfilDialog" style="max-width: 400px">
-    <q-card class="login-dialog-card">
-      <q-card-section class="row items-center">
-        Texte à définir
-        <q-space/>
-        <icon-btn-square color="accent" icon="close" rotation fill v-close-popup/>
-      </q-card-section>
-
-      <q-separator/>
-
-      <q-card-section>
-        {{ $t('label.DoYouWantToCreateAnAccount') }}
-        <div>
-          <text-btn-square
-            class="q-mb-lg q-mt-lg"
-            @click.native="openUpdateProfilePage()"
-            title="Créer(adefinir)"
-            color="accent"
-            icon="done"
-          />
-        </div>
-
-      </q-card-section>
-    </q-card>
-  </q-dialog>
 </div>
 </template>
 
 <script>
 import iconBtnSquare from "./iconBtnSquare";
 import textBtnSquare from "./textBtnSquare";
+import createProfilDialog from "../Dialog/createProfilDialog";
 export default {
   name: "homeMenu",
-  components: {iconBtnSquare, textBtnSquare},
+  components: {iconBtnSquare, textBtnSquare, createProfilDialog},
   props: {
     color: {
       type: String,
@@ -78,7 +56,6 @@ export default {
   data() {
     return {
       link: 'graaly',
-      createProfilDialog: false,
       offline: {
         available: window.cordova,
         show: false,
@@ -105,28 +82,58 @@ export default {
       }
     }
   },
-  // TODO: On route Change, change this.link
+  watch: {
+    $route (to, from) {
+      //console.log('to', to)
+      switch (to.name) {
+        case 'home':
+          this.link = 'graaly'
+          break
+        case 'search':
+          this.link = 'search'
+          break
+        case 'buildhome':
+          this.link = 'create'
+          break
+        case 'profile':
+          this.link = 'profil'
+          break
+        case 'admin':
+          this.link = 'admin'
+          break
+        case 'camera':
+          this.link = 'scan'
+          break
+        default:
+          this.link = 'graaly'
+          break
+      }
+    }
+  },
   methods: {
+    back() {
+      this.$router.go(-1)
+    },
     startScanQRCode() {
       if (!this.offline.active) {
-        this.link = 'scan'
+        //this.link = 'scan'
         this.$router.push('/scanQrCode')
       }
     },
     openAdminPage() {
       if (!this.offline.active) {
-        this.link = 'admin'
+        //this.link = 'admin'
         this.$router.push('/admin')
       }
     },
     openSearch() {
       if (!this.offline.active) {
-        this.link = 'search'
+        //this.link = 'search'
         this.$router.push('/search/quest/around')
       }
     },
     goToHome() {
-      this.link = 'graaly'
+      //this.link = 'graaly'
       this.$router.push('/home')
     },
     openProfile(id) {
@@ -134,20 +141,20 @@ export default {
         if (!id) {
           id = this.$store.state.user.id
         }
-        this.link = 'profil'
+        //this.link = 'profil'
         this.$router.push('/profile/' + id)
       }
     },
     openUpdateProfilePage() {
-      this.link = 'create'
+      //this.link = 'create'
       this.$router.push('/user/updateprofile')
     },
     buildQuest() {
       if (this.userIsConnected()) {
-        this.link = 'create'
+        //this.link = 'create'
         this.$router.push('/quest/create/welcome')
       } else {
-        this.createProfilDialog = true
+        this.createProfilDialog()
       }
     },
     userIsConnected() {
@@ -156,6 +163,15 @@ export default {
       } else {
         return true
       }
+    },
+    createProfilDialog() {
+      this.$q.dialog({
+        component: createProfilDialog,
+        parent: this
+      })
+      .onOk(() => {
+        this.openUpdateProfilePage()
+      })
     }
   }
 }
@@ -265,7 +281,12 @@ export default {
     .admin-icon{
       position: absolute;
       bottom: 70px;
-      left: calc(50% + 20px);
+      left: calc(50% + 12px);
+    }
+    .back-icon{
+      position: absolute;
+      bottom: 70px;
+      right: calc(50% + 20px);
     }
   }
 }

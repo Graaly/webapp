@@ -1,90 +1,185 @@
 <template>
   <div class="scroll background-welcome">
     <!--  HEADER COMPONENT -->
-    <back-bar color="accent"/>
+<!--    <back-bar color="accent"/>-->
     <div class="welcome">
-      <div class="text-center">
-        <!--   TODO: STEPPER    -->
-        <q-img src="statics/new/logo-color-white.png" class="login-logo-top"/>
-        <div class="subtitle text-accent">STUDIO DE CREATION</div>
-      </div>
-      <div class="q-px-lg">
-        <div class="q-mb-lg">{{ $t('label.BuilderChooseUserType') }}</div>
-        <text-btn-square
-          class="q-mb-lg q-mr-md"
-          @click.native="professionnalDialog = true"
-          :title=" $t('label.AProfessional')"
-          color="secondary"
-          icon="business_center"
-        />
-        <text-btn-square
-          class="q-mb-lg"
-          @click.native="sendForgottenPasswordCode()"
-          :title="$t('label.AnIndividual')"
-          color="primary"
-          icon="family_restroom"
-        />
-        <text-btn-square
-          class="q-mb-lg"
-          @click.native="sendForgottenPasswordCode()"
-          :title="$t('label.Education')"
-          color="accent"
-          icon="school"
-        />
-      </div>
-      <!-- DIALOG SHEET -->
-      <q-dialog v-model="professionnalDialog" position="bottom">
-        <q-card class="new-dialog q-mx-md bg-secondary">
-          <q-card-section class="dialog-title flex justify-between items-center">
-            {{ $t('label.AProfessional') }}
-            <q-space/>
-            <icon-btn-square color="accent" icon="close" rotation fill v-close-popup/>
-          </q-card-section>
-          <q-card-section class="dialog-text">
-            {{ $t('label.AProfessionalDesc1') }}
-          </q-card-section>
-          <q-card-section>
-          <div>
-              <div class="centered">
-                <div class="dialog-title">{{ $t('label.PrivateQuest') }} <span class="dialog-subtitle">{{ $t('label.PaymentOnUsage') }}</span></div>
-              </div>
-              <div class="dialog-text q-mb-md">
-                <div v-html="$t('label.PrivateProQuestDesc1')"></div>
-              </div>
-
-            <text-btn-square
-              class="q-mb-lg"
-              @click.native="sendForgottenPasswordCode()"
-              :title="$t('label.TryForFree')"
-              color="accent"
-              icon="school"
-            />
+      <q-tab-panels v-model="panel" animated class="bg-transparent q-mb-xl">
+        <!--   FIRST PANEL     -->
+        <q-tab-panel name="first">
+          <div class="text-center">
+            <q-img src="statics/new/logo-color-white.png" class="login-logo-top"/>
+            <div class="subtitle text-accent">STUDIO DE CREATION</div>
           </div>
-            <div>
-              <div class="centered">
-                <div class="dialog-title">{{ $t('label.PublicQuest') }} <span class="dialog-subtitle">{{ $t('label.PaymentOnUsage') }}</span></div>
-              </div>
-              <div class="dialog-text q-mb-md">
-                <div v-html="$t('label.PublicProQuestDesc1')"></div>
-                <div v-if="readMorePublicProQuest" v-html="$t('label.PublicProQuestDesc2')"></div>
-              </div>
-
+          <div class="q-px-lg">
+            <div class="q-mb-lg">{{ $t('label.BuilderChooseUserType') }}</div>
+            <div class="flex no-wrap items-start">
               <text-btn-square
-                class="q-mb-md"
-                @click.native="sendForgottenPasswordCode()"
-                :title="$t('label.TryForFree')"
+                class="q-mb-lg q-mr-sm"
+                @click.native="selectType('pro')"
+                :title=" $t('label.AProfessional')"
+                color="secondary"
+                icon="business_center"
+              />
+              <q-btn icon="info" color="secondary" style="max-width: 50px; border-radius: 12px" @click="popupType('pro')"/>
+            </div>
+            <div class="flex no-wrap items-start">
+              <text-btn-square
+                class="q-mb-lg q-mr-sm"
+                @click.native="selectType('individual')"
+                :title="$t('label.AnIndividual')"
+                color="primary"
+                icon="family_restroom"
+              />
+              <q-btn icon="info" color="primary" style="max-width: 50px; border-radius: 12px" @click="popupType('individual')"/>
+            </div>
+            <div class="flex no-wrap items-start">
+              <text-btn-square
+                class="q-mb-lg q-mr-sm"
+                @click.native="selectType('education')"
+                :title="$t('label.Education')"
                 color="accent"
                 icon="school"
+                disable
               />
+              <q-btn icon="info" color="accent" style="max-width: 50px; border-radius: 12px" @click="popupType('education')"/>
             </div>
+          </div>
+        </q-tab-panel>
+        <!--   SECOND PANEL     -->
+        <q-tab-panel name="second">
+          <q-card class="new-dialog bg-transparent">
+            <q-card-section class="dialog-title flex justify-between items-center">
+              <icon-btn-square :color="userType === 'education' ? 'secondary' : 'accent'" fill icon="navigate_before" @click.native="panel = 'first'"/>
+              <q-space/>
+              <span v-if="userType === 'pro'">{{ $t('label.AProfessional') }}</span>
+              <span v-if="userType === 'individual'">{{ $t('label.AnIndividual') }}</span>
+              <span v-if="userType === 'education'">{{ $t('label.Education') }}</span>
+            </q-card-section>
+            <q-card-section v-if="userType === 'pro'">
+              <div>
+                <div class="centered">
+                  <div class="dialog-title">{{ $t('label.PrivateQuest') }} <span class="dialog-subtitle">{{ $t('label.PaymentOnUsage') }}</span></div>
+                </div>
+                <div class="dialog-text q-mb-md">
+                  <div v-html="$t('label.PrivateProQuestDesc1')"></div>
+                </div>
+
+                <text-btn-square
+                  class="q-mb-lg"
+                  @click.native="selectAccess('private')"
+                  :title="$t('label.TryForFree')"
+                  :color="userType === 'education' ? 'secondary' : 'accent'"
+                  icon="business_center"
+                />
+              </div>
+              <div>
+                <div class="centered">
+                  <div class="dialog-title">{{ $t('label.PublicQuest') }} <span class="dialog-subtitle">{{ $t('label.PaymentOnUsage') }}</span></div>
+                </div>
+                <div class="dialog-text q-mb-md">
+                  <div v-html="$t('label.PublicProQuestDesc1')"></div>
+                  <div v-if="readMorePublicProQuest" v-html="$t('label.PublicProQuestDesc2')"></div>
+                </div>
+
+                <text-btn-square
+                  class="q-mb-md"
+                  @click.native="selectAccess('public')"
+                  :title="$t('label.TryForFree')"
+                  :color="userType === 'education' ? 'secondary' : 'accent'"
+                  icon="business_center"
+                />
+              </div>
+            </q-card-section>
+            <q-card-section v-if="userType === 'individual'">
+              <div>
+                <div class="dialog-text">{{ $t('label.BuilderIntro') }}</div>
+                <div class="centered">
+                  <div class="dialog-title">{{ $t('label.PrivateQuest') }}</div>
+                </div>
+                <div class="dialog-text q-mb-md">
+                  <div>{{ $t('label.PrivateQuestDesc1') }}"</div>
+                </div>
+                <text-btn-square
+                  class="q-mb-lg"
+                  @click.native="selectAccess('private')"
+                  :title="$t('label.TryForFree')"
+                  :color="userType === 'education' ? 'secondary' : 'accent'"
+                  icon="business_center"
+                />
+              </div>
+            </q-card-section>
+          </q-card>
+        </q-tab-panel>
+        <!--   LAST PANEL     -->
+        <q-tab-panel name="last">
+          <q-card class="new-dialog bg-transparent">
+            <q-card-section class="dialog-title flex justify-between items-center">
+              <icon-btn-square :color="userType === 'education' ? 'secondary' : 'accent'" fill icon="navigate_before" @click.native="panel = 'second'"/>
+              <q-space/>
+              <span v-if="userType === 'pro'" class="text-right">{{ $t('label.AProfessional') }}<br>{{ access === 'private' ? $t('label.PrivateQuest') : $t('label.PublicQuest') }}</span>
+              <span v-if="userType === 'individual'" class="text-right">{{ $t('label.AnIndividual') }}<br>{{ access === 'private' ? $t('label.PrivateQuest') : $t('label.PublicQuest') }}</span>
+              <span v-if="userType === 'education'" class="text-right">{{ $t('label.Education') }}<br>{{ access === 'private' ? $t('label.PrivateQuest') : $t('label.PublicQuest') }}</span>
+            </q-card-section>
+            <q-card-section v-if="access === 'public'">
+              <span class="dialog-text" v-html="$t('label.BuilderWelcomeMessage')"></span>
+              <text-btn-square
+                class="q-mb-lg"
+                @click.native="createNewQuest()"
+                :title="$t('label.AcceptTheRules')"
+                :color="userType === 'education' ? 'secondary' : 'accent'"
+                icon="done"
+              />
+            </q-card-section>
+            <q-card-section v-if="access === 'private'">
+              <span v-if="userType === 'pro'" class="dialog-text" v-html="$t('label.BuilderPrivateProWelcomeMessage')"></span>
+              <span v-if="userType === 'individual'" class="dialog-text" v-html="$t('label.BuilderPrivateWelcomeMessage')"></span>
+              <text-btn-square
+                v-if="userType === 'pro'"
+                class="q-mb-lg"
+                @click.native="createNewQuest()"
+                :title="$t('label.AcceptTheRules')"
+                :color="userType === 'education' ? 'secondary' : 'accent'"
+                icon="done"
+              />
+              <text-btn-square
+                v-if="userType === 'individual'"
+                class="q-mb-lg"
+                @click.native="buyPrivateQuest()"
+                :title="$t('label.AcceptAndBuyAPrivateQuest') + ' ' + privateQuest.price"
+                :color="userType === 'education' ? 'secondary' : 'accent'"
+                icon="done"
+              />
+            </q-card-section>
+          </q-card>
+        </q-tab-panel>
+      </q-tab-panels>
+
+      <!-- DIALOG SHEET -->
+      <q-dialog v-model="infoPopup" position="right">
+        <q-card class="new-dialog q-mx-md" :class="[infoType === 'pro' ? 'bg-secondary' : infoType === 'individual' ? 'bg-primary' : 'bg-accent']">
+          <q-card-section class="dialog-title flex justify-between items-center">
+            <span v-if="infoType === 'pro'">{{ $t('label.AProfessional') }}</span>
+            <span v-if="infoType === 'individual'">{{ $t('label.AnIndividual') }}</span>
+            <span v-if="infoType === 'education'">{{ $t('label.Education') }}</span>
+            <q-space/>
+            <icon-btn-square :color="infoType === 'education' ? 'secondary' : 'accent'" icon="close" rotation fill v-close-popup/>
+          </q-card-section>
+          <q-card-section v-if="infoType === 'pro'">
+            {{ $t('label.AProfessionalDesc1') }}
+          </q-card-section>
+          <q-card-section v-if="infoType === 'individual'">
+            {{ $t('label.AnIndividualDesc1') }}
+          </q-card-section>
+          <q-card-section v-if="infoType === 'education'">
+            {{ $t('label.EducationDesc') }}
           </q-card-section>
         </q-card>
       </q-dialog>
     </div>
 
-    <!-- -->
+    <!-- -- -- -- -- -- -- ----------- OLD VERSION ------------ -- -- -- -- -- -- -->
 
-    <div id="teaser" class="reduce-window-size-desktop">
+<!--    <div id="teaser" class="reduce-window-size-desktop">
       <div v-if="!userType">
         <h1 class="subtitle3 text-uppercase q-px-md q-mt-xl q-pt-lg">{{ $t('label.CreateYourQuest') }}</h1>
         <div class="q-pa-md">
@@ -159,7 +254,7 @@
 
             <q-card-section class="subtitle5">
               <div v-html="$t('label.PublicProQuestDesc1')"></div>
-              <!--<div class="centered" v-if="!readMorePublicProQuest"><a @click="readMorePublicProQuest = true">{{ $t('label.ReadMore') }}</a></div>-->
+              &lt;!&ndash;<div class="centered" v-if="!readMorePublicProQuest"><a @click="readMorePublicProQuest = true">{{ $t('label.ReadMore') }}</a></div>&ndash;&gt;
             </q-card-section>
 
             <q-card-section v-if="readMorePublicProQuest">
@@ -173,7 +268,7 @@
             </q-card-actions>
           </q-card>
         </div>
-        <!--
+        &lt;!&ndash;
         <div class="q-pa-md">
           {{ $t('label.AddYourRoomInTheDirectory') }}
         </div>
@@ -195,7 +290,7 @@
             </q-card-actions>
           </q-card>
         </div>
-        -->
+        &ndash;&gt;
         <div class="centered">
           <q-btn flat @click="backToUserType">{{ $t('label.Back') }}</q-btn>
         </div>
@@ -205,7 +300,7 @@
         <div class="q-pa-md">
           {{ $t('label.BuilderIntro') }}
         </div>
-        <!--<div class="q-pa-md">
+        &lt;!&ndash;<div class="q-pa-md">
           <q-card class="my-card bg-primary text-white">
             <q-card-section class="centered">
               <div class="subtitle2">{{ $t('label.PublicQuest') }}</div>
@@ -226,7 +321,7 @@
               <q-btn flat color="white" @click="changeAccess('public')">{{ $t('label.CreatePublicQuest') }}</q-btn>
             </q-card-actions>
           </q-card>
-        </div>-->
+        </div>&ndash;&gt;
         <div class="q-pa-md">
           <q-card class="my-card bg-primary text-white">
             <q-card-section class="centered">
@@ -243,7 +338,7 @@
             <q-card-actions align="right">
               <q-btn v-if="privateQuest.buyable" flat color="white" @click="changeAccess('private')">{{ $t('label.BuyPrivateQuest') }}</q-btn>
               <q-btn v-if="!privateQuest.buyable" flat disabled>{{ $t('label.OnlyBuyableOnMobile') }}</q-btn>
-              <!--<q-btn flat>Utiliser un modèle</q-btn>-->
+              &lt;!&ndash;<q-btn flat>Utiliser un modèle</q-btn>&ndash;&gt;
             </q-card-actions>
           </q-card>
         </div>
@@ -277,7 +372,7 @@
           <q-btn class="full-width center q-mt-md" @click="cancel()">{{ $t('label.Cancel') }}</q-btn>
         </div>
       </div>
-    </div>
+    </div>-->
   </div>
 </template>
 
@@ -306,14 +401,29 @@ export default {
         buyable: false,
         computed: false
       },
-      professionnalDialog: false,
-      personnalDialog: false,
-      educationDialog: false
+
+      panel: "first",
+      infoPopup: false,
+      infoType: 'pro',
+      infoColor: 'secondary'
     }
   },
   async mounted () {
   },
   methods: {
+    // New Design Methods
+    selectType(type) {
+      this.userType = type
+      this.panel = 'second'
+    },
+    popupType(type) {
+      this.infoType = type
+      this.infoPopup = true
+    },
+    selectAccess(access) {
+      this.access = access
+      this.panel = 'last'
+    },
     /*
      * Open money winning explaination
      */
@@ -476,7 +586,7 @@ export default {
   color: white;
   .login-logo-top{
     width: 25vh;
-    margin-top: 10vh;
+    margin-top: 5vh;
   }
   .subtitle{
     position: relative;

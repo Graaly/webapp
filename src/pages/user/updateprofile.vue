@@ -1,20 +1,15 @@
 <template>
-  <div class="scroll background-dark">
-    <div id="teaser q-mb-lg">
-      <!--   TODO: STEPPER    -->
-      <div class="q-py-sm q-px-md dark-banner fixed-top">
+  <div class="scroll background-profil">
+    <div class="profil">
+<!--      <div class="q-py-sm q-px-md dark-banner fixed-top">
         <q-btn flat icon="arrow_back" @click="backToProfile()" />
-      </div>
-      <div class="centered">
-        <div class="user-card user-card-big main-profile centered relative-position">
-          <div class="relative-position no-overflow" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
-            <div class="edit-bar centered">
-              <label @click="$refs['uploadfile'].click()">
-                <q-icon name="camera_alt" />
-              </label>
-              <input @change="uploadImage" ref="uploadfile" name="picturefile" id="picturefile" type="file" accept="image/*" hidden />
-            </div>
-          </div>
+      </div>-->
+      <div class="flex no-wrap items-end justify-start">
+        <div class="profil-photo-top" :style="'background: url(' + getProfileImage() + ' ) center center / cover no-repeat '">
+          <icon-btn-square color="accent" fill icon="camera_alt" @click.native="$refs['uploadfile'].click()" class="absolute" style="top: -10px;right: -25px;"/>
+          <input @change="uploadImage" ref="uploadfile" name="picturefile" id="picturefile" type="file" accept="image/*" hidden />
+        </div>
+        <div>
           <div v-if="profile.form.name !== ''">
             <div class="centered subtitle3 q-mt-lg">
               {{ profile.form.name }}
@@ -37,8 +32,63 @@
           </div>
         </div>
       </div>
-      <form class="q-mt-lg q-pa-md q-ma-md background-lighter rounded" @submit.prevent="submitProfileChanges()">
+      <!--   TODO: STEPPER    -->
+      <q-stepper
+        v-model="step"
+        ref="stepper"
+        color="primary"
+        animated
+        vertical
+      >
+        <q-step
+          :name="1"
+          title="Select campaign settings"
+          icon="settings"
+          :done="step > 1"
+        >
+          For each ad campaign that you create, you can control how much you're willing to
+          spend on clicks and conversions, which networks and geographical locations you want
+          your ads to show on, and more.
+        </q-step>
 
+        <q-step
+          :name="2"
+          title="Create an ad group"
+          caption="Optional"
+          icon="create_new_folder"
+          :done="step > 2"
+        >
+          An ad group contains one or more ads which target a shared set of keywords.
+        </q-step>
+
+        <q-step
+          :name="3"
+          title="Ad template"
+          icon="assignment"
+          disable
+        >
+          This step won't show up because it is disabled.
+        </q-step>
+
+        <q-step
+          :name="4"
+          title="Create an ad"
+          icon="add_comment"
+        >
+          Try out different ad text to see what brings in the most customers, and learn how to
+          enhance your ads using features like ad extensions. If you run into any problems with
+          your ads, find out how to tell if they're running and how to resolve approval issues.
+        </q-step>
+
+        <template v-slot:navigation>
+          <q-stepper-navigation>
+            <q-btn @click="$refs.stepper.next()" color="primary" :label="step === 4 ? 'Finish' : 'Continue'" />
+            <q-btn v-if="step > 1" flat color="primary" @click="$refs.stepper.previous()" label="Back" class="q-ml-sm" />
+          </q-stepper-navigation>
+        </template>
+      </q-stepper>
+
+      <form class="q-mt-lg q-pa-md q-ma-md background-lighter rounded" @submit.prevent="submitProfileChanges()">
         <q-input
           dark
           v-model="profile.form.name"
@@ -258,12 +308,19 @@ import checkPasswordComplexity from 'boot/PasswordComplexity'
 import languages from 'data/languages.json'
 import utils from 'src/includes/utils'
 
+import iconBtnSquare from "../../components/user/UI/iconBtnSquare";
+import textBtnSquare from "../../components/user/UI/textBtnSquare";
+
 import countriesFR from 'data/countries_fr.json'
 import countriesEN from 'data/countries_en.json'
 
 export default {
+  components: {
+    iconBtnSquare, textBtnSquare
+  },
   data () {
     return {
+      step: 1,
       profile: {
         form: {
           name: "--",
@@ -492,3 +549,31 @@ export default {
   }
 }
 </script>
+<style scoped lang="scss">
+.background-profil {
+  background-image: url('../../statics/new/h-top-background.jpg');
+  background-position: center 0px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.profil{
+  max-width: 450px;
+  margin: 0 auto;
+  color: white;
+
+  .profil-photo-top{
+    width: 100px;
+    height: 100px;
+    position: relative;
+    margin-left: 12px;
+    margin-top: 5vh;
+    margin-right: 10px;
+  }
+  .subtitle{
+    position: relative;
+    top: -10px;
+    margin-bottom: 5vh;
+  }
+}
+
+</style>

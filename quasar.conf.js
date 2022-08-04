@@ -116,6 +116,7 @@ module.exports = function (ctx) {
         'QSpinnerPuff',
         'QSpinnerRadio',
         'QSpinnerOrbit',
+        'QStepper',
         'QTable',
         'QTr', 'QTd', 'QTh',
         'QTab',

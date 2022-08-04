@@ -129,7 +129,7 @@
         color="accent"
         icon="face"
       />
-      <!--  DIALOG CREATE PROFIL  -->
+<!--      &lt;!&ndash;  DIALOG CREATE PROFIL  &ndash;&gt;
       <q-dialog v-model="createProfilDialog" style="max-width: 400px">
         <q-card class="login-dialog-card">
           <q-card-section class="row items-center">
@@ -154,7 +154,7 @@
 
           </q-card-section>
         </q-card>
-      </q-dialog>
+      </q-dialog>-->
 <!--      <div class="q-px-md q-pt-lg" v-if="!offline.active && (!this.$store.state.user.name || this.$store.state.user.name === '' || this.$store.state.user.email === 'providersignin' || !this.$store.state.user.location || !this.$store.state.user.location.postalCode || this.$store.state.user.location.postalCode === '' || !this.$store.state.user.location.country || this.$store.state.user.location.country === '')">
         <div class="image-button" @click="openUpdateProfilePage" style="background-image: url(statics/images/icon/profile-button.png)">
           {{ $t('label.WeNeedMoreInformationAboutYou') }}
@@ -352,6 +352,7 @@ import questList from "../components/user/questList";
 import creatorList from "../components/user/creatorList";
 import iconBtnSquare from "../components/user/UI/iconBtnSquare";
 import textBtnSquare from "../components/user/UI/textBtnSquare";
+import createProfilDialog from "../components/user/Dialog/createProfilDialog";
 
 import utils from 'src/includes/utils'
 import { QSpinnerDots, QInfiniteScroll } from 'quasar'
@@ -838,7 +839,12 @@ export default {
       if (this.userIsConnected()) {
         this.$router.push('/quest/create/welcome')
       } else {
-        this.createProfilDialog = true
+        this.$q.dialog({
+          component: createProfilDialog,
+          parent: this
+        }).onOk(() => {
+          this.openUpdateProfilePage()
+        })
         //var _this = this; // workaround for closure scope quirks
 
         /*this.$q.dialog({

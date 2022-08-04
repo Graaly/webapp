@@ -426,7 +426,7 @@ console.log("CHECK OFFLINE 5")
             // get pictures
             for (var i = 0; i < tempQuestList.length; i++) {
 console.log("CHECK OFFLINE 6")
-              await utils.removeDirectory(tempQuestList[i].questId)  
+              await utils.removeDirectory(tempQuestList[i].questId)
             }
           }
         }
