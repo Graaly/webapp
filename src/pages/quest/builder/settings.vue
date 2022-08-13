@@ -641,18 +641,18 @@
               expand-icon-class="text-white"
             >
               <div class="q-pa-md">
-                <div v-if="form.fields.rewardPicture && form.fields.rewardPicture !== ''">
+                <div v-if="form.fields.rewardPicture && form.fields.rewardPicture !== '' && !form.fields.customization.removeScoring">
                   <p>{{ $t('label.Reward') }} :</p>
                   <img class="full-width limit-size-desktop" :src="serverUrl + '/upload/quest/' + form.fields.rewardPicture" style="background-color: #f00" />
                   <div>{{ $t('label.RewardPictureWarning')}}</div>
                   <div class="centered"><a class="dark" @click="removeReward">{{ $t('label.Remove') }}</a></div>
                 </div>
-                <div v-if="isIOs && !readOnly" class="q-mt-md">
+                <div v-if="isIOs && !readOnly && !form.fields.customization.removeScoring" class="q-mt-md">
                   {{ $t('label.AddAReward') }}:
                   <input @change="uploadReward" ref="rewardfile" type="file" accept="image/*" />
                   <q-icon name="help" @click.native="showHelpPopup('helpQuestReward')" />
                 </div>
-                <div v-if="!isIOs && !readOnly" class="q-mt-md">
+                <div v-if="!isIOs && !readOnly && !form.fields.customization.removeScoring" class="q-mt-md">
                   <q-btn-group class="full-width">
                     <q-btn class="full-width" @click="$refs['rewardfile'].click()">{{ $t('label.AddAReward') }}</q-btn>
                     <q-btn @click.native="showHelpPopup('helpQuestReward')" icon="help" />
@@ -2110,6 +2110,10 @@ export default {
                           parentStepId = parentStepId.replace("stepSuccess_", "")
                           parentStepId = parentStepId.replace("stepFail_", "")
                           parentStepId = parentStepId.replace("stepRandom_", "")
+                          if (parentStepId.indexOf("stepAnswerNb") !== -1) {
+                            let parentStepIdAnswerNbParts = parentStepId.split("_")
+                            parentStepId = parentStepIdAnswerNbParts[1]
+                          }
                           // If parent is not sorted => do not treat the item
                           if (sorted.indexOf(parentStepId) === -1) {
                             // check that the parent exists at least in unsorted => else error

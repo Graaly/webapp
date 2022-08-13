@@ -610,6 +610,7 @@ module.exports = {
       StepCombineObject: "(BETA) Object combined ",
       StepHaveObject: "(BETA) Object is in inventory ",
       StepNotHaveObject: "(BETA) Object is not in inventory ",
+      StepAnswerNb: "(BETA) Answer Nb to the question",
       NoCondition: "No condition (start at the beginning of the chapter)",
       Conditions: "Triggers",
       AddACondition: "Add a trigger",
@@ -826,7 +827,7 @@ module.exports = {
       hoursSimplified: "H",
       QuestIsFarFromUser: "<b>You are far from this game</b>.<br />By solving this game afar, you will miss many clues and so many points",
       YouAlreadyDidThisQuest: "<b>You already completed this game</b>. You can play it again, but <b>this will not give you points again</b>",
-      YouAreQuestOwnerDesc: "You are the owner of this game, you will not win any point",
+      YouAreQuestOwnerDesc: "You are editor of this game, you will not win any point, and you will not play it with offline mode",
       GeneralWarning: "<b>For your safety</b>, do not play the game driving or riding your bicycle, always be alert to what is happening around you, do not enter private property without permission, follow the safety rules when you move.",
       RemoveScoringAndRating: "Hide the score and the rating",
       TypeEndMessage: "Text replacing the scoring and rating final screen",
@@ -1188,7 +1189,10 @@ module.exports = {
       HidePaiement: "Hide the price (communicated to players outside of Graaly)", 
       QRCodeAlreadyUsed: "This QR code is already used by another account. Please sign-in or contact the creator of this game to have a new code.",
       GeolocationIssuePleaseSkipThisStep: "This part of the game requires your geographical location, but Graaly could not retrieve it, either due to a permission issue or an accuracy issue. Please ensure that you have allowed Graaly application to access to your location (by checking your device settings) and that your GPS is enabled and calibrated (to calibrate, move your device in a figure-8 motion a few times). Currently, this game step cannot be shown. Please use the right arrow button to play the next step.",
-      PrintQRCodePages: "Print QR Codes"
+      PrintQRCodePages: "Print QR Codes",
+      AnswerNumber: "Number of the answer",
+      QRCodeIsNotStartingOne: "This is not the right QR code. Look for the QR code to start the game!",
+      QRCodeIsNotPlayingOne: "This is not the right QR code. Look for the QR code with a logo on the bottom right!"
     }
   },
   fr: {
@@ -1789,6 +1793,7 @@ module.exports = {
       StepCombineObject: "(BETA) Objet combiné ",
       StepHaveObject: "(BETA) Objet est dans l'inventaire ",
       StepNotHaveObject: "(BETA) Objet n'est pas dans l'inventaire ",
+      StepAnswerNb: "(BETA) Réponse N° au QCM",
       NoCondition: "Aucune condition (démarre au début du chapitre)",
       Conditions: "Déclencheurs",
       AddACondition: "Ajouter un déclencheur",
@@ -2005,7 +2010,7 @@ module.exports = {
       hoursSimplified: "H",
       QuestIsFarFromUser: "<b>Vous n'êtes pas sur le lieu du jeu</b>.<br />En résolvant ce jeu à distance, vous allez manquer plein d'indices et donc de points",
       YouAlreadyDidThisQuest: "<b>Vous avez déjà réussi ce jeu</b>. Vous pouvez le résoudre à nouveau, mais il ne vous <b>rapportera aucun point</b>.",
-      YouAreQuestOwnerDesc: "Vous êtes le créateur de ce jeu, il ne vous rapportera aucun point",
+      YouAreQuestOwnerDesc: "Vous êtes éditeur de ce jeu, il ne vous rapportera aucun point, et vous ne pourrez pas y jouer en mode offline",
       GeneralWarning: "<b>Pour votre sécurité</b>, ne jouez pas au jeu en conduisant ou quand votre vélo est en mouvement, soyez toujours vigilant à ce qui se passe autour de vous, ne pénétrez pas dans des propriétés privées sans autorisation, respectez les règles de sécurité quand vous vous déplacez.",
       RemoveScoringAndRating: "Cacher le score et la notation",
       TypeEndMessage: "Texte de fin qui remplace l'écran de score et de notation",
@@ -2367,7 +2372,10 @@ module.exports = {
       HidePaiement: "Cacher le prix (communiqué aux joueurs hors de Graaly)",
       QRCodeAlreadyUsed: "Ce QR code a déjà été utilisé par un autre compte. Veuillez vous connecter ou contacter le créateur du jeu pour obtenir un autre code.",
       GeolocationIssuePleaseSkipThisStep: "Cette partie du jeu nécessite un accès à votre position, mais Graaly n'a pas pu la récupérer, soit à cause d'un problème de permissions ou de précision. Vérifiez que vos avez autorisé Graaly à accéder à votre position (en vérifiant dans les paramètres de votre appareil) et que votre GPS est activé et calibré (pour calibrer, tenez votre appareil en lui faisant faire des \"8\" plusieurs fois). Actuellement, cette étape ne peut pas être affichée. Veuillez appuyer sur la flèche permettant de jouer l'étape suivante.",
-      PrintQRCodePages: "Imprimer les QR Codes"
+      PrintQRCodePages: "Imprimer les QR Codes",
+      AnswerNumber: "Numéro de la réponse",
+      QRCodeIsNotStartingOne: "Ce n'est pas le bon QR code. Recherchez le QR code de démarrage du jeu !",
+      QRCodeIsNotPlayingOne: "Ce n'est pas le bon QR code. Recherchez un QR code avec un logo en bas à droite !"
     }
   }
 }

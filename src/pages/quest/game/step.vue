@@ -58,7 +58,7 @@
         @suggestNext="alertOnNext"
         @hideButtons="hideFooterButtons"
         @showButtons="showFooterButtons"
-        @openInventory="useItem"
+        @openInventory="zoomOrUse"
         @msg="trackMessage">
       </stepPlay>
     </div>
@@ -2006,7 +2006,7 @@ export default {
             conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player)
           }
         } else {*/
-          conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player)
+          conditions = this.updateConditions(conditions, this.step.stepId, true, this.step.type, true, this.player, answer)
         /*}*/
         ended = true
 
@@ -2027,7 +2027,7 @@ export default {
             conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player)
           }
         } else {*/
-          conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player)
+          conditions = this.updateConditions(conditions, this.step.stepId, false, this.step.type, true, this.player, answer)
         /*}*/
       }
 
@@ -2386,10 +2386,12 @@ export default {
                 }
               }
               if (nextStepId !== 'end') {
-                // save that chapter-end is done
-                conditionsDone.push('stepDone_' + stepsofChapter[i].stepId.toString())
-                conditionsDone.push('stepDone' + this.player + '_' + stepsofChapter[i].stepId.toString())
-                this.run.conditionDone = conditionsDone
+                if (!stepsofChapter[i].options || !stepsofChapter[i].options.resetChapterProgression) {
+                  // save that chapter-end is done, except if reset chapter progression
+                  conditionsDone.push('stepDone_' + stepsofChapter[i].stepId.toString())
+                  conditionsDone.push('stepDone' + this.player + '_' + stepsofChapter[i].stepId.toString())
+                  this.run.conditionDone = conditionsDone
+                }
 
                 // get next step by running the process again for new chapter
                 let response = await this.getNextOfflineStep(questId, markerCode, player, extra)
@@ -2562,7 +2564,7 @@ export default {
      *
      * WARNING : this function is a duplicate for server function "updateConditions" of run.js controller
      */
-    updateConditions(currentConditions, stepId, isSuccess, stepType, addStepDone, player) {
+    updateConditions(currentConditions, stepId, isSuccess, stepType, addStepDone, player, extraData) {
       if (!stepId) {
         return currentConditions
       }
@@ -2605,6 +2607,11 @@ export default {
           }
         }
       }
+      // assign answer number for QCM
+      if (stepType == 'choose' && currentConditions.indexOf('stepAnswerNb_' + stepId + '_' + extraData) === -1) {
+        currentConditions.push('stepAnswerNb_' + stepId + '_' + (parseInt(extraData, 10) + 1))
+      }
+      
       return currentConditions
     },
     /*

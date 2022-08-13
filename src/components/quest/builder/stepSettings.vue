@@ -921,6 +921,7 @@
               <q-select v-if="selectedStep.newCondition.selectedType === 'haveobject'" emit-value map-options :label="$t('label.ObjectInInventory')" v-model="selectedStep.newCondition.selectedObject" :options="config.useItem.questItemsAsOptions" />
               <q-select v-if="selectedStep.newCondition.selectedType === 'nothaveobject'" emit-value map-options :label="$t('label.ObjectNotInInventory')" v-model="selectedStep.newCondition.selectedObject" :options="config.useItem.questItemsAsOptions" />
               <q-input v-if="selectedStep.newCondition.selectedType === 'counter' || selectedStep.newCondition.selectedType === 'countergreater' || selectedStep.newCondition.selectedType === 'counterlower'" v-model="selectedStep.newCondition.selectedValue" :label="$t('label.CounterValue')" />
+              <q-input v-if="selectedStep.newCondition.selectedType === 'stepAnswerNb'" v-model="selectedStep.newCondition.answerNumber" :label="$t('label.AnswerNumber')" />
               <div class="centered">
                 <q-btn class="glossy normal-button" color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />
                 <q-btn class="q-mx-md" color="primary" flat @click="selectedStep.newConditionForm = false" :label="$t('label.Cancel')" />
@@ -1410,6 +1411,7 @@ export default {
             {label: this.$t('label.FollowStep'), value: 'stepDone'},
             {label: this.$t('label.StepSuccess'), value: 'stepSuccess'},
             {label: this.$t('label.StepFail'), value: 'stepFail'},
+            {label: this.$t('label.StepAnswerNb'), value: 'stepAnswerNb'},
             {label: this.$t('label.StepRandom'), value: 'stepRandom'},
             {label: this.$t('label.StepCounter'), value: 'counter'},
             {label: this.$t('label.StepCounterGreater'), value: 'countergreater'},
@@ -1420,6 +1422,7 @@ export default {
           ],
           selectedValue: '',
           selectedObject: '',
+          answerNumber: 0, 
           values: []
         },
         chapters: []
@@ -2154,6 +2157,12 @@ export default {
       if (this.options.type.code === 'code-image') {
         this.selectedStep.form.answers = this.unformatedAnswer.join('|')
       }
+      if (this.options.type.code === 'write-text') {
+        // trim all answers
+        for (let i = 0; i < this.selectedStep.form.answers.length; i++) {
+          this.selectedStep.form.answers[i] = utils.removeAccents(this.selectedStep.form.answers[i].trim())
+        }
+      }
       if (this.options.type.code === 'jigsaw-puzzle') {
         // build random order for jigsaw puzzle pieces.
         var level = parseInt(this.selectedStep.form.options.level, 10)
@@ -2378,7 +2387,7 @@ export default {
       for (var i = 0; i < this.selectedStep.form.conditions.length; i++) {
         var condition = this.selectedStep.form.conditions[i]
         var conditionParts = condition.split("_")
-        if (conditionParts[0] === 'stepDone' || conditionParts[0] === 'stepSuccess' || conditionParts[0] === 'stepFail' || conditionParts[0] === 'stepRandom') {
+        if (conditionParts[0] === 'stepDone' || conditionParts[0] === 'stepSuccess' || conditionParts[0] === 'stepFail' || conditionParts[0] === 'stepAnswerNb' || conditionParts[0] === 'stepRandom') {
           const stepData = await StepService.getById(conditionParts[1], this.quest.version, 'all')
           if (stepData && stepData.data && stepData.data.hasOwnProperty("title")) {
             let condStepTitle = stepData.data.title[this.lang] ? stepData.data.title[this.lang] : stepData.data.title[Object.keys(stepData.data.title)[0]]
@@ -2390,6 +2399,9 @@ export default {
             }
             if (conditionParts[0] === 'stepFail') {
               this.selectedStep.formatedConditions.push(this.$t("label.StepFail") + " <i>" + condStepTitle + "</i>")
+            }
+            if (conditionParts[0] === 'stepAnswerNb') {
+              this.selectedStep.formatedConditions.push(this.$t("label.AnswerNumber") + " " + conditionParts[2] + " " + this.$t("label.To") + " <i>" + condStepTitle + "</i>")
             }
             if (conditionParts[0] === 'stepRandom') {
               this.selectedStep.formatedConditions.push(this.$t("label.StepRandom") + " <i>" + condStepTitle + "</i>")
@@ -2439,6 +2451,7 @@ export default {
     async changeNewConditionType() {
       this.selectedStep.newCondition.values.length = 0
       const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', 'jigsaw-puzzle', 'memory']
+      // For stepDone, StepFail, StepRandom or StepSuccess
       if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail' || this.selectedStep.newCondition.selectedType === 'stepRandom') {
         const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version, 'all')
         if (response && response.data && response.data.length > 0) {
@@ -2448,6 +2461,20 @@ export default {
                 this.selectedStep.newCondition.selectedType === 'stepRandom' ||
                 stepsTypesWithSuccessOrFail.indexOf(response.data[i].type) !== -1
               ) {
+                let condStepTitle = response.data[i].title[this.lang] ? response.data[i].title[this.lang] : response.data[i].title[Object.keys(response.data[i].title)[0]]
+                this.selectedStep.newCondition.values.push({label: condStepTitle, value: response.data[i].stepId})
+              }
+            }
+          }
+        }
+      }
+      // For StepAnswerNb => only QCM
+      if (this.selectedStep.newCondition.selectedType === 'stepAnswerNb') {
+        const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version, 'all')
+        if (response && response.data && response.data.length > 0) {
+          for (var i = 0; i < response.data.length; i++) {
+            if (response.data[i].stepId.toString() !== this.stepId.toString()) {
+              if (response.data[i].type == "choose") {
                 let condStepTitle = response.data[i].title[this.lang] ? response.data[i].title[this.lang] : response.data[i].title[Object.keys(response.data[i].title)[0]]
                 this.selectedStep.newCondition.values.push({label: condStepTitle, value: response.data[i].stepId})
               }
@@ -2479,6 +2506,9 @@ export default {
         }
         if (this.selectedStep.newCondition.selectedType === 'stepFail') {
           this.selectedStep.form.conditions.push('stepFail_' + this.selectedStep.newCondition.selectedValue)
+        }
+        if (this.selectedStep.newCondition.selectedType === 'stepAnswerNb') {
+          this.selectedStep.form.conditions.push('stepAnswerNb_' + this.selectedStep.newCondition.selectedValue + "_" + this.selectedStep.newCondition.answerNumber)
         }
         if (this.selectedStep.newCondition.selectedType === 'stepRandom') {
           this.selectedStep.form.conditions.push('stepRandom_' + this.selectedStep.newCondition.selectedValue)

@@ -464,6 +464,11 @@ export default {
      */
     async checkCode(code) {
       code = utils.removeUnusedUrl(code)
+      // if code is 3 digits => this is a game QR code, not to be flashed here
+      if (code.length == 3) {
+        Notification(this.$t('label.QRCodeIsNotStartingOne'), 'error')
+        return
+      }
       let checkStatus = await QuestService.checkQRCode(code, this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
         this.closeQRCodeReader()
