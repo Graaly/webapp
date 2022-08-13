@@ -427,7 +427,7 @@
       <!------------------ GEOLOCALISATION STEP AREA ------------------------>
 
       <div class="geolocation" v-if="step.type == 'geolocation'">
-        <div>
+        <div :class="geolocation.mode + 'mode'">
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && !(step.options && step.options.html)">{{ getTranslatedText() }}</p>
           <p class="text" :class="'font-' + customization.font" v-if="getTranslatedText() != '' && (step.options && step.options.html)" v-html="getTranslatedText()" />
           <p class="text" :class="'font-' + customization.font" v-if="step.showDistanceToTarget">{{ $t('label.DistanceInMeters', { distance: (geolocation.GPSdistance == 0 ? '...' : Math.round(geolocation.GPSdistance)) }) }}</p>
@@ -2202,6 +2202,11 @@ export default {
 
       // if generic marker sensor
       if (this.step.id === 'sensor') {
+        // all the QR code needs to be 3 digits long
+        if (!this.locateMarker.markerControls[answer]) {
+          Notification(this.$t('label.QRCodeIsNotPlayingOne'), 'error')
+          return
+        }
         if (!this.locateMarker.markerControls[answer].detected) {
           this.locateMarker.flash = false
           this.locateMarker.flash = true
@@ -5076,7 +5081,7 @@ export default {
   .geolocation-step-map { position: absolute; opacity: 1; top: 0; left: 0; width: 100%; height: 100%; background-color: yellow; }
   .geolocation .q-btn { box-shadow: none; }
   .low-gps-accuracy-warning { z-index: 200; position: absolute; top: 0; left: 0; right: 0; }
-  
+  .geolocation .mapmode { position: absolute; z-index: 5000; }
   /* make something like <q-dialog> but without being "modal" (e.g. does not prevent clicking on navigation buttons) */
   .geolocation-issue { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color:rgba(255, 255, 255, 0.75); }
   .geolocation-issue > div { z-index: 1900; margin: 6rem 2rem 2rem 2rem; border: 1px solid black; background: white; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); }

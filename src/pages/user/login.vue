@@ -483,6 +483,11 @@ export default {
      * @param   {String}  code            QR Code value
      */
     async checkCode(code) {
+      // if code is 3 digits => this is a game QR code, not to be flashed here
+      if (code.length == 3) {
+        Notification(this.$t('label.QRCodeIsNotStartingOne'), 'error')
+        return
+      }
       // treat teamplay
       if (code.indexOf('teamplay_') !== -1) {
         let teamPlayCode = code.replace('teamplay_', '')
