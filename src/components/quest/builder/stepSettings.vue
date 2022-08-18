@@ -226,11 +226,9 @@
         <q-radio v-model="config.choose.answerType" val="image" :label="$t('label.Pictures')" @click="$v.selectedStep.form.options.items.$touch" test-id="radio-choose-images" />
 
         <h2>{{ $t('label.PossibleAnswers') }}</h2>
-        <p>{{ $t('label.SelectTheGoodAnswer') }}</p>
-
         <div class="answer" v-for="(option, key) in selectedStep.form.options.items" :key="key">
-          <q-radio v-model="selectedStep.form.answers" :val="key" :test-id="'radio-answer-' + key" />
-
+          <q-checkbox v-model="config.choose.answers" :val="key" :test-id="'radio-answer-' + key" />
+          
           <q-input v-show="config.choose.answerType === 'text'" v-model="option.text" @input="$v.selectedStep.form.options.items ? $v.selectedStep.form.options.items.$each[key].text.$touch : null" input-class="native-input-class" :test-id="'text-answer-' + key" />
           <p class="error-label" v-if="config.choose.answerType === 'text' && $v.selectedStep.form.options && $v.selectedStep.form.options.items && !$v.selectedStep.form.options.items.$each[key].text.required">{{ $t('label.RequiredField') }}</p>
 
@@ -703,7 +701,23 @@
           </tr>
         </table>
       </div>
-
+      
+      <!---------- STEP END OF CHAPTER  ------------>
+      
+      <q-list bordered v-if="options.type.code === 'end-chapter'">
+        <div class="q-pa-md">
+          <q-toggle v-model="config.endChapter.moveToNextStep" :label="$t('label.RedirectToNextChapter')" />
+          <div v-if="!config.endChapter.moveToNextStep">
+            <q-select 
+              emit-value map-options 
+              :label="$t('label.RedirectToChapter')" 
+              v-model="selectedStep.form.options.chapterId" 
+              :options="selectedStep.chapters" 
+               />
+          </div>
+        </div>
+      </q-list>
+      
       <!---------- STEPS IOT : WAIT FOR EVENT / TRIGGER EVENT  ------------>
 
       <div v-if="options.type.code === 'wait-for-event' || options.type.code === 'trigger-event'">
@@ -901,8 +915,13 @@
             <q-btn color="primary" class="full-width" v-if="!selectedStep.newConditionForm" @click="selectedStep.newConditionForm = true" :label="$t('label.AddACondition')" />
             <div v-if="selectedStep.newConditionForm">
               <q-select emit-value map-options :label="$t('label.ConditionType')" v-model="selectedStep.newCondition.selectedType" :options="selectedStep.newCondition.types" @input="changeNewConditionType" />
-              <q-select v-if="selectedStep.newCondition.selectedType !== 'counter' && selectedStep.newCondition.selectedType !== 'countergreater' && selectedStep.newCondition.selectedType !== 'counterlower'" emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
+              <q-select v-if="selectedStep.newCondition.selectedType !== 'counter' && selectedStep.newCondition.selectedType !== 'countergreater' && selectedStep.newCondition.selectedType !== 'counterlower' && selectedStep.newCondition.selectedType !== 'combineobject' && selectedStep.newCondition.selectedType !== 'haveobject' && selectedStep.newCondition.selectedType !== 'nothaveobject'" emit-value map-options :label="$t('label.ConditionValue')" v-model="selectedStep.newCondition.selectedValue" :options="selectedStep.newCondition.values" />
+              <q-select v-if="selectedStep.newCondition.selectedType === 'combineobject' && options.type.code === 'new-item'" emit-value map-options :label="$t('label.ObjectCombined')" v-model="selectedStep.newCondition.selectedObject" :options="config.useItem.questItemsAsOptions" />
+              <div v-if="selectedStep.newCondition.selectedType === 'combineobject' && options.type.code !== 'new-item'">{{ $t('label.YouCanOnlyUseThisFeatureInNewItemStep') }}</div>
+              <q-select v-if="selectedStep.newCondition.selectedType === 'haveobject'" emit-value map-options :label="$t('label.ObjectInInventory')" v-model="selectedStep.newCondition.selectedObject" :options="config.useItem.questItemsAsOptions" />
+              <q-select v-if="selectedStep.newCondition.selectedType === 'nothaveobject'" emit-value map-options :label="$t('label.ObjectNotInInventory')" v-model="selectedStep.newCondition.selectedObject" :options="config.useItem.questItemsAsOptions" />
               <q-input v-if="selectedStep.newCondition.selectedType === 'counter' || selectedStep.newCondition.selectedType === 'countergreater' || selectedStep.newCondition.selectedType === 'counterlower'" v-model="selectedStep.newCondition.selectedValue" :label="$t('label.CounterValue')" />
+              <q-input v-if="selectedStep.newCondition.selectedType === 'stepAnswerNb'" v-model="selectedStep.newCondition.answerNumber" :label="$t('label.AnswerNumber')" />
               <div class="centered">
                 <q-btn class="glossy normal-button" color="primary" @click="saveNewCondition()" :label="$t('label.Save')" />
                 <q-btn class="q-mx-md" color="primary" flat @click="selectedStep.newConditionForm = false" :label="$t('label.Cancel')" />
@@ -959,6 +978,25 @@
                   :src="uploadUrl + '/upload/quest/' + questId + '/step/background/' + selectedStep.form.backgroundImage[lang]" 
                   /> <br />
                 <a class="dark" @click="resetBackgroundImage">{{ $t('label.remove') }}</a>
+              </div>
+            </div>
+            <div class="background-upload" v-if="options.type.code === 'geolocation'">
+              <div>
+                <div v-if="!isIOs">
+                  <q-btn class="full-width" type="button" :label="$t('label.UploadTheLocatorPicture')" @click="$refs['itemfile'].click()" />
+                  <input @change="uploadLocatorImage" ref="itemfile" type="file" accept="image/*" hidden />
+                </div>
+                <div v-if="isIOs">
+                  {{ $t('label.UploadTheLocatorPicture') }}:
+                  <input @change="uploadLocatorImage" ref="itemfile" type="file" accept="image/*" />
+                </div>
+                <p>{{ $t('label.WarningImageSizeSquare') }}</p>
+              </div>
+              <div v-if="selectedStep.form.options !== null && selectedStep.form.options.locator && selectedStep.form.options.locator !== null">
+                <p>{{ $t('label.YourItemPicture') }} :</p>
+                <div class="centered">
+                  <img style="width:100%" :src="(selectedStep.form.options.locator.indexOf('statics/') !== -1 ? selectedStep.form.options.locator : serverUrl + '/upload/quest/' + questId + '/step/geolocation/' + selectedStep.form.options.locator)" />
+                </div>
               </div>
             </div>
             <div v-if="options.type.nbTrials > 0">
@@ -1067,6 +1105,7 @@
             <div v-if="options.type.code === 'end-chapter'">
               <q-toggle v-model="selectedStep.form.options.resetHistory" :label="$t('label.ResetHistoryAfter')" />
               <q-toggle v-model="selectedStep.form.options.resetChapterProgression" :label="$t('label.RestartChapterAfterStep')" />
+              <q-toggle v-model="selectedStep.form.options.resetChapterProgressionAndMoveNext" :label="$t('label.ResetChapterProgression')" />
             </div>
             <div v-show="options.type.code !== 'end-chapter' && options.type.code !== 'increment-counter'">
               <div v-if="selectedStep.form.audioStream[lang] && selectedStep.form.audioStream[lang] !== ''">
@@ -1372,12 +1411,18 @@ export default {
             {label: this.$t('label.FollowStep'), value: 'stepDone'},
             {label: this.$t('label.StepSuccess'), value: 'stepSuccess'},
             {label: this.$t('label.StepFail'), value: 'stepFail'},
+            {label: this.$t('label.StepAnswerNb'), value: 'stepAnswerNb'},
             {label: this.$t('label.StepRandom'), value: 'stepRandom'},
             {label: this.$t('label.StepCounter'), value: 'counter'},
             {label: this.$t('label.StepCounterGreater'), value: 'countergreater'},
-            {label: this.$t('label.StepCounterLower'), value: 'counterlower'}
+            {label: this.$t('label.StepCounterLower'), value: 'counterlower'},
+            {label: this.$t('label.StepCombineObject'), value: 'combineobject'},
+            {label: this.$t('label.StepHaveObject'), value: 'haveobject'},
+            {label: this.$t('label.StepNotHaveObject'), value: 'nothaveobject'}
           ],
           selectedValue: '',
+          selectedObject: '',
+          answerNumber: 0, 
           values: []
         },
         chapters: []
@@ -1415,7 +1460,8 @@ export default {
           answerType: 'text',
           defaultNbAnswers: 4,
           minNbAnswers: 2,
-          maxNbAnswers: 6
+          maxNbAnswers: 6,
+          answers: []
         },
         colorCode: {
           numberOfDigitsOptions: [
@@ -1509,6 +1555,9 @@ export default {
           beard: { number: 31 },
           glass: { number: 5 },
           hat: { number: 4 }
+        },
+        endChapter: {
+          moveToNextStep: true
         },
         iot: {
           triggerEvent: {
@@ -1781,17 +1830,22 @@ export default {
       if (!this.selectedStep.form.options.hasOwnProperty('html')) {
         this.selectedStep.form.options.html = false
       }
-
+      
+      this.getQuestItemsAsOptions()
+      
       // initialize specific steps
       if (this.options.type.code === 'choose') {
         if (!this.selectedStep.form.options || !this.selectedStep.form.options.items || !Array.isArray(this.selectedStep.form.options.items)) {
           this.config.choose.answerType = 'text'
           this.selectedStep.form.options = {items: [], hideHideButton: true}
-          this.selectedStep.form.answers = 0
+          this.config.choose.answers = [0]
           for (let i = 0; i < this.config.choose.defaultNbAnswers; i++) {
             this.selectedStep.form.options.items.push({ text: this.$t('label.AnswerNb', { nb: (i + 1) }), imagePath: null })
           }
         } else {
+          this.config.choose.answers = (this.selectedStep.form.answers + "").split("|").map(function(item) {
+            return parseInt(item, 10);
+          });
           this.config.choose.answerType = this.selectedStep.form.options.items[0].hasOwnProperty('imagePath') && this.selectedStep.form.options.items[0].imagePath !== null ? 'image' : 'text'
           if (this.config.choose.answerType === 'text') {
             for (var i = 0; i < this.selectedStep.form.options.items.length; i++) {
@@ -1894,7 +1948,6 @@ export default {
         if (this.selectedStep.form.answers && this.selectedStep.form.answers.item) {
           this.selectedStep.form.answerItem = this.selectedStep.form.answers.item
         }
-        this.getQuestItemsAsOptions()
         if (!this.selectedStep.form.options || !this.selectedStep.form.options.hasOwnProperty("touchLocation")) {
           this.selectedStep.form.options = { touchLocation: true }
         }
@@ -1928,6 +1981,12 @@ export default {
       } else if (this.options.type.code === 'portrait-robot') {
         if (!this.selectedStep.form.answers.hasOwnProperty('items')) {
           this.$set(this.selectedStep.form.answers, 'items', {type: 1, face: 1, eye: 1, mouth: 1, nose: 1, hair: 1, beard: 1, glass: 1, hat: 1})
+        }
+      } else if (this.options.type.code === 'end-chapter') {
+        if (!this.selectedStep.form.options.hasOwnProperty('chapterId') || this.selectedStep.form.options.chapterId == "") {
+          this.config.endChapter.moveToNextStep = true
+        } else {
+          this.config.endChapter.moveToNextStep = false
         }
       } else if (this.options.type.code === 'phone-call') {
         if (!this.selectedStep.form.options.hasOwnProperty('number')) {
@@ -2074,6 +2133,15 @@ export default {
           // clear all images => playStep.vue will consider that player should choose between text options
           this.selectedStep.form.options.items = this.selectedStep.form.options.items.map((option) => { option.imagePath = null; return option })
         }
+        this.selectedStep.form.answers = this.config.choose.answers.sort().join("|")
+        if (this.config.choose.answers.length < 1) {
+          Notification(this.$t('label.StepSettingsFormError'), 'error')
+          return
+        } else if (this.config.choose.answers.length > 1) {
+          this.selectedStep.form.options.multipleAnswers = true
+        } else {
+          this.selectedStep.form.options.multipleAnswers = false
+        }
       }
       if (this.options.type.code === 'character') {
         if (!this.selectedStep.form.options.character) {
@@ -2089,6 +2157,12 @@ export default {
       }
       if (this.options.type.code === 'code-image') {
         this.selectedStep.form.answers = this.unformatedAnswer.join('|')
+      }
+      if (this.options.type.code === 'write-text') {
+        // trim all answers
+        for (let i = 0; i < this.selectedStep.form.answers.length; i++) {
+          this.selectedStep.form.answers[i] = utils.removeAccents(this.selectedStep.form.answers[i].trim())
+        }
       }
       if (this.options.type.code === 'jigsaw-puzzle') {
         // build random order for jigsaw puzzle pieces.
@@ -2110,6 +2184,11 @@ export default {
       }
       if (this.options.type.code === 'portrait-robot') {
         //no specific action
+      }
+      if (this.options.type.code === 'end-chapter') {
+        if (this.config.endChapter.moveToNextStep) {
+          this.selectedStep.form.options.chapterId = ""
+        }
       }
       if (this.options.type.code === 'find-item') {
         //Coordinates are already set
@@ -2309,7 +2388,7 @@ export default {
       for (var i = 0; i < this.selectedStep.form.conditions.length; i++) {
         var condition = this.selectedStep.form.conditions[i]
         var conditionParts = condition.split("_")
-        if (conditionParts[0] === 'stepDone' || conditionParts[0] === 'stepSuccess' || conditionParts[0] === 'stepFail' || conditionParts[0] === 'stepRandom') {
+        if (conditionParts[0] === 'stepDone' || conditionParts[0] === 'stepSuccess' || conditionParts[0] === 'stepFail' || conditionParts[0] === 'stepAnswerNb' || conditionParts[0] === 'stepRandom') {
           const stepData = await StepService.getById(conditionParts[1], this.quest.version, 'all')
           if (stepData && stepData.data && stepData.data.hasOwnProperty("title")) {
             let condStepTitle = stepData.data.title[this.lang] ? stepData.data.title[this.lang] : stepData.data.title[Object.keys(stepData.data.title)[0]]
@@ -2321,6 +2400,9 @@ export default {
             }
             if (conditionParts[0] === 'stepFail') {
               this.selectedStep.formatedConditions.push(this.$t("label.StepFail") + " <i>" + condStepTitle + "</i>")
+            }
+            if (conditionParts[0] === 'stepAnswerNb') {
+              this.selectedStep.formatedConditions.push(this.$t("label.AnswerNumber") + " " + conditionParts[2] + " " + this.$t("label.To") + " <i>" + condStepTitle + "</i>")
             }
             if (conditionParts[0] === 'stepRandom') {
               this.selectedStep.formatedConditions.push(this.$t("label.StepRandom") + " <i>" + condStepTitle + "</i>")
@@ -2338,6 +2420,23 @@ export default {
         if (conditionParts[0] === 'counterlower') {
           this.selectedStep.formatedConditions.push(this.$t("label.StepCounterLower") + " <i>" + conditionParts[1] + "</i>")
         }
+        if (conditionParts[0] === 'combineobject') {
+          this.selectedStep.formatedConditions.push(this.$t("label.StepCombineObject") + " <i><img src='" + (conditionParts[1].indexOf('statics/') !== -1 ? conditionParts[1] : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + conditionParts[1]) + "' style='width: 40px' /></i>")
+        }
+        if (conditionParts[0] === 'haveobject') {
+          for (let pictureUrl in this.config.useItem.stepsOfItems) {
+            if (this.config.useItem.stepsOfItems[pictureUrl] === conditionParts[1]) {
+              this.selectedStep.formatedConditions.push(this.$t("label.StepHaveObject") + " <i><img src='" + (pictureUrl.indexOf('statics/') !== -1 ? pictureUrl : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + pictureUrl) + "' style='width: 40px' /></i>")
+            }
+          }  
+        }
+        if (conditionParts[0] === 'nothaveobject') {
+          for (let pictureUrl in this.config.useItem.stepsOfItems) {
+            if (this.config.useItem.stepsOfItems[pictureUrl] === conditionParts[1]) {
+              this.selectedStep.formatedConditions.push(this.$t("label.StepNotHaveObject") + " <i><img src='" + (pictureUrl.indexOf('statics/') !== -1 ? pictureUrl : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + pictureUrl) + "' style='width: 40px' /></i>")
+            }
+          }  
+        }
       }
     },
     /*
@@ -2353,6 +2452,7 @@ export default {
     async changeNewConditionType() {
       this.selectedStep.newCondition.values.length = 0
       const stepsTypesWithSuccessOrFail = ['geolocation', 'locate-item-ar', 'choose', 'write-text', 'code-keypad', 'code-color', 'code-image', 'find-item', 'use-item', 'jigsaw-puzzle', 'memory']
+      // For stepDone, StepFail, StepRandom or StepSuccess
       if (this.selectedStep.newCondition.selectedType === 'stepDone' || this.selectedStep.newCondition.selectedType === 'stepSuccess' || this.selectedStep.newCondition.selectedType === 'stepFail' || this.selectedStep.newCondition.selectedType === 'stepRandom') {
         const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version, 'all')
         if (response && response.data && response.data.length > 0) {
@@ -2369,13 +2469,27 @@ export default {
           }
         }
       }
+      // For StepAnswerNb => only QCM
+      if (this.selectedStep.newCondition.selectedType === 'stepAnswerNb') {
+        const response = await StepService.listForAChapter(this.questId, this.selectedStep.form.chapterId, this.quest.version, 'all')
+        if (response && response.data && response.data.length > 0) {
+          for (var i = 0; i < response.data.length; i++) {
+            if (response.data[i].stepId.toString() !== this.stepId.toString()) {
+              if (response.data[i].type == "choose") {
+                let condStepTitle = response.data[i].title[this.lang] ? response.data[i].title[this.lang] : response.data[i].title[Object.keys(response.data[i].title)[0]]
+                this.selectedStep.newCondition.values.push({label: condStepTitle, value: response.data[i].stepId})
+              }
+            }
+          }
+        }
+      }
     },
     /*
      * Save a new condition
      */
     async saveNewCondition() {
       // Update conditions array
-      if (this.selectedStep.newCondition.selectedType !== '' && this.selectedStep.newCondition.selectedValue !== '') {
+      if (this.selectedStep.newCondition.selectedType !== '' && (this.selectedStep.newCondition.selectedValue !== '' || this.selectedStep.newCondition.selectedObject !== '')) {
         if (this.selectedStep.newCondition.selectedType === 'stepDone') {
           // prevent from having several stepDone conditions (only one possible)
           /*for (var i = 0; i < this.selectedStep.form.conditions.length; i++) {
@@ -2394,6 +2508,9 @@ export default {
         if (this.selectedStep.newCondition.selectedType === 'stepFail') {
           this.selectedStep.form.conditions.push('stepFail_' + this.selectedStep.newCondition.selectedValue)
         }
+        if (this.selectedStep.newCondition.selectedType === 'stepAnswerNb') {
+          this.selectedStep.form.conditions.push('stepAnswerNb_' + this.selectedStep.newCondition.selectedValue + "_" + this.selectedStep.newCondition.answerNumber)
+        }
         if (this.selectedStep.newCondition.selectedType === 'stepRandom') {
           this.selectedStep.form.conditions.push('stepRandom_' + this.selectedStep.newCondition.selectedValue)
         }
@@ -2405,6 +2522,15 @@ export default {
         }
         if (this.selectedStep.newCondition.selectedType === 'counterlower') {
           this.selectedStep.form.conditions.push('counterlower_' + this.selectedStep.newCondition.selectedValue)
+        }
+        if (this.selectedStep.newCondition.selectedType === 'combineobject') {
+          this.selectedStep.form.conditions.push('combineobject_' + this.selectedStep.newCondition.selectedObject)
+        }
+        if (this.selectedStep.newCondition.selectedType === 'haveobject') {
+          this.selectedStep.form.conditions.push('haveobject_' + this.config.useItem.stepsOfItems[this.selectedStep.newCondition.selectedObject])
+        }
+        if (this.selectedStep.newCondition.selectedType === 'nothaveobject') {
+          this.selectedStep.form.conditions.push('nothaveobject_' + this.config.useItem.stepsOfItems[this.selectedStep.newCondition.selectedObject])
         }
       }
       this.getUnderstandableConditions()
@@ -2694,10 +2820,36 @@ export default {
       let uploadResult = await StepService.uploadItemImage(this.questId, this.options.type.code, data)
       if (uploadResult && uploadResult.hasOwnProperty('data')) {
         if (uploadResult.data.file) {
-          this.selectedStep.form.options.picture = uploadResult.data.file
+          Vue.set(this.selectedStep.form.options, 'picture', uploadResult.data.file)
           if (this.selectedStep.form.options.pictures) {
             this.selectedStep.form.options.pictures[this.lang] = uploadResult.data.file
           }
+        } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    /*
+     * Upload a picture for the map
+     * @param   {Object}    e            Upload data
+     */
+    async uploadLocatorImage(e) {
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      this.$q.loading.show()
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadResult = await StepService.uploadItemImage(this.questId, this.options.type.code, data)
+      if (uploadResult && uploadResult.hasOwnProperty('data')) {
+        if (uploadResult.data.file) {
+          Vue.set(this.selectedStep.form.options, 'locator', uploadResult.data.file)
         } else if (uploadResult.data.message && uploadResult.data.message === 'Error: File too large') {
           Notification(this.$t('label.FileTooLarge'), 'error')
         } else {
@@ -2822,7 +2974,7 @@ export default {
       pivot.multiplyScalar(-1)
 
       let pivotObj = new THREE.Object3D();
-      object.applyMatrix(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
+      object.applyMatrix4(new THREE.Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z))
       pivotObj.add(object)
       pivotObj.up = new THREE.Vector3(0, 0, 1)
       object = pivotObj
@@ -3471,7 +3623,7 @@ export default {
         fieldsToValidate.backgroundImage = { required }
         break
       case 'geolocation':
-        //fieldsToValidate.options = { lat: { required }, lng: { required } }
+        //fieldsToValidate.options = { locator: { required } }
         break
       case 'info-video':
         fieldsToValidate.videoStream = { required }

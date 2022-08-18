@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "060f7b394574b2735fdd",
-    "url": "css/app.025a1dd3.css"
+    "revision": "22fdd0dac31e40d9fa68",
+    "url": "css/app.bc087829.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -72,7 +72,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "ac101cd337e5a96daf49fb0997f2357c",
+    "revision": "111468532b14cdb70fddc47099d7c5a2",
     "url": "index.html"
   },
   {
@@ -80,12 +80,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "js/2.5af11629.js"
   },
   {
-    "revision": "060f7b394574b2735fdd",
-    "url": "js/app.6194094d.js"
+    "revision": "22fdd0dac31e40d9fa68",
+    "url": "js/app.40cf89dd.js"
   },
   {
-    "revision": "3d56249664da9e95c9df",
-    "url": "js/vendor.3d562496.js"
+    "revision": "a296c451ba3affc81730",
+    "url": "js/vendor.a296c451.js"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
@@ -314,6 +314,86 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "795b13e33fe25eb4aface3a77844a09e",
     "url": "statics/cars/nose-3.png"
+  },
+  {
+    "revision": "104f531b4d2cc1134f1280e791738a64",
+    "url": "statics/cea/eye-0.png"
+  },
+  {
+    "revision": "b7a5731127ea6c96e65b886375498f24",
+    "url": "statics/cea/eye-1.png"
+  },
+  {
+    "revision": "cbd97e23d0ea6c753f3ad608223a2e1b",
+    "url": "statics/cea/eye-2.png"
+  },
+  {
+    "revision": "82c3a602c24174bfb767315d44bab535",
+    "url": "statics/cea/eye-3.png"
+  },
+  {
+    "revision": "85013efbafaa9c50f3c81e98d1197353",
+    "url": "statics/cea/eye-4.png"
+  },
+  {
+    "revision": "04a52c88f7f0b0fbe3eef9f6ebd77291",
+    "url": "statics/cea/face-0.png"
+  },
+  {
+    "revision": "d39bfa54e1704d4367537b4ff32271f7",
+    "url": "statics/cea/face-1.png"
+  },
+  {
+    "revision": "1e9cc4ff29d7b2f99df9109d0ef8fa0b",
+    "url": "statics/cea/face-2.png"
+  },
+  {
+    "revision": "c97458b373ca4efdcdd5526097642f78",
+    "url": "statics/cea/face-3.png"
+  },
+  {
+    "revision": "f4db4552bf15b22010b314888e619a33",
+    "url": "statics/cea/face-4.png"
+  },
+  {
+    "revision": "1455e85597f5fa060421b279c9ee5213",
+    "url": "statics/cea/hair-0.png"
+  },
+  {
+    "revision": "e50c450b44b0e232e32b37db4232a646",
+    "url": "statics/cea/hair-1.png"
+  },
+  {
+    "revision": "0ad1421d241cec2c1d2be0aa4936d44b",
+    "url": "statics/cea/hair-2.png"
+  },
+  {
+    "revision": "76e16daa993f1c05f509eab531e2c08e",
+    "url": "statics/cea/hair-3.png"
+  },
+  {
+    "revision": "3c37a9813c1719e193732734a150cd2d",
+    "url": "statics/cea/hair-4.png"
+  },
+  {
+    "revision": "06f104d4e2d269fb562ebe43fac16100",
+    "url": "statics/cea/hat-0.png"
+  },
+  {
+    "revision": "0771e542fe9393c71d89259bea80a7ea",
+    "url": "statics/cea/hat-1.png"
+  },
+  {
+    "revision": "2eec3bef60be54dad5741afa3b569370",
+    "url": "statics/cea/hat-2.png"
+  },
+  {
+    "revision": "cd8bdcaf9b90694824c441d55ed877c7",
+    "url": "statics/cea/hat-3.png"
+  },
+  {
+    "revision": "96058d205ee01ca07bed525d96e3b22f",
+    "url": "statics/cea/hat-4.png"
   },
   {
     "revision": "2f72e442866ab7c9a882b31a4d2abe5a",

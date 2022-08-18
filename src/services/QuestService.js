@@ -486,6 +486,18 @@ export default {
       .catch(error => console.log(error.request));
   },
   /*
+   * Upload a quest character for the map
+   * @param   {Object}    data                picture data
+   */
+  uploadCharacterOnMap(data) {
+    return Api()
+      .post("/quest/characteronmap/upload", data, {
+        timeout: 60000,
+        headers: { "Content-Type": "multipart/form-data" }
+      })
+      .catch(error => console.log(error.request));
+  },
+  /*
    * Upload a quest reward
    * @param   {Object}    data                picture data
    */
@@ -547,6 +559,15 @@ export default {
   checkTierPayment(questId) {
     return Api()
       .get("quest/" + questId + "/payment/tier/check")
+      .catch(error => console.log(error.request));
+  },
+  /*
+   * Create a PDF with Tier Payment qr code
+   * @param   {String}    questId             questId
+   */
+  printQRCodes(questId) {
+    return Api()
+      .get("quest/" + questId + "/payment/tier/print")
       .catch(error => console.log(error.request));
   },
   /*

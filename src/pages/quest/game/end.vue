@@ -427,9 +427,7 @@ export default {
         const offlineRunData = await this.getOfflineRunData()
         if (offlineRunData) {
           this.run = offlineRunData
-        }
-console.log("OFFLINE RUN DATA")
-console.log(offlineRunData)        
+        }      
          
          // compute good answers
         await this.computeGoodAnswers()
@@ -759,8 +757,6 @@ console.log(offlineRunData)
      * Compute number of good answers
      */
     async computeGoodAnswers() {
-console.log("COMPUTE GOOD ANSWERS")
-console.log(this.run)
       const conditionsDone = this.run.conditionsDone
       let nbQuestions = 0
       let nbGoodAnwers = 0

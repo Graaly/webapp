@@ -339,6 +339,13 @@
                     class="full-width"
                   />
                 </div>
+                <div v-if="form.fields.customization">
+                  <q-toggle
+                    :readonly="readOnly"
+                    :label="$t('label.HidePaiement')"
+                    v-model="form.fields.customization.hidePaymentBox"
+                    /> 
+                </div>
               </div>
             </q-expansion-item>
             <q-separator />
@@ -458,6 +465,13 @@
                     </div>
                   </div>
                 </div>
+                <div>
+                  <q-toggle
+                    :readonly="readOnly"
+                    :label="$t('label.MyGameIsIndoorRemoveWarningsOnStart')"
+                    v-model="form.fields.customization.removeWarning"
+                    />
+                </div>
               </div>
             </q-expansion-item>
             <q-separator />
@@ -543,7 +557,7 @@
                 </div>
                 <div v-if="form.fields.customization && form.fields.customization.character && form.fields.customization.character !== ''">
                   <p>{{ $t('label.YourCharacter') }} :</p>
-                  <img class="full-width limit-size-desktop" :src="uploadUrl + '/upload/quest/' + form.fields.customization.character" />
+                  <img class="full-width limit-size-desktop" style="max-width: 400px" :src="uploadUrl + '/upload/quest/' + form.fields.customization.character" />
                   <div class="centered"><a class="dark" @click="removeCharacter">{{ $t('label.Remove') }}</a></div>
                 </div>
                 <div v-if="!isIOs && !readOnly">
@@ -557,6 +571,23 @@
                   {{ $t('label.AddACustomCharacter') }}:
                   <input @change="uploadCharacter" ref="characterfile" type="file" accept="image/*" />
                   <q-icon name="help" @click.native="showHelpPopup('helpQuestCharacter')" />
+                </div>
+                <div v-if="form.fields.customization && form.fields.customization.characterOnMap && form.fields.customization.characterOnMap !== ''">
+                  <p>{{ $t('label.YourCharacterOnMap') }} :</p>
+                  <img class="full-width limit-size-desktop" style="max-width: 200px" :src="serverUrl + '/upload/quest/' + form.fields.customization.characterOnMap" />
+                  <div class="centered"><a class="dark" @click="removeCharacterOnMap">{{ $t('label.Remove') }}</a></div>
+                </div>
+                <div v-if="!isIOs && !readOnly">
+                  <q-btn-group class="full-width">
+                    <q-btn class="full-width" @click="$refs['characterOnMapfile'].click()">{{ $t('label.AddACustomCharacterOnMap') }}</q-btn>
+                    <q-btn @click="showHelpPopup('helpQuestCharacterOnMap')" icon="help" />
+                  </q-btn-group>
+                  <input @change="uploadCharacterOnMap" ref="characterOnMapfile" type="file" accept="image/*" hidden />
+                </div>
+                <div v-if="isIOs && !readOnly">
+                  {{ $t('label.AddACustomCharacterOnMap') }}:
+                  <input @change="uploadCharacterOnMap" ref="characterOnMapfile" type="file" accept="image/*" />
+                  <q-icon name="help" @click.native="showHelpPopup('helpQuestCharacterOnMap')" />
                 </div>
                 <div>
                   <q-toggle
@@ -610,18 +641,18 @@
               expand-icon-class="text-white"
             >
               <div class="q-pa-md">
-                <div v-if="form.fields.rewardPicture && form.fields.rewardPicture !== ''">
+                <div v-if="form.fields.rewardPicture && form.fields.rewardPicture !== '' && !form.fields.customization.removeScoring">
                   <p>{{ $t('label.Reward') }} :</p>
                   <img class="full-width limit-size-desktop" :src="uploadUrl + '/upload/quest/' + form.fields.rewardPicture" style="background-color: #f00" />
                   <div>{{ $t('label.RewardPictureWarning')}}</div>
                   <div class="centered"><a class="dark" @click="removeReward">{{ $t('label.Remove') }}</a></div>
                 </div>
-                <div v-if="isIOs && !readOnly" class="q-mt-md">
+                <div v-if="isIOs && !readOnly && !form.fields.customization.removeScoring" class="q-mt-md">
                   {{ $t('label.AddAReward') }}:
                   <input @change="uploadReward" ref="rewardfile" type="file" accept="image/*" />
                   <q-icon name="help" @click.native="showHelpPopup('helpQuestReward')" />
                 </div>
-                <div v-if="!isIOs && !readOnly" class="q-mt-md">
+                <div v-if="!isIOs && !readOnly && !form.fields.customization.removeScoring" class="q-mt-md">
                   <q-btn-group class="full-width">
                     <q-btn class="full-width" @click="$refs['rewardfile'].click()">{{ $t('label.AddAReward') }}</q-btn>
                     <q-btn @click.native="showHelpPopup('helpQuestReward')" icon="help" />
@@ -680,8 +711,8 @@
       </div>
 
       <!------------------ STEPS TAB ------------------------>
-
-      <div v-if="tabs.selected === 'steps'" class="q-pa-md arial" :class="{'desktop-only': chapters.showNewStepOverview}">
+        
+      <div v-if="tabs.selected === 'steps'" class="q-pa-md arial scroll-on-desktop-80" :class="{'desktop-only': chapters.showNewStepOverview}">
         <div class="centered bg-warning q-pa-sm" v-if="warnings.stepsMissing" @click="refreshStepsList">
           <q-icon name="refresh" /> {{ $t('label.TechnicalErrorReloadPage') }}
         </div>
@@ -1010,6 +1041,7 @@
           <q-btn class="glossy large-button" color="primary" @click="createNewPaymentQRCode"><span>{{ $t('label.CreateNewQRCodeForPlay') }}</span></q-btn>
           <q-btn class="button" flat color="primary" @click="createMultipleNewPaymentQRCode(10)"><span>{{ $t('label.Create10NewQRCodeForPlay') }}</span></q-btn>
           <q-btn class="button" flat color="primary" @click="createMultipleNewPaymentQRCode(50)"><span>{{ $t('label.Create50NewQRCodeForPlay') }}</span></q-btn>
+          <q-btn class="glossy large-button" flat color="primary" @click="printQRCode"><span>{{ $t('label.PrintQRCodePages') }}</span></q-btn>
         </div>
       </div>
 
@@ -1296,7 +1328,7 @@
         </div>
 
       </div>
-      <div v-if="chapters.showNewStepPageSettings" class="bg-white arial full-page-div">
+      <div v-if="chapters.showNewStepPageSettings" class="bg-white arial full-page-div scroll-on-desktop-100">
       <!--Removed by EMA, too much issues with scroll <q-dialog maximized persistent v-model="chapters.showNewStepPageSettings" class="bg-white arial">-->
 
         <!------------------ STEP SETTINGS SELECTION ------------------------>
@@ -1410,7 +1442,7 @@
             <p class="subtitle5" v-if="inventory.items && inventory.items.length > 0 && !warnings.inventoryMissing && chapters.newStep.overviewData.type !== 'use-item'">{{ $t('label.InventoryZoom') }}</p>
             <p v-if="!inventory.items || inventory.items.length === 0">{{ $t('label.noItemInInventory') }}</p>
             <div class="inventory-items">
-              <div v-for="(item, key) in inventory.items" :key="key" @click="selectItem(item)">
+              <div v-for="(item, key) in inventory.items" :key="key" class="inventory-item" @click="selectItem(item)">
                 <img :src="((item.picture.indexOf('statics/') > -1 || item.picture.indexOf('blob:') !== -1) ? item.picture : uploadUrl + '/upload/quest/' + questId + '/step/new-item/' + item.picture)" />
                 <p v-if="item.titles && item.titles[languages.current] && item.titles[languages.current] !== ''">{{ item.titles[languages.current] }}</p>
                 <p v-if="!(item.titles && item.titles[languages.current] && item.titles[languages.current] !== '')">{{ item.title }}</p>
@@ -2071,11 +2103,18 @@ export default {
                       var maxPosition = 0
                       // find if parents are already sorted and if so add item in sorted after
                       for (var k = 0; k < stepsOfChapter[i].conditions.length; k++) {
-                        if (stepsOfChapter[i].conditions[k].indexOf("counter") === -1) {
+                        if (stepsOfChapter[i].conditions[k].indexOf("counter") === -1 
+                          && stepsOfChapter[i].conditions[k].indexOf("combineobject") === -1 
+                          && stepsOfChapter[i].conditions[k].indexOf("haveobject") === -1 
+                          && stepsOfChapter[i].conditions[k].indexOf("nothaveobject") === -1) {
                           let parentStepId = stepsOfChapter[i].conditions[k].replace("stepDone_", "")
                           parentStepId = parentStepId.replace("stepSuccess_", "")
                           parentStepId = parentStepId.replace("stepFail_", "")
                           parentStepId = parentStepId.replace("stepRandom_", "")
+                          if (parentStepId.indexOf("stepAnswerNb") !== -1) {
+                            let parentStepIdAnswerNbParts = parentStepId.split("_")
+                            parentStepId = parentStepIdAnswerNbParts[1]
+                          }
                           // If parent is not sorted => do not treat the item
                           if (sorted.indexOf(parentStepId) === -1) {
                             // check that the parent exists at least in unsorted => else error
@@ -2531,6 +2570,35 @@ export default {
     },
     async removeCharacter() {
       this.form.fields.customization.character = null
+    },
+    /*
+     * Upload a custo character for the quest
+     */
+    async uploadCharacterOnMap(e) {
+      this.$q.loading.show()
+      var files = e.target.files
+      if (!files[0]) {
+        return
+      }
+      var data = new FormData()
+      data.append('image', files[0])
+      let uploadPictureResult = await QuestService.uploadCharacterOnMap(data)
+      if (uploadPictureResult && uploadPictureResult.hasOwnProperty('data')) {
+        if (uploadPictureResult.data.file) {
+          this.form.fields.customization.characterOnMap = uploadPictureResult.data.file
+          this.$forceUpdate()
+        } else if (uploadPictureResult.data.message && uploadPictureResult.data.message === 'Error: File too large') {
+          Notification(this.$t('label.FileTooLarge'), 'error')
+        } else {
+          Notification(this.$t('label.UnknowUploadError'), 'error')
+        }
+      } else {
+        Notification(this.$t('label.ErrorStandardMessage'), 'error')
+      }
+      this.$q.loading.hide()
+    },
+    async removeCharacterOnMap() {
+      this.form.fields.customization.characterOnMap = null
     },
     /*
      * Start the tutorial
@@ -3856,6 +3924,13 @@ export default {
       }
       await this.listPayments()
     },
+    async printQRCode() {
+      const file = await QuestService.printQRCodes(this.questId)
+      setTimeout(this.openQRCodesPrinted, 2000)
+    },
+    openQRCodesPrinted() {
+      window.open(this.serverUrl + '/upload/tiers/print/' + this.questId + '.pdf', "_self")
+    },
     /*
      * List the payments for the game
      */
@@ -3952,9 +4027,13 @@ export default {
      * Compute number of good answers
      */
     computeGoodAnswers() {
+      if (!this.run || !this.run.conditionsDone) {
+        return
+      }
       const conditionsDone = this.run.conditionsDone
       let nbQuestions = 0
       let nbGoodAnwers = 0
+
       for (var i = 0; i < conditionsDone.length; i++) {
         if (conditionsDone[i].indexOf('stepSuccess_') !== -1) {
           nbQuestions++

@@ -78,10 +78,9 @@ export default {
    * @param   {String}    questId                ID of the quest
    * @param   {String}    player                 Player number ('P1', 'P2', ...)
    */
-  getNextStep(questId, player) {
+  getNextStep(questId, player, extra) {
     return Api()
-      .get("run/" + questId + "/step/next/player/" + player)
-      .catch(error => console.log(error.request));
+      .post("run/" + questId + "/step/next/player/" + player, extra).catch(error => console.log(error.request));
   },
   /*
    * check if a market launch a new step

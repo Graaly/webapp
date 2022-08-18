@@ -92,7 +92,7 @@
             <span v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</span>
             <span v-if="quest.duration && quest.duration >= 60">{{ Math.floor(quest.duration / 60) }}{{ $t('label.hoursSimplified') }}{{(quest.duration % 60 > 0 ? (quest.duration % 60) : "")}}</span>
           </div>
-          <div v-if="quest.type === 'quest'" class="q-mr-lg">
+          <div v-if="quest.type === 'quest' && (quest.customization && !quest.customization.hidePaymentBox)" class="q-mr-lg">
             <span v-if="!quest.premiumPrice.tier && shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">
               <img src="statics/images/icon/cost.svg" class="medium-icon" />
               <span v-if="!shop.premiumQuest.alreadyPayed">{{ $t('label.Free') }}</span>
@@ -280,11 +280,13 @@
             </offlineLoader>
           </div>
           <div>
-            <div class="q-px-lg q-pb-lg q-pt-md centered subtitle2">
-              {{ $t('label.Warnings') }}
-            </div>
-            <div class="q-pa-md subtitle5">
-              <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.GeneralWarning')" />
+            <div v-if="!quest.customization || !quest.customization.removeWarning">
+              <div class="q-px-lg q-pb-lg q-pt-md centered subtitle2">
+                {{ $t('label.Warnings') }}
+              </div>
+              <div class="q-pa-md subtitle5">
+                <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.GeneralWarning')" />
+              </div>
             </div>
             <div v-if="isRunFinished" class="q-pa-md subtitle5">
               <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.YouAlreadyDidThisQuest')" />

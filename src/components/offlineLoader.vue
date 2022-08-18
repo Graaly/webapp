@@ -167,7 +167,12 @@ export default {
           if (quest.customization && quest.customization.logo && quest.customization.logo !== '') {
             await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/', quest.customization.logo)
           }
-
+          
+          // Save customized map marker
+          if (quest.customization && quest.customization.characterOnMap && quest.customization.characterOnMap !== '') {
+            await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/', quest.customization.characterOnMap)
+          }
+          
           // Save customized sound
           if (quest.customization && quest.customization.audio && quest.customization.audio[this.lang] && quest.customization.audio[this.lang] !== '') {
             await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/', quest.customization.audio[this.lang])
@@ -250,6 +255,13 @@ export default {
                 const jigsawImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/jigsaw-puzzle/', step.options.picture[this.lang])
                 if (!jigsawImageSuccess) {
                   this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "jigsaw-puzzle" ' + step.stepId)
+                  return false
+                }
+              }
+              if (step.type === 'geolocation' && step.options && step.options.locator && step.options.locator !== '') {
+                const locatorImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/geolocation/', step.options.locator)
+                if (!locatorImageSuccess) {
+                  this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "geolocation" ' + step.stepId)
                   return false
                 }
               }

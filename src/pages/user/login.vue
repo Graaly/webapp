@@ -484,40 +484,64 @@ export default {
      * @param   {String}  code            QR Code value
      */
     async checkCode(code) {
-      code = utils.removeUnusedUrl(code)
-      let checkStatus = await QuestService.checkLoginQRCode(code, this.$t('label.shortLang'))
-      if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
-        this.closeQRCodeReader()
-        if (checkStatus.data.user) {
-          window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
-          axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
-          if (code.indexOf('_score') === -1) {
-            if (code.indexOf('-slash-') === -1 && code.indexOf('tierplay_') === -1) {
-              if (checkStatus.data.questId) {
-                this.$router.push('/quest/play/' + checkStatus.data.questId)
-              } else {
-                this.$router.push('/quest/play/' + code)
-              }
-            } else {
-              this.$q.dialog({
-                message: this.$t('label.UniqueUsageQRCodeWarning'),
-                ok: this.$t('label.Ok')
-              }).onOk(data => {        
+      // if code is 3 digits => this is a game QR code, not to be flashed here
+      if (code.length == 3) {
+        Notification(this.$t('label.QRCodeIsNotStartingOne'), 'error')
+        return
+      }
+      // treat teamplay
+      if (code.indexOf('teamplay_') !== -1) {
+        let teamPlayCode = code.replace('teamplay_', '')
+        if (teamPlayCode.indexOf('_') === -1) {
+          this.$router.push({path: '/teamplay/' + teamPlayCode + '/' + this.$t('label.shortLang'), query: {redirect: '/user/login'}})
+        } else {
+          let teamPlayCodeParts = teamPlayCode.split('_')
+          this.$router.push({path: '/teamplay/' + teamPlayCodeParts[0] + '/' + this.$t('label.shortLang') + '/individual-firstandlast-checklastname/' + teamPlayCodeParts[1], query: {redirect: '/user/login'}})
+        }
+      } else {
+        code = utils.removeUnusedUrl(code)
+        let checkStatus = await QuestService.checkLoginQRCode(code, this.$t('label.shortLang'))
+        if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
+          this.closeQRCodeReader()
+          if (checkStatus.data.user) {
+            window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
+            axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
+            if (code.indexOf('_score') === -1) {
+              if (code.indexOf('-slash-') === -1 && code.indexOf('tierplay_') === -1) {
                 if (checkStatus.data.questId) {
                   this.$router.push('/quest/play/' + checkStatus.data.questId)
                 } else {
                   this.$router.push('/quest/play/' + code)
                 }
-              })
+              } else {
+                this.$q.dialog({
+                  message: this.$t('label.UniqueUsageQRCodeWarning'),
+                  ok: this.$t('label.Ok')
+                }).onOk(data => {        
+                  if (checkStatus.data.questId) {
+                    this.$router.push('/quest/play/' + checkStatus.data.questId)
+                  } else {
+                    this.$router.push('/quest/play/' + code)
+                  }
+                })
+              }
+            } else {
+              this.$router.push('/quest/' + (code.substring(0, 24)) + '/end')
             }
           } else {
-            this.$router.push('/quest/' + (code.substring(0, 24)) + '/end')
+            if (code.indexOf('-slash-') === -1 && code.indexOf('tierplay_') === -1) {
+              Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
+            } else {
+              Notification(this.$t('label.QRCodeAlreadyUsed'), 'error')
+            }
           }
         } else {
-          Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
+          if (code.indexOf('-slash-') === -1 && code.indexOf('tierplay_') === -1) {
+            Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
+          } else {
+            Notification(this.$t('label.QRCodeAlreadyUsed'), 'error')
+          }
         }
-      } else {
-        Notification(this.$t('label.QRCodeIsNotWorking'), 'error')
       }
     },
     /*
@@ -553,17 +577,7 @@ export default {
       this.$i18n.locale = lang
     },
     teamPlay() {
-      this.$q.dialog({
-        dark: true,
-        message: this.$t('label.TypeTeamPlayId'),
-        prompt: {
-          model: this.teamPlayId,
-          type: 'text'
-        },
-        cancel: true
-      }).onOk(async (data) => {
-        this.$router.push({path: '/teamplay/' + data + '/' + this.$t('label.shortLang'), query: {redirect: '/user/login'}})
-      }).onCancel(() => {})
+      this.showNonHybridQRReader = true
     }
   },
   validations: {
