@@ -574,7 +574,7 @@
                 </div>
                 <div v-if="form.fields.customization && form.fields.customization.characterOnMap && form.fields.customization.characterOnMap !== ''">
                   <p>{{ $t('label.YourCharacterOnMap') }} :</p>
-                  <img class="full-width limit-size-desktop" style="max-width: 200px" :src="serverUrl + '/upload/quest/' + form.fields.customization.characterOnMap" />
+                  <img class="full-width limit-size-desktop" style="max-width: 200px" :src="uploadUrl + '/upload/quest/' + form.fields.customization.characterOnMap" />
                   <div class="centered"><a class="dark" @click="removeCharacterOnMap">{{ $t('label.Remove') }}</a></div>
                 </div>
                 <div v-if="!isIOs && !readOnly">
@@ -1764,7 +1764,7 @@ export default {
       isIOs: utils.isIOS(),
       serverUrl: process.env.SERVER_URL,
       uploadUrl: process.env.UPLOAD_URL,
-      pictureUploadURL: this.serverUrl + '/quest/picture/upload',
+      //pictureUploadURL: this.serverUrl + '/quest/picture/upload', // MPA 2022-08-18 seems not used
       titleMaxLength: 50,
       isHybrid: false,
       isAdmin: false,

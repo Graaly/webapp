@@ -170,7 +170,7 @@ export default {
           
           // Save customized map marker
           if (quest.customization && quest.customization.characterOnMap && quest.customization.characterOnMap !== '') {
-            await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/', quest.customization.characterOnMap)
+            await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/', quest.customization.characterOnMap)
           }
           
           // Save customized sound
@@ -259,7 +259,7 @@ export default {
                 }
               }
               if (step.type === 'geolocation' && step.options && step.options.locator && step.options.locator !== '') {
-                const locatorImageSuccess = await utils.saveBinaryFile(quest.questId, this.serverUrl + '/upload/quest/' + quest.questId + '/step/geolocation/', step.options.locator)
+                const locatorImageSuccess = await utils.saveBinaryFile(quest.questId, this.uploadUrl + '/upload/quest/' + quest.questId + '/step/geolocation/', step.options.locator)
                 if (!locatorImageSuccess) {
                   this.throwSaveError('Could not save image for quest ' + quest.questId + ' and step "geolocation" ' + step.stepId)
                   return false

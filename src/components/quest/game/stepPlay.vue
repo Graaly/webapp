@@ -1605,20 +1605,20 @@ export default {
             this.geolocation.mode = 'compass'
           }
           if (this.customization && this.customization.characterOnMap && this.customization.characterOnMap !== "") {
-            this.geolocation.playerPosition.marker = this.customization.characterOnMap.indexOf('blob:') !== -1 ? this.customization.characterOnMap : this.serverUrl + '/upload/quest/' + this.customization.characterOnMap
+            this.geolocation.playerPosition.marker = this.customization.characterOnMap.indexOf('blob:') !== -1 ? this.customization.characterOnMap : this.uploadUrl + '/upload/quest/' + this.customization.characterOnMap
           }
         }
         if (this.step.id === 'gpssensor') {
           if (this.step.visibles && this.step.visibles.length > 0) {
             this.geolocation.mode = 'map'
             for (var i = 0; i < this.step.visibles.length; i++) {
-              this.geolocation.destinationPosition.push({marker: (this.step.visibles[i].marker.indexOf('blob:') !== -1 || this.step.visibles[i].marker === '') ? this.step.visibles[i].marker : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/geolocation/' + this.step.visibles[i].marker, coords: this.step.visibles[i].coords})
+              this.geolocation.destinationPosition.push({marker: (this.step.visibles[i].marker.indexOf('blob:') !== -1 || this.step.visibles[i].marker === '') ? this.step.visibles[i].marker : this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/geolocation/' + this.step.visibles[i].marker, coords: this.step.visibles[i].coords})
             }
           } else {
             this.geolocation.mode = 'sensor'
           }
           if (this.customization && this.customization.characterOnMap && this.customization.characterOnMap !== "") {
-            this.geolocation.playerPosition.marker = this.customization.characterOnMap.indexOf('blob:') !== -1 ? this.customization.characterOnMap : this.serverUrl + '/upload/quest/' + this.customization.characterOnMap
+            this.geolocation.playerPosition.marker = this.customization.characterOnMap.indexOf('blob:') !== -1 ? this.customization.characterOnMap : this.uploadUrl + '/upload/quest/' + this.customization.characterOnMap
           }
         }
 
@@ -3300,7 +3300,7 @@ export default {
         
         // set the marker
         if (this.step.options.locator && this.step.options.locator !== "") {
-          this.geolocation.destinationPosition.marker = this.step.options.locator.indexOf('blob:') !== -1 ? this.step.options.locator : this.serverUrl + '/upload/quest/' + this.step.questId + '/step/geolocation/' + this.step.options.locator
+          this.geolocation.destinationPosition.marker = this.step.options.locator.indexOf('blob:') !== -1 ? this.step.options.locator : this.uploadUrl + '/upload/quest/' + this.step.questId + '/step/geolocation/' + this.step.options.locator
         }
 
         // compute distance between two coordinates

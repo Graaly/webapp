@@ -995,7 +995,7 @@
               <div v-if="selectedStep.form.options !== null && selectedStep.form.options.locator && selectedStep.form.options.locator !== null">
                 <p>{{ $t('label.YourItemPicture') }} :</p>
                 <div class="centered">
-                  <img style="width:100%" :src="(selectedStep.form.options.locator.indexOf('statics/') !== -1 ? selectedStep.form.options.locator : serverUrl + '/upload/quest/' + questId + '/step/geolocation/' + selectedStep.form.options.locator)" />
+                  <img style="width:100%" :src="(selectedStep.form.options.locator.indexOf('statics/') !== -1 ? selectedStep.form.options.locator : uploadUrl + '/upload/quest/' + questId + '/step/geolocation/' + selectedStep.form.options.locator)" />
                 </div>
               </div>
             </div>
@@ -2421,19 +2421,19 @@ export default {
           this.selectedStep.formatedConditions.push(this.$t("label.StepCounterLower") + " <i>" + conditionParts[1] + "</i>")
         }
         if (conditionParts[0] === 'combineobject') {
-          this.selectedStep.formatedConditions.push(this.$t("label.StepCombineObject") + " <i><img src='" + (conditionParts[1].indexOf('statics/') !== -1 ? conditionParts[1] : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + conditionParts[1]) + "' style='width: 40px' /></i>")
+          this.selectedStep.formatedConditions.push(this.$t("label.StepCombineObject") + " <i><img src='" + (conditionParts[1].indexOf('statics/') !== -1 ? conditionParts[1] : this.uploadUrl + '/upload/quest/' + this.questId + '/step/new-item/' + conditionParts[1]) + "' style='width: 40px' /></i>")
         }
         if (conditionParts[0] === 'haveobject') {
           for (let pictureUrl in this.config.useItem.stepsOfItems) {
             if (this.config.useItem.stepsOfItems[pictureUrl] === conditionParts[1]) {
-              this.selectedStep.formatedConditions.push(this.$t("label.StepHaveObject") + " <i><img src='" + (pictureUrl.indexOf('statics/') !== -1 ? pictureUrl : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + pictureUrl) + "' style='width: 40px' /></i>")
+              this.selectedStep.formatedConditions.push(this.$t("label.StepHaveObject") + " <i><img src='" + (pictureUrl.indexOf('statics/') !== -1 ? pictureUrl : this.uploadUrl + '/upload/quest/' + this.questId + '/step/new-item/' + pictureUrl) + "' style='width: 40px' /></i>")
             }
           }  
         }
         if (conditionParts[0] === 'nothaveobject') {
           for (let pictureUrl in this.config.useItem.stepsOfItems) {
             if (this.config.useItem.stepsOfItems[pictureUrl] === conditionParts[1]) {
-              this.selectedStep.formatedConditions.push(this.$t("label.StepNotHaveObject") + " <i><img src='" + (pictureUrl.indexOf('statics/') !== -1 ? pictureUrl : this.serverUrl + '/upload/quest/' + this.questId + '/step/new-item/' + pictureUrl) + "' style='width: 40px' /></i>")
+              this.selectedStep.formatedConditions.push(this.$t("label.StepNotHaveObject") + " <i><img src='" + (pictureUrl.indexOf('statics/') !== -1 ? pictureUrl : this.uploadUrl + '/upload/quest/' + this.questId + '/step/new-item/' + pictureUrl) + "' style='width: 40px' /></i>")
             }
           }  
         }
