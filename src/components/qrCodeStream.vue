@@ -22,13 +22,13 @@
           />
         </div>
       </qrcode-stream>
-      <div class="absolute-bottom q-mx-lg" :style="menu ? 'bottom: 100px;' : 'bottom: 25px;'">
-        <div class="code-btn flex justify-between">
-          <div>
-            <icon-btn-square class="q-mr-lg" @click.native="torchActive = !torchActive" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" :icon="isLight ? 'flashlight_off' : 'flashlight_on'" :disable="torchNotSupported"/>
+      <div class="absolute-top q-mx-lg" style="top: 25px">
+        <div class="code-btn" style="max-width: 450px; margin: 0 auto">
+          <div class="flex justify-end">
+            <icon-btn-square class="q-mr-lg" @click.native="!torchNotSupported ? torchActive = !torchActive : ''" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" :icon="isLight ? 'flashlight_off' : 'flashlight_on'" :disable="torchNotSupported"/>
             <icon-btn-square @click.native="switchCamera" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" icon="cameraswitch"/>
           </div>
-          <icon-btn-square @click.native="closeQRCodeReader()" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" icon="close" fill rotation/>
+<!--          <icon-btn-square @click.native="closeQRCodeReader()" :color="(!color || color === 'primary' || color === '') ? 'primary' : color" icon="close" fill rotation/>-->
         </div>
       </div>
 
@@ -208,6 +208,8 @@ export default {
       if (this.timeOutId !== null) {
         clearTimeout(this.timeOutId)
       }
+    } else {
+      this.camera = 'off'
     }
   }
 }

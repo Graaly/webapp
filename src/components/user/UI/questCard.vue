@@ -1,5 +1,5 @@
 <template>
-  <q-card class="my-card" :style="cssVars">
+  <q-card class="my-card" :style="cssVars" @click="$router.push('/quest/play/' + quest.questId)" :class="info ? '' : 'cursor-pointer'">
     <div v-if="!quest" class="flex items-center justify-center full-height">
       <q-spinner-dots
         :color="color"
@@ -23,13 +23,101 @@
       </div>
       <div class="inter-bar" :class="direction === 'left' ? 'left' : 'right'"></div>
       <creator-badge class="creator-badge" :class="direction === 'left' ? 'left' : 'right'" :color="bgColor"/>
+      <div class="score-badge flex items-center justify-center"
+           :class="direction === 'right' ? 'right' : 'left'"
+           v-if="quest.availablePoints && quest.availablePoints.maxPts && (!quest.customization || !quest.customization.removeScoring)"
+           @click="$emit('showRewards')">
+<!--        <img src="statics/images/icon/point.png" />-->
+        <div class="text-white">
+          +{{ quest.availablePoints.maxPts }}
+        </div>
+      </div>
     </q-card-section>
-    <q-card-section class="section-down">
+    <q-card-section v-if="!info" class="section-down">
       <div class="card-title">{{ quest.title }}</div>
       <div class="card-city"> {{ quest.location.town }} {{ quest.location.zipcode}}</div>
       <div class="card-stats flex">
         <div class="card-time q-mr-md">Temps estimé : {{ quest.duration }}Min</div>
         <div class="card-difficult">Difficulté : {{ getDifficult() }}</div>
+      </div>
+    </q-card-section>
+    <q-card-section v-if="info" class="section-info">
+      <div class="q-mt-lg q-mb-md info-title">{{ quest.title === "" ?  $t('label.NoTitle') : quest.title }}</div>
+      <div v-html="this.quest.description"></div>
+      <div v-if="isUserTooFar && !quest.allowRemotePlay" class="q-pt-md">
+        <q-icon color="secondary" name="warning" />&nbsp; <span v-html="$t('label.QuestIsFarFromUser')" />
+      </div>
+    </q-card-section>
+    <!--   INFO QUEST PLAY  -->
+    <q-card-section v-if="info" class="section-down">
+      <div v-if="quest && quest.status" class="text-white">
+        <div class="bg-warning q-pa-sm shadow-5" v-if="warning.lowBattery">
+          <q-icon name="battery_alert" /> {{ $t('label.WarningLowBattery') }}
+        </div>
+        <div class="bg-warning q-pa-sm shadow-5" v-if="warning.tooMuchUsers">
+          <q-icon name="warning" /> {{ $t('label.TooMuchUsersCurrently') }}
+        </div>
+        <div v-if="quest.status !== 'published'" class="info-quest shadow-5 centered q-pa-sm q-mb-md">
+          {{ $t('label.' + (quest.type === 'quest' ? 'QuestDraftVersion' : 'PageDraftVersion')) }}
+        </div>
+        <!-- =========================== TITLE ========================== -->
+        <div class="text-h5">
+          &nbsp;<img v-if="language !== $store.state.user.language" class="image-and-text-aligned" :src="'statics/icons/game/flag-' + language + '.png'" />
+        </div>
+        <!-- =========================== PROPERTIES ========================== -->
+        <div class="row q-pt-md text-subtitle1 properties-bar">
+          <div class="q-mr-lg">
+            <img src="statics/images/icon/difficulty.svg" class="medium-icon" />{{ $t('label.Difficulty' + quest.level) }}
+          </div>
+          <div v-if="quest.duration && quest.duration < 999" class="q-mr-lg">
+            <img src="statics/images/icon/duration.svg" class="medium-icon" />
+            <span v-if="quest.duration && quest.duration < 60">{{ quest.duration }}{{ $t('label.minutesSimplified') }}</span>
+            <span v-if="quest.duration && quest.duration >= 60">{{ Math.floor(quest.duration / 60) }}{{ $t('label.hoursSimplified') }}{{(quest.duration % 60 > 0 ? (quest.duration % 60) : "")}}</span>
+          </div>
+          <div v-if="quest.type === 'quest'" class="q-mr-lg">
+            <span v-if="!quest.premiumPrice.tier && shop.premiumQuest.priceCode === 'free' && quest.type === 'quest'">
+              <img src="statics/images/icon/cost.svg" class="medium-icon" />
+              <span v-if="!shop.premiumQuest.alreadyPayed">{{ $t('label.Free') }}</span>
+              <span v-if="shop.premiumQuest.alreadyPayed">{{ $t('label.AlreadyPaied') }}</span>
+            </span>
+            <span v-if="shop.premiumQuest.priceCode !== 'free' && quest.type === 'quest'">
+              <img src="statics/images/icon/cost.svg" class="medium-icon" />
+              <span>{{ shop.premiumQuest.priceValue === '0' ? ((quest.premiumPrice && quest.premiumPrice.prices && quest.premiumPrice.prices.fr) ? quest.premiumPrice.prices.fr : '...') : shop.premiumQuest.priceValue }}</span>
+            </span>
+          </div>
+          <div>
+            <q-rating v-if="quest.rating && quest.rating.rounded" readonly v-model="quest.rating.rounded" color="yellow-8" :max="5" size="0.8em" />
+          </div>
+        </div>
+        <div v-if="quest.type === 'room' && quest.premiumPrice.manual">
+          <img src="statics/images/icon/cost.svg" class="medium-icon" />
+          <span>{{ $t('label.FromPricePerPlayer', {price: quest.premiumPrice.manual}) }}</span>
+        </div>
+        <div v-if="quest.premiumPrice.tier && quest.type === 'quest' && quest.premiumPrice.manual && shop.premiumQuest.priceCode === 'free'">
+          <img src="statics/images/icon/cost.svg" class="medium-icon" />
+          <span>{{ $t('label.FromPricePerPlayer', {price: quest.premiumPrice.manual}) }}</span>
+        </div>
+
+        <!-- =========================== LOCATION ========================== -->
+
+        <div v-if="quest.location && quest.location.address" class="text-subtitle1 q-mt-sm quest-location" @click="goToLocationWithMaps(quest.location.coordinates[0],quest.location.coordinates[1])">
+          <u> {{ quest.location.address }}</u>
+        </div>
+
+        <!-- =========================== WARNING ========================== -->
+
+        <div v-if="quest.warning" class="text-subtitle1 q-mt-sm quest-warning" @click="openWarningLink()">
+          <q-icon color="secondary" name="warning" /> <u>{{ getTranslatedData(quest.warning) }}</u>
+        </div>
+        <div v-if="quest.playersNumber && quest.playersNumber > 1" class="text-subtitle1 q-mt-sm quest-warning">
+          <q-icon color="secondary" name="group" /> {{ $t('label.YouNeedToBeXPlayers', {nb: quest.playersNumber}) }}
+        </div>
+
+        <!-- =========================== RANKING ========================== -->
+
+        <div class="text-subtitle1 q-mt-sm quest-ranking">
+          <a class="concertone" @click="$router.push('/user/ranking/ranking/' + quest.questId)">{{ $t('label.Ranking') }}</a>
+        </div>
       </div>
     </q-card-section>
     </div>
@@ -46,6 +134,9 @@ export default {
 
   props: {
     quest: Object,
+    warning: Object,
+    shop: Object,
+    language: null,
     color: {
       type: String,
       default: 'primary'
@@ -53,6 +144,10 @@ export default {
     direction: {
       type: String,
       default: 'left'
+    },
+    info: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -63,7 +158,6 @@ export default {
     }
   },
   mounted() {
-    console.log(this.quest)
     if (this.quest && this.quest.rating.value) {
       this.ratingValue = this.quest.rating.value
     }
@@ -83,7 +177,8 @@ export default {
     cssVars() {
       return {
         "--bg-color": this.bgColor,
-        "--bg-darken": colors.lighten(this.bgColor, -20)
+        "--bg-darken": colors.lighten(this.bgColor, -20),
+        "--height": this.info ? "inherit" : "350px"
       }
     }
   },
@@ -133,7 +228,7 @@ export default {
 <style scoped lang="scss">
 .my-card{
   width: 100%;
-  height: 350px;
+  height: var(--height);
   border-radius: 20px;
 
   .section-up{
@@ -175,11 +270,34 @@ export default {
         left: 20px;
       }
     }
+    .score-badge{
+      z-index: 5;
+      width: 60px;
+      height: 60px;
+      position: absolute;
+      bottom: -37px;
+      background: url("../../../statics/images/icon/point.png");
+      background-size: cover;
+      &.left{
+        left: 20px;
+      }
+      &.right{
+        right: 20px;
+      }
+    }
   }
-
+  .section-info{
+    background: var(--bg-darken);
+    color: white;
+    font-size: 14px;
+    padding-top: 25px;
+    .info-title{
+      font-size: 24px;
+    }
+  }
   .section-down{
     padding-top: 25px;
-    height: 100px;
+    //height: 100px;
     background: var(--bg-darken);
     border-radius: 0 0 20px 20px;
     color: white;
@@ -192,6 +310,9 @@ export default {
     }
     .card-stats{
       font-size: 14px;
+    }
+    .info-quest{
+      background: var(--bg-color);
     }
   }
 }

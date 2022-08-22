@@ -1,7 +1,7 @@
 <template>
   <q-btn
     :style="cssVars"
-    :type="submit ? 'submit' : ''"
+    :type="submit ? 'submit' : 'button'"
     class="btn"
     :class="outlined ? 'outlined' : ''"
     :loading="loading"

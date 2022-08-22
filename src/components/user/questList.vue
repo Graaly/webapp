@@ -1,6 +1,6 @@
 <template>
   <div class="q-pb-lg">
-    <div class="title flex justify-between items-center q-mb-md">
+    <div class="title flex justify-between items-center q-mb-md" v-if="title">
       <div style="text-transform:uppercase;" class="flex items-center">
       <q-icon :name="icon" class="q-mr-sm material-icons-outlined"/>
       <span>{{ title }}</span>
@@ -12,18 +12,30 @@
         v-for="(quest, index) in quests"
         :key="quest._id" :quest="quest"
         :direction="index % 2 === 0 ? 'left' : 'right'"
-        :color="color"
-        class="q-mb-md"/>
+        :color="color === 'allColors' ? allColors(index+1) : color"
+        class="q-mb-sm"/>
       <div v-if="!quests" class="flex items-center justify-center full-height">
-        <q-spinner-dots
+
+        <q-card class="full-width q-pa-none" flat style="background: transparent;border-radius: 10px">
+          <div class="row items-start no-wrap q-pa-sm">
+            <q-skeleton size="56px" square/>
+            <div class="col q-pl-sm">
+              <q-skeleton type="text" square width="30%" />
+              <q-skeleton type="text" square height="12px" />
+              <q-skeleton type="text" square height="12px" width="75%"/>
+            </div>
+
+          </div>
+        </q-card>
+<!--        <q-spinner-dots
           :color="color"
           size="2em"
-        />
+        />-->
       </div>
     </div>
 
-    <div v-if="quests && quests.length === 0">
-      <div class="centered q-pa-md">
+    <div v-if="title && quests && quests.length === 0">
+      <div class="centered q-pa-md text-white">
         {{ $t('label.NoQuestAroundYou') }}
         <div>
           <a class="small" @click="suggestQuest.show = true">{{ $t('label.SuggestANewQuest') }}</a>
@@ -60,6 +72,17 @@ export default {
   methods: {
     readMoreBtn() {
       this.$emit('readMore')
+    },
+    allColors(index) {
+      if (index%3 === 0) {
+        return 'accent'
+      }
+      else if (index%2 === 0) {
+        return 'secondary'
+      }
+      else {
+        return 'primary'
+      }
     }
   }
 }

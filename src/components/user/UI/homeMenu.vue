@@ -101,11 +101,11 @@ export default {
         case 'admin':
           this.link = 'admin'
           break
-        case 'camera':
+        case 'scanCode':
           this.link = 'scan'
           break
         default:
-          this.link = 'graaly'
+          this.link = 'other'
           break
       }
     }
@@ -117,7 +117,8 @@ export default {
     startScanQRCode() {
       if (!this.offline.active) {
         //this.link = 'scan'
-        this.$router.push('/scanQrCode')
+        //this.$router.push('/scanCode')
+        this.$router.push({ name: 'scanCode', params: { login: 'false' } })
       }
     },
     openAdminPage() {

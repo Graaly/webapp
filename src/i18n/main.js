@@ -2008,7 +2008,7 @@ module.exports = {
       YouAreNearThisQuest: "Jeu le plus proche de vous",
       YouAreInvitedToThisQuest: "Vous êtes invité à ce jeu",
       CreatedByGraaly: "Créées avec Graaly",
-      FriendsQuests: "Joué par amis",
+      FriendsQuests: "Joués par amis",
       ScoreAndBadges: "Score et badges",
       OneBadge: "1 badge",
       OnThisEscapeGameYouCanWin: "Sur ce jeu, vous pouvez gagner :",

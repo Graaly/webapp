@@ -1,13 +1,13 @@
 <template>
   <div class="" :class="[showNonHybridQRReader && isHybrid ? 'bg-transparent' : 'background-login', showNonHybridQRReader ? '' : 'wrapper']">
     <!--====================== TEST MENU =================================-->
-    <div v-if="showNonHybridQRReader">
-      <!--====================== QR CODE READER ON WEBAPP =================================-->
+<!--    <div v-if="showNonHybridQRReader">
+      &lt;!&ndash;====================== QR CODE READER ON WEBAPP =================================&ndash;&gt;
 
-      <!--      <div class="text-white camera-title q-py-md q-pl-lg flex items-center justify-between">
+      &lt;!&ndash;      <div class="text-white camera-title q-py-md q-pl-lg flex items-center justify-between">
               <div>{{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}</div>
               <q-btn icon="close" flat round dense  @click="closeQRCodeReader"/>
-            </div> -->
+            </div> &ndash;&gt;
 
       <qr-code-stream
         v-if="showNonHybridQRReader"
@@ -15,7 +15,7 @@
         :color="'accent'"
         v-on:CloseQRCodeReader="closeQRCodeReader"
       />
-    </div>
+    </div>-->
     <div class="login">
       <div class="page-content" style="padding-bottom: 100px" v-if="!showNonHybridQRReader">
         <!--<div class="desktop-only centered q-pa-md warning bg-warning">
@@ -62,8 +62,8 @@
               </p>
 
               <div v-if="step === 'forgottenpassword'">
-                <p>{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
-                <q-input outlined :label="$t('label.Code')" v-model="form.code"/>
+                <p class="code-square">{{ $t('label.EnterTheCodeYouReceivedByEmail') }}</p>
+                <q-input class="q-pb-md" outlined :label="$t('label.Code')" v-model="form.code"/>
               </div>
 
               <div v-if="step === 'forgottenpassword'">
@@ -80,7 +80,7 @@
               </div>
             </div>
             <!---- BTN SUBMIT ---->
-            <div class="text-center q-mb-lg">
+            <div class="text-center q-mb-lg q-mt-lg">
               <text-btn-square
                 submit
                 :loading="submitting"
@@ -499,11 +499,11 @@ export default {
     * start the scanner for hybrid app
     */
     startScanQRCode() {
-        this.showNonHybridQRReader = true
+      this.$router.push({ name: 'scanCode', params: { login: 'true' } })
     },
-    closeQRCodeReader () {
+    /*closeQRCodeReader () {
       this.showNonHybridQRReader = false
-    },
+    },*/
     async validateTerms() {
       this.terms.show = true
     },
@@ -540,7 +540,7 @@ export default {
       code = utils.removeUnusedUrl(code)
       let checkStatus = await QuestService.checkLoginQRCode(code, this.$t('label.shortLang'))
       if (checkStatus && checkStatus.data && checkStatus.data.status === 'ok') {
-        this.closeQRCodeReader()
+        //this.closeQRCodeReader()
         if (checkStatus.data.user) {
           window.localStorage.setItem('jwt', checkStatus.data.user.jwt)
           axios.defaults.headers.common['Authorization'] = `Bearer ${checkStatus.data.user.jwt}`
@@ -631,6 +631,13 @@ export default {
 .login-form{
   max-width: 320px;
   margin: 0 auto;
+  .code-square{
+    color: white;
+    font-size: 14px;
+    text-align: center;
+    padding: 8px 12px;
+    background: #D60B52;
+  }
 }
 .background-login {
   background-image: url('../../statics/new/h-top-background.jpg');

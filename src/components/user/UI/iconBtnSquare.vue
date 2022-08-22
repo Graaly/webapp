@@ -1,10 +1,13 @@
 <template>
-  <q-btn class="btn" flat :style="cssVars" :disable="disable">
-    <div class="square-shadow"></div>
-    <div class="square-icon flex items-center justify-center">
-      <q-icon class="btn-icon" :name="icon" />
-    </div>
-  </q-btn>
+  <div class="relative-position" :class="label ? 'q-mb-lg' : ''" :style="cssVars">
+    <q-btn class="btn" flat :disable="disable">
+      <div class="square-shadow"></div>
+      <div class="square-icon flex items-center justify-center">
+        <q-icon class="btn-icon" :name="icon" />
+      </div>
+    </q-btn>
+    <div class="btn-label" v-if="label">{{ label }}</div>
+  </div>
 </template>
 
 <script>
@@ -24,6 +27,10 @@ export default {
     disable: {
       type: Boolean,
       default: false
+    },
+    label: {
+      type: String,
+      default: null
     }
   },
   data() {
@@ -112,5 +119,17 @@ export default {
     transform: rotate(-45deg);
     transition: 500ms;
   }
+}
+.btn-label{
+  position: absolute;
+  overflow: hidden;
+  text-align: center;
+  top: 58px;
+  width: 100px;
+  left: calc(50% - 50px);
+  color: var(--bg-color);
+  white-space: nowrap;
+  text-transform: uppercase;
+  font-size: 14px;
 }
 </style>

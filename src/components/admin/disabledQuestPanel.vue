@@ -35,13 +35,17 @@
             </q-avatar>
           </q-td>
           <q-td auto-width key="name">{{ props.row.title.fr }}<br><span class="text-primary">{{ props.row.questId }}</span></q-td>
-          <q-td auto-width key="mail">{{ props.row.userMail !== false ? props.row.userMail : '-- Pas de mail --' }} <q-btn v-if="props.row.userMail" size="8px" flat round color="accent" icon="content_copy" class="q-mr-sm" @click="copy(props.row.userMail)"/></q-td>
+          <q-td auto-width key="mail"><q-btn v-if="props.row.userMail" size="8px" flat round color="accent" icon="content_copy" class="q-mr-sm" @click="copy(props.row.userMail)">
+            <q-tooltip>
+              {{ props.row.userMail !== false ? props.row.userMail : '-- Pas de mail --' }}
+            </q-tooltip>
+          </q-btn></q-td>
           <q-td auto-width key="status">{{ props.row.status }}</q-td>
           <q-td auto-width key="nbStep"> à définir </q-td>
           <q-td auto-width key="version">{{ props.row.version }}</q-td>
           <q-td auto-width key="size">{{ goodSize(props.row.size.current) }}</q-td>
           <q-td auto-width key="dateUpdated">{{ props.row.dateUpdated}}</q-td>
-          <q-td auto-width>
+          <q-td auto-width class="text-center">
             <q-btn size="md" color="accent" glossy icon="delete" @click="openDeleteDialog(props.row.questId, props.row.version, props.row.title.fr ? props.row.title.fr : props.row.title.en)"/>
             <q-dialog ref="adminDeleteDialog">
               <q-card class="q-dialog-plugin">

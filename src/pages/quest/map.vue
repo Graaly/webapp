@@ -51,7 +51,6 @@
 <!--    <div class="q-py-sm q-px-md dark-banner fixed-top over-map">
       <q-btn flat icon="arrow_back" @click="backToHome" />
     </div>-->
-    <back-bar color="accent"/>
   </div>
 </template>
 

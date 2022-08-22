@@ -1,12 +1,12 @@
 <template>
   <div class="wrapper" :class="showNonHybridQRReader ? 'bg-transparent' : 'background-home'">
-    <div v-if="showNonHybridQRReader" >
+<!--    <div v-if="showNonHybridQRReader" >
 
-      <!--====================== QR CODE READER ON WEBAPP =================================-->
-<!--      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
+      &lt;!&ndash;====================== QR CODE READER ON WEBAPP =================================&ndash;&gt;
+&lt;!&ndash;      <div class="text-white bg-primary q-pt-xl q-pl-md q-pb-sm">
         <div class="float-right no-underline close-btn q-pa-sm" @click="closeQRCodeReader"><q-icon name="close" class="subtitle1" /></div>
         {{ $t('label.PassTheQRCodeInFrontOfYourCamera') }}
-      </div>-->
+      </div>&ndash;&gt;
 
       <qr-code-stream
         v-if="showNonHybridQRReader"
@@ -15,8 +15,8 @@
         menu
         v-on:CloseQRCodeReader="closeQRCodeReader"
       />
-    </div>
-    <div class="home q-pa-lg">
+    </div>-->
+    <div class="home q-pa-md">
     <div class="teaser" v-if="!showNonHybridQRReader">
 
       <!--====================== MAIN QUEST =================================-->
@@ -177,6 +177,7 @@
           :creators="users"
           v-on:readMore="readMoreAllCreators"
           color="primary"
+          title
         />
 <!--        <titleBar :title="{text: $t('label.Designers'), type: 'puzzle'}" :link="{text: $t('label.SeeMore')}" @click="readMoreAllCreators"></titleBar>
         <usersList format="scroll" :users="users"></usersList>-->

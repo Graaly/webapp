@@ -47,7 +47,7 @@
         </q-tab-panel>
         <!--   SECOND PANEL     -->
         <q-tab-panel name="second">
-          <q-card class="new-dialog bg-transparent">
+          <q-card class="new-dialog bg-transparent" flat>
             <q-card-section class="dialog-title flex justify-between items-center">
               <icon-btn-square :color="userType === 'education' ? 'secondary' : 'accent'" fill icon="navigate_before" @click.native="panel = 'first'"/>
               <q-space/>
@@ -112,7 +112,7 @@
         </q-tab-panel>
         <!--   LAST PANEL     -->
         <q-tab-panel name="last">
-          <q-card class="new-dialog bg-transparent">
+          <q-card class="new-dialog bg-transparent" flat>
             <q-card-section class="dialog-title flex justify-between items-center">
               <icon-btn-square :color="userType === 'education' ? 'secondary' : 'accent'" fill icon="navigate_before" @click.native="panel = 'second'"/>
               <q-space/>

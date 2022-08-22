@@ -1,12 +1,6 @@
 <template>
-  <q-card class="my-card" :style="cssVars">
-    <div v-if="!quest" class="flex items-center justify-center full-height">
-      <q-spinner-dots
-        :color="color"
-        size="2em"
-      />
-    </div>
-    <div v-else class="flex items-center">
+  <q-card class="my-card" :style="cssVars" @click="$router.push('/quest/play/' + quest.questId)">
+    <div class="flex items-center">
       <q-card-section class="q-pa-none" style="background:#fff; border-radius: 10px 0 0 10px">
         <div class="relative-position section-left">
           <div class="full-height flex">
@@ -138,7 +132,7 @@ export default {
     transition: 500ms;
 
     &:hover{
-      transform: scale(1.07);
+      transform: scale(1.05);
       border: 2px solid white;
       cursor: pointer;
     }

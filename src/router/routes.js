@@ -5,6 +5,7 @@ import CustomerConfiguration from 'boot/CustomerConfiguration'
 
 import Home from 'pages/home'
 import Map from 'pages/quest/map'
+import ScanCode from "pages/user/scanCode";
 
 import QuestPlayHome from 'pages/quest/game/intro'
 import QuestPlayStep from 'pages/quest/game/step'
@@ -268,6 +269,12 @@ export default [
         component: Map,
         meta: { requiresAuth: true }
       },
+      {
+        path: 'scanCode',
+        name: 'scanCode',
+        component: ScanCode,
+        meta: { requiresAuth: false }
+      }
     ]
   },
   {
