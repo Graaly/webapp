@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "06fd5bc04fa5c2e19067",
-    "url": "css/app.6bd28dcc.css"
+    "revision": "2103695e2e0458d41525",
+    "url": "css/app.1a9eaf1e.css"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -72,20 +72,20 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/spinner.b552c229.gif"
   },
   {
-    "revision": "83c788c36ee22631df2ac80ca366d515",
+    "revision": "38991b88b15133cea95d7f16399720ed",
     "url": "index.html"
   },
   {
-    "revision": "5af1162920faf149bfa2",
-    "url": "js/2.5af11629.js"
+    "revision": "773bf292504c6094c858",
+    "url": "js/2.773bf292.js"
   },
   {
-    "revision": "06fd5bc04fa5c2e19067",
-    "url": "js/app.81770e50.js"
+    "revision": "2103695e2e0458d41525",
+    "url": "js/app.0279cbb2.js"
   },
   {
-    "revision": "5b15a5d0542c18444147",
-    "url": "js/vendor.5b15a5d0.js"
+    "revision": "3c5526cef7c69791bbc6",
+    "url": "js/vendor.3c5526ce.js"
   },
   {
     "revision": "19e941eacef1fc70e8b70479c2cb66cb",
@@ -316,6 +316,86 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/cars/nose-3.png"
   },
   {
+    "revision": "104f531b4d2cc1134f1280e791738a64",
+    "url": "statics/cea/eye-0.png"
+  },
+  {
+    "revision": "b7a5731127ea6c96e65b886375498f24",
+    "url": "statics/cea/eye-1.png"
+  },
+  {
+    "revision": "cbd97e23d0ea6c753f3ad608223a2e1b",
+    "url": "statics/cea/eye-2.png"
+  },
+  {
+    "revision": "82c3a602c24174bfb767315d44bab535",
+    "url": "statics/cea/eye-3.png"
+  },
+  {
+    "revision": "85013efbafaa9c50f3c81e98d1197353",
+    "url": "statics/cea/eye-4.png"
+  },
+  {
+    "revision": "04a52c88f7f0b0fbe3eef9f6ebd77291",
+    "url": "statics/cea/face-0.png"
+  },
+  {
+    "revision": "d39bfa54e1704d4367537b4ff32271f7",
+    "url": "statics/cea/face-1.png"
+  },
+  {
+    "revision": "1e9cc4ff29d7b2f99df9109d0ef8fa0b",
+    "url": "statics/cea/face-2.png"
+  },
+  {
+    "revision": "c97458b373ca4efdcdd5526097642f78",
+    "url": "statics/cea/face-3.png"
+  },
+  {
+    "revision": "f4db4552bf15b22010b314888e619a33",
+    "url": "statics/cea/face-4.png"
+  },
+  {
+    "revision": "1455e85597f5fa060421b279c9ee5213",
+    "url": "statics/cea/hair-0.png"
+  },
+  {
+    "revision": "e50c450b44b0e232e32b37db4232a646",
+    "url": "statics/cea/hair-1.png"
+  },
+  {
+    "revision": "0ad1421d241cec2c1d2be0aa4936d44b",
+    "url": "statics/cea/hair-2.png"
+  },
+  {
+    "revision": "76e16daa993f1c05f509eab531e2c08e",
+    "url": "statics/cea/hair-3.png"
+  },
+  {
+    "revision": "3c37a9813c1719e193732734a150cd2d",
+    "url": "statics/cea/hair-4.png"
+  },
+  {
+    "revision": "06f104d4e2d269fb562ebe43fac16100",
+    "url": "statics/cea/hat-0.png"
+  },
+  {
+    "revision": "0771e542fe9393c71d89259bea80a7ea",
+    "url": "statics/cea/hat-1.png"
+  },
+  {
+    "revision": "2eec3bef60be54dad5741afa3b569370",
+    "url": "statics/cea/hat-2.png"
+  },
+  {
+    "revision": "cd8bdcaf9b90694824c441d55ed877c7",
+    "url": "statics/cea/hat-3.png"
+  },
+  {
+    "revision": "96058d205ee01ca07bed525d96e3b22f",
+    "url": "statics/cea/hat-4.png"
+  },
+  {
     "revision": "2f72e442866ab7c9a882b31a4d2abe5a",
     "url": "statics/colors/colors1.png"
   },
@@ -356,7 +436,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/colors/colors9.png"
   },
   {
-    "revision": "8a03c2a835f6de88c69150700aee1642",
+    "revision": "75e99f804bcf40e5a549e3504631e896",
     "url": "statics/css/addtohomescreen.css"
   },
   {
@@ -564,7 +644,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/icons/game/oops.png"
   },
   {
-    "revision": "116cd5d424f456c20b690803761104e4",
+    "revision": "876739316cb1a0a766dff7a2ba0d9796",
     "url": "statics/icons/game/pointer-me.svg"
   },
   {
@@ -1316,7 +1396,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/images/quest/default-quest-picture.png"
   },
   {
-    "revision": "3f4c7e83e4bd39896608786c61ee6a1a",
+    "revision": "1f367b55665a572f18fc4ab63085ada4",
     "url": "statics/manifest.json"
   },
   {
@@ -1328,7 +1408,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/001/marker_full.png"
   },
   {
-    "revision": "45b28e95ee62ec93b7d2160123365e6b",
+    "revision": "886d1a6c998f084a4e610d4aab840954",
     "url": "statics/markers/001/pattern-marker.patt"
   },
   {
@@ -1340,7 +1420,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/002/marker_full.png"
   },
   {
-    "revision": "17b6ea7ad831f56229de63af113f0d8e",
+    "revision": "eeeda3507a70f094208259b5790cd048",
     "url": "statics/markers/002/pattern-marker.patt"
   },
   {
@@ -1352,7 +1432,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/003/marker_full.png"
   },
   {
-    "revision": "01b14b364ee870693352b7e9792574a2",
+    "revision": "610c6548b642b25decc9b8eeea3c9dea",
     "url": "statics/markers/003/pattern-marker.patt"
   },
   {
@@ -1364,7 +1444,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/004/marker_full.png"
   },
   {
-    "revision": "86ed766226b2408b32f57580b2521814",
+    "revision": "88afde976065fad53f09b03817f7baf8",
     "url": "statics/markers/004/pattern-marker.patt"
   },
   {
@@ -1376,7 +1456,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/005/marker_full.png"
   },
   {
-    "revision": "4145a1b6422658ebb703a65738551488",
+    "revision": "2b90dfa1a86e5c06bee141d4d85e2038",
     "url": "statics/markers/005/pattern-marker.patt"
   },
   {
@@ -1388,7 +1468,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/006/marker_full.png"
   },
   {
-    "revision": "2b2a148754d5a283a8a873a697c42dbc",
+    "revision": "5946772a9d68fe2ea43b92d9cf7bdad2",
     "url": "statics/markers/006/pattern-marker.patt"
   },
   {
@@ -1400,7 +1480,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/007/marker_full.png"
   },
   {
-    "revision": "1e9abf4e07ea16dfbeae0c72ec23e100",
+    "revision": "fb06a49f63b5b7a9b9e8b0d33fd5ddd7",
     "url": "statics/markers/007/pattern-marker.patt"
   },
   {
@@ -1412,7 +1492,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/008/marker_full.png"
   },
   {
-    "revision": "a5d78ce5b88242bf94273f49b019f298",
+    "revision": "ec9e075ac5e522c53f630e7f202ad43e",
     "url": "statics/markers/008/pattern-marker.patt"
   },
   {
@@ -1424,7 +1504,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/009/marker_full.png"
   },
   {
-    "revision": "69fc27e2a0f88fb9d0e2c1ff8771a519",
+    "revision": "f0f3f60fb9bf14de192d785240aed521",
     "url": "statics/markers/009/pattern-marker.patt"
   },
   {
@@ -1436,7 +1516,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/010/marker_full.png"
   },
   {
-    "revision": "304d5e120912c64258a3087eb0b9ab58",
+    "revision": "ccd5a01980499eb4c01f13f491076d3d",
     "url": "statics/markers/010/pattern-marker.patt"
   },
   {
@@ -1448,7 +1528,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/011/marker_full.png"
   },
   {
-    "revision": "a64f1a4cfe8af75bee1466b6d8a8dc50",
+    "revision": "e26e17aad10f1b4a78794b5fda111c84",
     "url": "statics/markers/011/pattern-marker.patt"
   },
   {
@@ -1460,7 +1540,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/012/marker_full.png"
   },
   {
-    "revision": "3c69d9d9e0da6472f205e3ec6bed77eb",
+    "revision": "5b7bf2c1a7b862b67b707ca760952a91",
     "url": "statics/markers/012/pattern-marker.patt"
   },
   {
@@ -1472,7 +1552,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/013/marker_full.png"
   },
   {
-    "revision": "bf91294c6e578c97c0a1c2301fdf493d",
+    "revision": "6128543bd330eefc957f437f21f8578c",
     "url": "statics/markers/013/pattern-marker.patt"
   },
   {
@@ -1484,7 +1564,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/014/marker_full.png"
   },
   {
-    "revision": "ed976a92bd2d08989dc324755ed8ebc7",
+    "revision": "8e08bd9749bd462d8b82c2de03684cc7",
     "url": "statics/markers/014/pattern-marker.patt"
   },
   {
@@ -1496,7 +1576,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/015/marker_full.png"
   },
   {
-    "revision": "67896459a14125db0b0faacc43ed58ce",
+    "revision": "71e3e5e59ee2930aa01eda1b7a496576",
     "url": "statics/markers/015/pattern-marker.patt"
   },
   {
@@ -1508,7 +1588,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/016/marker_full.png"
   },
   {
-    "revision": "e284cb7bde393843bb4c599310d052b9",
+    "revision": "c83735dd113800afe3b568d77a10baa9",
     "url": "statics/markers/016/pattern-marker.patt"
   },
   {
@@ -1520,7 +1600,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/017/marker_full.png"
   },
   {
-    "revision": "cd77d5e543f3842703c7f81a9b5d729f",
+    "revision": "c66b00d8f58ef11f73c7cf99110d9efa",
     "url": "statics/markers/017/pattern-marker.patt"
   },
   {
@@ -1532,7 +1612,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/018/marker_full.png"
   },
   {
-    "revision": "6de5927111261971ab0eb2cf03abab0d",
+    "revision": "8e7676a7dc2ad9c71657ebaf77e7b107",
     "url": "statics/markers/018/pattern-marker.patt"
   },
   {
@@ -1544,7 +1624,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/019/marker_full.png"
   },
   {
-    "revision": "caffdd0b7177a5024ed618eff555f6f6",
+    "revision": "0eaf6df5e57aaadce2d5d5b0278e1bed",
     "url": "statics/markers/019/pattern-marker.patt"
   },
   {
@@ -1556,7 +1636,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/020/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/020/pattern-marker.patt"
   },
   {
@@ -1568,7 +1648,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/021/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/021/pattern-marker.patt"
   },
   {
@@ -1580,7 +1660,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/022/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/022/pattern-marker.patt"
   },
   {
@@ -1592,7 +1672,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/023/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/023/pattern-marker.patt"
   },
   {
@@ -1604,7 +1684,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/024/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/024/pattern-marker.patt"
   },
   {
@@ -1616,7 +1696,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/025/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/025/pattern-marker.patt"
   },
   {
@@ -1628,7 +1708,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/026/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/026/pattern-marker.patt"
   },
   {
@@ -1640,7 +1720,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/027/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/027/pattern-marker.patt"
   },
   {
@@ -1652,7 +1732,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/028/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/028/pattern-marker.patt"
   },
   {
@@ -1664,7 +1744,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/029/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/029/pattern-marker.patt"
   },
   {
@@ -1676,7 +1756,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/030/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/030/pattern-marker.patt"
   },
   {
@@ -1688,7 +1768,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/031/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/031/pattern-marker.patt"
   },
   {
@@ -1700,7 +1780,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/032/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/032/pattern-marker.patt"
   },
   {
@@ -1712,7 +1792,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/033/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/033/pattern-marker.patt"
   },
   {
@@ -1724,7 +1804,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/034/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/034/pattern-marker.patt"
   },
   {
@@ -1736,7 +1816,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/035/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/035/pattern-marker.patt"
   },
   {
@@ -1748,7 +1828,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/036/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/036/pattern-marker.patt"
   },
   {
@@ -1760,7 +1840,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/037/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/037/pattern-marker.patt"
   },
   {
@@ -1772,7 +1852,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/038/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/038/pattern-marker.patt"
   },
   {
@@ -1784,7 +1864,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/039/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/039/pattern-marker.patt"
   },
   {
@@ -1796,7 +1876,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/040/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/040/pattern-marker.patt"
   },
   {
@@ -1808,7 +1888,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/041/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/041/pattern-marker.patt"
   },
   {
@@ -1820,7 +1900,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/042/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/042/pattern-marker.patt"
   },
   {
@@ -1832,7 +1912,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/043/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/043/pattern-marker.patt"
   },
   {
@@ -1844,7 +1924,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/044/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/044/pattern-marker.patt"
   },
   {
@@ -1856,7 +1936,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/045/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/045/pattern-marker.patt"
   },
   {
@@ -1868,7 +1948,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/046/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/046/pattern-marker.patt"
   },
   {
@@ -1880,7 +1960,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/047/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/047/pattern-marker.patt"
   },
   {
@@ -1892,7 +1972,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/048/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/048/pattern-marker.patt"
   },
   {
@@ -1904,7 +1984,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/049/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/049/pattern-marker.patt"
   },
   {
@@ -1916,7 +1996,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/050/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/050/pattern-marker.patt"
   },
   {
@@ -1928,7 +2008,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/051/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/051/pattern-marker.patt"
   },
   {
@@ -1940,7 +2020,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/052/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/052/pattern-marker.patt"
   },
   {
@@ -1952,7 +2032,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/053/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/053/pattern-marker.patt"
   },
   {
@@ -1964,7 +2044,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/054/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/054/pattern-marker.patt"
   },
   {
@@ -1976,7 +2056,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/055/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/055/pattern-marker.patt"
   },
   {
@@ -1988,7 +2068,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/056/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/056/pattern-marker.patt"
   },
   {
@@ -2000,7 +2080,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/057/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/057/pattern-marker.patt"
   },
   {
@@ -2012,7 +2092,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/058/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/058/pattern-marker.patt"
   },
   {
@@ -2024,7 +2104,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/059/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/059/pattern-marker.patt"
   },
   {
@@ -2036,7 +2116,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/060/marker_full.png"
   },
   {
-    "revision": "46a64bd1fd78bb7fecacb8a443c51045",
+    "revision": "c7c1d3f5f73524a03442ae9334cca387",
     "url": "statics/markers/060/pattern-marker.patt"
   },
   {
@@ -2052,15 +2132,15 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/markers/camera_para.dat"
   },
   {
-    "revision": "7f48fbeccbed0721607e231d7d2c80e9",
+    "revision": "f55e70a2bdefa404130cea2ae742ef39",
     "url": "statics/markers/graaly.patt"
   },
   {
-    "revision": "4092b01e12a5522059c6252251bfe711",
+    "revision": "553433c39b1572342829ca9c0ae43810",
     "url": "statics/markers/hiro.patt"
   },
   {
-    "revision": "f8fc27335e2e1ede55bc6de672c5291f",
+    "revision": "c8b49ebdb0ac11e7d4972bec21d19e48",
     "url": "statics/markers/kanji.patt"
   },
   {
@@ -2468,23 +2548,23 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/profiles/noprofile.png"
   },
   {
-    "revision": "eaf1797891e6969a739fe2cb3a257f7f",
+    "revision": "0769b40253fead5a2918c0cfb0258e77",
     "url": "statics/scripts/addtohomescreen.js"
   },
   {
-    "revision": "30b9c7e88fe983d54877c64bcf6d815f",
+    "revision": "f21c48498311215802ba0811b330ffb5",
     "url": "statics/scripts/addtohomescreen.min.js"
   },
   {
-    "revision": "415388c0d7d5e5fb52ba01ee67136e30",
+    "revision": "9609a5facaa9ec82c0dd78c1e68000fc",
     "url": "statics/scripts/analytics.js"
   },
   {
-    "revision": "001dd61ba096259339790589a8234698",
+    "revision": "ea0e171a17be213c44ee0e7f78b17054",
     "url": "statics/scripts/dragdroptouch.js"
   },
   {
-    "revision": "251268eb7a72a94ef5003af38329937e",
+    "revision": "e480e8509dcff9676286d77b3d619387",
     "url": "statics/scripts/polyfills.js"
   },
   {
@@ -2552,7 +2632,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "statics/sncf/nose-2.png"
   },
   {
-    "revision": "9010e0d416ad0bd351d2142248b57971",
+    "revision": "41563389b343bdcfe13e1b3064eddf63",
     "url": "statics/sncf/nose-3.png"
   },
   {
