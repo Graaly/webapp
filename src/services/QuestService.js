@@ -96,12 +96,12 @@ export default {
    */
   async getByIdForStep(id, version, lang) {
     // Note: quest.customization.forceOnline info is stored in Vuex store & cannot be used for this method
-    
+
     if (!window.cordova) {
       const onlineQuest = await this.getByIdOnline(id, version, lang)
       return onlineQuest.data
     }
-    
+
     // check if the quest data are not already saved on device
     let isQuestOfflineLoaded = await this.isCached(id)
 
@@ -114,13 +114,13 @@ export default {
           console.error("getByIdForStep(): could not retrieve quest data (online mode)", err)
           throw err
         }
-        
+
         // timeout => go reach offline loading below + switch to offline mode
         store.commit('setNetworkMode', 'offline')
         console.log('switch to offline mode')
       }
     }
-    
+
     // reaching this point means that we have to retrieve quest data from local cache
     return this.getByIdOffline(id, lang)
   },
@@ -143,11 +143,11 @@ export default {
   async getByIdOffline(id, lang) {
     // get quest data from device storage
     let quest = await utils.readFile(id, 'quest_' + id + '.json')
-    
+
     if (!quest) {
       throw new Error("Could not load quest with Id '" + id + "' from cache")
     }
-    
+
     quest = JSON.parse(quest)
 
     const pictureUrl = await utils.readBinaryFile(id, quest.picture[lang])
@@ -170,7 +170,7 @@ export default {
           quest.customization.audio[lang] = audioUrl
         }
       } else if (lang !== mainLang && quest.customization.audio[mainLang] && quest.customization.audio[mainLang] !== '') {
-        // no audio available in current language => try to load audio for main language if different from current language 
+        // no audio available in current language => try to load audio for main language if different from current language
         const audioUrl = await utils.readBinaryFile(id, quest.customization.audio[mainLang])
         if (audioUrl) {
           quest.customization.audio[mainLang] = audioUrl
@@ -184,7 +184,7 @@ export default {
         quest.customization.character = characterUrl
       }
     }
-  
+
     return quest
   },
   /*
@@ -773,7 +773,7 @@ export default {
     } else if (quest.picture && quest.picture.indexOf("blob:") !== -1) {
       return quest.picture;
     } else if (quest.picture) {
-      return process.env.SERVER_URL + "/upload/quest/" + quest.picture;
+      return process.env.UPLOAD_URL + "/upload/quest/" + quest.picture;
     } else {
       return "statics/images/quest/default-quest-picture.jpg";
     }
