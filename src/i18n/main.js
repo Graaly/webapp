@@ -79,8 +79,8 @@ module.exports = {
       LocateMarkerDesc: "Player has to find a QR code.",
       GraalyCharacter: "Character",
       GraalyCharacterDesc: "Make a character speak",
-      EndOfChapter: "End of chapter",
-      EndOfChapterDesc: "This transition send player to next chapter",
+      EndOfChapter: "Redirection / End of chapter",
+      EndOfChapterDesc: "This transition send player to a new chapter",
       TriggerEvent: "Graaly -> your material",
       TriggerEventDesc: "Graaly physical a physical action (using an electronic board)",
       WaitForEvent: "Your material -> Graaly",
@@ -112,7 +112,9 @@ module.exports = {
       unpublished: "unpublished",
       rejected: "rejected",
       new: "new",
-      used: "used"
+      used: "used",
+      reused: "used twice",
+      rereused: "used 3 times"
     },
     story: {
       hint: "Hint: <br /><b>{hint}</b>",
@@ -1263,8 +1265,8 @@ module.exports = {
       LocateMarkerDesc: "Le joueur doit trouver un QR Code.",
       GraalyCharacter: "Personnage",
       GraalyCharacterDesc: "Faire parler un personnage",
-      EndOfChapter: "Fin de chapitre",
-      EndOfChapterDesc: "Cette transition fait passer le joueur au chapitre suivant",
+      EndOfChapter: "Redirection / Fin de chapitre",
+      EndOfChapterDesc: "Cette transition fait passer le joueur à un nouveau chapitre",
       TriggerEvent: "Graaly -> Votre matériel",
       TriggerEventDesc: "Graaly déclenche une action sur votre matériel physique (utilisation d'une carte électronique)",
       WaitForEvent: "Votre matériel -> Graaly",
@@ -1296,7 +1298,9 @@ module.exports = {
       unpublished: "dépublié",
       rejected: "rejeté",
       new: "nouveau",
-      used: "utilisé"
+      used: "utilisé",
+      reused: "utilisé 2x",
+      rereused: "utilisé 3x"
     },
     story: {
       hint: "Indice :<br /><b>{hint}</b>",

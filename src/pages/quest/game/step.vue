@@ -1225,12 +1225,11 @@ export default {
         // compute minutes remaining based on start & duration
         const timeSpent = utils.getDurationFromNow(this.run.dateCreated)
         const remainingDuration = this.info.quest.duration - timeSpent.m
-        if (remainingDuration > 0) {
-          this.countDownTime.enabled = true
-          this.countDownTime.remainingMinutes = remainingDuration
-          this.countDownTime.remaining = remainingDuration / this.info.quest.duration
-          setTimeout(this.startCountDown, 60000)
-        } else {
+        this.countDownTime.enabled = true
+        this.countDownTime.remainingMinutes = remainingDuration
+        this.countDownTime.remaining = remainingDuration / this.info.quest.duration
+        setTimeout(this.startCountDown, 60000)
+        if (remainingDuration <= 0) {
           if (this.info.quest.countDownTime.stopGame) {
             return this.$router.push('/quest/' + this.questId + '/end')
           }
