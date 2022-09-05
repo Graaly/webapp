@@ -26,25 +26,25 @@
     </div>
     <div v-if="!showNonHybridQRReader" :class="controlsAreDisplayed ? 'fadeIn' : 'hidden'" :style="'color: ' + customization.fontColor">
       <!------------------ QUEST TIMER ------------------------>
-      <div v-if="timer && timer.remaining > 0">
+      <div v-if="timer && timer.enabled">
         <q-linear-progress
           size="25px"
           :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
-          :value="timer.remaining"
-          :color="(timer.remaining < 0.1 ? 'negative' : ( timer.remaining < 0.25 ? 'warning' : 'positive'))"
+          :value="Math.abs(timer.remaining)"
+          :color="(timer.remaining < 0 ? 'negative' : ( timer.remaining < 0.25 ? 'warning' : 'positive'))"
           v-if="!isIOs"
         >
           <div class="absolute-full flex flex-center">
-            <q-badge color="white" text-color="black" :label="parseInt(timer.remainingMinutes, 10) + ' ' + $t('label.minutes')" />
+            <q-badge color="white" text-color="black" :label="parseInt(Math.abs(timer.remainingMinutes), 10) + ' ' + $t('label.minutes')" />
           </div>
         </q-linear-progress>
         <div
           style="height: 25px; position: relative;"
-          :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar' }"
-          class="bg-positive text-white centered"
+          :class="{ 'with-camera-stream' : step.type === 'locate-marker' || step.type === 'locate-item-ar', 'bg-positive': timer.remaining > 0.25,  'bg-warning': (timer.remaining <= 0.25 && timer.remaining > 0), 'bg-negative': timer.remaining <= 0 }"
+          class="text-white centered"
           v-if="isIOs"
           >
-          <strong>{{ parseInt(timer.remainingMinutes, 10) + ' ' + $t('label.minutes') }}</strong>
+          <strong>{{ parseInt(Math.abs(timer.remainingMinutes), 10) + ' ' + $t('label.minutes') }}</strong>
         </div>
       </div>
       <!------------------ STEP TIMER ------------------------>
