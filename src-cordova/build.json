@@ -2,7 +2,7 @@
     "ios": {
         "debug": {
             "codeSignIdentity": "iPhone Developer",
-            "developmentTeam": "6BTX68PGCZ",
+            "developmentTeam": "VM6XZK9MKJ",
             "packageType": "development",
             "automaticProvisioning": true,
             "buildFlag": [
@@ -15,7 +15,7 @@
         },
         "release": {
             "codeSignIdentity": "iPhone Developer",
-            "developmentTeam": "6BTX68PGCZ",
+            "developmentTeam": "VM6XZK9MKJ",
             "packageType": "app-store",
             "automaticProvisioning": true,
             "buildFlag": [
