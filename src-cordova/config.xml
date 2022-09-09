@@ -77,7 +77,15 @@
     <preference name="Orientation" value="portrait" />
     <preference name="AndroidPersistentFileLocation" value="Compatibility" />
     <preference name="android-minSdkVersion" value="22" />
-    <preference name="android-targetSdkVersion" value="30" />
+    <preference name="android-targetSdkVersion" value="31" />
+    <plugin name="cordova-open-native-settings" spec="^1.5.1" />
+    <plugin name="cordova-plugin-geolocation" spec="^4.0.1" />
+    <plugin name="cordova-plugin-contacts" spec="^3.0.1" />
+    <plugin name="cordova-plugin-battery-status" spec="^2.0.3" />
+    <plugin name="cordova-plugin-purchase" spec="^10.6.0" />
+    <plugin name="cordova-plugin-camera-preview" spec="^0.10.0" />
+    <plugin name="phonegap-plugin-media-stream" spec="^1.2.1" />
+    <plugin name="cordova-plugin-insomnia" spec="https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git" />
     <config-file overwrite="true" parent="NSCameraUsageDescription" platform="ios" target="*-Info.plist">
         <string>Graaly uses your camera to scan QR codes and display augmented reality objects in games</string>
     </config-file>
