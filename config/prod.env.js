@@ -8,5 +8,5 @@ module.exports = {
   MQTT_URL: 'wss://api.graaly.com:9001', // to be confirmed
   MQTT_TOPIC: 'Graaly',
   PERSIST_STATE_COOKIE_DURATION: 30, // days,
-  VERSION: "2.2.0"
+  VERSION: "2.2.1"
 }
