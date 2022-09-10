@@ -206,19 +206,21 @@ MERGED from [com.android.billingclient:billing:3.0.3] C:\Users\ericm\.gradle\cac
 activity#graaly.app.MainActivity
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:5-33:16
 	android:screenOrientation
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:229-265
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:253-289
 	android:label
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:132-169
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:156-193
 	android:launchMode
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:170-200
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:194-224
 	android:windowSoftInputMode
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:329-371
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:353-395
+	android:exported
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:132-155
 	android:configChanges
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:15-131
 	android:theme
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:266-328
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:290-352
 	android:name
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:201-228
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:22:225-252
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:23:7-26:23
 	android:label
@@ -253,26 +255,30 @@ ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\ma
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:31:15-44
 	android:scheme
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:31:45-67
-activity#com.cordovaplugincamerapreview.CameraActivity
-ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:34:5-156
-	android:screenOrientation
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:34:76-112
-	android:theme
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:34:113-154
-	android:name
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:34:15-75
 activity#com.facebook.FacebookActivity
-ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:35:5-181
+ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:34:5-206
 MERGED from [com.facebook.android:facebook-android-sdk:4.25.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\e4f6ad75dc96d0a92130469fd611d848\jetified-facebook-android-sdk-4.25.0\AndroidManifest.xml:29:9-32:66
 MERGED from [com.facebook.android:facebook-android-sdk:4.25.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\e4f6ad75dc96d0a92130469fd611d848\jetified-facebook-android-sdk-4.25.0\AndroidManifest.xml:29:9-32:66
 	android:label
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:35:99-134
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:34:124-159
+	android:exported
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:34:99-123
 	android:configChanges
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:35:15-98
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:34:15-98
 	android:theme
 		ADDED from [com.facebook.android:facebook-android-sdk:4.25.0] C:\Users\ericm\.gradle\caches\transforms-2\files-2.1\e4f6ad75dc96d0a92130469fd611d848\jetified-facebook-android-sdk-4.25.0\AndroidManifest.xml:32:13-63
 	android:name
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:35:135-179
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:34:160-204
+activity#com.cordovaplugincamerapreview.CameraActivity
+ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:35:5-181
+	android:screenOrientation
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:35:101-137
+	android:exported
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:35:15-39
+	android:theme
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:35:138-179
+	android:name
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:35:40-100
 meta-data#com.facebook.sdk.ApplicationId
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:45:5-97
 	android:value
@@ -295,8 +301,10 @@ receiver#nl.xservices.plugins.ShareChooserPendingIntent
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:48:5-52:16
 	android:enabled
 		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:48:15-37
+	android:exported
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:48:38-61
 	android:name
-		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:48:38-99
+		ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:48:62-123
 intent-filter#action:name:android.intent.action.SEND
 ADDED from E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml:49:7-51:23
 action#android.intent.action.SEND

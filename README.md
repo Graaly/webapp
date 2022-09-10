@@ -347,3 +347,8 @@ change "string: UIApplication.openSettingsURLString" to "string: UIApplicationOp
 reinstall cordova with a recent version
 cordova platform remove ios
 cordova platform add ios@6.2.0
+
+### Android:exported missing
+
+Add them in the file \webapp\src-cordova\platforms\android\android.json
+=true only for plugins shared
