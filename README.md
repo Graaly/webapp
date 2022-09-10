@@ -348,6 +348,11 @@ reinstall cordova with a recent version
 cordova platform remove ios
 cordova platform add ios@6.2.0
 
+### Android:exported missing
+
+Add them in the file \webapp\src-cordova\platforms\android\android.json
+=true only for plugins shared
+
 #### Where is the Manifest file
 The manifest file is under E:\graaly\dev\sources\webapp\src-cordova\platforms\android\app\src\main\AndroidManifest.xml
 It is generated with the android.json file, which is generated with config.xml and quasar.conf.js

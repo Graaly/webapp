@@ -11,13 +11,8 @@
       "type": "SINGLE",
       "filters": [],
       "properties": [],
-<<<<<<< HEAD
       "versionCode": 20200,
       "versionName": "20200",
-=======
-      "versionCode": 20168,
-      "versionName": "20168",
->>>>>>> dev
       "enabled": true,
       "outputFile": "app-release-unsigned.apk"
     }
