@@ -2788,7 +2788,7 @@ export default {
       if (this.step.displayRightAnswer === false && (!this.step.options.rightAnswerMessage || !this.step.options.rightAnswerMessage[this.lang] || this.step.options.rightAnswerMessage[this.lang] === "")) {
         this.forceNextStep()
       }
-      if (this.step.options.moveToNextStepAutomatically) {
+      if (this.step.options && this.step.options.moveToNextStepAutomatically) {
         if (this.step.options.moveToNextStepAutomaticallyDuration) {
           utils.setTimeout(this.forceNextStep, parseInt(this.step.options.moveToNextStepAutomaticallyDuration, 10) * 1000)
         } else {
@@ -2831,7 +2831,7 @@ export default {
       // if no display of the answer move to next step
       if (this.step.displayRightAnswer === false && (!this.step.options.wrongAnswerMessage || !this.step.options.wrongAnswerMessage[this.lang] || this.step.options.wrongAnswerMessage[this.lang] === "")) {
         this.forceNextStep()
-      } else if (this.step.options.moveToNextStepAutomatically) {
+      } else if (this.step.options && this.step.options.moveToNextStepAutomatically) {
         utils.setTimeout(this.forceNextStep, 3000)
       } else {
         // advise user to move to next step
